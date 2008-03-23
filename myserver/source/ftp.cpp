@@ -882,16 +882,16 @@ unsigned int __stdcall ReceiveAsciiFile(void* pParam)
 void* ReceiveAsciiFile(void* pParam)
 #endif //HAVE_PTHREAD
 {
-
+/*
 //TODO: test implementation
 #ifdef WIN32
 	return 0;
 #elif HAVE_PTHREAD
 	return (void*)0;
 #endif
-/*
-	RetrWorkerThreadData *pWtpd = reinterpret_cast<RetrWorkerThreadData *>(pParam);
-	if ( pWtpd == NULL )
+*/
+	DataConnectionWorkerThreadData *pWt = reinterpret_cast<DataConnectionWorkerThreadData *>(pParam);
+	if ( pWt == NULL )
 	{
 #ifdef WIN32
 	return 0;
@@ -899,10 +899,10 @@ void* ReceiveAsciiFile(void* pParam)
 	return (void*)0;
 #endif
 	}
-	Ftp *pFtp = pWtpd->m_pFtp;
-	if ( pFtp == NULL )
+	ConnectionPtr pConnection = pWt->m_pConnection;
+	if ( pConnection == NULL )
 	{
-		delete pWtpd;
+		delete pWt;
 #ifdef WIN32
 	return 0;
 #elif HAVE_PTHREAD
@@ -910,12 +910,12 @@ void* ReceiveAsciiFile(void* pParam)
 #endif
 	}
 
-	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(pFtp->td.pConnection->protocolBuffer);
+	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(pConnection->protocolBuffer);
 	if ( pFtpUserData == NULL )
 	{
 		assert(pFtpUserData != NULL);
-		pFtp->CloseDataConnection();
-		delete pWtpd;
+		pFtpUserData->CloseDataConnection();
+		delete pWt;
 #ifdef WIN32
 	return 0;
 #elif HAVE_PTHREAD
@@ -925,8 +925,8 @@ void* ReceiveAsciiFile(void* pParam)
       	if( pFtpUserData->m_pDataConnection == NULL || 
 			pFtpUserData->m_pDataConnection->socket == NULL)
 	{
-		pFtp->CloseDataConnection();
-		delete pWtpd;
+		pFtpUserData->CloseDataConnection();
+		delete pWt;
 #ifdef WIN32
 	return 0;
 #elif HAVE_PTHREAD
@@ -937,8 +937,10 @@ void* ReceiveAsciiFile(void* pParam)
 	File file;
 	try
 	{
-		if ( file.openFile(pWtpd->m_sFilePath.c_str(), File::MYSERVER_CREATE_ALWAYS) )
+		if ( file.openFile(pWt->m_sFilePath.c_str(), File::MYSERVER_CREATE_ALWAYS | File::MYSERVER_OPEN_WRITE) )
 		{
+			pFtpUserData->CloseDataConnection();
+			delete pWt;
 #ifdef WIN32
 	return 0;
 #elif HAVE_PTHREAD
@@ -946,21 +948,25 @@ void* ReceiveAsciiFile(void* pParam)
 #endif
 		}
 
+		MemBuf buffer, buffer2;
+		buffer.setLength(1024);
+		memset(buffer.getBuffer(), 0, buffer.getRealLength());
 		char *pLine = NULL;
 		int nLineLength = 0;
 		std::string sLine;
-		while ( pFtpUserData->m_pDataConnection->socket->read(pFtp->td.buffer->getBuffer(), 
-					(u_long)pFtp->td.buffer->getLength(), 0) == SOCKET_ERROR )
+		u_long nbr;
+		while ( pFtpUserData->m_pDataConnection->socket->read(buffer.getBuffer(), 
+					(u_long)buffer.getRealLength(), &nbr) != SOCKET_ERROR )
 		{
-			MemBuf &buffer2 = *pFtp->td.buffer2;
+			memset(buffer2.getBuffer(), 0, buffer2.getRealLength());
 			buffer2.setLength(0);
-			pLine = pFtp->td.buffer->getBuffer();
+			pLine = buffer.getBuffer();
 			if ( pLine == NULL )
 			{
-				pFtp->ftp_reply(451);
+				ftp_reply(pConnection, 451);
 				file.closeFile();
-				pFtp->CloseDataConnection();
-				delete pWtpd;
+				pFtpUserData->CloseDataConnection();
+				delete pWt;
 #ifdef WIN32
 	return 0;
 #elif HAVE_PTHREAD
@@ -971,32 +977,42 @@ void* ReceiveAsciiFile(void* pParam)
 			{
 				nLineLength = getEndLine(pLine, 0);
 				if ( nLineLength < 0 )//last line
-					nLineLength = strlen(pLine);
-				sLine.assign(pLine, nLineLength);
-				if ( !sLine.empty() )
+				{
+					sLine.assign(pLine, strlen(pLine));
+					if ( !sLine.empty() )
+						buffer2 << sLine;
+					pLine += strlen(pLine);
+				}
+				else
+				{
+					sLine.assign(pLine, nLineLength);
 #ifdef WIN32
 					buffer2 << sLine << "\r\n";
 #else
 					buffer2 << sLine << "\n";
 #endif
-				while ( *(pLine + nLineLength)  == '\r' || *(pLine + nLineLength) == '\n' )
-					nLineLength++;
-				pLine += nLineLength;
+					if ( *(pLine + nLineLength) == '\r' )
+						nLineLength++;
+					if ( *(pLine + nLineLength) == '\n' )
+						nLineLength++;
+					pLine += nLineLength;
+				}
 			}
-			file.write(pFtp->td.buffer2->getBuffer(), (u_long)pFtp->td.buffer2->getLength(), 0);
+			file.write(buffer2.getBuffer(), (u_long)buffer2.getLength(), &nbr);
 
 			if ( pFtpUserData->m_bBreakDataConnection )
 			{
 				pFtpUserData->m_bBreakDataConnection = false;
        				file.closeFile();
-				pFtp->CloseDataConnection();
-				delete pWtpd;
+				pFtpUserData->CloseDataConnection();
+				delete pWt;
 #ifdef WIN32
 	return 1;
 #elif HAVE_PTHREAD
 	return (void*)1;
 #endif
 			}
+			memset(buffer.getBuffer(), 0, buffer.getRealLength());
 		}
 	}
 	catch (bad_alloc &ba)
@@ -1005,15 +1021,14 @@ void* ReceiveAsciiFile(void* pParam)
 		//report error
 	}
 
-	pFtp->ftp_reply(226);
-	pFtp->CloseDataConnection();
-	delete pWtpd;
+	ftp_reply(pConnection, 226);
+	pFtpUserData->CloseDataConnection();
+	delete pWt;
 #ifdef WIN32
 	return 1;
 #elif HAVE_PTHREAD
 	return (void*)1;
 #endif
-*/
 }
 
 #ifdef WIN32
@@ -1022,16 +1037,20 @@ unsigned int __stdcall ReceiveImageFile(void* pParam)
 void* ReceiveImageFile(void* pParam)
 #endif //HAVE_PTHREAD
 {
-//TODO: test implementation
+	DataConnectionWorkerThreadData *pWt = reinterpret_cast<DataConnectionWorkerThreadData *>(pParam);
+	if ( pWt == NULL )
+	{
 #ifdef WIN32
 	return 0;
 #elif HAVE_PTHREAD
-	return (void*)0;
+	return (void*)-1;
 #endif
-/*
-	RetrWorkerThreadData *pWtpd = reinterpret_cast<RetrWorkerThreadData *>(pParam);
-	if ( pWtpd == NULL )
+	}
+
+	ConnectionPtr pConnection = pWt->m_pConnection;
+	if ( pConnection == NULL )
 	{
+		delete pWt;
 #ifdef WIN32
 	return 0;
 #elif HAVE_PTHREAD
@@ -1039,23 +1058,12 @@ void* ReceiveImageFile(void* pParam)
 #endif
 	}
 
-	Ftp *pFtp = pWtpd->m_pFtp;
-	if ( pFtp == NULL )
-	{
-		delete pWtpd;
-#ifdef WIN32
-	return 0;
-#elif HAVE_PTHREAD
-	return (void*)0;
-#endif
-	}
-
-	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(pFtp->td.pConnection->protocolBuffer);
+	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(pConnection->protocolBuffer);
 	if ( pFtpUserData == NULL )
 	{
 		assert(pFtpUserData != NULL);
-		pFtp->CloseDataConnection();
-		delete pWtpd;
+		pFtpUserData->CloseDataConnection();
+		delete pWt;
 #ifdef WIN32
 	return 0;
 #elif HAVE_PTHREAD
@@ -1065,8 +1073,8 @@ void* ReceiveImageFile(void* pParam)
       	if( pFtpUserData->m_pDataConnection == NULL || 
 			pFtpUserData->m_pDataConnection->socket == NULL)
 	{
-		pFtp->CloseDataConnection();
-		delete pWtpd;
+		pFtpUserData->CloseDataConnection();
+		delete pWt;
 #ifdef WIN32
 	return 0;
 #elif HAVE_PTHREAD
@@ -1077,7 +1085,7 @@ void* ReceiveImageFile(void* pParam)
 	File file;
 	try
 	{
-		if ( file.openFile(pWtpd->m_sFilePath.c_str(), File::MYSERVER_CREATE_ALWAYS) )
+		if ( file.openFile(pWt->m_sFilePath.c_str(), File::MYSERVER_CREATE_ALWAYS | File::MYSERVER_OPEN_WRITE) )
 		{
 #ifdef WIN32
 	return 0;
@@ -1086,16 +1094,19 @@ void* ReceiveImageFile(void* pParam)
 #endif
 		}
 		u_long nbr;
-		while ( pFtpUserData->m_pDataConnection->socket->read(pFtp->td.buffer->getBuffer(), 
-					(u_long)pFtp->td.buffer->getLength(), &nbr) == SOCKET_ERROR )
+		MemBuf buffer;
+		buffer.setLength(1024);
+		memset(buffer.getBuffer(), 0, buffer.getRealLength());
+		while ( pFtpUserData->m_pDataConnection->socket->read(buffer.getBuffer(), 
+					(u_long)buffer.getRealLength(), &nbr) != SOCKET_ERROR )
 		{
-			file.write(pFtp->td.buffer->getBuffer(), nbr, 0);
+			file.write(buffer.getBuffer(), nbr, &nbr);
 			if ( pFtpUserData->m_bBreakDataConnection )
 			{
 				pFtpUserData->m_bBreakDataConnection = false;
        				file.closeFile();
-				pFtp->CloseDataConnection();
-				delete pWtpd;
+				pFtpUserData->CloseDataConnection();
+				delete pWt;
 #ifdef WIN32
 	return 1;
 #elif HAVE_PTHREAD
@@ -1110,15 +1121,14 @@ void* ReceiveImageFile(void* pParam)
 		//report error
 	}
 
-	pFtp->ftp_reply(226);
-	pFtp->CloseDataConnection();
-	delete pWtpd;
+	ftp_reply(pConnection, 226);
+	pFtpUserData->CloseDataConnection();
+	delete pWt;
 #ifdef WIN32
 	return 1;
 #elif HAVE_PTHREAD
 	return (void*)1;
 #endif
-*/
 }
 
 bool Ftp::UserLoggedIn()
