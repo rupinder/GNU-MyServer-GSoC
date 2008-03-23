@@ -37,6 +37,7 @@ public:
 	FtpUserData();
 	~FtpUserData();
 	void reset();
+	int CloseDataConnection();
 
 	enum FtpState
 	{
@@ -108,7 +109,7 @@ public:
 	u_long ComputeParseLength(const YYLTYPE &location);
 
 	void ftp_reply(int nReplyCode, const std::string &sCustomText = "");
-	int get_ftp_reply(int nReplyCode, std::string &sReply);
+	//int get_ftp_reply(int nReplyCode, std::string &sReply);
 	int PrintError(const char *msg);//TODO: change this fnc !!!
 	FtpThreadContext td;
 	int CloseDataConnection();
@@ -163,11 +164,14 @@ public:
 	int m_nLocalControlPort;
 };
 
-struct RetrWorkerThreadData
+struct DataConnectionWorkerThreadData
 {
-	Ftp *m_pFtp;
+	ConnectionPtr m_pConnection;
 	std::string m_sFilePath;
 };
+
+int get_ftp_reply(int nReplyCode, std::string &sReply);
+void ftp_reply(ConnectionPtr pConnection, int nReplyCode, const std::string &sCustomText = "");
 
 #ifdef WIN32
 unsigned int __stdcall SendAsciiFile(void* pParam);
