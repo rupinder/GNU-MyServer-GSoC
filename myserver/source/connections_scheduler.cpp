@@ -71,7 +71,7 @@ static void new_data_handler(int fd, short event, void *arg)
 	{
 		Server::getInstance()->getConnectionsScheduler()->lockConnectionsList();
 		
-		if(!((ConnectionPtr)arg)->isParsing())
+		if(!((ConnectionPtr)arg)->allowDelete())
 			Server::getInstance()->deleteConnection((ConnectionPtr)arg, 0, 0);
 
 		Server::getInstance()->getConnectionsScheduler()->unlockConnectionsList();

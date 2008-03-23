@@ -142,6 +142,7 @@ int FtpUserData::CloseDataConnection()
 		m_pDataConnection->socket->closesocket();
 		delete m_pDataConnection->socket;
 		m_pDataConnection->socket = NULL;
+		m_pDataConnection->setParsing(0);
 	}
 	
 	m_nFtpState = USER_LOGGED_IN;
@@ -1253,6 +1254,7 @@ int Ftp::OpenDataPassive()
 	pFtpUserData->m_pDataConnection->setLocalIpAddr(td.pConnection->getLocalIpAddr());
 	pFtpUserData->m_pDataConnection->host = td.pConnection->host;
 	pFtpUserData->m_pDataConnection->socket = pSocket;
+	pFtpUserData->m_pDataConnection->setParsing(1);
 	return 1;
 }
 
@@ -1278,6 +1280,7 @@ int Ftp::OpenDataActive()
 	pFtpUserData->m_pDataConnection->setLocalIpAddr(td.pConnection->getLocalIpAddr());
 	pFtpUserData->m_pDataConnection->host = td.pConnection->host;
 	pFtpUserData->m_pDataConnection->socket = new Socket(dataSocket);
+	pFtpUserData->m_pDataConnection->setParsing(1);
 
 	return 1;
 }

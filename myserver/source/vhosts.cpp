@@ -352,11 +352,11 @@ int Vhost::isIPAllowed(const char* ip)
 void Vhost::addHost(const char *host, int isRegex)
 {
 	StringRegex* hl = new StringRegex();
-	size_t len;
   if(hl == 0)
     return;
 
 #ifdef HAVE_IDN
+	size_t len;
 	int ret;
 	char* ascii = 0;
 	uint32_t* ucs4 = stringprep_utf8_to_ucs4 (host, -1, &len);

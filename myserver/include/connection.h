@@ -66,6 +66,7 @@ public:
 
   void setParsing(int);
   int isParsing();
+  int allowDelete();
 
   u_short getPort();
   void setPort(u_short);

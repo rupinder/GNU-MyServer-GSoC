@@ -1305,7 +1305,7 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
 	}
 
 	if(s->isParsing())
-		s->setToRemove(1);
+		s->setToRemove(CONNECTION_REMOVE_OVERLOAD);
 
 	handlers = getHandlers(msg);
 
