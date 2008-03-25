@@ -240,6 +240,7 @@ int Ftp::ParseControlConnection()
 	yy_buffer_state *bufState = yy_scan_string (pBuffToParse, m_scanner);
 	int nParserRet = yyparse(this);
 	yy_delete_buffer(bufState, m_scanner);
+	yylex_destroy(m_scanner);
 	switch ( nParserRet )
 	{
 		case 0:

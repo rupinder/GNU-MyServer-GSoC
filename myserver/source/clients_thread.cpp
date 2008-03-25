@@ -74,6 +74,8 @@ ClientsThread::~ClientsThread()
     delete httpsParser;
   if(controlProtocolParser)
     delete controlProtocolParser;
+    if ( ftpParser != NULL )
+    	delete ftpParser;
 
 	httpParser = 0;
 	httpsParser = 0;

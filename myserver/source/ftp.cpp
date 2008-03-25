@@ -712,6 +712,8 @@ void* SendAsciiFile(void* pParam)
 #endif
 			}
 		}
+		file->closeFile();
+		delete file;
 	}
 	catch (bad_alloc &ba)
 	{
@@ -1014,6 +1016,7 @@ void* ReceiveAsciiFile(void* pParam)
 			}
 			memset(buffer.getBuffer(), 0, buffer.getRealLength());
 		}
+		file.closeFile();
 	}
 	catch (bad_alloc &ba)
 	{
@@ -1114,11 +1117,12 @@ void* ReceiveImageFile(void* pParam)
 #endif
 			}
 		}
+		file.closeFile();
 	}
 	catch (bad_alloc &ba)
 	{
-		file.closeFile();
 		//report error
+		file.closeFile();
 	}
 
 	ftp_reply(pConnection, 226);
