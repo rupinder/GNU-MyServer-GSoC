@@ -172,6 +172,10 @@ cmd		: USER_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
 			pContext->Noop();
 		}
+		| STRING_FTP_ARG SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
+		{
+			pContext->ftp_reply(502);//any new commands
+		}
 		| STRING_FTP_ARG CRLF_FTP_SEP
 		{
 			pContext->ftp_reply(502);//any new commands
