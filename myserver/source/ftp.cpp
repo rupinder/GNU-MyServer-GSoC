@@ -1863,7 +1863,58 @@ void Ftp::Stor(const std::string &sPath)
 
 void Ftp::Dele(const std::string &sPath)
 {
-	//TODO:
+	std::string sLocalPath;
+	if ( !UserLoggedIn() || !GetLocalPath(sPath, sLocalPath) )
+		return;
+	std::string sLocalDir, sLocalFileName;
+	FilesUtility::splitPath(sLocalPath, sLocalDir, sLocalFileName);
+
+	/* The security file doesn't exist in any case.  */
+    	if( !strcmpi(sLocalFileName.c_str(), "security") )
+	{
+		ftp_reply(550);
+		CloseDataConnection();
+		return;
+	}
+	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
+	assert(pFtpUserData != NULL);
+	SecurityToken st;
+	if ( strcmpi(pFtpUserData->m_sUserName.c_str(), "anonymous") == 0 )
+	{
+		st.user = "Guest";
+		st.password = "";
+	}
+	else
+	{
+		st.user = pFtpUserData->m_sUserName.c_str();
+		st.password = pFtpUserData->m_sPass.c_str();
+	}
+	st.directory = sLocalDir.c_str();
+	st.sysdirectory = td.pConnection->host->getSystemRoot();
+	st.authType = 0;
+	st.filename = sLocalFileName.c_str();
+	st.providedMask = new int(MYSERVER_PERMISSION_WRITE);
+	int permMask = -1;
+	secCacheMutex.lock();
+	try
+	{
+		permMask = secCache.getPermissionMask (&st);
+          	secCacheMutex.unlock();
+	}
+	catch ( ... )
+	{
+		secCacheMutex.unlock();
+		throw;
+	}
+	delete st.providedMask;
+	if ( permMask == -1 /*|| (permMask & (MYSERVER_PERMISSION_READ | MYSERVER_PERMISSION_BROWSE)) == 0*/ )
+	{
+		ftp_reply(550);
+		return;
+	}
+	if ( FilesUtility::deleteFile(sLocalPath) != 0 )
+		ftp_reply(450);
+	ftp_reply(250);
 }
 
 void Ftp::Appe(const std::string &sPath)

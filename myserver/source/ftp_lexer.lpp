@@ -131,6 +131,13 @@
 		BEGIN(STRING);
 		return STOR_FTP_COMMAND;
 	}
+<INITIAL>DELE	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		BEGIN(STRING);
+		return DELE_FTP_COMMAND;
+	}
 	/* Informational commands */
 <INITIAL>HELP	{
 		yylloc->first_line = yylloc->last_line;
