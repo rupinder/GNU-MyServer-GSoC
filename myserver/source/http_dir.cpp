@@ -248,6 +248,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 	vector<HttpDir::FileStruct> files;
 	size_t sortIndex;
 	char sortType;
+  bool sortReverse = false;
 	HttpRequestHeader::Entry *host = td->request.other.get("Host");
 
 
@@ -318,6 +319,11 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 	if(sortIndex != string::npos && sortIndex + 5 < td->request.uriOpts.length())
 	{
 		sortType = td->request.uriOpts.at(sortIndex + 5);
+	}
+
+	if(sortIndex != string::npos && sortIndex + 6 < td->request.uriOpts.length())
+	{
+		 sortReverse = td->request.uriOpts.at(sortIndex + 6) == 'I';
 	}
 
 	/* Make sortType always lowercase.  */
@@ -463,26 +469,38 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
    *With the current code we build the HTML TABLE to indicize the
    *files in the directory.
    */
-	td->buffer2->setLength(0);
-	*td->buffer2 << "<table width=\"100%\">\r\n<tr>\r\n" 
-							 << "<th><a href=\"?sort=f\">File</a></th>\r\n"
-							 << "<th><a href=\"?sort=t\">Last Modified</a></th>\r\n"
-							 << "<th><a href=\"?sort=s\">Size</a></th>\r\n</tr>\r\n";
+  td->buffer2->setLength(0);
+  *td->buffer2 << "<table width=\"100%\">\r\n<tr>\r\n" ;
 
-	ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
-																td->buffer2->getLength(),
-																&(td->outputData), &chain,
-																td->appendOutputs, useChunks);
+  if(sortType == 'f' && !sortReverse)
+    *td->buffer2 << "<th><a href=\"?sort=fI\">File</a></th>\r\n";
+  else
+    *td->buffer2 << "<th><a href=\"?sort=f\">File</a></th>\r\n";
 
-	if(ret)
+  if(sortType == 't' && !sortReverse)
+    *td->buffer2 << "<th><a href=\"?sort=tI\">Last Modified</a></th>\r\n";
+  else
+    *td->buffer2 << "<th><a href=\"?sort=t\">Last Modified</a></th>\r\n";
+
+  if(sortType == 's' && !sortReverse)
+    *td->buffer2 << "<th><a href=\"?sort=sI\">Size</a></th>\r\n</tr>\r\n";
+  else
+    *td->buffer2 << "<th><a href=\"?sort=s\">Size</a></th>\r\n</tr>\r\n";
+
+  ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
+                                td->buffer2->getLength(),
+                                &(td->outputData), &chain,
+                                td->appendOutputs, useChunks);
+
+  if(ret)
   {
-		td->outputData.closeFile();
+    td->outputData.closeFile();
     chain.clearAllFilters(); 
-		/* Return an internal server error.  */
-		return td->http->raiseHTTPError(500);
-	}
+    /* Return an internal server error.  */
+    return td->http->raiseHTTPError(500);
+  }
 
-	sentData += td->buffer2->getLength();
+  sentData += td->buffer2->getLength();
 
   td->buffer2->setLength(0);
 
@@ -495,184 +513,187 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
     *td->buffer2 << "<tr>\r\n<td colspan=\"2\">"
                  << "<a href=\""
                  << (td->request.uriEndsWithSlash ? ".." : ".")
-	         << "\">[ .. ]</a></td>\n"
+           << "\">[ .. ]</a></td>\n"
                  << "<td>[directory]</td></tr>\r\n";
     
-		ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
-																	td->buffer2->getLength(),
-																	&(td->outputData), &chain,
-																	td->appendOutputs, useChunks);
-		if(ret)
-		{
-			fd.findclose();
-			td->outputData.closeFile();
-			chain.clearAllFilters(); 
-			/* Return an internal server error.  */
-			return td->http->raiseHTTPError(500);
-		}
-		sentData += td->buffer2->getLength();
-	}
+    ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
+                                  td->buffer2->getLength(),
+                                  &(td->outputData), &chain,
+                                  td->appendOutputs, useChunks);
+    if(ret)
+    {
+      fd.findclose();
+      td->outputData.closeFile();
+      chain.clearAllFilters(); 
+      /* Return an internal server error.  */
+      return td->http->raiseHTTPError(500);
+    }
+    sentData += td->buffer2->getLength();
+  }
 
-	/* Put all files in a vector.  */
-	do
+  /* Put all files in a vector.  */
+  do
   {
-		if(fd.name[0] == '.')
-			continue;
-		/* Do not show the security file.  */
-		if(!strcmp(fd.name, "security"))
-			continue;
+    if(fd.name[0] == '.')
+      continue;
+    /* Do not show the security file.  */
+    if(!strcmp(fd.name, "security"))
+      continue;
 
-		FileStruct file;
-		file.name.assign(fd.name);
-		file.time_write = fd.time_write;
-		file.attrib = fd.attrib;
-		file.size = fd.size;
-		files.push_back(file);
+    FileStruct file;
+    file.name.assign(fd.name);
+    file.time_write = fd.time_write;
+    file.attrib = fd.attrib;
+    file.size = fd.size;
+    files.push_back(file);
 
-	}
-	while(!fd.findnext());
+  }
+  while(!fd.findnext());
 
-	fd.findclose();
+  fd.findclose();
 
-	/* Sort the vector.  */
-	switch(sortType)
-	{
-		case 's':
-			sort (files.begin(), files.end(), compareFileStructBySize);
-			break;
-	  case 't':
-			sort (files.begin(), files.end(), compareFileStructByTime);
-			break;
-	  case 'f':
-			sort (files.begin(), files.end(), compareFileStructByName);
-	}
+  /* Sort the vector.  */
+  switch(sortType)
+  {
+    case 's':
+      sort (files.begin(), files.end(), compareFileStructBySize);
+      break;
+    case 't':
+      sort (files.begin(), files.end(), compareFileStructByTime);
+      break;
+    case 'f':
+      sort (files.begin(), files.end(), compareFileStructByName);
+  }
 
-	/* Build the files table and send it.  */
-	for(vector<FileStruct>::iterator it = files.begin();
-			it != files.end(); it++)
-	{	
-		string formattedName;
-		string::size_type pos = 0;
+  if(sortReverse)
+    reverse (files.begin(), files.end());
 
-		FileStruct& file = *it;
+  /* Build the files table and send it.  */
+  for(vector<FileStruct>::iterator it = files.begin();
+      it != files.end(); it++)
+  {  
+    string formattedName;
+    string::size_type pos = 0;
+
+    FileStruct& file = *it;
 
     td->buffer2->setLength(0);
 
-		*td->buffer2 << "<tr>\r\n<td><a href=\"";
-		if(!td->request.uriEndsWithSlash)
-		{
-			*td->buffer2 << &td->request.uri[startchar];
-			*td->buffer2 << "/" ;
-		}
-		formattedName.assign(file.name);
+    *td->buffer2 << "<tr>\r\n<td><a href=\"";
+    if(!td->request.uriEndsWithSlash)
+    {
+      *td->buffer2 << &td->request.uri[startchar];
+      *td->buffer2 << "/" ;
+    }
+    formattedName.assign(file.name);
 
-		/*
-		 *Replace characters in the ranges 32-65 91-96 123-126 160-255
-		 *with "&#CODE;".
-		 */
-		for(pos = 0; formattedName[pos] != '\0'; pos++)
-		{
-			if(((u_char)formattedName[pos] >= 32 && 
-					(u_char)formattedName[pos] <= 65)   ||
-				 ((u_char)formattedName[pos] >= 91 && 
-					(u_char)formattedName[pos] <= 96)   ||
-				 ((u_char)formattedName[pos] >= 123 && 
-					(u_char)formattedName[pos] <= 126) ||
-				((u_char)formattedName[pos] >= 160 && 
-				 (u_char)formattedName[pos] < 255))
-			{
-				ostringstream os;
-				os << "&#" << (int)((unsigned char)formattedName[pos]) << ";";
-				formattedName.replace(pos, 1, os.str());
-				pos += os.str().length() - 1;
-			}
-		}
+    /*
+     *Replace characters in the ranges 32-65 91-96 123-126 160-255
+     *with "&#CODE;".
+     */
+    for(pos = 0; formattedName[pos] != '\0'; pos++)
+    {
+      if(((u_char)formattedName[pos] >= 32 && 
+          (u_char)formattedName[pos] <= 65)   ||
+         ((u_char)formattedName[pos] >= 91 && 
+          (u_char)formattedName[pos] <= 96)   ||
+         ((u_char)formattedName[pos] >= 123 && 
+          (u_char)formattedName[pos] <= 126) ||
+        ((u_char)formattedName[pos] >= 160 && 
+         (u_char)formattedName[pos] < 255))
+      {
+        ostringstream os;
+        os << "&#" << (int)((unsigned char)formattedName[pos]) << ";";
+        formattedName.replace(pos, 1, os.str());
+        pos += os.str().length() - 1;
+      }
+    }
 
-		*td->buffer2 << formattedName ;
-		*td->buffer2 << "\">" ;
-		*td->buffer2 << formattedName;
-		*td->buffer2 << "</a></td>\r\n<td>";
-	
-		getRFC822GMTTime(file.time_write, fileTime, 32);
+    *td->buffer2 << formattedName ;
+    *td->buffer2 << "\">" ;
+    *td->buffer2 << formattedName;
+    *td->buffer2 << "</a></td>\r\n<td>";
+  
+    getRFC822GMTTime(file.time_write, fileTime, 32);
 
-		*td->buffer2 << fileTime ;
-		*td->buffer2 << "</td>\r\n<td>";
-		
-		if(file.attrib & FILE_ATTRIBUTE_DIRECTORY)
-		{
-			*td->buffer2 << "[directory]";
-		}
-		else
-		{
+    *td->buffer2 << fileTime ;
+    *td->buffer2 << "</td>\r\n<td>";
+    
+    if(file.attrib & FILE_ATTRIBUTE_DIRECTORY)
+    {
+      *td->buffer2 << "[directory]";
+    }
+    else
+    {
       string out;
       getFormattedSize(file.size, out);
- 			*td->buffer2 << out;
-		}
+       *td->buffer2 << out;
+    }
 
-		*td->buffer2 << "</td>\r\n</tr>\r\n";
-		ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
-																	td->buffer2->getLength(),
-																	&(td->outputData), &chain,
-																	td->appendOutputs, useChunks);
-		if(ret)
-		{
-			td->outputData.closeFile();
+    *td->buffer2 << "</td>\r\n</tr>\r\n";
+    ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
+                                  td->buffer2->getLength(),
+                                  &(td->outputData), &chain,
+                                  td->appendOutputs, useChunks);
+    if(ret)
+    {
+      td->outputData.closeFile();
       chain.clearAllFilters(); 
-			/* Return an internal server error.  */
-			return td->http->raiseHTTPError(500);
-		}
+      /* Return an internal server error.  */
+      return td->http->raiseHTTPError(500);
+    }
 
-		sentData += td->buffer2->getLength();
+    sentData += td->buffer2->getLength();
 
-	}
+  }
 
-	td->buffer2->setLength(0);
-	*td->buffer2 << "</table>\r\n<hr />\r\n<address>MyServer " 
-							 << versionOfSoftware;
+  td->buffer2->setLength(0);
+  *td->buffer2 << "</table>\r\n<hr />\r\n<address>MyServer " 
+               << versionOfSoftware;
               
   if(host && host->value->length())
   {    
     ostringstream portBuff;
-		size_t portSeparator = host->value->find(':');
+    size_t portSeparator = host->value->find(':');
     *td->buffer2 << " on ";
-		if(portSeparator != string::npos)
-			*td->buffer2 << host->value->substr(0, portSeparator).c_str() ;
-		else
-			*td->buffer2 << host->value->c_str() ;
-		
+    if(portSeparator != string::npos)
+      *td->buffer2 << host->value->substr(0, portSeparator).c_str() ;
+    else
+      *td->buffer2 << host->value->c_str() ;
+    
     *td->buffer2 << " Port ";
     portBuff << td->connection->getLocalPort();
     *td->buffer2 << portBuff.str();
   }
-	*td->buffer2 << "</address>\r\n</body>\r\n</html>\r\n";
-	ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
-																td->buffer2->getLength(),
-																&(td->outputData), &chain,
-																td->appendOutputs, useChunks);
+  *td->buffer2 << "</address>\r\n</body>\r\n</html>\r\n";
+  ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
+                                td->buffer2->getLength(),
+                                &(td->outputData), &chain,
+                                td->appendOutputs, useChunks);
 
-	if(ret)
-	{
-		td->outputData.closeFile();
-		/* Return an internal server error.  */
-		return td->http->raiseHTTPError(500);
-	}	
-	sentData += td->buffer2->getLength();
+  if(ret)
+  {
+    td->outputData.closeFile();
+    /* Return an internal server error.  */
+    return td->http->raiseHTTPError(500);
+  }  
+  sentData += td->buffer2->getLength();
 
   *td->buffer2 << end_str;
-	/* Changes the \ character in the / character.  */
-	bufferloop = td->buffer2->getBuffer();
-	while(*bufferloop++)
-		if(*bufferloop == '\\')
-			*bufferloop = '/';
+  /* Changes the \ character in the / character.  */
+  bufferloop = td->buffer2->getBuffer();
+  while(*bufferloop++)
+    if(*bufferloop == '\\')
+      *bufferloop = '/';
 
-	if(!td->appendOutputs && useChunks)
-	{
-		if(chain.write("0\r\n\r\n", 5, &nbw))
-			return 1;
-	}
+  if(!td->appendOutputs && useChunks)
+  {
+    if(chain.write("0\r\n\r\n", 5, &nbw))
+      return 1;
+  }
 
-	/* For logging activity.  */	
-	td->sentData += sentData;
+  /* For logging activity.  */  
+  td->sentData += sentData;
 
   chain.clearAllFilters(); 
   return 1;
