@@ -1,6 +1,6 @@
-SUBDIRS = errors icons
+SUBDIRS = errors icons css
 myserverdatadir = $(datadir)/myserver/system
  
 
-dist_myserverdata_DATA = folderstyle.css security
+dist_myserverdata_DATA = security
 

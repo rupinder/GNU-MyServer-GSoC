@@ -350,6 +350,7 @@ AC_CONFIG_FILES([
     binaries/web/cgi-src/math_sum/Makefile
     binaries/logs/Makefile
     binaries/system/Makefile
+    binaries/system/css/Makefile
     binaries/system/errors/Makefile
     binaries/system/icons/Makefile
     binaries/system/icons/codes/Makefile
