@@ -341,6 +341,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 			sort (files.begin(), files.end(), compareFileStructByName);
 	}
 
+  browseDirCSSpath = td->http->getBrowseDirCSSFile();
 
 	td->buffer2->setLength(0);
 	*td->buffer2 << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
@@ -349,7 +350,22 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 	  "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">"
 	  "\r\n<head>\r\n<title>" ;
 	*td->buffer2 << td->request.uri.c_str() ;
-	*td->buffer2 << "</title>\r\n</head>\r\n"; 
+	*td->buffer2 << "</title>\r\n";
+
+	/*
+   *If it is defined a CSS file for the graphic layout of 
+   *the browse directory insert it in the page.  
+   */
+	if(browseDirCSSpath != 0)
+	{
+    *td->buffer2 << "<link rel=\"stylesheet\" href=\""
+                 << browseDirCSSpath 
+                 << "\" type=\"text/css\" media=\"all\"/>\r\n";
+  }
+
+
+  *td->buffer2 << "</head>\r\n"; 
+
 	ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
 																td->buffer2->getLength(),
 																&(td->outputData), &chain,
@@ -365,78 +381,6 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 	sentData = td->buffer2->getLength();
 							
   browseDirCSSpath = td->http->getBrowseDirCSSFile();
-
-	/*
-   *If it is defined a CSS file for the graphic layout of 
-   *the browse directory insert it in the page.  
-   */
-	if(browseDirCSSpath != 0)
-	{
-		File cssHandle;
-		ret = cssHandle.openFile(browseDirCSSpath, File::MYSERVER_OPEN_IFEXISTS | 
-														 File::MYSERVER_OPEN_READ);
-		if(ret == 0)
-		{
-			u_long nbr;
-			ret = cssHandle.readFromFile(td->buffer->getBuffer(), 
-                                   td->buffer->getRealLength(), &nbr);
-			if(ret == 0)
-			{
-				td->buffer2->setLength(0);
-				*td->buffer2 << "<style type=\"text/css\">\r\n";
-
-				ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
-																			td->buffer2->getLength(),
-																			&(td->outputData), &chain,
-																			td->appendOutputs, useChunks);
-
-				if(ret)
-				{
-					td->outputData.closeFile();
-          chain.clearAllFilters();
-					cssHandle.closeFile();
-					/* Return an internal server error.  */
-					return td->http->raiseHTTPError(500);
-				}
-
-				sentData += td->buffer2->getLength();
-
-				ret = appendDataToHTTPChannel(td, td->buffer->getBuffer(),
-																			nbr, &(td->outputData), &chain,
-																			td->appendOutputs, useChunks);
-
-				if(ret)
-				{
-					td->outputData.closeFile();
-					cssHandle.closeFile();
-					/* Return an internal server error.  */
-					return td->http->raiseHTTPError(500);
-				}
-
-				sentData += nbr;
-
-				td->buffer2->setLength(0);
-				*td->buffer2 << "\r\n</style>\r\n";
-				ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
-																			td->buffer2->getLength(),
-																			&(td->outputData), &chain,
-																			td->appendOutputs, useChunks);
-
-				if(ret)
-				{
-					td->outputData.closeFile();
-          chain.clearAllFilters(); 
-					cssHandle.closeFile();
-					/* Return an internal server error.  */
-					return td->http->raiseHTTPError(500);
-				}
-
-				sentData += td->buffer2->getLength();
-			}
-
-			cssHandle.closeFile();
-		}
-	}
 
   filename = directory;
 	td->buffer2->setLength(0);

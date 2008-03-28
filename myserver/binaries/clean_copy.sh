@@ -1,6 +1,7 @@
+#!/bin/sh
 #Create a *nix copy to be easily distribute
 if [  $# = 0 ]; then
-  echo "Usage: $0 folder_to_create [tar.bz2]"
+  echo "Usage: $0 dir_to_create [tar.bz2]"
   exit
 fi
 
@@ -24,8 +25,10 @@ mkdir $1/certificates
 cp certificates/*.txt $1/certificates
 
 mkdir $1/system
-cp system/*.css $1/system
 cp system/security $1/system
+
+mkdir $1/system/css
+cp system/css/*.css $1/system
 
 mkdir $1/system/errors
 cp system/errors/*.html $1/system/errors
@@ -69,7 +72,6 @@ cp ../documentation/english/images/*.jpg $1/web/documentation/images/
 
 
 if [  $# = 2 ]; then
-tar -cvf $2.tar $1
-bzip2 $2.tar 
-rm -f -r $1
+tar --create --bzip2 --file=$2.tar.bz2 $1
+rm -rf $1
 fi

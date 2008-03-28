@@ -224,7 +224,8 @@ Section "MyServer core" SecCore
   File "web\*.png"
   SetOutPath $INSTDIR\system
   File "system\security"
-  File "system\*.css"
+  SetOutPath $INSTDIR\system\css
+  File "system\css\*.css"
   SetOutPath $INSTDIR\system\errors
   File "system\errors\*.html"
   SetOutPath $INSTDIR\system\icons
