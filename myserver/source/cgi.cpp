@@ -77,6 +77,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 	StartProcInfo spi;
 	string moreArg;
 	string tmpCgiPath;
+	string tmpScriptPath;
 	u_long nBytesRead;
 	u_long headerSize = 0;
 	bool useChunks = false;
@@ -133,8 +134,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
     }
     FilesUtility::splitPath(tmpCgiPath, td->cgiRoot, td->cgiFile);
     
-    tmpCgiPath.assign(scriptpath);
-    FilesUtility::splitPath(tmpCgiPath, td->scriptDir, td->scriptFile);
+    tmpScriptPath.assign(scriptpath);
+    FilesUtility::splitPath(tmpScriptPath, td->scriptDir, td->scriptFile);
   }
 
   chain.setProtocol(td->http);
@@ -204,16 +205,15 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 	}
 	else
 	{
-     /* Check if the CGI executable exists.  */
-		if((!cgipath) || (!FilesUtility::fileExists(tmpCgiPath.c_str())))
-		{
+    if(!FilesUtility::fileExists(tmpCgiPath.c_str()))
+    {
 			td->connection->host->warningsLogRequestAccess(td->id);
-      if(cgipath && strlen(cgipath))
+      if(tmpCgiPath.length() > 0)
       {
         string msg;
         msg.assign("Cgi: Cannot find the ");
-        msg.append(cgipath);
-        msg.append("executable");
+        msg.append(tmpCgiPath);
+        msg.append(" executable");
         td->connection->host->warningsLogWrite(msg.c_str());
 			}
       else
@@ -222,6 +222,18 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
                                     "Cgi: Executable file not specified");
       }
       td->connection->host->warningsLogTerminateAccess(td->id);		
+      td->scriptPath.assign("");
+      td->scriptFile.assign("");
+      td->scriptDir.assign("");
+      chain.clearAllFilters(); 
+			return td->http->raiseHTTPError(500);
+
+    }
+    
+
+     /* Check if the CGI executable exists.  */
+		if(!FilesUtility::fileExists(tmpScriptPath.c_str()))
+		{
       td->scriptPath.assign("");
       td->scriptFile.assign("");
       td->scriptDir.assign("");
