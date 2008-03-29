@@ -737,3 +737,21 @@ int FilesUtility::completePath(string &fileName)
 	return 0;
 #endif
 }
+
+int FilesUtility::simpleMakeDirectory(const char *path)
+{
+#ifdef WIN32
+	return CreateDirectory(path, NULL)?0:-1;
+#else // NOT_WIN
+	return mkdir(path, S_IRUSR | S_IWUSR);
+#endif
+}
+
+int FilesUtility::deleteDirectory(const char *path)
+{
+#ifdef WIN32
+//TODO: implement
+#else // NOT_WIN
+	return rmdir(path);
+#endif
+}

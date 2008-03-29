@@ -91,5 +91,12 @@ public:
   static int getFilenameLength(const char*, int *);
 	static void getFilename(const char* path, char* filename);
 	static void getFilename(string const &path, string& filename);
+
+	static int simpleMakeDirectory(const char *path);
+	static int deleteDirectory(const char *path);
+	static int simpleMakeDirectory(string const &path)
+	{ return simpleMakeDirectory(path.c_str()); }
+	static int deleteDirectory(string const &path)
+	{ return deleteDirectory(path.c_str()); }
 };
 #endif

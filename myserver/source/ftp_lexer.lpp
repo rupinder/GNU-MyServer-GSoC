@@ -79,7 +79,7 @@
 <INITIAL>CWD	{
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
-		yylloc->last_column += 4;
+		yylloc->last_column += 3;
 		return CWD_FTP_COMMAND;
 	}
 <INITIAL>CDUP	{
@@ -91,7 +91,7 @@
 <INITIAL>PWD	{
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
-		yylloc->last_column += 4;
+		yylloc->last_column += 3;
 		return PWD_FTP_COMMAND;
 	}
 
@@ -137,6 +137,27 @@
 		yylloc->last_column += 4;
 		BEGIN(STRING);
 		return DELE_FTP_COMMAND;
+	}
+<INITIAL>APPE	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		BEGIN(STRING);
+		return APPE_FTP_COMMAND;
+	}
+<INITIAL>MKD	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 3;
+		BEGIN(STRING);
+		return MKD_FTP_COMMAND;
+	}
+<INITIAL>RMD	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 3;
+		BEGIN(STRING);
+		return RMD_FTP_COMMAND;
 	}
 	/* Informational commands */
 <INITIAL>HELP	{

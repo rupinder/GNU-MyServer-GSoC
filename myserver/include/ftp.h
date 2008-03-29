@@ -125,7 +125,7 @@ protected:
 	int OpenDataPassive();
 	int OpenDataActive();
 	void EscapeTelnet(MemBuf &In, MemBuf &Out);
-	void RetrStor(bool bRetr, const std::string &sPath);
+	void RetrStor(bool bRetr, bool bAppend, const std::string &sPath);
 
 	static Mutex secCacheMutex;
 	static SecurityCache secCache;
@@ -168,6 +168,7 @@ struct DataConnectionWorkerThreadData
 {
 	ConnectionPtr m_pConnection;
 	std::string m_sFilePath;
+	bool m_bAppend;
 };
 
 int get_ftp_reply(int nReplyCode, std::string &sReply);

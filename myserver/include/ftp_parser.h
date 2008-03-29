@@ -63,10 +63,13 @@
      PWD_FTP_COMMAND = 279,
      STOR_FTP_COMMAND = 280,
      DELE_FTP_COMMAND = 281,
-     HELP_FTP_COMMAND = 282,
-     SYST_FTP_COMMAND = 283,
-     STAT_FTP_COMMAND = 284,
-     NOOP_FTP_COMMAND = 285
+     APPE_FTP_COMMAND = 282,
+     MKD_FTP_COMMAND = 283,
+     RMD_FTP_COMMAND = 284,
+     HELP_FTP_COMMAND = 285,
+     SYST_FTP_COMMAND = 286,
+     STAT_FTP_COMMAND = 287,
+     NOOP_FTP_COMMAND = 288
    };
 #endif
 /* Tokens.  */
@@ -94,10 +97,13 @@
 #define PWD_FTP_COMMAND 279
 #define STOR_FTP_COMMAND 280
 #define DELE_FTP_COMMAND 281
-#define HELP_FTP_COMMAND 282
-#define SYST_FTP_COMMAND 283
-#define STAT_FTP_COMMAND 284
-#define NOOP_FTP_COMMAND 285
+#define APPE_FTP_COMMAND 282
+#define MKD_FTP_COMMAND 283
+#define RMD_FTP_COMMAND 284
+#define HELP_FTP_COMMAND 285
+#define SYST_FTP_COMMAND 286
+#define STAT_FTP_COMMAND 287
+#define NOOP_FTP_COMMAND 288
 
 
 
@@ -112,7 +118,7 @@ typedef union YYSTYPE
 	FtpHost 	m_host;
 }
 /* Line 1489 of yacc.c.  */
-#line 116 "../include/ftp_parser.h"
+#line 122 "../include/ftp_parser.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

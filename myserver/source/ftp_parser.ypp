@@ -60,6 +60,9 @@
 
 %token STOR_FTP_COMMAND
 %token DELE_FTP_COMMAND
+%token APPE_FTP_COMMAND
+%token MKD_FTP_COMMAND
+%token RMD_FTP_COMMAND
 
 /* Informational commands */
 %token HELP_FTP_COMMAND
@@ -192,6 +195,18 @@ cmd		: USER_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		| DELE_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
 		  pContext->Dele($3);
+		}
+		| APPE_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
+		{
+		  pContext->Appe($3);
+		}
+		| MKD_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
+		{
+		  pContext->Mkd($3);
+		}
+		| RMD_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
+		{
+		  pContext->Rmd($3);
 		}
 		;
 	/* ftp command arguments */

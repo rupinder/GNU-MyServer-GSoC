@@ -195,10 +195,10 @@ USER, PASS, PORT, TYPE, RETR, QUIT\r\n\
 	{ 426, "Connection closed; Transfer aborted." },
 	{ 450, "Requested file action not taken. File unavailable." },
 	{ 451, "Requested action aborted: local error in processing." },
+	{ 500, "Syntax error, command unrecognized." },
+	{ 501, "Syntax error in parameters or arguments." },
 	{ 502, "Command not implemented." },
 	{ 503, "Bad sequence of commands." },
-	{ 500, "Syntax error, command unrecognized." },
-	{ 501, "Syntax error in parameters or arguments."},
 	{ 504, "Command not implemented for that parameter."},
 	{ 530, "Not logged in." },
 	{ 550, "Requested action not taken. File unavailable." },
@@ -476,7 +476,7 @@ void Ftp::Pasv()
 	pFtpUserData->m_bPassiveSrv = false;
 }
 
-void Ftp::RetrStor(bool bRetr, const std::string &sPath)
+void Ftp::RetrStor(bool bRetr, bool bAppend, const std::string &sPath)
 {
 	std::string sLocalPath;
 	if ( !UserLoggedIn() || OpenDataConnection() == 0 || (!GetLocalPath(sPath, sLocalPath) && bRetr) )
@@ -540,6 +540,7 @@ void Ftp::RetrStor(bool bRetr, const std::string &sPath)
 	DataConnectionWorkerThreadData *pData = new DataConnectionWorkerThreadData();
 	pData->m_pConnection = td.pConnection;
 	pData->m_sFilePath = sLocalPath;
+	pData->m_bAppend = bAppend;
 
 	pFtpUserData->m_sCurrentFileName = "";
 	pFtpUserData->m_nFileSize = 0;
@@ -939,7 +940,12 @@ void* ReceiveAsciiFile(void* pParam)
 	File file;
 	try
 	{
-		if ( file.openFile(pWt->m_sFilePath.c_str(), File::MYSERVER_CREATE_ALWAYS | File::MYSERVER_OPEN_WRITE) )
+		u_long flags = 0;
+		if ( pWt->m_bAppend )
+			flags = File::MYSERVER_OPEN_APPEND | File::MYSERVER_OPEN_WRITE;
+		else
+			flags = File::MYSERVER_CREATE_ALWAYS | File::MYSERVER_OPEN_WRITE;
+		if ( file.openFile(pWt->m_sFilePath.c_str(), flags) )
 		{
 			pFtpUserData->CloseDataConnection();
 			delete pWt;
@@ -1088,7 +1094,12 @@ void* ReceiveImageFile(void* pParam)
 	File file;
 	try
 	{
-		if ( file.openFile(pWt->m_sFilePath.c_str(), File::MYSERVER_CREATE_ALWAYS | File::MYSERVER_OPEN_WRITE) )
+		u_long flags = 0;
+		if ( pWt->m_bAppend )
+			flags = File::MYSERVER_OPEN_APPEND | File::MYSERVER_OPEN_WRITE;
+		else
+			flags = File::MYSERVER_CREATE_ALWAYS | File::MYSERVER_OPEN_WRITE;
+		if ( file.openFile(pWt->m_sFilePath.c_str(), flags) )
 		{
 #ifdef WIN32
 	return 0;
@@ -1851,14 +1862,14 @@ void Ftp::Stat(const std::string &sParam/* = ""*/)
 
 void Ftp::Retr(const std::string &sPath)
 {
-	RetrStor(true, sPath);
+	RetrStor(true, false, sPath);
 }
 
 void Ftp::Stor(const std::string &sPath)
 {
 	if ( !m_bEnableStoreCmds )
 		return;
-	RetrStor(false, sPath);
+	RetrStor(false, false, sPath);
 }
 
 void Ftp::Dele(const std::string &sPath)
@@ -1919,15 +1930,111 @@ void Ftp::Dele(const std::string &sPath)
 
 void Ftp::Appe(const std::string &sPath)
 {
-	//TODO:
+	if ( !m_bEnableStoreCmds )
+		return;
+	RetrStor(false, true, sPath);
 }
 
 void Ftp::Mkd(const std::string &sPath)
 {
-	//TODO:
+	if ( !UserLoggedIn() )
+	{
+		ftp_reply(550);
+		return;
+	}
+
+	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
+	assert(pFtpUserData != NULL);
+	std::string sLocalPath = pFtpUserData->m_cwd + "/" + sPath;
+
+	SecurityToken st;
+	if ( strcmpi(pFtpUserData->m_sUserName.c_str(), "anonymous") == 0 )
+	{
+		st.user = "Guest";
+		st.password = "";
+	}
+	else
+	{
+		st.user = pFtpUserData->m_sUserName.c_str();
+		st.password = pFtpUserData->m_sPass.c_str();
+	}
+	st.directory = sLocalPath.c_str();
+	st.sysdirectory = td.pConnection->host->getSystemRoot();
+	st.authType = 0;
+	st.filename = "";
+	st.providedMask = new int (MYSERVER_PERMISSION_WRITE);
+	int permMask = -1;
+	secCacheMutex.lock();
+	try
+	{
+		permMask = secCache.getPermissionMask (&st);
+          	secCacheMutex.unlock();
+	}
+	catch ( ... )
+	{
+		secCacheMutex.unlock();
+		throw;
+	}
+	delete st.providedMask;
+	if ( permMask == -1 /*|| (permMask & (MYSERVER_PERMISSION_READ | MYSERVER_PERMISSION_BROWSE)) == 0*/ )
+	{
+		ftp_reply(550);
+		return;
+	}
+	if ( FilesUtility::simpleMakeDirectory(sLocalPath) == 0 )
+		ftp_reply(250);
+	else
+		ftp_reply(501);
 }
 
 void Ftp::Rmd(const std::string &sPath)
 {
-	//TODO:
+	if ( !UserLoggedIn() )
+	{
+		ftp_reply(550);
+		return;
+	}
+
+	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
+	assert(pFtpUserData != NULL);
+	std::string sLocalPath = pFtpUserData->m_cwd + "/" + sPath;
+
+	SecurityToken st;
+	if ( strcmpi(pFtpUserData->m_sUserName.c_str(), "anonymous") == 0 )
+	{
+		st.user = "Guest";
+		st.password = "";
+	}
+	else
+	{
+		st.user = pFtpUserData->m_sUserName.c_str();
+		st.password = pFtpUserData->m_sPass.c_str();
+	}
+	st.directory = sLocalPath.c_str();
+	st.sysdirectory = td.pConnection->host->getSystemRoot();
+	st.authType = 0;
+	st.filename = "";
+	st.providedMask = new int (MYSERVER_PERMISSION_WRITE);
+	int permMask = -1;
+	secCacheMutex.lock();
+	try
+	{
+		permMask = secCache.getPermissionMask (&st);
+          	secCacheMutex.unlock();
+	}
+	catch ( ... )
+	{
+		secCacheMutex.unlock();
+		throw;
+	}
+	delete st.providedMask;
+	if ( permMask == -1 /*|| (permMask & (MYSERVER_PERMISSION_READ | MYSERVER_PERMISSION_BROWSE)) == 0*/ )
+	{
+		ftp_reply(550);
+		return;
+	}
+	if ( FilesUtility::deleteDirectory(sLocalPath) == 0 )
+		ftp_reply(250);
+	else
+		ftp_reply(501);
 }
