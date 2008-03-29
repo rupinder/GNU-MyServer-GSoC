@@ -145,10 +145,10 @@ void ConnectionsScheduler::listener(ConnectionsScheduler::ListenerArg *la)
  */
 void ConnectionsScheduler::removeListener(ConnectionsScheduler::ListenerArg* la)
 {
-	eventsMutex.lock();
-   	event_del(&(la->ev));
-	listeners.remove(la);
-	eventsMutex.unlock();
+  eventsMutex.lock();
+  event_del(&(la->ev));
+  listeners.remove(la);
+  eventsMutex.unlock();
 }
 
 /*!
@@ -156,12 +156,13 @@ void ConnectionsScheduler::removeListener(ConnectionsScheduler::ListenerArg* la)
  */
 ConnectionsScheduler::ConnectionsScheduler()
 {
-	readyMutex.init();
-	eventsMutex.init();
-	connectionsMutex.init();
-	readySemaphore = new Semaphore(0);
-	currentPriority = 0;
-	currentPriorityDone = 0;
+  readyMutex.init();
+  eventsMutex.init();
+  connectionsMutex.init();
+  readySemaphore = new Semaphore(0);
+  currentPriority = 0;
+  currentPriorityDone = 0;
+	ready = new queue<ConnectionPtr>[PRIORITY_CLASSES];
 }
 
 
@@ -170,17 +171,17 @@ ConnectionsScheduler::ConnectionsScheduler()
  */
 void ConnectionsScheduler::restart()
 {
-	readyMutex.init();
-	connectionsMutex.init();
-	eventsMutex.init();
-	listeners.clear();
+  readyMutex.init();
+  connectionsMutex.init();
+  eventsMutex.init();
+  listeners.clear();
 
-	if(readySemaphore)
-		delete readySemaphore;
+  if(readySemaphore)
+    delete readySemaphore;
 
-	readySemaphore = new Semaphore(0);
+  readySemaphore = new Semaphore(0);
 
-	initialize();
+  initialize();
 }
 
 /*!
@@ -188,26 +189,26 @@ void ConnectionsScheduler::restart()
  */
 void ConnectionsScheduler::initialize()
 {
-	static timeval tv = {1, 0};
+  static timeval tv = {1, 0};
 
-	event_init();
+  event_init();
 
-	event_set(&timeoutEv, 0, EV_TIMEOUT, do_nothing, &timeoutEv);
-	event_add(&timeoutEv, &tv);
+  event_set(&timeoutEv, 0, EV_TIMEOUT, do_nothing, &timeoutEv);
+  event_add(&timeoutEv, &tv);
 
 
-	dispatcherArg.terminated = true;
-	dispatcherArg.mutex = &eventsMutex;
+  dispatcherArg.terminated = true;
+  dispatcherArg.mutex = &eventsMutex;
 
-	if(Thread::create(&dispatchedThreadId, dispatcher, &dispatcherArg))
-	 {
-		 Server::getInstance()->logLockAccess();
-		 Server::getInstance()->logPreparePrintError();
-		 Server::getInstance()->logWriteln("Error initializing dispatcher thread.");
-		 Server::getInstance()->logEndPrintError();
-		 Server::getInstance()->logUnlockAccess();
-		 dispatchedThreadId = 0;
-	 }
+  if(Thread::create(&dispatchedThreadId, dispatcher, &dispatcherArg))
+   {
+     Server::getInstance()->logLockAccess();
+     Server::getInstance()->logPreparePrintError();
+     Server::getInstance()->logWriteln("Error initializing dispatcher thread.");
+     Server::getInstance()->logEndPrintError();
+     Server::getInstance()->logUnlockAccess();
+     dispatchedThreadId = 0;
+   }
 }
 
 /*!
@@ -215,10 +216,11 @@ void ConnectionsScheduler::initialize()
  */
 ConnectionsScheduler::~ConnectionsScheduler()
 {
-	readyMutex.destroy();
-	eventsMutex.destroy();
-	connectionsMutex.destroy();
-	delete readySemaphore;
+  readyMutex.destroy();
+  eventsMutex.destroy();
+  connectionsMutex.destroy();
+  delete readySemaphore;
+  delete [] ready;
 }
 
 /*!
@@ -226,21 +228,27 @@ ConnectionsScheduler::~ConnectionsScheduler()
  */
 void ConnectionsScheduler::addReadyConnection(ConnectionPtr c, int doLock)
 {
-	u_long priority = std::max((u_long)(PRIORITY_CLASSES - 1), c->getPriority());
+  int priority = c->getPriority();
 
-	if(doLock)
-		connectionsMutex.lock();
-	c->setParsing(1);
+  if(priority == -1 && c->host)
+      priority = c->host->getDefaultPriority();
+    
+  priority = std::max(0, priority);
+  priority = std::min(PRIORITY_CLASSES - 1, priority);
 
-	if(doLock)
-		connectionsMutex.unlock();
+  if(doLock)
+    connectionsMutex.lock();
+  c->setParsing(1);
 
-	readyMutex.lock();
-	ready[priority].push(c);
-	readyMutex.unlock();
+  if(doLock)
+    connectionsMutex.unlock();
 
-	Server::getInstance()->checkThreadsNumber();
-	readySemaphore->unlock();
+  readyMutex.lock();
+  ready[priority].push(c);
+  readyMutex.unlock();
+
+  Server::getInstance()->checkThreadsNumber();
+  readySemaphore->unlock();
 }
 
 /*!
@@ -248,25 +256,25 @@ void ConnectionsScheduler::addReadyConnection(ConnectionPtr c, int doLock)
  */
 void ConnectionsScheduler::addWaitingConnection(ConnectionPtr c, int doLock)
 {
-	static timeval tv = {10, 0};
-	SocketHandle handle = c->socket->getHandle();
+  static timeval tv = {10, 0};
+  SocketHandle handle = c->socket->getHandle();
 
-	tv.tv_sec = Server::getInstance()->getTimeout() / 1000;
+  tv.tv_sec = Server::getInstance()->getTimeout() / 1000;
 
-	connectionsMutex.lock();
-	c->setParsing(0);
-	connections.put(handle, c);
-	connectionsMutex.unlock();
+  connectionsMutex.lock();
+  c->setParsing(0);
+  connections.put(handle, c);
+  connectionsMutex.unlock();
 
-	event_set(c->getEvent(), handle, EV_READ | EV_TIMEOUT, new_data_handler, c);
+  event_set(c->getEvent(), handle, EV_READ | EV_TIMEOUT, new_data_handler, c);
 
-	if(doLock)
-		eventsMutex.lock();
+  if(doLock)
+    eventsMutex.lock();
 
-	event_add(c->getEvent(), &tv);
+  event_add(c->getEvent(), &tv);
 
-	if(doLock)
-		eventsMutex.unlock();
+  if(doLock)
+    eventsMutex.unlock();
 }
 
 /*!
@@ -274,27 +282,31 @@ void ConnectionsScheduler::addWaitingConnection(ConnectionPtr c, int doLock)
  */
 ConnectionPtr ConnectionsScheduler::getConnection()
 {
-	readySemaphore->lock();
-	readyMutex.lock();
+  readySemaphore->lock();
+  readyMutex.lock();
 
-	for(int i = 0; i < PRIORITY_CLASSES; i++)
-	{
-		while(currentPriorityDone <= currentPriority && ready[currentPriority].size())
-		{
-			ConnectionPtr ret = ready[currentPriority].front();
-			ready[currentPriority].pop();
+  for(int i = 0; i < PRIORITY_CLASSES; i++)
+  {
+    if(currentPriorityDone > currentPriority ||
+       !ready[currentPriority].size())
+    {
+      currentPriority = (currentPriority + 1) % PRIORITY_CLASSES;
+      currentPriorityDone = 0;
+    }
 
-			readyMutex.unlock();
-			return ret;
-		}
+    if(ready[currentPriority].size())
+    {
+      ConnectionPtr ret = ready[currentPriority].front();
+      ready[currentPriority].pop();
+      currentPriorityDone++;
+      readyMutex.unlock();
+      return ret;
+    }
+  }
 
-		currentPriority = (currentPriority + 1) % PRIORITY_CLASSES;
-		currentPriorityDone = 0;
-	}
+  readyMutex.unlock();
 
-	readyMutex.unlock();
-
-	return 0;
+  return 0;
 }
 
 /*!
@@ -302,33 +314,33 @@ ConnectionPtr ConnectionsScheduler::getConnection()
  */
 void ConnectionsScheduler::release()
 {
-	dispatcherArg.terminate = true;
+  dispatcherArg.terminate = true;
 
-	event_loopexit(NULL);
+  event_loopexit(NULL);
 #if EVENT_LOOPBREAK | WIN32
    event_loopbreak();
 #endif
 
-	for(u_long i = 0; i < Server::getInstance()->getNumThreads()*5; i++)
-	{
-		readySemaphore->unlock();
+  for(u_long i = 0; i < Server::getInstance()->getNumThreads()*5; i++)
+  {
+    readySemaphore->unlock();
     }
-	if(dispatchedThreadId)
-		Thread::join(dispatchedThreadId);
+  if(dispatchedThreadId)
+    Thread::join(dispatchedThreadId);
 
-	eventsMutex.lock();
+  eventsMutex.lock();
 
-	list<ListenerArg*>::iterator it = listeners.begin();
+  list<ListenerArg*>::iterator it = listeners.begin();
 
-	while(it != listeners.end())
-	{
-		event_del(&((*it)->ev));
-		delete (*it);
-		it++;
-	}
-	listeners.clear();
-	
-	eventsMutex.unlock();
+  while(it != listeners.end())
+  {
+    event_del(&((*it)->ev));
+    delete (*it);
+    it++;
+  }
+  listeners.clear();
+  
+  eventsMutex.unlock();
 }
 
 /*!
@@ -338,11 +350,11 @@ void ConnectionsScheduler::release()
  */
 void ConnectionsScheduler::getConnections(list<ConnectionPtr> &out)
 {
-	out.clear();
+  out.clear();
 
-	HashMap<SocketHandle, ConnectionPtr>::Iterator it = connections.begin();
-	for(; it != connections.end(); it++)
-		out.push_back(*it);
+  HashMap<SocketHandle, ConnectionPtr>::Iterator it = connections.begin();
+  for(; it != connections.end(); it++)
+    out.push_back(*it);
 }
 
 /*!
@@ -350,7 +362,7 @@ void ConnectionsScheduler::getConnections(list<ConnectionPtr> &out)
  */
 void ConnectionsScheduler::unlockConnectionsList()
 {
-	connectionsMutex.unlock();
+  connectionsMutex.unlock();
 }
 
 /*!
@@ -358,7 +370,7 @@ void ConnectionsScheduler::unlockConnectionsList()
  */
 void ConnectionsScheduler::lockConnectionsList()
 {
-	connectionsMutex.lock();
+  connectionsMutex.lock();
 }
 
 /*!
@@ -366,7 +378,7 @@ void ConnectionsScheduler::lockConnectionsList()
  */
 int ConnectionsScheduler::getConnectionsNumber()
 {
-	return connections.size();
+  return connections.size();
 }
 
 /*!
@@ -374,7 +386,7 @@ int ConnectionsScheduler::getConnectionsNumber()
  */
 void ConnectionsScheduler::removeConnection(ConnectionPtr connection)
 {
-	connections.remove(connection->socket->getHandle());
+  connections.remove(connection->socket->getHandle());
 }
 
 /*!
@@ -382,31 +394,31 @@ void ConnectionsScheduler::removeConnection(ConnectionPtr connection)
  */
 void ConnectionsScheduler::terminateConnections()
 {
-	int i;
+  int i;
   try
   {
-		connectionsMutex.lock();
+    connectionsMutex.lock();
 
-		HashMap<SocketHandle, ConnectionPtr>::Iterator it = connections.begin();
-		for(; it != connections.end(); it++)
+    HashMap<SocketHandle, ConnectionPtr>::Iterator it = connections.begin();
+    for(; it != connections.end(); it++)
     {
-			(*it)->socket->closesocket();
+      (*it)->socket->closesocket();
     }
   }
   catch(...)
   {
-		connectionsMutex.unlock();
+    connectionsMutex.unlock();
     throw;
   };
 
-	connections.clear();
+  connections.clear();
 
-	connectionsMutex.unlock();
+  connectionsMutex.unlock();
 
-	readyMutex.lock();
-	for(i = 0; i < PRIORITY_CLASSES; i++)
-		while(ready[i].size())
-			ready[i].pop();
+  readyMutex.lock();
+  for(i = 0; i < PRIORITY_CLASSES; i++)
+    while(ready[i].size())
+      ready[i].pop();
 
-	readyMutex.unlock();
+  readyMutex.unlock();
 }

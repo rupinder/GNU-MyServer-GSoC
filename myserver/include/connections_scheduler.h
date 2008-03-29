@@ -84,7 +84,7 @@ private:
 	Mutex readyMutex;
 	Mutex connectionsMutex;
 	Mutex eventsMutex;
-	queue<ConnectionPtr> ready[PRIORITY_CLASSES];
+	queue<ConnectionPtr> *ready;
 	HashMap<SocketHandle, ConnectionPtr> connections;
 	list<ListenerArg*> listeners;
 	u_long currentPriority;

@@ -296,7 +296,7 @@ int VhostManager::getHostsNumber()
  *\param maxlogSize The maximum dimension for the log file.
  */
 int VhostManager::loadXMLConfigurationFile(const char *filename, 
-										   int maxlogSize)
+                                           int maxlogSize)
 {
 	XmlParser parser;
 	xmlDocPtr doc;
@@ -371,6 +371,11 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
 			{
 				string certificate((char*)lcur->children->content);
 				sslContext->setCertificateFile(certificate);
+			}
+			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"CONNECTIONS_PRIORITY"))
+			{
+				vh->setDefaultPriority(atoi((const char*)lcur->children->content));
+
 			}
 			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PASSWORD"))
 			{

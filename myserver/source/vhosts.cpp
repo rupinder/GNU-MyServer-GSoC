@@ -53,6 +53,7 @@ Vhost::Vhost()
   throttlingRate = (u_long) -1;
   refCount = 0;
   nullReferenceCb = 0;
+  defaultPriority = 0;
 }
 
 

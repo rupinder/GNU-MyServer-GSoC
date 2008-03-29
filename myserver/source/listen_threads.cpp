@@ -53,8 +53,8 @@ using namespace std;
  */
 ListenThreads::ListenThreads()
 {
-	fastRebooting = false;
-	committingFastReboot = false;
+  fastRebooting = false;
+  committingFastReboot = false;
 }
 
 /*!
@@ -63,219 +63,219 @@ ListenThreads::ListenThreads()
  */
 int ListenThreads::createServerAndListener(u_short port)
 {
-	int optvalReuseAddr = 1;
+  int optvalReuseAddr = 1;
   ostringstream portBuff;
   string listenPortMsg;
-	Server* server = Server::getInstance();
+  Server* server = Server::getInstance();
 
-	if(fastRebooting)
-	{
-		frPortsToAdd.push_back(port);
-		return 0;
-	}
+  if(fastRebooting)
+  {
+    frPortsToAdd.push_back(port);
+    return 0;
+  }
 
-	/*
-	 *Create the server sockets:
-	 *one server socket for IPv4 and another one for IPv6
-	 */
-	Socket *serverSocketIPv4 = new Socket();
-	Socket *serverSocketIPv6 = NULL;
+  /*
+   *Create the server sockets:
+   *one server socket for IPv4 and another one for IPv6
+   */
+  Socket *serverSocketIPv4 = new Socket();
+  Socket *serverSocketIPv6 = NULL;
 
-	SocketInformation* si = new SocketInformation;
-	si->port = port;
+  SocketInformation* si = new SocketInformation;
+  si->port = port;
 
-	/*
+  /*
    *Create the server socket.
    */
   try
-	{
-		if ( serverSocketIPv4 != NULL )
-		{
-			server->logWriteln(languageParser->getValue("MSG_SSOCKCREATE"));
-			serverSocketIPv4->socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-			if (serverSocketIPv4->getHandle() == (SocketHandle)INVALID_SOCKET)
-			{
-				server->logPreparePrintError();
-				server->logWriteln(languageParser->getValue("ERR_OPENP"));
-				server->logEndPrintError();
-				delete serverSocketIPv4;
-				serverSocketIPv4 = NULL;
-			}
-			else
-			{
-				MYSERVER_SOCKADDR_STORAGE sockServerSocketIPv4 = { 0 };
-				server->logWriteln(languageParser->getValue("MSG_SSOCKRUN"));
-				((sockaddr_in*)(&sockServerSocketIPv4))->sin_family = AF_INET;
-				((sockaddr_in*)(&sockServerSocketIPv4))->sin_addr.s_addr = 
-					htonl(INADDR_ANY);
-				((sockaddr_in*)(&sockServerSocketIPv4))->sin_port =
-					htons((u_short)port);
+  {
+    if ( serverSocketIPv4 != NULL )
+    {
+      server->logWriteln(languageParser->getValue("MSG_SSOCKCREATE"));
+      serverSocketIPv4->socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+      if (serverSocketIPv4->getHandle() == (SocketHandle)INVALID_SOCKET)
+      {
+        server->logPreparePrintError();
+        server->logWriteln(languageParser->getValue("ERR_OPENP"));
+        server->logEndPrintError();
+        delete serverSocketIPv4;
+        serverSocketIPv4 = NULL;
+      }
+      else
+      {
+        MYSERVER_SOCKADDR_STORAGE sockServerSocketIPv4 = { 0 };
+        server->logWriteln(languageParser->getValue("MSG_SSOCKRUN"));
+        ((sockaddr_in*)(&sockServerSocketIPv4))->sin_family = AF_INET;
+        ((sockaddr_in*)(&sockServerSocketIPv4))->sin_addr.s_addr = 
+          htonl(INADDR_ANY);
+        ((sockaddr_in*)(&sockServerSocketIPv4))->sin_port =
+          htons((u_short)port);
 
 #ifdef NOT_WIN
-				/*
-				 *Under the unix environment the application needs some time before
-				 * create a new socket for the same address.
-				 *To avoid this behavior we use the current code.
-				 */
-				if(serverSocketIPv4->setsockopt(SOL_SOCKET, SO_REUSEADDR,
-																				(const char *)&optvalReuseAddr,
-																				sizeof(optvalReuseAddr)) < 0)
-				{
-					server->logPreparePrintError();
-					server->logWriteln(languageParser->getValue("ERR_ERROR"));
-					server->logEndPrintError();
-					delete serverSocketIPv4;
-					serverSocketIPv4 = NULL;
-					//return 0; allow IPv6
-				}
+        /*
+         *Under the unix environment the application needs some time before
+         * create a new socket for the same address.
+         *To avoid this behavior we use the current code.
+         */
+        if(serverSocketIPv4->setsockopt(SOL_SOCKET, SO_REUSEADDR,
+                                        (const char *)&optvalReuseAddr,
+                                        sizeof(optvalReuseAddr)) < 0)
+        {
+          server->logPreparePrintError();
+          server->logWriteln(languageParser->getValue("ERR_ERROR"));
+          server->logEndPrintError();
+          delete serverSocketIPv4;
+          serverSocketIPv4 = NULL;
+          //return 0; allow IPv6
+        }
 #endif
-				if( serverSocketIPv4 != NULL )
-				{
-					/*
-					 *Bind the port.
-					 */
-					server->logWriteln(languageParser->getValue("MSG_BIND_PORT"));
-					
-					if (serverSocketIPv4->bind(&sockServerSocketIPv4,
-																		 sizeof(sockaddr_in)) != 0)
-					{
-						server->logPreparePrintError();
-						server->logWriteln(languageParser->getValue("ERR_BIND"));
-						server->logEndPrintError();
-						delete serverSocketIPv4;
-						serverSocketIPv4 = NULL;
-					}
-					else
-						server->logWriteln(languageParser->getValue("MSG_PORT_BOUND"));
-				}
-			}
-		}
+        if( serverSocketIPv4 != NULL )
+        {
+          /*
+           *Bind the port.
+           */
+          server->logWriteln(languageParser->getValue("MSG_BIND_PORT"));
+          
+          if (serverSocketIPv4->bind(&sockServerSocketIPv4,
+                                     sizeof(sockaddr_in)) != 0)
+          {
+            server->logPreparePrintError();
+            server->logWriteln(languageParser->getValue("ERR_BIND"));
+            server->logEndPrintError();
+            delete serverSocketIPv4;
+            serverSocketIPv4 = NULL;
+          }
+          else
+            server->logWriteln(languageParser->getValue("MSG_PORT_BOUND"));
+        }
+      }
+    }
 
 #if ( HAVE_IPV6 )
-		serverSocketIPv6 = new Socket();
+    serverSocketIPv6 = new Socket();
 
-		if (serverSocketIPv6 != NULL)
-		{
-			server->logWriteln(languageParser->getValue("MSG_SSOCKCREATE"));
-			serverSocketIPv6->socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
-			if ( serverSocketIPv6->getHandle() == (SocketHandle)INVALID_SOCKET )
-			{
-				server->logPreparePrintError();
-				server->logWriteln(languageParser->getValue("ERR_OPENP"));
-				server->logEndPrintError();
-				delete serverSocketIPv6;
-				serverSocketIPv6 = NULL;
-			}
-			else
-			{
-				MYSERVER_SOCKADDR_STORAGE sockServerSocketIPv6 = { 0 };
-				server->logWriteln(languageParser->getValue("MSG_SSOCKRUN"));
-				((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_family = AF_INET6;
-				((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_addr = in6addr_any;
-				((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_port = 
-					htons((u_short)port);
+    if (serverSocketIPv6 != NULL)
+    {
+      server->logWriteln(languageParser->getValue("MSG_SSOCKCREATE"));
+      serverSocketIPv6->socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
+      if ( serverSocketIPv6->getHandle() == (SocketHandle)INVALID_SOCKET )
+      {
+        server->logPreparePrintError();
+        server->logWriteln(languageParser->getValue("ERR_OPENP"));
+        server->logEndPrintError();
+        delete serverSocketIPv6;
+        serverSocketIPv6 = NULL;
+      }
+      else
+      {
+        MYSERVER_SOCKADDR_STORAGE sockServerSocketIPv6 = { 0 };
+        server->logWriteln(languageParser->getValue("MSG_SSOCKRUN"));
+        ((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_family = AF_INET6;
+        ((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_addr = in6addr_any;
+        ((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_port = 
+          htons((u_short)port);
 #ifdef NOT_WIN
-				/*
-				 *Under the unix environment the application needs some time before
-				 * create a new socket for the same address.
-				 *To avoid this behavior we use the current code.
-				 */
-				if(serverSocketIPv6->setsockopt(SOL_SOCKET, SO_REUSEADDR,
-																				(const char *)&optvalReuseAddr,
-																				sizeof(optvalReuseAddr))<0)
-				{
-					server->logPreparePrintError();
-					server->logWriteln(languageParser->getValue("ERR_ERROR"));
-					server->logEndPrintError();
-					delete serverSocketIPv6;
-					serverSocketIPv6 = NULL;
-					//return 0;allow IPv6
-				}
+        /*
+         *Under the unix environment the application needs some time before
+         * create a new socket for the same address.
+         *To avoid this behavior we use the current code.
+         */
+        if(serverSocketIPv6->setsockopt(SOL_SOCKET, SO_REUSEADDR,
+                                        (const char *)&optvalReuseAddr,
+                                        sizeof(optvalReuseAddr))<0)
+        {
+          server->logPreparePrintError();
+          server->logWriteln(languageParser->getValue("ERR_ERROR"));
+          server->logEndPrintError();
+          delete serverSocketIPv6;
+          serverSocketIPv6 = NULL;
+          //return 0;allow IPv6
+        }
 
-				if(serverSocketIPv6->setsockopt(IPPROTO_IPV6, IPV6_V6ONLY,
-																				(const char *)&optvalReuseAddr,
-																				sizeof(optvalReuseAddr)) < 0)
-				{
-					server->logPreparePrintError();
-					server->logWriteln(languageParser->getValue("ERR_ERROR"));
-					server->logEndPrintError();
-					delete serverSocketIPv6;
-					serverSocketIPv6 = NULL;
-					//return 0;allow IPv6
-				}
+        if(serverSocketIPv6->setsockopt(IPPROTO_IPV6, IPV6_V6ONLY,
+                                        (const char *)&optvalReuseAddr,
+                                        sizeof(optvalReuseAddr)) < 0)
+        {
+          server->logPreparePrintError();
+          server->logWriteln(languageParser->getValue("ERR_ERROR"));
+          server->logEndPrintError();
+          delete serverSocketIPv6;
+          serverSocketIPv6 = NULL;
+          //return 0;allow IPv6
+        }
 #endif
-				if(serverSocketIPv6 != NULL )
-				{
-					/*
-					 *Bind the port.
-					 */
-					server->logWriteln(languageParser->getValue("MSG_BIND_PORT"));
-					
-					if ( serverSocketIPv6->bind(&sockServerSocketIPv6,
-																			sizeof(sockaddr_in6)) != 0)
-					{
-						server->logPreparePrintError();
-						server->logWriteln(languageParser->getValue("ERR_BIND"));
-						server->logEndPrintError();
-						delete serverSocketIPv6;
-						serverSocketIPv6 = NULL;
-					}
-					else
-						server->logWriteln(languageParser->getValue("MSG_PORT_BOUND"));
+        if(serverSocketIPv6 != NULL )
+        {
+          /*
+           *Bind the port.
+           */
+          server->logWriteln(languageParser->getValue("MSG_BIND_PORT"));
+          
+          if ( serverSocketIPv6->bind(&sockServerSocketIPv6,
+                                      sizeof(sockaddr_in6)) != 0)
+          {
+            server->logPreparePrintError();
+            server->logWriteln(languageParser->getValue("ERR_BIND"));
+            server->logEndPrintError();
+            delete serverSocketIPv6;
+            serverSocketIPv6 = NULL;
+          }
+          else
+            server->logWriteln(languageParser->getValue("MSG_PORT_BOUND"));
 
-				}
-			}
-		}
+        }
+      }
+    }
 #endif // HAVE_IPV6
-		
-		if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
-		{
-			delete si;
-			return 1;
-		}
+    
+    if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
+    {
+      delete si;
+      return 1;
+    }
 
-		/*
-		 *Set connections listen queque to max allowable.
-		 */
-		server->logWriteln(languageParser->getValue("MSG_SLISTEN"));
-		if (serverSocketIPv4 != NULL && serverSocketIPv4->listen(SOMAXCONN))
-		{
+    /*
+     *Set connections listen queque to max allowable.
+     */
+    server->logWriteln(languageParser->getValue("MSG_SLISTEN"));
+    if (serverSocketIPv4 != NULL && serverSocketIPv4->listen(SOMAXCONN))
+    {
       server->logPreparePrintError();
       server->logWriteln(languageParser->getValue("ERR_LISTEN"));
       server->logEndPrintError();
       delete serverSocketIPv4;
       serverSocketIPv4 = NULL;
-		}
+    }
 
-		if (serverSocketIPv6 != NULL && serverSocketIPv6->listen(SOMAXCONN))
-		{
+    if (serverSocketIPv6 != NULL && serverSocketIPv6->listen(SOMAXCONN))
+    {
       server->logPreparePrintError();
       server->logWriteln(languageParser->getValue("ERR_LISTEN"));
       server->logEndPrintError();
       delete serverSocketIPv6;
       serverSocketIPv6 = NULL;
-		}
+    }
 
-		if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
-		{
-			delete si;
-			return 1;
-		}
+    if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
+    {
+      delete si;
+      return 1;
+    }
 
-		portBuff << (u_int)port;
+    portBuff << (u_int)port;
 
-		listenPortMsg.assign(languageParser->getValue("MSG_LISTEN"));
-		listenPortMsg.append(": ");
-		listenPortMsg.append(portBuff.str());
-	
-		server->logWriteln(listenPortMsg.c_str());
+    listenPortMsg.assign(languageParser->getValue("MSG_LISTEN"));
+    listenPortMsg.append(": ");
+    listenPortMsg.append(portBuff.str());
+  
+    server->logWriteln(listenPortMsg.c_str());
 
-		si->ipv4 = serverSocketIPv4;
-		si->ipv6 = serverSocketIPv6;
+    si->ipv4 = serverSocketIPv4;
+    si->ipv6 = serverSocketIPv6;
 
-		usedPorts.put(port, si);
-		
-		registerListener(si);
+    usedPorts.put(port, si);
+    
+    registerListener(si);
 
     return 0;
   }
@@ -300,17 +300,17 @@ int ListenThreads::createServerAndListener(u_short port)
 void ListenThreads::registerListener(SocketInformation* si)
 {
 
-		if(si->ipv4)
-		{
-			si->laIpv4.reset(si->ipv4, si->port);
-			Server::getInstance()->getConnectionsScheduler()->listener(&(si->laIpv4));
-		}
+    if(si->ipv4)
+    {
+      si->laIpv4.reset(si->ipv4, si->port);
+      Server::getInstance()->getConnectionsScheduler()->listener(&(si->laIpv4));
+    }
 
-		if(si->ipv6)
-		{
-			si->laIpv6.reset(si->ipv6, si->port);
-			Server::getInstance()->getConnectionsScheduler()->listener(&(si->laIpv6));
-		}
+    if(si->ipv6)
+    {
+      si->laIpv6.reset(si->ipv6, si->port);
+      Server::getInstance()->getConnectionsScheduler()->listener(&(si->laIpv6));
+    }
 }
 
 /*!
@@ -319,10 +319,10 @@ void ListenThreads::registerListener(SocketInformation* si)
  */
 void ListenThreads::addListeningThread(u_short port)
 {
-	if(!(fastRebooting || committingFastReboot))
-		if(usedPorts.get(port))
-			return;
-	createServerAndListener(port);
+  if(!(fastRebooting || committingFastReboot))
+    if(usedPorts.get(port))
+      return;
+  createServerAndListener(port);
 }
 
 /*!
@@ -331,9 +331,9 @@ void ListenThreads::addListeningThread(u_short port)
  */
 int ListenThreads::initialize(XmlParser* parser)
 {
-	languageParser = parser;
-	shutdownStatus = false;
-	return 0;
+  languageParser = parser;
+  shutdownStatus = false;
+  return 0;
 }
 
 /*!
@@ -341,77 +341,78 @@ int ListenThreads::initialize(XmlParser* parser)
  */
 void ListenThreads::commitFastReboot()
 {
-	/* Contains already present ports.  */
-	set<u_short> presentPorts;
+  /* Contains already present ports.  */
+  set<u_short> presentPorts;
 
-	/* Contains all the ports needed after the commit.  */
-	set<u_short> newPorts;
+  /* Contains all the ports needed after the commit.  */
+  set<u_short> newPorts;
 
-	/* Contains ports already present and still needed.  */
-	set<u_short> intersection;
+  /* Contains ports already present and still needed.  */
+  set<u_short> intersection;
 
-	/* Contains ports already present and still needed.  */
-	set<u_short> toRemove;
+  /* Contains ports already present and still needed.  */
+  set<u_short> toRemove;
 
-	/* Contains new ports to add.  */
-	set<u_short> toAdd;
+  /* Contains new ports to add.  */
+  set<u_short> toAdd;
 
-	fastRebooting = false;
-	committingFastReboot = true;
+  fastRebooting = false;
+  committingFastReboot = true;
 
-	for(HashMap<u_short, SocketInformation*>::Iterator it = usedPorts.begin(); it != usedPorts.end(); it++)
-	{
-		presentPorts.insert((*it)->port);
-	}
+  for(HashMap<u_short, SocketInformation*>::Iterator it = usedPorts.begin(); 
+      it != usedPorts.end(); it++)
+  {
+    presentPorts.insert((*it)->port);
+  }
 
-	for(list<u_short>::iterator it = frPortsToAdd.begin(); it != frPortsToAdd.end(); it++)
-	{
-		newPorts.insert(*it);
-	}
+  for(list<u_short>::iterator it = frPortsToAdd.begin(); it != frPortsToAdd.end(); it++)
+  {
+    newPorts.insert(*it);
+  }
 
-	/* intersection = intersection(presentsPorts, newPorts).  */
-	set_intersection(presentPorts.begin(), presentPorts.end(), newPorts.begin(), newPorts.end(),
-									 insert_iterator<set<u_short> >(intersection, intersection.begin()));
-
-
-	/* toRemove = presentsPorts - newPorts.  */
-	set_difference(presentPorts.begin(), presentPorts.end(), newPorts.begin(), newPorts.end(),
-								 insert_iterator<set<u_short> >(toRemove, toRemove.begin()));
+  /* intersection = intersection(presentsPorts, newPorts).  */
+  set_intersection(presentPorts.begin(), presentPorts.end(), newPorts.begin(), newPorts.end(),
+                   insert_iterator<set<u_short> >(intersection, intersection.begin()));
 
 
-	/* toAdd = newPorts - presentsPorts.  */
-	set_difference(newPorts.begin(), newPorts.end(), presentPorts.begin(), presentPorts.end(),
-								 insert_iterator<set<u_short> >(toAdd, toAdd.begin()));
+  /* toRemove = presentsPorts - newPorts.  */
+  set_difference(presentPorts.begin(), presentPorts.end(), newPorts.begin(), newPorts.end(),
+                 insert_iterator<set<u_short> >(toRemove, toRemove.begin()));
+
+
+  /* toAdd = newPorts - presentsPorts.  */
+  set_difference(newPorts.begin(), newPorts.end(), presentPorts.begin(), presentPorts.end(),
+                 insert_iterator<set<u_short> >(toAdd, toAdd.begin()));
 
 
 
-	/* Ports in intersections need only to be registered on the event listener.  */
-	for(set<u_short>::iterator it = intersection.begin(); it != intersection.end(); it++)
-	{
-		registerListener(usedPorts.get(*it));
-	}
+  /* Ports in intersections need only to be registered on the event listener.  */
+  for(set<u_short>::iterator it = intersection.begin(); it != intersection.end(); it++)
+  {
+    registerListener(usedPorts.get(*it));
+  }
 
-	/* Create here the new ports.  */
-	for(set<u_short>::iterator it = toAdd.begin(); it != toAdd.end(); it++)
- 	{
-		createServerAndListener(*it);
-	}
+  /* Create here the new ports.  */
+  for(set<u_short>::iterator it = toAdd.begin(); it != toAdd.end(); it++)
+   {
+    createServerAndListener(*it);
+  }
 
-	/* Enqueue connections to remove to frPortsToRemove and destroy them with terminate.  */
-	for(set<u_short>::iterator it = toRemove.begin(); it != toRemove.end(); it++)
-	{
-		SocketInformation* si;
-		si = usedPorts.get(*it);
-		frPortsToRemove.push_back(si);
-		usedPorts.remove(si->port);
-	}
+  /* Enqueue connections to remove to frPortsToRemove and destroy them with terminate.  */
+  for(set<u_short>::iterator it = toRemove.begin(); it != toRemove.end(); it++)
+  {
+    SocketInformation* si;
+    si = usedPorts.get(*it);
+    frPortsToRemove.push_back(si);
+    usedPorts.remove(si->port);
+  }
 
-	terminate();
+  terminate();
 
-	frPortsToAdd.clear();
-	frPortsToRemove.clear();
+  frPortsToAdd.clear();
+  frPortsToRemove.clear();
 
-	committingFastReboot = false;
+  committingFastReboot = false;
 }
 
 
@@ -420,16 +421,17 @@ void ListenThreads::commitFastReboot()
  */
 void ListenThreads::rollbackFastReboot()
 {
-	fastRebooting = false;
-	committingFastReboot = false;
-	
-	for(HashMap<u_short, SocketInformation*>::Iterator it = usedPorts.begin(); it != usedPorts.end(); it++)
-	{
-		registerListener(*it);
-	}
+  fastRebooting = false;
+  committingFastReboot = false;
+  
+  for(HashMap<u_short, SocketInformation*>::Iterator it = usedPorts.begin(); 
+      it != usedPorts.end(); it++)
+  {
+    registerListener(*it);
+  }
 
-	frPortsToAdd.clear();
-	frPortsToRemove.clear();
+  frPortsToAdd.clear();
+  frPortsToRemove.clear();
 }
 
 /*!
@@ -437,7 +439,7 @@ void ListenThreads::rollbackFastReboot()
  */
 void ListenThreads::beginFastReboot()
 {
-	fastRebooting = true;
+  fastRebooting = true;
 }
 
 
@@ -446,65 +448,66 @@ void ListenThreads::beginFastReboot()
  */
 int ListenThreads::terminate()
 {
-	char buffer[256];
+  char buffer[256];
 
-	list <SocketInformation*> sockets;
+  list <SocketInformation*> sockets;
 
-	list <SocketInformation*>::iterator it;
-	list <SocketInformation*>::iterator end;
+  list <SocketInformation*>::iterator it;
+  list <SocketInformation*>::iterator end;
 
-	if(fastRebooting)
-	{
-		return 0;
-	}
-	else if(committingFastReboot)
-	{
-		it = frPortsToRemove.begin();
-		end = frPortsToRemove.end();
-	}
-	else
-	{
-		for(HashMap<u_short, SocketInformation*>::Iterator i = usedPorts.begin(); i != usedPorts.end(); i++)
-			sockets.push_front(*i);
+  if(fastRebooting)
+  {
+    return 0;
+  }
+  else if(committingFastReboot)
+  {
+    it = frPortsToRemove.begin();
+    end = frPortsToRemove.end();
+  }
+  else
+  {
+    for(HashMap<u_short, SocketInformation*>::Iterator i = usedPorts.begin(); 
+        i != usedPorts.end(); i++)
+      sockets.push_front(*i);
 
-		it = sockets.begin();
-		end = sockets.end();
+    it = sockets.begin();
+    end = sockets.end();
 
-		shutdown();
-	}
+    shutdown();
+  }
 
-	while(it != end)
-	{
-		for(int t = 0; t < 2; t++)
-		{
-			Socket* serverSocket;
-			int err;
+  while(it != end)
+  {
+    for(int t = 0; t < 2; t++)
+    {
+      Socket* serverSocket;
+      int err;
 
-			if(t == 0)
-				serverSocket = (*it)->ipv4;
-			else
-				serverSocket = (*it)->ipv6;
-			
-			if(!serverSocket)
-				continue;
+      if(t == 0)
+        serverSocket = (*it)->ipv4;
+      else
+        serverSocket = (*it)->ipv6;
+      
+      if(!serverSocket)
+        continue;
 
-			serverSocket->shutdown(SD_BOTH);
-			do
-			{
-				err = serverSocket->recv(buffer, 256, 0);
-			}while(err != -1);
+      serverSocket->shutdown(SD_BOTH);
+      do
+      {
+        err = serverSocket->recv(buffer, 256, 0);
+      }while(err != -1);
 
-			serverSocket->closesocket();
-			delete serverSocket;
-		}
-		delete (*it);
-		it++;
-	}
+      serverSocket->closesocket();
+      delete serverSocket;
+    }
+    delete (*it);
+    it++;
+  }
 
-	/* If it is not a fast reboot then clear everything.  */
-	if(!(fastRebooting || committingFastReboot))
-	{
-		usedPorts.clear();
-	}
-	return 0;
+  /* If it is not a fast reboot then clear everything.  */
+  if(!(fastRebooting || committingFastReboot))
+  {
+    usedPorts.clear();
+  }
+  return 0;
 }

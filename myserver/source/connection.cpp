@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -35,14 +35,14 @@ Connection::Connection()
 	localPort = 0;
   timeout = 0;
   host = 0;
-	dataRead = 0;
+  dataRead = 0;
   toRemove = 0;
   forceParsing = 0;
-  connectionBuffer = new 	char [MYSERVER_KB(8)];
+  connectionBuffer = new   char [MYSERVER_KB(8)];
   protocolBuffer = 0;
-	socket = 0;
-	priority = 0;
-	dataRead = 0;
+  socket = 0;
+  priority = -1;
+  dataRead = 0;
 }
 
 /*!
@@ -52,23 +52,23 @@ Connection::~Connection()
 {
   if(socket)
   {
-		socket->shutdown(SD_BOTH);
-		char buffer[256];
-		int buffersize = 256;
-		int err;
-		do
-		{
-			err = socket->recv(buffer, buffersize, 0);
-	  }while((err != -1) && err);
+    socket->shutdown(SD_BOTH);
+    char buffer[256];
+    int buffersize = 256;
+    int err;
+    do
+    {
+      err = socket->recv(buffer, buffersize, 0);
+    }while((err != -1) && err);
 
-	  socket->closesocket();
-		delete socket;
+    socket->closesocket();
+    delete socket;
   }
 
   if(protocolBuffer)
     delete protocolBuffer;
 
-	delete[] connectionBuffer;
+  delete[] connectionBuffer;
 
   /*! Remove the reference for the vhost. */
   if(host)
@@ -114,17 +114,17 @@ int Connection::isParsing()
  */
 int Connection::allowDelete()
 {
-	int nReturn = isParsing();
-	if ( nReturn != 0 || host == NULL || host->getProtocol() != PROTOCOL_FTP )
-		return nReturn;
-	else
-	{
-		FtpUserData *pUserData = static_cast<FtpUserData *>(protocolBuffer);
-		if ( pUserData != NULL && pUserData->m_pDataConnection != NULL )
-			return pUserData->m_pDataConnection->isParsing();
-		else
-			return nReturn;
-	}
+  int nReturn = isParsing();
+  if ( nReturn != 0 || host == NULL || host->getProtocol() != PROTOCOL_FTP )
+    return nReturn;
+  else
+  {
+    FtpUserData *pUserData = static_cast<FtpUserData *>(protocolBuffer);
+    if ( pUserData != NULL && pUserData->m_pDataConnection != NULL )
+      return pUserData->m_pDataConnection->isParsing();
+    else
+      return nReturn;
+  }
 }
 
 /*!
@@ -149,7 +149,7 @@ void Connection::setPort(u_short newPort)
  */
 const char* Connection::getLogin()
 {
-	return login.c_str();
+  return login.c_str();
 }
 
 /*!
@@ -325,7 +325,7 @@ void Connection::setPassword(const char* p)
  */
 u_long Connection::getPriority()
 {
-	return priority;
+  return priority;
 }
 
 /*!
@@ -334,5 +334,5 @@ u_long Connection::getPriority()
  */
 void Connection::setPriority(u_long p)
 {
-	priority = p;
+  priority = p;
 }
