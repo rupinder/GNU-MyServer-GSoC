@@ -1179,11 +1179,24 @@ bool Ftp::GetLocalPath(const std::string &sPath, std::string &sOutPath)
 	else if ( sPath[0] == '-' ) // ls params not handled
 		sOutPath = pFtpUserData->m_cwd;
 	else
+	{
+		size_t nDotsPos = sPath.find("..");
+		if ( nDotsPos != std::string::npos )
+		{
+			std::string sRemainingPath = sPath.substr(nDotsPos + 2, std::string::npos);
+			sOutPath = pFtpUserData->m_cwd;
+			sOutPath = sOutPath.substr(0, sOutPath.find_last_of("/\\"));
+			sOutPath += sRemainingPath;
+		}
+		else
+		{
 #ifdef WIN32
-		sOutPath = pFtpUserData->m_cwd + "\\" + sPath;
+			sOutPath = pFtpUserData->m_cwd + "\\" + sPath;
 #else
-	 	sOutPath = pFtpUserData->m_cwd + "/" + sPath;
+	 		sOutPath = pFtpUserData->m_cwd + "/" + sPath;
 #endif // WIN32
+		}
+	}
 	//FilesUtility::completePath(sOutPath);
 	if ( sOutPath.empty() || 
 	   ( !FilesUtility::isDirectory(sOutPath) && 

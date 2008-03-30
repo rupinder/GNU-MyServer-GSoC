@@ -35,4 +35,5 @@ void GetIpAddr(const FtpHost &host, char *pOut);
 int GetPortNo(const FtpHost &host);
 std::string GetPortNo(unsigned int nPort);
 std::string GetHost(const FtpHost &host);
+void RemovePathsDots(std::string &sPath);
 #endif //__FTP_COMMON_H__ 
