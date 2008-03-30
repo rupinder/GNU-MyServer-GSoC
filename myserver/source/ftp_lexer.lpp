@@ -246,5 +246,32 @@
 		yylloc->last_column += yyleng;
 		return STRING_FTP_ARG;
 	}
+	/*add rfc 775 cmds(used by win32 ftp client)*/
+<INITIAL>XMKD	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		BEGIN(STRING);
+		return MKD_FTP_COMMAND;
+	}
+<INITIAL>XRMD	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		BEGIN(STRING);
+		return RMD_FTP_COMMAND;
+	}
+<INITIAL>XPWD	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		return PWD_FTP_COMMAND;
+	}
+<INITIAL>XCUP	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		return CDUP_FTP_COMMAND;
+	}
 
 %%

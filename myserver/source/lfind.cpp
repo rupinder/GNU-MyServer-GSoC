@@ -58,7 +58,10 @@ int FindData::findfirst(const char filename[])
 #ifdef WIN32
 	string filenameStar;
 	filenameStar.assign(filename);
-	filenameStar.append("/*");
+	// trim ending '/' or '\'
+	string::size_type slashBackSlash = filenameStar.find_last_not_of("/\\"); 
+	filenameStar.erase(slashBackSlash+1);
+	filenameStar.append("\\*");
 
   ff = _findfirst(filenameStar.c_str(), &fd );
   if(ff!=-1)
@@ -67,8 +70,10 @@ int FindData::findfirst(const char filename[])
     attrib = fd.attrib;
     time_write = fd.time_write;
     size = fd.size ;
+    return 0;
   }
-  return ff;
+  else
+  	  return ff;
 #endif
 
 #ifdef NOT_WIN

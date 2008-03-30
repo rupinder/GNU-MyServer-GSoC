@@ -41,7 +41,7 @@ Connection::Connection()
   connectionBuffer = new   char [MYSERVER_KB(8)];
   protocolBuffer = 0;
   socket = 0;
-  priority = -1;
+  priority = (u_long)-1;
   dataRead = 0;
 }
 

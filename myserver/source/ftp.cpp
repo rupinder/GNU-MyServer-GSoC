@@ -62,11 +62,13 @@ void SetFtpHost(FtpHost &out, const char *szIn)
 	free(szLocalIn);
 }
 
-const char *GetIpAddr(const FtpHost &host)
+void GetIpAddr(const FtpHost &host, char *pOut)
 {
+	if ( pOut == NULL )
+		return;
 	std::ostringstream sRet;
 	sRet << host.h1 << '.' << host.h2 << '.' << host.h3 << '.' << host.h4;
-	return sRet.str().c_str();
+	strcpy(pOut, sRet.str().c_str());
 }
 
 int GetPortNo(const FtpHost &host)
@@ -1177,9 +1179,16 @@ bool Ftp::GetLocalPath(const std::string &sPath, std::string &sOutPath)
 	else if ( sPath[0] == '-' ) // ls params not handled
 		sOutPath = pFtpUserData->m_cwd;
 	else
-		sOutPath = pFtpUserData->m_cwd + "/" + sPath;
+#ifdef WIN32
+		sOutPath = pFtpUserData->m_cwd + "\\" + sPath;
+#else
+	 	sOutPath = pFtpUserData->m_cwd + "/" + sPath;
+#endif // WIN32
 	//FilesUtility::completePath(sOutPath);
-	if ( sOutPath.empty() || !FilesUtility::fileExists(sOutPath) || FilesUtility::isLink(sOutPath.c_str()) )
+	if ( sOutPath.empty() || 
+	   ( !FilesUtility::isDirectory(sOutPath) && 
+	   !FilesUtility::fileExists(sOutPath) ) || 
+	   FilesUtility::isLink(sOutPath.c_str()) )
 	{
 		ftp_reply(550);
 		return false;
@@ -1266,7 +1275,14 @@ int Ftp::OpenDataPassive()
 	int nReuseAddr = 1;
 	MYSERVER_SOCKADDR_STORAGE storage = { 0 };
 	((sockaddr_in*)(&storage))->sin_family = AF_INET;
-	inet_aton(GetIpAddr(pFtpUserData->m_cdh), &((sockaddr_in*)(&storage))->sin_addr);
+	char szIpAddr[16];
+	memset(szIpAddr, 0, 16);
+	GetIpAddr(pFtpUserData->m_cdh, szIpAddr);
+#ifdef WIN32
+	((sockaddr_in*)(&storage))->sin_addr.s_addr = inet_addr(szIpAddr);
+#else
+	inet_aton(szIpAddr, &((sockaddr_in*)(&storage))->sin_addr);
+#endif // WIN32
 	((sockaddr_in*)(&storage))->sin_port = htons(GetPortNo(pFtpUserData->m_cdh));
 	if ( pSocket->setsockopt(SOL_SOCKET, SO_REUSEADDR, (const char*)&nReuseAddr, sizeof(nReuseAddr)) < 0 )
 		return 0;
@@ -1292,7 +1308,10 @@ int Ftp::OpenDataActive()
 
 	Socket dataSocket;
 	dataSocket.socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if ( dataSocket.connect(GetIpAddr(pFtpUserData->m_cdh), GetPortNo(pFtpUserData->m_cdh)) < 0 )
+	char szIpAddr[16];
+	memset(szIpAddr, 0, 16);
+	GetIpAddr(pFtpUserData->m_cdh, szIpAddr);
+	if ( dataSocket.connect(szIpAddr, GetPortNo(pFtpUserData->m_cdh)) < 0 )
 	{
 		//TODO: add errno code
 		ftp_reply(425);

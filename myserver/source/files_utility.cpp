@@ -750,7 +750,7 @@ int FilesUtility::simpleMakeDirectory(const char *path)
 int FilesUtility::deleteDirectory(const char *path)
 {
 #ifdef WIN32
-//TODO: implement
+	   return RemoveDirectory(path)?0:-1;
 #else // NOT_WIN
 	return rmdir(path);
 #endif
