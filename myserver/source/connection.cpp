@@ -41,7 +41,7 @@ Connection::Connection()
   connectionBuffer = new   char [MYSERVER_KB(8)];
   protocolBuffer = 0;
   socket = 0;
-  priority = (u_long)-1;
+  priority = -1;
   dataRead = 0;
 }
 
@@ -323,7 +323,7 @@ void Connection::setPassword(const char* p)
 /*!
  *Get the connection priority.
  */
-u_long Connection::getPriority()
+int Connection::getPriority()
 {
   return priority;
 }
@@ -332,7 +332,7 @@ u_long Connection::getPriority()
  *Set the connection priority.
  *\param p The new priority.
  */
-void Connection::setPriority(u_long p)
+void Connection::setPriority(int p)
 {
   priority = p;
 }
