@@ -887,14 +887,6 @@ unsigned int __stdcall ReceiveAsciiFile(void* pParam)
 void* ReceiveAsciiFile(void* pParam)
 #endif //HAVE_PTHREAD
 {
-/*
-//TODO: test implementation
-#ifdef WIN32
-	return 0;
-#elif HAVE_PTHREAD
-	return (void*)0;
-#endif
-*/
 	DataConnectionWorkerThreadData *pWt = reinterpret_cast<DataConnectionWorkerThreadData *>(pParam);
 	if ( pWt == NULL )
 	{
@@ -1197,9 +1189,8 @@ bool Ftp::GetLocalPath(const std::string &sPath, std::string &sOutPath)
 #endif // WIN32
 		}
 	}
-	//FilesUtility::completePath(sOutPath);
 	if ( sOutPath.empty() || 
-	   ( !FilesUtility::isDirectory(sOutPath) && 
+	   ( FilesUtility::isDirectory(sOutPath) && 
 	   !FilesUtility::fileExists(sOutPath) ) || 
 	   FilesUtility::isLink(sOutPath.c_str()) )
 	{
@@ -2021,7 +2012,7 @@ void Ftp::Mkd(const std::string &sPath)
 
 void Ftp::Rmd(const std::string &sPath)
 {
-	if ( !UserLoggedIn() )
+	if ( !UserLoggedIn() || sPath.empty() )
 	{
 		ftp_reply(550);
 		return;
@@ -2029,7 +2020,11 @@ void Ftp::Rmd(const std::string &sPath)
 
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
-	std::string sLocalPath = pFtpUserData->m_cwd + "/" + sPath;
+	std::string sLocalPath;
+	if ( sPath[0] == '/' )
+		sLocalPath = sPath;
+	else
+		sLocalPath = pFtpUserData->m_cwd + "/" + sPath;
 
 	SecurityToken st;
 	if ( strcmpi(pFtpUserData->m_sUserName.c_str(), "anonymous") == 0 )
