@@ -167,12 +167,6 @@
 		BEGIN(STRING);
 		return HELP_FTP_COMMAND;
 	}
-<INITIAL>SITE	{
-		yylloc->first_line = yylloc->last_line;
-		yylloc->first_column = yylloc->last_column;
-		yylloc->last_column += 4;
-		return HELP_FTP_COMMAND;// do the same as help
-	}
 <INITIAL>SYST	{
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
@@ -220,6 +214,27 @@
 		yylloc->last_column += 4;
 		return CDUP_FTP_COMMAND;
 	}
+	/*SITE commands*/
+<INITIAL>SITE	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		return SITE_FTP_COMMAND;// do the same as help
+	}
+<INITIAL>CHMOD	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		BEGIN(NUMBER);
+		return CHMOD_FTP_COMMAND;// do the same as help
+	}
+<INITIAL>UTIME	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		BEGIN(NUMBER);
+		return UTIME_FTP_COMMAND;// do the same as help
+	}
 [[:punct:]]	{
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
@@ -242,6 +257,7 @@
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
 		yylloc->last_column += yyleng;
+		BEGIN(INITIAL);
 		return NUMBER_FTP_ARG;
 	}
 [:alpha:]	{

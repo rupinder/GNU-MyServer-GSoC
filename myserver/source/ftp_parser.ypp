@@ -72,6 +72,11 @@
 /* Miscellaneous commands*/
 %token NOOP_FTP_COMMAND
 
+/* SITE commands */
+%token SITE_FTP_COMMAND
+%token CHMOD_FTP_COMMAND
+%token UTIME_FTP_COMMAND
+
 %%
 cmd_list	:/* empty */
 		| cmd_list cmd
@@ -207,6 +212,19 @@ cmd		: USER_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		| RMD_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
 		  pContext->Rmd($3);
+		}
+		| SITE_FTP_COMMAND SPACE_FTP_SEP cmd
+		{
+		}
+		| CHMOD_FTP_COMMAND SPACE_FTP_SEP NUMBER_FTP_ARG SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
+		{
+			//pContext->Chmod($3, $5);
+			pContext->ftp_reply(502);//any site commands
+		}
+		| UTIME_FTP_COMMAND SPACE_FTP_SEP NUMBER_FTP_ARG SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
+		{
+			//pContext->Utime($3, $5);
+			pContext->ftp_reply(502);//any site commands
 		}
 		;
 	/* ftp command arguments */
