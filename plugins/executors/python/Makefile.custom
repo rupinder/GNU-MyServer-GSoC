@@ -1,7 +1,7 @@
 PYTHON_INC=`python-config --includes`
 PYTHON_LIB=`python-config --libs`
 all:
-	$(CXX) -c python.cpp -o python.o -I$(MYSERVER_HEADERS) -I$(MSCGI_HEADERS) -I$(MYSERVER_HEADERS)/.. $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(PYTHON_INC)
+	$(CXX) -c python.cpp -o python.o -I$(MYSERVER_HEADERS) $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(PYTHON_INC)
 	$(CXX) python.o -o python.so -rdynamic $(XML_LIBS) $(LDFLAGS) -shared $(PYTHON_LIB)
 
 
