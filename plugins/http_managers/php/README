@@ -9,23 +9,28 @@ This is what you need in order to have embedded PHP under myserver:
 
 
 3) Compile everything executing:
-	make && sudo make install
+   make && sudo make install
 
-4) Put the php module directory in your
-	myserver/binaries/external/http_managers directory (you can use a
-	symbolic link too), this is needed only to make possible to use the
-	create_skeleton.pl script.
+4) Be sure the /opt/lib path is linked by the LD_LIBRARY_PATH
+   environment variable.
+   It is suggested to add /opt/lib in the /etc/ld.so.conf and after
+   execute ldconfig.
 
-5) At this point we need to create the Makefile to compile our
-	module.  No need to be brave and write it by yourself, the
-	create_skeleton.pl script can help you.
+5) Put the php module directory in your
+	 myserver/binaries/external/http_managers directory (you can use a
+	 symbolic link too), this is needed only to make possible to use the
+	 create_skeleton.pl script.
 
-6) Et voilà, now you can compile the module, execute the make command
-	inside the plugin directory.
+6) At this point we need to create the Makefile to compile our
+   module.  No need to be brave and write it by yourself, the
+   create_skeleton.pl script can help you.
 
-7) Copy the obtained php.so file in the external/http_managers
+7) Et voilà, now you can compile the module, execute the make command
+   inside the plugin directory.
 
-8) Add the following lines to the MIMEtypes.xml file:
+8) Copy the obtained php.so file in the external/http_managers
+
+9) Add the following lines to the MIMEtypes.xml file:
 	<MIMETYPE>
 	<EXT>php</EXT>
 	<MIME>text/html</MIME>
@@ -34,6 +39,6 @@ This is what you need in order to have embedded PHP under myserver:
 	</MIMETYPE>
 
 
-9) Reboot myserver
+10) Reboot myserver
 
-10) Enjoy it.
+11) Enjoy it.
