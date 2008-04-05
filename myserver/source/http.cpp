@@ -975,9 +975,11 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
        *slash character.
        */
       ret = getPath(td.pathTranslated, &((td.pathInfo.c_str())[1]), 0);
+
       if(ret != 200)
-        return raiseHTTPError(ret);
-      FilesUtility::completePath(td.pathTranslated);
+        td.pathTranslated.assign("");
+      else
+        FilesUtility::completePath(td.pathTranslated);
     }
     else
     {
