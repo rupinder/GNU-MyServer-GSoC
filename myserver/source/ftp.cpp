@@ -105,12 +105,14 @@ Mutex Ftp::secCacheMutex;
 FtpUserData::FtpUserData()
 {
 	reset();
+	m_DataConnBuisy.init();
 }
 
 FtpUserData::~FtpUserData()
 {
 	delete m_pDataConnection;
 	m_pDataConnection = NULL;
+	m_DataConnBuisy.destroy();
 }
 
 void FtpUserData::reset()
@@ -147,6 +149,7 @@ int FtpUserData::CloseDataConnection()
 		m_pDataConnection->setParsing(0);
 	}
 	
+	m_DataConnBuisy.unlock();
 	m_nFtpState = USER_LOGGED_IN;
 	return 1;
 }
@@ -203,6 +206,7 @@ USER, PASS, PORT, TYPE, RETR, QUIT\r\n\
 	{ 503, "Bad sequence of commands." },
 	{ 504, "Command not implemented for that parameter."},
 	{ 530, "Not logged in." },
+	{ 532, "Need account for storing files." },
 	{ 550, "Requested action not taken. File unavailable." },
 	{ 0, "" }
 };
@@ -247,8 +251,12 @@ void ftp_reply(ConnectionPtr pConnection, int nReplyCode, const std::string &sCu
 //////////////////////////////////////////////////////////////////////////////
 // Ftp class
 
+bool Ftp::m_bAllowAnonymous = true;
 bool Ftp::m_bAnonymousNeedPass = false;
-bool Ftp::m_bEnableStoreCmds = true;//TODO: read from cfg
+bool Ftp::m_bAllowAsynchronousCmds = true;
+bool Ftp::m_bEnablePipelining = true;
+bool Ftp::m_bEnableStoreCmds = true;
+
 int Ftp::FIRST_PASV_PORT = 60000;
 int Ftp::LAST_PASV_PORT = 65000;
 
@@ -326,11 +334,41 @@ int Ftp::loadProtocol(XmlParser*)
 	XmlParser *configurationFileManager = Server::getInstance()->getConfiguration();
 	if ( configurationFileManager == NULL )
 		return 0;
-	char *pData = configurationFileManager->getValue("ANONYMOUS_NEED_PASS");
-	int nAnonymousNeedPass = 0;
+
+	// allow anonymous access
+	char *pData = configurationFileManager->getValue("ALLOW_ANONYMOUS");
+	int nCfgVal = 0;
 	if ( pData != NULL )
-		nAnonymousNeedPass = atoi(pData);
-	m_bAnonymousNeedPass = nAnonymousNeedPass != 0;
+		nCfgVal = atoi(pData);
+	m_bAllowAnonymous = nCfgVal != 0;
+
+	// request password for anonymous
+	pData = configurationFileManager->getValue("ANONYMOUS_NEED_PASS");
+	nCfgVal = 0;
+	if ( pData != NULL )
+		nCfgVal = atoi(pData);
+	m_bAnonymousNeedPass = nCfgVal != 0;
+
+	// enable asyncronous cmds
+	pData = configurationFileManager->getValue("ALLOW_ASYNCRONOUS_CMDS");
+	nCfgVal = 0;
+	if ( pData != NULL )
+		nCfgVal = atoi(pData);
+	m_bAllowAsynchronousCmds = nCfgVal != 0;
+
+	// enable pipelining
+	pData = configurationFileManager->getValue("ALLOW_PIPELINING");
+	nCfgVal = 0;
+	if ( pData != NULL )
+		nCfgVal = atoi(pData);
+	m_bEnablePipelining = nCfgVal != 0;
+
+	// enable write commands
+	pData = configurationFileManager->getValue("ALLOW_STORE");
+	nCfgVal = 0;
+	if ( pData != NULL )
+		nCfgVal = atoi(pData);
+	m_bEnableStoreCmds = nCfgVal != 0;
 	return 1;
 }
 
@@ -353,7 +391,8 @@ int Ftp::CloseDataConnection()
 {
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
-	return pFtpUserData->CloseDataConnection();
+	int nRet = pFtpUserData->CloseDataConnection();
+	return nRet;
 }
 
 int Ftp::PrintError(const char *msg)
@@ -373,7 +412,7 @@ void Ftp::User(const std::string &sParam)
 		case FtpUserData::CONTROL_CONNECTION_UP:
 		case FtpUserData::USER_LOGGED_IN:
 			pFtpUserData->m_sUserName = sParam;
-			if ( !m_bAnonymousNeedPass )
+			if ( strcmpi(sParam.c_str(), "anonymous") == 0 && !m_bAnonymousNeedPass )
 			{
 				pFtpUserData->m_nFtpState = FtpUserData::USER_LOGGED_IN;
 				ftp_reply(230);
@@ -400,18 +439,30 @@ void Ftp::Password(const std::string &sParam)
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
 
+	if ( !m_bAllowAnonymous && strcmpi(sParam.c_str(), "anonymous") == 0 )
+	{
+		ftp_reply(530);
+		return;
+	}
+
 	switch ( pFtpUserData->m_nFtpState )
 	{
 		case FtpUserData::CONTROL_CONNECTION_UP:
+			if ( CheckRights( pFtpUserData->m_sUserName, sParam, pFtpUserData->m_cwd, 
+				MYSERVER_PERMISSION_BROWSE) == 0 )
+			{
+				ftp_reply(550);
+				return;
+			}
 			pFtpUserData->m_sPass = sParam;
 			pFtpUserData->m_nFtpState = FtpUserData::USER_LOGGED_IN;
 			ftp_reply(230);
 			break;
 		case FtpUserData::USER_LOGGED_IN:
-			if ( m_bAnonymousNeedPass )
+			//if ( m_bAnonymousNeedPass )
 				ftp_reply(503);
-			else
-				ftp_reply(230);
+			//else
+			//	ftp_reply(230);
 			break;
 		default://error
 			assert(false);
@@ -420,6 +471,8 @@ void Ftp::Password(const std::string &sParam)
 
 void Ftp::Port(const FtpHost &host)
 {
+	if ( !UserLoggedIn() )
+		return;
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
 	SetFtpHost(pFtpUserData->m_cdh, host);
@@ -428,6 +481,9 @@ void Ftp::Port(const FtpHost &host)
 
 void Ftp::Pasv()
 {
+	if ( !UserLoggedIn() )
+		return;
+
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
 	std::string sHost = td.pConnection->getLocalIpAddr();
@@ -435,7 +491,7 @@ void Ftp::Pasv()
 	SetFtpHost(pFtpUserData->m_cdh, sHost.c_str());
 
 	pFtpUserData->m_bPassiveSrv = true;
-	if ( !UserLoggedIn() || OpenDataConnection() == 0 )
+	if ( OpenDataConnection() == 0 )
 	{
 		CloseDataConnection();
 		return;
@@ -500,39 +556,12 @@ void Ftp::RetrStor(bool bRetr, bool bAppend, const std::string &sPath)
 
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
-	SecurityToken st;
-	if ( strcmpi(pFtpUserData->m_sUserName.c_str(), "anonymous") == 0 )
-	{
-		st.user = "Guest";
-		st.password = "";
-	}
-	else
-	{
-		st.user = pFtpUserData->m_sUserName.c_str();
-		st.password = pFtpUserData->m_sPass.c_str();
-	}
-	st.directory = sLocalDir.c_str();
-	st.sysdirectory = pFtpUserData->m_pDataConnection->host->getSystemRoot();
-	st.authType = 0;
-	st.filename = sLocalFileName.c_str();
+	int nMask = 0;
 	if ( bRetr )
-		st.providedMask = new int(MYSERVER_PERMISSION_READ | MYSERVER_PERMISSION_BROWSE);
+		nMask = MYSERVER_PERMISSION_READ | MYSERVER_PERMISSION_BROWSE;
 	else
-		st.providedMask = new int (MYSERVER_PERMISSION_WRITE);
-	int permMask = -1;
-	secCacheMutex.lock();
-	try
-	{
-		permMask = secCache.getPermissionMask (&st);
-          	secCacheMutex.unlock();
-	}
-	catch ( ... )
-	{
-		secCacheMutex.unlock();
-		throw;
-	}
-	delete st.providedMask;
-	if ( permMask == -1 /*|| (permMask & (MYSERVER_PERMISSION_READ | MYSERVER_PERMISSION_BROWSE)) == 0*/ )
+		nMask = MYSERVER_PERMISSION_WRITE;
+	if ( CheckRights(pFtpUserData->m_sUserName, pFtpUserData->m_sPass, sLocalFileName, nMask) == 0 )
 	{
 		ftp_reply(550);
 		CloseDataConnection();
@@ -1227,8 +1256,16 @@ void Ftp::Quit()
 {
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
+
+	//wait to finish data transfer
+	if ( !m_bAllowAsynchronousCmds )
+		pFtpUserData->m_DataConnBuisy.lock();
+
 	pFtpUserData->m_nFtpState = FtpUserData::NO_CONTROL_CONNECTION;
 	ftp_reply(221);
+
+	if ( !m_bAllowAsynchronousCmds )
+		pFtpUserData->m_DataConnBuisy.unlock();
 }
 
 void Ftp::Help(const std::string &sCmd/* = ""*/)
@@ -1255,6 +1292,7 @@ int Ftp::OpenDataConnection()
 		return 1;
 	}
 
+	pFtpUserData->m_DataConnBuisy.lock();
 	int nRet = pFtpUserData->m_bPassiveSrv ? OpenDataPassive() : OpenDataActive();
 	if ( nRet == 0 )
 		ftp_reply(425);
@@ -1342,6 +1380,9 @@ int Ftp::Type(const char chParam)
 
 int Ftp::Type(const std::string &sParam)
 {
+	if ( !UserLoggedIn() )
+		return 0;
+
 	const char *pParam = sParam.c_str();
 	if ( pParam == 0 )
 	{
@@ -1399,6 +1440,9 @@ int Ftp::Type(const std::string &sParam)
 
 void Ftp::Stru(const char s)
 {
+	if ( !UserLoggedIn() )
+		return;
+
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
 	switch ( s )
@@ -1416,6 +1460,9 @@ void Ftp::Stru(const char s)
 
 void Ftp::Mode(const char m)
 {
+	if ( !UserLoggedIn() )
+		return;
+
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
 	switch ( m )
@@ -1443,7 +1490,7 @@ void Ftp::List(const std::string &sParam/*= ""*/)
 	if ( sPath.empty() )
 		sPath = pFtpUserData->m_cwd;
 
-	SecurityToken st;
+	//SecurityToken st;
 	//Map these with real username/password.
 	const char *username = pFtpUserData->m_sUserName.c_str();
 	const char *password = pFtpUserData->m_sPass.c_str();
@@ -1476,43 +1523,43 @@ void Ftp::List(const std::string &sParam/*= ""*/)
 			string completeFileName(sPath);
 			completeFileName.append(fd.name);
 
-			st.directory = sPath.c_str();
-			st.authType = 0;
-			st.filename = fd.name;
-			st.sysdirectory = pFtpUserData->m_pDataConnection->host->getSystemRoot();
+			//st.directory = sPath.c_str();
+			//st.authType = 0;
+			//st.filename = fd.name;
+			//st.sysdirectory = pFtpUserData->m_pDataConnection->host->getSystemRoot();
 
-			st.user = "guest";
-			st.password = "";
+			//st.user = "guest";
+			//st.password = "";
 
-			int guestMask = -1;
-			secCacheMutex.lock();
-			try
-			{
-				guestMask = secCache.getPermissionMask (&st);
-	          		secCacheMutex.unlock();
-			}
-			catch ( ... )
-			{
-				secCacheMutex.unlock();
-				throw;
-			}
+			int guestMask = CheckRights("guest", "", completeFileName, -1);
+			//secCacheMutex.lock();
+			//try
+			//{
+			//	guestMask = secCache.getPermissionMask (&st);
+	          	//	secCacheMutex.unlock();
+			//}
+			//catch ( ... )
+			//{
+			//	secCacheMutex.unlock();
+			//	throw;
+			//}
 	
 			/////////////////Put here the real user!/////////
-			st.user = username;
-			st.password =password;
+			//st.user = username;
+			//st.password =password;
 
-			int pMask = -1;
-			secCacheMutex.lock();
-			try
-			{
-				pMask = secCache.getPermissionMask (&st);
-	          		secCacheMutex.unlock();
-			}
-			catch ( ... )
-			{
-				secCacheMutex.unlock();
-				throw;
-			}
+			int pMask = CheckRights(username, password, completeFileName, -1);
+			//secCacheMutex.lock();
+			//try
+			//{
+			//	pMask = secCache.getPermissionMask (&st);
+	          	//	secCacheMutex.unlock();
+			//}
+			//catch ( ... )
+			//{
+			//	secCacheMutex.unlock();
+			//	throw;
+			//}
 
 			//Owner and group permissions are the same.
 			perm[1] = perm[4] = pMask & MYSERVER_PERMISSION_READ ? 'r' : '-';
@@ -1609,43 +1656,43 @@ void Ftp::List(const std::string &sParam/*= ""*/)
 			string completeFileName(sDir);
 			completeFileName.append(fd.name);
 
-			st.directory = sDir.c_str();
-			st.authType = 0;
-			st.filename = fd.name;
-			st.sysdirectory = pFtpUserData->m_pDataConnection->host->getSystemRoot();
+			//st.directory = sDir.c_str();
+			//st.authType = 0;
+			//st.filename = fd.name;
+			//st.sysdirectory = pFtpUserData->m_pDataConnection->host->getSystemRoot();
 
-			st.user = "guest";
-			st.password = "";
+			//st.user = "guest";
+			//st.password = "";
 
-			int guestMask = -1;
-			secCacheMutex.lock();
-			try
-			{
-				guestMask = secCache.getPermissionMask (&st);
-	          		secCacheMutex.unlock();
-			}
-			catch ( ... )
-			{
-				secCacheMutex.unlock();
-				throw;
-			}
-	
+			int guestMask = CheckRights("guest", "", completeFileName, -1);
+			//secCacheMutex.lock();
+			//try
+			//{
+			//	guestMask = secCache.getPermissionMask (&st);
+	          	//	secCacheMutex.unlock();
+			//}
+			//catch ( ... )
+			//{
+			//	secCacheMutex.unlock();
+			//	throw;
+			//}
+
 			/////////////////Put here the real user!/////////
-			st.user = username;
-			st.password =password;
+			//st.user = username;
+			//st.password =password;
 
-			int pMask = -1;
-			secCacheMutex.lock();
-			try
-			{
-				pMask = secCache.getPermissionMask (&st);
-	          		secCacheMutex.unlock();
-			}
-			catch ( ... )
-			{
-				secCacheMutex.unlock();
-				throw;
-			}
+			int pMask = CheckRights(username, password, completeFileName, -1);
+			//secCacheMutex.lock();
+			//try
+			//{
+			//	pMask = secCache.getPermissionMask (&st);
+	          	//	secCacheMutex.unlock();
+			//}
+			//catch ( ... )
+			//{
+			//	secCacheMutex.unlock();
+			//	throw;
+			//}
 
 			//Owner and group permissions are the same.
 			perm[1] = perm[4] = pMask & MYSERVER_PERMISSION_READ ? 'r' : '-';
@@ -1796,10 +1843,35 @@ void Ftp::EscapeTelnet(MemBuf &In, MemBuf &Out)
 	Out << '\0';
 }
 
+/*!
+ *Let only first cmd to be handled.
+ *\param szIn client's requests
+ *\param szOut client's requests without telnet codes
+ */
+void Ftp::RemovePipelinedCmds(MemBuf &In, MemBuf &Out)
+{
+	Out.setLength(0);
+	if ( In.getRealLength() == 0 )
+		return;
+	int i = 0;
+	for ( char c = In[i]; c != '\0'; i++, c = In[i] )
+	{
+		Out << c;
+		if ( c == '\n' )
+			break;
+	}
+	Out << '\0';
+}
+
 void Ftp::Abor()
 {
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
+
+	//wait to finish data transfer
+	if ( !m_bAllowAsynchronousCmds )
+		pFtpUserData->m_DataConnBuisy.lock();
+
 	if ( pFtpUserData->m_nFtpState == FtpUserData::DATA_CONNECTION_UP )
 	{
 		pFtpUserData->m_bBreakDataConnection = true;
@@ -1808,10 +1880,15 @@ void Ftp::Abor()
 	}
 	ftp_reply(226);
 	pFtpUserData->m_bBreakDataConnection = false;
+
+	if ( !m_bAllowAsynchronousCmds )
+		pFtpUserData->m_DataConnBuisy.unlock();
 }
 
 void Ftp::Pwd()
 {
+	if ( !UserLoggedIn() )
+		return;
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
 	std::string sCurrentPath = "\"";
@@ -1822,10 +1899,8 @@ void Ftp::Pwd()
 void Ftp::Cwd(const std::string &sPath)
 {
 	if ( !UserLoggedIn() )
-	{
-		ftp_reply(530);
 		return;
-	}
+
 	std::string sLocalPath;
 	if ( !GetLocalPath(sPath, sLocalPath) )
 	{
@@ -1841,10 +1916,7 @@ void Ftp::Cwd(const std::string &sPath)
 void Ftp::Rest(const std::string &sRestPoint)
 {
 	if ( !UserLoggedIn() )
-	{
-		ftp_reply(530);
 		return;
-	}
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
 	pFtpUserData->m_nRestartOffset = strtoul(sRestPoint.c_str(), NULL, 10);
@@ -1853,6 +1925,9 @@ void Ftp::Rest(const std::string &sRestPoint)
 
 void Ftp::Syst()
 {
+	if ( !UserLoggedIn() )
+		return;
+
 	std::string sTempText;
 	get_ftp_reply(215, sTempText);
 	std::string::size_type n = sTempText.find("%s");
@@ -1867,8 +1942,16 @@ void Ftp::Syst()
 
 void Ftp::Stat(const std::string &sParam/* = ""*/)
 {
+	if ( !UserLoggedIn() )
+		return;
+
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
+
+	//wait to finish data transfer
+	if ( !m_bAllowAsynchronousCmds )
+		pFtpUserData->m_DataConnBuisy.lock();
+
 	if ( pFtpUserData->m_nFtpState == FtpUserData::DATA_CONNECTION_UP )
 	{
 		std::ostringstream sStat;
@@ -1881,6 +1964,8 @@ void Ftp::Stat(const std::string &sParam/* = ""*/)
 		//TODO: will be implemented later
 		ftp_reply(502);
 	}
+	if ( !m_bAllowAsynchronousCmds )
+		pFtpUserData->m_DataConnBuisy.unlock();
 }
 
 void Ftp::Retr(const std::string &sPath)
@@ -1891,7 +1976,10 @@ void Ftp::Retr(const std::string &sPath)
 void Ftp::Stor(const std::string &sPath)
 {
 	if ( !m_bEnableStoreCmds )
+	{
+		ftp_reply(532);
 		return;
+	}
 	RetrStor(false, false, sPath);
 }
 
@@ -1912,18 +2000,29 @@ void Ftp::Dele(const std::string &sPath)
 	}
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
-	SecurityToken st;
+	//SecurityToken st;
 	if ( strcmpi(pFtpUserData->m_sUserName.c_str(), "anonymous") == 0 )
 	{
-		st.user = "Guest";
-		st.password = "";
+		//st.user = "Guest";
+		//st.password = "";
+		if ( CheckRights("Guest", "", sLocalFileName, MYSERVER_PERMISSION_WRITE) == 0 )
+		{
+			ftp_reply(550);
+			return;
+		}
 	}
 	else
 	{
-		st.user = pFtpUserData->m_sUserName.c_str();
-		st.password = pFtpUserData->m_sPass.c_str();
+		//st.user = pFtpUserData->m_sUserName.c_str();
+		//st.password = pFtpUserData->m_sPass.c_str();
+		if ( CheckRights(pFtpUserData->m_sUserName, pFtpUserData->m_sPass, 
+			sLocalFileName, MYSERVER_PERMISSION_WRITE) == 0 )
+		{
+			ftp_reply(550);
+			return;
+		}
 	}
-	st.directory = sLocalDir.c_str();
+	/*st.directory = sLocalDir.c_str();
 	st.sysdirectory = td.pConnection->host->getSystemRoot();
 	st.authType = 0;
 	st.filename = sLocalFileName.c_str();
@@ -1941,11 +2040,12 @@ void Ftp::Dele(const std::string &sPath)
 		throw;
 	}
 	delete st.providedMask;
-	if ( permMask == -1 /*|| (permMask & (MYSERVER_PERMISSION_READ | MYSERVER_PERMISSION_BROWSE)) == 0*/ )
-	{
-		ftp_reply(550);
-		return;
-	}
+	*/
+	//if ( permMask == -1 /*|| (permMask & (MYSERVER_PERMISSION_READ | MYSERVER_PERMISSION_BROWSE)) == 0*/ )
+	//{
+	//	ftp_reply(550);
+	//	return;
+	//}
 	if ( FilesUtility::deleteFile(sLocalPath) != 0 )
 		ftp_reply(450);
 	ftp_reply(250);
@@ -1954,52 +2054,24 @@ void Ftp::Dele(const std::string &sPath)
 void Ftp::Appe(const std::string &sPath)
 {
 	if ( !m_bEnableStoreCmds )
+	{
+		ftp_reply(532);
 		return;
+	}
 	RetrStor(false, true, sPath);
 }
 
 void Ftp::Mkd(const std::string &sPath)
 {
 	if ( !UserLoggedIn() )
-	{
-		ftp_reply(550);
 		return;
-	}
 
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
 	std::string sLocalPath = pFtpUserData->m_cwd + "/" + sPath;
 
-	SecurityToken st;
-	if ( strcmpi(pFtpUserData->m_sUserName.c_str(), "anonymous") == 0 )
-	{
-		st.user = "Guest";
-		st.password = "";
-	}
-	else
-	{
-		st.user = pFtpUserData->m_sUserName.c_str();
-		st.password = pFtpUserData->m_sPass.c_str();
-	}
-	st.directory = sLocalPath.c_str();
-	st.sysdirectory = td.pConnection->host->getSystemRoot();
-	st.authType = 0;
-	st.filename = "";
-	st.providedMask = new int (MYSERVER_PERMISSION_WRITE);
-	int permMask = -1;
-	secCacheMutex.lock();
-	try
-	{
-		permMask = secCache.getPermissionMask (&st);
-          	secCacheMutex.unlock();
-	}
-	catch ( ... )
-	{
-		secCacheMutex.unlock();
-		throw;
-	}
-	delete st.providedMask;
-	if ( permMask == -1 /*|| (permMask & (MYSERVER_PERMISSION_READ | MYSERVER_PERMISSION_BROWSE)) == 0*/ )
+	if ( CheckRights(pFtpUserData->m_sUserName, pFtpUserData->m_sPass, 
+		sLocalPath, MYSERVER_PERMISSION_WRITE) == 0 )
 	{
 		ftp_reply(550);
 		return;
@@ -2012,7 +2084,9 @@ void Ftp::Mkd(const std::string &sPath)
 
 void Ftp::Rmd(const std::string &sPath)
 {
-	if ( !UserLoggedIn() || sPath.empty() )
+	if ( !UserLoggedIn() )
+		return;
+	if ( sPath.empty() )
 	{
 		ftp_reply(550);
 		return;
@@ -2026,36 +2100,8 @@ void Ftp::Rmd(const std::string &sPath)
 	else
 		sLocalPath = pFtpUserData->m_cwd + "/" + sPath;
 
-	SecurityToken st;
-	if ( strcmpi(pFtpUserData->m_sUserName.c_str(), "anonymous") == 0 )
-	{
-		st.user = "Guest";
-		st.password = "";
-	}
-	else
-	{
-		st.user = pFtpUserData->m_sUserName.c_str();
-		st.password = pFtpUserData->m_sPass.c_str();
-	}
-	st.directory = sLocalPath.c_str();
-	st.sysdirectory = td.pConnection->host->getSystemRoot();
-	st.authType = 0;
-	st.filename = "";
-	st.providedMask = new int (MYSERVER_PERMISSION_WRITE);
-	int permMask = -1;
-	secCacheMutex.lock();
-	try
-	{
-		permMask = secCache.getPermissionMask (&st);
-          	secCacheMutex.unlock();
-	}
-	catch ( ... )
-	{
-		secCacheMutex.unlock();
-		throw;
-	}
-	delete st.providedMask;
-	if ( permMask == -1 /*|| (permMask & (MYSERVER_PERMISSION_READ | MYSERVER_PERMISSION_BROWSE)) == 0*/ )
+	if ( CheckRights(pFtpUserData->m_sUserName, pFtpUserData->m_sPass, 
+		sLocalPath, MYSERVER_PERMISSION_WRITE) == 0 )
 	{
 		ftp_reply(550);
 		return;
@@ -2064,4 +2110,42 @@ void Ftp::Rmd(const std::string &sPath)
 		ftp_reply(250);
 	else
 		ftp_reply(501);
+}
+
+int Ftp::CheckRights(const std::string &sUser, const std::string &sPass, const std::string &sPath, int mask)
+{
+	if ( sPath.empty() )
+		return 0;
+	std::string sDir, sFileName;
+	FilesUtility::splitPath(sPath, sDir, sFileName);
+
+	SecurityToken st;
+	if ( strcmpi(sUser.c_str(), "anonymous") == 0 )
+	{
+		st.user = "Guest";
+		st.password = "";
+	}
+	else
+	{
+		st.user = sUser.c_str();
+		st.password = sPass.c_str();
+	}
+	st.directory = sDir.c_str();
+	st.sysdirectory = td.pConnection->host->getSystemRoot();//pFtpUserData->m_pDataConnection->host->getSystemRoot();
+	st.authType = 0;
+	st.filename = sFileName.c_str();
+	st.providedMask = &mask;
+	int perm = 0;
+	secCacheMutex.lock();
+	try
+	{
+		perm = secCache.getPermissionMask (&st);
+          	secCacheMutex.unlock();
+	}
+	catch ( ... )
+	{
+		secCacheMutex.unlock();
+		throw;
+	}
+	return perm;
 }

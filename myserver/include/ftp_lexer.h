@@ -220,7 +220,7 @@ void yyfree (void * ,yyscan_t yyscanner );
 #ifdef YY_HEADER_EXPORT_START_CONDITIONS
 #define INITIAL 0
 #define STRING 1
-#define NUMBER 2
+#define IPV4_ADDR 2
 
 #endif
 
@@ -334,7 +334,7 @@ extern int yylex \
 #undef YY_DECL
 #endif
 
-#line 293 "ftp_lexer.lpp"
+#line 290 "ftp_lexer.lpp"
 
 
 #line 341 "../include/ftp_lexer.h"

@@ -68,6 +68,7 @@ public:
 		MODE_STREAM
 	} m_nTransferMode;
 	ConnectionPtr m_pDataConnection;
+	Mutex m_DataConnBuisy;
 	FtpHost m_cdh;
 	std::string m_cwd;
 	int m_nLocalDataPort;
@@ -117,6 +118,8 @@ public:
 	static int FIRST_PASV_PORT;
 	static int LAST_PASV_PORT;
 
+	int CheckRights(const std::string &sUser, const std::string &sPass, const std::string &sPath, int mask);
+
 protected:
 	yyscan_t	m_scanner;
 	int OpenDataConnection();
@@ -126,6 +129,7 @@ protected:
 	int OpenDataActive();
 	void EscapeTelnet(MemBuf &In, MemBuf &Out);
 	void RetrStor(bool bRetr, bool bAppend, const std::string &sPath);
+	void RemovePipelinedCmds(MemBuf &In, MemBuf &Out);
 
 	static Mutex secCacheMutex;
 	static SecurityCache secCache;
@@ -160,7 +164,7 @@ public:
 	void Mkd(const std::string &sPath);
 	void Rmd(const std::string &sPath);
 
-	static bool m_bAnonymousNeedPass, m_bEnableStoreCmds;
+	static bool m_bAllowAnonymous, m_bAnonymousNeedPass, m_bAllowAsynchronousCmds, m_bEnablePipelining, m_bEnableStoreCmds;
 	int m_nLocalControlPort;
 };
 

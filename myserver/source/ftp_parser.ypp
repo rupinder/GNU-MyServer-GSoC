@@ -216,12 +216,12 @@ cmd		: USER_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		| SITE_FTP_COMMAND SPACE_FTP_SEP cmd
 		{
 		}
-		| CHMOD_FTP_COMMAND SPACE_FTP_SEP NUMBER_FTP_ARG SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
+		| CHMOD_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
 			//pContext->Chmod($3, $5);
 			pContext->ftp_reply(502);//any site commands
 		}
-		| UTIME_FTP_COMMAND SPACE_FTP_SEP NUMBER_FTP_ARG SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
+		| UTIME_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
 			//pContext->Utime($3, $5);
 			pContext->ftp_reply(502);//any site commands
@@ -271,6 +271,11 @@ int Ftp::ParseControlConnection()
 
 	MemBuf out;
 	EscapeTelnet(*td.buffer, out);
+	if ( !m_bEnablePipelining )
+	{
+		MemBuf tmpBuff(out);
+		RemovePipelinedCmds(tmpBuff, out);
+	}
 	char *pBuffToParse = out.getBuffer();
 
 	if ( pBuffToParse == NULL || td.buffersize <= td.m_nParseLength )// nothing to parse ...

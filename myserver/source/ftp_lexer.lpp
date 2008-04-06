@@ -12,7 +12,7 @@
 %option bison-locations
 
 %s STRING
-%s NUMBER
+%s IPV4_ADDR
 
 %%
       /* Login */
@@ -42,7 +42,7 @@
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
 		yylloc->last_column += 4;
-		BEGIN(NUMBER);
+		BEGIN(IPV4_ADDR);
 		return PORT_FTP_COMMAND;
 	}
 <INITIAL>PASV	{
@@ -225,39 +225,27 @@
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
 		yylloc->last_column += 4;
-		BEGIN(NUMBER);
 		return CHMOD_FTP_COMMAND;// do the same as help
 	}
 <INITIAL>UTIME	{
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
 		yylloc->last_column += 4;
-		BEGIN(NUMBER);
 		return UTIME_FTP_COMMAND;// do the same as help
 	}
-[[:punct:]]	{
+<IPV4_ADDR>[,]	{
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
 		yylloc->last_column += yyleng;
+
 		if ( *yytext == ',' )
 			return ',';
-		else
-		{
-			memset(yylval->m_szStr, 0, PARSER_STR_LEN);
-       			strncpy(yylval->m_szStr, yytext, yyleng);
-			yylloc->first_line = yylloc->last_line;
-			yylloc->first_column = yylloc->last_column;
-			yylloc->last_column += yyleng;
-			return STRING_FTP_ARG;
-			//return PUNCT_FTP_SEP;
-		}
 	}
-<NUMBER>[[:digit:]]+	{
+<IPV4_ADDR>[[:digit:]]+	{
 		yylval->m_nInt = atoi(yytext);
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
 		yylloc->last_column += yyleng;
-		BEGIN(INITIAL);
 		return NUMBER_FTP_ARG;
 	}
 [:alpha:]	{
@@ -282,12 +270,21 @@
 		return SPACE_FTP_SEP;
 	}
 <INITIAL,STRING>[[:alnum:][:punct:]]+	{
-		memset(yylval->m_szStr, 0, PARSER_STR_LEN);
-       		strncpy(yylval->m_szStr, yytext, yyleng);
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
 		yylloc->last_column += yyleng;
-		return STRING_FTP_ARG;
+
+		if ( *yytext == ',' )
+			return ',';
+		else
+		{
+			memset(yylval->m_szStr, 0, PARSER_STR_LEN);
+       			strncpy(yylval->m_szStr, yytext, yyleng);
+			yylloc->first_line = yylloc->last_line;
+			yylloc->first_column = yylloc->last_column;
+			yylloc->last_column += yyleng;
+			return STRING_FTP_ARG;
+		}
 	}
 
 %%
