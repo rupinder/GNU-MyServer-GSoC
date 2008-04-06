@@ -77,6 +77,9 @@
 %token CHMOD_FTP_COMMAND
 %token UTIME_FTP_COMMAND
 
+/* RFC 3659 cmds*/
+%token SIZE_FTP_COMMAND
+
 %%
 cmd_list	:/* empty */
 		| cmd_list cmd
@@ -219,12 +222,17 @@ cmd		: USER_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		| CHMOD_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
 			//pContext->Chmod($3, $5);
-			pContext->ftp_reply(502);//any site commands
+			pContext->ftp_reply(502);
 		}
 		| UTIME_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
 			//pContext->Utime($3, $5);
-			pContext->ftp_reply(502);//any site commands
+			pContext->ftp_reply(502);
+		}
+		/* RFC 3659 commands*/
+		| SIZE_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
+		{
+			pContext->Size($3);
 		}
 		;
 	/* ftp command arguments */

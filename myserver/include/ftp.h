@@ -164,6 +164,9 @@ public:
 	void Mkd(const std::string &sPath);
 	void Rmd(const std::string &sPath);
 
+	/* RFC 3659 commands*/
+	void Size(const std::string &sPath);
+
 	static bool m_bAllowAnonymous, m_bAnonymousNeedPass, m_bAllowAsynchronousCmds, m_bEnablePipelining, m_bEnableStoreCmds;
 	int m_nLocalControlPort;
 };

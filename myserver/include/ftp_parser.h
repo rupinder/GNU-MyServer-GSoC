@@ -72,7 +72,8 @@
      NOOP_FTP_COMMAND = 288,
      SITE_FTP_COMMAND = 289,
      CHMOD_FTP_COMMAND = 290,
-     UTIME_FTP_COMMAND = 291
+     UTIME_FTP_COMMAND = 291,
+     SIZE_FTP_COMMAND = 292
    };
 #endif
 /* Tokens.  */
@@ -110,6 +111,7 @@
 #define SITE_FTP_COMMAND 289
 #define CHMOD_FTP_COMMAND 290
 #define UTIME_FTP_COMMAND 291
+#define SIZE_FTP_COMMAND 292
 
 
 
@@ -124,7 +126,7 @@ typedef union YYSTYPE
 	FtpHost 	m_host;
 }
 /* Line 1489 of yacc.c.  */
-#line 128 "../include/ftp_parser.h"
+#line 130 "../include/ftp_parser.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

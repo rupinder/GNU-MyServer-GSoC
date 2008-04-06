@@ -225,13 +225,20 @@
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
 		yylloc->last_column += 4;
-		return CHMOD_FTP_COMMAND;// do the same as help
+		return CHMOD_FTP_COMMAND;
 	}
 <INITIAL>UTIME	{
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
 		yylloc->last_column += 4;
-		return UTIME_FTP_COMMAND;// do the same as help
+		return UTIME_FTP_COMMAND;
+	}
+	/*RFC 3659 commands*/
+<INITIAL>SIZE	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		return SIZE_FTP_COMMAND;
 	}
 <IPV4_ADDR>[,]	{
 		yylloc->first_line = yylloc->last_line;
