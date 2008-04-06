@@ -1889,17 +1889,30 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 
       {
         string msg("new-http-request");
-        vector<Multicast<string, void*, int>*>* handlers = getStaticData()->getHandlers(msg);
+        vector<Multicast<string, void*, int>*>* handlers = 
+                                 getStaticData()->getHandlers(msg);
 
         if(handlers)
         {
           for(size_t i = 0; i < handlers->size(); i++)
-            if((*handlers)[i]->updateMulticast(getStaticData(), msg, &td) == 1)
+          {
+            int handlerRet = (*handlers)[i]->updateMulticast(getStaticData(), 
+                                                             msg, &td);
+            if(handlerRet == 1)
             {
               ret = 1;
               retvalue = ClientsThread::DELETE_CONNECTION;
               break;
             }
+            else if(handlerRet == 2)
+            {
+              ret = 1;
+              retvalue = ClientsThread::KEEP_CONNECTION;
+              break;
+
+            }
+
+          }
         }
       }
 

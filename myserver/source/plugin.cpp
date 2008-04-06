@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007 The MyServer Team
+Copyright (C) 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -68,7 +68,7 @@ int Plugin::load(string& file, Server* server, XmlParser* languageFile)
  */
 int Plugin::preLoad(string& file, Server* server, XmlParser* languageFile)
 {
-  return hinstLib.loadLibrary(file.c_str());
+  return hinstLib.loadLibrary(file.c_str(), 1);
 }
 
 /*!
