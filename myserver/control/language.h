@@ -48,6 +48,6 @@ extern const char * LanguageXMLServer_Closed;
 extern const char * LanguageXMLYes;
 extern const char * LanguageXMLNo;
 
-//extern "C" char * gettext(const char *) ;
+extern "C" char * gettext(const char *) ;
 
 #endif
