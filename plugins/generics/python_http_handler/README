@@ -1,0 +1,68 @@
+The python_http_handler plugin is based on the executors::http_checker
+one.
+
+While the http_checker plugin wants to be just a way to allow/deny
+access to the server in a scriptable way, the python_http_handler
+wants to be a complete system to develop web applications using the
+python language.
+Its aim is to be compatible with the well know mod_python module for
+the Apache web server.
+
+Some parts are written in C/C++ to be embedded in the MyServer core
+application, while the python interfaces are written directly in
+python.
+
+___________Still it is incomplete and miss many features___________
+
+python_http_handler needs the executors/python plugin installed too.
+
+The python_http_handler configuration must be placed in the main
+myserver.xml file as:
+
+<PYTHON_HTTP_HANDLER>
+<![CDATA[
+....mod_python code......
+]]>
+</PYTHON_HTTP_HANDLER>
+
+It is possible to put the configuration in a separate file as:
+
+<PYTHON_HTTP_HANDLER file="python_http_handler_conf.py" />
+
+the python_http_handler_conf.py file can be for example like:
+-----------------------------------------------------------------------
+from python_http_handler.python.request import *
+from python_http_handler_internal import *
+import operator
+
+req = Request()
+
+
+if req.uri.find("python") + 1:
+
+    data = (req.uri[req.uri.find("python")+7:]).split("/")
+
+    set_response_header("Content-Type", "text/html")
+
+    send_header()
+
+    send_data(reduce(lambda x, y: str(int(x)+int(y)), data) )
+-----------------------------------------------------------------------
+
+This simple application will give for every URL like:
+
+http://server:port/some/where/python/.../
+
+the sum of elements in ....
+
+as:
+
+http://server:port/some/where/python/2/3/
+
+5
+
+
+To access python files in the python_http_handler directory there is
+need to configure the PYTHONPATH environment variable as:
+
+<PYTHON_PATH>....:external/generics</PYTHON_PATH>
