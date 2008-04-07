@@ -306,11 +306,8 @@ int ClientsThread::controlConnections()
 		err = c->socket->recv(&((char*)(buffer.getBuffer()))[c->getDataRead()],
 													MYSERVER_KB(8) - c->getDataRead(), 0);
 		
-		if(err == -1)
-		{
-			Server::getInstance()->deleteConnection(c, this->id);
+		if(err == -1 && !Server::getInstance()->deleteConnection(c, this->id))
 			return 0;
-		}
 	}
 
 	c->setForceParsing(0);

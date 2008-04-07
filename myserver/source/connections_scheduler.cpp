@@ -70,9 +70,8 @@ static void new_data_handler(int fd, short event, void *arg)
 	if(event == EV_TIMEOUT)
 	{
 		Server::getInstance()->getConnectionsScheduler()->lockConnectionsList();
-		
-		if(!((ConnectionPtr)arg)->allowDelete())
-			Server::getInstance()->deleteConnection((ConnectionPtr)arg, 0, 0);
+
+		Server::getInstance()->deleteConnection((ConnectionPtr)arg, 0, 0);
 
 		Server::getInstance()->getConnectionsScheduler()->unlockConnectionsList();
 	}

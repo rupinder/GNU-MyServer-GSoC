@@ -140,6 +140,7 @@ int FtpUserData::CloseDataConnection()
 	if ( m_nFtpState < DATA_CONNECTION_UP )
 		return 1;
 
+	m_pDataConnection->isParsing();
 	if ( m_pDataConnection != NULL && m_pDataConnection->socket != NULL )
 	{
 		m_pDataConnection->socket->shutdown(SD_BOTH);
@@ -776,6 +777,7 @@ unsigned int __stdcall SendImageFile(void* pParam)
 void* SendImageFile(void* pParam)
 #endif //HAVE_PTHREAD
 {
+	//Thread::wait(1000);
 	DataConnectionWorkerThreadData *pWt = reinterpret_cast<DataConnectionWorkerThreadData *>(pParam);
 	if ( pWt == NULL )
 	{

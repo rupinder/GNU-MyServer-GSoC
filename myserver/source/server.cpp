@@ -1299,7 +1299,7 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
 	/*
    *Remove the connection from the active connections list.
    */
-	if(!s)
+	if(!s || !s->allowDelete())
 	{
 		return 0;
 	}
