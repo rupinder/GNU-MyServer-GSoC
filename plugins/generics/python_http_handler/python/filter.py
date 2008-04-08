@@ -17,36 +17,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from python_http_handler_internal import *
 
+class Filter(object):
 
-class Connection(object):
+    def __init__(self, req):
+        self.closed = False
+        self.name = ""
+        self.req = req
+        self.is_input = False
+        self.handler = None
 
-    def __init__(self):
-        self.remote_ip = get_remote_addr()
-        self.remote_logname = ""
-        self.base_server = ""
-        self.local_addr = ""
-        self.remote_addr = ""
-        self.remote_ip = ""
-        self.remote_host = ""
-        self.remote_logname = ""
-        self.aborted = False
-        self.keepalive = 0
-        self.double_reverse = 0
-        self.keepalives = 0
-        self.local_ip = ""
-        self.local_host = ""
-        self.id = 0
-
-    def log_error(message, level = 0):
+    def pass_on(self):
         pass
 
-
-    def read(length = -1):
+    def read(self, length = -1):
         pass
 
     def readline(length = -1):
         pass
 
-    def write(string):
+    def write(self, data):
+        pass
+
+    def flush(self):
+        pass
+    
+    def close(self):
+        pass
+
+    def disable(self):
         pass
 
