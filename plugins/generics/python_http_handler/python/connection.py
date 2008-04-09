@@ -37,16 +37,17 @@ class Connection(object):
         self.local_host = ""
         self.id = 0
 
-    def log_error(message, level = 0):
+    def log_error(self, message, level = 0):
         pass
 
 
-    def read(length = -1):
-        pass
+    def read(self, length = -1):
+        return None
 
-    def readline(length = -1):
-        pass
+    def readline(self, length = -1):
+        return None
 
-    def write(string):
-        pass
+    def write(self, string):
+        return send_data(string)
+
 

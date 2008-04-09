@@ -23,6 +23,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/dynamic_executor.h>
 #include <Python.h>
 
+
+static Server* serverInstance;
+
+
 #ifdef WIN32
 #define EXPORTABLE(x) x _declspec(dllexport)
 #else
@@ -149,6 +153,22 @@ static PyObject *get_request_header(PyObject *self, PyObject *args)
 	return Py_BuildValue((char*)"s", value.c_str());
 }
 
+static PyObject *log_server_error(PyObject *self, PyObject *args)
+{
+	char *msg;
+
+	if (!PyArg_ParseTuple(args, (char*)"s", &msg))
+		return NULL;
+	
+  serverInstance->logLockAccess();
+  serverInstance->logPreparePrintError();
+  serverInstance->logWriteln(msg);
+  serverInstance->logEndPrintError();
+  serverInstance->logUnlockAccess();
+	
+	return NULL;
+}
+
 static PyObject *set_response_header(PyObject *self, PyObject *args)
 {
 	char *header;
@@ -211,6 +231,18 @@ static PyObject *send_header(PyObject *self, PyObject *args)
   return Py_BuildValue((char*)"i", 0);
 }
 
+static PyObject *get_document_root(PyObject *self, PyObject *args)
+{
+	char *data;
+  u_long size = 0;
+	if (!PyArg_ParseTuple(args, (char*)"s", &data))
+		return NULL;
+
+	HttpThreadContext* context = getThreadContext();
+
+	return Py_BuildValue((char*)"s", context->getVhostDir());
+}
+
 static PyObject *send_data(PyObject *self, PyObject *args)
 {
 	char *data;
@@ -257,6 +289,16 @@ static PyObject *raise_error(PyObject *self, PyObject *args)
 	return Py_BuildValue((char*)"s", "");
 }
 
+
+static PyObject *is_ssl(PyObject *self, PyObject *args)
+{
+	HttpThreadContext* context = getThreadContext();
+	int isSsl = context->connection->host->getProtocol() == PROTOCOL_HTTPS)
+	
+	return Py_BuildValue((char*)"b", isSsl);
+}
+
+
 static PyObject *send_redirect(PyObject *self, PyObject *args)
 {
 	char* dest;
@@ -289,6 +331,9 @@ static PyMethodDef PythonHttpHandlerMethods[] = {
 	{(char*)"send_data", send_data, METH_VARARGS, (char*)"Send data to the client"},
 	{(char*)"send_header", send_header, METH_VARARGS, (char*)"Send the HTTP header to the client"},
 	{(char*)"end_send_data", end_send_data, METH_VARARGS, (char*)"Complete a data transfer"},
+	{(char*)"get_document_root", get_document_root, METH_VARARGS, (char*)"Return the document root directory"},
+	{(char*)"is_ssl", is_ssl, METH_VARARGS, (char*)"Check if the connection is using a secure channel"},
+	{(char*)"log_server_error", log_server_error, METH_VARARGS, (char*)"Log a server message"},
 	{NULL, NULL, 0, NULL}
 };
 
@@ -341,6 +386,7 @@ private:
 
 static HttpObserver observer;
 
+
 EXPORTABLE(char*) name(char* name, u_long len)
 {
 	char* str = (char*)"python_http_handler";
@@ -351,7 +397,7 @@ EXPORTABLE(char*) name(char* name, u_long len)
 
 EXPORTABLE(int) load(void* server,void* parser)
 {
-	Server* serverInstance = (Server*)server;
+	serverInstance = (Server*)server;
 	HttpStaticData* staticData =(HttpStaticData*) serverInstance->getGlobalData("http-static");
 	string msg("new-http-request");
 	string pythonNamespace("executors");

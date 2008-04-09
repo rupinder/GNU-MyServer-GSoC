@@ -18,6 +18,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from python_http_handler_internal import *
 from connection import Connection
 from server import Server
+import os
+from time import time
+from time import gmtime
 
 class Request(object):
 
@@ -61,8 +64,8 @@ class Request(object):
         self.remaining = 0
         self.read_length = 0
         self.read_body = 1
-        self.read_chunked = 0
-        self.expecting_100 = 0
+        self.read_chunked = False
+        self.expecting_100 = False
         self.err_headers_out = {}
         self.notes = None
         self.phase = 0
@@ -71,7 +74,7 @@ class Request(object):
         self.handler = ""
         self.content_encoding = ""
         self.vlist_validator = 0
-        self.no_cache = 0
+        self.no_cache = True
         self.no_local_copy = True
         self.unparsed_uri = ""
         self.filename = ""
@@ -80,8 +83,16 @@ class Request(object):
         self.parsed_uri = {}
         self.used_path_info = ""
         self.eos_sent = False
+        self.__cleanups = ()
+        self.__allowed = ()
+
+    def get_cleanups(self):
+        return self.__cleanups
 
     def send_headers(self):
+        if len(self.__allowed) > 0:
+            set_response_header("Allowed", self.__allowed)
+
         send_header()
 
 
@@ -89,7 +100,13 @@ class Request(object):
         if not self.__headers_sent:
             self.send_headers()
             self.__headers_sent = True
-        return send_data(str)
+        ret = self.connection.write(str)
+        
+        if flush:
+            self.flush()
+
+        return ret
+
 
 
     def add_common_vars(self):
@@ -106,7 +123,11 @@ class Request(object):
         pass
 
     def allow_methods(self, methods, reset = False):
-        pass
+        if reset:
+            self.__allowed = methods
+        else:
+            self.__allowed = self.__allowed + ", " + methods
+
 
     def auth_name(self):
         pass
@@ -121,7 +142,7 @@ class Request(object):
         pass
 
     def document_root(self):
-        pass
+        return get_document_root()
 
     def get_basic_auth_pw(self):
         pass
@@ -130,16 +151,17 @@ class Request(object):
         pass
 
     def get_remote_host(self, type = 'REMOTE_NAME', str_is_ip = True):
-        pass
+        return get_remote_addr()
 
     def get_options(self):
         pass
     
-    def internal_redirect(self):
-        pass
+    def internal_redirect(self, uri):
+        #This is not an internal redirect.
+        return send_redirect(uri)
 
     def is_https(self):
-        pass
+        return is_ssl()
 
     def log_error(self, message, level = 0):
         pass
@@ -151,16 +173,16 @@ class Request(object):
         return []
 
     def read(self, len = -1):
-        return []
+        return self.connection.read(len)
 
     def readline(self, len = -1):
-        pass
+        return self.connection.readline(len)
 
     def readlines(self, sizehint = 1):
         pass
 
     def register_cleanup(self, callable, data = None):
-        pass
+        self.__cleanups.append([callable, data])
 
     def register_input_filter(self, filter_name, filter, dir =""):
         pass
@@ -169,22 +191,35 @@ class Request(object):
         pass
 
     def sendfile(self, path, offset = 0, len = -1):
-        pass
+        file = open(path, "r")
+
+        size = os.path.getsize(path) - offset
+        tosend = size
+
+        while tosend > 0:
+            data = file.read(4096)
+            send(data)
+            tosend = tosend - len(data)
+
+        return size
 
     def set_etag(self):
-        pass
+        return set_response_header("ETag", str(floor(time() * 100) % 100000))
 
     def set_last_modified(self):
-        pass
+        time_str = strftime("%a, %d %b %Y %H:%M:%S GMT", gmtime())
+        set_response_header("Last-Modified", time_str)
 
     def ssl_var_lookup(self, var_name):
-        pass
+        return None
 
     def update_mtime(self, dependency_mtime):
-        pass
+        if dependency_mtime > mtime:
+            mtime = dependency_mtime
 
     def flush(self):
         pass
 
-    def defset_content_length(self, len):
-        pass
+    def set_content_length(self, len):
+        set_response_header("Content-Length", str(len))
+

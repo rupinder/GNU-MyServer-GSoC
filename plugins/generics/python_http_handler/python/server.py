@@ -42,6 +42,10 @@ class Server(object):
         self.limit_req_line = 0
         self.limit_req_fieldsize = 0
         self.limit_req_fields = 25
+        self.__cleanups = ()
+
+    def get_cleanups(self):
+        return self.__cleanups
 
 
     def get_config(self):
@@ -52,7 +56,9 @@ class Server(object):
 
 
     def log_error(self, message, level = 0):
+        log_server_error(message)
         pass
 
     def register_cleanup(request, callable, data = None):
-        pass
+        self.__cleanups.append([callable, data])
+
