@@ -234,7 +234,6 @@ static PyObject *send_header(PyObject *self, PyObject *args)
 static PyObject *get_document_root(PyObject *self, PyObject *args)
 {
 	char *data;
-  u_long size = 0;
 	if (!PyArg_ParseTuple(args, (char*)"s", &data))
 		return NULL;
 
@@ -293,7 +292,7 @@ static PyObject *raise_error(PyObject *self, PyObject *args)
 static PyObject *is_ssl(PyObject *self, PyObject *args)
 {
 	HttpThreadContext* context = getThreadContext();
-	int isSsl = context->connection->host->getProtocol() == PROTOCOL_HTTPS)
+	int isSsl = context->connection->host->getProtocol() == PROTOCOL_HTTPS;
 	
 	return Py_BuildValue((char*)"b", isSsl);
 }
