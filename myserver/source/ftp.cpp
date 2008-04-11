@@ -572,7 +572,7 @@ void Ftp::RetrStor(bool bRetr, bool bAppend, const std::string &sPath)
 	DataConnectionWorkerThreadData *pData = new DataConnectionWorkerThreadData();
 	pData->m_pConnection = td.pConnection;
 	pData->m_sFilePath = sLocalPath;
-	pData->m_bAppend = bAppend;
+	pData->m_bAppend = bAppend || pFtpUserData->m_nRestartOffset != 0;
 
 	pFtpUserData->m_sCurrentFileName = "";
 	pFtpUserData->m_nFileSize = 0;
