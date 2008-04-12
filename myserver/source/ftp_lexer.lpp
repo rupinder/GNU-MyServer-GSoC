@@ -132,6 +132,13 @@
 		BEGIN(STRING);
 		return STOR_FTP_COMMAND;
 	}
+<INITIAL>STOU	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		BEGIN(STRING);
+		return STOU_FTP_COMMAND;
+	}
 <INITIAL>DELE	{
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
@@ -159,6 +166,20 @@
 		yylloc->last_column += 3;
 		BEGIN(STRING);
 		return RMD_FTP_COMMAND;
+	}
+<INITIAL>RNFR	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		BEGIN(STRING);
+		return RNFR_FTP_COMMAND;
+	}
+<INITIAL>RNTO	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += 4;
+		BEGIN(STRING);
+		return RNTO_FTP_COMMAND;
 	}
 	/* Informational commands */
 <INITIAL>HELP	{

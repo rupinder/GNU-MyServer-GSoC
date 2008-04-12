@@ -76,6 +76,7 @@ public:
 	ThreadID m_dataThreadId;
 	bool m_bPassiveSrv;
 	u_long m_nRestartOffset;
+	std::string m_sRenameFrom;
 
 	// STAT data
 	std::string m_sCurrentFileName;
@@ -124,6 +125,7 @@ protected:
 	yyscan_t	m_scanner;
 	int OpenDataConnection();
 	bool UserLoggedIn();
+	bool BuildLocalPath(const std::string &sPath, std::string &sOutPath);
 	bool GetLocalPath(const std::string &sPath, std::string &sOutPath);
 	int OpenDataPassive();
 	int OpenDataActive();
@@ -159,10 +161,13 @@ public:
 	void Allo(int nSize, int nRecordSize = -1);
 
 	void Stor(const std::string &sPath);
+	void Stou(const std::string &sPath);
 	void Dele(const std::string &sPath);
 	void Appe(const std::string &sPath);
 	void Mkd(const std::string &sPath);
 	void Rmd(const std::string &sPath);
+	void Rnfr(const std::string &sPath);
+	void Rnto(const std::string &sPath);
 
 	/* RFC 3659 commands*/
 	void Size(const std::string &sPath);

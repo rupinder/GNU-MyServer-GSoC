@@ -137,7 +137,7 @@ int FilesUtility::renameFile(const char* before, const char* after)
   return MoveFile(before, after) ? 0 : 1;
 #else
 
-#ifdef NOTWIN
+#ifdef NOT_WIN
   return rename(before, after);
 #else
   return -1;

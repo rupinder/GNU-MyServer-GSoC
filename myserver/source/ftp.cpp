@@ -184,7 +184,9 @@ struct reply reply_table[] =
 	{ 200, "Command okay." },
 	{ 213, "File status." },
 	{ 214, "The following commands are recognized:\r\n\
-USER, PASS, PORT, TYPE, RETR, QUIT\r\n\
+USER, PASS, PORT, PASV, TYPE, REST, RETR, LIST, NLST, ABOR, \r\n\
+CWD, CDUP, PWD, ALLO, STOR, STOU, DELE, APPE, MKD, RMD, \r\n\
+RNFR, RNTO, SYST, STAT, QUIT\r\n\
 214 Detailed help on commands will soon be available." },
 	{ 215, "%s system type." },
 	{ 220, "Service ready for new user." },
@@ -538,7 +540,13 @@ void Ftp::Pasv()
 void Ftp::RetrStor(bool bRetr, bool bAppend, const std::string &sPath)
 {
 	std::string sLocalPath;
-	if ( !UserLoggedIn() || OpenDataConnection() == 0 || (!GetLocalPath(sPath, sLocalPath) && bRetr) )
+	if ( !UserLoggedIn() || OpenDataConnection() == 0 )
+	{
+		CloseDataConnection();
+		return;
+	}
+	if ( (bRetr && !GetLocalPath(sPath, sLocalPath)) || 
+		(!bRetr && !BuildLocalPath(sPath, sLocalPath)) )
 	{
 		CloseDataConnection();
 		return;
@@ -1203,12 +1211,12 @@ bool Ftp::UserLoggedIn()
 }
 
 /*!
- *Converts from relative client's path to local path.
+ *Converts from relative client's path to local path(out path may not exist).
  *\param sPath client's relative path
  *\param sOutPath local path
  *\return Return true if path exist, file is a normal one and is into the ftp's root folder
  */
-bool Ftp::GetLocalPath(const std::string &sPath, std::string &sOutPath)
+bool Ftp::BuildLocalPath(const std::string &sPath, std::string &sOutPath)
 {
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
@@ -1235,25 +1243,17 @@ bool Ftp::GetLocalPath(const std::string &sPath, std::string &sOutPath)
 #endif // WIN32
 		}
 	}
-	if ( sOutPath.empty() || 
-	   ( FilesUtility::isDirectory(sOutPath) && 
-	   !FilesUtility::fileExists(sOutPath) ) || 
-	   FilesUtility::isLink(sOutPath.c_str()) )
-	{
-		ftp_reply(550);
-		return false;
-	}
 
 	///////////////////////////////////////
 	// verify if file is in ftp root folder
 	if ( pFtpUserData->m_cwd.empty() )//current dir not initialized
 	{
 		if ( pFtpUserData->m_pDataConnection != NULL && 
-         pFtpUserData->m_pDataConnection->host != NULL )
-    {
+         		pFtpUserData->m_pDataConnection->host != NULL )
+		{
 			pFtpUserData->m_cwd = pFtpUserData->m_pDataConnection->host->getDocumentRoot();
-      FilesUtility::completePath(pFtpUserData->m_cwd);
-    }
+			FilesUtility::completePath(pFtpUserData->m_cwd);
+		}
 
 	}
 
@@ -1266,6 +1266,28 @@ bool Ftp::GetLocalPath(const std::string &sPath, std::string &sOutPath)
 	}
 	///////////////////////////////////////
 	
+	return true;
+}
+
+/*!
+ *Converts from relative client's path to local path and checks if the path is available.
+ *\param sPath client's relative path
+ *\param sOutPath local path
+ *\return Return true if path exist, file is a normal one and is into the ftp's root folder
+ */
+bool Ftp::GetLocalPath(const std::string &sPath, std::string &sOutPath)
+{
+	if ( !BuildLocalPath(sPath, sOutPath) )
+		return false;
+
+	if ( sOutPath.empty() || 
+	   !FilesUtility::fileExists(sOutPath) || 
+	   FilesUtility::isLink(sOutPath.c_str()) )
+	{
+		ftp_reply(550);
+		return false;
+	}
+
 	return true;
 }
 
@@ -1793,10 +1815,7 @@ void Ftp::Cwd(const std::string &sPath)
 
 	std::string sLocalPath;
 	if ( !GetLocalPath(sPath, sLocalPath) )
-	{
-		ftp_reply(501);
 		return;
-	}
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
 	pFtpUserData->m_cwd = sLocalPath;
@@ -1873,6 +1892,30 @@ void Ftp::Stor(const std::string &sPath)
 	RetrStor(false, false, sPath);
 }
 
+void Ftp::Stou(const std::string &sPath)
+{
+	if ( !m_bEnableStoreCmds )
+	{
+		ftp_reply(532);
+		return;
+	}
+	std::string sOutPath, sTempPath(sPath);
+	int nCount = -1;
+	do
+	{
+		if ( nCount >= 0 )
+		{
+			std::ostringstream sRename;
+			sRename << nCount;
+			sTempPath = sPath + sRename.str();
+		}
+		if ( !BuildLocalPath(sTempPath, sOutPath) )
+			return;
+		nCount++;
+	} while ( FilesUtility::fileExists(sOutPath) );
+	RetrStor(false, false, sOutPath);
+}
+
 void Ftp::Dele(const std::string &sPath)
 {
 	std::string sLocalPath;
@@ -1940,11 +1983,8 @@ void Ftp::Mkd(const std::string &sPath)
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
 	std::string sLocalPath;// = pFtpUserData->m_cwd + "/" + sPath;
-	if ( !GetLocalPath(sPath, sLocalPath) )
-	{
-		ftp_reply(550);
+	if ( !BuildLocalPath(sPath, sLocalPath) )
 		return;
-	}
 
 	if ( CheckRights(pFtpUserData->m_sUserName, pFtpUserData->m_sPass, 
 		sLocalPath, MYSERVER_PERMISSION_WRITE) == 0 )
@@ -1977,10 +2017,7 @@ void Ftp::Rmd(const std::string &sPath)
 	assert(pFtpUserData != NULL);
 	std::string sLocalPath;
 	if ( !GetLocalPath(sPath, sLocalPath) )
-	{
-		ftp_reply(550);
 		return;
-	}
 
 	if ( CheckRights(pFtpUserData->m_sUserName, pFtpUserData->m_sPass, 
 		sLocalPath, MYSERVER_PERMISSION_WRITE) == 0 )
@@ -1992,6 +2029,73 @@ void Ftp::Rmd(const std::string &sPath)
 		ftp_reply(250);
 	else
 		ftp_reply(501);
+}
+
+void Ftp::Rnfr(const std::string &sPath)
+{
+	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
+	assert(pFtpUserData != NULL);
+	pFtpUserData->m_sRenameFrom = "";
+	if ( !UserLoggedIn() )
+		return;
+	std::string sLocalPath;
+	if ( sPath.empty() || !GetLocalPath(sPath, sLocalPath) )
+	{
+		ftp_reply(550);
+		return;
+	}
+	std::string sLocalDir, sLocalFileName;
+	FilesUtility::splitPath(sLocalPath, sLocalDir, sLocalFileName);
+
+	/* The security file doesn't exist in any case.  */
+    	if( !strcmpi(sLocalFileName.c_str(), "security") )
+	{
+		ftp_reply(550);
+		return;
+	}
+	pFtpUserData->m_sRenameFrom = sLocalPath;
+	ftp_reply(350);
+}
+
+void Ftp::Rnto(const std::string &sPath)
+{
+	if ( !UserLoggedIn() )
+		return;
+	std::string sLocalPath;
+	if ( sPath.empty() || !BuildLocalPath(sPath, sLocalPath) )
+	{
+		ftp_reply(550);
+		return;
+	}
+	if ( !m_bEnableStoreCmds )
+	{
+		ftp_reply(532);
+		return;
+	}
+
+	std::string sLocalDir, sLocalFileName;
+	FilesUtility::splitPath(sLocalPath, sLocalDir, sLocalFileName);
+	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
+	assert(pFtpUserData != NULL);
+
+	if ( CheckRights(pFtpUserData->m_sUserName, pFtpUserData->m_sPass, 
+		pFtpUserData->m_sRenameFrom, MYSERVER_PERMISSION_WRITE) == 0)
+	{
+		ftp_reply(550);
+		return;
+	}
+
+	/* The security file doesn't exist in any case.  */
+    	if( !strcmpi(sLocalFileName.c_str(), "security") )
+	{
+		ftp_reply(550);
+		return;
+	}
+	FilesUtility::isLink(pFtpUserData->m_sRenameFrom);
+	if ( FilesUtility::renameFile(pFtpUserData->m_sRenameFrom, sLocalPath) )
+		ftp_reply(550);
+	else
+		ftp_reply(250);
 }
 
 int Ftp::CheckRights(const std::string &sUser, const std::string &sPass, const std::string &sPath, int mask)
