@@ -33,6 +33,9 @@
 %token CRLF_FTP_SEP
 %token SPACE_FTP_SEP
 %token PUNCT_FTP_SEP
+%type <m_nInt> mode_code
+%type <m_nInt> structure_code
+%type <m_nInt> format_control_code
 
 /* Login */
 %token USER_FTP_COMMAND
@@ -57,6 +60,7 @@
 %token CWD_FTP_COMMAND
 %token CDUP_FTP_COMMAND
 %token PWD_FTP_COMMAND
+%token ALLO_FTP_COMMAND
 
 %token STOR_FTP_COMMAND
 %token DELE_FTP_COMMAND
@@ -104,25 +108,29 @@ cmd		: USER_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
 		  pContext->Pasv();
 		}
-		| MODE_FTP_COMMAND SPACE_FTP_SEP CHAR_FTP_ARG CRLF_FTP_SEP
+		| MODE_FTP_COMMAND SPACE_FTP_SEP mode_code CRLF_FTP_SEP
 		{
 		  pContext->Mode($3);
 		}
-		| TYPE_FTP_COMMAND SPACE_FTP_SEP CHAR_FTP_ARG CRLF_FTP_SEP
+		| TYPE_FTP_COMMAND SPACE_FTP_SEP type_code CRLF_FTP_SEP
 		{
-		  pContext->Type($3);
+			;
 		}
-		| TYPE_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
-		{
-		  pContext->Type($3);
-		}
-		| STRU_FTP_COMMAND SPACE_FTP_SEP CHAR_FTP_ARG CRLF_FTP_SEP
+		| STRU_FTP_COMMAND SPACE_FTP_SEP structure_code CRLF_FTP_SEP
 		{
 		  pContext->Stru($3);
 		}
 		| REST_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
 		  pContext->Rest($3);
+		}
+		| ALLO_FTP_COMMAND SPACE_FTP_SEP NUMBER_FTP_ARG CRLF_FTP_SEP
+		{
+		  pContext->Allo($3);
+		}
+		| ALLO_FTP_COMMAND SPACE_FTP_SEP NUMBER_FTP_ARG SPACE_FTP_SEP 'r' SPACE_FTP_SEP NUMBER_FTP_ARG CRLF_FTP_SEP
+		{
+		  pContext->Allo($3, $7);
 		}
 		| RETR_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
@@ -258,6 +266,70 @@ port_number	: NUMBER_FTP_ARG ',' NUMBER_FTP_ARG
 		{
 		  $$.p1 = $1;
 		  $$.p2 = $3;
+		}
+		;
+mode_code	: 's'
+		{
+		  $$ = FtpUserData::MODE_STREAM;
+		}
+		| 'b'
+		{
+		  $$ = -1;
+		}
+		| 'c'
+		{
+		  $$ = -1;
+		}
+		;
+structure_code	: 'f'
+		{
+			$$ = FtpUserData::STRU_FILE;
+		}
+		| 'r'
+		{
+		  $$ = -1;
+		}
+		| 'p'
+		{
+		  $$ = -1;
+		}
+		;
+type_code	: 'a'
+		{
+		  pContext->Type(FtpUserData::REPR_ASCII);
+		}
+		| 'a' SPACE_FTP_SEP format_control_code
+		{
+		  pContext->Type(FtpUserData::REPR_ASCII, $3);
+		}
+		| 'i'
+		{
+		  pContext->Type(FtpUserData::REPR_IMAGE);
+		}
+		| 'e'
+		{
+		  pContext->ftp_reply(504);
+		}
+		| 'e' SPACE_FTP_SEP format_control_code
+		{
+		  pContext->ftp_reply(504);
+		}
+		| 'l'
+		{
+		  pContext->ftp_reply(504);
+		}
+		;
+format_control_code : 'n'
+		{
+		  $$ = FtpUserData::NON_PRINT;
+		}
+		| 't'
+		{
+		  pContext->ftp_reply(504);
+		}
+		| 'c'
+		{
+		  pContext->ftp_reply(504);
 		}
 		;
 %%

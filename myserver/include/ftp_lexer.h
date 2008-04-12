@@ -334,7 +334,7 @@ extern int yylex \
 #undef YY_DECL
 #endif
 
-#line 297 "ftp_lexer.lpp"
+#line 291 "ftp_lexer.lpp"
 
 
 #line 341 "../include/ftp_lexer.h"

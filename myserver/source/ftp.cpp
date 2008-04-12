@@ -572,7 +572,7 @@ void Ftp::RetrStor(bool bRetr, bool bAppend, const std::string &sPath)
 	DataConnectionWorkerThreadData *pData = new DataConnectionWorkerThreadData();
 	pData->m_pConnection = td.pConnection;
 	pData->m_sFilePath = sLocalPath;
-	pData->m_bAppend = bAppend || pFtpUserData->m_nRestartOffset != 0;
+	pData->m_bAppend = bAppend || pFtpUserData->m_nRestartOffset > 0;
 
 	pFtpUserData->m_sCurrentFileName = "";
 	pFtpUserData->m_nFileSize = 0;
@@ -609,6 +609,7 @@ void* SendAsciiFile(void* pParam)
 	ConnectionPtr pConnection = pWt->m_pConnection;
 	if ( pConnection == NULL )
 	{
+		ftp_reply(pConnection, 451);
 		delete pWt;
 #ifdef WIN32
 	return 0;
@@ -620,6 +621,7 @@ void* SendAsciiFile(void* pParam)
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(pConnection->protocolBuffer);
 	if ( pFtpUserData == NULL )
 	{
+		ftp_reply(pConnection, 451);
 		assert(pFtpUserData != NULL);
 		pFtpUserData->CloseDataConnection();
 		delete pWt;
@@ -632,6 +634,7 @@ void* SendAsciiFile(void* pParam)
       	if( pFtpUserData->m_pDataConnection == NULL || 
 			pFtpUserData->m_pDataConnection->socket == NULL)
 	{
+		ftp_reply(pConnection, 451);
 		pFtpUserData->CloseDataConnection();
 		delete pWt;
 #ifdef WIN32
@@ -647,6 +650,7 @@ void* SendAsciiFile(void* pParam)
 		file = Server::getInstance()->getCachedFiles()->open(pWt->m_sFilePath.c_str());
 		if ( file == NULL )
 		{
+			ftp_reply(pConnection, 451);
 			pFtpUserData->CloseDataConnection();
 			delete pWt;
 #ifdef WIN32
@@ -791,6 +795,7 @@ void* SendImageFile(void* pParam)
 	ConnectionPtr pConnection = pWt->m_pConnection;
 	if ( pConnection == NULL )
 	{
+		ftp_reply(pConnection, 451);
 		delete pWt;
 #ifdef WIN32
 	return 0;
@@ -802,6 +807,7 @@ void* SendImageFile(void* pParam)
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(pConnection->protocolBuffer);
 	if ( pFtpUserData == NULL )
 	{
+		ftp_reply(pConnection, 451);
 		assert(pFtpUserData != NULL);
 		pFtpUserData->CloseDataConnection();
 		delete pWt;
@@ -814,6 +820,7 @@ void* SendImageFile(void* pParam)
       	if( pFtpUserData->m_pDataConnection == NULL || 
 			pFtpUserData->m_pDataConnection->socket == NULL)
 	{
+		ftp_reply(pConnection, 451);
 		pFtpUserData->CloseDataConnection();
 		delete pWt;
 #ifdef WIN32
@@ -841,7 +848,7 @@ void* SendImageFile(void* pParam)
 		u_long filesize = file->getFileSize();
 		u_long nbr, nBufferSize = 0;
 		//sendfile(pFtpUserData->m_pDataConnection->socket->getHandle(), file->getHandle(), &offset, filesize);
-		if ( pFtpUserData->m_nRestartOffset > 0 && pFtpUserData->m_nRestartOffset < filesize )
+		if ( pWt->m_bAppend && pFtpUserData->m_nRestartOffset < filesize )
 		{
 			file->setFilePointer(pFtpUserData->m_nRestartOffset);
 			filesize -= pFtpUserData->m_nRestartOffset;
@@ -930,6 +937,7 @@ void* ReceiveAsciiFile(void* pParam)
 	ConnectionPtr pConnection = pWt->m_pConnection;
 	if ( pConnection == NULL )
 	{
+		ftp_reply(pConnection, 451);
 		delete pWt;
 #ifdef WIN32
 	return 0;
@@ -941,6 +949,7 @@ void* ReceiveAsciiFile(void* pParam)
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(pConnection->protocolBuffer);
 	if ( pFtpUserData == NULL )
 	{
+		ftp_reply(pConnection, 451);
 		assert(pFtpUserData != NULL);
 		pFtpUserData->CloseDataConnection();
 		delete pWt;
@@ -953,6 +962,7 @@ void* ReceiveAsciiFile(void* pParam)
       	if( pFtpUserData->m_pDataConnection == NULL || 
 			pFtpUserData->m_pDataConnection->socket == NULL)
 	{
+		ftp_reply(pConnection, 451);
 		pFtpUserData->CloseDataConnection();
 		delete pWt;
 #ifdef WIN32
@@ -972,6 +982,7 @@ void* ReceiveAsciiFile(void* pParam)
 			flags = File::MYSERVER_CREATE_ALWAYS | File::MYSERVER_OPEN_WRITE;
 		if ( file.openFile(pWt->m_sFilePath.c_str(), flags) )
 		{
+			ftp_reply(pConnection, 451);
 			pFtpUserData->CloseDataConnection();
 			delete pWt;
 #ifdef WIN32
@@ -1084,6 +1095,7 @@ void* ReceiveImageFile(void* pParam)
 	ConnectionPtr pConnection = pWt->m_pConnection;
 	if ( pConnection == NULL )
 	{
+		ftp_reply(pConnection, 451);
 		delete pWt;
 #ifdef WIN32
 	return 0;
@@ -1095,6 +1107,7 @@ void* ReceiveImageFile(void* pParam)
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(pConnection->protocolBuffer);
 	if ( pFtpUserData == NULL )
 	{
+		ftp_reply(pConnection, 451);
 		assert(pFtpUserData != NULL);
 		pFtpUserData->CloseDataConnection();
 		delete pWt;
@@ -1107,6 +1120,7 @@ void* ReceiveImageFile(void* pParam)
       	if( pFtpUserData->m_pDataConnection == NULL || 
 			pFtpUserData->m_pDataConnection->socket == NULL)
 	{
+		ftp_reply(pConnection, 451);
 		pFtpUserData->CloseDataConnection();
 		delete pWt;
 #ifdef WIN32
@@ -1126,6 +1140,7 @@ void* ReceiveImageFile(void* pParam)
 			flags = File::MYSERVER_CREATE_ALWAYS | File::MYSERVER_OPEN_WRITE;
 		if ( file.openFile(pWt->m_sFilePath.c_str(), flags) )
 		{
+			ftp_reply(pConnection, 451);
 #ifdef WIN32
 	return 0;
 #elif HAVE_PTHREAD
@@ -1373,110 +1388,57 @@ int Ftp::OpenDataActive()
 	return 1;
 }
 
-int Ftp::Type(const char chParam)
-{
-	std::string sParam;//(chParam);
-	sParam += chParam;
-	return Type(sParam);
-}
-
-int Ftp::Type(const std::string &sParam)
+int Ftp::Type(int nTypeCode, int nFormatControlCode/* = -1*/)
 {
 	if ( !UserLoggedIn() )
 		return 0;
 
-	const char *pParam = sParam.c_str();
-	if ( pParam == 0 )
-	{
-		ftp_reply(501);
-		return 0;
-	}
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
-	switch ( *pParam )
+	pFtpUserData->m_nFtpRepresentation = (FtpUserData::FtpRepresentation)nTypeCode;
+	switch ( nFormatControlCode )
 	{
-		case 'a':
-		case 'A':
-			pFtpUserData->m_nFtpRepresentation = FtpUserData::REPR_ASCII;
-			break;
-		case 'i':
-		case 'I':
-			pFtpUserData->m_nFtpRepresentation = FtpUserData::REPR_IMAGE;
-			break;
-		case 'e':
-		case 'E':
-		case 'l':
-		case 'L':
-		default:
-			ftp_reply(504);
-			return 1;
-	}
-	if ( pParam++ == NULL || *pParam != ' ' || pParam++ == NULL )
-	{
-		ftp_reply(200);
-		return 1;
-	}
-	switch ( *pParam )
-	{
-		case 'n':
-		case 'N':
-			if ( pFtpUserData->m_nFtpRepresentation == FtpUserData::REPR_ASCII )
-				pFtpUserData->m_nFtpFormatControl = FtpUserData::NON_PRINT;
+		case FtpUserData::NON_PRINT:
+			if ( nTypeCode == FtpUserData::REPR_ASCII )
+				pFtpUserData->m_nFtpFormatControl = (FtpUserData::FtpFormatControl)nFormatControlCode;
 			else
 			{
 				ftp_reply(501);
 				return 0;
 			}
 			break;
-		case 't':
-		case 'T':
-		case 'c':
-		case 'C':
-		default:
-			ftp_reply(504);
-			return 1;
+		case FtpUserData::REPR_IMAGE:
+			pFtpUserData->m_nFtpFormatControl = (FtpUserData::FtpFormatControl)nFormatControlCode;
+			break;
 	}
+
 	ftp_reply(200);
 	return 1;
 }
 
-void Ftp::Stru(const char s)
+void Ftp::Stru(int nStructure)
 {
 	if ( !UserLoggedIn() )
 		return;
+	if ( nStructure < 0 )
+		ftp_reply(504);
 
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
-	switch ( s )
-	{
-		case 'f':
-			pFtpUserData->m_nFtpFileStructure = FtpUserData::STRU_FILE;
-			break;
-		case 'r':
-		case 'p':
-		default:
-			ftp_reply(504);
-	}
+	pFtpUserData->m_nFtpFileStructure = (FtpUserData::FtpFileStructure)nStructure;
 	ftp_reply(200);
 }
 
-void Ftp::Mode(const char m)
+void Ftp::Mode(int nMode)
 {
 	if ( !UserLoggedIn() )
 		return;
+	if ( nMode < 0 )
+		ftp_reply(504);
 
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
-	switch ( m )
-	{
-		case 's':
-			pFtpUserData->m_nTransferMode = FtpUserData::MODE_STREAM;
-			break;
-		case 'b':
-		case 'c':
-		default:
-			ftp_reply(504);
-	}
+	pFtpUserData->m_nTransferMode = (FtpUserData::FtpTransferMode)nMode;
 }
 
 void Ftp::List(const std::string &sParam/*= ""*/)
@@ -1805,7 +1767,8 @@ void Ftp::Abor()
       		Thread::join(pFtpUserData->m_dataThreadId);// wait for data connection to end
 		ftp_reply(426);
 	}
-	ftp_reply(226);
+	else
+		ftp_reply(226);
 	pFtpUserData->m_bBreakDataConnection = false;
 
 	if ( !m_bAllowAsynchronousCmds )
@@ -1976,7 +1939,12 @@ void Ftp::Mkd(const std::string &sPath)
 
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
-	std::string sLocalPath = pFtpUserData->m_cwd + "/" + sPath;
+	std::string sLocalPath;// = pFtpUserData->m_cwd + "/" + sPath;
+	if ( !GetLocalPath(sPath, sLocalPath) )
+	{
+		ftp_reply(550);
+		return;
+	}
 
 	if ( CheckRights(pFtpUserData->m_sUserName, pFtpUserData->m_sPass, 
 		sLocalPath, MYSERVER_PERMISSION_WRITE) == 0 )
@@ -2008,10 +1976,11 @@ void Ftp::Rmd(const std::string &sPath)
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
 	std::string sLocalPath;
-	if ( sPath[0] == '/' )
-		sLocalPath = sPath;
-	else
-		sLocalPath = pFtpUserData->m_cwd + "/" + sPath;
+	if ( !GetLocalPath(sPath, sLocalPath) )
+	{
+		ftp_reply(550);
+		return;
+	}
 
 	if ( CheckRights(pFtpUserData->m_sUserName, pFtpUserData->m_sPass, 
 		sLocalPath, MYSERVER_PERMISSION_WRITE) == 0 )
@@ -2085,4 +2054,10 @@ void Ftp::Size(const std::string &sPath)
 	ftp_reply(502);
 	//std::string sDummySize("5120");//5KB
 	//ftp_reply(213, sDummySize);
+}
+
+void Ftp::Allo(int nSize, int nRecordSize/* = -1*/)
+{
+	//TODO: implement
+	Noop();
 }

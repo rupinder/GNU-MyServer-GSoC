@@ -2,6 +2,7 @@
 #include "../include/ftp_common.h"
 #include <string>
 #include "../include/ftp_parser.h"
+#include <ctype.h>
 %}
 
 %option reentrant
@@ -255,13 +256,6 @@
 		yylloc->last_column += yyleng;
 		return NUMBER_FTP_ARG;
 	}
-[:alpha:]	{
-		yylval->m_nChar = *yytext;
-		yylloc->first_line = yylloc->last_line;
-		yylloc->first_column = yylloc->last_column;
-		yylloc->last_column += yyleng;
-		return CHAR_FTP_ARG;
-	}
 \r\n	{
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
@@ -281,8 +275,8 @@
 		yylloc->first_column = yylloc->last_column;
 		yylloc->last_column += yyleng;
 
-		if ( *yytext == ',' )
-			return ',';
+		if ( yyleng == 1 )//one char
+			return tolower(*yytext);
 		else
 		{
 			memset(yylval->m_szStr, 0, PARSER_STR_LEN);

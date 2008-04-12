@@ -141,14 +141,13 @@ public:
 	void Password(const std::string &sParam);
 	void Port(const FtpHost &host);
 	void Pasv();
-	int Type(const std::string &sParam);
-	int Type(const char chParam);
+	int Type(int nTypeCode, int nFormatControlCode = -1);
 	void Retr(const std::string &sPath);
 	void Quit();
 	void Help(const std::string &sCmd = "");
 	void Noop();
-	void Stru(const char s);
-	void Mode(const char m);
+	void Stru(int nStructure);
+	void Mode(int nMode);
 	void List(const std::string &sParam = "");
 	void Nlst(const std::string &sParam = "");
 	void Abor();
@@ -157,6 +156,7 @@ public:
 	void Rest(const std::string &sRestPoint);
 	void Syst();
 	void Stat(const std::string &sParam = "");
+	void Allo(int nSize, int nRecordSize = -1);
 
 	void Stor(const std::string &sPath);
 	void Dele(const std::string &sPath);
