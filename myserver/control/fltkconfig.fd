@@ -2,7 +2,7 @@
 version 1.0107 
 i18n_type 1 
 i18n_include "language.h" 
-i18n_function gettext 
+i18n_function ctrl_gettext 
 header_name {.h} 
 code_name {.cpp}
 class MainDlg {open
@@ -1059,8 +1059,8 @@ else {
       }
     }
     code {// Set FLTK function's text
-  fl_ok = gettext("OK");
-  fl_cancel = gettext("Cancel");} {}
+  fl_ok = ctrl_gettext("OK");
+  fl_cancel = ctrl_gettext("Cancel");} {}
   }
   Function {make_type()} {} {
     Fl_Window ConfTypeDlg {

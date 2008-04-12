@@ -332,7 +332,7 @@ void LanguageXMLload()
 /// The tag is the english string that is mangled to an xml tag that is
 /// used to return the translated vr using the XmlParser class.
 ///
-extern "C" char * gettext(const char * tag)
+extern "C" char * ctrl_gettext(const char * tag)
 {
    char * val;
    char * text;

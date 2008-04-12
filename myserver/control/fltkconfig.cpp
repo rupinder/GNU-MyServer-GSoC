@@ -256,34 +256,34 @@ void MainDlg::cb_About(Fl_Menu_* o, void* v) {
 }
 
 Fl_Menu_Item MainDlg::menu_[] = {
- {gettext("&File"), 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("&Open..."), 0,  (Fl_Callback*)MainDlg::cb_Open, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("&Save..."), 0,  (Fl_Callback*)MainDlg::cb_Save, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("&Revert"), 0,  (Fl_Callback*)MainDlg::cb_Revert, 0, 128, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Run"), 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("as Console"), 0,  (Fl_Callback*)MainDlg::cb_as, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("as Service"), 0,  (Fl_Callback*)MainDlg::cb_as1, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("&File"), 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("&Open..."), 0,  (Fl_Callback*)MainDlg::cb_Open, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("&Save..."), 0,  (Fl_Callback*)MainDlg::cb_Save, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("&Revert"), 0,  (Fl_Callback*)MainDlg::cb_Revert, 0, 128, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Run"), 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("as Console"), 0,  (Fl_Callback*)MainDlg::cb_as, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("as Service"), 0,  (Fl_Callback*)MainDlg::cb_as1, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
- {gettext("Stop"), 0,  0, 0, 192, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Console"), 0,  (Fl_Callback*)MainDlg::cb_Console, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Service"), 0,  (Fl_Callback*)MainDlg::cb_Service, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Stop"), 0,  0, 0, 192, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Console"), 0,  (Fl_Callback*)MainDlg::cb_Console, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Service"), 0,  (Fl_Callback*)MainDlg::cb_Service, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
- {gettext("&Quit"), 0,  (Fl_Callback*)MainDlg::cb_Quit, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("&Quit"), 0,  (Fl_Callback*)MainDlg::cb_Quit, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
- {gettext("Ser&vice"), 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Install Service"), 0,  (Fl_Callback*)MainDlg::cb_Install, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Remove Service"), 0,  (Fl_Callback*)MainDlg::cb_Remove, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Ser&vice"), 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Install Service"), 0,  (Fl_Callback*)MainDlg::cb_Install, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Remove Service"), 0,  (Fl_Callback*)MainDlg::cb_Remove, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
- {gettext("Re&mote"), 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Login..."), 0,  (Fl_Callback*)MainDlg::cb_Login, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Logout"), 0,  (Fl_Callback*)MainDlg::cb_MenuLogout, 0, 129, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Get Config"), 0,  (Fl_Callback*)MainDlg::cb_MenuGetConfig, 0, 1, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Send Config"), 0,  (Fl_Callback*)MainDlg::cb_MenuSendConfig, 0, 129, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Connections..."), 0,  (Fl_Callback*)MainDlg::cb_MenuConnections, 0, 1, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Reboot..."), 0,  (Fl_Callback*)MainDlg::cb_MenuReboot, 0, 1, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Re&mote"), 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Login..."), 0,  (Fl_Callback*)MainDlg::cb_Login, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Logout"), 0,  (Fl_Callback*)MainDlg::cb_MenuLogout, 0, 129, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Get Config"), 0,  (Fl_Callback*)MainDlg::cb_MenuGetConfig, 0, 1, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Send Config"), 0,  (Fl_Callback*)MainDlg::cb_MenuSendConfig, 0, 129, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Connections..."), 0,  (Fl_Callback*)MainDlg::cb_MenuConnections, 0, 1, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Reboot..."), 0,  (Fl_Callback*)MainDlg::cb_MenuReboot, 0, 1, FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
- {gettext("&Help"), 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("&About"), 0,  (Fl_Callback*)MainDlg::cb_About, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("&Help"), 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("&About"), 0,  (Fl_Callback*)MainDlg::cb_About, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
  {0,0,0,0,0,0,0,0,0}
 };
@@ -308,10 +308,10 @@ void MainDlg::cb_Verbosity(Fl_Choice* o, void* v) {
 }
 
 Fl_Menu_Item MainDlg::menu_Verbosity[] = {
- {gettext("None"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Normal"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Higher"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Highest"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("None"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Normal"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Higher"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Highest"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0}
 };
 
@@ -520,18 +520,18 @@ void MainDlg::cb_Cmd(Fl_Choice* o, void* v) {
 }
 
 Fl_Menu_Item MainDlg::menu_Cmd[] = {
- {gettext("Send the file"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("URL link"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Run as CGI"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Run as FastCGI"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Run as SCGI"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Run as ISAPI"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Run as MSCGI"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Run as WINCGI"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Execute"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Execute as an ISAPI module"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Execute self contained FastCGI"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("Run self contained SCGI"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Send the file"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("URL link"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Run as CGI"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Run as FastCGI"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Run as SCGI"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Run as ISAPI"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Run as MSCGI"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Run as WINCGI"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Execute"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Execute as an ISAPI module"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Execute self contained FastCGI"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Run self contained SCGI"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0}
 };
 
@@ -746,10 +746,10 @@ void MainDlg::cb_Protocol(Fl_Choice* o, void* v) {
 }
 
 Fl_Menu_Item MainDlg::menu_Protocol[] = {
- {gettext("HTTP"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("HTTPS"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("FTP"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {gettext("CONTROL"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("HTTP"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("HTTPS"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("FTP"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("CONTROL"), 0,  0, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0}
 };
 
@@ -3490,149 +3490,149 @@ void MainDlg::cb_OK(Fl_Return_Button* o, void* v) {
 }
 
 Fl_Double_Window* MainDlg::make_window() {
-  { ConfDlg = new Fl_Double_Window(550, 360, gettext("MyServer Configure"));
+  { ConfDlg = new Fl_Double_Window(550, 360, ctrl_gettext("MyServer Configure"));
     ConfDlg->callback((Fl_Callback*)cb_ConfDlg, (void*)(this));
     { Fl_Menu_Bar* o = new Fl_Menu_Bar(0, 0, 550, 25);
       o->menu(menu_);
     } // Fl_Menu_Bar* o
     { Fl_Tabs* o = new Fl_Tabs(0, 25, 635, 335);
-      { Fl_Group* o = new Fl_Group(0, 50, 550, 310, gettext("System"));
+      { Fl_Group* o = new Fl_Group(0, 50, 550, 310, ctrl_gettext("System"));
         o->hide();
-        { Buffer_Size = new Fl_Value_Input(295, 60, 115, 25, gettext("Memory buffer (in bytes):"));
+        { Buffer_Size = new Fl_Value_Input(295, 60, 115, 25, ctrl_gettext("Memory buffer (in bytes):"));
           Buffer_Size->maximum(5.24288e+06);
           Buffer_Size->step(1);
           Buffer_Size->callback((Fl_Callback*)cb_Buffer_Size);
         } // Fl_Value_Input* Buffer_Size
-        { Verbosity = new Fl_Choice(295, 90, 115, 25, gettext("Verbosity level:"));
+        { Verbosity = new Fl_Choice(295, 90, 115, 25, ctrl_gettext("Verbosity level:"));
           Verbosity->down_box(FL_BORDER_BOX);
           Verbosity->callback((Fl_Callback*)cb_Verbosity);
           Verbosity->when(FL_WHEN_CHANGED);
           Verbosity->menu(menu_Verbosity);
         } // Fl_Choice* Verbosity
-        { Max_Log_File_Size = new Fl_Value_Input(295, 120, 115, 25, gettext("Max log file size (in bytes):"));
+        { Max_Log_File_Size = new Fl_Value_Input(295, 120, 115, 25, ctrl_gettext("Max log file size (in bytes):"));
           Max_Log_File_Size->maximum(5.24288e+07);
           Max_Log_File_Size->step(1);
           Max_Log_File_Size->callback((Fl_Callback*)cb_Max_Log_File_Size);
         } // Fl_Value_Input* Max_Log_File_Size
-        { Nthreads_Static = new Fl_Value_Input(295, 150, 115, 30, gettext("Always active threads:"));
+        { Nthreads_Static = new Fl_Value_Input(295, 150, 115, 30, ctrl_gettext("Always active threads:"));
           Nthreads_Static->maximum(1000);
           Nthreads_Static->step(1);
           Nthreads_Static->callback((Fl_Callback*)cb_Nthreads_Static);
         } // Fl_Value_Input* Nthreads_Static
-        { Nthreads_Max = new Fl_Value_Input(295, 185, 115, 25, gettext("Maximum number of threads:"));
+        { Nthreads_Max = new Fl_Value_Input(295, 185, 115, 25, ctrl_gettext("Maximum number of threads:"));
           Nthreads_Max->maximum(1000);
           Nthreads_Max->step(1);
           Nthreads_Max->callback((Fl_Callback*)cb_Nthreads_Max);
         } // Fl_Value_Input* Nthreads_Max
-        { Language = new Fl_Choice(295, 215, 115, 25, gettext("Language:"));
+        { Language = new Fl_Choice(295, 215, 115, 25, ctrl_gettext("Language:"));
           Language->down_box(FL_BORDER_BOX);
           Language->callback((Fl_Callback*)cb_Language);
           Language->when(FL_WHEN_CHANGED);
         } // Fl_Choice* Language
         o->end();
       } // Fl_Group* o
-      { Fl_Group* o = new Fl_Group(0, 50, 550, 310, gettext("Server"));
+      { Fl_Group* o = new Fl_Group(0, 50, 550, 310, ctrl_gettext("Server"));
         o->hide();
-        { Connection_Timeout = new Fl_Value_Input(295, 60, 115, 25, gettext("Connection time-out (in sec):"));
+        { Connection_Timeout = new Fl_Value_Input(295, 60, 115, 25, ctrl_gettext("Connection time-out (in sec):"));
           Connection_Timeout->maximum(3600);
           Connection_Timeout->step(1);
           Connection_Timeout->callback((Fl_Callback*)cb_Connection_Timeout);
         } // Fl_Value_Input* Connection_Timeout
-        { Max_Connections = new Fl_Value_Input(295, 90, 115, 25, gettext("Max connections:"));
+        { Max_Connections = new Fl_Value_Input(295, 90, 115, 25, ctrl_gettext("Max connections:"));
           Max_Connections->maximum(5.24288e+06);
           Max_Connections->step(1);
           Max_Connections->callback((Fl_Callback*)cb_Max_Connections);
         } // Fl_Value_Input* Max_Connections
-        { Gzip_Threshold = new Fl_Value_Input(295, 120, 115, 25, gettext("Gzip compression threshold (in bytes):"));
+        { Gzip_Threshold = new Fl_Value_Input(295, 120, 115, 25, ctrl_gettext("Gzip compression threshold (in bytes):"));
           Gzip_Threshold->maximum(5.24288e+06);
           Gzip_Threshold->step(1);
           Gzip_Threshold->callback((Fl_Callback*)cb_Gzip_Threshold);
         } // Fl_Value_Input* Gzip_Threshold
-        { Browsefolder_Css = new Fl_Input(295, 150, 115, 25, gettext("Stylesheet:"));
+        { Browsefolder_Css = new Fl_Input(295, 150, 115, 25, ctrl_gettext("Stylesheet:"));
           Browsefolder_Css->callback((Fl_Callback*)cb_Browsefolder_Css);
           Browsefolder_Css->when(FL_WHEN_CHANGED);
         } // Fl_Input* Browsefolder_Css
-        { Fl_Button* o = new Fl_Button(420, 150, 85, 25, gettext("Browse..."));
+        { Fl_Button* o = new Fl_Button(420, 150, 85, 25, ctrl_gettext("Browse..."));
           o->callback((Fl_Callback*)cb_Browse);
         } // Fl_Button* o
-        { Use_Errors_Files = new Fl_Check_Button(295, 180, 25, 25, gettext("Personalized error pages:"));
+        { Use_Errors_Files = new Fl_Check_Button(295, 180, 25, 25, ctrl_gettext("Personalized error pages:"));
           Use_Errors_Files->down_box(FL_DOWN_BOX);
           Use_Errors_Files->callback((Fl_Callback*)cb_Use_Errors_Files);
           Use_Errors_Files->align(FL_ALIGN_LEFT);
           Use_Errors_Files->when(FL_WHEN_CHANGED);
         } // Fl_Check_Button* Use_Errors_Files
-        { Fl_Group* o = new Fl_Group(115, 205, 345, 145, gettext("Default file names:"));
-          o->tooltip(gettext("Default file to send in a directory when none is specified"));
+        { Fl_Group* o = new Fl_Group(115, 205, 345, 145, ctrl_gettext("Default file names:"));
+          o->tooltip(ctrl_gettext("Default file to send in a directory when none is specified"));
           o->box(FL_ENGRAVED_BOX);
           o->align(FL_ALIGN_TOP|FL_ALIGN_INSIDE);
           { Default_Filename = new Fl_Browser(135, 230, 195, 105);
             Default_Filename->type(2);
           } // Fl_Browser* Default_Filename
-          { Fl_Button* o = new Fl_Button(350, 230, 85, 25, gettext("Add..."));
+          { Fl_Button* o = new Fl_Button(350, 230, 85, 25, ctrl_gettext("Add..."));
             o->callback((Fl_Callback*)cb_Add);
           } // Fl_Button* o
-          { Fl_Button* o = new Fl_Button(350, 265, 85, 25, gettext("Remove"));
+          { Fl_Button* o = new Fl_Button(350, 265, 85, 25, ctrl_gettext("Remove"));
             o->callback((Fl_Callback*)cb_Remove1);
           } // Fl_Button* o
           o->end();
         } // Fl_Group* o
         o->end();
       } // Fl_Group* o
-      { Fl_Group* o = new Fl_Group(0, 50, 550, 310, gettext("MIME"));
+      { Fl_Group* o = new Fl_Group(0, 50, 550, 310, ctrl_gettext("MIME"));
         o->hide();
         { Fl_Group* o = new Fl_Group(10, 60, 530, 290);
           o->box(FL_ENGRAVED_FRAME);
-          { Fl_Group* o = new Fl_Group(20, 70, 195, 270, gettext("Extension:"));
+          { Fl_Group* o = new Fl_Group(20, 70, 195, 270, ctrl_gettext("Extension:"));
             o->box(FL_ENGRAVED_FRAME);
             o->align(FL_ALIGN_TOP|FL_ALIGN_INSIDE);
             { Ext = new Fl_Browser(31, 95, 170, 190);
               Ext->type(2);
               Ext->callback((Fl_Callback*)cb_Ext);
             } // Fl_Browser* Ext
-            { Fl_Button* o = new Fl_Button(30, 300, 80, 25, gettext("Add..."));
+            { Fl_Button* o = new Fl_Button(30, 300, 80, 25, ctrl_gettext("Add..."));
               o->callback((Fl_Callback*)cb_Add1);
             } // Fl_Button* o
-            { Fl_Button* o = new Fl_Button(120, 300, 80, 25, gettext("Remove"));
+            { Fl_Button* o = new Fl_Button(120, 300, 80, 25, ctrl_gettext("Remove"));
               o->callback((Fl_Callback*)cb_Remove2);
             } // Fl_Button* o
             o->end();
           } // Fl_Group* o
-          { Mime = new Fl_Choice(310, 95, 220, 25, gettext("MIME Type:"));
+          { Mime = new Fl_Choice(310, 95, 220, 25, ctrl_gettext("MIME Type:"));
             Mime->down_box(FL_BORDER_BOX);
             Mime->callback((Fl_Callback*)cb_Mime);
             Mime->when(FL_WHEN_CHANGED);
           } // Fl_Choice* Mime
-          { Fl_Button* o = new Fl_Button(310, 125, 90, 25, gettext("Add..."));
+          { Fl_Button* o = new Fl_Button(310, 125, 90, 25, ctrl_gettext("Add..."));
             o->callback((Fl_Callback*)cb_Add2);
           } // Fl_Button* o
-          { Cmd = new Fl_Choice(310, 165, 220, 25, gettext("Action:"));
+          { Cmd = new Fl_Choice(310, 165, 220, 25, ctrl_gettext("Action:"));
             Cmd->down_box(FL_BORDER_BOX);
             Cmd->callback((Fl_Callback*)cb_Cmd);
             Cmd->when(FL_WHEN_CHANGED);
             Cmd->menu(menu_Cmd);
           } // Fl_Choice* Cmd
-          { Manager = new Fl_Input(310, 205, 220, 25, gettext("Manager:"));
+          { Manager = new Fl_Input(310, 205, 220, 25, ctrl_gettext("Manager:"));
             Manager->callback((Fl_Callback*)cb_Manager);
           } // Fl_Input* Manager
-          { ManagerButton = new Fl_Button(310, 235, 90, 25, gettext("Browse..."));
+          { ManagerButton = new Fl_Button(310, 235, 90, 25, ctrl_gettext("Browse..."));
             ManagerButton->callback((Fl_Callback*)cb_ManagerButton);
           } // Fl_Button* ManagerButton
           o->end();
         } // Fl_Group* o
         o->end();
       } // Fl_Group* o
-      { Fl_Group* o = new Fl_Group(0, 50, 635, 310, gettext("Hosts"));
+      { Fl_Group* o = new Fl_Group(0, 50, 635, 310, ctrl_gettext("Hosts"));
         { Fl_Group* o = new Fl_Group(10, 60, 530, 45);
           o->box(FL_ENGRAVED_FRAME);
-          { Name = new Fl_Choice(75, 70, 275, 25, gettext("Name:"));
+          { Name = new Fl_Choice(75, 70, 275, 25, ctrl_gettext("Name:"));
             Name->down_box(FL_BORDER_BOX);
             Name->callback((Fl_Callback*)cb_Name);
             Name->when(FL_WHEN_CHANGED);
           } // Fl_Choice* Name
-          { Fl_Button* o = new Fl_Button(360, 70, 80, 25, gettext("Add..."));
+          { Fl_Button* o = new Fl_Button(360, 70, 80, 25, ctrl_gettext("Add..."));
             o->callback((Fl_Callback*)cb_Add3);
           } // Fl_Button* o
-          { Fl_Button* o = new Fl_Button(450, 70, 80, 25, gettext("Remove"));
+          { Fl_Button* o = new Fl_Button(450, 70, 80, 25, ctrl_gettext("Remove"));
             o->callback((Fl_Callback*)cb_Remove3);
           } // Fl_Button* o
           o->end();
@@ -3640,122 +3640,122 @@ Fl_Double_Window* MainDlg::make_window() {
         { Fl_Group* o = new Fl_Group(10, 110, 625, 240);
           o->box(FL_ENGRAVED_FRAME);
           { Fl_Tabs* o = new Fl_Tabs(20, 120, 615, 220);
-            { Fl_Group* o = new Fl_Group(20, 145, 510, 195, gettext("Protocol"));
+            { Fl_Group* o = new Fl_Group(20, 145, 510, 195, ctrl_gettext("Protocol"));
               o->hide();
-              { Protocol = new Fl_Choice(180, 155, 215, 25, gettext("Protocol:"));
+              { Protocol = new Fl_Choice(180, 155, 215, 25, ctrl_gettext("Protocol:"));
                 Protocol->down_box(FL_BORDER_BOX);
                 Protocol->callback((Fl_Callback*)cb_Protocol);
                 Protocol->when(FL_WHEN_CHANGED);
                 Protocol->menu(menu_Protocol);
               } // Fl_Choice* Protocol
-              { Ssl_Privatekey = new Fl_Input(180, 185, 215, 25, gettext("SSL private key:"));
+              { Ssl_Privatekey = new Fl_Input(180, 185, 215, 25, ctrl_gettext("SSL private key:"));
                 Ssl_Privatekey->callback((Fl_Callback*)cb_Ssl_Privatekey);
                 Ssl_Privatekey->when(FL_WHEN_CHANGED);
                 Ssl_Privatekey->deactivate();
               } // Fl_Input* Ssl_Privatekey
-              { Ssl_Certificate = new Fl_Input(180, 215, 215, 25, gettext("SSL certificate:"));
+              { Ssl_Certificate = new Fl_Input(180, 215, 215, 25, ctrl_gettext("SSL certificate:"));
                 Ssl_Certificate->callback((Fl_Callback*)cb_Ssl_Certificate);
                 Ssl_Certificate->when(FL_WHEN_CHANGED);
                 Ssl_Certificate->deactivate();
               } // Fl_Input* Ssl_Certificate
-              { Ssl_Password = new Fl_Input(180, 245, 215, 25, gettext("SSL password:"));
+              { Ssl_Password = new Fl_Input(180, 245, 215, 25, ctrl_gettext("SSL password:"));
                 Ssl_Password->type(5);
                 Ssl_Password->callback((Fl_Callback*)cb_Ssl_Password);
                 Ssl_Password->when(FL_WHEN_CHANGED);
                 Ssl_Password->deactivate();
               } // Fl_Input* Ssl_Password
-              { SslButton1 = new Fl_Button(405, 185, 85, 25, gettext("Browse..."));
+              { SslButton1 = new Fl_Button(405, 185, 85, 25, ctrl_gettext("Browse..."));
                 SslButton1->callback((Fl_Callback*)cb_SslButton1);
                 SslButton1->deactivate();
               } // Fl_Button* SslButton1
-              { SslButton2 = new Fl_Button(405, 215, 85, 25, gettext("Browse..."));
+              { SslButton2 = new Fl_Button(405, 215, 85, 25, ctrl_gettext("Browse..."));
                 SslButton2->callback((Fl_Callback*)cb_SslButton2);
                 SslButton2->deactivate();
               } // Fl_Button* SslButton2
               o->end();
             } // Fl_Group* o
-            { Fl_Group* o = new Fl_Group(20, 145, 510, 195, gettext("Arpa"));
+            { Fl_Group* o = new Fl_Group(20, 145, 510, 195, ctrl_gettext("Arpa"));
               o->hide();
-              { Host = new Fl_Browser(30, 165, 170, 135, gettext("Host"));
+              { Host = new Fl_Browser(30, 165, 170, 135, ctrl_gettext("Host"));
                 Host->type(2);
                 Host->align(FL_ALIGN_TOP);
               } // Fl_Browser* Host
-              { Ip = new Fl_Browser(210, 165, 170, 135, gettext("IP"));
+              { Ip = new Fl_Browser(210, 165, 170, 135, ctrl_gettext("IP"));
                 Ip->type(2);
                 Ip->align(FL_ALIGN_TOP);
               } // Fl_Browser* Ip
-              { Fl_Button* o = new Fl_Button(30, 305, 80, 25, gettext("Add..."));
+              { Fl_Button* o = new Fl_Button(30, 305, 80, 25, ctrl_gettext("Add..."));
                 o->callback((Fl_Callback*)cb_Add4);
               } // Fl_Button* o
-              { Fl_Button* o = new Fl_Button(120, 305, 80, 25, gettext("Remove"));
+              { Fl_Button* o = new Fl_Button(120, 305, 80, 25, ctrl_gettext("Remove"));
                 o->callback((Fl_Callback*)cb_Remove4);
               } // Fl_Button* o
-              { Fl_Button* o = new Fl_Button(210, 305, 80, 25, gettext("Add..."));
+              { Fl_Button* o = new Fl_Button(210, 305, 80, 25, ctrl_gettext("Add..."));
                 o->callback((Fl_Callback*)cb_Add5);
               } // Fl_Button* o
-              { Fl_Button* o = new Fl_Button(300, 305, 80, 25, gettext("Remove"));
+              { Fl_Button* o = new Fl_Button(300, 305, 80, 25, ctrl_gettext("Remove"));
                 o->callback((Fl_Callback*)cb_Remove5);
               } // Fl_Button* o
-              { Port = new Fl_Value_Input(435, 165, 65, 25, gettext("Port:"));
+              { Port = new Fl_Value_Input(435, 165, 65, 25, ctrl_gettext("Port:"));
                 Port->maximum(10240);
                 Port->step(1);
                 Port->callback((Fl_Callback*)cb_Port);
               } // Fl_Value_Input* Port
               o->end();
             } // Fl_Group* o
-            { Fl_Group* o = new Fl_Group(25, 140, 510, 195, gettext("HTTP Services"));
-              { Fl_Box* o = new Fl_Box(45, 150, 115, 25, gettext("Enable:"));
+            { Fl_Group* o = new Fl_Group(25, 140, 510, 195, ctrl_gettext("HTTP Services"));
+              { Fl_Box* o = new Fl_Box(45, 150, 115, 25, ctrl_gettext("Enable:"));
                 o->align(FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
               } // Fl_Box* o
-              { Allow_CGI = new Fl_Check_Button(65, 175, 20, 25, gettext("CGI"));
+              { Allow_CGI = new Fl_Check_Button(65, 175, 20, 25, ctrl_gettext("CGI"));
                 Allow_CGI->down_box(FL_DOWN_BOX);
                 Allow_CGI->callback((Fl_Callback*)cb_Allow_CGI);
                 Allow_CGI->align(FL_ALIGN_RIGHT);
                 Allow_CGI->when(FL_WHEN_CHANGED);
               } // Fl_Check_Button* Allow_CGI
-              { Allow_ISAPI = new Fl_Check_Button(65, 195, 20, 25, gettext("ISAPI"));
+              { Allow_ISAPI = new Fl_Check_Button(65, 195, 20, 25, ctrl_gettext("ISAPI"));
                 Allow_ISAPI->down_box(FL_DOWN_BOX);
                 Allow_ISAPI->callback((Fl_Callback*)cb_Allow_ISAPI);
                 Allow_ISAPI->align(FL_ALIGN_RIGHT);
                 Allow_ISAPI->when(FL_WHEN_CHANGED);
               } // Fl_Check_Button* Allow_ISAPI
-              { Allow_MSCGI = new Fl_Check_Button(65, 215, 20, 25, gettext("MSCGI"));
+              { Allow_MSCGI = new Fl_Check_Button(65, 215, 20, 25, ctrl_gettext("MSCGI"));
                 Allow_MSCGI->down_box(FL_DOWN_BOX);
                 Allow_MSCGI->callback((Fl_Callback*)cb_Allow_MSCGI);
                 Allow_MSCGI->align(FL_ALIGN_RIGHT);
                 Allow_MSCGI->when(FL_WHEN_CHANGED);
               } // Fl_Check_Button* Allow_MSCGI
-              { Allow_WINCGI = new Fl_Check_Button(65, 235, 20, 25, gettext("WINCGI"));
+              { Allow_WINCGI = new Fl_Check_Button(65, 235, 20, 25, ctrl_gettext("WINCGI"));
                 Allow_WINCGI->down_box(FL_DOWN_BOX);
                 Allow_WINCGI->callback((Fl_Callback*)cb_Allow_WINCGI);
                 Allow_WINCGI->align(FL_ALIGN_RIGHT);
                 Allow_WINCGI->when(FL_WHEN_CHANGED);
               } // Fl_Check_Button* Allow_WINCGI
-              { Allow_FASTCGI = new Fl_Check_Button(65, 255, 20, 25, gettext("FASTCGI"));
+              { Allow_FASTCGI = new Fl_Check_Button(65, 255, 20, 25, ctrl_gettext("FASTCGI"));
                 Allow_FASTCGI->down_box(FL_DOWN_BOX);
                 Allow_FASTCGI->callback((Fl_Callback*)cb_Allow_FASTCGI);
                 Allow_FASTCGI->align(FL_ALIGN_RIGHT);
                 Allow_FASTCGI->when(FL_WHEN_CHANGED);
               } // Fl_Check_Button* Allow_FASTCGI
-              { Allow_SCGI = new Fl_Check_Button(235, 175, 20, 25, gettext("SCGI"));
+              { Allow_SCGI = new Fl_Check_Button(235, 175, 20, 25, ctrl_gettext("SCGI"));
                 Allow_SCGI->down_box(FL_DOWN_BOX);
                 Allow_SCGI->callback((Fl_Callback*)cb_Allow_SCGI);
                 Allow_SCGI->align(FL_ALIGN_RIGHT);
                 Allow_SCGI->when(FL_WHEN_CHANGED);
               } // Fl_Check_Button* Allow_SCGI
-              { Allow_SEND_LINK = new Fl_Check_Button(235, 195, 20, 25, gettext("SEND LINK"));
+              { Allow_SEND_LINK = new Fl_Check_Button(235, 195, 20, 25, ctrl_gettext("SEND LINK"));
                 Allow_SEND_LINK->down_box(FL_DOWN_BOX);
                 Allow_SEND_LINK->callback((Fl_Callback*)cb_Allow_SEND_LINK);
                 Allow_SEND_LINK->align(FL_ALIGN_RIGHT);
                 Allow_SEND_LINK->when(FL_WHEN_CHANGED);
               } // Fl_Check_Button* Allow_SEND_LINK
-              { Allow_EXTERNAL_COMMANDS = new Fl_Check_Button(235, 215, 20, 25, gettext("EXTERNAL COMMANDS"));
+              { Allow_EXTERNAL_COMMANDS = new Fl_Check_Button(235, 215, 20, 25, ctrl_gettext("EXTERNAL COMMANDS"));
                 Allow_EXTERNAL_COMMANDS->down_box(FL_DOWN_BOX);
                 Allow_EXTERNAL_COMMANDS->callback((Fl_Callback*)cb_Allow_EXTERNAL_COMMANDS);
                 Allow_EXTERNAL_COMMANDS->align(FL_ALIGN_RIGHT);
                 Allow_EXTERNAL_COMMANDS->when(FL_WHEN_CHANGED);
               } // Fl_Check_Button* Allow_EXTERNAL_COMMANDS
-              { Allow_SEND_FILE = new Fl_Check_Button(235, 235, 20, 25, gettext("SEND FILE"));
+              { Allow_SEND_FILE = new Fl_Check_Button(235, 235, 20, 25, ctrl_gettext("SEND FILE"));
                 Allow_SEND_FILE->down_box(FL_DOWN_BOX);
                 Allow_SEND_FILE->callback((Fl_Callback*)cb_Allow_SEND_FILE);
                 Allow_SEND_FILE->align(FL_ALIGN_RIGHT);
@@ -3763,31 +3763,31 @@ Fl_Double_Window* MainDlg::make_window() {
               } // Fl_Check_Button* Allow_SEND_FILE
               o->end();
             } // Fl_Group* o
-            { Fl_Group* o = new Fl_Group(20, 145, 510, 195, gettext("Directories"));
+            { Fl_Group* o = new Fl_Group(20, 145, 510, 195, ctrl_gettext("Directories"));
               o->hide();
-              { Docroot = new Fl_Input(180, 155, 215, 25, gettext("Document root:"));
+              { Docroot = new Fl_Input(180, 155, 215, 25, ctrl_gettext("Document root:"));
                 Docroot->callback((Fl_Callback*)cb_Docroot);
                 Docroot->when(FL_WHEN_CHANGED);
               } // Fl_Input* Docroot
-              { Sysfolder = new Fl_Input(180, 185, 215, 25, gettext("System folder:"));
+              { Sysfolder = new Fl_Input(180, 185, 215, 25, ctrl_gettext("System folder:"));
                 Sysfolder->callback((Fl_Callback*)cb_Sysfolder);
                 Sysfolder->when(FL_WHEN_CHANGED);
               } // Fl_Input* Sysfolder
-              { Fl_Button* o = new Fl_Button(405, 155, 85, 25, gettext("Browse..."));
+              { Fl_Button* o = new Fl_Button(405, 155, 85, 25, ctrl_gettext("Browse..."));
                 o->callback((Fl_Callback*)cb_Browse1);
               } // Fl_Button* o
-              { Fl_Button* o = new Fl_Button(405, 185, 85, 25, gettext("Browse..."));
+              { Fl_Button* o = new Fl_Button(405, 185, 85, 25, ctrl_gettext("Browse..."));
                 o->callback((Fl_Callback*)cb_Browse2);
               } // Fl_Button* o
               o->end();
             } // Fl_Group* o
-            { Fl_Group* o = new Fl_Group(20, 145, 510, 195, gettext("Logs"));
+            { Fl_Group* o = new Fl_Group(20, 145, 510, 195, ctrl_gettext("Logs"));
               o->hide();
-              { Accesseslog = new Fl_Input(180, 155, 215, 25, gettext("Accesses log file:"));
+              { Accesseslog = new Fl_Input(180, 155, 215, 25, ctrl_gettext("Accesses log file:"));
                 Accesseslog->callback((Fl_Callback*)cb_Accesseslog);
                 Accesseslog->when(FL_WHEN_CHANGED);
               } // Fl_Input* Accesseslog
-              { Warninglog = new Fl_Input(180, 185, 215, 25, gettext("Warning log file:"));
+              { Warninglog = new Fl_Input(180, 185, 215, 25, ctrl_gettext("Warning log file:"));
                 Warninglog->callback((Fl_Callback*)cb_Warninglog);
                 Warninglog->when(FL_WHEN_CHANGED);
               } // Fl_Input* Warninglog
@@ -3799,24 +3799,24 @@ Fl_Double_Window* MainDlg::make_window() {
         } // Fl_Group* o
         o->end();
       } // Fl_Group* o
-      { Fl_Group* o = new Fl_Group(0, 50, 550, 310, gettext("Administrator"));
+      { Fl_Group* o = new Fl_Group(0, 50, 550, 310, ctrl_gettext("Administrator"));
         o->hide();
-        { Server_Admin = new Fl_Input(295, 60, 190, 25, gettext("Administrator e-mail:"));
+        { Server_Admin = new Fl_Input(295, 60, 190, 25, ctrl_gettext("Administrator e-mail:"));
           Server_Admin->callback((Fl_Callback*)cb_Server_Admin);
           Server_Admin->when(FL_WHEN_CHANGED);
         } // Fl_Input* Server_Admin
-        { Control_Admin = new Fl_Input(295, 90, 190, 25, gettext("Administrator user name:"));
+        { Control_Admin = new Fl_Input(295, 90, 190, 25, ctrl_gettext("Administrator user name:"));
           Control_Admin->callback((Fl_Callback*)cb_Control_Admin);
           Control_Admin->when(FL_WHEN_CHANGED);
           Control_Admin->deactivate();
         } // Fl_Input* Control_Admin
-        { Control_Password = new Fl_Input(295, 120, 190, 25, gettext("Administrator password:"));
+        { Control_Password = new Fl_Input(295, 120, 190, 25, ctrl_gettext("Administrator password:"));
           Control_Password->type(5);
           Control_Password->callback((Fl_Callback*)cb_Control_Password);
           Control_Password->when(FL_WHEN_CHANGED);
           Control_Password->deactivate();
         } // Fl_Input* Control_Password
-        { Control_Enabled = new Fl_Check_Button(295, 150, 25, 25, gettext("Enable control protocol:"));
+        { Control_Enabled = new Fl_Check_Button(295, 150, 25, 25, ctrl_gettext("Enable control protocol:"));
           Control_Enabled->down_box(FL_DOWN_BOX);
           Control_Enabled->callback((Fl_Callback*)cb_Control_Enabled);
           Control_Enabled->align(FL_ALIGN_LEFT);
@@ -3829,40 +3829,40 @@ Fl_Double_Window* MainDlg::make_window() {
     ConfDlg->end();
   } // Fl_Double_Window* ConfDlg
   // Set FLTK function's text
-  fl_ok = gettext("OK");
-  fl_cancel = gettext("Cancel");
+  fl_ok = ctrl_gettext("OK");
+  fl_cancel = ctrl_gettext("Cancel");
   return ConfDlg;
 }
 
 Fl_Double_Window* MainDlg::make_type() {
-  { ConfTypeDlg = new Fl_Double_Window(303, 152, gettext("Chose Location"));
+  { ConfTypeDlg = new Fl_Double_Window(303, 152, ctrl_gettext("Chose Location"));
     ConfTypeDlg->user_data((void*)(this));
     ConfTypeDlg->align(FL_ALIGN_CENTER);
-    { Fl_Group* o = new Fl_Group(0, 0, 305, 100, gettext("Chose configuration file location:"));
+    { Fl_Group* o = new Fl_Group(0, 0, 305, 100, ctrl_gettext("Chose configuration file location:"));
       o->align(FL_ALIGN_TOP|FL_ALIGN_INSIDE);
-      { ConfTypeDlgLocal = new Fl_Round_Button(105, 25, 70, 25, gettext("Local"));
-        ConfTypeDlgLocal->tooltip(gettext("Configuration files located in current directory"));
+      { ConfTypeDlgLocal = new Fl_Round_Button(105, 25, 70, 25, ctrl_gettext("Local"));
+        ConfTypeDlgLocal->tooltip(ctrl_gettext("Configuration files located in current directory"));
         ConfTypeDlgLocal->type(102);
         ConfTypeDlgLocal->down_box(FL_ROUND_DOWN_BOX);
         ConfTypeDlgLocal->callback((Fl_Callback*)cb_ConfTypeDlgLocal);
       } // Fl_Round_Button* ConfTypeDlgLocal
-      { ConfTypeDlgUser = new Fl_Round_Button(105, 45, 70, 25, gettext("User"));
-        ConfTypeDlgUser->tooltip(gettext("Configuration files located in ~/.myserver"));
+      { ConfTypeDlgUser = new Fl_Round_Button(105, 45, 70, 25, ctrl_gettext("User"));
+        ConfTypeDlgUser->tooltip(ctrl_gettext("Configuration files located in ~/.myserver"));
         ConfTypeDlgUser->type(102);
         ConfTypeDlgUser->down_box(FL_ROUND_DOWN_BOX);
         ConfTypeDlgUser->callback((Fl_Callback*)cb_ConfTypeDlgUser);
       } // Fl_Round_Button* ConfTypeDlgUser
-      { ConfTypeDlgGlobal = new Fl_Round_Button(105, 65, 70, 25, gettext("Global"));
-        ConfTypeDlgGlobal->tooltip(gettext("Configuration files located in /etc/myserver"));
+      { ConfTypeDlgGlobal = new Fl_Round_Button(105, 65, 70, 25, ctrl_gettext("Global"));
+        ConfTypeDlgGlobal->tooltip(ctrl_gettext("Configuration files located in /etc/myserver"));
         ConfTypeDlgGlobal->type(102);
         ConfTypeDlgGlobal->down_box(FL_ROUND_DOWN_BOX);
         ConfTypeDlgGlobal->callback((Fl_Callback*)cb_ConfTypeDlgGlobal);
       } // Fl_Round_Button* ConfTypeDlgGlobal
       o->end();
     } // Fl_Group* o
-    { ConfTypeDlgOK = new Fl_Return_Button(65, 108, 65, 30, gettext("OK"));
+    { ConfTypeDlgOK = new Fl_Return_Button(65, 108, 65, 30, ctrl_gettext("OK"));
     } // Fl_Return_Button* ConfTypeDlgOK
-    { ConfTypeDlgCancel = new Fl_Button(165, 110, 65, 30, gettext("Cancel"));
+    { ConfTypeDlgCancel = new Fl_Button(165, 110, 65, 30, ctrl_gettext("Cancel"));
     } // Fl_Button* ConfTypeDlgCancel
     ConfTypeDlg->set_modal();
     ConfTypeDlg->end();
@@ -3871,7 +3871,7 @@ Fl_Double_Window* MainDlg::make_type() {
 }
 
 Fl_Double_Window* MainDlg::make_about() {
-  { AboutDlg = new Fl_Double_Window(595, 115, gettext("About"));
+  { AboutDlg = new Fl_Double_Window(595, 115, ctrl_gettext("About"));
     AboutDlg->user_data((void*)(this));
     { Fl_Group* o = new Fl_Group(15, 20, 155, 80);
       o->image(image_logo);
@@ -3881,7 +3881,7 @@ Fl_Double_Window* MainDlg::make_about() {
     { AboutText = new Fl_Text_Display(185, 10, 305, 95);
       AboutText->align(FL_ALIGN_CENTER);
     } // Fl_Text_Display* AboutText
-    { Fl_Return_Button* o = new Fl_Return_Button(505, 10, 75, 25, gettext("OK"));
+    { Fl_Return_Button* o = new Fl_Return_Button(505, 10, 75, 25, ctrl_gettext("OK"));
       o->callback((Fl_Callback*)cb_OK);
     } // Fl_Return_Button* o
     AboutDlg->set_modal();
@@ -3894,23 +3894,23 @@ AboutText->buffer(atext);
 }
 
 Fl_Double_Window* MainDlg::make_login() {
-  { LoginDlg = new Fl_Double_Window(605, 120, gettext("Remote Login"));
+  { LoginDlg = new Fl_Double_Window(605, 120, ctrl_gettext("Remote Login"));
     LoginDlg->user_data((void*)(this));
-    { LoginDlgAddress = new Fl_Input(90, 20, 275, 25, gettext("Address:"));
+    { LoginDlgAddress = new Fl_Input(90, 20, 275, 25, ctrl_gettext("Address:"));
     } // Fl_Input* LoginDlgAddress
-    { LoginDlgPort = new Fl_Value_Input(420, 20, 70, 25, gettext("Port:"));
+    { LoginDlgPort = new Fl_Value_Input(420, 20, 70, 25, ctrl_gettext("Port:"));
       LoginDlgPort->maximum(10240);
       LoginDlgPort->step(1);
       LoginDlgPort->value(270);
     } // Fl_Value_Input* LoginDlgPort
-    { LoginDlgName = new Fl_Input(185, 50, 180, 25, gettext("Login name:"));
+    { LoginDlgName = new Fl_Input(185, 50, 180, 25, ctrl_gettext("Login name:"));
     } // Fl_Input* LoginDlgName
-    { LoginDlgPass = new Fl_Input(185, 80, 180, 25, gettext("Login password:"));
+    { LoginDlgPass = new Fl_Input(185, 80, 180, 25, ctrl_gettext("Login password:"));
       LoginDlgPass->type(5);
     } // Fl_Input* LoginDlgPass
-    { LoginDlgOK = new Fl_Return_Button(510, 20, 75, 25, gettext("OK"));
+    { LoginDlgOK = new Fl_Return_Button(510, 20, 75, 25, ctrl_gettext("OK"));
     } // Fl_Return_Button* LoginDlgOK
-    { LoginDlgCancel = new Fl_Button(510, 55, 75, 25, gettext("Cancel"));
+    { LoginDlgCancel = new Fl_Button(510, 55, 75, 25, ctrl_gettext("Cancel"));
     } // Fl_Button* LoginDlgCancel
     LoginDlg->set_modal();
     LoginDlg->end();
@@ -3919,7 +3919,7 @@ Fl_Double_Window* MainDlg::make_login() {
 }
 
 Fl_Double_Window* MainDlg::make_status() {
-  { StatusDlg = new Fl_Double_Window(275, 100, gettext("Status"));
+  { StatusDlg = new Fl_Double_Window(275, 100, ctrl_gettext("Status"));
     StatusDlg->user_data((void*)(this));
     { StatusDlgGroup = new Fl_Group(10, 15, 260, 65);
       StatusDlgGroup->align(FL_ALIGN_TOP|FL_ALIGN_INSIDE);
@@ -3938,15 +3938,15 @@ Fl_Double_Window* MainDlg::make_status() {
 }
 
 Fl_Double_Window* MainDlg::make_connections() {
-  { ConnectionsDlg = new Fl_Double_Window(488, 341, gettext("Connections"));
+  { ConnectionsDlg = new Fl_Double_Window(488, 341, ctrl_gettext("Connections"));
     ConnectionsDlg->user_data((void*)(this));
-    { ConnectionsDlgVr = new Fl_Output(65, 15, 140, 25, gettext("Server:"));
+    { ConnectionsDlgVr = new Fl_Output(65, 15, 140, 25, ctrl_gettext("Server:"));
     } // Fl_Output* ConnectionsDlgVr
-    { ConnectionsDlgList = new Fl_Browser(10, 60, 470, 235, gettext("Connections (ID - IP - Port - LocalIP - LocalPort - Login - PWord)"));
+    { ConnectionsDlgList = new Fl_Browser(10, 60, 470, 235, ctrl_gettext("Connections (ID - IP - Port - LocalIP - LocalPort - Login - PWord)"));
       ConnectionsDlgList->type(2);
       ConnectionsDlgList->align(FL_ALIGN_TOP);
     } // Fl_Browser* ConnectionsDlgList
-    { ConnectionsDlgRate = new Fl_Counter(95, 305, 85, 25, gettext("Update rate:"));
+    { ConnectionsDlgRate = new Fl_Counter(95, 305, 85, 25, ctrl_gettext("Update rate:"));
       ConnectionsDlgRate->type(1);
       ConnectionsDlgRate->minimum(1);
       ConnectionsDlgRate->maximum(30);
@@ -3954,9 +3954,9 @@ Fl_Double_Window* MainDlg::make_connections() {
       ConnectionsDlgRate->value(10);
       ConnectionsDlgRate->align(FL_ALIGN_LEFT);
     } // Fl_Counter* ConnectionsDlgRate
-    { ConnectionsDlgKill = new Fl_Button(195, 305, 130, 25, gettext("Kill connection"));
+    { ConnectionsDlgKill = new Fl_Button(195, 305, 130, 25, ctrl_gettext("Kill connection"));
     } // Fl_Button* ConnectionsDlgKill
-    { ConnectionsDlgDone = new Fl_Button(340, 305, 130, 25, gettext("Done"));
+    { ConnectionsDlgDone = new Fl_Button(340, 305, 130, 25, ctrl_gettext("Done"));
     } // Fl_Button* ConnectionsDlgDone
     ConnectionsDlg->set_modal();
     ConnectionsDlg->end();
@@ -3970,11 +3970,11 @@ Fl_Double_Window* MainDlg::make_regask() {
     { RegaskDlgInput = new Fl_Input(75, 35, 340, 25);
       RegaskDlgInput->align(FL_ALIGN_TOP_LEFT);
     } // Fl_Input* RegaskDlgInput
-    { RegaskDlgCancel = new Fl_Button(340, 70, 75, 25, gettext("Cancel"));
+    { RegaskDlgCancel = new Fl_Button(340, 70, 75, 25, ctrl_gettext("Cancel"));
     } // Fl_Button* RegaskDlgCancel
-    { RegaskDlgOK = new Fl_Return_Button(250, 70, 75, 25, gettext("OK"));
+    { RegaskDlgOK = new Fl_Return_Button(250, 70, 75, 25, ctrl_gettext("OK"));
     } // Fl_Return_Button* RegaskDlgOK
-    { RegaskDlgRegex = new Fl_Check_Button(75, 65, 95, 25, gettext("Regex"));
+    { RegaskDlgRegex = new Fl_Check_Button(75, 65, 95, 25, ctrl_gettext("Regex"));
       RegaskDlgRegex->down_box(FL_DOWN_BOX);
     } // Fl_Check_Button* RegaskDlgRegex
     { Fl_Box* o = new Fl_Box(10, 10, 55, 55);
