@@ -47,16 +47,20 @@ Plugin* PluginsNamespaceManager::createPluginObject()
  *\param server The server object to use.
  *\param languageFile The language file to use to retrieve warnings/errors 
  *messages.
+ *\param global Specify if the library should be loaded globally.
  */
 int PluginsNamespaceManager::addPlugin(string& file, Server* server, 
-																			 XmlParser* languageFile)
+																			 XmlParser* languageFile, bool global)
 {
 	Plugin *plugin = createPluginObject();
 	string logBuf;
 	string name;
 	const char* namePtr;
 
-	if(plugin->preLoad(file, server, languageFile))
+  printf ("%s %i\n", file.c_str(), global);
+
+
+	if(plugin->preLoad(file, server, languageFile, global))
 	{
 		delete plugin;
 		return 1;
@@ -145,7 +149,7 @@ int PluginsNamespaceManager::preLoad(Server* server, XmlParser* languageFile,
 		po = getPluginOption(name);
 		
 		if(!po || po->enabled)
-			ret |= addPlugin(completeFileName, server, languageFile);
+			ret |= addPlugin(completeFileName, server, languageFile, po && po->global);
 	}while(!fd.findnext());
 	fd.findclose();
 

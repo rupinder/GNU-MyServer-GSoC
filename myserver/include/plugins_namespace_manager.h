@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007 The MyServer Team
+Copyright (C) 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -36,7 +36,8 @@ public:
 protected:
 	virtual Plugin* createPluginObject();
 private:
-	int addPlugin(string& file, Server* server, XmlParser* languageFile);
+	int addPlugin(string& file, Server* server, 
+                XmlParser* languageFile, bool global);
 
 };
 

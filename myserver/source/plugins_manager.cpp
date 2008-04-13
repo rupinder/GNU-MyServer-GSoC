@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007 The MyServer Team
+Copyright (C) 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -103,9 +103,13 @@ int PluginsManager::preLoad(Server *server, XmlParser* languageFile,
 						}
 						
 						for(xmlNode *internal = node->children; internal; internal = internal->next)	
+            {
 							if(!xmlStrcmp(internal->name, (const xmlChar *)"ENABLED"))
 								po.enabled = strcmpi("NO", (const char*)internal->children->content) ? true : false;
-						
+							else if(!xmlStrcmp(internal->name, (const xmlChar *)"GLOBAL"))
+								po.global = strcmpi("YES", (const char*)internal->children->content) ? false : true;
+            }
+
 						if(!namespaceName.length() || !pluginName.length())
 						{
 							string error;

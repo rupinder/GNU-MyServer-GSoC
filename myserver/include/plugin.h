@@ -60,7 +60,7 @@ public:
 	Plugin();
 	virtual ~Plugin();
 	virtual int load(string& file, Server* server, XmlParser* languageFile);
-	virtual int preLoad(string& file, Server* server, XmlParser* languageFile);
+	virtual int preLoad(string& file, Server* server, XmlParser* languageFile, bool global);
 	virtual int postLoad(Server* server, XmlParser* languageFile);
 	virtual int unLoad(XmlParser* languageFile);
 	virtual const char* getName(char* buffer, u_long len);

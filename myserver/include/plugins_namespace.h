@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007 The MyServer Team
+Copyright (C) 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -33,9 +33,10 @@ class PluginsNamespace
 public:
 	struct PluginOption
 	{
-		PluginOption(PluginOption& po){enabled = po.enabled;}
-		PluginOption(){enabled = true;}
+		PluginOption(PluginOption& po){enabled = po.enabled; global = po.global;}
+		PluginOption(){enabled = true; global = false;}
 		bool enabled;
+    bool global;
 	};
 
 	HashMap<string, Plugin*>::Iterator begin(){return plugins.begin();}

@@ -65,10 +65,13 @@ int Plugin::load(string& file, Server* server, XmlParser* languageFile)
  *\param server The server instance to use.
  *\param languageFile The language file to use to retrieve warnings/errors 
  *messages.
+ *\param global Load the shared library globally.
  */
-int Plugin::preLoad(string& file, Server* server, XmlParser* languageFile)
+int Plugin::preLoad(string& file, Server* server, XmlParser* languageFile, 
+                    bool global)
 {
-  return hinstLib.loadLibrary(file.c_str(), 1);
+  
+  return hinstLib.loadLibrary(file.c_str(), global ? 1 : 0);
 }
 
 /*!
