@@ -334,6 +334,31 @@ private:
   void cb_Control_Enabled_i(Fl_Check_Button*, void*);
   static void cb_Control_Enabled(Fl_Check_Button*, void*);
 public:
+  Fl_Check_Button *Allow_Anonymous;
+private:
+  void cb_Allow_Anonymous_i(Fl_Check_Button*, void*);
+  static void cb_Allow_Anonymous(Fl_Check_Button*, void*);
+public:
+  Fl_Check_Button *Anonymous_Needs_Password;
+private:
+  void cb_Anonymous_Needs_Password_i(Fl_Check_Button*, void*);
+  static void cb_Anonymous_Needs_Password(Fl_Check_Button*, void*);
+public:
+  Fl_Check_Button *Allow_Asynchronous_Cmds;
+private:
+  void cb_Allow_Asynchronous_Cmds_i(Fl_Check_Button*, void*);
+  static void cb_Allow_Asynchronous_Cmds(Fl_Check_Button*, void*);
+public:
+  Fl_Check_Button *Allow_Pipelining;
+private:
+  void cb_Allow_Pipelining_i(Fl_Check_Button*, void*);
+  static void cb_Allow_Pipelining(Fl_Check_Button*, void*);
+public:
+  Fl_Check_Button *Allow_Store_Cmds;
+private:
+  void cb_Allow_Store_Cmds_i(Fl_Check_Button*, void*);
+  static void cb_Allow_Store_Cmds(Fl_Check_Button*, void*);
+public:
   Fl_Double_Window* make_type();
   Fl_Double_Window *ConfTypeDlg;
   Fl_Round_Button *ConfTypeDlgLocal;

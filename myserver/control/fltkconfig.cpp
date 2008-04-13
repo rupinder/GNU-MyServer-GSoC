@@ -259,12 +259,12 @@ Fl_Menu_Item MainDlg::menu_[] = {
  {ctrl_gettext("&File"), 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
  {ctrl_gettext("&Open..."), 0,  (Fl_Callback*)MainDlg::cb_Open, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
  {ctrl_gettext("&Save..."), 0,  (Fl_Callback*)MainDlg::cb_Save, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {ctrl_gettext("&Revert"), 0,  (Fl_Callback*)MainDlg::cb_Revert, 0, 128, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("&Revert"), 0,  (Fl_Callback*)MainDlg::cb_Revert, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
  {ctrl_gettext("Run"), 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
  {ctrl_gettext("as Console"), 0,  (Fl_Callback*)MainDlg::cb_as, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
  {ctrl_gettext("as Service"), 0,  (Fl_Callback*)MainDlg::cb_as1, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
- {ctrl_gettext("Stop"), 0,  0, 0, 192, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Stop"), 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
  {ctrl_gettext("Console"), 0,  (Fl_Callback*)MainDlg::cb_Console, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
  {ctrl_gettext("Service"), 0,  (Fl_Callback*)MainDlg::cb_Service, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
@@ -276,9 +276,9 @@ Fl_Menu_Item MainDlg::menu_[] = {
  {0,0,0,0,0,0,0,0,0},
  {ctrl_gettext("Re&mote"), 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
  {ctrl_gettext("Login..."), 0,  (Fl_Callback*)MainDlg::cb_Login, 0, 0, FL_NORMAL_LABEL, 0, 14, 0},
- {ctrl_gettext("Logout"), 0,  (Fl_Callback*)MainDlg::cb_MenuLogout, 0, 129, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Logout"), 0,  (Fl_Callback*)MainDlg::cb_MenuLogout, 0, 1, FL_NORMAL_LABEL, 0, 14, 0},
  {ctrl_gettext("Get Config"), 0,  (Fl_Callback*)MainDlg::cb_MenuGetConfig, 0, 1, FL_NORMAL_LABEL, 0, 14, 0},
- {ctrl_gettext("Send Config"), 0,  (Fl_Callback*)MainDlg::cb_MenuSendConfig, 0, 129, FL_NORMAL_LABEL, 0, 14, 0},
+ {ctrl_gettext("Send Config"), 0,  (Fl_Callback*)MainDlg::cb_MenuSendConfig, 0, 1, FL_NORMAL_LABEL, 0, 14, 0},
  {ctrl_gettext("Connections..."), 0,  (Fl_Callback*)MainDlg::cb_MenuConnections, 0, 1, FL_NORMAL_LABEL, 0, 14, 0},
  {ctrl_gettext("Reboot..."), 0,  (Fl_Callback*)MainDlg::cb_MenuReboot, 0, 1, FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
@@ -1054,6 +1054,47 @@ else {
 }
 void MainDlg::cb_Control_Enabled(Fl_Check_Button* o, void* v) {
   ((MainDlg*)(o->parent()->parent()->parent()->user_data()))->cb_Control_Enabled_i(o,v);
+}
+
+void MainDlg::cb_Allow_Anonymous_i(Fl_Check_Button*, void*) {
+  Changed = true;
+if ( Allow_Anonymous->value() == 1 ){
+Anonymous_Needs_Password->activate();
+}
+else{
+Anonymous_Needs_Password->deactivate();
+};
+}
+void MainDlg::cb_Allow_Anonymous(Fl_Check_Button* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->user_data()))->cb_Allow_Anonymous_i(o,v);
+}
+
+void MainDlg::cb_Anonymous_Needs_Password_i(Fl_Check_Button*, void*) {
+  Changed=true;
+}
+void MainDlg::cb_Anonymous_Needs_Password(Fl_Check_Button* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->user_data()))->cb_Anonymous_Needs_Password_i(o,v);
+}
+
+void MainDlg::cb_Allow_Asynchronous_Cmds_i(Fl_Check_Button*, void*) {
+  Changed=true;
+}
+void MainDlg::cb_Allow_Asynchronous_Cmds(Fl_Check_Button* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->user_data()))->cb_Allow_Asynchronous_Cmds_i(o,v);
+}
+
+void MainDlg::cb_Allow_Pipelining_i(Fl_Check_Button*, void*) {
+  Changed=true;
+}
+void MainDlg::cb_Allow_Pipelining(Fl_Check_Button* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->user_data()))->cb_Allow_Pipelining_i(o,v);
+}
+
+void MainDlg::cb_Allow_Store_Cmds_i(Fl_Check_Button*, void*) {
+  Changed=true;
+}
+void MainDlg::cb_Allow_Store_Cmds(Fl_Check_Button* o, void* v) {
+  ((MainDlg*)(o->parent()->parent()->parent()->user_data()))->cb_Allow_Store_Cmds_i(o,v);
 }
 
 void MainDlg::cb_ConfTypeDlgLocal_i(Fl_Round_Button*, void*) {
@@ -3497,7 +3538,6 @@ Fl_Double_Window* MainDlg::make_window() {
     } // Fl_Menu_Bar* o
     { Fl_Tabs* o = new Fl_Tabs(0, 25, 635, 335);
       { Fl_Group* o = new Fl_Group(0, 50, 550, 310, ctrl_gettext("System"));
-        o->hide();
         { Buffer_Size = new Fl_Value_Input(295, 60, 115, 25, ctrl_gettext("Memory buffer (in bytes):"));
           Buffer_Size->maximum(5.24288e+06);
           Buffer_Size->step(1);
@@ -3622,6 +3662,7 @@ Fl_Double_Window* MainDlg::make_window() {
         o->end();
       } // Fl_Group* o
       { Fl_Group* o = new Fl_Group(0, 50, 635, 310, ctrl_gettext("Hosts"));
+        o->hide();
         { Fl_Group* o = new Fl_Group(10, 60, 530, 45);
           o->box(FL_ENGRAVED_FRAME);
           { Name = new Fl_Choice(75, 70, 275, 25, ctrl_gettext("Name:"));
@@ -3639,7 +3680,7 @@ Fl_Double_Window* MainDlg::make_window() {
         } // Fl_Group* o
         { Fl_Group* o = new Fl_Group(10, 110, 625, 240);
           o->box(FL_ENGRAVED_FRAME);
-          { Fl_Tabs* o = new Fl_Tabs(20, 120, 615, 220);
+          { Fl_Tabs* o = new Fl_Tabs(19, 120, 616, 225);
             { Fl_Group* o = new Fl_Group(20, 145, 510, 195, ctrl_gettext("Protocol"));
               o->hide();
               { Protocol = new Fl_Choice(180, 155, 215, 25, ctrl_gettext("Protocol:"));
@@ -3704,6 +3745,7 @@ Fl_Double_Window* MainDlg::make_window() {
               o->end();
             } // Fl_Group* o
             { Fl_Group* o = new Fl_Group(25, 140, 510, 195, ctrl_gettext("HTTP Services"));
+              o->hide();
               { Fl_Box* o = new Fl_Box(45, 150, 115, 25, ctrl_gettext("Enable:"));
                 o->align(FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
               } // Fl_Box* o
@@ -3782,7 +3824,6 @@ Fl_Double_Window* MainDlg::make_window() {
               o->end();
             } // Fl_Group* o
             { Fl_Group* o = new Fl_Group(20, 145, 510, 195, ctrl_gettext("Logs"));
-              o->hide();
               { Accesseslog = new Fl_Input(180, 155, 215, 25, ctrl_gettext("Accesses log file:"));
                 Accesseslog->callback((Fl_Callback*)cb_Accesseslog);
                 Accesseslog->when(FL_WHEN_CHANGED);
@@ -3822,6 +3863,38 @@ Fl_Double_Window* MainDlg::make_window() {
           Control_Enabled->align(FL_ALIGN_LEFT);
           Control_Enabled->when(FL_WHEN_CHANGED);
         } // Fl_Check_Button* Control_Enabled
+        o->end();
+      } // Fl_Group* o
+      { Fl_Group* o = new Fl_Group(0, 56, 549, 293, ctrl_gettext("FTP Services"));
+        o->hide();
+        { Fl_Box* o = new Fl_Box(3, 59, 115, 25, ctrl_gettext("Enable:"));
+          o->align(FL_ALIGN_LEFT|FL_ALIGN_INSIDE);
+        } // Fl_Box* o
+        { Allow_Anonymous = new Fl_Check_Button(3, 97, 20, 25, ctrl_gettext("Anonymous Access"));
+          Allow_Anonymous->down_box(FL_DOWN_BOX);
+          Allow_Anonymous->callback((Fl_Callback*)cb_Allow_Anonymous);
+          Allow_Anonymous->align(FL_ALIGN_RIGHT);
+        } // Fl_Check_Button* Allow_Anonymous
+        { Anonymous_Needs_Password = new Fl_Check_Button(269, 97, 20, 24, ctrl_gettext("Anonymous Needs Password"));
+          Anonymous_Needs_Password->down_box(FL_DOWN_BOX);
+          Anonymous_Needs_Password->callback((Fl_Callback*)cb_Anonymous_Needs_Password);
+          Anonymous_Needs_Password->align(FL_ALIGN_RIGHT);
+        } // Fl_Check_Button* Anonymous_Needs_Password
+        { Allow_Asynchronous_Cmds = new Fl_Check_Button(3, 161, 19, 22, ctrl_gettext("Asyncronous Commands"));
+          Allow_Asynchronous_Cmds->down_box(FL_DOWN_BOX);
+          Allow_Asynchronous_Cmds->callback((Fl_Callback*)cb_Allow_Asynchronous_Cmds);
+          Allow_Asynchronous_Cmds->align(FL_ALIGN_RIGHT);
+        } // Fl_Check_Button* Allow_Asynchronous_Cmds
+        { Allow_Pipelining = new Fl_Check_Button(3, 222, 21, 22, ctrl_gettext("Pipelining"));
+          Allow_Pipelining->down_box(FL_DOWN_BOX);
+          Allow_Pipelining->callback((Fl_Callback*)cb_Allow_Pipelining);
+          Allow_Pipelining->align(FL_ALIGN_RIGHT);
+        } // Fl_Check_Button* Allow_Pipelining
+        { Allow_Store_Cmds = new Fl_Check_Button(3, 284, 20, 26, ctrl_gettext("Write Commands"));
+          Allow_Store_Cmds->down_box(FL_DOWN_BOX);
+          Allow_Store_Cmds->callback((Fl_Callback*)cb_Allow_Store_Cmds);
+          Allow_Store_Cmds->align(FL_ALIGN_RIGHT);
+        } // Fl_Check_Button* Allow_Store_Cmds
         o->end();
       } // Fl_Group* o
       o->end();
@@ -4394,6 +4467,42 @@ else {
   Control_Password->value("");
 }
 
+//<ALLOW_ANONYMOUS>
+chrptr = xmlFile.getValue("ALLOW_ANONYMOUS");
+if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E') {
+  Allow_Anonymous->set();
+} else {
+  Allow_Anonymous->clear();
+}
+//<ANONYMOUS_NEED_PASS>
+chrptr = xmlFile.getValue("ANONYMOUS_NEED_PASS");
+if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E') {
+  Anonymous_Needs_Password->set();
+} else {
+  Anonymous_Needs_Password->clear();
+}
+//<ALLOW_ASYNCHRONOUS_CMDS>
+chrptr = xmlFile.getValue("ALLOW_ASYNCRONOUS_CMDS");
+if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E') {
+  Allow_Asynchronous_Cmds->set();
+} else {
+  Allow_Asynchronous_Cmds->clear();
+}
+//<ALLOW_PIPELINING>
+chrptr = xmlFile.getValue("ALLOW_PIPELINING");
+if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E') {
+  Allow_Pipelining->set();
+} else {
+  Allow_Pipelining->clear();
+}
+//<ALLOW_STORE>
+chrptr = xmlFile.getValue("ALLOW_STORE");
+if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E') {
+  Allow_Store_Cmds->set();
+} else {
+  Allow_Store_Cmds->clear();
+}
+
 // End of myserver.xml file
 return 0;
 }
@@ -4660,6 +4769,37 @@ if(Control_Enabled->value() == 1) {
 }
 else {
   setValueXML("CONTROL_ENABLED", "NO");
+}
+
+//<ALLOW_ANONYMOUS>
+if(Allow_Anonymous->value() == 1) {
+  setValueXML("ALLOW_ANONYMOUS", "YES");
+} else {
+  setValueXML("ALLOW_ANONYMOUS", "NO");
+}
+//<ANONYMOUS_NEED_PASS>
+if(Anonymous_Needs_Password->value() == 1) {
+  setValueXML("ANONYMOUS_NEED_PASS", "YES");
+} else {
+  setValueXML("ANONYMOUS_NEED_PASS", "NO");
+}
+//<ALLOW_ASYNCHRONOUS_CMDS>
+if(Allow_Asynchronous_Cmds->value() == 1) {
+  setValueXML("ALLOW_ASYNCRONOUS_CMDS", "YES");
+} else {
+  setValueXML("ALLOW_ASYNCRONOUS_CMDS", "NO");
+}
+//<ALLOW_PIPELINING>
+if(Allow_Pipelining->value() == 1) {
+  setValueXML("ALLOW_PIPELINING", "YES");
+} else {
+  setValueXML("ALLOW_PIPELINING", "NO");
+}
+//<ALLOW_STORE>
+if(Allow_Store_Cmds->value() == 1) {
+  setValueXML("ALLOW_STORE", "YES");
+} else {
+  setValueXML("ALLOW_STORE", "NO");
 }
 
 // End of myserver.xml file

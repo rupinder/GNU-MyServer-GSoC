@@ -1,5 +1,5 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0107 
+version 1.0108 
 i18n_type 1 
 i18n_include "language.h" 
 i18n_function ctrl_gettext 
@@ -19,9 +19,9 @@ class MainDlg {open
 else {
   ConfDlg->hide();
 }} open
-      xywh {320 132 550 360} type Double visible
+      xywh {583 249 550 360} type Double visible
     } {
-      Fl_Menu_Bar {} {open
+      Fl_Menu_Bar {} {
         xywh {0 0 550 25}
       } {
         Submenu {} {
@@ -68,7 +68,7 @@ if(i != -1) {
   if(i) {
     fl_alert(LanguageXMLNot_Save);
   }
-}} selected
+}}
             xywh {0 0 100 20}
           }
           MenuItem {} {
@@ -76,7 +76,7 @@ if(i != -1) {
             callback {if(fl_choice(LanguageXMLReload_Prev, LanguageXMLNo, LanguageXMLYes, NULL)) {
   load_config();
 }}
-            xywh {0 0 100 20} divider
+            xywh {0 0 100 20}
           }
           Submenu {} {
             label Run open
@@ -95,7 +95,7 @@ if(i != -1) {
           }
           Submenu {} {
             label Stop open
-            xywh {0 0 100 20} divider
+            xywh {0 0 100 20}
           } {
             MenuItem {} {
               label Console
@@ -148,7 +148,7 @@ else {
           MenuItem MenuLogout {
             label Logout
             callback {ServerLogout();}
-            xywh {0 0 100 20} deactivate divider
+            xywh {0 0 100 20} deactivate
           }
           MenuItem MenuGetConfig {
             label {Get Config}
@@ -218,7 +218,7 @@ if(ret) {
   }
 }
 ServerLogout();}
-            xywh {0 0 100 20} deactivate divider
+            xywh {0 0 100 20} deactivate
           }
           MenuItem MenuConnections {
             label {Connections...}
@@ -263,8 +263,8 @@ if(ret) {
         xywh {0 25 635 335}
       } {
         Fl_Group {} {
-          label System open
-          xywh {0 50 550 310} hide
+          label System selected
+          xywh {0 50 550 310}
         } {
           Fl_Value_Input Buffer_Size {
             label {Memory buffer (in bytes):}
@@ -273,7 +273,7 @@ if(ret) {
           }
           Fl_Choice Verbosity {
             label {Verbosity level:}
-            callback {Changed = true;} open
+            callback {Changed = true;}
             xywh {295 90 115 25} down_box BORDER_BOX when 1
           } {
             MenuItem {} {
@@ -315,7 +315,7 @@ if(ret) {
           } {}
         }
         Fl_Group {} {
-          label Server open
+          label Server
           xywh {0 50 550 310} hide
         } {
           Fl_Value_Input Connection_Timeout {
@@ -380,7 +380,7 @@ if(val != 0) {
           }
         }
         Fl_Group {} {
-          label MIME open
+          label MIME
           xywh {0 50 550 310} hide
         } {
           Fl_Group {} {open
@@ -562,10 +562,10 @@ if(chrptr != 0) {
           }
         }
         Fl_Group {} {
-          label Hosts open
-          xywh {0 50 635 310}
+          label Hosts
+          xywh {0 50 635 310} hide
         } {
-          Fl_Group {} {open
+          Fl_Group {} {
             xywh {10 60 530 45} box ENGRAVED_FRAME
           } {
             Fl_Choice Name {
@@ -693,14 +693,14 @@ else {
               xywh {450 70 80 25}
             }
           }
-          Fl_Group {} {open
+          Fl_Group {} {
             xywh {10 110 625 240} box ENGRAVED_FRAME
           } {
-            Fl_Tabs {} {open
-              xywh {20 120 615 220}
+            Fl_Tabs {} {
+              xywh {19 120 616 225}
             } {
               Fl_Group {} {
-                label Protocol open
+                label Protocol
                 xywh {20 145 510 195} hide
               } {
                 Fl_Choice Protocol {
@@ -750,7 +750,7 @@ switch(pval) {
     break;
   default :
     break;
-}} open
+}}
                   xywh {180 155 215 25} down_box BORDER_BOX when 1
                 } {
                   MenuItem {} {
@@ -815,7 +815,7 @@ if(chrptr != 0) {
                 }
               }
               Fl_Group {} {
-                label Arpa open
+                label Arpa
                 xywh {20 145 510 195} hide
               } {
                 Fl_Browser Host {
@@ -889,8 +889,8 @@ VHostConf.setPort(i, (int)Port->value());}
                 }
               }
               Fl_Group {} {
-                label {HTTP Services} open
-                xywh {25 140 510 195}
+                label {HTTP Services}
+                xywh {25 140 510 195} hide
               } {
                 Fl_Box {} {
                   label {Enable:}
@@ -961,7 +961,7 @@ VHostConf.setService(i, ALLOW_SEND_FILE, Allow_SEND_FILE->value());}
                 }
               }
               Fl_Group {} {
-                label Directories open
+                label Directories
                 xywh {20 145 510 195} hide
               } {
                 Fl_Input Docroot {
@@ -1002,8 +1002,8 @@ if(chrptr != 0) {
                 }
               }
               Fl_Group {} {
-                label Logs open
-                xywh {20 145 510 195} hide
+                label Logs
+                xywh {20 145 510 195}
               } {
                 Fl_Input Accesseslog {
                   label {Accesses log file:}
@@ -1024,7 +1024,7 @@ VHostConf.setWarninglog(i, Warninglog->value());}
           }
         }
         Fl_Group {} {
-          label Administrator open
+          label Administrator
           xywh {0 50 550 310} hide
         } {
           Fl_Input Server_Admin {
@@ -1054,6 +1054,46 @@ else {
   Control_Password->deactivate();
 }}
             xywh {295 150 25 25} down_box DOWN_BOX align 4 when 1
+          }
+        }
+        Fl_Group {} {
+          label {FTP Services} open
+          xywh {0 56 549 293} hide
+        } {
+          Fl_Box {} {
+            label {Enable:}
+            xywh {3 59 115 25} align 20
+          }
+          Fl_Check_Button Allow_Anonymous {
+            label {Anonymous Access}
+            callback {Changed = true;
+if ( Allow_Anonymous->value() == 1 ){
+Anonymous_Needs_Password->activate();
+}
+else{
+Anonymous_Needs_Password->deactivate();
+}}
+            xywh {3 97 20 25} down_box DOWN_BOX align 8
+          }
+          Fl_Check_Button Anonymous_Needs_Password {
+            label {Anonymous Needs Password}
+            callback {Changed=true;}
+            xywh {269 97 20 24} down_box DOWN_BOX align 8
+          }
+          Fl_Check_Button Allow_Asynchronous_Cmds {
+            label {Asyncronous Commands}
+            callback {Changed=true;}
+            xywh {3 161 19 22} down_box DOWN_BOX align 8
+          }
+          Fl_Check_Button Allow_Pipelining {
+            label Pipelining
+            callback {Changed=true;}
+            xywh {3 222 21 22} down_box DOWN_BOX align 8
+          }
+          Fl_Check_Button Allow_Store_Cmds {
+            label {Write Commands}
+            callback {Changed=true;}
+            xywh {3 284 20 26} down_box DOWN_BOX align 8
           }
         }
       }
@@ -1622,6 +1662,42 @@ else {
   Control_Password->value("");
 }
 
+//<ALLOW_ANONYMOUS>
+chrptr = xmlFile.getValue("ALLOW_ANONYMOUS");
+if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E') {
+  Allow_Anonymous->set();
+} else {
+  Allow_Anonymous->clear();
+}
+//<ANONYMOUS_NEED_PASS>
+chrptr = xmlFile.getValue("ANONYMOUS_NEED_PASS");
+if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E') {
+  Anonymous_Needs_Password->set();
+} else {
+  Anonymous_Needs_Password->clear();
+}
+//<ALLOW_ASYNCHRONOUS_CMDS>
+chrptr = xmlFile.getValue("ALLOW_ASYNCRONOUS_CMDS");
+if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E') {
+  Allow_Asynchronous_Cmds->set();
+} else {
+  Allow_Asynchronous_Cmds->clear();
+}
+//<ALLOW_PIPELINING>
+chrptr = xmlFile.getValue("ALLOW_PIPELINING");
+if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E') {
+  Allow_Pipelining->set();
+} else {
+  Allow_Pipelining->clear();
+}
+//<ALLOW_STORE>
+chrptr = xmlFile.getValue("ALLOW_STORE");
+if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E') {
+  Allow_Store_Cmds->set();
+} else {
+  Allow_Store_Cmds->clear();
+}
+
 // End of myserver.xml file
 return 0;} {}
   }
@@ -1888,6 +1964,37 @@ if(Control_Enabled->value() == 1) {
 }
 else {
   setValueXML("CONTROL_ENABLED", "NO");
+}
+
+//<ALLOW_ANONYMOUS>
+if(Allow_Anonymous->value() == 1) {
+  setValueXML("ALLOW_ANONYMOUS", "YES");
+} else {
+  setValueXML("ALLOW_ANONYMOUS", "NO");
+}
+//<ANONYMOUS_NEED_PASS>
+if(Anonymous_Needs_Password->value() == 1) {
+  setValueXML("ANONYMOUS_NEED_PASS", "YES");
+} else {
+  setValueXML("ANONYMOUS_NEED_PASS", "NO");
+}
+//<ALLOW_ASYNCHRONOUS_CMDS>
+if(Allow_Asynchronous_Cmds->value() == 1) {
+  setValueXML("ALLOW_ASYNCRONOUS_CMDS", "YES");
+} else {
+  setValueXML("ALLOW_ASYNCRONOUS_CMDS", "NO");
+}
+//<ALLOW_PIPELINING>
+if(Allow_Pipelining->value() == 1) {
+  setValueXML("ALLOW_PIPELINING", "YES");
+} else {
+  setValueXML("ALLOW_PIPELINING", "NO");
+}
+//<ALLOW_STORE>
+if(Allow_Store_Cmds->value() == 1) {
+  setValueXML("ALLOW_STORE", "YES");
+} else {
+  setValueXML("ALLOW_STORE", "NO");
 }
 
 // End of myserver.xml file
