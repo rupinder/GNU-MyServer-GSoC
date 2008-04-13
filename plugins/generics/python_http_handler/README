@@ -29,6 +29,15 @@ It is possible to put the configuration in a separate file as:
 
 <PYTHON_HTTP_HANDLER file="python_http_handler_conf.py" />
 
+There is need to load the plugin globally in the web server
+application, it is done specifying the following lines in the
+myserver.xml file:
+
+<PLUGIN name="python_http_handler" namespace="generics">
+<GLOBAL>YES</GLOBAL>
+</PLUGIN>
+
+
 the python_http_handler_conf.py file can be for example like:
 -----------------------------------------------------------------------
 from python_http_handler.python.request import *
