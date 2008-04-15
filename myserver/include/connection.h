@@ -66,7 +66,7 @@ public:
 
   void setParsing(int);
   int isParsing();
-  int allowDelete();
+  int allowDelete(bool bWait = false);
 
   u_short getPort();
   void setPort(u_short);

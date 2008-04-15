@@ -570,21 +570,19 @@ int Server::terminate()
   if(verbosity > 1)
     logWriteln(languageParser.getValue("MSG_STOPT"));
 
-	threadsMutex->lock();
-  for(list<ClientsThread*>::iterator it = threads.begin(); it != threads.end(); it++)
-  {
-    (*it)->stop();
-  }
-	threadsMutex->unlock();
-
-	connectionsScheduler.release();
-
-	Socket::stopBlockingOperations(true);
-
 	listenThreads.terminate();
 
+	connectionsScheduler.release();
+	Socket::stopBlockingOperations(true);
 	connectionsScheduler.terminateConnections();
 	clearAllConnections();
+
+	threadsMutex->lock();
+	for(list<ClientsThread*>::iterator it = threads.begin(); it != threads.end(); it++)
+	{
+		(*it)->stop();
+	}
+	threadsMutex->unlock();
 
 	/* Clear the home directories data.  */
 	homeDir.clear();

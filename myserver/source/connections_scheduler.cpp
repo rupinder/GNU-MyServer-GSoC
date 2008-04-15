@@ -401,7 +401,8 @@ void ConnectionsScheduler::terminateConnections()
     HashMap<SocketHandle, ConnectionPtr>::Iterator it = connections.begin();
     for(; it != connections.end(); it++)
     {
-      (*it)->socket->closesocket();
+    	if ( (*it)->allowDelete(true) )
+      		(*it)->socket->closesocket();
     }
   }
   catch(...)

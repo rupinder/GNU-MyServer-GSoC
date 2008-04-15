@@ -112,18 +112,28 @@ int Connection::isParsing()
 /*!
  *Return if the connection may be deleted by the server.
  */
-int Connection::allowDelete()
+int Connection::allowDelete(bool bWait/*= false*/)
 {
   int nReturn = isParsing();
   if ( nReturn != 0 || host == NULL || host->getProtocol() != PROTOCOL_FTP )
     return nReturn;
   else
   {
-    FtpUserData *pUserData = static_cast<FtpUserData *>(protocolBuffer);
-    if ( pUserData != NULL && pUserData->m_pDataConnection != NULL )
-      return pUserData->m_pDataConnection->isParsing();
-    else
-      return nReturn;
+	FtpUserData *pUserData = static_cast<FtpUserData *>(protocolBuffer);
+	if ( !bWait )
+	{
+		if ( pUserData != NULL && pUserData->m_pDataConnection != NULL )
+			return pUserData->m_pDataConnection->isParsing();
+		else
+    			return nReturn;
+	}
+	else
+	{
+		//wait for data connection to finish
+		pUserData->m_DataConnBuisy.lock();
+		pUserData->m_DataConnBuisy.unlock();
+		return nReturn;
+	}
   }
 }
 
