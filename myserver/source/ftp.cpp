@@ -230,12 +230,19 @@ void ftp_reply(ConnectionPtr pConnection, int nReplyCode, const std::string &sCu
 {
 	if ( pConnection == NULL || pConnection->socket == NULL )
 		return;
+	std::string sLocalCustomText(sCustomText);
+	Server *pInstance = Server::getInstance();
+	if ( pInstance != NULL && pInstance->stopServer() == 1 )
+	{
+		nReplyCode = 421;
+		sLocalCustomText = "";
+	}
 
 	MemBuf buffer;
 	buffer.setLength(512);
-	if ( !sCustomText.empty() )
+	if ( !sLocalCustomText.empty() )
 	{
-		sprintf(buffer.getBuffer(), "%d %s", nReplyCode, sCustomText.c_str());
+		sprintf(buffer.getBuffer(), "%d %s", nReplyCode, sLocalCustomText.c_str());
 	}
 	else
 	{
@@ -1378,11 +1385,7 @@ int Ftp::OpenDataActive()
 	memset(szIpAddr, 0, 16);
 	GetIpAddr(pFtpUserData->m_cdh, szIpAddr);
 	if ( dataSocket.connect(szIpAddr, GetPortNo(pFtpUserData->m_cdh)) < 0 )
-	{
-		//TODO: add errno code
-		ftp_reply(425);
 		return 0;
-	}
 
 	pFtpUserData->m_pDataConnection->setPort(GetPortNo(pFtpUserData->m_cdh));
 	pFtpUserData->m_pDataConnection->setLocalPort(pFtpUserData->m_nLocalDataPort);
