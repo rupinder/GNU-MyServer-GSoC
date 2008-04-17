@@ -68,7 +68,7 @@ public:
 		MODE_STREAM
 	} m_nTransferMode;
 	ConnectionPtr m_pDataConnection;
-	Mutex m_DataConnBuisy;
+	Mutex m_DataConnBusy;
 	FtpHost m_cdh;
 	std::string m_cwd;
 	int m_nLocalDataPort;
@@ -120,6 +120,7 @@ public:
 	static int LAST_PASV_PORT;
 
 	int CheckRights(const std::string &sUser, const std::string &sPass, const std::string &sPath, int mask);
+	void WaitDataConnection();
 
 protected:
 	yyscan_t	m_scanner;
@@ -176,11 +177,15 @@ public:
 	int m_nLocalControlPort;
 };
 
-struct DataConnectionWorkerThreadData
+class DataConnectionWorkerThreadData
 {
+public:
+	DataConnectionWorkerThreadData(FtpUserData *pData);
+	~DataConnectionWorkerThreadData();
 	ConnectionPtr m_pConnection;
 	std::string m_sFilePath;
 	bool m_bAppend;
+	FtpUserData *m_pFtpUserData;
 };
 
 int get_ftp_reply(int nReplyCode, std::string &sReply);

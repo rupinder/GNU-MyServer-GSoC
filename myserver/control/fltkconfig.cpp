@@ -3880,7 +3880,7 @@ Fl_Double_Window* MainDlg::make_window() {
           Anonymous_Needs_Password->callback((Fl_Callback*)cb_Anonymous_Needs_Password);
           Anonymous_Needs_Password->align(FL_ALIGN_RIGHT);
         } // Fl_Check_Button* Anonymous_Needs_Password
-        { Allow_Asynchronous_Cmds = new Fl_Check_Button(3, 161, 19, 22, ctrl_gettext("Asyncronous Commands"));
+        { Allow_Asynchronous_Cmds = new Fl_Check_Button(3, 161, 19, 22, ctrl_gettext("Asynchronous Commands"));
           Allow_Asynchronous_Cmds->down_box(FL_DOWN_BOX);
           Allow_Asynchronous_Cmds->callback((Fl_Callback*)cb_Allow_Asynchronous_Cmds);
           Allow_Asynchronous_Cmds->align(FL_ALIGN_RIGHT);

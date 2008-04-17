@@ -130,8 +130,8 @@ int Connection::allowDelete(bool bWait/*= false*/)
 	else
 	{
 		//wait for data connection to finish
-		pUserData->m_DataConnBuisy.lock();
-		pUserData->m_DataConnBuisy.unlock();
+		pUserData->m_DataConnBusy.lock();
+		pUserData->m_DataConnBusy.unlock();
 		return nReturn;
 	}
   }

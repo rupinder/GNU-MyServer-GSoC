@@ -1081,7 +1081,7 @@ Anonymous_Needs_Password->deactivate();
             xywh {269 97 20 24} down_box DOWN_BOX align 8
           }
           Fl_Check_Button Allow_Asynchronous_Cmds {
-            label {Asyncronous Commands}
+            label {Asynchronous Commands}
             callback {Changed=true;}
             xywh {3 161 19 22} down_box DOWN_BOX align 8
           }

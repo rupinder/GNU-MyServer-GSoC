@@ -105,14 +105,14 @@ Mutex Ftp::secCacheMutex;
 FtpUserData::FtpUserData()
 {
 	reset();
-	m_DataConnBuisy.init();
+	m_DataConnBusy.init();
 }
 
 FtpUserData::~FtpUserData()
 {
 	delete m_pDataConnection;
 	m_pDataConnection = NULL;
-	m_DataConnBuisy.destroy();
+	m_DataConnBusy.destroy();
 }
 
 void FtpUserData::reset()
@@ -140,7 +140,7 @@ int FtpUserData::CloseDataConnection()
 	if ( m_nFtpState < DATA_CONNECTION_UP )
 		return 1;
 
-	m_pDataConnection->isParsing();
+	//m_pDataConnection->isParsing();
 	if ( m_pDataConnection != NULL && m_pDataConnection->socket != NULL )
 	{
 		m_pDataConnection->socket->shutdown(SD_BOTH);
@@ -150,9 +150,26 @@ int FtpUserData::CloseDataConnection()
 		m_pDataConnection->setParsing(0);
 	}
 	
-	m_DataConnBuisy.unlock();
+	//m_DataConnBusy.unlock();
 	m_nFtpState = USER_LOGGED_IN;
 	return 1;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// FtpUserData class
+DataConnectionWorkerThreadData::DataConnectionWorkerThreadData( FtpUserData *pData )
+{
+	m_pConnection = NULL;
+	m_bAppend = false;
+	m_pFtpUserData = pData;
+	if ( m_pFtpUserData != NULL )
+		m_pFtpUserData->m_DataConnBusy.lock();
+}
+
+DataConnectionWorkerThreadData::~DataConnectionWorkerThreadData()
+{
+	if ( m_pFtpUserData != NULL )
+		m_pFtpUserData->m_DataConnBusy.unlock();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -398,6 +415,8 @@ int Ftp::PrintError(const char *msg)
 
 void Ftp::User(const std::string &sParam)
 {
+	WaitDataConnection();
+
 	assert(td.pConnection != NULL);
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
@@ -430,6 +449,8 @@ void Ftp::User(const std::string &sParam)
 
 void Ftp::Password(const std::string &sParam)
 {
+	WaitDataConnection();
+
 	assert(td.pConnection != NULL);
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
@@ -466,6 +487,8 @@ void Ftp::Password(const std::string &sParam)
 
 void Ftp::Port(const FtpHost &host)
 {
+	WaitDataConnection();
+
 	if ( !UserLoggedIn() )
 		return;
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
@@ -476,6 +499,7 @@ void Ftp::Port(const FtpHost &host)
 
 void Ftp::Pasv()
 {
+	WaitDataConnection();
 	if ( !UserLoggedIn() )
 		return;
 
@@ -532,7 +556,7 @@ void Ftp::Pasv()
 void Ftp::RetrStor(bool bRetr, bool bAppend, const std::string &sPath)
 {
 	std::string sLocalPath;
-	if ( !UserLoggedIn() || OpenDataConnection() == 0 )
+	if ( !UserLoggedIn() )
 	{
 		CloseDataConnection();
 		return;
@@ -555,13 +579,14 @@ void Ftp::RetrStor(bool bRetr, bool bAppend, const std::string &sPath)
 		return;
 	}
 
-	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
-	assert(pFtpUserData != NULL);
 	int nMask = 0;
 	if ( bRetr )
 		nMask = MYSERVER_PERMISSION_READ | MYSERVER_PERMISSION_BROWSE;
 	else
 		nMask = MYSERVER_PERMISSION_WRITE;
+
+	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
+	assert(pFtpUserData != NULL);
 	if ( CheckRights(pFtpUserData->m_sUserName, pFtpUserData->m_sPass, sLocalFileName, nMask) == 0 )
 	{
 		ftp_reply(550);
@@ -569,15 +594,21 @@ void Ftp::RetrStor(bool bRetr, bool bAppend, const std::string &sPath)
 		return;
 	}
 
-	DataConnectionWorkerThreadData *pData = new DataConnectionWorkerThreadData();
+	DataConnectionWorkerThreadData *pData = new DataConnectionWorkerThreadData(pFtpUserData);
 	pData->m_pConnection = td.pConnection;
-	pData->m_sFilePath = sLocalPath;
 	pData->m_bAppend = bAppend || pFtpUserData->m_nRestartOffset > 0;
+	pData->m_sFilePath = sLocalPath;
 
 	pFtpUserData->m_sCurrentFileName = "";
 	pFtpUserData->m_nFileSize = 0;
 	pFtpUserData->m_nBytesSent = 0;
 
+	if ( OpenDataConnection() == 0 )
+	{
+		CloseDataConnection();
+		delete pData;
+		return;
+	}
 	switch ( pFtpUserData->m_nFtpRepresentation )
 	{
 		case FtpUserData::REPR_ASCII:
@@ -623,7 +654,6 @@ void* SendAsciiFile(void* pParam)
 	{
 		ftp_reply(pConnection, 451);
 		assert(pFtpUserData != NULL);
-		pFtpUserData->CloseDataConnection();
 		delete pWt;
 #ifdef WIN32
 	return 0;
@@ -631,6 +661,7 @@ void* SendAsciiFile(void* pParam)
 	return (void*)0;
 #endif
 	}
+
       	if( pFtpUserData->m_pDataConnection == NULL || 
 			pFtpUserData->m_pDataConnection->socket == NULL)
 	{
@@ -1290,17 +1321,15 @@ void Ftp::Quit()
 
 	//wait to finish data transfer
 	if ( !m_bAllowAsynchronousCmds )
-		pFtpUserData->m_DataConnBuisy.lock();
+		WaitDataConnection();
 
 	pFtpUserData->m_nFtpState = FtpUserData::NO_CONTROL_CONNECTION;
 	ftp_reply(221);
-
-	if ( !m_bAllowAsynchronousCmds )
-		pFtpUserData->m_DataConnBuisy.unlock();
 }
 
 void Ftp::Help(const std::string &sCmd/* = ""*/)
 {
+	WaitDataConnection();
 	// treat SITE the same as HELP
 	if ( sCmd.empty() || stringcmpi(sCmd, "SITE") == 0 )
 		ftp_reply(214);
@@ -1310,6 +1339,7 @@ void Ftp::Help(const std::string &sCmd/* = ""*/)
 
 void Ftp::Noop()
 {
+	WaitDataConnection();
 	ftp_reply(200);
 }
 
@@ -1323,7 +1353,7 @@ int Ftp::OpenDataConnection()
 		return 1;
 	}
 
-	pFtpUserData->m_DataConnBuisy.lock();
+	//pFtpUserData->m_DataConnBusy.lock();
 	int nRet = pFtpUserData->m_bPassiveSrv ? OpenDataPassive() : OpenDataActive();
 	if ( nRet == 0 )
 		ftp_reply(425);
@@ -1400,6 +1430,7 @@ int Ftp::OpenDataActive()
 
 int Ftp::Type(int nTypeCode, int nFormatControlCode/* = -1*/)
 {
+	WaitDataConnection();
 	if ( !UserLoggedIn() )
 		return 0;
 
@@ -1428,6 +1459,7 @@ int Ftp::Type(int nTypeCode, int nFormatControlCode/* = -1*/)
 
 void Ftp::Stru(int nStructure)
 {
+	WaitDataConnection();
 	if ( !UserLoggedIn() )
 		return;
 	if ( nStructure < 0 )
@@ -1441,6 +1473,7 @@ void Ftp::Stru(int nStructure)
 
 void Ftp::Mode(int nMode)
 {
+	WaitDataConnection();
 	if ( !UserLoggedIn() )
 		return;
 	if ( nMode < 0 )
@@ -1453,12 +1486,13 @@ void Ftp::Mode(int nMode)
 
 void Ftp::List(const std::string &sParam/*= ""*/)
 {
+	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
+	assert(pFtpUserData != NULL);
+	WaitDataConnection();
+
 	std::string sLocalPath;
 	if ( !UserLoggedIn() || !GetLocalPath(sParam, sLocalPath) || OpenDataConnection() == 0 )
 		return;
-
-	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
-	assert(pFtpUserData != NULL);
 
 	std::string sPath(sLocalPath);
 	if ( sPath.empty() )
@@ -1676,6 +1710,7 @@ void Ftp::List(const std::string &sParam/*= ""*/)
 
 void Ftp::Nlst(const std::string &sParam/* = ""*/)
 {
+	WaitDataConnection();
 	std::string sLocalPath;
 	if ( !UserLoggedIn() || !GetLocalPath(sParam, sLocalPath) || OpenDataConnection() == 0 )
 		return;
@@ -1769,7 +1804,7 @@ void Ftp::Abor()
 
 	//wait to finish data transfer
 	if ( !m_bAllowAsynchronousCmds )
-		pFtpUserData->m_DataConnBuisy.lock();
+		WaitDataConnection();
 
 	if ( pFtpUserData->m_nFtpState == FtpUserData::DATA_CONNECTION_UP )
 	{
@@ -1780,13 +1815,11 @@ void Ftp::Abor()
 	else
 		ftp_reply(226);
 	pFtpUserData->m_bBreakDataConnection = false;
-
-	if ( !m_bAllowAsynchronousCmds )
-		pFtpUserData->m_DataConnBuisy.unlock();
 }
 
 void Ftp::Pwd()
 {
+	WaitDataConnection();
 	if ( !UserLoggedIn() )
 		return;
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
@@ -1798,6 +1831,7 @@ void Ftp::Pwd()
 
 void Ftp::Cwd(const std::string &sPath)
 {
+	WaitDataConnection();
 	if ( !UserLoggedIn() )
 		return;
 
@@ -1812,6 +1846,7 @@ void Ftp::Cwd(const std::string &sPath)
 
 void Ftp::Rest(const std::string &sRestPoint)
 {
+	WaitDataConnection();
 	if ( !UserLoggedIn() )
 		return;
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
@@ -1822,6 +1857,7 @@ void Ftp::Rest(const std::string &sRestPoint)
 
 void Ftp::Syst()
 {
+	WaitDataConnection();
 	if ( !UserLoggedIn() )
 		return;
 
@@ -1847,7 +1883,7 @@ void Ftp::Stat(const std::string &sParam/* = ""*/)
 
 	//wait to finish data transfer
 	if ( !m_bAllowAsynchronousCmds )
-		pFtpUserData->m_DataConnBuisy.lock();
+		WaitDataConnection();
 
 	if ( pFtpUserData->m_nFtpState == FtpUserData::DATA_CONNECTION_UP )
 	{
@@ -1861,8 +1897,6 @@ void Ftp::Stat(const std::string &sParam/* = ""*/)
 		//TODO: will be implemented later
 		ftp_reply(502);
 	}
-	if ( !m_bAllowAsynchronousCmds )
-		pFtpUserData->m_DataConnBuisy.unlock();
 }
 
 void Ftp::Retr(const std::string &sPath)
@@ -1906,6 +1940,7 @@ void Ftp::Stou(const std::string &sPath)
 
 void Ftp::Dele(const std::string &sPath)
 {
+	WaitDataConnection();
 	std::string sLocalPath;
 	if ( !UserLoggedIn() || !GetLocalPath(sPath, sLocalPath) )
 		return;
@@ -1960,6 +1995,7 @@ void Ftp::Appe(const std::string &sPath)
 
 void Ftp::Mkd(const std::string &sPath)
 {
+	WaitDataConnection();
 	if ( !UserLoggedIn() )
 		return;
 	if ( !m_bEnableStoreCmds )
@@ -1988,6 +2024,7 @@ void Ftp::Mkd(const std::string &sPath)
 
 void Ftp::Rmd(const std::string &sPath)
 {
+	WaitDataConnection();
 	if ( !UserLoggedIn() )
 		return;
 	if ( sPath.empty() )
@@ -2021,6 +2058,7 @@ void Ftp::Rmd(const std::string &sPath)
 
 void Ftp::Rnfr(const std::string &sPath)
 {
+	WaitDataConnection();
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
 	pFtpUserData->m_sRenameFrom = "";
@@ -2047,6 +2085,7 @@ void Ftp::Rnfr(const std::string &sPath)
 
 void Ftp::Rnto(const std::string &sPath)
 {
+	WaitDataConnection();
 	if ( !UserLoggedIn() )
 		return;
 	std::string sLocalPath;
@@ -2126,6 +2165,7 @@ int Ftp::CheckRights(const std::string &sUser, const std::string &sPass, const s
 
 void Ftp::Size(const std::string &sPath)
 {
+	WaitDataConnection();
 	std::string sLocalPath;
 	if ( !UserLoggedIn() || !GetLocalPath(sPath, sLocalPath) )
 		return;
@@ -2152,4 +2192,13 @@ void Ftp::Allo(int nSize, int nRecordSize/* = -1*/)
 {
 	//TODO: implement
 	Noop();
+}
+
+void Ftp::WaitDataConnection()
+{
+	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
+	assert(pFtpUserData != NULL);
+
+	pFtpUserData->m_DataConnBusy.lock();
+	pFtpUserData->m_DataConnBusy.unlock();
 }
