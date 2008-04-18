@@ -120,20 +120,17 @@ int Connection::allowDelete(bool bWait/*= false*/)
   else
   {
 	FtpUserData *pUserData = static_cast<FtpUserData *>(protocolBuffer);
-	if ( !bWait )
-	{
-		if ( pUserData != NULL && pUserData->m_pDataConnection != NULL )
-			return pUserData->m_pDataConnection->isParsing();
-		else
-    			return nReturn;
-	}
-	else
+	if ( bWait )
 	{
 		//wait for data connection to finish
 		pUserData->m_DataConnBusy.lock();
 		pUserData->m_DataConnBusy.unlock();
-		return nReturn;
+
 	}
+	if ( pUserData != NULL && pUserData->m_pDataConnection != NULL )
+		return pUserData->m_pDataConnection->isParsing();
+	else
+    		return nReturn;
   }
 }
 
