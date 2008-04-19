@@ -1676,6 +1676,12 @@ if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E') {
 } else {
   Anonymous_Needs_Password->clear();
 }
+if ( Allow_Anonymous->value() == 1 ){
+Anonymous_Needs_Password->activate();
+}
+else{
+Anonymous_Needs_Password->deactivate();
+}
 //<ALLOW_ASYNCHRONOUS_CMDS>
 chrptr = xmlFile.getValue("ALLOW_ASYNCHRONOUS_CMDS");
 if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E') {

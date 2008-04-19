@@ -455,7 +455,7 @@ void Ftp::Password(const std::string &sParam)
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
 
-	if ( !m_bAllowAnonymous && strcmpi(sParam.c_str(), "anonymous") == 0 )
+	if ( !m_bAllowAnonymous && strcmpi(pFtpUserData->m_sUserName.c_str(), "anonymous") == 0 )
 	{
 		ftp_reply(530);
 		return;
