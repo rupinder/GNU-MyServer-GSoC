@@ -1677,7 +1677,7 @@ if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E') {
   Anonymous_Needs_Password->clear();
 }
 //<ALLOW_ASYNCHRONOUS_CMDS>
-chrptr = xmlFile.getValue("ALLOW_ASYNCRONOUS_CMDS");
+chrptr = xmlFile.getValue("ALLOW_ASYNCHRONOUS_CMDS");
 if(chrptr != 0 && chrptr[0] == 'Y' && chrptr[1] == 'E') {
   Allow_Asynchronous_Cmds->set();
 } else {
@@ -1980,9 +1980,9 @@ if(Anonymous_Needs_Password->value() == 1) {
 }
 //<ALLOW_ASYNCHRONOUS_CMDS>
 if(Allow_Asynchronous_Cmds->value() == 1) {
-  setValueXML("ALLOW_ASYNCRONOUS_CMDS", "YES");
+  setValueXML("ALLOW_ASYNCHRONOUS_CMDS", "YES");
 } else {
-  setValueXML("ALLOW_ASYNCRONOUS_CMDS", "NO");
+  setValueXML("ALLOW_ASYNCHRONOUS_CMDS", "NO");
 }
 //<ALLOW_PIPELINING>
 if(Allow_Pipelining->value() == 1) {
