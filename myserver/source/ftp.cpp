@@ -1248,8 +1248,9 @@ bool Ftp::BuildLocalPath(const std::string &sPath, std::string &sOutPath)
 {
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
-	if ( sPath[0] == '/' )
-		sOutPath = sPath;// UNIX absolute path
+	if ( sPath[0] == '/' ||// UNIX absolute path 
+		(sPath.length() > 1 && sPath[1] == ':') )//win32 absolute path
+		sOutPath = sPath;
 	else if ( sPath[0] == '-' ) // ls params not handled
 		sOutPath = pFtpUserData->m_cwd;
 	else

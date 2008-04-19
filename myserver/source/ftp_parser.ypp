@@ -165,7 +165,7 @@ cmd		: USER_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		}
 		| CDUP_FTP_COMMAND CRLF_FTP_SEP
 		{
-			pContext->Cwd("../");
+			pContext->Cwd("..");
 		}
 		| PWD_FTP_COMMAND CRLF_FTP_SEP
 		{

@@ -1714,7 +1714,7 @@ yyreduce:
   case 21:
 #line 167 "ftp_parser.ypp"
     {
-			pContext->Cwd("../");
+			pContext->Cwd("..");
 		;}
     break;
 

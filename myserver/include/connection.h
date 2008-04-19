@@ -172,7 +172,7 @@ protected:
 	int forceParsing;
 
 	/*! Connection priority, used by the scheduler.  */
-	u_long priority;
+	int priority;
 
 	/*! Libevent event, used by the connections scheduler.  */
 	event ev;

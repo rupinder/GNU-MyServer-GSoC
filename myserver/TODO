@@ -125,6 +125,7 @@ TODO list for MyServer.
 *	SSI files support.
 *	FTP handle telnet strings
 *	FTP disable pipelining(there is cfg for this but is not implemented)
+*	FTP write logging code
 **	Secure FTP protocol(SFTP/FTPS)
 *	Support for JSP and servlets.
 *	HTTP proxy server.

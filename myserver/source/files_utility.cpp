@@ -273,10 +273,17 @@ int FilesUtility::isLink(const char* filename)
 int FilesUtility::fileExists(const char* filename)
 {
 #ifdef WIN32
+	/*! OpenFile is obsolete
 	OFSTRUCT of;
-	/*! OpenFile is now a wrapper for CreateFile.  */
 	int ret = OpenFile(filename, &of, OF_EXIST);
-	return (ret != HFILE_ERROR)?1:0;
+	return (ret != HFILE_ERROR)?1:0;*/
+	HANDLE hFile = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, 
+                       NULL, OPEN_EXISTING, 
+                       FILE_ATTRIBUTE_NORMAL | FILE_FLAG_BACKUP_SEMANTICS, 
+                       NULL);
+ int nRet = hFile != INVALID_HANDLE_VALUE ? 1 : 0;
+    CloseHandle(hFile);
+    return nRet;
 #endif
 #ifdef NOT_WIN
 	struct stat F_Stats;
