@@ -114,8 +114,8 @@ int Connection::isParsing()
  */
 int Connection::allowDelete(bool bWait/*= false*/)
 {
-  int nReturn = isParsing();
-  if ( nReturn != 0 || host == NULL || host->getProtocol() != PROTOCOL_FTP )
+  int nReturn = !isParsing();
+  if ( nReturn == 0 || host == NULL || host->getProtocol() != PROTOCOL_FTP )
     return nReturn;
   else
   {
@@ -128,7 +128,7 @@ int Connection::allowDelete(bool bWait/*= false*/)
 
 	}
 	if ( pUserData != NULL && pUserData->m_pDataConnection != NULL )
-		return pUserData->m_pDataConnection->isParsing();
+		return !pUserData->m_pDataConnection->isParsing();
 	else
     		return nReturn;
   }
