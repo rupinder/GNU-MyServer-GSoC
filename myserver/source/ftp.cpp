@@ -371,7 +371,7 @@ int Ftp::loadProtocol(XmlParser*)
 	m_bAnonymousNeedPass = strcmpi("Yes", pData) == 0 ? true : false;
 
 	// enable asyncronous cmds
-	pData = configurationFileManager->getValue("ALLOW_ASYNCRONOUS_CMDS");
+	pData = configurationFileManager->getValue("ALLOW_ASYNCHRONOUS_CMDS");
 	m_bAllowAsynchronousCmds = strcmpi("Yes", pData) == 0 ? true : false;
 
 	// enable pipelining
