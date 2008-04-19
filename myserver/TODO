@@ -123,8 +123,8 @@ TODO list for MyServer.
 *	Setuid and Setgid for CGI processes.
 *	PHP Configuration Tool. 
 *	SSI files support.
-*	FTP server notify users about pending shutdown and denying of service(120 reply)
-*	FTP passive mode
+*	FTP handle telnet strings
+*	FTP disable pipelining(there is cfg for this but is not implemented)
 **	Secure FTP protocol(SFTP/FTPS)
 *	Support for JSP and servlets.
 *	HTTP proxy server.
