@@ -1031,7 +1031,7 @@ void* ReceiveAsciiFile(void* pParam)
 		std::string sLine;
 		u_long nbr;
 		while ( pFtpUserData->m_pDataConnection->socket->read(buffer.getBuffer(), 
-					(u_long)buffer.getRealLength(), &nbr) != SOCKET_ERROR )
+					(u_long)buffer.getRealLength()-1, &nbr) != SOCKET_ERROR )
 		{
 			memset(buffer2.getBuffer(), 0, buffer2.getRealLength());
 			buffer2.setLength(0);
@@ -1183,7 +1183,7 @@ void* ReceiveImageFile(void* pParam)
 		buffer.setLength(1024);
 		memset(buffer.getBuffer(), 0, buffer.getRealLength());
 		while ( pFtpUserData->m_pDataConnection->socket->read(buffer.getBuffer(), 
-					(u_long)buffer.getRealLength(), &nbr) != SOCKET_ERROR )
+					(u_long)buffer.getRealLength()-1, &nbr) != SOCKET_ERROR )
 		{
 			file.write(buffer.getBuffer(), nbr, &nbr);
 			if ( pFtpUserData->m_bBreakDataConnection )
