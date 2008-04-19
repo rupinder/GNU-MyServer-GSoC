@@ -364,23 +364,28 @@ int Ftp::loadProtocol(XmlParser*)
 
 	// allow anonymous access
 	char *pData = configurationFileManager->getValue("ALLOW_ANONYMOUS");
-	m_bAllowAnonymous = strcmpi("Yes", pData) == 0 ? true : false;
+	if ( pData != NULL )
+		m_bAllowAnonymous = strcmpi("Yes", pData) == 0 ? true : false;
 
 	// request password for anonymous
 	pData = configurationFileManager->getValue("ANONYMOUS_NEED_PASS");
-	m_bAnonymousNeedPass = strcmpi("Yes", pData) == 0 ? true : false;
+	if ( pData != NULL )
+		m_bAnonymousNeedPass = strcmpi("Yes", pData) == 0 ? true : false;
 
 	// enable asyncronous cmds
 	pData = configurationFileManager->getValue("ALLOW_ASYNCHRONOUS_CMDS");
-	m_bAllowAsynchronousCmds = strcmpi("Yes", pData) == 0 ? true : false;
+	if ( pData != NULL )
+		m_bAllowAsynchronousCmds = strcmpi("Yes", pData) == 0 ? true : false;
 
 	// enable pipelining
 	pData = configurationFileManager->getValue("ALLOW_PIPELINING");
-	m_bEnablePipelining = strcmpi("Yes", pData) == 0 ? true : false;
+	if ( pData != NULL )
+		m_bEnablePipelining = strcmpi("Yes", pData) == 0 ? true : false;
 
 	// enable write commands
 	pData = configurationFileManager->getValue("ALLOW_STORE");
-	m_bEnableStoreCmds = strcmpi("Yes", pData) == 0 ? true : false;
+	if ( pData != NULL )
+		m_bEnableStoreCmds = strcmpi("Yes", pData) == 0 ? true : false;
 	return 1;
 }
 
