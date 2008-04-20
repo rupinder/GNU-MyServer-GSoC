@@ -339,7 +339,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 		 */
 		if(!useChunks && chain.isEmpty() && 
 			 !td->appendOutputs && (file->getHandle() != -1) && 
-			 !(td->http->protocolOptions & PROTOCOL_USES_SSL))
+			 !(td->http->getProtocolOptions() & PROTOCOL_USES_SSL))
 		{
 			off_t offset = firstByte;
 			ret = sendfile(s->socket->getHandle(), file->getHandle(),

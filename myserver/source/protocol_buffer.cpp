@@ -33,3 +33,13 @@ ProtocolBuffer::~ProtocolBuffer()
 {
 
 }
+
+/*!
+ *Check if the protocol allows the connection to be removed. 
+ *\param wait Define if the protocol can wait that the current job is
+ *finished before.
+ */
+bool ProtocolBuffer::allowDelete(bool wait)
+{
+  return true;
+}

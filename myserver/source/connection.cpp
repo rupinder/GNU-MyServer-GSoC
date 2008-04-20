@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../include/connection.h"
 #include "../include/vhosts.h"
-#include "../include/ftp.h"
 
 /*!
  *Constructor for the Connection class.
@@ -115,23 +114,11 @@ int Connection::isParsing()
 int Connection::allowDelete(bool bWait/*= false*/)
 {
   int nReturn = !isParsing();
-  if ( nReturn == 0 || host == NULL || host->getProtocol() != PROTOCOL_FTP )
-    return nReturn;
-  else
-  {
-	FtpUserData *pUserData = static_cast<FtpUserData *>(protocolBuffer);
-	if ( bWait )
-	{
-		//wait for data connection to finish
-		pUserData->m_DataConnBusy.lock();
-		pUserData->m_DataConnBusy.unlock();
 
-	}
-	if ( pUserData != NULL && pUserData->m_pDataConnection != NULL )
-		return !pUserData->m_pDataConnection->isParsing();
-	else
-    		return nReturn;
-  }
+  if (protocolBuffer)
+    nReturn = protocolBuffer->allowDelete(bWait);
+  
+  return nReturn;
 }
 
 /*!

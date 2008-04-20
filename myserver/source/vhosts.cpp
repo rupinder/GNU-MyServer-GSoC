@@ -601,10 +601,11 @@ int Vhost::initializeSSL()
 {
 	DynamicProtocol* dp;
 
-	if(this->protocol < 1000 && this->protocol)
+	if(this->protocol != PROTOCOL_UNKNOWN && this->protocol != PROTOCOL_HTTPS 
+     && this->protocol != PROTOCOL_CONTROL)
 		return 0;
 
-	if(!this->protocol)
+	if(this->protocol == PROTOCOL_UNKNOWN)
 	{
 		dp = Server::getInstance()->getDynProtocol(protocolName.c_str());
 		if(!dp)

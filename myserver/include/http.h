@@ -84,7 +84,6 @@ public:
 class Http : public Protocol
 {
 public:
-  int protocolOptions;
   int requestAuthorization();
   const char *getDefaultFilenamePath(u_long ID);
 

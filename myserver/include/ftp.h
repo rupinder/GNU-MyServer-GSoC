@@ -38,6 +38,7 @@ public:
 	~FtpUserData();
 	void reset();
 	int CloseDataConnection();
+  virtual bool allowDelete(bool);
 
 	enum FtpState
 	{

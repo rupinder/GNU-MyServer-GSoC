@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -22,16 +22,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "connection.h"
 /*! Various options that can be use for the protocol.  */
 #define PROTOCOL_USES_SSL 1
+#define PROTOCOL_FAST_CHECK 2
+#define PROTOCOL_DENY_DELETE 4
 
 /*!
  *This is the base class to derive other protocols implementations for the server.
  */
 class Protocol 
 {
-private:
-
 public:
-	int protocolOptions;
 	Protocol();
   virtual ~Protocol();
 	char* registerName(char*,int len);
@@ -39,5 +38,9 @@ public:
                                 int bs1, int bs2, u_long nbtr, u_long id);
 	static int loadProtocol(XmlParser*);
 	static int unLoadProtocol(XmlParser*);
+
+  int getProtocolOptions(){return protocolOptions;}
+protected:
+	int protocolOptions;
 };
 #endif

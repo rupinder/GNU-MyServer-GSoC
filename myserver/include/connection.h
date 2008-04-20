@@ -38,7 +38,6 @@ using namespace std;
 
 /*!
 *Here are listed all the protocol supported by the server.
-*Protocols with an ID > 1000 use SSL.
 */
 #define PROTOCOL_UNKNOWN	0
 #define PROTOCOL_HTTP		1

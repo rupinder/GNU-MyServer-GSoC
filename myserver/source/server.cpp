@@ -1181,8 +1181,8 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
 																					u_short port, u_short localPort, 
 																					int /*id*/)
 {
-	//  static u_long connectionId = 0;
 	int doSSLhandshake = 0;
+  int doFastCheck = 0;
 	ConnectionPtr newConnection = new Connection;
 	vector<Multicast<string, void*, int>*>* handlers;
 
@@ -1206,18 +1206,36 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
 		return 0;
 	}
 
-	if(newConnection->host->getProtocol() > 1000	)
+	if(newConnection->host->getProtocol() == PROTOCOL_HTTPS || 
+     newConnection->host->getProtocol() == PROTOCOL_CONTROL)
 	{
 		doSSLhandshake = 1;
 	}
-	else if(newConnection->host->getProtocol() == PROTOCOL_UNKNOWN)
+
+	if(newConnection->host->getProtocol() == PROTOCOL_FTP)
+	{
+		doFastCheck = 1;
+	}
+	
+
+  if(newConnection->host->getProtocol() == PROTOCOL_UNKNOWN)
 	{
 		DynamicProtocol* dp;
+    int opts = 0;
     dp = Server::getInstance()->getDynProtocol(
 																newConnection->host->getProtocolName());
-		if(dp && dp->getOptions() & PROTOCOL_USES_SSL)
+
+		if(dp)
+      opts = dp->getOptions();
+
+    if(opts & PROTOCOL_USES_SSL)
 			doSSLhandshake = 1;
+
+    if(opts & PROTOCOL_FAST_CHECK)
+			doFastCheck = 1;
+
 	}
+
 
 	{
 		string msg("new-connection");
@@ -1259,16 +1277,17 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
 		newConnection->socket = new Socket(s);
 	}
 
-	if ( newConnection->host->getProtocol() == PROTOCOL_FTP )
+	if ( doFastCheck )
 	{
 		newConnection->setParsing(1);
 		newConnection->setForceParsing(1);
-		connectionsScheduler.addReadyConnection(newConnection, 0);//don't wait for ftp connections
+		connectionsScheduler.addReadyConnection(newConnection, 0);
 	}
 	else
 		connectionsScheduler.addWaitingConnection(newConnection, 0);
 
 	nTotalConnections++;
+
 	/*
    *If defined maxConnections and the number of active connections
    *is bigger than it say to the protocol that will parse the connection

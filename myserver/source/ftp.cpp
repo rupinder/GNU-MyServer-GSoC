@@ -108,6 +108,22 @@ FtpUserData::FtpUserData()
 	m_DataConnBusy.init();
 }
 
+bool FtpUserData::allowDelete(bool wait)
+{
+	if ( wait )
+	{
+		//wait for data connection to finish
+		m_DataConnBusy.lock();
+		m_DataConnBusy.unlock();
+
+	}
+	if ( m_pDataConnection != NULL )
+		return m_pDataConnection->isParsing();
+	else
+    return true;
+}
+
+
 FtpUserData::~FtpUserData()
 {
 	delete m_pDataConnection;
@@ -290,6 +306,7 @@ int Ftp::LAST_PASV_PORT = 65000;
 Ftp::Ftp()
 {
 	m_nPassivePort = Ftp::FIRST_PASV_PORT;
+  protocolOptions = PROTOCOL_FAST_CHECK | PROTOCOL_DENY_DELETE;
 }
 
 Ftp::~Ftp()
