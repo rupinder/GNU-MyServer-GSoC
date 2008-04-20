@@ -122,15 +122,16 @@ public:
 
 	int CheckRights(const std::string &sUser, const std::string &sPass, const std::string &sPath, int mask);
 	void WaitDataConnection();
+	
+	int OpenDataConnection();
+	int OpenDataPassive();
+	int OpenDataActive();
 
 protected:
 	yyscan_t	m_scanner;
-	int OpenDataConnection();
 	bool UserLoggedIn();
 	bool BuildLocalPath(const std::string &sPath, std::string &sOutPath);
 	bool GetLocalPath(const std::string &sPath, std::string &sOutPath);
-	int OpenDataPassive();
-	int OpenDataActive();
 	void EscapeTelnet(MemBuf &In, MemBuf &Out);
 	void RetrStor(bool bRetr, bool bAppend, const std::string &sPath);
 	void RemovePipelinedCmds(MemBuf &In, MemBuf &Out);
@@ -181,12 +182,12 @@ public:
 class DataConnectionWorkerThreadData
 {
 public:
-	DataConnectionWorkerThreadData(FtpUserData *pData);
+	DataConnectionWorkerThreadData();
 	~DataConnectionWorkerThreadData();
 	ConnectionPtr m_pConnection;
 	std::string m_sFilePath;
 	bool m_bAppend;
-	FtpUserData *m_pFtpUserData;
+	Ftp *m_pFtp;
 };
 
 int get_ftp_reply(int nReplyCode, std::string &sReply);

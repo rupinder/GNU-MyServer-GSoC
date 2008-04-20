@@ -173,19 +173,14 @@ int FtpUserData::CloseDataConnection()
 
 //////////////////////////////////////////////////////////////////////////////
 // FtpUserData class
-DataConnectionWorkerThreadData::DataConnectionWorkerThreadData( FtpUserData *pData )
+DataConnectionWorkerThreadData::DataConnectionWorkerThreadData()
 {
 	m_pConnection = NULL;
 	m_bAppend = false;
-	m_pFtpUserData = pData;
-	if ( m_pFtpUserData != NULL )
-		m_pFtpUserData->m_DataConnBusy.lock();
 }
 
 DataConnectionWorkerThreadData::~DataConnectionWorkerThreadData()
 {
-	if ( m_pFtpUserData != NULL )
-		m_pFtpUserData->m_DataConnBusy.unlock();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -576,17 +571,17 @@ void Ftp::Pasv()
 }
 
 void Ftp::RetrStor(bool bRetr, bool bAppend, const std::string &sPath)
-{
+{ 	 
 	std::string sLocalPath;
 	if ( !UserLoggedIn() )
 	{
-		CloseDataConnection();
+		//CloseDataConnection();
 		return;
 	}
 	if ( (bRetr && !GetLocalPath(sPath, sLocalPath)) || 
 		(!bRetr && !BuildLocalPath(sPath, sLocalPath)) )
 	{
-		CloseDataConnection();
+		//CloseDataConnection();
 		return;
 	}
 
@@ -597,7 +592,7 @@ void Ftp::RetrStor(bool bRetr, bool bAppend, const std::string &sPath)
     	if( !strcmpi(sLocalFileName.c_str(), "security") )
 	{
 		ftp_reply(550);
-		CloseDataConnection();
+		//CloseDataConnection();
 		return;
 	}
 
@@ -612,25 +607,20 @@ void Ftp::RetrStor(bool bRetr, bool bAppend, const std::string &sPath)
 	if ( CheckRights(pFtpUserData->m_sUserName, pFtpUserData->m_sPass, sLocalFileName, nMask) == 0 )
 	{
 		ftp_reply(550);
-		CloseDataConnection();
+		//CloseDataConnection();
 		return;
 	}
 
-	DataConnectionWorkerThreadData *pData = new DataConnectionWorkerThreadData(pFtpUserData);
+	DataConnectionWorkerThreadData *pData = new DataConnectionWorkerThreadData();
 	pData->m_pConnection = td.pConnection;
 	pData->m_bAppend = bAppend || pFtpUserData->m_nRestartOffset > 0;
 	pData->m_sFilePath = sLocalPath;
+	pData->m_pFtp = this;
 
 	pFtpUserData->m_sCurrentFileName = "";
 	pFtpUserData->m_nFileSize = 0;
 	pFtpUserData->m_nBytesSent = 0;
-
-	if ( OpenDataConnection() == 0 )
-	{
-		CloseDataConnection();
-		delete pData;
-		return;
-	}
+	
 	switch ( pFtpUserData->m_nFtpRepresentation )
 	{
 		case FtpUserData::REPR_ASCII:
@@ -659,6 +649,7 @@ void* SendAsciiFile(void* pParam)
 	return (void*)0;
 #endif
 	}
+
 	ConnectionPtr pConnection = pWt->m_pConnection;
 	if ( pConnection == NULL )
 	{
@@ -684,11 +675,26 @@ void* SendAsciiFile(void* pParam)
 #endif
 	}
 
+	pFtpUserData->m_DataConnBusy.lock();
+	
+	if ( pWt->m_pFtp != NULL && pWt->m_pFtp->OpenDataConnection() == 0 )
+	{
+		pFtpUserData->CloseDataConnection();
+		pFtpUserData->m_DataConnBusy.unlock();
+		delete pWt;
+#ifdef WIN32
+	return 0;
+#elif HAVE_PTHREAD
+	return (void*)0;
+#endif
+	}
+
       	if( pFtpUserData->m_pDataConnection == NULL || 
 			pFtpUserData->m_pDataConnection->socket == NULL)
 	{
 		ftp_reply(pConnection, 451);
 		pFtpUserData->CloseDataConnection();
+		pFtpUserData->m_DataConnBusy.unlock();
 		delete pWt;
 #ifdef WIN32
 	return 0;
@@ -705,6 +711,7 @@ void* SendAsciiFile(void* pParam)
 		{
 			ftp_reply(pConnection, 451);
 			pFtpUserData->CloseDataConnection();
+			pFtpUserData->m_DataConnBusy.unlock();
 			delete pWt;
 #ifdef WIN32
 	return 0;
@@ -735,6 +742,7 @@ void* SendAsciiFile(void* pParam)
 				file->closeFile();
 				delete file;
 				pFtpUserData->CloseDataConnection();
+				pFtpUserData->m_DataConnBusy.unlock();
 				delete pWt;
 #ifdef WIN32
 	return 0;
@@ -753,6 +761,7 @@ void* SendAsciiFile(void* pParam)
 				file->closeFile();
 				delete file;
 				pFtpUserData->CloseDataConnection();
+				pFtpUserData->m_DataConnBusy.unlock();
 				delete pWt;
 #ifdef WIN32
 	return 0;
@@ -794,6 +803,7 @@ void* SendAsciiFile(void* pParam)
        				file->closeFile();
 				delete file;
 				pFtpUserData->CloseDataConnection();
+				pFtpUserData->m_DataConnBusy.unlock();
 				delete pWt;
 #ifdef WIN32
 	return 1;
@@ -819,6 +829,7 @@ void* SendAsciiFile(void* pParam)
 	pFtpUserData->m_nRestartOffset = 0;
 	ftp_reply(pConnection, 226);
 	pFtpUserData->CloseDataConnection();
+	pFtpUserData->m_DataConnBusy.unlock();
 	delete pWt;
 #ifdef WIN32
 	return 1;
@@ -870,11 +881,27 @@ void* SendImageFile(void* pParam)
 	return (void*)0;
 #endif
 	}
+
+	pFtpUserData->m_DataConnBusy.lock();
+	
+	if ( pWt->m_pFtp != NULL && pWt->m_pFtp->OpenDataConnection() == 0 )
+	{
+		pFtpUserData->CloseDataConnection();
+		pFtpUserData->m_DataConnBusy.unlock();
+		delete pWt;
+#ifdef WIN32
+	return 0;
+#elif HAVE_PTHREAD
+	return (void*)0;
+#endif
+	}
+	
       	if( pFtpUserData->m_pDataConnection == NULL || 
 			pFtpUserData->m_pDataConnection->socket == NULL)
 	{
 		ftp_reply(pConnection, 451);
 		pFtpUserData->CloseDataConnection();
+		pFtpUserData->m_DataConnBusy.unlock();
 		delete pWt;
 #ifdef WIN32
 	return 0;
@@ -891,6 +918,7 @@ void* SendImageFile(void* pParam)
 		{
 			ftp_reply(pConnection, 451);
 			pFtpUserData->CloseDataConnection();
+			pFtpUserData->m_DataConnBusy.unlock();
 			delete pWt;
 #ifdef WIN32
 	return 0;
@@ -923,6 +951,7 @@ void* SendImageFile(void* pParam)
 				file->closeFile();
 				delete file;
 				pFtpUserData->CloseDataConnection();
+				pFtpUserData->m_DataConnBusy.unlock();
 				delete pWt;
 #ifdef WIN32
 	return 0;
@@ -939,6 +968,7 @@ void* SendImageFile(void* pParam)
        				file->closeFile();
 				delete file;
 				pFtpUserData->CloseDataConnection();
+				pFtpUserData->m_DataConnBusy.unlock();
 				delete pWt;
 #ifdef WIN32
 	return 1;
@@ -964,6 +994,7 @@ void* SendImageFile(void* pParam)
 	pFtpUserData->m_nRestartOffset = 0;
 	ftp_reply(pConnection, 226);
 	pFtpUserData->CloseDataConnection();
+	pFtpUserData->m_DataConnBusy.unlock();
 	delete pWt;
 #ifdef WIN32
 	return 1;
@@ -1012,11 +1043,27 @@ void* ReceiveAsciiFile(void* pParam)
 	return (void*)0;
 #endif
 	}
+
+	pFtpUserData->m_DataConnBusy.lock();
+	
+	if ( pWt->m_pFtp != NULL && pWt->m_pFtp->OpenDataConnection() == 0 )
+	{
+		pFtpUserData->CloseDataConnection();
+		pFtpUserData->m_DataConnBusy.unlock();
+		delete pWt;
+#ifdef WIN32
+	return 0;
+#elif HAVE_PTHREAD
+	return (void*)0;
+#endif
+	}
+	
       	if( pFtpUserData->m_pDataConnection == NULL || 
 			pFtpUserData->m_pDataConnection->socket == NULL)
 	{
 		ftp_reply(pConnection, 451);
 		pFtpUserData->CloseDataConnection();
+		pFtpUserData->m_DataConnBusy.unlock();
 		delete pWt;
 #ifdef WIN32
 	return 0;
@@ -1037,6 +1084,7 @@ void* ReceiveAsciiFile(void* pParam)
 		{
 			ftp_reply(pConnection, 451);
 			pFtpUserData->CloseDataConnection();
+			pFtpUserData->m_DataConnBusy.unlock();
 			delete pWt;
 #ifdef WIN32
 	return 0;
@@ -1063,6 +1111,7 @@ void* ReceiveAsciiFile(void* pParam)
 				ftp_reply(pConnection, 451);
 				file.closeFile();
 				pFtpUserData->CloseDataConnection();
+				pFtpUserData->m_DataConnBusy.unlock();
 				delete pWt;
 #ifdef WIN32
 	return 0;
@@ -1102,6 +1151,7 @@ void* ReceiveAsciiFile(void* pParam)
 				pFtpUserData->m_bBreakDataConnection = false;
        				file.closeFile();
 				pFtpUserData->CloseDataConnection();
+				pFtpUserData->m_DataConnBusy.unlock();
 				delete pWt;
 #ifdef WIN32
 	return 1;
@@ -1121,6 +1171,7 @@ void* ReceiveAsciiFile(void* pParam)
 
 	ftp_reply(pConnection, 226);
 	pFtpUserData->CloseDataConnection();
+	pFtpUserData->m_DataConnBusy.unlock();
 	delete pWt;
 #ifdef WIN32
 	return 1;
@@ -1170,11 +1221,27 @@ void* ReceiveImageFile(void* pParam)
 	return (void*)0;
 #endif
 	}
+
+	pFtpUserData->m_DataConnBusy.lock();
+	
+	if ( pWt->m_pFtp != NULL && pWt->m_pFtp->OpenDataConnection() == 0 )
+	{
+		pFtpUserData->CloseDataConnection();
+		pFtpUserData->m_DataConnBusy.unlock();
+		delete pWt;
+#ifdef WIN32
+	return 0;
+#elif HAVE_PTHREAD
+	return (void*)0;
+#endif
+	}
+	
       	if( pFtpUserData->m_pDataConnection == NULL || 
 			pFtpUserData->m_pDataConnection->socket == NULL)
 	{
 		ftp_reply(pConnection, 451);
 		pFtpUserData->CloseDataConnection();
+		pFtpUserData->m_DataConnBusy.unlock();
 		delete pWt;
 #ifdef WIN32
 	return 0;
@@ -1194,6 +1261,9 @@ void* ReceiveImageFile(void* pParam)
 		if ( file.openFile(pWt->m_sFilePath.c_str(), flags) )
 		{
 			ftp_reply(pConnection, 451);
+			pFtpUserData->CloseDataConnection();
+			pFtpUserData->m_DataConnBusy.unlock();
+			delete pWt;
 #ifdef WIN32
 	return 0;
 #elif HAVE_PTHREAD
@@ -1213,6 +1283,7 @@ void* ReceiveImageFile(void* pParam)
 				pFtpUserData->m_bBreakDataConnection = false;
        				file.closeFile();
 				pFtpUserData->CloseDataConnection();
+				pFtpUserData->m_DataConnBusy.unlock();
 				delete pWt;
 #ifdef WIN32
 	return 1;
@@ -1231,6 +1302,7 @@ void* ReceiveImageFile(void* pParam)
 
 	ftp_reply(pConnection, 226);
 	pFtpUserData->CloseDataConnection();
+	pFtpUserData->m_DataConnBusy.unlock();
 	delete pWt;
 #ifdef WIN32
 	return 1;
