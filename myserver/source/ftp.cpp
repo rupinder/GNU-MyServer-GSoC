@@ -1036,7 +1036,7 @@ void* ReceiveAsciiFile(void* pParam)
 		std::string sLine;
 		u_long nbr;
 		while ( pFtpUserData->m_pDataConnection->socket->read(buffer.getBuffer(), 
-					(u_long)buffer.getRealLength()-1, &nbr) != SOCKET_ERROR )
+					(u_long)buffer.getRealLength()-1, &nbr) != SOCKET_ERROR && nbr != 0 )
 		{
 			memset(buffer2.getBuffer(), 0, buffer2.getRealLength());
 			buffer2.setLength(0);
@@ -1188,7 +1188,7 @@ void* ReceiveImageFile(void* pParam)
 		buffer.setLength(1024);
 		memset(buffer.getBuffer(), 0, buffer.getRealLength());
 		while ( pFtpUserData->m_pDataConnection->socket->read(buffer.getBuffer(), 
-					(u_long)buffer.getRealLength()-1, &nbr) != SOCKET_ERROR )
+					(u_long)buffer.getRealLength()-1, &nbr) != SOCKET_ERROR && nbr != 0 )
 		{
 			file.write(buffer.getBuffer(), nbr, &nbr);
 			if ( pFtpUserData->m_bBreakDataConnection )
@@ -2153,7 +2153,7 @@ int Ftp::CheckRights(const std::string &sUser, const std::string &sPass, const s
 	st.sysdirectory = td.pConnection->host->getSystemRoot();//pFtpUserData->m_pDataConnection->host->getSystemRoot();
 	st.authType = 0;
 	st.filename = sFileName.c_str();
-	st.providedMask = &mask;
+	//st.providedMask = &mask;
 	int perm = 0;
 	secCacheMutex.lock();
 	try
@@ -2166,7 +2166,7 @@ int Ftp::CheckRights(const std::string &sUser, const std::string &sPass, const s
 		secCacheMutex.unlock();
 		throw;
 	}
-	return perm;
+	return (perm & mask);
 }
 
 void Ftp::Size(const std::string &sPath)
