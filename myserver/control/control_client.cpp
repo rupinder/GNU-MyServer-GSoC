@@ -1,6 +1,6 @@
 /*
  MyServer
- Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
+ Copyright (C) 2002, 2003, 2004, 2007, 2008 The MyServer Team
  This library is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
@@ -72,7 +72,7 @@ int ControlClient::Login(const char * address, const int port,
      return -2;
 
    int ret;
-	 Socket* tcpSocket;
+	 Socket* tcpSocket = new SslSocket(tcpSocket);
    struct sockaddr_in sockAddr;
    int sockLen = sizeof(sockAddr);
    memset(&sockAddr, 0, sizeof(sockAddr));
@@ -82,18 +82,21 @@ int ControlClient::Login(const char * address, const int port,
    
    /*! Try to create the socket. */
    if(tcpSocket->socket(AF_INET, SOCK_STREAM, 0) == -1)
-     return -2;
+     {
+       delete tcpSocket;
+       return -2;
+     }
 
-
-	 socket = new SslSocket(tcpSocket);
 
    /*! If the socket was created try to connect. */
    if(tcpSocket->connect((MYSERVER_SOCKADDR*)&sockAddr, sockLen) == -1)
      {
        socket->closesocket();
+       delete tcpSocket;
        return -2;
      }
 
+	 socket = tcpSocket;
 
    Connected = true;
 
