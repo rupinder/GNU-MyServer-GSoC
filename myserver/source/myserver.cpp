@@ -64,6 +64,7 @@ static char *path;
 const char *versionOfSoftware = "0.8.12";
 int argn;
 char **argv;
+void registerSignals();
 
 #ifdef NOT_WIN
 void Sig_Quit(int signal)
@@ -71,6 +72,7 @@ void Sig_Quit(int signal)
 	Server::getInstance()->logWriteln("Exiting...");
 	sync();
 	Server::getInstance()->stop();
+  registerSignals();
 }
 
 void Sig_Hup(int signal)
@@ -79,15 +81,40 @@ void Sig_Hup(int signal)
    *On the SIGHUP signal reboot the server.
    */
 	Server::getInstance()->rebootOnNextLoop();
+  registerSignals();
 }
 #else
 static BOOL SignalHandler(DWORD type) 
 { 
   Server::getInstance()->logWriteln("Exiting...");
 	Server::getInstance()->stop();
+  registerSignals();
 }
 
 #endif
+
+
+void registerSignals()
+{
+#ifdef NOT_WIN
+	struct sigaction sig1, sig2, sig3;
+	sig1.sa_flags = sig2.sa_flags = sig3.sa_flags = SA_RESETHAND;
+	memset(&sig1, 0, sizeof(sig1));
+	memset(&sig2, 0, sizeof(sig2));
+	memset(&sig3, 0, sizeof(sig3));
+	sig1.sa_handler = SIG_IGN;
+	sig2.sa_handler = Sig_Quit;
+	sig3.sa_handler = Sig_Hup;
+	sigaction(SIGPIPE,&sig1,NULL); // catch broken pipes
+	sigaction(SIGINT, &sig2,NULL); // catch ctrl-c
+	sigaction(SIGTERM,&sig2,NULL); // catch the kill signal
+	sigaction(SIGHUP,&sig3,NULL); // catch the HUP signal
+#else
+  SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), ENABLE_PROCESSED_INPUT);
+  SetConsoleCtrlHandler( (PHANDLER_ROUTINE) SignalHandler, TRUE );
+#endif
+}
+
 
 
 #ifdef ARGP
@@ -175,24 +202,9 @@ int main (int argn, char **argv)
 	
 	::argn=argn;
 	::argv=argv;
-#ifdef NOT_WIN
-	struct sigaction sig1, sig2, sig3;
-	sig1.sa_flags = sig2.sa_flags = sig3.sa_flags = SA_RESETHAND;
-	memset(&sig1, 0, sizeof(sig1));
-	memset(&sig2, 0, sizeof(sig2));
-	memset(&sig3, 0, sizeof(sig3));
-	sig1.sa_handler = SIG_IGN;
-	sig2.sa_handler = Sig_Quit;
-	sig3.sa_handler = Sig_Hup;
-	sigaction(SIGPIPE,&sig1,NULL); // catch broken pipes
-	sigaction(SIGINT, &sig2,NULL); // catch ctrl-c
-	sigaction(SIGTERM,&sig2,NULL); // catch the kill signal
-	sigaction(SIGHUP,&sig3,NULL); // catch the HUP signal
-#else
-  SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), ENABLE_PROCESSED_INPUT);
-  SetConsoleCtrlHandler( (PHANDLER_ROUTINE) SignalHandler, TRUE );
-#endif
-	
+
+  registerSignals();
+
 	try
 	{
 		Server::createInstance();
