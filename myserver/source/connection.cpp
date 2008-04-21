@@ -113,12 +113,13 @@ int Connection::isParsing()
  */
 int Connection::allowDelete(bool bWait/*= false*/)
 {
-  int nReturn = !isParsing();
+  if ( isParsing() )
+  	 return 0;
 
-  if (protocolBuffer)
-    nReturn = protocolBuffer->allowDelete(bWait);
+  if ( protocolBuffer != NULL )
+    return protocolBuffer->allowDelete(bWait);
   
-  return nReturn;
+  return 1;
 }
 
 /*!

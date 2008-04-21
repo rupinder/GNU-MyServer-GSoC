@@ -118,9 +118,9 @@ bool FtpUserData::allowDelete(bool wait)
 
 	}
 	if ( m_pDataConnection != NULL )
-		return m_pDataConnection->isParsing();
+		return !m_pDataConnection->isParsing();
 	else
-    return true;
+    	return true;
 }
 
 
@@ -703,7 +703,7 @@ void* SendAsciiFile(void* pParam)
 #endif
 	}
 
-	File *file = NULL;
+	File *file = NULL;//new File();
 	try
 	{
 		file = Server::getInstance()->getCachedFiles()->open(pWt->m_sFilePath.c_str());
@@ -793,9 +793,18 @@ void* SendAsciiFile(void* pParam)
       			if ( pFtpUserData->m_pDataConnection->socket->send(buffer2.getBuffer(), 
 					(u_long)buffer2.getLength(), 0) == SOCKET_ERROR )
       			{
+				ftp_reply(pConnection, 451);
        				file->closeFile();
+				file->closeFile();
 				delete file;
-       				// report error
+				pFtpUserData->CloseDataConnection();
+				pFtpUserData->m_DataConnBusy.unlock();
+				delete pWt;
+#ifdef WIN32
+	return 0;
+#elif HAVE_PTHREAD
+	return (void*)0;
+#endif
       			}
 			if ( pFtpUserData->m_bBreakDataConnection )
 			{
@@ -845,7 +854,6 @@ unsigned int __stdcall SendImageFile(void* pParam)
 void* SendImageFile(void* pParam)
 #endif //HAVE_PTHREAD
 {
-	//Thread::wait(1000);
 	DataConnectionWorkerThreadData *pWt = reinterpret_cast<DataConnectionWorkerThreadData *>(pParam);
 	if ( pWt == NULL )
 	{
@@ -1354,10 +1362,17 @@ bool Ftp::BuildLocalPath(const std::string &sPath, std::string &sOutPath)
 		}
 		else
 		{
+		   sOutPath = pFtpUserData->m_cwd;
 #ifdef WIN32
-			sOutPath = pFtpUserData->m_cwd + "\\" + sPath;
+			if ( sOutPath.find_last_not_of("/\\") != sOutPath.length() - 1 )
+			   sOutPath += sPath;
+   else
+   	   sOutPath += "\\" + sPath;
 #else
-	 		sOutPath = pFtpUserData->m_cwd + "/" + sPath;
+			if ( sOutPath.find_last_not_of("/\\") != sOutPath.length() - 1 )
+			   sOutPath += sPath;
+   else
+   	   sOutPath += "/" + sPath;
 #endif // WIN32
 		}
 	}
@@ -1866,7 +1881,10 @@ void Ftp::EscapeTelnet(MemBuf &In, MemBuf &Out)
 	for ( char c = In[i]; c != '\0'; i++, c = In[i] )
 	{
 		if ( c == (char)0377 || c == (char)0364 || c == (char)0362 )
+		{
+		   	 printf("Ftp::EscapeTelnet: %c\n", c);
 			continue;
+		}
 		Out << c;
 	}
 	Out << '\0';
