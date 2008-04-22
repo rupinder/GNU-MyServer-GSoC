@@ -3,7 +3,7 @@
 <VHOSTS>
 
 	<VHOST>
-		<NAME>Every connection</NAME>
+		<NAME>Every HTTP connection</NAME>
 		
 		<PORT>80</PORT>
 		<PROTOCOL>HTTP</PROTOCOL>
@@ -15,4 +15,16 @@
 		<WARNINGLOG>logs/MyServerHTTP.err</WARNINGLOG>
 	</VHOST>
 
+	<VHOST>
+		<NAME>FTP connection</NAME>
+		
+		<PORT>21</PORT>
+		<PROTOCOL>FTP</PROTOCOL>
+		
+		<DOCROOT>web</DOCROOT>
+		<SYSFOLDER>system</SYSFOLDER>
+		
+		<ACCESSLOG>logs/MyServerFTP.log</ACCESSLOG>
+		<WARNINGLOG>logs/MyServerFTP.err</WARNINGLOG>
+	</VHOST>
 </VHOSTS>

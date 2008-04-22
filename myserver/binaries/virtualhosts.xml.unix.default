@@ -15,4 +15,16 @@
 		<WARNINGLOG>/var/log/myserver/MyServerHTTP.err</WARNINGLOG>
 	</VHOST>
 
+	<VHOST>
+		<NAME>FTP connection</NAME>
+		
+		<PORT>21</PORT>
+		<PROTOCOL>FTP</PROTOCOL>
+
+		<DOCROOT>/var/web/</DOCROOT>
+		<SYSFOLDER>/usr/local/share/myserver/system/</SYSFOLDER>
+
+		<ACCESSLOG>/var/log/myserver/MyServerFTP.log</ACCESSLOG>
+		<WARNINGLOG>/var/log/myserver/MyServerFTP.err</WARNINGLOG>
+	</VHOST>
 </VHOSTS>
