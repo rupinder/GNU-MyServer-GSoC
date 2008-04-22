@@ -266,25 +266,24 @@ void ftp_reply(ConnectionPtr pConnection, int nReplyCode, const std::string &sCu
 		sLocalCustomText = "";
 	}
 
-	MemBuf buffer;
-	buffer.setLength(512);
-	memset(buffer.getBuffer(), 0, 512);
+	//MemBuf buffer;
+	char buffer[512];
+	memset(buffer, 0, 512);
 	if ( !sLocalCustomText.empty() )
 	{
-		sprintf(buffer.getBuffer(), "%d %s", nReplyCode, sLocalCustomText.c_str());
+		sprintf(buffer, "%d %s\r\n", nReplyCode, sLocalCustomText.c_str());
 	}
 	else
 	{
 		std::string sReplyText;
 		get_ftp_reply(nReplyCode, sReplyText);
 		if ( sReplyText.find('\n') == std::string::npos )
-			sprintf(buffer.getBuffer(), "%d %s", nReplyCode, sReplyText.c_str());
+			sprintf(buffer, "%d %s\r\n", nReplyCode, sReplyText.c_str());
 		else
-			sprintf(buffer.getBuffer(), "%d-%s", nReplyCode, sReplyText.c_str());
+			sprintf(buffer, "%d-%s\r\n", nReplyCode, sReplyText.c_str());
 	}
-	//buffer.setLength(strlen(buffer.getBuffer()));
-	buffer << (const char*)"\r\n";
-	pConnection->socket->send(buffer.getBuffer(), buffer.getLength(), 0);
+	buffer[512] = 0;
+	pConnection->socket->send(buffer, strlen(buffer), 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////
