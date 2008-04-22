@@ -268,6 +268,7 @@ void ftp_reply(ConnectionPtr pConnection, int nReplyCode, const std::string &sCu
 
 	MemBuf buffer;
 	buffer.setLength(512);
+	memset(buffer.getBuffer(), 0, 512);
 	if ( !sLocalCustomText.empty() )
 	{
 		sprintf(buffer.getBuffer(), "%d %s", nReplyCode, sLocalCustomText.c_str());
@@ -281,7 +282,7 @@ void ftp_reply(ConnectionPtr pConnection, int nReplyCode, const std::string &sCu
 		else
 			sprintf(buffer.getBuffer(), "%d-%s", nReplyCode, sReplyText.c_str());
 	}
-	buffer.setLength(strlen(buffer.getBuffer()));
+	//buffer.setLength(strlen(buffer.getBuffer()));
 	buffer << (const char*)"\r\n";
 	pConnection->socket->send(buffer.getBuffer(), buffer.getLength(), 0);
 }
@@ -289,8 +290,8 @@ void ftp_reply(ConnectionPtr pConnection, int nReplyCode, const std::string &sCu
 //////////////////////////////////////////////////////////////////////////////
 // Ftp class
 
-bool Ftp::m_bAllowAnonymous = true;
-bool Ftp::m_bAnonymousNeedPass = false;
+bool Ftp::m_bAllowAnonymous = false;
+bool Ftp::m_bAnonymousNeedPass = true;
 bool Ftp::m_bAllowAsynchronousCmds = true;
 bool Ftp::m_bEnablePipelining = true;
 bool Ftp::m_bEnableStoreCmds = true;
