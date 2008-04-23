@@ -266,24 +266,19 @@ void ftp_reply(ConnectionPtr pConnection, int nReplyCode, const std::string &sCu
 		sLocalCustomText = "";
 	}
 
-	//MemBuf buffer;
-	char buffer[512];
-	memset(buffer, 0, 512);
+	std::ostringstream buffer;
 	if ( !sLocalCustomText.empty() )
-	{
-		sprintf(buffer, "%d %s\r\n", nReplyCode, sLocalCustomText.c_str());
-	}
+		buffer << nReplyCode << " " << sLocalCustomText << "\r\n";
 	else
 	{
 		std::string sReplyText;
 		get_ftp_reply(nReplyCode, sReplyText);
 		if ( sReplyText.find('\n') == std::string::npos )
-			sprintf(buffer, "%d %s\r\n", nReplyCode, sReplyText.c_str());
+			buffer << nReplyCode << " " << sReplyText << "\r\n";
 		else
-			sprintf(buffer, "%d-%s\r\n", nReplyCode, sReplyText.c_str());
+			buffer << nReplyCode << "-" << sReplyText << "\r\n";
 	}
-	buffer[512] = 0;
-	pConnection->socket->send(buffer, strlen(buffer), 0);
+	pConnection->socket->send(buffer.str().c_str(), strlen(buffer.str().c_str()), 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////
