@@ -518,7 +518,13 @@ void Ftp::Pasv()
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
 	std::string sHost = td.pConnection->getLocalIpAddr();
-	sHost += "," + GetPortNo(m_nPassivePort++);
+	if ( m_nPassivePort < Ftp::LAST_PASV_PORT )
+		sHost += "," + GetPortNo(m_nPassivePort++);
+	else
+	{
+		m_nPassivePort = Ftp::FIRST_PASV_PORT;
+		sHost += "," + GetPortNo(m_nPassivePort++);
+	}
 	SetFtpHost(pFtpUserData->m_cdh, sHost.c_str());
 
 	pFtpUserData->m_bPassiveSrv = true;
