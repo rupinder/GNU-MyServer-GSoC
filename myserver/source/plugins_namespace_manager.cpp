@@ -57,9 +57,6 @@ int PluginsNamespaceManager::addPlugin(string& file, Server* server,
 	string name;
 	const char* namePtr;
 
-  printf ("%s %i\n", file.c_str(), global);
-
-
 	if(plugin->preLoad(file, server, languageFile, global))
 	{
 		delete plugin;
