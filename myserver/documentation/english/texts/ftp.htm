@@ -12,7 +12,7 @@
 <h1 class="title">FTP</h1>
 FTP (File Transfer Protocol - port 21) is one of the oldest Internet 
 protocols still in widespread use. Over the time FTP protocol received 
-emprovements and additions so it is documented in several RFC documents. 
+improvements and additions so it is documented in several RFC documents. 
 Basic FTP servers usually implement RFC 959 as a minimum.
 FTP runs over TCP and uses 2 channels: one for data(files) exchanged, 
 one for controlling data connection. Protocol permits user to decide how 
@@ -25,19 +25,19 @@ The objectives of FTP protocol are:
 3. To shield users from variations in file storage systems among different hosts,
 4. To transfer data reliably and efficiently.
 <br />
-FTP protocol is a popular choice for file transfer over the internet.
+FTP protocol is a popular choice for file transfer over the Internet.
 <h2 class="title">FTP Criticism</h2>
 It is possible to abuse built in proxy features telling a server to send data to a 
 third computer(<a href="http://en.wikipedia.org/wiki/File_eXchange_Protocol" target="_blank">FXP</a>)
-User names and paswords are sent in clear text. To protect them TSL/SSL chryptographic 
+User names and passwords are sent in clear text. To protect them TSL/SSL cryptographic 
 protocols can be used.
 Multiple TCP/IP connections are used so is hard to configure firewalls for it.
 FTP is a high latency protocol due to the number of commands needed to initiate a file transfer.
 No integrity checks are done at receiving site. Maybe used checksums(like for example MD5) to 
-check if the file is ok.
-Files' timestamp is not preserved after transfer. There is a 
+check if the file is OK.
+Files' time stamp is not preserved after transfer. There is a 
 <a href="https://datatracker.ietf.org/drafts/draft-somers-ftp-mfxx/" target="_blank">draft</a> proposing extensions to FTP 
-protocol in order to avoid loosing timestamp.
+protocol in order to avoid loosing time stamp.
 <br />
 <h2 class="title">Anonymous FTP</h2> 
 It is the common way to distribute public documents/files over the Internet.
