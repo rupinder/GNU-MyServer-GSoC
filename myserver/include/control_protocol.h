@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2004, 2005 The MyServer Team
+Copyright (C) 2004, 2005, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -30,34 +30,24 @@ class ControlProtocol : public Protocol
   static char adminLogin[64];
   static char adminPassword[64];
   static int controlEnabled;
-  /*! Thread ID. */
-  int id;
-  /*! Input file. */
-  File *Ifile;
-  /*! Output file. */
-  File *Ofile;
-  /*! Protocol level disable */
-  bool Reboot;
 
-  /*! Use control_header to parse the request. */
-  ControlHeader header;
-  int checkAuth();
-  int showConnections(ConnectionPtr,File* out, char *b1,int bs1);
-  int showDynamicProtocols(ConnectionPtr,File* out, char *b1,int bs1);
-  int showLanguageFiles(ConnectionPtr, File* out, char *b1,int bs1);
-  int killConnection(ConnectionPtr,u_long ID, File* out, char *b1,int bs1);
+  int checkAuth(ControlHeader&);
+  int showConnections(ConnectionPtr,File* out, char *b1,int bs1, ControlHeader&);
+  int showDynamicProtocols(ConnectionPtr,File* out, char *b1,int bs1, ControlHeader&);
+  int showLanguageFiles(ConnectionPtr, File* out, char *b1,int bs1, ControlHeader&);
+  int killConnection(ConnectionPtr,u_long ID, File* out, char *b1,int bs1, ControlHeader&);
   int getFile(ConnectionPtr, char*, File* in, File* out, 
-              char *b1,int bs1 );
+              char *b1,int bs1, ControlHeader&);
   int putFile(ConnectionPtr,char*, File* in, File* out, 
-              char *b1,int bs1 );
-  int getVersion(ConnectionPtr,File* out, char *b1,int bs1);
-  int addToErrorLog(ConnectionPtr con, const char *b1, int bs1);
-  int addToLog(int retCode, ConnectionPtr con, char *b1, int bs1);
-  int addToErrorLog(ConnectionPtr con, string& m)
-    {return addToErrorLog(con, m.c_str(), m.size());}
+              char *b1,int bs1, ControlHeader&);
+  int getVersion(ConnectionPtr,File* out, char *b1,int bs1, ControlHeader&);
+  int addToErrorLog(ConnectionPtr con, const char *b1, int bs1, ControlHeader&);
+  int addToLog(int retCode, ConnectionPtr con, char *b1, int bs1, ControlHeader&);
+  int addToErrorLog(ConnectionPtr con, string& m, ControlHeader& header)
+  {return addToErrorLog(con, m.c_str(), m.size(), header);}
 
 public:
-  int sendResponse(char*, int, ConnectionPtr, int, File* = 0);
+  int sendResponse(char*, int, ConnectionPtr, int, ControlHeader& header, File* = 0);
   static int loadProtocol(XmlParser* languageParser);
 	int controlConnection(ConnectionPtr a, char *b1, char *b2, int bs1, 
                         int bs2, u_long nbtr, u_long id);

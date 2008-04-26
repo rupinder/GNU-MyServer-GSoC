@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -344,7 +344,7 @@ int ClientsThread::controlConnections()
 		case PROTOCOL_HTTP:
 			if(httpParser == 0)
       {
-				httpParser = new Http();
+				httpParser = new HttpProtocol();
 				if(!httpParser)
 				{
 					return 0;
@@ -363,7 +363,7 @@ int ClientsThread::controlConnections()
 		case PROTOCOL_HTTPS:
 			if(!httpsParser)
 			{
-				httpsParser = new Https();
+				httpsParser = new HttpsProtocol();
 				if(!httpsParser)
 				{
 					return 0;

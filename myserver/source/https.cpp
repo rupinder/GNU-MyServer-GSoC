@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -35,7 +35,7 @@ extern "C"
  *Returns the name of the protocol. If an out buffer is defined 
  *fullfill it with the name too.
  */
-char* Https::registerName(char* out, int len)
+char* Https::registerNameImpl(char* out, int len)
 {
 	if(out)
 	{
@@ -43,6 +43,12 @@ char* Https::registerName(char* out, int len)
 	}
 	return (char*)"HTTPS";
 }
+
+char* Https::registerName(char* out, int len)
+{
+  return registerNameImpl(out, len);
+}
+
 /*!
  *Https class constructor.
  */

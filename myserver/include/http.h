@@ -31,6 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/dyn_http_manager.h"
 #include "../include/multicast.h"
 #include "../include/http_data_handler.h"
+#include "../include/securestr.h"
+
 #include <string>
 #include <sstream>
 #include <vector>
@@ -50,8 +52,17 @@ public:
   }
 
 
+  Mutex secCacheMutex;
+  SecurityCache secCache;
+
   DynHttpCommandManager dynCmdManager;
   DynHttpManagerList dynManagerList;
+
+  string browseDirCSSpath;
+  u_long gzipThreshold;
+  vector<string> defaultFilename;
+  int cgiTimeout;
+  int allowVhostMime;
 };
 
 /*!
@@ -80,6 +91,7 @@ public:
   ~HttpUserData();
   void reset();
 };
+
 
 class Http : public Protocol
 {
@@ -119,12 +131,12 @@ public:
   int getPath(string& filenamePath,
                      const string& filename,
                      int systemrequest)
-  {return getPath(&td, filenamePath, filename.c_str(), systemrequest);}
+  {return getPath(td, filenamePath, filename.c_str(), systemrequest);}
 
   int getPath(string& filenamePath,
                      const char *filename,
                      int systemrequest)
-  {return getPath(&td, filenamePath, filename, systemrequest);}
+  {return getPath(td, filenamePath, filename, systemrequest);}
 
 
   static int getPath(HttpThreadContext* td,
@@ -147,7 +159,9 @@ public:
   virtual ~Http();
   const char* getBrowseDirCSSFile();
   u_long getGzipThreshold();
-  virtual char* registerName(char*,int len);
+  virtual char* registerName(char* out,int len){return registerNameImpl(out, len);}
+
+  static char* registerNameImpl(char*, int len);
   int controlConnection(ConnectionPtr a, 
                         char *b1, 
                         char *b2, 
@@ -170,14 +184,6 @@ public:
 
   static HttpStaticData* getStaticData();
 protected:
-  static Mutex secCacheMutex;
-  static SecurityCache secCache;
-  static int initialized;
-  static string browseDirCSSpath;
-  static u_long gzipThreshold;
-  static vector<string> defaultFilename;
-  static int cgiTimeout;
-  static int allowVhostMime;
   HttpDataHandler* mscgi;
   HttpDataHandler* wincgi;
   HttpDataHandler* isapi;
@@ -186,11 +192,67 @@ protected:
   HttpDataHandler* fastcgi;
   HttpDataHandler* httpFile;
   HttpDataHandler* httpDir;
-  struct HttpThreadContext td;
+  struct HttpThreadContext *td;
   void clean();
   void computeDigest(char*, char*);
   u_long checkDigest();
   string protocolPrefix;
 };
+
+
+/*!
+ *Adapter class to make Http reentrant.
+ */
+class HttpProtocol : public Protocol
+{
+public:
+	HttpProtocol()
+  {
+    protocolOptions = 0;
+  }
+
+  virtual ~HttpProtocol()
+  {
+
+  }
+
+  char* registerName(char* out, int len)
+  {
+    return Http::registerNameImpl(out, len);
+  }
+
+	virtual int controlConnection(ConnectionPtr a, char *b1, char *b2,
+                                int bs1, int bs2, u_long nbtr, u_long id)
+  {
+    int ret = 0;
+    Http* http = new Http ();
+
+    ret = http->controlConnection(a, b1, b2, bs1, bs2, nbtr, id);
+    
+    delete http;
+
+    return ret;
+  }
+
+	static int loadProtocol(XmlParser* parser)
+  {
+    return Http::loadProtocol(parser);
+  }
+  
+	static int unLoadProtocol(XmlParser* parser)
+  {
+    return Http::unLoadProtocol(parser);
+
+  }
+
+  int getProtocolOptions()
+  {
+    return protocolOptions;
+  }
+
+};
+
+
+
 
 #endif

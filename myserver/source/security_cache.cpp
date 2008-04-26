@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005, 2006 The MyServer Team
+Copyright (C) 2005, 2006, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -102,16 +102,28 @@ int SecurityCache::getSecurityFile(const char* dir, const char* sys,
 		out.assign(secFile);
 		return 0;
 	}
+
+  if(file.length() == 0)
+	{
+    out.assign(sys);
+    out.append("/security");
+    return !FilesUtility::fileExists(out);
+  }
+
 	
 	/* Go upper in the tree till we find a security file.  */
 	do
 	{
-		for(i = file.length() - 1; i; i--)
-			if(file[i] == '/')
-			{
-				file.erase(i, file.length() - i);
-				break;
-			}
+    if(!file.length())
+      break;
+
+    for(i = file.length() - 1; i; i--)
+      if(file[i] == '/')
+      {
+        file.erase(i, file.length() - i);
+        break;
+      }
+
 
 		/* 
 		 *Top of the tree, check if the security file is present in the 

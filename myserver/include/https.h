@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -23,9 +23,62 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class Https : public Http
 {
 public:
+  static char* registerNameImpl(char* out, int len);
 	virtual char* registerName(char*,int len);
 	Https();
 	virtual ~Https();
+};
+
+/*!
+ *Adapter class to make Https reentrant.
+ */
+class HttpsProtocol : public Protocol
+{
+public:
+	HttpsProtocol()
+  {
+    protocolOptions = PROTOCOL_USES_SSL;
+  }
+
+  virtual ~HttpsProtocol()
+  {
+
+  }
+
+  char* registerName(char* out, int len)
+  {
+    return Https::registerNameImpl(out, len);
+  }
+
+	virtual int controlConnection(ConnectionPtr a, char *b1, char *b2,
+                                int bs1, int bs2, u_long nbtr, u_long id)
+  {
+    int ret = 0;
+    Https* https = new Https ();
+
+    ret = https->controlConnection(a, b1, b2, bs1, bs2, nbtr, id);
+    
+    delete https;
+
+    return ret;
+  }
+
+	static int loadProtocol(XmlParser* parser)
+  {
+    return Https::loadProtocol(parser);
+  }
+  
+	static int unLoadProtocol(XmlParser* parser)
+  {
+    return Https::unLoadProtocol(parser);
+
+  }
+
+  int getProtocolOptions()
+  {
+    return protocolOptions;
+  }
+
 };
 
 #endif
