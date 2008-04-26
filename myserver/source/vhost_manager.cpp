@@ -87,13 +87,13 @@ int VhostManager::addVHost(Vhost* vh)
 			}
     }
 
-		if(!vh->protocol)
+		if(!vh->getProtocolName())
 		{
 			string error;
 			error.assign("Warning: protocol not defined for virtual host: " );
 			error.append(vh->getName());
 			error.append(", using HTTP by default");
-			vh->setProtocol(PROTOCOL_HTTP);
+			vh->setProtocolName("http");
 			Server::getInstance()->logLockAccess();
 			Server::getInstance()->logPreparePrintError();
 			Server::getInstance()->logWriteln(error.c_str());     
@@ -425,21 +425,14 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
 			}
 			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"PROTOCOL"))
 			{
-				if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"HTTP"))
-					vh->setProtocol(PROTOCOL_HTTP);
-				else if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"HTTPS"))
-					vh->setProtocol(PROTOCOL_HTTPS);
-				else if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"FTP"))
-					vh->setProtocol(PROTOCOL_FTP);
-				else if(!xmlStrcmp(lcur->children->content,(const xmlChar *)"CONTROL"))
-					vh->setProtocol(PROTOCOL_CONTROL);
-				else
-				{
-						vh->setProtocol(PROTOCOL_UNKNOWN);
-				}
+        char* lastChar = (char*)lcur->children->content;
+        while(*lastChar != '\0')
+        {
+          *lastChar = tolower (*lastChar);
+          lastChar++;
+        }
 				vh->setProtocolName((char*)lcur->children->content);
-				
-			}
+      }
 			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"DOCROOT"))
 			{
         if(lcur->children && lcur->children->content)
@@ -707,8 +700,8 @@ int VhostManager::saveXMLConfigurationFile(const char *filename)
       }
 
       out.writeToFile("<PROTOCOL>", 10, &nbw);
-	  out.writeToFile((*i)->getProtocolName(), 
-                       strlen((*i)->getProtocolName()), &nbw);
+      out.writeToFile((*i)->getProtocolName(), 
+                      strlen((*i)->getProtocolName()), &nbw);
 
       out.writeToFile("</PROTOCOL>\r\n", 13, &nbw);
       

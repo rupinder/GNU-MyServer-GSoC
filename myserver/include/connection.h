@@ -36,23 +36,11 @@ class ClientsThread;
 
 using namespace std;
 
-/*!
-*Here are listed all the protocol supported by the server.
-*/
-#define PROTOCOL_UNKNOWN	0
-#define PROTOCOL_HTTP		1
-#define PROTOCOL_HTTPS		1001
-#define PROTOCOL_FTP		2
-#define PROTOCOL_CONTROL		1002
-
 /*! Remove the connection due a high server load.  */
 #define CONNECTION_REMOVE_OVERLOAD 1
 
 /*! Remove the connection if the administrator decided this.  */
 #define CONNECTION_USER_KILL        2
-
-
-typedef u_long ConnectionProtocol;
 
 class Connection
 {

@@ -1183,6 +1183,8 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
 {
 	int doSSLhandshake = 0;
   int doFastCheck = 0;
+  Protocol* protocol;
+  int opts = 0;
 	ConnectionPtr newConnection = new Connection;
 	vector<Multicast<string, void*, int>*>* handlers;
 
@@ -1206,36 +1208,17 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
 		return 0;
 	}
 
-	if(newConnection->host->getProtocol() == PROTOCOL_HTTPS || 
-     newConnection->host->getProtocol() == PROTOCOL_CONTROL)
-	{
-		doSSLhandshake = 1;
-	}
-
-	if(newConnection->host->getProtocol() == PROTOCOL_FTP)
-	{
-		doFastCheck = 1;
-	}
-	
-
-  if(newConnection->host->getProtocol() == PROTOCOL_UNKNOWN)
-	{
-		DynamicProtocol* dp;
-    int opts = 0;
-    dp = Server::getInstance()->getDynProtocol(
-																newConnection->host->getProtocolName());
-
-		if(dp)
-      opts = dp->getOptions();
-
-    if(opts & PROTOCOL_USES_SSL)
-			doSSLhandshake = 1;
-
-    if(opts & PROTOCOL_FAST_CHECK)
-			doFastCheck = 1;
-
-	}
-
+  protocol = Server::getInstance()->getProtocol(newConnection->host->getProtocolName());
+  
+  if(protocol)
+    opts = protocol->getProtocolOptions();
+  
+  if(opts & PROTOCOL_USES_SSL)
+    doSSLhandshake = 1;
+  
+  if(opts & PROTOCOL_FAST_CHECK)
+    doFastCheck = 1;
+  
 
 	{
 		string msg("new-connection");
@@ -1471,14 +1454,12 @@ const char* Server::getHashedData(const char* name)
 }
 
 /*!
- *Get the dynamic protocol to use for that connection.
- *While built-in protocols have an object per thread, for dynamic
- *protocols there is only one object shared among the threads.
+ *Get the specified protocol.
  */
-DynamicProtocol* Server::getDynProtocol(const char *protocolName)
+Protocol* Server::getProtocol(const char *protocolName)
 {
 	string protocol(protocolName);
-	return protocols.getPlugin(protocol);
+	return protocols.getProtocol(protocol);
 }
 
 /*!

@@ -159,20 +159,6 @@ public:
 	void setProtocolName(const char *name)
     {protocolName.assign(name);}
 
-  /*! 
-   *Get the protocol used by the virtual host. 
-   *This is used only for the built in protocols. 
-   */
-	ConnectionProtocol getProtocol()
-    {return protocol;}
-
-  /*! 
-   *Set the protocol used by the virtual host. 
-   *This is used only for the built in protocols. 
-   */
-	void setProtocol(ConnectionProtocol cp)
-    {protocol=cp;}
-
   /*! Get the throttling rate for the virtual host. */
   u_long getThrottlingRate()
     {return throttlingRate;}
@@ -257,9 +243,6 @@ private:
 
 	/*! TCP port used to listen on. */
 	u_short port;
-
-	/*! Protocol used by the virtual host. Used for built-in protocols. */
-	ConnectionProtocol protocol;
 
   /*! Throttling rate to use with the virtual host. */
 	u_long throttlingRate;

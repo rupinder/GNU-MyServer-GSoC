@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -599,21 +599,15 @@ const char* Vhost::getHashedData(const char* name)
  */
 int Vhost::initializeSSL()
 {
-	DynamicProtocol* dp;
+	Protocol* protocol;
 
-	if(this->protocol != PROTOCOL_UNKNOWN && this->protocol != PROTOCOL_HTTPS 
-     && this->protocol != PROTOCOL_CONTROL)
-		return 0;
-
-	if(this->protocol == PROTOCOL_UNKNOWN)
-	{
-		dp = Server::getInstance()->getDynProtocol(protocolName.c_str());
-		if(!dp)
-			return 0;
+  protocol = Server::getInstance()->getProtocol(protocolName.c_str());
+  if(!protocol)
+    return 0;
 		
-		if(!(dp->getOptions() & PROTOCOL_USES_SSL))
-			return 0;
-	}
+  if(!(protocol->getProtocolOptions() & PROTOCOL_USES_SSL))
+    return 0;
+
   return sslContext.initialize();
 }	
 

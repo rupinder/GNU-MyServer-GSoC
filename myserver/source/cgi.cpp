@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -794,7 +794,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgiEnv,
 		memCgi << td->connection->getLogin();
 	}
 	
-	if(td->connection->host->getProtocol() == PROTOCOL_HTTPS)
+	if(td->http->getProtocolOptions() & PROTOCOL_USES_SSL)
 		memCgi << end_str << "SSL=ON";
 	else
 		memCgi << end_str << "SSL=OFF";

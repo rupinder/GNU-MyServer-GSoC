@@ -288,7 +288,7 @@ int ClientsThread::controlConnections()
   int retcode = 0;
 	int err = 0;
   ConnectionPtr c;
-  DynamicProtocol* dp = 0;
+  Protocol* protocol = 0;
 	
 	c = Server::getInstance()->getConnection(this->id);
 	Server::getInstance()->decreaseFreeThread();
@@ -335,94 +335,18 @@ int ClientsThread::controlConnections()
 	c->setActiveThread(this);
 	try
   {
-		switch(c->host->getProtocol())
-    {
-			/*
-			 *controlHTTPConnection returns 0 if the connection must 
-			 *be removed from the active connections list.
-			 */
-		case PROTOCOL_HTTP:
-			if(httpParser == 0)
-      {
-				httpParser = new HttpProtocol();
-				if(!httpParser)
-				{
-					return 0;
-				}
-			}
-			retcode = httpParser->controlConnection(c, 
-																							(char*)buffer.getBuffer(), 
-																							(char*)buffer2.getBuffer(), 
-																							buffer.getRealLength(), 
-																							buffer2.getRealLength(), 
-																							nBytesToRead, id);
-			break;
-			/*
-			 *Parse an HTTPS connection request.
-			 */
-		case PROTOCOL_HTTPS:
-			if(!httpsParser)
-			{
-				httpsParser = new HttpsProtocol();
-				if(!httpsParser)
-				{
-					return 0;
-				}
-			}
-
-			retcode = httpsParser->controlConnection(c, 
-																							 (char*)buffer.getBuffer(), 
-																							 (char*)buffer2.getBuffer(), 
-																							 buffer.getRealLength(), 
-																							 buffer2.getRealLength(), 
-																							 nBytesToRead, id);
-			break;
-		case PROTOCOL_CONTROL:
-			if(!controlProtocolParser)
-			{
-				controlProtocolParser = new ControlProtocol();
-				if(!controlProtocolParser)
-				{
-					return 0;
-				}
-			}
-			retcode = controlProtocolParser->controlConnection(c, 
-																												 (char*)buffer.getBuffer(), (char*)buffer2.getBuffer(), 
-																												 buffer.getRealLength(), buffer2.getRealLength(), 
-																												 nBytesToRead, id);
-			break;
-		case PROTOCOL_FTP:
-			/*
-			 *Parse FTP connection request.
-			 */
-			if(ftpParser == NULL)
-      			{
-				ftpParser = new Ftp();
-				if( ftpParser == NULL )
-					return 0;
-			}
-			retcode = ftpParser->controlConnection(c, 
-					(char*)buffer.getBuffer(), 
-					(char*)buffer2.getBuffer(), 
-					buffer.getRealLength(), 
-					buffer2.getRealLength(), 
-					nBytesToRead, id);
-			break;
-		default:
-			dp = Server::getInstance()->getDynProtocol(
-																								 c->host->getProtocolName());
-			if(!dp)
-			{
-				retcode = 0;
-			}
-			else
-			{
-				retcode = dp->controlConnection(c, (char*)buffer.getBuffer(), 
-																				(char*)buffer2.getBuffer(), buffer.getRealLength(), 
-																				buffer2.getRealLength(), nBytesToRead, id);
-			}
-			break;
+    protocol = Server::getInstance()->getProtocol(c->host->getProtocolName());
+    if(protocol)
+		{
+      retcode = protocol->controlConnection(c, (char*)buffer.getBuffer(), 
+                                            (char*)buffer2.getBuffer(), buffer.getRealLength(), 
+                                            buffer2.getRealLength(), nBytesToRead, id);
 		}
+    else
+		{
+      retcode = DELETE_CONNECTION;
+    }
+
 	}
 	catch(...)
   {
