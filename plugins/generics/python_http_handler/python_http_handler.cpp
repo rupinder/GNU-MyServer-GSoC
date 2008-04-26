@@ -292,8 +292,8 @@ static PyObject *raise_error(PyObject *self, PyObject *args)
 static PyObject *is_ssl(PyObject *self, PyObject *args)
 {
 	HttpThreadContext* context = getThreadContext();
-	int isSsl = context->connection->host->getProtocol() == PROTOCOL_HTTPS;
-	
+	int isSsl = context->http->getProtocolOptions() & PROTOCOL_USES_SSL;
+
 	return Py_BuildValue((char*)"b", isSsl);
 }
 
