@@ -26,6 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/https.h"
 #include "../include/control_protocol.h"
 #include <string>
+#include <algorithm>
+#include <cctype> 
 
 /*!
  *Create the appropriate object to keep a plugin.
@@ -40,7 +42,7 @@ Plugin* ProtocolsManager::createPluginObject()
  */
 ProtocolsManager::ProtocolsManager() : PluginsNamespaceManager("protocols")
 {
-  addStaticProtocols();
+
 }
 
 /*!
@@ -50,7 +52,6 @@ ProtocolsManager::~ProtocolsManager()
 {
 
 }
-
 
 /*!
  *Return a protocol by its name.
@@ -66,22 +67,34 @@ Protocol* ProtocolsManager::getProtocol(string& name)
 }
 
 /*!
- *Populate the map with static builtin protocols.
+ *Add a static protocol to the list.
  */
-void ProtocolsManager::addStaticProtocols()
+void ProtocolsManager::addProtocol(string& name, Protocol* protocol)
 {
-  string protocolName;
+  std::transform(name.begin(),
+                 name.end(),
+                 name.begin(),
+                 static_cast < int(*)(int) > (tolower) );
 
-  protocolName.assign("http");
-  staticProtocols.put(protocolName, new HttpProtocol());
+  staticProtocols.put(name, protocol);
+  staticProtocolsList.push_back(protocol);
+}
 
-  protocolName.assign("ftp");
-  staticProtocols.put(protocolName, new Ftp());
+/*!
+ *Clear the protocols.
+ */
+int ProtocolsManager::unLoad(XmlParser* languageFile)
+{
+  list<Protocol*>::iterator it = staticProtocolsList.begin();
+  int ret = PluginsNamespace::unLoad(languageFile);
 
-  protocolName.assign("https");
-  staticProtocols.put(protocolName, new HttpsProtocol());
+  staticProtocols.clear();
 
-  protocolName.assign("control");
-  staticProtocols.put(protocolName, new ControlProtocol());
+  for(; it != staticProtocolsList.end(); it++)
+  {
+    (*it)->unLoadProtocol(languageFile);
+    delete *it;
+  }
 
+  return ret;
 }

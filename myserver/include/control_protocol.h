@@ -27,6 +27,16 @@ using namespace std;
 
 class ControlProtocol : public Protocol
 {
+public:
+  int sendResponse(char*, int, ConnectionPtr, int, ControlHeader& header, File* = 0);
+  virtual int loadProtocol(XmlParser* languageParser);
+	int controlConnection(ConnectionPtr a, char *b1, char *b2, int bs1, 
+                        int bs2, u_long nbtr, u_long id);
+	virtual char* registerName(char*,int len);
+	ControlProtocol();
+	virtual ~ControlProtocol();
+
+protected:
   static char adminLogin[64];
   static char adminPassword[64];
   static int controlEnabled;
@@ -44,16 +54,9 @@ class ControlProtocol : public Protocol
   int addToErrorLog(ConnectionPtr con, const char *b1, int bs1, ControlHeader&);
   int addToLog(int retCode, ConnectionPtr con, char *b1, int bs1, ControlHeader&);
   int addToErrorLog(ConnectionPtr con, string& m, ControlHeader& header)
-  {return addToErrorLog(con, m.c_str(), m.size(), header);}
-
-public:
-  int sendResponse(char*, int, ConnectionPtr, int, ControlHeader& header, File* = 0);
-  static int loadProtocol(XmlParser* languageParser);
-	int controlConnection(ConnectionPtr a, char *b1, char *b2, int bs1, 
-                        int bs2, u_long nbtr, u_long id);
-	virtual char* registerName(char*,int len);
-	ControlProtocol();
-	virtual ~ControlProtocol();
+  {
+    return addToErrorLog(con, m.c_str(), m.size(), header);
+  }
 };
 
 #endif

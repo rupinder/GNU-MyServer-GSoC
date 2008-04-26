@@ -33,13 +33,13 @@ class Protocol
 public:
 	Protocol();
   virtual ~Protocol();
-	char* registerName(char*,int len);
+	virtual char* registerName(char*,int len);
 	virtual int controlConnection(ConnectionPtr a, char *b1, char *b2,
                                 int bs1, int bs2, u_long nbtr, u_long id);
-	static int loadProtocol(XmlParser*);
-	static int unLoadProtocol(XmlParser*);
+	virtual int loadProtocol(XmlParser*);
+	virtual int unLoadProtocol(XmlParser*);
 
-  int getProtocolOptions(){return protocolOptions;}
+  virtual int getProtocolOptions(){return protocolOptions;}
 protected:
 	int protocolOptions;
 };

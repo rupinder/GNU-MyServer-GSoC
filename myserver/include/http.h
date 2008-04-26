@@ -170,9 +170,9 @@ public:
                         u_long nbtr, 
                         u_long id);
 
-  static int loadProtocol(XmlParser*);
+  static int loadProtocolStatic(XmlParser*);
 
-  static int unLoadProtocol(XmlParser*);
+  static int unLoadProtocolStatic(XmlParser*);
 
   int getCGItimeout();
   int preprocessHttpRequest(string& filename, int yetmapped, 
@@ -216,7 +216,7 @@ public:
 
   }
 
-  char* registerName(char* out, int len)
+  virtual char* registerName(char* out, int len)
   {
     return Http::registerNameImpl(out, len);
   }
@@ -234,25 +234,18 @@ public:
     return ret;
   }
 
-	static int loadProtocol(XmlParser* parser)
+	virtual int loadProtocol(XmlParser* parser)
   {
-    return Http::loadProtocol(parser);
+    return Http::loadProtocolStatic(parser);
   }
   
-	static int unLoadProtocol(XmlParser* parser)
+  virtual int unLoadProtocol(XmlParser* parser)
   {
-    return Http::unLoadProtocol(parser);
+    return Http::unLoadProtocolStatic(parser);
 
-  }
-
-  int getProtocolOptions()
-  {
-    return protocolOptions;
   }
 
 };
-
-
 
 
 #endif

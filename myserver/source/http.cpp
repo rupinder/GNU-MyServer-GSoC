@@ -350,7 +350,8 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
  *\param yetmapped Is the resource mapped to the localfilesystem?
  *\param permissions Permission mask for this resource.
  */
-int Http::getFilePermissions(string& filename, string& directory, string& file, string &filenamePath, int yetmapped, int* permissions)
+int Http::getFilePermissions(string& filename, string& directory, string& file, 
+                             string &filenamePath, int yetmapped, int* permissions)
 {
   SecurityToken st;
   char authType[16];
@@ -2476,7 +2477,7 @@ int Http::sendAuth()
 /*!
  *Load the HTTP protocol.
  */
-int Http::loadProtocol(XmlParser* languageParser)
+int Http::loadProtocolStatic(XmlParser* languageParser)
 {
   char *data = 0;
   int  nDefaultFilename = 0;
@@ -2583,7 +2584,7 @@ int Http::loadProtocol(XmlParser* languageParser)
 /*!
  *Unload the HTTP protocol.
  */
-int Http::unLoadProtocol(XmlParser* languageParser)
+int Http::unLoadProtocolStatic(XmlParser* languageParser)
 {
   /* Unload the errors.  */
   HttpErrors::unLoad();

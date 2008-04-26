@@ -655,9 +655,6 @@ int Server::terminate()
 
 	getPluginsManager()->unLoad(this, &languageParser);
 
-	Http::unLoadProtocol(&languageParser);
-	Https::unLoadProtocol(&languageParser);
-  ControlProtocol::unLoadProtocol(&languageParser);
 	/*
    *Destroy the connections mutex.
    */
@@ -1696,18 +1693,33 @@ int Server::loadSettings()
 #endif
 		getProcessServerManager()->load();
 
-    Http::loadProtocol(&languageParser);
-    Https::loadProtocol(&languageParser);
-    ControlProtocol::loadProtocol(&languageParser);
-    Ftp::loadProtocol(&languageParser);
-
 		/* Load the home directories configuration.  */
 		homeDir.load();
+
+
+    {
+      Protocol *protocolsSet[] = {new HttpProtocol(),
+                                  new HttpsProtocol(),
+                                  new FtpProtocol(),
+                                  new ControlProtocol(),
+                                  0};
+
+      for (int j = 0; protocolsSet[j]; j++)
+      {
+        char protocolName[32];
+        Protocol *protocol = protocolsSet[j];
+        protocol->loadProtocol(&languageParser);
+        protocol->registerName(protocolName, 32);
+        
+        getProtocolsManager()->addProtocol(protocolName, protocol);
+      }
+    }
 
 		getPluginsManager()->addNamespace(&executors);
 		getPluginsManager()->addNamespace(&protocols);
 		getPluginsManager()->addNamespace(&filters);
  		getPluginsManager()->addNamespace(&genericPluginsManager);
+
 
 		{
 			string res("external");

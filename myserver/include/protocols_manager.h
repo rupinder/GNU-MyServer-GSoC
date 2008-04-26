@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/plugin.h"
 #include "../include/dynamic_protocol.h"
 #include "../include/hash_map.h"
-
+#include <list>
 #include <string>
 using namespace std;
 
@@ -41,10 +41,19 @@ public:
 
   Protocol* getProtocol(string& name);
 
+  void addProtocol(string& name, Protocol* protocol);
+
+  void addProtocol(char* name, Protocol* protocol)
+  {
+    string strName(name);
+    addProtocol(strName, protocol);
+  }
+
+	virtual int unLoad(XmlParser* languageFile);
 protected:
 	virtual Plugin* createPluginObject();
+  list<Protocol*> staticProtocolsList;
   HashMap<string, Protocol*> staticProtocols;
-  void addStaticProtocols();
 };
 
 #endif

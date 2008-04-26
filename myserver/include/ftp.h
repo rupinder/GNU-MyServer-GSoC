@@ -104,8 +104,8 @@ public:
 	virtual ~Ftp();
 	virtual int controlConnection(ConnectionPtr pConnection, char *b1, char *b2,
 			int bs1, int bs2, u_long nbtr, u_long id);
-	static int loadProtocol(XmlParser*);
-	static int unLoadProtocol(XmlParser*);
+	static int loadProtocolStatic(XmlParser*);
+	static int unLoadProtocolStatic(XmlParser*);
 // Ftp helpers
 	int ParseControlConnection();
 	yyscan_t GetScanner() { return m_scanner; }
@@ -126,6 +126,9 @@ public:
 	int OpenDataConnection();
 	int OpenDataPassive();
 	int OpenDataActive();
+
+  virtual char* registerName(char* out, int len);
+  static char* registerNameImpl(char* out, int len);
 
 protected:
 	yyscan_t	m_scanner;
@@ -206,5 +209,60 @@ void* ReceiveImageFile(void* pParam);
 #endif //HAVE_PTHREAD
 
 void yyerror(YYLTYPE *pLoc, Ftp *pContext, const char *msg);
+
+
+
+/*!
+ *Adapter class to make Ftp reentrant.
+ */
+class FtpProtocol : public Protocol
+{
+public:
+	FtpProtocol()
+  {
+    protocolOptions = PROTOCOL_FAST_CHECK;
+  }
+
+  virtual ~FtpProtocol()
+  {
+
+  }
+
+  virtual char* registerName(char* out, int len)
+  {
+    return Ftp::registerNameImpl(out, len);
+  }
+
+	virtual int controlConnection(ConnectionPtr a, char *b1, char *b2,
+                                int bs1, int bs2, u_long nbtr, u_long id)
+  {
+    int ret = 0;
+    Ftp* ftp = new Ftp ();
+
+    ret = ftp->controlConnection(a, b1, b2, bs1, bs2, nbtr, id);
+    
+    delete ftp;
+
+    return ret;
+  }
+
+  virtual int loadProtocol(XmlParser* parser)
+  {
+    return Ftp::loadProtocolStatic(parser);
+  }
+  
+	virtual int unLoadProtocol(XmlParser* parser)
+  {
+    return Ftp::unLoadProtocolStatic(parser);
+
+  }
+
+  int getProtocolOptions()
+  {
+    return protocolOptions;
+  }
+
+};
+
 
 #endif // FTP_H

@@ -362,10 +362,27 @@ int Ftp::controlConnection(ConnectionPtr pConnection, char *b1, char *b2,
 	return ParseControlConnection();
 }
 
-int Ftp::loadProtocol(XmlParser*)
+
+char* Ftp::registerName(char* out, int len)
+{
+  return registerNameImpl(out, len);
+}
+
+char* Ftp::registerNameImpl(char* out, int len)
+{
+  if(out)
+  {
+    myserver_strlcpy(out, "FTP", len);
+  }
+  return (char*) "FTP";
+}
+
+
+int Ftp::loadProtocolStatic(XmlParser*)
 {
 	// load custom messages from cfg here
 	XmlParser *configurationFileManager = Server::getInstance()->getConfiguration();
+
 	if ( configurationFileManager == NULL )
 		return 0;
 
@@ -396,7 +413,7 @@ int Ftp::loadProtocol(XmlParser*)
 	return 1;
 }
 
-int Ftp::unLoadProtocol(XmlParser*)
+int Ftp::unLoadProtocolStatic(XmlParser*)
 {
 	if ( true/*everything is ok*/ )
 		return 1;

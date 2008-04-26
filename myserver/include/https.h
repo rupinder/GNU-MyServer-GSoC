@@ -27,6 +27,16 @@ public:
 	virtual char* registerName(char*,int len);
 	Https();
 	virtual ~Https();
+
+  static int loadProtocolStatic(XmlParser* lang)
+  {
+    return Http::loadProtocolStatic(lang);
+  }
+  static int unLoadProtocolStatic(XmlParser* lang)
+  {
+    return Http::unLoadProtocolStatic(lang);
+  }
+
 };
 
 /*!
@@ -45,7 +55,7 @@ public:
 
   }
 
-  char* registerName(char* out, int len)
+  virtual char* registerName(char* out, int len)
   {
     return Https::registerNameImpl(out, len);
   }
@@ -63,22 +73,15 @@ public:
     return ret;
   }
 
-	static int loadProtocol(XmlParser* parser)
+  virtual int loadProtocol(XmlParser* parser)
   {
-    return Https::loadProtocol(parser);
+    return Https::loadProtocolStatic(parser);
   }
   
-	static int unLoadProtocol(XmlParser* parser)
+	virtual int unLoadProtocol(XmlParser* parser)
   {
-    return Https::unLoadProtocol(parser);
-
+    return Https::unLoadProtocolStatic(parser);
   }
-
-  int getProtocolOptions()
-  {
-    return protocolOptions;
-  }
-
 };
 
 #endif

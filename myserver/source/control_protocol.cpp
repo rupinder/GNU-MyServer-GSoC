@@ -101,6 +101,7 @@ int ControlProtocol::loadProtocol(XmlParser* languageParser)
   char *data = 0;
   const char *mainConfigurationFile = Server::getInstance()->getMainConfFile();
 	XmlParser configurationFileManager;
+
 	configurationFileManager.open(mainConfigurationFile);
 
 	data=configurationFileManager.getValue("CONTROL_ENABLED");
