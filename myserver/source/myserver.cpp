@@ -61,7 +61,11 @@ static char *path;
 /*!
  *Change this to reflect the version of the software.
  */
+#ifdef PACKAGE_VERSION
+const char *versionOfSoftware = PACKAGE_VERSION;
+#else
 const char *versionOfSoftware = "0.8.12";
+#endif
 int argn;
 char **argv;
 void registerSignals();
