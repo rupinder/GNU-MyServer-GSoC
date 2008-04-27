@@ -1,0 +1,248 @@
+#-*- mode: python -*-
+# MySever configuration script for scons.
+#
+# MyServer
+# http://www.myserverproject.net/
+#
+# Copyright (C) 2002-2008 The MyServer Team
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import os
+import glob
+
+PKG_NAME = "MyServer"
+PKG_VERSION = "0.8.13"
+
+SVN_TRUNK = "https://myserver.svn.sourceforge.net/svnroot/myserver/trunk/myserver"
+HOMEPAGE = "http://www.myserverproject.net"
+
+mode = ARGUMENTS.get('mode', "debug")
+command = ARGUMENTS.get('command', "build")
+prefix = ARGUMENTS.get('prefix', "")
+ddir = ARGUMENTS.get('destdir', "#/release")
+
+destdir = ddir + "/" + PKG_NAME.lower() + "-" + PKG_VERSION
+
+listinc=[
+      '/usr/local/include',
+      '/usr/include',
+      '/usr/local/include/libxml2',
+      '/usr/include/libxml2',
+      '.'
+      ]
+
+buildControlGui = False
+buildMscgiExamples = False
+
+
+if command == "checkout_svn":
+    Execute("svn co " + SVN_TRUNK + " .")
+
+if command == "update_svn":
+    Execute("svn update")
+
+if mode == "release":
+    env = Environment(ENV = {'PATH' : os.environ['PATH'],
+                             'TERM' : os.environ['TERM'],
+                             'HOME' : os.environ['HOME']},
+                      CPPPATH=listinc,
+                      CXX="g++ -DHAVE_CONFIG_H", 
+                      CXXFLAGS="-fPIC -DPIC",
+                      LINKFLAGS="-rdynamic" )
+else:
+    env = Environment(ENV = {'PATH' : os.environ['PATH'],
+                             'TERM' : os.environ['TERM'],
+                             'HOME' : os.environ['HOME']},
+                      CPPPATH=listinc,
+                      CXX="g++ -DHAVE_CONFIG_H", 
+                      CXXFLAGS="-fPIC -DPIC -g3",
+                      LINKFLAGS="-rdynamic" )
+
+
+conf = Configure(env, config_h="config.h")
+
+if not conf.CheckLib("libxml2"):
+    print "LIBXML2 is required to compile MyServer"
+    Exit(1)
+
+
+if not conf.CheckLib("ssl"):
+    conf.Define('DO_NOT_USE_SSL', 1)
+
+conf.CheckLib("event")
+
+if not conf.CheckLib("z"):
+    conf.Define('DO_NOT_USE_GZIP', 1)
+
+if len(prefix):
+    conf.Define('PREFIX', prefix)
+
+
+if conf.CheckLib("pthread"):
+    conf.Define('PTHREAD', 1)
+    conf.Define('HAVE_PTHREAD', 1)
+
+if conf.CheckLib("idn") and conf.CheckHeader("idna.h"):
+    conf.Define('IDN', 1)
+
+if conf.CheckLib("fltk") and conf.CheckCXXHeader("FL/Fl.H"):
+    conf.Define('FLTK', 1)
+    buildControlGui = True
+
+if conf.CheckFunc("regcomp"):
+    conf.Define('REGCOMP', 1)
+    conf.Define('REGEX', 1)
+
+if conf.CheckFunc("pipe"):
+    conf.Define('PIPE', 1)
+
+if conf.CheckFunc("event_loopbreak"):
+    conf.Define('EVENT_LOOPBREAK', 1)
+
+if conf.CheckFunc("compressBound"):
+    conf.Define('GZIP_CHECK_BOUNDS', 1)
+
+if conf.CheckFunc("gettimeofday"):
+    conf.Define('GETTIMEOFDAY', 1)
+
+if conf.CheckFunc("snprintf"):
+    conf.Define('SNPRINTF', 1)
+
+if conf.CheckFunc("localtime_r"):
+    conf.Define('LOCALTIME_R', 1)
+
+if conf.CheckFunc("sendfile"):
+    conf.Define('SENDFILE', 1)
+
+if conf.CheckFunc("setgroups"):
+    conf.Define('SETGROUPS', 1)
+
+if conf.CheckLib("dl"):
+    conf.Define('DL', 1)
+    conf.Define('HAVE_DL', 1)
+    buildMscgiExamples = True
+
+if conf.CheckFunc("dlopen"):
+    conf.Define('DLOPEN', 1)
+
+if conf.CheckHeader("stdint.h"):
+    conf.Define('STDINT_H', 1)
+
+if conf.CheckHeader("error.h"):
+    conf.Define('ERROR_H', 1)
+
+if conf.CheckHeader("stdlib.h"):
+    conf.Define('STDLIB_H', 1)
+
+if conf.CheckHeader("inttypes.h"):
+    conf.Define('INTTYPES_H', 1)
+
+if conf.CheckHeader("strings.h"):
+    conf.Define('STRINGS_H', 1)
+
+if conf.CheckHeader("string.h"):
+    conf.Define('STRING_H', 1)
+
+if conf.CheckHeader("sys/stat.h"):
+    conf.Define('SYS_STAT_H', 1)
+
+if conf.CheckHeader("sys/types.h"):
+    conf.Define('SYS_TYPES_H', 1)
+
+if conf.CheckHeader("unistd.h"):
+    conf.Define('UNISTD_H', 1)
+
+if conf.CheckHeader("grp.h"):
+    conf.Define('GRP', 1)
+
+if conf.CheckHeader("dlfcn.h"):
+    conf.Define('DLFCN_H', 1)
+
+if conf.TryCompile("""#include <sys/types.h>
+                      #include <sys/socket.h>
+                      main()
+                      {
+                        if (socket(AF_INET6, SOCK_STREAM, 0) < 0)
+                          exit(1);
+                        else
+                          exit(0);
+                      }""", ".c"):
+    conf.Define('IPV6', 1)
+
+env = conf.Finish()
+
+files = glob.glob('source/*.cpp')
+files.sort()
+
+if command == "build":
+    env.Program('binaries/myserver', files)
+
+#Build the Control GUI here.
+if buildControlGui:
+    files = glob.glob('control/*.cpp')
+    files.append(["source/file.cpp", "source/files_utility.cpp", "source/xml_parser.cpp", 
+                  "source/utility.cpp", "source/find_data.cpp", "source/md5.cpp", "source/mem_buff.cpp",
+                  "source/ssl_socket.cpp", "source/socket.cpp",  "source/mutex.cpp", "source/thread.cpp", 
+                  "source/stream.cpp", "source/securestr.cpp"])
+
+    files.sort()
+
+    if command == "build":
+        env.Program('binaries/control', files)
+
+#Build the MSCGI examples here.
+if buildMscgiExamples:
+    envMscgi = env.Clone(SHLIBSUFFIX=".mscgi", SHLIBPREFIX="")
+
+    if command == "build":
+        envMscgi.SharedLibrary('binaries/web/cgi-bin/post', ["binaries/web/cgi-src/post/post.cpp"])
+        envMscgi.SharedLibrary('binaries/web/cgi-bin/math_sum', ["binaries/web/cgi-src/math_sum/math_sum.cpp"])
+
+
+if command == "install" or  command == "package":
+   
+    env.Install(destdir, "binaries/myserver binaries/myserver-configure binaries/myserver-daemon ".split())
+    env.Install(destdir, glob.glob("binaries/*.default"))
+    env.Install(destdir, "binaries/readme.txt COPYING INSTALL NEWS README TODO".split())
+    env.Install(destdir + "/web",  glob.glob("binaries/web/*.html"))
+    env.Install(destdir + "/web",  glob.glob("binaries/web/*.png"))
+    env.Install(destdir + "/certificates",  glob.glob("binaries/certificates/*.txt"))
+    env.Install(destdir + "/system",  ["binaries/system/security"])
+    env.Install(destdir + "/system/css", glob.glob("binaries/system/*.css"))
+    env.Install(destdir + "/system/errors", glob.glob("binaries/system/errors/*.html"))
+    env.Install(destdir + "/system/icons/codes", glob.glob("binaries/system/icons/codes/*.png"))
+    env.Install(destdir + "/languages", glob.glob("binaries/languages/*.xml"))
+    env.Install(destdir + "/languages/configure", glob.glob("binaries/languages/configure/*.xml"))
+    env.Install(destdir + "/web/cgi-bin", glob.glob("binaries/web/cgi-bin/*.html"))
+    env.Install(destdir + "/web/cgi-bin", glob.glob("binaries/web/cgi-bin/*.readme"))
+    env.Install(destdir + "/web/cgi-bin", glob.glob("binaries/web/cgi-bin/*.mscgi"))
+    env.Install(destdir + "/web/logs", glob.glob("binaries/web/cgi-bin/.keepme"))
+    env.Install(destdir + "/web/downloads", glob.glob("binaries/web/downloads/*.txt"))
+    env.Install(destdir + "/web/downloads", glob.glob("binaries/web/downloads/*.php"))
+    env.Install(destdir + "/web/downloads", glob.glob("binaries/web/downloads/*.sh"))
+    env.Install(destdir + "/documentation/english", glob.glob("documentation/english/index.htm"))
+    env.Install(destdir + "/documentation/english/texts", glob.glob("documentation/english/texts/*.htm"))
+    env.Install(destdir + "/documentation/english/style", glob.glob("documentation/english/style/*.css"))
+    env.Install(destdir + "/documentation/english/images", glob.glob("documentation/english/images/*.jpg"))
+
+
+    if command == "package":
+        PKG_NAME = "MyServer"
+        PKG_VERSION = "0.8.13"
+        filename = PKG_NAME.lower() + "-" + PKG_VERSION + ".tar.gz"
+        env = Environment(TARFLAGS = '-c -z')
+        env.Tar(ddir + "/" + filename, destdir)
+
+        Execute(Delete(destdir))
+        
