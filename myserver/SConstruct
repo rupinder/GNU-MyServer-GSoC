@@ -139,6 +139,9 @@ if conf.CheckFunc("dlopen"):
 if conf.CheckHeader("stdint.h"):
     conf.Define('STDINT_H', 1)
 
+if conf.CheckHeader("argp.h"):
+    conf.Define('ARGP', 1)
+
 if conf.CheckHeader("error.h"):
     conf.Define('ERROR_H', 1)
 
