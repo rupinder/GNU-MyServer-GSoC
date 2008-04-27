@@ -32,7 +32,7 @@ extern "C" {
 #ifdef WIN32
 #include <algorithm>
 #endif
-#include "../include/lfind.h"
+#include "../include/find_data.h"
 
 /*!
  *Initialize the gzip structure value.

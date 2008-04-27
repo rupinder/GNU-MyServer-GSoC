@@ -47,7 +47,7 @@ extern "C"
 }
 
 #ifdef NOT_WIN
-#include "../include/lfind.h"
+#include "../include/find_data.h"
 #endif
 
 /*!

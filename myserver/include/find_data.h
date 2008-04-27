@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LFIND_H
-#define LFIND_H
+#ifndef FIND_DATA_H
+#define FIND_DATA_H
 
 #include "../stdafx.h"
 
@@ -84,5 +84,3 @@ class FindData
 };
 
 #endif
-
-

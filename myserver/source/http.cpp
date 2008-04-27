@@ -60,7 +60,7 @@ extern "C"
 }
 
 #ifdef NOT_WIN
-#include "../include/lfind.h"
+#include "../include/find_data.h"
 #endif
 
 static HttpStaticData staticHttp;
@@ -216,7 +216,7 @@ int Http::allowHTTPTRACE()
  */
 int Http::getCGItimeout()
 {
-  return getStaticData()->cgiTimeout;
+  return staticHttp.cgiTimeout;
 }
 
 /*!
@@ -420,15 +420,15 @@ int Http::getFilePermissions(string& filename, string& directory, string& file,
       st.requiredPassword =
         ((HttpUserData*)td->connection->protocolBuffer)->requiredPassword;
       st.providedMask = &providedMask;
-      getStaticData()->secCacheMutex.lock();
+      staticHttp.secCacheMutex.lock();
       try
       {
-        *permissions = getStaticData()->secCache.getPermissionMask(&st);
-        getStaticData()->secCacheMutex.unlock();
+        *permissions = staticHttp.secCache.getPermissionMask(&st);
+        staticHttp.secCacheMutex.unlock();
       }
       catch(...)
       {
-        getStaticData()->secCacheMutex.unlock();
+        staticHttp.secCacheMutex.unlock();
         throw;
       };
     }
@@ -441,15 +441,15 @@ int Http::getFilePermissions(string& filename, string& directory, string& file,
       st.filename = file.c_str();
       st.requiredPassword = 0;
       st.providedMask = 0;
-      getStaticData()->secCacheMutex.lock();
+      staticHttp.secCacheMutex.lock();
       try
       {
-        *permissions = getStaticData()->secCache.getPermissionMask(&st);
-        getStaticData()->secCacheMutex.unlock();
+        *permissions = staticHttp.secCache.getPermissionMask(&st);
+        staticHttp.secCacheMutex.unlock();
       }
       catch(...)
       {
-        getStaticData()->secCacheMutex.unlock();
+        staticHttp.secCacheMutex.unlock();
         throw;
       };
     }
@@ -494,15 +494,15 @@ int Http::getFilePermissions(string& filename, string& directory, string& file,
       st.filename = file.c_str();
       st.requiredPassword = 0;
       st.providedMask = 0;
-      getStaticData()->secCacheMutex.lock();
+      staticHttp.secCacheMutex.lock();
       try
       {
-        *permissions = getStaticData()->secCache.getPermissionMask(&st);
-        getStaticData()->secCacheMutex.unlock();
+        *permissions = staticHttp.secCache.getPermissionMask(&st);
+        staticHttp.secCacheMutex.unlock();
       }
       catch(...)
       {
-        getStaticData()->secCacheMutex.unlock();
+        staticHttp.secCacheMutex.unlock();
         throw;
       };
     }
@@ -796,15 +796,15 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
           ((HttpUserData*)td->connection->protocolBuffer)->requiredPassword;
         st.providedMask = &providedMask;
 
-        getStaticData()->secCacheMutex.lock();
+        staticHttp.secCacheMutex.lock();
         try
         {
-          permissions = getStaticData()->secCache.getPermissionMask(&st);
-          getStaticData()->secCacheMutex.unlock();
+          permissions = staticHttp.secCache.getPermissionMask(&st);
+          staticHttp.secCacheMutex.unlock();
         }
         catch(...)
         {
-          getStaticData()->secCacheMutex.unlock();
+          staticHttp.secCacheMutex.unlock();
           throw;
         };
       }
@@ -817,15 +817,15 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         st.filename = file.c_str();
         st.requiredPassword = 0;
         st.providedMask = 0;
-        getStaticData()->secCacheMutex.lock();
+        staticHttp.secCacheMutex.lock();
         try
         {
-          permissions = getStaticData()->secCache.getPermissionMask(&st);
-          getStaticData()->secCacheMutex.unlock();
+          permissions = staticHttp.secCache.getPermissionMask(&st);
+          staticHttp.secCacheMutex.unlock();
         }
         catch(...)
         {
-          getStaticData()->secCacheMutex.unlock();
+          staticHttp.secCacheMutex.unlock();
           throw;
         };
       }
@@ -865,15 +865,15 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         st.filename = file.c_str();
         st.requiredPassword = 0;
         st.providedMask = 0;
-        getStaticData()->secCacheMutex.lock();
+        staticHttp.secCacheMutex.lock();
         try
         {
-          permissions = getStaticData()->secCache.getPermissionMask(&st);
-          getStaticData()->secCacheMutex.unlock();
+          permissions = staticHttp.secCache.getPermissionMask(&st);
+          staticHttp.secCacheMutex.unlock();
         }
         catch(...)
         {
-          getStaticData()->secCacheMutex.unlock();
+          staticHttp.secCacheMutex.unlock();
           throw;
         };
       }
@@ -1867,7 +1867,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       {
         string msg("new-http-request");
         vector<Multicast<string, void*, int>*>* handlers = 
-                                 getStaticData()->getHandlers(msg);
+                                 staticHttp.getHandlers(msg);
 
         if(handlers)
         {
@@ -2127,19 +2127,19 @@ int Http::raiseHTTPError(int ID)
     }
 
     td->response.httpStatus = ID;
-    getStaticData()->secCacheMutex.lock();
+    staticHttp.secCacheMutex.lock();
 
     /*!
      *The specified error file name must be in the web directory
      *of the virtual host.
      */
     if(td->connection->host)
-      ret = getStaticData()->secCache.getErrorFileName(td->getVhostDir(), ID,
+      ret = staticHttp.secCache.getErrorFileName(td->getVhostDir(), ID,
                                       td->getVhostSys(), defFile);
     else
       ret = -1;
 
-    getStaticData()->secCacheMutex.unlock();
+    staticHttp.secCacheMutex.unlock();
 
     if(ret == -1)
     {
@@ -2308,7 +2308,7 @@ MimeRecord* Http::getMIME(string &filename)
   string ext;
   FilesUtility::getFileExt(ext, filename);
 
-  if(getStaticData()->allowVhostMime && td->connection->host->isMIME() )
+  if(staticHttp.allowVhostMime && td->connection->host->isMIME() )
   {
     return td->connection->host->getMIME()->getRecord(ext);
   }
@@ -2387,7 +2387,7 @@ int Http::getPath(HttpThreadContext* td, string& filenamePath, const char *filen
  */
 const char* Http::getBrowseDirCSSFile()
 {
-  return getStaticData()->browseDirCSSpath.c_str();
+  return staticHttp.browseDirCSSpath.c_str();
 }
 
 /*!
@@ -2395,7 +2395,7 @@ const char* Http::getBrowseDirCSSFile()
  */
 u_long Http::getGzipThreshold()
 {
-  return getStaticData()->gzipThreshold;
+  return staticHttp.gzipThreshold;
 }
 
 /*!
@@ -2485,15 +2485,15 @@ int Http::loadProtocolStatic(XmlParser* languageParser)
   string pluginsResource(Server::getInstance()->getExternalPath());
   xmlDocPtr xmlDoc = configurationFileManager->getDoc();
 
-  getStaticData()->secCacheMutex.init();
+  staticHttp.secCacheMutex.init();
 
   /*
    *Store defaults value.
    *By default use GZIP with files bigger than a MB.
    */
-  getStaticData()->cgiTimeout = MYSERVER_SEC(15);
-  getStaticData()->gzipThreshold = 1 << 20;
-  getStaticData()->browseDirCSSpath.assign("");
+  staticHttp.cgiTimeout = MYSERVER_SEC(15);
+  staticHttp.gzipThreshold = 1 << 20;
+  staticHttp.browseDirCSSpath.assign("");
 
   Server::getInstance()->setGlobalData("http-static", getStaticData());
   /* Load the HTTP errors.  */
@@ -2521,35 +2521,35 @@ int Http::loadProtocolStatic(XmlParser* languageParser)
   data = configurationFileManager->getValue("GZIP_THRESHOLD");
   if(data)
   {
-    getStaticData()->gzipThreshold = atoi(data);
+    staticHttp.gzipThreshold = atoi(data);
   }
   data = configurationFileManager->getValue("ALLOW_VHOST_MIME");
   if(data)
   {
 
     if(!strcmpi(data, "YES"))
-      getStaticData()->allowVhostMime = 1;
+      staticHttp.allowVhostMime = 1;
     else
-      getStaticData()->allowVhostMime = 0;
+      staticHttp.allowVhostMime = 0;
   }
   data = configurationFileManager->getValue("CGI_TIMEOUT");
   if(data)
   {
-    getStaticData()->cgiTimeout = MYSERVER_SEC(atoi(data));
+    staticHttp.cgiTimeout = MYSERVER_SEC(atoi(data));
   }
   data = configurationFileManager->getValue("BROWSEFOLDER_CSS");
   if(data)
   {
-    getStaticData()->browseDirCSSpath.append(data);
+    staticHttp.browseDirCSSpath.append(data);
   }
 
-  Cgi::setTimeout(getStaticData()->cgiTimeout);
-  Scgi::setTimeout(getStaticData()->cgiTimeout);
-  WinCgi::setTimeout(getStaticData()->cgiTimeout);
-  Isapi::setTimeout(getStaticData()->cgiTimeout);
+  Cgi::setTimeout(staticHttp.cgiTimeout);
+  Scgi::setTimeout(staticHttp.cgiTimeout);
+  WinCgi::setTimeout(staticHttp.cgiTimeout);
+  Isapi::setTimeout(staticHttp.cgiTimeout);
 
   nDefaultFilename = 0;
-  getStaticData()->defaultFilename.clear();
+  staticHttp.defaultFilename.clear();
 
 
   for(xmlNode *node = xmlDoc->children; node; node = node->next)
@@ -2561,7 +2561,7 @@ int Http::loadProtocolStatic(XmlParser* languageParser)
       {
         if(!xmlStrncmp(node->name, (const xmlChar *)"DEFAULT_FILENAME", xmlStrlen((const xmlChar *)"DEFAULT_FILENAME")))
         {
-          getStaticData()->defaultFilename.push_back((char*)node->children->content);
+          staticHttp.defaultFilename.push_back((char*)node->children->content);
           nDefaultFilename++;
         }
       }
@@ -2574,7 +2574,7 @@ int Http::loadProtocolStatic(XmlParser* languageParser)
    */
   if(nDefaultFilename == 0)
   {
-    getStaticData()->defaultFilename.push_back("default.html");
+    staticHttp.defaultFilename.push_back("default.html");
     nDefaultFilename++;
   }
 
@@ -2605,12 +2605,12 @@ int Http::unLoadProtocolStatic(XmlParser* languageParser)
 
   HttpDir::unLoad();
 
-  getStaticData()->secCache.free();
+  staticHttp.secCache.free();
 
-  getStaticData()->secCacheMutex.destroy();
+  staticHttp.secCacheMutex.destroy();
 
-  getStaticData()->defaultFilename.clear();
-  getStaticData()->browseDirCSSpath.assign("");
+  staticHttp.defaultFilename.clear();
+  staticHttp.browseDirCSSpath.assign("");
 
   staticHttp.clear();
 
@@ -2622,9 +2622,10 @@ int Http::unLoadProtocolStatic(XmlParser* languageParser)
  */
 const char *Http::getDefaultFilenamePath(u_long ID)
 {
-  if(getStaticData()->defaultFilename.size() <= ID)
+  if(staticHttp.defaultFilename.size() <= ID)
     return 0;
-  return getStaticData()->defaultFilename[ID].c_str();
+
+  return staticHttp.defaultFilename[ID].c_str();
 }
 
 /*!

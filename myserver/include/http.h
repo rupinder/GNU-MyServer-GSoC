@@ -183,6 +183,7 @@ public:
                          int yetmapped, int* permissions);
 
   static HttpStaticData* getStaticData();
+
 protected:
   HttpDataHandler* mscgi;
   HttpDataHandler* wincgi;

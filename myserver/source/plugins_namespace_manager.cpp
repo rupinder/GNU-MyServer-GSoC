@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007 The MyServer Team
+Copyright (C) 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../stdafx.h"
 #include "../include/plugins_namespace_manager.h"
-#include "../include/lfind.h"
+#include "../include/find_data.h"
 #include "../include/xml_parser.h"
 #include "../include/server.h"
 #include <string>

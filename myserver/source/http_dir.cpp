@@ -36,7 +36,7 @@ extern "C"
 #endif
 }
 
-#include "../include/lfind.h"
+#include "../include/find_data.h"
 #include "../include/stringutils.h"
 #ifdef NOT_WIN
 #endif

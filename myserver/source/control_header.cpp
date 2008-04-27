@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2004, 2005, 2007 The MyServer Team
+Copyright (C) 2004, 2005, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -33,7 +33,7 @@ extern "C"
 }
 
 #ifdef NOT_WIN
-#include "../include/lfind.h"
+#include "../include/find_data.h"
 #endif
 
 /*!

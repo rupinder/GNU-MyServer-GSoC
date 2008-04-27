@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../include/files_utility.h"
 #include "../include/file.h"
 #include "../include/files_utility.h"
-#include "../include/lfind.h"
+#include "../include/find_data.h"
 #include "../include/stringutils.h"
 #include "../include/mem_buff.h"
 #include <assert.h>

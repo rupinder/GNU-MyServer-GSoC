@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/protocols_manager.h"
 #include "../include/xml_parser.h"
 #include "../include/server.h"
-#include "../include/lfind.h"
+#include "../include/find_data.h"
 #include "../include/dynamic_protocol.h"
 #include "../include/http.h"
 #include "../include/ftp.h"
