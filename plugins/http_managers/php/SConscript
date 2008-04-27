@@ -1,0 +1,32 @@
+#-*- mode: python -*-
+
+listinc=[
+      GetLaunchDir(),
+      '../../../',
+      '/usr/local/include',
+      '/usr/include/',
+      '/usr/local/include/libxml2',
+      '/usr/include/libxml2',
+      '.'
+      ]
+
+env = Environment(CPPPATH=listinc)
+
+conf = Configure(env, config_h="config.h")
+
+if not conf.CheckFunc("php5"):
+    print "PHP5 needed!"
+    Exit(1)
+
+if not conf.CheckFunc("resolv"):
+    print "libresolv needed!"
+    Exit(1)
+
+if not conf.CheckFunc("crypt"):
+    print "libcrypt needed!"
+    Exit(1)
+
+
+env = conf.Finish()
+
+env.SharedLibrary(GetLaunchDir() + "/external/http_managers/php", ["php.cpp"])

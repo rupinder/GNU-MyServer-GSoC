@@ -1,0 +1,24 @@
+#-*- mode: python -*-
+
+listinc=[
+      GetLaunchDir(),
+      '../../../',
+      '/usr/local/include',
+      '/usr/include/',
+      '/usr/include/python2.5',
+      '/usr/local/include/python2.5',
+      '/usr/local/include/libxml2',
+      '/usr/include/libxml2',
+      '.'
+      ]
+
+env = Environment(CPPPATH=listinc)
+
+conf = Configure(env, config_h="config.h")
+
+if conf.CheckHeader("Python.h"):
+    conf.Define('PYTHON', 1)
+
+env = conf.Finish()
+
+env.SharedLibrary(GetLaunchDir() + "/external/executors/python", ["python.cpp" ])

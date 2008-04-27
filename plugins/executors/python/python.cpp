@@ -73,6 +73,7 @@ int load(void* server, void* parser)
 		setenv("PYTHONPATH", path.c_str(), 1);
 	}
 
+  Py_SetProgramName("python");
 	Py_Initialize();
 	PyEval_InitThreads();
 

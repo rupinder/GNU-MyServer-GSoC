@@ -1,0 +1,19 @@
+#-*- mode: python -*-
+
+listinc=[
+      GetLaunchDir(),
+      '../../../',
+      '/usr/local/include',
+      '/usr/include/',
+      '/usr/local/include/libxml2',
+      '/usr/include/libxml2',
+      '.'
+      ]
+
+env = Environment(CPPPATH=listinc)
+
+conf = Configure(env, config_h="config.h")
+
+env = conf.Finish()
+
+env.SharedLibrary(GetLaunchDir() + "/external/generics/rules_checker", "functions.cpp  parser.cpp  rules_checker.cpp  string_alloc.cpp".split())
