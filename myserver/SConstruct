@@ -24,13 +24,14 @@ import glob
 PKG_NAME = "MyServer"
 PKG_VERSION = "0.8.13"
 
-SVN_TRUNK = "https://myserver.svn.sourceforge.net/svnroot/myserver/trunk/myserver"
+SVN_TRUNK = "https://myserver.svn.sourceforge.net/svnroot/myserver/trunk"
 HOMEPAGE = "http://www.myserverproject.net"
 
 mode = ARGUMENTS.get('mode', "debug")
 command = ARGUMENTS.get('command', "build")
 prefix = ARGUMENTS.get('prefix', "")
 ddir = ARGUMENTS.get('destdir', "#/release")
+plugin = ARGUMENTS.get('plugin', "")
 
 destdir = ddir + "/" + PKG_NAME.lower() + "-" + PKG_VERSION
 
@@ -46,11 +47,11 @@ buildControlGui = False
 buildMscgiExamples = False
 
 
-if command == "checkout_svn":
-    Execute("svn co " + SVN_TRUNK + " .")
-
 if command == "update_svn":
     Execute("svn update")
+
+if command == "checkout_svn":
+    Execute("svn co " + SVN_TRUNK + "/myserver .")
 
 if mode == "release":
     env = Environment(ENV = {'PATH' : os.environ['PATH'],
@@ -212,7 +213,7 @@ if buildMscgiExamples:
         envMscgi.SharedLibrary('binaries/web/cgi-bin/post', ["binaries/web/cgi-src/post/post.cpp"])
         envMscgi.SharedLibrary('binaries/web/cgi-bin/math_sum', ["binaries/web/cgi-src/math_sum/math_sum.cpp"])
 
-
+#Copy the files to the right position.
 if command == "install" or  command == "package":
    
     env.Install(destdir, "binaries/myserver binaries/myserver-configure binaries/myserver-daemon ".split())
@@ -239,7 +240,7 @@ if command == "install" or  command == "package":
     env.Install(destdir + "/documentation/english/style", glob.glob("documentation/english/style/*.css"))
     env.Install(destdir + "/documentation/english/images", glob.glob("documentation/english/images/*.jpg"))
 
-
+    #Prepare the package.
     if command == "package":
         PKG_NAME = "MyServer"
         PKG_VERSION = "0.8.13"
@@ -249,3 +250,8 @@ if command == "install" or  command == "package":
 
         Execute(Delete(destdir))
         
+
+# Retrieve the plugin via SVN and build it.
+if command == "get_plugin":
+    Execute("svn co " + SVN_TRUNK + "/plugins/" + plugin + " binaries/external/"+ plugin)
+    SConscript(["binaries/external/" + plugin + "/SConscript"], msg="ciao")
