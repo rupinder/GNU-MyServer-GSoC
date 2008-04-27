@@ -254,4 +254,4 @@ if command == "install" or  command == "package":
 # Retrieve the plugin via SVN and build it.
 if command == "get_plugin":
     Execute("svn co " + SVN_TRUNK + "/plugins/" + plugin + " binaries/external/"+ plugin)
-    SConscript(["binaries/external/" + plugin + "/SConscript"], msg="ciao")
+    SConscript(["binaries/external/" + plugin + "/SConscript"])
