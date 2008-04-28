@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdafx.h>
 #include <include/connection.h>
-#include <include/sockets.h>
+#include <include/socket.h>
 #include <include/server.h>
 #include <include/semaphore.h>
 #include <include/mutex.h>
