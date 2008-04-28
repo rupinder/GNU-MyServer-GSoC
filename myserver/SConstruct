@@ -21,6 +21,9 @@
 import os
 import glob
 
+import xml.dom.minidom
+from xml.dom.minidom import Node
+ 
 PKG_NAME = "MyServer"
 PKG_VERSION = "0.8.13"
 
@@ -74,10 +77,16 @@ else:
 conf = Configure(env, config_h="config.h")
 
 if not conf.CheckLib("libxml2"):
-    print "LIBXML2 is required to compile MyServer"
+    print "libxml2 is required to compile MyServer"
     Exit(1)
 
 
+if conf.CheckLib("event"):
+    conf.Define('EVENT', 1)
+else:
+    print "libevent is required to compile MyServer"
+    Exit(1)
+    
 if not conf.CheckLib("ssl"):
     conf.Define('DO_NOT_USE_SSL', 1)
 
@@ -249,9 +258,32 @@ if command == "install" or  command == "package":
         env.Tar(ddir + "/" + filename, destdir)
 
         Execute(Delete(destdir))
+
+def get_plugin(name):
+    print "getting plugin " + name
+    if len(glob.glob("binaries/external/" + name)) == 0:
+        Execute("svn co " + SVN_TRUNK + "/plugins/" + name + " binaries/external/"+ name)
+
+    doc = xml.dom.minidom.parse("binaries/external/" + name + "/plugin.xml")
+
+    deps = doc.getElementsByTagName("DEPENDS")
+    
+    for node in deps:
+        print "checking dependencies"
+        dep = ""
+        for node2 in node.childNodes:
+            if node2.nodeType == Node.TEXT_NODE:
+                dep += node2.data
+
+        dep = dep.replace('::', '/')
         
+        get_plugin(dep)
+    
+
+    SConscript(["binaries/external/" + name + "/SConscript"])
+
+
 
 # Retrieve the plugin via SVN and build it.
 if command == "get_plugin":
-    Execute("svn co " + SVN_TRUNK + "/plugins/" + plugin + " binaries/external/"+ plugin)
-    SConscript(["binaries/external/" + plugin + "/SConscript"])
+    get_plugin(plugin)
