@@ -1,9 +1,0 @@
-PYTHON_INC=`python-config --includes`
-PYTHON_LIB=`python-config --libs`
-all:
-	$(CXX) -c http_checker.cpp -o http_checker.o -I$(MYSERVER_HEADERS) -I$(MSCGI_HEADERS) -I$(MYSERVER_HEADERS)/.. $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(PYTHON_INC)
-	$(CXX) http_checker.o -o http_checker.so -rdynamic $(XML_LIBS) $(LDFLAGS) -shared $(PYTHON_LIB)
-
-
-install:
-	cp http_checker.so ..

@@ -1,9 +1,0 @@
-PYTHON_INC=`python-config --includes`
-PYTHON_LIB=`python-config --libs`
-all:
-	$(CXX) -c python_http_handler.cpp -o python_http_handler.o -I$(MYSERVER_HEADERS) -I$(MSCGI_HEADERS) -I$(MYSERVER_HEADERS)/.. $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(PYTHON_INC)
-	$(CXX) python_http_handler.o -o python_http_handler.so -rdynamic $(XML_LIBS) $(LDFLAGS) -shared $(PYTHON_LIB)
-
-
-install:
-	cp python_http_handler.so ..
