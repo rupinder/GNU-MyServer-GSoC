@@ -18,7 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../stdafx.h"
 #include "../include/utility.h"
-#include "../include/sockets.h"
 #include "../include/securestr.h"
 
 extern "C" {

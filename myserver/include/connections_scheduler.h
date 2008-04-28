@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define CONNECTIONS_SCHEDULER_H
 
 #include "../stdafx.h"
-#include "../include/sockets.h"
+#include "../include/socket.h"
 #include "../include/connection.h"
 #include "../include/mutex.h"
 #include "../include/event.h"

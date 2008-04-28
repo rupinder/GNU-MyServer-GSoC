@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../stdafx.h"
 #include <sstream>
 #include "../include/http_thread_context.h"
-#include "../include/vhosts.h"
+#include "../include/vhost.h"
 
 extern "C" {
 #ifdef WIN32

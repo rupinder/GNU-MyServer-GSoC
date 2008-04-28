@@ -27,12 +27,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../include/security.h"
 #include "../include/stringutils.h"
-#include "../include/sockets.h"
+#include "../include/socket.h"
 #include "../include/gzip.h"
 #include "../include/myserver_regex.h"
 #include "../include/files_utility.h"
 #include "../include/ssl.h"
-#include "../include/ssl_sockets.h"
+#include "../include/ssl_socket.h"
 
 extern "C" 
 {

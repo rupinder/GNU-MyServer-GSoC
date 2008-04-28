@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../include/vhosts.h"
+#include "../include/vhost.h"
 #include "../include/file.h"
 #include "../include/files_utility.h"
 #include "../include/server.h"

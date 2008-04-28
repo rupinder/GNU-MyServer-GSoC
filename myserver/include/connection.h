@@ -25,7 +25,7 @@ extern "C"
 #include <event.h>
 }
 
-#include "../include/sockets.h"
+#include "../include/socket.h"
 #include "../include/protocol_buffer.h"
 #include "../include/utility.h"
 

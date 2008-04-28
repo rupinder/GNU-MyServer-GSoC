@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "../include/connection.h"
-#include "../include/vhosts.h"
+#include "../include/vhost.h"
 
 /*!
  *Constructor for the Connection class.

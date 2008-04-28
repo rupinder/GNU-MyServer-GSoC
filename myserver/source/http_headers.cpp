@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/stringutils.h"
 #include "../include/securestr.h"
 #include "../include/http_errors.h"
-#include "../include/vhosts.h"
+#include "../include/vhost.h"
 
 extern "C" {
 #ifdef WIN32

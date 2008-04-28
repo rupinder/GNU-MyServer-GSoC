@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/file.h"
 #include "../include/files_utility.h"
 #include "../include/clients_thread.h"
-#include "../include/sockets.h"
+#include "../include/socket.h"
 #include "../include/utility.h"
 #include "../include/md5.h"
 #include "../include/stringutils.h"

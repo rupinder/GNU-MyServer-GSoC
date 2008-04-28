@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/security.h"
 #include "../include/http_request.h"
 #include "../include/http_response.h"
-#include "../include/sockets.h"
+#include "../include/socket.h"
 #include "../include/stringutils.h"
 #include "../include/mem_buff.h"
 #include "../include/ftp.h"

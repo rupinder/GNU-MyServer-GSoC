@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define VHOST_MANAGER_H
 
 #include "../stdafx.h"
-#include "../include/vhosts.h"
+#include "../include/vhost.h"
 
 
 class VhostSource

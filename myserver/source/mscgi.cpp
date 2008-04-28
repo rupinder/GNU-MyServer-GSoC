@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/mime_utils.h"
 #include "../include/file.h"
 #include "../include/files_utility.h"
-#include "../include/sockets.h"
+#include "../include/socket.h"
 #include "../include/utility.h"
 #include "../include/filters_chain.h"
 #include "../include/mscgi.h"

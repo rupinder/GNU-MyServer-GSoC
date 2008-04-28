@@ -17,8 +17,8 @@
 #ifndef CONTROL_CLIENT_H
 #define CONTROL_CLIENT_H
 
-#include "../include/sockets.h"
-#include "../include/ssl_sockets.h"
+#include "../include/socket.h"
+#include "../include/ssl_socket.h"
 #include "vector.h"
 #include "../include/file.h"
 #include "../include/control_errors.h"

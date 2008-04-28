@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef VHOSTS_H
-#define VHOSTS_H
+#ifndef VHOST_H
+#define VHOST_H
 
 #include "../stdafx.h"
 #include "../include/xml_parser.h"

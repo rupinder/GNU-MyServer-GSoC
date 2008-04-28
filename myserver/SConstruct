@@ -251,8 +251,6 @@ if command == "install" or  command == "package":
 
     #Prepare the package.
     if command == "package":
-        PKG_NAME = "MyServer"
-        PKG_VERSION = "0.8.13"
         filename = PKG_NAME.lower() + "-" + PKG_VERSION + ".tar.gz"
         env = Environment(TARFLAGS = '-c -z')
         env.Tar(ddir + "/" + filename, destdir)

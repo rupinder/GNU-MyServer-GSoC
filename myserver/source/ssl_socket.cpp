@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "../stdafx.h"
 #include "../include/utility.h"
-#include "../include/ssl_sockets.h"
+#include "../include/ssl_socket.h"
 
 extern "C" {
 #include <string.h>

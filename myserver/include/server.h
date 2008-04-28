@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/xml_parser.h"
 #include "../include/utility.h"
 #include "../include/connection.h"
-#include "../include/sockets.h"
+#include "../include/socket.h"
 #include "../include/event.h"
 #include "../include/mime_manager.h"
 #include "../include/vhost_manager.h"
