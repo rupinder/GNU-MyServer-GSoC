@@ -1510,7 +1510,7 @@ int Http::logHTTPaccess()
 
 /*!
  *This is the HTTP protocol main procedure to parse a request
- *over the HTTP.
+ *over HTTP.
  */
 int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
                             int bs1, int bs2, u_long nbtr, u_long id)
@@ -1518,7 +1518,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
    int retvalue = -1;
   int ret = 0;
   int validRequest;
-  /*! Dimension of the POST data. */
+
+  /* Dimension of the POST data. */
   int contentLength = -1;
   DynamicHttpCommand *dynamicCommand;
   try
@@ -1732,7 +1733,6 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           Server::getInstance()->logWriteln(errMsg.c_str());
           Server::getInstance()->logEndPrintError();
           Server::getInstance()->logUnlockAccess();
-
 
           raiseHTTPError(400);
           /*!

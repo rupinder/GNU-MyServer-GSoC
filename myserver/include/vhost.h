@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/xml_parser.h"
 #include "../include/file.h"
 #include "../include/utility.h"
-#include "../include/connection.h"/*! Used for protocols IDs. */
 #include "../include/myserver_regex.h"
 #include "../include/log_manager.h"
 #include "../include/mime_manager.h"
@@ -85,16 +84,16 @@ public:
     {warningsLogFileName.assign(n);}
 
   /*! Get the system root. */
-  const char* getSystemRoot()
-    {return systemRoot.c_str();}
+  const string& getSystemRoot()
+    {return systemRoot;}
 
   /*! Set the system root. */
   void setSystemRoot(const char* n)
     {systemRoot.assign(n);}
 
   /*! Get the document root. */
-  const char* getDocumentRoot()
-    {return documentRoot.c_str();}
+  const string& getDocumentRoot()
+    {return documentRoot;}
 
   /*! Set the document root. */
   void setDocumentRoot(const char* n)

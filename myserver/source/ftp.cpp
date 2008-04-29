@@ -345,7 +345,7 @@ int Ftp::controlConnection(ConnectionPtr pConnection, char *b1, char *b2,
 
 	if ( pFtpUserData->m_cwd.empty() && pConnection->host != NULL )//current dir not initialized
   {
-		pFtpUserData->m_cwd = pConnection->host->getDocumentRoot();
+		pFtpUserData->m_cwd = pConnection->host->getDocumentRoot().c_str();
     FilesUtility::completePath(pFtpUserData->m_cwd);
   }
 
@@ -2275,7 +2275,7 @@ int Ftp::CheckRights(const std::string &sUser, const std::string &sPass, const s
 		st.password = sPass.c_str();
 	}
 	st.directory = sDir.c_str();
-	st.sysdirectory = td.pConnection->host->getSystemRoot();//pFtpUserData->m_pDataConnection->host->getSystemRoot();
+	st.sysdirectory = td.pConnection->host->getSystemRoot().c_str();//pFtpUserData->m_pDataConnection->host->getSystemRoot().c_str();
 	st.authType = 0;
 	st.filename = sFileName.c_str();
 	//st.providedMask = &mask;

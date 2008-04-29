@@ -61,8 +61,7 @@ if mode == "release":
                              'TERM' : os.environ['TERM'],
                              'HOME' : os.environ['HOME']},
                       CPPPATH=listinc,
-                      CXX="g++ -DHAVE_CONFIG_H", 
-                      CXXFLAGS="-fPIC -DPIC",
+                      CXXFLAGS="-fPIC -DPIC  -DHAVE_CONFIG_H",
                       LINKFLAGS="-rdynamic" )
 else:
     env = Environment(ENV = {'PATH' : os.environ['PATH'],
@@ -74,126 +73,132 @@ else:
                       LINKFLAGS="-rdynamic" )
 
 
-conf = Configure(env, config_h="config.h")
+if  not env.GetOption('clean'):
+    conf = Configure(env, config_h="config.h")
 
-if not conf.CheckLib("libxml2"):
-    print "libxml2 is required to compile MyServer"
-    Exit(1)
+    if not conf.CheckLib("libxml2"):
+        print "libxml2 is required to compile MyServer"
+        Exit(1)
 
+        if conf.CheckLib("event"):
+            conf.Define('EVENT', 1)
+        else:
+            print "libevent is required to compile MyServer"
+            Exit(1)
 
-if conf.CheckLib("event"):
-    conf.Define('EVENT', 1)
-else:
-    print "libevent is required to compile MyServer"
-    Exit(1)
-    
-if not conf.CheckLib("ssl"):
-    conf.Define('DO_NOT_USE_SSL', 1)
-
-conf.CheckLib("event")
-
-if not conf.CheckLib("z"):
-    conf.Define('DO_NOT_USE_GZIP', 1)
-
-if len(prefix):
-    conf.Define('PREFIX', prefix)
+    if not conf.CheckLib("ssl"):
+        conf.Define('DO_NOT_USE_SSL', 1)
 
 
-if conf.CheckLib("pthread"):
-    conf.Define('PTHREAD', 1)
-    conf.Define('HAVE_PTHREAD', 1)
+    if not conf.CheckLib("z"):
+        conf.Define('DO_NOT_USE_GZIP', 1)
 
-if conf.CheckLib("idn") and conf.CheckHeader("idna.h"):
-    conf.Define('IDN', 1)
+    conf.CheckLib("event")
+        
+    if not conf.CheckType('socklen_t', language="C", includes="#include <sys/socket.h>\n#include <arpa/inet.h>\n#include <unistd.h>"):
+        conf.Define('socklen_t', 'int')
 
-if conf.CheckLib("fltk") and conf.CheckCXXHeader("FL/Fl.H"):
-    conf.Define('FLTK', 1)
-    buildControlGui = True
+    if len(prefix):
+        conf.Define('PREFIX', prefix)
 
-if conf.CheckFunc("regcomp"):
-    conf.Define('REGCOMP', 1)
-    conf.Define('REGEX', 1)
+    if conf.CheckLib("pthread"):
+        conf.Define('PTHREAD', 1)
+        conf.Define('HAVE_PTHREAD', 1)
 
-if conf.CheckFunc("pipe"):
-    conf.Define('PIPE', 1)
+    if conf.CheckLib("idn") and conf.CheckHeader("idna.h"):
+        conf.Define('IDN', 1)
 
-if conf.CheckFunc("event_loopbreak"):
-    conf.Define('EVENT_LOOPBREAK', 1)
+    if conf.CheckLib("fltk") and conf.CheckCXXHeader("FL/Fl.H"):
+        conf.Define('FLTK', 1)
+        buildControlGui = True
 
-if conf.CheckFunc("compressBound"):
-    conf.Define('GZIP_CHECK_BOUNDS', 1)
+    if conf.CheckFunc("regcomp"):
+        conf.Define('REGCOMP', 1)
+        conf.Define('REGEX', 1)
 
-if conf.CheckFunc("gettimeofday"):
-    conf.Define('GETTIMEOFDAY', 1)
+    if conf.CheckFunc("pipe"):
+        conf.Define('PIPE', 1)
 
-if conf.CheckFunc("snprintf"):
-    conf.Define('SNPRINTF', 1)
+    if conf.CheckFunc("event_loopbreak", header="event.h"):
+        conf.Define('EVENT_LOOPBREAK', 1)
 
-if conf.CheckFunc("localtime_r"):
-    conf.Define('LOCALTIME_R', 1)
+    if conf.CheckFunc("compressBound"):
+        conf.Define('GZIP_CHECK_BOUNDS', 1)
 
-if conf.CheckFunc("sendfile"):
-    conf.Define('SENDFILE', 1)
+    if conf.CheckFunc("gettimeofday"):
+        conf.Define('GETTIMEOFDAY', 1)
 
-if conf.CheckFunc("setgroups"):
-    conf.Define('SETGROUPS', 1)
+    if conf.CheckFunc("snprintf"):
+        conf.Define('SNPRINTF', 1)
 
-if conf.CheckLib("dl"):
-    conf.Define('DL', 1)
-    conf.Define('HAVE_DL', 1)
-    buildMscgiExamples = True
+    if conf.CheckFunc("localtime_r"):
+        conf.Define('LOCALTIME_R', 1)
 
-if conf.CheckFunc("dlopen"):
-    conf.Define('DLOPEN', 1)
+    if conf.CheckFunc("sendfile"):
+        conf.Define('SENDFILE', 1)
 
-if conf.CheckHeader("stdint.h"):
-    conf.Define('STDINT_H', 1)
+    if conf.CheckFunc("setgroups"):
+        conf.Define('SETGROUPS', 1)
 
-if conf.CheckHeader("argp.h"):
-    conf.Define('ARGP', 1)
+    if conf.CheckLib("dl"):
+        conf.Define('DL', 1)
+        conf.Define('HAVE_DL', 1)
+        buildMscgiExamples = True
 
-if conf.CheckHeader("error.h"):
-    conf.Define('ERROR_H', 1)
+    if conf.CheckFunc("dlopen"):
+        conf.Define('DLOPEN', 1)
 
-if conf.CheckHeader("stdlib.h"):
-    conf.Define('STDLIB_H', 1)
+    if conf.CheckHeader("stdint.h"):
+        conf.Define('STDINT_H', 1)
 
-if conf.CheckHeader("inttypes.h"):
-    conf.Define('INTTYPES_H', 1)
+    if conf.CheckHeader("argp.h"):
+        conf.Define('ARGP', 1)
 
-if conf.CheckHeader("strings.h"):
-    conf.Define('STRINGS_H', 1)
+    if conf.CheckHeader("error.h"):
+        conf.Define('ERROR_H', 1)
 
-if conf.CheckHeader("string.h"):
-    conf.Define('STRING_H', 1)
+    if conf.CheckHeader("stdlib.h"):
+        conf.Define('STDLIB_H', 1)
 
-if conf.CheckHeader("sys/stat.h"):
-    conf.Define('SYS_STAT_H', 1)
+    if conf.CheckHeader("inttypes.h"):
+        conf.Define('INTTYPES_H', 1)
 
-if conf.CheckHeader("sys/types.h"):
-    conf.Define('SYS_TYPES_H', 1)
+    if conf.CheckHeader("strings.h"):
+        conf.Define('STRINGS_H', 1)
 
-if conf.CheckHeader("unistd.h"):
-    conf.Define('UNISTD_H', 1)
+    if conf.CheckHeader("string.h"):
+        conf.Define('STRING_H', 1)
 
-if conf.CheckHeader("grp.h"):
-    conf.Define('GRP', 1)
+    if conf.CheckHeader("sys/stat.h"):
+    	conf.Define('SYS_STAT_H', 1)
 
-if conf.CheckHeader("dlfcn.h"):
-    conf.Define('DLFCN_H', 1)
+    if conf.CheckLib('xnet'):
+        conf.Define('XNET_LIB', 1)
 
-if conf.TryCompile("""#include <sys/types.h>
-                      #include <sys/socket.h>
-                      main()
-                      {
+    if conf.CheckHeader("sys/types.h"):
+        conf.Define('SYS_TYPES_H', 1)
+
+    if conf.CheckHeader("unistd.h"):
+        conf.Define('UNISTD_H', 1)
+
+    if conf.CheckHeader("grp.h"):
+        conf.Define('GRP', 1)
+
+    if conf.CheckHeader("dlfcn.h"):
+        conf.Define('DLFCN_H', 1)
+
+    if conf.TryCompile("""#include <sys/types.h>
+                       #include <sys/socket.h>
+                       main()
+                       {
                         if (socket(AF_INET6, SOCK_STREAM, 0) < 0)
                           exit(1);
                         else
                           exit(0);
-                      }""", ".c"):
-    conf.Define('IPV6', 1)
+                       }""", ".c"):
+        conf.Define('IPV6', 1)
 
-env = conf.Finish()
+    env = conf.Finish()
 
 files = glob.glob('source/*.cpp')
 files.sort()

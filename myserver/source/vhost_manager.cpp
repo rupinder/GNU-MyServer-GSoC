@@ -706,13 +706,13 @@ int VhostManager::saveXMLConfigurationFile(const char *filename)
       out.writeToFile("</PROTOCOL>\r\n", 13, &nbw);
       
       out.writeToFile("<DOCROOT>", 9, &nbw);
-      out.writeToFile((*i)->getDocumentRoot(), 
-                      (u_long)strlen((*i)->getDocumentRoot()), &nbw);
+      out.writeToFile((*i)->getDocumentRoot().c_str(), 
+                      (*i)->getDocumentRoot().length(), &nbw);
       out.writeToFile("</DOCROOT>\r\n", 12, &nbw);
       
       out.writeToFile("<SYSFOLDER>", 11, &nbw);
-      out.writeToFile((*i)->getSystemRoot(), 
-                      (u_long)strlen((*i)->getSystemRoot()), &nbw);
+      out.writeToFile((*i)->getSystemRoot().c_str(), 
+                      (*i)->getSystemRoot().length(), &nbw);
       
       out.writeToFile("</SYSFOLDER>\r\n", 14, &nbw);
       

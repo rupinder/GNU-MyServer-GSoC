@@ -40,7 +40,9 @@ extern "C" {
 const char* HttpThreadContext::getHashedData(const char *name)
 {
   Vhost *vh = (Vhost*)connection->host;
+
   string *ret = other.get(string(name));
+
   if(ret)
     return ret->c_str();
   else
@@ -54,8 +56,10 @@ const char *HttpThreadContext::getVhostDir()
 {
   if(vhostDir.length() > 1)
     return vhostDir.c_str();
+
   if(connection && connection->host)
-    return connection->host->getDocumentRoot();
+    return connection->host->getDocumentRoot().c_str();
+
   return "";
 }
 
@@ -66,7 +70,9 @@ const char *HttpThreadContext::getVhostSys()
 {
   if(vhostSys.length() > 1)
     return vhostSys.c_str();
+
   if(connection && connection->host)
-    return connection->host->getSystemRoot();
+    return connection->host->getSystemRoot().c_str();
+
   return "";
 }
