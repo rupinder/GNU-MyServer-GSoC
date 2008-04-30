@@ -70,7 +70,7 @@ public:
   int isToDestroy();
   void setToDestroy(int);
   int isStatic();
-  int isParsing();
+  int isBusy();
   void setStatic(int);
 	int run();
 	ThreadID getThreadId(){return tid;}
@@ -81,7 +81,7 @@ private:
 	int initialized;
   int staticThread;
 	u_long id;
-  int parsing;
+  int busy;
 	int threadIsStopped;
 	int threadIsRunning;
 	u_long buffersize;

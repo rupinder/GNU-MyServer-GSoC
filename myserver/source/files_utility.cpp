@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -39,6 +39,7 @@ extern "C" {
 
 #include <string>
 #include <sstream>
+#include <memory>
 
 using namespace std;
 
@@ -626,25 +627,20 @@ int FilesUtility::completePath(char **fileName,int *size, int dontRealloc)
   char *buffer;
   int bufferLen = strlen(*fileName) + 1;
   int bufferNewLen;
-  buffer = new char[bufferLen];
-  if(buffer == 0)
-  {
-    return -1;
-  }
+  auto_ptr<char> bufferAutoPtr( new char[bufferLen] );
+
+  buffer = bufferAutoPtr.get();
+
   strcpy(buffer, *fileName);
   bufferNewLen = GetFullPathName(buffer, 0, *fileName, 0) + 1;
   if(bufferNewLen == 0)
   {
-    delete [] buffer;
     return -1;
   }
   if(dontRealloc)
   {
     if(*size < bufferNewLen )
-    {
-      delete [] buffer;
       return -1;
-    }
   }
   else
   {
@@ -653,18 +649,13 @@ int FilesUtility::completePath(char **fileName,int *size, int dontRealloc)
     if(*fileName == 0)
     {
       *size = 0;
-      delete [] buffer;
       return -1;
     }
     *size = bufferNewLen;
   }
   if(GetFullPathName(buffer, bufferNewLen, *fileName, 0) == 0)
-  {
-    delete [] buffer;
     return -1;
-  }
 
-  delete [] buffer;
   return 0;
 #endif
 
@@ -676,9 +667,12 @@ int FilesUtility::completePath(char **fileName,int *size, int dontRealloc)
 	if((*fileName)[0]=='/')
 		return 0;
   bufferLen = strlen(*fileName) + 1;
-  buffer = new char[bufferLen];
-  if(buffer == 0)
-    return 0;
+
+  auto_ptr<char> bufferAutoPtr( new char[bufferLen] );
+
+  buffer = bufferAutoPtr.get();
+
+
 	strcpy(buffer, *fileName);
   bufferNewLen =  getdefaultwdlen() +  bufferLen + 1 ;
   if(dontRealloc)
@@ -693,13 +687,12 @@ int FilesUtility::completePath(char **fileName,int *size, int dontRealloc)
     if(*fileName == 0)
     {
       *size = 0;
-      delete [] buffer;
       return -1;
     }
     *size = bufferNewLen;
   }
 	sprintf(*fileName, "%s/%s", getdefaultwd(0, 0), buffer );
-	delete [] buffer;
+
 	return 0;
 #endif
 }
@@ -718,33 +711,37 @@ int FilesUtility::completePath(string &fileName)
   bufferLen = GetFullPathName(fileName.c_str(), 0, buffer, 0) + 1;
   if(bufferLen == 0)
     return -1;
-  buffer = new char[bufferLen];
-  if(buffer == 0)
-  {
-    return -1;
-  }
+
+  auto_ptr<char> bufferAutoPtr( new char[bufferLen] );
+
+  buffer = bufferAutoPtr.get();
+
   if(GetFullPathName(fileName.c_str(), bufferLen, buffer, 0) == 0)
-  {
-    delete [] buffer;
     return -1;
-  }
+
   fileName.assign(buffer);
-  delete [] buffer;
+
   return 0;
 #endif
 
 #ifdef NOT_WIN
   ostringstream stream;
-  /*! We assume that path starting with / are yet completed. */
+  /* We assume that path starting with / are yet completed. */
   if(fileName[0] != '/')
   {
     stream << getdefaultwd(0, 0) << "/" <<  fileName.c_str();
     fileName.assign(stream.str());
   }
+
 	return 0;
 #endif
 }
 
+/*!
+ *Create a new directory.
+ *Return non-zero on errors.
+ *\param path The path to the directory to create.
+ */
 int FilesUtility::simpleMakeDirectory(const char *path)
 {
 #ifdef WIN32
@@ -754,6 +751,12 @@ int FilesUtility::simpleMakeDirectory(const char *path)
 #endif
 }
 
+
+/*!
+ *Delete a directory.
+ *Return non-zero on errors.
+ *\param path The directory to remove.
+ */
 int FilesUtility::deleteDirectory(const char *path)
 {
 #ifdef WIN32

@@ -36,6 +36,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <sstream>
 #include <vector>
+#include <memory>
+
 using namespace std;
 
 class HttpStaticData : public MulticastRegistry<string, void*, int>
@@ -226,11 +228,10 @@ public:
                                 int bs1, int bs2, u_long nbtr, u_long id)
   {
     int ret = 0;
-    Http* http = new Http ();
+    auto_ptr<Http> httpAutoPtr(new Http ());
+    Http* http = httpAutoPtr.get();
 
     ret = http->controlConnection(a, b1, b2, bs1, bs2, nbtr, id);
-    
-    delete http;
 
     return ret;
   }

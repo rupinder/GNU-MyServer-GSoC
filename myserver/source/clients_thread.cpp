@@ -49,7 +49,7 @@ extern "C" {
  */
 ClientsThread::ClientsThread()
 {
-  parsing = 0;
+  busy = 0;
 	initialized = 0;
   toDestroy = 0;
   staticThread = 0;
@@ -68,14 +68,18 @@ ClientsThread::~ClientsThread()
 	if(initialized == 0)
 		return;
 	threadIsRunning = 0;
+
   if(httpParser)
     delete httpParser;
+
   if(httpsParser)
     delete httpsParser;
+
   if(controlProtocolParser)
     delete controlProtocolParser;
-    if ( ftpParser != NULL )
-    	delete ftpParser;
+
+  if ( ftpParser != NULL )
+    delete ftpParser;
 
 	httpParser = 0;
 	httpsParser = 0;
@@ -191,7 +195,7 @@ void* clients_thread(void* pParam)
 
       ret = ct->controlConnections();
 			Server::getInstance()->increaseFreeThread();
-			ct->parsing = 0;
+			ct->busy = 0;
 
       /*
        *The thread served the connection, so update the timeout value.
@@ -293,15 +297,16 @@ int ClientsThread::controlConnections()
 	c = Server::getInstance()->getConnection(this->id);
 	Server::getInstance()->decreaseFreeThread();
 
+
 	/*
    *Check if c is a valid connection structure.
    */
   if(!c)
     return 1;
 
-	parsing = 1;
+	busy = 1;
 
-	if(!c->getForceParsing())
+	if(!c->isForceControl())
 	{
 		err = c->socket->recv(&((char*)(buffer.getBuffer()))[c->getDataRead()],
 													MYSERVER_KB(8) - c->getDataRead(), 0);
@@ -310,7 +315,7 @@ int ClientsThread::controlConnections()
 			return 0;
 	}
 
-	c->setForceParsing(0);
+	c->setForceControl(0);
 
 
 	/* Refresh with the right value.  */
@@ -383,7 +388,7 @@ int ClientsThread::controlConnections()
 	/* Incomplete request to check before new data is available.  */
 	else if(retcode == INCOMPLETE_REQUEST_NO_WAIT)
 	{
-		c->setForceParsing(1);
+		c->setForceControl(1);
 		Server::getInstance()->getConnectionsScheduler()->addReadyConnection(c);
 	}		
 
@@ -440,7 +445,7 @@ MemBuf *ClientsThread::getBuffer2()
 /*!
  *Check if the thread is working.
  */
-int ClientsThread::isParsing()
+int ClientsThread::isBusy()
 {
-  return parsing;
+  return busy;
 }

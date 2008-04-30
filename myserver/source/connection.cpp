@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Connection::Connection()
 {
   thread = 0;
-  parsing = 0;
+  scheduled = 0;
   login.assign("");
   password.assign("");
   nTries = 0;
@@ -36,7 +36,7 @@ Connection::Connection()
   host = 0;
   dataRead = 0;
   toRemove = 0;
-  forceParsing = 0;
+  forceControl = 0;
   connectionBuffer = new   char [MYSERVER_KB(8)];
   protocolBuffer = 0;
   socket = 0;
@@ -92,20 +92,20 @@ void Connection::setID(u_long nID)
 }
 
 /*!
- *Set the parsing state.
- *\param np The new parsing state.
+ *Set if the connection is scheduled by the server.
+ *\param np The new scheduled state.
  */
-void Connection::setParsing(int np)
+void Connection::setScheduled(int np)
 {
-  parsing = np;
+  scheduled = np;
 }
 
 /*!
- *Return if the connection is currently parsed.
+ *Return if the connection is scheduled.
  */
-int Connection::isParsing()
+int Connection::isScheduled()
 {
-  return parsing;
+  return scheduled;
 }
 
 /*!
@@ -113,7 +113,7 @@ int Connection::isParsing()
  */
 int Connection::allowDelete(bool bWait/*= false*/)
 {
-  if ( isParsing() )
+  if ( isScheduled () )
   	 return 0;
 
   if ( protocolBuffer != NULL )
@@ -285,17 +285,17 @@ void Connection::setToRemove(int r)
 /*!
  *Get if the connection is forced to be parsed.
  */
-int Connection::getForceParsing()
+int Connection::isForceControl()
 {
-  return forceParsing;
+  return forceControl;
 }
 /*!
- *Force the parsing of this connection on next server loop.
- *\param fp The new force parsing value even if there is new data. 
+ *Force the control of this connection on next server loop.
+ *\param fp The new force control value even if there is new data. 
  */
-void Connection::setForceParsing(int fp)
+void Connection::setForceControl(int fp)
 {
-  forceParsing = fp;
+  forceControl = fp;
 }
 
 /*!

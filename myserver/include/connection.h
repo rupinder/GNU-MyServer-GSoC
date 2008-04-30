@@ -51,8 +51,8 @@ public:
   u_long getID();
   void setID(u_long);
 
-  void setParsing(int);
-  int isParsing();
+  void setScheduled(int);
+  int isScheduled();
   int allowDelete(bool bWait = false);
 
   u_short getPort();
@@ -92,8 +92,8 @@ public:
   int getToRemove();
   void setToRemove(int);
 
-  int getForceParsing();
-  void setForceParsing(int);	
+  int isForceControl();
+  void setForceControl(int);	
 	
 	/*! This buffer must be used only by the ClientsTHREAD class.  */
 	char *connectionBuffer;
@@ -114,22 +114,22 @@ public:
 protected:
 	ClientsThread *thread;
 
-  /*! Identifier for the connection. */
+  /*! Identifier for the connection.  */
   u_long ID;
 
-	/*! The server is parsing this connection. */
-	int parsing;
+	/*! The server has scheduled this connection.  */
+	int scheduled;
 
 	/*! Remote port used.  */
 	u_short port;
 
-	/*! Login name. */
+	/*! Login name.  */
 	string login;
 	
-	/*! Password used to log in. */
+	/*! Password used to log in.  */
 	string password;
 
-	/*! # of tries for an authorized login. */
+	/*! # of tries for an authorized login.  */
 	char nTries;
 
 	/*! Remote IP address.  */
@@ -144,7 +144,7 @@ protected:
 	/*! Current timeout for the connection.  */
 	u_long timeout;
 
-  /*! Number of bytes ready in the buffer. */
+  /*! Number of bytes ready in the buffer.  */
 	int dataRead;
 	
 	/*
@@ -156,7 +156,7 @@ protected:
 	int toRemove;
 	
 	/*! Force the connection to be parsed.  */
-	int forceParsing;
+	int forceControl;
 
 	/*! Connection priority, used by the scheduler.  */
 	int priority;

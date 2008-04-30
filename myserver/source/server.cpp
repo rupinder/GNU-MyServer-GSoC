@@ -1259,8 +1259,8 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
 
 	if ( doFastCheck )
 	{
-		newConnection->setParsing(1);
-		newConnection->setForceParsing(1);
+		newConnection->setScheduled(1);
+		newConnection->setForceControl(1);
 		connectionsScheduler.addReadyConnection(newConnection, 0);
 	}
 	else
@@ -1277,10 +1277,10 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
 		 ((u_long)connectionsScheduler.getConnectionsNumber() > maxConnections))
 		newConnection->setToRemove(CONNECTION_REMOVE_OVERLOAD);
 
+
 	/*
 	 *Signal the new connection to the waiting threads.
 	 */
-
 	return newConnection;
 }
 
@@ -1301,7 +1301,7 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
 		return 0;
 	}
 
-	if(s->isParsing())
+	if(s->isScheduled())
 		s->setToRemove(CONNECTION_REMOVE_OVERLOAD);
 
 	handlers = getHandlers(msg);

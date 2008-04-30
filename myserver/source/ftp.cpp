@@ -118,7 +118,7 @@ bool FtpUserData::allowDelete(bool wait)
 
 	}
 	if ( m_pDataConnection != NULL )
-		return !m_pDataConnection->isParsing();
+		return !m_pDataConnection->isScheduled();
 	else
     	return true;
 }
@@ -156,14 +156,13 @@ int FtpUserData::CloseDataConnection()
 	if ( m_nFtpState < DATA_CONNECTION_UP )
 		return 1;
 
-	//m_pDataConnection->isParsing();
 	if ( m_pDataConnection != NULL && m_pDataConnection->socket != NULL )
 	{
 		m_pDataConnection->socket->shutdown(SD_BOTH);
 		m_pDataConnection->socket->closesocket();
 		delete m_pDataConnection->socket;
 		m_pDataConnection->socket = NULL;
-		m_pDataConnection->setParsing(0);
+		m_pDataConnection->setScheduled(0);
 	}
 	
 	//m_DataConnBusy.unlock();
@@ -1526,7 +1525,7 @@ int Ftp::OpenDataPassive()
 	pFtpUserData->m_pDataConnection->setLocalIpAddr(td.pConnection->getLocalIpAddr());
 	pFtpUserData->m_pDataConnection->host = td.pConnection->host;
 	pFtpUserData->m_pDataConnection->socket = pSocket;
-	pFtpUserData->m_pDataConnection->setParsing(1);
+	pFtpUserData->m_pDataConnection->setScheduled(1);
 	return 1;
 }
 
@@ -1551,7 +1550,7 @@ int Ftp::OpenDataActive()
 	pFtpUserData->m_pDataConnection->setLocalIpAddr(td.pConnection->getLocalIpAddr());
 	pFtpUserData->m_pDataConnection->host = td.pConnection->host;
 	pFtpUserData->m_pDataConnection->socket = new Socket(dataSocket);
-	pFtpUserData->m_pDataConnection->setParsing(1);
+	pFtpUserData->m_pDataConnection->setScheduled(1);
 
 	return 1;
 }

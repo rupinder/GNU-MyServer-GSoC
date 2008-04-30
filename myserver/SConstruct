@@ -76,6 +76,10 @@ else:
 if  not env.GetOption('clean'):
     conf = Configure(env, config_h="config.h")
 
+    conf.Define("PACKAGE_NAME", '"' + PKG_NAME + '"')
+    conf.Define("PACKAGE_VERSION", '"' + PKG_VERSION + '"')
+
+
     if not conf.CheckLib("libxml2"):
         print "libxml2 is required to compile MyServer"
         Exit(1)

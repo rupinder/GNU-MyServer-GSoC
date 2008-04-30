@@ -237,7 +237,8 @@ void ConnectionsScheduler::addReadyConnection(ConnectionPtr c, int doLock)
 
   if(doLock)
     connectionsMutex.lock();
-  c->setParsing(1);
+
+  c->setScheduled(1);
 
   if(doLock)
     connectionsMutex.unlock();
@@ -261,7 +262,7 @@ void ConnectionsScheduler::addWaitingConnection(ConnectionPtr c, int doLock)
   tv.tv_sec = Server::getInstance()->getTimeout() / 1000;
 
   connectionsMutex.lock();
-  c->setParsing(0);
+  c->setScheduled(0);
   connections.put(handle, c);
   connectionsMutex.unlock();
 
@@ -281,6 +282,8 @@ void ConnectionsScheduler::addWaitingConnection(ConnectionPtr c, int doLock)
  */
 ConnectionPtr ConnectionsScheduler::getConnection()
 {
+  ConnectionPtr ret = 0;
+
   readySemaphore->lock();
   readyMutex.lock();
 
@@ -295,17 +298,17 @@ ConnectionPtr ConnectionsScheduler::getConnection()
 
     if(ready[currentPriority].size())
     {
-      ConnectionPtr ret = ready[currentPriority].front();
+      ret = ready[currentPriority].front();
+      ret->setScheduled(0);
       ready[currentPriority].pop();
       currentPriorityDone++;
-      readyMutex.unlock();
-      return ret;
+      break;
     }
   }
 
   readyMutex.unlock();
 
-  return 0;
+  return ret;
 }
 
 /*!

@@ -1522,6 +1522,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
   /* Dimension of the POST data. */
   int contentLength = -1;
   DynamicHttpCommand *dynamicCommand;
+
   try
   {
     td->buffer = a->getActiveThread()->getBuffer();
@@ -2005,9 +2006,9 @@ int Http::requestAuthorization()
   *td->buffer2 << "HTTP/1.1 401 Unauthorized\r\n"
               << "Accept-Ranges: bytes\r\nServer: MyServer " ;
   *td->buffer2 << versionOfSoftware ;
-  *td->buffer2 << "\r\nContent-type: text/html\r\nConnection: ";
+  *td->buffer2 << "\r\nContent-Type: text/html\r\nConnection: ";
   *td->buffer2 << (connection ? connection->value->c_str() : "");
-  *td->buffer2 << "\r\nContent-length: 0\r\n";
+  *td->buffer2 << "\r\nContent-Length: 0\r\n";
   if(td->authScheme == HTTP_AUTH_SCHEME_BASIC)
   {
     *td->buffer2 <<  "WWW-Authenticate: Basic realm=\""
@@ -2280,7 +2281,7 @@ Internal Server Error\n\
   td->buffer2->setLength(0);
   *td->buffer2 << "HTTP/1.1 500 System Error\r\nServer: MyServer ";
   *td->buffer2 << versionOfSoftware;
-  *td->buffer2 <<" \r\nContent-type: text/html\r\nContent-length: ";
+  *td->buffer2 <<" \r\nContent-Type: text/html\r\nContent-Length: ";
   tmp.intToStr((int)strlen(hardHTML), tmpStr, 12);
   *td->buffer2 << tmp;
   *td->buffer2 << "\r\n";
@@ -2410,9 +2411,9 @@ int Http::sendHTTPRedirect(const char *newURL)
   td->buffer2->setLength(0);
   *td->buffer2 << "HTTP/1.1 302 Moved\r\nAccept-Ranges: bytes\r\n"
               << "Server: MyServer "  << versionOfSoftware << "\r\n"
-              << "Content-type: text/html\r\n"
+              << "Content-Type: text/html\r\n"
               << "Location: " << newURL << "\r\n"
-              << "Content-length: 0\r\n";
+              << "Content-Length: 0\r\n";
 
   if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
     *td->buffer2 << "Connection: keep-alive\r\n";
