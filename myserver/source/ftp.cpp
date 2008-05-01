@@ -31,7 +31,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifndef WIN32
 #include <netinet/in.h>
+#ifdef SENDFILE
 #include <sys/sendfile.h>
+#endif
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #endif

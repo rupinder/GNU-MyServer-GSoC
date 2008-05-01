@@ -58,11 +58,11 @@ int  ControlProtocol::controlEnabled = 0;
  */
 char* ControlProtocol::registerName(char* out,int len)
 {
-	if(out)
-	{
-		strncpy(out,"CONTROL",len);
-	}
-	return (char*)"CONTROL";
+  if(out)
+  {
+    strncpy(out,"CONTROL",len);
+  }
+  return (char*)"CONTROL";
 }
 
 /*!
@@ -70,7 +70,7 @@ char* ControlProtocol::registerName(char* out,int len)
  */
 ControlProtocol::ControlProtocol() 
 {
-	protocolOptions = PROTOCOL_USES_SSL;
+  protocolOptions = PROTOCOL_USES_SSL;
 }
 
 /*!
@@ -100,45 +100,45 @@ int ControlProtocol::loadProtocol(XmlParser* languageParser)
 
   char *data = 0;
   const char *mainConfigurationFile = Server::getInstance()->getMainConfFile();
-	XmlParser configurationFileManager;
+  XmlParser configurationFileManager;
 
-	configurationFileManager.open(mainConfigurationFile);
+  configurationFileManager.open(mainConfigurationFile);
 
-	data=configurationFileManager.getValue("CONTROL_ENABLED");
-	if(data && (!strcmpi(data, "YES")))
-	{
+  data=configurationFileManager.getValue("CONTROL_ENABLED");
+  if(data && (!strcmpi(data, "YES")))
+  {
     controlEnabled = 1;
-	}	
+  }  
   else
   {
     controlEnabled = 0;
   }
 
-	data=configurationFileManager.getValue("CONTROL_ADMIN");
-	if(data)
-	{
+  data=configurationFileManager.getValue("CONTROL_ADMIN");
+  if(data)
+  {
     strncpy(tmpName, data, 64);
-	}	
+  }  
 
-	data=configurationFileManager.getValue("CONTROL_PASSWORD");
-	if(data)
-	{
+  data=configurationFileManager.getValue("CONTROL_PASSWORD");
+  if(data)
+  {
     strncpy(tmpPassword, data, 64);
-	}	
+  }  
 
-	data=configurationFileManager.getAttr("CONTROL_ADMIN", "MD5");
-	if(data)
-	{
+  data=configurationFileManager.getAttr("CONTROL_ADMIN", "MD5");
+  if(data)
+  {
     if(strcmpi(data, "YES") == 0)
       adminNameMD5ized = 1;
-	}	
+  }  
 
-	data=configurationFileManager.getAttr("CONTROL_PASSWORD", "MD5");
-	if(data)
-	{
+  data=configurationFileManager.getAttr("CONTROL_PASSWORD", "MD5");
+  if(data)
+  {
     if(strcmpi(data, "YES") == 0)
       adminPasswordMD5ized = 1;
-	}	
+  }  
 
   if(adminNameMD5ized)
   {
@@ -163,7 +163,7 @@ int ControlProtocol::loadProtocol(XmlParser* languageParser)
   }
 
   
-	configurationFileManager.close();
+  configurationFileManager.close();
   return 0;
 }
 
@@ -228,18 +228,18 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
 
   /*! Is the specified command a know one? */
   int knownCommand;
-	if(a->getToRemove())
-	{
-		switch(a->getToRemove())
-		{
+  if(a->getToRemove())
+  {
+    switch(a->getToRemove())
+    {
       /*! Remove the connection from the list. */
-			case CONNECTION_REMOVE_OVERLOAD:
+      case CONNECTION_REMOVE_OVERLOAD:
         sendResponse(b2, bs2, a, CONTROL_SERVER_BUSY, header, 0);
-				return 0;
+        return 0;
       default:
         return 0;
-		}
-	}
+    }
+  }
 
 
   ret = header.parse_header(b1, nbtr, &realHeaderLength);
@@ -591,14 +591,15 @@ int ControlProtocol::addToErrorLog(ConnectionPtr con, const char *b1, int bs1,
    */
   if(Server::getInstance()->getVerbosity() < 1)
     return 0;
-	getRFC822GMTTime(time, 32);
-	
-	getRFC822GMTTime(time, 32);
 
-	out << con->getIpAddr() << " [" << time.c_str() << "] " << b1;
-	((Vhost*)(con->host))->accessesLogRequestAccess(id);
-	((Vhost*)(con->host))->accessesLogWrite(out.str().c_str());
-	((Vhost*)(con->host))->accessesLogTerminateAccess(id);
+  getRFC822GMTTime(time, 32);
+  
+  getRFC822GMTTime(time, 32);
+
+  out << con->getIpAddr() << " [" << time.c_str() << "] " << b1;
+  ((Vhost*)(con->host))->accessesLogRequestAccess((int)id);
+  ((Vhost*)(con->host))->accessesLogWrite(out.str().c_str());
+  ((Vhost*)(con->host))->accessesLogTerminateAccess((int)id);
 
   return 0;
 }
@@ -609,22 +610,22 @@ int ControlProtocol::addToErrorLog(ConnectionPtr con, const char *b1, int bs1,
 int ControlProtocol::addToLog(int retCode, ConnectionPtr con, char *b1, 
                               int bs1, ControlHeader& header)
 {
-	string time;
+  string time;
   ThreadID id = Thread::threadID();
-	getRFC822GMTTime(time, 32);
+  getRFC822GMTTime(time, 32);
 
 #ifdef HAVE_SNPRINTF
-	snprintf(b1, bs1,
+  snprintf(b1, bs1,
 #else
   sprintf(b1,
 #endif
-					"%s [%s] %s:%s:%s - %s  - %i\r\n", con->getIpAddr(), time.c_str(), 
+          "%s [%s] %s:%s:%s - %s  - %i\r\n", con->getIpAddr(), time.c_str(), 
           header.getCommand(),  header.getVersion(), header.getOptions(), 
           header.getAuthLogin() , retCode);
 
-	((Vhost*)(con->host))->accessesLogRequestAccess(id);
-	((Vhost*)(con->host))->accessesLogWrite(b1);
-	((Vhost*)(con->host))->accessesLogTerminateAccess(id);
+           ((Vhost*)(con->host))->accessesLogRequestAccess((int)id);
+  ((Vhost*)(con->host))->accessesLogWrite(b1);
+  ((Vhost*)(con->host))->accessesLogTerminateAccess((int)id);
   return 0;
 }
 
@@ -649,11 +650,11 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
     dataLength = outFile->getFileSize();
   /*! Build and send the first line. */
 #ifdef HAVE_SNPRINTF
-	snprintf(buffer, buffersize,
+  snprintf(buffer, buffersize,
 #else
   sprintf(buffer, 
 #endif
-					"/%i\r\n", errID);
+          "/%i\r\n", errID);
   err = conn->socket->send(buffer, strlen(buffer), 0);
   if(err == -1)
   {
@@ -664,13 +665,13 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
 
   /*! Build and send the Length line. */
 #ifdef HAVE_SNPRINTF
-	snprintf(buffer, buffersize,
+  snprintf(buffer, buffersize,
 #else
   sprintf(buffer, 
 #endif 
-					"/LEN %u\r\n", (u_int)dataLength);
+          "/LEN %u\r\n", (u_int)dataLength);
  
-	err = conn->socket->send(buffer, strlen(buffer), 0);
+  err = conn->socket->send(buffer, strlen(buffer), 0);
   if(err == -1)
   {
     strcpy(buffer,"Control: Error sending data");
@@ -725,37 +726,37 @@ int  ControlProtocol::showConnections(ConnectionPtr a,File* out, char *b1,
 {
   int ret =  0;
   u_long nbw;
-	list<ConnectionPtr> connections;
+  list<ConnectionPtr> connections;
 
-	Server::getInstance()->getConnectionsScheduler()->lockConnectionsList();
+  Server::getInstance()->getConnectionsScheduler()->lockConnectionsList();
 
 
-	Server::getInstance()->getConnectionsScheduler()->getConnections(connections);
+  Server::getInstance()->getConnectionsScheduler()->getConnections(connections);
 
   list<ConnectionPtr>::iterator it = connections.begin();
   while(it != connections.end())
   {
-		ConnectionPtr con = *it;
+    ConnectionPtr con = *it;
 #ifdef HAVE_SNPRINTF
-		snprintf(b1, bs1,
+    snprintf(b1, bs1,
 #else
-		sprintf(b1, 
+    sprintf(b1, 
 #endif
-						"%i - %s - %i - %s - %i - %s - %s\r\n", 
+            "%i - %s - %i - %s - %i - %s - %s\r\n", 
             static_cast<int>(con->getID()),  con->getIpAddr(), 
-						static_cast<int>(con->getPort()), 
+            static_cast<int>(con->getPort()), 
             con->getLocalIpAddr(),  static_cast<int>(con->getLocalPort()), 
             con->getLogin(), con->getPassword());
    
-		ret = out->writeToFile(b1, strlen(b1), &nbw);   
+    ret = out->writeToFile(b1, strlen(b1), &nbw);   
     if(ret)
     {
       strcpy(b1,"Control: Error while writing to file");
       addToErrorLog(a, b1, strlen(b1), header);
     }
-		it++;
+    it++;
   }
-	Server::getInstance()->getConnectionsScheduler()->unlockConnectionsList();
+  Server::getInstance()->getConnectionsScheduler()->unlockConnectionsList();
   return ret;
 }
 
@@ -771,26 +772,26 @@ int ControlProtocol::killConnection(ConnectionPtr a, u_long ID, File* out,
   if(ID == 0)
     return -1;
 
-	list<ConnectionPtr> connections;
+  list<ConnectionPtr> connections;
 
-	Server::getInstance()->getConnectionsScheduler()->lockConnectionsList();
+  Server::getInstance()->getConnectionsScheduler()->lockConnectionsList();
 
-	Server::getInstance()->getConnectionsScheduler()->getConnections(connections);
+  Server::getInstance()->getConnectionsScheduler()->getConnections(connections);
 
   list<ConnectionPtr>::iterator it = connections.begin();
 
-	while(it != connections.end())
+  while(it != connections.end())
   {
-		con = *it;
-		if(con->getID() == ID)
-		{
-			/* Define why the connection is killed.  */
-			con->setToRemove(CONNECTION_USER_KILL);
-		}
-		it++;
-	}
+    con = *it;
+    if(con->getID() == ID)
+    {
+      /* Define why the connection is killed.  */
+      con->setToRemove(CONNECTION_USER_KILL);
+    }
+    it++;
+  }
 
-	Server::getInstance()->getConnectionsScheduler()->unlockConnectionsList();
+  Server::getInstance()->getConnectionsScheduler()->unlockConnectionsList();
   return ret;
 }
 
@@ -803,20 +804,20 @@ int ControlProtocol::showDynamicProtocols(ConnectionPtr a, File* out,
   int i = 0;
   u_long nbw;
   int ret;
-	HashMap<string, Plugin*>::Iterator it = 
-		Server::getInstance()->getProtocolsManager()->begin();
+  HashMap<string, Plugin*>::Iterator it = 
+    Server::getInstance()->getProtocolsManager()->begin();
 
   for(; it != Server::getInstance()->getProtocolsManager()->end(); it++)
   {
-		DynamicProtocol* dp = (DynamicProtocol*) *it;
+    DynamicProtocol* dp = (DynamicProtocol*) *it;
 #ifdef HAVE_SNPRINTF
-		snprintf(b1, bs1,
+    snprintf(b1, bs1,
 #else
     sprintf(b1,
 #endif
-						"%s\r\n", dp->getName(0, 0) );
+            "%s\r\n", dp->getName(0, 0) );
    
-		ret = out->writeToFile(b1, strlen(b1), &nbw);
+    ret = out->writeToFile(b1, strlen(b1), &nbw);
     if(ret)
     {
       strcpy(b1, "Control: Error while writing to file");
@@ -1043,8 +1044,8 @@ int ControlProtocol::showLanguageFiles(ConnectionPtr a, File* out,
     addToErrorLog(a,b1, strlen(b1), header);
     return CONTROL_INTERNAL;
   }
-	do
-	{
+  do
+  {
     string filename;
     string ext;
     u_long nbw = 0;
@@ -1083,11 +1084,11 @@ int ControlProtocol::getVersion(ConnectionPtr a, File* out, char *b1,int bs1,
 {
   u_long nbw;
 #ifdef HAVE_SNPRINTF
-	snprintf(b1, bs1,
+  snprintf(b1, bs1,
 #else
   sprintf(b1, 
 #endif
-					"MyServer %s", versionOfSoftware);
+          "MyServer %s", versionOfSoftware);
  
-	return out->writeToFile(b1, strlen(b1), &nbw);
+  return out->writeToFile(b1, strlen(b1), &nbw);
 }

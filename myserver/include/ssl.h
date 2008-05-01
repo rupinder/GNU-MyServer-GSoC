@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007 The MyServer Team
+Copyright (C) 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -41,19 +41,12 @@ using namespace std;
 
 class SslContext
 {
-
 	SSL_CTX* context;
 	SSL_METHOD* method;
 
 	string certificateFile;
 	string privateKeyFile;
 	string password;
-
-#ifndef DO_NOT_USE_SSL
-private:
-	void generateRsaKey();
-#endif
-
 public:
 	SslContext();
 
@@ -71,6 +64,8 @@ public:
 	void setPrivateKeyFile(string& pk){privateKeyFile.assign(pk);}
 	void setPassword(string& p){password.assign(p);}
 
+private:
+	void generateRsaKey();
 };
 
 void initializeSSL();

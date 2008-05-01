@@ -59,19 +59,22 @@ using namespace std;
  */
 SslSocket::SslSocket(Socket* socket) : Socket(socket)
 {
+#ifndef DO_NOT_USE_SSL
 	this->socket = socket;
 	sslConnection = 0;
 	sslContext = 0;
 	clientCert = 0;
   sslMethod = 0;
 	externalContext = false;
+#endif
 }
 
 SslSocket::~SslSocket()
 {
+#ifndef DO_NOT_USE_SSL
 	freeSSL();
+#endif
 }
-
 
 /*!
  *Close the socket.
@@ -177,8 +180,10 @@ int SslSocket::connect(MYSERVER_SOCKADDR* sa, int na)
  */
 int SslSocket::setSSLContext(SSL_CTX* context)
 {
+#ifndef DO_NOT_USE_SSL
 	sslContext = context;
 	externalContext = true;
+#endif
 	return 1;
 }
 
@@ -220,6 +225,7 @@ SSL* SslSocket::getSSLConnection()
  */
 int SslSocket::sslAccept()
 {
+#ifndef DO_NOT_USE_SSL
 	int ssl_accept;
 	if(sslContext == 0)
 		return -1;
@@ -264,6 +270,7 @@ int SslSocket::sslAccept()
 		closesocket();
 		return -1;
 	}
+#endif
 	return 0;
 
 }

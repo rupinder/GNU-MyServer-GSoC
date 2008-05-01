@@ -67,6 +67,7 @@ else:
     env = Environment(ENV = {'PATH' : os.environ['PATH'],
                              'TERM' : os.environ['TERM'],
                              'HOME' : os.environ['HOME']},
+ 		      LIBPATH = ['/usr/lib', '/usr/local/lib'],
                       CPPPATH=listinc,
                       CXX="g++ -DHAVE_CONFIG_H", 
                       CXXFLAGS="-fPIC -DPIC -g3",
