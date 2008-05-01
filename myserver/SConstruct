@@ -285,8 +285,11 @@ def get_plugin(name):
         dep = dep.replace('::', '/')
         
         get_plugin(dep)
-    
 
+        build_plugin(name)
+
+
+def build_plugin(name):
     SConscript(["binaries/external/" + name + "/SConscript"])
 
 
@@ -294,3 +297,8 @@ def get_plugin(name):
 # Retrieve the plugin via SVN and build it.
 if command == "get_plugin":
     get_plugin(plugin)
+
+
+# Build a plugin.
+if command == "build_plugin":
+    build_plugin(plugin)
