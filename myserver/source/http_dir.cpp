@@ -62,7 +62,7 @@ bool HttpDir::compareFileStructByName (HttpDir::FileStruct i, HttpDir::FileStruc
 
 bool HttpDir::compareFileStructByTime (HttpDir::FileStruct i, HttpDir::FileStruct j)
 {
-	return i.time_write < j.time_write;
+  return i.time_write < j.time_write;
 }
 
 /*!
@@ -70,7 +70,7 @@ bool HttpDir::compareFileStructByTime (HttpDir::FileStruct i, HttpDir::FileStruc
  */
 bool HttpDir::compareFileStructBySize (HttpDir::FileStruct i, HttpDir::FileStruct j)
 {
-	return i.size < j.size;
+  return i.size < j.size;
 }
 
 /*!
@@ -124,7 +124,7 @@ void HttpDir::getFormattedSize(int bytes, string& out)
   {
     u_long kb = static_cast<unsigned long int>(bytes / 1024);
     leftover  = bytes % 1024;
-	   
+     
     if(leftover < 50.0)
       leftover = 0.0;
     
@@ -132,7 +132,7 @@ void HttpDir::getFormattedSize(int bytes, string& out)
     // using the output at the end!!!
     // therefore it has to be here ...
     else if(((static_cast<unsigned int>(leftover)) % 100) > 50)
-		  leftover += 100.0;
+      leftover += 100.0;
     
     if(leftover >= 1000.0)
     {
@@ -142,7 +142,7 @@ void HttpDir::getFormattedSize(int bytes, string& out)
     else
     {
       while(leftover >= 10)
-      {	
+      {  
         if (leftover)
           leftover /= 10;
       }
@@ -156,7 +156,7 @@ void HttpDir::getFormattedSize(int bytes, string& out)
   {
     u_long mb = static_cast<unsigned long int>(bytes / 1048576);
     leftover  = bytes % 1048576;
-	  
+    
     if(leftover < 50.0)
       leftover = 0.0;
     
@@ -164,7 +164,7 @@ void HttpDir::getFormattedSize(int bytes, string& out)
     // using the output at the end!!!
     // therefore it has to be here ...
     else if(((static_cast<unsigned int>(leftover)) % 100) > 50)
-		  leftover += 100.0;
+      leftover += 100.0;
     
     if(leftover >= 1000.0)
     {
@@ -174,7 +174,7 @@ void HttpDir::getFormattedSize(int bytes, string& out)
     else
     {
       while(leftover >= 10)
-      {	
+      {  
         if (leftover)
           leftover /= 10;
       }
@@ -188,7 +188,7 @@ void HttpDir::getFormattedSize(int bytes, string& out)
   {
     u_long gb = static_cast<unsigned long int>(bytes / 1073741824);
     leftover  = bytes % 1073741824;
-	  
+    
     if(leftover < 50.0)
       leftover = 0.0;
     
@@ -196,7 +196,7 @@ void HttpDir::getFormattedSize(int bytes, string& out)
     // using the output at the end!!!
     // therefore it has to be here ...
     else if(((static_cast<unsigned int>(leftover)) % 100) > 50)
-		  leftover += 100.0;
+      leftover += 100.0;
     
     if(leftover >= 1000.0)
     {
@@ -206,7 +206,7 @@ void HttpDir::getFormattedSize(int bytes, string& out)
     else
     {
       while(leftover >= 10)
-      {	
+      {  
         if (leftover)
           leftover /= 10;
       }
@@ -228,136 +228,136 @@ void HttpDir::getFormattedSize(int bytes, string& out)
  *\param onlyHeader Specify if send only the HTTP header.
 */
 int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, 
-									const char* directory, const char* /*cgi*/, 
-									int /*execute*/, int onlyHeader)
+                  const char* directory, const char* /*cgi*/, 
+                  int /*execute*/, int onlyHeader)
 {
-	u_long nbw;
+  u_long nbw;
   string filename;
-	int ret;
-	FindData fd;
+  int ret;
+  FindData fd;
   FiltersChain chain;
-	int startchar = 0;
-	int nDirectories = 0;
-	bool useChunks = false;
-	u_long sentData = 0;
-	int i;
-	char fileTime[32];
-	char* bufferloop;
+  int startchar = 0;
+  int nDirectories = 0;
+  bool useChunks = false;
+  u_long sentData = 0;
+  int i;
+  char fileTime[32];
+  char* bufferloop;
   const char* browseDirCSSpath;
-	bool keepalive = false;
-	vector<HttpDir::FileStruct> files;
-	size_t sortIndex;
-	char sortType;
+  bool keepalive = false;
+  vector<HttpDir::FileStruct> files;
+  size_t sortIndex;
+  char sortType;
   bool sortReverse = false;
-	HttpRequestHeader::Entry *host = td->request.other.get("Host");
+  HttpRequestHeader::Entry *host = td->request.other.get("Host");
 
 
   chain.setProtocol(td->http);
   chain.setProtocolData(td);
   chain.setStream(td->connection->socket);
-	if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
-																												td->mime->filters, 
-																						 td->connection->socket, &nbw, 1))
-	{
-		td->connection->host->warningsLogRequestAccess(td->id);
-		td->connection->host->warningsLogWrite("HttpDir: Error loading filters");
-		td->connection->host->warningsLogTerminateAccess(td->id);
-		chain.clearAllFilters(); 
-		return td->http->raiseHTTPError(500);
-	}
+  if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
+                                                        td->mime->filters, 
+                                             td->connection->socket, &nbw, 1))
+  {
+    td->connection->host->warningsLogRequestAccess(td->id);
+    td->connection->host->warningsLogWrite("HttpDir: Error loading filters");
+    td->connection->host->warningsLogTerminateAccess(td->id);
+    chain.clearAllFilters(); 
+    return td->http->raiseHTTPError(500);
+  }
 
-	for(i = 0; td->request.uri[i]; i++)
-	{
-		if(td->request.uri[i] == '/')
-			nDirectories++;
-	}
+  for(i = 0; td->request.uri[i]; i++)
+  {
+    if(td->request.uri[i] == '/')
+      nDirectories++;
+  }
 
-	for(startchar = 0, i = 0; td->request.uri[i]; i++)
-	{
-		if(td->request.uri[i] == '/')
-		{
-			startchar++;
-			if(startchar == nDirectories)
-			{
-				/*
+  for(startchar = 0, i = 0; td->request.uri[i]; i++)
+  {
+    if(td->request.uri[i] == '/')
+    {
+      startchar++;
+      if(startchar == nDirectories)
+      {
+        /*
          *At the end of the loop set startchar to te real value.
          *startchar indicates the initial position in td->request.uri 
          *of the file path.
          */
-				startchar = i + 1;
-				break;
-			}
-		}
-	}
+        startchar = i + 1;
+        break;
+      }
+    }
+  }
 
-	checkDataChunks(td, &keepalive, &useChunks);
+  checkDataChunks(td, &keepalive, &useChunks);
 
-	td->response.contentType.assign("application/xhtml+xml");
+  td->response.contentType.assign("application/xhtml+xml");
 
-	if(!td->appendOutputs)
+  if(!td->appendOutputs)
   {
 
     
-		HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), 
-																				 &(td->response));
+    HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), 
+                                         &(td->response));
 
-		if(s->socket->send(td->buffer->getBuffer(), 
-											 (u_long)strlen(td->buffer->getBuffer()), 0) 
-			 == SOCKET_ERROR)
-		{
-			/* Remove the connection.  */
-			return 0;
-		}	
-	}    
+    if(s->socket->send(td->buffer->getBuffer(), 
+                       (u_long)strlen(td->buffer->getBuffer()), 0) 
+       == SOCKET_ERROR)
+    {
+      /* Remove the connection.  */
+      return 0;
+    }  
+  }    
 
-	if(onlyHeader)
-		return 1;
+  if(onlyHeader)
+    return 1;
 
 
-	sortIndex = td->request.uriOpts.find("sort=");
+  sortIndex = td->request.uriOpts.find("sort=");
 
-	if(sortIndex != string::npos && sortIndex + 5 < td->request.uriOpts.length())
-	{
-		sortType = td->request.uriOpts.at(sortIndex + 5);
-	}
+  if(sortIndex != string::npos && sortIndex + 5 < td->request.uriOpts.length())
+  {
+    sortType = td->request.uriOpts.at(sortIndex + 5);
+  }
 
-	if(sortIndex != string::npos && sortIndex + 6 < td->request.uriOpts.length())
-	{
-		 sortReverse = td->request.uriOpts.at(sortIndex + 6) == 'I';
-	}
+  if(sortIndex != string::npos && sortIndex + 6 < td->request.uriOpts.length())
+  {
+     sortReverse = td->request.uriOpts.at(sortIndex + 6) == 'I';
+  }
 
-	/* Make sortType always lowercase.  */
-	switch(sortType)
-	{
-		case 's':
-		case 'S':
-			sortType = 's';
-			break;
-	  case 't':
-	  case 'T':
-			sortType = 't';
-			break;
-	  default:
-			sort (files.begin(), files.end(), compareFileStructByName);
-	}
+  /* Make sortType always lowercase.  */
+  switch(sortType)
+  {
+    case 's':
+    case 'S':
+      sortType = 's';
+      break;
+    case 't':
+    case 'T':
+      sortType = 't';
+      break;
+    default:
+      sort (files.begin(), files.end(), compareFileStructByName);
+  }
 
   browseDirCSSpath = td->http->getBrowseDirCSSFile();
 
-	td->buffer2->setLength(0);
-	*td->buffer2 << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
-	  "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\r\n"
-	  "\"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\r\n"
-	  "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">"
-	  "\r\n<head>\r\n<title>" ;
-	*td->buffer2 << td->request.uri.c_str() ;
-	*td->buffer2 << "</title>\r\n";
+  td->buffer2->setLength(0);
+  *td->buffer2 << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+    "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\r\n"
+    "\"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\r\n"
+    "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">"
+    "\r\n<head>\r\n<title>" ;
+  *td->buffer2 << td->request.uri.c_str() ;
+  *td->buffer2 << "</title>\r\n";
 
-	/*
+  /*
    *If it is defined a CSS file for the graphic layout of 
    *the browse directory insert it in the page.  
    */
-	if(browseDirCSSpath != 0)
-	{
+  if(browseDirCSSpath != 0)
+  {
     *td->buffer2 << "<link rel=\"stylesheet\" href=\""
                  << browseDirCSSpath 
                  << "\" type=\"text/css\" media=\"all\"/>\r\n";
@@ -366,50 +366,50 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 
   *td->buffer2 << "</head>\r\n"; 
 
-	ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
-																td->buffer2->getLength(),
-																&(td->outputData), &chain,
-																td->appendOutputs, useChunks);
-	if(ret)
-	{
+  ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
+                                td->buffer2->getLength(),
+                                &(td->outputData), &chain,
+                                td->appendOutputs, useChunks);
+  if(ret)
+  {
     /* Return an internal server error. */
-		td->outputData.closeFile();
+    td->outputData.closeFile();
     chain.clearAllFilters(); 
-		return td->http->raiseHTTPError(500);
-	}
+    return td->http->raiseHTTPError(500);
+  }
 
-	sentData = td->buffer2->getLength();
-							
+  sentData = td->buffer2->getLength();
+              
   browseDirCSSpath = td->http->getBrowseDirCSSFile();
 
   filename = directory;
-	td->buffer2->setLength(0);
-	*td->buffer2 << "<body>\r\n<h1>Contents of directory ";
-	*td->buffer2 <<  &td->request.uri[startchar] ;
-	*td->buffer2 << "</h1>\r\n<hr />\r\n";
+  td->buffer2->setLength(0);
+  *td->buffer2 << "<body>\r\n<h1>Contents of directory ";
+  *td->buffer2 <<  &td->request.uri[startchar] ;
+  *td->buffer2 << "</h1>\r\n<hr />\r\n";
 
-	ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
-																td->buffer2->getLength(),
-																&(td->outputData), &chain,
-																td->appendOutputs, useChunks);
+  ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
+                                td->buffer2->getLength(),
+                                &(td->outputData), &chain,
+                                td->appendOutputs, useChunks);
 
-	if(ret)
-	{
-		td->outputData.closeFile();
-		/* Return an internal server error.  */
-		return td->http->raiseHTTPError(500);
-	}
-	sentData += td->buffer2->getLength();
+  if(ret)
+  {
+    td->outputData.closeFile();
+    /* Return an internal server error.  */
+    return td->http->raiseHTTPError(500);
+  }
+  sentData += td->buffer2->getLength();
 
-	ret = fd.findfirst(filename.c_str());
+  ret = fd.findfirst(filename.c_str());
 
-	if(ret == -1)
-	{
+  if(ret == -1)
+  {
     chain.clearAllFilters(); 
-		return td->http->raiseHTTPError(404);
-	}
+    return td->http->raiseHTTPError(404);
+  }
 
-	/*
+  /*
    *With the current code we build the HTML TABLE to indicize the
    *files in the directory.
    */

@@ -45,26 +45,26 @@ extern "C" {
 
 /**
  * Internal call back functions for saveMemBuf
- * @param context Context
- * @param buffer Buffer
- * @parm length Length
- * @return Returns the length
+ * \param context Context
+ * \param buffer Buffer
+ * \param length Length
+ * \return Returns the length
  */
 static int MemBufWriteCallback(void * context, const char * buffer, int len)
 {
-	((MemBuf *)context)->addBuffer((const void *)buffer, len);
-	return len;
+  ((MemBuf *)context)->addBuffer((const void *)buffer, len);
+  return len;
 }
 
 
 /**
  * Memory Buffer Close Callback
- * @param context Context
- * @return Returns 0
+ * \param context Context
+ * \return Returns 0
  */
 static int MemBufCloseCallback(void * context)
 {
-	return 0;
+  return 0;
 }
 
 
@@ -75,8 +75,8 @@ static int MemBufCloseCallback(void * context)
  */
 bool XmlParser::startXML()
 {
-	xmlInitParser();
-	return 1;
+  xmlInitParser();
+  return 1;
 }
 
 
@@ -86,48 +86,48 @@ bool XmlParser::startXML()
  */
 bool XmlParser::cleanXML()
 {
-	xmlCleanupParser();
-	return 1;
+  xmlCleanupParser();
+  return 1;
 }
 
 
 /**
  * Opens a files and stores it in memory.
- * @param filename The filename
- * @return Returns 0 on success, non zero values on failure
+ * \param filename The filename
+ * \return Returns 0 on success, non zero values on failure
  */
 int XmlParser::open(const char* filename)
 {
-	cur=0;
-	
-	if(!FilesUtility::fileExists(filename))
-		return -1;
-	
-	if(doc!=0)
-		close();
+  cur=0;
   
-	doc = xmlParseFile(filename);
-	
-	if(doc == 0)
-		return -1;
-	
-	cur = xmlDocGetRootElement(doc);
-	
-	if(!cur)
-	{
-		close();
-		return -1;
-	}
-	
-	mtime = FilesUtility::getLastModTime(filename);
+  if(!FilesUtility::fileExists(filename))
+    return -1;
   
-	if(mtime == static_cast<time_t>(-1))
-	{
-		close();
-		return -1;
-	}
-	
-	return 0;
+  if(doc!=0)
+    close();
+  
+  doc = xmlParseFile(filename);
+  
+  if(doc == 0)
+    return -1;
+  
+  cur = xmlDocGetRootElement(doc);
+  
+  if(!cur)
+  {
+    close();
+    return -1;
+  }
+  
+  mtime = FilesUtility::getLastModTime(filename);
+  
+  if(mtime == static_cast<time_t>(-1))
+  {
+    close();
+    return -1;
+  }
+  
+  return 0;
 }
 
 
@@ -137,42 +137,42 @@ int XmlParser::open(const char* filename)
  */
 time_t XmlParser::getLastModTime()
 {
-	return mtime;
+  return mtime;
 }
 
 /**
  * Read the XML data from a char array
- * @param memory Memory Buffer
- * @return Returns 0 on succes, non 0 on failure
+ * \param memory Memory Buffer
+ * \return Returns 0 on succes, non 0 on failure
  */
 int XmlParser::openMemBuf(MemBuf & memory)
 {
-	mtime=0;
-	cur=0;
-	
-	if(memory.getLength() == 0)
-		return -1;
-	
-	if(doc==0)
-	{
-		doc = xmlParseMemory((const char * )memory.getBuffer(), 
-				             memory.getLength());
-	}
-	else
-		close();
-	
-	if(!doc)
-		return -1;
-	
-	cur = xmlDocGetRootElement(doc);
-	
-	if(!cur)
-	{
-		close();
-		return -1;
-	}
-	
-	return 0;
+  mtime=0;
+  cur=0;
+  
+  if(memory.getLength() == 0)
+    return -1;
+  
+  if(doc==0)
+  {
+    doc = xmlParseMemory((const char * )memory.getBuffer(), 
+                     memory.getLength());
+  }
+  else
+    close();
+  
+  if(!doc)
+    return -1;
+  
+  cur = xmlDocGetRootElement(doc);
+  
+  if(!cur)
+  {
+    close();
+    return -1;
+  }
+  
+  return 0;
 }
 
 
@@ -181,10 +181,10 @@ int XmlParser::openMemBuf(MemBuf & memory)
  */
 XmlParser::XmlParser()
 {
-	doc = 0;
-	cur = 0;
-	prevCur = 0;
-	lastNode = 0;
+  doc = 0;
+  cur = 0;
+  prevCur = 0;
+  lastNode = 0;
 }
 
 
@@ -194,7 +194,7 @@ XmlParser::XmlParser()
  */
 XmlParser::~XmlParser()
 {
-	close();
+  close();
 }
 
 /**
@@ -203,124 +203,124 @@ XmlParser::~XmlParser()
  */
 xmlDocPtr XmlParser::getDoc()
 {
-	return doc;
+  return doc;
 }
 
 /**
  * Gets the value of the vName root child element.
- * @param vName vName of the root child elment
- * @return Returns the value of the vName
+ * \param vName vName of the root child elment
+ * \return Returns the value of the vName
  */
 char *XmlParser::getValue(const char* vName)
 {
-	char *ret = 0;
-	xmlNodePtr lcur;
-	cur = xmlDocGetRootElement(doc);
-	
-	if(!cur)
-		return 0;
-	
-	lcur = cur->xmlChildrenNode;
-	buffer.assign("");
-	
-	while(lcur)
-	{
-		if(!xmlStrcmp(lcur->name, (const xmlChar *)vName))
-		{
-			lastNode = lcur;
-			
-			if(lcur->children->content)
-			{
-				int inlen = strlen((const char*)lcur->children->content);
-				int outlen = inlen * 2;
-				char* tmpBuff = new char[outlen];
-				if(UTF8Toisolat1((unsigned char*)tmpBuff, &outlen, 
-                         		 (unsigned char*)lcur->children->content, &inlen) >= 0)
-				{
-					tmpBuff[outlen] = '\0';
-					buffer.assign(tmpBuff);
-				}
-				else
-					buffer.assign((char*)lcur->children->content);
+  char *ret = 0;
+  xmlNodePtr lcur;
+  cur = xmlDocGetRootElement(doc);
+  
+  if(!cur)
+    return 0;
+  
+  lcur = cur->xmlChildrenNode;
+  buffer.assign("");
+  
+  while(lcur)
+  {
+    if(!xmlStrcmp(lcur->name, (const xmlChar *)vName))
+    {
+      lastNode = lcur;
+      
+      if(lcur->children->content)
+      {
+        int inlen = strlen((const char*)lcur->children->content);
+        int outlen = inlen * 2;
+        char* tmpBuff = new char[outlen];
+        if(UTF8Toisolat1((unsigned char*)tmpBuff, &outlen, 
+                              (unsigned char*)lcur->children->content, &inlen) >= 0)
+        {
+          tmpBuff[outlen] = '\0';
+          buffer.assign(tmpBuff);
+        }
+        else
+          buffer.assign((char*)lcur->children->content);
 
-				delete [] tmpBuff;
+        delete [] tmpBuff;
 
-				ret = (char*)buffer.c_str();
-			}
-			
-			break;
-		}
-		
-		lcur = lcur->next;
-	}
-	
-	return ret;
+        ret = (char*)buffer.c_str();
+      }
+      
+      break;
+    }
+    
+    lcur = lcur->next;
+  }
+  
+  return ret;
 }
 
 
 /**
  * Sets the value of the vName root child element
- * @param vName
- * @param value
- * @return Returns 0 on success, non zero on failures
+ * \param vName
+ * \param value
+ * \return Returns 0 on success, non zero on failures
  */
 int XmlParser::setValue(const char* vName, const char *value)
 {
-	xmlNodePtr lcur = cur->xmlChildrenNode;
-	buffer.assign("");
-	
-	while(lcur)
-	{
-		if(!xmlStrcmp(lcur->name, (const xmlChar *)vName))
-		{
-			lastNode = lcur;
-			
-			if(lcur->children->content)
-				strcpy((char*)lcur->children->content, value);
-			
-			return 0;
-		}
-		
-		lcur=lcur->next;
-	}
-	
-	return 1;
+  xmlNodePtr lcur = cur->xmlChildrenNode;
+  buffer.assign("");
+  
+  while(lcur)
+  {
+    if(!xmlStrcmp(lcur->name, (const xmlChar *)vName))
+    {
+      lastNode = lcur;
+      
+      if(lcur->children->content)
+        strcpy((char*)lcur->children->content, value);
+      
+      return 0;
+    }
+    
+    lcur=lcur->next;
+  }
+  
+  return 1;
 }
 
 
 /**
  * Gets the attribute for the node field.
- * @param field Field
- * @param attr Attribute
- * @return
+ * \param field Field
+ * \param attr Attribute
+ * \return
  */
 char *XmlParser::getAttr(const char* field, const char *attr)
 {
-	xmlNodePtr lcur = cur->xmlChildrenNode;
-	buffer.assign("");
-	
-	while(lcur)
-	{
-		if(!xmlStrcmp(lcur->name, (const xmlChar *)field))
-		{
-			lastNode = lcur;
-			xmlAttr *attrs =  lcur->properties;
-			
-			while(attrs)
-			{
-				if(!xmlStrcmp(attrs->name, (const xmlChar *)attr))
-				{
-					return (char*)attrs->children->content;
-				}
-				
-				attrs=attrs->next;
-			}
-		}
-		
-		lcur=lcur->next;
-	}
-	
-	return 0;
+  xmlNodePtr lcur = cur->xmlChildrenNode;
+  buffer.assign("");
+  
+  while(lcur)
+  {
+    if(!xmlStrcmp(lcur->name, (const xmlChar *)field))
+    {
+      lastNode = lcur;
+      xmlAttr *attrs =  lcur->properties;
+      
+      while(attrs)
+      {
+        if(!xmlStrcmp(attrs->name, (const xmlChar *)attr))
+        {
+          return (char*)attrs->children->content;
+        }
+        
+        attrs=attrs->next;
+      }
+    }
+    
+    lcur=lcur->next;
+  }
+  
+  return 0;
 }
 
 
@@ -329,35 +329,35 @@ char *XmlParser::getAttr(const char* field, const char *attr)
  */
 int XmlParser::close()
 {
-	if(doc)
-	{
-		xmlFreeDoc(doc);
-	}
-	
-	doc=0;
-	cur=0;
-	prevCur=0;
-	lastNode=0;
-	
-	return 0;
+  if(doc)
+  {
+    xmlFreeDoc(doc);
+  }
+  
+  doc=0;
+  cur=0;
+  prevCur=0;
+  lastNode=0;
+  
+  return 0;
 }
 
 /**
  * Saves the XML tree into a file
  * If no errors occur nbytes[optional] will contain
  * the amount of written bytes
- * @param filename Filename
- * @param nbytes Amount of bytes
- * @return Returns 0 on success, non 0 on failures
+ * \param filename Filename
+ * \param nbytes Amount of bytes
+ * \return Returns 0 on success, non 0 on failures
  */
 int XmlParser::save(const char *filename,int *nbytes)
 {
-	int err=xmlSaveFile(filename,doc);
-	
-	if(nbytes)
-		*nbytes = err;
-	
-	return err;
+  int err=xmlSaveFile(filename,doc);
+  
+  if(nbytes)
+    *nbytes = err;
+  
+  return err;
 }
 
 
@@ -365,80 +365,80 @@ int XmlParser::save(const char *filename,int *nbytes)
  * Saves the XML tree into memory
  * If no errors occur nbytes[optional] will contain
  * the amount of written bytes
- * @param memory Memory Buffer
- * @param nbytes Amount of bytes
- * @return Returns 0 on success, non 0 on failures
+ * \param memory Memory Buffer
+ * \param nbytes Amount of bytes
+ * \return Returns 0 on success, non 0 on failures
  */
 int XmlParser::saveMemBuf(MemBuf & memory,int *nbytes)
 {
-	/*! Initialize the callback struct. */
-	xmlOutputBufferPtr callback;
-	callback = xmlOutputBufferCreateIO(MemBufWriteCallback,
+  /*! Initialize the callback struct. */
+  xmlOutputBufferPtr callback;
+  callback = xmlOutputBufferCreateIO(MemBufWriteCallback,
                                        MemBufCloseCallback,
                                        (void *)&memory,
                                        NULL);
-	
-	/*! Clear the buffer */
-	memory.free(); 
-	
-	/*! Let libxml2 fill the MemBuf class with our interal callbacks. */
-	int err = xmlSaveFileTo(callback, doc, NULL);
   
-	if(nbytes)
-		*nbytes = err;
-	
-	return err;
+  /*! Clear the buffer */
+  memory.free(); 
+  
+  /*! Let libxml2 fill the MemBuf class with our interal callbacks. */
+  int err = xmlSaveFileTo(callback, doc, NULL);
+  
+  if(nbytes)
+    *nbytes = err;
+  
+  return err;
 }
 
 
 /**
  * Starts a new XML tree for a new file
- * @param root roote elment entry
+ * \param root roote elment entry
  */
 void XmlParser::newfile(const char * root)
 {
-	if(doc != 0)
-		close();
-	
-	doc = xmlNewDoc((const xmlChar*)"1.0");
-	cur = xmlNewDocNode(doc, NULL, (const xmlChar*)root, NULL);
-	
-	xmlDocSetRootElement(doc, cur);
-	
-	addLineFeed();
-	addLineFeed();
+  if(doc != 0)
+    close();
+  
+  doc = xmlNewDoc((const xmlChar*)"1.0");
+  cur = xmlNewDocNode(doc, NULL, (const xmlChar*)root, NULL);
+  
+  xmlDocSetRootElement(doc, cur);
+  
+  addLineFeed();
+  addLineFeed();
 }
 
 
 /**
  * Adds a new child element entry
- * @param name Child name
- * @param value Value of the child
+ * \param name Child name
+ * \param value Value of the child
  */
 void XmlParser::addChild(const char * name, const char * value)
 {
-	lastNode = xmlNewTextChild(cur, NULL, (const xmlChar*)name,
+  lastNode = xmlNewTextChild(cur, NULL, (const xmlChar*)name,
                                (const xmlChar*)value);
-	
-	addLineFeed();
+  
+  addLineFeed();
 }
 
 
 /**
  * Starts a new sub group
  * Only one level for now
- * @param name Name of the sub group
+ * \param name Name of the sub group
  */
 void XmlParser::addGroup(const char * name)
 {
-	if(prevCur == 0)
-	{
-		prevCur = cur;
-		cur = xmlNewTextChild(cur, NULL, (const xmlChar*)name, NULL);
-		lastNode = cur;
-		
-		addLineFeed();
-	}
+  if(prevCur == 0)
+  {
+    prevCur = cur;
+    cur = xmlNewTextChild(cur, NULL, (const xmlChar*)name, NULL);
+    lastNode = cur;
+    
+    addLineFeed();
+  }
 }
 
 
@@ -448,28 +448,28 @@ void XmlParser::addGroup(const char * name)
  */
 void XmlParser::endGroup()
 {
-	if(prevCur != 0)
-	{
-		cur = prevCur;
-		prevCur = 0;
+  if(prevCur != 0)
+  {
+    cur = prevCur;
+    prevCur = 0;
      
-		addLineFeed();
-		addLineFeed();
-	}
+    addLineFeed();
+    addLineFeed();
+  }
 }
 
 
 /**
  * Sets an attribute, using the last node entry
- * @param name Name
- * @param value Value
+ * \param name Name
+ * \param value Value
  */
 void XmlParser::setAttr(const char * name, const char * value)
 {
-	if(lastNode == 0)
-		return;
-	
-	xmlSetProp(lastNode, (const xmlChar*)name, (const xmlChar*)value);
+  if(lastNode == 0)
+    return;
+  
+  xmlSetProp(lastNode, (const xmlChar*)name, (const xmlChar*)value);
 }
 
 
@@ -478,11 +478,11 @@ void XmlParser::setAttr(const char * name, const char * value)
  */
 void XmlParser::addLineFeed()
 {
-	#ifdef WIN32
-		xmlNodePtr endline = xmlNewDocText(doc, (const xmlChar *)"\r\n");
-	#else
-		xmlNodePtr endline = xmlNewDocText(doc, (const xmlChar *)"\n");
-	#endif
-		
-	xmlAddChild(cur, endline);
+  #ifdef WIN32
+    xmlNodePtr endline = xmlNewDocText(doc, (const xmlChar *)"\r\n");
+  #else
+    xmlNodePtr endline = xmlNewDocText(doc, (const xmlChar *)"\n");
+  #endif
+    
+  xmlAddChild(cur, endline);
 }

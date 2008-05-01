@@ -335,8 +335,10 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
 			Server::getInstance()->logUnlockAccess();
       return -1;
     }
-      SslContext* sslContext = vh->getVhostSSLContext();
-		while(lcur)
+    
+    SslContext* sslContext = vh->getVhostSSLContext();
+		
+    while(lcur)
     {
 			if(!xmlStrcmp(lcur->name, (const xmlChar *)"HOST"))
 			{
@@ -566,7 +568,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
         }            
       }
       lcur = lcur->next;
-    }
+    }//while(lcur)
 
 		if(vh->openLogFiles())
 		{

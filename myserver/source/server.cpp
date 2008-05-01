@@ -1665,10 +1665,6 @@ int Server::loadSettings()
     {
       return -1;
     }
-    /* Load the virtual hosts configuration from the xml file.  */
-    vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
-                                        getMaxLogFileSize());
-
 		if(externalPath)
 			delete externalPath;
 		externalPath = new string();
@@ -1727,6 +1723,12 @@ int Server::loadSettings()
 			getPluginsManager()->load(this, &languageParser, res);
 			getPluginsManager()->postLoad(this, &languageParser);
 		}
+
+
+    /* Load the virtual hosts configuration from the xml file.  */
+    vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
+                                        getMaxLogFileSize());
+
 
 		if(path == 0)
 			path = new string();

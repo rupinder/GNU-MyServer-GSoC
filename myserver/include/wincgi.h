@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -36,7 +36,7 @@ public:
   ~WinCgi();
   static void setTimeout(u_long);
   static u_long getTimeout();
-	virtual int send(HttpThreadContext*, ConnectionPtr s,
+  virtual int send(HttpThreadContext*, ConnectionPtr s,
                    const char* exec, const char* cmdLine = 0,
                    int execute = 0, int onlyHeader = 0);
 };

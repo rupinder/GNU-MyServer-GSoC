@@ -28,21 +28,21 @@ class HttpFile  : public HttpDataHandler
 public:
   static int load(XmlParser*);
   static int unLoad();
-	virtual int send(HttpThreadContext*, ConnectionPtr s, 
+  virtual int send(HttpThreadContext*, ConnectionPtr s, 
                    const char *filenamePath, const char* cgi,
                    int execute = 0, int OnlyHeader = 0); 
   HttpFile();
   virtual ~HttpFile();
 private:
-	static int appendDataToHTTPChannel(HttpThreadContext* td, 
-																		 char* buffer, 
-																		 u_long size,
-																		 File* appendFile, 
-																		 FiltersChain* chain,
-																		 bool append, 
-																		 bool useChunks,
-																		 u_long realBufferSize,
-																		 MemoryStream *tmpStream);
+  static int appendDataToHTTPChannel(HttpThreadContext* td, 
+                                     char* buffer, 
+                                     u_long size,
+                                     File* appendFile, 
+                                     FiltersChain* chain,
+                                     bool append, 
+                                     bool useChunks,
+                                     u_long realBufferSize,
+                                     MemoryStream *tmpStream);
 };
 
 

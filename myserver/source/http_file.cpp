@@ -58,22 +58,22 @@ extern "C"
  *\param onlyHeader Specify if send only the HTTP header.
   */
 int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, 
-									 const char *filenamePath, const char* /*exec*/,
-									 int /*execute*/, int onlyHeader)
+                   const char *filenamePath, const char* /*exec*/,
+                   int /*execute*/, int onlyHeader)
 {
-	/*
+  /*
    *With this routine we send a file through the HTTP protocol.
    *Open the file and save its handle.
    */
-	int ret;
+  int ret;
 
-	/* 
+  /* 
    *Will we use GZIP compression to send data?
    */
-	bool useGzip = false;
+  bool useGzip = false;
   u_long filesize = 0;
-	File *file = 0;
-	u_long bytesToSend;
+  File *file = 0;
+  u_long bytesToSend;
   u_long firstByte = td->request.rangeByteBegin; 
   u_long lastByte = td->request.rangeByteEnd;
   bool keepalive = false;
@@ -81,16 +81,16 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
   bool useModifiers = false;
   MemoryStream memStream(td->buffer2);
   FiltersChain chain;
-	u_long nbw;
-	u_long nbr;
-	
-	u_long dataSent = 0;
+  u_long nbw;
+  u_long nbr;
+  
+  u_long dataSent = 0;
 
   try
   {
-		file = Server::getInstance()->getCachedFiles()->open(filenamePath);
+    file = Server::getInstance()->getCachedFiles()->open(filenamePath);
     if(file == 0)
-    {	
+    {  
       return td->http->raiseHTTPError(500);
     }
     /*
@@ -123,7 +123,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     if(ret)
     {
       file->closeFile();
-			delete file;
+      delete file;
       return td->http->raiseHTTPError(500);
     }
 
@@ -143,29 +143,29 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 
     }
 
-		keepalive = td->request.isKeepAlive();
+    keepalive = td->request.isKeepAlive();
 
 #ifndef DO_NOT_USEGZIP
     /*
      *Be sure that the client accept GZIP compressed data.  
      */
     if(useGzip)
-		{
-			HttpRequestHeader::Entry* e = td->request.other.get("Accept-Encoding");
-			if(e)
-			{
-				useGzip &= (e->value->find("gzip") != string::npos);
-			}
-			else
-				useGzip = false;
+    {
+      HttpRequestHeader::Entry* e = td->request.other.get("Accept-Encoding");
+      if(e)
+      {
+        useGzip &= (e->value->find("gzip") != string::npos);
+      }
+      else
+        useGzip = false;
 
-		}
+    }
 #else
     /* 
      * If compiled without GZIP support force the server to don't use it.  
      */
     useGzip = false;
-#endif	
+#endif  
     if(td->appendOutputs)
       useGzip = false;
 
@@ -173,35 +173,35 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 
     /* If a Range was requested send 206 and not 200 for success.  */
     if( td->request.rangeByteBegin ||  td->request.rangeByteEnd )
-    {	
-			HttpResponseHeader::Entry *e;
+    {  
+      HttpResponseHeader::Entry *e;
       ostringstream buffer;
       td->response.httpStatus = 206;
       buffer << "bytes "<< (u_long)firstByte << "-" 
              << (u_long)lastByte << "/" << (u_long)filesize ;
 
-			e = td->response.other.get("Content-Range");
-			if(e)
-				e->value->assign(buffer.str());
-			else
-  		{
-				e = new HttpResponseHeader::Entry();
-				e->name->assign("Content-Range");
-				e->value->assign(buffer.str());
-				td->response.other.put(*(e->name), e);
-			}
+      e = td->response.other.get("Content-Range");
+      if(e)
+        e->value->assign(buffer.str());
+      else
+      {
+        e = new HttpResponseHeader::Entry();
+        e->name->assign("Content-Range");
+        e->value->assign(buffer.str());
+        td->response.other.put(*(e->name), e);
+      }
 
 
-			e = td->response.other.get("Transfer-Encoding");
-			if(e)
-				e->value->assign("chunked");
-			else
-  		{
-				e = new HttpResponseHeader::Entry();
-				e->name->assign("Transfer-Encoding");
-				e->value->assign("chunked");
-				td->response.other.put(*(e->name), e);
-			}
+      e = td->response.other.get("Transfer-Encoding");
+      if(e)
+        e->value->assign("chunked");
+      else
+      {
+        e = new HttpResponseHeader::Entry();
+        e->name->assign("Transfer-Encoding");
+        e->value->assign("chunked");
+        td->response.other.put(*(e->name), e);
+      }
 
       useGzip = false;
     }
@@ -211,17 +211,17 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     if(td->mime)
     {
       if(td->mime && 
-				 Server::getInstance()->getFiltersFactory()->chain(&chain, 
-																													 td->mime->filters, 
-																													 &memStream, 
-																													 &nbw))
+         Server::getInstance()->getFiltersFactory()->chain(&chain, 
+                                                           td->mime->filters, 
+                                                           &memStream, 
+                                                           &nbw))
       {
         file->closeFile();
-				delete file;
+        delete file;
         chain.clearAllFilters();
         return 0;
       }
-			memStream.refresh();
+      memStream.refresh();
 
       dataSent += nbw;
     }
@@ -229,12 +229,12 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     if(useGzip && !chain.isFilterPresent("gzip"))
     {
       Filter* gzipFilter = 
-				Server::getInstance()->getFiltersFactory()->getFilter("gzip");
+        Server::getInstance()->getFiltersFactory()->getFilter("gzip");
       u_long nbw;
       if(!gzipFilter)
       {
         file->closeFile();
-				delete file;
+        delete file;
         chain.clearAllFilters();
         return 0;
       }
@@ -242,7 +242,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       {
         delete gzipFilter;
         file->closeFile();
-				delete file;
+        delete file;
         chain.clearAllFilters();
         return 0;
       }
@@ -270,36 +270,36 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 
     if(useModifiers)
     {
-			string s;
-			HttpResponseHeader::Entry *e;
-			chain.getName(s);
-			e = td->response.other.get("Content-Encoding");
-			if(e)
-				e->value->assign(s);
-			else
-			{
-				e = new HttpResponseHeader::Entry();
-				e->name->assign("Content-Encoding");
-				e->value->assign(s);
-				td->response.other.put(*(e->name), e);
-			}
+      string s;
+      HttpResponseHeader::Entry *e;
+      chain.getName(s);
+      e = td->response.other.get("Content-Encoding");
+      if(e)
+        e->value->assign(s);
+      else
+      {
+        e = new HttpResponseHeader::Entry();
+        e->name->assign("Content-Encoding");
+        e->value->assign(s);
+        td->response.other.put(*(e->name), e);
+      }
       /* Do not use chunked transfer with old HTTP/1.0 clients.  */
       if(keepalive)
       {
-				HttpResponseHeader::Entry *e;
-				e = td->response.other.get("Transfer-Encoding");
-				if(e)
-					e->value->assign("chunked");
-				else
-  			{
-					e = new HttpResponseHeader::Entry();
-					e->name->assign("Transfer-Encoding");
-					e->value->assign("chunked");
-					td->response.other.put(*(e->name), e);
-				}
+        HttpResponseHeader::Entry *e;
+        e = td->response.other.get("Transfer-Encoding");
+        if(e)
+          e->value->assign("chunked");
+        else
+        {
+          e = new HttpResponseHeader::Entry();
+          e->name->assign("Transfer-Encoding");
+          e->value->assign("chunked");
+          td->response.other.put(*(e->name), e);
+        }
 
         useChunks = true;
-			}
+      }
     }
  
     HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), 
@@ -309,10 +309,10 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     {
       /* Send the HTTP header.  */
       if(s->socket->send(td->buffer->getBuffer(), 
-												 (u_long)td->buffer->getLength(), 0) == SOCKET_ERROR)
+                         (u_long)td->buffer->getLength(), 0) == SOCKET_ERROR)
       {
         file->closeFile();
-				delete file;
+        delete file;
         chain.clearAllFilters();
         return 1;
       }
@@ -325,46 +325,46 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     if(onlyHeader)
     {
       file->closeFile();
-			delete file;
+      delete file;
       chain.clearAllFilters();
       return 0;
     }
 
 #ifdef SENDFILE
-		/* 
-		 * Check if there are all the conditions to use a direct copy from the 
-		 * file to the socket.  The sendfile syscall copy from a descriptor to
-		 * another directly in the kernel space without performs an extra copy
-		 * to an userspace buffer.
-		 */
-		if(!useChunks && chain.isEmpty() && 
-			 !td->appendOutputs && (file->getHandle() != -1) && 
-			 !(td->http->getProtocolOptions() & PROTOCOL_USES_SSL))
-		{
-			off_t offset = firstByte;
-			ret = sendfile(s->socket->getHandle(), file->getHandle(),
-										 &offset, bytesToSend);
-			file->closeFile();
-			delete file;
-			chain.clearAllFilters();
+    /* 
+     * Check if there are all the conditions to use a direct copy from the 
+     * file to the socket.  The sendfile syscall copy from a descriptor to
+     * another directly in the kernel space without performs an extra copy
+     * to an userspace buffer.
+     */
+    if(!useChunks && chain.isEmpty() && 
+       !td->appendOutputs && (file->getHandle() != -1) && 
+       !(td->http->getProtocolOptions() & PROTOCOL_USES_SSL))
+    {
+      off_t offset = firstByte;
+      ret = sendfile(s->socket->getHandle(), file->getHandle(),
+                     &offset, bytesToSend);
+      file->closeFile();
+      delete file;
+      chain.clearAllFilters();
 
-			/* For logging activity.  */
-			td->sentData += ret;
+      /* For logging activity.  */
+      td->sentData += ret;
 
-			return 0;
-		}
+      return 0;
+    }
 #endif
 
-		if(td->appendOutputs)
-			chain.setStream(&(td->outputData));
+    if(td->appendOutputs)
+      chain.setStream(&(td->outputData));
     else
-			chain.setStream(s->socket);
+      chain.setStream(s->socket);
 
     /*
-		 *Flush initial data.  This is data that filters could have added
-		 *and we have to send before the file itself, for example the gzip
-		 *filter add a header to file.
-		 */
+     *Flush initial data.  This is data that filters could have added
+     *and we have to send before the file itself, for example the gzip
+     *filter add a header to file.
+     */
     if(memStream.availableToRead())
     {
       ret = memStream.read(td->buffer->getBuffer(),
@@ -374,31 +374,31 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       if(ret)
       {
         file->closeFile();
-				delete file;
+        delete file;
         chain.clearAllFilters();
         return 0;
       }
 
-			memStream.refresh();
+      memStream.refresh();
 
       if(nbr)
       {
-				if(HttpDataHandler::appendDataToHTTPChannel(td, 
-																										td->buffer->getBuffer(), 
-																										nbr,
-																										&(td->outputData), 
-																										chain.getStream(),
-																										td->appendOutputs, 
-																										useChunks))
-				{
-					file->closeFile();
-					delete file;
-					chain.clearAllFilters();
-					return 1;
-					dataSent += nbw;
-				}
-			} /* nbr.  */
-		} /* memStream.availableToRead().  */
+        if(HttpDataHandler::appendDataToHTTPChannel(td, 
+                                                    td->buffer->getBuffer(), 
+                                                    nbr,
+                                                    &(td->outputData), 
+                                                    chain.getStream(),
+                                                    td->appendOutputs, 
+                                                    useChunks))
+        {
+          file->closeFile();
+          delete file;
+          chain.clearAllFilters();
+          return 1;
+          dataSent += nbw;
+        }
+      } /* nbr.  */
+    } /* memStream.availableToRead().  */
 
 
     /* Flush the rest of the file.  */
@@ -410,92 +410,92 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       /* Check if there are other bytes to send.  */
       if(bytesToSend)
       {
-				/* Read from the file the bytes to send.  */
-				ret = file->readFromFile(td->buffer->getBuffer(),
-																 std::min(static_cast<u_long>(bytesToSend), 
-																					static_cast<u_long>(td->buffer->getRealLength()/2)), 
-																 &nbr);
-				if(ret)
-					break;
+        /* Read from the file the bytes to send.  */
+        ret = file->readFromFile(td->buffer->getBuffer(),
+                                 std::min(static_cast<u_long>(bytesToSend), 
+                                          static_cast<u_long>(td->buffer->getRealLength()/2)), 
+                                 &nbr);
+        if(ret)
+          break;
 
-				if(nbr == 0)
-				{
-					bytesToSend = 0;
-					continue;
-				}
-				
-				bytesToSend -= nbr;
+        if(nbr == 0)
+        {
+          bytesToSend = 0;
+          continue;
+        }
+        
+        bytesToSend -= nbr;
 
 
-				ret = appendDataToHTTPChannel(td, td->buffer->getBuffer(),
-																			nbr,
-																			&(td->outputData), 
-																			&chain,
-																			td->appendOutputs, 
-																			useChunks,
-																			td->buffer->getRealLength(),
-																			&memStream);
-				if(ret)
-					break;     
+        ret = appendDataToHTTPChannel(td, td->buffer->getBuffer(),
+                                      nbr,
+                                      &(td->outputData), 
+                                      &chain,
+                                      td->appendOutputs, 
+                                      useChunks,
+                                      td->buffer->getRealLength(),
+                                      &memStream);
+        if(ret)
+          break;     
           
-				dataSent += nbr;
+        dataSent += nbr;
       }
-			else /* if(bytesToSend) */
-			{
-				/* If we don't use chunks we can flush directly.  */
-				if(!useChunks)
-				{
-					ret = chain.flush(&nbw);
+      else /* if(bytesToSend) */
+      {
+        /* If we don't use chunks we can flush directly.  */
+        if(!useChunks)
+        {
+          ret = chain.flush(&nbw);
 
-					break;
-				}
-				else
-				{
-					/*
-					 *Replace the final stream before the flush and write to a
-					 *memory buffer, after all the data is flushed from the
-					 *chain we can replace the stream with the original one and
-					 *write there the HTTP data chunk.
-					 */
-					Stream* tmpStream = chain.getStream();
+          break;
+        }
+        else
+        {
+          /*
+           *Replace the final stream before the flush and write to a
+           *memory buffer, after all the data is flushed from the
+           *chain we can replace the stream with the original one and
+           *write there the HTTP data chunk.
+           */
+          Stream* tmpStream = chain.getStream();
 
-					chain.setStream(&memStream);
+          chain.setStream(&memStream);
 
-					memStream.refresh();
+          memStream.refresh();
 
-					ret = chain.flush(&nbw);
+          ret = chain.flush(&nbw);
 
-					if(ret)
-						break;
+          if(ret)
+            break;
 
-					chain.setStream(tmpStream);
+          chain.setStream(tmpStream);
 
-					ret = memStream.read(td->buffer->getBuffer(), 
-															 td->buffer->getRealLength(), 
-															 &nbr);
-					if(ret)
-						break;
+          ret = memStream.read(td->buffer->getBuffer(), 
+                               td->buffer->getRealLength(), 
+                               &nbr);
+          if(ret)
+            break;
 
-					ret = HttpDataHandler::appendDataToHTTPChannel(td,
-																												 td->buffer->getBuffer(), 
-																												 nbr,
-																												 &(td->outputData), 
-																												 chain.getStream(),
-																												 td->appendOutputs, 
-																												 useChunks);
-					if(ret)
-						break;
-					
-					ret = HttpDataHandler::appendDataToHTTPChannel(td, 
-																												 0,
-																												 0,
-																												 &(td->outputData), 
-																												 chain.getStream(),
-																												 td->appendOutputs, 
-																												 useChunks);
-				
-					break;
-				}
+          ret = HttpDataHandler::appendDataToHTTPChannel(td,
+                                                         td->buffer->getBuffer(), 
+                                                         nbr,
+                                                         &(td->outputData), 
+                                                         chain.getStream(),
+                                                         td->appendOutputs, 
+                                                         useChunks);
+          if(ret)
+            break;
+          
+          ret = HttpDataHandler::appendDataToHTTPChannel(td, 
+                                                         0,
+                                                         0,
+                                                         &(td->outputData), 
+                                                         chain.getStream(),
+                                                         td->appendOutputs, 
+                                                         useChunks);
+        
+          break;
+        }
       }
 
       memStream.refresh();
@@ -503,12 +503,12 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     }/* End for loop.  */
 
     file->closeFile();
-		delete file;
+    delete file;
   }
   catch(bad_alloc &ba)
   {
     file->closeFile();
-		delete file;
+    delete file;
     s->host->warningsLogRequestAccess(td->id);
     s->host->warningsLogWrite("HttpFile: Error allocating memory");
     s->host->warningsLogTerminateAccess(td->id);
@@ -518,7 +518,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
   catch(...)
   {
     file->closeFile();
-		delete file;
+    delete file;
     s->host->warningsLogRequestAccess(td->id);
     s->host->warningsLogWrite("HttpFile: Internal error");
     s->host->warningsLogTerminateAccess(td->id);
@@ -527,10 +527,10 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
   };
  
   /* For logging activity.  */
-	td->sentData += dataSent;
+  td->sentData += dataSent;
 
   chain.clearAllFilters();
-	return !ret;
+  return !ret;
 }
 
 /*!
@@ -583,45 +583,45 @@ int HttpFile::unLoad()
  *internally by the function.
  */
 int HttpFile::appendDataToHTTPChannel(HttpThreadContext* td, 
-																			char* buffer, 
-																			u_long size,
-																			File* appendFile, 
-																			FiltersChain* chain,
-																			bool append, 
-																			bool useChunks,
-																			u_long realBufferSize,
-																			MemoryStream *tmpStream)
+                                      char* buffer, 
+                                      u_long size,
+                                      File* appendFile, 
+                                      FiltersChain* chain,
+                                      bool append, 
+                                      bool useChunks,
+                                      u_long realBufferSize,
+                                      MemoryStream *tmpStream)
 {
-	u_long nbr, nbw;
-	Stream *oldStream = chain->getStream();
+  u_long nbr, nbw;
+  Stream *oldStream = chain->getStream();
 
-	/* 
-	 *This function can't append directly to the chain because we can't
-	 *know in advance the data chunk size.  Therefore we replace the
-	 *final stream with a memory buffer and write there the final data
-	 *chunk content, finally we read from it and send directly on the
-	 *original stream.
-	 */
-	chain->setStream(tmpStream);
-	
-	if(chain->write(buffer, size, &nbw))
-		return 1;
+  /* 
+   *This function can't append directly to the chain because we can't
+   *know in advance the data chunk size.  Therefore we replace the
+   *final stream with a memory buffer and write there the final data
+   *chunk content, finally we read from it and send directly on the
+   *original stream.
+   */
+  chain->setStream(tmpStream);
+  
+  if(chain->write(buffer, size, &nbw))
+    return 1;
 
-	if(tmpStream->read(buffer, realBufferSize, &nbr))
-		return 1;
-	
-	chain->setStream(oldStream);
-	
-	/*
-	 *Use of chain->getStream() is needed to write directly on the
-	 *final stream.
-	 */
-	return HttpDataHandler::appendDataToHTTPChannel(td, 
-																									buffer, 
-																									nbr, 
-																									appendFile, 
-																									chain->getStream(), 
-																									append, 
-																									useChunks);
-	
+  if(tmpStream->read(buffer, realBufferSize, &nbr))
+    return 1;
+  
+  chain->setStream(oldStream);
+  
+  /*
+   *Use of chain->getStream() is needed to write directly on the
+   *final stream.
+   */
+  return HttpDataHandler::appendDataToHTTPChannel(td, 
+                                                  buffer, 
+                                                  nbr, 
+                                                  appendFile, 
+                                                  chain->getStream(), 
+                                                  append, 
+                                                  useChunks);
+  
 }

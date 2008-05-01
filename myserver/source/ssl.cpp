@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007 The MyServer Team
+Copyright (C) 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -18,28 +18,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/ssl.h"
 #include "../include/files_utility.h"
 
-
 /*!
  *SSL password callback function.
  */
 static int passwordCb(char *buf,int num,int /*!rwflag*/,void *userdata)
 {
-	if((size_t)num < strlen((char*)userdata) + 1)
-		return 0;
+  if((size_t)num < strlen((char*)userdata) + 1)
+    return 0;
 
   ((string*)userdata)->assign(buf);
 
-	return ((string*)userdata)->length();
+  return ((string*)userdata)->length();
 }
 
 SslContext::SslContext()
 {
-	context = 0;
-	method = 0;
+  context = 0;
+  method = 0;
 
-	certificateFile.assign("");
-	privateKeyFile.assign("");
-	password.assign("");
+  certificateFile.assign("");
+  privateKeyFile.assign("");
+  password.assign("");
 }
 
 /*!
@@ -77,18 +76,18 @@ int SslContext::initialize()
     return -1;
 
   if(!(SSL_CTX_use_PrivateKey_file(context, privateKeyFile.c_str(), 
-																	 SSL_FILETYPE_PEM)))
+                                   SSL_FILETYPE_PEM)))
     return -1;
 
 
 #if (OPENSSL_VERSION_NUMBER < 0x0090600fL)
   SSL_CTX_set_verify_depth(context, 1);
 #endif
-	return 1;
+  return 1;
 #else
-	return 1;
+  return 1;
 #endif
-}	
+}  
 
 /*!
  *Generate a RSA key and pass it to the SSL context.
@@ -98,7 +97,7 @@ void SslContext::generateRsaKey()
 #ifndef DO_NOT_USE_SSL
   RSA *rsa;
 
-  rsa = RSA_generate_key(512, RSA_F4, NULL, NULL);
+  rsa = RSA_generate_key(2048, RSA_F4, NULL, NULL);
 
   if (!SSL_CTX_set_tmp_rsa(context, rsa))
     return;
@@ -112,32 +111,32 @@ int SslContext::free()
 {
 #ifndef DO_NOT_USE_SSL
   int ret = 0;
-	if(context)
+  if(context)
   {
     SSL_CTX_free(context);
     ret = 1;
-		context = 0;
+    context = 0;
   }
-	else 
-		ret = 0;
+  else 
+    ret = 0;
   certificateFile.assign("");
   privateKeyFile.assign("");
   return ret;
 #else
-	return 1;
+  return 1;
 #endif
 }
 
 void initializeSSL()
 {
 #ifndef DO_NOT_USE_SSL
-	static bool initialized = false;
-	if(!initialized)
-	{
+  static bool initialized = false;
+  if(!initialized)
+  {
     SSL_load_error_strings();
     SSL_library_init();
-		initialized = true;
-	}
+    initialized = true;
+  }
 #endif
 }
 

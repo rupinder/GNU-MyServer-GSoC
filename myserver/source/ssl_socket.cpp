@@ -60,19 +60,19 @@ using namespace std;
 SslSocket::SslSocket(Socket* socket) : Socket(socket)
 {
 #ifndef DO_NOT_USE_SSL
-	this->socket = socket;
-	sslConnection = 0;
-	sslContext = 0;
-	clientCert = 0;
+  this->socket = socket;
+  sslConnection = 0;
+  sslContext = 0;
+  clientCert = 0;
   sslMethod = 0;
-	externalContext = false;
+  externalContext = false;
 #endif
 }
 
 SslSocket::~SslSocket()
 {
 #ifndef DO_NOT_USE_SSL
-	freeSSL();
+  freeSSL();
 #endif
 }
 
@@ -82,9 +82,9 @@ SslSocket::~SslSocket()
 int SslSocket::closesocket()
 {
 #ifndef DO_NOT_USE_SSL
-	freeSSL();
+  freeSSL();
 #endif
-	return Socket::closesocket();
+  return Socket::closesocket();
 }
 
 /*!
@@ -93,18 +93,18 @@ int SslSocket::closesocket()
 int SslSocket::shutdown(int how)
 {
 #ifndef DO_NOT_USE_SSL
-	if(sslConnection)
-	{
-		SSL_shutdown(sslConnection);
-	}
+  if(sslConnection)
+  {
+    SSL_shutdown(sslConnection);
+  }
 #endif
 
 #ifdef WIN32
-	return ::shutdown(socketHandle, how);
+  return ::shutdown(socketHandle, how);
 #endif
 
 #ifdef NOT_WIN
-	return ::shutdown((int)socketHandle, how);
+  return ::shutdown((int)socketHandle, how);
 #endif
 }
 
@@ -116,17 +116,17 @@ int SslSocket::shutdown(int how)
 int SslSocket::rawSend(const char* buffer, int len, int flags)
 {
 #ifndef DO_NOT_USE_SSL
-	int err;
-	do
-	{
-		err = SSL_write(sslConnection,buffer,len);
-	}while((err <= 0) &&
-				 (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_WRITE 
-					|| SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ));
-	if(err <= 0)
-		return -1;
-	else
-		return err;
+  int err;
+  do
+  {
+    err = SSL_write(sslConnection,buffer,len);
+  }while((err <= 0) &&
+         (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_WRITE 
+          || SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ));
+  if(err <= 0)
+    return -1;
+  else
+    return err;
 #endif
 }
 
@@ -135,42 +135,42 @@ int SslSocket::rawSend(const char* buffer, int len, int flags)
  */
 int SslSocket::connect(MYSERVER_SOCKADDR* sa, int na)
 {
- 	if ( sa == NULL || (sa->ss_family != AF_INET && sa->ss_family != AF_INET6) )
- 	   return 1;//Andu: TODO our error code or what?
+   if ( sa == NULL || (sa->ss_family != AF_INET && sa->ss_family != AF_INET6) )
+      return 1;//Andu: TODO our error code or what?
   if ( (sa->ss_family == AF_INET && na != sizeof(sockaddr_in)) || 
   (sa->ss_family == AF_INET6 && na != sizeof(sockaddr_in6)) )
      return 1;//Andu: TODO our error code or what?
 #ifndef DO_NOT_USE_SSL
-	sslMethod = SSLv23_client_method();
-	/*! Create the local context. */
-	sslContext = SSL_CTX_new(sslMethod);
-	if(sslContext == 0)
-		return -1;
-	
-	/*! Do the TCP connection. */
-	if(::connect((int)socketHandle,(const sockaddr *)sa, na))
+  sslMethod = SSLv23_client_method();
+  /*! Create the local context. */
+  sslContext = SSL_CTX_new(sslMethod);
+  if(sslContext == 0)
+    return -1;
+  
+  /*! Do the TCP connection. */
+  if(::connect((int)socketHandle,(const sockaddr *)sa, na))
   {
-		SSL_CTX_free(sslContext);
-		sslContext = 0;
-		return -1;
-	}
-	sslConnection = SSL_new(sslContext);
-	if(sslConnection == 0)
+    SSL_CTX_free(sslContext);
+    sslContext = 0;
+    return -1;
+  }
+  sslConnection = SSL_new(sslContext);
+  if(sslConnection == 0)
   {
-		SSL_CTX_free(sslContext);
-		sslContext = 0;
-		return -1;
-	}
-	SSL_set_fd(sslConnection, (int)socketHandle);
-	if(SSL_connect(sslConnection) < 0)
+    SSL_CTX_free(sslContext);
+    sslContext = 0;
+    return -1;
+  }
+  SSL_set_fd(sslConnection, (int)socketHandle);
+  if(SSL_connect(sslConnection) < 0)
   {
-		SSL_CTX_free(sslContext);
-		closesocket();
-		sslContext = 0;
-		return -1;
-	}
-	externalContext = false;
-	return 0;
+    SSL_CTX_free(sslContext);
+    closesocket();
+    sslContext = 0;
+    return -1;
+  }
+  externalContext = false;
+  return 0;
 #endif
 }
 
@@ -181,10 +181,10 @@ int SslSocket::connect(MYSERVER_SOCKADDR* sa, int na)
 int SslSocket::setSSLContext(SSL_CTX* context)
 {
 #ifndef DO_NOT_USE_SSL
-	sslContext = context;
-	externalContext = true;
+  sslContext = context;
+  externalContext = true;
 #endif
-	return 1;
+  return 1;
 }
 
 #ifndef DO_NOT_USE_SSL
@@ -194,18 +194,18 @@ int SslSocket::setSSLContext(SSL_CTX* context)
 int SslSocket::freeSSL()
 {
   /*! free up the SSL context. */
-	if(sslConnection)
-	{
-		SSL_free(sslConnection);
-		sslConnection = 0;
-	}
+  if(sslConnection)
+  {
+    SSL_free(sslConnection);
+    sslConnection = 0;
+  }
 
   if(sslContext && !externalContext)
   {
-		SSL_CTX_free(sslContext);
+    SSL_CTX_free(sslContext);
     sslContext = 0;
   }
-	return 1;
+  return 1;
 }
 
 
@@ -214,7 +214,7 @@ int SslSocket::freeSSL()
  */
 SSL* SslSocket::getSSLConnection()
 {
-	return sslConnection;
+  return sslConnection;
 }
 
 #endif /*Endif for routines used only with the SSL library*/
@@ -226,52 +226,52 @@ SSL* SslSocket::getSSLConnection()
 int SslSocket::sslAccept()
 {
 #ifndef DO_NOT_USE_SSL
-	int ssl_accept;
-	if(sslContext == 0)
-		return -1;
-	if(sslConnection)
-		freeSSL();
-	sslConnection = SSL_new(sslContext);
-	if(sslConnection == 0)
+  int sslAccept;
+  if(sslContext == 0)
+    return -1;
+  if(sslConnection)
+    freeSSL();
+  sslConnection = SSL_new(sslContext);
+  if(sslConnection == 0)
   {
-		freeSSL();
+    freeSSL();
     return -1;
   }
-	SSL_set_accept_state(sslConnection);
-	if(SSL_set_fd(sslConnection,socketHandle) == 0)
-	{
-		shutdown(2);
-		freeSSL();
-		closesocket();
-		return -1;
-	}
-	
-	do
-	{
-		ssl_accept = SSL_accept(sslConnection);
-	}while(SSL_get_error(sslConnection,ssl_accept) == SSL_ERROR_WANT_X509_LOOKUP
-         || SSL_get_error(sslConnection,ssl_accept) == SSL_ERROR_WANT_READ);
+  SSL_set_accept_state(sslConnection);
+  if(SSL_set_fd(sslConnection,socketHandle) == 0)
+  {
+    shutdown(2);
+    freeSSL();
+    closesocket();
+    return -1;
+  }
+  
+  do
+  {
+    sslAccept = SSL_accept(sslConnection);
+  }while(SSL_get_error(sslConnection, sslAccept) == SSL_ERROR_WANT_X509_LOOKUP
+         || SSL_get_error(sslConnection, sslAccept) == SSL_ERROR_WANT_READ);
 
-	if(ssl_accept != 1 )
-	{
-		shutdown(2);
-		freeSSL();
-		closesocket();
-		return -1;
-	}
-	SSL_set_read_ahead(sslConnection, 0);
+  if(sslAccept != 1 )
+  {
+    shutdown(2);
+    freeSSL();
+    closesocket();
+    return -1;
+  }
+  SSL_set_read_ahead(sslConnection, 0);
 
-	clientCert = SSL_get_peer_certificate(sslConnection);
+  clientCert = SSL_get_peer_certificate(sslConnection);
 
-	if(SSL_get_verify_result(sslConnection) != X509_V_OK)
-	{
-		shutdown(2);
-		freeSSL();
-		closesocket();
-		return -1;
-	}
+  if(SSL_get_verify_result(sslConnection) != X509_V_OK)
+  {
+    shutdown(2);
+    freeSSL();
+    closesocket();
+    return -1;
+  }
 #endif
-	return 0;
+  return 0;
 
 }
 
@@ -282,10 +282,10 @@ int SslSocket::sslAccept()
  */
 int SslSocket::recv(char* buffer, int len, int flags)
 {
-	int err = 0;
+  int err = 0;
 #ifndef DO_NOT_USE_SSL
-	if(sslConnection)
-	{
+  if(sslConnection)
+  {
     do
     {
         err = SSL_read(sslConnection, buffer, len);
@@ -294,13 +294,13 @@ int SslSocket::recv(char* buffer, int len, int flags)
            || (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ)
             || (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_WRITE));
 
-		if(err <= 0)
-			return -1;
-		else
-			return err;
-	}
+    if(err <= 0)
+      return -1;
+    else
+      return err;
+  }
 #endif
-	return 0;
+  return 0;
 }
 
 /*!
@@ -308,16 +308,16 @@ int SslSocket::recv(char* buffer, int len, int flags)
  */
 u_long SslSocket::bytesToRead()
 {
-	u_long nBytesToRead = 0;
+  u_long nBytesToRead = 0;
 #ifndef DO_NOT_USE_SSL
-	nBytesToRead = SSL_pending(sslConnection);
+  nBytesToRead = SSL_pending(sslConnection);
 
-	if(nBytesToRead)
-		return nBytesToRead;
+  if(nBytesToRead)
+    return nBytesToRead;
 
-	return Socket::bytesToRead();
+  return Socket::bytesToRead();
 #endif
-	return nBytesToRead;
+  return nBytesToRead;
 }
 
 
@@ -327,10 +327,11 @@ u_long SslSocket::bytesToRead()
  */
 int SslSocket::dataOnRead(int, int)
 {
-	return Socket::dataOnRead(0,0);
-	if(bytesToRead())
-		return 1;
+  return Socket::dataOnRead(0, 0);
 
-	return 0;
+  if(bytesToRead())
+    return 1;
+
+  return 0;
 }
 

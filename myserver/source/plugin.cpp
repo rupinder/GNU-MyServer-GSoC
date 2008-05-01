@@ -31,7 +31,7 @@ typedef const char* (*getNamePROC)(char*, u_long);
  */
 Plugin::Plugin()
 {
-	version = 1;
+  version = 1;
 }
 
 /*!
@@ -39,8 +39,8 @@ Plugin::Plugin()
 */
 Plugin::~Plugin()
 {
-	if(hinstLib.validHandle())
-		hinstLib.close();
+  if(hinstLib.validHandle())
+    hinstLib.close();
 }
 
 /*!
@@ -52,10 +52,10 @@ Plugin::~Plugin()
  */
 int Plugin::load(string& file, Server* server, XmlParser* languageFile)
 {
-	loadPROC proc = (loadPROC)hinstLib.getProc("load"); 
-	if(proc)
-		return proc(server, languageFile);
-	return 0;
+  loadPROC proc = (loadPROC)hinstLib.getProc("load"); 
+  if(proc)
+    return proc(server, languageFile);
+  return 0;
 }
 
 /*!
@@ -89,7 +89,7 @@ int Plugin::postLoad(Server* server, XmlParser* languageFile)
     if(proc)
       return proc(server, languageFile);
   }
-	return 0;
+  return 0;
 
 }
 
@@ -106,7 +106,7 @@ int Plugin::unLoad(XmlParser* languageFile)
     if(proc)
       return proc();
   }
-	return 0;
+  return 0;
 }
 
 /*!
@@ -119,9 +119,9 @@ int Plugin::getVersion()
     versionPROC proc = (versionPROC)hinstLib.getProc("version"); 
     if(proc)
       return proc();
-		return 1;
+    return 1;
   }
-	return 0;
+  return 0;
 }
 
 /*!

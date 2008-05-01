@@ -42,10 +42,10 @@ typedef ProcessServerManager::Server ScgiServer;
 
 struct ScgiContext
 {
-	HttpThreadContext* td;
+  HttpThreadContext* td;
   ScgiServer* server;
-	Socket sock;
-	File tempOut;
+  Socket sock;
+  File tempOut;
 };
 
 class Scgi : public HttpDataHandler
@@ -53,23 +53,23 @@ class Scgi : public HttpDataHandler
 public:
   static int getTimeout();
   static void setTimeout(int);
-	Scgi();
-	static int load(XmlParser*);
-	int send(HttpThreadContext* td, ConnectionPtr connection,
+  Scgi();
+  static int load(XmlParser*);
+  int send(HttpThreadContext* td, ConnectionPtr connection,
            const char* scriptpath, const char *cgipath = 0,
            int execute = 0, int onlyHeader = 0);
-	static int unLoad();
+  static int unLoad();
 private:
-	static ProcessServerManager *processServerManager;
-	static int timeout;
-	static int initialized;
-	Socket getScgiConnection();
-	int sendPostData(ScgiContext* ctx);
-	int sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain*);
-	int buildScgiEnvironmentString(HttpThreadContext*, char*, char*);
-	int sendNetString(ScgiContext*, const char*, int);
-	ScgiServer* isScgiServerRunning(const char*);
+  static ProcessServerManager *processServerManager;
+  static int timeout;
+  static int initialized;
+  Socket getScgiConnection();
+  int sendPostData(ScgiContext* ctx);
+  int sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain*);
+  int buildScgiEnvironmentString(HttpThreadContext*, char*, char*);
+  int sendNetString(ScgiContext*, const char*, int);
+  ScgiServer* isScgiServerRunning(const char*);
   ScgiServer* runScgiServer(ScgiContext*, const char*);
-	ScgiServer* connect(ScgiContext*, const char*);
+  ScgiServer* connect(ScgiContext*, const char*);
 };
 #endif

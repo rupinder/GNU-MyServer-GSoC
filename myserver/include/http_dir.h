@@ -28,17 +28,17 @@ using namespace std;
 class HttpDir : public HttpDataHandler
 {
 public:
-	struct FileStruct
-	{
-		string name;
-		time_t time_write;
-		int attrib;
-		off_t size;
-	};
+  struct FileStruct
+  {
+    string name;
+    time_t time_write;
+    int attrib;
+    off_t size;
+  };
 
   static int load(XmlParser*);
   static int unLoad();
-	virtual int send(HttpThreadContext*, ConnectionPtr s, 
+  virtual int send(HttpThreadContext*, ConnectionPtr s, 
                    const char *filenamePath, const char* cgi,
                    int execute = 0, int OnlyHeader = 0); 
   HttpDir();

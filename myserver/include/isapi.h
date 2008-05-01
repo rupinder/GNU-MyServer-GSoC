@@ -53,16 +53,16 @@ typedef LPVOID HCONN;
 #define HSE_REQ_ASYNC_READ_CLIENT (HSE_REQ_END_RESERVED+10)
 #define HSE_REQ_IS_KEEP_CONN (HSE_REQ_END_RESERVED+8)
 
-#define HSE_URL_FLAGS_READ				0x00000001
-#define HSE_URL_FLAGS_WRITE				0x00000002
-#define HSE_URL_FLAGS_EXECUTE			0x00000004
-#define HSE_URL_FLAGS_SSL				0x00000008
-#define HSE_URL_FLAGS_DONT_CACHE		0x00000010
-#define HSE_URL_FLAGS_NEGO_CERT			0x00000020
-#define HSE_URL_FLAGS_REQUIRE_CERT		0x00000040
-#define HSE_URL_FLAGS_MAP_CERT			0x00000080
-#define HSE_URL_FLAGS_SSL128			0x00000100
-#define HSE_URL_FLAGS_SCRIPT			0x00000200
+#define HSE_URL_FLAGS_READ        0x00000001
+#define HSE_URL_FLAGS_WRITE        0x00000002
+#define HSE_URL_FLAGS_EXECUTE      0x00000004
+#define HSE_URL_FLAGS_SSL        0x00000008
+#define HSE_URL_FLAGS_DONT_CACHE    0x00000010
+#define HSE_URL_FLAGS_NEGO_CERT      0x00000020
+#define HSE_URL_FLAGS_REQUIRE_CERT    0x00000040
+#define HSE_URL_FLAGS_MAP_CERT      0x00000080
+#define HSE_URL_FLAGS_SSL128      0x00000100
+#define HSE_URL_FLAGS_SCRIPT      0x00000200
 
 
 
@@ -74,12 +74,12 @@ typedef struct _HSE_VERSION_INFO
 
 typedef struct _HSE_URL_MAPEX_INFO  
 {
-	CHAR   *lpszPath; 
-	DWORD  dwFlags;
-	DWORD  cchMatchingPath; 
-	DWORD  cchMatchingURL;  
-	DWORD  dwReserved1;
-	DWORD  dwReserved2;
+  CHAR   *lpszPath; 
+  DWORD  dwFlags;
+  DWORD  cchMatchingPath; 
+  DWORD  cchMatchingURL;  
+  DWORD  dwReserved1;
+  DWORD  dwReserved2;
 } HSE_URL_MAPEX_INFO, * LPHSE_URL_MAPEX_INFO;
 
 typedef struct _EXTENSION_CONTROL_BLOCK 
@@ -110,16 +110,16 @@ typedef struct _EXTENSION_CONTROL_BLOCK
 struct ConnTableRecord
 {
   FiltersChain chain;
-	BOOL Allocated;
+  BOOL Allocated;
   int onlyHeader;
-	int headerSent;
-	int headerSize;
-	HttpThreadContext *td;
+  int headerSent;
+  int headerSize;
+  HttpThreadContext *td;
   int dataSent;
-	char* envString;
-	ConnectionPtr connection;
-	HANDLE ISAPIDoneEvent;
-	void *isapi;
+  char* envString;
+  ConnectionPtr connection;
+  HANDLE ISAPIDoneEvent;
+  void *isapi;
 };
 typedef BOOL (WINAPI * PFN_GETEXTENSIONVERSION)(HSE_VERSION_INFO *pVer);
 typedef DWORD (WINAPI * PFN_HTTPEXTENSIONPROC)(EXTENSION_CONTROL_BLOCK *pECB);
@@ -130,34 +130,34 @@ class Isapi  : public HttpDataHandler
 {
 private:
   static u_long timeout;
-#ifdef WIN32	
-	static int initialized;
-	static ConnTableRecord *connTable;
-	static  u_long maxConnections;
-#endif	
-public:	
+#ifdef WIN32  
+  static int initialized;
+  static ConnTableRecord *connTable;
+  static  u_long maxConnections;
+#endif  
+public:  
 #ifdef WIN32
-	static ConnTableRecord *HConnRecord(HCONN hConn);
-	int Redirect(HttpThreadContext* td,ConnectionPtr a,char *URL);
-	int Senduri(HttpThreadContext* td,ConnectionPtr a,char *URL);
-	int SendHeader(HttpThreadContext* td,ConnectionPtr a,char *URL);
-	static BOOL buildAllHttpHeaders(HttpThreadContext* td,ConnectionPtr a,
+  static ConnTableRecord *HConnRecord(HCONN hConn);
+  int Redirect(HttpThreadContext* td,ConnectionPtr a,char *URL);
+  int Senduri(HttpThreadContext* td,ConnectionPtr a,char *URL);
+  int SendHeader(HttpThreadContext* td,ConnectionPtr a,char *URL);
+  static BOOL buildAllHttpHeaders(HttpThreadContext* td,ConnectionPtr a,
                                   LPVOID output, LPDWORD maxLen);
-	static BOOL buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
+  static BOOL buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
                                  LPVOID output, LPDWORD maxLen);
-#endif	
-	Isapi();
-	static Mutex *isapi_mutex;
-	static int load(XmlParser*);
-	static int unLoad();
-	static void setTimeout(u_long);
+#endif  
+  Isapi();
+  static Mutex *isapiMutex;
+  static int load(XmlParser*);
+  static int unLoad();
+  static void setTimeout(u_long);
   static u_long getTimeout();
-	virtual int send(HttpThreadContext* td,ConnectionPtr connection, 
+  virtual int send(HttpThreadContext* td,ConnectionPtr connection, 
                    const char* scriptpath, const char *cgipath = 0,
                    int execute = 0, int onlyHeader = 0);
 };
 
-#ifdef WIN32	
+#ifdef WIN32  
 BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
                                               LPVOID lpvBuffer, LPDWORD lpdwSize, 
                                               LPDWORD lpdwDataType);
@@ -166,7 +166,5 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
                                     DWORD dwReserved);
 BOOL WINAPI ISAPI_GetServerVariableExport(HCONN, LPSTR, LPVOID, LPDWORD);
 #endif
-
-
 
 #endif

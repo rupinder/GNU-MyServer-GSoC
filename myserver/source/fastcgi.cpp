@@ -47,11 +47,11 @@ ProcessServerManager *FastCgi::processServerManager = 0;
 
 struct FourChar
 {
-	union
-	{
-		unsigned int i;
-		unsigned char c[4];
-	};
+  union
+  {
+    unsigned int i;
+    unsigned char c[4];
+  };
 };
 
 /*!
@@ -61,36 +61,36 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
                   const char* scriptpath, const char *cgipath,
                   int execute, int onlyHeader)
 {
-	FcgiContext con;
-	FcgiBeginRequestBody tBody;
-	u_long nbr = 0;
-	FcgiHeader header;
+  FcgiContext con;
+  FcgiBeginRequestBody tBody;
+  u_long nbr = 0;
+  FcgiHeader header;
   FiltersChain chain;
 
-	u_long headerSize = 0;
+  u_long headerSize = 0;
 
-	int exit;
+  int exit;
   int ret;
 
-	clock_t initialTicks;
+  clock_t initialTicks;
 
-	string outDataPath;
+  string outDataPath;
 
   int sizeEnvString;
   FastCgiServer* server = 0;
   int id;
-	ostringstream cmdLine;
+  ostringstream cmdLine;
   char *buffer = 0;
 
   string moreArg;
 
-	bool useChunks = false;
-	bool keepalive = false;
+  bool useChunks = false;
+  bool keepalive = false;
 
-	/*! Size of data chunks to use with STDIN.  */
+  /*! Size of data chunks to use with STDIN.  */
   const size_t maxStdinChunk = 8192;
 
-	con.td = td;
+  con.td = td;
 
   td->scriptPath.assign(scriptpath);
 
@@ -109,10 +109,10 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   {
     u_long nbw;
     if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain,
-																										td->mime->filters,
+                                                    td->mime->filters,
                                                     td->connection->socket,
-																										&nbw, 
-																										1))
+                                                    &nbw, 
+                                                    1))
       {
         td->connection->host->warningsLogRequestAccess(td->id);
         td->connection->host->warningsLogWrite(
@@ -124,7 +124,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   }
 
   td->buffer->setLength(0);
-	td->buffer2->getAt(0) = '\0';
+  td->buffer2->getAt(0) = '\0';
 
 
   {
@@ -169,9 +169,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     FilesUtility::splitPath(tmpCgiPath, td->scriptDir, td->scriptFile);
   }
 
-	if(execute)
-	{
-		if(cgipath && strlen(cgipath))
+  if(execute)
+  {
+    if(cgipath && strlen(cgipath))
     {
 #ifdef WIN32
       {
@@ -180,34 +180,34 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         int len = strlen(cgipath);
         int subString = cgipath[0] == '"';
 
-		    cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" " 
-								<< moreArg << " \"" <<  td->filenamePath << "\"";
+        cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" " 
+                << moreArg << " \"" <<  td->filenamePath << "\"";
       }
 #else
- 			cmdLine << cgipath << " " << td->filenamePath;
+       cmdLine << cgipath << " " << td->filenamePath;
 #endif
     }/*if(execute).  */
-		else
+    else
     {
       cmdLine << scriptpath;
     }
-	}
-	else
-	{
+  }
+  else
+  {
 #ifdef WIN32
     cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile
             << "\" " << moreArg;
 #else
-		cmdLine << cgipath;
+    cmdLine << cgipath;
 #endif
-	}
+  }
 
   Cgi::buildCGIEnvironmentString(td, td->buffer->getBuffer());
   sizeEnvString = buildFASTCGIEnvironmentString(td,td->buffer->getBuffer(),
-																								td->buffer2->getBuffer());
+                                                td->buffer2->getBuffer());
   if(sizeEnvString == -1)
   {
-		td->buffer->setLength(0);
+    td->buffer->setLength(0);
     if(Server::getInstance()->getVerbosity() > 2)
     {
       *td->buffer << "FastCGI: Error to build env string" << '\0';
@@ -216,14 +216,14 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       td->connection->host->warningsLogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
-		return td->http->raiseHTTPError(500);
+    return td->http->raiseHTTPError(500);
   }
-	td->inputData.closeFile();
-	if(td->inputData.openFile(td->inputDataPath, File::MYSERVER_OPEN_READ | 
-														File::MYSERVER_OPEN_ALWAYS |
+  td->inputData.closeFile();
+  if(td->inputData.openFile(td->inputDataPath, File::MYSERVER_OPEN_READ | 
+                            File::MYSERVER_OPEN_ALWAYS |
                             File::MYSERVER_NO_INHERIT))
   {
-		td->buffer->setLength(0);
+    td->buffer->setLength(0);
     if(Server::getInstance()->getVerbosity() > 2)
     {
       *td->buffer << "FastCGI: Error opening stdin file" << '\0';
@@ -232,14 +232,14 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       td->connection->host->warningsLogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
-		return td->http->raiseHTTPError(500);
+    return td->http->raiseHTTPError(500);
   }
 
   server = connect(&con, cmdLine.str().c_str());
 
-	if(server == 0)
+  if(server == 0)
   {
-		td->buffer->setLength(0);
+    td->buffer->setLength(0);
     if(Server::getInstance()->getVerbosity() > 2)
     {
       *td->buffer << "FastCGI: Error connecting to FastCGI "
@@ -249,18 +249,18 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       td->connection->host->warningsLogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
-		return td->http->raiseHTTPError(500);
+    return td->http->raiseHTTPError(500);
   }
 
-	id = td->id + 1;
-	tBody.roleB1 = ( FCGIRESPONDER >> 8 ) & 0xff;
-	tBody.roleB0 = ( FCGIRESPONDER ) & 0xff;
-	tBody.flags = 0;
-	memset( tBody.reserved, 0, sizeof( tBody.reserved ) );
+  id = td->id + 1;
+  tBody.roleB1 = ( FCGIRESPONDER >> 8 ) & 0xff;
+  tBody.roleB0 = ( FCGIRESPONDER ) & 0xff;
+  tBody.flags = 0;
+  memset( tBody.reserved, 0, sizeof( tBody.reserved ) );
 
-	if(sendFcgiBody(&con, (char*)&tBody, sizeof(tBody), FCGIBEGIN_REQUEST, id))
-	{
-		td->buffer->setLength(0);
+  if(sendFcgiBody(&con, (char*)&tBody, sizeof(tBody), FCGIBEGIN_REQUEST, id))
+  {
+    td->buffer->setLength(0);
     if(Server::getInstance()->getVerbosity() > 2)
     {
       *td->buffer<< "FastCGI: Error beginning the request" << '\0';
@@ -269,14 +269,14 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       td->connection->host->warningsLogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
-		con.sock.closesocket();
-		return td->http->raiseHTTPError(500);
-	}
+    con.sock.closesocket();
+    return td->http->raiseHTTPError(500);
+  }
 
-	if(sendFcgiBody(&con,td->buffer2->getBuffer(), sizeEnvString,
+  if(sendFcgiBody(&con,td->buffer2->getBuffer(), sizeEnvString,
                   FCGIPARAMS, id))
-	{
-		td->buffer->setLength(0);
+  {
+    td->buffer->setLength(0);
     if(Server::getInstance()->getVerbosity() > 2)
     {
       *td->buffer << "FastCGI: Error sending params" << '\0';
@@ -285,13 +285,13 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       td->connection->host->warningsLogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
-		con.sock.closesocket();
-		return td->http->raiseHTTPError(501);
-	}
+    con.sock.closesocket();
+    return td->http->raiseHTTPError(501);
+  }
 
-	if(sendFcgiBody(&con, 0, 0, FCGIPARAMS, id))
-	{
-		td->buffer->setLength(0);
+  if(sendFcgiBody(&con, 0, 0, FCGIPARAMS, id))
+  {
+    td->buffer->setLength(0);
     if(Server::getInstance()->getVerbosity() > 2)
     {
       *td->buffer << "FastCGI: Error sending params" << '\0';
@@ -300,16 +300,16 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       td->connection->host->warningsLogTerminateAccess(td->id);
     }
     chain.clearAllFilters();
-		con.sock.closesocket();
-		return td->http->raiseHTTPError(500);
-	}
+    con.sock.closesocket();
+    return td->http->raiseHTTPError(500);
+  }
 
-	if(atoi(td->request.contentLength.c_str()))
-	{
-		td->buffer->setLength(0);
+  if(atoi(td->request.contentLength.c_str()))
+  {
+    td->buffer->setLength(0);
 
 
-		if(td->inputData.setFilePointer(0))
+    if(td->inputData.setFilePointer(0))
       if(Server::getInstance()->getVerbosity() > 2)
       {
         *td->buffer << "FastCGI: Error sending POST data" << '\0';
@@ -319,8 +319,8 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       }
 
     /*! Send the STDIN data.  */
-		do
-		{
+    do
+    {
       if(td->inputData.readFromFile(td->buffer->getBuffer(),
                                     maxStdinChunk, &nbr))
       {
@@ -360,12 +360,12 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         return td->http->raiseHTTPError(500);
       }
     }while(nbr == maxStdinChunk);
-	}
+  }
 
   /*! Final stdin chunk.  */
-	if(sendFcgiBody(&con, 0, 0, FCGISTDIN, id))
-	{
-		td->buffer->setLength(0);
+  if(sendFcgiBody(&con, 0, 0, FCGISTDIN, id))
+  {
+    td->buffer->setLength(0);
     if(Server::getInstance()->getVerbosity() > 2)
     {
       *td->buffer << "FastCGI: Error sending POST data" << '\0';
@@ -375,47 +375,47 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
       td->connection->host->warningsLogTerminateAccess(td->id);
     }
-		con.sock.closesocket();
+    con.sock.closesocket();
     return td->http->raiseHTTPError(500);
-	}
+  }
 
-	/*! Now read the output. This flag is used by the external loop.  */
-	exit = 0;
+  /*! Now read the output. This flag is used by the external loop.  */
+  exit = 0;
 
   /*! Return 1 if keep the connection. A nonzero value also mean no errors. */
   ret = 1;
 
-	initialTicks = getTicks();
+  initialTicks = getTicks();
 
-	Server::getInstance()->temporaryFileName(td->id, outDataPath);
+  Server::getInstance()->temporaryFileName(td->id, outDataPath);
 
-	if(con.tempOut.createTemporaryFile(outDataPath.c_str()))
+  if(con.tempOut.createTemporaryFile(outDataPath.c_str()))
   {
     td->buffer->setLength(0);
-		*td->buffer << "FastCGI: Error opening stdout file" << '\0';
-		td->connection->host->warningsLogRequestAccess(td->id);
-		td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-		td->connection->host->warningsLogTerminateAccess(td->id);
+    *td->buffer << "FastCGI: Error opening stdout file" << '\0';
+    td->connection->host->warningsLogRequestAccess(td->id);
+    td->connection->host->warningsLogWrite(td->buffer->getBuffer());
+    td->connection->host->warningsLogTerminateAccess(td->id);
     return td->http->raiseHTTPError(500);
   }
 
-	do
-	{
-		u_long dim;
-		u_long dataSent;
+  do
+  {
+    u_long dim;
+    u_long dataSent;
     u_long nbw;
 
-		while(con.sock.bytesToRead() < sizeof(FcgiHeader))
-		{
-			if((clock_t)(getTicks() - initialTicks) > timeout)
-				break;
-			Thread::wait(1);
-		}
-
-		if(con.sock.bytesToRead() >= sizeof(FcgiHeader))
+    while(con.sock.bytesToRead() < sizeof(FcgiHeader))
     {
-			nbr = con.sock.recv((char*)&header, sizeof(FcgiHeader), 0, 
-													static_cast<u_long>(timeout));
+      if((clock_t)(getTicks() - initialTicks) > timeout)
+        break;
+      Thread::wait(1);
+    }
+
+    if(con.sock.bytesToRead() >= sizeof(FcgiHeader))
+    {
+      nbr = con.sock.recv((char*)&header, sizeof(FcgiHeader), 0, 
+                          static_cast<u_long>(timeout));
       if(nbr != sizeof(FcgiHeader))
       {
         td->buffer->setLength(0);
@@ -428,49 +428,49 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         break;
       }
     }
-		else
-		{
-			td->buffer->setLength(0);
-			*td->buffer << "FastCGI: Error timeout" << '\0';
-			td->connection->host->warningsLogRequestAccess(td->id);
-			td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-			td->connection->host->warningsLogTerminateAccess(td->id);
-			sendFcgiBody(&con, 0, 0, FCGIABORT_REQUEST, id);
-			con.sock.shutdown(2);
-			con.sock.closesocket();
-			break;
-		}
-		/*!
+    else
+    {
+      td->buffer->setLength(0);
+      *td->buffer << "FastCGI: Error timeout" << '\0';
+      td->connection->host->warningsLogRequestAccess(td->id);
+      td->connection->host->warningsLogWrite(td->buffer->getBuffer());
+      td->connection->host->warningsLogTerminateAccess(td->id);
+      sendFcgiBody(&con, 0, 0, FCGIABORT_REQUEST, id);
+      con.sock.shutdown(2);
+      con.sock.closesocket();
+      break;
+    }
+    /*!
      *contentLengthB1 is the high word of the content length value
      *while contentLengthB0 is the low one.
      *To retrieve the value of content length push left contentLengthB1
      *of eight byte then do an or with contentLengthB0.
      */
-		dim = (header.contentLengthB1 << 8) | header.contentLengthB0;
-		dataSent = 0;
-		if(dim == 0)
-		{
+    dim = (header.contentLengthB1 << 8) | header.contentLengthB0;
+    dataSent = 0;
+    if(dim == 0)
+    {
       exit = 1;
       ret = 1;
-		}
-		else
-		{
-			switch(header.type)
-			{
-				case FCGISTDERR:
-					con.sock.closesocket();
-					td->http->raiseHTTPError(501);
-					exit = 1;
+    }
+    else
+    {
+      switch(header.type)
+      {
+        case FCGISTDERR:
+          con.sock.closesocket();
+          td->http->raiseHTTPError(501);
+          exit = 1;
           ret = 0;
-					break;
-				case FCGISTDOUT:
-					dataSent = 0;
+          break;
+        case FCGISTDOUT:
+          dataSent = 0;
 
-					while(dataSent < dim)
-					{
+          while(dataSent < dim)
+          {
             nbr = con.sock.recv(td->buffer->getBuffer(),
-																std::min(static_cast<u_long>(td->buffer->getRealLength()),
-																				 dim - dataSent), 0, static_cast<u_long>(timeout));
+                                std::min(static_cast<u_long>(td->buffer->getRealLength()),
+                                         dim - dataSent), 0, static_cast<u_long>(timeout));
             if(nbr == (u_long)-1)
             {
               exit = 1;
@@ -478,56 +478,56 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
               break;
             }
 
-						if(con.tempOut.writeToFile((char*)(td->buffer->getBuffer()), 
-																			 nbr, &nbw))
+            if(con.tempOut.writeToFile((char*)(td->buffer->getBuffer()), 
+                                       nbr, &nbw))
             {
               exit = 1;
               ret = 0;
               break;
             }
-						dataSent += nbr;
-					}
+            dataSent += nbr;
+          }
 
-					break;
-				case FCGIEND_REQUEST:
-					exit = 1;
-					break;
-				case FCGIGET_VALUES_RESULT:
-				case FCGIUNKNOWN_TYPE:
-				default:
-					break;
-			}
-		}
+          break;
+        case FCGIEND_REQUEST:
+          exit = 1;
+          break;
+        case FCGIGET_VALUES_RESULT:
+        case FCGIUNKNOWN_TYPE:
+        default:
+          break;
+      }
+    }
 
-		if(header.paddingLength)
-		{
-			u_long toPad = header.paddingLength;
-			while(toPad)
-			{
-				nbr = con.sock.recv(td->buffer->getBuffer(),
-														std::min(toPad, (u_long)td->buffer->getRealLength()), 0, 
-														static_cast<u_long>(timeout));
-				if(nbr == (u_long)-1)
-				{
-					exit = 1;
-					ret = 0;
-					break;
-				}
-				toPad -= nbr;
-			}
-		}
+    if(header.paddingLength)
+    {
+      u_long toPad = header.paddingLength;
+      while(toPad)
+      {
+        nbr = con.sock.recv(td->buffer->getBuffer(),
+                            std::min(toPad, (u_long)td->buffer->getRealLength()), 0, 
+                            static_cast<u_long>(timeout));
+        if(nbr == (u_long)-1)
+        {
+          exit = 1;
+          ret = 0;
+          break;
+        }
+        toPad -= nbr;
+      }
+    }
 
-	}while((!exit) && nbr);
+  }while((!exit) && nbr);
 
-	con.tempOut.setFilePointer(0);
-	td->buffer->getAt(0) = '\0';
-	buffer = td->buffer->getBuffer();
+  con.tempOut.setFilePointer(0);
+  td->buffer->getAt(0) = '\0';
+  buffer = td->buffer->getBuffer();
 
 
 
   /*! Return an error message if ret is 0.  */
   if((!ret) || con.tempOut.readFromFile(buffer, 
-																				td->buffer->getRealLength(), &nbr))
+                                        td->buffer->getRealLength(), &nbr))
   {
     con.tempOut.closeFile();
     FilesUtility::deleteFile(outDataPath.c_str());
@@ -539,48 +539,48 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   /*!
    *find the \r\n\r\n sequence.
    */
-	for(u_long i = 0; i < nbr; i++)
-	{
-		if((buffer[i] == '\r') && (buffer[i + 1] == '\n') &&
+  for(u_long i = 0; i < nbr; i++)
+  {
+    if((buffer[i] == '\r') && (buffer[i + 1] == '\n') &&
        (buffer[i + 2] == '\r') && (buffer[i + 3] == '\n'))
-		{
-			headerSize = i + 4 ;
-			break;
-		}
-	}
+    {
+      headerSize = i + 4 ;
+      break;
+    }
+  }
 
-	/* For logging.  */
-	td->sentData += con.tempOut.getFileSize() - headerSize;
+  /* For logging.  */
+  td->sentData += con.tempOut.getFileSize() - headerSize;
 
-	HttpHeaders::buildHTTPResponseHeaderStruct(&td->response, td,
+  HttpHeaders::buildHTTPResponseHeaderStruct(&td->response, td,
                                              td->buffer->getBuffer());
 
-	for(;;)
-	{
+  for(;;)
+  {
     u_long nbw2;
-		if(td->response.location[0])
-		{
+    if(td->response.location[0])
+    {
       con.tempOut.closeFile();
       FilesUtility::deleteFile(outDataPath.c_str());
       con.sock.closesocket();
       chain.clearAllFilters();
-			return td->http->sendHTTPRedirect((char*)td->response.location.c_str());
-		}
-		/*! Send the header.  */
-		if(!td->appendOutputs)
-		{
-			checkDataChunks(td, &keepalive, &useChunks);
+      return td->http->sendHTTPRedirect((char*)td->response.location.c_str());
+    }
+    /*! Send the header.  */
+    if(!td->appendOutputs)
+    {
+      checkDataChunks(td, &keepalive, &useChunks);
 
-			HttpHeaders::buildHTTPResponseHeader(td->buffer2->getBuffer(),
+      HttpHeaders::buildHTTPResponseHeader(td->buffer2->getBuffer(),
                                             &td->response);
-			if(td->connection->socket->send( td->buffer2->getBuffer(),
+      if(td->connection->socket->send( td->buffer2->getBuffer(),
                            static_cast<int>(strlen(td->buffer2->getBuffer())),
                                       0) == SOCKET_ERROR )
       {
-				exit = 1;
+        exit = 1;
         ret = 0;
-				break;
-			}
+        break;
+      }
 
       if(onlyHeader)
       {
@@ -589,39 +589,39 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
         break;
       }
 
-			if(nbr - headerSize)
-			{
-				if(useChunks)
-				{
-					ostringstream tmp;
-					tmp << hex << (nbr - headerSize) << "\r\n";
-					td->response.contentLength.assign(tmp.str());
-					if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
-					{
-						exit = 0;
-						ret = 0;
-						break;
-					}
-				}
+      if(nbr - headerSize)
+      {
+        if(useChunks)
+        {
+          ostringstream tmp;
+          tmp << hex << (nbr - headerSize) << "\r\n";
+          td->response.contentLength.assign(tmp.str());
+          if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
+          {
+            exit = 0;
+            ret = 0;
+            break;
+          }
+        }
 
-				if(chain.write((char*)((td->buffer->getBuffer())
-															 +headerSize), nbr - headerSize, &nbw2))
-				{
-					exit = 0;
-					ret = 0;
-					break;
-				}
+        if(chain.write((char*)((td->buffer->getBuffer())
+                               +headerSize), nbr - headerSize, &nbw2))
+        {
+          exit = 0;
+          ret = 0;
+          break;
+        }
 
-				if(useChunks && chain.write("\r\n", 2, &nbw2))
-				{
-					exit = 0;
-					ret = 0;
-					break;
-				}
-			}
-		}
-		else/*! If appendOutputs.  */
-		{
+        if(useChunks && chain.write("\r\n", 2, &nbw2))
+        {
+          exit = 0;
+          ret = 0;
+          break;
+        }
+      }
+    }
+    else/*! If appendOutputs.  */
+    {
       u_long nbw = 0;    
       if(onlyHeader)
       {
@@ -634,86 +634,86 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
        *Send remaining data stored in the buffer.
        *This is the HTTP header.
        */
-			if(td->outputData.writeToFile((char*)((td->buffer2->getBuffer())
+      if(td->outputData.writeToFile((char*)((td->buffer2->getBuffer())
                                          + headerSize), nbr - headerSize, 
-																		&nbw))
+                                    &nbw))
       {
-				exit = 1;
+        exit = 1;
         ret = 0;
-				break;
+        break;
       }
-		}
+    }
 
     /*! Flush the data.  */
-		do
-		{
-			if(con.tempOut.readFromFile(td->buffer->getBuffer(),
+    do
+    {
+      if(con.tempOut.readFromFile(td->buffer->getBuffer(),
                                   td->buffer->getRealLength(), &nbr))
       {
         exit = 1;
         ret = 0;
-				break;
+        break;
       }
 
-			if(!td->appendOutputs)
-			{
+      if(!td->appendOutputs)
+      {
         u_long nbw2;
-				if(nbr)
-				{
-					if(useChunks)
-					{
-						ostringstream tmp;
-						tmp << hex << nbr << "\r\n";
-						td->response.contentLength.assign(tmp.str());
-						if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
-						{
-							exit = 1;
-							ret = 0;
-							break;
-						}
-					}
+        if(nbr)
+        {
+          if(useChunks)
+          {
+            ostringstream tmp;
+            tmp << hex << nbr << "\r\n";
+            td->response.contentLength.assign(tmp.str());
+            if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
+            {
+              exit = 1;
+              ret = 0;
+              break;
+            }
+          }
 
-					if(chain.write(td->buffer->getBuffer(), nbr, &nbw2))
-					{
-						exit = 1;
-						ret = 0;
-						break;
-					}
+          if(chain.write(td->buffer->getBuffer(), nbr, &nbw2))
+          {
+            exit = 1;
+            ret = 0;
+            break;
+          }
 
-					if(useChunks && chain.write("\r\n", 2, &nbw2))
-					{
-						exit = 1;
-						ret = 0;
-						break;
-					}
-				}
-			}
-			else
-			{
-				u_long nbw = 0;
-				if(td->outputData.writeToFile(td->buffer->getBuffer(), nbr, &nbw))
+          if(useChunks && chain.write("\r\n", 2, &nbw2))
+          {
+            exit = 1;
+            ret = 0;
+            break;
+          }
+        }
+      }
+      else
+      {
+        u_long nbw = 0;
+        if(td->outputData.writeToFile(td->buffer->getBuffer(), nbr, &nbw))
         {
           exit = 1;
           ret = 0;
-					break;
+          break;
         }
-			}
-		}while(nbr);
+      }
+    }while(nbr);
 
-		if(useChunks && chain.write("0\r\n\r\n", 5, &nbw2))
-		{
-			exit = 1;
-			ret = 0;
-			break;
-		}
+    if(useChunks && chain.write("0\r\n\r\n", 5, &nbw2))
+    {
+      exit = 1;
+      ret = 0;
+      break;
+    }
 
     break;
-	}
+  }
   chain.clearAllFilters();
-	con.tempOut.closeFile();
-	FilesUtility::deleteFile(outDataPath.c_str());
-	con.sock.closesocket();
-	return ret;
+  con.tempOut.closeFile();
+  FilesUtility::deleteFile(outDataPath.c_str());
+  con.sock.closesocket();
+  return ret;
 }
 
 /*!
@@ -721,16 +721,16 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
  *Return non-zero on errors.
  */
 int FastCgi::sendFcgiBody(FcgiContext* con, char* buffer, int len, int type,
-													int id)
+                          int id)
 {
-	FcgiHeader header;
-	generateFcgiHeader( header, type, id, len );
+  FcgiHeader header;
+  generateFcgiHeader( header, type, id, len );
 
-	if(con->sock.send((char*)&header, sizeof(header), 0) == -1)
-		return -1;
-	if(con->sock.send((char*)buffer, len, 0) == -1)
-		return -1;
-	return 0;
+  if(con->sock.send((char*)&header, sizeof(header), 0) == -1)
+    return -1;
+  if(con->sock.send((char*)buffer, len, 0) == -1)
+    return -1;
+  return 0;
 }
 
 /*!
@@ -740,73 +740,73 @@ int FastCgi::sendFcgiBody(FcgiContext* con, char* buffer, int len, int type,
 int FastCgi::buildFASTCGIEnvironmentString(HttpThreadContext*, char* src,
                                            char* dest)
 {
-	char *ptr = dest;
-	char *sptr = src;
-	char varName[100];
-	char varValue[2500];
-	for(;;)
-	{
+  char *ptr = dest;
+  char *sptr = src;
+  char varName[100];
+  char varValue[2500];
+  for(;;)
+  {
     int max = 100;
-		u_long i;
-		FourChar varNameLen;
-		FourChar varValueLen;
+    u_long i;
+    FourChar varNameLen;
+    FourChar varValueLen;
 
-		varNameLen.i = varValueLen.i = 0;
-		varName[0] = '\0';
-		varValue[0] = '\0';
+    varNameLen.i = varValueLen.i = 0;
+    varName[0] = '\0';
+    varValue[0] = '\0';
 
-		while(*sptr == '\0')
-			sptr++;
+    while(*sptr == '\0')
+      sptr++;
 
-		while((--max) && *sptr != '=')
-		{
-			varName[varNameLen.i++] = *sptr++;
-			varName[varNameLen.i] = '\0';
-		}
+    while((--max) && *sptr != '=')
+    {
+      varName[varNameLen.i++] = *sptr++;
+      varName[varNameLen.i] = '\0';
+    }
     if(max == 0)
       return -1;
-		sptr++;
+    sptr++;
     max = 2500;
-		while((--max) && *sptr != '\0')
-		{
-			varValue[varValueLen.i++] = *sptr++;
-			varValue[varValueLen.i] = '\0';
-		}
+    while((--max) && *sptr != '\0')
+    {
+      varValue[varValueLen.i++] = *sptr++;
+      varValue[varValueLen.i] = '\0';
+    }
     if(max == 0)
       return -1;
-		if(varNameLen.i > 127)
-		{
-			unsigned char fb = varValueLen.c[3] | 0x80;
-			*ptr++ = fb;
-			*ptr++ = varNameLen.c[2];
-			*ptr++ = varNameLen.c[1];
-			*ptr++ = varNameLen.c[0];
-		}
-		else
-		{
-			*ptr++ = varNameLen.c[0];
-		}
+    if(varNameLen.i > 127)
+    {
+      unsigned char fb = varValueLen.c[3] | 0x80;
+      *ptr++ = fb;
+      *ptr++ = varNameLen.c[2];
+      *ptr++ = varNameLen.c[1];
+      *ptr++ = varNameLen.c[0];
+    }
+    else
+    {
+      *ptr++ = varNameLen.c[0];
+    }
 
-		if(varValueLen.i > 127)
-		{
-			unsigned char fb = varValueLen.c[3] | 0x80;
-			*ptr++ = fb;
-			*ptr++ = varValueLen.c[2];
-			*ptr++ = varValueLen.c[1];
-			*ptr++ = varValueLen.c[0];
-		}
-		else
-		{
-			*ptr++ = varValueLen.c[0];
-		}
-		for(i = 0; i < varNameLen.i; i++)
-			*ptr++ = varName[i];
-		for(i = 0; i < varValueLen.i; i++)
-			*ptr++ = varValue[i];
-		if(*(++sptr) == '\0')
-			break;
-	}
-	return static_cast<int>(ptr - dest);
+    if(varValueLen.i > 127)
+    {
+      unsigned char fb = varValueLen.c[3] | 0x80;
+      *ptr++ = fb;
+      *ptr++ = varValueLen.c[2];
+      *ptr++ = varValueLen.c[1];
+      *ptr++ = varValueLen.c[0];
+    }
+    else
+    {
+      *ptr++ = varValueLen.c[0];
+    }
+    for(i = 0; i < varNameLen.i; i++)
+      *ptr++ = varName[i];
+    for(i = 0; i < varValueLen.i; i++)
+      *ptr++ = varValue[i];
+    if(*(++sptr) == '\0')
+      break;
+  }
+  return static_cast<int>(ptr - dest);
 }
 
 /*!
@@ -815,14 +815,14 @@ int FastCgi::buildFASTCGIEnvironmentString(HttpThreadContext*, char* src,
 void FastCgi::generateFcgiHeader( FcgiHeader &header, int iType,
                                   int iRequestId, int iContentLength )
 {
-	header.version = FCGIVERSION;
-	header.type = (u_char)iType;
-	header.requestIdB1 = (u_char)((iRequestId >> 8 ) & 0xff);
-	header.requestIdB0 = (u_char)((iRequestId ) & 0xff);
-	header.contentLengthB1 = (u_char)((iContentLength >> 8 ) & 0xff);
-	header.contentLengthB0 = (u_char)((iContentLength ) & 0xff);
-	header.paddingLength = 0;
-	header.reserved = 0;
+  header.version = FCGIVERSION;
+  header.type = (u_char)iType;
+  header.requestIdB1 = (u_char)((iRequestId >> 8 ) & 0xff);
+  header.requestIdB0 = (u_char)((iRequestId ) & 0xff);
+  header.contentLengthB1 = (u_char)((iContentLength >> 8 ) & 0xff);
+  header.contentLengthB0 = (u_char)((iContentLength ) & 0xff);
+  header.paddingLength = 0;
+  header.reserved = 0;
 }
 
 /*!
@@ -830,7 +830,7 @@ void FastCgi::generateFcgiHeader( FcgiHeader &header, int iType,
  */
 FastCgi::FastCgi()
 {
-	initialized = 0;
+  initialized = 0;
 }
 
 /*!
@@ -838,12 +838,12 @@ FastCgi::FastCgi()
  */
 int FastCgi::load(XmlParser* /*confFile*/)
 {
-	if(initialized)
-		return 1;
-	initialized = 1;
-	processServerManager = Server::getInstance()->getProcessServerManager();
-	processServerManager->createDomain(SERVERS_DOMAIN);
-	return 0;
+  if(initialized)
+    return 1;
+  initialized = 1;
+  processServerManager = Server::getInstance()->getProcessServerManager();
+  processServerManager->createDomain(SERVERS_DOMAIN);
+  return 0;
 }
 
 /*!
@@ -852,7 +852,7 @@ int FastCgi::load(XmlParser* /*confFile*/)
 int FastCgi::unLoad()
 {
   initialized = 0;
-	return 0;
+  return 0;
 }
 
 /*!
@@ -861,7 +861,7 @@ int FastCgi::unLoad()
  */
 FastCgiServer* FastCgi::isFcgiServerRunning(const char* path)
 {
-	return processServerManager->getServer(SERVERS_DOMAIN, path);
+  return processServerManager->getServer(SERVERS_DOMAIN, path);
 }
 
 
@@ -870,18 +870,18 @@ FastCgiServer* FastCgi::isFcgiServerRunning(const char* path)
  */
 FastCgiServer* FastCgi::connect(FcgiContext* con, const char* path)
 {
-	FastCgiServer* server = runFcgiServer(con, path);
-	/*!
+  FastCgiServer* server = runFcgiServer(con, path);
+  /*!
    *If we find a valid server try the connection to it.
    */
-	if(server)
-	{
-		int ret = processServerManager->connect(&(con->sock), server);
+  if(server)
+  {
+    int ret = processServerManager->connect(&(con->sock), server);
 
-		if(ret == -1)
-			return 0;
-	}
-	return server;
+    if(ret == -1)
+      return 0;
+  }
+  return server;
 }
 
 /*!
@@ -890,32 +890,32 @@ FastCgiServer* FastCgi::connect(FcgiContext* con, const char* path)
  *remote server.
  */
 FastCgiServer* FastCgi::runFcgiServer(FcgiContext* context, 
-																			const char* path)
+                                      const char* path)
 {
-	FastCgiServer* server =	processServerManager->getServer(SERVERS_DOMAIN, 
-																													path);
-	if(server)
-		return server;
+  FastCgiServer* server =  processServerManager->getServer(SERVERS_DOMAIN, 
+                                                          path);
+  if(server)
+    return server;
 
-	/* If the path starts with @ then the server is remote.  */
-	if(path[0] == '@')
-	{
-		int i = 1;
-		char host[128];
-		char port[6];
+  /* If the path starts with @ then the server is remote.  */
+  if(path[0] == '@')
+  {
+    int i = 1;
+    char host[128];
+    char port[6];
 
-		while(path[i] && path[i] != ':')
-			i++;
+    while(path[i] && path[i] != ':')
+      i++;
 
-		myserver_strlcpy(host, &path[1], min(128, i));
+    myserver_strlcpy(host, &path[1], min(128, i));
 
-		myserver_strlcpy(port, &path[i + 1], 6);
-		
-		return processServerManager->addRemoteServer(SERVERS_DOMAIN, path, 
-																								 host, atoi(port));
-	}
+    myserver_strlcpy(port, &path[i + 1], 6);
+    
+    return processServerManager->addRemoteServer(SERVERS_DOMAIN, path, 
+                                                 host, atoi(port));
+  }
 
-	return processServerManager->runAndAddServer(SERVERS_DOMAIN, path);
+  return processServerManager->runAndAddServer(SERVERS_DOMAIN, path);
 }
 
 
