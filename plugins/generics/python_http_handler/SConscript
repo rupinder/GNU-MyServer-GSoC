@@ -21,4 +21,5 @@ if conf.CheckHeader("Python.h"):
 
 env = conf.Finish()
 
-env.SharedLibrary(GetLaunchDir() + "/external/generics/python_http_handler", ["python_http_handler.cpp" ])
+env.SharedLibrary(GetLaunchDir() + "/binaries/external/generics/python_http_handler", ["python_http_handler.cpp" ], SHLIBPREFIX="")
+

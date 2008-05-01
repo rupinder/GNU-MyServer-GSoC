@@ -50,8 +50,16 @@ EXPORTABLE(char*) name(char* name, u_long len);
 EXPORTABLE(int) load(void* server,void* parser);
 EXPORTABLE(int) unLoad(void* p);
 
+
 EXPORTABLE(int) execute(char* code, u_long length);
 EXPORTABLE(int) executeFromFile(char* filename);
+
+
+EXPORTABLE(int) executeImpl (char* code, u_long length, PyThreadState *threadState, int newThreadState);
+EXPORTABLE(int) executeFromFileImpl(char* filename, PyThreadState *threadState, int newThreadState);
+
+EXPORTABLE(PyObject*) callObject(PyObject *obj, PyObject *args);
+EXPORTABLE(PyObject*) callObjectImpl(PyObject *obj, PyObject *args, PyThreadState *threadState, int newThreadState);
 
 
 EXPORTABLE(int) initModule(char*, PyMethodDef[]);
