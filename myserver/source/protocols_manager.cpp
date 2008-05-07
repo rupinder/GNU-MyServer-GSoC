@@ -96,5 +96,7 @@ int ProtocolsManager::unLoad(XmlParser* languageFile)
     delete *it;
   }
 
+  staticProtocolsList.clear();
+
   return ret;
 }

@@ -30,11 +30,11 @@ public:
 
   static int loadProtocolStatic(XmlParser* lang)
   {
-    return Http::loadProtocolStatic(lang);
+
   }
   static int unLoadProtocolStatic(XmlParser* lang)
   {
-    return Http::unLoadProtocolStatic(lang);
+
   }
 
 };
