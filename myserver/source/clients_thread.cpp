@@ -234,10 +234,21 @@ void* clients_thread(void* pParam)
 }
 
 /*!
+ *Join the thread.
+ *
+ */
+int ClientsThread::join()
+{
+  return Thread::join(tid);
+}
+
+
+/*!
  *Create the new thread.
  */
 int ClientsThread::run()
 {
+  tid = 0;
   return Thread::create(&tid, &::clients_thread,
 												(void *)this);
 }

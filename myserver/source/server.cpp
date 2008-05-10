@@ -572,17 +572,17 @@ int Server::terminate()
 
 	listenThreads.terminate();
 
-	connectionsScheduler.release();
-	Socket::stopBlockingOperations(true);
-	connectionsScheduler.terminateConnections();
-	clearAllConnections();
-
 	threadsMutex->lock();
 	for(list<ClientsThread*>::iterator it = threads.begin(); it != threads.end(); it++)
 	{
 		(*it)->stop();
 	}
 	threadsMutex->unlock();
+
+	connectionsScheduler.release();
+	Socket::stopBlockingOperations(true);
+	connectionsScheduler.terminateConnections();
+	clearAllConnections();
 
 	/* Clear the home directories data.  */
 	homeDir.clear();

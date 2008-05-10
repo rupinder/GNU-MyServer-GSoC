@@ -74,6 +74,7 @@ public:
   void setStatic(int);
 	int run();
 	ThreadID getThreadId(){return tid;}
+  int join();
 private:
 	ThreadID tid;
   int toDestroy;
