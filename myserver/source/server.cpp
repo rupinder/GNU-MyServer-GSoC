@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/safetime.h"
 
 /*! Include headers for built-in protocols.  */
-#include "../include/http.h"	/*Include the HTTP protocol.  */
+#include "../include/http.h"  /*Include the HTTP protocol.  */
 #include "../include/https.h" /*Include the HTTPS protocol.  */
 #include "../include/control_protocol.h" /*Include the control protocol.  */
 #include "../include/ftp.h"
@@ -67,7 +67,6 @@ extern "C"
 
 const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
 
-
 /*!
  *At startup the server instance is null.
  */
@@ -78,26 +77,26 @@ Server::Server()
   toReboot = 0;
   autoRebootEnabled = 1;
   pausing = 0;
-	rebooting = 0;
+  rebooting = 0;
   maxConnections = 0;
   serverReady = 0;
   throttlingRate = 0;
   uid = 0;
   gid = 0;
-	serverAdmin = 0;
-	mimeManager = 0;
-	mimeConfigurationFile = 0;
+  serverAdmin = 0;
+  mimeManager = 0;
+  mimeConfigurationFile = 0;
   mainConfigurationFile = 0;
-	vhostConfigurationFile = 0;
-	languagesPath = 0;
-	languageFile = 0;
-	externalPath = 0;
-	path = 0;
-	ipAddresses = 0;
-	vhostList = 0;
-	nTotalConnections = 0;
-	purgeThreadsThreshold = 1;
-	freeThreads = 0;
+  vhostConfigurationFile = 0;
+  languagesPath = 0;
+  languageFile = 0;
+  externalPath = 0;
+  path = 0;
+  ipAddresses = 0;
+  vhostList = 0;
+  nTotalConnections = 0;
+  purgeThreadsThreshold = 1;
+  freeThreads = 0;
 }
 
 /*!
@@ -115,7 +114,7 @@ void Server::start()
 {
   u_long i;
   u_long configsCheck = 0;
-	u_long purgeThreadsCounter = 0;
+  u_long purgeThreadsCounter = 0;
   time_t mainConfTime;
   time_t hostsConfTime;
   time_t mimeConf;
@@ -142,7 +141,7 @@ void Server::start()
 #endif
 #ifdef NOT_WIN
 
-	/*
+  /*
    *Under an UNIX environment, clearing the screen
    *can be done in a similar method
    */
@@ -199,9 +198,9 @@ void Server::start()
 
     XmlParser::startXML();
 
-		myserver_safetime_init();
+    myserver_safetime_init();
 
-		/*
+    /*
      *Setup the server configuration.
      */
     logWriteln("Initializing server configuration...");
@@ -213,7 +212,7 @@ void Server::start()
       return;
 
     /* Initialize the SSL library.  */
-		initializeSSL();
+    initializeSSL();
 
     logWriteln( languageParser.getValue("MSG_SERVER_CONF") );
 
@@ -243,9 +242,9 @@ void Server::start()
     /*
      *Find the IP addresses of the local machine.
      */
-		if(ipAddresses)
-			delete ipAddresses;
-		ipAddresses = new string();
+    if(ipAddresses)
+      delete ipAddresses;
+    ipAddresses = new string();
     buffer.assign("Host: ");
     buffer.append(serverName);
     logWriteln(buffer.c_str() );
@@ -271,11 +270,11 @@ void Server::start()
     loadSettings();
 
     mainConfTime = 
-			FilesUtility::getLastModTime(mainConfigurationFile->c_str());
+      FilesUtility::getLastModTime(mainConfigurationFile->c_str());
     hostsConfTime = 
-			FilesUtility::getLastModTime(vhostConfigurationFile->c_str());
+      FilesUtility::getLastModTime(vhostConfigurationFile->c_str());
     mimeConf = 
-			FilesUtility::getLastModTime(mimeConfigurationFile->c_str());
+      FilesUtility::getLastModTime(mimeConfigurationFile->c_str());
 
     /*
      *Keep thread alive.
@@ -287,11 +286,11 @@ void Server::start()
       Thread::wait(100000);
 
       /* Check threads.  */
-			if(purgeThreadsCounter++ >= 100)
-			{
-				purgeThreadsCounter = 0;
-				purgeThreads();
-			}
+      if(purgeThreadsCounter++ >= 100)
+      {
+        purgeThreadsCounter = 0;
+        purgeThreads();
+      }
 
       if(autoRebootEnabled)
       {
@@ -312,88 +311,87 @@ void Server::start()
           {
             if( (mainConfTimeNow  != mainConfTime) || toReboot)
             {
-							string msg("main-conf-changed");
-							notifyMulticast(msg, 0);
-							
+              string msg("main-conf-changed");
+              notifyMulticast(msg, 0);
+              
               reboot();
               /* Store new mtime values.  */
               mainConfTime = mainConfTimeNow;
               mimeConf = mimeConfNow;
             }
-						else if(mimeConfNow != mimeConf)
-						{
-							string msg("mime-conf-changed");
-							notifyMulticast(msg, 0);
-
-							if(logManager.getType() == LogManager::TYPE_CONSOLE)
-							{
-								char beep[]={static_cast<char>(0x7), '\0'};
-								logManager.write(beep);
-							}
-
-							logWriteln("Reloading MIMEtypes.xml");
-							
-							getMimeManager()->loadXML(getMIMEConfFile());
-
-							logWriteln("Reloaded");
-
-							mimeConf = mimeConfNow;
-						}
-						else if(hostsConfTimeNow != hostsConfTime)
+            else if(mimeConfNow != mimeConf)
             {
-							VhostManager* oldvhost = vhostList;
-							string msg("vhosts-conf-changed");
-							notifyMulticast(msg, 0);
+              string msg("mime-conf-changed");
+              notifyMulticast(msg, 0);
 
-							/* Do a beep if outputting to console.  */
-							if(logManager.getType() == LogManager::TYPE_CONSOLE)
-							{
-								char beep[]={static_cast<char>(0x7), '\0'};
-								logManager.write(beep);
-							}
+              if(logManager.getType() == LogManager::TYPE_CONSOLE)
+              {
+                char beep[]={static_cast<char>(0x7), '\0'};
+                logManager.write(beep);
+              }
 
-							logWriteln("Rebooting...");
-							
+              logWriteln("Reloading MIMEtypes.xml");
+              
+              getMimeManager()->loadXML(getMIMEConfFile());
 
-							connectionsScheduler.release();
+              logWriteln("Reloaded");
 
-							Socket::stopBlockingOperations(true);
+              mimeConf = mimeConfNow;
+            }
+            else if(hostsConfTimeNow != hostsConfTime)
+            {
+              VhostManager* oldvhost = vhostList;
+              string msg("vhosts-conf-changed");
+              notifyMulticast(msg, 0);
 
-							listenThreads.beginFastReboot();
+              /* Do a beep if outputting to console.  */
+              if(logManager.getType() == LogManager::TYPE_CONSOLE)
+              {
+                char beep[]={static_cast<char>(0x7), '\0'};
+                logManager.write(beep);
+              }
 
-							listenThreads.terminate();
-							
-							connectionsScheduler.terminateConnections();
-							clearAllConnections();
+              logWriteln("Rebooting...");
 
-							
-							Socket::stopBlockingOperations(false);
+              connectionsScheduler.release();
 
-							connectionsScheduler.restart();
-							listenThreads.initialize(&languageParser);
+              Socket::stopBlockingOperations(true);
 
-							vhostList = new VhostManager(&listenThreads);
+              listenThreads.beginFastReboot();
 
-							if(vhostList == 0)
-							{
-								continue;
-							}
+              listenThreads.terminate();
+              
+              connectionsScheduler.terminateConnections();
+              clearAllConnections();
 
-							delete oldvhost;
+              
+              Socket::stopBlockingOperations(false);
 
-							/* Load the virtual hosts configuration from the xml file.  */
-							if(vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(), getMaxLogFileSize()))
-							{
-								listenThreads.rollbackFastReboot();
+              connectionsScheduler.restart();
+              listenThreads.initialize(&languageParser);
 
-							}
-							else
-							{
-								listenThreads.commitFastReboot();
-							}
+              vhostList = new VhostManager(&listenThreads);
+
+              if(vhostList == 0)
+              {
+                continue;
+              }
+
+              delete oldvhost;
+
+              /* Load the virtual hosts configuration from the xml file.  */
+              if(vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(), getMaxLogFileSize()))
+              {
+                listenThreads.rollbackFastReboot();
+
+              }
+              else
+              {
+                listenThreads.commitFastReboot();
+              }
 
               hostsConfTime = hostsConfTimeNow;
-							logWriteln("Reloaded");
+              logWriteln("Reloaded");
 
             }
 
@@ -423,10 +421,10 @@ void Server::start()
     s << "Error: " << e.what();
     logWriteln(s.str().c_str());
   };
-	this->terminate();
-	finalCleanup();
+  this->terminate();
+  finalCleanup();
 #ifdef WIN32
-	WSACleanup();
+  WSACleanup();
 #endif// WIN32
 }
 
@@ -436,13 +434,13 @@ void Server::start()
  */
 int Server::purgeThreads()
 {
-	u_long ticks = getTicks();
-	u_long destroyed = 0;
-	purgeThreadsThreshold = std::min(purgeThreadsThreshold << 1, nMaxThreads);
+  u_long ticks = getTicks();
+  u_long destroyed = 0;
+  purgeThreadsThreshold = std::min(purgeThreadsThreshold << 1, nMaxThreads);
   threadsMutex->lock();
   for(list<ClientsThread*>::iterator it = threads.begin(); it != threads.end();)
   {
-		ClientsThread* thread = *it;
+    ClientsThread* thread = *it;
 
 
     /*
@@ -450,28 +448,28 @@ int Server::purgeThreads()
      */
     if(thread->isToDestroy())
     {
-			if(destroyed < purgeThreadsThreshold)
-			{
-				list<ClientsThread*>::iterator next = it;
-				next++;
+      if(destroyed < purgeThreadsThreshold)
+      {
+        list<ClientsThread*>::iterator next = it;
+        next++;
 
-				thread->stop();
-				threads.erase(it);
-				destroyed++;
+        thread->stop();
+        threads.erase(it);
+        destroyed++;
 
-				it = next;
-			}
-			else
-				it++;
+        it = next;
+      }
+      else
+        it++;
     }
-		else
-		{
+    else
+    {
 
-			if(!thread->isStatic())
-				if(ticks - thread->getTimeout() > MYSERVER_SEC(15))
-					thread->setToDestroy(1);
-			it++;
-		}
+      if(!thread->isStatic())
+        if(ticks - thread->getTimeout() > MYSERVER_SEC(15))
+          thread->setToDestroy(1);
+      it++;
+    }
   }
   threadsMutex->unlock();
 
@@ -483,9 +481,9 @@ int Server::purgeThreads()
  */
 void Server::finalCleanup()
 {
-	XmlParser::cleanXML();
+  XmlParser::cleanXML();
   freecwdBuffer();
-	myserver_safetime_destroy();
+  myserver_safetime_destroy();
 }
 
 /*!
@@ -517,7 +515,7 @@ XmlParser* Server::getLanguageParser()
  */
 u_long Server::getNumConnections()
 {
-	return connectionsScheduler.getConnectionsNumber();
+  return connectionsScheduler.getConnectionsNumber();
 }
 
 /*!
@@ -525,7 +523,7 @@ u_long Server::getNumConnections()
  */
 u_long Server::getNumTotalConnections()
 {
-	return nTotalConnections;
+  return nTotalConnections;
 }
 
 /*!
@@ -533,7 +531,7 @@ u_long Server::getNumTotalConnections()
  */
 u_long Server::getVerbosity()
 {
-	return verbosity;
+  return verbosity;
 }
 
 /*!
@@ -541,7 +539,7 @@ u_long Server::getVerbosity()
  */
 void  Server::setVerbosity(u_long nv)
 {
-	verbosity=nv;
+  verbosity=nv;
 }
 
 /*!
@@ -549,7 +547,7 @@ void  Server::setVerbosity(u_long nv)
  */
 HomeDir* Server::getHomeDir()
 {
-	return &homeDir;
+  return &homeDir;
 }
 
 /*!
@@ -557,7 +555,7 @@ HomeDir* Server::getHomeDir()
  */
 void Server::stop()
 {
-	mustEndServer = 1;
+  mustEndServer = 1;
 }
 
 /*!
@@ -566,117 +564,121 @@ void Server::stop()
  */
 int Server::terminate()
 {
+  list<ThreadID> threadsIds;
 
   if(verbosity > 1)
     logWriteln(languageParser.getValue("MSG_STOPT"));
 
-	listenThreads.terminate();
+  listenThreads.terminate();
 
-	threadsMutex->lock();
-	for(list<ClientsThread*>::iterator it = threads.begin(); it != threads.end(); it++)
-	{
-		(*it)->stop();
-	}
-	threadsMutex->unlock();
+  threadsMutex->lock();
+  for(list<ClientsThread*>::iterator it = threads.begin(); it != threads.end(); it++)
+  {
+    threadsIds.push_back((*it)->getThreadId());
+    (*it)->stop();
+  }
+  threadsMutex->unlock();
+  connectionsScheduler.release();
+  Socket::stopBlockingOperations(true);
+  connectionsScheduler.terminateConnections();
+  clearAllConnections();
 
-	connectionsScheduler.release();
-	Socket::stopBlockingOperations(true);
-	connectionsScheduler.terminateConnections();
-	clearAllConnections();
-
-	/* Clear the home directories data.  */
-	homeDir.clear();
-
-    if(verbosity > 1)
-      logWriteln(languageParser.getValue("MSG_TSTOPPED"));
+  for(list<ThreadID>::iterator it = threadsIds.begin(); it != threadsIds.end(); it++)
+  {
+    Thread::join(*it);
+  }
 
 
-	if(verbosity > 1)
-	{
+  /* Clear the home directories data.  */
+  homeDir.clear();
+
+  if(verbosity > 1)
+    logWriteln(languageParser.getValue("MSG_TSTOPPED"));
+
+
+  if(verbosity > 1)
+  {
       logWriteln(languageParser.getValue("MSG_MEMCLEAN"));
-	}
+  }
 
-	freeHashedData();
+  freeHashedData();
 
-	/* Restore the blocking status in case of a reboot.  */
-	Socket::stopBlockingOperations(false);
+  /* Restore the blocking status in case of a reboot.  */
+  Socket::stopBlockingOperations(false);
 
-	if(languagesPath)
-		delete languagesPath;
-	languagesPath = 0;
+  if(languagesPath)
+    delete languagesPath;
+  languagesPath = 0;
 
   if(languageFile)
-		delete languageFile;
-	languageFile = 0;
+    delete languageFile;
+  languageFile = 0;
   if(vhostList)
     delete vhostList;
 
-	if(serverAdmin)
-		delete serverAdmin;
-	serverAdmin = 0;
+  if(serverAdmin)
+    delete serverAdmin;
+  serverAdmin = 0;
 
   delete vhostConfigurationFile;
-	vhostConfigurationFile = 0;
+  vhostConfigurationFile = 0;
 
-	delete mainConfigurationFile;
-	mainConfigurationFile = 0;
+  delete mainConfigurationFile;
+  mainConfigurationFile = 0;
 
-	delete mimeConfigurationFile;
-	mimeConfigurationFile = 0;
+  delete mimeConfigurationFile;
+  mimeConfigurationFile = 0;
 
-	if(externalPath)
-		delete externalPath;
-	externalPath = 0;
+  if(externalPath)
+    delete externalPath;
+  externalPath = 0;
 
-	if(path)
-		delete path;
-	path = 0;
+  if(path)
+    delete path;
+  path = 0;
 
-	if(ipAddresses)
-		delete ipAddresses;
+  if(ipAddresses)
+    delete ipAddresses;
 
-	ipAddresses = 0;
+  ipAddresses = 0;
   vhostList = 0;
-	languageParser.close();
-	mimeManager->clean();
-	delete mimeManager;
-	mimeManager = 0;
+  languageParser.close();
+  mimeManager->clean();
+  delete mimeManager;
+  mimeManager = 0;
 #ifdef WIN32
-	/*
+  /*
    *Under WIN32 cleanup environment strings.
    */
-	FreeEnvironmentStrings((LPTSTR)envString);
+  FreeEnvironmentStrings((LPTSTR)envString);
 #endif
-	getProcessServerManager()->clear();
+  getProcessServerManager()->clear();
 
   filtersFactory.free();
 
-	configurationFileManager.close();
+  configurationFileManager.close();
 
-	getPluginsManager()->unLoad(this, &languageParser);
+  getPluginsManager()->unLoad(this, &languageParser);
 
-	/*
-   *Destroy the connections mutex.
-   */
-	delete connectionsMutex;
+  delete connectionsMutex;
 
-	clearMulticastRegistry();
+  clearMulticastRegistry();
 
-	globalData.clear();
+  globalData.clear();
 
   /*
    *Free all the threads.
    */
-	threadsMutex->lock();
-	threads.clear();
-	threadsMutex->unlock();
+  threadsMutex->lock();
+  threads.clear();
+  threadsMutex->unlock();
   delete threadsMutex;
 
-	nStaticThreads = 0;
-	if(verbosity > 1)
-	{
-		logWriteln("MyServer is stopped");
-	}
+  nStaticThreads = 0;
+  if(verbosity > 1)
+  {
+    logWriteln("MyServer is stopped");
+  }
   return 0;
 }
 
@@ -686,7 +688,7 @@ int Server::terminate()
  */
 const char *Server::getServerAdmin()
 {
-	return serverAdmin ? serverAdmin->c_str() : "";
+  return serverAdmin ? serverAdmin->c_str() : "";
 }
 
 /*!
@@ -696,65 +698,63 @@ const char *Server::getServerAdmin()
  */
 int Server::initialize(int /*!osVer*/)
 {
-	char *data;
+  char *data;
   int ret;
   char buffer[512];
   u_long nbr;
   u_long nbw;
 #ifdef WIN32
-	envString = GetEnvironmentStrings();
+  envString = GetEnvironmentStrings();
 #endif
 
-	/* Create the mutex for the connections.  */
-	connectionsMutex = new Mutex();
+  connectionsMutex = new Mutex();
 
-  /* Create the mutex for the threads.  */
   threadsMutex = new Mutex();
 
-	/* Store the default values.  */
+  /* Store the default values.  */
   nStaticThreads = 20;
   nMaxThreads = 50;
   currentThreadID = 0;
-	freeThreads = 0;
-	connectionTimeout = MYSERVER_SEC(25);
-	mustEndServer = 0;
-	verbosity = 1;
-	purgeThreadsThreshold = 1;
+  freeThreads = 0;
+  connectionTimeout = MYSERVER_SEC(25);
+  mustEndServer = 0;
+  verbosity = 1;
+  purgeThreadsThreshold = 1;
   throttlingRate = 0;
-	maxConnections = 0;
+  maxConnections = 0;
   maxConnectionsToAccept = 0;
-	if(serverAdmin)
-		delete serverAdmin;
-	serverAdmin = 0;
-	autoRebootEnabled = 1;
-	languagesPath = new string();
+  if(serverAdmin)
+    delete serverAdmin;
+  serverAdmin = 0;
+  autoRebootEnabled = 1;
+  languagesPath = new string();
 #ifndef WIN32
 
-	/*
+  /*
    *Do not use the files in the directory /usr/share/myserver/languages
    *if exists a local directory.
    */
-	if(FilesUtility::fileExists("languages"))
-	{
-		languagesPath->assign(getdefaultwd(0, 0) );
+  if(FilesUtility::fileExists("languages"))
+  {
+    languagesPath->assign(getdefaultwd(0, 0) );
     languagesPath->append("/languages/");
 
-	}
-	else
-	{
+  }
+  else
+  {
 #ifdef PREFIX
-		languagesPath->assign(PREFIX);
+    languagesPath->assign(PREFIX);
     languagesPath->append("/share/myserver/languages/");
 #else
     /* Default PREFIX is /usr/.  */
-		languagesPath->assign("/usr/share/myserver/languages/");
+    languagesPath->assign("/usr/share/myserver/languages/");
 #endif
-	}
+  }
 #endif
 
-	if(mainConfigurationFile)
-		delete mainConfigurationFile;
-	mainConfigurationFile = new string();
+  if(mainConfigurationFile)
+    delete mainConfigurationFile;
+  mainConfigurationFile = new string();
 
 #ifdef WIN32
   languagesPath->assign( "languages/" );
@@ -769,224 +769,224 @@ int Server::initialize(int /*!osVer*/)
    *3) /etc/myserver/
    *4) default files will be copied in myserver executable working
    */
-	if(FilesUtility::fileExists("myserver.xml"))
-	{
-		mainConfigurationFile->assign("myserver.xml");
-	}
-	else if(FilesUtility::fileExists("~/.myserver/myserver.xml"))
-	{
-		mainConfigurationFile->assign("~/.myserver/myserver.xml");
-	}
-	else if(FilesUtility::fileExists("/etc/myserver/myserver.xml"))
-	{
-		mainConfigurationFile->assign("/etc/myserver/myserver.xml");
-	}
-	else
-#endif
-	/* If the myserver.xml files doesn't exist copy it from the default one.  */
-	if(!FilesUtility::fileExists("myserver.xml"))
-	{
-    mainConfigurationFile->assign("myserver.xml");
-		File inputF;
-		File outputF;
-		ret = inputF.openFile("myserver.xml.default",
-													File::MYSERVER_OPEN_READ | 
-													File::MYSERVER_OPEN_IFEXISTS);
-		if(ret)
-		{
-			logPreparePrintError();
-			logWriteln("Error loading configuration file\n");
-			logEndPrintError();
-			return -1;
-		}
-		ret = outputF.openFile("myserver.xml", File::MYSERVER_OPEN_WRITE |
-                     File::MYSERVER_OPEN_ALWAYS);
-		if(ret)
-		{
-			logPreparePrintError();
-			logWriteln("Error loading configuration file\n");
-			logEndPrintError();
-			return -1;
-		}
-		for(;;)
-		{
-			ret = inputF.readFromFile(buffer, 512, &nbr );
-      if(ret)
-        return -1;
-
-			if(!nbr)
-				break;
-
-			ret = outputF.writeToFile(buffer, nbr, &nbw);
-      if(ret)
-        return -1;
-		}
-		inputF.closeFile();
-		outputF.closeFile();
-	}
-	else
+  if(FilesUtility::fileExists("myserver.xml"))
   {
-		mainConfigurationFile->assign("myserver.xml");
+    mainConfigurationFile->assign("myserver.xml");
   }
-	configurationFileManager.open(mainConfigurationFile->c_str());
+  else if(FilesUtility::fileExists("~/.myserver/myserver.xml"))
+  {
+    mainConfigurationFile->assign("~/.myserver/myserver.xml");
+  }
+  else if(FilesUtility::fileExists("/etc/myserver/myserver.xml"))
+  {
+    mainConfigurationFile->assign("/etc/myserver/myserver.xml");
+  }
+  else
+#endif
+  /* If the myserver.xml files doesn't exist copy it from the default one.  */
+  if(!FilesUtility::fileExists("myserver.xml"))
+  {
+    mainConfigurationFile->assign("myserver.xml");
+    File inputF;
+    File outputF;
+    ret = inputF.openFile("myserver.xml.default",
+                          File::MYSERVER_OPEN_READ | 
+                          File::MYSERVER_OPEN_IFEXISTS);
+    if(ret)
+    {
+      logPreparePrintError();
+      logWriteln("Error loading configuration file\n");
+      logEndPrintError();
+      return -1;
+    }
+    ret = outputF.openFile("myserver.xml", File::MYSERVER_OPEN_WRITE |
+                     File::MYSERVER_OPEN_ALWAYS);
+    if(ret)
+    {
+      logPreparePrintError();
+      logWriteln("Error loading configuration file\n");
+      logEndPrintError();
+      return -1;
+    }
+    for(;;)
+    {
+      ret = inputF.readFromFile(buffer, 512, &nbr );
+      if(ret)
+        return -1;
+
+      if(!nbr)
+        break;
+
+      ret = outputF.writeToFile(buffer, nbr, &nbw);
+      if(ret)
+        return -1;
+    }
+    inputF.closeFile();
+    outputF.closeFile();
+  }
+  else
+  {
+    mainConfigurationFile->assign("myserver.xml");
+  }
+  configurationFileManager.open(mainConfigurationFile->c_str());
 
 
-	data = configurationFileManager.getValue("VERBOSITY");
-	if(data)
-	{
-		verbosity = (u_long)atoi(data);
-	}
-	data = configurationFileManager.getValue("LANGUAGE");
-	if(languageFile)
-		delete languageFile;
-	languageFile = new string();
-	if(data)
-	{
+  data = configurationFileManager.getValue("VERBOSITY");
+  if(data)
+  {
+    verbosity = (u_long)atoi(data);
+  }
+  data = configurationFileManager.getValue("LANGUAGE");
+  if(languageFile)
+    delete languageFile;
+  languageFile = new string();
+  if(data)
+  {
     languageFile->assign(*languagesPath);
     languageFile->append("/");
     languageFile->append(data);
-	}
-	else
-	{
-		languageFile->assign("languages/english.xml");
-	}
+  }
+  else
+  {
+    languageFile->assign("languages/english.xml");
+  }
 
-	data = configurationFileManager.getValue("BUFFER_SIZE");
-	if(data)
-	{
-		buffersize=buffersize2= (atol(data) > 81920) ?  atol(data) :  81920 ;
-	}
-	data = configurationFileManager.getValue("CONNECTION_TIMEOUT");
-	if(data)
-	{
-		connectionTimeout = MYSERVER_SEC((u_long)atol(data));
-	}
+  data = configurationFileManager.getValue("BUFFER_SIZE");
+  if(data)
+  {
+    buffersize=buffersize2= (atol(data) > 81920) ?  atol(data) :  81920 ;
+  }
+  data = configurationFileManager.getValue("CONNECTION_TIMEOUT");
+  if(data)
+  {
+    connectionTimeout = MYSERVER_SEC((u_long)atol(data));
+  }
 
-	data = configurationFileManager.getValue("NTHREADS_STATIC");
-	if(data)
-	{
-		nStaticThreads = atoi(data);
-	}
-	data = configurationFileManager.getValue("NTHREADS_MAX");
-	if(data)
-	{
-		nMaxThreads = atoi(data);
-	}
+  data = configurationFileManager.getValue("NTHREADS_STATIC");
+  if(data)
+  {
+    nStaticThreads = atoi(data);
+  }
+  data = configurationFileManager.getValue("NTHREADS_MAX");
+  if(data)
+  {
+    nMaxThreads = atoi(data);
+  }
 
-	/* Get the max connections number to allow.  */
-	data = configurationFileManager.getValue("MAX_CONNECTIONS");
-	if(data)
-	{
-		maxConnections = atoi(data);
-	}
+  /* Get the max connections number to allow.  */
+  data = configurationFileManager.getValue("MAX_CONNECTIONS");
+  if(data)
+  {
+    maxConnections = atoi(data);
+  }
 
-	/* Get the max connections number to accept.  */
-	data = configurationFileManager.getValue("MAX_CONNECTIONS_TO_ACCEPT");
-	if(data)
-	{
-		maxConnectionsToAccept = atoi(data);
-	}
+  /* Get the max connections number to accept.  */
+  data = configurationFileManager.getValue("MAX_CONNECTIONS_TO_ACCEPT");
+  if(data)
+  {
+    maxConnectionsToAccept = atoi(data);
+  }
 
-	/* Get the default throttling rate to use on connections.  */
-	data = configurationFileManager.getValue("THROTTLING_RATE");
-	if(data)
-	{
-		throttlingRate = (u_long)atoi(data);
-	}
+  /* Get the default throttling rate to use on connections.  */
+  data = configurationFileManager.getValue("THROTTLING_RATE");
+  if(data)
+  {
+    throttlingRate = (u_long)atoi(data);
+  }
 
-	/* Load the server administrator e-mail.  */
-	data = configurationFileManager.getValue("SERVER_ADMIN");
-	if(data)
-	{
-		if(serverAdmin == 0)
-			serverAdmin = new string();
-		serverAdmin->assign(data);
-	}
+  /* Load the server administrator e-mail.  */
+  data = configurationFileManager.getValue("SERVER_ADMIN");
+  if(data)
+  {
+    if(serverAdmin == 0)
+      serverAdmin = new string();
+    serverAdmin->assign(data);
+  }
 
-	data = configurationFileManager.getValue("CONNECTION_TIMEOUT");
-	if(data)
-	{
-		connectionTimeout=MYSERVER_SEC((u_long)atol(data));
-	}
+  data = configurationFileManager.getValue("CONNECTION_TIMEOUT");
+  if(data)
+  {
+    connectionTimeout=MYSERVER_SEC((u_long)atol(data));
+  }
 
-	data = configurationFileManager.getValue("MAX_LOG_FILE_SIZE");
-	if(data)
-	{
-		maxLogFileSize=(u_long)atol(data);
-	}
+  data = configurationFileManager.getValue("MAX_LOG_FILE_SIZE");
+  if(data)
+  {
+    maxLogFileSize=(u_long)atol(data);
+  }
 
-	data = configurationFileManager.getValue("MAX_FILESCACHE_SIZE");
-	if(data)
-	{
-		u_long maxSize = (u_long)atol(data);
-		cachedFiles.initialize(maxSize);
-	}
-	else
-		cachedFiles.initialize(1 << 23);
+  data = configurationFileManager.getValue("MAX_FILESCACHE_SIZE");
+  if(data)
+  {
+    u_long maxSize = (u_long)atol(data);
+    cachedFiles.initialize(maxSize);
+  }
+  else
+    cachedFiles.initialize(1 << 23);
 
-	data = configurationFileManager.getValue("TEMP_DIRECTORY");
-	if(data)
-	{
-		tmpPath.assign(data);
-		FilesUtility::completePath(tmpPath);
-	}
-	else
-	{
-		tmpPath.assign(getdefaultwd(0, 0));
-	}
+  data = configurationFileManager.getValue("TEMP_DIRECTORY");
+  if(data)
+  {
+    tmpPath.assign(data);
+    FilesUtility::completePath(tmpPath);
+  }
+  else
+  {
+    tmpPath.assign(getdefaultwd(0, 0));
+  }
 
-	data = configurationFileManager.getValue("MAX_FILESCACHE_FILESIZE");
-	if(data)
-	{
-		u_long maxSize = (u_long)atol(data);
-		cachedFiles.setMaxSize(maxSize);
-	}
+  data = configurationFileManager.getValue("MAX_FILESCACHE_FILESIZE");
+  if(data)
+  {
+    u_long maxSize = (u_long)atol(data);
+    cachedFiles.setMaxSize(maxSize);
+  }
 
-	data = configurationFileManager.getValue("MIN_FILESCACHE_FILESIZE");
-	if(data)
-	{
-		u_long minSize = (u_long)atol(data);
-		cachedFiles.setMinSize(minSize);
-	}
+  data = configurationFileManager.getValue("MIN_FILESCACHE_FILESIZE");
+  if(data)
+  {
+    u_long minSize = (u_long)atol(data);
+    cachedFiles.setMinSize(minSize);
+  }
 
   data = configurationFileManager.getValue("PROCESS_USER_ID");
-	if(data)
-	{
-		uid = atoi(data);
-	}
+  if(data)
+  {
+    uid = atoi(data);
+  }
   data = configurationFileManager.getValue("PROCESS_GROUP_ID");
-	if(data)
-	{
-		gid = atoi(data);
-	}
+  if(data)
+  {
+    gid = atoi(data);
+  }
 
-	data = configurationFileManager.getValue("MAX_SERVERS_PROCESSES");
-	if(data)
-	{
-		int maxServersProcesses = atoi(data);
-		getProcessServerManager()->setMaxServers(maxServersProcesses);
-	}
+  data = configurationFileManager.getValue("MAX_SERVERS_PROCESSES");
+  if(data)
+  {
+    int maxServersProcesses = atoi(data);
+    getProcessServerManager()->setMaxServers(maxServersProcesses);
+  }
 
-	data = configurationFileManager.getValue("SERVERS_PROCESSES_INITIAL_PORT");
-	if(data)
-	{
-		int serversProcessesInitialPort = atoi(data);
-		getProcessServerManager()->setInitialPort(serversProcessesInitialPort);
-	}	
+  data = configurationFileManager.getValue("SERVERS_PROCESSES_INITIAL_PORT");
+  if(data)
+  {
+    int serversProcessesInitialPort = atoi(data);
+    getProcessServerManager()->setInitialPort(serversProcessesInitialPort);
+  }  
 
   {
-	  xmlNodePtr node =
-			xmlDocGetRootElement(configurationFileManager.getDoc())->xmlChildrenNode;
+    xmlNodePtr node =
+      xmlDocGetRootElement(configurationFileManager.getDoc())->xmlChildrenNode;
     for(;node; node = node->next)
     {
       if(node->children && node->children->content)
       {
-				string* old;
+        string* old;
         string *value = new string((const char*)node->children->content);
-				string key((const char*)node->name);
-				if(value == 0)
+        string key((const char*)node->name);
+        if(value == 0)
           return -1;
-				old = hashedData.put(key, value);
+        old = hashedData.put(key, value);
         if(old)
         {
           delete old;
@@ -995,7 +995,7 @@ int Server::initialize(int /*!osVer*/)
     }
   }
 
-	if(languageParser.open(languageFile->c_str()))
+  if(languageParser.open(languageFile->c_str()))
   {
     string err;
     logPreparePrintError();
@@ -1005,8 +1005,8 @@ int Server::initialize(int /*!osVer*/)
     logEndPrintError();
     return -1;
   }
-	logWriteln(languageParser.getValue("MSG_LANGUAGE"));
-	return 0;
+  logWriteln(languageParser.getValue("MSG_LANGUAGE"));
+  return 0;
 
 }
 
@@ -1016,17 +1016,17 @@ int Server::initialize(int /*!osVer*/)
  */
 void Server::checkThreadsNumber()
 {
-	threadsMutex->lock();
+  threadsMutex->lock();
 
   /*
    *Create a new thread if there are not available threads and
    *we did not reach the limit.
    */
   if((threads.size() < nMaxThreads) && (freeThreads < 1))
-	{
-		addThread(0);
+  {
+    addThread(0);
   }
-	threadsMutex->unlock();
+  threadsMutex->unlock();
 }
 
 /*!
@@ -1043,7 +1043,7 @@ u_long Server::getThrottlingRate()
  */
 int Server::getMaxLogFileSize()
 {
-	return maxLogFileSize;
+  return maxLogFileSize;
 }
 
 /*!
@@ -1051,7 +1051,7 @@ int Server::getMaxLogFileSize()
  */
 u_long Server::getTimeout()
 {
-	return connectionTimeout;
+  return connectionTimeout;
 }
 
 /*!
@@ -1060,104 +1060,103 @@ u_long Server::getTimeout()
 int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
 {
 
-	int ret = 0;
-	char ip[MAX_IP_STRING_LEN];
-	char localIp[MAX_IP_STRING_LEN];
-	u_short port;
-	u_short myPort;
-	MYSERVER_SOCKADDRIN  localSockIn = { 0 };
-	int dim;
+  int ret = 0;
+  char ip[MAX_IP_STRING_LEN];
+  char localIp[MAX_IP_STRING_LEN];
+  u_short port;
+  u_short myPort;
+  MYSERVER_SOCKADDRIN  localSockIn = { 0 };
+  int dim;
 
-	/*
-	 *We can use MAX_IP_STRING_LEN only because we use NI_NUMERICHOST
-	 *in getnameinfo call; Otherwise we should have used NI_MAXHOST.
+  /*
+   *We can use MAX_IP_STRING_LEN only because we use NI_NUMERICHOST
+   *in getnameinfo call; Otherwise we should have used NI_MAXHOST.
    *ip is the string containing the address of the remote host connecting 
-	 *to the server.
+   *to the server.
    *localIp is the local address used by the connection.
-	 *port is the remote port used by the client to open the connection.
-	 *myPort is the port used by the server to listen.
-	 */
+   *port is the remote port used by the client to open the connection.
+   *myPort is the port used by the server to listen.
+   */
+  if ( asockIn == NULL ||
+       (asockIn->ss_family != AF_INET && asockIn->ss_family != AF_INET6))
+    return 0;
 
-	if ( asockIn == NULL ||
-			 (asockIn->ss_family != AF_INET && asockIn->ss_family != AF_INET6))
-		return 0;
+  memset(ip, 0, MAX_IP_STRING_LEN);
+  memset(localIp, 0, MAX_IP_STRING_LEN);
 
-	memset(ip, 0, MAX_IP_STRING_LEN);
-	memset(localIp, 0, MAX_IP_STRING_LEN);
-
-	if( s.getHandle() == 0 )
-		return 0;
+  if( s.getHandle() == 0 )
+    return 0;
 
   /*
    *Do not accept this connection if a MAX_CONNECTIONS_TO_ACCEPT limit is 
-	 *defined.
+   *defined.
    */
   if(maxConnectionsToAccept && 
-		 ((u_long)connectionsScheduler.getConnectionsNumber() >= maxConnectionsToAccept))
+     ((u_long)connectionsScheduler.getConnectionsNumber() >= maxConnectionsToAccept))
     return 0;
 
 #if ( HAVE_IPV6 )
-	if ( asockIn->ss_family == AF_INET )
-		ret = getnameinfo(reinterpret_cast<const sockaddr *>(asockIn), 
-											sizeof(sockaddr_in),
-											ip, MAX_IP_STRING_LEN, NULL, 0, NI_NUMERICHOST);
-	else
-		ret = getnameinfo(reinterpret_cast<const sockaddr *>(asockIn), 
-											sizeof(sockaddr_in6),	ip, MAX_IP_STRING_LEN, 
-											NULL, 0, NI_NUMERICHOST);
-	if(ret)
-	   return 0;
+  if ( asockIn->ss_family == AF_INET )
+    ret = getnameinfo(reinterpret_cast<const sockaddr *>(asockIn), 
+                      sizeof(sockaddr_in),
+                      ip, MAX_IP_STRING_LEN, NULL, 0, NI_NUMERICHOST);
+  else
+    ret = getnameinfo(reinterpret_cast<const sockaddr *>(asockIn), 
+                      sizeof(sockaddr_in6),  ip, MAX_IP_STRING_LEN, 
+                      NULL, 0, NI_NUMERICHOST);
+  if(ret)
+     return 0;
 
-	if ( asockIn->ss_family == AF_INET )
-		dim = sizeof(sockaddr_in);
-	else
-		dim = sizeof(sockaddr_in6);
-	s.getsockname((MYSERVER_SOCKADDR*)&localSockIn, &dim);
+  if ( asockIn->ss_family == AF_INET )
+    dim = sizeof(sockaddr_in);
+  else
+    dim = sizeof(sockaddr_in6);
+  s.getsockname((MYSERVER_SOCKADDR*)&localSockIn, &dim);
 
-	if ( asockIn->ss_family == AF_INET )
-		ret = getnameinfo(reinterpret_cast<const sockaddr *>(&localSockIn), 
-											sizeof(sockaddr_in), localIp, MAX_IP_STRING_LEN, 
-											NULL, 0, NI_NUMERICHOST);
-	else// AF_INET6
-		ret = getnameinfo(reinterpret_cast<const sockaddr *>(&localSockIn), 
-											sizeof(sockaddr_in6), localIp, MAX_IP_STRING_LEN, 
-											NULL, 0, NI_NUMERICHOST);
-	if(ret)
-	   return 0;
+  if ( asockIn->ss_family == AF_INET )
+    ret = getnameinfo(reinterpret_cast<const sockaddr *>(&localSockIn), 
+                      sizeof(sockaddr_in), localIp, MAX_IP_STRING_LEN, 
+                      NULL, 0, NI_NUMERICHOST);
+  else// AF_INET6
+    ret = getnameinfo(reinterpret_cast<const sockaddr *>(&localSockIn), 
+                      sizeof(sockaddr_in6), localIp, MAX_IP_STRING_LEN, 
+                      NULL, 0, NI_NUMERICHOST);
+  if(ret)
+     return 0;
 #else// !HAVE_IPV6
-	dim = sizeof(localSockIn);
-	s.getsockname((MYSERVER_SOCKADDR*)&localSockIn, &dim);
-	strncpy(ip,  inet_ntoa(((sockaddr_in *)asockIn)->sin_addr), 
-					MAX_IP_STRING_LEN);
-	strncpy(localIp,  inet_ntoa(((sockaddr_in *)&localSockIn)->sin_addr),
-					MAX_IP_STRING_LEN);
+  dim = sizeof(localSockIn);
+  s.getsockname((MYSERVER_SOCKADDR*)&localSockIn, &dim);
+  strncpy(ip,  inet_ntoa(((sockaddr_in *)asockIn)->sin_addr), 
+          MAX_IP_STRING_LEN);
+  strncpy(localIp,  inet_ntoa(((sockaddr_in *)&localSockIn)->sin_addr),
+          MAX_IP_STRING_LEN);
 #endif//HAVE_IPV6
 
   /* Port used by the client.  */
-  	if ( asockIn->ss_family == AF_INET )
-  		port = ntohs(((sockaddr_in *)(asockIn))->sin_port);
-	else
-		port = ntohs(((sockaddr_in6 *)(asockIn))->sin6_port);
+    if ( asockIn->ss_family == AF_INET )
+      port = ntohs(((sockaddr_in *)(asockIn))->sin_port);
+  else
+    port = ntohs(((sockaddr_in6 *)(asockIn))->sin6_port);
 
   /* Port used by the server. */
-		if ( localSockIn.ss_family == AF_INET )
-			myPort = ntohs(((sockaddr_in *)(&localSockIn))->sin_port);
-	else
-		myPort = ntohs(((sockaddr_in6 *)(&localSockIn))->sin6_port);
+    if ( localSockIn.ss_family == AF_INET )
+      myPort = ntohs(((sockaddr_in *)(&localSockIn))->sin_port);
+  else
+    myPort = ntohs(((sockaddr_in6 *)(&localSockIn))->sin6_port);
 
 
-	if(!addConnectionToList(&s, asockIn, &ip[0], &localIp[0], port, myPort, 1))
-	{
-		/* If we report error to add the connection to the thread.  */
-		ret = 0;
+  if(!addConnectionToList(&s, asockIn, &ip[0], &localIp[0], port, myPort, 1))
+  {
+    /* If we report error to add the connection to the thread.  */
+    ret = 0;
 
     /* Shutdown the socket both on receive that on send.  */
-		s.shutdown(2);
+    s.shutdown(2);
 
     /* Then close it.  */
-		s.closesocket();
-	}
-	return ret;
+    s.closesocket();
+  }
+  return ret;
 }
 
 /*!
@@ -1173,37 +1172,38 @@ int Server::getMaxThreads()
  *A connection is defined using a connection struct.
  */
 ConnectionPtr Server::addConnectionToList(Socket* s,
-																					MYSERVER_SOCKADDRIN* /*asockIn*/,
-																					char *ipAddr, char *localIpAddr,
-																					u_short port, u_short localPort, 
-																					int /*id*/)
+                                          MYSERVER_SOCKADDRIN* /*asockIn*/,
+                                          char *ipAddr, char *localIpAddr,
+                                          u_short port, u_short localPort, 
+                                          int /*id*/)
 {
-	int doSSLhandshake = 0;
+  int doSSLhandshake = 0;
   int doFastCheck = 0;
   Protocol* protocol;
   int opts = 0;
-	ConnectionPtr newConnection = new Connection;
-	vector<Multicast<string, void*, int>*>* handlers;
+  ConnectionPtr newConnection = new Connection;
+  vector<Multicast<string, void*, int>*>* handlers;
 
-	if(!newConnection)
-	{
-		return NULL;
-	}
-	newConnection->setPort(port);
-	newConnection->setTimeout( getTicks() );
-	newConnection->setLocalPort(localPort);
-	newConnection->setIpAddr(ipAddr);
-	newConnection->setLocalIpAddr(localIpAddr);
-	newConnection->host = Server::getInstance()->vhostList->getVHost(0,
-																					                   localIpAddr,
+  if(!newConnection)
+  {
+    return NULL;
+  }
+
+  newConnection->setPort(port);
+  newConnection->setTimeout( getTicks() );
+  newConnection->setLocalPort(localPort);
+  newConnection->setIpAddr(ipAddr);
+  newConnection->setLocalIpAddr(localIpAddr);
+  newConnection->host = Server::getInstance()->vhostList->getVHost(0,
+                                                             localIpAddr,
                                                              localPort);
 
   /* No vhost for the connection so bail.  */
-	if(newConnection->host == 0)
-	{
-		delete newConnection;
-		return 0;
-	}
+  if(newConnection->host == 0)
+  {
+    delete newConnection;
+    return 0;
+  }
 
   protocol = Server::getInstance()->getProtocol(newConnection->host->getProtocolName());
   
@@ -1217,71 +1217,71 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
     doFastCheck = 1;
   
 
-	{
-		string msg("new-connection");
-		
-		handlers = getHandlers(msg);
-		
-		if(handlers)
-		{
-			for(size_t i = 0; i < handlers->size(); i++)
-				if((*handlers)[i]->updateMulticast(this, msg, newConnection) == 1)
-				{
-					delete newConnection;
-					return 0;
-				}
-		}
-	}
+  {
+    string msg("new-connection");
+    
+    handlers = getHandlers(msg);
+    
+    if(handlers)
+    {
+      for(size_t i = 0; i < handlers->size(); i++)
+        if((*handlers)[i]->updateMulticast(this, msg, newConnection) == 1)
+        {
+          delete newConnection;
+          return 0;
+        }
+    }
+  }
 
-	/* Do the SSL handshake if required.  */
-	if(doSSLhandshake)
-	{
-		int ret = 0;
-		SSL_CTX* ctx = newConnection->host->getSSLContext();
-		SslSocket *sslSocket = new SslSocket(s);
+  /* Do the SSL handshake if required.  */
+  if(doSSLhandshake)
+  {
+    int ret = 0;
+    SSL_CTX* ctx = newConnection->host->getSSLContext();
+    SslSocket *sslSocket = new SslSocket(s);
 
-		sslSocket->setSSLContext(ctx);
-		ret = sslSocket->sslAccept();
+    sslSocket->setSSLContext(ctx);
+    ret = sslSocket->sslAccept();
 
-		if(ret < 0)
-		{
-			/* Free the connection on errors. */
-			delete newConnection;
-			delete sslSocket;
-			return 0;
-		}
-		newConnection->socket = sslSocket;
-	}
-	else
-	{
-		newConnection->socket = new Socket(s);
-	}
+    if(ret < 0)
+    {
+      /* Free the connection on errors. */
+      delete newConnection;
+      delete sslSocket;
+      return 0;
+    }
+    newConnection->socket = sslSocket;
+  }
+  else
+  {
+    newConnection->socket = new Socket(s);
+  }
 
-	if ( doFastCheck )
-	{
-		newConnection->setScheduled(1);
-		newConnection->setForceControl(1);
-		connectionsScheduler.addReadyConnection(newConnection, 0);
-	}
-	else
-		connectionsScheduler.addWaitingConnection(newConnection, 0);
+  if ( doFastCheck )
+  {
+    newConnection->setScheduled(1);
+    newConnection->setForceControl(1);
+    connectionsScheduler.addReadyConnection(newConnection, 0);
+  }
+  else
+    connectionsScheduler.addWaitingConnection(newConnection, 0);
 
-	nTotalConnections++;
+  nTotalConnections++;
 
-	/*
+  /*
    *If defined maxConnections and the number of active connections
    *is bigger than it say to the protocol that will parse the connection
    *to remove it from the active connections list.
    */
-	if(maxConnections && 
-		 ((u_long)connectionsScheduler.getConnectionsNumber() > maxConnections))
-		newConnection->setToRemove(CONNECTION_REMOVE_OVERLOAD);
+  if(maxConnections && 
+     ((u_long)connectionsScheduler.getConnectionsNumber() > maxConnections))
+    newConnection->setToRemove(CONNECTION_REMOVE_OVERLOAD);
 
 
-	/*
-	 *Signal the new connection to the waiting threads.
-	 */
-	return newConnection;
+  /*
+   *Signal the new connection to the waiting threads.
+   */
+  return newConnection;
 }
 
 /*!
@@ -1289,41 +1289,41 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
  */
 int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
 {
-	string msg("remove-connection");
-	vector<Multicast<string, void*, int>*>* handlers;
-	int ret = 0;
+  string msg("remove-connection");
+  vector<Multicast<string, void*, int>*>* handlers;
+  int ret = 0;
 
-	/*
+  /*
    *Remove the connection from the active connections list.
    */
-	if(!s || !s->allowDelete())
-	{
-		return 0;
-	}
+  if(!s || !s->allowDelete())
+  {
+    return 0;
+  }
 
-	if(s->isScheduled())
-		s->setToRemove(CONNECTION_REMOVE_OVERLOAD);
+  if(s->isScheduled())
+    s->setToRemove(CONNECTION_REMOVE_OVERLOAD);
 
-	handlers = getHandlers(msg);
+  handlers = getHandlers(msg);
 
-	if(handlers)
-	{
-		for(size_t i = 0; i < handlers->size(); i++)
-		{
-			(*handlers)[i]->updateMulticast(this, msg, s);
-		}
-	}
+  if(handlers)
+  {
+    for(size_t i = 0; i < handlers->size(); i++)
+    {
+      (*handlers)[i]->updateMulticast(this, msg, s);
+    }
+  }
 
-	if(doLock)
-		connectionsScheduler.lockConnectionsList();
+  if(doLock)
+    connectionsScheduler.lockConnectionsList();
 
-	connectionsScheduler.removeConnection(s);
-	delete s;
+  connectionsScheduler.removeConnection(s);
+  delete s;
 
-	if(doLock)
-		connectionsScheduler.unlockConnectionsList();
+  if(doLock)
+    connectionsScheduler.unlockConnectionsList();
 
-	return ret;
+  return ret;
 }
 
 /*!
@@ -1331,7 +1331,7 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
  */
 ConnectionPtr Server::getConnection(int /*id*/)
 {
-	return connectionsScheduler.getConnection();
+  return connectionsScheduler.getConnection();
 }
 
 /*!
@@ -1339,26 +1339,26 @@ ConnectionPtr Server::getConnection(int /*id*/)
  */
 void Server::clearAllConnections()
 {
-	list<ConnectionPtr> connections;
-	list<ConnectionPtr>::iterator it;
+  list<ConnectionPtr> connections;
+  list<ConnectionPtr>::iterator it;
 
-	connectionsScheduler.lockConnectionsList();
+  connectionsScheduler.lockConnectionsList();
 
-	connectionsScheduler.getConnections(connections);
+  connectionsScheduler.getConnections(connections);
 
-	try
-	{
-		for(it = connections.begin(); it != connections.end(); it++)
-		{
-			deleteConnection(*it, 1, 0);
-		}
+  try
+  {
+    for(it = connections.begin(); it != connections.end(); it++)
+    {
+      deleteConnection(*it, 1, 0);
+    }
   }
   catch(...)
   {
-		connectionsScheduler.unlockConnectionsList();
+    connectionsScheduler.unlockConnectionsList();
     throw;
   };
-	connectionsScheduler.unlockConnectionsList();
+  connectionsScheduler.unlockConnectionsList();
 }
 
 
@@ -1368,7 +1368,7 @@ void Server::clearAllConnections()
  */
 const char *Server::getPath()
 {
-	return path ? path->c_str() : "";
+  return path ? path->c_str() : "";
 }
 
 /*!
@@ -1376,9 +1376,9 @@ const char *Server::getPath()
  */
 void Server::increaseFreeThread()
 {
-	threadsMutex->lock();
-	freeThreads++;
-	threadsMutex->unlock();
+  threadsMutex->lock();
+  freeThreads++;
+  threadsMutex->unlock();
 }
 
 /*!
@@ -1386,9 +1386,9 @@ void Server::increaseFreeThread()
  */
 void Server::decreaseFreeThread()
 {
-	threadsMutex->lock();
-	freeThreads--;
-	threadsMutex->unlock();
+  threadsMutex->lock();
+  freeThreads--;
+  threadsMutex->unlock();
 }
 
 
@@ -1397,7 +1397,7 @@ void Server::decreaseFreeThread()
  */
 const char *Server::getServerName()
 {
-	return serverName;
+  return serverName;
 }
 
 /*!
@@ -1405,11 +1405,11 @@ const char *Server::getServerName()
  */
 u_long Server::getNumThreads()
 {
-	u_long ret;
-	threadsMutex->lock();
-	ret = threads.size();
-	threadsMutex->unlock();	
-	return ret;
+  u_long ret;
+  threadsMutex->lock();
+  ret = threads.size();
+  threadsMutex->unlock();  
+  return ret;
 }
 
 /*!
@@ -1418,7 +1418,7 @@ u_long Server::getNumThreads()
  */
 const char *Server::getAddresses()
 {
-	return ipAddresses ? ipAddresses->c_str() : "";
+  return ipAddresses ? ipAddresses->c_str() : "";
 }
 
 /*!
@@ -1429,9 +1429,9 @@ int Server::freeHashedData()
 {
   try
   {
-		HashMap<string, string*>::Iterator it = hashedData.begin();
-		for (;it != hashedData.end(); it++)
-			delete *it;
+    HashMap<string, string*>::Iterator it = hashedData.begin();
+    for (;it != hashedData.end(); it++)
+      delete *it;
     hashedData.clear();
   }
   catch(...)
@@ -1455,8 +1455,9 @@ const char* Server::getHashedData(const char* name)
  */
 Protocol* Server::getProtocol(const char *protocolName)
 {
-	string protocol(protocolName);
-	return protocols.getProtocol(protocol);
+  string protocol(protocolName);
+
+  return protocols.getProtocol(protocol);
 }
 
 /*!
@@ -1473,7 +1474,7 @@ const char* Server::getExternalPath()
  */
 int Server::loadSettings()
 {
-	u_long i;
+  u_long i;
   int ret;
   ostringstream nCPU;
   string strCPU;
@@ -1481,9 +1482,9 @@ int Server::loadSettings()
   u_long nbr, nbw;
   try
   {
-		if(mimeConfigurationFile)
-			delete mimeConfigurationFile;
-		mimeConfigurationFile = new string();
+    if(mimeConfigurationFile)
+      delete mimeConfigurationFile;
+    mimeConfigurationFile = new string();
 #ifndef WIN32
     /*
      *Under an *nix environment look for .xml files in the following order.
@@ -1516,8 +1517,8 @@ int Server::loadSettings()
         File outputF;
         mimeConfigurationFile->assign("MIMEtypes.xml");
         ret = inputF.openFile("MIMEtypes.xml.default", 
-															File::MYSERVER_OPEN_READ |
-															File::MYSERVER_OPEN_IFEXISTS);
+                              File::MYSERVER_OPEN_READ |
+                              File::MYSERVER_OPEN_IFEXISTS);
         if(ret)
         {
           logPreparePrintError();
@@ -1560,9 +1561,9 @@ int Server::loadSettings()
 
     /* Load the MIME types.  */
     logWriteln(languageParser.getValue("MSG_LOADMIME"));
-		if(mimeManager)
-			delete mimeManager;
-		mimeManager = new MimeManager();
+    if(mimeManager)
+      delete mimeManager;
+    mimeManager = new MimeManager();
     if(int nMIMEtypes = mimeManager->loadXML(mimeConfigurationFile->c_str()))
     {
       ostringstream stream;
@@ -1583,7 +1584,7 @@ int Server::loadSettings()
     strCPU.append(nCPU.str());
     logWriteln(strCPU.c_str());
 
-		vhostConfigurationFile = new string();
+    vhostConfigurationFile = new string();
 
 #ifndef WIN32
     /*
@@ -1613,51 +1614,51 @@ int Server::loadSettings()
        */
     if(!FilesUtility::fileExists("virtualhosts.xml"))
     {
-			File inputF;
-			File outputF;
-			vhostConfigurationFile->assign("virtualhosts.xml");
-			ret = inputF.openFile("virtualhosts.xml.default", 
-														File::MYSERVER_OPEN_READ |
-														File::MYSERVER_OPEN_IFEXISTS );
-			if(ret)
+      File inputF;
+      File outputF;
+      vhostConfigurationFile->assign("virtualhosts.xml");
+      ret = inputF.openFile("virtualhosts.xml.default", 
+                            File::MYSERVER_OPEN_READ |
+                            File::MYSERVER_OPEN_IFEXISTS );
+      if(ret)
       {
-				logPreparePrintError();
-				logWriteln(languageParser.getValue("ERR_LOADMIME"));
-				logEndPrintError();
-				return -1;
-			}
-			ret = outputF.openFile("virtualhosts.xml",
-														 File::MYSERVER_OPEN_WRITE | 
-														 File::MYSERVER_OPEN_ALWAYS);
-			if(ret)
-				return -1;
-			for(;;)
+        logPreparePrintError();
+        logWriteln(languageParser.getValue("ERR_LOADMIME"));
+        logEndPrintError();
+        return -1;
+      }
+      ret = outputF.openFile("virtualhosts.xml",
+                             File::MYSERVER_OPEN_WRITE | 
+                             File::MYSERVER_OPEN_ALWAYS);
+      if(ret)
+        return -1;
+      for(;;)
       {
-				ret = inputF.readFromFile(buffer, 512, &nbr );
-				if(ret)
-					return -1;
-				if(!nbr)
-					break;
-				ret = outputF.writeToFile(buffer, nbr, &nbw);
-				if(ret)
-					return -1;
-			}
-			
-			inputF.closeFile();
-			outputF.closeFile();
-		}
-		else
-		{
-			vhostConfigurationFile->assign("virtualhosts.xml");
-		}
+        ret = inputF.readFromFile(buffer, 512, &nbr );
+        if(ret)
+          return -1;
+        if(!nbr)
+          break;
+        ret = outputF.writeToFile(buffer, nbr, &nbw);
+        if(ret)
+          return -1;
+      }
+      
+      inputF.closeFile();
+      outputF.closeFile();
+    }
+    else
+    {
+      vhostConfigurationFile->assign("virtualhosts.xml");
+    }
 
-		connectionsScheduler.restart();
+    connectionsScheduler.restart();
 
-		listenThreads.initialize(&languageParser);
+    listenThreads.initialize(&languageParser);
     if(vhostList)
     {
-		  delete vhostList;
-		  vhostList = 0;
+      delete vhostList;
+      vhostList = 0;
     }
 
     vhostList = new VhostManager(&listenThreads);
@@ -1665,9 +1666,9 @@ int Server::loadSettings()
     {
       return -1;
     }
-		if(externalPath)
-			delete externalPath;
-		externalPath = new string();
+    if(externalPath)
+      delete externalPath;
+    externalPath = new string();
 #ifdef NOT_WIN
     if(FilesUtility::fileExists("external"))
       externalPath->assign("external");
@@ -1687,10 +1688,10 @@ int Server::loadSettings()
     externalPath->assign("external/protocols");
 
 #endif
-		getProcessServerManager()->load();
+    getProcessServerManager()->load();
 
-		/* Load the home directories configuration.  */
-		homeDir.load();
+    /* Load the home directories configuration.  */
+    homeDir.load();
 
 
     {
@@ -1711,18 +1712,18 @@ int Server::loadSettings()
       }
     }
 
-		getPluginsManager()->addNamespace(&executors);
-		getPluginsManager()->addNamespace(&protocols);
-		getPluginsManager()->addNamespace(&filters);
- 		getPluginsManager()->addNamespace(&genericPluginsManager);
+    getPluginsManager()->addNamespace(&executors);
+    getPluginsManager()->addNamespace(&protocols);
+    getPluginsManager()->addNamespace(&filters);
+     getPluginsManager()->addNamespace(&genericPluginsManager);
 
 
-		{
-			string res("external");
-			getPluginsManager()->preLoad(this, &languageParser, res);
-			getPluginsManager()->load(this, &languageParser, res);
-			getPluginsManager()->postLoad(this, &languageParser);
-		}
+    {
+      string res("external");
+      getPluginsManager()->preLoad(this, &languageParser, res);
+      getPluginsManager()->load(this, &languageParser, res);
+      getPluginsManager()->postLoad(this, &languageParser);
+    }
 
 
     /* Load the virtual hosts configuration from the xml file.  */
@@ -1730,36 +1731,36 @@ int Server::loadSettings()
                                         getMaxLogFileSize());
 
 
-		if(path == 0)
-			path = new string();
+    if(path == 0)
+      path = new string();
 
     /* Return 1 if we had an allocation problem.  */
     if(getdefaultwd(*path))
       return -1;
 
-		setProcessPermissions();
+    setProcessPermissions();
 
-		if(getGid())
-		{
-			ostringstream out;
-			out << "gid: " << gid;
-			logWriteln(out.str().c_str());
-		}
+    if(getGid())
+    {
+      ostringstream out;
+      out << "gid: " << gid;
+      logWriteln(out.str().c_str());
+    }
 
-		if(getUid())
-		{
-			ostringstream out;
+    if(getUid())
+    {
+      ostringstream out;
       out << "uid: " << uid;
       logWriteln(out.str().c_str());
-		}
+    }
 
     for(i = 0; i < nStaticThreads; i++)
-	  {
-			logWriteln(languageParser.getValue("MSG_CREATET"));
+    {
+      logWriteln(languageParser.getValue("MSG_CREATET"));
       ret = addThread(1);
       if(ret)
-				return -1;
-			logWriteln(languageParser.getValue("MSG_THREADR"));
+        return -1;
+      logWriteln(languageParser.getValue("MSG_THREADR"));
     }
 
     logWriteln(languageParser.getValue("MSG_READY"));
@@ -1805,7 +1806,7 @@ void Server::setProcessPermissions()
 {
     /*
      *If the configuration specify a group id, change the current group for
-		 *the process.
+     *the process.
      */
     if(gid)
      {
@@ -1814,7 +1815,7 @@ void Server::setProcessPermissions()
        if(Process::setAdditionalGroups(0, 0))
        {
          out << languageParser.getValue("ERR_ERROR") 
-						 << ": setAdditionalGroups";
+             << ": setAdditionalGroups";
          logPreparePrintError();
          logWriteln(out.str().c_str());
          logEndPrintError();
@@ -1872,25 +1873,25 @@ int Server::logUnlockAccess()
  */
 int Server::reboot()
 {
-	int ret;
-	string msg("reboot-server");
-	vector<Multicast<string, void*, int>*>* handlers;
+  int ret;
+  string msg("reboot-server");
+  vector<Multicast<string, void*, int>*>* handlers;
 
-	handlers = getHandlers(msg);
+  handlers = getHandlers(msg);
 
-	if(handlers)
-	{
-		for(size_t i = 0; i < handlers->size(); i++)
-		{
-			(*handlers)[i]->updateMulticast(this, msg, 0);
-		}
-	}
+  if(handlers)
+  {
+    for(size_t i = 0; i < handlers->size(); i++)
+    {
+      (*handlers)[i]->updateMulticast(this, msg, 0);
+    }
+  }
 
   serverReady = 0;
   /* Reset the toReboot flag.  */
   toReboot = 0;
 
-	rebooting = 1;
+  rebooting = 1;
 
   /* Do nothing if the reboot is disabled.  */
   if(!autoRebootEnabled)
@@ -1903,14 +1904,14 @@ int Server::reboot()
   }
 
   logWriteln("Rebooting...");
-	if(mustEndServer)
-		return 0;
-	mustEndServer = 1;
+  if(mustEndServer)
+    return 0;
+  mustEndServer = 1;
 
-	ret = terminate();
+  ret = terminate();
   if(ret)
     return ret;
-	mustEndServer = 0;
+  mustEndServer = 0;
 
 
   rebooting = 0;
@@ -1939,7 +1940,7 @@ int Server::isServerReady()
  */
 void Server::rebootOnNextLoop()
 {
-	serverReady = 0;
+  serverReady = 0;
   toReboot = 1;
 }
 
@@ -1949,7 +1950,7 @@ void Server::rebootOnNextLoop()
  */
 CachedFileFactory* Server::getCachedFiles()
 {
-	return &cachedFiles;
+  return &cachedFiles;
 }
 
 /*!
@@ -1958,7 +1959,7 @@ CachedFileFactory* Server::getCachedFiles()
 const char *Server::getMainConfFile()
 {
   return mainConfigurationFile
-		? mainConfigurationFile->c_str() : 0;
+    ? mainConfigurationFile->c_str() : 0;
 }
 
 /*!
@@ -1982,7 +1983,7 @@ const char *Server::getMIMEConfFile()
  */
 void Server::getConnections(list<ConnectionPtr>& out)
 {
-	connectionsScheduler.getConnections(out);
+  connectionsScheduler.getConnections(out);
 }
 
 /*!
@@ -2040,54 +2041,54 @@ int Server::isAutorebootEnabled()
 int Server::addThread(int staticThread)
 {
   int ret;
-	string msg("new-thread");
+  string msg("new-thread");
   ClientsThread* newThread = 0;
-	vector<Multicast<string, void*, int>*>* handlers;
+  vector<Multicast<string, void*, int>*>* handlers;
 
-	purgeThreadsThreshold = 1;
+  purgeThreadsThreshold = 1;
    
   if(isRebooting())
     return -1;
 
-	if(!staticThread)
-	{
-		bool restored = false;
+  if(!staticThread)
+  {
+    bool restored = false;
 
-		for(list<ClientsThread*>::iterator it = threads.begin(); it != threads.end(); it++)
-		{
-			ClientsThread* thread = *it;
+    for(list<ClientsThread*>::iterator it = threads.begin(); it != threads.end(); it++)
+    {
+      ClientsThread* thread = *it;
 
-			if(thread->isToDestroy())
-			{
-				thread->setToDestroy(0);
-				restored = true;
-				break;
-			}
-		}
-		if(restored)
-			return 0;
-	}
+      if(thread->isToDestroy())
+      {
+        thread->setToDestroy(0);
+        restored = true;
+        break;
+      }
+    }
+    if(restored)
+      return 0;
+  }
 
   newThread = new ClientsThread();
 
   if(newThread == 0)
     return -1;
 
-	handlers = getHandlers(msg);
+  handlers = getHandlers(msg);
 
-	if(handlers)
-	{
-		for(size_t i = 0; i < handlers->size(); i++)
-		{
-			(*handlers)[i]->updateMulticast(this, msg, newThread);
-		}
-	}
+  if(handlers)
+  {
+    for(size_t i = 0; i < handlers->size(); i++)
+    {
+      (*handlers)[i]->updateMulticast(this, msg, newThread);
+    }
+  }
 
   newThread->setStatic(staticThread);
 
   newThread->id = (u_long)(++currentThreadID);
 
-	ret = newThread->run();
+  ret = newThread->run();
 
   if(ret)
   {
@@ -2104,7 +2105,7 @@ int Server::addThread(int staticThread)
   /*
    *If everything was done correctly add the new thread to the linked list.
    */
-	threads.push_back(newThread);
+  threads.push_back(newThread);
   return 0;
 }
 
@@ -2115,33 +2116,33 @@ int Server::addThread(int staticThread)
 int Server::removeThread(u_long ID)
 {
   int ret = 1;
-	string msg("remove-thread");
-	vector<Multicast<string, void*, int>*>* handlers;
+  string msg("remove-thread");
+  vector<Multicast<string, void*, int>*>* handlers;
 
 
-	handlers = getHandlers(msg);
+  handlers = getHandlers(msg);
 
   threadsMutex->lock();
 
-	if(handlers)
-	{
-		for(size_t i = 0; i < handlers->size(); i++)
-		{
-			(*handlers)[i]->updateMulticast(this, msg, &ID);
-		}
-	}
+  if(handlers)
+  {
+    for(size_t i = 0; i < handlers->size(); i++)
+    {
+      (*handlers)[i]->updateMulticast(this, msg, &ID);
+    }
+  }
 
   for(list<ClientsThread*>::iterator it = threads.begin(); it != threads.end(); it++)
-	{
-		if((*it)->id == ID)
-		{
-			(*it)->stop();
-			ret = 0;
-			threads.erase(it);
-			break;
-		}
-	}
-	threadsMutex->unlock();
+  {
+    if((*it)->id == ID)
+    {
+      (*it)->stop();
+      ret = 0;
+      threads.erase(it);
+      break;
+    }
+  }
+  threadsMutex->unlock();
   return ret;
 
 }
@@ -2153,8 +2154,8 @@ int Server::removeThread(u_long ID)
  */
 void Server::createInstance()
 {
-	if(instance == 0)
-		instance = new Server();
+  if(instance == 0)
+    instance = new Server();
 }
 
 /*!
@@ -2172,11 +2173,11 @@ int Server::countAvailableThreads()
 {
  int count = 0;
 
-	threadsMutex->lock();
+  threadsMutex->lock();
 
-	count = freeThreads;
+  count = freeThreads;
 
-	threadsMutex->unlock();
+  threadsMutex->unlock();
 
   return count;
 }
@@ -2218,11 +2219,11 @@ int Server::logWriteln(const char* str)
  */
 void Server::temporaryFileName(u_long tid, string &out)
 {
-	ostringstream stream;
-	static u_long counter = 1;
-	counter++;
-	stream << tmpPath << "/tmp_" << counter  << "_" << tid;
-	out.assign(stream.str());
+  ostringstream stream;
+  static u_long counter = 1;
+  counter++;
+  stream << tmpPath << "/tmp_" << counter  << "_" << tid;
+  out.assign(stream.str());
 }
 
 /*!
@@ -2277,8 +2278,8 @@ u_long Server::getBuffersize2()
  */
 void Server::setGlobalData(const char* name, void* data)
 {
-	string str(name);
-	globalData.put(str, data);
+  string str(name);
+  globalData.put(str, data);
 }
 
 /*!
@@ -2286,6 +2287,6 @@ void Server::setGlobalData(const char* name, void* data)
  */
 void* Server::getGlobalData(const char* name)
 {
-	string str(name);
-	return globalData.get(str);
+  string str(name);
+  return globalData.get(str);
 }

@@ -61,7 +61,9 @@ Protocol* ProtocolsManager::getProtocol(string& name)
   Protocol* staticProtocol = staticProtocols.get(name);
 
   if(staticProtocol)
+  {
     return staticProtocol;
+  }
 
   return getPlugin(name);
 }

@@ -915,6 +915,9 @@ bool HashMap<void*, ValueType>::containsKey(const void* const key)
 template <typename KeyType, typename ValueType>
 ValueType HashMap<KeyType, ValueType>::get(const KeyType& key)
 {
+	unsigned int tempHash;
+  typename list < Shkv<KeyType, ValueType> >::iterator dataIter;
+
 	tempHash=hash((const char*)&key, sizeof(key));
 	if(map[tempHash & mask]>=offset)
 	{
@@ -932,7 +935,10 @@ ValueType HashMap<KeyType, ValueType>::get(const KeyType& key)
 template <typename ValueType>
 ValueType HashMap<string, ValueType>::get(const string& key)
 {
-	tempHash=hash(key.c_str(), key.size());
+	unsigned int tempHash;
+  typename list < Shkv<string, ValueType> >::iterator dataIter;
+	
+  tempHash=hash(key.c_str(), key.size());
 	if(map[tempHash & mask]>=offset)
 	{
 		for(dataIter=data[tempHash & mask].begin();
@@ -949,6 +955,9 @@ ValueType HashMap<string, ValueType>::get(const string& key)
 template <typename ValueType>
 ValueType HashMap<char*, ValueType>::get(const char* const key)
 {
+	unsigned int tempHash;
+  typename list < Shkv<char*, ValueType> >::iterator dataIter;
+
 	tempHash=hash(key, strlen(key));
 	if(map[tempHash & mask]>=offset)
 	{

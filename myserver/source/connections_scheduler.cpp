@@ -326,7 +326,8 @@ void ConnectionsScheduler::release()
   for(u_long i = 0; i < Server::getInstance()->getNumThreads()*5; i++)
   {
     readySemaphore->unlock();
-    }
+  }
+
   if(dispatchedThreadId)
     Thread::join(dispatchedThreadId);
 
