@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2006, 2007 The MyServer Team
+Copyright (C) 2006, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -29,9 +29,6 @@ typedef HANDLE SemaphoreHandle;
 
 class Semaphore
 {
-private:
-	int initialized;
-	SemaphoreHandle semaphore;
 public:
 	Semaphore(int n);
 	~Semaphore();
@@ -39,5 +36,9 @@ public:
 	int destroy();
 	int lock(u_long id = 0);
 	int unlock(u_long id = 0);
+  SemaphoreHandle getHandle(){return semaphore;}
+private:
+	int initialized;
+	SemaphoreHandle semaphore;
 };
 #endif

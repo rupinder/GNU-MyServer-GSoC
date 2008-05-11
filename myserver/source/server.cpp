@@ -578,16 +578,16 @@ int Server::terminate()
     (*it)->stop();
   }
   threadsMutex->unlock();
-  connectionsScheduler.release();
   Socket::stopBlockingOperations(true);
-  connectionsScheduler.terminateConnections();
-  clearAllConnections();
+
+  connectionsScheduler.release();
 
   for(list<ThreadID>::iterator it = threadsIds.begin(); it != threadsIds.end(); it++)
   {
     Thread::join(*it);
   }
 
+  clearAllConnections();
 
   /* Clear the home directories data.  */
   homeDir.clear();
@@ -1318,10 +1318,11 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
     connectionsScheduler.lockConnectionsList();
 
   connectionsScheduler.removeConnection(s);
-  delete s;
 
   if(doLock)
     connectionsScheduler.unlockConnectionsList();
+
+  delete s;
 
   return ret;
 }

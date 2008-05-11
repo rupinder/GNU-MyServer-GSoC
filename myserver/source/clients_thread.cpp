@@ -123,6 +123,7 @@ void* clients_thread(void* pParam)
 
 {
 	Server* server = Server::getInstance();
+
 #ifdef NOT_WIN
 	/* Block SigTerm, SigInt, and SigPipe in threads.  */
 	sigset_t sigmask;
@@ -162,19 +163,13 @@ void* clients_thread(void* pParam)
 
 	Server::getInstance()->increaseFreeThread();
 
-  /* Reset first 1024 bytes for thread buffers.  */
-	memset((char*)ct->buffer.getBuffer(), 0, 
-         1024 > ct->buffer.getRealLength() ? 1024 
-				                                   : ct->buffer.getRealLength());
-	memset((char*)ct->buffer2.getBuffer(), 0, 
-         1024 > ct->buffer2.getRealLength() ? 1024 
-				                                    : ct->buffer2.getRealLength());
 
 	/* Wait that the server is ready before go in the running loop.  */
-  while(!server->getInstance()->isServerReady())
+  while(!server->isServerReady() && ct->threadIsRunning)
   {
     Thread::wait(500);
   }
+
 	/*
    *This function when is alive only call the controlConnections(...) function
    *of the ClientsThread class instance used for control the thread.

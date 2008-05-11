@@ -98,6 +98,7 @@ int Semaphore::lock(u_long /*id*/)
 {
 	int err = 0;
 #ifdef HAVE_PTHREAD
+
 #ifdef PTHREAD_ALTERNATE_LOCK
 	err = sem_wait(&semaphore);
 #else

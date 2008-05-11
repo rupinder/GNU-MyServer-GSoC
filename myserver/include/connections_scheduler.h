@@ -90,6 +90,7 @@ private:
 	u_long currentPriority;
 	u_long currentPriorityDone;
 	DispatcherArg dispatcherArg;
+  bool releasing;
 };
                                    
 

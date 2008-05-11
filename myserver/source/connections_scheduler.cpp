@@ -195,7 +195,6 @@ void ConnectionsScheduler::initialize()
   event_set(&timeoutEv, 0, EV_TIMEOUT, do_nothing, &timeoutEv);
   event_add(&timeoutEv, &tv);
 
-
   dispatcherArg.terminated = true;
   dispatcherArg.mutex = &eventsMutex;
 
@@ -208,6 +207,8 @@ void ConnectionsScheduler::initialize()
      Server::getInstance()->logUnlockAccess();
      dispatchedThreadId = 0;
    }
+
+  releasing = false;
 }
 
 /*!
@@ -248,6 +249,7 @@ void ConnectionsScheduler::addReadyConnection(ConnectionPtr c, int doLock)
   readyMutex.unlock();
 
   Server::getInstance()->checkThreadsNumber();
+
   readySemaphore->unlock();
 }
 
@@ -284,7 +286,14 @@ ConnectionPtr ConnectionsScheduler::getConnection()
 {
   ConnectionPtr ret = 0;
 
+  if(releasing)
+    return NULL;
+
   readySemaphore->lock();
+
+  if(releasing)
+    return NULL;
+
   readyMutex.lock();
 
   for(int i = 0; i < PRIORITY_CLASSES; i++)
@@ -316,17 +325,18 @@ ConnectionPtr ConnectionsScheduler::getConnection()
  */
 void ConnectionsScheduler::release()
 {
+  releasing = true;
   dispatcherArg.terminate = true;
+
+  for(u_long i = 0; i < Server::getInstance()->getNumThreads()*10; i++)
+  {
+    readySemaphore->unlock();
+  }
 
   event_loopexit(NULL);
 #if EVENT_LOOPBREAK | WIN32
    event_loopbreak();
 #endif
-
-  for(u_long i = 0; i < Server::getInstance()->getNumThreads()*5; i++)
-  {
-    readySemaphore->unlock();
-  }
 
   if(dispatchedThreadId)
     Thread::join(dispatchedThreadId);
@@ -344,6 +354,8 @@ void ConnectionsScheduler::release()
   listeners.clear();
   
   eventsMutex.unlock();
+
+  terminateConnections();
 }
 
 /*!
@@ -420,6 +432,7 @@ void ConnectionsScheduler::terminateConnections()
   connectionsMutex.unlock();
 
   readyMutex.lock();
+
   for(i = 0; i < PRIORITY_CLASSES; i++)
     while(ready[i].size())
       ready[i].pop();
