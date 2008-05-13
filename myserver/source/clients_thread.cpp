@@ -299,7 +299,8 @@ int ClientsThread::controlConnections()
 	int err = 0;
   ConnectionPtr c;
   Protocol* protocol = 0;
-	
+  u_long dataRead = 0;
+
 	c = Server::getInstance()->getConnection(this->id);
 	Server::getInstance()->decreaseFreeThread();
 
@@ -311,11 +312,12 @@ int ClientsThread::controlConnections()
     return 1;
 
 	busy = 1;
+  dataRead = c->getDataRead();
 
 	if(!c->isForceControl())
 	{
-		err = c->socket->recv(&((char*)(buffer.getBuffer()))[c->getDataRead()],
-													MYSERVER_KB(8) - c->getDataRead(), 0);
+		err = c->socket->recv(&((char*)(buffer.getBuffer()))[dataRead],
+													MYSERVER_KB(8) - dataRead - 1, 0);
 		
 		if(err == -1 && !Server::getInstance()->deleteConnection(c, this->id))
 			return 0;
@@ -325,11 +327,11 @@ int ClientsThread::controlConnections()
 
 
 	/* Refresh with the right value.  */
-	nBytesToRead = c->getDataRead() + err;
+	nBytesToRead = dataRead + err;
 
-	if((c->getDataRead() + err) < MYSERVER_KB(8))
+	if((dataRead + err) < MYSERVER_KB(8))
 	{
-		((char*)buffer.getBuffer())[c->getDataRead() + err] = '\0';
+		((char*)buffer.getBuffer())[dataRead + err] = '\0';
 	}
 	else
 	{
@@ -341,7 +343,7 @@ int ClientsThread::controlConnections()
 	if(getTicks() - c->getTimeout() > 5000)
 		c->setnTries(0);
 
-	buffer.setBuffer(c->connectionBuffer, c->getDataRead());
+	buffer.setBuffer(c->connectionBuffer, dataRead);
 
 	c->setActiveThread(this);
 	try

@@ -34,10 +34,9 @@ Connection::Connection()
 	localPort = 0;
   timeout = 0;
   host = 0;
-  dataRead = 0;
   toRemove = 0;
   forceControl = 0;
-  connectionBuffer = new   char [MYSERVER_KB(8)];
+  connectionBuffer = new char[MYSERVER_KB(8)];
   protocolBuffer = 0;
   socket = 0;
   priority = -1;
@@ -251,16 +250,16 @@ void Connection::setTimeout(u_long nTimeout)
 /*!
  *Return the number of bytes read.
  */
-int Connection::getDataRead()
+u_long Connection::getDataRead()
 {
-  return dataRead;
+  return this->dataRead;
 }
 
 /*!
  *Set the number of bytes read.
  *\param dr The new data read value. 
  */
-void Connection::setDataRead(int dr)
+void Connection::setDataRead(u_long dr)
 {
   dataRead = dr;
 }

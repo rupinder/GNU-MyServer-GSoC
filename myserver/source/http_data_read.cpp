@@ -75,7 +75,7 @@ int HttpDataRead::readContiguousPrimitivePostData(char* inBuffer,
                                                   u_long timeout)
 {
   int ret;
-
+  u_long nbtrSocket = 0;
   *nbr = 0;
   if(inBufferSize - *inBufferPos)
   {
@@ -90,10 +90,12 @@ int HttpDataRead::readContiguousPrimitivePostData(char* inBuffer,
   if(outBufferSize == *nbr)
     return 0;
 
-  if(!inSocket->bytesToRead())
+  nbtrSocket = inSocket->bytesToRead();
+
+  if(!nbtrSocket)
     return 0;
 
-  ret = inSocket->recv(outBuffer + *nbr,  outBufferSize - *nbr, timeout);
+  ret = inSocket->recv(outBuffer + *nbr,  min(nbtrSocket, outBufferSize - *nbr), timeout);
 
   if(ret == -1 || !ret)
     return -1;

@@ -77,11 +77,7 @@ static void new_data_handler(int fd, short event, void *arg)
 	}
 	else if(event == EV_READ)
 	{
-		Server::getInstance()->getConnectionsScheduler()->lockConnectionsList();
-
-		Server::getInstance()->getConnectionsScheduler()->addReadyConnection((ConnectionPtr)arg, 0);
-
-		Server::getInstance()->getConnectionsScheduler()->unlockConnectionsList();
+		Server::getInstance()->getConnectionsScheduler()->addReadyConnection((ConnectionPtr)arg);
 	}
 }
 
@@ -226,7 +222,7 @@ ConnectionsScheduler::~ConnectionsScheduler()
 /*!
  *Add a connection to ready connections queue.
  */
-void ConnectionsScheduler::addReadyConnection(ConnectionPtr c, int doLock)
+void ConnectionsScheduler::addReadyConnection(ConnectionPtr c)
 {
   int priority = c->getPriority();
 
@@ -236,13 +232,7 @@ void ConnectionsScheduler::addReadyConnection(ConnectionPtr c, int doLock)
   priority = std::max(0, priority);
   priority = std::min(PRIORITY_CLASSES - 1, priority);
 
-  if(doLock)
-    connectionsMutex.lock();
-
   c->setScheduled(1);
-
-  if(doLock)
-    connectionsMutex.unlock();
 
   readyMutex.lock();
   ready[priority].push(c);
@@ -256,7 +246,7 @@ void ConnectionsScheduler::addReadyConnection(ConnectionPtr c, int doLock)
 /*!
  *Add a connection to waiting connections queue.
  */
-void ConnectionsScheduler::addWaitingConnection(ConnectionPtr c, int doLock)
+void ConnectionsScheduler::addWaitingConnection(ConnectionPtr c)
 {
   static timeval tv = {10, 0};
   SocketHandle handle = c->socket->getHandle();
@@ -270,13 +260,11 @@ void ConnectionsScheduler::addWaitingConnection(ConnectionPtr c, int doLock)
 
   event_set(c->getEvent(), handle, EV_READ | EV_TIMEOUT, new_data_handler, c);
 
-  if(doLock)
-    eventsMutex.lock();
+  eventsMutex.lock();
 
   event_add(c->getEvent(), &tv);
 
-  if(doLock)
-    eventsMutex.unlock();
+  eventsMutex.unlock();
 }
 
 /*!

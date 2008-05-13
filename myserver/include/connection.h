@@ -86,8 +86,8 @@ public:
 	/*! Pointer to an host structure.  */
 	Vhost *host;
 	
-  int getDataRead();
-  void setDataRead(int);
+  u_long getDataRead();
+  void setDataRead(u_long);
 
   int getToRemove();
   void setToRemove(int);
@@ -101,9 +101,6 @@ public:
 	/*! Buffer for the connection struct. Used by protocols.  */
 	ProtocolBuffer *protocolBuffer;
 
-  Connection();
-  virtual ~Connection();
-
 	/*! Set the thread that is currently using the connection.  */
 	void setActiveThread(ClientsThread* t){thread = t;}
 
@@ -111,6 +108,10 @@ public:
 	ClientsThread* getActiveThread(){return thread;}
 
 	event* getEvent(){return &ev;}
+
+  Connection();
+  virtual ~Connection();
+
 protected:
 	ClientsThread *thread;
 
@@ -145,8 +146,8 @@ protected:
 	u_long timeout;
 
   /*! Number of bytes ready in the buffer.  */
-	int dataRead;
-	
+	u_long dataRead;
+
 	/*
    *!If nonzero the server is saying to the protocol to remove the connection.
    *Protocols can not consider this but is a good idea do it to avoid server

@@ -1181,7 +1181,7 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
   int doFastCheck = 0;
   Protocol* protocol;
   int opts = 0;
-  ConnectionPtr newConnection = new Connection;
+  ConnectionPtr newConnection = new Connection();
   vector<Multicast<string, void*, int>*>* handlers;
 
   if(!newConnection)
@@ -1261,10 +1261,10 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
   {
     newConnection->setScheduled(1);
     newConnection->setForceControl(1);
-    connectionsScheduler.addReadyConnection(newConnection, 0);
+    connectionsScheduler.addReadyConnection(newConnection);
   }
   else
-    connectionsScheduler.addWaitingConnection(newConnection, 0);
+    connectionsScheduler.addWaitingConnection(newConnection);
 
   nTotalConnections++;
 
