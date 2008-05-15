@@ -95,9 +95,9 @@ int HttpDataRead::readContiguousPrimitivePostData(char* inBuffer,
   if(!nbtrSocket)
     return 0;
 
-  ret = inSocket->recv(outBuffer + *nbr,  min(nbtrSocket, outBufferSize - *nbr), timeout);
+  ret = inSocket->recv(outBuffer + *nbr,  min(nbtrSocket, outBufferSize - *nbr), 0, timeout);
 
-  if(ret == -1 || !ret)
+  if(ret == -1)
     return -1;
 
   *nbr += ret;

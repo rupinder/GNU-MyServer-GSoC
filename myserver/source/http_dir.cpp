@@ -292,12 +292,11 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 
   checkDataChunks(td, &keepalive, &useChunks);
 
-  td->response.contentType.assign("application/xhtml+xml");
+  td->response.contentType.assign("text/html");
 
   if(!td->appendOutputs)
   {
 
-    
     HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), 
                                          &(td->response));
 

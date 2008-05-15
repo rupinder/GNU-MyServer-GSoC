@@ -631,7 +631,7 @@ int Socket::recv(char* buffer, int len, int flags, u_long timeout)
 		if(bytesToRead())
 			return recv(buffer, len, flags);
 	}
-	return -1;
+	return 0;
 
 }
 

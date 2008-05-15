@@ -1641,7 +1641,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       int httpErrorCode;
 
       /*! Be sure that the client can handle the 100 status code.  */
-      if(nbtr == td->nHeaderChars && td->request.ver.compare("HTTP/1.0"))
+      if(nbtr == td->nHeaderChars && td->request.contentLength.compare("0") &&
+         td->request.ver.compare("HTTP/1.0"))
       {
         const char* msg = "HTTP/1.1 100 Continue\r\n\r\n";
         if(a->socket->bytesToRead() == 0)
