@@ -77,16 +77,6 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit10]
-FileName=service.h
-CompileCpp=1
-Folder=MyServer Configure
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit11]
 FileName=vhost.cpp
 CompileCpp=1
