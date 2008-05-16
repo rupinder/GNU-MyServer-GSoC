@@ -25,7 +25,7 @@ import xml.dom.minidom
 from xml.dom.minidom import Node
  
 PKG_NAME = "MyServer"
-PKG_VERSION = "0.8.13"
+PKG_VERSION = "0.9-rc1"
 
 SVN_TRUNK = "https://myserver.svn.sourceforge.net/svnroot/myserver/trunk"
 HOMEPAGE = "http://www.myserverproject.net"

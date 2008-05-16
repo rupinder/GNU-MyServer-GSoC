@@ -64,7 +64,7 @@ static char *path;
 #ifdef PACKAGE_VERSION
 const char *versionOfSoftware = PACKAGE_VERSION;
 #else
-const char *versionOfSoftware = "0.8.12";
+const char *versionOfSoftware = "0.9-rc1";
 #endif
 int argn;
 char **argv;
