@@ -148,7 +148,7 @@ public:
 
 	void setProcessPermissions();
 	ConnectionsScheduler* getConnectionsScheduler(){return &connectionsScheduler;}
-	int deleteConnection(ConnectionPtr, int, int = 1);
+	int deleteConnection(ConnectionPtr, int);
 
 	void increaseFreeThread();
 	void decreaseFreeThread();

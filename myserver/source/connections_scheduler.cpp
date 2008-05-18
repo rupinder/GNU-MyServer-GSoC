@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/connections_scheduler.h"
 #include "../include/server.h"
 
-static void do_nothing(int fd, short ev, void *arg)
+static void doNothing(int fd, short ev, void *arg)
 {
 	static timeval tv = {0, 500000};
 	if(ev == EV_TIMEOUT)
@@ -65,15 +65,11 @@ static void* dispatcher(void* p)
 	return 0;
 }
 
-static void new_data_handler(int fd, short event, void *arg)
+static void newDataHandler(int fd, short event, void *arg)
 {
 	if(event == EV_TIMEOUT)
 	{
-		Server::getInstance()->getConnectionsScheduler()->lockConnectionsList();
-
-		Server::getInstance()->deleteConnection((ConnectionPtr)arg, 0, 0);
-
-		Server::getInstance()->getConnectionsScheduler()->unlockConnectionsList();
+		Server::getInstance()->deleteConnection((ConnectionPtr)arg, 0);
 	}
 	else if(event == EV_READ)
 	{
@@ -81,7 +77,7 @@ static void new_data_handler(int fd, short event, void *arg)
 	}
 }
 
-static void listener_handler(int fd, short event, void *arg)
+static void listenerHandler(int fd, short event, void *arg)
 {
 	static timeval tv = {5, 0};
 	ConnectionsScheduler::ListenerArg* s = (ConnectionsScheduler::ListenerArg*)arg;
@@ -121,7 +117,7 @@ void ConnectionsScheduler::listener(ConnectionsScheduler::ListenerArg *la)
 	static timeval tv = {3, 0};
 
 	event_set(&(arg->ev), la->serverSocket->getHandle(), EV_READ | EV_TIMEOUT, 
-						listener_handler, arg);
+						listenerHandler, arg);
 
 	arg->terminate = &dispatcherArg.terminate;
 	arg->scheduler = this;
@@ -188,7 +184,7 @@ void ConnectionsScheduler::initialize()
 
   event_init();
 
-  event_set(&timeoutEv, 0, EV_TIMEOUT, do_nothing, &timeoutEv);
+  event_set(&timeoutEv, 0, EV_TIMEOUT, doNothing, &timeoutEv);
   event_add(&timeoutEv, &tv);
 
   dispatcherArg.terminated = true;
@@ -258,7 +254,7 @@ void ConnectionsScheduler::addWaitingConnection(ConnectionPtr c)
   connections.put(handle, c);
   connectionsMutex.unlock();
 
-  event_set(c->getEvent(), handle, EV_READ | EV_TIMEOUT, new_data_handler, c);
+  event_set(c->getEvent(), handle, EV_READ | EV_TIMEOUT, newDataHandler, c);
 
   eventsMutex.lock();
 
@@ -355,25 +351,13 @@ void ConnectionsScheduler::getConnections(list<ConnectionPtr> &out)
 {
   out.clear();
 
+  connectionsMutex.lock();
+
   HashMap<SocketHandle, ConnectionPtr>::Iterator it = connections.begin();
   for(; it != connections.end(); it++)
     out.push_back(*it);
-}
 
-/*!
- *Release the connection access.
- */
-void ConnectionsScheduler::unlockConnectionsList()
-{
   connectionsMutex.unlock();
-}
-
-/*!
- *Acquire the access to the connection mutex.
- */
-void ConnectionsScheduler::lockConnectionsList()
-{
-  connectionsMutex.lock();
 }
 
 /*!
@@ -389,7 +373,9 @@ int ConnectionsScheduler::getConnectionsNumber()
  */
 void ConnectionsScheduler::removeConnection(ConnectionPtr connection)
 {
+  connectionsMutex.lock();
   connections.remove(connection->socket->getHandle());
+  connectionsMutex.unlock();
 }
 
 /*!

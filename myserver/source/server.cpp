@@ -1287,7 +1287,7 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
 /*!
  *Delete a connection from the list.
  */
-int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
+int Server::deleteConnection(ConnectionPtr s, int /*id*/)
 {
   string msg("remove-connection");
   vector<Multicast<string, void*, int>*>* handlers;
@@ -1314,13 +1314,7 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/, int doLock)
     }
   }
 
-  if(doLock)
-    connectionsScheduler.lockConnectionsList();
-
   connectionsScheduler.removeConnection(s);
-
-  if(doLock)
-    connectionsScheduler.unlockConnectionsList();
 
   delete s;
 
@@ -1343,23 +1337,19 @@ void Server::clearAllConnections()
   list<ConnectionPtr> connections;
   list<ConnectionPtr>::iterator it;
 
-  connectionsScheduler.lockConnectionsList();
-
   connectionsScheduler.getConnections(connections);
 
   try
   {
     for(it = connections.begin(); it != connections.end(); it++)
     {
-      deleteConnection(*it, 1, 0);
+      deleteConnection(*it, 1);
     }
   }
   catch(...)
   {
-    connectionsScheduler.unlockConnectionsList();
     throw;
   };
-  connectionsScheduler.unlockConnectionsList();
 }
 
 

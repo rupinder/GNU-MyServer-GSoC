@@ -728,8 +728,6 @@ int  ControlProtocol::showConnections(ConnectionPtr a,File* out, char *b1,
   u_long nbw;
   list<ConnectionPtr> connections;
 
-  Server::getInstance()->getConnectionsScheduler()->lockConnectionsList();
-
 
   Server::getInstance()->getConnectionsScheduler()->getConnections(connections);
 
@@ -756,7 +754,6 @@ int  ControlProtocol::showConnections(ConnectionPtr a,File* out, char *b1,
     }
     it++;
   }
-  Server::getInstance()->getConnectionsScheduler()->unlockConnectionsList();
   return ret;
 }
 
@@ -774,8 +771,6 @@ int ControlProtocol::killConnection(ConnectionPtr a, u_long ID, File* out,
 
   list<ConnectionPtr> connections;
 
-  Server::getInstance()->getConnectionsScheduler()->lockConnectionsList();
-
   Server::getInstance()->getConnectionsScheduler()->getConnections(connections);
 
   list<ConnectionPtr>::iterator it = connections.begin();
@@ -791,7 +786,6 @@ int ControlProtocol::killConnection(ConnectionPtr a, u_long ID, File* out,
     it++;
   }
 
-  Server::getInstance()->getConnectionsScheduler()->unlockConnectionsList();
   return ret;
 }
 

@@ -73,10 +73,7 @@ public:
 	int getConnectionsNumber();
 	void removeConnection(ConnectionPtr connection);
 	void terminateConnections();
-
-	void lockConnectionsList();
 	void getConnections(list<ConnectionPtr> &out);
-	void unlockConnectionsList();
 private:
 	event timeoutEv;
 	ThreadID dispatchedThreadId;
