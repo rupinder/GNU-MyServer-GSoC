@@ -34,6 +34,12 @@ using namespace std;
 
 #define PRIORITY_CLASSES 3
 
+class ConnectionsSchedulerVisitor
+{
+public:
+  virtual int visitConnection(ConnectionPtr conn, void* param) = 0;
+};
+
 class ConnectionsScheduler
 {
 public:
@@ -74,6 +80,8 @@ public:
 	void removeConnection(ConnectionPtr connection);
 	void terminateConnections();
 	void getConnections(list<ConnectionPtr> &out);
+
+  int accept(ConnectionsSchedulerVisitor*, void*);
 private:
 	event timeoutEv;
 	ThreadID dispatchedThreadId;

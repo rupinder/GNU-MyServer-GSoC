@@ -230,6 +230,7 @@ void ConnectionsScheduler::addReadyConnection(ConnectionPtr c)
 
   c->setScheduled(1);
 
+
   readyMutex.lock();
   ready[priority].push(c);
   readyMutex.unlock();
@@ -248,9 +249,10 @@ void ConnectionsScheduler::addWaitingConnection(ConnectionPtr c)
   SocketHandle handle = c->socket->getHandle();
 
   tv.tv_sec = Server::getInstance()->getTimeout() / 1000;
+  c->setScheduled(0);
+
 
   connectionsMutex.lock();
-  c->setScheduled(0);
   connections.put(handle, c);
   connectionsMutex.unlock();
 
@@ -291,6 +293,8 @@ ConnectionPtr ConnectionsScheduler::getConnection()
 
     if(ready[currentPriority].size())
     {
+      SocketHandle handle;
+
       ret = ready[currentPriority].front();
       ret->setScheduled(0);
       ready[currentPriority].pop();
@@ -412,4 +416,34 @@ void ConnectionsScheduler::terminateConnections()
       ready[i].pop();
 
   readyMutex.unlock();
+}
+
+/*!
+ *Accept a visitor on the connections.
+ */
+int ConnectionsScheduler::accept(ConnectionsSchedulerVisitor* visitor, void* args)
+{
+  int ret = 0;
+  connectionsMutex.lock();
+
+  try
+  {
+
+    for(HashMap<SocketHandle, ConnectionPtr>::Iterator it = connections.begin(); 
+        it != connections.end()  && !ret; 
+        it++)
+    {
+      visitor->visitConnection(*it, args);
+    }
+  }
+  catch(...)
+  {
+    connectionsMutex.unlock();
+    return 1;
+  }
+
+  connectionsMutex.unlock();
+
+  return ret;
+
 }

@@ -52,6 +52,21 @@ char ControlProtocol::adminLogin[64] = "";
 char ControlProtocol::adminPassword[64] = "";
 int  ControlProtocol::controlEnabled = 0;
 
+struct ControlProtocolVisitorArg
+{
+  static const int SHOW_CONNECTIONS = 1;
+  static const int KILL_CONNECTION = 2;
+  int command;
+
+  ConnectionPtr connection;
+  File* out;
+  char *b1;
+  int bs1;
+  ControlHeader* header;
+
+  u_long id;
+};
+
 /*!
  *Returns the name of the protocol. If an out buffer is defined 
  *fullfill it with the name too.
@@ -212,15 +227,15 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
   ostringstream OfilePath;
   u_long nbw;
   int specified_length;
-  char *version;
+  char *version = 0;
   u_long timeout;
   int authorized;
-  char *command ;
-  char *opt ;
+  char *command = 0;
+  char *opt = 0 ;
   /* Input file. */
-  File *Ifile;
+  File *Ifile = 0;
   /* Output file. */
-  File *Ofile;
+  File *Ofile = 0;
 
 
   /* Use control_header to parse the request. */
@@ -724,69 +739,89 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
 int  ControlProtocol::showConnections(ConnectionPtr a,File* out, char *b1, 
                                       int bs1, ControlHeader& header)
 {
-  int ret =  0;
-  u_long nbw;
-  list<ConnectionPtr> connections;
-
-
-  Server::getInstance()->getConnectionsScheduler()->getConnections(connections);
-
-  list<ConnectionPtr>::iterator it = connections.begin();
-  while(it != connections.end())
-  {
-    ConnectionPtr con = *it;
-#ifdef HAVE_SNPRINTF
-    snprintf(b1, bs1,
-#else
-    sprintf(b1, 
-#endif
-            "%i - %s - %i - %s - %i - %s - %s\r\n", 
-            static_cast<int>(con->getID()),  con->getIpAddr(), 
-            static_cast<int>(con->getPort()), 
-            con->getLocalIpAddr(),  static_cast<int>(con->getLocalPort()), 
-            con->getLogin(), con->getPassword());
-   
-    ret = out->writeToFile(b1, strlen(b1), &nbw);   
-    if(ret)
-    {
-      strcpy(b1,"Control: Error while writing to file");
-      addToErrorLog(a, b1, strlen(b1), header);
-    }
-    it++;
-  }
-  return ret;
+  ControlProtocolVisitorArg args;
+  args.command = ControlProtocolVisitorArg::SHOW_CONNECTIONS;
+  args.connection = a;
+  args.out = out;
+  args.b1 = b1;
+  args.bs1 = bs1;
+  args.header = &header;
+  
+  return Server::getInstance()->getConnectionsScheduler()->accept(this, &args);
 }
 
 /*!
  *Kill a connection by its ID.
  */
-int ControlProtocol::killConnection(ConnectionPtr a, u_long ID, File* out, 
+int ControlProtocol::killConnection(ConnectionPtr a, u_long id, File* out, 
                                     char *b1, int bs1, ControlHeader& header)
 {
   int ret = 0;
   ConnectionPtr con;
 
-  if(ID == 0)
+  if(id == 0)
     return -1;
 
-  list<ConnectionPtr> connections;
 
-  Server::getInstance()->getConnectionsScheduler()->getConnections(connections);
+  ControlProtocolVisitorArg args;
+  args.command = ControlProtocolVisitorArg::KILL_CONNECTION;
+  args.connection = a;
+  args.id = id;
+  args.out = out;
+  args.b1 = b1;
+  args.bs1 = bs1;
+  args.header = &header;
 
-  list<ConnectionPtr>::iterator it = connections.begin();
+  Server::getInstance()->getConnectionsScheduler()->accept(this, &args);
 
-  while(it != connections.end())
+  return 0;
+}
+           
+/*!
+ *Visitor.
+ */ 
+int ControlProtocol::visitConnection(ConnectionPtr con, void* argP)
+{
+  int ret = 0;
+  u_long nbw;
+  ControlProtocolVisitorArg* arg = static_cast<ControlProtocolVisitorArg*>(argP);
+
+  if(arg->command == ControlProtocolVisitorArg::SHOW_CONNECTIONS)
   {
-    con = *it;
-    if(con->getID() == ID)
+#ifdef HAVE_SNPRINTF
+    snprintf(arg->b1, arg->bs1, "%i - %s - %i - %s - %i - %s - %s\r\n", 
+             static_cast<int>(con->getID()),  con->getIpAddr(), 
+             static_cast<int>(con->getPort()), 
+             con->getLocalIpAddr(),  static_cast<int>(con->getLocalPort()), 
+             con->getLogin(), con->getPassword());
+#else
+    sprintf(b1, "%i - %s - %i - %s - %i - %s - %s\r\n", 
+            static_cast<int>(con->getID()),  con->getIpAddr(), 
+            static_cast<int>(con->getPort()), 
+            con->getLocalIpAddr(),  static_cast<int>(con->getLocalPort()), 
+            con->getLogin(), con->getPassword());
+#endif
+           
+    ret = arg->out->writeToFile(arg->b1, strlen(arg->b1), &nbw);   
+    
+    if(ret)
+    {
+      strcpy(arg->b1,"Control: Error while writing to file");
+      addToErrorLog(arg->connection, arg->b1, strlen(arg->b1), *arg->header);
+      return ret;
+    }
+  }
+  else if(arg->command == ControlProtocolVisitorArg::KILL_CONNECTION)
+  {
+    if(con->getID() == arg->id)
     {
       /* Define why the connection is killed.  */
       con->setToRemove(CONNECTION_USER_KILL);
+      return 1;
     }
-    it++;
   }
 
-  return ret;
+  return 0;
 }
 
 /*!
@@ -805,11 +840,11 @@ int ControlProtocol::showDynamicProtocols(ConnectionPtr a, File* out,
   {
     DynamicProtocol* dp = (DynamicProtocol*) *it;
 #ifdef HAVE_SNPRINTF
-    snprintf(b1, bs1,
+    snprintf(b1, bs1, "%s\r\n", dp->getName(0, 0) );
+
 #else
-    sprintf(b1,
+    sprintf(b1, "%s\r\n", dp->getName(0, 0) );
 #endif
-            "%s\r\n", dp->getName(0, 0) );
    
     ret = out->writeToFile(b1, strlen(b1), &nbw);
     if(ret)
@@ -864,7 +899,7 @@ int ControlProtocol::getFile(ConnectionPtr a, char* fn, File* in,
     filename = fn;    
   }
   
-  ret = localfile.openFile(filename, File::MYSERVER_OPEN_READ|File::MYSERVER_OPEN_IFEXISTS);
+  ret = localfile.openFile(filename, File::MYSERVER_OPEN_READ | File::MYSERVER_OPEN_IFEXISTS);
 
   /*! An internal server error happens. */
   if(ret)

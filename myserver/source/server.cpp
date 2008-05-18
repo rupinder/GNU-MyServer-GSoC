@@ -1277,6 +1277,8 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
      ((u_long)connectionsScheduler.getConnectionsNumber() > maxConnections))
     newConnection->setToRemove(CONNECTION_REMOVE_OVERLOAD);
 
+  newConnection->setID(nTotalConnections);
+
 
   /*
    *Signal the new connection to the waiting threads.
@@ -1300,9 +1302,6 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/)
   {
     return 0;
   }
-
-  if(s->isScheduled())
-    s->setToRemove(CONNECTION_REMOVE_OVERLOAD);
 
   handlers = getHandlers(msg);
 

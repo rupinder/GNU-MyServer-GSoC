@@ -20,14 +20,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../stdafx.h"
 #include "../include/protocol.h"
 #include "../include/control_header.h"
+#include "../include/connections_scheduler.h"
 
 #include <string>
 
 using namespace std;
 
-class ControlProtocol : public Protocol
+class ControlProtocol : public Protocol, public ConnectionsSchedulerVisitor
 {
 public:
+  virtual int visitConnection(ConnectionPtr, void*);
+
   int sendResponse(char*, int, ConnectionPtr, int, ControlHeader& header, File* = 0);
   virtual int loadProtocol(XmlParser* languageParser);
 	int controlConnection(ConnectionPtr a, char *b1, char *b2, int bs1, 
