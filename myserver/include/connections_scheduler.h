@@ -82,7 +82,13 @@ public:
 	void getConnections(list<ConnectionPtr> &out);
 
   int accept(ConnectionsSchedulerVisitor*, void*);
+
+  void registerConnectionID(ConnectionPtr);
+
+  u_long getNumTotalConnections();
+
 private:
+  u_long nTotalConnections;
 	event timeoutEv;
 	ThreadID dispatchedThreadId;
 	Semaphore *readySemaphore;

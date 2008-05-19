@@ -94,7 +94,6 @@ Server::Server()
   path = 0;
   ipAddresses = 0;
   vhostList = 0;
-  nTotalConnections = 0;
   purgeThreadsThreshold = 1;
   freeThreads = 0;
 }
@@ -523,7 +522,7 @@ u_long Server::getNumConnections()
  */
 u_long Server::getNumTotalConnections()
 {
-  return nTotalConnections;
+  return connectionsScheduler.getNumTotalConnections();
 }
 
 /*!
@@ -1266,8 +1265,6 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
   else
     connectionsScheduler.addWaitingConnection(newConnection);
 
-  nTotalConnections++;
-
   /*
    *If defined maxConnections and the number of active connections
    *is bigger than it say to the protocol that will parse the connection
@@ -1277,7 +1274,7 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
      ((u_long)connectionsScheduler.getConnectionsNumber() > maxConnections))
     newConnection->setToRemove(CONNECTION_REMOVE_OVERLOAD);
 
-  newConnection->setID(nTotalConnections);
+  connectionsScheduler.registerConnectionID(newConnection);
 
 
   /*

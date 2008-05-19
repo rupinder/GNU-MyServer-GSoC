@@ -67,13 +67,15 @@ static void* dispatcher(void* p)
 
 static void newDataHandler(int fd, short event, void *arg)
 {
+  ConnectionPtr connection = static_cast<ConnectionPtr>(arg);
+
 	if(event == EV_TIMEOUT)
 	{
-		Server::getInstance()->deleteConnection((ConnectionPtr)arg, 0);
+		Server::getInstance()->deleteConnection(connection, 0);
 	}
 	else if(event == EV_READ)
 	{
-		Server::getInstance()->getConnectionsScheduler()->addReadyConnection((ConnectionPtr)arg);
+		Server::getInstance()->getConnectionsScheduler()->addReadyConnection(connection);
 	}
 }
 
@@ -153,7 +155,28 @@ ConnectionsScheduler::ConnectionsScheduler()
   readySemaphore = new Semaphore(0);
   currentPriority = 0;
   currentPriorityDone = 0;
+  nTotalConnections = 0;
 	ready = new queue<ConnectionPtr>[PRIORITY_CLASSES];
+}
+
+/*!
+ *Get the number of all connections made to the server.
+ */
+u_long ConnectionsScheduler::getNumTotalConnections()
+{
+  return nTotalConnections;
+}
+
+
+/*!
+ *Register the connection with a new ID.
+ *\param connection The connection to register.
+ */
+void ConnectionsScheduler::registerConnectionID(ConnectionPtr connection)
+{
+  connectionsMutex.lock();
+  connection->setID(nTotalConnections++);
+  connectionsMutex.unlock();
 }
 
 
