@@ -315,9 +315,14 @@ SectionEnd
 
 ;This needs the NSIS Simple Firewall Plugin
 ;http://nsis.sourceforge.net/NSIS_Simple_Firewall_Plugin
-Section "Modify the Windows firewall settings" SecFirewall
+Section "Modify the Windows firewall settings (HTTP)" SecFirewallHttp
 SimpleFC::AddPort 80 web 6 0 2 "" 1
 SectionEnd
+
+Section "Modify the Windows firewall settings (FTP)" SecFirewallFtp
+SimpleFC::AddPort 21 ftp 6 0 2 "" 1
+SectionEnd
+
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCore} "Install the MyServer core application(this element is required)"
@@ -327,7 +332,8 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecLanguages} "Copy all the languages files(by default only the english language is copied)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecWebEx} "Install some web examples"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecService} "Install MyServer like a service (loaded automatically on startup)"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecFirewall} "Modify the Windows firewall settings to allow MyServer access from other hosts"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecFirewallHttp} "Modify the Windows firewall settings to allow MyServer access from other hosts on HTTP"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecFirewallFtp} "Modify the Windows firewall settings to allow MyServer access from other hosts on FTP"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 
