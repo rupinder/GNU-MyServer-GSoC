@@ -795,7 +795,7 @@ int ControlProtocol::visitConnection(ConnectionPtr con, void* argP)
              con->getLocalIpAddr(),  static_cast<int>(con->getLocalPort()), 
              con->getLogin(), con->getPassword());
 #else
-    sprintf(b1, "%i - %s - %i - %s - %i - %s - %s\r\n", 
+    sprintf(arg->b1, "%i - %s - %i - %s - %i - %s - %s\r\n", 
             static_cast<int>(con->getID()),  con->getIpAddr(), 
             static_cast<int>(con->getPort()), 
             con->getLocalIpAddr(),  static_cast<int>(con->getLocalPort()), 
