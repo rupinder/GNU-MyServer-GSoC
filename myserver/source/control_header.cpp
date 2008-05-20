@@ -130,7 +130,7 @@ ControlHeader::~ControlHeader()
  *Return -1 on an incomplete header.
  *The header has this form:
  *_/CMD VERSION more_options\r\n
- *_/AUTH md5(name:password)\r\n
+ *_/AUTH name:password\r\n
  *_/LEN length of data\r\n
  *_***
  *_Additional fields.(Not used now)
@@ -206,7 +206,7 @@ int ControlHeader::parse_header(char *buffer, int bufferlen, int *len)
       /*! Put the offset at the end of \r\n. */
       offset += ((optionsLen!= -1)?optionsLen:0) + 2 ;
     }
-    else/*! Handle other lines other than the first. */
+    else/*! Handle other lines after the first one. */
     {
       /*! We reach the end of the request. */
       if(field[0]=='\r' && field[1]=='\n')

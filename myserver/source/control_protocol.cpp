@@ -890,7 +890,7 @@ int ControlProtocol::getFile(ConnectionPtr a, char* fn, File* in,
     /*! If we cannot find the file send the right error ID. */
     string msg;
     msg.assign("Control: Requested file doesn't exist ");
-    msg.append(filename);
+    msg.append(fn);
     addToErrorLog(a, msg, header);  
     return CONTROL_FILE_NOT_FOUND;
   }
