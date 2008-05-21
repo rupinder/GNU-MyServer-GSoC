@@ -342,7 +342,7 @@ AC_CONFIG_FILES([
     Makefile
     binaries/Makefile
     binaries/certificates/Makefile
-    binaries/external/Makefile
+    binaries/plugins/Makefile
     binaries/languages/Makefile
     binaries/languages/configure/Makefile
     binaries/web/Makefile

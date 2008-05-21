@@ -252,20 +252,20 @@ int main(int argc, char * argv[])
    
    // Load the dynamic protocol names
    Vector list;
-   if(FilesUtility::fileExists("external/protocols"))
+   if(FilesUtility::fileExists("plugins/protocols"))
      {
-	GetDynamicProtocols("external/protocols", list);
+	GetDynamicProtocols("plugins/protocols", list);
      }
 #ifndef WIN32
 #ifdef PREFIX
-   else if(FilesUtility::fileExists(PREFIX "/lib/myserver/external/protocols"))
+   else if(FilesUtility::fileExists(PREFIX "/lib/myserver/plugins/protocols"))
      {
-	GetDynamicProtocols(PREFIX "/lib/myserver/external/protocols", list);
+	GetDynamicProtocols(PREFIX "/lib/myserver/plugins/protocols", list);
      }
 #else
-   else if(FilesUtility::fileExists("/usr/lib/myserver/external/protocols"))
+   else if(FilesUtility::fileExists("/usr/lib/myserver/plugins/protocols"))
      {
-	GetDynamicProtocols("/usr/lib/myserver/external/protocols", list);
+	GetDynamicProtocols("/usr/lib/myserver/plugins/protocols", list);
      }
 #endif
 #endif

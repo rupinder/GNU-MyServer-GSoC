@@ -1657,22 +1657,22 @@ int Server::loadSettings()
       delete externalPath;
     externalPath = new string();
 #ifdef NOT_WIN
-    if(FilesUtility::fileExists("external"))
-      externalPath->assign("external");
+    if(FilesUtility::fileExists("plugins"))
+      externalPath->assign("plugins");
     else
     {
 #ifdef PREFIX
       externalPath->assign(PREFIX);
-      externalPath->append("/lib/myserver/external");
+      externalPath->append("/lib/myserver/plugins");
  #else
-      externalPath->assign("/usr/lib/myserver/external");
+      externalPath->assign("/usr/lib/myserver/plugins");
 #endif
     }
 
 #endif
 
 #ifdef WIN32
-    externalPath->assign("external/protocols");
+    externalPath->assign("plugins/protocols");
 
 #endif
     getProcessServerManager()->load();
