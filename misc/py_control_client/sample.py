@@ -16,6 +16,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from pycontrol.pycontrol import PyMyServerControl
+from pycontrol.pycontrol import error_codes
+
 from sys import argv, exit
 
 if __name__ == "__main__":
@@ -28,6 +30,8 @@ if __name__ == "__main__":
     control.send_header("SHOWCONNECTIONS", 0)
 
     control.read_header()
+
+    print "Reply code: " + error_codes.get(control.response_code)
 
     while control.available_data() > 0:
         print control.read()

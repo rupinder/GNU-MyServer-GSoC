@@ -17,9 +17,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import socket
 import time
 
+error_codes = {'100': 'CONTROL_OK',
+               '200': 'CONTROL_ERROR',
+               '201': 'CONTROL_INTERNAL',
+               '202': 'CONTROL_AUTH',     
+               '203': 'CONTROL_MALFORMED',
+               '204': 'CONTROL_CMD_NOT_FOUND',
+               '205': 'CONTROL_BAD_LEN',
+               '206': 'CONTROL_SERVER_BUSY',
+               '207': 'CONTROL_BAD_VERSION',
+               '208': 'CONTROL_FILE_NOT_FOUND'}
+
 class PyMyServerControl(object):
     #Initialize a connection to server:port using login:password as credentials.
     def __init__(self, host, port, login, password):
+
         self.connectionType = "Keep-Alive"
 
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -78,9 +90,6 @@ class PyMyServerControl(object):
     def read_header(self):
         self.response_code = self.__readline()[1:4]
         self.__bytes_read = 0
-
-        if self.response_code[0:1] != "1":
-            return -1
 
         while True:
             line = self.__readline()
