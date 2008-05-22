@@ -57,20 +57,19 @@ if command == "checkout_svn":
     Execute("svn co " + SVN_TRUNK + "/myserver .")
 
 if mode == "release":
-    env = Environment(ENV = {'PATH' : os.environ['PATH'],
-                             'TERM' : os.environ['TERM'],
-                             'HOME' : os.environ['HOME']},
+    env = Environment(ENV = {'PATH' : os.environ['PATH'] or '.',
+                             'TERM' : os.environ['TERM'] or '' ,
+                             'HOME' : os.environ['HOME'] or ''},
                       CPPPATH=listinc,
                       CXXFLAGS="-fPIC -DPIC  -DHAVE_CONFIG_H",
                       LINKFLAGS="-rdynamic" )
 else:
-    env = Environment(ENV = {'PATH' : os.environ['PATH'],
-                             'TERM' : os.environ['TERM'],
-                             'HOME' : os.environ['HOME']},
+    env = Environment(ENV = {'PATH' : os.environ['PATH'] or '.',
+                             'TERM' : os.environ['TERM'] or '',
+                             'HOME' : os.environ['HOME'] or ''},
  		      LIBPATH = ['/usr/lib', '/usr/local/lib'],
                       CPPPATH=listinc,
-                      CXX="g++ -DHAVE_CONFIG_H", 
-                      CXXFLAGS="-fPIC -DPIC -g3",
+                      CXXFLAGS="-fPIC -DPIC -g3 -DHAVE_CONFIG_H",
                       LINKFLAGS="-rdynamic" )
 
 
