@@ -48,6 +48,7 @@ listinc=[
 
 buildControlGui = False
 buildMscgiExamples = False
+doTests = False
 
 
 if command == "update_svn":
@@ -84,11 +85,11 @@ if  not env.GetOption('clean'):
         print "libxml2 is required to compile MyServer"
         Exit(1)
 
-        if conf.CheckLib("event"):
-            conf.Define('EVENT', 1)
-        else:
-            print "libevent is required to compile MyServer"
-            Exit(1)
+    if conf.CheckLib("event"):
+        conf.Define('EVENT', 1)
+    else:
+        print "libevent is required to compile MyServer"
+        Exit(1)
 
     if not conf.CheckLib("ssl"):
         conf.Define('DO_NOT_USE_SSL', 1)
@@ -202,6 +203,10 @@ if  not env.GetOption('clean'):
                        }""", ".c"):
         conf.Define('IPV6', 1)
 
+
+    if conf.CheckLib("cppunit"):
+        doTests = True
+
     env = conf.Finish()
 
 files = glob.glob('source/*.cpp')
@@ -210,18 +215,19 @@ files.sort()
 if command == "build":
     env.Program('binaries/myserver', files)
 
+
 #Build the Control GUI here.
 if buildControlGui:
-    files = glob.glob('control/*.cpp')
-    files.append(["source/file.cpp", "source/files_utility.cpp", "source/xml_parser.cpp", 
+    filesControl = glob.glob('control/*.cpp')
+    filesControl.append(["source/file.cpp", "source/files_utility.cpp", "source/xml_parser.cpp", 
                   "source/utility.cpp", "source/find_data.cpp", "source/md5.cpp", "source/mem_buff.cpp",
                   "source/ssl_socket.cpp", "source/socket.cpp",  "source/mutex.cpp", "source/thread.cpp", 
                   "source/stream.cpp", "source/securestr.cpp"])
 
-    files.sort()
+    filesControl.sort()
 
     if command == "build":
-        env.Program('binaries/control', files)
+        env.Program('binaries/control', filesControl)
 
 #Build the MSCGI examples here.
 if buildMscgiExamples:
@@ -231,9 +237,19 @@ if buildMscgiExamples:
         envMscgi.SharedLibrary('binaries/web/cgi-bin/post', ["binaries/web/cgi-src/post/post.cpp"])
         envMscgi.SharedLibrary('binaries/web/cgi-bin/math_sum', ["binaries/web/cgi-src/math_sum/math_sum.cpp"])
 
+#Compile and run the tests suite.
+if command == "build":
+    testsFiles = glob.glob('tests/*.cpp') + files
+    testsFiles.remove('source/myserver.cpp')
+    testsFiles.sort()
+    t = env.Program('tests/tests_suite', testsFiles)
+
+if command == "tests":
+    AddPostAction('tests/tests_suite', env.Execute('tests/tests_suite'))
+
+
 #Copy the files to the right position.
-if command == "install" or  command == "package":
-   
+if command == "install" or command == "package":
     env.Install(destdir, "binaries/myserver binaries/myserver-configure binaries/myserver-daemon ".split())
     env.Install(destdir, glob.glob("binaries/*.default"))
     env.Install(destdir, "binaries/readme.txt COPYING INSTALL NEWS README TODO".split())

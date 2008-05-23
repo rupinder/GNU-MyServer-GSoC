@@ -41,11 +41,18 @@ template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
 void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticast(MSG_TYPE msg, Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>* handler)
 {
 	vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.get(msg);
+  typename vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE> * >::iterator it;
 	if(!msgHandlers)
 	{
 		return;
 	}
-	msgHandlers->remove(handler);
+  
+  for(it = msgHandlers->begin(); it != msgHandlers->end(); it++)
+    if(*it == handler)
+    {
+      msgHandlers->erase(it);
+      break;
+    }
 }
 
 /*!
@@ -56,7 +63,9 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticasts(MSG_TYPE 
 {
 	vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.remove(msg);
 	if(msgHandlers)
+  {
 		delete msgHandlers;
+  }
 }
 
 /*!

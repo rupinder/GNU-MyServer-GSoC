@@ -1,6 +1,6 @@
 /*
  MyServer
- Copyright (C) 2005 The MyServer Team
+ Copyright (C) 2005-2008 The MyServer Team
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
@@ -41,10 +41,6 @@
 
 class Md5
 {
-  unsigned int buf[4];
-  unsigned int bytes[2];
-  unsigned int in[16];
-  void transform(unsigned int buf[4], unsigned int const in[16]);
 public:
   Md5();
   ~Md5();
@@ -52,6 +48,11 @@ public:
   void update(unsigned char const *buf, unsigned long len);
   void final(unsigned char digest[16]);
   char* end(char *buf);
+private:
+  unsigned int buf[4];
+  unsigned int bytes[2];
+  unsigned int in[16];
+  void transform(unsigned int buf[4], unsigned int const in[16]);
 };
 
 #endif

@@ -1,6 +1,6 @@
 /*
  MyServer
- Copyright (C) 2005 The MyServer Team
+ Copyright (C) 2005-2008 The MyServer Team
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
@@ -117,7 +117,7 @@ void Md5::update(unsigned char const *buf, unsigned long len)
  */
 void Md5::final(unsigned char digest[16])
 {
-	long count = bytes[0] & 0x3f;	/* Number of bytes in in */
+	long count = bytes[0] & 0x3f;	/* Number of bytes mod 64. */
 	unsigned char *p = (unsigned char *)in + count;
   unsigned int i;
 	/* Set the first char of padding to 0x80.  There is always room. */
@@ -145,14 +145,14 @@ void Md5::final(unsigned char digest[16])
 
 	memcpy(digest, buf, 16);
 
-  for(i=0;i<4;i++)
-    buf[i]=0;
+  for(i = 0; i < 4; i++)
+    buf[i] = 0;
 
-  for(i=0;i<2;i++)
-    bytes[i]=0;
+  for(i = 0; i < 2; i++)
+    bytes[i] = 0;
 
-  for(i=0;i<16;i++) 
-    in[i]=0;
+  for(i = 0; i < 16; i++) 
+    in[i] = 0;
 
 }
 
@@ -273,7 +273,7 @@ Md5::~Md5()
 {}
 
 /*!
- *Write the final hash on te buffer.
+ *Write the final hash to the buffer.
  */
 char* Md5::end(char *buf)
 {
@@ -284,12 +284,13 @@ char* Md5::end(char *buf)
 	if (!buf)
 		return 0;
 	final(digest);
-	for (i=0;i<16;i++) 
+	for ( i = 0; i < 16; i++) 
 	{
-		buf[i+i] = hex[digest[i] >> 4];
-		buf[i+i+1] = hex[digest[i] & 0x0f];
-		buf[i+i+2] = '\0';
+		buf[(i << 1)] = hex[digest[i] >> 4];
+    buf[(i << 1) + 1] = hex[digest[i] & 0x0f];
 	}
+
+  buf[32] = '\0';
 
 	return buf;
 }
