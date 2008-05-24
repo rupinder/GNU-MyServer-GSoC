@@ -189,7 +189,9 @@ int Isapi::Senduri(HttpThreadContext* td, ConnectionPtr a, char *URL)
  */
 int Isapi::SendHeader(HttpThreadContext* td,ConnectionPtr a,char *data)
 {
-  HttpHeaders::buildHTTPResponseHeaderStruct(&(td->response), td, data);
+  HttpHeaders::buildHTTPResponseHeaderStruct(data,
+                                             &td->response, 
+                                             &(td->nBytesToRead));
   return 1;
 }
 
@@ -271,8 +273,12 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
     if(headerSize)
     {
       int len = ConnInfo->headerSize-headerSize;
-      HttpHeaders::buildHTTPResponseHeaderStruct(&ConnInfo->td->response,
-                                  ConnInfo->td,(char*)ConnInfo->td->buffer->getBuffer());
+
+      HttpHeaders::buildHTTPResponseHeaderStruct(ConnInfo->td->buffer->getBuffer(),
+                                                 &td->response, 
+                                                 &(td->nBytesToRead));
+
+
       if(!ConnInfo->td->appendOutputs)
       {
         if(keepalive)

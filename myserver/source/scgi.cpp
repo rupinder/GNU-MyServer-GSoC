@@ -296,8 +296,9 @@ int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
   {
     if(headerSize)
     {
-      HttpHeaders::buildHTTPResponseHeaderStruct(&td->response, td, 
-                                                 td->buffer2->getBuffer());
+      HttpHeaders::buildHTTPResponseHeaderStruct(td->buffer2->getBuffer(),
+                                                 &td->response, 
+                                                 &(td->nBytesToRead));
     }
     HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
                                          &td->response);

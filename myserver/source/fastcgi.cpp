@@ -552,8 +552,10 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   /* For logging.  */
   td->sentData += con.tempOut.getFileSize() - headerSize;
 
-  HttpHeaders::buildHTTPResponseHeaderStruct(&td->response, td,
-                                             td->buffer->getBuffer());
+  HttpHeaders::buildHTTPResponseHeaderStruct(td->buffer->getBuffer(),
+                                             &td->response, 
+                                             &(td->nBytesToRead));
+
 
   for(;;)
   {

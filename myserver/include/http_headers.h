@@ -53,11 +53,12 @@ public:
                                           HttpRequestHeader *request, 
                                           Connection* connection);
 
-	static int buildHTTPResponseHeaderStruct(HttpResponseHeader *response, 
-                                           HttpThreadContext *td,char *input=0);
+	static int buildHTTPResponseHeaderStruct(const char *input, 
+                                           HttpResponseHeader *response, 
+                                           u_long* nbtr);
 
 	static int validHTTPRequest(const char*, u_long, u_long*, u_long*);
-	static int validHTTPResponse(const char*, HttpThreadContext*, u_long*, u_long*);
+	static int validHTTPResponse(const char*, u_long*, u_long*);
 
 	static void resetHTTPRequest(HttpRequestHeader *request);
 	static void resetHTTPResponse(HttpResponseHeader *response);

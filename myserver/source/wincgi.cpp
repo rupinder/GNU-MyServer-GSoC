@@ -366,7 +366,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
   if(td->request.isKeepAlive())
     td->response.connection.assign("keep-alive");
 
-  HttpHeaders::buildHTTPResponseHeaderStruct(&td->response, td, buffer);
+  HttpHeaders::buildHTTPResponseHeaderStruct(buffer, &td->response, &(td->nBytesToRead));
 
   /*
    *Always specify the size of the HTTP contents.

@@ -452,8 +452,9 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 
       /* Send the header.  */
       if(headerSize)
-        HttpHeaders::buildHTTPResponseHeaderStruct(&td->response, td, 
-                                                   td->buffer2->getBuffer());
+        HttpHeaders::buildHTTPResponseHeaderStruct(td->buffer2->getBuffer(),
+                                                   &td->response, 
+                                                   &(td->nBytesToRead));
       
       location = td->response.getValue("Location", 0);
 
