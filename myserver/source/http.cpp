@@ -1577,8 +1577,12 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           return ClientsThread::DELETE_CONNECTION;
       }
     }
-    validRequest =
-      HttpHeaders::buildHTTPRequestHeaderStruct(&td->request, td);
+
+    validRequest = HttpHeaders::buildHTTPRequestHeaderStruct(td->buffer->getBuffer(),
+                                                             td->buffer->getRealLength(),
+                                                             &(td->nHeaderChars),
+                                                             &(td->request), 
+                                                             td->connection);
 
     /*! -1 means the request is not complete yet. */
     if(validRequest == -1)

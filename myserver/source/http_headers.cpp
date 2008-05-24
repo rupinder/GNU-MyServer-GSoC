@@ -358,7 +358,7 @@ void HttpHeaders::resetHTTPResponse(HttpResponseHeader *response)
  *\param nLinesptr is a value of the lines number in the HEADER.
  *\param ncharsptr is a value of the characters number in the HEADER.
  */
-int HttpHeaders::validHTTPResponse(char *res, HttpThreadContext* td, 
+int HttpHeaders::validHTTPResponse(const char *res, HttpThreadContext* td, 
                                     u_long* nLinesptr, u_long* ncharsptr)
 {
   u_long i;
@@ -415,12 +415,17 @@ int HttpHeaders::validHTTPResponse(char *res, HttpThreadContext* td,
  *Returns 200 if is a valid request.
  *Returns -1 if the request is incomplete.
  *Any other returned value is the HTTP error.
+ *\param input buffer with the HTTP header.
+ *\param inputSize Size of the buffer
+ *\param nHeaderChars Real size of the header.
  *\param request HTTP request structure to fullfill with data.
  *\param td the current executing thread context.
- *\param input buffer with the HTTP header.
  */
-int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request, 
-                                              HttpThreadContext* td, char* input)
+int HttpHeaders::buildHTTPRequestHeaderStruct(const char* input,
+                                              u_long inputSize,
+                                              u_long* nHeaderChars,
+                                              HttpRequestHeader *request, 
+                                              Connection* connection)
 {
   /*!
    *In this function there is the HTTP protocol parse.
@@ -434,15 +439,15 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
    *The HTTP header ends with a \r\n\r\n sequence.
    */
   
-  u_long i=0,j=0;
-  int max=0;
+  u_long i = 0,j = 0;
+  int max = 0;
   u_long nLines, maxTotchars;
   int validRequest;
   const int commandSize = 96;
   const int maxUri = HTTP_REQUEST_URI_DIM + 200 ;
   const char cmdSeps[]   = ": ,\t\n\r";
 
-  char *token=0;
+  const char *token = input;
   char command[commandSize];
 
   int nLineControlled = 0;
@@ -454,18 +459,10 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
    */
   int tokenOff;
 
-  /* If input was not specified use the buffer. */
-  if(input==0)
-  {
-    token=input=td->buffer->getBuffer();
-  }
-  else
-    token=input;
-
   /*
    *Control if the HTTP header is a valid header.
    */
-  validRequest=validHTTPRequest(input, td, &nLines, &maxTotchars);
+  validRequest = validHTTPRequest(input, inputSize, &nLines, &maxTotchars);
 
   /* Invalid header.  */
   if(validRequest!=200)
@@ -676,16 +673,16 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
       lineControlled=1;
   
       request->auth.assign(token,tokenOff);
-      td->connection->setLogin("");
-      td->connection->setPassword("");
+      connection->setLogin("");
+      connection->setPassword("");
       if(!request->auth.compare("Basic"))
       {
         u_long i;
-        char *base64 = &token[strlen("Basic ")];
+        const char *base64 = &token[strlen("Basic ")];
         int len = getEndLine(base64, 64);
-        char *tmp = base64 + len - 1;
-        char* lbuffer2;
-        char* keep_lbuffer2;
+        const char *tmp = base64 + len - 1;
+        const char* lbuffer2;
+        const char* keep_lbuffer2;
         char login[32];
         char password[32];
         
@@ -715,8 +712,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
           password[i] = *lbuffer2++;
           password[i+1] = '\0';
         }
-        td->connection->setLogin(login);
-        td->connection->setPassword(password);
+        connection->setLogin(login);
+        connection->setPassword(password);
         tokenOff = getEndLine(token, 100);
         delete keep_lbuffer2;
       }
@@ -747,7 +744,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             if(digestToken)
             {
               StrTrim(digestToken, (char*)"\" ");
-              myserver_strlcpy(td->request.digestNonce,digestToken,48+1);
+              myserver_strlcpy(request->digestNonce,digestToken,48+1);
             }
           }
           else if(!strcmpi(digestToken, (char*)"opaque"))
@@ -756,7 +753,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             if(digestToken)
             {
               StrTrim(digestToken, (char*)"\" ");
-              myserver_strlcpy(td->request.digestOpaque,digestToken,48+1);
+              myserver_strlcpy(request->digestOpaque,digestToken,48+1);
             }
           }
           else if(!strcmpi(digestToken, (char*)"uri"))
@@ -765,7 +762,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             if(digestToken)
             {
               StrTrim(digestToken, (char*)"\" ");
-              myserver_strlcpy(td->request.digestUri,digestToken,1024+1);
+              myserver_strlcpy(request->digestUri,digestToken,1024+1);
             }
           }
           else if(!strcmpi(digestToken, (char*)"method"))
@@ -774,7 +771,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             if(digestToken)
             {
               StrTrim(digestToken, (char*)"\" ");
-              myserver_strlcpy(td->request.digestMethod,digestToken,16+1);
+              myserver_strlcpy(request->digestMethod,digestToken,16+1);
             }
           }  
           else if(!strcmpi(digestToken, (char*)"qop"))
@@ -783,7 +780,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             if(digestToken)
             {
               StrTrim(digestToken,(char*)"\" ");
-              myserver_strlcpy(td->request.digestQop,digestToken,16+1);
+              myserver_strlcpy(request->digestQop,digestToken,16+1);
             }
           }          
           else if(!strcmpi(digestToken, (char*)"realm"))
@@ -792,7 +789,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             if(digestToken)
             {
               StrTrim(digestToken, (char*)"\" ");
-              myserver_strlcpy(td->request.digestRealm,digestToken,48+1);
+              myserver_strlcpy(request->digestRealm,digestToken,48+1);
             }
           }
           else if(!strcmpi(digestToken, (char*)"cnonce"))
@@ -801,7 +798,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             if(digestToken)
             {
               StrTrim(digestToken, (char*)" \"");
-              myserver_strlcpy(td->request.digestCnonce, digestToken, 48+1);
+              myserver_strlcpy(request->digestCnonce, digestToken, 48+1);
             }
           }
           else if(!strcmpi(digestToken, (char*)"username"))
@@ -810,8 +807,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             if(digestToken)
             {
               StrTrim(digestToken, (char*)"\" ");
-              myserver_strlcpy(td->request.digestUsername, digestToken, 48+1);
-              td->connection->setLogin(digestToken);
+              myserver_strlcpy(request->digestUsername, digestToken, 48+1);
+              connection->setLogin(digestToken);
             }
           }
           else if(!strcmpi(digestToken, (char*)"response"))
@@ -820,7 +817,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             if(digestToken)
              {
                StrTrim(digestToken, (char*)"\" ");
-               myserver_strlcpy(td->request.digestResponse,digestToken,48+1);
+               myserver_strlcpy(request->digestResponse,digestToken,48+1);
              }
           }
           else if(!strcmpi(digestToken, (char*)"nc"))
@@ -829,7 +826,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
             if(digestToken)
             {
               StrTrim(digestToken, (char*)"\" ");
-              myserver_strlcpy(td->request.digestNc,digestToken,10+1);
+              myserver_strlcpy(request->digestNc,digestToken,10+1);
             }
           }
           else 
@@ -856,7 +853,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
     {
       char rangeByteBegin[13];
       char rangeByteEnd[13];
-      char *localToken = token;
+      const char *localToken = token;
       int i=0;
       rangeByteBegin[0] = '\0';
       rangeByteEnd[0] = '\0';
@@ -870,7 +867,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
       }
       while((*(++localToken) != '=')&&(i<HTTP_REQUEST_RANGE_TYPE_DIM));
 
-      request->rangeType.assign(localToken, i);
+      request->rangeType.assign(token, i);
 
       i=0;
       localToken++;
@@ -957,7 +954,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(HttpRequestHeader *request,
   /*
    *END REQUEST STRUCTURE BUILD.
    */
-  td->nHeaderChars=maxTotchars;
+  *nHeaderChars = maxTotchars;
   return 200;
 }
 
@@ -1202,15 +1199,15 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(HttpResponseHeader *response,
  *Returns 200 if is a valid request.
  *Returns -1 if the request is incomplete.
  *Any other returned value is the HTTP error.
- *\param req the buffer with the HTTP request.
- *\param td the current executing thread context.
- *\param nLinesptr is a value of the lines number in the HEADER.
- *\param ncharsptr is a value of the characters number in the HEADER.
+ *\param req The buffer with the HTTP request.
+ *\param size Size of the request buffer.
+ *\param nLinesptr Lines in the header.
+ *\param ncharsptr Characters in the header.
  */
-int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
-                                   u_long* nLinesptr,u_long* ncharsptr)
+int HttpHeaders::validHTTPRequest(const char *req, u_long size,
+                                  u_long* nLinesptr, u_long* ncharsptr)
 {
-  u_long i=0;
+  u_long i = 0;
   u_long nLinechars = 0;
   nLinechars = 0;
   u_long nLines = 0;
@@ -1220,11 +1217,11 @@ int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
   
   for(;(i < MYSERVER_KB(8)); i++)
   {
-    if(req[i]=='\n')
+    if(req[i] == '\n')
     {
-      if(req[i + 2]=='\n')
+      if(req[i + 2] == '\n')
       {
-        if((i + 3) > td->buffer->getRealLength())
+        if((i + 3) > size)
           return 400;
         break;
       }
@@ -1239,9 +1236,9 @@ int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
     }
     else if(req[i]=='\0')
       return -1;
+
     /*
-    *We set a maximal theorical number of characters in a line to 2048.
-    *If a line contains more than N characters we consider the header invalid.
+    *If a line contains more than 2048 characters then the header is considered invalid.
     */
     if(nLinechars >= 2048)
     {
@@ -1249,6 +1246,7 @@ int HttpHeaders::validHTTPRequest(char *req, HttpThreadContext* td,
         return 414;
       return 400;
     }
+
     nLinechars++;
   }
 

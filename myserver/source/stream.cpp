@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -15,9 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
- 
-#include "../include/isapi.h"
-#include "../include/stream.h"
+ #include "../include/stream.h"
 
 #include <string>
 #include <sstream>
@@ -28,7 +26,7 @@ using namespace std;
  */
 int Stream::read(char* buffer,u_long len, u_long *nbr)
 {
-  *nbr=0;
+  *nbr = 0;
   return 0;
 }
 
@@ -37,7 +35,7 @@ int Stream::read(char* buffer,u_long len, u_long *nbr)
  */
 int Stream::write(const char* buffer, u_long len, u_long *nbw)
 {
-  *nbw=0;
+  *nbw = 0;
   return 0;
 }
 
@@ -46,7 +44,7 @@ int Stream::write(const char* buffer, u_long len, u_long *nbw)
  */
 int Stream::flush(u_long* nbw)
 {
-  *nbw=0;
+  *nbw = 0;
   return 0;
 }
 

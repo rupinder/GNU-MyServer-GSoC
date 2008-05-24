@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define HTTP_HEADERS_H
 
 #include "../stdafx.h"
+#include "../include/connection.h"
 
 extern "C" {
 #ifdef WIN32
@@ -46,13 +47,17 @@ struct HttpResponseHeader;
 class HttpHeaders
 {
 public:
-	static int buildHTTPRequestHeaderStruct(HttpRequestHeader *request, 
-                                          HttpThreadContext *td,char *input=0);
+	static int buildHTTPRequestHeaderStruct(const char* input,
+                                          u_long inputSize,
+                                          u_long* nHeaderChars,
+                                          HttpRequestHeader *request, 
+                                          Connection* connection);
+
 	static int buildHTTPResponseHeaderStruct(HttpResponseHeader *response, 
                                            HttpThreadContext *td,char *input=0);
 
-	static int validHTTPRequest(char*,HttpThreadContext*,u_long*,u_long*);
-	static int validHTTPResponse(char*,HttpThreadContext*,u_long*,u_long*);
+	static int validHTTPRequest(const char*, u_long, u_long*, u_long*);
+	static int validHTTPResponse(const char*, HttpThreadContext*, u_long*, u_long*);
 
 	static void resetHTTPRequest(HttpRequestHeader *request);
 	static void resetHTTPResponse(HttpResponseHeader *response);
@@ -60,7 +65,7 @@ public:
 	static void buildDefaultHTTPResponseHeader(HttpResponseHeader*);
 	static void buildDefaultHTTPRequestHeader(HttpRequestHeader*);
 
-	static void buildHTTPResponseHeader(char *,HttpResponseHeader*);
-	static void buildHTTPRequestHeader(char *,HttpRequestHeader*);
+	static void buildHTTPResponseHeader(char *, HttpResponseHeader*);
+	static void buildHTTPRequestHeader(char *, HttpRequestHeader*);
 };
 #endif

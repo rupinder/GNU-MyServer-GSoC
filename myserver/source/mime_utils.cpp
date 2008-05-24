@@ -277,7 +277,7 @@ CBase64Utils::~CBase64Utils()
 /*!
  *Decode a string using the Base64 codification
  */
-char* CBase64Utils::Encode(char *input, int bufsize)
+char* CBase64Utils::Encode(const char *input, int bufsize)
 {
 	int alsize = ((bufsize * 4) / 3);
 	char *finalresult = (char*)calloc(alsize + ((alsize / 76) * 2) + 
@@ -285,7 +285,7 @@ char* CBase64Utils::Encode(char *input, int bufsize)
 	int count = 0;
 	int LineLen = 0;
 	char* fresult = finalresult;
-	char *s = input;
+	const char *s = input;
 	int tmp = 0;
 	while (count <= bufsize)
 	{
@@ -388,11 +388,14 @@ char* CBase64Utils::Encode(char *input, int bufsize)
 /*!
  *Decode a Base64 coded string.
  */
-char* CBase64Utils::Decode(char *input, int *bufsize)
+char* CBase64Utils::Decode(const char *input, int *bufsize)
 {
 	int std = 0, count = 1, resultlen = 0;
 	char *finalresult = (char*)calloc(*bufsize + sizeof(char), sizeof(char));
-	char *s = input, *result = finalresult;
+
+	const char *s = input;
+  char *result = finalresult;
+
 	while (*s != '=' && count <= *bufsize)
 	{
 		while (base64map[static_cast<int>(static_cast<char>(*s))] == SKIP)
