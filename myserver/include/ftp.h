@@ -141,7 +141,6 @@ protected:
 
 	static Mutex secCacheMutex;
 	static SecurityCache secCache;
-	int m_nPassivePort;
 
 // Ftp commands Handlers
 public:
@@ -180,6 +179,7 @@ public:
 
 	static bool m_bAllowAnonymous, m_bAnonymousNeedPass, m_bAllowAsynchronousCmds, m_bEnablePipelining, m_bEnableStoreCmds;
 	int m_nLocalControlPort;
+	int m_nPassivePort;
 };
 
 class DataConnectionWorkerThreadData
@@ -236,14 +236,8 @@ public:
 	virtual int controlConnection(ConnectionPtr a, char *b1, char *b2,
                                 int bs1, int bs2, u_long nbtr, u_long id)
   {
-    int ret = 0;
-    Ftp* ftp = new Ftp ();
-
-    ret = ftp->controlConnection(a, b1, b2, bs1, bs2, nbtr, id);
-    
-    delete ftp;
-
-    return ret;
+    Ftp ftp;
+    return ftp.controlConnection(a, b1, b2, bs1, bs2, nbtr, id);
   }
 
   virtual int loadProtocol(XmlParser* parser)
