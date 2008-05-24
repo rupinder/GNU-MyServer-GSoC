@@ -64,11 +64,9 @@ public:
                                 int bs1, int bs2, u_long nbtr, u_long id)
   {
     int ret = 0;
-    Https* https = new Https ();
+    Https https;
 
-    ret = https->controlConnection(a, b1, b2, bs1, bs2, nbtr, id);
-    
-    delete https;
+    ret = https.controlConnection(a, b1, b2, bs1, bs2, nbtr, id);
 
     return ret;
   }

@@ -37,7 +37,9 @@ class TestHttpRequest : public CppUnit::TestFixture
   CPPUNIT_TEST( testSimpleHeader );
   CPPUNIT_TEST( testRange );
   CPPUNIT_TEST( testIncompleteHeader );
+  CPPUNIT_TEST( testDefaultHttpRequest );
   CPPUNIT_TEST( testValidRequest );
+  CPPUNIT_TEST( testResetHttpRequest );
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -75,7 +77,6 @@ public:
 
   void testRange()
   {
-
     HttpRequestHeader header;
     Connection connection;
     const char * requestStr;
@@ -141,6 +142,35 @@ public:
                                         &nChars);
 
     CPPUNIT_ASSERT_EQUAL(ret, -1);
+  }
+  
+
+  void testDefaultHttpRequest()
+  {
+    HttpRequestHeader header;
+    HttpHeaders::buildDefaultHTTPRequestHeader(&header);
+
+
+    CPPUNIT_ASSERT(header.cmd.compare("GET") == 0);
+    CPPUNIT_ASSERT(header.uri.compare("/") == 0);
+    CPPUNIT_ASSERT(header.uriOpts.compare("") == 0);
+    CPPUNIT_ASSERT(header.ver.compare("HTTP/1.1") == 0);
+    CPPUNIT_ASSERT(header.uriOptsPtr == NULL);
+    CPPUNIT_ASSERT(header.getValue("NotExists", 0) == NULL);
+  }
+  
+
+  void testResetHttpRequest()
+  {
+    HttpRequestHeader header;
+    HttpHeaders::resetHTTPRequest(&header);
+
+    CPPUNIT_ASSERT(header.cmd.compare("") == 0);
+    CPPUNIT_ASSERT(header.uri.compare("") == 0);
+    CPPUNIT_ASSERT(header.uriOpts.compare("") == 0);
+    CPPUNIT_ASSERT(header.ver.compare("") == 0);
+    CPPUNIT_ASSERT(header.uriOptsPtr == NULL);
+    CPPUNIT_ASSERT(header.getValue("NotExists", 0) == NULL);
   }
   
 };
