@@ -35,7 +35,9 @@ class TestHttpResponse : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( TestHttpResponse );
   CPPUNIT_TEST( testSimpleHeader );
+  CPPUNIT_TEST( testInvalidResponse );
   CPPUNIT_TEST( testValidResponse );
+  CPPUNIT_TEST( testReset );
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -77,6 +79,49 @@ public:
     CPPUNIT_ASSERT(ret != 0);
   }
   
+
+  void testInvalidResponse()
+  {
+    HttpResponseHeader header;
+    const char * responseStr = "Not really HTTP response";
+    u_long nLinesptr;
+    u_long ncharsptr;
+    int ret;
+
+    ret = HttpHeaders::validHTTPResponse(responseStr,
+                                         &nLinesptr,
+                                         &ncharsptr);
+
+    CPPUNIT_ASSERT(ret == 0);
+
+
+    ret = HttpHeaders::validHTTPResponse(NULL,
+                                         &nLinesptr,
+                                         &ncharsptr);
+
+    CPPUNIT_ASSERT(ret == 0);
+  }
+
+  void testReset()
+  {
+    HttpResponseHeader header;
+
+    HttpHeaders::resetHTTPResponse(&header);
+
+    CPPUNIT_ASSERT(header.ver.length() == 0);  
+    CPPUNIT_ASSERT(header.serverName.length() == 0);
+    CPPUNIT_ASSERT(header.contentType.length() == 0);
+    CPPUNIT_ASSERT(header.connection.length() == 0);
+    CPPUNIT_ASSERT(header.mimeVer.length() == 0);
+    CPPUNIT_ASSERT(header.cookie.length() == 0);
+    CPPUNIT_ASSERT(header.contentLength.length() == 0);
+    CPPUNIT_ASSERT(header.errorType.length() == 0);
+    CPPUNIT_ASSERT(header.location.length() == 0);
+    CPPUNIT_ASSERT(header.date.length() == 0);    
+    CPPUNIT_ASSERT(header.auth.length() == 0);
+    CPPUNIT_ASSERT(header.dateExp.length() == 0);
+ }
+
 
 
   

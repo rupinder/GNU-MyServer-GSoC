@@ -368,7 +368,7 @@ int HttpHeaders::validHTTPResponse(const char *res, u_long* nLinesptr, u_long* n
   /*
    *Count the number of lines in the header.
    */
-  for(i=0;;i++)
+  for(i = 0;; i++)
   {
     if(res[i]=='\n')
     {
@@ -392,8 +392,11 @@ int HttpHeaders::validHTTPResponse(const char *res, u_long* nLinesptr, u_long* n
    *Set the output variables.
    */
   *nLinesptr = nLines;
-  *ncharsptr = i+3;
-  
+  *ncharsptr = i + 3;
+
+  if (nLines == 0)
+    return 0;
+
   /*
    *Return if is a valid request header.
    */
