@@ -3,7 +3,7 @@ dnl
 dnl MyServer
 dnl http://www.myserverproject.net/
 dnl
-dnl Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007 The MyServer Team
+dnl Copyright (C) 2002-2008 The MyServer Team
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
 dnl the Free Software Foundation; either version 3 of the License, or
@@ -17,7 +17,7 @@ dnl
 dnl You should have received a copy of the GNU General Public License
 dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-AC_INIT([MyServer], [0.9-rc1], [http://www.myserverproject.net/])
+AC_INIT([MyServer], [0.9.0-rc1], [http://www.myserverproject.net/])
 AC_PREREQ([2.50])
 AM_CONFIG_HEADER(config.h)
 CFLAGS="${CFLAGS=}"
@@ -30,8 +30,8 @@ AM_INIT_AUTOMAKE
 
 dnl Setting version
 MYSERVER_MAJOR_VERSION=0
-MYSERVER_MINOR_VERSION=8
-MYSERVER_MICRO_VERSION=12
+MYSERVER_MINOR_VERSION=9
+MYSERVER_MICRO_VERSION=0
 
 MYSERVER_VERSION="${MYSERVER_MAJOR_VERSION}.${MYSERVER_MINOR_VERSION}.${MYSERVER_MICRO_VERSION}"
 
@@ -332,6 +332,19 @@ else
     AC_DEFINE(HAVE_IPV6, 0, [Disable IPv6 support])
 fi
 
+dnl Looking for cppunit
+AM_PATH_CPPUNIT(1.12.0, have_cppunit=yes)
+if test x$have_cppunit != xyes; then
+    AC_MSG_WARN([
+*** Cannot find CppUnit (http://cppunit.sourceforge.net/.)
+*** tests driver program will not be built
+])
+    MAKE_TESTS=no
+else
+    MAKE_TESTS=yes
+fi
+
+AM_CONDITIONAL(BUILD_TESTS, test "$MAKE_TESTS" = "yes")
 
 AM_CONDITIONAL(BUILD_MSCGI, test "$MAKE_MSCGI" = "yes")
 AM_CONDITIONAL(BUILD_CONTROL, test "$MAKE_CONTROL" = "yes")
@@ -364,5 +377,6 @@ AC_CONFIG_FILES([
     documentation/english/style/Makefile
     documentation/english/texts/Makefile
     source/Makefile
+    tests/Makefile
     ])
 AC_OUTPUT

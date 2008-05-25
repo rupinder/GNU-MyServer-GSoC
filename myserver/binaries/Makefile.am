@@ -1,4 +1,5 @@
-SUBDIRS = languages logs system web certificates external
+#SUBDIRS = languages logs system web certificates external
+SUBDIRS = languages logs system web certificates
 
 EXTRA_DIST = myserver-daemon myserver.ico license.txt MIMEtypes.xml.unix.default \
 myserver.xml.unix.default readme.txt virtualhosts.xml.unix.default
