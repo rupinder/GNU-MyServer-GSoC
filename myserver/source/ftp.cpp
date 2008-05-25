@@ -955,7 +955,6 @@ void* SendImageFile(void* pParam)
 		}
 		u_long filesize = file->getFileSize();
 		u_long nbr, nBufferSize = 0;
-		//sendfile(pFtpUserData->m_pDataConnection->socket->getHandle(), file->getHandle(), &offset, filesize);
 		if ( pWt->m_bAppend && pFtpUserData->m_nRestartOffset < filesize )
 		{
 			file->setFilePointer(pFtpUserData->m_nRestartOffset);

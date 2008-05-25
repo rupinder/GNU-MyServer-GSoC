@@ -135,12 +135,14 @@ protected:
 	bool UserLoggedIn();
 	bool BuildLocalPath(const std::string &sPath, std::string &sOutPath);
 	bool GetLocalPath(const std::string &sPath, std::string &sOutPath);
-	void EscapeTelnet(MemBuf &In, MemBuf &Out);
 	void RetrStor(bool bRetr, bool bAppend, const std::string &sPath);
 	void RemovePipelinedCmds(MemBuf &In, MemBuf &Out);
 
 	static Mutex secCacheMutex;
 	static SecurityCache secCache;
+
+public:
+	void EscapeTelnet(MemBuf &In, MemBuf &Out);
 
 // Ftp commands Handlers
 public:
