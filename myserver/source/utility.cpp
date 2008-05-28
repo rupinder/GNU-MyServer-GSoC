@@ -55,62 +55,62 @@ static char *currentPath = 0;
  */
 int getOSVersion()
 {
-	int ret = 0;
-	/*!
+  int ret = 0;
+  /*!
    *This is the code for the win32 platform.
    */
 #ifdef WIN32
-	OSVERSIONINFO osvi;
-	osvi.dwOSVersionInfoSize = sizeof(osvi);
-	ret = GetVersionEx(&osvi);
-	if(!ret)
-		return 0;	
-	switch(osvi.dwMinorVersion)
-	{
-	case 0:
-		if(osvi.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)
-			ret = OS_WINDOWS_9X;
-		else
-			ret = OS_WINDOWS_2000;
-		break;
-	case 10:
-		ret = OS_WINDOWS_9X;
-		break;	
-	case 90:
-		ret = OS_WINDOWS_9X;
-		break;
-	case 51:
-		ret = OS_WINDOWS_NT3;
-		break;
-	case 1:
-		ret = OS_WINDOWS_XP;
-		break;
-	}
+  OSVERSIONINFO osvi;
+  osvi.dwOSVersionInfoSize = sizeof(osvi);
+  ret = GetVersionEx(&osvi);
+  if(!ret)
+    return 0;  
+  switch(osvi.dwMinorVersion)
+  {
+  case 0:
+    if(osvi.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)
+      ret = OS_WINDOWS_9X;
+    else
+      ret = OS_WINDOWS_2000;
+    break;
+  case 10:
+    ret = OS_WINDOWS_9X;
+    break;  
+  case 90:
+    ret = OS_WINDOWS_9X;
+    break;
+  case 51:
+    ret = OS_WINDOWS_NT3;
+    break;
+  case 1:
+    ret = OS_WINDOWS_XP;
+    break;
+  }
 #else
 #ifdef __linux__
-	ret = OS_LINUX;
+  ret = OS_LINUX;
 #else
-	ret = 0;
+  ret = 0;
 #endif
 #endif
-	return ret;
-}	
+  return ret;
+}  
 
 /*!
  *Returns the number of processors available on the local machine.
  */
 u_long getCPUCount()
 {
-	/*! By default use 1 processor.  */
-	u_long ret = 1;
+  /*! By default use 1 processor.  */
+  u_long ret = 1;
 #ifdef WIN32
-	SYSTEM_INFO si;
-	GetSystemInfo(&si);
-	ret = si.dwNumberOfProcessors;
+  SYSTEM_INFO si;
+  GetSystemInfo(&si);
+  ret = si.dwNumberOfProcessors;
 #endif
 
 #ifdef _SC_NPROCESSORS_CONF
-	ret = (u_long)sysconf(_SC_NPROCESSORS_CONF); 
+  ret = (u_long)sysconf(_SC_NPROCESSORS_CONF); 
   /*! Use only a processor if some error happens.  */
   if(ret == (u_long)-1)
     ret = 1;
@@ -132,7 +132,7 @@ u_long getCPUCount()
     ret = 1;
 #endif
 
-	return ret;
+  return ret;
 }
 
 /*!
@@ -147,18 +147,18 @@ int setcwdBuffer()
   currentPath = new char [MAX_PATH];
   if(currentPath == 0)
     return (-1);
-	char* ret =(char*) _getcwd(currentPath,MAX_PATH);
-	if(ret == 0)
-		return -1;
+  char* ret =(char*) _getcwd(currentPath,MAX_PATH);
+  if(ret == 0)
+    return -1;
 
-	ret = 0;
+  ret = 0;
 
-	for(u_long i = 0; i<(u_long)strlen(currentPath); i++)
-		if(currentPath[i] == '\\')
-			currentPath[i] = '/';
+  for(u_long i = 0; i<(u_long)strlen(currentPath); i++)
+    if(currentPath[i] == '\\')
+      currentPath[i] = '/';
 
-	if(currentPath[strlen(currentPath)] == '/')
-		currentPath[strlen(currentPath)] = '\0';
+  if(currentPath[strlen(currentPath)] == '/')
+    currentPath[strlen(currentPath)] = '\0';
   return 0;
 #endif
 
@@ -187,8 +187,8 @@ int setcwdBuffer()
       currentPath = new char[size];
     }
   }while( (ret == 0) && (errno == ERANGE) );
-	if(currentPath[strlen(currentPath)] == '/') 
-		currentPath[strlen(currentPath)] = '\0';
+  if(currentPath[strlen(currentPath)] == '/') 
+    currentPath[strlen(currentPath)] = '\0';
   return 0;
 #endif
 }
@@ -213,7 +213,7 @@ int getdefaultwd(string& out)
 int freecwdBuffer()
 {
   delete [] currentPath;
-  return 0;	
+  return 0;  
 }
 
 /*!
@@ -232,7 +232,7 @@ int getdefaultwdlen()
 char *getdefaultwd(char *path, int len)
 {
 
-	if(path)
+  if(path)
   {
     /*! If len is equal to zero we assume no limit.  */
     if(len)
@@ -240,7 +240,7 @@ char *getdefaultwd(char *path, int len)
     else
       strcpy(path, currentPath);
   }
-	return currentPath;
+  return currentPath;
 }
 
 
@@ -250,11 +250,11 @@ char *getdefaultwd(char *path, int len)
  */
 int setcwd(const char *dir)
 {
-#ifdef WIN32	
-	return _chdir(dir);
+#ifdef WIN32  
+  return _chdir(dir);
 #endif
 #ifdef NOT_WIN
-	return chdir(dir);
+  return chdir(dir);
 #endif
 }
 
@@ -265,11 +265,11 @@ int setcwd(const char *dir)
 int preparePrintError()
 {
 #ifdef WIN32
-	int ret = SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
+  int ret = SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
                                     FOREGROUND_RED | 
-																		FOREGROUND_INTENSITY);
-	if(ret)
-		return 0;
+                                    FOREGROUND_INTENSITY);
+  if(ret)
+    return 0;
 #endif
 #ifdef NOT_WIN
   cout << "\033[31;1m";
@@ -285,12 +285,12 @@ int preparePrintError()
 int endPrintError()
 {
 #ifdef WIN32
-	int ret = SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
+  int ret = SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
                                     FOREGROUND_RED | 
-																		FOREGROUND_GREEN | 
-																		FOREGROUND_BLUE);
-	if(ret)
-		return 0;
+                                    FOREGROUND_GREEN | 
+                                    FOREGROUND_BLUE);
+  if(ret)
+    return 0;
 #endif
 #ifdef NOT_WIN
   cout << "\033[0m";
@@ -305,12 +305,12 @@ int endPrintError()
 u_long getTicks()
 {
 #ifdef WIN32
-	return GetTickCount();
+  return GetTickCount();
 #else
-	struct timeval tval;
-	int ret = gettimeofday(&tval, 0);
+  struct timeval tval;
+  int ret = gettimeofday(&tval, 0);
   if(ret == -1)
     return 0;
-	return  (tval.tv_sec * 1000) + (tval.tv_usec / 1000);
+  return  (tval.tv_sec * 1000) + (tval.tv_usec / 1000);
 #endif
 }
