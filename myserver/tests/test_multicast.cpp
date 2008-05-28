@@ -29,12 +29,6 @@ using namespace std;
 class TestMulticastRegistry : public MulticastRegistry< int, int, int >
 {
 public:
-  void notifyAll()
-  {
-    int val = 10;
-    notifyMulticast (val, val);
-  }
-
   int getHandlersSize(int msg)
   {
     vector<Multicast<int, int, int>*>* handlers = getHandlers(msg);
@@ -49,23 +43,27 @@ public:
 
 class TestMulticastObserver : public Multicast<int, int, int>
 {
-  bool right;
+  int msg;
+  int arg;
 public:
 
-  TestMulticastObserver() : right(false){}
+  TestMulticastObserver() : msg(-1), arg(-1){}
 
   virtual int updateMulticast(MulticastRegistry<int, int, int>* reg, int& msg, int arg)
   {
-    if(msg == 10 && arg == 10)
-      right = true;
-
+    this->msg = msg;
+    this->arg = arg;
     return 0;
   }
 
-
-  bool isRight()
+  int getMsg()
   {
-    return right;
+    return msg;
+  }
+
+  int getArg()
+  {
+    return arg;
   }
 
 };
@@ -94,13 +92,14 @@ public:
 
   void testMulticast()
   {
-    int msg = 10;
-    CPPUNIT_ASSERT_EQUAL(observer->isRight(), false);
+    int msg = 1;
+    int arg = 2;
 
     registry->addMulticast(msg, observer);
-    registry->notifyAll();
+    registry->notifyMulticast(msg, arg);
 
-    CPPUNIT_ASSERT_EQUAL(observer->isRight(), true);
+    CPPUNIT_ASSERT_EQUAL(msg, observer->getMsg()); 
+    CPPUNIT_ASSERT_EQUAL(arg, observer->getArg());
   }
 
 
