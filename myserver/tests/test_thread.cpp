@@ -42,10 +42,32 @@ void* test_thread(void* pParam)
 
 }
 
+
+#ifdef WIN32
+#define ClientsThread_TYPE int
+unsigned int __stdcall test_terminate_thread(void* pParam)
+#endif
+
+#ifdef HAVE_PTHREAD
+#define ClientsThread_TYPE void*
+void* test_terminate_thread(void* pParam)
+#endif
+{
+  int *arg = (int*) pParam;
+
+  *arg = 0;
+
+  Thread::terminate();
+
+  //Should never be here.
+  *arg = 1;
+}
+
 class TestThread : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( TestThread );
   CPPUNIT_TEST( testThreadCreate );
+  CPPUNIT_TEST( testThreadTerminate );
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -71,6 +93,18 @@ public:
 
     CPPUNIT_ASSERT_EQUAL(res, 0); 
     CPPUNIT_ASSERT_EQUAL(data, expected); 
+  }
+
+  void testThreadTerminate()
+  {
+    ThreadID tid;
+    int data = 1;
+    int res = Thread::create(&tid, test_terminate_thread, &data);
+    Thread::join(tid);
+
+
+    CPPUNIT_ASSERT_EQUAL(res, 0); 
+    CPPUNIT_ASSERT_EQUAL(data, 0); 
   }
 
 
