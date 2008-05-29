@@ -269,7 +269,12 @@ void ftp_reply(ConnectionPtr pConnection, int nReplyCode, const std::string &sCu
 
 	std::ostringstream buffer;
 	if ( !sLocalCustomText.empty() )
-		buffer << nReplyCode << " " << sLocalCustomText << "\r\n";
+    {
+        if ( nReplyCode >= 0 )
+		    buffer << nReplyCode << " " << sLocalCustomText << "\r\n";
+        else
+            buffer << sLocalCustomText << "\r\n";
+        }
 	else
 	{
 		std::string sReplyText;
@@ -1886,7 +1891,13 @@ void Ftp::Nlst(const std::string &sParam/* = ""*/)
 }
 
 /*!
- *Clean all telnet sequences.
+ *Handle telnet commands:
+ * DOx      -> WONT
+ * DONTx    -> ignore
+ * WILLx    -> DONT
+ * WONTx    -> ignore
+ * IACx     -> ignore
+ * IACIAC   -> IAC
  *\param szIn client's requests
  *\param szOut client's requests without telnet codes
  */
@@ -1895,16 +1906,44 @@ void Ftp::EscapeTelnet(MemBuf &In, MemBuf &Out)
 	Out.setLength(0);
 	if ( In.getRealLength() == 0 )
 		return;
-	int i = 0;
-	for ( char c = In[i]; c != '\0'; i++, c = In[i] )
-	{
-		if ( c == (char)0377 || c == (char)0364 || c == (char)0362 )
-		{
-		   	 printf("Ftp::EscapeTelnet: %c\n", c);
-			continue;
-		}
-		Out << c;
-	}
+
+    char *pIn = In.getBuffer();
+    char szReply[3];
+
+    while ( *pIn != '\0' )
+    {
+        if ( *pIn == '\377' )
+        {
+            szReply[0] = *pIn++;
+            if ( *pIn == '\0' )
+                break;
+            switch ( *pIn )
+            {
+                case '\375'://DO
+                case '\376'://DONT
+                    szReply[1] = '\374';
+                    pIn++;
+                    break;
+                case '\373'://WILL
+                case '\374'://WONT
+                    szReply[1] = '\376';
+                    pIn++;
+                    break;
+                case '\377':
+                    szReply[1] = '\0';
+		            Out << *pIn;
+                    break;
+
+                default:
+                    pIn++;
+                    continue;
+            }
+            szReply[2] = *pIn++;
+            ftp_reply(-1, szReply);
+            continue;
+        }
+		Out << *pIn++;
+    }
 	Out << '\0';
 }
 
