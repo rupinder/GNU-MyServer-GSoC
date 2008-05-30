@@ -30,7 +30,7 @@ class TestHashmap : public CppUnit::TestFixture
   CPPUNIT_TEST( testEmpty );
   CPPUNIT_TEST( testPut );
   CPPUNIT_TEST( testRemove );
-
+  CPPUNIT_TEST( testIterator );
   CPPUNIT_TEST_SUITE_END();
 
   HashMap<char*, int> *map;
@@ -92,9 +92,36 @@ public:
     map->put((char*)"one", 1);
     map->remove((char*)"one");
 
-    
     CPPUNIT_ASSERT_EQUAL(map->get((char*)"one"), 0);
+  }
 
+
+  void testIterator()
+  {
+    map->put((char*)"zero", 0);
+    map->put((char*)"one", 1);
+    map->put((char*)"two", 2);
+    map->put((char*)"three", 3);
+    map->put((char*)"four", 4);
+    map->put((char*)"five", 5);
+    map->put((char*)"six", 6);
+    map->put((char*)"seven", 7);
+    map->put((char*)"eight", 8);
+    map->put((char*)"nine", 9);
+    map->put((char*)"ten", 10);
+    
+    int values[11];
+
+    for(int i = 0; i < 11; i++)
+      values[i] = 0;
+
+    for(HashMap<char*, int>::Iterator it = map->begin(); it != map->end(); it++)
+    {
+      values[*it] = 1;
+    }
+    
+    for(int i = 0; i < 11; i++)
+      CPPUNIT_ASSERT_EQUAL(values[i], 1);
   }
 
 };
