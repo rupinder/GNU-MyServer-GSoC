@@ -551,11 +551,8 @@ void Ftp::Pasv()
 	SetFtpHost(pFtpUserData->m_cdh, sHost.c_str());
 
 	pFtpUserData->m_bPassiveSrv = true;
-	if ( OpenDataConnection() == 0 )
-	{
-		CloseDataConnection();
-		return;
-	}
+    if ( OpenDataConnection() == 0 )
+		ftp_reply(425);//RFC959 command replay exception
 
 	std::string sTempText;
 	get_ftp_reply(227, sTempText);
@@ -701,7 +698,7 @@ void* SendAsciiFile(void* pParam)
 
 	pFtpUserData->m_DataConnBusy.lock();
 	
-	if ( pWt->m_pFtp != NULL && pWt->m_pFtp->OpenDataConnection() == 0 )
+	if ( pWt->m_pFtp == NULL )
 	{
 		pFtpUserData->CloseDataConnection();
 		pFtpUserData->m_DataConnBusy.unlock();
@@ -713,8 +710,27 @@ void* SendAsciiFile(void* pParam)
 #endif
 	}
 
-      	if( pFtpUserData->m_pDataConnection == NULL || 
-			pFtpUserData->m_pDataConnection->socket == NULL)
+	if ( pFtpUserData->m_nFtpState == FtpUserData::DATA_CONNECTION_UP )
+		ftp_reply(pConnection, 125);
+    else 
+    {
+	    ftp_reply(pConnection, 150);
+        if ( pWt->m_pFtp->OpenDataConnection() == 0 )
+	    {
+		    ftp_reply(pConnection, 425);
+		    pFtpUserData->CloseDataConnection();
+		    pFtpUserData->m_DataConnBusy.unlock();
+		    delete pWt;
+#ifdef WIN32
+	return 0;
+#elif HAVE_PTHREAD
+	return (void*)0;
+#endif
+	    }
+    }
+
+     if( pFtpUserData->m_pDataConnection == NULL || 
+		pFtpUserData->m_pDataConnection->socket == NULL)
 	{
 		ftp_reply(pConnection, 451);
 		pFtpUserData->CloseDataConnection();
@@ -916,7 +932,7 @@ void* SendImageFile(void* pParam)
 
 	pFtpUserData->m_DataConnBusy.lock();
 	
-	if ( pWt->m_pFtp != NULL && pWt->m_pFtp->OpenDataConnection() == 0 )
+	if ( pWt->m_pFtp == NULL )
 	{
 		pFtpUserData->CloseDataConnection();
 		pFtpUserData->m_DataConnBusy.unlock();
@@ -928,6 +944,25 @@ void* SendImageFile(void* pParam)
 #endif
 	}
 	
+	if ( pFtpUserData->m_nFtpState == FtpUserData::DATA_CONNECTION_UP )
+		ftp_reply(pConnection, 125);
+    else 
+    {
+	    ftp_reply(pConnection, 150);
+        if ( pWt->m_pFtp->OpenDataConnection() == 0 )
+	    {
+		    ftp_reply(pConnection, 425);
+		    pFtpUserData->CloseDataConnection();
+		    pFtpUserData->m_DataConnBusy.unlock();
+		    delete pWt;
+#ifdef WIN32
+	return 0;
+#elif HAVE_PTHREAD
+	return (void*)0;
+#endif
+        }
+	}
+
       	if( pFtpUserData->m_pDataConnection == NULL || 
 			pFtpUserData->m_pDataConnection->socket == NULL)
 	{
@@ -1077,7 +1112,7 @@ void* ReceiveAsciiFile(void* pParam)
 
 	pFtpUserData->m_DataConnBusy.lock();
 	
-	if ( pWt->m_pFtp != NULL && pWt->m_pFtp->OpenDataConnection() == 0 )
+	if ( pWt->m_pFtp == NULL )
 	{
 		pFtpUserData->CloseDataConnection();
 		pFtpUserData->m_DataConnBusy.unlock();
@@ -1087,6 +1122,25 @@ void* ReceiveAsciiFile(void* pParam)
 #elif HAVE_PTHREAD
 	return (void*)0;
 #endif
+	}
+
+	if ( pFtpUserData->m_nFtpState == FtpUserData::DATA_CONNECTION_UP )
+		ftp_reply(pConnection, 125);
+    else 
+    {
+	    ftp_reply(pConnection, 150);
+        if ( pWt->m_pFtp->OpenDataConnection() == 0 )
+	    {
+    		ftp_reply(pConnection, 425);
+	    	pFtpUserData->CloseDataConnection();
+		    pFtpUserData->m_DataConnBusy.unlock();
+		    delete pWt;
+#ifdef WIN32
+	return 0;
+#elif HAVE_PTHREAD
+	return (void*)0;
+#endif
+        }
 	}
 	
       	if( pFtpUserData->m_pDataConnection == NULL || 
@@ -1255,7 +1309,7 @@ void* ReceiveImageFile(void* pParam)
 
 	pFtpUserData->m_DataConnBusy.lock();
 	
-	if ( pWt->m_pFtp != NULL && pWt->m_pFtp->OpenDataConnection() == 0 )
+	if ( pWt->m_pFtp == NULL )
 	{
 		pFtpUserData->CloseDataConnection();
 		pFtpUserData->m_DataConnBusy.unlock();
@@ -1265,6 +1319,25 @@ void* ReceiveImageFile(void* pParam)
 #elif HAVE_PTHREAD
 	return (void*)0;
 #endif
+	}
+
+	if ( pFtpUserData->m_nFtpState == FtpUserData::DATA_CONNECTION_UP )
+		ftp_reply(pConnection, 125);
+    else 
+    {
+	    ftp_reply(pConnection, 150);
+        if ( pWt->m_pFtp->OpenDataConnection() == 0 )
+	    {
+    		ftp_reply(pConnection, 425);
+	    	pFtpUserData->CloseDataConnection();
+		    pFtpUserData->m_DataConnBusy.unlock();
+		    delete pWt;
+#ifdef WIN32
+	return 0;
+#elif HAVE_PTHREAD
+	return (void*)0;
+#endif
+        }
 	}
 	
       	if( pFtpUserData->m_pDataConnection == NULL || 
@@ -1481,16 +1554,11 @@ int Ftp::OpenDataConnection()
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
 	if ( pFtpUserData->m_nFtpState == FtpUserData::DATA_CONNECTION_UP )
-	{
-		ftp_reply(125);
 		return 1;
-	}
 
 	//pFtpUserData->m_DataConnBusy.lock();
 	int nRet = pFtpUserData->m_bPassiveSrv ? OpenDataPassive() : OpenDataActive();
-	if ( nRet == 0 )
-		ftp_reply(425);
-	else
+	if ( nRet != 0 )
 		pFtpUserData->m_nFtpState = FtpUserData::DATA_CONNECTION_UP;
 	return nRet;
 }
@@ -1539,8 +1607,6 @@ int Ftp::OpenDataActive()
 {
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
-
-	ftp_reply(150);
 
 	Socket dataSocket;
 	dataSocket.socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -1624,8 +1690,17 @@ void Ftp::List(const std::string &sParam/*= ""*/)
 	WaitDataConnection();
 
 	std::string sLocalPath;
-	if ( !UserLoggedIn() || !GetLocalPath(sParam, sLocalPath) || OpenDataConnection() == 0 )
+	if ( !UserLoggedIn() || !GetLocalPath(sParam, sLocalPath) /*|| */ )
 		return;
+
+	if ( pFtpUserData->m_nFtpState == FtpUserData::DATA_CONNECTION_UP )
+		ftp_reply(125);
+    else
+    {
+	    ftp_reply(150);
+        if ( OpenDataConnection() == 0 )
+		    ftp_reply(425);
+    }
 
 	std::string sPath(sLocalPath);
 	if ( sPath.empty() )
@@ -1845,11 +1920,20 @@ void Ftp::Nlst(const std::string &sParam/* = ""*/)
 {
 	WaitDataConnection();
 	std::string sLocalPath;
-	if ( !UserLoggedIn() || !GetLocalPath(sParam, sLocalPath) || OpenDataConnection() == 0 )
+	if ( !UserLoggedIn() || !GetLocalPath(sParam, sLocalPath) )
 		return;
 
 	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 	assert(pFtpUserData != NULL);
+
+	if ( pFtpUserData->m_nFtpState == FtpUserData::DATA_CONNECTION_UP )
+		ftp_reply(125);
+    else
+    {
+	    ftp_reply(150);
+        if ( OpenDataConnection() == 0 )
+		    ftp_reply(425);
+    }
 
 	std::string sPath(sLocalPath);
 	if ( sPath.empty() )
