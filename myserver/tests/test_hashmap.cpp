@@ -93,7 +93,7 @@ public:
     map->remove((char*)"one");
 
     
-    CPPUNIT_ASSERT_EQUAL(map->get((char*)"one"), NULL); 
+    CPPUNIT_ASSERT_EQUAL(map->get((char*)"one"), 0);
 
   }
 
