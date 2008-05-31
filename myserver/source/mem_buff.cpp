@@ -488,6 +488,7 @@ void MemBuf::xIntToStr(u_int i, int bNegative)
 	{
 		setBuffer("0", 2);
 		m_nSize = 1;
+    return;
 	}
 #ifdef DONT_MATCH_LENGTH
 	setLength(12);
@@ -530,7 +531,9 @@ void MemBuf::xIntToStr(u_int i, int bNegative, char* pBufToUse, u_int nBufSize)
 	{
 		setBuffer("0", 2);
 		m_nSize = 1;
+    return;
 	}
+
 	do
 	{
 		*this << (char) ('0' + i % 10);
