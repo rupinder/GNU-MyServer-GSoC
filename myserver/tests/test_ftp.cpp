@@ -43,8 +43,9 @@ public:
 		strcpy(szOut, outBuf.getBuffer());
 		memset(szExpected, 0, 128);
 		strcpy(szExpected, "RETR abc\377def\015\012");
+        int nCmpRet = strcmp(szOut, szExpected);
 
-		CPPUNIT_ASSERT(strcmp(szOut, szExpected) == 0);
+		CPPUNIT_ASSERT(nCmpRet == 0);
 	}
 };
 
