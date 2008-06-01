@@ -240,6 +240,7 @@ void MemBuf::addBuffer(const void* pAdr, u_int size)
 	}
 
 	char* temp = mem_alloc(fs);
+	memset(temp, '\0', fs);
 	memcpy(temp, m_buffer, m_nSize);
 	memcpy(temp + m_nRealSize, pAdr, size);
 	mem_free(m_buffer);
@@ -371,6 +372,7 @@ void MemBuf::setLength(u_int newSize)
 #else
 		ASSERT(m_buffer != NULL);
 		char* temp = mem_alloc(newSize);
+		memset(temp, '\0', newSize);
 		memcpy(temp, m_buffer, newSize);
 		if (m_bCanDelete)
 			mem_free(m_buffer);
@@ -396,6 +398,7 @@ void MemBuf::setLength(u_int newSize)
 		}
 
 		char* temp = mem_alloc(newSize);
+		memset(temp, '\0', newSize);
 		memcpy(temp, m_buffer, m_nRealSize);
 		if (m_bCanDelete)
 			mem_free(m_buffer);
@@ -778,6 +781,7 @@ void MemBuf::hashCRC(MemBuf& membuf)
 void MemBuf::allocBuffer(u_int size)
 {
 	free();
-	m_buffer = mem_alloc(size); 
+	m_buffer = mem_alloc(size);
+	memset(m_buffer, '\0', size);
 	m_nRealSize = size;
 }

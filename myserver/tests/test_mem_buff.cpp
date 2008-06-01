@@ -37,6 +37,7 @@ class TestMemBuffer : public CppUnit::TestFixture
   CPPUNIT_TEST( testIsValid );
   CPPUNIT_TEST( testExternalBuffer );
   CPPUNIT_TEST( testGetAt );
+  CPPUNIT_TEST( testGetBuffer );
   CPPUNIT_TEST_SUITE_END();
 
   MemBuf *memBuff;
@@ -172,6 +173,14 @@ public:
     CPPUNIT_ASSERT_EQUAL(val, 'o');
   }
 
+  void testGetBuffer()
+  {
+	*memBuff << "MyServer is a powerful and easy to configure web server.";
+	char szExpected[128];
+	memset(szExpected, 0, 128);
+	strcpy(szExpected, "MyServer is a powerful and easy to configure web server.");
+	CPPUNIT_ASSERT(strcmp(memBuff->getBuffer(), szExpected) == 0);
+  }
 };
 
 
