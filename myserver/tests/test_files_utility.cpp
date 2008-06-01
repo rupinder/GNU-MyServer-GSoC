@@ -61,14 +61,14 @@ public:
 
     FilesUtility::splitPath(path, dir, file);
 
-    CPPUNIT_ASSERT(dir.compare("/foo/bar") == 0);
+    CPPUNIT_ASSERT(dir.compare("/foo/bar/") == 0);
     CPPUNIT_ASSERT(file.compare("baz") == 0);
 
     path.assign("/foo/bar/");
 
     FilesUtility::splitPath(path, dir, file);
 
-    CPPUNIT_ASSERT(dir.compare("/foo/bar") == 0);
+    CPPUNIT_ASSERT(dir.compare("/foo/bar/") == 0);
     CPPUNIT_ASSERT(file.compare("") == 0);
 
     path.assign("baz");

@@ -454,26 +454,22 @@ void FilesUtility::getFilename(string const &path, string& filename)
  */
 void FilesUtility::splitPathLength(const char *path, int *dir, int *filename)
 {
-	int splitpoint, i, j, len;
-	if(path == 0)
-	{
-		*dir = 0;
-		*filename = 0;
-		return;
-	}
-  len = strlen(path);
-	i = 0;
-	j = 0;
-	splitpoint = static_cast<int>(len-1);
-	while ((splitpoint > 0) && ((path[splitpoint] != '/') 
-                              && (path[splitpoint] != '\\')))
-		splitpoint--;
+	int splitpoint = 0;
+	int i = 0;
+
+  for(i = 0; path[i]; i++)
+    if(path[i] == '/' || path[i] == '\\' )
+      splitpoint = i;
 
   if(dir)
+  {
     *dir = splitpoint + 2;
+  }
 
   if(filename)
-    *filename = len - splitpoint + 2;
+  {
+    *filename = i - splitpoint + 2;
+  }
 }
 
 /*!
@@ -485,47 +481,30 @@ void FilesUtility::splitPathLength(const char *path, int *dir, int *filename)
  */
 void FilesUtility::splitPath(const char *path, char *dir, char *filename)
 {
-	int splitpoint, i, j;
-	i = 0;
-	j = 0;
-	if(path == 0)
-		return;
-	splitpoint = static_cast<int>(strlen(path) - 1);
-	while ((splitpoint > 0) && ((path[splitpoint] != '/') 
-                              &&(path[splitpoint] != '\\')))
-		splitpoint--;
+	int splitpoint = 0;
+	int i = 0;
 
-	if ((splitpoint == 0) && (path[splitpoint] != '/'))
-	{
-		dir[0] = 0;
-    if(filename)
-      strcpy(filename, path);
-	}
-	else
-	{
-    if(dir)
+  for(i = 0; path[i]; i++)
+    if(path[i] == '/' || path[i] == '\\' )
+      splitpoint = i;
+
+  if(dir)
+  {
+    if(splitpoint)
     {
-		 splitpoint++;
-		 while (i < splitpoint)
-		  {
-      
-        dir[i] = path[i];
-			  i++;
-		  }
-		  dir[i] = 0;
+      memcpy(dir, path, splitpoint);
+      dir[splitpoint] = '/';
+      dir[splitpoint + 1] = '\0';
     }
-    i = splitpoint;
-    if(filename)
-    {
-      while (path[i] != 0)
-      {
-        filename[j] = path[i];
-        j++;
-        i++;
-      }
-      filename[j] = 0;
-    }
-	}
+    else
+      dir[0] = '\0';
+  }
+
+  if(filename)
+  {
+    memcpy(filename, path + splitpoint + (splitpoint ? 1 : 0), i - splitpoint - (splitpoint ? 1 : 0));
+    filename[i - splitpoint - (splitpoint ? 1 : 0)] = '\0';
+  }
 }
 
 /*!
@@ -541,7 +520,15 @@ void FilesUtility::splitPath(string const &path, string& dir, string& filename)
   splitpoint = path.find_last_of("\\/");
   if(splitpoint != string::npos)
   {
+    char lastDirChar;
     dir  = path.substr(0, splitpoint);
+
+    lastDirChar = dir[dir.length() - 1];
+
+    if(lastDirChar != '\\' && lastDirChar != '/')
+      dir.append("/");
+
+
     filename = path.substr(splitpoint+1, len-1);
   }
   else
