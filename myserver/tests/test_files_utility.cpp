@@ -23,7 +23,6 @@
 #include <string.h>
 
 #include <string>
-#include <iostream>
 
 using namespace std;
 
@@ -75,8 +74,6 @@ public:
     path.assign("baz");
 
     FilesUtility::splitPath(path, dir, file);
-
-    cout << "dir:" << dir << endl;
 
     CPPUNIT_ASSERT(dir.compare("") == 0);
     CPPUNIT_ASSERT(file.compare("baz") == 0);
