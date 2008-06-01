@@ -546,8 +546,8 @@ void FilesUtility::splitPath(string const &path, string& dir, string& filename)
   }
   else
   {
-    dir  = path;
-    filename.assign("");
+    filename  = path;
+    dir.assign("");
   }
 }
 

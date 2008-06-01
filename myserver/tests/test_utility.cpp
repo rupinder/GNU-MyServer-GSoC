@@ -102,7 +102,6 @@ public:
     delete [] buffer;
   }
 
-
 };
 
 

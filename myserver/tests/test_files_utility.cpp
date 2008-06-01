@@ -20,11 +20,22 @@
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
 #include "../include/files_utility.h"
+#include <string.h>
+
+#include <string>
+#include <iostream>
+
+using namespace std;
 
 class TestFilesUtility : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( TestFilesUtility );
   CPPUNIT_TEST( testGetPathRecursionLevel );
+  CPPUNIT_TEST( testSplitPath );
+  CPPUNIT_TEST( testSplitPathString );
+  CPPUNIT_TEST( testSplitPathLength );
+  CPPUNIT_TEST( testGetFileExt );
+
   CPPUNIT_TEST_SUITE_END();
   
 public:
@@ -40,5 +51,98 @@ public:
     CPPUNIT_ASSERT(FilesUtility::getPathRecursionLevel(".") == 0);
     CPPUNIT_ASSERT(FilesUtility::getPathRecursionLevel("/./././..") < 0);
   }
+
+  void testSplitPathString()
+  {
+    string path;
+    string dir;
+    string file;
+
+    path.assign("/foo/bar/baz");
+
+    FilesUtility::splitPath(path, dir, file);
+
+    CPPUNIT_ASSERT(dir.compare("/foo/bar") == 0);
+    CPPUNIT_ASSERT(file.compare("baz") == 0);
+
+    path.assign("/foo/bar/");
+
+    FilesUtility::splitPath(path, dir, file);
+
+    CPPUNIT_ASSERT(dir.compare("/foo/bar") == 0);
+    CPPUNIT_ASSERT(file.compare("") == 0);
+
+    path.assign("baz");
+
+    FilesUtility::splitPath(path, dir, file);
+
+    cout << "dir:" << dir << endl;
+
+    CPPUNIT_ASSERT(dir.compare("") == 0);
+    CPPUNIT_ASSERT(file.compare("baz") == 0);
+  }
+
+
+  void testSplitPath()
+  {
+    char *path;
+    char dir[256];
+    char file[256];
+
+    FilesUtility::splitPath("/foo/bar/baz", dir, file);
+
+    CPPUNIT_ASSERT(strcmp(dir, "/foo/bar/") == 0);
+    CPPUNIT_ASSERT(strcmp(file, "baz") == 0);
+
+
+    FilesUtility::splitPath("/foo/bar/", dir, file);
+
+    CPPUNIT_ASSERT(strcmp(dir, "/foo/bar/") == 0);
+    CPPUNIT_ASSERT(strcmp(file, "") == 0);
+
+
+    FilesUtility::splitPath("baz", dir, file);
+
+    CPPUNIT_ASSERT(strcmp(dir, "") == 0);
+    CPPUNIT_ASSERT(strcmp(file, "baz") == 0);
+  }
+
+  void testSplitPathLength()
+  {
+    char *path;
+    int dir;
+    int file;
+
+    FilesUtility::splitPathLength("/foo/bar/baz", &dir, &file);
+
+    CPPUNIT_ASSERT(dir >= 10 && dir <= 12);
+    CPPUNIT_ASSERT(file >= 4 && file <= 6);
+
+    FilesUtility::splitPathLength("/foo/bar/", &dir, &file);
+
+    CPPUNIT_ASSERT(dir >= 10 && dir <= 12);
+    CPPUNIT_ASSERT(file >= 1 && file <= 3);
+
+    FilesUtility::splitPathLength("baz", &dir, &file);
+
+    CPPUNIT_ASSERT(dir >= 1 && dir <= 3);
+    CPPUNIT_ASSERT(file >= 4 && file <= 6);
+  }
+
+  void testGetFileExt()
+  {
+
+    char ext[12];
+    FilesUtility::getFileExt(ext, "myserver.exe");
+    CPPUNIT_ASSERT(strcmp(ext, "exe") == 0);
+
+    FilesUtility::getFileExt(ext, "myserver");
+    CPPUNIT_ASSERT(strcmp(ext, "") == 0);
+
+    FilesUtility::getFileExt(ext, "myserver.exe.sh");
+    CPPUNIT_ASSERT(strcmp(ext, "sh") == 0);
+  }
+
+
 };
 CPPUNIT_TEST_SUITE_REGISTRATION( TestFilesUtility );
