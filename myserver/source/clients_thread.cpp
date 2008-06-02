@@ -314,14 +314,13 @@ int ClientsThread::controlConnections()
 	busy = 1;
   dataRead = c->getDataRead();
 
-	if(!c->isForceControl())
-	{
-		err = c->socket->recv(&((char*)(buffer.getBuffer()))[dataRead],
-													MYSERVER_KB(8) - dataRead - 1, 0);
-		
-		if(err == -1 && !Server::getInstance()->deleteConnection(c, this->id))
-			return 0;
-	}
+  err = c->socket->recv(&((char*)(buffer.getBuffer()))[dataRead],
+                        MYSERVER_KB(8) - dataRead - 1, 0);
+
+  if(err == -1 && !Server::getInstance()->deleteConnection(c, this->id))
+    return 0;
+
+  buffer.setLength(dataRead + err);		
 
 	c->setForceControl(0);
 
@@ -343,7 +342,10 @@ int ClientsThread::controlConnections()
 	if(getTicks() - c->getTimeout() > 5000)
 		c->setnTries(0);
 
-	buffer.setBuffer(c->connectionBuffer, dataRead);
+  if(dataRead)
+  {
+    memcpy((char*)buffer.getBuffer(), c->connectionBuffer, dataRead);
+  }
 
 	c->setActiveThread(this);
 	try

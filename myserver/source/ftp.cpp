@@ -1988,13 +1988,14 @@ void Ftp::Nlst(const std::string &sParam/* = ""*/)
 void Ftp::EscapeTelnet(MemBuf &In, MemBuf &Out)
 {
 	Out.setLength(0);
+
 	if ( In.getRealLength() == 0 )
 		return;
 
-    char *pIn = In.getBuffer();
-    char szReply[3];
+  char *pIn = In.getBuffer();
+  char szReply[3];
 
-    while ( *pIn != '\0' )
+    while ( pIn - In.getBuffer() < In.getLength() )
     {
         if ( *pIn == '\377' )
         {

@@ -179,7 +179,7 @@ public:
 	char szExpected[128];
 	memset(szExpected, 0, 128);
 	strcpy(szExpected, "MyServer is a powerful and easy to configure web server.");
-	CPPUNIT_ASSERT(strcmp(memBuff->getBuffer(), szExpected) == 0);
+	CPPUNIT_ASSERT(memcmp(memBuff->getBuffer(), szExpected, strlen(szExpected)) == 0);
   }
 };
 

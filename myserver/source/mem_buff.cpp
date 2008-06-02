@@ -646,7 +646,6 @@ int MemBuf::isValid()
 
 char* MemBuf::getBuffer() 
 {
-    *(m_buffer + m_nSize) = '\0';
 	return ( char*) m_buffer;
 }
 
