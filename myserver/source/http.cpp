@@ -1837,16 +1837,18 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           /*!
            *connectionBuffer is 8 KB, so don't copy more bytes.
            */
-          a->setDataRead(MYSERVER_KB(8) < (int)strlen(td->buffer->getBuffer()) -
-                       td->nHeaderChars ?
-                       MYSERVER_KB(8) :
-                       (int)strlen(td->buffer->getBuffer()) - td->nHeaderChars);
+          u_long bufferStrLen = strlen(td->buffer->getBuffer());
+          u_long remainingData = 0;
 
-          if(a->getDataRead() )
+          if(bufferStrLen - td->nHeaderChars >= MYSERVER_KB(8))
+            remainingData = MYSERVER_KB(8);
+          else 
+            remainingData = bufferStrLen - td->nHeaderChars;
+
+          if(remainingData)
           {
             u_long toCopy = nbtr - td->nHeaderChars;
-            memcpy(a->connectionBuffer, (td->buffer->getBuffer() + td->nHeaderChars), toCopy);
-            a->setDataRead(toCopy);
+            a->connectionBuffer.setBuffer((td->buffer->getBuffer() + td->nHeaderChars), toCopy);
             retvalue = ClientsThread::INCOMPLETE_REQUEST_NO_WAIT;
           }
           else

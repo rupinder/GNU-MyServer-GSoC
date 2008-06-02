@@ -28,7 +28,6 @@ class TestConnection : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( TestConnection );
   CPPUNIT_TEST( testID );
-  CPPUNIT_TEST( testDataRead );
   CPPUNIT_TEST( testTimeout );
   CPPUNIT_TEST( testLocalPort );
   CPPUNIT_TEST( testIpAddress );
@@ -66,16 +65,6 @@ public:
       CPPUNIT_ASSERT_EQUAL(connection->getID(), i);
     }
   }
-
-  void testDataRead()
-  {
-    for(u_long i = 0; i < 100; i += 10)
-    {
-      connection->setDataRead(i);
-      CPPUNIT_ASSERT_EQUAL(connection->getDataRead(), i);
-    }
-  }
-
 
   void testTimeout()
   {

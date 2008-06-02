@@ -36,11 +36,9 @@ Connection::Connection()
   host = 0;
   toRemove = 0;
   forceControl = 0;
-  connectionBuffer = new char[MYSERVER_KB(8)];
-  protocolBuffer = 0;
+  protocolBuffer = NULL;
   socket = 0;
   priority = -1;
-  dataRead = 0;
 }
 
 /*!
@@ -65,8 +63,6 @@ Connection::~Connection()
 
   if(protocolBuffer)
     delete protocolBuffer;
-
-  delete[] connectionBuffer;
 
   /*! Remove the reference for the vhost. */
   if(host)
@@ -245,23 +241,6 @@ u_long Connection::getTimeout()
 void Connection::setTimeout(u_long nTimeout)
 {
   timeout = nTimeout;
-}
-
-/*!
- *Return the number of bytes read.
- */
-u_long Connection::getDataRead()
-{
-  return this->dataRead;
-}
-
-/*!
- *Set the number of bytes read.
- *\param dr The new data read value. 
- */
-void Connection::setDataRead(u_long dr)
-{
-  dataRead = dr;
 }
 
 /*!

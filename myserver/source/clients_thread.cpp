@@ -312,7 +312,7 @@ int ClientsThread::controlConnections()
     return 1;
 
 	busy = 1;
-  dataRead = c->getDataRead();
+  dataRead = c->connectionBuffer.getLength();
 
   err = c->socket->recv(&((char*)(buffer.getBuffer()))[dataRead],
                         MYSERVER_KB(8) - dataRead - 1, 0);
@@ -377,8 +377,7 @@ int ClientsThread::controlConnections()
 	/*! Keep the connection.  */
 	else if(retcode == KEEP_CONNECTION)
 	{
-		c->setDataRead(0);
-		c->connectionBuffer[0] = '\0';
+		c->connectionBuffer.setLength(0);
 		Server::getInstance()->getConnectionsScheduler()->addWaitingConnection(c);
 	}
 	/*! Incomplete request to buffer.  */
@@ -389,10 +388,7 @@ int ClientsThread::controlConnections()
 		 *data in the connection buffer.
 		 *Save the header in the connection buffer.
 		 */
-		memcpy(c->connectionBuffer, (char*)buffer.getBuffer(), 
-					 c->getDataRead() + err);
-		
-		c->setDataRead(c->getDataRead() + err);
+    c->connectionBuffer.setBuffer(buffer.getBuffer(), nBytesToRead);
 		Server::getInstance()->getConnectionsScheduler()->addWaitingConnection(c);
 	}
 	/* Incomplete request to check before new data is available.  */

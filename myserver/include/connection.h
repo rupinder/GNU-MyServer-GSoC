@@ -28,6 +28,7 @@ extern "C"
 #include "../include/socket.h"
 #include "../include/protocol_buffer.h"
 #include "../include/utility.h"
+#include "../include/mem_buff.h"
 
 class Vhost;
 class ClientsThread;
@@ -86,9 +87,6 @@ public:
 	/*! Pointer to an host structure.  */
 	Vhost *host;
 	
-  u_long getDataRead();
-  void setDataRead(u_long);
-
   int getToRemove();
   void setToRemove(int);
 
@@ -96,7 +94,7 @@ public:
   void setForceControl(int);	
 	
 	/*! This buffer must be used only by the ClientsTHREAD class.  */
-	char *connectionBuffer;
+	MemBuf connectionBuffer;
 	
 	/*! Buffer for the connection struct. Used by protocols.  */
 	ProtocolBuffer *protocolBuffer;
@@ -144,9 +142,6 @@ protected:
 
 	/*! Current timeout for the connection.  */
 	u_long timeout;
-
-  /*! Number of bytes ready in the buffer.  */
-	u_long dataRead;
 
 	/*
    *!If nonzero the server is saying to the protocol to remove the connection.
