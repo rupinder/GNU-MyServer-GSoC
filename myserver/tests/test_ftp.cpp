@@ -40,7 +40,7 @@ public:
 		ftp.EscapeTelnet(inBuf, outBuf);
 		char szOut[128], szExpected[128];
 		memset(szOut, 0, 128);
-		strcpy(szOut, outBuf.getBuffer());
+		strncpy(szOut, outBuf.getBuffer(), outBuf.getLength());
 		memset(szExpected, 0, 128);
 		strcpy(szExpected, "RETR abc\377def\015\012");
 
