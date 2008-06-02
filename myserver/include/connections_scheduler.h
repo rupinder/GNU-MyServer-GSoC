@@ -30,6 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <list>
 #include <queue>
 
+#include <event.h>
+
 using namespace std;
 
 #define PRIORITY_CLASSES 3
@@ -68,7 +70,7 @@ public:
   ~ConnectionsScheduler();
 
 	void addReadyConnection(ConnectionPtr);
-	void addWaitingConnection(ConnectionPtr);
+	void addWaitingConnection(ConnectionPtr, int lock = 1);
 
 	ConnectionPtr getConnection();
 	void release();
@@ -89,7 +91,6 @@ public:
 
 private:
   u_long nTotalConnections;
-	event timeoutEv;
 	ThreadID dispatchedThreadId;
 	Semaphore *readySemaphore;
 	Mutex readyMutex;

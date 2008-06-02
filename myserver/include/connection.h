@@ -22,7 +22,6 @@ extern "C"
 {
 #include <sys/time.h>
 #include <sys/types.h>
-#include <event.h>
 }
 
 #include "../include/socket.h"
@@ -105,8 +104,6 @@ public:
 	/*! Get the thread that is using the connection.  */
 	ClientsThread* getActiveThread(){return thread;}
 
-	event* getEvent(){return &ev;}
-
   Connection();
   virtual ~Connection();
 
@@ -156,9 +153,6 @@ protected:
 
 	/*! Connection priority, used by the scheduler.  */
 	int priority;
-
-	/*! Libevent event, used by the connections scheduler.  */
-	event ev;
 
 };
                                    

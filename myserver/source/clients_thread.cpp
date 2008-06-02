@@ -378,7 +378,7 @@ int ClientsThread::controlConnections()
 	else if(retcode == KEEP_CONNECTION)
 	{
 		c->connectionBuffer.setLength(0);
-		Server::getInstance()->getConnectionsScheduler()->addWaitingConnection(c);
+    Server::getInstance()->getConnectionsScheduler()->addWaitingConnection(c);
 	}
 	/*! Incomplete request to buffer.  */
 	else if(retcode == INCOMPLETE_REQUEST)

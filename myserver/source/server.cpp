@@ -1263,7 +1263,7 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
     connectionsScheduler.addReadyConnection(newConnection);
   }
   else
-    connectionsScheduler.addWaitingConnection(newConnection);
+    connectionsScheduler.addWaitingConnection(newConnection, 0);
 
   /*
    *If defined maxConnections and the number of active connections
