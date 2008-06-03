@@ -275,8 +275,8 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
       int len = ConnInfo->headerSize-headerSize;
 
       HttpHeaders::buildHTTPResponseHeaderStruct(ConnInfo->td->buffer->getBuffer(),
-                                                 &td->response, 
-                                                 &(td->nBytesToRead));
+                                                 &ConnInfo->td->response, 
+                                                 &(ConnInfo->td->nBytesToRead));
 
 
       if(!ConnInfo->td->appendOutputs)
