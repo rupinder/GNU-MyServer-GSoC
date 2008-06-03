@@ -79,10 +79,7 @@ static void listenerHandler(int fd, short event, void *arg)
 
   if(event == EV_TIMEOUT)
   {
-
-    //    s->eventsMutex->lock();
     event_add (&(s->ev), &tv);
-    //s->eventsMutex->unlock();
   }
   else if(event == EV_READ)
   {
@@ -98,9 +95,7 @@ static void listenerHandler(int fd, short event, void *arg)
       Server::getInstance()->addConnection(asock, &asockIn);
     }
 
-    //s->eventsMutex->lock();
     event_add (&(s->ev), &tv);
-    // s->eventsMutex->unlock();
   }
 }
 
@@ -126,9 +121,7 @@ void ConnectionsScheduler::listener(ConnectionsScheduler::ListenerArg *la)
 
   listeners.push_front(arg);
 
-  // eventsMutex.lock();
   event_add(&(arg->ev), &tv);
-  //eventsMutex.unlock();
 }
 
 /*!
@@ -233,10 +226,28 @@ ConnectionsScheduler::~ConnectionsScheduler()
   delete [] ready;
 }
 
+
+/*!
+ *Add an existent connection to ready connections queue.
+ */
+void ConnectionsScheduler::addReadyConnection(ConnectionPtr c)
+{
+  addReadyConnectionImpl(c);
+}
+
+/*!
+ *Add a new connection to ready connections queue.
+ */
+void ConnectionsScheduler::addNewReadyConnection(ConnectionPtr c)
+{
+  addReadyConnectionImpl(c);
+}
+
+
 /*!
  *Add a connection to ready connections queue.
  */
-void ConnectionsScheduler::addReadyConnection(ConnectionPtr c)
+void ConnectionsScheduler::addReadyConnectionImpl(ConnectionPtr c)
 {
   int priority = c->getPriority();
 
@@ -258,9 +269,25 @@ void ConnectionsScheduler::addReadyConnection(ConnectionPtr c)
 }
 
 /*!
- *Add a connection to waiting connections queue.
+ *Add a new connection to the scheduler.
  */
-void ConnectionsScheduler::addWaitingConnection(ConnectionPtr c, int lock)
+void ConnectionsScheduler::addNewWaitingConnection(ConnectionPtr c)
+{
+  addWaitingConnectionImpl(c, 0);
+}
+
+/*!
+ *Reschedule a connection in the scheduler.
+ */
+void ConnectionsScheduler::addWaitingConnection(ConnectionPtr c)
+{
+  addWaitingConnectionImpl(c, 1);
+}
+
+/*!
+ *Implementation to add a connection to waiting connections queue.
+ */
+void ConnectionsScheduler::addWaitingConnectionImpl(ConnectionPtr c, int lock)
 {
   static timeval tv = {10, 0};
   SocketHandle handle = c->socket->getHandle();

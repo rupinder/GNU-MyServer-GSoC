@@ -69,8 +69,11 @@ public:
   ConnectionsScheduler();
   ~ConnectionsScheduler();
 
+	void addNewReadyConnection(ConnectionPtr);
 	void addReadyConnection(ConnectionPtr);
-	void addWaitingConnection(ConnectionPtr, int lock = 1);
+
+	void addNewWaitingConnection(ConnectionPtr);
+	void addWaitingConnection(ConnectionPtr);
 
 	ConnectionPtr getConnection();
 	void release();
@@ -90,6 +93,8 @@ public:
   u_long getNumTotalConnections();
 
 private:
+	void addWaitingConnectionImpl(ConnectionPtr, int lock);
+	void addReadyConnectionImpl(ConnectionPtr);
   u_long nTotalConnections;
 	ThreadID dispatchedThreadId;
 	Semaphore *readySemaphore;

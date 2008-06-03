@@ -1260,10 +1260,10 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
   {
     newConnection->setScheduled(1);
     newConnection->setForceControl(1);
-    connectionsScheduler.addReadyConnection(newConnection);
+    connectionsScheduler.addNewReadyConnection(newConnection);
   }
   else
-    connectionsScheduler.addWaitingConnection(newConnection, 0);
+    connectionsScheduler.addNewWaitingConnection(newConnection);
 
   /*
    *If defined maxConnections and the number of active connections
