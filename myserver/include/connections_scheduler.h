@@ -45,46 +45,49 @@ public:
 class ConnectionsScheduler
 {
 public:
-	struct ListenerArg
-	{
-		Socket* serverSocket;
-		u_short port;
-		event ev;
-		bool *terminate;
-		Mutex* eventsMutex;
-		ConnectionsScheduler *scheduler;
-		void reset(Socket* sock, u_short p){serverSocket = sock; port = p;}
-		ListenerArg(Socket* sock, u_short p){reset(sock, p);}
-		ListenerArg(){reset(0, 0);}
-		ListenerArg(ListenerArg* l){serverSocket = l->serverSocket; port = l->port;}
-	};
+  struct ListenerArg
+  {
+    Socket* serverSocket;
+    u_short port;
+    event ev;
+    bool *terminate;
+    Mutex* eventsMutex;
+    ConnectionsScheduler *scheduler;
+    void reset(Socket* sock, u_short p){serverSocket = sock; port = p;}
+    ListenerArg(Socket* sock, u_short p){reset(sock, p);}
+    ListenerArg(){reset(0, 0);}
+    ListenerArg(ListenerArg* l){serverSocket = l->serverSocket; port = l->port;}
+  };
 
-	struct DispatcherArg
-	{
-		bool terminated; 
-		bool terminate;
-		Mutex* mutex;
-	};
+  struct DispatcherArg
+  {
+    bool terminated; 
+    bool terminate;
+    bool pause;
+    Mutex* mutex;
+    int fd[2];
+    event loopEvent;
+  };
 
   ConnectionsScheduler();
   ~ConnectionsScheduler();
 
-	void addNewReadyConnection(ConnectionPtr);
-	void addReadyConnection(ConnectionPtr);
+  void addNewReadyConnection(ConnectionPtr);
+  void addReadyConnection(ConnectionPtr);
 
-	void addNewWaitingConnection(ConnectionPtr);
-	void addWaitingConnection(ConnectionPtr);
+  void addNewWaitingConnection(ConnectionPtr);
+  void addWaitingConnection(ConnectionPtr);
 
-	ConnectionPtr getConnection();
-	void release();
-	void restart();
-	void initialize();
-	void listener(struct ListenerArg* );
-	void removeListener(struct ListenerArg*);
-	int getConnectionsNumber();
-	void removeConnection(ConnectionPtr connection);
-	void terminateConnections();
-	void getConnections(list<ConnectionPtr> &out);
+  ConnectionPtr getConnection();
+  void release();
+  void restart();
+  void initialize();
+  void listener(struct ListenerArg* );
+  void removeListener(struct ListenerArg*);
+  int getConnectionsNumber();
+  void removeConnection(ConnectionPtr connection);
+  void terminateConnections();
+  void getConnections(list<ConnectionPtr> &out);
 
   int accept(ConnectionsSchedulerVisitor*, void*);
 
@@ -93,20 +96,20 @@ public:
   u_long getNumTotalConnections();
 
 private:
-	void addWaitingConnectionImpl(ConnectionPtr, int lock);
-	void addReadyConnectionImpl(ConnectionPtr);
+  void addWaitingConnectionImpl(ConnectionPtr, int lock);
+  void addReadyConnectionImpl(ConnectionPtr);
   u_long nTotalConnections;
-	ThreadID dispatchedThreadId;
-	Semaphore *readySemaphore;
-	Mutex readyMutex;
-	Mutex connectionsMutex;
-	Mutex eventsMutex;
-	queue<ConnectionPtr> *ready;
-	HashMap<SocketHandle, ConnectionPtr> connections;
-	list<ListenerArg*> listeners;
-	u_long currentPriority;
-	u_long currentPriorityDone;
-	DispatcherArg dispatcherArg;
+  ThreadID dispatchedThreadId;
+  Semaphore *readySemaphore;
+  Mutex readyMutex;
+  Mutex connectionsMutex;
+  Mutex eventsMutex;
+  queue<ConnectionPtr> *ready;
+  HashMap<SocketHandle, ConnectionPtr> connections;
+  list<ListenerArg*> listeners;
+  u_long currentPriority;
+  u_long currentPriorityDone;
+  DispatcherArg dispatcherArg;
   bool releasing;
 };
                                    

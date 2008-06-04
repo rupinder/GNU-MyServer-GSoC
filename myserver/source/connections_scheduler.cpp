@@ -18,6 +18,128 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/connections_scheduler.h"
 #include "../include/server.h"
 
+////////////////////////////////FROM LIBEVENT///////////////////////////////
+#ifdef WIN32
+#define evutil_socket_t intptr_t
+#else
+#define evutil_socket_t int
+#endif
+
+int
+evutil_socketpair(int family, int type, int protocol, evutil_socket_t fd[2])
+{
+  #ifndef WIN32
+  return socketpair(family, type, protocol, fd);
+  #else
+  /* This code is originally from Tor.  Used with permission. */
+
+  /* This socketpair does not work when localhost is down. So
+   * it's really not the same thing at all. But it's close enough
+   * for now, and really, when localhost is down sometimes, we
+   * have other problems too.
+   */
+  evutil_socket_t listener = -1;
+  evutil_socket_t connector = -1;
+  evutil_socket_t acceptor = -1;
+  struct sockaddr_in listen_addr;
+  struct sockaddr_in connect_addr;
+  int size;
+  int saved_errno = -1;
+
+  if (protocol
+      #ifdef AF_UNIX
+      || family != AF_UNIX
+      #endif
+      ) {
+    EVUTIL_SET_SOCKET_ERROR(WSAEAFNOSUPPORT);
+    return -1;
+  }
+  if (!fd) {
+    EVUTIL_SET_SOCKET_ERROR(WSAEINVAL);
+    return -1;
+  }
+
+  listener = socket(AF_INET, type, 0);
+  if (listener < 0)
+    return -1;
+  memset(&listen_addr, 0, sizeof(listen_addr));
+  listen_addr.sin_family = AF_INET;
+  listen_addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  listen_addr.sin_port = 0;/* kernel chooses port. */
+  if (bind(listener, (struct sockaddr *) &listen_addr, sizeof (listen_addr))
+      == -1)
+    goto tidy_up_and_fail;
+  if (listen(listener, 1) == -1)
+    goto tidy_up_and_fail;
+
+  connector = socket(AF_INET, type, 0);
+  if (connector < 0)
+    goto tidy_up_and_fail;
+  /* We want to find out the port number to connect to.  */
+  size = sizeof(connect_addr);
+  if (getsockname(listener, (struct sockaddr *) &connect_addr, &size) == -1)
+    goto tidy_up_and_fail;
+  if (size != sizeof (connect_addr))
+    goto abort_tidy_up_and_fail;
+  if (connect(connector, (struct sockaddr *) &connect_addr,
+	      sizeof(connect_addr)) == -1)
+    goto tidy_up_and_fail;
+
+  size = sizeof(listen_addr);
+  acceptor = accept(listener, (struct sockaddr *) &listen_addr, &size);
+  if (acceptor < 0)
+    goto tidy_up_and_fail;
+  if (size != sizeof(listen_addr))
+    goto abort_tidy_up_and_fail;
+  EVUTIL_CLOSESOCKET(listener);
+  /* Now check we are talking to ourself by matching port and host on the
+     two sockets. */
+  if (getsockname(connector, (struct sockaddr *) &connect_addr, &size) == -1)
+    goto tidy_up_and_fail;
+  if (size != sizeof (connect_addr)
+      || listen_addr.sin_family != connect_addr.sin_family
+      || listen_addr.sin_addr.s_addr != connect_addr.sin_addr.s_addr
+      || listen_addr.sin_port != connect_addr.sin_port)
+    goto abort_tidy_up_and_fail;
+  fd[0] = connector;
+  fd[1] = acceptor;
+
+  return 0;
+
+ abort_tidy_up_and_fail:
+  saved_errno = WSAECONNABORTED;
+ tidy_up_and_fail:
+  if (saved_errno < 0)
+    saved_errno = WSAGetLastError();
+  if (listener != -1)
+    EVUTIL_CLOSESOCKET(listener);
+  if (connector != -1)
+    EVUTIL_CLOSESOCKET(connector);
+  if (acceptor != -1)
+    EVUTIL_CLOSESOCKET(acceptor);
+
+  EVUTIL_SET_SOCKET_ERROR(saved_errno);
+  return -1;
+  #endif
+}
+
+int
+evutil_make_socket_nonblocking(evutil_socket_t fd)
+{
+  #ifdef WIN32
+  {
+    unsigned long nonblocking = 1;
+    ioctlsocket(fd, FIONBIO, (unsigned long*) &nonblocking);
+  }
+  #else
+  if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1) {
+    return -1;
+  }
+  #endif
+  return 0;
+}
+///////////////////////////////////////////////////////////////////////////
+
 #ifdef WIN32
 static unsigned int __stdcall dispatcher(void* p)
 #else
@@ -49,6 +171,9 @@ static void* dispatcher(void* p)
     {
       Thread::wait(10);
     }
+
+    while(da->pause)
+      Thread::wait(1);
   }
   
   da->mutex->lock();
@@ -56,6 +181,17 @@ static void* dispatcher(void* p)
   da->mutex->unlock();
 
   return 0;
+}
+
+static void eventLoopHandler(int fd, short event, void *arg)
+{
+  ConnectionsScheduler::DispatcherArg *da = (ConnectionsScheduler::DispatcherArg*)arg;
+ 
+  int buf[128];
+  
+  while (read(da->fd[0], buf, sizeof(buf)) != -1);
+
+  event_add(&(da->loopEvent), NULL);
 }
 
 static void newDataHandler(int fd, short event, void *arg)
@@ -201,6 +337,32 @@ void ConnectionsScheduler::initialize()
   dispatcherArg.terminated = true;
   dispatcherArg.mutex = &eventsMutex;
 
+
+#ifdef WIN32
+#define LOCAL_SOCKETPAIR_AF AF_INET
+#else
+#define LOCAL_SOCKETPAIR_AF AF_UNIX
+#endif
+
+  if (evutil_socketpair(LOCAL_SOCKETPAIR_AF, SOCK_STREAM, 0,
+			dispatcherArg.fd) == -1)
+  {
+    Server::getInstance()->logLockAccess();
+    Server::getInstance()->logPreparePrintError();
+    Server::getInstance()->logWriteln("Error initializing socket pair.");
+    Server::getInstance()->logEndPrintError();
+    Server::getInstance()->logUnlockAccess();
+    return;
+  }
+
+  evutil_make_socket_nonblocking(dispatcherArg.fd[0]);
+  evutil_make_socket_nonblocking(dispatcherArg.fd[1]);
+
+  event_set(&(dispatcherArg.loopEvent), dispatcherArg.fd[0], EV_READ,
+	       eventLoopHandler, &dispatcherArg);
+
+  event_add(&(dispatcherArg.loopEvent), NULL);
+
   if(Thread::create(&dispatchedThreadId, dispatcher, &dispatcherArg))
    {
      Server::getInstance()->logLockAccess();
@@ -211,6 +373,7 @@ void ConnectionsScheduler::initialize()
      dispatchedThreadId = 0;
    }
 
+  dispatcherArg.pause = false;
   releasing = false;
 }
 
@@ -300,12 +463,24 @@ void ConnectionsScheduler::addWaitingConnectionImpl(ConnectionPtr c, int lock)
   connectionsMutex.unlock();
 
   if(lock)
+  {
+    u_long nbw;
+    Socket sock(dispatcherArg.fd[1]);
+
+    dispatcherArg.pause = true;
+
+    sock.write("a", 1, &nbw);
+
     eventsMutex.lock();
+  }
 
   event_once(handle, EV_READ | EV_TIMEOUT, newDataHandler, c, &tv);
 
   if(lock)
+  {
+    dispatcherArg.pause = false;
     eventsMutex.unlock();
+  }
 }
 
 /*!
@@ -368,6 +543,9 @@ void ConnectionsScheduler::release()
 #if EVENT_LOOPBREAK | WIN32
    event_loopbreak();
 #endif
+   u_long nbw;
+   Socket sock(dispatcherArg.fd[1]);
+   sock.write("a", 1, &nbw);
 
   if(dispatchedThreadId)
     Thread::join(dispatchedThreadId);
@@ -382,6 +560,12 @@ void ConnectionsScheduler::release()
     delete (*it);
     it++;
   }
+
+  event_del(&(dispatcherArg.loopEvent));
+
+  close(dispatcherArg.fd[0]);
+  close(dispatcherArg.fd[1]);
+
   listeners.clear();
   
   eventsMutex.unlock();
