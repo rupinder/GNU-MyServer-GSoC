@@ -63,7 +63,6 @@ public:
   {
     bool terminated; 
     bool terminate;
-    bool pause;
     Mutex* mutex;
     int fd[2];
     event loopEvent;
@@ -104,6 +103,7 @@ private:
   Mutex readyMutex;
   Mutex connectionsMutex;
   Mutex eventsMutex;
+  Mutex eventsSocketMutex;
   queue<ConnectionPtr> *ready;
   HashMap<SocketHandle, ConnectionPtr> connections;
   list<ListenerArg*> listeners;

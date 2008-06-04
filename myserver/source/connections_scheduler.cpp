@@ -18,16 +18,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/connections_scheduler.h"
 #include "../include/server.h"
 
-////////////////////////////////FROM LIBEVENT///////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 #ifdef WIN32
-#define evutil_socket_t intptr_t
+#define socket_t intptr_t
 #include <windows.h>
 #else
-#define evutil_socket_t int
+#define socket_t int
 #endif
 
 static int
-create_socketpair(int af, int type, int protocol, evutil_socket_t socks[2])
+create_socketpair(int af, int type, int protocol, socket_t socks[2])
 {
   #ifndef WIN32
   return socketpair(af, type, protocol, socks);
@@ -90,7 +90,7 @@ create_socketpair(int af, int type, int protocol, evutil_socket_t socks[2])
 }
 
 static int
-make_socket_nonblocking(evutil_socket_t fd)
+make_socket_nonblocking(socket_t fd)
 {
   #ifdef WIN32
   {
@@ -137,8 +137,6 @@ static void* dispatcher(void* p)
       Thread::wait(10);
     }
 
-    while(da->pause)
-      Thread::wait(1);
   }
   
   da->mutex->lock();
@@ -146,21 +144,6 @@ static void* dispatcher(void* p)
   da->mutex->unlock();
 
   return 0;
-}
-
-static void eventLoopHandler(int fd, short event, void *arg)
-{
-  ConnectionsScheduler::DispatcherArg *da = (ConnectionsScheduler::DispatcherArg*)arg;
- 
-  if(event == EV_READ || event == EV_TIMEOUT)
-  {
-    char buf[256];
-    Socket sock(da->fd[0]);
-    
-    while(sock.bytesToRead())sock.recv(buf, sizeof(buf), 0);
-
-    event_add(&(da->loopEvent), NULL);
-  }
 }
 
 static void newDataHandler(int fd, short event, void *arg)
@@ -174,6 +157,45 @@ static void newDataHandler(int fd, short event, void *arg)
   else if(event == EV_READ)
   {
     Server::getInstance()->getConnectionsScheduler()->addReadyConnection(connection);
+  }
+}
+
+
+static void eventLoopHandler(int fd, short event, void *arg)
+{
+  ConnectionsScheduler::DispatcherArg *da = (ConnectionsScheduler::DispatcherArg*)arg;
+ 
+  if(event == EV_READ || event == EV_TIMEOUT)
+  {
+    Socket sock(da->fd[0]);
+
+    while(sock.bytesToRead())
+    {
+      char cmd;
+      sock.recv(&cmd, 1, 0);
+      if(cmd == 'c')
+      {
+        /*
+         *Schedule a new connection.
+         *The 'c' command is followed by:
+         *SocketHandle  -> Socket to monitor for new data.
+         *ConnectionPtr -> Related Connection.
+         *timeval       -> Timeout.
+         */
+        SocketHandle handle;
+        ConnectionPtr c;
+        timeval tv = {10, 0};
+
+        sock.recv((char*)&handle, sizeof(SocketHandle), 0);
+        sock.recv((char*)&c, sizeof(ConnectionPtr), 0);
+        sock.recv((char*)&tv, sizeof(timeval), 0);
+
+        event_once(handle, EV_READ | EV_TIMEOUT, newDataHandler, c, &tv);
+      }
+      /* Handle other cmd without do anything else.  */
+    }
+
+    event_add(&(da->loopEvent), NULL);
   }
 }
 
@@ -230,7 +252,10 @@ void ConnectionsScheduler::listener(ConnectionsScheduler::ListenerArg *la)
 
   u_long nbw;
   Socket sock(dispatcherArg.fd[1]);
-  sock.write("a", 1, &nbw);  
+
+  eventsSocketMutex.lock();
+  sock.write("l", 1, &nbw);  
+  eventsSocketMutex.unlock();
 }
 
 /*!
@@ -252,6 +277,7 @@ ConnectionsScheduler::ConnectionsScheduler()
   readyMutex.init();
   eventsMutex.init();
   connectionsMutex.init();
+  eventsSocketMutex.init();
   readySemaphore = new Semaphore(0);
   currentPriority = 0;
   currentPriorityDone = 0;
@@ -326,8 +352,8 @@ void ConnectionsScheduler::initialize()
     return;
   }
 
-  make_socket_nonblocking(dispatcherArg.fd[0]);
-  make_socket_nonblocking(dispatcherArg.fd[1]);
+  //make_socket_nonblocking(dispatcherArg.fd[0]);
+  //make_socket_nonblocking(dispatcherArg.fd[1]);
 
   event_set(&(dispatcherArg.loopEvent), dispatcherArg.fd[0], EV_READ | EV_TIMEOUT,
 	       eventLoopHandler, &dispatcherArg);
@@ -344,7 +370,6 @@ void ConnectionsScheduler::initialize()
      dispatchedThreadId = 0;
    }
 
-  dispatcherArg.pause = false;
   releasing = false;
 }
 
@@ -355,6 +380,7 @@ ConnectionsScheduler::~ConnectionsScheduler()
 {
   readyMutex.destroy();
   eventsMutex.destroy();
+  eventsSocketMutex.destroy();
   connectionsMutex.destroy();
   delete readySemaphore;
   delete [] ready;
@@ -433,24 +459,27 @@ void ConnectionsScheduler::addWaitingConnectionImpl(ConnectionPtr c, int lock)
   connections.put(handle, c);
   connectionsMutex.unlock();
 
+  /*
+   *If there is need to obtain the events lock don't block the current
+   *thread but send the 'c' message to the eventLoopHandler function,
+   *it will reschedule the connection from its thread context while it
+   *owns the lock.
+   */
   if(lock)
   {
     u_long nbw;
     Socket sock(dispatcherArg.fd[1]);
 
-    dispatcherArg.pause = true;
-
-    sock.write("a", 1, &nbw);
-
-    eventsMutex.lock();
+    eventsSocketMutex.lock();
+    sock.write("c", 1, &nbw);
+    sock.write((char*)&handle, sizeof(SocketHandle), &nbw);
+    sock.write((char*)&c, sizeof(ConnectionPtr), &nbw);
+    sock.write((char*)&tv, sizeof(timeval), &nbw);
+    eventsSocketMutex.unlock();
   }
-
-  event_once(handle, EV_READ | EV_TIMEOUT, newDataHandler, c, &tv);
-
-  if(lock)
+  else
   {
-    dispatcherArg.pause = false;
-    eventsMutex.unlock();
+    event_once(handle, EV_READ | EV_TIMEOUT, newDataHandler, c, &tv);
   }
 }
 
@@ -516,7 +545,10 @@ void ConnectionsScheduler::release()
 #endif
    u_long nbw;
    Socket sock(dispatcherArg.fd[1]);
-   sock.write("a", 1, &nbw);
+
+   eventsSocketMutex.lock();
+   sock.write("r", 1, &nbw);
+   eventsSocketMutex.unlock();
 
   if(dispatchedThreadId)
     Thread::join(dispatchedThreadId);
