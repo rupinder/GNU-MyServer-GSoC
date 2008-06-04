@@ -21,110 +21,76 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ////////////////////////////////FROM LIBEVENT///////////////////////////////
 #ifdef WIN32
 #define evutil_socket_t intptr_t
+#include <windows.h>
 #else
 #define evutil_socket_t int
 #endif
 
-int
-evutil_socketpair(int family, int type, int protocol, evutil_socket_t fd[2])
+static int
+create_socketpair(int af, int type, int protocol, evutil_socket_t socks[2])
 {
   #ifndef WIN32
-  return socketpair(family, type, protocol, fd);
+  return socketpair(af, type, protocol, socks);
   #else
-  /* This code is originally from Tor.  Used with permission. */
+   struct sockaddr_in addr;
+    SOCKET listener;
+    int e;
+    int addrlen = sizeof(addr);
+    DWORD flags = 0;
 
-  /* This socketpair does not work when localhost is down. So
-   * it's really not the same thing at all. But it's close enough
-   * for now, and really, when localhost is down sometimes, we
-   * have other problems too.
-   */
-  evutil_socket_t listener = -1;
-  evutil_socket_t connector = -1;
-  evutil_socket_t acceptor = -1;
-  struct sockaddr_in listen_addr;
-  struct sockaddr_in connect_addr;
-  int size;
-  int saved_errno = -1;
+    if (socks == 0)
+    {
+        return -1;
+    }
 
-  if (protocol
-      #ifdef AF_UNIX
-      || family != AF_UNIX
-      #endif
-      ) {
-    EVUTIL_SET_SOCKET_ERROR(WSAEAFNOSUPPORT);
+    socks[0] = socks[1] = INVALID_SOCKET;
+    listener = socket(AF_INET, type, 0);
+    if (listener == INVALID_SOCKET)
+        return -1;
+
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = htonl(0x7f000001);
+    addr.sin_port = 0;
+
+    e = bind(listener, (const struct sockaddr*) &addr, sizeof(addr));
+    if (e == SOCKET_ERROR)
+    {
+        closesocket(listener);
+        return -1;
+    }
+    e = getsockname(listener, (struct sockaddr*) &addr, &addrlen);
+    if (e == SOCKET_ERROR)
+    {
+        closesocket(listener);
+        return -1;
+    }
+
+    do
+    {
+        if (listen(listener, 1) == SOCKET_ERROR)
+            break;
+        if ((socks[0] = socket(AF_INET, type, 0)) == INVALID_SOCKET)
+            break;
+        if (connect(socks[0], (const struct sockaddr*) &addr, sizeof(addr)) == SOCKET_ERROR)
+            break;
+        if ((socks[1] = accept(listener, NULL, NULL)) == INVALID_SOCKET)
+            break;
+
+        closesocket(listener);
+        return 0;
+
+    } while (0);
+
+    closesocket(listener);
+    closesocket(socks[0]);
+    closesocket(socks[1]);
     return -1;
-  }
-  if (!fd) {
-    EVUTIL_SET_SOCKET_ERROR(WSAEINVAL);
-    return -1;
-  }
-
-  listener = socket(AF_INET, type, 0);
-  if (listener < 0)
-    return -1;
-  memset(&listen_addr, 0, sizeof(listen_addr));
-  listen_addr.sin_family = AF_INET;
-  listen_addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-  listen_addr.sin_port = 0;/* kernel chooses port. */
-  if (bind(listener, (struct sockaddr *) &listen_addr, sizeof (listen_addr))
-      == -1)
-    goto tidy_up_and_fail;
-  if (listen(listener, 1) == -1)
-    goto tidy_up_and_fail;
-
-  connector = socket(AF_INET, type, 0);
-  if (connector < 0)
-    goto tidy_up_and_fail;
-  /* We want to find out the port number to connect to.  */
-  size = sizeof(connect_addr);
-  if (getsockname(listener, (struct sockaddr *) &connect_addr, &size) == -1)
-    goto tidy_up_and_fail;
-  if (size != sizeof (connect_addr))
-    goto abort_tidy_up_and_fail;
-  if (connect(connector, (struct sockaddr *) &connect_addr,
-	      sizeof(connect_addr)) == -1)
-    goto tidy_up_and_fail;
-
-  size = sizeof(listen_addr);
-  acceptor = accept(listener, (struct sockaddr *) &listen_addr, &size);
-  if (acceptor < 0)
-    goto tidy_up_and_fail;
-  if (size != sizeof(listen_addr))
-    goto abort_tidy_up_and_fail;
-  EVUTIL_CLOSESOCKET(listener);
-  /* Now check we are talking to ourself by matching port and host on the
-     two sockets. */
-  if (getsockname(connector, (struct sockaddr *) &connect_addr, &size) == -1)
-    goto tidy_up_and_fail;
-  if (size != sizeof (connect_addr)
-      || listen_addr.sin_family != connect_addr.sin_family
-      || listen_addr.sin_addr.s_addr != connect_addr.sin_addr.s_addr
-      || listen_addr.sin_port != connect_addr.sin_port)
-    goto abort_tidy_up_and_fail;
-  fd[0] = connector;
-  fd[1] = acceptor;
-
-  return 0;
-
- abort_tidy_up_and_fail:
-  saved_errno = WSAECONNABORTED;
- tidy_up_and_fail:
-  if (saved_errno < 0)
-    saved_errno = WSAGetLastError();
-  if (listener != -1)
-    EVUTIL_CLOSESOCKET(listener);
-  if (connector != -1)
-    EVUTIL_CLOSESOCKET(connector);
-  if (acceptor != -1)
-    EVUTIL_CLOSESOCKET(acceptor);
-
-  EVUTIL_SET_SOCKET_ERROR(saved_errno);
-  return -1;
   #endif
 }
 
-int
-evutil_make_socket_nonblocking(evutil_socket_t fd)
+static int
+make_socket_nonblocking(evutil_socket_t fd)
 {
   #ifdef WIN32
   {
@@ -158,7 +124,6 @@ static void* dispatcher(void* p)
   da->terminate = false;
   da->mutex->unlock();
 
-
   while(!da->terminate)
   {    
     int res;
@@ -187,11 +152,15 @@ static void eventLoopHandler(int fd, short event, void *arg)
 {
   ConnectionsScheduler::DispatcherArg *da = (ConnectionsScheduler::DispatcherArg*)arg;
  
-  int buf[128];
-  
-  while (read(da->fd[0], buf, sizeof(buf)) != -1);
+  if(event == EV_READ || event == EV_TIMEOUT)
+  {
+    char buf[256];
+    Socket sock(da->fd[0]);
+    
+    while(sock.bytesToRead())sock.recv(buf, sizeof(buf), 0);
 
-  event_add(&(da->loopEvent), NULL);
+    event_add(&(da->loopEvent), NULL);
+  }
 }
 
 static void newDataHandler(int fd, short event, void *arg)
@@ -258,6 +227,10 @@ void ConnectionsScheduler::listener(ConnectionsScheduler::ListenerArg *la)
   listeners.push_front(arg);
 
   event_add(&(arg->ev), &tv);
+
+  u_long nbw;
+  Socket sock(dispatcherArg.fd[1]);
+  sock.write("a", 1, &nbw);  
 }
 
 /*!
@@ -306,7 +279,6 @@ void ConnectionsScheduler::registerConnectionID(ConnectionPtr connection)
   connectionsMutex.unlock();
 }
 
-
 /*!
  *Restart the scheduler.
  */
@@ -332,20 +304,19 @@ void ConnectionsScheduler::initialize()
 {
   static timeval tv = {1, 0};
 
-  event_init();
+   event_init();
 
   dispatcherArg.terminated = true;
   dispatcherArg.mutex = &eventsMutex;
-
 
 #ifdef WIN32
 #define LOCAL_SOCKETPAIR_AF AF_INET
 #else
 #define LOCAL_SOCKETPAIR_AF AF_UNIX
 #endif
-
-  if (evutil_socketpair(LOCAL_SOCKETPAIR_AF, SOCK_STREAM, 0,
-			dispatcherArg.fd) == -1)
+  int err = create_socketpair(LOCAL_SOCKETPAIR_AF, SOCK_STREAM, 0,
+			dispatcherArg.fd);
+  if (err == -1)
   {
     Server::getInstance()->logLockAccess();
     Server::getInstance()->logPreparePrintError();
@@ -355,10 +326,10 @@ void ConnectionsScheduler::initialize()
     return;
   }
 
-  evutil_make_socket_nonblocking(dispatcherArg.fd[0]);
-  evutil_make_socket_nonblocking(dispatcherArg.fd[1]);
+  make_socket_nonblocking(dispatcherArg.fd[0]);
+  make_socket_nonblocking(dispatcherArg.fd[1]);
 
-  event_set(&(dispatcherArg.loopEvent), dispatcherArg.fd[0], EV_READ,
+  event_set(&(dispatcherArg.loopEvent), dispatcherArg.fd[0], EV_READ | EV_TIMEOUT,
 	       eventLoopHandler, &dispatcherArg);
 
   event_add(&(dispatcherArg.loopEvent), NULL);
