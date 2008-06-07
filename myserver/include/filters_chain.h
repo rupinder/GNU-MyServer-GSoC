@@ -72,5 +72,4 @@ protected:
   int acceptDuplicates;
 };
 
-
 #endif

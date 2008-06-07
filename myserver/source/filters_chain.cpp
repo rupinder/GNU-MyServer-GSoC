@@ -79,11 +79,11 @@ int FiltersChain::write(const char* buffer, u_long len, u_long* nbw)
  */
 FiltersChain::FiltersChain()
 {
-  acceptDuplicates=1;
-  stream=0;
-  firstFilter=0;
-  protocol = 0;
-  protocolData =0;
+  acceptDuplicates = 1;
+  stream = NULL;
+  firstFilter = NULL;
+  protocol = NULL;
+  protocolData = NULL;
 }
 
 /*!
@@ -157,7 +157,7 @@ int FiltersChain::addFilter(Filter* f, u_long *nbw, int sendData)
    *Add the new filter at the end of the list.
    *The new filter will write directly the old firstFilter.
    */
-  firstFilter=f;
+  firstFilter = f;
 
   f->setProtocol(protocol);
   f->setProtocolData(protocolData);
@@ -174,11 +174,11 @@ int FiltersChain::addFilter(Filter* f, u_long *nbw, int sendData)
  */
 int FiltersChain::flush(u_long* nbw)
 {
-  u_long written=0;
+  u_long written = 0;
   char buffer[512];
   list<Filter*>::iterator i;
-  *nbw=0;
-  if(firstFilter!=0)
+  *nbw = 0;
+  if(firstFilter != NULL)
   {
     if(firstFilter->flush(nbw))
       return 1;
@@ -188,7 +188,7 @@ int FiltersChain::flush(u_long* nbw)
     if(stream->flush(nbw))
       return 1;
   }
-  written=*nbw;
+  written = *nbw;
 
   ;
   /*!
@@ -199,7 +199,7 @@ int FiltersChain::flush(u_long* nbw)
   while(i != filters.begin())
   {
     Filter* f;
-    u_long tmpNbw=0;
+    u_long tmpNbw = 0;
 
     --i;
     f = *i;
@@ -211,7 +211,7 @@ int FiltersChain::flush(u_long* nbw)
   }
   
   /*! Set the final value. */
-  *nbw=written;
+  *nbw = written;
   return 0;
 }
 
@@ -220,10 +220,10 @@ int FiltersChain::flush(u_long* nbw)
  */
 int FiltersChain::isFilterPresent(Filter* f)
 {
-  list<Filter*>::iterator i=filters.begin();
+  list<Filter*>::iterator i = filters.begin();
 
-  for( ; i!=filters.end(); ++i )
-    if(*i==f)
+  for( ; i != filters.end(); ++i )
+    if(*i == f)
       return 1;
 
   return 0;
@@ -234,9 +234,9 @@ int FiltersChain::isFilterPresent(Filter* f)
  */
 int FiltersChain::isFilterPresent(const char* name)
 {
-  list<Filter*>::iterator i=filters.begin();
+  list<Filter*>::iterator i = filters.begin();
 
-  for( ; i!=filters.end(); ++i )
+  for( ; i != filters.end(); ++i )
     if(!strcmpi((*i)->getName(0, 0), name))
       return 1;
   return 0;
@@ -247,10 +247,11 @@ int FiltersChain::isFilterPresent(const char* name)
  */
 int FiltersChain::removeFilter(Filter* f)
 {
-  list<Filter*>::iterator i=filters.begin();
-  list<Filter*>::iterator prev=filters.end();   
-  for( ; i!=filters.end(); ++i )
-    if(*i==f)
+  list<Filter*>::iterator i = filters.begin();
+  list<Filter*>::iterator prev = filters.end();   
+  for( ; i != filters.end(); ++i )
+  {
+    if(*i == f)
     {
       if(prev != filters.end())
       {
@@ -259,17 +260,27 @@ int FiltersChain::removeFilter(Filter* f)
       else
       {
         /*! 
-         *If if it the first filter according to the linked list. 
+         *It is the first filter according to the linked list. 
          *Do not use the getParent function here as it can be a Stream.
          */
         if(i == filters.end())
-          firstFilter = 0;
+          firstFilter = NULL;
         else
-          firstFilter=*(++i);
+        {
+          list<Filter*>::iterator tmpIt = i;
+          tmpIt++;
+
+          if(tmpIt == filters.end())
+            firstFilter = NULL;
+          else
+            firstFilter = *(tmpIt);
+        }
       }
       filters.erase(i);
       break;
     }
+    prev = i;
+  }
       
   return 0;
 }
