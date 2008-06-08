@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007 The MyServer Team
+Copyright (C) 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -26,8 +26,8 @@ using namespace std;
  */
 PluginsNamespace::PluginsNamespace(string name)
 {
-	this->name.assign(name);
-	loaded = false;
+  this->name.assign(name);
+  loaded = false;
 }
 
 /*!
@@ -35,8 +35,8 @@ PluginsNamespace::PluginsNamespace(string name)
  */
 PluginsNamespace::~PluginsNamespace()
 {
-	unLoad(0);
-	loaded = false;
+  unLoad(0);
+  loaded = false;
 }
 
 
@@ -49,15 +49,15 @@ PluginsNamespace::~PluginsNamespace()
  */
 PluginsNamespace::PluginsNamespace(string& name, PluginsNamespace& clone) 
 {
-	this->name.assign(name);
-	HashMap<string, Plugin*>::Iterator it = clone.plugins.begin();
-	while(it != clone.plugins.end())
-	{
-		string name((*it)->getName(0, 0));
-		plugins.put(name, *it);
-		it++;
-	}
-	loaded = clone.loaded;
+  this->name.assign(name);
+  HashMap<string, Plugin*>::Iterator it = clone.plugins.begin();
+  while(it != clone.plugins.end())
+  {
+    string name((*it)->getName(0, 0));
+    plugins.put(name, *it);
+    it++;
+  }
+  loaded = clone.loaded;
 
 }
 
@@ -66,7 +66,7 @@ PluginsNamespace::PluginsNamespace(string& name, PluginsNamespace& clone)
  */
 string& PluginsNamespace::getName()
 {
-	return name;
+  return name;
 }
 
 /*!
@@ -75,7 +75,7 @@ string& PluginsNamespace::getName()
  */
 Plugin* PluginsNamespace::getPlugin(string &name)
 {
-	return plugins.get((char*)name.c_str());
+  return plugins.get((char*)name.c_str());
 }
 
 /*!
@@ -86,14 +86,14 @@ Plugin* PluginsNamespace::getPlugin(string &name)
  */
 int PluginsNamespace::postLoad(Server* server, XmlParser* languageFile)
 {
-	HashMap<string, Plugin*>::Iterator it = plugins.begin();
-	while(it != plugins.end())
-	{
-		(*it)->postLoad(server, languageFile);
-		it++;
-	}
-	loaded = true;
-	return 0;
+  HashMap<string, Plugin*>::Iterator it = plugins.begin();
+  while(it != plugins.end())
+  {
+    (*it)->postLoad(server, languageFile);
+    it++;
+  }
+  loaded = true;
+  return 0;
 }
 
 /*!
@@ -103,26 +103,26 @@ int PluginsNamespace::postLoad(Server* server, XmlParser* languageFile)
  */
 int PluginsNamespace::unLoad(XmlParser* languageFile)
 {
-	HashMap<string, Plugin*>::Iterator it = plugins.begin();
-	HashMap<string, PluginOption*>::Iterator poit = pluginsOptions.begin();
+  HashMap<string, Plugin*>::Iterator it = plugins.begin();
+  HashMap<string, PluginOption*>::Iterator poit = pluginsOptions.begin();
 
-	while(it != plugins.end())
-	{
-		(*it)->unLoad(languageFile);
-		delete *it;
-		it++;
-	}
+  while(it != plugins.end())
+  {
+    (*it)->unLoad(languageFile);
+    delete *it;
+    it++;
+  }
 
-	while(poit != pluginsOptions.end())
-	{
-		delete *poit;
-		poit++;
-	}
+  while(poit != pluginsOptions.end())
+  {
+    delete *poit;
+    poit++;
+  }
 
-	loaded = false;
-	plugins.clear();
-	pluginsOptions.clear();
-	return 0;
+  loaded = false;
+  plugins.clear();
+  pluginsOptions.clear();
+  return 0;
 }
 
 /*!
@@ -131,7 +131,7 @@ int PluginsNamespace::unLoad(XmlParser* languageFile)
  */
 void PluginsNamespace::setName(string& name)
 {
-	this->name.assign(name);
+  this->name.assign(name);
 }
 
 /*!
@@ -140,9 +140,9 @@ void PluginsNamespace::setName(string& name)
  */
 int PluginsNamespace::addPreloadedPlugin(Plugin* plugin)
 {
-	string name(plugin->getName(0, 0));
-	plugins.put(name, plugin);
-	return 0;
+  string name(plugin->getName(0, 0));
+  plugins.put(name, plugin);
+  return 0;
 }
 
 /*!
@@ -151,7 +151,7 @@ int PluginsNamespace::addPreloadedPlugin(Plugin* plugin)
  */
 void PluginsNamespace::removePlugin(string& name)
 {
-	plugins.remove(name);
+  plugins.remove(name);
 }
 
 /*!
@@ -161,13 +161,13 @@ void PluginsNamespace::removePlugin(string& name)
  */
 int PluginsNamespace::addPluginOption(string& plugin, PluginOption& po)
 {
-	PluginOption* newPo = new PluginOption(po);
-	PluginOption* oldPo = pluginsOptions.put(plugin, newPo);
+  PluginOption* newPo = new PluginOption(po);
+  PluginOption* oldPo = pluginsOptions.put(plugin, newPo);
 
-	if(oldPo)
-		delete oldPo;
+  if(oldPo)
+    delete oldPo;
 
-	return 0;
+  return 0;
 }
 
 /*!
@@ -176,5 +176,5 @@ int PluginsNamespace::addPluginOption(string& plugin, PluginOption& po)
  */
 PluginsNamespace::PluginOption* PluginsNamespace::getPluginOption(string& plugin)
 {
-	return pluginsOptions.get(plugin);
+  return pluginsOptions.get(plugin);
 }

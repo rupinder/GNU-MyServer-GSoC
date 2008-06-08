@@ -31,15 +31,15 @@ int VhostManager::addVHost(Vhost* vh)
   
   mutex.lock();
 
-	/* Be sure there is a listening thread on the specified port.  */
-	listenThreads->addListeningThread(vh->getPort());
-	
-	if(extSource)
-	{
-		int ret = extSource->addVHost(vh);
-		mutex.unlock();
-		return ret;
-	}
+  /* Be sure there is a listening thread on the specified port.  */
+  listenThreads->addListeningThread(vh->getPort());
+  
+  if(extSource)
+  {
+    int ret = extSource->addVHost(vh);
+    mutex.unlock();
+    return ret;
+  }
 
   it = hostList.begin();
 
@@ -61,11 +61,11 @@ int VhostManager::addVHost(Vhost* vh)
           string error;
           error.assign("Warning: multiple hosts use the same log file:" );
           error.append(vh->getAccessesLogFileName());
-					Server::getInstance()->logLockAccess();
+          Server::getInstance()->logLockAccess();
           Server::getInstance()->logPreparePrintError();
           Server::getInstance()->logWriteln(error.c_str());     
           Server::getInstance()->logEndPrintError();
-					Server::getInstance()->logUnlockAccess();
+          Server::getInstance()->logUnlockAccess();
         }
 
 #ifdef WIN32
@@ -73,33 +73,33 @@ int VhostManager::addVHost(Vhost* vh)
                      hostl->getWarningsLogFileName()))
 #else
       if(!stringcmp(vh->getWarningsLogFileName(), 
-										hostl->getWarningsLogFileName()))
+                    hostl->getWarningsLogFileName()))
 #endif
       {
-				string error;
-				error.assign("Warning: multiple hosts use the same log file:" );
-				error.append(vh->getWarningsLogFileName());
-				Server::getInstance()->logLockAccess();
-				Server::getInstance()->logPreparePrintError();
-				Server::getInstance()->logWriteln(error.c_str());     
-				Server::getInstance()->logEndPrintError();
-				Server::getInstance()->logUnlockAccess();
-			}
+        string error;
+        error.assign("Warning: multiple hosts use the same log file:" );
+        error.append(vh->getWarningsLogFileName());
+        Server::getInstance()->logLockAccess();
+        Server::getInstance()->logPreparePrintError();
+        Server::getInstance()->logWriteln(error.c_str());     
+        Server::getInstance()->logEndPrintError();
+        Server::getInstance()->logUnlockAccess();
+      }
     }
 
-		if(!vh->getProtocolName())
-		{
-			string error;
-			error.assign("Warning: protocol not defined for virtual host: " );
-			error.append(vh->getName());
-			error.append(", using HTTP by default");
-			vh->setProtocolName("http");
-			Server::getInstance()->logLockAccess();
-			Server::getInstance()->logPreparePrintError();
-			Server::getInstance()->logWriteln(error.c_str());     
-			Server::getInstance()->logEndPrintError();
-			Server::getInstance()->logUnlockAccess();
-		}
+    if(!vh->getProtocolName())
+    {
+      string error;
+      error.assign("Warning: protocol not defined for virtual host: " );
+      error.append(vh->getName());
+      error.append(", using HTTP by default");
+      vh->setProtocolName("http");
+      Server::getInstance()->logLockAccess();
+      Server::getInstance()->logPreparePrintError();
+      Server::getInstance()->logWriteln(error.c_str());     
+      Server::getInstance()->logEndPrintError();
+      Server::getInstance()->logUnlockAccess();
+    }
     hostList.push_back(vh);
     mutex.unlock();
     return 0;
@@ -133,11 +133,11 @@ Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
       return ret;
     }
 
-		it = hostList.begin();
+    it = hostList.begin();
 
     /*Do a linear search here. We have to use the first full-matching 
-		 *virtual host. 
-		 */
+     *virtual host. 
+     */
     for(; it != hostList.end(); it++)
     {
       Vhost* vh = *it;
@@ -172,8 +172,8 @@ Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
  */
 VhostManager::VhostManager(ListenThreads* lt)
 {
-	listenThreads = lt;
-	hostList.clear();
+  listenThreads = lt;
+  hostList.clear();
   extSource = 0;
   mutex.init();
 }
@@ -210,7 +210,7 @@ void VhostManager::clean()
  */
 VhostManager::~VhostManager()
 {
-	clean();
+  clean();
   mutex.destroy();
 }
 
@@ -219,7 +219,7 @@ VhostManager::~VhostManager()
  */
 list<Vhost*>* VhostManager::getVHostList()
 {
-	return &(this->hostList);
+  return &(this->hostList);
 }
 
 /*!
@@ -248,7 +248,7 @@ void VhostManager::changeFilesOwner()
      */
     for(int i = 0; ; i++)
     {
-			int err;
+      int err;
       Vhost* vh = getVHostByNumber(i);
       /* Break if we reach the end of the list.  */
       if(!vh)
@@ -286,7 +286,7 @@ void VhostManager::changeFilesOwner()
  */
 int VhostManager::getHostsNumber()
 {
-	return hostList.size();
+  return hostList.size();
 }
 
 /*!
@@ -298,50 +298,50 @@ int VhostManager::getHostsNumber()
 int VhostManager::loadXMLConfigurationFile(const char *filename, 
                                            int maxlogSize)
 {
-	XmlParser parser;
-	xmlDocPtr doc;
-	xmlNodePtr node;
+  XmlParser parser;
+  xmlDocPtr doc;
+  xmlNodePtr node;
     string errMsg;
-	if(parser.open(filename))
-	{
+  if(parser.open(filename))
+  {
     errMsg.assign("Error opening: ");
     errMsg.append(filename);
-		Server::getInstance()->logLockAccess();
+    Server::getInstance()->logLockAccess();
     Server::getInstance()->logPreparePrintError();
     Server::getInstance()->logWriteln(errMsg.c_str());
     Server::getInstance()->logEndPrintError();
-		Server::getInstance()->logUnlockAccess();
-		return -1;
-	}
-	doc = parser.getDoc();
-	node = doc->children->children;
-	for(;node;node = node->next )
-	{
-		xmlNodePtr lcur;
-		Vhost *vh;
-		if(xmlStrcmp(node->name, (const xmlChar *)"VHOST"))
-			continue;
-		lcur=node->children;
-		vh=new Vhost();
+    Server::getInstance()->logUnlockAccess();
+    return -1;
+  }
+  doc = parser.getDoc();
+  node = doc->children->children;
+  for(;node;node = node->next )
+  {
+    xmlNodePtr lcur;
+    Vhost *vh;
+    if(xmlStrcmp(node->name, (const xmlChar *)"VHOST"))
+      continue;
+    lcur=node->children;
+    vh=new Vhost();
     if(vh == 0)
     {
       parser.close();
       clean();
       errMsg.assign("Error: allocating memory");
-			Server::getInstance()->logLockAccess();
+      Server::getInstance()->logLockAccess();
       Server::getInstance()->logPreparePrintError();
       Server::getInstance()->logWriteln(errMsg.c_str());
       Server::getInstance()->logEndPrintError();
-			Server::getInstance()->logUnlockAccess();
+      Server::getInstance()->logUnlockAccess();
       return -1;
     }
     
     SslContext* sslContext = vh->getVhostSSLContext();
-		
+    
     while(lcur)
     {
-			if(!xmlStrcmp(lcur->name, (const xmlChar *)"HOST"))
-			{
+      if(!xmlStrcmp(lcur->name, (const xmlChar *)"HOST"))
+      {
         int useRegex = 0;
         xmlAttr *attrs = lcur->properties;
         while(attrs)
@@ -350,7 +350,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
             {
               if(attrs->children && attrs->children->content && 
                  (!xmlStrcmp(attrs->children->content, 
-														 (const xmlChar *)"YES")))
+                             (const xmlChar *)"YES")))
               {
                 useRegex = 1;
               }
@@ -358,113 +358,113 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
             attrs = attrs->next;
         }
 
-			  vh->addHost((const char*)lcur->children->content, useRegex);
-			}
-			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"NAME"))
-			{
-				vh->setName((char*)lcur->children->content);
-			}
-			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PRIVATEKEY"))
-			{
-				string pk((char*)lcur->children->content);
-				sslContext->setPrivateKeyFile(pk);
-			}
-			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_CERTIFICATE"))
-			{
-				string certificate((char*)lcur->children->content);
-				sslContext->setCertificateFile(certificate);
-			}
-			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"CONNECTIONS_PRIORITY"))
-			{
-				vh->setDefaultPriority(atoi((const char*)lcur->children->content));
+        vh->addHost((const char*)lcur->children->content, useRegex);
+      }
+      else if(!xmlStrcmp(lcur->name, (const xmlChar *)"NAME"))
+      {
+        vh->setName((char*)lcur->children->content);
+      }
+      else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PRIVATEKEY"))
+      {
+        string pk((char*)lcur->children->content);
+        sslContext->setPrivateKeyFile(pk);
+      }
+      else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_CERTIFICATE"))
+      {
+        string certificate((char*)lcur->children->content);
+        sslContext->setCertificateFile(certificate);
+      }
+      else if(!xmlStrcmp(lcur->name, (const xmlChar *)"CONNECTIONS_PRIORITY"))
+      {
+        vh->setDefaultPriority(atoi((const char*)lcur->children->content));
 
-			}
-			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PASSWORD"))
-			{
-				string pw;
-				if(lcur->children)
-					pw.assign((char*)lcur->children->content);
-				else
-					pw.assign("");
+      }
+      else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PASSWORD"))
+      {
+        string pw;
+        if(lcur->children)
+          pw.assign((char*)lcur->children->content);
+        else
+          pw.assign("");
 
-					sslContext->setPassword(pw);
+          sslContext->setPassword(pw);
 
-			}
-			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"IP"))
-			{
+      }
+      else if(!xmlStrcmp(lcur->name, (const xmlChar *)"IP"))
+      {
         int useRegex = 0;
         xmlAttr *attrs =  lcur->properties;
         while(attrs)
         {
-					if(!xmlStrcmp(attrs->name, (const xmlChar *)"isRegex"))
+          if(!xmlStrcmp(attrs->name, (const xmlChar *)"isRegex"))
           {
-						if(attrs->children && attrs->children->content && 
-							 (!xmlStrcmp(attrs->children->content, 
-													 (const xmlChar *)"YES")))
+            if(attrs->children && attrs->children->content && 
+               (!xmlStrcmp(attrs->children->content, 
+                           (const xmlChar *)"YES")))
             {
-							useRegex = 1;
-						}
-					}
-					attrs = attrs->next;
+              useRegex = 1;
+            }
+          }
+          attrs = attrs->next;
         }
-	  	 vh->addIP((char*)lcur->children->content, useRegex);
-			}
-			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"PORT"))
-			{
+       vh->addIP((char*)lcur->children->content, useRegex);
+      }
+      else if(!xmlStrcmp(lcur->name, (const xmlChar *)"PORT"))
+      {
         int val = atoi((char*)lcur->children->content);
         if(val > (1 << 16) || strlen((const char*)lcur->children->content) > 6)
         {
           errMsg.assign("Error: specified port greater than 65536 or invalid: ");
           errMsg.append((char*)lcur->children->content);
-					Server::getInstance()->logLockAccess();
-					Server::getInstance()->logPreparePrintError();
-					Server::getInstance()->logWriteln(errMsg.c_str());
-					Server::getInstance()->logEndPrintError();
-					Server::getInstance()->logUnlockAccess();
+          Server::getInstance()->logLockAccess();
+          Server::getInstance()->logPreparePrintError();
+          Server::getInstance()->logWriteln(errMsg.c_str());
+          Server::getInstance()->logEndPrintError();
+          Server::getInstance()->logUnlockAccess();
 
         }
-				vh->setPort((u_short)val);
-			}
-			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"PROTOCOL"))
-			{
+        vh->setPort((u_short)val);
+      }
+      else if(!xmlStrcmp(lcur->name, (const xmlChar *)"PROTOCOL"))
+      {
         char* lastChar = (char*)lcur->children->content;
         while(*lastChar != '\0')
         {
           *lastChar = tolower (*lastChar);
           lastChar++;
         }
-				vh->setProtocolName((char*)lcur->children->content);
+        vh->setProtocolName((char*)lcur->children->content);
       }
-			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"DOCROOT"))
-			{
+      else if(!xmlStrcmp(lcur->name, (const xmlChar *)"DOCROOT"))
+      {
         if(lcur->children && lcur->children->content)
         {
           char* lastChar = (char*)lcur->children->content;
-					while(*(lastChar+1) != '\0')
-						lastChar++;
+          while(*(lastChar+1) != '\0')
+            lastChar++;
 
           if(*lastChar == '\\' || *lastChar == '/')
           {
-						*lastChar = '\0';
+            *lastChar = '\0';
           }
-					vh->setDocumentRoot((const char*)lcur->children->content);
+          vh->setDocumentRoot((const char*)lcur->children->content);
         }
         else
         {
           vh->setDocumentRoot("");
         }
-			}
+      }
       else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SYSFOLDER"))
-			{
+      {
         if(lcur->children && lcur->children->content)
         {
           char* lastChar = (char*)lcur->children->content;
-					while(*(lastChar+1) != '\0')
-						lastChar++;
+          while(*(lastChar+1) != '\0')
+            lastChar++;
 
           if(*lastChar == '\\' || *lastChar == '/')
           {
-						*lastChar = '\0';
+            *lastChar = '\0';
           }
             vh->setSystemRoot((const char*)lcur->children->content);
         }
@@ -473,96 +473,96 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
           vh->setSystemRoot("");
         }
       }
-			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"ACCESSLOG"))
-			{
+      else if(!xmlStrcmp(lcur->name, (const xmlChar *)"ACCESSLOG"))
+      {
         xmlAttr *attr;
         string opt;
         opt.assign("");
-				vh->setAccessLogOpt("");
-				if(lcur->children && lcur->children->content)
-					vh->setAccessesLogFileName((char*)lcur->children->content);
-				else
-				{
-					errMsg.assign("Error: invalid accesses log file name");
-					Server::getInstance()->logLockAccess();
-					Server::getInstance()->logPreparePrintError();
-					Server::getInstance()->logWriteln(errMsg.c_str());
-					Server::getInstance()->logEndPrintError();
-					Server::getInstance()->logUnlockAccess();
-				}
+        vh->setAccessLogOpt("");
+        if(lcur->children && lcur->children->content)
+          vh->setAccessesLogFileName((char*)lcur->children->content);
+        else
+        {
+          errMsg.assign("Error: invalid accesses log file name");
+          Server::getInstance()->logLockAccess();
+          Server::getInstance()->logPreparePrintError();
+          Server::getInstance()->logWriteln(errMsg.c_str());
+          Server::getInstance()->logEndPrintError();
+          Server::getInstance()->logUnlockAccess();
+        }
 
-				attr =  lcur->properties;
+        attr =  lcur->properties;
         while(attr)
         {
-					opt.append((char*)attr->name);
-					opt.append("=");
+          opt.append((char*)attr->name);
+          opt.append("=");
           opt.append((char*)attr->children->content);
 
-					if(attr->next)
-					{
-						opt.append(",");
-					}
-					attr = attr->next;
+          if(attr->next)
+          {
+            opt.append(",");
+          }
+          attr = attr->next;
         }
         vh->setAccessLogOpt(opt.c_str());
-			}
-			else if(!xmlStrcmp(lcur->name, (const xmlChar *)"WARNINGLOG"))
+      }
+      else if(!xmlStrcmp(lcur->name, (const xmlChar *)"WARNINGLOG"))
       {
-				xmlAttr *attr;
+        xmlAttr *attr;
         string opt;
         opt.assign("");
 
-				if(lcur->children && lcur->children->content)
-					vh->setWarningsLogFileName((char*)lcur->children->content);
-				else
-				{
-					errMsg.assign("Error: invalid warnings log file name");
-					Server::getInstance()->logLockAccess();
-					Server::getInstance()->logPreparePrintError();
-					Server::getInstance()->logWriteln(errMsg.c_str());
-					Server::getInstance()->logEndPrintError();
-					Server::getInstance()->logUnlockAccess();
-				}
-				vh->setWarningLogOpt("");                
-				attr = lcur->properties;
-				while(attr)
-				{
-					opt.append((char*)attr->name);
-					opt.append("=");
-					opt.append((char*)attr->children->content);
-					if(attr->next)
+        if(lcur->children && lcur->children->content)
+          vh->setWarningsLogFileName((char*)lcur->children->content);
+        else
+        {
+          errMsg.assign("Error: invalid warnings log file name");
+          Server::getInstance()->logLockAccess();
+          Server::getInstance()->logPreparePrintError();
+          Server::getInstance()->logWriteln(errMsg.c_str());
+          Server::getInstance()->logEndPrintError();
+          Server::getInstance()->logUnlockAccess();
+        }
+        vh->setWarningLogOpt("");                
+        attr = lcur->properties;
+        while(attr)
+        {
+          opt.append((char*)attr->name);
+          opt.append("=");
+          opt.append((char*)attr->children->content);
+          if(attr->next)
           {
      
             opt.append(",");
           }
 
-					attr=attr->next;
-				}
+          attr=attr->next;
+        }
         
         vh->setWarningLogOpt(opt.c_str());
       }
       else if(!xmlStrcmp(lcur->name, (const xmlChar *)"MIME_FILE"))
-			{
-				if(lcur->children)
+      {
+        if(lcur->children)
           vh->getMIME()->loadXML((char*)lcur->children->content);
-			}
+      }
       else if(!xmlStrcmp(lcur->name, (const xmlChar *)"THROTTLING_RATE"))
-			{
-				vh->setThrottlingRate((u_long)atoi((char*)lcur->children->content));
- 			}
- 			else if(lcur->children && lcur->children->content)
- 			{
-				string *old;
+      {
+        vh->setThrottlingRate((u_long)atoi((char*)lcur->children->content));
+       }
+       else if(lcur->children && lcur->children->content)
+       {
+        string *old;
         string *s = new string((const char*)lcur->children->content);
         if(s == 0)
-				{
-					parser.close();
-					clean();
+        {
+          parser.close();
+          clean();
           return -1;
-				}
-				string keyValue((const char*)lcur->name);
+        }
+        string keyValue((const char*)lcur->name);
         old = vh->hashedData.put(keyValue, s);
-				if(old)
+        if(old)
         {
           delete old;
         }            
@@ -570,52 +570,52 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
       lcur = lcur->next;
     }//while(lcur)
 
-		if(vh->openLogFiles())
-		{
-			errMsg.assign("Error: opening log files");
-			Server::getInstance()->logLockAccess();
-			Server::getInstance()->logPreparePrintError();
-			Server::getInstance()->logWriteln(errMsg.c_str());
-			Server::getInstance()->logEndPrintError();
-			Server::getInstance()->logUnlockAccess();
-			
-			delete vh;
-			vh =0;
-			continue;
-		}
+    if(vh->openLogFiles())
+    {
+      errMsg.assign("Error: opening log files");
+      Server::getInstance()->logLockAccess();
+      Server::getInstance()->logPreparePrintError();
+      Server::getInstance()->logWriteln(errMsg.c_str());
+      Server::getInstance()->logEndPrintError();
+      Server::getInstance()->logUnlockAccess();
+      
+      delete vh;
+      vh =0;
+      continue;
+    }
 
-		if ( vh->initializeSSL() < 0 )
-		{
-			errMsg.assign("Error: initializing vhost");
-			Server::getInstance()->logLockAccess();
-			Server::getInstance()->logPreparePrintError();
-			Server::getInstance()->logWriteln(errMsg.c_str());
-			Server::getInstance()->logEndPrintError();
-			Server::getInstance()->logUnlockAccess();
-			
-			delete vh;
-			vh = 0;
-			continue;
-		}
+    if ( vh->initializeSSL() < 0 )
+    {
+      errMsg.assign("Error: initializing vhost");
+      Server::getInstance()->logLockAccess();
+      Server::getInstance()->logPreparePrintError();
+      Server::getInstance()->logWriteln(errMsg.c_str());
+      Server::getInstance()->logEndPrintError();
+      Server::getInstance()->logUnlockAccess();
+      
+      delete vh;
+      vh = 0;
+      continue;
+    }
 
-		if(addVHost(vh))
-		{
-			errMsg.assign("Error: adding vhost");
-			Server::getInstance()->logLockAccess();
-			Server::getInstance()->logPreparePrintError();
-			Server::getInstance()->logWriteln(errMsg.c_str());
-			Server::getInstance()->logEndPrintError();
-			Server::getInstance()->logUnlockAccess();
-			
-			delete vh;
-			vh = 0;
-			continue;
-		}
+    if(addVHost(vh))
+    {
+      errMsg.assign("Error: adding vhost");
+      Server::getInstance()->logLockAccess();
+      Server::getInstance()->logPreparePrintError();
+      Server::getInstance()->logWriteln(errMsg.c_str());
+      Server::getInstance()->logEndPrintError();
+      Server::getInstance()->logUnlockAccess();
+      
+      delete vh;
+      vh = 0;
+      continue;
+    }
 
   }
   parser.close();
 
-	changeFilesOwner();
+  changeFilesOwner();
 
   return 0;
 }
@@ -626,20 +626,20 @@ int VhostManager::loadXMLConfigurationFile(const char *filename,
  */
 int VhostManager::saveXMLConfigurationFile(const char *filename)
 {
-	File out;
-	u_long nbw;
+  File out;
+  u_long nbw;
 
   mutex.lock();
 
-	if(extSource)
-	{
-		int ret = extSource->save();
-		mutex.unlock();
-		return ret;
-	}
+  if(extSource)
+  {
+    int ret = extSource->save();
+    mutex.unlock();
+    return ret;
+  }
 
-	out.openFile(filename, File::MYSERVER_CREATE_ALWAYS | File::MYSERVER_OPEN_WRITE);
-	out.writeToFile("<?xml version=\"1.0\"?>\r\n<VHOSTS>\r\n", 33, &nbw);
+  out.openFile(filename, File::MYSERVER_CREATE_ALWAYS | File::MYSERVER_OPEN_WRITE);
+  out.writeToFile("<?xml version=\"1.0\"?>\r\n<VHOSTS>\r\n", 33, &nbw);
 
   try
   {
@@ -678,7 +678,7 @@ int VhostManager::saveXMLConfigurationFile(const char *filename)
 
       if((*i)->getVhostSSLContext()->getPrivateKeyFile().length())
       {
-				string &pk = (*i)->getVhostSSLContext()->getPrivateKeyFile();
+        string &pk = (*i)->getVhostSSLContext()->getPrivateKeyFile();
         out.writeToFile("<SSL_PRIVATEKEY>",16,&nbw);
         out.writeToFile(pk.c_str(), pk.length(),&nbw);
         out.writeToFile("</SSL_PRIVATEKEY>\r\n",19,&nbw);
@@ -686,16 +686,16 @@ int VhostManager::saveXMLConfigurationFile(const char *filename)
       
       if((*i)->getVhostSSLContext()->getCertificateFile().length())
       {
-				string &certificate = (*i)->getVhostSSLContext()->getCertificateFile();
+        string &certificate = (*i)->getVhostSSLContext()->getCertificateFile();
         out.writeToFile("<SSL_CERTIFICATE>", 17, &nbw);
         out.writeToFile(certificate.c_str(), (u_long)certificate.length(), 
-												&nbw);
+                        &nbw);
         out.writeToFile("</SSL_CERTIFICATE>\r\n", 20, &nbw);
       }
 
       if((*i)->getVhostSSLContext()->getPassword().length())
       {
-				string& pw = (*i)->getVhostSSLContext()->getPassword();
+        string& pw = (*i)->getVhostSSLContext()->getPassword();
         out.writeToFile("<SSL_PASSWORD>", 14, &nbw);
         out.writeToFile(pw.c_str(), pw.length(), &nbw);
         out.writeToFile("</SSL_PASSWORD>\r\n", 17, &nbw);
@@ -728,28 +728,28 @@ int VhostManager::saveXMLConfigurationFile(const char *filename)
                       (u_long)strlen((*i)->getWarningsLogFileName()),&nbw);
       out.writeToFile("</WARNINGLOG>\r\n", 15, &nbw);
       
-			{
-				HashMap<string, string*>::Iterator it = (*i)->hashedData.begin();
-				for(; it != (*i)->hashedData.end(); it++)
-				{
-					ostringstream outString;
-					outString << "<" << it.getKey() << ">" << (*it)  << "</" 
-										<< it.getKey() << ">" << endl;
-					out.writeToFile(outString.str().c_str(),outString.str().size(),&nbw);
-				}
-				out.writeToFile("</VHOST>\r\n", 10, &nbw);
-			}
-		}
-		out.writeToFile("</VHOSTS>\r\n", 11, &nbw);
-		out.closeFile();
-		mutex.unlock();
+      {
+        HashMap<string, string*>::Iterator it = (*i)->hashedData.begin();
+        for(; it != (*i)->hashedData.end(); it++)
+        {
+          ostringstream outString;
+          outString << "<" << it.getKey() << ">" << (*it)  << "</" 
+                    << it.getKey() << ">" << endl;
+          out.writeToFile(outString.str().c_str(),outString.str().size(),&nbw);
+        }
+        out.writeToFile("</VHOST>\r\n", 10, &nbw);
+      }
+    }
+    out.writeToFile("</VHOSTS>\r\n", 11, &nbw);
+    out.closeFile();
+    mutex.unlock();
   }
   catch(...)
   {
     mutex.unlock();
   };
 
-	return 0;
+  return 0;
 }
 
 
@@ -800,7 +800,7 @@ Vhost* VhostManager::getVHostByNumber(int n)
 int VhostManager::removeVHost(int n)
 {
   mutex.lock();
-	try
+  try
   {
     list<Vhost*>::iterator i = hostList.begin();
     
@@ -879,7 +879,7 @@ int VhostSource::free()
  */
 int VhostSource::addVHost(Vhost*)
 {
-	return 0;
+  return 0;
 }
 
 /*!

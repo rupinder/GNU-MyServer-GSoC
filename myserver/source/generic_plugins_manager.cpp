@@ -27,7 +27,7 @@ using namespace std;
  *Constructor for the class.
  */
 GenericPluginsManager::GenericPluginsManager() : 
-	PluginsNamespaceManager("generics")
+  PluginsNamespaceManager("generics")
 {
 
 }

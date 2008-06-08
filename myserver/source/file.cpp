@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2005, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -58,7 +58,7 @@ const u_long File::MYSERVER_NO_INHERIT = (1<<8);
  */
 File::File()
 {
-	handle = 0;
+  handle = 0;
 }
 
 /*!
@@ -73,18 +73,18 @@ File::File()
  */
 int File::writeToFile(const char* buffer, u_long buffersize, u_long* nbw)
 {
-	if(buffersize == 0)
-	{
-		*nbw = 0;
-		return 1;
-	}
+  if(buffersize == 0)
+  {
+    *nbw = 0;
+    return 1;
+  }
 #ifdef WIN32
-	int ret = WriteFile((HANDLE)handle,buffer,buffersize,nbw,NULL);
-	return (!ret);
+  int ret = WriteFile((HANDLE)handle,buffer,buffersize,nbw,NULL);
+  return (!ret);
 #endif
 #ifdef NOT_WIN
-	*nbw =  ::write((long)handle, buffer, buffersize);
-	return (*nbw == buffersize) ? 0 : 1 ;
+  *nbw =  ::write((long)handle, buffer, buffersize);
+  return (*nbw == buffersize) ? 0 : 1 ;
 #endif
 }
 
@@ -108,155 +108,155 @@ File::File(char *nfilename, int opt)
  */
 int File::openFile(const char* nfilename,u_long opt)
 {
-	long ret = 0;
+  long ret = 0;
 
-	filename.assign(nfilename);
+  filename.assign(nfilename);
 #ifdef WIN32
-	u_long creationFlag = 0;
-	u_long openFlag = 0;
-	u_long attributeFlag = 0;
-	SECURITY_ATTRIBUTES sa = {0};
-	sa.nLength = sizeof(sa);
-	if(opt & File::MYSERVER_NO_INHERIT)
-		sa.bInheritHandle = FALSE;
-	else
-		sa.bInheritHandle = TRUE;
-	sa.lpSecurityDescriptor = NULL;
+  u_long creationFlag = 0;
+  u_long openFlag = 0;
+  u_long attributeFlag = 0;
+  SECURITY_ATTRIBUTES sa = {0};
+  sa.nLength = sizeof(sa);
+  if(opt & File::MYSERVER_NO_INHERIT)
+    sa.bInheritHandle = FALSE;
+  else
+    sa.bInheritHandle = TRUE;
+  sa.lpSecurityDescriptor = NULL;
 
-	if(opt & File::MYSERVER_OPEN_ALWAYS)
-		creationFlag|=OPEN_ALWAYS;
-	if(opt & File::MYSERVER_OPEN_IFEXISTS)
-		creationFlag|=OPEN_EXISTING;
-	if(opt & File::MYSERVER_CREATE_ALWAYS)
-		creationFlag|=CREATE_ALWAYS;
+  if(opt & File::MYSERVER_OPEN_ALWAYS)
+    creationFlag|=OPEN_ALWAYS;
+  if(opt & File::MYSERVER_OPEN_IFEXISTS)
+    creationFlag|=OPEN_EXISTING;
+  if(opt & File::MYSERVER_CREATE_ALWAYS)
+    creationFlag|=CREATE_ALWAYS;
 
-	if(opt & File::MYSERVER_OPEN_READ)
-		openFlag|=GENERIC_READ;
-	if(opt & File::MYSERVER_OPEN_WRITE)
-		openFlag|=GENERIC_WRITE;
+  if(opt & File::MYSERVER_OPEN_READ)
+    openFlag|=GENERIC_READ;
+  if(opt & File::MYSERVER_OPEN_WRITE)
+    openFlag|=GENERIC_WRITE;
 
-	if(opt & File::MYSERVER_OPEN_TEMPORARY)
-	{
-		openFlag |= FILE_ATTRIBUTE_TEMPORARY; 
-		attributeFlag |= FILE_FLAG_DELETE_ON_CLOSE;
-	}
-	if(opt & File::MYSERVER_OPEN_HIDDEN)
-		openFlag|= FILE_ATTRIBUTE_HIDDEN;
+  if(opt & File::MYSERVER_OPEN_TEMPORARY)
+  {
+    openFlag |= FILE_ATTRIBUTE_TEMPORARY; 
+    attributeFlag |= FILE_FLAG_DELETE_ON_CLOSE;
+  }
+  if(opt & File::MYSERVER_OPEN_HIDDEN)
+    openFlag|= FILE_ATTRIBUTE_HIDDEN;
 
-	if(attributeFlag == 0)
-		attributeFlag = FILE_ATTRIBUTE_NORMAL;
+  if(attributeFlag == 0)
+    attributeFlag = FILE_ATTRIBUTE_NORMAL;
 
-	handle = (FileHandle)CreateFile(filename.c_str(), openFlag, 
-																	FILE_SHARE_READ|FILE_SHARE_WRITE, 
-																	&sa, creationFlag, attributeFlag, NULL);
+  handle = (FileHandle)CreateFile(filename.c_str(), openFlag, 
+                                  FILE_SHARE_READ|FILE_SHARE_WRITE, 
+                                  &sa, creationFlag, attributeFlag, NULL);
 
-	/*! Return 1 if an error happens.  */
+  /*! Return 1 if an error happens.  */
   if(handle == INVALID_HANDLE_VALUE)
   {
     filename.clear();
-		return 1;
+    return 1;
   }
-	else/*! Open the file. */
-	{
-		if(opt & File::MYSERVER_OPEN_APPEND)
-			ret = setFilePointer(getFileSize());
-		else
-			ret = setFilePointer(0);
-  		if(ret)
+  else/*! Open the file. */
+  {
+    if(opt & File::MYSERVER_OPEN_APPEND)
+      ret = setFilePointer(getFileSize());
+    else
+      ret = setFilePointer(0);
+      if(ret)
       {
         closeFile();
         filename.clear();
         return 1;
       }
-	}
+  }
 
 #endif
 #ifdef NOT_WIN
-	struct stat F_Stats;
-	int F_Flags;
-	if(opt & File::MYSERVER_OPEN_READ && opt & File::MYSERVER_OPEN_WRITE)
-		F_Flags = O_RDWR;
-	else if(opt & File::MYSERVER_OPEN_READ)
-		F_Flags = O_RDONLY;
-	else if(opt & File::MYSERVER_OPEN_WRITE)
-		F_Flags = O_WRONLY;
-		
-		
-	if(opt & File::MYSERVER_OPEN_IFEXISTS)
-	{
-		ret = stat(filename.c_str(), &F_Stats);
-		if(ret  < 0)
-		{
-      filename.clear();
-			return 1;
-		}
-		ret = open(filename.c_str(), F_Flags);
-		if(ret == -1)
+  struct stat F_Stats;
+  int F_Flags;
+  if(opt & File::MYSERVER_OPEN_READ && opt & File::MYSERVER_OPEN_WRITE)
+    F_Flags = O_RDWR;
+  else if(opt & File::MYSERVER_OPEN_READ)
+    F_Flags = O_RDONLY;
+  else if(opt & File::MYSERVER_OPEN_WRITE)
+    F_Flags = O_WRONLY;
+    
+    
+  if(opt & File::MYSERVER_OPEN_IFEXISTS)
+  {
+    ret = stat(filename.c_str(), &F_Stats);
+    if(ret  < 0)
     {
       filename.clear();
-			return 1;
+      return 1;
     }
-		handle= (FileHandle)ret;
-	}
-	else if(opt & File::MYSERVER_OPEN_APPEND)
-	{
-		ret = stat(filename.c_str(), &F_Stats);
-		if(ret < 0)
-			ret = open(filename.c_str(),O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
-		else
-			ret = open(filename.c_str(),O_APPEND | F_Flags);
-		if(ret == -1)
+    ret = open(filename.c_str(), F_Flags);
+    if(ret == -1)
+    {
+      filename.clear();
+      return 1;
+    }
+    handle= (FileHandle)ret;
+  }
+  else if(opt & File::MYSERVER_OPEN_APPEND)
+  {
+    ret = stat(filename.c_str(), &F_Stats);
+    if(ret < 0)
+      ret = open(filename.c_str(),O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
+    else
+      ret = open(filename.c_str(),O_APPEND | F_Flags);
+    if(ret == -1)
      {
       filename.c_str();
-			return 1;
+      return 1;
     }
-		else
-			handle = (FileHandle)ret;
-	}
-	else if(opt & File::MYSERVER_CREATE_ALWAYS)
-	{
-		stat(filename.c_str(), &F_Stats);
-		if(ret)
-			remove(filename.c_str());
-
-		ret = open(filename.c_str(),O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
-		if(ret == -1)
-    {
-      filename.clear();
-			return 1;
-    }
-		else
-			handle=(FileHandle)ret;
-	}
-	else if(opt & File::MYSERVER_OPEN_ALWAYS)
-	{
-		ret = stat(filename.c_str(), &F_Stats);
-
-		if(ret < 0)
-			ret = open(filename.c_str(), O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
-		else
-			ret = open(filename.c_str(), F_Flags);
-
-		if(ret == -1)
-    {
-      filename.clear();
-			return 1;
-    }
-		else
-			 handle = (FileHandle)ret;
-	}
-	
-	if(opt & File::MYSERVER_OPEN_TEMPORARY)
-		unlink(filename.c_str()); // Remove File on close
-	
-	if((long)handle < 0)
+    else
+      handle = (FileHandle)ret;
+  }
+  else if(opt & File::MYSERVER_CREATE_ALWAYS)
   {
-		handle = (FileHandle)0;
+    stat(filename.c_str(), &F_Stats);
+    if(ret)
+      remove(filename.c_str());
+
+    ret = open(filename.c_str(),O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
+    if(ret == -1)
+    {
+      filename.clear();
+      return 1;
+    }
+    else
+      handle=(FileHandle)ret;
+  }
+  else if(opt & File::MYSERVER_OPEN_ALWAYS)
+  {
+    ret = stat(filename.c_str(), &F_Stats);
+
+    if(ret < 0)
+      ret = open(filename.c_str(), O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
+    else
+      ret = open(filename.c_str(), F_Flags);
+
+    if(ret == -1)
+    {
+      filename.clear();
+      return 1;
+    }
+    else
+       handle = (FileHandle)ret;
+  }
+  
+  if(opt & File::MYSERVER_OPEN_TEMPORARY)
+    unlink(filename.c_str()); // Remove File on close
+  
+  if((long)handle < 0)
+  {
+    handle = (FileHandle)0;
     filename.clear();
   }
 #endif
-	
-	return 0;
+  
+  return 0;
 }
 
 /*!
@@ -264,7 +264,7 @@ int File::openFile(const char* nfilename,u_long opt)
  */
 FileHandle File::getHandle()
 {
-	return handle;
+  return handle;
 }
 
 /*!
@@ -274,8 +274,8 @@ FileHandle File::getHandle()
  */
 int File::setHandle(FileHandle hl)
 {
-	handle = hl;
-	return 0;
+  handle = hl;
+  return 0;
 }
 
 /*!
@@ -294,7 +294,7 @@ int File::operator =(File f)
     filename.clear();
     handle = 0;
   }
-	return 0;
+  return 0;
 }
 
 /*!
@@ -304,7 +304,7 @@ int File::operator =(File f)
  */
 int File::setFilename(const char* nfilename)
 {
-	filename.assign(nfilename);
+  filename.assign(nfilename);
   return 0;
 }
 
@@ -313,7 +313,7 @@ int File::setFilename(const char* nfilename)
  */
 const char *File::getFilename()
 {
-	return filename.c_str();
+  return filename.c_str();
 }
 
 /*!
@@ -327,13 +327,13 @@ const char *File::getFilename()
 int File::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
 {
 #ifdef WIN32
-	int ret = ReadFile((HANDLE)handle, buffer, buffersize, nbr, NULL);
-	return (!ret);
+  int ret = ReadFile((HANDLE)handle, buffer, buffersize, nbr, NULL);
+  return (!ret);
 #endif
 #ifdef NOT_WIN
-	int ret  = ::read((long)handle, buffer, buffersize);
+  int ret  = ::read((long)handle, buffer, buffersize);
   *nbr = (u_long)ret;
-	return (ret == -1) ;
+  return (ret == -1) ;
 #endif
 }
 
@@ -346,11 +346,11 @@ int File::createTemporaryFile(const char* filename)
   if(FilesUtility::fileExists(filename))
     FilesUtility::deleteFile(filename);
 
-	return openFile(filename, File::MYSERVER_OPEN_READ | 
-									File::MYSERVER_OPEN_WRITE| 
-									File::MYSERVER_CREATE_ALWAYS | 
-									File::MYSERVER_OPEN_TEMPORARY |
-									File::MYSERVER_NO_INHERIT);
+  return openFile(filename, File::MYSERVER_OPEN_READ | 
+                  File::MYSERVER_OPEN_WRITE| 
+                  File::MYSERVER_CREATE_ALWAYS | 
+                  File::MYSERVER_OPEN_TEMPORARY |
+                  File::MYSERVER_NO_INHERIT);
 }
 
 /*!
@@ -358,8 +358,8 @@ int File::createTemporaryFile(const char* filename)
  */
 int File::closeFile()
 {
-	int ret = 0;
-	if(handle)
+  int ret = 0;
+  if(handle)
   {
 #ifdef WIN32
     ret = !FlushFileBuffers((HANDLE)handle);
@@ -369,10 +369,10 @@ int File::closeFile()
     ret = fsync((long)handle);
     ret |= close((long)handle);
 #endif
-	}
-	filename.clear();
-	handle = 0;
-	return ret;
+  }
+  filename.clear();
+  handle = 0;
+  return ret;
 }
 
 /*!
@@ -381,23 +381,23 @@ int File::closeFile()
  */
 u_long File::getFileSize()
 {
-	u_long ret;
+  u_long ret;
 #ifdef WIN32
-	ret = GetFileSize((HANDLE)handle,NULL);
-	if(ret != INVALID_FILE_SIZE)
-	{
-		return ret;
-	}
-	else
-		return (u_long)-1;
+  ret = GetFileSize((HANDLE)handle,NULL);
+  if(ret != INVALID_FILE_SIZE)
+  {
+    return ret;
+  }
+  else
+    return (u_long)-1;
 #endif
 #ifdef NOT_WIN
-	struct stat F_Stats;
-	ret = fstat((long)handle, &F_Stats);
-	if(ret)
-		return (u_long)(-1);
-	else
-		return F_Stats.st_size;
+  struct stat F_Stats;
+  ret = fstat((long)handle, &F_Stats);
+  if(ret)
+    return (u_long)(-1);
+  else
+    return F_Stats.st_size;
 #endif
 }
 
@@ -407,15 +407,15 @@ u_long File::getFileSize()
  */
 int File::setFilePointer(u_long initialByte)
 {
-	u_long ret;
+  u_long ret;
 #ifdef WIN32
-	ret=SetFilePointer((HANDLE)handle,initialByte,NULL,FILE_BEGIN);
+  ret=SetFilePointer((HANDLE)handle,initialByte,NULL,FILE_BEGIN);
   /*! SetFilePointer returns INVALID_SET_FILE_POINTER on an error.  */
-	return (ret == INVALID_SET_FILE_POINTER) ? 1 : 0;
+  return (ret == INVALID_SET_FILE_POINTER) ? 1 : 0;
 #endif
 #ifdef NOT_WIN
-	ret = lseek((long)handle, initialByte, SEEK_SET);
-	return (ret!=initialByte)?1:0;
+  ret = lseek((long)handle, initialByte, SEEK_SET);
+  return (ret!=initialByte)?1:0;
 #endif
 }
 
@@ -424,7 +424,7 @@ int File::setFilePointer(u_long initialByte)
  */
 time_t File::getLastModTime()
 {
-	return FilesUtility::getLastModTime(filename);
+  return FilesUtility::getLastModTime(filename);
 }
 
 /*!
@@ -432,7 +432,7 @@ time_t File::getLastModTime()
  */
 time_t File::getCreationTime()
 {
-	return FilesUtility::getCreationTime(filename);
+  return FilesUtility::getCreationTime(filename);
 }
 
 /*!
@@ -440,7 +440,7 @@ time_t File::getCreationTime()
  */
 time_t File::getLastAccTime()
 {
-	return FilesUtility::getLastAccTime(filename);
+  return FilesUtility::getLastAccTime(filename);
 }
 
 /*!
@@ -448,7 +448,7 @@ time_t File::getLastAccTime()
  */
 int File::read(char* buffer, u_long len, u_long *nbr)
 {
-	int ret = readFromFile(buffer, len, nbr );
+  int ret = readFromFile(buffer, len, nbr );
   if(ret != 0)
     return -1;
   return 0;
@@ -459,7 +459,7 @@ int File::read(char* buffer, u_long len, u_long *nbr)
  */
 int File::write(const char* buffer, u_long len, u_long *nbw)
 {
-	int ret = writeToFile(buffer, len, nbw );
+  int ret = writeToFile(buffer, len, nbw );
   if(ret != 0)
     return -1;
   return 0;

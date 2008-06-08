@@ -34,7 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 Plugin* ProtocolsManager::createPluginObject()
 {
-	return new DynamicProtocol();
+  return new DynamicProtocol();
 }
 
 /*!

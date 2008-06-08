@@ -55,10 +55,10 @@ HomeDir::HomeDir()
 #ifdef WIN32
   data.assign("");
 #else
-	data.clear();
+  data.clear();
 #endif
-	timestamp = 0;
-	loaded = 0;
+  timestamp = 0;
+  loaded = 0;
 }
 
 /*!
@@ -66,7 +66,7 @@ HomeDir::HomeDir()
  */
 HomeDir::~HomeDir()
 {
-	clear();
+  clear();
 }
 
 /*!
@@ -77,16 +77,16 @@ void HomeDir::clear()
 #ifdef WIN32
   data.assign("");
 #else
-	HashMap<string, string*>::Iterator i = data.begin();
-	for( ; i != data.end(); i++)
-	{
-		string* val = *i;
-		if(val)
-			delete val;
-	}
-	data.clear();
-	timestamp = 0;
-	loaded = 0;
+  HashMap<string, string*>::Iterator i = data.begin();
+  for( ; i != data.end(); i++)
+  {
+    string* val = *i;
+    if(val)
+      delete val;
+  }
+  data.clear();
+  timestamp = 0;
+  loaded = 0;
 #endif
 }
 
@@ -112,81 +112,81 @@ int HomeDir::load()
   data.assign(buf);
   return 0;
 #else
-	File usersFile;
-	u_long size;
-	char* buffer;
-	u_long read;
-	u_long counter;
+  File usersFile;
+  u_long size;
+  char* buffer;
+  u_long read;
+  u_long counter;
 
-	clear();
+  clear();
 
-	if(usersFile.openFile("/etc/passwd", File::MYSERVER_OPEN_READ | 
-												File::MYSERVER_OPEN_IFEXISTS))
-		return 1;
-	size = usersFile.getFileSize();
-	timestamp = usersFile.getLastModTime();
-	if(size == (u_long) -1)
+  if(usersFile.openFile("/etc/passwd", File::MYSERVER_OPEN_READ | 
+                        File::MYSERVER_OPEN_IFEXISTS))
+    return 1;
+  size = usersFile.getFileSize();
+  timestamp = usersFile.getLastModTime();
+  if(size == (u_long) -1)
   {
-		usersFile.closeFile();
-		return 1;
-	}
+    usersFile.closeFile();
+    return 1;
+  }
 
-	buffer = new char[size+1]; 
+  buffer = new char[size+1]; 
 
-	usersFile.read(buffer, size, &read);
-	buffer[read] = '\0';
-	
-	for(counter = 0; counter < read; counter++)
-		if(buffer[counter] == ':' || buffer[counter] == '\n')
-			buffer[counter] = '\0';
+  usersFile.read(buffer, size, &read);
+  buffer[read] = '\0';
+  
+  for(counter = 0; counter < read; counter++)
+    if(buffer[counter] == ':' || buffer[counter] == '\n')
+      buffer[counter] = '\0';
 
-	for(counter = 0; buffer[counter] != 0;)
-	{
-		char *username = 0;
-		char *home = 0;
-		string sUsername;
-		string *sHome;
- 		string *old;
-		/* Username.  */
+  for(counter = 0; buffer[counter] != 0;)
+  {
+    char *username = 0;
+    char *home = 0;
+    string sUsername;
+    string *sHome;
+     string *old;
+    /* Username.  */
  
-		username = &buffer[counter];
+    username = &buffer[counter];
 
- 		while(buffer[counter++] != '\0');
-		/* Password.  */
+     while(buffer[counter++] != '\0');
+    /* Password.  */
 
- 		while(buffer[counter++] != '\0');
-		/* User ID.  */
+     while(buffer[counter++] != '\0');
+    /* User ID.  */
 
- 		while(buffer[counter++] != '\0');
-		/* Group ID.  */
+     while(buffer[counter++] != '\0');
+    /* Group ID.  */
 
- 		while(buffer[counter++] != '\0');
-		/* Info.  */
+     while(buffer[counter++] != '\0');
+    /* Info.  */
 
- 		while(buffer[counter++] != '\0');
-		/* Home.  */
-		
+     while(buffer[counter++] != '\0');
+    /* Home.  */
+    
 
-		home = &buffer[counter++];
-		sUsername = string(username);
-		sHome = new string(home);
+    home = &buffer[counter++];
+    sUsername = string(username);
+    sHome = new string(home);
 
-		old = data.put(sUsername, sHome);
+    old = data.put(sUsername, sHome);
 
-		if(old)
-			delete old;
+    if(old)
+      delete old;
 
-		while(buffer[counter++] != '\0');
-		/* Shell.  */
+    while(buffer[counter++] != '\0');
+    /* Shell.  */
 
- 		while(buffer[counter++] != '\0');
-		/* Next tuple.  */
-	}
-	loaded = 1;
-	delete [] buffer;
-	usersFile.closeFile();
+     while(buffer[counter++] != '\0');
+    /* Next tuple.  */
+  }
+  loaded = 1;
+  delete [] buffer;
+  usersFile.closeFile();
 #endif
-	return 0;
+  return 0;
 
 }
 
@@ -203,13 +203,13 @@ const string *HomeDir::getHomeDir(string& userName)
   retString.append(userName);
   return &retString;
 #else
-	if(!loaded)
-		return 0;
-	/* TODO: don't check always but wait some time before.  */
-	if(FilesUtility::getLastModTime("/etc/passwd") != timestamp)
-		load();
+  if(!loaded)
+    return 0;
+  /* TODO: don't check always but wait some time before.  */
+  if(FilesUtility::getLastModTime("/etc/passwd") != timestamp)
+    load();
 
-	return data.get(userName);
+  return data.get(userName);
 #endif
 }
 
@@ -227,22 +227,22 @@ void HomeDir::getHomeDir(string& userName, string& out)
   out.append("/");
   out.append(userName);
 #else
-	static u_long lastCheckTime = 0;
-	string *res = 0;
-	if(!loaded)
-		return;
-	if(getTicks() - lastCheckTime > MYSERVER_SEC(1))
-	{
-		if(FilesUtility::getLastModTime("/etc/passwd") != timestamp)
-			load();
-		lastCheckTime = getTicks();
-	}
-	res = data.get(userName);
-	if(res)
-	{
-		out.assign(*res);
-	}
-	else
-		out.assign("");
+  static u_long lastCheckTime = 0;
+  string *res = 0;
+  if(!loaded)
+    return;
+  if(getTicks() - lastCheckTime > MYSERVER_SEC(1))
+  {
+    if(FilesUtility::getLastModTime("/etc/passwd") != timestamp)
+      load();
+    lastCheckTime = getTicks();
+  }
+  res = data.get(userName);
+  if(res)
+  {
+    out.assign(*res);
+  }
+  else
+    out.assign("");
 #endif
 }

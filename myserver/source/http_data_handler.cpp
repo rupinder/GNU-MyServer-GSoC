@@ -72,45 +72,45 @@ int HttpDataHandler::unLoad()
  *\param useChunks Can we use HTTP chunks to send data?
  */
 int HttpDataHandler::appendDataToHTTPChannel(HttpThreadContext* td, 
-																						 char* buffer, u_long size,
-																						 File* appendFile, 
-																						 Stream* chain,
-																						 bool append, 
-																						 bool useChunks)
+                                             char* buffer, u_long size,
+                                             File* appendFile, 
+                                             Stream* chain,
+                                             bool append, 
+                                             bool useChunks)
 {
-	u_long nbw;
-	if(append)
-	{
-	  return appendFile->writeToFile(buffer, size, &nbw);
-	}
-	else
-	{
-		if(useChunks)
-			{
-			ostringstream chunkHeader;
-			u_long flushNbw = 0;
-			chunkHeader << hex << size << "\r\n"; 
+  u_long nbw;
+  if(append)
+  {
+    return appendFile->writeToFile(buffer, size, &nbw);
+  }
+  else
+  {
+    if(useChunks)
+      {
+      ostringstream chunkHeader;
+      u_long flushNbw = 0;
+      chunkHeader << hex << size << "\r\n"; 
 
-			if(chain->flush(&flushNbw))
-				return 1;
+      if(chain->flush(&flushNbw))
+        return 1;
 
-			if(chain->write(chunkHeader.str().c_str(), 
-																	 chunkHeader.str().length(), &nbw))
-				return 1;
-		}
+      if(chain->write(chunkHeader.str().c_str(), 
+                                   chunkHeader.str().length(), &nbw))
+        return 1;
+    }
 
-		if(size)
-			if(chain->write(buffer, size, &nbw))
-				return 1;
+    if(size)
+      if(chain->write(buffer, size, &nbw))
+        return 1;
 
-		if(useChunks)
+    if(useChunks)
 
-		if(chain->write("\r\n", 2, &nbw))
-			return 1;
+    if(chain->write("\r\n", 2, &nbw))
+      return 1;
 
-		return 0;
-	}
-	return 1;
+    return 0;
+  }
+  return 1;
 }
 
 /*!
@@ -118,25 +118,25 @@ int HttpDataHandler::appendDataToHTTPChannel(HttpThreadContext* td,
  *supports keep-alive connections.
  */
 void HttpDataHandler::checkDataChunks(HttpThreadContext* td, bool* keepalive, 
-																			bool* useChunks)
+                                      bool* useChunks)
 {
-	*keepalive = td->request.isKeepAlive();
-	*useChunks = false;
+  *keepalive = td->request.isKeepAlive();
+  *useChunks = false;
 
-	/* Do not use chunked transfer with old HTTP/1.0 clients.  */
-	if(*keepalive)
+  /* Do not use chunked transfer with old HTTP/1.0 clients.  */
+  if(*keepalive)
   {
-		HttpResponseHeader::Entry *e;
-		e = td->response.other.get("Transfer-Encoding");
-		if(e)
-			e->value->assign("chunked");
-		else
-  	{
-			e = new HttpResponseHeader::Entry();
-			e->name->assign("Transfer-Encoding");
-			e->value->assign("chunked");
-			td->response.other.put(*(e->name), e);
-		}
-		*useChunks = true;
-	}
+    HttpResponseHeader::Entry *e;
+    e = td->response.other.get("Transfer-Encoding");
+    if(e)
+      e->value->assign("chunked");
+    else
+    {
+      e = new HttpResponseHeader::Entry();
+      e->name->assign("Transfer-Encoding");
+      e->value->assign("chunked");
+      td->response.other.put(*(e->name), e);
+    }
+    *useChunks = true;
+  }
 }

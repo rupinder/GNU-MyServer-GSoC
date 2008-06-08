@@ -37,11 +37,11 @@ extern "C"
  */
 char* Https::registerNameImpl(char* out, int len)
 {
-	if(out)
-	{
-		strncpy(out, "HTTPS", len);
-	}
-	return (char*)"HTTPS";
+  if(out)
+  {
+    strncpy(out, "HTTPS", len);
+  }
+  return (char*)"HTTPS";
 }
 
 char* Https::registerName(char* out, int len)
@@ -54,8 +54,8 @@ char* Https::registerName(char* out, int len)
  */
 Https::Https() 
 {
-	protocolPrefix.assign("https://");
-	protocolOptions = PROTOCOL_USES_SSL;
+  protocolPrefix.assign("https://");
+  protocolOptions = PROTOCOL_USES_SSL;
 }
 
 /*!

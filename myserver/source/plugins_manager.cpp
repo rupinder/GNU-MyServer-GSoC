@@ -30,11 +30,11 @@ using namespace std;
  */
 Plugin* PluginsManager::getPlugin(string& namespacename, string& plugin)
 {
-	PluginsNamespace* pn = namespaces.get((char*)namespacename.c_str());
+  PluginsNamespace* pn = namespaces.get((char*)namespacename.c_str());
 
-	if(pn)
-		return pn->getPlugin(plugin);
-	return 0;
+  if(pn)
+    return pn->getPlugin(plugin);
+  return 0;
 }
 /*!
  *Get a plugin trough its namespace and its name namespace-plugin.
@@ -42,17 +42,17 @@ Plugin* PluginsManager::getPlugin(string& namespacename, string& plugin)
  */
 Plugin* PluginsManager::getPlugin(string& fullname)
 {
-	size_t sep = fullname.find('-', 0);
-	if(sep != string::npos)
-	{
-		string namespacename(fullname.substr(0, sep - 1));
-		string plugin(fullname.substr(sep + 1, fullname.length()));
-		
-		return getPlugin(namespacename, plugin);
-	}
-	return 0;
+  size_t sep = fullname.find('-', 0);
+  if(sep != string::npos)
+  {
+    string namespacename(fullname.substr(0, sep - 1));
+    string plugin(fullname.substr(sep + 1, fullname.length()));
+    
+    return getPlugin(namespacename, plugin);
+  }
+  return 0;
 }
-	
+  
 /*!
  *Preload the plugins.
  *\param server The server object to use.
@@ -61,93 +61,93 @@ Plugin* PluginsManager::getPlugin(string& fullname)
  *\param resource The resource to use to load plugins.
  */
 int PluginsManager::preLoad(Server *server, XmlParser* languageFile, 
-														string& resource)
+                            string& resource)
 {
-	xmlDocPtr xmlDoc;
-	int ret = 0;
-	XmlParser* configuration;
-	HashMap<char*, PluginsNamespace*>::Iterator it = namespaces.begin();
+  xmlDocPtr xmlDoc;
+  int ret = 0;
+  XmlParser* configuration;
+  HashMap<char*, PluginsNamespace*>::Iterator it = namespaces.begin();
 
-	configuration = server->getConfiguration();
-	
-	xmlDoc = configuration->getDoc();
-	
+  configuration = server->getConfiguration();
+  
+  xmlDoc = configuration->getDoc();
+  
 
-	for(xmlNode *root = xmlDoc->children; root; root = root->next)
-		if(!xmlStrcmp(root->name, (const xmlChar *)"MYSERVER"))
-			for(xmlNode *node = root->children; node; node = node->next)
-				{
-					string namespaceName;
-					string pluginName;
-					PluginsNamespace::PluginOption po;
-					
-					if(!xmlStrcmp(node->name, (const xmlChar *)"PLUGIN"))
-					{
-						xmlAttrPtr properties = node->properties;
-						
-						while(properties)
-						{
-							if(!xmlStrcmp(properties->name, (const xmlChar *)"name"))
-							{
-								if(properties->children && properties->children->content)
-									pluginName.assign((char*)properties->children->content);
-							}
-				
-							if(!xmlStrcmp(properties->name, (const xmlChar *)"namespace"))
-							{
-								if(properties->children && properties->children->content)
-									namespaceName.assign((char*)properties->children->content);
-							}
-							
-							properties = properties->next;
-						}
-						
-						for(xmlNode *internal = node->children; internal; internal = internal->next)	
+  for(xmlNode *root = xmlDoc->children; root; root = root->next)
+    if(!xmlStrcmp(root->name, (const xmlChar *)"MYSERVER"))
+      for(xmlNode *node = root->children; node; node = node->next)
+        {
+          string namespaceName;
+          string pluginName;
+          PluginsNamespace::PluginOption po;
+          
+          if(!xmlStrcmp(node->name, (const xmlChar *)"PLUGIN"))
+          {
+            xmlAttrPtr properties = node->properties;
+            
+            while(properties)
             {
-							if(!xmlStrcmp(internal->name, (const xmlChar *)"ENABLED"))
-								po.enabled = strcmpi("NO", (const char*)internal->children->content) ? true : false;
-							else if(!xmlStrcmp(internal->name, (const xmlChar *)"GLOBAL"))
-								po.global = strcmpi("YES", (const char*)internal->children->content) ? false : true;
+              if(!xmlStrcmp(properties->name, (const xmlChar *)"name"))
+              {
+                if(properties->children && properties->children->content)
+                  pluginName.assign((char*)properties->children->content);
+              }
+        
+              if(!xmlStrcmp(properties->name, (const xmlChar *)"namespace"))
+              {
+                if(properties->children && properties->children->content)
+                  namespaceName.assign((char*)properties->children->content);
+              }
+              
+              properties = properties->next;
+            }
+            
+            for(xmlNode *internal = node->children; internal; internal = internal->next)  
+            {
+              if(!xmlStrcmp(internal->name, (const xmlChar *)"ENABLED"))
+                po.enabled = strcmpi("NO", (const char*)internal->children->content) ? true : false;
+              else if(!xmlStrcmp(internal->name, (const xmlChar *)"GLOBAL"))
+                po.global = strcmpi("YES", (const char*)internal->children->content) ? false : true;
             }
 
-						if(!namespaceName.length() || !pluginName.length())
-						{
-							string error;
-							error.assign("Warning: invalid namespace or plugin name in PLUGIN block");
-							server->logLockAccess();
-							server->logPreparePrintError();
-							server->logWriteln(error.c_str());     
-							server->logEndPrintError();
-							server->logUnlockAccess();
-						}
-						else
-						{
-							PluginsNamespace* ns = getNamespace(namespaceName);
-							if(!ns)
-							{
-								string error;
-								error.assign("Warning: invalid namespace name");
-								server->logLockAccess();
-								server->logPreparePrintError();
-								server->logWriteln(error.c_str());     
-								server->logEndPrintError();
-								server->logUnlockAccess();
-							}
-							else
-								ns->addPluginOption(pluginName, po);
+            if(!namespaceName.length() || !pluginName.length())
+            {
+              string error;
+              error.assign("Warning: invalid namespace or plugin name in PLUGIN block");
+              server->logLockAccess();
+              server->logPreparePrintError();
+              server->logWriteln(error.c_str());     
+              server->logEndPrintError();
+              server->logUnlockAccess();
+            }
+            else
+            {
+              PluginsNamespace* ns = getNamespace(namespaceName);
+              if(!ns)
+              {
+                string error;
+                error.assign("Warning: invalid namespace name");
+                server->logLockAccess();
+                server->logPreparePrintError();
+                server->logWriteln(error.c_str());     
+                server->logEndPrintError();
+                server->logUnlockAccess();
+              }
+              else
+                ns->addPluginOption(pluginName, po);
 
-						}
+            }
 
-					}
-				}
+          }
+        }
 
-	while(it != namespaces.end())
-	{
-		ret |= (*it)->preLoad(server, languageFile, resource);
-		it++;
-	}
-	return ret;
-	
+  while(it != namespaces.end())
+  {
+    ret |= (*it)->preLoad(server, languageFile, resource);
+    it++;
+  }
+  return ret;
+  
 }
 
 /*!
@@ -158,18 +158,18 @@ int PluginsManager::preLoad(Server *server, XmlParser* languageFile,
  *\param resource The resource to use to load plugins.
  */
 int PluginsManager::load(Server *server, XmlParser* languageFile, 
-												 string& resource)
+                         string& resource)
 {
-	int ret = 0;
-	HashMap<char*, PluginsNamespace*>::Iterator it = namespaces.begin();
+  int ret = 0;
+  HashMap<char*, PluginsNamespace*>::Iterator it = namespaces.begin();
 
-	while(it != namespaces.end())
-	{
-		ret |= (*it)->load(server, languageFile, resource);
-		it++;
-	}
-	return ret;
-	
+  while(it != namespaces.end())
+  {
+    ret |= (*it)->load(server, languageFile, resource);
+    it++;
+  }
+  return ret;
+  
 }
 
 /*!
@@ -180,16 +180,16 @@ int PluginsManager::load(Server *server, XmlParser* languageFile,
  */
 int PluginsManager::postLoad(Server *server, XmlParser* languageFile)
 {
-	int ret = 0;
-	HashMap<char*, PluginsNamespace*>::Iterator it = namespaces.begin();
+  int ret = 0;
+  HashMap<char*, PluginsNamespace*>::Iterator it = namespaces.begin();
 
-	while(it != namespaces.end())
-	{
-		ret |= (*it)->postLoad(server, languageFile);
-		it++;
-	}
+  while(it != namespaces.end())
+  {
+    ret |= (*it)->postLoad(server, languageFile);
+    it++;
+  }
 
-	return ret;
+  return ret;
 }
 
 /*!
@@ -200,18 +200,18 @@ int PluginsManager::postLoad(Server *server, XmlParser* languageFile)
  */
 int PluginsManager::unLoad(Server *server, XmlParser* languageFile)
 {
-	int ret = 0;
+  int ret = 0;
 
-	HashMap<char*, PluginsNamespace*>::Iterator it = namespaces.begin();
+  HashMap<char*, PluginsNamespace*>::Iterator it = namespaces.begin();
 
-	while(it != namespaces.end())
-	{
-		ret |= (*it)->unLoad(languageFile);
-		it++;
-	}
+  while(it != namespaces.end())
+  {
+    ret |= (*it)->unLoad(languageFile);
+    it++;
+  }
 
-	namespaces.clear();
-	return ret;
+  namespaces.clear();
+  return ret;
 }
 
 /*!
@@ -220,8 +220,8 @@ int PluginsManager::unLoad(Server *server, XmlParser* languageFile)
  */
 void PluginsManager::addNamespace(PluginsNamespace* newnamespace)
 {
-	removeNamespace(newnamespace->getName());
-	namespaces.put((char*)newnamespace->getName().c_str(), newnamespace);
+  removeNamespace(newnamespace->getName());
+  namespaces.put((char*)newnamespace->getName().c_str(), newnamespace);
 }
 
 /*!
@@ -230,7 +230,7 @@ void PluginsManager::addNamespace(PluginsNamespace* newnamespace)
  */
 PluginsNamespace* PluginsManager::getNamespace(string &name)
 {
-	return namespaces.get((char*)name.c_str());
+  return namespaces.get((char*)name.c_str());
 }
 
 /*!
@@ -239,5 +239,5 @@ PluginsNamespace* PluginsManager::getNamespace(string &name)
  */
 PluginsNamespace* PluginsManager::removeNamespace(string& name)
 {
-	return namespaces.remove((char*)name.c_str());
+  return namespaces.remove((char*)name.c_str());
 }

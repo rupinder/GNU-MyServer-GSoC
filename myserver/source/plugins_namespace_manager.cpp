@@ -28,7 +28,7 @@ using namespace std;
  *\param name The name for this namespace.
  */
 PluginsNamespaceManager::PluginsNamespaceManager(string name) : 
-	PluginsNamespace(name)
+  PluginsNamespace(name)
 {
 
 }
@@ -38,7 +38,7 @@ PluginsNamespaceManager::PluginsNamespaceManager(string name) :
  */
 Plugin* PluginsNamespaceManager::createPluginObject()
 {
-	return new Plugin();
+  return new Plugin();
 }
 
 /*!
@@ -50,37 +50,37 @@ Plugin* PluginsNamespaceManager::createPluginObject()
  *\param global Specify if the library should be loaded globally.
  */
 int PluginsNamespaceManager::addPlugin(string& file, Server* server, 
-																			 XmlParser* languageFile, bool global)
+                                       XmlParser* languageFile, bool global)
 {
-	Plugin *plugin = createPluginObject();
-	string logBuf;
-	string name;
-	const char* namePtr;
+  Plugin *plugin = createPluginObject();
+  string logBuf;
+  string name;
+  const char* namePtr;
 
-	if(plugin->preLoad(file, server, languageFile, global))
-	{
-		delete plugin;
-		return 1;
-	}
-	namePtr = plugin->getName(0, 0);
+  if(plugin->preLoad(file, server, languageFile, global))
+  {
+    delete plugin;
+    return 1;
+  }
+  namePtr = plugin->getName(0, 0);
 
-	if(namePtr)
-		name.assign(namePtr);
-	else
-	{
-		delete plugin;
-		return 1;
-	}
-		
-	plugins.put(name, plugin);
+  if(namePtr)
+    name.assign(namePtr);
+  else
+  {
+    delete plugin;
+    return 1;
+  }
+    
+  plugins.put(name, plugin);
 
-	logBuf.assign(languageFile->getValue("MSG_LOADED"));
-	logBuf.append(" ");
-	logBuf.append(file);
-	logBuf.append(" --> ");
-	logBuf.append(name);
-	server->logWriteln( logBuf.c_str() );
-	return 0;
+  logBuf.assign(languageFile->getValue("MSG_LOADED"));
+  logBuf.append(" ");
+  logBuf.append(file);
+  logBuf.append(" --> ");
+  logBuf.append(name);
+  server->logWriteln( logBuf.c_str() );
+  return 0;
 }
 
 
@@ -93,64 +93,64 @@ int PluginsNamespaceManager::addPlugin(string& file, Server* server,
  *implementation it is a directory name.
  */
 int PluginsNamespaceManager::preLoad(Server* server, XmlParser* languageFile, 
-																		 string& resource)
+                                     string& resource)
 {
-	FindData fd;
-	string filename;
-  string completeFileName;	
-	int ret;
+  FindData fd;
+  string filename;
+  string completeFileName;  
+  int ret;
 
   filename.assign(resource);
   filename.append("/");
   filename.append(getName());
 
-	ret = fd.findfirst(filename.c_str());	
-	
+  ret = fd.findfirst(filename.c_str());  
+  
   if(ret == -1)
   {
-		return ret;	
+    return ret;  
   }
 
-	ret = 0;
+  ret = 0;
 
-	do
-	{	
-		string name(fd.name);
-		PluginsNamespace::PluginOption *po;
+  do
+  {  
+    string name(fd.name);
+    PluginsNamespace::PluginOption *po;
 
-		if(fd.name[0]=='.')
-			continue;
-		/*!
+    if(fd.name[0]=='.')
+      continue;
+    /*!
      *Do not consider file other than dynamic libraries.
      */
 #ifdef WIN32
-		if(!strstr(fd.name,".dll"))
+    if(!strstr(fd.name,".dll"))
 #endif
 #ifdef NOT_WIN
-		if(!strstr(fd.name,".so"))
-#endif		
-			continue;
+    if(!strstr(fd.name,".so"))
+#endif    
+      continue;
 
     completeFileName.assign(filename);
-		if((fd.name[0] != '/') && (fd.name[0] != '\\')) 
-			completeFileName.append("/");
+    if((fd.name[0] != '/') && (fd.name[0] != '\\')) 
+      completeFileName.append("/");
     completeFileName.append(fd.name);
 
 #ifdef WIN32
-		name = name.substr(0, name.length() - 4);
+    name = name.substr(0, name.length() - 4);
 #endif
 #ifdef NOT_WIN
-		name = name.substr(0, name.length() - 3);
+    name = name.substr(0, name.length() - 3);
 #endif
 
-		po = getPluginOption(name);
-		
-		if(!po || po->enabled)
-			ret |= addPlugin(completeFileName, server, languageFile, po && po->global);
-	}while(!fd.findnext());
-	fd.findclose();
+    po = getPluginOption(name);
+    
+    if(!po || po->enabled)
+      ret |= addPlugin(completeFileName, server, languageFile, po && po->global);
+  }while(!fd.findnext());
+  fd.findclose();
 
-	return ret;
+  return ret;
 }
 
 /*!
@@ -162,15 +162,15 @@ int PluginsNamespaceManager::preLoad(Server* server, XmlParser* languageFile,
  *implementation it is a directory name.
  */
 int PluginsNamespaceManager::load(Server* server, XmlParser* languageFile, 
-																		 string& resource)
+                                     string& resource)
 {
-	HashMap<string, Plugin*>::Iterator it = plugins.begin();
-	while(it != plugins.end())
-	{
-		(*it)->load(resource, server, languageFile);
-		it++;
-	}
-	return 0;
+  HashMap<string, Plugin*>::Iterator it = plugins.begin();
+  while(it != plugins.end())
+  {
+    (*it)->load(resource, server, languageFile);
+    it++;
+  }
+  return 0;
 
 
 }

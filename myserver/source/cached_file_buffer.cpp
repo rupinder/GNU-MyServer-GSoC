@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2006, 2007 The MyServer Team
+Copyright (C) 2006, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -49,22 +49,22 @@ extern "C" {
  */
 CachedFileBuffer::CachedFileBuffer(const char* filename)
 {
-	File file;
-	u_long nbw;
-	mutex.init();
-	factoryToNotify = 0;
-	refCounter = 0;
-	this->filename.assign(filename);
+  File file;
+  u_long nbw;
+  mutex.init();
+  factoryToNotify = 0;
+  refCounter = 0;
+  this->filename.assign(filename);
 
-	file.openFile(filename, File::MYSERVER_OPEN_IFEXISTS | 
-								File::MYSERVER_OPEN_READ);
+  file.openFile(filename, File::MYSERVER_OPEN_IFEXISTS | 
+                File::MYSERVER_OPEN_READ);
 
-	fileSize = file.getFileSize();
-	buffer = new char[fileSize];
+  fileSize = file.getFileSize();
+  buffer = new char[fileSize];
 
-	file.read(buffer, fileSize, &nbw);
+  file.read(buffer, fileSize, &nbw);
 
-	file.closeFile();
+  file.closeFile();
 }
 
 /*!
@@ -72,9 +72,9 @@ CachedFileBuffer::CachedFileBuffer(const char* filename)
  */
 void CachedFileBuffer::addRef()
 {
-	mutex.lock();
-	refCounter++;
-	mutex.unlock();
+  mutex.lock();
+  refCounter++;
+  mutex.unlock();
 }
 
 /*!
@@ -83,25 +83,24 @@ void CachedFileBuffer::addRef()
  */
 void CachedFileBuffer::setFactoryToNotify(CachedFileFactory *cff)
 {
-	factoryToNotify = cff;
+  factoryToNotify = cff;
 }
-
 
 /*!
  *Decrement the reference counter for this buffer.
  */
 void CachedFileBuffer::decRef()
 {
-	bool isZero = false;
-	mutex.lock();
-	refCounter--;
-	if(refCounter == 0)
-		isZero = true;
+  bool isZero = false;
+  mutex.lock();
+  refCounter--;
+  if(refCounter == 0)
+    isZero = true;
 
-	mutex.unlock();
+  mutex.unlock();
 
-	if(isZero && factoryToNotify)
-		factoryToNotify->nullReferences(this);
+  if(isZero && factoryToNotify)
+    factoryToNotify->nullReferences(this);
 }
 
 /*!
@@ -109,12 +108,12 @@ void CachedFileBuffer::decRef()
  */
 u_long CachedFileBuffer::getReferenceCounter()
 {
-	u_long ret;
-	mutex.lock();
-	ret = refCounter;
-	mutex.unlock();
+  u_long ret;
+  mutex.lock();
+  ret = refCounter;
+  mutex.unlock();
 
-	return ret;
+  return ret;
 }
 
 /*!
@@ -123,14 +122,14 @@ u_long CachedFileBuffer::getReferenceCounter()
  */
 CachedFileBuffer::CachedFileBuffer(File* file)
 {
-	u_long nbr;
-	factoryToNotify = 0;
-	refCounter = 0;
-	fileSize = file->getFileSize();
-	buffer = new char[fileSize];
-	filename.assign(file->getFilename());
-	file->setFilePointer(0);
-	file->read(buffer, fileSize, &nbr);
+  u_long nbr;
+  factoryToNotify = 0;
+  refCounter = 0;
+  fileSize = file->getFileSize();
+  buffer = new char[fileSize];
+  filename.assign(file->getFilename());
+  file->setFilePointer(0);
+  file->read(buffer, fileSize, &nbr);
 }
 
 /*!
@@ -138,6 +137,6 @@ CachedFileBuffer::CachedFileBuffer(File* file)
  */
 CachedFileBuffer::~CachedFileBuffer()
 {
-	mutex.destroy();
-	delete [] buffer;
+  mutex.destroy();
+  delete [] buffer;
 }

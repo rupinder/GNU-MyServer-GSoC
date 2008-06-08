@@ -56,12 +56,12 @@ FindData::~FindData()
 int FindData::findfirst(const char filename[])
 {
 #ifdef WIN32
-	string filenameStar;
-	filenameStar.assign(filename);
-	// trim ending '/' or '\'
-	string::size_type slashBackSlash = filenameStar.find_last_not_of("/\\"); 
-	filenameStar.erase(slashBackSlash+1);
-	filenameStar.append("\\*");
+  string filenameStar;
+  filenameStar.assign(filename);
+  // trim ending '/' or '\'
+  string::size_type slashBackSlash = filenameStar.find_last_not_of("/\\"); 
+  filenameStar.erase(slashBackSlash+1);
+  filenameStar.append("\\*");
 
   ff = _findfirst(filenameStar.c_str(), &fd );
   if(ff!=-1)
@@ -73,7 +73,7 @@ int FindData::findfirst(const char filename[])
     return 0;
   }
   else
-  	  return ff;
+      return ff;
 #endif
 
 #ifdef NOT_WIN

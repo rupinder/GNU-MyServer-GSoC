@@ -65,7 +65,7 @@ int DynamicExecutor::execute(char* buffer, u_long length)
 int DynamicExecutor::executeFromFile(char* fileName)
 {
   executeFromFilePROC execFile = 
-		(executeFromFilePROC)hinstLib.getProc("executeFromFile");
+    (executeFromFilePROC)hinstLib.getProc("executeFromFile");
 
   if(execFile)
     return execFile(fileName);
@@ -78,38 +78,38 @@ int DynamicExecutor::executeFromFile(char* fileName)
  */
 int DynamicExecutor::loadFileAndExecute(char* fileName)
 {
-	File file;
-	char *buffer = 0;
-	u_long size = 0;
-	u_long nbr = 0;
-	int ret = 0;
-	if(file.openFile(fileName, File::MYSERVER_OPEN_IFEXISTS))
-		return -1;
+  File file;
+  char *buffer = 0;
+  u_long size = 0;
+  u_long nbr = 0;
+  int ret = 0;
+  if(file.openFile(fileName, File::MYSERVER_OPEN_IFEXISTS))
+    return -1;
 
-	size = file.getFileSize();
+  size = file.getFileSize();
 
-	if(size == (u_long)-1)
-	{
-		ret = -1;
-	}
+  if(size == (u_long)-1)
+  {
+    ret = -1;
+  }
 
-	if(!ret)
-		buffer = new char[size];
+  if(!ret)
+    buffer = new char[size];
 
-	if(buffer == 0)
-		ret = -1;
+  if(buffer == 0)
+    ret = -1;
 
-	if(!ret)
-		if(file.read(buffer, size, &nbr))
-			ret = -1;
+  if(!ret)
+    if(file.read(buffer, size, &nbr))
+      ret = -1;
  
-	if(!ret)
-		ret = execute(buffer, size);
+  if(!ret)
+    ret = execute(buffer, size);
 
-	if(buffer)
-		delete []buffer;
+  if(buffer)
+    delete []buffer;
 
-	file.closeFile();
-	
-	return ret;
+  file.closeFile();
+  
+  return ret;
 }

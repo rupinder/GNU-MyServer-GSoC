@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2006 The MyServer Team
+Copyright (C) 2006, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -48,10 +48,10 @@ using namespace std;
  */
 CachedFile::CachedFile(CachedFileBuffer* cfb)
 {
-	File::File();
-	buffer = cfb;
-	fseek = 0;
-	cfb->addRef();
+  File::File();
+  buffer = cfb;
+  fseek = 0;
+  cfb->addRef();
 }
 
 /*!
@@ -67,7 +67,7 @@ CachedFile::CachedFile(CachedFileBuffer* cfb)
  */
 int CachedFile::writeToFile(const char* buffer, u_long buffersize, u_long* nbw)
 {
-	return -1;
+  return -1;
 }
 
 /*!
@@ -79,7 +79,7 @@ int CachedFile::writeToFile(const char* buffer, u_long buffersize, u_long* nbw)
  */
 int CachedFile::openFile(const char* nfilename,u_long opt)
 {
-	return -1;
+  return -1;
 }
 
 /*!
@@ -87,7 +87,7 @@ int CachedFile::openFile(const char* nfilename,u_long opt)
  */
 FileHandle CachedFile::getHandle()
 {
-	return (FileHandle)-1;
+  return (FileHandle)-1;
 }
 
 /*!
@@ -97,7 +97,7 @@ FileHandle CachedFile::getHandle()
  */
 int CachedFile::setHandle(FileHandle hl)
 {
-	return -1;
+  return -1;
 }
 
 /*!
@@ -116,8 +116,8 @@ int CachedFile::operator =(CachedFile f)
     filename.clear();
     handle = 0;
   }
-	fseek = f.fseek;
-	return 0;
+  fseek = f.fseek;
+  return 0;
 }
 
 /*!
@@ -130,16 +130,16 @@ int CachedFile::operator =(CachedFile f)
  */
 int CachedFile::readFromFile(char* buffer, u_long buffersize, u_long* nbr)
 {
-	u_long toRead = std::min(buffersize, this->buffer->getFileSize() - fseek);
-	const char* src = &(this->buffer->getBuffer()[fseek]);
-	if(nbr)
-		*nbr = toRead;
+  u_long toRead = std::min(buffersize, this->buffer->getFileSize() - fseek);
+  const char* src = &(this->buffer->getBuffer()[fseek]);
+  if(nbr)
+    *nbr = toRead;
 
-	memcpy(buffer, src, toRead);
+  memcpy(buffer, src, toRead);
 
-	fseek += toRead;
+  fseek += toRead;
 
-	return toRead == 0 ? 1 : 0;
+  return toRead == 0 ? 1 : 0;
 }
 
 /*!
@@ -149,7 +149,7 @@ int CachedFile::readFromFile(char* buffer, u_long buffersize, u_long* nbr)
  */
 int CachedFile::createTemporaryFile(const char* filename)
 { 
-	return -1;
+  return -1;
 }
 
 /*!
@@ -157,8 +157,8 @@ int CachedFile::createTemporaryFile(const char* filename)
  */
 int CachedFile::closeFile()
 {
-	buffer->decRef();
-	return 0;
+  buffer->decRef();
+  return 0;
 }
 
 /*!
@@ -167,7 +167,7 @@ int CachedFile::closeFile()
  */
 u_long CachedFile::getFileSize()
 {
-	return buffer->getFileSize();
+  return buffer->getFileSize();
 }
 
 /*!
@@ -176,11 +176,12 @@ u_long CachedFile::getFileSize()
  */
 int CachedFile::setFilePointer(u_long initialByte)
 {
-	if(initialByte <= buffer->getFileSize())
-		fseek = initialByte;
-	else
-		return 0;
-	return 0;
+  if(initialByte <= buffer->getFileSize())
+    fseek = initialByte;
+  else
+    return 1;
+
+  return 0;
 }
 
 /*!
@@ -188,5 +189,5 @@ int CachedFile::setFilePointer(u_long initialByte)
  */
 int CachedFile::write(const char* buffer, u_long len, u_long *nbw)
 {
-	return -1;
+  return -1;
 }

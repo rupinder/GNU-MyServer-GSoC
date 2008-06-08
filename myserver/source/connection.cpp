@@ -28,10 +28,10 @@ Connection::Connection()
   login.assign("");
   password.assign("");
   nTries = 0;
-	ipAddr[0] = '\0';
+  ipAddr[0] = '\0';
   localIpAddr[0] = '\0';
   port = 0;
-	localPort = 0;
+  localPort = 0;
   timeout = 0;
   host = 0;
   toRemove = 0;
@@ -109,7 +109,7 @@ int Connection::isScheduled()
 int Connection::allowDelete(bool bWait/*= false*/)
 {
   if ( isScheduled () )
-  	 return 0;
+     return 0;
 
   if ( protocolBuffer != NULL )
     return protocolBuffer->allowDelete(bWait);

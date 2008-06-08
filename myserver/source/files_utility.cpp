@@ -68,62 +68,62 @@ FilesUtility::FilesUtility()
  */
 int FilesUtility::getPathRecursionLevel(const char* path)
 {
-	const char *lpath = path;
-	int rec = 0;
+  const char *lpath = path;
+  int rec = 0;
 #ifdef WIN32
   int temp;
 #endif
-	while(*lpath != 0)
-	{
-	/* ".." decreases the recursion level.  */
-		if( (*lpath == '\\') || (*lpath == '/') )
-		{
-			lpath++;
-			continue;
-		}
-		
-		if(*lpath=='.')
-		{
-			lpath++;
+  while(*lpath != 0)
+  {
+  /* ".." decreases the recursion level.  */
+    if( (*lpath == '\\') || (*lpath == '/') )
+    {
+      lpath++;
+      continue;
+    }
+    
+    if(*lpath=='.')
+    {
+      lpath++;
 #ifdef WIN32//--------------------------------
-			temp = 0;
-			while(*lpath == '.')
-			{
-				lpath++;
-				temp++;
-			}
-			if( (*lpath == '\\') || (*lpath == '/') || (*lpath == 0))
-				rec -= temp;
-			else
-			{
-				lpath++;
-				while( (*lpath != '\\') && (*lpath != '/') && (*lpath != 0))
-					lpath++;
-				rec++;
-			}
-#else		//--------------------------------
-			if(*lpath == '.')
-			{
-				lpath++;
-				if( (*lpath == '\\') || (*lpath == '/') || (*lpath == 0))
-					rec--;
-				else
-				{
-					while( (*lpath != '\\') && (*lpath != '/') && (*lpath != 0))
-						lpath++;
-					rec++;
-				}
-			}
-#endif		//--------------------------------
-		}
-		else
-		{
-			while( (*lpath != '\\') && (*lpath != '/') && (*lpath != 0))
-				lpath++;
-			rec++;
-		}
-	}
-	return rec;
+      temp = 0;
+      while(*lpath == '.')
+      {
+        lpath++;
+        temp++;
+      }
+      if( (*lpath == '\\') || (*lpath == '/') || (*lpath == 0))
+        rec -= temp;
+      else
+      {
+        lpath++;
+        while( (*lpath != '\\') && (*lpath != '/') && (*lpath != 0))
+          lpath++;
+        rec++;
+      }
+#else    //--------------------------------
+      if(*lpath == '.')
+      {
+        lpath++;
+        if( (*lpath == '\\') || (*lpath == '/') || (*lpath == 0))
+          rec--;
+        else
+        {
+          while( (*lpath != '\\') && (*lpath != '/') && (*lpath != 0))
+            lpath++;
+          rec++;
+        }
+      }
+#endif    //--------------------------------
+    }
+    else
+    {
+      while( (*lpath != '\\') && (*lpath != '/') && (*lpath != 0))
+        lpath++;
+      rec++;
+    }
+  }
+  return rec;
 }
 
 
@@ -156,51 +156,51 @@ int FilesUtility::renameFile(const char* before, const char* after)
 int FilesUtility::copyFile(const char* src, const char* dest, int overwrite)
 {
 #ifdef WIN32
-	return CopyFile(src, dest, overwrite ? FALSE : TRUE) ? 0 : 1;
+  return CopyFile(src, dest, overwrite ? FALSE : TRUE) ? 0 : 1;
 #else
-	int srcFile = open(src, O_RDONLY);
-	int destFile;
-	char buffer[4096];
-	size_t dim;
+  int srcFile = open(src, O_RDONLY);
+  int destFile;
+  char buffer[4096];
+  size_t dim;
 
-	if(srcFile == -1)
-		return -1;
+  if(srcFile == -1)
+    return -1;
 
-	if(overwrite)
-		destFile = open(dest, O_WRONLY);
-	else
-		destFile = open(dest, O_WRONLY | O_CREAT);
-		
-	if(destFile == -1)
-	{
-		close(srcFile);
-		return -1;
-	}
+  if(overwrite)
+    destFile = open(dest, O_WRONLY);
+  else
+    destFile = open(dest, O_WRONLY | O_CREAT);
+    
+  if(destFile == -1)
+  {
+    close(srcFile);
+    return -1;
+  }
 
-	do
-	{
-		dim = read(srcFile, buffer, 4096);
+  do
+  {
+    dim = read(srcFile, buffer, 4096);
 
-		if(dim == (size_t)-1)
-		{
-			close(srcFile);
-			close(destFile);
-			return -1;
-		}
+    if(dim == (size_t)-1)
+    {
+      close(srcFile);
+      close(destFile);
+      return -1;
+    }
 
-		if(dim && (write(destFile, buffer, dim) != -1))
-		{
-			close(srcFile);
-			close(destFile);
-			return -1;
-		}		
+    if(dim && (write(destFile, buffer, dim) != -1))
+    {
+      close(srcFile);
+      close(destFile);
+      return -1;
+    }    
 
-	}while(dim);
+  }while(dim);
 
-	close(srcFile);
-	close(destFile);
+  close(srcFile);
+  close(destFile);
 
-	return 0;
+  return 0;
 #endif
 }
 
@@ -212,16 +212,16 @@ int FilesUtility::copyFile(const char* src, const char* dest, int overwrite)
  */
 int FilesUtility::deleteFile(const char *filename)
 {
-	int ret;
+  int ret;
 #ifdef WIN32
   ret = DeleteFile(filename);
   if(ret)
     return 0;
 #endif
 #ifdef NOT_WIN
-	ret = remove(filename);
+  ret = remove(filename);
 #endif
-	return ret;
+  return ret;
 }
 
 /*!
@@ -231,19 +231,19 @@ int FilesUtility::deleteFile(const char *filename)
 int FilesUtility::isDirectory(const char *filename)
 {
 #ifdef WIN32
-	u_long fa = GetFileAttributes(filename);
-	if(fa != INVALID_FILE_ATTRIBUTES)
-		return(fa & FILE_ATTRIBUTE_DIRECTORY)?1:0;
-	else
-		return 0;
+  u_long fa = GetFileAttributes(filename);
+  if(fa != INVALID_FILE_ATTRIBUTES)
+    return(fa & FILE_ATTRIBUTE_DIRECTORY)?1:0;
+  else
+    return 0;
 #endif
 #ifdef NOT_WIN
-	struct stat F_Stats;
-	int ret = stat(filename, &F_Stats);
-	if(ret < 0)
-		return 0;
+  struct stat F_Stats;
+  int ret = stat(filename, &F_Stats);
+  if(ret < 0)
+    return 0;
 
-	return (S_ISDIR(F_Stats.st_mode))? 1 : 0;
+  return (S_ISDIR(F_Stats.st_mode))? 1 : 0;
 #endif
 }
 
@@ -257,12 +257,12 @@ int FilesUtility::isLink(const char* filename)
   return 0;
 #endif
 #ifdef NOT_WIN
-	struct stat F_Stats;
-	int ret = lstat(filename, &F_Stats);
-	if(ret < 0)
-		return 0;
+  struct stat F_Stats;
+  int ret = lstat(filename, &F_Stats);
+  if(ret < 0)
+    return 0;
 
-	return (S_ISLNK(F_Stats.st_mode))? 1 : 0;
+  return (S_ISLNK(F_Stats.st_mode))? 1 : 0;
 #endif
  
 }
@@ -274,11 +274,11 @@ int FilesUtility::isLink(const char* filename)
 int FilesUtility::fileExists(const char* filename)
 {
 #ifdef WIN32
-	/*! OpenFile is obsolete
-	OFSTRUCT of;
-	int ret = OpenFile(filename, &of, OF_EXIST);
-	return (ret != HFILE_ERROR)?1:0;*/
-	HANDLE hFile = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, 
+  /*! OpenFile is obsolete
+  OFSTRUCT of;
+  int ret = OpenFile(filename, &of, OF_EXIST);
+  return (ret != HFILE_ERROR)?1:0;*/
+  HANDLE hFile = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, 
                        NULL, OPEN_EXISTING, 
                        FILE_ATTRIBUTE_NORMAL | FILE_FLAG_BACKUP_SEMANTICS, 
                        NULL);
@@ -287,12 +287,12 @@ int FilesUtility::fileExists(const char* filename)
     return nRet;
 #endif
 #ifdef NOT_WIN
-	struct stat F_Stats;
-	int ret = stat(filename, &F_Stats);
-	if(ret < 0)
-		return 0;
-	/*! Return 1 if it is a regular file or a directory.  */
-	return (S_ISREG(F_Stats.st_mode) | S_ISDIR(F_Stats.st_mode))? 1 : 0;
+  struct stat F_Stats;
+  int ret = stat(filename, &F_Stats);
+  if(ret < 0)
+    return 0;
+  /*! Return 1 if it is a regular file or a directory.  */
+  return (S_ISREG(F_Stats.st_mode) | S_ISDIR(F_Stats.st_mode))? 1 : 0;
 #endif
 }
 
@@ -303,19 +303,19 @@ int FilesUtility::fileExists(const char* filename)
  */
 time_t FilesUtility::getLastModTime(const char *filename)
 {
-	int res;
+  int res;
 #ifdef WIN32
-	struct _stat sf;
-	res = _stat(filename,&sf);
+  struct _stat sf;
+  res = _stat(filename,&sf);
 #endif
 #ifdef NOT_WIN
-	struct stat sf;
-	res = stat(filename,&sf);
+  struct stat sf;
+  res = stat(filename,&sf);
 #endif
-	if(res==0)
-		return sf.st_mtime;
-	else
-		return (-1);
+  if(res==0)
+    return sf.st_mtime;
+  else
+    return (-1);
 }
 
 /*!
@@ -325,19 +325,19 @@ time_t FilesUtility::getLastModTime(const char *filename)
  */
 time_t FilesUtility::getCreationTime(const char *filename)
 {
-	int res;
+  int res;
 #ifdef WIN32
-	struct _stat sf;
-	res = _stat(filename, &sf);
+  struct _stat sf;
+  res = _stat(filename, &sf);
 #endif
 #ifdef NOT_WIN
-	struct stat sf;
-	res = stat(filename, &sf);
+  struct stat sf;
+  res = stat(filename, &sf);
 #endif
-	if(res == 0)
-		return sf.st_ctime;
-	else
-		return (-1);
+  if(res == 0)
+    return sf.st_ctime;
+  else
+    return (-1);
 }
 
 /*!
@@ -347,19 +347,19 @@ time_t FilesUtility::getCreationTime(const char *filename)
  */
 time_t FilesUtility::getLastAccTime(const char *filename)
 {
-	int res;
+  int res;
 #ifdef WIN32
-	struct _stat sf;
-	res = _stat(filename, &sf);
+  struct _stat sf;
+  res = _stat(filename, &sf);
 #endif
 #ifdef NOT_WIN
-	struct stat sf;
-	res = stat(filename, &sf);
+  struct stat sf;
+  res = stat(filename, &sf);
 #endif
-	if(res == 0)
-		return sf.st_atime;
-	else
-		return (-1);
+  if(res == 0)
+    return sf.st_atime;
+  else
+    return (-1);
 }
 
 /*!
@@ -384,11 +384,11 @@ int FilesUtility::chown(const char* filename, int uid, int gid)
  */
 int FilesUtility::getFilenameLength(const char *path, int *filename)
 {
-	int splitpoint, i, j;
-	i = 0;
-	j = 0;
-	splitpoint = static_cast<int>(strlen(path) - 1);
-	while ((splitpoint > 0) && (path[splitpoint] != '/'))
+  int splitpoint, i, j;
+  i = 0;
+  j = 0;
+  splitpoint = static_cast<int>(strlen(path) - 1);
+  while ((splitpoint > 0) && (path[splitpoint] != '/'))
     splitpoint--;
   *filename = splitpoint + 1;
   return *filename;
@@ -404,28 +404,28 @@ int FilesUtility::getFilenameLength(const char *path, int *filename)
  */
 void FilesUtility::getFilename(const char *path, char *filename)
 {
-	int splitpoint, i, j;
-	i = 0;
-	j = 0;
-	splitpoint = static_cast<int>(strlen(path) - 1);
-	while ((splitpoint > 0) && (path[splitpoint] != '/'))
+  int splitpoint, i, j;
+  i = 0;
+  j = 0;
+  splitpoint = static_cast<int>(strlen(path) - 1);
+  while ((splitpoint > 0) && (path[splitpoint] != '/'))
     splitpoint--;
-	if ((splitpoint == 0) && (path[splitpoint] != '/'))
-	{
-		strcpy(filename, path);
-	}
-	else
-	{
-		splitpoint++;
-		i=splitpoint;
-		while(path[i] != 0)
-		{
-			filename[j] = path[i];
-			j++;
-			i++;
-		}
-		filename[j] = 0;
-	}
+  if ((splitpoint == 0) && (path[splitpoint] != '/'))
+  {
+    strcpy(filename, path);
+  }
+  else
+  {
+    splitpoint++;
+    i=splitpoint;
+    while(path[i] != 0)
+    {
+      filename[j] = path[i];
+      j++;
+      i++;
+    }
+    filename[j] = 0;
+  }
 }
 
 /*!
@@ -454,8 +454,8 @@ void FilesUtility::getFilename(string const &path, string& filename)
  */
 void FilesUtility::splitPathLength(const char *path, int *dir, int *filename)
 {
-	int splitpoint = 0;
-	int i = 0;
+  int splitpoint = 0;
+  int i = 0;
 
   for(i = 0; path[i]; i++)
     if(path[i] == '/' || path[i] == '\\' )
@@ -481,8 +481,8 @@ void FilesUtility::splitPathLength(const char *path, int *dir, int *filename)
  */
 void FilesUtility::splitPath(const char *path, char *dir, char *filename)
 {
-	int splitpoint = 0;
-	int i = 0;
+  int splitpoint = 0;
+  int i = 0;
 
   for(i = 0; path[i]; i++)
     if(path[i] == '/' || path[i] == '\\' )
@@ -546,16 +546,16 @@ void FilesUtility::splitPath(string const &path, string& dir, string& filename)
  */
 void FilesUtility::getFileExt(char* ext, const char* filename)
 {
-	int nDot;
-	nDot = static_cast<int>(strlen(filename) - 1);
+  int nDot;
+  nDot = static_cast<int>(strlen(filename) - 1);
 
-	while ((nDot > 0) && (filename[nDot] != '.'))
-		nDot--;
+  while ((nDot > 0) && (filename[nDot] != '.'))
+    nDot--;
 
-	if (nDot > 0)
-		strcpy(ext, filename + nDot + 1);
-	else
-		ext[0] = 0;
+  if (nDot > 0)
+    strcpy(ext, filename + nDot + 1);
+  else
+    ext[0] = 0;
 }
 
 /*!
@@ -588,14 +588,14 @@ void FilesUtility::getFileExt(string& ext, string const &filename)
 int FilesUtility::getShortFileName(char *filePath, char *out, int buffersize)
 {
 #ifdef WIN32
-	int ret = GetShortPathName(filePath, out, buffersize);
-	if(!ret)
-		return -1;
-	return 0;
+  int ret = GetShortPathName(filePath, out, buffersize);
+  if(!ret)
+    return -1;
+  return 0;
 #endif
 #ifdef NOT_WIN
-	strncpy(out, filePath, buffersize);
-	return 0;	
+  strncpy(out, filePath, buffersize);
+  return 0;  
 #endif
 }
 
@@ -647,12 +647,12 @@ int FilesUtility::completePath(char **fileName,int *size, int dontRealloc)
 #endif
 
 #ifdef NOT_WIN
-	char *buffer;
+  char *buffer;
   int bufferLen;
   int bufferNewLen;
   /* We assume that path starting with / are yet completed.  */
-	if((*fileName)[0]=='/')
-		return 0;
+  if((*fileName)[0]=='/')
+    return 0;
   bufferLen = strlen(*fileName) + 1;
 
   auto_ptr<char> bufferAutoPtr( new char[bufferLen] );
@@ -660,7 +660,7 @@ int FilesUtility::completePath(char **fileName,int *size, int dontRealloc)
   buffer = bufferAutoPtr.get();
 
 
-	strcpy(buffer, *fileName);
+  strcpy(buffer, *fileName);
   bufferNewLen =  getdefaultwdlen() +  bufferLen + 1 ;
   if(dontRealloc)
   {
@@ -678,9 +678,9 @@ int FilesUtility::completePath(char **fileName,int *size, int dontRealloc)
     }
     *size = bufferNewLen;
   }
-	sprintf(*fileName, "%s/%s", getdefaultwd(0, 0), buffer );
+  sprintf(*fileName, "%s/%s", getdefaultwd(0, 0), buffer );
 
-	return 0;
+  return 0;
 #endif
 }
 
@@ -720,7 +720,7 @@ int FilesUtility::completePath(string &fileName)
     fileName.assign(stream.str());
   }
 
-	return 0;
+  return 0;
 #endif
 }
 
@@ -732,9 +732,9 @@ int FilesUtility::completePath(string &fileName)
 int FilesUtility::simpleMakeDirectory(const char *path)
 {
 #ifdef WIN32
-	return CreateDirectory(path, NULL)?0:-1;
+  return CreateDirectory(path, NULL)?0:-1;
 #else // NOT_WIN
-	return mkdir(path, S_IRUSR | S_IWUSR);
+  return mkdir(path, S_IRUSR | S_IWUSR);
 #endif
 }
 
@@ -747,8 +747,8 @@ int FilesUtility::simpleMakeDirectory(const char *path)
 int FilesUtility::deleteDirectory(const char *path)
 {
 #ifdef WIN32
-	   return RemoveDirectory(path)?0:-1;
+     return RemoveDirectory(path)?0:-1;
 #else // NOT_WIN
-	return rmdir(path);
+  return rmdir(path);
 #endif
 }

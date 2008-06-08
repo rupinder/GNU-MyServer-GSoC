@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007 The MyServer Team
+Copyright (C) 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License,  or
@@ -42,7 +42,7 @@ void myserver_safetime_init()
 {
 #ifndef WIN32
 #if !HAVE_LOCALTIME_R
-	mutex.init();
+  mutex.init();
 #endif
 #endif
 }
@@ -54,7 +54,7 @@ void myserver_safetime_destroy()
 {
 #ifndef WIN32
 #if !HAVE_LOCALTIME_R
-	mutex.destroy();
+  mutex.destroy();
 #endif
 #endif
 }
@@ -65,18 +65,18 @@ void myserver_safetime_destroy()
 struct tm *myserver_localtime(const time_t *timep, tm* res)
 {
 #ifdef WIN32
-	/* The localtime function under WIN32 is thread-safe.  */
-	memcpy(res, localtime(timep), sizeof(tm));
+  /* The localtime function under WIN32 is thread-safe.  */
+  memcpy(res, localtime(timep), sizeof(tm));
   return res;
 #elif HAVE_LOCALTIME_R
-	return localtime_r(timep, res);
+  return localtime_r(timep, res);
 #else
 
-	mutex.lock();
-	memcpy(res, localtime(timep), sizeof(tm));
-	mutex.unlock();
+  mutex.lock();
+  memcpy(res, localtime(timep), sizeof(tm));
+  mutex.unlock();
 
-	return res;
+  return res;
 #endif
 }
 
@@ -86,18 +86,18 @@ struct tm *myserver_localtime(const time_t *timep, tm* res)
 struct tm *myserver_gmtime(const time_t *timep, tm* res)
 {
 #ifdef WIN32
-	/* The gmtime function under WIN32 is thread-safe.  */
-	memcpy(res, gmtime(timep), sizeof(tm));
+  /* The gmtime function under WIN32 is thread-safe.  */
+  memcpy(res, gmtime(timep), sizeof(tm));
   return res;
 
 #elif HAVE_LOCALTIME_R
-	return gmtime_r(timep, res);
+  return gmtime_r(timep, res);
 #else
 
-	mutex.lock();
-	memcpy(res, gmtime(timep), sizeof(tm));
-	mutex.unlock();
+  mutex.lock();
+  memcpy(res, gmtime(timep), sizeof(tm));
+  mutex.unlock();
 
-	return res;
+  return res;
 #endif
 }

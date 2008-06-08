@@ -28,14 +28,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 Plugin* DynHttpManagerList::createPluginObject()
 {
-	return new DynamicHttpManager();
+  return new DynamicHttpManager();
 }
 
 /*!
  *Initialize the object.
  */
 DynHttpManagerList::DynHttpManagerList() : 
-	PluginsNamespaceManager(string("http_managers"))
+  PluginsNamespaceManager(string("http_managers"))
 {
 
 }

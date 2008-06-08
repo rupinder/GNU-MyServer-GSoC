@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005, 2007 The MyServer Team
+Copyright (C) 2005, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -40,7 +40,7 @@ DynamicLibrary::~DynamicLibrary()
  */
 int DynamicLibrary::loadLibrary(const char* filename, int globally)
 {
-	fileName.assign(filename);
+  fileName.assign(filename);
 #ifdef WIN32
   handle = LoadLibrary(filename);
 #endif
@@ -63,10 +63,10 @@ void* DynamicLibrary::getProc(const char* fnName)
   if(!handle)
     return 0;
 #ifdef WIN32
-		return (void*) GetProcAddress((HMODULE)handle, fnName); 
+    return (void*) GetProcAddress((HMODULE)handle, fnName); 
 #endif
 #ifdef HAVE_DL
-		return (void*) dlsym(handle, fnName);
+    return (void*) dlsym(handle, fnName);
 #endif
 }
 
@@ -79,13 +79,13 @@ int DynamicLibrary::close()
   if(!handle)
     return 1;
 #ifdef WIN32
-		ret = FreeLibrary((HMODULE)handle) ? 0 : 1; 
+    ret = FreeLibrary((HMODULE)handle) ? 0 : 1; 
 #endif
 #ifdef HAVE_DL
-		ret = dlclose(handle);
+    ret = dlclose(handle);
 #endif
     handle = 0;
-		fileName.assign("");
+    fileName.assign("");
     return ret;
 }
 

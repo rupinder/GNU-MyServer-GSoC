@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -47,9 +47,9 @@ FiltersFactory::~FiltersFactory()
  */
 int FiltersFactory::insert(const char* name, FiltersSource* ptr)
 {
-	string nameStr(name);
+  string nameStr(name);
   dynamicFilters.put(nameStr, ptr);
-	return 0;
+  return 0;
 }
 
 /*!
@@ -58,9 +58,9 @@ int FiltersFactory::insert(const char* name, FiltersSource* ptr)
  */
 int FiltersFactory::insert(const char* name, FILTERCREATE fnc)
 {
-	string nameStr(name);
+  string nameStr(name);
   staticFilters.put(nameStr, fnc);
-	return 0;
+  return 0;
 }
 
 /*!
@@ -115,7 +115,7 @@ FiltersChain* FiltersFactory::chain(list<string> &l, Stream* out, u_long *nbw,
  *On errors returns nonzero.
  */
 int FiltersFactory::chain(FiltersChain* c, list<string> &l, Stream* out, 
-													u_long *nbw, int onlyNotModifiers)
+                          u_long *nbw, int onlyNotModifiers)
 {
 
   list<string>::iterator  i =l.begin();
@@ -148,5 +148,5 @@ int FiltersFactory::chain(FiltersChain* c, list<string> &l, Stream* out,
 void FiltersFactory::free()
 {
   staticFilters.clear();
-	dynamicFilters.clear();
+  dynamicFilters.clear();
 }

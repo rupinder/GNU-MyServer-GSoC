@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2005, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -51,24 +51,24 @@ using namespace std;
  */
 int Pipe::read(char* buffer, u_long len, u_long *nbr)
 {
-	*nbr = 0;
+  *nbr = 0;
 #ifdef NOT_WIN
-	int ret = ::read(handles[0], buffer, len);
-	if(ret == -1)
-	{
-		terminated = true;
-		return 1;
-	}
-	else if(!ret)
-	{
-		terminated = true;
-		return 0;
-	}
-	else
-	{
-		*nbr = (u_long)ret;
-	}
-	return 0;
+  int ret = ::read(handles[0], buffer, len);
+  if(ret == -1)
+  {
+    terminated = true;
+    return 1;
+  }
+  else if(!ret)
+  {
+    terminated = true;
+    return 0;
+  }
+  else
+  {
+    *nbr = (u_long)ret;
+  }
+  return 0;
 #else
   if( !ReadFile(readHandle, buffer, len, nbr, NULL) || !nbr)
   {
@@ -84,7 +84,7 @@ int Pipe::read(char* buffer, u_long len, u_long *nbr)
   return 0;
 #endif
 
-	return 0;
+  return 0;
 }
 
 
@@ -98,9 +98,9 @@ int Pipe::create(bool readPipe)
 #ifdef NOT_WIN
 
 #ifdef HAVE_PIPE
-	return pipe(handles);
+  return pipe(handles);
 #else
-	return 1;
+  return 1;
 #endif
 
 #else
@@ -148,20 +148,20 @@ int Pipe::create(bool readPipe)
  */
 int Pipe::write(const char* buffer, u_long len, u_long *nbw)
 {
-	*nbw = 0;
+  *nbw = 0;
 #ifdef NOT_WIN
-	int ret = ::write(handles[1], buffer, len);
-	if(ret == -1)
-	{
-		terminated = true;
+  int ret = ::write(handles[1], buffer, len);
+  if(ret == -1)
+  {
+    terminated = true;
     return 1;
-	}
-	else
-	  *nbw = (u_long) ret;
+  }
+  else
+    *nbw = (u_long) ret;
 #else
   return !WriteFile(writeHandle, buffer, len, nbw, NULL);
 #endif
-	return 0;
+  return 0;
 }
 
 /*!
@@ -170,7 +170,7 @@ int Pipe::write(const char* buffer, u_long len, u_long *nbw)
 long Pipe::getReadHandle()
 {
 #ifdef NOT_WIN
-	return handles[0];
+  return handles[0];
 #else
   return (long)readHandle;
 #endif
@@ -182,7 +182,7 @@ long Pipe::getReadHandle()
 long Pipe::getWriteHandle()
 {
 #ifdef NOT_WIN
-	return handles[1];
+  return handles[1];
 #else
   return (long)writeHandle;
 #endif
@@ -195,10 +195,10 @@ long Pipe::getWriteHandle()
 void Pipe::close()
 {
 #ifdef NOT_WIN
-	if(handles[0])
-		::close(handles[0]);
-	if(handles[1])
-		::close(handles[1]);
+  if(handles[0])
+    ::close(handles[0]);
+  if(handles[1])
+    ::close(handles[1]);
   handles[0] = handles[1] = 0;
 #else
   if(readHandle)
@@ -217,8 +217,8 @@ void Pipe::close()
 void Pipe::inverted(Pipe& pipe)
 {
 #ifdef NOT_WIN
-	pipe.handles[0] = handles[1];
-	pipe.handles[1] = handles[0];
+  pipe.handles[0] = handles[1];
+  pipe.handles[1] = handles[0];
 #else
   pipe.readHandle = writeHandle;
   pipe.writeHandle = readHandle;
@@ -229,7 +229,7 @@ Pipe::Pipe()
 {
   terminated = false;
 #ifdef NOT_WIN
-	handles[0] = handles[1] = 0;
+  handles[0] = handles[1] = 0;
 #else
   readHandle = writeHandle = 0;
 #endif
@@ -241,8 +241,8 @@ Pipe::Pipe()
 void Pipe::closeRead()
 {
 #ifdef NOT_WIN
-	if(handles[0])
-		::close(handles[0]);
+  if(handles[0])
+    ::close(handles[0]);
   handles[0] = 0;
 #else
   if(readHandle)
@@ -258,9 +258,9 @@ void Pipe::closeRead()
 void Pipe::closeWrite()
 {
 #ifdef NOT_WIN
-	if(handles[1])
-		::close(handles[1]);
-	handles[1] = 0;
+  if(handles[1])
+    ::close(handles[1]);
+  handles[1] = 0;
 #else
   if(writeHandle)
     CloseHandle(writeHandle);

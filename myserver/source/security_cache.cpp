@@ -49,12 +49,12 @@ SecurityCache::~SecurityCache()
  */
 void SecurityCache::free()
 {
-	HashMap<string, XmlParser*>::Iterator it = dictionary.begin();
+  HashMap<string, XmlParser*>::Iterator it = dictionary.begin();
 
-	for (;it != dictionary.end(); it++)
-	{
-		delete (*it);
-	}
+  for (;it != dictionary.end(); it++)
+  {
+    delete (*it);
+  }
 
   dictionary.clear();
 }
@@ -65,13 +65,13 @@ void SecurityCache::free()
 void SecurityCache::setMaxNodes(int newLimit)
 {
   /*! Remove all the additional nodes from the dictionary. */
-	
-	while(newLimit < dictionary.size())
-	{
-		XmlParser* toremove = dictionary.remove(dictionary.begin());
-		if(toremove)
-			delete toremove;    
-	}
+  
+  while(newLimit < dictionary.size())
+  {
+    XmlParser* toremove = dictionary.remove(dictionary.begin());
+    if(toremove)
+      delete toremove;    
+  }
   limit = newLimit;
 }
 
@@ -83,37 +83,37 @@ void SecurityCache::setMaxNodes(int newLimit)
  *\param out Output string where put the security file path. 
  */
 int SecurityCache::getSecurityFile(const char* dir, const char* sys, 
-																	 string& out)
+                                   string& out)
 {
-	int found = 0;
-	string file(dir);
-	string secFile;
-	int i = file.length() - 1;
+  int found = 0;
+  string file(dir);
+  string secFile;
+  int i = file.length() - 1;
 
-	while(i && file[i] == '/')
-		file.erase(i--, 1);
+  while(i && file[i] == '/')
+    file.erase(i--, 1);
 
-	secFile.assign(file);
-	secFile.append("/security");
+  secFile.assign(file);
+  secFile.append("/security");
 
-	/* The security file exists in the directory.  */
-	if(FilesUtility::fileExists(secFile))
+  /* The security file exists in the directory.  */
+  if(FilesUtility::fileExists(secFile))
   {
-		out.assign(secFile);
-		return 0;
-	}
+    out.assign(secFile);
+    return 0;
+  }
 
   if(file.length() == 0)
-	{
+  {
     out.assign(sys);
     out.append("/security");
     return !FilesUtility::fileExists(out);
   }
 
-	
-	/* Go upper in the tree till we find a security file.  */
-	do
-	{
+  
+  /* Go upper in the tree till we find a security file.  */
+  do
+  {
     if(!file.length())
       break;
 
@@ -125,24 +125,24 @@ int SecurityCache::getSecurityFile(const char* dir, const char* sys,
       }
 
 
-		/* 
-		 *Top of the tree, check if the security file is present in the 
-		 *system directory, returns an error if it is not.
-		 */
-		if(i == 0)
-		{
-			out.assign(sys);
-			out.append("/security");
-			return !FilesUtility::fileExists(out);
-		}
-		secFile.assign(file);
-		secFile.append("/security");
+    /* 
+     *Top of the tree, check if the security file is present in the 
+     *system directory, returns an error if it is not.
+     */
+    if(i == 0)
+    {
+      out.assign(sys);
+      out.append("/security");
+      return !FilesUtility::fileExists(out);
+    }
+    secFile.assign(file);
+    secFile.append("/security");
 
-	}
-	while(!(found = FilesUtility::fileExists(secFile)));
+  }
+  while(!(found = FilesUtility::fileExists(secFile)));
 
-	out.assign(secFile);
-	return 0;
+  out.assign(secFile);
+  return 0;
 }
 
 
@@ -162,14 +162,14 @@ int SecurityCache::getMaxNodes()
 int SecurityCache::getPermissionMask(SecurityToken* st)
 {
   XmlParser *parser;
-	string permissionFile;
+  string permissionFile;
   if(st->directory == 0)
     return -1;
   if(st->filename == 0)
     return -1;
 
-	if(getSecurityFile(st->directory, st->sysdirectory, permissionFile))
-		return -1;
+  if(getSecurityFile(st->directory, st->sysdirectory, permissionFile))
+    return -1;
 
   parser = dictionary.get(permissionFile.c_str());
 
@@ -199,7 +199,7 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
     /*! 
      *Create the parser and append at the dictionary.
      */
-		XmlParser* old;
+    XmlParser* old;
     parser = new XmlParser();
     if(parser == 0)
     {  
@@ -213,15 +213,15 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
         delete toremove;
     }
 
-		if(parser->open(permissionFile.c_str()) == -1)
-			return -1;
+    if(parser->open(permissionFile.c_str()) == -1)
+      return -1;
 
-		old = dictionary.put(permissionFile, parser);
-		if(old)
-		{
-			delete old;
-		}
-		return sm.getPermissionMask(st, parser);  
+    old = dictionary.put(permissionFile, parser);
+    if(old)
+    {
+      delete old;
+    }
+    return sm.getPermissionMask(st, parser);  
   }
 
   return 0;
@@ -234,13 +234,13 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
                                     const char* sysdirectory, string& out)
 {
   XmlParser *parser;
-	string permissionFile;
-	out.assign("");
+  string permissionFile;
+  out.assign("");
   if(directory == 0)
     return -1;
 
-	if(getSecurityFile(directory, sysdirectory, permissionFile))
-		return -1;
+  if(getSecurityFile(directory, sysdirectory, permissionFile))
+    return -1;
 
   parser = dictionary.get(permissionFile.c_str());
 
@@ -270,7 +270,7 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
     /*! 
      *Create the parser and append at the dictionary.
      */
-		XmlParser* old;
+    XmlParser* old;
     parser = new XmlParser();
     if(parser == 0)
     {  
@@ -284,14 +284,14 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
         delete toremove;
     }
 
-		if(parser->open(permissionFile.c_str()) == -1)
-			return -1;
+    if(parser->open(permissionFile.c_str()) == -1)
+      return -1;
 
-		old = dictionary.put(permissionFile, parser);
-		if(old)
-		{
-			delete old;
-		}
+    old = dictionary.put(permissionFile, parser);
+    if(old)
+    {
+      delete old;
+    }
     return sm.getErrorFileName(directory, error, out, parser);  
   }
 

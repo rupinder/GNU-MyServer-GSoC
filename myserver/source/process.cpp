@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -54,60 +54,60 @@ Mutex Process::forkMutex;
  */
 int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
 {
-	int ret = 0;
+  int ret = 0;
 #ifdef NOT_WIN
   u_long count;
 #endif
   pid = 0;
 #ifdef WIN32
-	/*!
-	 *Set the standard output values for the CGI process.
-	 */
-	STARTUPINFO si;
+  /*!
+   *Set the standard output values for the CGI process.
+   */
+  STARTUPINFO si;
   PROCESS_INFORMATION pi;
-	const char *cwd;
-	ZeroMemory( &si, sizeof(si));
-	si.cb = sizeof(si);
-	si.hStdInput = (HANDLE)spi->stdIn;
-	si.hStdOutput = (HANDLE)spi->stdOut;
-	si.hStdError = (HANDLE)spi->stdError;
-	si.dwFlags = STARTF_USESHOWWINDOW;
-	if(si.hStdInput || si.hStdOutput ||si.hStdError)
-		si.dwFlags |= STARTF_USESTDHANDLES;
-	si.wShowWindow = SW_HIDE;
+  const char *cwd;
+  ZeroMemory( &si, sizeof(si));
+  si.cb = sizeof(si);
+  si.hStdInput = (HANDLE)spi->stdIn;
+  si.hStdOutput = (HANDLE)spi->stdOut;
+  si.hStdError = (HANDLE)spi->stdError;
+  si.dwFlags = STARTF_USESHOWWINDOW;
+  if(si.hStdInput || si.hStdOutput ||si.hStdError)
+    si.dwFlags |= STARTF_USESTDHANDLES;
+  si.wShowWindow = SW_HIDE;
 
   cwd = spi->cwd.length() ? (char*)spi->cwd.c_str() : 0;
-	ZeroMemory( &pi, sizeof(pi) );
-	ret = CreateProcess(NULL, (char*)spi->cmdLine.c_str(), NULL, NULL, TRUE,0,
+  ZeroMemory( &pi, sizeof(pi) );
+  ret = CreateProcess(NULL, (char*)spi->cmdLine.c_str(), NULL, NULL, TRUE,0,
                       spi->envString, cwd, &si, &pi);
-	if(!ret)
-		return (-1);
+  if(!ret)
+    return (-1);
   pid = (u_long)pi.hProcess;
 
-	/*
-	 *Wait until the process stops its execution.
-	 */
-	ret = WaitForSingleObject(pi.hProcess, timeout);
-	if(ret == WAIT_FAILED)
-		return (u_long)(-1);
-	ret = CloseHandle( pi.hProcess );
-	if(!ret)
-		return (u_long)(-1);
-	ret = CloseHandle( pi.hThread );
-	if(!ret)
-		return (u_long)(-1);
-	return 0;
+  /*
+   *Wait until the process stops its execution.
+   */
+  ret = WaitForSingleObject(pi.hProcess, timeout);
+  if(ret == WAIT_FAILED)
+    return (u_long)(-1);
+  ret = CloseHandle( pi.hProcess );
+  if(!ret)
+    return (u_long)(-1);
+  ret = CloseHandle( pi.hThread );
+  if(!ret)
+    return (u_long)(-1);
+  return 0;
 #endif
 #ifdef NOT_WIN
-	pid = fork();
-	if(pid < 0) // a bad thing happened
-		return 0;
-	else if(pid == 0) // child
-	{
-		// Set env vars
-		int i = 0;
-		int index = 0;
-		const char *envp[100];
+  pid = fork();
+  if(pid < 0) // a bad thing happened
+    return 0;
+  else if(pid == 0) // child
+  {
+    // Set env vars
+    int i = 0;
+    int index = 0;
+    const char *envp[100];
     const char *args[100];
     /*! Build the args vector. */
     args[0] = spi->cmd.c_str();
@@ -124,7 +124,7 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
 
         if(spi->arg[i] == '"')
         {
-					start = i++;
+          start = i++;
           while(spi->arg[++i] != '"' && i < len);
           if(i == len)
             exit(1);
@@ -163,64 +163,64 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
       args[count] = NULL;
     }
 
-		if(spi->envString != NULL)
-		{
-			while(*((char *)(spi->envString) + i) != '\0')
-			{
-				envp[index] = ((char *)(spi->envString) + i);
-				index++;
-				if(index + 1 == 100  )
-				{
-					break;
-				}
+    if(spi->envString != NULL)
+    {
+      while(*((char *)(spi->envString) + i) != '\0')
+      {
+        envp[index] = ((char *)(spi->envString) + i);
+        index++;
+        if(index + 1 == 100  )
+        {
+          break;
+        }
 
-				while(*((char *)(spi->envString) + i) != '\0')
-					i++;
-				i++;
-			}
-			envp[index] = NULL;
-		}
-		else
-			envp[0] = NULL;
-		// change to working dir
-		if(spi->cwd.length())
-		{
-			ret = chdir((const char*)(spi->cwd.c_str()));
-			if(ret == -1)
-				exit(1);
-		}
- 		// If stdOut is -1, pipe to /dev/null
-		if((long)spi->stdOut == -1)
-			spi->stdOut = (FileHandle)open("/dev/null", O_WRONLY);
-		// map stdio to files
-		ret = close(0); // close stdin
-		if(ret == -1)
-			exit (1);
-		ret = dup2(spi->stdIn, 0);
-		if(ret == -1)
-			exit (1);
-		ret = close(spi->stdIn);
-		if(ret == -1)
-			exit (1);
-		ret = close(1); // close stdout
-		if(ret == -1)
-			exit (1);
-		ret = dup2(spi->stdOut, 1);
-		if(ret == -1)
-			exit (1);
-		ret = close(spi->stdOut);
-		if(ret == -1)
-			exit(1);
-		//close(2); // close stderr
-		//dup2((int)spi->stdError, 2);
-		// Run the script
+        while(*((char *)(spi->envString) + i) != '\0')
+          i++;
+        i++;
+      }
+      envp[index] = NULL;
+    }
+    else
+      envp[0] = NULL;
+    // change to working dir
+    if(spi->cwd.length())
+    {
+      ret = chdir((const char*)(spi->cwd.c_str()));
+      if(ret == -1)
+        exit(1);
+    }
+     // If stdOut is -1, pipe to /dev/null
+    if((long)spi->stdOut == -1)
+      spi->stdOut = (FileHandle)open("/dev/null", O_WRONLY);
+    // map stdio to files
+    ret = close(0); // close stdin
+    if(ret == -1)
+      exit (1);
+    ret = dup2(spi->stdIn, 0);
+    if(ret == -1)
+      exit (1);
+    ret = close(spi->stdIn);
+    if(ret == -1)
+      exit (1);
+    ret = close(1); // close stdout
+    if(ret == -1)
+      exit (1);
+    ret = dup2(spi->stdOut, 1);
+    if(ret == -1)
+      exit (1);
+    ret = close(spi->stdOut);
+    if(ret == -1)
+      exit(1);
+    //close(2); // close stderr
+    //dup2((int)spi->stdError, 2);
+    // Run the script
     ret = execve((const char*)(spi->cmd.c_str()),
-								 (char* const*)args, (char* const*) envp);
+                 (char* const*)args, (char* const*) envp);
     exit(0);
 
-	} // end else if(pid == 0)
-	// Parent
-	// Wait till child dies
+  } // end else if(pid == 0)
+  // Parent
+  // Wait till child dies
   count = 0;
   for( ;  ; count++)
   {
@@ -245,9 +245,9 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
     Thread::wait(1);
   }
 
-	if(ret == -1)
-		return (-1);
-	return 0;
+  if(ret == -1)
+    return (-1);
+  return 0;
 
 #endif
 
@@ -311,47 +311,47 @@ int Process::isProcessAlive()
  */
 int Process::execConcurrentProcess(StartProcInfo* spi)
 {
-	int ret;
-	pid = 0;
+  int ret;
+  pid = 0;
 #ifdef WIN32
-	/*!
+  /*!
    *Set the standard output values for the CGI process.
    */
-	STARTUPINFO si;
+  STARTUPINFO si;
   PROCESS_INFORMATION pi;
   char* cwd;
-	ZeroMemory( &si, sizeof(si) );
-	si.cb = sizeof(si);
-	SetHandleInformation(spi->stdIn, HANDLE_FLAG_INHERIT,TRUE);
-	si.hStdInput = (HANDLE)spi->stdIn;
-	si.hStdOutput =(HANDLE)spi->stdOut;
-	si.hStdError = (HANDLE)spi->stdError;
-	si.dwFlags = (u_long)STARTF_USESHOWWINDOW;
+  ZeroMemory( &si, sizeof(si) );
+  si.cb = sizeof(si);
+  SetHandleInformation(spi->stdIn, HANDLE_FLAG_INHERIT,TRUE);
+  si.hStdInput = (HANDLE)spi->stdIn;
+  si.hStdOutput =(HANDLE)spi->stdOut;
+  si.hStdError = (HANDLE)spi->stdError;
+  si.dwFlags = (u_long)STARTF_USESHOWWINDOW;
   cwd  = (char*)spi->cwd.length() ? (char*)spi->cwd.c_str() : 0;
-	if(si.hStdInput || si.hStdOutput|| si.hStdError)
-		si.dwFlags |= STARTF_USESTDHANDLES;
-	si.wShowWindow = SW_HIDE;
-	ZeroMemory( &pi, sizeof(pi) );
+  if(si.hStdInput || si.hStdOutput|| si.hStdError)
+    si.dwFlags |= STARTF_USESTDHANDLES;
+  si.wShowWindow = SW_HIDE;
+  ZeroMemory( &pi, sizeof(pi) );
 
-	ret = CreateProcess(NULL, (char*)spi->cmdLine.c_str(), NULL, NULL, TRUE, 0,
-											spi->envString, cwd, &si, &pi);
- 	if(!ret)
-		return (-1);
-	pid = (*((int*)&pi.hProcess));
+  ret = CreateProcess(NULL, (char*)spi->cmdLine.c_str(), NULL, NULL, TRUE, 0,
+                      spi->envString, cwd, &si, &pi);
+   if(!ret)
+    return (-1);
+  pid = (*((int*)&pi.hProcess));
  if ( !isProcessAlive())
- 	return -1;
+   return -1;
   return pid;
 #endif
 #ifdef NOT_WIN
-	pid = fork();
-	if(pid < 0) // a bad thing happened
-		return 0;
-	else if(pid == 0) // child
-	{
-		// Set env vars
-		int i = 0;
-		int index = 0;
-		const char *envp[100];
+  pid = fork();
+  if(pid < 0) // a bad thing happened
+    return 0;
+  else if(pid == 0) // child
+  {
+    // Set env vars
+    int i = 0;
+    int index = 0;
+    const char *envp[100];
     const char *args[100];
 
    /*! Build the args vector.  */
@@ -361,15 +361,15 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
       int len = spi->arg.length();
       int start = 0;
 
-			while((spi->arg[start] == ' ') && (start < len))
-				start++;
+      while((spi->arg[start] == ' ') && (start < len))
+        start++;
 
       for(int i = start; i < len; i++)
       {
 
         if(spi->arg[i] == '"')
         {
-					start = i++;
+          start = i++;
           while(spi->arg[++i] != '"' && i < len);
           if(i == len)
             exit(1);
@@ -408,69 +408,69 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
       args[count] = NULL;
     }
 
-		if(spi->envString != NULL)
-		{
-			while(*((char *)(spi->envString) + i) != '\0')
-			{
-				envp[index] = ((char *)(spi->envString) + i);
-				index++;
+    if(spi->envString != NULL)
+    {
+      while(*((char *)(spi->envString) + i) != '\0')
+      {
+        envp[index] = ((char *)(spi->envString) + i);
+        index++;
 
-				while(*((char *)(spi->envString) + i) != '\0')
-					i++;
-				i++;
-			}
-			envp[index] = NULL;
-		}
-		else
-			envp[0] = NULL;
+        while(*((char *)(spi->envString) + i) != '\0')
+          i++;
+        i++;
+      }
+      envp[index] = NULL;
+    }
+    else
+      envp[0] = NULL;
 
-			// change to working dir
-		if(spi->cwd.length())
-			chdir((const char*)(spi->cwd.c_str()));
-		// If stdOut is -1, pipe to /dev/null
-		if((long)spi->stdOut == -1)
-			spi->stdOut = (FileHandle)open("/dev/null",O_WRONLY);
-		// map stdio to files
-		ret = close(0); // close stdin
-		if(ret == -1)
-			exit (1);
-		ret = dup2((long)spi->stdIn, 0);
-		if(ret == -1)
-			exit (1);
-		ret = close((long)spi->stdIn);
-		if(ret == -1)
-			exit (1);
-		ret = close(1); // close stdout
-		if(ret == -1)
-			exit (1);
-		ret = dup2((long)spi->stdOut, 1);
-		if(ret == -1)
-			exit (1);
-		ret = close((long)spi->stdOut);
-		if(ret == -1)
-			exit (1);
-		//close(2); // close stderr
-		//dup2((int)spi->stdError, 2);
-		// Run the script
+      // change to working dir
+    if(spi->cwd.length())
+      chdir((const char*)(spi->cwd.c_str()));
+    // If stdOut is -1, pipe to /dev/null
+    if((long)spi->stdOut == -1)
+      spi->stdOut = (FileHandle)open("/dev/null",O_WRONLY);
+    // map stdio to files
+    ret = close(0); // close stdin
+    if(ret == -1)
+      exit (1);
+    ret = dup2((long)spi->stdIn, 0);
+    if(ret == -1)
+      exit (1);
+    ret = close((long)spi->stdIn);
+    if(ret == -1)
+      exit (1);
+    ret = close(1); // close stdout
+    if(ret == -1)
+      exit (1);
+    ret = dup2((long)spi->stdOut, 1);
+    if(ret == -1)
+      exit (1);
+    ret = close((long)spi->stdOut);
+    if(ret == -1)
+      exit (1);
+    //close(2); // close stderr
+    //dup2((int)spi->stdError, 2);
+    // Run the script
 
     ret = execve((const char*)(spi->cmd.c_str()),
                  (char* const*)args,(char* const*) envp);
 
 
-		exit(1);
-	} // end else if(pid == 0)
-	else
+    exit(1);
+  } // end else if(pid == 0)
+  else
  {
-	 /*!
-		*Avoid to become a zombie process. This is needed by the
-		*Process::isProcessAlive routine.
-		*/
+   /*!
+    *Avoid to become a zombie process. This is needed by the
+    *Process::isProcessAlive routine.
+    */
    struct sigaction sa;
    memset(&sa, 0, sizeof(sa));
    sa.sa_handler = SIG_IGN;
    sa.sa_flags   = SA_RESTART;
    sigaction(SIGCHLD, &sa, (struct sigaction *)NULL);
-	 return pid;
+   return pid;
  }
 #endif
 
@@ -483,7 +483,7 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
  */
 void Process::forkPrepare()
 {
-	forkMutex.lock();
+  forkMutex.lock();
 }
 
 /*!
@@ -491,7 +491,7 @@ void Process::forkPrepare()
  */
 void Process::forkParent()
 {
-	forkMutex.unlock();
+  forkMutex.unlock();
 }
 
 /*!
@@ -499,7 +499,7 @@ void Process::forkParent()
  */
 void Process::forkChild()
 {
-	forkMutex.unlock();	
+  forkMutex.unlock();  
 }
 #endif
 
@@ -509,8 +509,8 @@ void Process::forkChild()
 void Process::initialize()
 {
 #ifdef HAVE_PTHREAD
-	forkMutex.init();
-	pthread_atfork(forkPrepare, forkParent, forkChild);
+  forkMutex.init();
+  pthread_atfork(forkPrepare, forkParent, forkChild);
 #endif
 }
 
@@ -537,18 +537,18 @@ Process::~Process()
  */
 int Process::terminateProcess()
 {
-	int ret;
+  int ret;
   if(pid == 0)
     return 0;
 #ifdef WIN32
-	ret = TerminateProcess(*((HANDLE*)&pid),0);
+  ret = TerminateProcess(*((HANDLE*)&pid),0);
   pid = 0;
-	return (!ret);
+  return (!ret);
 #endif
 #ifdef NOT_WIN
-	ret = kill((pid_t)pid, SIGKILL);
+  ret = kill((pid_t)pid, SIGKILL);
   pid = 0;
-	return ret;
+  return ret;
 #endif
 }
 
@@ -569,7 +569,7 @@ int Process::setuid(u_long uid)
 int Process::setgid(u_long gid)
 {
 #ifdef NOT_WIN
-	return ::setgid(gid);
+  return ::setgid(gid);
 #endif
   return 0;
 }
@@ -582,29 +582,29 @@ int Process::setAdditionalGroups(u_long len, u_long *groups)
 #ifdef NOT_WIN
 
 #if HAVE_SETGROUPS
-	u_long i;
-	int ret;
-	gid_t *gids = new gid_t[len];
-	
-	for(i = 0; i < len; i++)
-		if(groups)
-			gids[i] = (gid_t)groups[i];
-		else
-			gids[i] = (gid_t)0;
+  u_long i;
+  int ret;
+  gid_t *gids = new gid_t[len];
+  
+  for(i = 0; i < len; i++)
+    if(groups)
+      gids[i] = (gid_t)groups[i];
+    else
+      gids[i] = (gid_t)0;
 
-	ret = setgroups((size_t)0, gids) == -1;
+  ret = setgroups((size_t)0, gids) == -1;
 
-	delete [] gids;
+  delete [] gids;
 
-	if(errno == EPERM && len == 0)
-		return 0;
-	return ret;
+  if(errno == EPERM && len == 0)
+    return 0;
+  return ret;
 
 #else
-	return 0;
+  return 0;
 #endif
 
 #else
-	return 0;
+  return 0;
 #endif
 }

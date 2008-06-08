@@ -39,19 +39,19 @@ extern "C" {
  */
 u_long GzipDecompress::initialize()
 {
-#ifndef DO_NOT_USE_GZIP		
+#ifndef DO_NOT_USE_GZIP    
 
-	data.initialized = 1;
-	data.data_size = 0;
-	data.stream.zalloc = Z_NULL;
-	data.stream.zfree = Z_NULL;
-	data.stream.opaque = Z_NULL;
-	data.stream.avail_in = 0;
-	data.stream.next_in = Z_NULL;
+  data.initialized = 1;
+  data.data_size = 0;
+  data.stream.zalloc = Z_NULL;
+  data.stream.zfree = Z_NULL;
+  data.stream.opaque = Z_NULL;
+  data.stream.avail_in = 0;
+  data.stream.next_in = Z_NULL;
 
-	return inflateInit2(&(data.stream), -MAX_WBITS);
+  return inflateInit2(&(data.stream), -MAX_WBITS);
 #else 
-	return 0;
+  return 0;
 #endif
 
 }
@@ -64,28 +64,28 @@ u_long GzipDecompress::initialize()
  *\param sizeOut The dimension of the buffer where decompress.
  */
 u_long GzipDecompress::decompress(const char* in, u_long sizeIn, 
-																	char *out, u_long sizeOut)
+                                  char *out, u_long sizeOut)
 {
 #ifndef DO_NOT_USE_GZIP
-	u_long old_total_out = data.stream.total_out;
-	u_long ret;
-	data.stream.data_type = Z_BINARY;
-	data.stream.next_in = (Bytef*) in;
-	data.stream.avail_in = sizeIn;
-	data.stream.next_out = (Bytef*) out;
-	data.stream.avail_out = sizeOut;
+  u_long old_total_out = data.stream.total_out;
+  u_long ret;
+  data.stream.data_type = Z_BINARY;
+  data.stream.next_in = (Bytef*) in;
+  data.stream.avail_in = sizeIn;
+  data.stream.next_out = (Bytef*) out;
+  data.stream.avail_out = sizeOut;
 
-	ret = inflate(&(data.stream), Z_FULL_FLUSH);
+  ret = inflate(&(data.stream), Z_FULL_FLUSH);
 
-	data.data_size += data.stream.total_out - old_total_out;
-	return data.stream.total_out - old_total_out;
+  data.data_size += data.stream.total_out - old_total_out;
+  return data.stream.total_out - old_total_out;
 #else 
-	/*!
+  /*!
    *If is specified DO_NOT_USE_GZIP copy the input buffer 
-	 *to the output one as it is.
+   *to the output one as it is.
    */
-	memcpy(out, in, std::min(sizeIn, sizeOut));
-	return std::min(sizeIn, sizeOut);
+  memcpy(out, in, std::min(sizeIn, sizeOut));
+  return std::min(sizeIn, sizeOut);
 #endif
 }
 
@@ -96,13 +96,13 @@ u_long GzipDecompress::free()
 {
   u_long ret = 0;
 #ifndef DO_NOT_USE_GZIP
-	
-	if(data.initialized == 0)
-		return 0;
-	data.initialized = 0;
-	ret = inflateEnd(&(data.stream));
+  
+  if(data.initialized == 0)
+    return 0;
+  data.initialized = 0;
+  ret = inflateEnd(&(data.stream));
 #endif
-	return ret;
+  return ret;
 }
 
 /*! 
@@ -148,21 +148,21 @@ int GzipDecompress::modifyData()
  */
 u_long GzipDecompress::flush(char *out, u_long sizeOut)
 {
-#ifndef DO_NOT_USE_GZIP	
-	u_long old_total_out = data.stream.total_out;
-	uLongf destLen = sizeOut;
+#ifndef DO_NOT_USE_GZIP  
+  u_long old_total_out = data.stream.total_out;
+  uLongf destLen = sizeOut;
 
-	data.stream.data_type = Z_BINARY;
-	data.stream.next_in = 0;
-	data.stream.avail_in = 0;
-	data.stream.next_out = (Bytef*) out;
-	data.stream.avail_out = destLen;
-	inflate(&(data.stream), Z_FINISH);
+  data.stream.data_type = Z_BINARY;
+  data.stream.next_in = 0;
+  data.stream.avail_in = 0;
+  data.stream.next_out = (Bytef*) out;
+  data.stream.avail_out = destLen;
+  inflate(&(data.stream), Z_FINISH);
 
-	data.data_size += data.stream.total_out - old_total_out;
-	return data.stream.total_out - old_total_out;
+  data.data_size += data.stream.total_out - old_total_out;
+  return data.stream.total_out - old_total_out;
 #else 
-	return 0;
+  return 0;
 #endif
 }
 
@@ -190,10 +190,10 @@ GzipDecompress::~GzipDecompress()
  */
 u_long GzipDecompress::getFooter(char *str,int /*size*/)
 {
-#ifndef DO_NOT_USE_GZIP		
-	return GZIP_FOOTER_LENGTH;
+#ifndef DO_NOT_USE_GZIP    
+  return GZIP_FOOTER_LENGTH;
 #else
-	return 0;
+  return 0;
 #endif
 }
 
@@ -204,10 +204,10 @@ u_long GzipDecompress::getFooter(char *str,int /*size*/)
  */
 u_long GzipDecompress::getHeader(char *buffer,u_long buffersize)
 {
-	if(buffersize < GZIP_HEADER_LENGTH)
-		return 0;
-	memcpy(buffer, GZIP_HEADER, GZIP_HEADER_LENGTH);
-	return GZIP_HEADER_LENGTH;
+  if(buffersize < GZIP_HEADER_LENGTH)
+    return 0;
+  memcpy(buffer, GZIP_HEADER, GZIP_HEADER_LENGTH);
+  return GZIP_HEADER_LENGTH;
 }
 
 /*! 
@@ -229,7 +229,7 @@ int GzipDecompress::read(char* buffer, u_long len, u_long *nbr)
   if(!tmp_buff)
     return -1; 
   
-	if(!active)
+  if(!active)
     return parent->read(buffer, len, nbr);
 
   ret = parent->read(tmp_buff, len/2, &nbr_parent);
@@ -271,7 +271,7 @@ int GzipDecompress::write(const char* buffer, u_long len, u_long *nbw)
     u_long size = std::min(len, 512UL);
     u_long ret = decompress(buffer, size, tmpBuffer, 1024);
 
-		if(ret)
+    if(ret)
       if(parent->write(tmpBuffer, ret, &nbw_parent) == -1 )
         return -1;
 
@@ -340,7 +340,7 @@ const char* GzipDecompress::getName(char* name, u_long len)
  */
 u_long GzipDecompress::headerSize()
 {
-	return GZIP_HEADER_LENGTH;
+  return GZIP_HEADER_LENGTH;
 }
 
 /*!
@@ -348,5 +348,5 @@ u_long GzipDecompress::headerSize()
  */
 u_long GzipDecompress::footerSize()
 {
-	return GZIP_FOOTER_LENGTH;
+  return GZIP_FOOTER_LENGTH;
 }

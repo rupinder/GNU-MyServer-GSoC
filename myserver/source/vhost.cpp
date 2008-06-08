@@ -35,15 +35,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 Vhost::Vhost()
 {
-	ipList.clear();
-	hostList.clear();
-	refMutex.init();
+  ipList.clear();
+  hostList.clear();
+  refMutex.init();
   documentRoot.assign("");
-	systemRoot.assign("");
+  systemRoot.assign("");
   accessesLogFileName.assign("");
   warningsLogFileName.assign("");
   hashedData.clear();
-	protocolData = 0;
+  protocolData = 0;
 
   /*
    *By default use a non specified value for the throttling rate. -1 means 
@@ -62,12 +62,12 @@ Vhost::Vhost()
  */
 Vhost::~Vhost()
 {
-	if(protocolData)
-		delete protocolData;
-	clearHostList();
-	clearIPList();
-	freeSSL();
-	freeHashedData();
+  if(protocolData)
+    delete protocolData;
+  clearHostList();
+  clearIPList();
+  freeSSL();
+  freeHashedData();
   refMutex.destroy();
   accessesLogFileName.assign("");
   
@@ -77,7 +77,7 @@ Vhost::~Vhost()
   accessesLogFile.close();
   
   documentRoot.assign("");
-	systemRoot.assign("");
+  systemRoot.assign("");
 
   mimeManager.clean();
 }
@@ -90,11 +90,11 @@ int Vhost::freeHashedData()
 {
   try
   {
-		HashMap<string, string*>::Iterator it = hashedData.begin();
-		for (;it != hashedData.end(); it++)
-		{
-			delete (*it);
-		}
+    HashMap<string, string*>::Iterator it = hashedData.begin();
+    for (;it != hashedData.end(); it++)
+    {
+      delete (*it);
+    }
     hashedData.clear();
   }
   catch(...)
@@ -126,13 +126,13 @@ MimeManager* Vhost::getMIME()
 void Vhost::clearHostList()
 {
   list<StringRegex*>::iterator i = hostList.begin();
-	while(i != hostList.end())
-	{
+  while(i != hostList.end())
+  {
     StringRegex* sr = *i;
     delete sr;
     i++;
-	}
-	hostList.clear();
+  }
+  hostList.clear();
 }
 
 /*!
@@ -141,13 +141,13 @@ void Vhost::clearHostList()
 void Vhost::clearIPList()
 {
   list<StringRegex*>::iterator i = ipList.begin();
-	while(i != ipList.end())
-	{
+  while(i != ipList.end())
+  {
     StringRegex* sr = *i;
     delete sr;
     i++;
-	}
-	hostList.clear();
+  }
+  hostList.clear();
 }
 
 
@@ -157,47 +157,47 @@ void Vhost::clearIPList()
  */
 int Vhost::openLogFiles(u_long maxlogSize)
 {
-	const char* accessesLogFileName = getAccessesLogFileName();
-	const char* warningsLogFileName = getWarningsLogFileName();
-	if(accessesLogFileName)
-	{
-		accessesLogFile.load(accessesLogFileName);
+  const char* accessesLogFileName = getAccessesLogFileName();
+  const char* warningsLogFileName = getWarningsLogFileName();
+  if(accessesLogFileName)
+  {
+    accessesLogFile.load(accessesLogFileName);
     
-		if(strstr(getAccessLogOpt(), "cycle=yes"))
-		{
-			accessesLogFile.setCycleLog(1);
-		}
-		if(strstr(getAccessLogOpt(), "cycle_gzip=no"))
-		{
-			accessesLogFile.setGzip(0);
-		}
-		else
-		{
-			accessesLogFile.setGzip(1);
-		}  
-	}
+    if(strstr(getAccessLogOpt(), "cycle=yes"))
+    {
+      accessesLogFile.setCycleLog(1);
+    }
+    if(strstr(getAccessLogOpt(), "cycle_gzip=no"))
+    {
+      accessesLogFile.setGzip(0);
+    }
+    else
+    {
+      accessesLogFile.setGzip(1);
+    }  
+  }
 
-	if(warningsLogFileName)
-	{
-		warningsLogFile.load(warningsLogFileName);
-		if(strstr(getWarningLogOpt(), "cycle=yes"))
-		{
-			warningsLogFile.setCycleLog(1);
-		}
-	
-		if(strstr(getWarningLogOpt(), "cycle_gzip=no"))
-		{
-			warningsLogFile.setGzip(0);
-		}
-		else
-		{
-			warningsLogFile.setGzip(1);
-		}
-	}
+  if(warningsLogFileName)
+  {
+    warningsLogFile.load(warningsLogFileName);
+    if(strstr(getWarningLogOpt(), "cycle=yes"))
+    {
+      warningsLogFile.setCycleLog(1);
+    }
+  
+    if(strstr(getWarningLogOpt(), "cycle_gzip=no"))
+    {
+      warningsLogFile.setGzip(0);
+    }
+    else
+    {
+      warningsLogFile.setGzip(1);
+    }
+  }
 
-	setMaxLogSize(maxlogSize);
+  setMaxLogSize(maxlogSize);
 
-	return 0;
+  return 0;
 }
 
 /*!
@@ -206,10 +206,10 @@ int Vhost::openLogFiles(u_long maxlogSize)
  */
 void Vhost::addIP(const char *ip, int isRegex)
 {
-	StringRegex* sr = new StringRegex();
+  StringRegex* sr = new StringRegex();
   if(sr == 0)
     return;
-	sr->name.assign(ip);
+  sr->name.assign(ip);
   /* If is a regular expression, the ip string is a pattern.  */
   if(isRegex)
     sr->regex.compile(ip, REG_EXTENDED);
@@ -223,20 +223,20 @@ void Vhost::removeIP(const char *ip)
 {
   list<StringRegex*>::iterator i = ipList.begin();
 
-	while(i != ipList.end())
-	{
+  while(i != ipList.end())
+  {
     StringRegex* sr = *i;
-		/*
+    /*
      *If this is the virtual host with the right IP.
      */
-		if(!stringcmp(sr->name,ip))
-		{
-		  ipList.erase(i);
-		  return;
-		}
-		
-		i++;
-	}
+    if(!stringcmp(sr->name,ip))
+    {
+      ipList.erase(i);
+      return;
+    }
+    
+    i++;
+  }
 }
 
 /*!
@@ -247,20 +247,20 @@ void Vhost::removeHost(const char *host)
 {
   list<StringRegex*>::iterator i = hostList.begin();
 
-	while(i != hostList.end())
-	{
+  while(i != hostList.end())
+  {
     StringRegex* sr = *i;
-		/*
+    /*
      *If this is the virtual host with the right IP.
      */
-		if(!stringcmp(sr->name, host))
-		{
-		  hostList.erase(i);
-		  return;
-		}
-		
-		i++;
-	}
+    if(!stringcmp(sr->name, host))
+    {
+      hostList.erase(i);
+      return;
+    }
+    
+    i++;
+  }
 }
 /*!
  *Check if an host is allowed to the connection
@@ -269,12 +269,12 @@ void Vhost::removeHost(const char *host)
 int Vhost::isHostAllowed(const char* host)
 {
   /* If no hosts are specified then every host is allowed to connect here.  */
-	if(!hostList.size() || !host)
-	  return 1;
-	  
+  if(!hostList.size() || !host)
+    return 1;
+    
   list<StringRegex*>::iterator i = hostList.begin();
-	while(i != hostList.end())
-	{
+  while(i != hostList.end())
+  {
     StringRegex* sr = *i;
     regmatch_t pm;
     if(sr->regex.isCompiled())
@@ -285,12 +285,12 @@ int Vhost::isHostAllowed(const char* host)
       }
     }
     
-		if(!stringcmp(sr->name, host))
-			return 1;
-			
-		i++;
-	}
-	return 0;
+    if(!stringcmp(sr->name, host))
+      return 1;
+      
+    i++;
+  }
+  return 0;
 }
 
 /*!
@@ -298,9 +298,9 @@ int Vhost::isHostAllowed(const char* host)
  */
 int Vhost::areAllHostAllowed()
 {
-	if(hostList.size() == 0)
-		return 1;
-	return 0;
+  if(hostList.size() == 0)
+    return 1;
+  return 0;
 }
 
 /*!
@@ -308,9 +308,9 @@ int Vhost::areAllHostAllowed()
  */
 int Vhost::areAllIPAllowed()
 {
-	if(ipList.size() == 0)
-		return 1;
-	return 0;
+  if(ipList.size() == 0)
+    return 1;
+  return 0;
 }
 
 /*!
@@ -321,12 +321,12 @@ int Vhost::areAllIPAllowed()
 int Vhost::isIPAllowed(const char* ip)
 {
  /* If no IPs are specified then every host is allowed to connect here.  */
-	if(!ipList.size() || !ip)
-	  return 1;
-	  
+  if(!ipList.size() || !ip)
+    return 1;
+    
   list<StringRegex*>::iterator i = ipList.begin();
-	while(i != ipList.end())
-	{
+  while(i != ipList.end())
+  {
     StringRegex* sr = *i;
     regmatch_t pm;
     if(sr->regex.isCompiled())
@@ -337,12 +337,12 @@ int Vhost::isIPAllowed(const char* ip)
       }
     }
     
-		if(!stringcmp(sr->name, ip))
-			return 1;
-			
-		i++;
-	}
-	return 0;
+    if(!stringcmp(sr->name, ip))
+      return 1;
+      
+    i++;
+  }
+  return 0;
 }
 
 /*!
@@ -352,43 +352,43 @@ int Vhost::isIPAllowed(const char* ip)
  */
 void Vhost::addHost(const char *host, int isRegex)
 {
-	StringRegex* hl = new StringRegex();
+  StringRegex* hl = new StringRegex();
   if(hl == 0)
     return;
 
 #ifdef HAVE_IDN
-	size_t len;
-	int ret;
-	char* ascii = 0;
-	uint32_t* ucs4 = stringprep_utf8_to_ucs4 (host, -1, &len);
+  size_t len;
+  int ret;
+  char* ascii = 0;
+  uint32_t* ucs4 = stringprep_utf8_to_ucs4 (host, -1, &len);
 
-	if(!ucs4)
-	{
-		delete hl;
-		return;
-	}
+  if(!ucs4)
+  {
+    delete hl;
+    return;
+  }
 
-	ret = idna_to_ascii_4z (ucs4, &ascii, 0);
+  ret = idna_to_ascii_4z (ucs4, &ascii, 0);
 
-	free(ucs4);
-	
-	if (ret != IDNA_SUCCESS)
-	{	 
-		delete hl;
-		return;
-	}
+  free(ucs4);
+  
+  if (ret != IDNA_SUCCESS)
+  {   
+    delete hl;
+    return;
+  }
 
-	host = ascii;
+  host = ascii;
 #endif
 
-	hl->name.assign(host);
+  hl->name.assign(host);
 
   if(isRegex)
     hl->regex.compile(host, REG_EXTENDED);
   hostList.push_back(hl);
 
 #ifdef HAVE_IDN
-	free(ascii);
+  free(ascii);
 #endif
 
 }
@@ -399,7 +399,7 @@ void Vhost::addHost(const char *host, int isRegex)
  */
 u_long Vhost::accessesLogRequestAccess(int id)
 {
-	accessesLogFile.requestAccess();
+  accessesLogFile.requestAccess();
   return 0;
 }
 
@@ -409,7 +409,7 @@ u_long Vhost::accessesLogRequestAccess(int id)
  */
 u_long Vhost::warningsLogRequestAccess(int id)
 {
-	warningsLogFile.requestAccess();
+  warningsLogFile.requestAccess();
   return 0;
 }
 
@@ -419,7 +419,7 @@ u_long Vhost::warningsLogRequestAccess(int id)
  */
 u_long Vhost::accessesLogTerminateAccess(int id)
 {
-	accessesLogFile.terminateAccess();
+  accessesLogFile.terminateAccess();
   return 0;
 }
 
@@ -429,7 +429,7 @@ u_long Vhost::accessesLogTerminateAccess(int id)
  */
 u_long Vhost::warningsLogTerminateAccess(int id)
 {
-	warningsLogFile.terminateAccess();
+  warningsLogFile.terminateAccess();
   return 0;
 }
 
@@ -439,7 +439,7 @@ u_long Vhost::warningsLogTerminateAccess(int id)
  */
 int Vhost::accessesLogWrite(const char* str)
 {
-	return accessesLogFile.write(str);
+  return accessesLogFile.write(str);
 }
 
 /*!
@@ -447,7 +447,7 @@ int Vhost::accessesLogWrite(const char* str)
  */
 File* Vhost::getAccessesLogFile()
 {
-	return accessesLogFile.getFile();
+  return accessesLogFile.getFile();
 }
 
 /*!
@@ -481,7 +481,7 @@ int Vhost::warningsLogWrite(const char* str)
 #else
   msg.append("\n");
 #endif  
-	return warningsLogFile.write(msg.c_str());
+  return warningsLogFile.write(msg.c_str());
 }
 
 /*!
@@ -489,7 +489,7 @@ int Vhost::warningsLogWrite(const char* str)
  */
 File* Vhost::getWarningsLogFile()
 {
-	return warningsLogFile.getFile();
+  return warningsLogFile.getFile();
 }
 
 /*!
@@ -511,7 +511,7 @@ int Vhost::getMaxLogSize()
    *warningsLogFile max log size is equal to the  
    *accessesLogFile one.
    */
-	return warningsLogFile.getMaxSize( );
+  return warningsLogFile.getMaxSize( );
 }
 
 /*!
@@ -582,16 +582,16 @@ void Vhost::setRef(int n)
  */
 const char* Vhost::getHashedData(const char* name)
 {
-	
+  
   string *s;
-	if(name == 0)
-		return 0;
-	s = hashedData.get(name);
+  if(name == 0)
+    return 0;
+  s = hashedData.get(name);
   if(s)
     return s->c_str();
 
   return Server::getInstance() ? Server::getInstance()->getHashedData(name) 
-		: 0 ;
+    : 0 ;
 }
   
 /*!
@@ -599,17 +599,17 @@ const char* Vhost::getHashedData(const char* name)
  */
 int Vhost::initializeSSL()
 {
-	Protocol* protocol;
+  Protocol* protocol;
 
   protocol = Server::getInstance()->getProtocol(protocolName.c_str());
   if(!protocol)
     return 0;
-		
+    
   if(!(protocol->getProtocolOptions() & PROTOCOL_USES_SSL))
     return 0;
 
   return sslContext.initialize();
-}	
+}  
 
 
 /*!
@@ -617,7 +617,7 @@ int Vhost::initializeSSL()
  */
 SSL_CTX* Vhost::getSSLContext()
 {
-	return sslContext.getContext();
+  return sslContext.getContext();
 }
 
 
@@ -626,5 +626,5 @@ SSL_CTX* Vhost::getSSLContext()
  */
 int Vhost::freeSSL()
 {
-	return sslContext.free();
+  return sslContext.free();
 }

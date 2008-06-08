@@ -35,7 +35,7 @@ extern "C" {
 #endif
 
 char GZIP_HEADER[] = {(char)0x1f, (char)0x8b, Z_DEFLATED, 
-											0, 0, 0, 0, 0, 0, 0x03};
+                      0, 0, 0, 0, 0, 0, 0x03};
 
 
 /*!
@@ -43,44 +43,44 @@ char GZIP_HEADER[] = {(char)0x1f, (char)0x8b, Z_DEFLATED,
  */
 u_long Gzip::initialize()
 {
-#ifndef DO_NOT_USE_GZIP		
-	long level = Z_DEFAULT_COMPRESSION;
+#ifndef DO_NOT_USE_GZIP    
+  long level = Z_DEFAULT_COMPRESSION;
 
   if(protocol && protocolData)
   {
     if(!strstr(protocol->registerName(0,0), "HTTP"))
     {
-			HttpRequestHeader::Entry* e = ((HttpThreadContext*)protocolData)->request.other.get("Accept-Encoding");
-			if(e)
-			{
-				active &= (e->value->find("gzip") != string::npos);
-			}
-			else
-				active = false;
+      HttpRequestHeader::Entry* e = ((HttpThreadContext*)protocolData)->request.other.get("Accept-Encoding");
+      if(e)
+      {
+        active &= (e->value->find("gzip") != string::npos);
+      }
+      else
+        active = false;
     }
   }
-	data.initialized = 1;
-	data.data_size = 0;
-	data.crc = crc32(0L, Z_NULL, 0);
-	data.stream.zalloc = Z_NULL;
-	data.stream.zfree = Z_NULL;
-	data.stream.opaque = Z_NULL;
-	data.stream.data_type = Z_BINARY;
-	return deflateInit2(&(data.stream), level, Z_DEFLATED,-MAX_WBITS, MAX_MEM_LEVEL,0);
+  data.initialized = 1;
+  data.data_size = 0;
+  data.crc = crc32(0L, Z_NULL, 0);
+  data.stream.zalloc = Z_NULL;
+  data.stream.zfree = Z_NULL;
+  data.stream.opaque = Z_NULL;
+  data.stream.data_type = Z_BINARY;
+  return deflateInit2(&(data.stream), level, Z_DEFLATED,-MAX_WBITS, MAX_MEM_LEVEL,0);
 #else 
-	return 0;
+  return 0;
 #endif
 
 }
 
-#ifdef GZIP_CHECK_BOUNDS	
+#ifdef GZIP_CHECK_BOUNDS  
 u_long Gzip::compressBound(int size)
 {
 #ifdef compressBound 
-	return compressBound(size);
+  return compressBound(size);
 #else
-	return 0;
-#endif	
+  return 0;
+#endif  
 }
 #endif
 
@@ -95,30 +95,30 @@ u_long Gzip::compress(const char* in, u_long sizeIn,
                       char *out, u_long sizeOut)
 {
 #ifndef DO_NOT_USE_GZIP
-	u_long old_total_out = data.stream.total_out;
-	u_long ret;
+  u_long old_total_out = data.stream.total_out;
+  u_long ret;
 
 #ifdef GZIP_CHECK_BOUNDS
-	if(compressBound(sizeIn) > (u_long)sizeOut)
-		return 0;
+  if(compressBound(sizeIn) > (u_long)sizeOut)
+    return 0;
 #endif
-	data.stream.data_type = Z_BINARY;
-	data.stream.next_in = (Bytef*) in;
-	data.stream.avail_in = sizeIn;
-	data.stream.next_out = (Bytef*) out;
-	data.stream.avail_out = sizeOut;
-	ret = deflate(&(data.stream), Z_FULL_FLUSH);
+  data.stream.data_type = Z_BINARY;
+  data.stream.next_in = (Bytef*) in;
+  data.stream.avail_in = sizeIn;
+  data.stream.next_out = (Bytef*) out;
+  data.stream.avail_out = sizeOut;
+  ret = deflate(&(data.stream), Z_FULL_FLUSH);
 
-	data.data_size += data.stream.total_out - old_total_out;
-	data.crc = crc32(data.crc, (const Bytef *) in, sizeIn);
-	return data.stream.total_out - old_total_out;
+  data.data_size += data.stream.total_out - old_total_out;
+  data.crc = crc32(data.crc, (const Bytef *) in, sizeIn);
+  return data.stream.total_out - old_total_out;
 #else 
-	/*!
+  /*!
    *If is specified DO_NOT_USE_GZIP copy the input buffer 
-	 *to the output one as it is.
+   *to the output one as it is.
    */
-	memcpy(out, in, std::min(sizeIn, sizeOut));
-	return std::min(sizeIn, sizeOut);
+  memcpy(out, in, std::min(sizeIn, sizeOut));
+  return std::min(sizeIn, sizeOut);
 #endif
 }
 
@@ -129,13 +129,13 @@ u_long Gzip::free()
 {
   u_long ret = 0;
 #ifndef DO_NOT_USE_GZIP
-	
-	if(data.initialized == 0)
-		return 0;
-	data.initialized = 0;
-	ret = deflateEnd(&(data.stream));
+  
+  if(data.initialized == 0)
+    return 0;
+  data.initialized = 0;
+  ret = deflateEnd(&(data.stream));
 #endif
-	return ret;
+  return ret;
 }
 
 /*! 
@@ -181,21 +181,21 @@ int Gzip::modifyData()
  */
 u_long Gzip::flush(char *out, u_long sizeOut)
 {
-#ifndef DO_NOT_USE_GZIP	
-	u_long old_total_out = data.stream.total_out;
-	uLongf destLen = sizeOut;
+#ifndef DO_NOT_USE_GZIP  
+  u_long old_total_out = data.stream.total_out;
+  uLongf destLen = sizeOut;
 
-	data.stream.data_type = Z_BINARY;
-	data.stream.next_in = 0;
-	data.stream.avail_in = 0;
-	data.stream.next_out = (Bytef*) out;
-	data.stream.avail_out = destLen;
-	deflate(&(data.stream), Z_FINISH);
+  data.stream.data_type = Z_BINARY;
+  data.stream.next_in = 0;
+  data.stream.avail_in = 0;
+  data.stream.next_out = (Bytef*) out;
+  data.stream.avail_out = destLen;
+  deflate(&(data.stream), Z_FINISH);
 
-	data.data_size += data.stream.total_out - old_total_out;
-	return data.stream.total_out - old_total_out;
+  data.data_size += data.stream.total_out - old_total_out;
+  return data.stream.total_out - old_total_out;
 #else 
-	return 0;
+  return 0;
 #endif
 }
 
@@ -223,12 +223,12 @@ Gzip::~Gzip()
  */
 u_long Gzip::updateCRC(char* buffer, int size)
 {
-#ifndef DO_NOT_USE_GZIP		
-	data.crc = crc32(data.crc, (const Bytef *) buffer, 
-									 (u_long)size);
-	return data.crc;
+#ifndef DO_NOT_USE_GZIP    
+  data.crc = crc32(data.crc, (const Bytef *) buffer, 
+                   (u_long)size);
+  return data.crc;
 #else
-	return 0;
+  return 0;
 #endif
 }
 
@@ -239,19 +239,19 @@ u_long Gzip::updateCRC(char* buffer, int size)
  */
 u_long Gzip::getFooter(char *footer, int /*size*/)
 {
-#ifndef DO_NOT_USE_GZIP		
-	footer[0] = (char) (data.crc) & 0xFF;
-	footer[1] = (char) ((data.crc) >> 8) & 0xFF;
-	footer[2] = (char) ((data.crc) >> 16) & 0xFF;
-	footer[3] = (char) ((data.crc) >> 24) & 0xFF;
-	footer[4] = (char) data.stream.total_in & 0xFF;
-	footer[5] = (char) (data.stream.total_in >> 8) & 0xFF;
-	footer[6] = (char) (data.stream.total_in >> 16) & 0xFF;
-	footer[7] = (char) (data.stream.total_in >> 24) & 0xFF;
-	footer[8] = '\0';
-	return GZIP_FOOTER_LENGTH;
+#ifndef DO_NOT_USE_GZIP    
+  footer[0] = (char) (data.crc) & 0xFF;
+  footer[1] = (char) ((data.crc) >> 8) & 0xFF;
+  footer[2] = (char) ((data.crc) >> 16) & 0xFF;
+  footer[3] = (char) ((data.crc) >> 24) & 0xFF;
+  footer[4] = (char) data.stream.total_in & 0xFF;
+  footer[5] = (char) (data.stream.total_in >> 8) & 0xFF;
+  footer[6] = (char) (data.stream.total_in >> 16) & 0xFF;
+  footer[7] = (char) (data.stream.total_in >> 24) & 0xFF;
+  footer[8] = '\0';
+  return GZIP_FOOTER_LENGTH;
 #else
-	return 0;
+  return 0;
 #endif
 }
 
@@ -262,10 +262,10 @@ u_long Gzip::getFooter(char *footer, int /*size*/)
  */
 u_long Gzip::getHeader(char *buffer,u_long buffersize)
 {
-	if(buffersize < GZIP_HEADER_LENGTH)
-		return 0;
-	memcpy(buffer, GZIP_HEADER, GZIP_HEADER_LENGTH);
-	return GZIP_HEADER_LENGTH;
+  if(buffersize < GZIP_HEADER_LENGTH)
+    return 0;
+  memcpy(buffer, GZIP_HEADER, GZIP_HEADER_LENGTH);
+  return GZIP_HEADER_LENGTH;
 }
 
 /*! 
@@ -287,7 +287,7 @@ int Gzip::read(char* buffer, u_long len, u_long *nbr)
   if(!tmp_buff)
     return -1; 
   
-	if(!active)
+  if(!active)
     return parent->read(buffer, len, nbr);
 
   ret = parent->read(tmp_buff, len/2, &nbr_parent);
@@ -327,7 +327,7 @@ int Gzip::write(const char* buffer, u_long len, u_long *nbw)
     u_long size=std::min(len, 512UL);
     u_long ret=compress(buffer, size, tmpBuffer, 1024);
 
-		if(ret)
+    if(ret)
       if(parent->write(tmpBuffer, ret, &nbw_parent) == -1 )
         return -1;
 
@@ -396,7 +396,7 @@ const char* Gzip::getName(char* name, u_long len)
  */
 u_long Gzip::headerSize()
 {
-	return GZIP_HEADER_LENGTH;
+  return GZIP_HEADER_LENGTH;
 }
 
 /*!
@@ -404,5 +404,5 @@ u_long Gzip::headerSize()
  */
 u_long Gzip::footerSize()
 {
-	return GZIP_FOOTER_LENGTH;
+  return GZIP_FOOTER_LENGTH;
 }

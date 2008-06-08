@@ -50,8 +50,8 @@ extern "C" {
  */
 Semaphore::Semaphore(int n)
 {
-	initialized = 0;
-	init(n);
+  initialized = 0;
+  init(n);
 }
 
 /*!
@@ -60,19 +60,19 @@ Semaphore::Semaphore(int n)
 int Semaphore::init(int n)
 {
   int ret = 0;
-	if(initialized)
-	{
-		destroy();
-		initialized = 0;
-	}
+  if(initialized)
+  {
+    destroy();
+    initialized = 0;
+  }
 #ifdef HAVE_PTHREAD
-	ret = sem_init(&semaphore, 0, n);
+  ret = sem_init(&semaphore, 0, n);
 #else
-	semaphore = CreateSemaphore(0, n, LONG_MAX, 0);
+  semaphore = CreateSemaphore(0, n, LONG_MAX, 0);
   ret = !semaphore;
 #endif
-	initialized = 1;
-	return ret ? 1 : 0;
+  initialized = 1;
+  return ret ? 1 : 0;
 }
 
 /*!
@@ -87,8 +87,8 @@ int Semaphore::destroy()
   if(initialized)
     CloseHandle(semaphore);
 #endif
-	initialized = 0;
-	return 0;
+  initialized = 0;
+  return 0;
 }
 
 /*!
@@ -96,21 +96,21 @@ int Semaphore::destroy()
  */
 int Semaphore::lock(u_long /*id*/)
 {
-	int err = 0;
+  int err = 0;
 #ifdef HAVE_PTHREAD
 
 #ifdef PTHREAD_ALTERNATE_LOCK
-	err = sem_wait(&semaphore);
+  err = sem_wait(&semaphore);
 #else
-	timespec ts =  {3, 0};
-	while(sem_timedwait(&semaphore, &ts) && errno == ETIMEDOUT)
-		Thread::wait(1);
+  timespec ts =  {3, 0};
+  while(sem_timedwait(&semaphore, &ts) && errno == ETIMEDOUT)
+    Thread::wait(1);
 #endif
 
-#else	
-	err = (WaitForSingleObject(semaphore, INFINITE) == WAIT_FAILED) ? 1 : 0;
+#else  
+  err = (WaitForSingleObject(semaphore, INFINITE) == WAIT_FAILED) ? 1 : 0;
 #endif
-	return err;
+  return err;
 }
 
 /*!
@@ -118,13 +118,13 @@ int Semaphore::lock(u_long /*id*/)
 */
 int Semaphore::unlock(u_long/*! id*/)
 {
-	int err;
+  int err;
 #ifdef HAVE_PTHREAD
-	err = sem_post(&semaphore);
-#else	
-	err = (ReleaseSemaphore(semaphore, 1, NULL) == FALSE) ? 1 : 0;
+  err = sem_post(&semaphore);
+#else  
+  err = (ReleaseSemaphore(semaphore, 1, NULL) == FALSE) ? 1 : 0;
 #endif
-	return err;
+  return err;
 }
 
 /*!
@@ -132,5 +132,5 @@ int Semaphore::unlock(u_long/*! id*/)
 */
 Semaphore::~Semaphore()
 {
-	destroy();
+  destroy();
 }

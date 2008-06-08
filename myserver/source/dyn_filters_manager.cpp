@@ -34,10 +34,10 @@ using namespace std;
  *Construct the object.
  */
 DynamicFiltersManager::DynamicFiltersManager() : 
-	PluginsNamespaceManager(string("filters"))
+  PluginsNamespaceManager(string("filters"))
 {
-		counter = 0;
-		counterMutex.init();
+    counter = 0;
+    counterMutex.init();
 
 }
 
@@ -54,7 +54,7 @@ DynamicFiltersManager::~DynamicFiltersManager()
  */
 void DynamicFiltersManager::clear()
 {
-	counterMutex.destroy();	
+  counterMutex.destroy();  
 }
 
 /*!
@@ -64,7 +64,7 @@ Filter* DynamicFiltersManager::createFilter(const char* name)
 {
   DynamicFilterFile* file;
   DynamicFilter* filter;
-	string nameStr(name);
+  string nameStr(name);
 
   file = getPlugin(nameStr);
 
@@ -88,13 +88,13 @@ Filter* DynamicFiltersManager::createFilter(const char* name)
  */
 int DynamicFiltersManager::registerFilters(FiltersFactory* ff)
 {
-	HashMap<string, Plugin*>::Iterator it = begin();
-	
-	for (;it != end(); it++)
-	{
-		DynamicFilterFile* dff = (DynamicFilterFile*) *it;
-		if(ff->insert(dff->getName(0, 0), this))
-			return -1;
-	}
+  HashMap<string, Plugin*>::Iterator it = begin();
+  
+  for (;it != end(); it++)
+  {
+    DynamicFilterFile* dff = (DynamicFilterFile*) *it;
+    if(ff->insert(dff->getName(0, 0), this))
+      return -1;
+  }
   return 0;
 }

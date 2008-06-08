@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 
 typedef int (*sendManagerPROC)(volatile void*, volatile void*, const char*, 
-															 const char*, int); 
+                               const char*, int); 
 
 
 /*!

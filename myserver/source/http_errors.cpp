@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2007 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -32,9 +32,9 @@ HashMap<int, const char*> HttpErrors::messagesMap;
  */
 void HttpErrors::getErrorPage(int statusCode, string& out)
 {
-	ostringstream os;
-	os << "/errors/" << statusCode << ".html";
-	out.assign(os.str());
+  ostringstream os;
+  os << "/errors/" << statusCode << ".html";
+  out.assign(os.str());
 }
 
 /*!
@@ -44,16 +44,16 @@ void HttpErrors::getErrorPage(int statusCode, string& out)
  */
 void HttpErrors::getErrorMessage(int statusCode, string& out)
 {
-	const char* msg;
-	mutex.lock();
-	msg = messagesMap.get(statusCode);
-	
-	if(msg)
-		out.assign(msg);
-	else
-		out.assign("");
+  const char* msg;
+  mutex.lock();
+  msg = messagesMap.get(statusCode);
+  
+  if(msg)
+    out.assign(msg);
+  else
+    out.assign("");
 
-	mutex.unlock();
+  mutex.unlock();
 }
 
 /*!
@@ -61,7 +61,7 @@ void HttpErrors::getErrorMessage(int statusCode, string& out)
  */
 void HttpErrors::unLoad()
 {
-	messagesMap.clear();
+  messagesMap.clear();
 }
 
 /*!
@@ -71,7 +71,7 @@ void HttpErrors::unLoad()
  */
 void HttpErrors::putMessage(int id, const char* msg)
 {
-	messagesMap.put(id, msg);
+  messagesMap.put(id, msg);
 }
 
 /*!
@@ -80,43 +80,43 @@ void HttpErrors::putMessage(int id, const char* msg)
 void HttpErrors::load()
 {
 
-	/* INFORMATIONAL.  */
-	putMessage(100, "Continue");	
-	putMessage(101, "Switching Protocols");
-	putMessage(102, "Processing");
+  /* INFORMATIONAL.  */
+  putMessage(100, "Continue");  
+  putMessage(101, "Switching Protocols");
+  putMessage(102, "Processing");
 
-	/* SUCCESS.  */
-	putMessage(200, "OK");
-	putMessage(201, "Created");
-	putMessage(202, "Accepted");
-	putMessage(203, "Non-Authoritative Information");
-	putMessage(204, "No Content");
-	putMessage(205, "Reset Content");
-	putMessage(206, "Partial Content");
-	putMessage(207, "Multi-Status");
+  /* SUCCESS.  */
+  putMessage(200, "OK");
+  putMessage(201, "Created");
+  putMessage(202, "Accepted");
+  putMessage(203, "Non-Authoritative Information");
+  putMessage(204, "No Content");
+  putMessage(205, "Reset Content");
+  putMessage(206, "Partial Content");
+  putMessage(207, "Multi-Status");
 
-	/* REDIRECTION.  */
-	putMessage(300, "Multiple Choices");
-	putMessage(301, "Moved Permanently");
-	putMessage(302, "Found");
-	putMessage(303, "See Other");
-	putMessage(304, "Not Modified");
-	putMessage(305, "Use proxy");
-	putMessage(306, "Switch proxy");
-	putMessage(307, "Temporary redirect");
+  /* REDIRECTION.  */
+  putMessage(300, "Multiple Choices");
+  putMessage(301, "Moved Permanently");
+  putMessage(302, "Found");
+  putMessage(303, "See Other");
+  putMessage(304, "Not Modified");
+  putMessage(305, "Use proxy");
+  putMessage(306, "Switch proxy");
+  putMessage(307, "Temporary redirect");
 
-	/* CLIENT ERROR.  */
-	putMessage(400, "Bad Request");
-	putMessage(401, "Unauthorized");
-	putMessage(402, "Payment required");
-	putMessage(403, "Forbidden");
-	putMessage(404, "Not Found");
-	putMessage(405, "Method Not Allowed");
-	putMessage(406, "Not Acceptable");
-	putMessage(407, "Proxy Authentication Required");
-	putMessage(408, "Request timeout");
-	putMessage(409, "Conflict");
-	putMessage(411, "Length Required");
+  /* CLIENT ERROR.  */
+  putMessage(400, "Bad Request");
+  putMessage(401, "Unauthorized");
+  putMessage(402, "Payment required");
+  putMessage(403, "Forbidden");
+  putMessage(404, "Not Found");
+  putMessage(405, "Method Not Allowed");
+  putMessage(406, "Not Acceptable");
+  putMessage(407, "Proxy Authentication Required");
+  putMessage(408, "Request timeout");
+  putMessage(409, "Conflict");
+  putMessage(411, "Length Required");
   putMessage(412, "Precondition Failed");
   putMessage(413, "Request Entity Too Large");
   putMessage(414, "Request URI Too Long");
@@ -128,17 +128,17 @@ void HttpErrors::load()
   putMessage(424, "Failed Dependency");
   putMessage(425, "Unordered Collection");
   putMessage(426, "Upgrade Required");
-	putMessage(412, "Precondition Failed");
+  putMessage(412, "Precondition Failed");
 
-	/* SERVER ERROR.  */
-	putMessage(500, "Internal Server Error");
-	putMessage(501, "Not Implemented");
-	putMessage(502, "Bad Gateway");
-	putMessage(503, "Service Unavailable");
-	putMessage(504, "Gateway Timeout");
-	putMessage(505, "HTTP Version Not Supported");
-	putMessage(506, "Variant Also Negotiates");
-	putMessage(507, "Insufficient Storage");
-	putMessage(509, "Bandwidth Limit Exceeded");
-	putMessage(510, "Not Extended");
+  /* SERVER ERROR.  */
+  putMessage(500, "Internal Server Error");
+  putMessage(501, "Not Implemented");
+  putMessage(502, "Bad Gateway");
+  putMessage(503, "Service Unavailable");
+  putMessage(504, "Gateway Timeout");
+  putMessage(505, "HTTP Version Not Supported");
+  putMessage(506, "Variant Also Negotiates");
+  putMessage(507, "Insufficient Storage");
+  putMessage(509, "Bandwidth Limit Exceeded");
+  putMessage(510, "Not Extended");
 }

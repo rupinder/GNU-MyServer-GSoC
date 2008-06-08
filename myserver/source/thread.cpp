@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -49,10 +49,10 @@ extern "C" {
 void Thread::wait(u_long time)
 {
 #ifdef WIN32
-	Sleep(time/1000);
+  Sleep(time/1000);
 #endif
 #ifdef NOT_WIN
-	usleep(time);
+  usleep(time);
 #endif
 
 }
@@ -65,19 +65,19 @@ void Thread::wait(u_long time)
  */
 #ifdef WIN32
 int Thread::create(ThreadID*  ID, 
-									 unsigned int  (_stdcall *startRoutine)(void *), 
-									 void * arg)
+                   unsigned int  (_stdcall *startRoutine)(void *), 
+                   void * arg)
 #endif
 #ifdef HAVE_PTHREAD
 int Thread::create(ThreadID*  ID, void * (*startRoutine)(void *), 
-									 void * arg)
+                   void * arg)
 #endif
 {
 #ifdef WIN32
-	return !_beginthreadex(NULL, 0, startRoutine, arg, 0, (unsigned int*)ID);
+  return !_beginthreadex(NULL, 0, startRoutine, arg, 0, (unsigned int*)ID);
 #endif
 #ifdef HAVE_PTHREAD
-	return pthread_create((pthread_t*)ID, NULL, startRoutine, (void *)(arg));
+  return pthread_create((pthread_t*)ID, NULL, startRoutine, (void *)(arg));
 #endif
 }
 
@@ -87,10 +87,10 @@ int Thread::create(ThreadID*  ID, void * (*startRoutine)(void *),
 ThreadID Thread::threadID()
 {
 #ifdef WIN32
-	return GetCurrentThreadId();
+  return GetCurrentThreadId();
 #endif
 #ifdef HAVE_PTHREAD
-	return pthread_self();
+  return pthread_self();
 #endif
 }
 
@@ -100,10 +100,10 @@ ThreadID Thread::threadID()
 void Thread::terminate()
 {
 #ifdef WIN32
-	_endthread();
+  _endthread();
 #endif
 #ifdef HAVE_PTHREAD
-	pthread_exit(0);
+  pthread_exit(0);
 #endif
 }
 
@@ -113,9 +113,9 @@ void Thread::terminate()
 int Thread::join(ThreadID tid)
 {
 #ifdef WIN32
-	return WaitForSingleObject((void*)tid, INFINITE) != WAIT_OBJECT_0;
+  return WaitForSingleObject((void*)tid, INFINITE) != WAIT_OBJECT_0;
 #endif
 #ifdef HAVE_PTHREAD
-	return pthread_join(tid, NULL);
+  return pthread_join(tid, NULL);
 #endif
 }

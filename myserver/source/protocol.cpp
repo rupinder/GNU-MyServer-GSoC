@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 int Protocol::loadProtocol(XmlParser* /*languageParser*/)
 {
-	return 1;
+  return 1;
 }
 
 /*!
@@ -33,7 +33,7 @@ int Protocol::loadProtocol(XmlParser* /*languageParser*/)
  */
 int Protocol::unLoadProtocol(XmlParser* /*languageParser*/)
 {
-	return 1;
+  return 1;
 }
 
 /*!
@@ -43,14 +43,14 @@ int Protocol::controlConnection(ConnectionPtr /*a*/,char* /*b1*/,
                                 char* /*b2*/,int /*bs1*/,int /*bs2*/,
                                 u_long /*nbtr*/,u_long /*id*/)
 {
-	/*!
+  /*!
    *Returns value are:
    *0 to delete the connection from the active connections list
    *1 to keep the connection active and clear the connectionBuffer
    *2 if the header is incomplete and to save it in a temporary buffer
    *3 if the header is incomplete without save it in a temporary buffer
    */
-	return 0;
+  return 0;
 }
 
 /*!
@@ -59,7 +59,7 @@ int Protocol::controlConnection(ConnectionPtr /*a*/,char* /*b1*/,
  */
 char* Protocol::registerName(char* /*out*/,int /*len*/)
 {
-	return 0;
+  return 0;
 }
 
 /*!
@@ -67,7 +67,7 @@ char* Protocol::registerName(char* /*out*/,int /*len*/)
  */
 Protocol::Protocol()
 {
-	protocolOptions=0;
+  protocolOptions = 0;
 }
 
 /*!

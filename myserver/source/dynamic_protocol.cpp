@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 typedef int (*controlConnectionPROC)(void*, char*, char*, int, 
-																		 int, u_long, u_long); 
+                                     int, u_long, u_long); 
 
 
 
@@ -34,7 +34,7 @@ typedef int (*controlConnectionPROC)(void*, char*, char*, int,
  */
 int DynamicProtocol::getOptions()
 {
-	return  protocolOptions;
+  return  protocolOptions;
 }
 
 /*!
@@ -42,15 +42,15 @@ int DynamicProtocol::getOptions()
  */
 int DynamicProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
                                        int bs1, int bs2, 
-																			 u_long nbtr, u_long id)
+                                       u_long nbtr, u_long id)
 {
-	controlConnectionPROC proc;
-	proc = (controlConnectionPROC)hinstLib.getProc("controlConnection"); 
+  controlConnectionPROC proc;
+  proc = (controlConnectionPROC)hinstLib.getProc("controlConnection"); 
 
-	if(proc)
-		return proc((void*)a, b1, b2, bs1, bs2, nbtr, id);
-	else
-		return 0;
+  if(proc)
+    return proc((void*)a, b1, b2, bs1, bs2, nbtr, id);
+  else
+    return 0;
 }
 
 
@@ -59,7 +59,7 @@ int DynamicProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
  */
 DynamicProtocol::DynamicProtocol()
 {
-	protocolOptions = 0;
+  protocolOptions = 0;
 }
 
 /*!
@@ -68,5 +68,5 @@ DynamicProtocol::DynamicProtocol()
 DynamicProtocol::~DynamicProtocol()
 {
   unLoadProtocol(0);
-	protocolOptions = 0;
+  protocolOptions = 0;
 }

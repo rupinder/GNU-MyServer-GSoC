@@ -98,9 +98,9 @@ void MimeRecord::clear()
  */
 const char *MimeManager::getFilename()
 {
-	if(filename == 0)
-		return "";
-	return filename->c_str();
+  if(filename == 0)
+    return "";
+  return filename->c_str();
 }
 
 /*!
@@ -109,44 +109,44 @@ const char *MimeManager::getFilename()
  */
 int MimeManager::loadXML(const char *fn)
 {
-	XmlParser parser;
-	xmlNodePtr node;
+  XmlParser parser;
+  xmlNodePtr node;
   xmlDocPtr doc;
-	int retSize;
+  int retSize;
   if(!fn)
     return -1;
 
-	rwLock.writeLock();
+  rwLock.writeLock();
 
-	if(filename)
-		delete filename;
+  if(filename)
+    delete filename;
 
-	filename = new string(fn);
+  filename = new string(fn);
 
-	if(data)
-		delete data;
+  if(data)
+    delete data;
 
-	data = new HashMap<string, MimeRecord*>();
+  data = new HashMap<string, MimeRecord*>();
 
-	if(parser.open(fn))
-	{
-		rwLock.writeUnlock();
-		return -1;
-	}
+  if(parser.open(fn))
+  {
+    rwLock.writeUnlock();
+    return -1;
+  }
 
-	removeAllRecords();
+  removeAllRecords();
 
-	doc = parser.getDoc();
-	node = doc->children->children;
+  doc = parser.getDoc();
+  node = doc->children->children;
 
-	for(; node; node = node->next )
-	{
-		xmlNodePtr lcur = node->children;
+  for(; node; node = node->next )
+  {
+    xmlNodePtr lcur = node->children;
     xmlAttr *attrs = lcur ? lcur->properties : 0;
-		MimeRecord rc;
-		if(xmlStrcmp(node->name, (const xmlChar *)"MIMETYPE"))
-			continue;
-		rc.clear();
+    MimeRecord rc;
+    if(xmlStrcmp(node->name, (const xmlChar *)"MIMETYPE"))
+      continue;
+    rc.clear();
 
     while(attrs)
     {
@@ -161,10 +161,10 @@ int MimeManager::loadXML(const char *fn)
       attrs = attrs->next;
     }
 
-		while(lcur)
-		{
-			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"ACTION"))
-			{
+    while(lcur)
+    {
+      if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"ACTION"))
+      {
         HttpHeaderChecker::Rule r;
         xmlAttr *actionAttrs = lcur->properties; 
 
@@ -187,102 +187,102 @@ int MimeManager::loadXML(const char *fn)
           {
             if(actionAttrs->children && actionAttrs->children->content)
               r.value.compile((const char*)actionAttrs->children->content, 
-															REG_EXTENDED);
+                              REG_EXTENDED);
           }
           actionAttrs=actionAttrs->next;
 
         }
         rc.headerChecker.addRule(r);
-			}
+      }
 
 
-			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"EXT"))
-			{
-				if(lcur->children->content)
-					rc.extension.assign((const char*)lcur->children->content);
-			}
+      if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"EXT"))
+      {
+        if(lcur->children->content)
+          rc.extension.assign((const char*)lcur->children->content);
+      }
 
-			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"MIME"))
-			{
-				if(lcur->children->content)
-					rc.mimeType.assign((const char*)lcur->children->content);
-			}
+      if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"MIME"))
+      {
+        if(lcur->children->content)
+          rc.mimeType.assign((const char*)lcur->children->content);
+      }
 
-			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"FILTER"))
-			{
-				if(lcur->children->content)
+      if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"FILTER"))
+      {
+        if(lcur->children->content)
           rc.addFilter((const char*)lcur->children->content);
-			}
+      }
 
-			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"CMD"))
-			{
+      if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"CMD"))
+      {
         if(lcur->children->content)
           rc.cmdName.assign((const char*)lcur->children->content);
         
         rc.command = CGI_CMD_SEND;
 
-				if(lcur->children->content && 
+        if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"SEND"))
-					rc.command = CGI_CMD_SEND;
+          rc.command = CGI_CMD_SEND;
 
-				else if(lcur->children->content && 
+        else if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNCGI"))
-					rc.command = CGI_CMD_RUNCGI;
-			
+          rc.command = CGI_CMD_RUNCGI;
+      
         else if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNMSCGI"))
-					rc.command = CGI_CMD_RUNMSCGI;
+          rc.command = CGI_CMD_RUNMSCGI;
 
-				else if(lcur->children->content && 
+        else if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTE"))
-					rc.command = CGI_CMD_EXECUTE;
+          rc.command = CGI_CMD_EXECUTE;
 
-				else if(lcur->children->content && 
+        else if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNISAPI"))
-					rc.command = CGI_CMD_RUNISAPI;
+          rc.command = CGI_CMD_RUNISAPI;
 
-				else if(lcur->children->content && 
+        else if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTEISAPI"))
-					rc.command = CGI_CMD_EXECUTEISAPI;
+          rc.command = CGI_CMD_EXECUTEISAPI;
 
-				else if(lcur->children->content && 
+        else if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"SENDLINK"))
-					rc.command = CGI_CMD_SENDLINK;
+          rc.command = CGI_CMD_SENDLINK;
 
-				else if(lcur->children->content && 
+        else if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,
-											(const xmlChar *)"EXECUTEWINCGI"))
-					rc.command = CGI_CMD_EXECUTEWINCGI;
+                      (const xmlChar *)"EXECUTEWINCGI"))
+          rc.command = CGI_CMD_EXECUTEWINCGI;
 
-				else if(lcur->children->content && 
+        else if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNFASTCGI"))
-					rc.command = CGI_CMD_RUNFASTCGI;
+          rc.command = CGI_CMD_RUNFASTCGI;
 
-				else if(lcur->children->content && 
+        else if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,
-											(const xmlChar *)"EXECUTEFASTCGI"))
-					rc.command = CGI_CMD_EXECUTEFASTCGI;
+                      (const xmlChar *)"EXECUTEFASTCGI"))
+          rc.command = CGI_CMD_EXECUTEFASTCGI;
 
-				else if(lcur->children->content && 
+        else if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"RUNSCGI"))
-					rc.command = CGI_CMD_RUNSCGI;
+          rc.command = CGI_CMD_RUNSCGI;
 
-				else if(lcur->children->content && 
+        else if(lcur->children->content && 
            !xmlStrcmp(lcur->children->content,(const xmlChar *)"EXECUTESCGI"))
-					rc.command = CGI_CMD_EXECUTESCGI;
+          rc.command = CGI_CMD_EXECUTESCGI;
 
 
         else if(lcur->children->content)
           rc.command = CGI_CMD_EXTERNAL;
-			}
+      }
 
-			if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"MANAGER"))
-			{
+      if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"MANAGER"))
+      {
         /*! 
-				 *If the specified manager is not NONE store its path in the record. 
-				 */
-				if(lcur->children->content && strcmpi((char*)lcur->children->content,
-																							 "NONE"))
+         *If the specified manager is not NONE store its path in the record. 
+         */
+        if(lcur->children->content && strcmpi((char*)lcur->children->content,
+                                               "NONE"))
         {
           rc.cgiManager.assign((const char*)lcur->children->content);
         }
@@ -291,26 +291,26 @@ int MimeManager::loadXML(const char *fn)
           rc.cgiManager.assign("");
         }
       }
-			lcur = lcur->next;
-		}
+      lcur = lcur->next;
+    }
 
-		if(addRecord(rc))
+    if(addRecord(rc))
     {
       clean();
-			rwLock.writeUnlock();
+      rwLock.writeUnlock();
       return 0;
     }
-	}
-	parser.close();
+  }
+  parser.close();
   
   /*! Store the loaded status. */
   loaded = 1;
 
-	retSize = data->size();
+  retSize = data->size();
 
-	rwLock.writeUnlock();
+  rwLock.writeUnlock();
 
-	return retSize;
+  return retSize;
 }
 
 
@@ -319,72 +319,72 @@ int MimeManager::loadXML(const char *fn)
  */
 int MimeManager::saveXML(const char *filename)
 {
-	File f;
-	u_long nbw;
+  File f;
+  u_long nbw;
 
-	rwLock.writeLock();
+  rwLock.writeLock();
 
-	FilesUtility::deleteFile(filename);
-	HashMap<string, MimeRecord*>::Iterator it = data->begin();
-	HashMap<string, MimeRecord*>::Iterator end = data->end();
+  FilesUtility::deleteFile(filename);
+  HashMap<string, MimeRecord*>::Iterator it = data->begin();
+  HashMap<string, MimeRecord*>::Iterator end = data->end();
 
-	f.openFile(filename, File::MYSERVER_OPEN_WRITE | File::MYSERVER_OPEN_ALWAYS);
-	f.writeToFile("<?xml version=\"1.0\"?>\r\n", 23, &nbw);
-	f.writeToFile("<MIMETYPES>\r\n", 13, &nbw);
+  f.openFile(filename, File::MYSERVER_OPEN_WRITE | File::MYSERVER_OPEN_ALWAYS);
+  f.writeToFile("<?xml version=\"1.0\"?>\r\n", 23, &nbw);
+  f.writeToFile("<MIMETYPES>\r\n", 13, &nbw);
 
-	for(; it != end; it++)
-	{
+  for(; it != end; it++)
+  {
     MimeRecord *rc = *it;
-		char command[16];
+    char command[16];
     if(!rc)
        break;
-		f.writeToFile("\r\n<MIMETYPE>\r\n<EXT>",19,&nbw);
-		f.writeToFile(rc->extension.c_str(),(u_long)rc->extension.length(),&nbw);
-		f.writeToFile("</EXT>\r\n<MIME>",14,&nbw);
-		f.writeToFile(rc->mimeType.c_str(),(u_long)rc->mimeType.length(),&nbw);
-		f.writeToFile("</MIME>\r\n<CMD>",14,&nbw);
-		if(rc->command == CGI_CMD_SEND)
-			strcpy(command, "SEND");
-		else if(rc->command == CGI_CMD_RUNCGI)
-			strcpy(command, "RUNCGI");
-		else if(rc->command == CGI_CMD_RUNMSCGI)
-			strcpy(command, "RUNMSCGI");
-		else if(rc->command == CGI_CMD_EXECUTE)
-			strcpy(command, "EXECUTE");
-		else if(rc->command == CGI_CMD_SENDLINK)
-			strcpy(command, "SENDLINK");
-		else if(rc->command == CGI_CMD_RUNISAPI)
-			strcpy(command, "RUNISAPI");
-		else if(rc->command == CGI_CMD_EXECUTEISAPI)
-			strcpy(command, "EXECUTEISAPI");
-		else if(rc->command == CGI_CMD_EXECUTEWINCGI)
-			strcpy(command, "EXECUTEWINCGI");
-		else if(rc->command == CGI_CMD_RUNFASTCGI)
-			strcpy(command, "RUNFASTCGI");	
-		else if(rc->command == CGI_CMD_EXECUTEFASTCGI)
-			strcpy(command, "EXECUTEFASTCGI");	
-		else if(rc->command == CGI_CMD_RUNSCGI)
-			strcpy(command, "RUNSCGI");	
-		else if(rc->command == CGI_CMD_EXECUTESCGI)
-			strcpy(command, "EXECUTESCGI");	
-		else if(rc->command == CGI_CMD_EXTERNAL)
-			strcpy(command, rc->cmdName.c_str());
-	
-		f.writeToFile(command,(u_long)strlen(command),&nbw);
+    f.writeToFile("\r\n<MIMETYPE>\r\n<EXT>",19,&nbw);
+    f.writeToFile(rc->extension.c_str(),(u_long)rc->extension.length(),&nbw);
+    f.writeToFile("</EXT>\r\n<MIME>",14,&nbw);
+    f.writeToFile(rc->mimeType.c_str(),(u_long)rc->mimeType.length(),&nbw);
+    f.writeToFile("</MIME>\r\n<CMD>",14,&nbw);
+    if(rc->command == CGI_CMD_SEND)
+      strcpy(command, "SEND");
+    else if(rc->command == CGI_CMD_RUNCGI)
+      strcpy(command, "RUNCGI");
+    else if(rc->command == CGI_CMD_RUNMSCGI)
+      strcpy(command, "RUNMSCGI");
+    else if(rc->command == CGI_CMD_EXECUTE)
+      strcpy(command, "EXECUTE");
+    else if(rc->command == CGI_CMD_SENDLINK)
+      strcpy(command, "SENDLINK");
+    else if(rc->command == CGI_CMD_RUNISAPI)
+      strcpy(command, "RUNISAPI");
+    else if(rc->command == CGI_CMD_EXECUTEISAPI)
+      strcpy(command, "EXECUTEISAPI");
+    else if(rc->command == CGI_CMD_EXECUTEWINCGI)
+      strcpy(command, "EXECUTEWINCGI");
+    else if(rc->command == CGI_CMD_RUNFASTCGI)
+      strcpy(command, "RUNFASTCGI");  
+    else if(rc->command == CGI_CMD_EXECUTEFASTCGI)
+      strcpy(command, "EXECUTEFASTCGI");  
+    else if(rc->command == CGI_CMD_RUNSCGI)
+      strcpy(command, "RUNSCGI");  
+    else if(rc->command == CGI_CMD_EXECUTESCGI)
+      strcpy(command, "EXECUTESCGI");  
+    else if(rc->command == CGI_CMD_EXTERNAL)
+      strcpy(command, rc->cmdName.c_str());
+  
+    f.writeToFile(command,(u_long)strlen(command),&nbw);
 
-		f.writeToFile("</CMD>\r\n<MANAGER>",17,&nbw);
-		if(rc->cgiManager.length())
-			f.writeToFile(rc->cgiManager.c_str(), 
+    f.writeToFile("</CMD>\r\n<MANAGER>",17,&nbw);
+    if(rc->cgiManager.length())
+      f.writeToFile(rc->cgiManager.c_str(), 
                     (u_long)rc->cgiManager.length(), &nbw);
-		else
-			f.writeToFile("NONE", 4, &nbw);
-		f.writeToFile("</MANAGER>\r\n</MIMETYPE>\r\n", 25, &nbw);	
-	}
-	f.writeToFile("\r\n</MIMETYPES>", 14, &nbw);
-	f.closeFile();
+    else
+      f.writeToFile("NONE", 4, &nbw);
+    f.writeToFile("</MANAGER>\r\n</MIMETYPE>\r\n", 25, &nbw);  
+  }
+  f.writeToFile("\r\n</MIMETYPES>", 14, &nbw);
+  f.closeFile();
 
-	rwLock.writeUnlock();
-	return 1;
+  rwLock.writeUnlock();
+  return 1;
 }
 
 /*!
@@ -397,19 +397,19 @@ int MimeManager::getMIME(char* ext,char *dest,char **dest2)
 {
   MimeRecord* mr;
 #ifdef MIME_LOWER_CASE
-	int i, extLen = strlen(ext);
-	char lowerCaseExt[extLen];
+  int i, extLen = strlen(ext);
+  char lowerCaseExt[extLen];
 
-	for(i = 0; i < extLen; i++)
-		lowerCaseExt[i] = tolower(ext[i]);
+  for(i = 0; i < extLen; i++)
+    lowerCaseExt[i] = tolower(ext[i]);
 #endif
 
-	rwLock.readLock();
+  rwLock.readLock();
 
 #ifdef MIME_LOWER_CASE
-	mr = data ? data->get(lowerCaseExt) : 0;
+  mr = data ? data->get(lowerCaseExt) : 0;
 #else
-	mr = data ? data->get(ext) : 0;
+  mr = data ? data->get(ext) : 0;
 #endif
 
   if(mr)
@@ -418,29 +418,29 @@ int MimeManager::getMIME(char* ext,char *dest,char **dest2)
       strcpy(dest, mr->mimeType.c_str());
 
     if(dest2)
-		{
+    {
       if(mr->cgiManager.length())
       {
         *dest2 = new char[mr->cgiManager.length() + 1];
         if(*dest2 == 0)
-				{
-					rwLock.readUnlock();
+        {
+          rwLock.readUnlock();
           return 0;
-				}
+        }
         strcpy(*dest2, mr->cgiManager.c_str());
         }
-				else
-					*dest2 = 0;
+        else
+          *dest2 = 0;
     }
-		rwLock.readUnlock();
+    rwLock.readUnlock();
     return mr->command;
   }
-	rwLock.readUnlock();
+  rwLock.readUnlock();
 
-	/*!
+  /*!
    *If the ext is not registered send the file as it is.
    */
-	return CGI_CMD_SEND;
+  return CGI_CMD_SEND;
 }
 
 /*!
@@ -454,23 +454,23 @@ int MimeManager::getMIME(string& ext,string& dest,string& dest2)
   MimeRecord *mr;
 
 #ifdef MIME_LOWER_CASE
-	string lowerCaseExt(ext);
-	transform(lowerCaseExt.begin(), lowerCaseExt.end(), lowerCaseExt.begin(), ::tolower);
+  string lowerCaseExt(ext);
+  transform(lowerCaseExt.begin(), lowerCaseExt.end(), lowerCaseExt.begin(), ::tolower);
 #endif
 
-	rwLock.readLock();
+  rwLock.readLock();
 
 #ifdef MIME_LOWER_CASE
-	mr = data ? data->get(lowerCaseExt.c_str()): 0;
+  mr = data ? data->get(lowerCaseExt.c_str()): 0;
 #else
-	mr = data ? data->get(ext.c_str()): 0;
+  mr = data ? data->get(ext.c_str()): 0;
 #endif
 
-	if(mr)
-	{
-		if(!stringcmpi(mr->extension, ext.c_str()))
-		{
-			dest.assign(mr->mimeType.c_str());
+  if(mr)
+  {
+    if(!stringcmpi(mr->extension, ext.c_str()))
+    {
+      dest.assign(mr->mimeType.c_str());
 
       if(mr->cgiManager.length())
       {
@@ -479,15 +479,15 @@ int MimeManager::getMIME(string& ext,string& dest,string& dest2)
       else
         dest2.assign("");
     
-			rwLock.readUnlock();
-			return mr->command;
-		}
-	}
-	rwLock.readUnlock();
-	/*!
+      rwLock.readUnlock();
+      return mr->command;
+    }
+  }
+  rwLock.readUnlock();
+  /*!
    *If the ext is not registered send the file as it is.
    */
-	return CGI_CMD_SEND;
+  return CGI_CMD_SEND;
 }
 
 /*!
@@ -496,32 +496,32 @@ int MimeManager::getMIME(string& ext,string& dest,string& dest2)
 int MimeManager::getMIME(int id, char* ext, char *dest, char **dest2)
 {
   MimeRecord *mr;
-	HashMap<string, MimeRecord*>::Iterator it;
-	HashMap<string, MimeRecord*>::Iterator end;
+  HashMap<string, MimeRecord*>::Iterator it;
+  HashMap<string, MimeRecord*>::Iterator end;
 
-	if(data == 0)
-		return 0;
+  if(data == 0)
+    return 0;
 
-	rwLock.readLock();
+  rwLock.readLock();
 
 
-	it = data->begin();
-	end = data->end();
-	if(id > data->size() || id < 0)
+  it = data->begin();
+  end = data->end();
+  if(id > data->size() || id < 0)
   {
-		rwLock.readUnlock();
+    rwLock.readUnlock();
     return CGI_CMD_SEND;   
   }
-	/*! FIXME: find a O(1) solution.  */
-	while(id-- && it != end)it++;
+  /*! FIXME: find a O(1) solution.  */
+  while(id-- && it != end)it++;
 
   mr = *it;
 
   if(!mr)
-	{
-		rwLock.readUnlock();
+  {
+    rwLock.readUnlock();
     return CGI_CMD_SEND;
-	}
+  }
 
   if(ext)
     strcpy(ext, mr->extension.c_str());
@@ -533,17 +533,17 @@ int MimeManager::getMIME(int id, char* ext, char *dest, char **dest2)
     {
       *dest2 = new char[mr->cgiManager.length() + 1];
       if(*dest2 == 0)
-			{
-				rwLock.readUnlock();
+      {
+        rwLock.readUnlock();
         return 0;
-			}
+      }
       strcpy(*dest2, mr->cgiManager.c_str());
     }
     else
       dest2 = 0;
   }
 
-	rwLock.readUnlock();
+  rwLock.readUnlock();
   return mr->command;
 
 }
@@ -555,11 +555,11 @@ int MimeManager::getMIME(int id,string& ext,string& dest,string& dest2)
 {
   MimeRecord *mr;
 
-	rwLock.readLock();
+  rwLock.readLock();
 
   if(!data || id > data->size() || id < 0)
   {
-		rwLock.readUnlock();
+    rwLock.readUnlock();
     return CGI_CMD_SEND;   
   }
 
@@ -568,21 +568,21 @@ int MimeManager::getMIME(int id,string& ext,string& dest,string& dest2)
   {
     ext.assign(mr->extension);
     dest.assign(mr->mimeType);
-			
+      
     if(mr->cgiManager.length())
       dest2.assign(mr->cgiManager.c_str());
     else
       dest2.assign("");
-			
-		rwLock.readUnlock();
+      
+    rwLock.readUnlock();
     return mr->command;
   }
 
-	rwLock.readUnlock();
-	/*!
+  rwLock.readUnlock();
+  /*!
    *If the ext is not registered send the file as it is.
    */
-	return CGI_CMD_SEND;
+  return CGI_CMD_SEND;
 }
 
 
@@ -601,15 +601,15 @@ void MimeManager::clean()
 {
   if(loaded)
   {
-		rwLock.writeLock();
+    rwLock.writeLock();
     loaded = 0;
-		if(filename) 
-			delete filename;
+    if(filename) 
+      delete filename;
     filename = 0;
     removeAllRecords();
-		delete data;
-		data = 0;
-		rwLock.writeUnlock();
+    delete data;
+    data = 0;
+    rwLock.writeUnlock();
   }
 }
 
@@ -618,7 +618,7 @@ void MimeManager::clean()
  */
 MimeManager::MimeManager() : rwLock(100000)
 {
-	data = 0;
+  data = 0;
   filename = 0;
   loaded = 0;
 }
@@ -628,35 +628,35 @@ MimeManager::MimeManager() : rwLock(100000)
  */
 int MimeManager::addRecord(MimeRecord& mr)
 {
-	/*!
+  /*!
    *If the MIME type already exists remove it.
    */
   MimeRecord *nmr = 0;
   try
   {
-		MimeRecord *old;
+    MimeRecord *old;
 
 #ifdef MIME_LOWER_CASE
-		transform(mr.extension.begin(), mr.extension.end(), mr.extension.begin(), ::tolower);
+    transform(mr.extension.begin(), mr.extension.end(), mr.extension.begin(), ::tolower);
 #endif
     nmr = new MimeRecord(mr);
-    if(!nmr)	
+    if(!nmr)  
       return 1;
 
     old = data->put(nmr->extension, nmr);
-		if(old)
-		{
-			string error;
-			error.assign("Warning: multiple MIME types registered for the extension " );
-			error.append(nmr->extension);
+    if(old)
+    {
+      string error;
+      error.assign("Warning: multiple MIME types registered for the extension " );
+      error.append(nmr->extension);
 
-			Server::getInstance()->logLockAccess();
-			Server::getInstance()->logPreparePrintError();
-			Server::getInstance()->logWriteln(error.c_str());     
-			Server::getInstance()->logEndPrintError();
-			Server::getInstance()->logUnlockAccess();			
-			delete old;
-		}
+      Server::getInstance()->logLockAccess();
+      Server::getInstance()->logPreparePrintError();
+      Server::getInstance()->logWriteln(error.c_str());     
+      Server::getInstance()->logEndPrintError();
+      Server::getInstance()->logUnlockAccess();      
+      delete old;
+    }
   }
   catch(...)
   {
@@ -683,7 +683,7 @@ void MimeManager::removeRecord(const string& ext)
  */
 void MimeManager::removeAllRecords()
 {
-	HashMap<string, MimeRecord*>::Iterator it = data->begin();
+  HashMap<string, MimeRecord*>::Iterator it = data->begin();
   for(; it != data->end(); it++)
   {
     MimeRecord *rec = *it;
@@ -691,7 +691,7 @@ void MimeManager::removeAllRecords()
       delete rec;
   }
 
-	data->clear();
+  data->clear();
 }
 
 /*!
@@ -701,13 +701,13 @@ MimeRecord *MimeManager::getRecord(string const &ext)
 {
   MimeRecord* mr;
 
-	rwLock.readLock();
+  rwLock.readLock();
 
-	mr = data ? data->get(ext.c_str()) : 0;
+  mr = data ? data->get(ext.c_str()) : 0;
 
-	rwLock.readUnlock();
+  rwLock.readUnlock();
 
-	return mr;
+  return mr;
 }
 
 /*!
@@ -715,15 +715,15 @@ MimeRecord *MimeManager::getRecord(string const &ext)
  */
 u_long MimeManager::getNumMIMELoaded()
 {
-	u_long ret;
+  u_long ret;
 
-	rwLock.readLock();
+  rwLock.readLock();
 
-	ret = data ? data->size() : 0;
+  ret = data ? data->size() : 0;
 
-	rwLock.readUnlock();
+  rwLock.readUnlock();
 
-	return ret;
+  return ret;
 }
 
 /*!

@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -43,7 +43,7 @@ LogManager::LogManager()
   type = TYPE_CONSOLE;
   gzipLog = 1;
   maxSize = 0;
-	mutex.init();
+  mutex.init();
   cycleLog = 0;
 }
 
@@ -55,7 +55,7 @@ LogManager::~LogManager()
   /*!
    *Try to close the file.
    */
-	mutex.destroy();
+  mutex.destroy();
   close();
 }
 
@@ -73,10 +73,10 @@ int LogManager::load(const char *filename)
     close();
 
   opt = File::MYSERVER_OPEN_APPEND | 
-		File::MYSERVER_OPEN_ALWAYS |
-		File::MYSERVER_OPEN_WRITE | 
-		File::MYSERVER_OPEN_READ | 
-		File::MYSERVER_NO_INHERIT;
+    File::MYSERVER_OPEN_ALWAYS |
+    File::MYSERVER_OPEN_WRITE | 
+    File::MYSERVER_OPEN_READ | 
+    File::MYSERVER_NO_INHERIT;
 
   ret = file.openFile(filename, opt);
 
@@ -355,8 +355,8 @@ int LogManager::storeFile()
       currentFile->closeFile();
       FilesUtility::deleteFile(filepath.c_str());
       if(currentFile->openFile(filepath.c_str(), File::MYSERVER_OPEN_APPEND|
-															 File::MYSERVER_OPEN_ALWAYS | File::MYSERVER_OPEN_WRITE |
-															 File::MYSERVER_OPEN_READ | File::MYSERVER_NO_INHERIT))
+                               File::MYSERVER_OPEN_ALWAYS | File::MYSERVER_OPEN_WRITE |
+                               File::MYSERVER_OPEN_READ | File::MYSERVER_NO_INHERIT))
       {
         delete [] buffer;
         delete [] buffer2;

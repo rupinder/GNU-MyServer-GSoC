@@ -24,13 +24,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE> 
 void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::addMulticast(MSG_TYPE msg, Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>* handler)
 {
-	vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.get(msg);
-	if(!msgHandlers)
-	{
-		msgHandlers = new vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>();
-		handlers.put(msg, msgHandlers);
-	}
-	msgHandlers->push_back(handler);
+  vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.get(msg);
+  if(!msgHandlers)
+  {
+    msgHandlers = new vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>();
+    handlers.put(msg, msgHandlers);
+  }
+  msgHandlers->push_back(handler);
 }
 
 
@@ -40,12 +40,12 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::addMulticast(MSG_TYPE msg,
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE> 
 void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticast(MSG_TYPE msg, Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>* handler)
 {
-	vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.get(msg);
+  vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.get(msg);
   typename vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE> * >::iterator it;
-	if(!msgHandlers)
-	{
-		return;
-	}
+  if(!msgHandlers)
+  {
+    return;
+  }
   
   for(it = msgHandlers->begin(); it != msgHandlers->end(); it++)
     if(*it == handler)
@@ -61,10 +61,10 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticast(MSG_TYPE m
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE> 
 void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticasts(MSG_TYPE msg)
 {
-	vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.remove(msg);
-	if(msgHandlers)
+  vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.remove(msg);
+  if(msgHandlers)
   {
-		delete msgHandlers;
+    delete msgHandlers;
   }
 }
 
@@ -74,16 +74,16 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticasts(MSG_TYPE 
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE> 
 void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::notifyMulticast(MSG_TYPE& msg, ARG_TYPE arg)
 {
-	vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.get(msg);
+  vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.get(msg);
 
-	if(!msgHandlers)
-		return;
+  if(!msgHandlers)
+    return;
 
-	for(size_t i = 0; i < msgHandlers->size(); i++)
-	{
-		Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>* multicast = (*msgHandlers)[i];
-		multicast->updateMulticast(this, msg, arg);
-	}
+  for(size_t i = 0; i < msgHandlers->size(); i++)
+  {
+    Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>* multicast = (*msgHandlers)[i];
+    multicast->updateMulticast(this, msg, arg);
+  }
 
 }
 
@@ -93,7 +93,7 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::notifyMulticast(MSG_TYPE& 
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE> 
 vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>* MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::getHandlers(MSG_TYPE& msg)
 {
-	return handlers.get(msg);
+  return handlers.get(msg);
 }
 
 /*!
@@ -102,19 +102,19 @@ vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>* MulticastRegistry<MSG_TYPE, AR
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
 void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::clearMulticastRegistry()
 {
-	/* Dirty code, but compile and works.  */
-	HashMap<void*, void*>* ptrHandlers = (HashMap<void*, void*>*) &handlers;
-	HashMap<void*, void*>::Iterator it = ptrHandlers->begin();
-	HashMap<void*, void*>::Iterator end = ptrHandlers->end();
-	vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>* v;
+  /* Dirty code, but compile and works.  */
+  HashMap<void*, void*>* ptrHandlers = (HashMap<void*, void*>*) &handlers;
+  HashMap<void*, void*>::Iterator it = ptrHandlers->begin();
+  HashMap<void*, void*>::Iterator end = ptrHandlers->end();
+  vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>* v;
 
-	while(it != end)
-	{
-		v = (vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>*) *it;
-		delete v;
-		it++;
-	}
-	handlers.clear();
+  while(it != end)
+  {
+    v = (vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>*) *it;
+    delete v;
+    it++;
+  }
+  handlers.clear();
 }
 
 

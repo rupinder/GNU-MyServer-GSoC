@@ -341,7 +341,7 @@ void ConnectionsScheduler::initialize()
 #define LOCAL_SOCKETPAIR_AF AF_UNIX
 #endif
   int err = create_socketpair(LOCAL_SOCKETPAIR_AF, SOCK_STREAM, 0,
-			dispatcherArg.fd);
+      dispatcherArg.fd);
   if (err == -1)
   {
     Server::getInstance()->logLockAccess();
@@ -356,7 +356,7 @@ void ConnectionsScheduler::initialize()
   //make_socket_nonblocking(dispatcherArg.fd[1]);
 
   event_set(&(dispatcherArg.loopEvent), dispatcherArg.fd[0], EV_READ | EV_TIMEOUT,
-	       eventLoopHandler, &dispatcherArg);
+         eventLoopHandler, &dispatcherArg);
 
   event_add(&(dispatcherArg.loopEvent), NULL);
 

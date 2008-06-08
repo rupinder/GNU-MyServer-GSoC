@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 typedef int (*acceptDataPROC)();
 typedef int (*controlMethodPROC)(void*, volatile void*, const char*, 
-																 int, int, int); 
+                                 int, int, int); 
 
 /*!
  *Default constructor.
@@ -60,15 +60,15 @@ int DynamicHttpCommand::acceptData()
  *Control a request.
  */
 int DynamicHttpCommand::send(HttpThreadContext* context, 
-														 ConnectionPtr lpconnection, 
+                             ConnectionPtr lpconnection, 
                              string& Uri, int systemrequest, 
-														 int OnlyHeader, int yetmapped)
+                             int OnlyHeader, int yetmapped)
 {
   controlMethodPROC control = 
-		(controlMethodPROC)hinstLib.getProc("controlMethod");
+    (controlMethodPROC)hinstLib.getProc("controlMethod");
   if(control)
     return control(context, lpconnection, Uri.c_str(), 
-									 systemrequest, OnlyHeader, yetmapped);
+                   systemrequest, OnlyHeader, yetmapped);
   else
     return 0;
 }
