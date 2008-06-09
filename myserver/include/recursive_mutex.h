@@ -15,33 +15,18 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef MUTEX_H
-#define MUTEX_H
+#ifndef RECURSIVE_MUTEX_H
+#define RECURSIVE_MUTEX_H
 
 #include "../stdafx.h"
-#include "../include/file.h"
-#include "../include/stringutils.h"
+#include "../include/mutex.h"
 
-#ifdef HAVE_PTHREAD
-	typedef pthread_mutex_t MutexHandle;
-#else
-	typedef HANDLE MutexHandle;
-#endif
 
-class Mutex
+class RecursiveMutex : public Mutex
 {
 public:
-	Mutex();
-	virtual ~Mutex();
+	RecursiveMutex();
+	virtual ~RecursiveMutex();
 	virtual int init();
-	int destroy();
-	int lock(u_long id = 0);
-	int unlock(u_long id = 0);
-  bool isLocked();
-  MutexHandle getHandle();
-protected:
-  bool locked;
-	int initialized;
-	MutexHandle mutex;
 };
 #endif
