@@ -1,5 +1,5 @@
 bin_PROGRAMS = myserver-configure 
-myserver_configure_SOURCES = main.cpp fltkconfig.cpp service.cpp progress.cpp vector.cpp ../source/file.cpp ../source/files_utility.cpp ../source/xml_parser.cpp ../source/utility.cpp ../source/find_data.cpp language.cpp mimetype.cpp vhost.cpp ../source/md5.cpp ../source/mem_buff.cpp control_client.cpp ../source/ssl_socket.cpp ../source/socket.cpp  ../source/mutex.cpp ../source/thread.cpp ../source/stream.cpp ../source/securestr.cpp
+myserver_configure_SRCS = main.cpp fltkconfig.cpp service.cpp progress.cpp vector.cpp ../src/file.cpp ../src/files_utility.cpp ../src/xml_parser.cpp ../src/utility.cpp ../src/find_data.cpp language.cpp mimetype.cpp vhost.cpp ../src/md5.cpp ../src/mem_buff.cpp control_client.cpp ../src/ssl_socket.cpp ../src/socket.cpp  ../src/mutex.cpp ../src/thread.cpp ../src/stream.cpp ../src/securestr.cpp
 
 INCLUDES = $(all_includes)
 
