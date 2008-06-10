@@ -1,4 +1,4 @@
-# Makefile for MyServer (./source)
+# Makefile for MyServer (./src)
 
 #BUILT_SOURCES = ../include/ftp_lexer.h ../include/ftp_parser.h
 #AM_YFLAGS = --defines=../include/ftp_parser.h

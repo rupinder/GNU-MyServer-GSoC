@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright © 2005, 2007 The MyServer Team
+Copyright © 2005, 2007, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -240,7 +240,7 @@ class HashMap <void*, ValueType>
 };
 
 #ifndef HASHMAP_CPP
-#include "../source/hash_map.cpp"
+#include "../src/hash_map.cpp"
 #endif
 
 #endif

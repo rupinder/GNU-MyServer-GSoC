@@ -15,4 +15,4 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/gnome-pthread-check.m4 \
         $(top_srcdir)/configure.in
 
 
-SUBDIRS = source $(CONTROL) $(CGI_LIB) binaries documentation $(TESTS)
+SUBDIRS = src $(CONTROL) $(CGI_LIB) binaries documentation $(TESTS)

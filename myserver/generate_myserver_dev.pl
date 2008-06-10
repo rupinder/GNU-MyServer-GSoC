@@ -23,7 +23,7 @@
 use File::Find;
 
 my @files = ('stdafx.cpp');
-my @directories = ('source');
+my @directories = ('src');
 
 $head = "[Project]
 FileName=myserver.dev

@@ -376,7 +376,7 @@ AC_CONFIG_FILES([
     documentation/english/images/Makefile
     documentation/english/style/Makefile
     documentation/english/texts/Makefile
-    source/Makefile
+    src/Makefile
     tests/Makefile
     ])
 AC_OUTPUT
