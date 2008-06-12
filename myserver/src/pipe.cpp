@@ -194,6 +194,7 @@ long Pipe::getWriteHandle()
  */
 void Pipe::close()
 {
+  terminated = true;
 #ifdef NOT_WIN
   if(handles[0])
     ::close(handles[0]);
@@ -240,6 +241,7 @@ Pipe::Pipe()
  */
 void Pipe::closeRead()
 {
+  terminated = true;
 #ifdef NOT_WIN
   if(handles[0])
     ::close(handles[0]);
@@ -257,6 +259,7 @@ void Pipe::closeRead()
  */
 void Pipe::closeWrite()
 {
+  terminated = true;
 #ifdef NOT_WIN
   if(handles[1])
     ::close(handles[1]);

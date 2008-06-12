@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -27,14 +27,6 @@ using namespace std;
 
 class Pipe : public Stream
 {
-private:
-  bool terminated;
-#ifdef NOT_WIN
-	int handles[2];
-#else
-  HANDLE readHandle;
-  HANDLE writeHandle;
-#endif
 public:
 	Pipe();
 	int create(bool readPipe = true);
@@ -47,5 +39,13 @@ public:
 	void closeRead();
 	void closeWrite();
 	bool pipeTerminated(){return terminated;}
+private:
+  bool terminated;
+#ifdef NOT_WIN
+	int handles[2];
+#else
+  HANDLE readHandle;
+  HANDLE writeHandle;
+#endif
 };
 #endif
