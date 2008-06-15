@@ -44,12 +44,12 @@ class ConfigGUIGTK:
         if (self.window):
             self.window.connect("destroy", gtk.main_quit)
 
-        # Create the tree view widget structure (one column)
+        # Create treeview widget structure (one column) for default filenames
         self.treeview=self.wTree.get_widget("treeview1")
         self.treemodel=gtk.TreeStore(gobject.TYPE_STRING)
         self.treeview.set_model(self.treemodel)
-        # Add tree view header
-        self.treeview.set_headers_visible(gtk.TRUE)
+        # Add treeview header
+        self.treeview.set_headers_visible(True)
         renderer=gtk.CellRendererText()
         column=gtk.TreeViewColumn("Default file names:",renderer, text=0)
         column.set_resizable(True)
@@ -65,13 +65,48 @@ class ConfigGUIGTK:
         self.insert_row(self.treemodel,None,'index.php')
         
         self.treeview.show()
+
+        # Crete treeview widget with file extensions
+        self.treeviewEXT=self.wTree.get_widget("treeview2")
+        self.treemodelEXT=gtk.TreeStore(gobject.TYPE_STRING)
+        self.treeviewEXT.set_model(self.treemodelEXT)
+        # Add treeview header
+        self.treeviewEXT.set_headers_visible(True)
+        renderer=gtk.CellRendererText()
+        column=gtk.TreeViewColumn("Extension:",renderer, text=0)
+        column.set_resizable(True)
+        self.treeviewEXT.append_column(column)
+        renderer=gtk.CellRendererText()
+        
+        # Add list items to tree view
+        self.insert_row(self.treemodelEXT,None,'ai')
+        self.insert_row(self.treemodelEXT,None,'aif')
+        self.insert_row(self.treemodelEXT,None,'aifc')
+        self.insert_row(self.treemodelEXT,None,'aiff')
+        self.insert_row(self.treemodelEXT,None,'asc')
+        self.insert_row(self.treemodelEXT,None,'au')
+        self.insert_row(self.treemodelEXT,None,'avi')
+        self.insert_row(self.treemodelEXT,None,'bcpio')
+        self.insert_row(self.treemodelEXT,None,'bin')
+        self.insert_row(self.treemodelEXT,None,'bmp')
+        self.insert_row(self.treemodelEXT,None,'cdf')
+        self.treeviewEXT.show()
+
     
         # dic - dictionary with pairs:
         #        "signal name" : event
         dic = { "on_btnAddFileName_clicked" : \
                     self.buttonAddefaultFileName_clicked,
                 "on_btnRemoveFileName_clicked" : \
-                    self.buttonRemoveDefultFileName_clicked
+                    self.buttonRemoveDefultFileName_clicked,
+                "on_btnAddMIMEExtenesion_clicked" : \
+                    self.buttonAddMIMEExtension_clicked,
+                "on_filechooserbutton2_file_set" : \
+                    self.filechooserbutton2_file_set,
+                "on_filechooserbutton1_file_set" : \
+                    self.filechooserbutton1_file_set,
+                "on_btnRemoveMIMEExtension_clicked" : \
+                    self.buttonRemoveMIMEExtension_clicked
                 }
         # Connect signals
         self.wTree.signal_autoconnect (dic)
@@ -101,7 +136,7 @@ class ConfigGUIGTK:
         dia.show()
         entry = gtk.Entry()
         entry.show()
-        entry.set_activates_default(gtk.TRUE)
+        entry.set_activates_default(True)
         dia.vbox.pack_start(entry)
         dia.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
         dia.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
@@ -113,9 +148,39 @@ class ConfigGUIGTK:
         self.insert_row(self.treemodel,None, name)
         
     def buttonRemoveDefultFileName_clicked(self, button):
-        """ Removes selected entry """
+        """ Removes selected file name """
         self.delete_rows(self.treeview)
         
+    def buttonAddMIMEExtension_clicked(self, button):
+        """ Add new extension """
+        dia = gtk.Dialog("Add new extension")
+        dia.show()
+        entry = gtk.Entry()
+        entry.show()
+        entry.set_activates_default(True)
+        dia.vbox.pack_start(entry)
+        dia.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        dia.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
+        dia.set_default_response(gtk.RESPONSE_OK)
+        response = dia.run()
+        if response == gtk.RESPONSE_OK:
+            name = entry.get_text()
+        dia.destroy()
+        self.insert_row(self.treemodelEXT,None, name)
+
+    def buttonRemoveMIMEExtension_clicked(self, widget):
+        """ Remove selected extension name """
+        self.delete_rows(self.treeviewEXT)
+
+
+    def filechooserbutton2_file_set(self, widget):
+        """ Place file path in entry field """
+        self.wTree.get_widget("enManager").set_text(self.wTree.get_widget("filechooserbutton2").get_filename())
+        
+    def filechooserbutton1_file_set(self, widget):
+        """ Place file path in entry field """
+        self.wTree.get_widget("enStylesheet").set_text(self.wTree.get_widget("filechooserbutton1").get_filename())
+
 if __name__ == "__main__":
     ConfigUI = ConfigGUIGTK()
     gtk.main()
