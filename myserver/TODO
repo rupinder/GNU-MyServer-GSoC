@@ -2,7 +2,7 @@ TODO list for MyServer.
 
 *	libidn support with mingw under windows, create devpaks
 
-* Provide support for other ssl libraries
+*	Provide support for other ssl libraries
 *	Provide support for GnuTLS
 *	Provide support for Mozilla libnss
 
@@ -75,7 +75,7 @@ TODO list for MyServer.
 *	Control protocol improvements.
 **	Allow access to log files. (*)
 
-* Scripting support.
+*	Scripting support.
 **	Define a script language to use (maybe libguile?).
 **	Possibility to use scripts inside myserver.
 **	Use them in security files.
@@ -112,14 +112,15 @@ TODO list for MyServer.
 
 *	Virtual hosts data.
 **	Find and implement a faster way than the linear search in vhosts handling code.
-**	Possibility to have virtual hosts data in external sources (other
-		than virtualhosts.xml).
+**	Possibility to have virtual hosts data in external sources
+		(other than virtualhosts.xml).
 **	Support for NTFS junction point under windows.
 
 *	Support for Frontpage extensions.
 *	Design and implementation of an easy documents deployment mechanism
-*	interfaced with the rest of the OS.
+		interfaced with the rest of the OS.
 
+*	Rewrite safetime to be a class using the Singleton design pattern.
 *	Setuid and Setgid for CGI processes.
 *	PHP Configuration Tool. 
 *	SSI files support.
