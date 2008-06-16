@@ -36,7 +36,8 @@ public:
 	int destroy();
 	int lock(u_long id = 0);
 	int unlock(u_long id = 0);
-  SemaphoreHandle getHandle(){return semaphore;}
+  SemaphoreHandle *getHandle(){return &semaphore;}
+  int isInitialized(){return initialized;}
 private:
 	int initialized;
 	SemaphoreHandle semaphore;
