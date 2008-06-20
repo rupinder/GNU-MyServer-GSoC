@@ -138,7 +138,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit3]
-FileName=main.cpp
+FileName=myserver-configure.cpp
 CompileCpp=1
 Folder=MyServer Configure
 Compile=1
