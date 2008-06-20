@@ -71,7 +71,7 @@ LegalCopyright=MyServer Team
 LegalTrademarks=
 OriginalFilename=myserver.exe
 ProductName=MyServer
-ProductVersion=0.8.12
+ProductVersion=0.9-rc2
 AutoIncBuildNr=0";
 
 $unit_options = "CompileCpp=1
