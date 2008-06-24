@@ -23,6 +23,8 @@ import glob
 
 import xml.dom.minidom
 from xml.dom.minidom import Node
+
+import string
  
 PKG_NAME = "MyServer"
 MYSERVER_VERSION = "0.9.0"
@@ -52,6 +54,26 @@ buildMscgiExamples = False
 doTests = False
 
 
+# SCons helper
+################
+
+def Define_helper(name, value = None):
+    content = []
+
+    if value is not None:
+        define_txt = "#define %s %s" % (name, value)
+    else:
+        define_txt = "#define %s" % name
+
+    content.append(define_txt)
+    content.append('')
+
+    conf.config_h_text = conf.config_h_text + string.join (content, '\n')
+
+################
+
+
+
 if command == "update_svn":
     Execute("svn update")
 
@@ -77,6 +99,9 @@ else:
 
 if  not env.GetOption('clean'):
     conf = Configure(env, config_h="config.h")
+
+    if not conf.__dict__.has_key('Define'):
+        conf.Define = Define_helper
 
     conf.Define("PACKAGE_NAME", '"' + PKG_NAME + '"')
     conf.Define("PACKAGE_VERSION", '"' + PKG_VERSION + '"')
