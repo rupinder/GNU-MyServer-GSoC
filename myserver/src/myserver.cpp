@@ -61,7 +61,7 @@ static char *path;
 /*!
  *Change this to reflect the version of the software.
  */
-#ifdef PACKAGE_VERSION
+#ifdef MYSERVER_VERSION
 const char *versionOfSoftware = MYSERVER_VERSION;
 #else
 const char *versionOfSoftware = "0.9.0";
