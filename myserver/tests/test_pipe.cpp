@@ -22,6 +22,7 @@
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
 #include "../include/pipe.h"
+#include <string.h>
 
 class TestPipe : public CppUnit::TestFixture
 {

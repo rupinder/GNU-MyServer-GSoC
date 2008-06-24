@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2006 The MyServer Team
+Copyright (C) 2006, 2008 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -22,20 +22,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/file.h"
 #include "../include/stringutils.h"
 #include "../include/hash_map.h"
+#include "../include/mutex.h"
 #include <string>
 
 using namespace std;
 
 class HomeDir
 {
-private:
-#ifdef WIN32
-  string data;
-#else
-	HashMap<string, string*> data;
-#endif
-	time_t timestamp;
-	int loaded;
 public:
 	HomeDir();
 	~HomeDir();
@@ -44,5 +37,19 @@ public:
 	int load();
 	const string *getHomeDir(string& userName);
 	void getHomeDir(string& userName, string& out);
+
+  int isLoaded(){return loaded;}
+
+private:
+  Mutex loadMutex;
+  int loadImpl();
+
+#ifdef WIN32
+  string data;
+#else
+	HashMap<string, string*> data;
+#endif
+	time_t timestamp;
+	int loaded;
 };
 #endif
