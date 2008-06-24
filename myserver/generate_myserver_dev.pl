@@ -58,20 +58,20 @@ CustomMakefile=
 
 [VersionInfo]
 Major=0
-Minor=8
-Release=12
-Build=1
+Minor=9
+Release=0
+Build=3
 LanguageID=1033
 CharsetID=1252
 CompanyName=MyServer Project
-FileVersion=0.8.12
+FileVersion=0.9.0
 FileDescription=MyServer webserver
 InternalName=
 LegalCopyright=MyServer Team
 LegalTrademarks=
 OriginalFilename=myserver.exe
 ProductName=MyServer
-ProductVersion=0.9-rc2
+ProductVersion=0.9.0
 AutoIncBuildNr=0";
 
 $unit_options = "CompileCpp=1

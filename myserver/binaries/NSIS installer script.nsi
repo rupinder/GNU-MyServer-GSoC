@@ -6,22 +6,22 @@
 SetCompressor /SOLID lzma
 
 Name "MyServer"
-OutFile "MyServer-win32-0.9-rc1.exe"
+OutFile "MyServer-win32-0.9.0.exe"
 
 ; Versioning Information
-VIProductVersion "0.9.0.1"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" 		"MyServer"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "Comments" 		"www.myserverproject.net"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName" 		"MyServer Project"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" 		"MyServer Project"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" 	"MyServer webserver"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" 		"0.9.0.1"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" 		"0.9.0.1"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "InternalName" 		""
-;VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalTrademarks" 	""
-VIAddVersionKey /LANG=${LANG_ENGLISH} "OriginalFilename"	"MyServer-win32-0.9-rc1.exe"
-;VIAddVersionKey /LANG=${LANG_ENGLISH} "PrivateBuild" 		"1"
-;VIAddVersionKey /LANG=${LANG_ENGLISH} "SpecialBuild" 		"1"
+VIProductVersion "0.9.0.3"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName"         "MyServer"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "Comments"            "www.myserverproject.net"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName"         "MyServer Project"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright"      "MyServer Project"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription"     "MyServer webserver"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion"         "0.9.0.3"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion"      "0.9.0.3"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "InternalName"        ""
+;VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalTrademarks"    ""
+VIAddVersionKey /LANG=${LANG_ENGLISH} "OriginalFilename"    "MyServer-win32-0.9.0.exe"
+;VIAddVersionKey /LANG=${LANG_ENGLISH} "PrivateBuild"       "1"
+;VIAddVersionKey /LANG=${LANG_ENGLISH} "SpecialBuild"       "1"
 
 ; Setting the Style
 ;
