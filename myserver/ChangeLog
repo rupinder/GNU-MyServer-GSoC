@@ -1,1 +1,3 @@
-Look at http://www.myserverproject.net.
+The ChangeLog file is not maintained as a separate file, use the
+subversion log messages to track files changes.
+The svn2cl utility can help you to get a GNU compatible ChangeLog file.
