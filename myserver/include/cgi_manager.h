@@ -23,12 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #include "../stdafx.h"
-/*
-*Do not link the library using with the SSL support.
-*/
-#ifndef DO_NOT_USE_SSL
-#define DO_NOT_USE_SSL
-#endif
 
 #include "../include/server.h"
 #include "../include/http.h"

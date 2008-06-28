@@ -121,13 +121,16 @@ TODO list for MyServer.
 		interfaced with the rest of the OS.
 
 *	Rewrite safetime to be a class using the Singleton design pattern.
+*	Remove the LOCAL_BUFFER_DIM limit in cgi_manager.cpp, the buffer must be dinamic.
 *	Setuid and Setgid for CGI processes.
 *	PHP Configuration Tool. 
 *	SSI files support.
+
 *	FTP handle telnet strings
 *	FTP disable pipelining(there is cfg for this but is not implemented)
 *	FTP write logging code
 **	Secure FTP protocol(SFTP/FTPS)
+
 *	Support for JSP and servlets.
 *	HTTP proxy server.
 *	Embedded perl.
