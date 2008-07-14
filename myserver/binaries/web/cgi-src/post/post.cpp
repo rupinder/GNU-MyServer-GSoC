@@ -1,7 +1,7 @@
 #ifdef WIN32
 #include "cgi_manager.h"
 #else
-#include "include/cgi_manager.h"
+#include "include/mscgi_manager.h"
 #endif
 
 
@@ -11,7 +11,7 @@ extern "C" int EXPORTABLE myserver_main (char *cmd,MsCgiData* data)
 extern "C" int myserver_main (char *cmd,MsCgiData* data)
 #endif
 {
-	CgiManager cm(data);
+	MscgiManager cm(data);
 	if(strlen(cmd)==0)	
 	{	
 		cm.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\r\n\

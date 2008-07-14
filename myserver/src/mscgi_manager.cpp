@@ -17,7 +17,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../stdafx.h"
 #include "../include/xml_parser.h"
-#include "../include/cgi_manager.h"
+#include "../include/mscgi_manager.h"
 #include "../include/http.h"
 #include "../include/mscgi.h"
 #include "../include/securestr.h"
@@ -30,7 +30,7 @@ using namespace std;
 /*!
  *Write to the stdout.
  */
-int CgiManager::write(const char* str)
+int MscgiManager::write(const char* str)
 {
   return cgidata->mscgi->write(str, (u_long)strlen(str), cgidata);
 }
@@ -38,12 +38,12 @@ int CgiManager::write(const char* str)
 /*!
  *Write binary to the stdout.
  */
-int CgiManager::write(const void* data, int len)
+int MscgiManager::write(const void* data, int len)
 {
   return cgidata->mscgi->write((const char*)data, len, cgidata);
 }
 
-Server* CgiManager::getServer()
+Server* MscgiManager::getServer()
 {
   return cgidata->server;
 }
@@ -51,7 +51,7 @@ Server* CgiManager::getServer()
 /*!
  *Start the execution of the CGI.
  */
-int CgiManager::start(MsCgiData* data)
+int MscgiManager::start(MsCgiData* data)
 {
   cgidata = data;
   td = data->td;
@@ -61,7 +61,7 @@ int CgiManager::start(MsCgiData* data)
 /*!
  *Clean the memory allocated by the CGI.
  */
-int CgiManager::clean()
+int MscgiManager::clean()
 {
   return 1;
 }
@@ -69,7 +69,7 @@ int CgiManager::clean()
 /*!
  *Set the HTTP error identifier.
  */
-int CgiManager::setPageError(int ID)
+int MscgiManager::setPageError(int ID)
 {
   td->response.httpStatus = ID;
   return 1;
@@ -78,7 +78,7 @@ int CgiManager::setPageError(int ID)
 /*!
  *Raise an HTTP error
  */
-int CgiManager::raiseError(int ID)
+int MscgiManager::raiseError(int ID)
 {
   cgidata->errorPage = ID;
   return 1;
@@ -87,7 +87,7 @@ int CgiManager::raiseError(int ID)
 /*!
  *Constructor of the class
  */
-CgiManager::CgiManager(MsCgiData* data)
+MscgiManager::MscgiManager(MsCgiData* data)
 {
   start(data);
 }
@@ -95,7 +95,7 @@ CgiManager::CgiManager(MsCgiData* data)
 /*!
  *Destructor of the class
  */
-CgiManager::~CgiManager(void)
+MscgiManager::~MscgiManager(void)
 {
   clean();
 }
@@ -103,7 +103,7 @@ CgiManager::~CgiManager(void)
 /*!
  *Returns the value of a param passed through the URL.
  */
-char* CgiManager::getParam(const char* param)
+char* MscgiManager::getParam(const char* param)
 {
   const char* c;
   u_long len = 0;
@@ -141,7 +141,7 @@ char* CgiManager::getParam(const char* param)
 /*!
  *Returns the value of a param passed through a POST request.
  */
-char* CgiManager::postParam(const char* param)
+char* MscgiManager::postParam(const char* param)
 {
   char buffer[LOCAL_BUFFER_DIM + 50];
   u_long nbr = 0;
@@ -186,7 +186,7 @@ char* CgiManager::postParam(const char* param)
 /*!
  *Write to stdout.
  */
-int CgiManager::operator <<(const char* str)
+int MscgiManager::operator <<(const char* str)
 {
   return write(str);
 }
@@ -194,7 +194,7 @@ int CgiManager::operator <<(const char* str)
 /*!
  *Read from the stdin.
  */
-char *CgiManager::operator >>(const char* str)
+char *MscgiManager::operator >>(const char* str)
 {
   /*!
    *If it is a POST request return a param from the POST values
@@ -209,7 +209,7 @@ char *CgiManager::operator >>(const char* str)
 /*!
  *Get the value of an environment variable.
  */
-void CgiManager::getenv(const char* lpszVariableName, char *lpvBuffer, 
+void MscgiManager::getenv(const char* lpszVariableName, char *lpvBuffer, 
                         u_long* lpdwSize)
 {
   ((char*)lpvBuffer)[0] = '\0';
@@ -240,7 +240,7 @@ void CgiManager::getenv(const char* lpszVariableName, char *lpvBuffer,
  *Returns the CGI data structure. 
  *This structure is shared with the MyServer core so use it carefully!
  */
-MsCgiData* CgiManager::getCgiData()
+MsCgiData* MscgiManager::getCgiData()
 {
   return cgidata;
 }
@@ -248,12 +248,15 @@ MsCgiData* CgiManager::getCgiData()
 /*!
  *Specify the MIME type for the data.
  */
-void CgiManager::setContentType(const char * type)
+void MscgiManager::setContentType(const char * type)
 {
   td->response.contentType.assign(type, HTTP_RESPONSE_CONTENT_TYPE_DIM);
 }
 
-void CgiManager::addHeader(const char* name,  const char *value)
+/*!
+ *Add an HTTP header to the response.
+ */
+void MscgiManager::addHeader(const char* name,  const char *value)
 {
   td->response.setValue(name, value);
 

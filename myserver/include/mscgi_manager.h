@@ -34,9 +34,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define LOCAL_BUFFER_DIM 150
 
 #ifdef WIN32
-class EXPORTABLE CgiManager
+class EXPORTABLE MscgiManager
 #else
-class CgiManager
+class MscgiManager
 #endif
 {
 public:
@@ -46,8 +46,8 @@ public:
 	void addHeader(const char*,  const char *);
 	int setPageError(int);
 	int raiseError(int);
-	CgiManager(MsCgiData* data);
-	~CgiManager(void);
+	MscgiManager(MsCgiData* data);
+	~MscgiManager(void);
 	int operator <<(const char*);
 	char* operator >>(const char*);
 	int start(MsCgiData* data);
