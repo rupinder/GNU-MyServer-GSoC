@@ -1,12 +1,15 @@
-                          MyServer
+                          GNU MyServer
 
 MyServer is a powerful and easy to configure web server. Its multi-threaded
 architecture makes it extremely scalable and usable in large scale sites as
 well as in small networks, it has a lot of built-in features. Share your files
 in minutes!
 
+MyServer is an official GNU Project.  If you don't know about GNU take
+a look here: www.gnu.org.
+
 MyServer is Free Software and it is licensed under the GNU General Public
-License (GPL) terms. See the license file for additional info.
+License (GPL) terms.  See the license file for additional info.
 
 Our principal goal is to create a free and simple server to allow everyone to
 transform his home PC in a server and be your own webmaster with few clicks and
@@ -16,7 +19,7 @@ MyServer has a lot of common as well as unique features, it is under continuous
 development and new features will be made available in future releases.
 
 For more information, please visit:
-http://www.myserverproject.net/
+http://www.gnu.org/software/myserver/
 
 We do not receive any reward for our work, so if you find this software
 interesting and you want to contribute to its development please go to the
