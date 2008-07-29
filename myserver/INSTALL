@@ -1,20 +1,24 @@
-                     MyServer
+                     GNU MyServer
 
 I. Compiling from Source
 
 MyServer can be compiled from source with:
+
 ./configure
+
 You can pass special environment and specific options 
 to configure.  To view them type "./configure --help" 
 instead.
 
 To compile the sources type:
+
 make
 
 Finally to install the sources type:
+
 make install (as root user)
 
 II. Binary Version
 
 Binary versions can be always downloaded from:
-http://www.sourceforge.net/projects/myserver
+http://savannah.gnu.org/projects/myserver/

@@ -1,6 +1,5 @@
 ;NSIS Installation script for MyServer
 
-
 !include "MUI2.nsh"
 
 SetCompressor /SOLID lzma
@@ -39,10 +38,7 @@ VIAddVersionKey /LANG=${LANG_ENGLISH} "OriginalFilename"    "MyServer-win32-0.9.
 !define MUI_WELCOMEFINISHPAGE_BITMAP "wizard.bmp"
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP "uninstall.bmp"
 
-
 !define MUI_ABORTWARNING
-
-
 
 Var STARTMENU_FOLDER
 
@@ -55,7 +51,6 @@ InstallDir "$PROGRAMFILES\MyServer"
 !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "STARTMENUFOLDER"
 
 InstallDirRegKey HKLM "Software\MyServer" ""
-
 
 ; Install
 !insertmacro MUI_PAGE_WELCOME
@@ -71,8 +66,6 @@ InstallDirRegKey HKLM "Software\MyServer" ""
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
 !insertmacro MUI_UNPAGE_FINISH
-  
-
 
 ; Available Languages
 !insertmacro MUI_LANGUAGE "English"         ;DEFAULT LANGUAGE
@@ -190,13 +183,8 @@ LicenseLangString MUILicense ${LANG_UKRAINIAN} "license.txt"
 LicenseLangString MUILicense ${LANG_UZBEK} "license.txt"
 LicenseLangString MUILicense ${LANG_WELSH} "license.txt"
 
-
-
 ; reserves the files: speeds up installer
 !insertmacro MUI_RESERVEFILE_LANGDLL
-  
-
-
 
 Section "MyServer core" SecCore
 
@@ -341,7 +329,6 @@ SectionEnd
 Function .onInit
 
 
-
 ; Fade in the splash image
 InitPluginsDir
 
@@ -365,9 +352,6 @@ File /oname=$PLUGINSDIR\splash.bmp "splash.bmp"
   SectionSetFlags ${SecCore} $0 ;Make the MyServer core installed in every case
   Pop $0
 FunctionEnd
-
-
-
 
 
 ; MyServer Uninstaller
@@ -414,10 +398,7 @@ Section "Uninstall"
 
 DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\MyServer"
 
-
 SectionEnd
-
-
 
 
 ; Uninstaller Functions
@@ -427,4 +408,3 @@ SectionEnd
 ;  !insertmacro MUI_UNGETLANGUAGE
   
 ;FunctionEnd
-

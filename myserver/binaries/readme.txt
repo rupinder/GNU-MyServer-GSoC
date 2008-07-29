@@ -21,20 +21,8 @@ development and new features will be made available in future releases.
 For more information, please visit:
 http://www.gnu.org/software/myserver/
 
-We do not receive any reward for our work, so if you find this software
-interesting and you want to contribute to its development please go to the
-donation page:
-http://www.myserverproject.net/donation.php
-
 If you are a developer, MyServer needs your help, contact the project
-administrator if you are interested to work on this project, go to the TODO
-list for an indicative features list to implement.
-http://www.myserverproject.net/todo.php
-
-If you have any questions about MyServer please use the forum, we will try to
-help you:
-http://www.myserverproject.net
-
+administrator if you are interested to work on this project, look at the TODO
+file for an indicative features list to implement.
 
 We hope that you find this software useful.
-The MyServer team
