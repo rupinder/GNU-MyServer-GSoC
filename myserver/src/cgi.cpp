@@ -687,7 +687,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgiEnv,
   char strTmp[32];
 
   memCgi.setExternalBuffer(cgiEnv, td->buffer2->getRealLength());
-  memCgi << "SERVER_SOFTWARE=MyServer " << versionOfSoftware;
+  memCgi << "SERVER_SOFTWARE=GNU MyServer " << versionOfSoftware;
 
 #ifdef WIN32
   memCgi << " (WIN32)";
@@ -705,7 +705,7 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgiEnv,
    memCgi << Server::getInstance()->getServerName();
 
   memCgi << end_str << "SERVER_SIGNATURE=";
-  memCgi << "<address>MyServer ";
+  memCgi << "<address>GNU MyServer ";
   memCgi << versionOfSoftware;
   memCgi << "</address>";
 

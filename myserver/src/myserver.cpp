@@ -133,7 +133,7 @@ struct argp_input
   char* pidFileName;
 };
 
-static char doc[] = "MyServer ";
+static char doc[] = "GNU MyServer ";
 static char argsDoc[] = "";
 
 /*! Use the GNU C argp parser under not windows environments.  */
@@ -141,7 +141,7 @@ static struct argp_option options[] =
 {
   /* LONG NAME - SHORT NAME - PARAMETER NAME - FLAGS - DESCRIPTION.  */
   {"version", 'v', "VERSION", OPTION_ARG_OPTIONAL , "Print the version for the application"},
-  {"run", 'r', "RUN", OPTION_ARG_OPTIONAL, "Specify how run the server(by default console mode)"},
+  {"run", 'r', "RUN", OPTION_ARG_OPTIONAL, "Specify how run the server (by default console mode)"},
   {"logfile", 'l', "log", 0, "Specify the file to use to log main myserver messages"},
   {"pidfile", 'p', "pidfile", OPTION_HIDDEN, "Specify the file where write the PID"},     
   {0}
@@ -276,7 +276,7 @@ int main (int argn, char **argv)
   /*! If the version flag is up, show the version and exit.  */
   if(input.version)
   {
-    cout << "MyServer "<< versionOfSoftware << endl;
+    cout << "GNU MyServer "<< versionOfSoftware << endl;
     
     cout 
 #ifdef __DATE__
