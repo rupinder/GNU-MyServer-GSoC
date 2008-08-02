@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 The MyServer Team
+Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
 Copyright (C) 2004, Guinet Adrien (grainailleur)
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

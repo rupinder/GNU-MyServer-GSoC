@@ -1,6 +1,6 @@
 /*
  MyServer
- Copyright (C) 2002, 2003, 2004, 2006 The MyServer Team
+ Copyright (C) 2002, 2003, 2004, 2006 Free Software Foundation, Inc.
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
@@ -116,7 +116,7 @@ void LanguageXMLinit()
    LanguageXMLNot_Found = strdup("Config files not found.");
    LanguageXMLReload_Prev = strdup("Reload prevous values?");
    LanguageXMLEnter_Default = strdup("Please enter a default file name:");
-   LanguageXMLAbout_Text = strdup("MyServer Configure (FLTK)\nCopyright (C) 2002, 2003, 2004\nThe MyServer Team\nThis program is licensed under the GPL.");
+   LanguageXMLAbout_Text = strdup("MyServer Configure (FLTK)\nCopyright (C) 2002, 2003, 2004\nFree Software Foundation, Inc.\nThis program is licensed under the GPL.");
    LanguageXMLEnter_Extension = strdup("Enter new extension (Example: html):");
    LanguageXMLEnter_MIME = strdup("Enter new MIME type (Example: text/html):");
    LanguageXMLEnter_Name = strdup("Enter a new name:");
