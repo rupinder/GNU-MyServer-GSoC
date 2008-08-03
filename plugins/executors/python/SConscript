@@ -16,8 +16,12 @@ env = Environment(CPPPATH=listinc)
 
 conf = Configure(env, config_h="config.h")
 
-if conf.CheckHeader("Python.h"):
+if conf.CheckHeader("Python.h") and conf.CheckLib("python2.5"):
     conf.Define('PYTHON', 1)
+
+conf.CheckLib("util")
+conf.CheckLib("pthread")
+conf.CheckLib("dl")
 
 env = conf.Finish()
 
