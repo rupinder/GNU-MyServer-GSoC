@@ -1702,11 +1702,11 @@ int Server::loadSettings()
     getPluginsManager()->addNamespace(&executors);
     getPluginsManager()->addNamespace(&protocols);
     getPluginsManager()->addNamespace(&filters);
-     getPluginsManager()->addNamespace(&genericPluginsManager);
+    getPluginsManager()->addNamespace(&genericPluginsManager);
 
 
     {
-      string res("external");
+      string res("plugins");
       getPluginsManager()->preLoad(this, &languageParser, res);
       getPluginsManager()->load(this, &languageParser, res);
       getPluginsManager()->postLoad(this, &languageParser);

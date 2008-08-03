@@ -30,8 +30,8 @@ PKG_NAME = "MyServer"
 MYSERVER_VERSION = "0.9.0"
 PKG_VERSION = MYSERVER_VERSION + "-" + "rc2"
 
-SVN_TRUNK = "https://myserver.svn.sourceforge.net/svnroot/myserver/trunk"
-HOMEPAGE = "http://www.myserverproject.net"
+SVN_TRUNK = "svn://svn.savannah.gnu.org/myserver/trunk"
+HOMEPAGE = "http://www.gnu.org/software/myserver/"
 
 mode = ARGUMENTS.get('mode', "debug")
 command = ARGUMENTS.get('command', "build")
