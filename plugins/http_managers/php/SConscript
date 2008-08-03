@@ -29,5 +29,5 @@ if not conf.CheckFunc("crypt"):
 
 env = conf.Finish()
 
-env.SharedLibrary(GetLaunchDir() + "/binaries/external/http_managers/php", ["php.cpp"], SHLIBPREFIX="")
+env.SharedLibrary(GetLaunchDir() + "/binaries/plugins/http_managers/php", ["php.cpp"], SHLIBPREFIX="")
 

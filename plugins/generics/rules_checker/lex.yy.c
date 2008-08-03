@@ -472,7 +472,7 @@ static yyconst flex_int32_t yy_rule_can_match_eol[17] =
 #line 1 "rules_checker.lex"
 /*
 MyServer
-Copyright (C) 2007 The MyServer Team
+Copyright (C) 2007 The Free Software Foundation Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or

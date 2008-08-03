@@ -16,5 +16,5 @@ conf = Configure(env, config_h="config.h")
 
 env = conf.Finish()
 
-env.SharedLibrary(GetLaunchDir() + "/binaries/external/generics/rules_checker", "functions.cpp  parser.cpp  rules_checker.cpp  string_alloc.cpp".split(), SHLIBPREFIX="")
+env.SharedLibrary(GetLaunchDir() + "/binaries/plugins/generics/rules_checker", "functions.cpp  parser.cpp  rules_checker.cpp  string_alloc.cpp".split(), SHLIBPREFIX="")
 

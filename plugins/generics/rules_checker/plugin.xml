@@ -4,7 +4,7 @@
 <NAME>rules_checker</NAME>
 <TYPE>generics</TYPE>
 <VERSION>0.1</VERSION>
-<AUTHOR>The MyServer Team</AUTHOR>
-<MAINTAINER>The MyServer Team</MAINTAINER>
+<AUTHOR>The Free Software Foundation Inc.</AUTHOR>
+<MAINTAINER>The Free Software Foundation Inc.</MAINTAINER>
 <DESCRIPTION>Validate HTTP request using a custom language</DESCRIPTION>
 </PLUGIN>

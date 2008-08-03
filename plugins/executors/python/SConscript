@@ -21,4 +21,4 @@ if conf.CheckHeader("Python.h"):
 
 env = conf.Finish()
 
-env.SharedLibrary(GetLaunchDir() + "/binaries/external/executors/python", ["python.cpp"], SHLIBPREFIX="")
+env.SharedLibrary(GetLaunchDir() + "/binaries/plugins/executors/python", ["python.cpp"], SHLIBPREFIX="")

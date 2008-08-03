@@ -4,7 +4,7 @@
 <NAME>php</NAME>
 <TYPE>http_managers</TYPE>
 <VERSION>0.1</VERSION>
-<AUTHOR>The MyServer Team</AUTHOR>
-<MAINTAINER>The MyServer Team</MAINTAINER>
+<AUTHOR>The Free Software Foundation Inc.</AUTHOR>
+<MAINTAINER>The Free Software Foundation Inc.</MAINTAINER>
 <DESCRIPTION>The PHP scritping language embedded directly into MyServer</DESCRIPTION>
 </PLUGIN>

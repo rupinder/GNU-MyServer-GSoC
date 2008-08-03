@@ -21,4 +21,4 @@ if conf.CheckHeader("Python.h"):
 
 env = conf.Finish()
 
-env.SharedLibrary(GetLaunchDir() + "/binaries/external/generics/http_checker", ["http_checker.cpp" ], SHLIBPREFIX="")
+env.SharedLibrary(GetLaunchDir() + "/binaries/plugins/generics/http_checker", ["http_checker.cpp" ], SHLIBPREFIX="")
