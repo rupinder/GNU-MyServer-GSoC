@@ -67,7 +67,7 @@ int SecurityManager::getErrorFileName(const char* sysDir,int error,
   ostringstream permissionsFile;
   XmlParser localParser;  
   xmlDocPtr doc;
-  int found = 0;
+  bool found = 0;
   out.assign("");
   if(parser == 0)
   { 
@@ -111,31 +111,25 @@ int SecurityManager::getErrorFileName(const char* sysDir,int error,
         if(!xmlStrcmp(attr->name, (const xmlChar *)"FILE"))
         {
           fileName = (char*)attr->children->content;
-
-          /* The error ID is correct.  */
-          if(found)
-          {
-            out.assign(fileName);
-          }
         }
-        if(!xmlStrcmp(attr->name, (const xmlChar *)"ID"))
+        else if(!xmlStrcmp(attr->name, (const xmlChar *)"ID"))
         {
           int errorId;
           errorId = atoi((const char*)attr->children->content);
           if(errorId == error)
-            found = 1;
+            found = true;
           else
-            continue;
-          /* The file name was still specified.  */
-          if(fileName)
-          {
-            out.assign(fileName);
-          }
+            break;
         }
         attr = attr->next;
       }
+
+      /* The error ID is correct.  */
       if(found)
+      {
+        out.assign(fileName);
         break;
+      }
     }
     node = node->next;
   }
@@ -301,10 +295,10 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
       {
         if(!xmlStrcmp(node2->name, (const xmlChar *)"ACTION"))
         {
-           if(actionsFound < 2)
+          if(actionsFound < 2)
           {
             tmpActionsFound = 2;
-             tmpActionsNode = node->children;  
+            tmpActionsNode = node->children;  
           }                                   
         }           
         node2 = node2->next;            
