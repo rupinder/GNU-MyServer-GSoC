@@ -33,6 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include <sstream>
+#include <algorithm>
 
 extern "C" {
 #ifdef WIN32
@@ -800,120 +801,6 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgiEnv,
   else
     memCgi << end_str << "SSL=OFF";
 
-  if(td->request.auth.length())
-  {
-    memCgi << end_str << "AUTH_TYPE=";
-    memCgi << td->request.auth.c_str();
-  }
-
-  {
-    HttpRequestHeader::Entry* e = td->request.other.get("Host");
-    if(e)
-    {
-      memCgi << end_str << "HTTP_HOST=";
-      memCgi << e->value->c_str();
-    }
-  }
-
-  {
-    HttpRequestHeader::Entry* e = td->request.other.get("Cookie");
-    if(e)
-    {
-      memCgi << end_str << "HTTP_COOKIE=";
-      memCgi << e->value->c_str();
-    }
-  }
-
-  {
-    HttpRequestHeader::Entry* e = td->request.other.get("Connection");
-    if(e)
-    {
-      memCgi << end_str << "HTTP_CONNECTION=";
-      memCgi << e->value->c_str();
-    }
-  }
-
-
-  {
-    HttpRequestHeader::Entry* e = td->request.other.get("User-Agent");
-    if(e)
-    {
-      memCgi << end_str << "HTTP_USER_AGENT=";
-      memCgi << e->value->c_str();
-    }
-  }
-
-  {
-    HttpRequestHeader::Entry* e = td->request.other.get("Accept");
-    if(e)
-    {
-      memCgi << end_str << "HTTP_ACCEPT=";
-      memCgi << e->value->c_str();
-    }
-  }
-
-  {
-    HttpRequestHeader::Entry* e = td->request.other.get("Content-Type");
-    if(e)
-    {
-      memCgi << end_str << "CONTENT_TYPE=";
-      memCgi << e->value->c_str();
-    }
-  }
-
-  {
-    HttpRequestHeader::Entry* e = td->request.other.get("Cache-Control");
-    if(e)
-    {
-      memCgi << end_str << "HTTP_CACHE_CONTROL=";
-      memCgi << e->value->c_str();
-    }
-  }
-
-  {
-    HttpRequestHeader::Entry* e = td->request.other.get("Referer");
-    if(e)
-    {
-      memCgi << end_str << "HTTP_REFERER=";
-      memCgi << e->value->c_str();
-    }
-  }
-
-  {
-    HttpRequestHeader::Entry* e = td->request.other.get("Accept-Encoding");
-    if(e)
-    {
-      memCgi << end_str << "HTTP_ACCEPT_ENCODING=";
-      memCgi << e->value->c_str();
-    }
-  }
-
-  {
-    HttpRequestHeader::Entry* e = td->request.other.get("From");
-    if(e)
-    {
-      memCgi << end_str << "HTTP_FROM=";
-      memCgi << e->value->c_str();
-    }
-  }
-
-  {
-    HttpRequestHeader::Entry* e = td->request.other.get("Accept-Language");
-    if(e)
-    {
-      memCgi << end_str << "HTTP_ACCEPT_LANGUAGE=";
-      memCgi << e->value->c_str();
-    }
-  }
-
-  {
-    HttpRequestHeader::Entry* e = td->request.other.get("Accept-Charset");
-    if(e)
-    {
-      memCgi << end_str << "HTTP_ACCEPT_CHARSET=";
-      memCgi << e->value->c_str();
-    }
-  }
 
   if(td->pathInfo.length())
   {
@@ -964,6 +851,43 @@ void Cgi::buildCGIEnvironmentString(HttpThreadContext* td, char *cgiEnv,
       memCgi << end_str << "REMOTE_IDENT=";
       memCgi << td->connection->getLogin();
   }
+
+  if(td->request.auth.length())
+  {
+    memCgi << end_str << "AUTH_TYPE=";
+    memCgi << td->request.auth.c_str();
+  }
+
+
+  {
+    HttpRequestHeader::Entry* e = td->request.other.get("Content-Type");
+    if(e)
+    {
+      memCgi << end_str << "CONTENT_TYPE=";
+      memCgi << e->value->c_str();
+    }
+  }
+
+
+  {
+
+    HashMap<string, HttpRequestHeader::Entry*>::Iterator it = td->request.begin();
+    for(; it != td->request.end(); it++)
+    {
+      HttpRequestHeader::Entry* en = *it;
+      string name;
+
+      name.assign("HTTP_");
+      name.append(en->name->c_str());
+      transform(name.begin()+5, name.end(), name.begin()+5, ::toupper);
+      for(int i = name.length(); i > 5; i--)
+        if(name[i] == '-')
+          name[i] = '_';
+
+      memCgi  << end_str << name.c_str() << "=" << en->value->c_str();
+    }
+  }
+
 #ifdef WIN32
   if(processEnv)
   {

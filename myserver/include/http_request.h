@@ -97,6 +97,11 @@ struct HttpRequestHeader : public HttpHeader
   virtual string* getValue(const char* name, string* out);
   virtual string* setValue(const char* name, const char* in);
 
+	HashMap<string, HttpRequestHeader::Entry*>::Iterator begin(){return other.begin();}
+	HashMap<string, HttpRequestHeader::Entry*>::Iterator back(){return other.back();}
+	HashMap<string, HttpRequestHeader::Entry*>::Iterator end(){return other.end();}
+
+
 	bool isKeepAlive();
 
   HttpRequestHeader();
