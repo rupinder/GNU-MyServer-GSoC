@@ -65,7 +65,7 @@ void Env::buildEnvironmentString(HttpThreadContext* td, char *cgiEnv,
   memCgi << end_str << "REDIRECT_STATUS=TRUE";
   
   memCgi << end_str << "SERVER_NAME=";
-   memCgi << Server::getInstance()->getServerName();
+  memCgi << Server::getInstance()->getServerName();
 
   memCgi << end_str << "SERVER_SIGNATURE=";
   memCgi << "<address>GNU MyServer ";

@@ -546,7 +546,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
   }
   
   /* Send the rest of the data until we can read from the pipe.  */
-  do
+  for(;;)
   {
     /* Process timeout.  */
     if((int)(getTicks() - procStartTime) > cgiTimeout)
@@ -559,27 +559,23 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
       return 0;       
     }
     
-    if(stdOutFile.pipeTerminated() || 
-       (!nBytesRead && !cgiProc.isProcessAlive()))
+    int aliveProcess = cgiProc.isProcessAlive();
+
+    /* Read data from the process standard output file.  */
+    if(stdOutFile.read(td->buffer2->getBuffer(), 
+                       td->buffer2->getRealLength(), 
+                       &nBytesRead))
     {
-      nBytesRead = 0;   
+      stdOutFile.close();
+      stdInFile.closeFile();
+      chain.clearAllFilters(); 
+      /* Remove the connection on sockets error.  */
+      cgiProc.terminateProcess();
+      return 0;      
     }
-    else
-    {
-      /* Read data from the process standard output file.  */
-      if(stdOutFile.read(td->buffer2->getBuffer(), 
-                         td->buffer2->getRealLength(), 
-                         &nBytesRead))
-      {
-        stdOutFile.close();
-        stdInFile.closeFile();
-        chain.clearAllFilters(); 
-        /* Remove the connection on sockets error.  */
-        cgiProc.terminateProcess();
-        return 0;      
-      }
-      
-    }
+    
+    if(!aliveProcess && !nBytesRead)
+      break;
 
     if(nBytesRead)
     {
@@ -640,8 +636,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
       }
     }
   } 
-  while(!stdOutFile.pipeTerminated() && 
-        ( nBytesRead || cgiProc.isProcessAlive()));
+  
   
   /* Send the last null chunk if needed.  */
   if(useChunks && chain.write("0\r\n\r\n", 5, &nbw2))
