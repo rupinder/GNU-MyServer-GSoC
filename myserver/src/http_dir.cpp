@@ -236,8 +236,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
   int ret;
   FindData fd;
   FiltersChain chain;
-  int startchar = 0;
-  int nDirectories = 0;
+  int lastSlash = 0;
   bool useChunks = false;
   u_long sentData = 0;
   int i;
@@ -266,29 +265,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
     return td->http->raiseHTTPError(500);
   }
 
-  for(i = 0; td->request.uri[i]; i++)
-  {
-    if(td->request.uri[i] == '/')
-      nDirectories++;
-  }
-
-  for(startchar = 0, i = 0; td->request.uri[i]; i++)
-  {
-    if(td->request.uri[i] == '/')
-    {
-      startchar++;
-      if(startchar == nDirectories)
-      {
-        /*
-         *At the end of the loop set startchar to te real value.
-         *startchar indicates the initial position in td->request.uri 
-         *of the file path.
-         */
-        startchar = i + 1;
-        break;
-      }
-    }
-  }
+  lastSlash = td->request.uri.rfind('/') + 1;
 
   checkDataChunks(td, &keepalive, &useChunks);
 
@@ -384,7 +361,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
   filename = directory;
   td->buffer2->setLength(0);
   *td->buffer2 << "<body>\r\n<h1>Contents of directory ";
-  *td->buffer2 <<  &td->request.uri[startchar] ;
+  *td->buffer2 <<  &td->request.uri[lastSlash] ;
   *td->buffer2 << "</h1>\r\n<hr />\r\n";
 
   ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
@@ -516,7 +493,6 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
       it != files.end(); it++)
   {  
     string formattedName;
-    string::size_type pos = 0;
 
     FileStruct& file = *it;
 
@@ -525,32 +501,12 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
     *td->buffer2 << "<tr>\r\n<td><a href=\"";
     if(!td->request.uriEndsWithSlash)
     {
-      *td->buffer2 << &td->request.uri[startchar];
+      *td->buffer2 << &td->request.uri[lastSlash];
       *td->buffer2 << "/" ;
     }
     formattedName.assign(file.name);
 
-    /*
-     *Replace characters in the ranges 32-65 91-96 123-126 160-255
-     *with "&#CODE;".
-     */
-    for(pos = 0; formattedName[pos] != '\0'; pos++)
-    {
-      if(((u_char)formattedName[pos] >= 32 && 
-          (u_char)formattedName[pos] <= 65)   ||
-         ((u_char)formattedName[pos] >= 91 && 
-          (u_char)formattedName[pos] <= 96)   ||
-         ((u_char)formattedName[pos] >= 123 && 
-          (u_char)formattedName[pos] <= 126) ||
-        ((u_char)formattedName[pos] >= 160 && 
-         (u_char)formattedName[pos] < 255))
-      {
-        ostringstream os;
-        os << "&#" << (int)((unsigned char)formattedName[pos]) << ";";
-        formattedName.replace(pos, 1, os.str());
-        pos += os.str().length() - 1;
-      }
-    }
+    formatHtml(file.name, formattedName);
 
     *td->buffer2 << formattedName ;
     *td->buffer2 << "\">" ;
@@ -641,4 +597,36 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
   chain.clearAllFilters(); 
   return 1;
 
+}
+
+/*!
+ *Format a string to html.
+ *\param name String to convert.
+ *\param out HTML converted string.
+ */
+void HttpDir::formatHtml(string& in, string& out)
+{
+  string::size_type pos = 0;
+  out.assign(in);
+  /*
+   *Replace characters in the ranges 32-65 91-96 123-126 160-255
+   *with "&#CODE;".
+   */
+  for(pos = 0; out[pos] != '\0'; pos++)
+  {
+    if(((u_char)out[pos] >= 32 && 
+        (u_char)out[pos] <= 65)   ||
+       ((u_char)out[pos] >= 91 && 
+        (u_char)out[pos] <= 96)   ||
+       ((u_char)out[pos] >= 123 && 
+        (u_char)out[pos] <= 126) ||
+       ((u_char)out[pos] >= 160 && 
+        (u_char)out[pos] < 255))
+    {
+      ostringstream os;
+      os << "&#" << (int)((unsigned char)out[pos]) << ";";
+      out.replace(pos, 1, os.str());
+      pos += os.str().length() - 1;
+    }
+  }
 }

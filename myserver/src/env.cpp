@@ -47,7 +47,10 @@ void Env::buildEnvironmentString(HttpThreadContext* td, char *cgiEnv,
                                  int processEnv)
 {
   MemBuf memCgi;
+  MemBuf portBuffer;
+  MemBuf remotePortBuffer;
   char strTmp[32];
+  HttpRequestHeader::Entry* reqEntry = NULL;
 
   memCgi.setExternalBuffer(cgiEnv, td->buffer2->getRealLength());
   memCgi << "SERVER_SOFTWARE=GNU MyServer " << versionOfSoftware;
@@ -66,36 +69,33 @@ void Env::buildEnvironmentString(HttpThreadContext* td, char *cgiEnv,
   
   memCgi << end_str << "SERVER_NAME=";
   memCgi << Server::getInstance()->getServerName();
-
+  
   memCgi << end_str << "SERVER_SIGNATURE=";
   memCgi << "<address>GNU MyServer ";
   memCgi << versionOfSoftware;
   memCgi << "</address>";
-
+  
   memCgi << end_str << "SERVER_PROTOCOL=";
   memCgi << td->request.ver.c_str();  
   
-  {
-    MemBuf portBuffer;
-    portBuffer.uintToStr( td->connection->getLocalPort());
-    memCgi << end_str << "SERVER_PORT="<< portBuffer;
-  }
+  portBuffer.uintToStr( td->connection->getLocalPort());
+  memCgi << end_str << "SERVER_PORT="<< portBuffer;
 
   memCgi << end_str << "SERVER_ADMIN=";
   memCgi << Server::getInstance()->getServerAdmin();
 
   memCgi << end_str << "REQUEST_METHOD=";
   memCgi << td->request.cmd.c_str();
-
+  
   memCgi << end_str << "REQUEST_URI=";
   
-   memCgi << td->request.uri.c_str();
+  memCgi << td->request.uri.c_str();
 
   memCgi << end_str << "QUERY_STRING=";
   memCgi << td->request.uriOpts.c_str();
-
+  
   memCgi << end_str << "GATEWAY_INTERFACE=CGI/1.1";
-
+  
   if(td->request.contentLength.length())
   {
     memCgi << end_str << "CONTENT_LENGTH=";
@@ -133,30 +133,17 @@ void Env::buildEnvironmentString(HttpThreadContext* td, char *cgiEnv,
 
   }
 
-  if(td->cgiRoot.length())
-  {
-    memCgi << end_str << "CGI_ROOT=";
-    memCgi << td->cgiRoot;
-  }
+  memCgi << end_str << "CGI_ROOT=";
+  memCgi << td->cgiRoot;
 
-  if(td->connection->getIpAddr()[0])
-  {
-    memCgi << end_str << "REMOTE_ADDR=";
-    memCgi << td->connection->getIpAddr();
-  }
+  memCgi << end_str << "REMOTE_ADDR=";
+  memCgi << td->connection->getIpAddr();
 
-  if(td->connection->getPort())
-  {
-    MemBuf remotePortBuffer;
-    remotePortBuffer.MemBuf::uintToStr(td->connection->getPort() );
-     memCgi << end_str << "REMOTE_PORT=" << remotePortBuffer;
-  }
+  remotePortBuffer.MemBuf::uintToStr(td->connection->getPort() );
+  memCgi << end_str << "REMOTE_PORT=" << remotePortBuffer;
 
-  if(td->connection->getLogin()[0])
-  {
-    memCgi << end_str << "REMOTE_USER=";
-    memCgi << td->connection->getLogin();
-  }
+  memCgi << end_str << "REMOTE_USER=";
+  memCgi << td->connection->getLogin();
   
   if(td->http->getProtocolOptions() & PROTOCOL_USES_SSL)
     memCgi << end_str << "SSL=ON";
@@ -178,7 +165,7 @@ void Env::buildEnvironmentString(HttpThreadContext* td, char *cgiEnv,
     memCgi << td->filenamePath;
   }
 
-   memCgi << end_str << "SCRIPT_FILENAME=";
+  memCgi << end_str << "SCRIPT_FILENAME=";
   memCgi << td->filenamePath;
   
   /*
@@ -195,7 +182,7 @@ void Env::buildEnvironmentString(HttpThreadContext* td, char *cgiEnv,
   getRFC822GMTTime(strTmp, HTTP_RESPONSE_DATE_DIM);
   memCgi << strTmp;
 
-   memCgi << end_str << "DATE_LOCAL=";
+  memCgi << end_str << "DATE_LOCAL=";
   getRFC822LocalTime(strTmp, HTTP_RESPONSE_DATE_DIM);
   memCgi << strTmp;
 
@@ -204,52 +191,61 @@ void Env::buildEnvironmentString(HttpThreadContext* td, char *cgiEnv,
 
   memCgi << end_str << "DOCUMENT_URI=";
   memCgi << td->request.uri.c_str();
-  
+
   memCgi << end_str << "DOCUMENT_NAME=";
   memCgi << td->filenamePath;
 
-  if(td->connection->getLogin()[0])
+  memCgi << end_str << "REMOTE_IDENT=";
+  memCgi << td->connection->getLogin();
+
+  memCgi << end_str << "AUTH_TYPE=";
+  memCgi << td->request.auth.c_str();
+
+
+  reqEntry = td->request.other.get("Content-Type");
+
+  if(reqEntry)
   {
-      memCgi << end_str << "REMOTE_IDENT=";
-      memCgi << td->connection->getLogin();
+    memCgi << end_str << "CONTENT_TYPE=";
+    memCgi << reqEntry->value->c_str();
   }
 
-  if(td->request.auth.length())
+  buildHttpHeaderEnvString(memCgi, td->request);
+
+  buildProcessEnvString(memCgi);
+
+
+  memCgi << end_str << end_str  << end_str  << end_str  << end_str  ;
+}
+
+/*!
+ *Append to the environment string variables from the HTTP request header.
+ */
+void Env::buildHttpHeaderEnvString(MemBuf& memCgi, HttpRequestHeader & req)
+{
+
+  HashMap<string, HttpRequestHeader::Entry*>::Iterator it = req.begin();
+  for(; it != req.end(); it++)
   {
-    memCgi << end_str << "AUTH_TYPE=";
-    memCgi << td->request.auth.c_str();
+    HttpRequestHeader::Entry* en = *it;
+    string name;
+    
+    name.assign("HTTP_");
+    name.append(en->name->c_str());
+    transform(name.begin()+5, name.end(), name.begin()+5, ::toupper);
+    for(int i = name.length(); i > 5; i--)
+      if(name[i] == '-')
+        name[i] = '_';
+    
+    memCgi  << end_str << name.c_str() << "=" << en->value->c_str();
   }
+}
 
-
-  {
-    HttpRequestHeader::Entry* e = td->request.other.get("Content-Type");
-    if(e)
-    {
-      memCgi << end_str << "CONTENT_TYPE=";
-      memCgi << e->value->c_str();
-    }
-  }
-
-
-  {
-
-    HashMap<string, HttpRequestHeader::Entry*>::Iterator it = td->request.begin();
-    for(; it != td->request.end(); it++)
-    {
-      HttpRequestHeader::Entry* en = *it;
-      string name;
-
-      name.assign("HTTP_");
-      name.append(en->name->c_str());
-      transform(name.begin()+5, name.end(), name.begin()+5, ::toupper);
-      for(int i = name.length(); i > 5; i--)
-        if(name[i] == '-')
-          name[i] = '_';
-
-      memCgi  << end_str << name.c_str() << "=" << en->value->c_str();
-    }
-  }
-
+/*!
+ *Append to the environment string process env variables.
+ */
+void Env::buildProcessEnvString(MemBuf& memCgi)
+{
 #ifdef WIN32
   if(processEnv)
   {
@@ -269,5 +265,4 @@ void Env::buildEnvironmentString(HttpThreadContext* td, char *cgiEnv,
       }
   }
 #endif
-  memCgi << end_str << end_str  << end_str  << end_str  << end_str  ;
 }

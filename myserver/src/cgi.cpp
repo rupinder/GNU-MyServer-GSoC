@@ -92,61 +92,62 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
    */
   Pipe stdOutFile;
   File stdInFile;
+  int subString = cgipath[0] == '"';
+  int len = strlen(cgipath);
+  int i;
 
   td->scriptPath.assign(scriptpath);
   
+  
+  /* Do not modify the text between " and ".  */
+
+  /* Are we in a string block?  */
+  for(i = 1; i < len; i++)
   {
-    /* Do not modify the text between " and ".  */
-
-    /* Are we in a string block?  */
-    int subString = cgipath[0] == '"';
-    int len = strlen(cgipath);
-    int i;
-    for(i = 1; i < len; i++)
-    {
-      if(!subString && cgipath[i] == ' ')
-        break;
-      if(cgipath[i] == '"' && cgipath[i - 1] != '\\')
-        subString = !subString;
-    }
-
-    checkDataChunks(td, &keepalive, &useChunks);
-
-    /*
-     *Save the cgi path and the possible arguments.
-     *the (x < len) case is when additional arguments are specified. 
-     *If the cgipath is enclosed between " and " do not consider them 
-     *when splitting directory and file name.
-     */
-    if(i < len)
-    {
-      string tmpString(cgipath);
-      int begin = tmpString[0] == '"' ? 1 : 0;
-      int end   = tmpString[i] == '"' ? i : i - 1;
-      tmpCgiPath.assign(tmpString.substr(begin, end - 1));
-      moreArg.assign(tmpString.substr(i, len - 1));  
-    }
-    else
-    {
-      int begin = (cgipath[0] == '"') ? 1 : 0;
-      int end   = (cgipath[len] == '"') ? len-1 : len;
-      tmpCgiPath.assign(&cgipath[begin], end-begin);
-      moreArg.assign("");
-    }
-    FilesUtility::splitPath(tmpCgiPath, td->cgiRoot, td->cgiFile);
-    
-    tmpScriptPath.assign(scriptpath);
-    FilesUtility::splitPath(tmpScriptPath, td->scriptDir, td->scriptFile);
+    if(!subString && cgipath[i] == ' ')
+      break;
+    if(cgipath[i] == '"' && cgipath[i - 1] != '\\')
+      subString = !subString;
   }
+
+  checkDataChunks(td, &keepalive, &useChunks);
+
+  /*
+   *Save the cgi path and the possible arguments.
+   *the (x < len) case is when additional arguments are specified. 
+   *If the cgipath is enclosed between " and " do not consider them 
+   *when splitting directory and file name.
+   */
+  if(i < len)
+  {
+    string tmpString(cgipath);
+    int begin = tmpString[0] == '"' ? 1 : 0;
+    int end   = tmpString[i] == '"' ? i : i - 1;
+    tmpCgiPath.assign(tmpString.substr(begin, end - 1));
+    moreArg.assign(tmpString.substr(i, len - 1));  
+  }
+  else
+  {
+    int begin = (cgipath[0] == '"') ? 1 : 0;
+    int end   = (cgipath[len] == '"') ? len-1 : len;
+    tmpCgiPath.assign(&cgipath[begin], end-begin);
+    moreArg.assign("");
+  }
+  FilesUtility::splitPath(tmpCgiPath, td->cgiRoot, td->cgiFile);
+    
+  tmpScriptPath.assign(scriptpath);
+  FilesUtility::splitPath(tmpScriptPath, td->scriptDir, td->scriptFile);
+  
 
   chain.setProtocol(td->http);
   chain.setProtocolData(td);
   chain.setStream(td->connection->socket);
+
   if(td->mime)
   {
     if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain,
-                              td->mime->filters, 
-                              td->connection->socket, &nbw, 1))
+                                                        td->mime->filters, 
+                                                      td->connection->socket, &nbw, 1))
       {
         td->connection->host->warningsLogRequestAccess(td->id);
         td->connection->host->warningsLogWrite("Cgi: Error loading filters");

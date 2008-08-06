@@ -29,6 +29,9 @@ class Env
 {
 public:
 	static void buildEnvironmentString(HttpThreadContext*, char*, int = 1);
+private:
+  static void buildProcessEnvString(MemBuf& memCgi);
+  static void buildHttpHeaderEnvString(MemBuf& memCgi, HttpRequestHeader & req);
 };
 
 #endif

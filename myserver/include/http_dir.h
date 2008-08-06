@@ -44,6 +44,7 @@ public:
   HttpDir();
   virtual ~HttpDir();
 private:
+  void formatHtml(string & in, string& out);
   static bool charIsLess(char i, char j);
   static bool compareFileStructByName (HttpDir::FileStruct i, HttpDir::FileStruct j);
   static bool compareFileStructByTime (HttpDir::FileStruct i, HttpDir::FileStruct j);
