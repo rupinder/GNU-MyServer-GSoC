@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *On that site you can find samples and all the supported languages.
  */
 #include "../include/fastcgi.h"
-#include "../include/cgi.h"
+#include "../include/env.h"
 #include "../include/http.h"
 #include "../include/stringutils.h"
 #include "../include/server.h"
@@ -202,7 +202,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 #endif
   }
 
-  Cgi::buildCGIEnvironmentString(td, td->buffer->getBuffer());
+  Env::buildEnvironmentString(td, td->buffer->getBuffer());
   sizeEnvString = buildFASTCGIEnvironmentString(td,td->buffer->getBuffer(),
                                                 td->buffer2->getBuffer());
   if(sizeEnvString == -1)

@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "../include/scgi.h"
-#include "../include/cgi.h"
+#include "../include/env.h"
 #include "../include/http.h"
 #include "../include/stringutils.h"
 #include "../include/server.h"
@@ -168,7 +168,7 @@ int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
 #endif
   }
 
-  Cgi::buildCGIEnvironmentString(td, td->buffer->getBuffer());
+  Env::buildEnvironmentString(td, td->buffer->getBuffer());
   sizeEnvString = buildScgiEnvironmentString(td,td->buffer->getBuffer(),
                                              td->buffer2->getBuffer());
   if(sizeEnvString == -1)

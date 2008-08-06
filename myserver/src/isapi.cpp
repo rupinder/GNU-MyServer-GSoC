@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2007 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2007, 2008 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/server.h"
 #include "../include/file.h"
 #include "../include/files_utility.h"
-#include "../include/cgi.h"
+#include "../include/env.h"
 #include "../include/dynamiclib.h"
 
 #include <string>
@@ -933,7 +933,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
     FilesUtility::splitPath(tmp, td->scriptDir, td->scriptFile);
   }
   connTable[connIndex].envString[0]='\0';
-  Cgi::buildCGIEnvironmentString(td,connTable[connIndex].envString);
+  Env::buildEnvironmentString(td,connTable[connIndex].envString);
   
   ZeroMemory(&ExtCtrlBlk, sizeof(ExtCtrlBlk));
   ExtCtrlBlk.cbSize = sizeof(ExtCtrlBlk);

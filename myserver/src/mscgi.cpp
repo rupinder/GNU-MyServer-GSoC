@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/http.h"
 #include "../include/server.h"
 #include "../include/security.h"
-#include "../include/cgi.h"
+#include "../include/env.h"
 #include "../include/mime_utils.h"
 #include "../include/file.h"
 #include "../include/files_utility.h"
@@ -96,7 +96,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
     FilesUtility::splitPath(exec, td->scriptDir, td->scriptFile);
   }
 
-  Cgi::buildCGIEnvironmentString(td,data.envString);
+  Env::buildEnvironmentString(td,data.envString);
   
   chain.setProtocol(td->http);
   chain.setProtocolData(td);
