@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/filters_chain.h"
 #include "../include/env.h"
 #include "../include/pipe.h"
+#include "../include/http_data_handler.h"
 
 #include <string>
 #include <sstream>
@@ -444,25 +445,22 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
     if(keepalive)
       td->response.connection.assign("keep-alive");
 
+    /* Send the header.  */
+    if(headerSize)
+      HttpHeaders::buildHTTPResponseHeaderStruct(td->buffer2->getBuffer(),
+                                                 &td->response, 
+                                                 &(td->nBytesToRead));
     /*
      *If we have not to append the output send data 
      *directly to the client.  
      */
     if(!td->appendOutputs)
     {
-      string* location = 0;
-
-      /* Send the header.  */
-      if(headerSize)
-        HttpHeaders::buildHTTPResponseHeaderStruct(td->buffer2->getBuffer(),
-                                                   &td->response, 
-                                                   &(td->nBytesToRead));
-      
-      location = td->response.getValue("Location", 0);
+      string* location = td->response.getValue("Location", 0);
 
       /*
-       *If it is present Location: xxx in the header 
-       *send a redirect to xxx.  
+       *If it is present Location: foo in the header 
+       *send a redirect to `foo'.  
        */
       if(location && location->length())
       {
@@ -476,79 +474,58 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 
       HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
                                            &td->response);
-      
-
 
       td->buffer->setLength((u_int)strlen(td->buffer->getBuffer()));
-      
+
       if(chain.write(td->buffer->getBuffer(),
                      static_cast<int>(td->buffer->getLength()), &nbw2))
       {
         stdInFile.closeFile();
         stdOutFile.close();
         chain.clearAllFilters(); 
-        /* Remove the connection on sockets error. */
+        /* Remove the connection on sockets error.  */
         cgiProc.terminateProcess();
         return 0;
       }
-      
-      if(onlyHeader)
-      {
-        stdOutFile.close();
-        stdInFile.closeFile();
-        chain.clearAllFilters(); 
-        cgiProc.terminateProcess();
-        return 1;
-      }
     }
   }
 
-  /* Flush the buffer.  Data from the header parsing can be present.  */
+  if(!nph && onlyHeader)
+  {
+    stdOutFile.close();
+    stdInFile.closeFile();
+    chain.clearAllFilters(); 
+    cgiProc.terminateProcess();
+    return 1;
+  }
+
   if(headerOffset - headerSize)
   {
-    if(useChunks)
+    /* Flush the buffer.  Data from the header parsing can be present.  */
+    if(HttpDataHandler::appendDataToHTTPChannel(td, 
+                                                td->buffer2->getBuffer() + headerSize, 
+                                                headerOffset - headerSize,
+                                                &(td->outputData),
+                                                &chain,
+                                                td->appendOutputs, 
+                                                useChunks))
     {
-      ostringstream tmp;
-      tmp << hex << (headerOffset-headerSize) << "\r\n";
-      td->response.contentLength.assign(tmp.str());
-      if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
-      {
-        stdOutFile.close();
-        stdInFile.closeFile();
-        chain.clearAllFilters(); 
-        /* Remove the connection on sockets error.  */
-        cgiProc.terminateProcess();
-        return 0;       
-      }
+      stdOutFile.close();
+      stdInFile.closeFile();
+      chain.clearAllFilters(); 
+      /* Remove the connection on sockets error.  */
+      cgiProc.terminateProcess();
+      return 0;    
     }
 
-    if(chain.write((td->buffer2->getBuffer() + headerSize), 
-                   headerOffset-headerSize, &nbw2))
-    {
-      stdOutFile.close();
-      stdInFile.closeFile();
-      chain.clearAllFilters(); 
-      /* Remove the connection on sockets error.  */
-      cgiProc.terminateProcess();
-      return 0;       
-    }
-    
-    nbw += nbw2;
-    
-    if(useChunks && chain.write("\r\n", 2, &nbw2))
-    {
-      stdOutFile.close();
-      stdInFile.closeFile();
-      chain.clearAllFilters(); 
-      /* Remove the connection on sockets error.  */
-      cgiProc.terminateProcess();
-      return 0;       
-    }
+    nbw += headerOffset - headerSize;
   }
-  
+
   /* Send the rest of the data until we can read from the pipe.  */
   for(;;)
   {
+    int aliveProcess = 0;
+
     /* Process timeout.  */
     if((int)(getTicks() - procStartTime) > cgiTimeout)
     {
@@ -560,7 +537,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
       return 0;       
     }
     
-    int aliveProcess = cgiProc.isProcessAlive();
+    aliveProcess = cgiProc.isProcessAlive();
 
     /* Read data from the process standard output file.  */
     if(stdOutFile.read(td->buffer2->getBuffer(), 
@@ -578,65 +555,25 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
     if(!aliveProcess && !nBytesRead)
       break;
 
-    if(nBytesRead)
+    if(nBytesRead && 
+       HttpDataHandler::appendDataToHTTPChannel(td, 
+                                                td->buffer2->getBuffer(),
+                                                nBytesRead,
+                                                &(td->outputData),
+                                                &chain,
+                                                td->appendOutputs, 
+                                                useChunks))
     {
-      if(!td->appendOutputs)
-      {
-        if(useChunks)
-        {
-          ostringstream tmp;
-          tmp << hex <<  nBytesRead << "\r\n";
-          td->response.contentLength.assign(tmp.str());
-          if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
-          {
-            stdOutFile.close();
-            stdInFile.closeFile();
-            chain.clearAllFilters(); 
-            /* Remove the connection on sockets error.  */
-            cgiProc.terminateProcess();
-            return 0;       
-          }
-        }
-
-        if(chain.write(td->buffer2->getBuffer(), nBytesRead, &nbw2))
-        {
-          stdOutFile.close();
-          stdInFile.closeFile();
-          chain.clearAllFilters(); 
-          /* Remove the connection on sockets error.  */
-          cgiProc.terminateProcess();
-          return 0;      
-        }
-
-        nbw += nbw2;
-        
-        if(useChunks && chain.write("\r\n", 2, &nbw2))
-        {
-          stdOutFile.close();
-          stdInFile.closeFile();
-          chain.clearAllFilters(); 
-          /* Remove the connection on sockets error.  */
-          cgiProc.terminateProcess();
-          return 0;       
-        }
-      }
-      else/* !td->appendOutputs.  */
-      {
-        if(td->outputData.writeToFile(td->buffer2->getBuffer(), 
-                                      nBytesRead, &nbw2))
-        {
-          stdOutFile.close();
-          stdInFile.closeFile();
-          chain.clearAllFilters(); 
-          FilesUtility::deleteFile(td->inputDataPath);
-          /* Remove the connection on sockets error.  */
-          cgiProc.terminateProcess();
-          return 0;      
-        }
-        nbw += nbw2;
-      }
+      stdOutFile.close();
+      stdInFile.closeFile();
+      chain.clearAllFilters(); 
+      /* Remove the connection on sockets error.  */
+      cgiProc.terminateProcess();
+      return 0;       
     }
-  } 
+
+    nbw += nBytesRead;
+  }
   
   
   /* Send the last null chunk if needed.  */
@@ -657,11 +594,11 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
   chain.clearAllFilters();   
 
   cgiProc.terminateProcess();
-  
+
   /* Close the stdin and stdout files used by the CGI.  */
   stdOutFile.close();
   stdInFile.closeFile();
-  
+
   /* Delete the file only if it was created by the CGI module.  */
   if(!td->inputData.getHandle())
     FilesUtility::deleteFile(td->inputDataPath.c_str());

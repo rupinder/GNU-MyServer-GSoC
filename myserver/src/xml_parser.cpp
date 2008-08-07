@@ -23,26 +23,6 @@ extern "C" {
 #include <string.h>
 }
 
-
-#ifdef WIN32
-/*!
- * Libxml2.lib is the dynamic version of the libxml2 library
- * libxml2_a.lib is the static version of the libxml2 library
- *
- * For the static version, please use the following linker options:
- * /NODEFAULTLIB:LIBCMT
- * /NODEFAULTLIB:LIBCMTD
- * 
- */
-
-#ifdef LIXML_STATICALLY_LINKED
-#pragma comment (lib,"libxml2_a.lib")
-#else
-#pragma comment (lib,"libxml2.lib")
-#endif
-
-#endif
-
 /**
  * Internal call back functions for saveMemBuf
  * \param context Context
@@ -98,29 +78,29 @@ bool XmlParser::cleanXML()
  */
 int XmlParser::open(const char* filename)
 {
-  cur=0;
-  
+  cur = 0;
+
   if(!FilesUtility::fileExists(filename))
     return -1;
-  
+
   if(doc!=0)
     close();
-  
+
   doc = xmlParseFile(filename);
-  
+
   if(doc == 0)
     return -1;
-  
+
   cur = xmlDocGetRootElement(doc);
-  
+
   if(!cur)
   {
     close();
     return -1;
   }
-  
+
   mtime = FilesUtility::getLastModTime(filename);
-  
+
   if(mtime == static_cast<time_t>(-1))
   {
     close();
@@ -147,34 +127,33 @@ time_t XmlParser::getLastModTime()
  */
 int XmlParser::openMemBuf(MemBuf & memory)
 {
-  mtime=0;
-  cur=0;
+  mtime = 0;
+  cur = 0;
   
   if(memory.getLength() == 0)
     return -1;
   
-  if(doc==0)
+  if(!doc)
   {
     doc = xmlParseMemory((const char * )memory.getBuffer(), 
-                     memory.getLength());
+                         memory.getLength());
   }
   else
     close();
   
   if(!doc)
     return -1;
-  
+
   cur = xmlDocGetRootElement(doc);
-  
+
   if(!cur)
   {
     close();
     return -1;
   }
-  
+
   return 0;
 }
-
 
 /**
  * Constructor of the XmlParser class
@@ -186,7 +165,6 @@ XmlParser::XmlParser()
   prevCur = 0;
   lastNode = 0;
 }
-
 
 /**
  * Destructor of the XmlParser class
@@ -216,10 +194,10 @@ char *XmlParser::getValue(const char* vName)
   char *ret = 0;
   xmlNodePtr lcur;
   cur = xmlDocGetRootElement(doc);
-  
+
   if(!cur)
     return 0;
-  
+
   lcur = cur->xmlChildrenNode;
   buffer.assign("");
   
@@ -317,7 +295,7 @@ char *XmlParser::getAttr(const char* field, const char *attr)
       }
     }
     
-    lcur=lcur->next;
+    lcur = lcur->next;
   }
   
   return 0;
@@ -352,7 +330,7 @@ int XmlParser::close()
  */
 int XmlParser::save(const char *filename,int *nbytes)
 {
-  int err=xmlSaveFile(filename,doc);
+  int err = xmlSaveFile(filename,doc);
   
   if(nbytes)
     *nbytes = err;
