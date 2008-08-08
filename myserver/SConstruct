@@ -107,7 +107,6 @@ if  not env.GetOption('clean'):
     conf.Define("PACKAGE_VERSION", '"' + PKG_VERSION + '"')
     conf.Define("MYSERVER_VERSION", '"' + MYSERVER_VERSION + '"')
 
-
     if not conf.CheckLib("libxml2"):
         print "libxml2 is required to compile MyServer"
         Exit(1)

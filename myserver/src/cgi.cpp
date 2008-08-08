@@ -378,9 +378,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
     if(nBytesRead == 0)
     {
       if((int)(getTicks() - procStartTime) > cgiTimeout)
-       {
          break;
-       }
       else
       {
         if(term)
@@ -391,7 +389,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
     }
 
     headerOffset += nBytesRead;
-
 
     if(headerOffset > td->buffersize2 - 5)
       (td->buffer2->getBuffer())[headerOffset] = '\0';

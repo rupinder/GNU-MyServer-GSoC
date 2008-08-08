@@ -35,7 +35,7 @@ extern "C" {
 #endif
 }
 
-/*! External libraries to be included in the project.  */
+/* External libraries to be included in the project.  */
 #ifdef WIN32
 #pragma comment(lib,"winmm.lib")
 #endif
@@ -58,7 +58,7 @@ void removeService();
 void RunAsService();
 static char *path;
 
-/*!
+/*
  *Change this to reflect the version of the software.
  */
 #ifdef MYSERVER_VERSION
@@ -81,7 +81,7 @@ void Sig_Quit(int signal)
 
 void Sig_Hup(int signal)
 {
-  /*!
+  /*
    *On the SIGHUP signal reboot the server.
    */
   Server::getInstance()->rebootOnNextLoop();
@@ -125,10 +125,10 @@ void registerSignals()
 
 struct argp_input
 {
-  /*! Print the version for MyServer?  */
+  /* Print the version for MyServer?  */
   int version;
   char* logFileName;
-  /*! Define how run the server.  */
+  /* Define how run the server.  */
   int runas;
   char* pidFileName;
 };
@@ -136,7 +136,7 @@ struct argp_input
 static char doc[] = "GNU MyServer ";
 static char argsDoc[] = "";
 
-/*! Use the GNU C argp parser under not windows environments.  */
+/* Use the GNU C argp parser under not windows environments.  */
 static struct argp_option options[] = 
 {
   /* LONG NAME - SHORT NAME - PARAMETER NAME - FLAGS - DESCRIPTION.  */
@@ -216,7 +216,7 @@ int main (int argn, char **argv)
   }
   catch(...)
   {
-    /*! Die if we get exceptions here.  */
+    /* Die if we get exceptions here.  */
     return(1);
   };
   
@@ -245,24 +245,24 @@ int main (int argn, char **argv)
 
     path[len] = '\0';
 
-    /*! Current working directory is where the myserver executable is.  */
+    /* Current working directory is where the myserver executable is.  */
     if(differentCwd)
     {
       setcwd(path);
     }
 
-    /*! We can free path memory now.  */
+    /* We can free path memory now.  */
     delete [] path;
   }
   
   
 #ifdef ARGP
-  /*! Reset the struct.  */
+  /* Reset the struct.  */
   input.version = 0;
   input.logFileName = 0;
   input.runas = MYSERVER_RUNAS_CONSOLE;
   input.pidFileName = 0;
-  /*! Call the parser.  */
+  /* Call the parser.  */
   argp_parse(&myserverArgp, argn, argv, 0, 0, &input);
   runas=input.runas;
   if(input.logFileName)
@@ -273,7 +273,7 @@ int main (int argn, char **argv)
       return 1;
     }
   }
-  /*! If the version flag is up, show the version and exit.  */
+  /* If the version flag is up, show the version and exit.  */
   if(input.version)
   {
     cout << "GNU MyServer "<< versionOfSoftware << endl;
@@ -284,7 +284,7 @@ int main (int argn, char **argv)
 #endif
       << endl;
 
-    cout << "www.myserverproject.net" << endl;
+    cout << "http://www.gnu.org/software/myserver" << endl;
     return 0;   
   }
 #else
@@ -320,14 +320,14 @@ int main (int argn, char **argv)
     }
     if(!strcmpi(argv[1], "SERVICE"))
     {
-      /*!
+      /*
        *Set the log file to use when in service mode.
        */
       runas = MYSERVER_RUNAS_SERVICE;
     }
   }
 #endif
-  /*!
+  /*
    *Start here the MyServer execution.
    */
   try
@@ -341,28 +341,28 @@ int main (int argn, char **argv)
 #ifdef WIN32
          runService();
 #else
-         /*!
+         /*
           *Run the daemon.
           *pid is the process ID for the forked process.
           *Fork the process.
           */
          pid = fork();
-      
-         /*!  
+
+         /*  
           *An error happened, return with errors.
           */
          if (pid < 0) 
          {
            return 1;
          }
-         /*!
+         /*
           *A good process id, return with success. 
           */
          if (pid > 0) 
          {
            return 0;
          }
-         /*!
+         /*
           *Store the PID.
           */
 #ifdef ARGP
@@ -373,12 +373,12 @@ int main (int argn, char **argv)
 #else
          writePidfile("/var/run/myserver.pid");
 #endif
-         /*!
+         /*
           *Create a SID for the new process.
           */
          sid = setsid();
 
-         /*!
+         /*
           *Error in setting a new sid, return the error.
           */
          if (sid < 0) 
@@ -386,7 +386,7 @@ int main (int argn, char **argv)
            return 1;
          }
     
-         /*!
+         /*
           *Finally run the server from the forked process.
           */
       consoleService();
@@ -460,7 +460,7 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
   }
   catch(...)
   {
-    /*! Die if we get exceptions here.  */
+    /* Die if we get exceptions here.  */
     return;
   };
 
@@ -580,7 +580,7 @@ void registerService()
 #endif
 }
 
-/*!
+/*
 *Unregister the OS service.
 */
 void removeService()
