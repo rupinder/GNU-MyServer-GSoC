@@ -143,20 +143,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
   chain.setProtocol(td->http);
   chain.setProtocolData(td);
   chain.setStream(td->connection->socket);
-
-  if(td->mime)
-  {
-    if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain,
-                                                        td->mime->filters, 
-                                                      td->connection->socket, &nbw, 1))
-      {
-        td->connection->host->warningsLogRequestAccess(td->id);
-        td->connection->host->warningsLogWrite("Cgi: Error loading filters");
-        td->connection->host->warningsLogTerminateAccess(td->id);
-        chain.clearAllFilters(); 
-        return td->http->raiseHTTPError(500);
-      }
-  }
   
   if(execute)
   {
@@ -494,6 +480,24 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
     chain.clearAllFilters(); 
     cgiProc.terminateProcess();
     return 1;
+  }
+
+
+  /* Create the output filters chain.  */
+  if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain,
+                                                                   td->mime->filters, 
+                                                                   td->connection->socket, 
+                                                                   &nbw, 
+                                                                   1))
+  {
+    td->connection->host->warningsLogRequestAccess(td->id);
+    td->connection->host->warningsLogWrite("Cgi: Error loading filters");
+    td->connection->host->warningsLogTerminateAccess(td->id);
+    stdOutFile.close();
+    stdInFile.closeFile();
+    cgiProc.terminateProcess();
+    chain.clearAllFilters(); 
+    return td->http->raiseHTTPError(500);
   }
 
   if(headerOffset - headerSize)
