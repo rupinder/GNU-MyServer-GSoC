@@ -28,17 +28,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-
-
 /*!
  *Construct the object.
  */
 DynamicFiltersManager::DynamicFiltersManager() : 
   PluginsNamespaceManager(string("filters"))
 {
-    counter = 0;
-    counterMutex.init();
-
+  counter = 0;
+  counterMutex.init();
 }
 
 /*!
@@ -79,7 +76,7 @@ Filter* DynamicFiltersManager::createFilter(const char* name)
   counterMutex.lock();
   filter->setId(counter++);
   counterMutex.unlock();
-  
+
   return filter; 
 }
 

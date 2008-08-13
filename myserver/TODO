@@ -8,6 +8,7 @@ TODO list for MyServer.
 
 *	Security mechanism: SECURE ONE FILE with "security".
 **	Add more functionality to "security".
+**	Usage of XPath.
 
 *	Deny and allow ACCESS by ip, browser, etc.
 **	Provide this functionality for "security".
@@ -26,10 +27,10 @@ TODO list for MyServer.
 
 *	Documentation Improvements
 **	Translation of the documentation to other languages.
-**	XML based documentation scripting
+**	XML based documentation scripting.
+**	Write texinfo documentation.
 **	Write MyServer chroot section into docs.
 **	Add information about error codes to MyServer documentation.
-
 
 *	Configurability.
 **	Show http_dir: Last modified, etc (rewrite html code).
