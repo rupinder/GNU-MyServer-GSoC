@@ -23,7 +23,6 @@ TODO list for MyServer.
 *	Fix some hardcoded errors in MyServer, they should now show directly
 	to the new error files.
 *	Use C++ static_cast<TYPE>... instead of the C like casting (TYPE).
-*	LibXML compability (*) (at the moment MyServer uses LibXML2).
 
 *	Documentation Improvements
 **	Translation of the documentation to other languages.
@@ -47,17 +46,10 @@ TODO list for MyServer.
 **	Add MyServer to OpenBSD ports.
 **	FreeBSD workaround / ports system.
 **	MacOS X packages / binaries.
-**	GNU Hurd workaround / improvements.
-**	Packages for MyServer available on SF. (deb, rpm, slackware,
-		openbsd).
 
 *	Performance model.
 **	Running test with lots of server load. 
 **	Optimization of the performance model.
-
-*	Packages.
-**	Rpm and debs for Debian, Fedora Core and Mandrake.
-**	Packages for Slackware.
 
 *	Plugins system.
 **	Use plugins for HTTP optional commands (other than what was
