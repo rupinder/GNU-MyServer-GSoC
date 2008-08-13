@@ -39,6 +39,7 @@ Connection::Connection()
   protocolBuffer = NULL;
   socket = 0;
   priority = -1;
+  continuation = NULL;
 }
 
 /*!

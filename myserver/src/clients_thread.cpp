@@ -350,18 +350,33 @@ int ClientsThread::controlConnections()
   c->setActiveThread(this);
   try
   {
-    protocol = Server::getInstance()->getProtocol(c->host->getProtocolName());
-    if(protocol)
+    if (c->hasContinuation())
     {
-      retcode = protocol->controlConnection(c, (char*)buffer.getBuffer(), 
-                                            (char*)buffer2.getBuffer(), buffer.getRealLength(), 
-                                            buffer2.getRealLength(), nBytesToRead, id);
+      retcode = c->getContinuation()(c, 
+                                     (char*)buffer.getBuffer(), 
+                                     (char*)buffer2.getBuffer(), 
+                                     buffer.getRealLength(), 
+                                     buffer2.getRealLength(), 
+                                     nBytesToRead, 
+                                     id);
+      c->setContinuation(NULL);
     }
     else
     {
-      retcode = DELETE_CONNECTION;
+      protocol = Server::getInstance()->getProtocol(c->host->getProtocolName());
+      if(protocol)
+      {
+        retcode = protocol->controlConnection(c, 
+                                              (char*)buffer.getBuffer(), 
+                                              (char*)buffer2.getBuffer(), 
+                                              buffer.getRealLength(), 
+                                              buffer2.getRealLength(), 
+                                              nBytesToRead, 
+                                              id);
+      }
+      else
+        retcode = DELETE_CONNECTION;
     }
-
   }
   catch(...)
   {

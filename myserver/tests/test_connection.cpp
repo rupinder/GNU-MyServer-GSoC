@@ -172,6 +172,7 @@ public:
     CPPUNIT_ASSERT_EQUAL(connection->isScheduled(), 1);
   }
 
+
   void testPriority()
   {
     for(int i = 0; i < 100; i += 10)
@@ -179,6 +180,16 @@ public:
       connection->setPriority(i);
       CPPUNIT_ASSERT_EQUAL(connection->getPriority(), i);
     }
+  }
+
+  void testContinuation()
+  {
+    continuationPROC continuation = (continuationPROC) 100;
+
+    CPPUNIT_ASSERT(connection->getContinuation() == NULL);
+    connection->setContinuation(continuation);
+
+    CPPUNIT_ASSERT(connection->getContinuation() == continuation);
   }
 
 

@@ -42,6 +42,15 @@ using namespace std;
 /*! Remove the connection if the administrator decided this.  */
 #define CONNECTION_USER_KILL        2
 
+
+class Connection;
+                                   
+typedef  Connection* ConnectionPtr;
+
+typedef int (*continuationPROC)(ConnectionPtr a, char *b1, char *b2,
+                                int bs1, int bs2, u_long nbtr, u_long id);
+
+
 class Connection
 {
 public:
@@ -107,8 +116,19 @@ public:
   Connection();
   virtual ~Connection();
 
+  /*! Get the continuation function.  */
+  continuationPROC getContinuation(){return continuation;}
+
+  /*! Set a new continuation function.  */
+  void setContinuation(continuationPROC newContinuation){continuation = newContinuation;}
+
+  /*! Check if the connection has a continuation.  */
+  bool hasContinuation(){return continuation ? true : false;}
 protected:
 	ClientsThread *thread;
+
+  /*! Continuation function.  */
+  continuationPROC continuation;
 
   /*! Identifier for the connection.  */
   u_long ID;
@@ -155,7 +175,5 @@ protected:
 	int priority;
 
 };
-                                   
-typedef  Connection* ConnectionPtr;
 
 #endif
