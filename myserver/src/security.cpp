@@ -95,7 +95,7 @@ int SecurityManager::getErrorFileName(const char* sysDir,
   nodes = xpathRes->getNodeSet();
 
   if(nodes && nodes->nodeNr)
-    out.assign((const char*)nodes->nodeTab[0]->content);
+    out.assign((const char*)nodes->nodeTab[0]->children->content);
 
   if(xpathRes)
     delete xpathRes;
