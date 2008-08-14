@@ -8,7 +8,7 @@ TODO list for MyServer.
 
 *	Security mechanism: SECURE ONE FILE with "security".
 **	Add more functionality to "security".
-**	Usage of XPath.
+**	Usage of XPath to make source code clearer.
 
 *	Deny and allow ACCESS by ip, browser, etc.
 **	Provide this functionality for "security".

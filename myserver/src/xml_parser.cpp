@@ -19,7 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "../include/utility.h"
 #include "../include/files_utility.h"
 
-extern "C" {
+extern "C" 
+{
 #include <string.h>
 }
 
@@ -73,22 +74,24 @@ bool XmlParser::cleanXML()
 
 /**
  * Opens a files and stores it in memory.
- * \param filename The filename
+ * \param filename The XML file to open.
+ * \param useXpath Specify if XPath is enabled.
  * \return Returns 0 on success, non zero values on failure
  */
-int XmlParser::open(const char* filename)
+int XmlParser::open(const char* filename, bool useXpath)
 {
-  cur = 0;
+  cur = NULL;
+  this->useXpath = useXpath;
 
   if(!FilesUtility::fileExists(filename))
     return -1;
 
-  if(doc!=0)
+  if(doc!= NULL)
     close();
 
   doc = xmlParseFile(filename);
 
-  if(doc == 0)
+  if(doc == NULL)
     return -1;
 
   cur = xmlDocGetRootElement(doc);
@@ -106,7 +109,17 @@ int XmlParser::open(const char* filename)
     close();
     return -1;
   }
-  
+
+  if(useXpath)
+  {
+    xpathCtx = xmlXPathNewContext(doc);
+    if(xpathCtx == NULL)
+    {
+      close();
+      return -1;
+    }
+  }
+
   return 0;
 }
 
@@ -122,13 +135,15 @@ time_t XmlParser::getLastModTime()
 
 /**
  * Read the XML data from a char array
- * \param memory Memory Buffer
+ * \param memory The memory buffer to read from.
+ * \param useXpath Specify if XPath is enabled.
  * \return Returns 0 on succes, non 0 on failure
  */
-int XmlParser::openMemBuf(MemBuf & memory)
+int XmlParser::openMemBuf(MemBuf & memory, bool useXpath)
 {
   mtime = 0;
-  cur = 0;
+  cur = NULL;
+  this->useXpath = useXpath;
   
   if(memory.getLength() == 0)
     return -1;
@@ -152,6 +167,16 @@ int XmlParser::openMemBuf(MemBuf & memory)
     return -1;
   }
 
+  if(useXpath)
+  {
+    xpathCtx = xmlXPathNewContext(doc);
+    if(xpathCtx == NULL)
+    {
+      close();
+      return -1;
+    }
+  }
+
   return 0;
 }
 
@@ -160,10 +185,13 @@ int XmlParser::openMemBuf(MemBuf & memory)
  */
 XmlParser::XmlParser()
 {
-  doc = 0;
-  cur = 0;
-  prevCur = 0;
-  lastNode = 0;
+  doc = NULL;
+  cur = NULL;
+  xpathCtx = NULL;
+  useXpath = false;
+  prevCur = NULL;
+  lastNode = NULL;
+  mtime = 0;
 }
 
 /**
@@ -191,7 +219,7 @@ xmlDocPtr XmlParser::getDoc()
  */
 char *XmlParser::getValue(const char* vName)
 {
-  char *ret = 0;
+  char *ret = NULL;
   xmlNodePtr lcur;
   cur = xmlDocGetRootElement(doc);
 
@@ -291,7 +319,7 @@ char *XmlParser::getAttr(const char* field, const char *attr)
           return (char*)attrs->children->content;
         }
         
-        attrs=attrs->next;
+        attrs = attrs->next;
       }
     }
     
@@ -299,6 +327,27 @@ char *XmlParser::getAttr(const char* field, const char *attr)
   }
   
   return 0;
+}
+
+/**
+ *Evaluate an XPath expression.
+ *\param query The xpath expression.
+ *\return NULL on errors.
+ *\return The XmlXPathResult containing the result.
+ */
+XmlXPathResult* XmlParser::evaluateXpath(const char* expr)
+{
+  xmlXPathObjectPtr xpathObj;
+
+  if(!useXpath)
+    return NULL;
+
+  xpathObj = xmlXPathEvalExpression((const xmlChar*)expr, xpathCtx);
+  
+  if(xpathObj == NULL) 
+    return NULL;
+
+  return new XmlXPathResult(xpathObj);
 }
 
 
@@ -311,12 +360,17 @@ int XmlParser::close()
   {
     xmlFreeDoc(doc);
   }
-  
-  doc=0;
-  cur=0;
-  prevCur=0;
-  lastNode=0;
-  
+
+  if(useXpath && xpathCtx)
+  {
+    xmlXPathFreeContext(xpathCtx); 
+  }
+
+  doc = NULL;
+  cur = NULL;
+  prevCur = NULL;
+  lastNode = NULL;
+
   return 0;
 }
 
@@ -375,7 +429,7 @@ int XmlParser::saveMemBuf(MemBuf & memory,int *nbytes)
  */
 void XmlParser::newfile(const char * root)
 {
-  if(doc != 0)
+  if(doc != NULL)
     close();
   
   doc = xmlNewDoc((const xmlChar*)"1.0");
@@ -409,7 +463,7 @@ void XmlParser::addChild(const char * name, const char * value)
  */
 void XmlParser::addGroup(const char * name)
 {
-  if(prevCur == 0)
+  if(prevCur == NULL)
   {
     prevCur = cur;
     cur = xmlNewTextChild(cur, NULL, (const xmlChar*)name, NULL);
@@ -426,10 +480,10 @@ void XmlParser::addGroup(const char * name)
  */
 void XmlParser::endGroup()
 {
-  if(prevCur != 0)
+  if(prevCur != NULL)
   {
     cur = prevCur;
-    prevCur = 0;
+    prevCur = NULL;
      
     addLineFeed();
     addLineFeed();
@@ -444,7 +498,7 @@ void XmlParser::endGroup()
  */
 void XmlParser::setAttr(const char * name, const char * value)
 {
-  if(lastNode == 0)
+  if(lastNode == NULL)
     return;
   
   xmlSetProp(lastNode, (const xmlChar*)name, (const xmlChar*)value);

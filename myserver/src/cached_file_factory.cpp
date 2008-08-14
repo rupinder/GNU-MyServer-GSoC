@@ -142,6 +142,7 @@ File* CachedFileFactory::open(const char* filename)
   CachedFileBuffer *buffer;
   CachedFile* cachedFile;
   u_long ticks;
+
   mutex.lock();
   
   ticks = getTicks();

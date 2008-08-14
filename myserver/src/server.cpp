@@ -158,18 +158,18 @@ void Server::start()
   {
     try
     {
-      string software_signature;
-      software_signature.assign("************MyServer ");
-      software_signature.append(versionOfSoftware);
-      software_signature.append("************");
+      string softwareSignature;
+      softwareSignature.assign("************MyServer ");
+      softwareSignature.append(versionOfSoftware);
+      softwareSignature.append("************");
 
-      i = software_signature.length();
+      i = softwareSignature.length();
       while(i--)
         logManager.write("*");
       logManager.writeln("");
-      logManager.write(software_signature.c_str());
+      logManager.write(softwareSignature.c_str());
       logManager.write("\n");
-      i = software_signature.length();
+      i = softwareSignature.length();
       while(i--)
         logManager.write("*");
       logManager.writeln("");
@@ -379,7 +379,8 @@ void Server::start()
               delete oldvhost;
 
               /* Load the virtual hosts configuration from the xml file.  */
-              if(vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(), getMaxLogFileSize()))
+              if(vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
+                                                     getMaxLogFileSize()))
               {
                 listenThreads.rollbackFastReboot();
 
@@ -435,6 +436,7 @@ int Server::purgeThreads()
 {
   u_long ticks = getTicks();
   u_long destroyed = 0;
+
   purgeThreadsThreshold = std::min(purgeThreadsThreshold << 1, nMaxThreads);
   threadsMutex->lock();
   for(list<ClientsThread*>::iterator it = threads.begin(); it != threads.end();)
@@ -571,11 +573,13 @@ int Server::terminate()
   listenThreads.terminate();
 
   threadsMutex->lock();
+
   for(list<ClientsThread*>::iterator it = threads.begin(); it != threads.end(); it++)
   {
     threadsIds.push_back((*it)->getThreadId());
     (*it)->stop();
   }
+
   threadsMutex->unlock();
   Socket::stopBlockingOperations(true);
 

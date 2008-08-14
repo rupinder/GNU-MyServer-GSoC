@@ -67,6 +67,7 @@ ClientsThread::~ClientsThread()
 {
   if(initialized == 0)
     return;
+
   threadIsRunning = 0;
 
   if(httpParser)
