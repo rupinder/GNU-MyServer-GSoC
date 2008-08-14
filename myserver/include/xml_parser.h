@@ -93,6 +93,7 @@ public:
 	time_t getLastModTime();
 	
   XmlXPathResult* evaluateXpath(const char*);
+  bool isXpathEnabled(){return useXpath;}
 private:
   xmlXPathContextPtr xpathCtx;
   bool useXpath;

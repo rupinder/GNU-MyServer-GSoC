@@ -185,7 +185,7 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
        (parser->getLastModTime() != fileModTime))
     {
       parser->close();
-      if(parser->open(permissionFile.c_str()) == -1)
+      if(parser->open(permissionFile.c_str(), true) == -1)
       {
         dictionary.remove(permissionFile.c_str());
         return -1;
@@ -213,7 +213,7 @@ int SecurityCache::getPermissionMask(SecurityToken* st)
         delete toremove;
     }
 
-    if(parser->open(permissionFile.c_str()) == -1)
+    if(parser->open(permissionFile.c_str(), true) == -1)
       return -1;
 
     old = dictionary.put(permissionFile, parser);
@@ -256,7 +256,7 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
        (parser->getLastModTime() != fileModTime))
     {
       parser->close();
-      if(parser->open(permissionFile.c_str()) == -1)
+      if(parser->open(permissionFile.c_str(), true) == -1)
       {
         dictionary.remove(permissionFile.c_str());
         return -1;
@@ -284,7 +284,7 @@ int SecurityCache::getErrorFileName(const char *directory, int error,
         delete toremove;
     }
 
-    if(parser->open(permissionFile.c_str()) == -1)
+    if(parser->open(permissionFile.c_str(), true) == -1)
       return -1;
 
     old = dictionary.put(permissionFile, parser);

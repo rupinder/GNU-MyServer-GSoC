@@ -60,14 +60,19 @@ void SecurityToken::reset()
  *Return -1 on errors.
  *Return other valus on success.
  */
-int SecurityManager::getErrorFileName(const char* sysDir,int error, 
-                                      string &out, XmlParser* parser)
+int SecurityManager::getErrorFileName(const char* sysDir, 
+                                      int error, 
+                                      string &out, 
+                                      XmlParser* parser)
 {
-  xmlNode *node;
   ostringstream permissionsFile;
   XmlParser localParser;  
-  xmlDocPtr doc;
-  bool found = 0;
+
+  char evalString[64];
+  XmlXPathResult* xpathRes;
+  xmlNodeSetPtr nodes;
+
+
   out.assign("");
   if(parser == 0)
   { 
@@ -76,68 +81,30 @@ int SecurityManager::getErrorFileName(const char* sysDir,int error,
     {
       return 0;
     }
-    if(localParser.open(permissionsFile.str().c_str()) == -1 )
+    if(localParser.open(permissionsFile.str().c_str(), true) == -1 )
       return -1;
-    doc=localParser.getDoc();
   }
   else
   {
-    doc=parser->getDoc();
+    if(!parser->isXpathEnabled())
+      return 0;
   }
 
-  if(doc == 0)
-  {
-    if(parser == 0)
-      localParser.close();
-    return 0;
-  }
-  node = doc->children->children;
+  sprintf(evalString, "/SECURITY/ERROR[@ID=\'%d\']/@FILE", error);
+  xpathRes = parser->evaluateXpath(evalString);
+  nodes = xpathRes->getNodeSet();
 
-  if(node == 0)
-  {
-    if(parser == 0)
-      localParser.close();
-    return 0;
-  }
+  if(nodes && nodes->nodeNr)
+    out.assign((const char*)nodes->nodeTab[0]->content);
 
-  while(node)
-  {
-    if(!xmlStrcmp(node->name, (const xmlChar *)"ERROR"))
-    {
-      xmlAttr *attr =  node->properties;
-      char *fileName = 0;
-      while(attr)
-      {
-        if(!xmlStrcmp(attr->name, (const xmlChar *)"FILE"))
-        {
-          fileName = (char*)attr->children->content;
-        }
-        else if(!xmlStrcmp(attr->name, (const xmlChar *)"ID"))
-        {
-          int errorId;
-          errorId = atoi((const char*)attr->children->content);
-          if(errorId == error)
-            found = true;
-          else
-            break;
-        }
-        attr = attr->next;
-      }
+  if(xpathRes)
+    delete xpathRes;
 
-      /* The error ID is correct.  */
-      if(found)
-      {
-        out.assign(fileName);
-        break;
-      }
-    }
-    node = node->next;
-  }
   if(parser == 0)
     localParser.close();
   
   /* Return 1 if both it was found and well configured.  */
-  if(found && out.length())
+  if(nodes && nodes->nodeNr && out.length())
     return 1;
   
   return 0;
@@ -222,7 +189,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
     }
     else
     {
-      if(localParser.open(permissionsFile.str().c_str()) == -1)
+      if(localParser.open(permissionsFile.str().c_str(), true) == -1)
       {
         return -1;
       }
