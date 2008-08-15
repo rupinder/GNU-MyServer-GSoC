@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005, 2006 Free Software Foundation, Inc.
+Copyright (C) 2005, 2006, 2008 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -25,22 +25,23 @@ using namespace std;
 
 class SecurityCache
 {
-private:
-  /*! Object used to handle security on the server. */
-  SecurityManager sm;
-  /*! Store a list of opened files using a hash dictionary. */
-  HashMap<string, XmlParser*> dictionary;
-  int limit;
 public:
   SecurityCache();
   ~SecurityCache();
   void free();
   void setMaxNodes(int);
   int getMaxNodes();
+  XmlParser* getParser(const char* dir, const char* sys, bool useXpath = true);
 	int getSecurityFile(const char* file, const char* sys, string& out);
   int getPermissionMask(SecurityToken* st);
   int getErrorFileName(const char *root, int error, 
                        const char* sysdirectory, string& out);
+private:
+  /*! Object used to handle security on the server. */
+  SecurityManager sm;
+  /*! Store a list of opened files using a hash dictionary. */
+  HashMap<string, XmlParser*> dictionary;
+  int limit;
 };
 
 #endif

@@ -102,7 +102,9 @@ public:
   SecurityManager();
   ~SecurityManager();
   int getErrorFileName(const char *sysDir, int error, string& out, 
-                       XmlParser* parser=0);
-  int getPermissionMask(SecurityToken* st, XmlParser* parser=0);
+                       XmlParser* parser = 0);
+  int getPermissionMask(SecurityToken* st, XmlParser* parser = 0);
+private:
+  XmlParser* getParser(const char *sysDir);
 };
 #endif

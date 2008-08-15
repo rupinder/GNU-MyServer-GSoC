@@ -54,8 +54,9 @@ void SecurityToken::reset()
   throttlingRate = (int)-1;
 }
 
+
 /*!
- *Get the error file for a site. 
+ *Get the error file for a page using the specified parser. 
  *Return 0 to use the default one.
  *Return -1 on errors.
  *Return other valus on success.
@@ -66,7 +67,6 @@ int SecurityManager::getErrorFileName(const char* sysDir,
                                       XmlParser* parser)
 {
   ostringstream permissionsFile;
-  XmlParser localParser;  
 
   char evalString[64];
   XmlXPathResult* xpathRes;
@@ -74,21 +74,9 @@ int SecurityManager::getErrorFileName(const char* sysDir,
 
 
   out.assign("");
-  if(parser == 0)
-  { 
-    permissionsFile << sysDir << "/security" ;
-    if(!FilesUtility::fileExists(permissionsFile.str().c_str()))
-    {
-      return 0;
-    }
-    if(localParser.open(permissionsFile.str().c_str(), true) == -1 )
-      return -1;
-  }
-  else
-  {
-    if(!parser->isXpathEnabled())
-      return 0;
-  }
+
+  if(parser == NULL || !parser->isXpathEnabled())
+    return -1;
 
   sprintf(evalString, "/SECURITY/ERROR[@ID=\'%d\']/@FILE", error);
   xpathRes = parser->evaluateXpath(evalString);
@@ -100,8 +88,6 @@ int SecurityManager::getErrorFileName(const char* sysDir,
   if(xpathRes)
     delete xpathRes;
 
-  if(parser == 0)
-    localParser.close();
   
   /* Return 1 if both it was found and well configured.  */
   if(nodes && nodes->nodeNr && out.length())
@@ -113,11 +99,10 @@ int SecurityManager::getErrorFileName(const char* sysDir,
 
 
 /*!
- *Get the permissions mask for the file[filename]. 
- *The file [directory]/security will be parsed. If a [parser] is specified, 
- *it will be used instead of opening the security file.
- *[providedMask] is the permission mask that the [user] will have 
- *if providing a [requiredPassword].
+ *Get the permissions mask for the file FILENAME using the XML parser PARSER.
+ *The file DIRECTORY/security will be parsed.
+ *PROVIDEDMASK is the permission mask that the [user] will have 
+ *if providing a REQUIREDPASSWORD.
  *Returns -1 on errors.
  */
 int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
@@ -148,7 +133,6 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
   xmlAttr *attr;
   xmlNode *node = 0;
 
-  XmlParser localParser;
   xmlDocPtr doc;
   
   /*
@@ -173,41 +157,15 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
     return -1;
   if(st->filename == 0)
     return -1;
-
-  /* 
-   *If there is not specified the parser to use, create a new parser
-   *object and initialize it. 
-   */
-  if(parser == 0)
-  {
-    permissionsFile << st->directory << "/security";
-
-    /* If the specified file doesn't exist return 0.  */
-    if(!FilesUtility::fileExists(permissionsFile.str().c_str()))
-    {
-      return 0;
-    }
-    else
-    {
-      if(localParser.open(permissionsFile.str().c_str(), true) == -1)
-      {
-        return -1;
-      }
-      doc = localParser.getDoc();
-    }
-  }
-  else
-  {
-    /* If the parser object is specified get the doc from it.  */
-    doc = parser->getDoc();
-  }
-
-  if(!doc)
-  {
-    if(parser == 0)
-      localParser.close();
+  
+  if(parser == NULL)
     return -1;
-  }
+
+  doc = parser->getDoc();
+
+  if(doc == NULL)
+    return -1;
+
 
   /*
    *If the file is not valid, returns 0.
@@ -217,7 +175,6 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
     node = doc->children->children;
   else if(parser == 0)
   {
-    localParser.close();
     return -1;
   }
 
@@ -532,11 +489,6 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
         delete old;
     }
     node = node->next;
-  }
-
-  if(parser == 0)
-  {
-    localParser.close();
   }
 
   if(st->providedMask)
