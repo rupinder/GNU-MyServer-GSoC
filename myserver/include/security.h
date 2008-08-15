@@ -106,5 +106,6 @@ public:
   int getPermissionMask(SecurityToken* st, XmlParser* parser = 0);
 private:
   XmlParser* getParser(const char *sysDir);
+  bool checkActions(HttpThreadContext* td,  xmlNode *root);
 };
 #endif

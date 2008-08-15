@@ -145,8 +145,8 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
    */
   int actionsFound = 0;
   int tmpActionsFound = 0;
-   xmlNode *actionsNode = 0;
-   xmlNode *tmpActionsNode = 0;
+  xmlNode *actionsNode = 0;
+  xmlNode *tmpActionsNode = 0;
 
   tempPassword[0] = '\0';
   if(st && st->authType)
@@ -202,7 +202,7 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
       if(actionsFound < 1)
       {
         actionsFound = 1;
-         actionsNode = doc->children->children;            
+        actionsNode = doc->children->children;            
       }
     }
 
@@ -281,10 +281,10 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
         if(rightUser && (filePermissionsFound == 0) && 
            (userPermissionsFound == 0))
         {
-           if(tmpActionsFound == 2)
+          if(tmpActionsFound == 2)
           {
             actionsFound = 2;
-             actionsNode = tmpActionsNode;            
+            actionsNode = tmpActionsNode;            
           }   
           if(st->requiredPassword)
             strncpy(st->requiredPassword, tempPassword, 32);
@@ -314,10 +314,10 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
       {
         if(!xmlStrcmp(node2->name, (const xmlChar *)"ACTION"))
         {
-           if(actionsFound <= 3)
+          if(actionsFound <= 3)
           {
             tmpActionsFound = 3;
-             tmpActionsNode = node->children;
+            tmpActionsNode = node->children;
           }                                   
         }      
         if(!xmlStrcmp(node2->name, (const xmlChar *)"USER"))
@@ -511,45 +511,8 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 
   }
 
-  for( ; st->td && actionsNode; actionsNode = actionsNode->next)
-  {
-    xmlAttr *attr = actionsNode->properties;
-    int deny = 0;
-    regmatch_t pm;
-    const char* name = 0;
-    Regex value;
-    string* headerVal = 0;
-    if(strcmpi((const char*)actionsNode->name, "ACTION"))
-      continue;
-
-    if(actionsNode->children && actionsNode->children->content 
-       && !strcmpi((const char*)actionsNode->children->content, "DENY"))
-         deny = 1;
-    if(!deny)
-      continue;
-
-    for( ; attr; attr = attr->next)
-    {
-      if(!strcmpi((const char*)attr->name, "NAME"))
-        name = (const char*) attr->children->content;
-      if(!strcmpi((const char*)attr->name, "VALUE"))
-        value.compile((const char*)attr->children->content, REG_EXTENDED);         
-    }
-    if(name)
-      headerVal = st->td->request.getValue(name, 0);
-    if(!headerVal)
-      continue;
-
-    /*
-     *If the regular expression matches the header value then deny the 
-     *access. 
-     */
-    if(value.isCompiled() && !value.exec(headerVal->c_str(), 1,&pm, 
-                                         REG_NOTEOL))
-      return 0;
-    else
-      break;
-  }
+  if(!SecurityManager::checkActions(st->td,  actionsNode))
+    return 0;
 
   if(userPermissionsFound == 1)
     return userPermissions;
@@ -561,6 +524,63 @@ int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
     return genericPermissions;
 
   return 0;
+}
+
+/*!
+ *Check if the specified actions deny the access to the resource.
+ *\param td The Thread Context.
+ *\param root The root node with actions.
+ *\return true if the action allows the access to the resource.
+ *\return false if the action denies the access to the resource.
+ */
+bool SecurityManager::checkActions(HttpThreadContext* td,  xmlNode *root)
+{
+  xmlNode* actionsNode = root;
+
+  for( ; td && actionsNode; actionsNode = actionsNode->next)
+  {
+    xmlAttr *attr = actionsNode->properties;
+    int deny = 0;
+    regmatch_t pm;
+    const char* name = 0;
+    Regex value;
+    string* headerVal = 0;
+
+    if(strcmpi((const char*)actionsNode->name, "ACTION"))
+      continue;
+
+    if(actionsNode->children && actionsNode->children->content 
+       && !strcmpi((const char*)actionsNode->children->content, "DENY"))
+         deny = 1;
+
+    if(!deny)
+      continue;
+
+    for( ; attr; attr = attr->next)
+    {
+      if(!strcmpi((const char*)attr->name, "NAME"))
+        name = (const char*) attr->children->content;
+      if(!strcmpi((const char*)attr->name, "VALUE"))
+        value.compile((const char*)attr->children->content, REG_EXTENDED);         
+    }
+
+    if(name)
+      headerVal = td->request.getValue(name, 0);
+
+    if(!headerVal)
+      continue;
+
+    /*
+     *If the regular expression matches the header value then deny the 
+     *access. 
+     */
+    if(value.isCompiled() && !value.exec(headerVal->c_str(), 1,&pm, 
+                                         REG_NOTEOL))
+      return false;
+  }
+
+  return true;
+
 }
 
 /*!
