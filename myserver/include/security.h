@@ -64,20 +64,26 @@ struct SecurityToken
 {
   /*! User to check for. */
   const char* user;
+
   /*! Password provided by the user. */
   const char* password;
+
   /*! Directory that the user is in. */
   const char* directory;
+
   /*! System directory for the host. */
   const char* sysdirectory;
+
   /*! File that the user tried to access. */
   const char* filename;
+
   /*! 
    *Password that the user should provide to have access. 
    *This is used in authorization schemes like the HTTP digest,
    *where the password is not sent in clear on the network.
    */
   char *requiredPassword;
+
   /*! Permission mask that the user will have providing [neededPassword]. */
   int *providedMask;
 
@@ -85,8 +91,10 @@ struct SecurityToken
 
   /*! Authorization scheme to use. */
   char* authType;
+
   /*! Length for the [authType] allocated string. */
   int authTypeLen;
+
   /*! Throttling rate to use with specified user. */
   int throttlingRate;
 
