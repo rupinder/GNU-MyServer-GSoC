@@ -356,6 +356,7 @@ int Http::getFilePermissions(string& filename, string& directory, string& file,
   SecurityToken st;
   char authType[16];
   int providedMask;
+
   try
   {
     st.authType = authType;
@@ -391,6 +392,14 @@ int Http::getFilePermissions(string& filename, string& directory, string& file,
       if(ret != 200)
         return ret;
     }
+
+    if(FilesUtility::isLink(td->filenamePath.c_str()))
+    {
+      const char *perm = td->connection->host->getHashedData("FOLLOW_LINKS");
+      if(!perm || strcmpi(perm, "YES"))
+        return raiseHTTPError(401);
+    }
+
     if(FilesUtility::isDirectory(filenamePath.c_str()))
     {
       directory.assign(filenamePath);
@@ -519,6 +528,11 @@ int Http::getFilePermissions(string& filename, string& directory, string& file,
   {
     return 500;
   }
+
+
+  /*! If a throttling rate was specifed use it.  */
+  if(st.throttlingRate != -1)
+    td->connection->socket->setThrottling(st.throttlingRate);
 
   return 200;
 }
@@ -709,14 +723,14 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
   int ret;
   char authType[16];
   string tmpTime;
-  SecurityToken st;
   string directory;
   string file;
+    
+  /*! By default allows only few actions. */
+  permissions = MYSERVER_PERMISSION_READ | MYSERVER_PERMISSION_BROWSE ;
+
   try
   {
-    st.authType = authType;
-    st.authTypeLen = 16;
-    st.td = td;
     filename.assign(uri);
     td->buffer->setLength(0);
 
@@ -737,7 +751,6 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     }
     else
     {
-      int ret;
       /*!
        *If the client tries to access files that aren't in the
        *web directory send a 401 error.
@@ -754,149 +767,19 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         return raiseHTTPError(ret);
     }
 
-    /*! By default allows only few actions. */
-    permissions = MYSERVER_PERMISSION_READ | MYSERVER_PERMISSION_BROWSE ;
-
     if(!systemrequest)
     {
-      if(FilesUtility::isLink(td->filenamePath.c_str()))
-      {
-        const char *perm = td->connection->host->getHashedData("FOLLOW_LINKS");
-        if(!perm || strcmpi(perm, "YES"))
-          return raiseHTTPError(401);
-      }
+      ret = Http::preprocessHttpRequest(filename, yetmapped, &permissions);
 
-      if(FilesUtility::isDirectory(td->filenamePath.c_str()))
+      if(ret != 200)
       {
-        directory.assign(td->filenamePath);
+        return raiseHTTPError(ret);
       }
-      else
-      {
-        FilesUtility::splitPath(td->filenamePath, directory, file);
-      }
-
-      if(td->connection->protocolBuffer == 0)
-      {
-        td->connection->protocolBuffer = new HttpUserData;
-        if(!td->connection->protocolBuffer)
-        {
-          return sendHTTPhardError500();
-        }
-        ((HttpUserData*)td->connection->protocolBuffer)->reset();
-      }
-      providedMask = 0;
-      if(td->request.auth.length())
-      {
-        st.user = td->connection->getLogin();
-        st.password = td->connection->getPassword();
-        st.directory = directory.c_str();
-        st.sysdirectory = td->getVhostSys();
-        st.filename = file.c_str();
-        st.requiredPassword =
-          ((HttpUserData*)td->connection->protocolBuffer)->requiredPassword;
-        st.providedMask = &providedMask;
-
-        staticHttp.secCacheMutex.lock();
-        try
-        {
-          permissions = staticHttp.secCache.getPermissionMask(&st);
-          staticHttp.secCacheMutex.unlock();
-        }
-        catch(...)
-        {
-          staticHttp.secCacheMutex.unlock();
-          throw;
-        };
-      }
-      else/*! The default user is Guest with a null password. */
-      {
-        st.user = "Guest";
-        st.password = "";
-        st.directory = directory.c_str();
-        st.sysdirectory = td->getVhostSys();
-        st.filename = file.c_str();
-        st.requiredPassword = 0;
-        st.providedMask = 0;
-        staticHttp.secCacheMutex.lock();
-        try
-        {
-          permissions = staticHttp.secCache.getPermissionMask(&st);
-          staticHttp.secCacheMutex.unlock();
-        }
-        catch(...)
-        {
-          staticHttp.secCacheMutex.unlock();
-          throw;
-        };
-      }
-
-      /*! Check if we have to use digest for the current directory. */
-      if(!strcmpi(authType, "Digest"))
-      {
-        if(!td->request.auth.compare("Digest"))
-        {
-          if(!((HttpUserData*)td->connection->protocolBuffer)->digestChecked)
-            ((HttpUserData*)td->connection->protocolBuffer)->digest =
-              checkDigest();
-
-          ((HttpUserData*)td->connection->protocolBuffer)->digestChecked = 1;
-
-          if(((HttpUserData*)td->connection->protocolBuffer)->digest == 1)
-          {
-            td->connection->setPassword(
-               ((HttpUserData*)td->connection->protocolBuffer)->requiredPassword);
-            permissions = providedMask;
-          }
-        }
-        td->authScheme = HTTP_AUTH_SCHEME_DIGEST;
-      }
-      else/*! By default use the Basic authentication scheme.  */
-      {
-        td->authScheme = HTTP_AUTH_SCHEME_BASIC;
-      }
-
-     /*! If there are no permissions, use the Guest permissions.  */
-      if(td->request.auth.length() && (permissions == 0))
-      {
-        st.user = "Guest";
-        st.password = "";
-        st.directory = directory.c_str();
-        st.sysdirectory = td->getVhostSys();
-        st.filename = file.c_str();
-        st.requiredPassword = 0;
-        st.providedMask = 0;
-        staticHttp.secCacheMutex.lock();
-        try
-        {
-          permissions = staticHttp.secCache.getPermissionMask(&st);
-          staticHttp.secCacheMutex.unlock();
-        }
-        catch(...)
-        {
-          staticHttp.secCacheMutex.unlock();
-          throw;
-        };
-      }
-    }
-
-    if(permissions == -1)
-    {
-      td->connection->host->warningsLogRequestAccess(td->id);
-      td->connection->host->warningsLogWrite(
-                               "Http: Error reading security file");
-      td->connection->host->warningsLogTerminateAccess(td->id);
-      return raiseHTTPError(500);
     }
 
     /* The security file doesn't exist in any case.  */
     if(!strcmpi(file.c_str(), "security"))
       return raiseHTTPError(404);
-
-
-    /*! If a throttling rate was specifed use it.  */
-    if(st.throttlingRate != -1)
-      td->connection->socket->setThrottling(st.throttlingRate);
-
 
     /*!
      *Get the PATH_INFO value.
