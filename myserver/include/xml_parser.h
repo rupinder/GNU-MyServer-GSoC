@@ -92,6 +92,7 @@ public:
 	void addLineFeed();
 	time_t getLastModTime();
 	
+  XmlXPathResult* evaluateXpath(string & path){return evaluateXpath(path.c_str());}
   XmlXPathResult* evaluateXpath(const char*);
   bool isXpathEnabled(){return useXpath;}
 private:

@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include <sstream>
+#include <memory>
 
 using namespace std;
 
@@ -66,32 +67,31 @@ int SecurityManager::getErrorFileName(const char* sysDir,
                                       string &out, 
                                       XmlParser* parser)
 {
-  char evalString[64];
+  string evalString;
   XmlXPathResult* xpathRes;
   xmlNodeSetPtr nodes;
-
+  int ret;
 
   out.assign("");
 
   if(parser == NULL || !parser->isXpathEnabled())
     return -1;
 
-  sprintf(evalString, "/SECURITY/ERROR[@ID=\'%d\']/@FILE", error);
+  evalString = "/SECURITY/ERROR[@ID=\'";
+  evalString += error;
+  evalString += "']/@FILE";
+
   xpathRes = parser->evaluateXpath(evalString);
   nodes = xpathRes->getNodeSet();
 
   if(nodes && nodes->nodeNr)
     out.assign((const char*)nodes->nodeTab[0]->children->content);
 
-  if(xpathRes)
-    delete xpathRes;
-
-  
   /* Return 1 if both it was found and well configured.  */
-  if(nodes && nodes->nodeNr && out.length())
-    return 1;
-  
-  return 0;
+  ret = nodes && nodes->nodeNr && out.length() ? 1 : 0;
+
+  delete xpathRes;
+  return ret;
 
 }
 
@@ -105,43 +105,57 @@ int SecurityManager::getErrorFileName(const char* sysDir,
  */
 int SecurityManager::getPermissionMask(SecurityToken *st, XmlParser* parser)
 {
-  XmlXPathResult* xpathRes;
   xmlNodeSetPtr nodes;
   xmlAttr* attr;
-  char evalString[256];
+  string evalString;
   int permissions = 0;
   const char* requiredPassword;
   bool rightPassword = false;
+  auto_ptr<XmlXPathResult> itemRes;
+  auto_ptr<XmlXPathResult> userRes;
 
   if(parser == NULL || !parser->isXpathEnabled())
     return -1;
 
 
-  strcpy(evalString, "/SECURITY/AUTH/@TYPE");
+  evalString = "/SECURITY/AUTH/@TYPE";
 
-  xpathRes = parser->evaluateXpath(evalString);
-  nodes = xpathRes->getNodeSet();
+  auto_ptr<XmlXPathResult>authRes(parser->evaluateXpath(evalString));
+  nodes = authRes.get()->getNodeSet();
 
   if(nodes && nodes->nodeNr)
     strncpy(st->authType,(const char*)nodes->nodeTab[0]->children->content, 
             st->authTypeLen);
 
+  evalString = "/SECURITY/ITEM[@FILE=\'";
+  evalString += st->filename;
+  evalString += "\']/USER[@NAME=\'";
+  evalString += st->user;
+  evalString += "\']/.";
 
-  sprintf(evalString, "/SECURITY/ITEM[@FILE=\'%s\']/USER[@NAME=\'%s\']/.", st->filename, st->user);
-  xpathRes = parser->evaluateXpath(evalString);
-  nodes = xpathRes->getNodeSet();
+  auto_ptr<XmlXPathResult> itemUserRes(parser->evaluateXpath(evalString));
+
+  nodes = itemUserRes.get()->getNodeSet();
 
   if(!nodes || !nodes->nodeNr)
   {
-    sprintf(evalString, "/SECURITY/ITEM[@FILE=\'%s\']/.", st->filename);
-    xpathRes = parser->evaluateXpath(evalString);
-    nodes = xpathRes->getNodeSet();
+    evalString = "/SECURITY/ITEM[@FILE=\'";
+    evalString += st->filename;
+    evalString += "\']/.";
+
+    itemRes.reset(parser->evaluateXpath(evalString));
+
+    nodes = itemRes.get()->getNodeSet();
 
     if(!nodes || !nodes->nodeNr)
     {
-      sprintf(evalString, "/SECURITY/USER[@NAME=\'%s\']/.", st->user);
-      xpathRes = parser->evaluateXpath(evalString);
-      nodes = xpathRes->getNodeSet();
+      evalString = "/SECURITY/USER[@NAME=\'";
+      evalString += st->user;
+      evalString += "\']/.";
+
+      userRes.reset(parser->evaluateXpath(evalString));
+
+      nodes = userRes.get()->getNodeSet();
     }
 
   }
