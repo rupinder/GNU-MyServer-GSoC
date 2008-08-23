@@ -79,7 +79,7 @@ void HttpHeaders::buildHTTPResponseHeader(char *str,
   }
   else
   {
-    pos += myserver_strlcpy(pos, "Server: MyServer ", MAX-(long)(pos-str));
+    pos += myserver_strlcpy(pos, "Server: GNU MyServer ", MAX-(long)(pos-str));
     pos += myserver_strlcpy(pos, versionOfSoftware,  MAX-(long)(pos-str));
     pos += myserver_strlcpy(pos, "\r\n", MAX-(long)(pos-str));
   }
