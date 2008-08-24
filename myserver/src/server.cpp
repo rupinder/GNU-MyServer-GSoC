@@ -277,10 +277,10 @@ void Server::start()
 
     /*
      *Keep thread alive.
-     *When the mustEndServer flag is set to True exit
+     *When the endServer flag is set to True exit
      *from the loop and terminate the server execution.
      */
-    while(!mustEndServer)
+    while(!endServer)
     {
       Thread::wait(100000);
 
@@ -556,7 +556,7 @@ HomeDir* Server::getHomeDir()
  */
 void Server::stop()
 {
-  mustEndServer = 1;
+  endServer = true;
 }
 
 /*!
@@ -720,7 +720,7 @@ int Server::initialize(int /*!osVer*/)
   currentThreadID = 0;
   freeThreads = 0;
   connectionTimeout = MYSERVER_SEC(25);
-  mustEndServer = 0;
+  endServer = false;
   verbosity = 1;
   purgeThreadsThreshold = 1;
   throttlingRate = 0;
@@ -1897,12 +1897,14 @@ int Server::reboot()
   logWriteln("Rebooting...");
   if(mustEndServer)
     return 0;
-  mustEndServer = 1;
+
+  mustEndServer = true;
 
   ret = terminate();
   if(ret)
     return ret;
-  mustEndServer = 0;
+
+  mustEndServer = false;
 
 
   rebooting = 0;

@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005, 2007 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2005, 2007, 2008 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -71,10 +71,6 @@ extern "C"
 #define HOST_NAME_MAX 255
 #endif
 
-#ifndef MAXIMUM_PROCESSORS
-#define MAXIMUM_PROCESSORS 255
-#endif
-
 #define USE_NEW
 
 typedef unsigned long DWORD;
@@ -84,9 +80,7 @@ typedef unsigned short u_short;
 typedef unsigned char u_char;
 
 typedef void* HANDLE;
-extern class Server *lserver;
 extern const char *versionOfSoftware;
-extern int mustEndServer;
 
 #ifndef SOCKET_ERROR
 #define SOCKET_ERROR -1

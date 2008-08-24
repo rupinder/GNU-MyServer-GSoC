@@ -241,6 +241,7 @@ private:
 	GenericPluginsManager genericPluginsManager;
 	ProcessServerManager processServerManager;
 	ConnectionsScheduler connectionsScheduler;
+  bool endServer;
 };
 
 #endif
