@@ -45,6 +45,7 @@ extern "C"
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#include <iomanip>
 
 using namespace std;
 
@@ -105,118 +106,57 @@ int HttpDir::unLoad()
   return 0;
 }
 
+/*!
+ *Get a formatted dobule representation of BYTES right shifted by POWER.
+ *\param bytes Number of bytes.
+ *\param power Power of 2.
+ *\return the double representation for BYTES>>POWER.
+ */
+double HttpDir::formatBytes(u_long bytes, u_int power)
+{
+  const u_long quotient = bytes >> power;
+  if (quotient == 0)
+    return -1;
+
+  const u_long unit = 1 << power;
+  const u_long remainder = bytes & (unit - 1);
+  const double result = quotient + static_cast<double>(remainder) / unit;
+  return result;
+}
+
 
 /*!
  *Fullfill the string out with a formatted representation for bytes.
  *\param bytes Size to format.
  *\param out Out string. 
  */
-void HttpDir::getFormattedSize(int bytes, string& out)
+void HttpDir::getFormattedSize(u_long bytes, string & out)
 {
-  ostringstream tmp;
+  const string symbols[] = {"TB", "GB", "MB", "KB", "bytes"};
+  const u_int powers[] = {40, 30, 20, 10, 0};
+  double result;
+  size_t i;
+  ostringstream osstr;
 
-  double leftover = 0.0;
-   
-  if(bytes < 1024)               //  Byte case
-    tmp << bytes << " bytes";
+  if (bytes == 0)
+  {
+    out = "0";
+    return;
+  }
+
+  for (i = 0; i < sizeof (powers); i++)
+  {
+    result = formatBytes (bytes, powers[i]);
+    if (result != -1)
+      break;
+  }
+
+  if((result - floor(result)) < 0.01)
+    osstr << std::fixed << setprecision(0) << result << " " << symbols[i];
+  else
+    osstr << std::fixed << setprecision(2) << result << " " << symbols[i];
   
-  else if ((bytes >= 1024) && (bytes < 1048576))  //  KB case
-  {
-    u_long kb = static_cast<unsigned long int>(bytes / 1024);
-    leftover  = bytes % 1024;
-     
-    if(leftover < 50.0)
-      leftover = 0.0;
-    
-    // note: this case isn't handled through compiler casting
-    // using the output at the end!!!
-    // therefore it has to be here ...
-    else if(((static_cast<unsigned int>(leftover)) % 100) > 50)
-      leftover += 100.0;
-    
-    if(leftover >= 1000.0)
-    {
-      leftover = 0.0;
-      kb++;
-    }
-    else
-    {
-      while(leftover >= 10)
-      {  
-        if (leftover)
-          leftover /= 10;
-      }
-    }
-
-    // output ---> X.y KB
-    tmp << kb <<  "." << static_cast<unsigned int>(leftover) << " kb";
-    
-  }
-  else if ((bytes >= 1048576) && (bytes < 1073741824))  //  MB case
-  {
-    u_long mb = static_cast<unsigned long int>(bytes / 1048576);
-    leftover  = bytes % 1048576;
-    
-    if(leftover < 50.0)
-      leftover = 0.0;
-    
-    // note: this case isn't handled through compiler casting
-    // using the output at the end!!!
-    // therefore it has to be here ...
-    else if(((static_cast<unsigned int>(leftover)) % 100) > 50)
-      leftover += 100.0;
-    
-    if(leftover >= 1000.0)
-    {
-      leftover = 0.0;
-      mb++;
-    }
-    else
-    {
-      while(leftover >= 10)
-      {  
-        if (leftover)
-          leftover /= 10;
-      }
-    }
-
-    // output ---> X.y MB
-    tmp << mb <<  "." << static_cast<unsigned int>(leftover) << " MB";
-    
-  }
-  else //  GB case
-  {
-    u_long gb = static_cast<unsigned long int>(bytes / 1073741824);
-    leftover  = bytes % 1073741824;
-    
-    if(leftover < 50.0)
-      leftover = 0.0;
-    
-    // note: this case isn't handled through compiler casting
-    // using the output at the end!!!
-    // therefore it has to be here ...
-    else if(((static_cast<unsigned int>(leftover)) % 100) > 50)
-      leftover += 100.0;
-    
-    if(leftover >= 1000.0)
-    {
-      leftover = 0.0;
-      gb++;
-    }
-    else
-    {
-      while(leftover >= 10)
-      {  
-        if (leftover)
-          leftover /= 10;
-      }
-    }
-
-    // output ---> X.y GB
-    tmp << gb <<  "." << static_cast<unsigned int>(leftover) << " GB";
-    
-  }
- out.assign(tmp.str());
+  out = osstr.str();
 }
 
 /*!
