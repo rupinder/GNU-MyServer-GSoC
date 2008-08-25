@@ -3,8 +3,8 @@ TODO list for MyServer.
 *	libidn support with mingw under windows, create devpaks
 
 *	Provide support for other ssl libraries
-*	Provide support for GnuTLS
-*	Provide support for Mozilla libnss
+**	Provide support for GnuTLS
+**	Provide support for Mozilla libnss
 
 *	Security mechanism: SECURE ONE FILE with "security".
 **	Add more functionality to "security".
@@ -131,6 +131,4 @@ TODO list for MyServer.
 
 (*) Not so important to have now.
 
-
-Please consider to join the developing mailing list and ask there
-before start to work on something.
+Please ask on the bug-myserver@gnu.org mailing list before start to work on something.
