@@ -68,10 +68,17 @@ to release immediately.
 Before the release code can be changed until it reaches a good
 readable status.
 
-The communication with other project members is fundamental and when a
-message interests everybody then it should be sent on the dev mailing
-list, you can find a list of the mailing lists here:
-\url{http://savannah.gnu.org/mail/?group=myserver}.
+\begin{section}{How start hacking}
+The first step to take before be a MyServer hacker is to fetch latest
+source code version from the subversion version(~\ref{section:svn})
+and be able to compile it, only after you are able to compile and
+execute it you can think about modify its source code.
+To be updated about the MyServer development the best idea is to join
+the mailing lists (~\ref{section:ml}), it is not required to
+partecipate actively there, reading what other members are discussing
+is a good way to be introduced to the project; hopefully after some
+time you will be very active there too.
+\end{section}
 
 \begin{section}{Tasks list}
 The file TODO in the GNU MyServer directory root contains a list of
@@ -116,9 +123,10 @@ int Foo::longMethod()
 These are some simple rules to keep in mind writing code:
 \begin{itemize}
 \item Short methods, avoid long methods.
-\item Comments only when there is really need, code should be clean
-  itself, have many comments will make it more difficult to maintain
-  because any change in the code must be duplicated in the comment.
+\item Add comments only when there is really need, code should be
+  clean itself, have many comments will make it more difficult to
+  maintain because any change in the code must be duplicated in the
+  comment.
 \item Add a doxygen compatible comment to every method, this is the
   only kind of comment that should be always present, more information
   about doxygen can be found here:
@@ -136,7 +144,30 @@ These are some simple rules to keep in mind writing code:
 \end{section}
 \clearpage
 
-\begin{section}{Subversion repository}
+\begin{section}{Mailing lists}
+The communication with other project members is fundamental and when a
+message interests everybody then it should be sent on the dev mailing
+list, you can find a list of the mailing lists here:
+\url{http://savannah.gnu.org/mail/?group=myserver}.
+
+Actually there are two mailing lists:
+\begin{itemize}
+\item \textit{bug-myserver@gnu.org} Differently than what the name can
+  suggest, it is not used only for bugs but for any development
+  activity.
+\item \textit{myserver-commit@gnu.org} It is a read-only mailing list,
+  any commit to the repository is notified here.  It is not only a way
+  to annouce you that something happened but it has a very important
+  role in the development process.  Review patches by humans is done
+  at this point, after the commit happened, more eyes can notice
+  better if something is wrong.  If you notice something is not as it
+  should be, then reply to the \textit{bug-myserver@gnu.org} and the
+  developer who made the commit in CC, explaining what you consider
+  wrong.
+\end{itemize}
+\end{section}
+
+\begin{section}{Subversion repository}\label{section:svn}
 \begin{subsection}{Branches}
 If there is need to change many things in the source code, like for
 example when we implemented an event driven scheduler, that changed
