@@ -25,13 +25,10 @@ breakindent = 30pt,
 
 \date{}
 \author{}
-\title{GNU MyServer development model}
+\title{GNU MyServer hacking guide}
 
 \begin{document}
 \maketitle
-\thispagestyle{empty}
-
-\newpage
 
 \begin{figure}[H]
   \begin{center}
@@ -40,6 +37,8 @@ breakindent = 30pt,
   \caption{Development process}
   \label{figure:dev_proc}
 \end{figure}
+
+\begin{section}{Introduction}
 This document is an introduction to how develop GNU MyServer and
 interact with other team members.
 The figure \ref{figure:dev_proc} shows the GNU MyServer development
@@ -67,14 +66,15 @@ to release immediately.
 
 Before the release code can be changed until it reaches a good
 readable status.
+\end{section}
 
 \begin{section}{How start hacking}
 The first step to take before be a MyServer hacker is to fetch latest
-source code version from the subversion version(~\ref{section:svn})
-and be able to compile it, only after you are able to compile and
-execute it you can think about modify its source code.
+source code version from the subversion version(section
+\ref{section:svn}) and be able to compile it, only after you are able
+to compile and execute it you can think about modify its source code.
 To be updated about the MyServer development the best idea is to join
-the mailing lists (~\ref{section:ml}), it is not required to
+the mailing lists (section \ref{section:ml}), it is not required to
 partecipate actively there, reading what other members are discussing
 is a good way to be introduced to the project; hopefully after some
 time you will be very active there too.
@@ -82,10 +82,20 @@ time you will be very active there too.
 
 \begin{section}{Tasks list}
 The file TODO in the GNU MyServer directory root contains a list of
-tasks that need to be completed.  Each task there should be as simpler
-as possible and be very descriptive, in this way new developers can
-start working on MyServer without know all its internal mechanisms and
-classes.
+tasks that need to be completed.
+Each entry in the TODO list should be a basic task, in a way that a
+developer without a previous knowledge of the software can start
+working immediately on it.
+
+In the past the TODO list files used to be a wish list with tasks like
+\textit{``Implement the FTP protocol''}, such big tasks must be
+avoided and replaced by smaller and more detailed ones.
+Have these macro-tasks means that the feature is not designed and it is
+a good idea to plan a design for it before start working on its
+implementation and discuss it on the mailing list with other team
+members.
+Lately it will be possible to define small tasks and proceed with its
+implementation.
 \end{section}
 
 \begin{section}{Code styling}
@@ -147,14 +157,14 @@ These are some simple rules to keep in mind writing code:
 \begin{section}{Mailing lists}\label{section:ml}
 The communication with other project members is fundamental and when a
 message interests everybody then it should be sent on the dev mailing
-list, you can find a list of the mailing lists here:
-\url{http://savannah.gnu.org/mail/?group=myserver}.
+list, you can find a list of the mailing lists
+here:~\url{http://savannah.gnu.org/mail/?group=myserver}.
 
 Actually there are two mailing lists:
 \begin{itemize}
-\item \textit{bug-myserver@gnu.org} Differently than what the name can
+\item \textit{bug-myserver@gnu.org} Differently from what the name can
   suggest, it is not used only for bugs but for any development
-  activity.
+  related discussion.
 \item \textit{myserver-commit@gnu.org} It is a read-only mailing list,
   any commit to the repository is notified here.  It is not only a way
   to annouce you that something happened but it has a very important
