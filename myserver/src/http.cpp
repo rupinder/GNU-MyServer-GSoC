@@ -734,39 +734,6 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     filename.assign(uri);
     td->buffer->setLength(0);
 
-    if(td->request.isKeepAlive())
-    {
-      td->response.connection.assign("keep-alive");
-    }
-
-    /*!
-     *td->filenamePath is the file system mapped path while filename
-     *is the uri requested. systemrequest is 1 if the file is in
-     *the system directory.
-     *If filename is already mapped on the file system don't map it again.
-     */
-    if(yetmapped)
-    {
-      td->filenamePath.assign(filename);
-    }
-    else
-    {
-      /*!
-       *If the client tries to access files that aren't in the
-       *web directory send a 401 error.
-       */
-      translateEscapeString(filename);
-      if(filename.length() && (filename[0] != '\0')&&
-         (FilesUtility::getPathRecursionLevel(filename) < 1))
-      {
-        return raiseHTTPError(401);
-      }
-      /*! getPath will alloc the buffer for filenamePath. */
-      ret = getPath(td->filenamePath, filename.c_str(), systemrequest);
-      if(ret != 200)
-        return raiseHTTPError(ret);
-    }
-
     if(!systemrequest)
     {
       ret = Http::preprocessHttpRequest(filename, yetmapped, &permissions);
