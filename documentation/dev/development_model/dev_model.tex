@@ -99,12 +99,21 @@ is a good way to be introduced to the project; hopefully after some
 time you will be very active there too.
 \end{section}
 
-\begin{section}{Tasks list}
-The file TODO in the GNU MyServer directory root contains a list of
-tasks that need to be completed.
-Each entry in the TODO list should be a basic task, in a way that a
-developer without a previous knowledge of the software can start
-working immediately on it.
+\begin{section}{Tracking systems}
+\begin{subsection}{Tasks list}
+Planned tasks are defined by the tasks manager here:
+\url{https://savannah.gnu.org/task/?group=myserver}.
+
+There are two categories of task: \textit{task} and \textit{wish}.
+The former specify a planned task that must be completed.  Once all
+planned task are completed then a new release will be done.
+
+Task that are in the \textit{wish} category are not considered for the
+release.
+
+Any task should be a basic task, in a way that a developer without a
+previous knowledge of the software can start working immediately on
+it.
 
 In the past the TODO list files used to be a wish list with tasks like
 \textit{``Implement the FTP protocol''}, such big tasks must be
@@ -116,6 +125,19 @@ before start working on its implementation and discuss it on the
 mailing list with other team members.
 Lately it will be possible to define small tasks and proceed with its
 implementation.
+
+On a bug fix it may be possible to release before other tasks are
+completed, thus all planned tasks that are not completed yet will be
+moved to the next release.
+\end{subsection}
+
+\begin{subsection}{Bug tracking}
+Any bug should be notified using this bugs tracking system:
+\url{https://savannah.gnu.org/bugs/?group=myserver}.
+When it is possible, a test for the bug must be provided, it will be
+useful for regression tests as the same bug can appear again in
+future.
+\end{subsection}
 \end{section}
 
 \begin{section}{Source code guidelines}
