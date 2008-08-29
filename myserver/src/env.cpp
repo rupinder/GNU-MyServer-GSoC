@@ -212,7 +212,8 @@ void Env::buildEnvironmentString(HttpThreadContext* td, char *cgiEnv,
 
   buildHttpHeaderEnvString(memCgi, td->request);
 
-  buildProcessEnvString(memCgi);
+  if(processEnv)
+    buildProcessEnvString(memCgi);
 
 
   memCgi << end_str << end_str  << end_str  << end_str  << end_str  ;
@@ -247,22 +248,19 @@ void Env::buildHttpHeaderEnvString(MemBuf& memCgi, HttpRequestHeader & req)
 void Env::buildProcessEnvString(MemBuf& memCgi)
 {
 #ifdef WIN32
-  if(processEnv)
-  {
-    LPTSTR lpszVariable; 
-    LPVOID lpvEnv; 
-    lpvEnv = Server::getInstance()->getEnvString();
-    memCgi << end_str;
-    if (lpvEnv)
-      for (lpszVariable = (LPTSTR) lpvEnv; *lpszVariable; lpszVariable++) 
-      { 
-        if(((char*)lpszVariable)[0]  != '=' )
-        {
-          memCgi << (char*)lpszVariable << end_str;
-        }
-        while(*lpszVariable)
-          *lpszVariable++;
+  LPTSTR lpszVariable; 
+  LPVOID lpvEnv; 
+  lpvEnv = Server::getInstance()->getEnvString();
+  memCgi << end_str;
+  if (lpvEnv)
+    for (lpszVariable = (LPTSTR) lpvEnv; *lpszVariable; lpszVariable++) 
+    { 
+      if(((char*)lpszVariable)[0]  != '=' )
+      {
+        memCgi << (char*)lpszVariable << end_str;
       }
-  }
+      while(*lpszVariable)
+        *lpszVariable++;
+    }
 #endif
 }

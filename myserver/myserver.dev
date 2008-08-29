@@ -1,7 +1,7 @@
 [Project]
 FileName=myserver.dev
 Name=myserver
-UnitCount=95
+UnitCount=94
 Type=1
 Ver=1
 ObjFiles=
@@ -46,6 +46,7 @@ OriginalFilename=myserver.exe
 ProductName=MyServer
 ProductVersion=0.9.0
 AutoIncBuildNr=0
+
 [Unit1]
 FileName=stdafx.cpp
 CompileCpp=1
@@ -956,18 +957,8 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit92]
-FileName=src\Dev-C++.cpp
-CompileCpp=1
-Folder=myserver
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit93]
-FileName=src\dyn_http_manager.cpp
+FileName=src\protocols_manager.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -977,7 +968,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit94]
-FileName=src\protocols_manager.cpp
+FileName=src\plugins_manager.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -988,6 +979,16 @@ BuildCmd=
 
 [Unit95]
 FileName=src\plugins_manager.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit92]
+FileName=src\dyn_http_manager.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1

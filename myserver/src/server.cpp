@@ -159,7 +159,7 @@ void Server::start()
     try
     {
       string softwareSignature;
-      softwareSignature.assign("************MyServer ");
+      softwareSignature.assign("************GNU MyServer ");
       softwareSignature.append(versionOfSoftware);
       softwareSignature.append("************");
 
