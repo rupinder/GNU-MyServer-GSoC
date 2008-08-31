@@ -15,16 +15,16 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../include/memory_stream.h"
-#include "../include/gzip.h"
-#include "../include/gzip_decompress.h"
-#include "../include/filters_chain.h"
+#include <include/filter/stream.h>
+#include <include/filter/gzip/gzip.h>
+#include <include/filter/gzip/gzip_decompress.h>
+#include <include/filter/filters_chain.h>
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
-#include "../include/protocol.h"
-#include "../include/stream.h"
+#include <include/protocol/protocol.h>
+#include <include/filter/memory_stream.h>
 
 class MyProtocol : public Protocol
 {

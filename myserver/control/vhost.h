@@ -22,7 +22,7 @@
 #include <FL/Fl_Choice.H>
 
 #include "vector.h"
-#include "../include/mem_buff.h"
+#include <include/base/mem_buff/mem_buff.h>
 #include <vector>
 
 using namespace std;

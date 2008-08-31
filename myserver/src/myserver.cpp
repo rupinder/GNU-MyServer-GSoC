@@ -15,10 +15,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../stdafx.h"
-#include "../include/server.h"
-#include "../include/stringutils.h"
-#include "../include/security.h"
+#include "stdafx.h"
+#include <include/server/server.h>
+#include <include/base/string/stringutils.h>
+#include <include/conf/security/security.h>
 extern "C" {
 #ifdef WIN32
 #include <direct.h>

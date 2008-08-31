@@ -21,7 +21,7 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
-#include "../include/mem_buff.h"
+#include <include/base/mem_buff/mem_buff.h>
 #include <string.h>
 
 class TestMemBuffer : public CppUnit::TestFixture

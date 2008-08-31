@@ -1,7 +1,7 @@
 #ifdef WIN32
 #include "cgi_manager.h"
 #else
-#include "include/mscgi_manager.h"
+#include <include/http_handler/mscgi/mscgi_manager.h>
 #endif
 
 

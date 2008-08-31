@@ -20,9 +20,9 @@ extern "C"
 #include <stdlib.h>
 }
 
-#include "../include/file.h"
-#include "../include/stringutils.h"
-#include "../include/xml_parser.h"
+#include <include/base/file/file.h>
+#include <include/base/string/stringutils.h>
+#include <include/base/xml/xml_parser.h>
 #include "vhost.h"
 
 using namespace std;

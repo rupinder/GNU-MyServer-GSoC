@@ -72,6 +72,15 @@ def Define_helper(name, value = None):
 
 ################
 
+def get_cpp_files(dir):
+    ret = []
+
+    for root, dirs, files in os.walk(dir):
+        seq = filter(lambda x : x[-4:] == ".cpp", files)
+        for i in seq:
+            ret.append(root + "/" + i)
+    return ret
+
 
 
 if command == "update_svn":
@@ -235,7 +244,7 @@ if  not env.GetOption('clean'):
 
     env = conf.Finish()
 
-files = glob.glob('src/*.cpp')
+files = get_cpp_files('src')
 files.sort()
 
 if command == "build":
@@ -245,10 +254,10 @@ if command == "build":
 #Build the Control GUI here.
 if buildControlGui:
     filesControl = glob.glob('control/*.cpp')
-    filesControl.append(["src/file.cpp", "src/files_utility.cpp", "src/xml_parser.cpp", 
-                  "src/utility.cpp", "src/find_data.cpp", "src/md5.cpp", "src/mem_buff.cpp",
-                  "src/ssl_socket.cpp", "src/socket.cpp",  "src/mutex.cpp", "src/thread.cpp", 
-                  "src/stream.cpp", "src/securestr.cpp"])
+    filesControl.append(["src/base/file/file.cpp", "src/base/file/files_utility.cpp", "src/base/xml/xml_parser.cpp", 
+                  "src/base/utility.cpp", "src/find_data/find_data.cpp", "src/base/md5/md5.cpp", "src/base/mem_buff/mem_buff.cpp",
+                  "src/base/socket/ssl_socket.cpp", "src/base/socket/socket.cpp",  "src/base/sync/mutex.cpp", 
+                  "src/base/thread/thread.cpp", "src/filter/stream.cpp", "src/base/string/securestr.cpp"])
 
     filesControl.sort()
 

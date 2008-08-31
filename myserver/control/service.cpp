@@ -29,8 +29,8 @@ extern "C" {
 }
 #endif
 
-#include "../include/file.h"
-#include "../include/files_utility.h"
+#include <include/base/file/file.h>
+#include <include/base/file/files_utility.h>
 
 #ifdef WIN32
 static DWORD WINAPI consoleWatchDogThread(LPVOID);

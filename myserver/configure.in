@@ -376,6 +376,56 @@ AC_CONFIG_FILES([
     documentation/english/images/Makefile
     documentation/english/style/Makefile
     documentation/english/texts/Makefile
+    src/find_data/Makefile
+    src/connection/Makefile
+    src/env/Makefile
+    src/log/Makefile
+    src/conf/Makefile
+    src/conf/mime/Makefile
+    src/conf/security/Makefile
+    src/conf/vhost/Makefile
+    src/connections_scheduler/Makefile
+    src/http_handler/Makefile
+    src/http_handler/wincgi/Makefile
+    src/http_handler/cgi/Makefile
+    src/http_handler/mscgi/Makefile
+    src/http_handler/fastcgi/Makefile
+    src/http_handler/scgi/Makefile
+    src/http_handler/isapi/Makefile
+    src/base/Makefile
+    src/base/file/Makefile
+    src/base/pipe/Makefile
+    src/base/base64/Makefile
+    src/base/mem_buff/Makefile
+    src/base/home_dir/Makefile
+    src/base/multicast/Makefile
+    src/base/sync/Makefile
+    src/base/safetime/Makefile
+    src/base/socket/Makefile
+    src/base/hash_map/Makefile
+    src/base/dynamic_lib/Makefile
+    src/base/process/Makefile
+    src/base/md5/Makefile
+    src/base/ssl/Makefile
+    src/base/xml/Makefile
+    src/base/string/Makefile
+    src/base/regex/Makefile
+    src/base/thread/Makefile
+    src/protocol/Makefile
+    src/protocol/ftp/Makefile
+    src/protocol/control/Makefile
+    src/protocol/https/Makefile
+    src/protocol/http/Makefile
+    src/files_cache/Makefile
+    src/filter/Makefile
+    src/filter/gzip/Makefile
+    src/plugin/Makefile
+    src/plugin/executor/Makefile
+    src/plugin/http_manager/Makefile
+    src/plugin/protocol/Makefile
+    src/plugin/filter/Makefile
+    src/plugin/http_command/Makefile
+    src/server/Makefile
     src/Makefile
     tests/Makefile
     ])

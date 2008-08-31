@@ -21,7 +21,7 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
-#include "../include/pipe.h"
+#include <include/base/pipe/pipe.h>
 #include <string.h>
 
 class TestPipe : public CppUnit::TestFixture

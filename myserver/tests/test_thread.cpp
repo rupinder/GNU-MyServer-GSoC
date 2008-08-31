@@ -21,7 +21,7 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
-#include "../include/thread.h"
+#include <include/base/thread/thread.h>
 
 #include <iostream>
 using namespace std;

@@ -21,7 +21,7 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
-#include "../include/mime_utils.h"
+#include <include/base/base64/mime_utils.h>
 
 #include <string.h>
 

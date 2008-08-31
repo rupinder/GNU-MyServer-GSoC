@@ -21,7 +21,7 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
-#include "../include/md5.h"
+#include <include/base/md5/md5.h>
 
 class TestMd5 : public CppUnit::TestFixture
 {

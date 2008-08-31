@@ -21,8 +21,8 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
-#include "../include/mutex.h"
-#include "../include/thread.h"
+#include <include/base/sync/mutex.h>
+#include <include/base/thread/thread.h>
 
 #include <string.h>
 

@@ -21,8 +21,8 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
-#include "../include/connection.h"
-#include "../include/clients_thread.h"
+#include <include/connection/connection.h>
+#include <include/server/clients_thread.h>
 
 class TestConnection : public CppUnit::TestFixture
 {

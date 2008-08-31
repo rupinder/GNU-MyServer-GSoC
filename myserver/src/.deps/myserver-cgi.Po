@@ -1,0 +1,1130 @@
+myserver-cgi.o: cgi.cpp ../stdafx.h ../config.h ../config.h \
+  /usr/include/pthread.h /usr/include/features.h /usr/include/sys/cdefs.h \
+  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
+  /usr/include/gnu/stubs-32.h /usr/include/endian.h \
+  /usr/include/bits/endian.h /usr/include/sched.h \
+  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
+  /usr/lib/gcc/i486-linux-gnu/4.3.1/include/stddef.h /usr/include/time.h \
+  /usr/include/bits/sched.h /usr/include/bits/time.h \
+  /usr/include/xlocale.h /usr/include/signal.h /usr/include/bits/sigset.h \
+  /usr/include/bits/pthreadtypes.h /usr/include/bits/setjmp.h \
+  /usr/include/stdio.h /usr/include/libio.h /usr/include/_G_config.h \
+  /usr/include/wchar.h /usr/lib/gcc/i486-linux-gnu/4.3.1/include/stdarg.h \
+  /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h \
+  /usr/include/fcntl.h /usr/include/bits/fcntl.h /usr/include/sys/types.h \
+  /usr/include/sys/select.h /usr/include/bits/select.h \
+  /usr/include/sys/sysmacros.h /usr/include/bits/uio.h \
+  /usr/include/sys/stat.h /usr/include/bits/stat.h /usr/include/stdlib.h \
+  /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
+  /usr/include/alloca.h /usr/include/math.h /usr/include/bits/huge_val.h \
+  /usr/include/bits/huge_valf.h /usr/include/bits/huge_vall.h \
+  /usr/include/bits/inf.h /usr/include/bits/nan.h \
+  /usr/include/bits/mathdef.h /usr/include/bits/mathcalls.h \
+  /usr/lib/gcc/i486-linux-gnu/4.3.1/include-fixed/limits.h \
+  /usr/lib/gcc/i486-linux-gnu/4.3.1/include-fixed/syslimits.h \
+  /usr/include/limits.h /usr/include/bits/posix1_lim.h \
+  /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
+  /usr/include/bits/posix2_lim.h /usr/include/bits/xopen_lim.h \
+  ../include/cgi.h ../include/../include/http_response.h \
+  /usr/include/c++/4.3/string \
+  /usr/include/c++/4.3/i486-linux-gnu/bits/c++config.h \
+  /usr/include/c++/4.3/i486-linux-gnu/bits/os_defines.h \
+  /usr/include/c++/4.3/i486-linux-gnu/bits/cpu_defines.h \
+  /usr/include/c++/4.3/bits/stringfwd.h \
+  /usr/include/c++/4.3/bits/char_traits.h \
+  /usr/include/c++/4.3/bits/stl_algobase.h /usr/include/c++/4.3/cstddef \
+  /usr/lib/gcc/i486-linux-gnu/4.3.1/include/stddef.h \
+  /usr/include/c++/4.3/bits/functexcept.h \
+  /usr/include/c++/4.3/exception_defines.h \
+  /usr/include/c++/4.3/bits/cpp_type_traits.h \
+  /usr/include/c++/4.3/ext/type_traits.h \
+  /usr/include/c++/4.3/ext/numeric_traits.h \
+  /usr/include/c++/4.3/bits/stl_pair.h \
+  /usr/include/c++/4.3/bits/stl_move.h \
+  /usr/include/c++/4.3/bits/concept_check.h \
+  /usr/include/c++/4.3/bits/stl_iterator_base_types.h \
+  /usr/include/c++/4.3/bits/stl_iterator_base_funcs.h \
+  /usr/include/c++/4.3/bits/stl_iterator.h \
+  /usr/include/c++/4.3/debug/debug.h /usr/include/c++/4.3/bits/postypes.h \
+  /usr/include/c++/4.3/cwchar /usr/include/wchar.h \
+  /usr/include/bits/wchar.h /usr/include/stdint.h \
+  /usr/include/c++/4.3/cstdio /usr/include/stdio.h \
+  /usr/include/c++/4.3/bits/allocator.h \
+  /usr/include/c++/4.3/i486-linux-gnu/bits/c++allocator.h \
+  /usr/include/c++/4.3/ext/new_allocator.h /usr/include/c++/4.3/new \
+  /usr/include/c++/4.3/exception /usr/include/c++/4.3/bits/localefwd.h \
+  /usr/include/c++/4.3/i486-linux-gnu/bits/c++locale.h \
+  /usr/include/c++/4.3/clocale /usr/include/locale.h \
+  /usr/include/bits/locale.h /usr/include/c++/4.3/iosfwd \
+  /usr/include/c++/4.3/cctype /usr/include/ctype.h \
+  /usr/include/c++/4.3/bits/ostream_insert.h \
+  /usr/include/c++/4.3/cxxabi-forced.h \
+  /usr/include/c++/4.3/bits/stl_function.h \
+  /usr/include/c++/4.3/backward/binders.h \
+  /usr/include/c++/4.3/bits/basic_string.h \
+  /usr/include/c++/4.3/ext/atomicity.h \
+  /usr/include/c++/4.3/i486-linux-gnu/bits/gthr.h \
+  /usr/include/c++/4.3/i486-linux-gnu/bits/gthr-default.h \
+  /usr/include/unistd.h /usr/include/bits/posix_opt.h \
+  /usr/include/bits/environments.h /usr/include/bits/confname.h \
+  /usr/include/getopt.h \
+  /usr/include/c++/4.3/i486-linux-gnu/bits/atomic_word.h \
+  /usr/include/c++/4.3/bits/basic_string.tcc \
+  ../include/../include/../include/hash_map.h /usr/include/c++/4.3/list \
+  /usr/include/c++/4.3/bits/stl_list.h /usr/include/c++/4.3/bits/list.tcc \
+  /usr/include/c++/4.3/vector /usr/include/c++/4.3/bits/stl_construct.h \
+  /usr/include/c++/4.3/bits/stl_uninitialized.h \
+  /usr/include/c++/4.3/bits/stl_vector.h \
+  /usr/include/c++/4.3/bits/stl_bvector.h \
+  /usr/include/c++/4.3/bits/vector.tcc \
+  ../include/../include/../include/../src/hash_map.cpp \
+  ../include/../include/../include/../src/../include/hash_map.h \
+  /usr/include/string.h ../include/../include/../include/http_header.h \
+  ../include/../include/../include/../include/hash_map.h \
+  ../include/../include/http_request.h \
+  ../include/../include/http_headers.h ../include/../include/../stdafx.h \
+  ../include/../include/../include/connection.h /usr/include/sys/time.h \
+  ../include/../include/../include/../include/socket.h \
+  ../include/../include/../include/../include/../stdafx.h \
+  ../include/../include/../include/../include/../include/stream.h \
+  ../include/../include/../include/../include/../include/../stdafx.h \
+  /usr/include/openssl/ssl.h /usr/include/openssl/e_os2.h \
+  /usr/include/openssl/opensslconf.h /usr/include/openssl/comp.h \
+  /usr/include/openssl/crypto.h /usr/include/openssl/stack.h \
+  /usr/include/openssl/safestack.h /usr/include/openssl/opensslv.h \
+  /usr/include/openssl/ossl_typ.h /usr/include/openssl/symhacks.h \
+  /usr/include/openssl/bio.h /usr/include/openssl/x509.h \
+  /usr/include/openssl/buffer.h /usr/include/openssl/evp.h \
+  /usr/include/openssl/objects.h /usr/include/openssl/obj_mac.h \
+  /usr/include/openssl/asn1.h /usr/include/openssl/bn.h \
+  /usr/include/openssl/ec.h /usr/include/openssl/ecdsa.h \
+  /usr/include/openssl/ecdh.h /usr/include/openssl/rsa.h \
+  /usr/include/openssl/dsa.h /usr/include/openssl/dh.h \
+  /usr/include/openssl/sha.h /usr/include/openssl/x509_vfy.h \
+  /usr/include/openssl/lhash.h /usr/include/openssl/pkcs7.h \
+  /usr/include/openssl/pem.h /usr/include/openssl/pem2.h \
+  /usr/include/openssl/kssl.h /usr/include/openssl/ssl2.h \
+  /usr/include/openssl/ssl3.h /usr/include/openssl/pq_compat.h \
+  /usr/include/openssl/tls1.h /usr/include/openssl/dtls1.h \
+  /usr/include/openssl/pqueue.h /usr/include/openssl/ssl23.h \
+  /usr/include/openssl/err.h /usr/include/errno.h \
+  /usr/include/bits/errno.h /usr/include/linux/errno.h \
+  /usr/include/asm/errno.h /usr/include/asm-generic/errno.h \
+  /usr/include/asm-generic/errno-base.h /usr/include/openssl/rand.h \
+  /usr/include/sys/socket.h /usr/include/sys/uio.h \
+  /usr/include/bits/socket.h /usr/include/bits/sockaddr.h \
+  /usr/include/asm/socket.h /usr/include/asm/sockios.h \
+  /usr/include/sys/ioctl.h /usr/include/bits/ioctls.h \
+  /usr/include/asm/ioctls.h /usr/include/asm/ioctl.h \
+  /usr/include/asm-generic/ioctl.h /usr/include/bits/ioctl-types.h \
+  /usr/include/sys/ttydefaults.h /usr/include/netinet/in.h \
+  /usr/include/bits/in.h /usr/include/bits/byteswap.h \
+  /usr/include/netdb.h /usr/include/rpc/netdb.h \
+  /usr/include/bits/siginfo.h /usr/include/bits/netdb.h \
+  ../include/../include/../include/../include/protocol_buffer.h \
+  ../include/../include/../include/../include/utility.h \
+  ../include/../include/../include/../include/../include/file.h \
+  ../include/../include/../include/../include/../include/../include/stream.h \
+  ../include/../include/../include/../include/../include/stringutils.h \
+  ../include/../include/../include/../include/../include/process.h \
+  ../include/../include/../include/../include/../include/../include/file.h \
+  ../include/../include/../include/../include/../include/../include/mutex.h \
+  ../include/../include/../include/../include/../include/../include/../stdafx.h \
+  ../include/../include/../include/../include/../include/../include/../include/file.h \
+  ../include/../include/../include/../include/../include/../include/../include/stringutils.h \
+  ../include/../include/../include/../include/../include/../include/stringutils.h \
+  ../include/../include/../include/../include/../include/thread.h \
+  ../include/../include/../include/../include/../include/mutex.h \
+  ../include/../include/../include/../include/mem_buff.h \
+  /usr/include/c++/4.3/iostream /usr/include/c++/4.3/ostream \
+  /usr/include/c++/4.3/ios /usr/include/c++/4.3/bits/ios_base.h \
+  /usr/include/c++/4.3/bits/locale_classes.h \
+  /usr/include/c++/4.3/bits/locale_classes.tcc \
+  /usr/include/c++/4.3/streambuf /usr/include/c++/4.3/bits/streambuf.tcc \
+  /usr/include/c++/4.3/bits/basic_ios.h \
+  /usr/include/c++/4.3/bits/locale_facets.h /usr/include/c++/4.3/cwctype \
+  /usr/include/wctype.h \
+  /usr/include/c++/4.3/i486-linux-gnu/bits/ctype_base.h \
+  /usr/include/c++/4.3/bits/streambuf_iterator.h \
+  /usr/include/c++/4.3/i486-linux-gnu/bits/ctype_inline.h \
+  /usr/include/c++/4.3/bits/locale_facets.tcc \
+  /usr/include/c++/4.3/bits/basic_ios.tcc \
+  /usr/include/c++/4.3/bits/ostream.tcc /usr/include/c++/4.3/istream \
+  /usr/include/c++/4.3/bits/istream.tcc \
+  ../include/../include/http_data_handler.h \
+  ../include/../include/../include/protocol.h \
+  ../include/../include/../include/../stdafx.h \
+  ../include/../include/../include/xml_parser.h \
+  ../include/../include/../include/../include/file.h \
+  /usr/include/libxml2/libxml/xmlmemory.h \
+  /usr/include/libxml2/libxml/xmlversion.h \
+  /usr/include/libxml2/libxml/xmlexports.h \
+  /usr/include/libxml2/libxml/threads.h \
+  /usr/include/libxml2/libxml/globals.h \
+  /usr/include/libxml2/libxml/parser.h /usr/include/libxml2/libxml/tree.h \
+  /usr/include/libxml2/libxml/xmlstring.h \
+  /usr/include/libxml2/libxml/xmlregexp.h \
+  /usr/include/libxml2/libxml/dict.h /usr/include/libxml2/libxml/hash.h \
+  /usr/include/libxml2/libxml/valid.h \
+  /usr/include/libxml2/libxml/xmlerror.h \
+  /usr/include/libxml2/libxml/list.h \
+  /usr/include/libxml2/libxml/xmlautomata.h \
+  /usr/include/libxml2/libxml/entities.h \
+  /usr/include/libxml2/libxml/encoding.h /usr/include/iconv.h \
+  /usr/include/libxml2/libxml/xmlIO.h /usr/include/libxml2/libxml/SAX.h \
+  /usr/include/libxml2/libxml/xlink.h /usr/include/libxml2/libxml/SAX2.h \
+  ../include/../include/../include/connection.h \
+  ../include/../include/../include/http_headers.h \
+  ../include/../include/../include/xml_parser.h \
+  ../include/../include/../include/filters_chain.h \
+  ../include/../include/../include/../include/stream.h \
+  ../include/../include/../include/../include/filter.h \
+  ../include/../include/../include/../include/../include/protocol.h \
+  ../include/../include/../include/../include/protocol.h \
+  ../include/http_headers.h ../include/http.h ../include/../stdafx.h \
+  ../include/../include/http_thread_context.h \
+  ../include/../include/../include/http_request.h \
+  ../include/../include/../include/../include/http_header.h \
+  ../include/../include/../include/../include/../include/hash_map.h \
+  ../include/../include/../include/http_response.h \
+  ../include/../include/../include/stringutils.h \
+  ../include/../include/../include/file.h \
+  ../include/../include/../include/mem_buff.h \
+  ../include/../include/../include/mime_manager.h \
+  ../include/../include/../include/../include/http_header_checker.h \
+  ../include/../include/../include/../include/../include/http_headers.h \
+  ../include/../include/../include/../include/../include/myserver_regex.h \
+  /usr/include/regex.h \
+  ../include/../include/../include/../include/../include/http_request.h \
+  ../include/../include/../include/../include/../include/../include/hash_map.h \
+  ../include/../include/../include/../include/../include/../include/http_header.h \
+  ../include/../include/../include/../include/../include/../include/../include/hash_map.h \
+  ../include/../include/../include/../include/../include/http_response.h \
+  /usr/include/c++/4.3/sstream /usr/include/c++/4.3/bits/sstream.tcc \
+  ../include/../include/../include/../include/read_write_lock.h \
+  ../include/../include/../include/../include/../include/semaphore.h \
+  /usr/include/semaphore.h /usr/include/bits/semaphore.h \
+  /usr/include/ctype.h /usr/include/c++/4.3/map \
+  /usr/include/c++/4.3/bits/stl_tree.h \
+  /usr/include/c++/4.3/bits/stl_map.h \
+  /usr/include/c++/4.3/bits/stl_multimap.h \
+  ../include/../include/protocol.h ../include/../include/security_cache.h \
+  ../include/../include/../include/security.h \
+  ../include/../include/../include/../include/connection.h \
+  ../include/../include/../include/../include/xml_parser.h \
+  ../include/../include/../include/../include/http_headers.h \
+  ../include/../include/xml_parser.h ../include/../include/thread.h \
+  ../include/../include/mutex.h \
+  ../include/../include/dyn_http_command_manager.h \
+  ../include/../include/../include/dynamiclib.h /usr/include/dlfcn.h \
+  /usr/include/bits/dlfcn.h ../include/../include/../include/plugin.h \
+  ../include/../include/../include/../include/dynamiclib.h \
+  ../include/../include/../include/plugins_namespace_manager.h \
+  ../include/../include/../include/../include/plugins_namespace.h \
+  ../include/../include/../include/../include/../include/connection.h \
+  ../include/../include/../include/../include/../include/plugin.h \
+  ../include/../include/dyn_http_command.h \
+  ../include/../include/dyn_http_manager_list.h \
+  ../include/../include/dyn_http_manager.h \
+  ../include/../include/multicast.h \
+  ../include/../include/../src/multicast.cpp \
+  ../include/../include/../src/../include/multicast.h \
+  ../include/../include/securestr.h /usr/include/c++/4.3/memory \
+  /usr/include/c++/4.3/bits/stl_tempbuf.h \
+  /usr/include/c++/4.3/bits/stl_raw_storage_iter.h \
+  /usr/include/c++/4.3/backward/auto_ptr.h ../include/http_errors.h \
+  ../include/../include/hash_map.h ../include/server.h \
+  ../include/../include/clients_thread.h \
+  ../include/../include/../include/utility.h \
+  ../include/../include/../include/http.h \
+  ../include/../include/../include/https.h \
+  ../include/../include/../include/../include/http.h \
+  ../include/../include/../include/control_protocol.h \
+  ../include/../include/../include/../include/control_header.h \
+  ../include/../include/../include/../include/connections_scheduler.h \
+  ../include/../include/../include/../include/../include/socket.h \
+  ../include/../include/../include/../include/../include/event.h \
+  /usr/include/c++/4.3/queue /usr/include/c++/4.3/deque \
+  /usr/include/c++/4.3/bits/stl_deque.h \
+  /usr/include/c++/4.3/bits/deque.tcc \
+  /usr/include/c++/4.3/bits/stl_heap.h \
+  /usr/include/c++/4.3/bits/stl_queue.h /usr/include/event.h \
+  ../include/../include/utility.h ../include/../include/connection.h \
+  ../include/../include/socket.h ../include/../include/event.h \
+  ../include/../include/mime_manager.h \
+  ../include/../include/vhost_manager.h \
+  ../include/../include/../include/vhost.h \
+  ../include/../include/../include/../include/myserver_regex.h \
+  ../include/../include/../include/../include/log_manager.h \
+  ../include/../include/../include/../include/mime_manager.h \
+  ../include/../include/../include/../include/thread.h \
+  ../include/../include/../include/../include/mutex.h \
+  ../include/../include/../include/../include/ssl.h \
+  ../include/../include/../include/../include/listen_threads.h \
+  ../include/../include/../include/../include/../include/xml_parser.h \
+  ../include/../include/../include/../include/../include/connections_scheduler.h \
+  ../include/../include/protocols_manager.h \
+  ../include/../include/../include/dynamic_protocol.h \
+  ../include/../include/../include/../include/plugin.h \
+  ../include/../include/../include/../include/plugins_namespace_manager.h \
+  ../include/../include/log_manager.h \
+  ../include/../include/filters_factory.h \
+  ../include/../include/../include/stream.h \
+  ../include/../include/../include/filter.h \
+  ../include/../include/generic_plugins_manager.h \
+  ../include/../include/dyn_filters_manager.h \
+  ../include/../include/../include/filters_factory.h \
+  ../include/../include/../include/thread.h \
+  ../include/../include/../include/mutex.h \
+  ../include/../include/../include/dyn_filter_file.h \
+  ../include/../include/../include/../include/filters_factory.h \
+  ../include/../include/dyn_filter.h \
+  ../include/../include/dyn_executor_manager.h \
+  ../include/../include/home_dir.h \
+  ../include/../include/cached_file_factory.h \
+  ../include/../include/../include/cached_file.h \
+  ../include/../include/../include/../include/cached_file_buffer.h \
+  ../include/../include/../include/cached_file_buffer.h \
+  ../include/../include/plugins_manager.h \
+  ../include/../include/../include/plugins_namespace.h \
+  ../include/../include/process_server_manager.h \
+  ../include/../include/../include/socket.h \
+  ../include/../include/listen_threads.h \
+  ../include/../include/connections_scheduler.h ../include/security.h \
+  ../include/mime_utils.h ../include/file.h ../include/files_utility.h \
+  ../include/../include/stream.h ../include/../include/file.h \
+  ../include/socket.h ../include/utility.h ../include/mem_buff.h \
+  ../include/filters_chain.h ../include/env.h ../include/pipe.h \
+  ../include/http_data_handler.h
+
+../stdafx.h:
+
+../config.h:
+
+../config.h:
+
+/usr/include/pthread.h:
+
+/usr/include/features.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/bits/wordsize.h:
+
+/usr/include/gnu/stubs.h:
+
+/usr/include/gnu/stubs-32.h:
+
+/usr/include/endian.h:
+
+/usr/include/bits/endian.h:
+
+/usr/include/sched.h:
+
+/usr/include/bits/types.h:
+
+/usr/include/bits/typesizes.h:
+
+/usr/lib/gcc/i486-linux-gnu/4.3.1/include/stddef.h:
+
+/usr/include/time.h:
+
+/usr/include/bits/sched.h:
+
+/usr/include/bits/time.h:
+
+/usr/include/xlocale.h:
+
+/usr/include/signal.h:
+
+/usr/include/bits/sigset.h:
+
+/usr/include/bits/pthreadtypes.h:
+
+/usr/include/bits/setjmp.h:
+
+/usr/include/stdio.h:
+
+/usr/include/libio.h:
+
+/usr/include/_G_config.h:
+
+/usr/include/wchar.h:
+
+/usr/lib/gcc/i486-linux-gnu/4.3.1/include/stdarg.h:
+
+/usr/include/bits/stdio_lim.h:
+
+/usr/include/bits/sys_errlist.h:
+
+/usr/include/fcntl.h:
+
+/usr/include/bits/fcntl.h:
+
+/usr/include/sys/types.h:
+
+/usr/include/sys/select.h:
+
+/usr/include/bits/select.h:
+
+/usr/include/sys/sysmacros.h:
+
+/usr/include/bits/uio.h:
+
+/usr/include/sys/stat.h:
+
+/usr/include/bits/stat.h:
+
+/usr/include/stdlib.h:
+
+/usr/include/bits/waitflags.h:
+
+/usr/include/bits/waitstatus.h:
+
+/usr/include/alloca.h:
+
+/usr/include/math.h:
+
+/usr/include/bits/huge_val.h:
+
+/usr/include/bits/huge_valf.h:
+
+/usr/include/bits/huge_vall.h:
+
+/usr/include/bits/inf.h:
+
+/usr/include/bits/nan.h:
+
+/usr/include/bits/mathdef.h:
+
+/usr/include/bits/mathcalls.h:
+
+/usr/lib/gcc/i486-linux-gnu/4.3.1/include-fixed/limits.h:
+
+/usr/lib/gcc/i486-linux-gnu/4.3.1/include-fixed/syslimits.h:
+
+/usr/include/limits.h:
+
+/usr/include/bits/posix1_lim.h:
+
+/usr/include/bits/local_lim.h:
+
+/usr/include/linux/limits.h:
+
+/usr/include/bits/posix2_lim.h:
+
+/usr/include/bits/xopen_lim.h:
+
+../include/cgi.h:
+
+../include/../include/http_response.h:
+
+/usr/include/c++/4.3/string:
+
+/usr/include/c++/4.3/i486-linux-gnu/bits/c++config.h:
+
+/usr/include/c++/4.3/i486-linux-gnu/bits/os_defines.h:
+
+/usr/include/c++/4.3/i486-linux-gnu/bits/cpu_defines.h:
+
+/usr/include/c++/4.3/bits/stringfwd.h:
+
+/usr/include/c++/4.3/bits/char_traits.h:
+
+/usr/include/c++/4.3/bits/stl_algobase.h:
+
+/usr/include/c++/4.3/cstddef:
+
+/usr/lib/gcc/i486-linux-gnu/4.3.1/include/stddef.h:
+
+/usr/include/c++/4.3/bits/functexcept.h:
+
+/usr/include/c++/4.3/exception_defines.h:
+
+/usr/include/c++/4.3/bits/cpp_type_traits.h:
+
+/usr/include/c++/4.3/ext/type_traits.h:
+
+/usr/include/c++/4.3/ext/numeric_traits.h:
+
+/usr/include/c++/4.3/bits/stl_pair.h:
+
+/usr/include/c++/4.3/bits/stl_move.h:
+
+/usr/include/c++/4.3/bits/concept_check.h:
+
+/usr/include/c++/4.3/bits/stl_iterator_base_types.h:
+
+/usr/include/c++/4.3/bits/stl_iterator_base_funcs.h:
+
+/usr/include/c++/4.3/bits/stl_iterator.h:
+
+/usr/include/c++/4.3/debug/debug.h:
+
+/usr/include/c++/4.3/bits/postypes.h:
+
+/usr/include/c++/4.3/cwchar:
+
+/usr/include/wchar.h:
+
+/usr/include/bits/wchar.h:
+
+/usr/include/stdint.h:
+
+/usr/include/c++/4.3/cstdio:
+
+/usr/include/stdio.h:
+
+/usr/include/c++/4.3/bits/allocator.h:
+
+/usr/include/c++/4.3/i486-linux-gnu/bits/c++allocator.h:
+
+/usr/include/c++/4.3/ext/new_allocator.h:
+
+/usr/include/c++/4.3/new:
+
+/usr/include/c++/4.3/exception:
+
+/usr/include/c++/4.3/bits/localefwd.h:
+
+/usr/include/c++/4.3/i486-linux-gnu/bits/c++locale.h:
+
+/usr/include/c++/4.3/clocale:
+
+/usr/include/locale.h:
+
+/usr/include/bits/locale.h:
+
+/usr/include/c++/4.3/iosfwd:
+
+/usr/include/c++/4.3/cctype:
+
+/usr/include/ctype.h:
+
+/usr/include/c++/4.3/bits/ostream_insert.h:
+
+/usr/include/c++/4.3/cxxabi-forced.h:
+
+/usr/include/c++/4.3/bits/stl_function.h:
+
+/usr/include/c++/4.3/backward/binders.h:
+
+/usr/include/c++/4.3/bits/basic_string.h:
+
+/usr/include/c++/4.3/ext/atomicity.h:
+
+/usr/include/c++/4.3/i486-linux-gnu/bits/gthr.h:
+
+/usr/include/c++/4.3/i486-linux-gnu/bits/gthr-default.h:
+
+/usr/include/unistd.h:
+
+/usr/include/bits/posix_opt.h:
+
+/usr/include/bits/environments.h:
+
+/usr/include/bits/confname.h:
+
+/usr/include/getopt.h:
+
+/usr/include/c++/4.3/i486-linux-gnu/bits/atomic_word.h:
+
+/usr/include/c++/4.3/bits/basic_string.tcc:
+
+../include/../include/../include/hash_map.h:
+
+/usr/include/c++/4.3/list:
+
+/usr/include/c++/4.3/bits/stl_list.h:
+
+/usr/include/c++/4.3/bits/list.tcc:
+
+/usr/include/c++/4.3/vector:
+
+/usr/include/c++/4.3/bits/stl_construct.h:
+
+/usr/include/c++/4.3/bits/stl_uninitialized.h:
+
+/usr/include/c++/4.3/bits/stl_vector.h:
+
+/usr/include/c++/4.3/bits/stl_bvector.h:
+
+/usr/include/c++/4.3/bits/vector.tcc:
+
+../include/../include/../include/../src/hash_map.cpp:
+
+../include/../include/../include/../src/../include/hash_map.h:
+
+/usr/include/string.h:
+
+../include/../include/../include/http_header.h:
+
+../include/../include/../include/../include/hash_map.h:
+
+../include/../include/http_request.h:
+
+../include/../include/http_headers.h:
+
+../include/../include/../stdafx.h:
+
+../include/../include/../include/connection.h:
+
+/usr/include/sys/time.h:
+
+../include/../include/../include/../include/socket.h:
+
+../include/../include/../include/../include/../stdafx.h:
+
+../include/../include/../include/../include/../include/stream.h:
+
+../include/../include/../include/../include/../include/../stdafx.h:
+
+/usr/include/openssl/ssl.h:
+
+/usr/include/openssl/e_os2.h:
+
+/usr/include/openssl/opensslconf.h:
+
+/usr/include/openssl/comp.h:
+
+/usr/include/openssl/crypto.h:
+
+/usr/include/openssl/stack.h:
+
+/usr/include/openssl/safestack.h:
+
+/usr/include/openssl/opensslv.h:
+
+/usr/include/openssl/ossl_typ.h:
+
+/usr/include/openssl/symhacks.h:
+
+/usr/include/openssl/bio.h:
+
+/usr/include/openssl/x509.h:
+
+/usr/include/openssl/buffer.h:
+
+/usr/include/openssl/evp.h:
+
+/usr/include/openssl/objects.h:
+
+/usr/include/openssl/obj_mac.h:
+
+/usr/include/openssl/asn1.h:
+
+/usr/include/openssl/bn.h:
+
+/usr/include/openssl/ec.h:
+
+/usr/include/openssl/ecdsa.h:
+
+/usr/include/openssl/ecdh.h:
+
+/usr/include/openssl/rsa.h:
+
+/usr/include/openssl/dsa.h:
+
+/usr/include/openssl/dh.h:
+
+/usr/include/openssl/sha.h:
+
+/usr/include/openssl/x509_vfy.h:
+
+/usr/include/openssl/lhash.h:
+
+/usr/include/openssl/pkcs7.h:
+
+/usr/include/openssl/pem.h:
+
+/usr/include/openssl/pem2.h:
+
+/usr/include/openssl/kssl.h:
+
+/usr/include/openssl/ssl2.h:
+
+/usr/include/openssl/ssl3.h:
+
+/usr/include/openssl/pq_compat.h:
+
+/usr/include/openssl/tls1.h:
+
+/usr/include/openssl/dtls1.h:
+
+/usr/include/openssl/pqueue.h:
+
+/usr/include/openssl/ssl23.h:
+
+/usr/include/openssl/err.h:
+
+/usr/include/errno.h:
+
+/usr/include/bits/errno.h:
+
+/usr/include/linux/errno.h:
+
+/usr/include/asm/errno.h:
+
+/usr/include/asm-generic/errno.h:
+
+/usr/include/asm-generic/errno-base.h:
+
+/usr/include/openssl/rand.h:
+
+/usr/include/sys/socket.h:
+
+/usr/include/sys/uio.h:
+
+/usr/include/bits/socket.h:
+
+/usr/include/bits/sockaddr.h:
+
+/usr/include/asm/socket.h:
+
+/usr/include/asm/sockios.h:
+
+/usr/include/sys/ioctl.h:
+
+/usr/include/bits/ioctls.h:
+
+/usr/include/asm/ioctls.h:
+
+/usr/include/asm/ioctl.h:
+
+/usr/include/asm-generic/ioctl.h:
+
+/usr/include/bits/ioctl-types.h:
+
+/usr/include/sys/ttydefaults.h:
+
+/usr/include/netinet/in.h:
+
+/usr/include/bits/in.h:
+
+/usr/include/bits/byteswap.h:
+
+/usr/include/netdb.h:
+
+/usr/include/rpc/netdb.h:
+
+/usr/include/bits/siginfo.h:
+
+/usr/include/bits/netdb.h:
+
+../include/../include/../include/../include/protocol_buffer.h:
+
+../include/../include/../include/../include/utility.h:
+
+../include/../include/../include/../include/../include/file.h:
+
+../include/../include/../include/../include/../include/../include/stream.h:
+
+../include/../include/../include/../include/../include/stringutils.h:
+
+../include/../include/../include/../include/../include/process.h:
+
+../include/../include/../include/../include/../include/../include/file.h:
+
+../include/../include/../include/../include/../include/../include/mutex.h:
+
+../include/../include/../include/../include/../include/../include/../stdafx.h:
+
+../include/../include/../include/../include/../include/../include/../include/file.h:
+
+../include/../include/../include/../include/../include/../include/../include/stringutils.h:
+
+../include/../include/../include/../include/../include/../include/stringutils.h:
+
+../include/../include/../include/../include/../include/thread.h:
+
+../include/../include/../include/../include/../include/mutex.h:
+
+../include/../include/../include/../include/mem_buff.h:
+
+/usr/include/c++/4.3/iostream:
+
+/usr/include/c++/4.3/ostream:
+
+/usr/include/c++/4.3/ios:
+
+/usr/include/c++/4.3/bits/ios_base.h:
+
+/usr/include/c++/4.3/bits/locale_classes.h:
+
+/usr/include/c++/4.3/bits/locale_classes.tcc:
+
+/usr/include/c++/4.3/streambuf:
+
+/usr/include/c++/4.3/bits/streambuf.tcc:
+
+/usr/include/c++/4.3/bits/basic_ios.h:
+
+/usr/include/c++/4.3/bits/locale_facets.h:
+
+/usr/include/c++/4.3/cwctype:
+
+/usr/include/wctype.h:
+
+/usr/include/c++/4.3/i486-linux-gnu/bits/ctype_base.h:
+
+/usr/include/c++/4.3/bits/streambuf_iterator.h:
+
+/usr/include/c++/4.3/i486-linux-gnu/bits/ctype_inline.h:
+
+/usr/include/c++/4.3/bits/locale_facets.tcc:
+
+/usr/include/c++/4.3/bits/basic_ios.tcc:
+
+/usr/include/c++/4.3/bits/ostream.tcc:
+
+/usr/include/c++/4.3/istream:
+
+/usr/include/c++/4.3/bits/istream.tcc:
+
+../include/../include/http_data_handler.h:
+
+../include/../include/../include/protocol.h:
+
+../include/../include/../include/../stdafx.h:
+
+../include/../include/../include/xml_parser.h:
+
+../include/../include/../include/../include/file.h:
+
+/usr/include/libxml2/libxml/xmlmemory.h:
+
+/usr/include/libxml2/libxml/xmlversion.h:
+
+/usr/include/libxml2/libxml/xmlexports.h:
+
+/usr/include/libxml2/libxml/threads.h:
+
+/usr/include/libxml2/libxml/globals.h:
+
+/usr/include/libxml2/libxml/parser.h:
+
+/usr/include/libxml2/libxml/tree.h:
+
+/usr/include/libxml2/libxml/xmlstring.h:
+
+/usr/include/libxml2/libxml/xmlregexp.h:
+
+/usr/include/libxml2/libxml/dict.h:
+
+/usr/include/libxml2/libxml/hash.h:
+
+/usr/include/libxml2/libxml/valid.h:
+
+/usr/include/libxml2/libxml/xmlerror.h:
+
+/usr/include/libxml2/libxml/list.h:
+
+/usr/include/libxml2/libxml/xmlautomata.h:
+
+/usr/include/libxml2/libxml/entities.h:
+
+/usr/include/libxml2/libxml/encoding.h:
+
+/usr/include/iconv.h:
+
+/usr/include/libxml2/libxml/xmlIO.h:
+
+/usr/include/libxml2/libxml/SAX.h:
+
+/usr/include/libxml2/libxml/xlink.h:
+
+/usr/include/libxml2/libxml/SAX2.h:
+
+../include/../include/../include/connection.h:
+
+../include/../include/../include/http_headers.h:
+
+../include/../include/../include/xml_parser.h:
+
+../include/../include/../include/filters_chain.h:
+
+../include/../include/../include/../include/stream.h:
+
+../include/../include/../include/../include/filter.h:
+
+../include/../include/../include/../include/../include/protocol.h:
+
+../include/../include/../include/../include/protocol.h:
+
+../include/http_headers.h:
+
+../include/http.h:
+
+../include/../stdafx.h:
+
+../include/../include/http_thread_context.h:
+
+../include/../include/../include/http_request.h:
+
+../include/../include/../include/../include/http_header.h:
+
+../include/../include/../include/../include/../include/hash_map.h:
+
+../include/../include/../include/http_response.h:
+
+../include/../include/../include/stringutils.h:
+
+../include/../include/../include/file.h:
+
+../include/../include/../include/mem_buff.h:
+
+../include/../include/../include/mime_manager.h:
+
+../include/../include/../include/../include/http_header_checker.h:
+
+../include/../include/../include/../include/../include/http_headers.h:
+
+../include/../include/../include/../include/../include/myserver_regex.h:
+
+/usr/include/regex.h:
+
+../include/../include/../include/../include/../include/http_request.h:
+
+../include/../include/../include/../include/../include/../include/hash_map.h:
+
+../include/../include/../include/../include/../include/../include/http_header.h:
+
+../include/../include/../include/../include/../include/../include/../include/hash_map.h:
+
+../include/../include/../include/../include/../include/http_response.h:
+
+/usr/include/c++/4.3/sstream:
+
+/usr/include/c++/4.3/bits/sstream.tcc:
+
+../include/../include/../include/../include/read_write_lock.h:
+
+../include/../include/../include/../include/../include/semaphore.h:
+
+/usr/include/semaphore.h:
+
+/usr/include/bits/semaphore.h:
+
+/usr/include/ctype.h:
+
+/usr/include/c++/4.3/map:
+
+/usr/include/c++/4.3/bits/stl_tree.h:
+
+/usr/include/c++/4.3/bits/stl_map.h:
+
+/usr/include/c++/4.3/bits/stl_multimap.h:
+
+../include/../include/protocol.h:
+
+../include/../include/security_cache.h:
+
+../include/../include/../include/security.h:
+
+../include/../include/../include/../include/connection.h:
+
+../include/../include/../include/../include/xml_parser.h:
+
+../include/../include/../include/../include/http_headers.h:
+
+../include/../include/xml_parser.h:
+
+../include/../include/thread.h:
+
+../include/../include/mutex.h:
+
+../include/../include/dyn_http_command_manager.h:
+
+../include/../include/../include/dynamiclib.h:
+
+/usr/include/dlfcn.h:
+
+/usr/include/bits/dlfcn.h:
+
+../include/../include/../include/plugin.h:
+
+../include/../include/../include/../include/dynamiclib.h:
+
+../include/../include/../include/plugins_namespace_manager.h:
+
+../include/../include/../include/../include/plugins_namespace.h:
+
+../include/../include/../include/../include/../include/connection.h:
+
+../include/../include/../include/../include/../include/plugin.h:
+
+../include/../include/dyn_http_command.h:
+
+../include/../include/dyn_http_manager_list.h:
+
+../include/../include/dyn_http_manager.h:
+
+../include/../include/multicast.h:
+
+../include/../include/../src/multicast.cpp:
+
+../include/../include/../src/../include/multicast.h:
+
+../include/../include/securestr.h:
+
+/usr/include/c++/4.3/memory:
+
+/usr/include/c++/4.3/bits/stl_tempbuf.h:
+
+/usr/include/c++/4.3/bits/stl_raw_storage_iter.h:
+
+/usr/include/c++/4.3/backward/auto_ptr.h:
+
+../include/http_errors.h:
+
+../include/../include/hash_map.h:
+
+../include/server.h:
+
+../include/../include/clients_thread.h:
+
+../include/../include/../include/utility.h:
+
+../include/../include/../include/http.h:
+
+../include/../include/../include/https.h:
+
+../include/../include/../include/../include/http.h:
+
+../include/../include/../include/control_protocol.h:
+
+../include/../include/../include/../include/control_header.h:
+
+../include/../include/../include/../include/connections_scheduler.h:
+
+../include/../include/../include/../include/../include/socket.h:
+
+../include/../include/../include/../include/../include/event.h:
+
+/usr/include/c++/4.3/queue:
+
+/usr/include/c++/4.3/deque:
+
+/usr/include/c++/4.3/bits/stl_deque.h:
+
+/usr/include/c++/4.3/bits/deque.tcc:
+
+/usr/include/c++/4.3/bits/stl_heap.h:
+
+/usr/include/c++/4.3/bits/stl_queue.h:
+
+/usr/include/event.h:
+
+../include/../include/utility.h:
+
+../include/../include/connection.h:
+
+../include/../include/socket.h:
+
+../include/../include/event.h:
+
+../include/../include/mime_manager.h:
+
+../include/../include/vhost_manager.h:
+
+../include/../include/../include/vhost.h:
+
+../include/../include/../include/../include/myserver_regex.h:
+
+../include/../include/../include/../include/log_manager.h:
+
+../include/../include/../include/../include/mime_manager.h:
+
+../include/../include/../include/../include/thread.h:
+
+../include/../include/../include/../include/mutex.h:
+
+../include/../include/../include/../include/ssl.h:
+
+../include/../include/../include/../include/listen_threads.h:
+
+../include/../include/../include/../include/../include/xml_parser.h:
+
+../include/../include/../include/../include/../include/connections_scheduler.h:
+
+../include/../include/protocols_manager.h:
+
+../include/../include/../include/dynamic_protocol.h:
+
+../include/../include/../include/../include/plugin.h:
+
+../include/../include/../include/../include/plugins_namespace_manager.h:
+
+../include/../include/log_manager.h:
+
+../include/../include/filters_factory.h:
+
+../include/../include/../include/stream.h:
+
+../include/../include/../include/filter.h:
+
+../include/../include/generic_plugins_manager.h:
+
+../include/../include/dyn_filters_manager.h:
+
+../include/../include/../include/filters_factory.h:
+
+../include/../include/../include/thread.h:
+
+../include/../include/../include/mutex.h:
+
+../include/../include/../include/dyn_filter_file.h:
+
+../include/../include/../include/../include/filters_factory.h:
+
+../include/../include/dyn_filter.h:
+
+../include/../include/dyn_executor_manager.h:
+
+../include/../include/home_dir.h:
+
+../include/../include/cached_file_factory.h:
+
+../include/../include/../include/cached_file.h:
+
+../include/../include/../include/../include/cached_file_buffer.h:
+
+../include/../include/../include/cached_file_buffer.h:
+
+../include/../include/plugins_manager.h:
+
+../include/../include/../include/plugins_namespace.h:
+
+../include/../include/process_server_manager.h:
+
+../include/../include/../include/socket.h:
+
+../include/../include/listen_threads.h:
+
+../include/../include/connections_scheduler.h:
+
+../include/security.h:
+
+../include/mime_utils.h:
+
+../include/file.h:
+
+../include/files_utility.h:
+
+../include/../include/stream.h:
+
+../include/../include/file.h:
+
+../include/socket.h:
+
+../include/utility.h:
+
+../include/mem_buff.h:
+
+../include/filters_chain.h:
+
+../include/env.h:
+
+../include/pipe.h:
+
+../include/http_data_handler.h:

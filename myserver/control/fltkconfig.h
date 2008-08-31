@@ -22,10 +22,11 @@
 #include <FL/Fl_Counter.H>
 #include <FL/Fl_File_Chooser.H>
 #include <FL/fl_ask.H>
-#include "../include/xml_parser.h"
-#include "../include/stringutils.h"
-#include "../include/md5.h"
-#include "../include/utility.h"
+
+#include <include/base/xml/xml_parser.h>
+#include <include/base/string/stringutils.h>
+#include <include/base/md5/md5.h>
+#include <include/base/utility.h>
 #include "service.h"
 #include "language.h"
 #include "mimetype.h"

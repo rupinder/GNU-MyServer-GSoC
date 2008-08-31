@@ -15,8 +15,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../include/gzip.h"
-#include "../include/gzip_decompress.h"
+#include <include/filter/gzip/gzip.h>
+#include <include/filter/gzip/gzip_decompress.h>
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>

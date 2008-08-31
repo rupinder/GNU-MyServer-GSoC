@@ -24,15 +24,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <Fl/fl_ask.H>
 
 #include "language.h"
-#include "../include/stringutils.h"
-#include "../include/xml_parser.h"
-#include "../include/file.h"
-#include "../include/files_utility.h"
+#include <include/base/string/stringutils.h>
+#include <include/base/xml/xml_parser.h>
+#include <include/base/file/file.h>
+#include <include/base/file/files_utility.h>
 #include "vector.h"
 #include "fltkconfig.h"
 #include "language.h"
 
-# include "../include/find_data.h"
+#include <include/find_data/find_data.h>
 
 extern "C"
 {

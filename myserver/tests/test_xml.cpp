@@ -21,7 +21,7 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
-#include "../include/xml_parser.h"
+#include <include/base/xml/xml_parser.h>
 #include <string.h>
 #include <string>
 

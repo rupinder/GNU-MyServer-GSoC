@@ -17,13 +17,14 @@
 #ifndef CONTROL_CLIENT_H
 #define CONTROL_CLIENT_H
 
-#include "../include/socket.h"
-#include "../include/ssl_socket.h"
+#include <include/base/socket/socket.h>
+#include <include/base/socket/ssl_socket.h>
+#include <include/base/file/file.h>
+#include <include/protocol/control/control_errors.h>
+#include <include/base/string/stringutils.h>
+#include <include/base/mem_buff/mem_buff.h>
+
 #include "vector.h"
-#include "../include/file.h"
-#include "../include/control_errors.h"
-#include "../include/stringutils.h"
-#include "../include/mem_buff.h"
 
 typedef void (*ControlClientCallback)(void *, unsigned int, unsigned int);
 

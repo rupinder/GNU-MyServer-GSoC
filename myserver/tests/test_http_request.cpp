@@ -24,9 +24,9 @@
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "../include/http_headers.h"
-#include "../include/connection.h"
-#include "../include/http_request.h"
+#include <include/protocol/http/http_headers.h>
+#include <include/connection/connection.h>
+#include <include/protocol/http/http_request.h>
 
 #include <iostream>
 using namespace std;

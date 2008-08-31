@@ -21,7 +21,7 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
-#include "../include/multicast.h"
+#include <include/base/multicast/multicast.h>
 
 #include <iostream>
 using namespace std;

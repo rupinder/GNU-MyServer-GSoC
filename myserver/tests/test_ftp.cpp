@@ -15,8 +15,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "../include/ftp.h"
-#include "../include/mem_buff.h"
+#include <include/protocol/ftp/ftp.h>
+#include <include/base/mem_buff/mem_buff.h>
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
