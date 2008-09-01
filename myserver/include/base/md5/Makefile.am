@@ -1,3 +1,3 @@
-EXTRA_DIST = md5.h
+include_HEADERS = md5.h
 SUBDIRS =
 

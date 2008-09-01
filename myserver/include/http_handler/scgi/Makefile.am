@@ -1,3 +1,3 @@
-EXTRA_DIST = scgi.h
+include_HEADERS = scgi.h
 SUBDIRS =
 

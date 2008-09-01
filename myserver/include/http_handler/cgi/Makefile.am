@@ -1,3 +1,3 @@
-EXTRA_DIST = cgi.h
+include_HEADERS = cgi.h
 SUBDIRS =
 

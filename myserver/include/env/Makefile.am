@@ -1,3 +1,3 @@
-EXTRA_DIST = env.h
+include_HEADERS = env.h
 SUBDIRS =
 

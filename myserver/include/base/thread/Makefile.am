@@ -1,3 +1,3 @@
-EXTRA_DIST = thread.h
+include_HEADERS = thread.h
 SUBDIRS =
 

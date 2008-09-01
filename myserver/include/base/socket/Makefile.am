@@ -1,3 +1,3 @@
-EXTRA_DIST = socket.h ssl_socket.h
+include_HEADERS = socket.h ssl_socket.h
 SUBDIRS =
 

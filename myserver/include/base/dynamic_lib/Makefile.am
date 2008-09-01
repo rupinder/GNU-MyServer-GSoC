@@ -1,3 +1,3 @@
-EXTRA_DIST = dynamiclib.h
+include_HEADERS = dynamiclib.h
 SUBDIRS =
 

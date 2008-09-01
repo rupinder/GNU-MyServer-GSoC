@@ -1,3 +1,3 @@
-EXTRA_DIST = clients_thread.h server.h
+include_HEADERS = clients_thread.h server.h
 SUBDIRS =
 

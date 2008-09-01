@@ -1,3 +1,3 @@
-EXTRA_DIST = fastcgi.h
+include_HEADERS = fastcgi.h
 SUBDIRS =
 

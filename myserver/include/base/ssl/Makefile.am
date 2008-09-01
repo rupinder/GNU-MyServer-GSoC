@@ -1,3 +1,3 @@
-EXTRA_DIST = ssl.h
+include_HEADERS = ssl.h
 SUBDIRS =
 

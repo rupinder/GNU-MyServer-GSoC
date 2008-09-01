@@ -1,3 +1,3 @@
-EXTRA_DIST = securestr.h stringutils.h
+include_HEADERS = securestr.h stringutils.h
 SUBDIRS =
 

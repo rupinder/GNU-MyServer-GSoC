@@ -1,3 +1,3 @@
-EXTRA_DIST = vhost.h vhost_manager.h
+include_HEADERS = vhost.h vhost_manager.h
 SUBDIRS =
 

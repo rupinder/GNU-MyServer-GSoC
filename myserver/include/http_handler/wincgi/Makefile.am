@@ -1,3 +1,3 @@
-EXTRA_DIST = wincgi.h
+include_HEADERS = wincgi.h
 SUBDIRS =
 

@@ -1,3 +1,3 @@
-EXTRA_DIST = log_manager.h
+include_HEADERS = log_manager.h
 SUBDIRS =
 

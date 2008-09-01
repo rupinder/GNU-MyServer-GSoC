@@ -1,3 +1,3 @@
-EXTRA_DIST = hash_map.h
+include_HEADERS = hash_map.h
 SUBDIRS =
 

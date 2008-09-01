@@ -1,3 +1,3 @@
-EXTRA_DIST = gzip_decompress.h gzip.h
+include_HEADERS = gzip_decompress.h gzip.h
 SUBDIRS =
 

@@ -1,3 +1,3 @@
-EXTRA_DIST = pipe.h
+include_HEADERS = pipe.h
 SUBDIRS =
 

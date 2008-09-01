@@ -1,3 +1,3 @@
-EXTRA_DIST = mime_manager.h
+include_HEADERS = mime_manager.h
 SUBDIRS =
 

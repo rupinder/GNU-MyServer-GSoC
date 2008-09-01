@@ -1,3 +1,3 @@
-EXTRA_DIST = mem_buff.h
+include_HEADERS = mem_buff.h
 SUBDIRS =
 

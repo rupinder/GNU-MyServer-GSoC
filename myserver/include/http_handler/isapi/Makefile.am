@@ -1,3 +1,3 @@
-EXTRA_DIST = isapi.h
+include_HEADERS = isapi.h
 SUBDIRS =
 

@@ -1,3 +1,3 @@
-EXTRA_DIST = multicast.h
+include_HEADERS = multicast.h
 SUBDIRS =
 

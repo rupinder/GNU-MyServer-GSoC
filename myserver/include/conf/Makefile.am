@@ -1,3 +1,3 @@
-EXTRA_DIST =
+include_HEADERS =
 SUBDIRS = mime security vhost
 

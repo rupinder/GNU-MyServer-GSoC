@@ -1,3 +1,3 @@
-EXTRA_DIST = dyn_http_command.h dyn_http_command_manager.h
+include_HEADERS = dyn_http_command.h dyn_http_command_manager.h
 SUBDIRS =
 

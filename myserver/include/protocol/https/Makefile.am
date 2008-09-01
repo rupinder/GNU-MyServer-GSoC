@@ -1,3 +1,3 @@
-EXTRA_DIST = https.h
+include_HEADERS = https.h
 SUBDIRS =
 

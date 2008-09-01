@@ -1,3 +1,3 @@
-EXTRA_DIST = home_dir.h
+include_HEADERS = home_dir.h
 SUBDIRS =
 

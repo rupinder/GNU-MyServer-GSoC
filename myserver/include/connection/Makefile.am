@@ -1,3 +1,3 @@
-EXTRA_DIST = connection.h
+include_HEADERS = connection.h
 SUBDIRS =
 

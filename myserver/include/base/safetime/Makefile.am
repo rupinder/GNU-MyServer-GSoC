@@ -1,3 +1,3 @@
-EXTRA_DIST = safetime.h
+include_HEADERS = safetime.h
 SUBDIRS =
 

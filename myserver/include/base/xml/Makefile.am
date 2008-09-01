@@ -1,3 +1,3 @@
-EXTRA_DIST = xml_parser.h
+include_HEADERS = xml_parser.h
 SUBDIRS =
 

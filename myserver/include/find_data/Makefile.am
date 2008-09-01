@@ -1,3 +1,3 @@
-EXTRA_DIST = find_data.h
+include_HEADERS = find_data.h
 SUBDIRS =
 

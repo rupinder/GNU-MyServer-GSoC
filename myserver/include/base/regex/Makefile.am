@@ -1,3 +1,3 @@
-EXTRA_DIST = myserver_regex.h
+include_HEADERS = myserver_regex.h
 SUBDIRS =
 
