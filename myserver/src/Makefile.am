@@ -40,7 +40,7 @@ STATIC_AR = find_data/libfind_data.a \
 										server/libserver.a
 libmyserver.a:
 	rm -f libmyserver.a
-	ar cru libmyserver.a `find -iregex .*\\.o`
+	find -iregex .*\\.o | xargs ar cru libmyserver.a
 	ranlib libmyserver.a
 
 #lib_LIBRARIES = libmyserver.a
