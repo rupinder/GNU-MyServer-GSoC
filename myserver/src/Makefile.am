@@ -38,7 +38,8 @@ STATIC_AR = find_data/libfind_data.a \
 										plugin/filter/libfilter.a\
 										plugin/http_command/libhttp_command.a\
 										server/libserver.a
-libmyserver.a:
+
+libmyserver.a: build_subdirs
 	rm -f libmyserver.a
 	find -iregex .*\\.o | xargs ar cru libmyserver.a
 	ranlib libmyserver.a
@@ -56,7 +57,7 @@ myserver_LDADD =  	$(all_libraries) $(PTHREAD_LIB) $(IDN_LIB) \
 										$(XNET_LIB) $(EVENT_LIB) $(DL_LIB) $(OPENSSL_LIB) $(ZLIB_LIB) \
 										$(XML_LIBS)
 
-myserver_DEPENDENCIES = build_subdirs libmyserver.a
+myserver_DEPENDENCIES = libmyserver.a
 
 build_subdirs:
 	list='$(SUBDIRS)'; for subdir in $$list; do \

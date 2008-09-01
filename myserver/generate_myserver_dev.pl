@@ -32,7 +32,7 @@ UnitCount=\$COUNT
 Type=1
 Ver=1
 ObjFiles=
-Includes=
+Includes=.
 Libs=
 PrivateResource=myserver_private.rc
 ResourceIncludes=
@@ -52,7 +52,7 @@ CommandLine=
 IncludeVersionInfo=1
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=0000001000000101000000
+CompilerSettings=0000001000000001000000
 UseCustomMakefile=0
 CustomMakefile=
 
