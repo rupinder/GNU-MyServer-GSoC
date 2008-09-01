@@ -427,6 +427,57 @@ AC_CONFIG_FILES([
     src/plugin/http_command/Makefile
     src/server/Makefile
     src/Makefile
+    include/find_data/Makefile
+    include/connection/Makefile
+    include/env/Makefile
+    include/log/Makefile
+    include/conf/Makefile
+    include/conf/mime/Makefile
+    include/conf/security/Makefile
+    include/conf/vhost/Makefile
+    include/connections_scheduler/Makefile
+    include/http_handler/Makefile
+    include/http_handler/wincgi/Makefile
+    include/http_handler/cgi/Makefile
+    include/http_handler/mscgi/Makefile
+    include/http_handler/fastcgi/Makefile
+    include/http_handler/scgi/Makefile
+    include/http_handler/isapi/Makefile
+    include/base/Makefile
+    include/base/file/Makefile
+    include/base/pipe/Makefile
+    include/base/base64/Makefile
+    include/base/mem_buff/Makefile
+    include/base/home_dir/Makefile
+    include/base/multicast/Makefile
+    include/base/sync/Makefile
+    include/base/safetime/Makefile
+    include/base/socket/Makefile
+    include/base/hash_map/Makefile
+    include/base/dynamic_lib/Makefile
+    include/base/process/Makefile
+    include/base/md5/Makefile
+    include/base/ssl/Makefile
+    include/base/xml/Makefile
+    include/base/string/Makefile
+    include/base/regex/Makefile
+    include/base/thread/Makefile
+    include/protocol/Makefile
+    include/protocol/ftp/Makefile
+    include/protocol/control/Makefile
+    include/protocol/https/Makefile
+    include/protocol/http/Makefile
+    include/files_cache/Makefile
+    include/filter/Makefile
+    include/filter/gzip/Makefile
+    include/plugin/Makefile
+    include/plugin/executor/Makefile
+    include/plugin/http_manager/Makefile
+    include/plugin/protocol/Makefile
+    include/plugin/filter/Makefile
+    include/plugin/http_command/Makefile
+    include/server/Makefile
+    include/Makefile
     tests/Makefile
     ])
 AC_OUTPUT

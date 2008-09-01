@@ -1,0 +1,3 @@
+EXTRA_DIST = scgi.h
+SUBDIRS =
+

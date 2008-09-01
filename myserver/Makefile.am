@@ -15,4 +15,6 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/gnome-pthread-check.m4 \
         $(top_srcdir)/configure.in
 
 
-SUBDIRS = src $(CONTROL) $(CGI_LIB) binaries documentation $(TESTS)
+SUBDIRS = src include $(CONTROL) $(CGI_LIB) binaries documentation $(TESTS)
+
+EXTRA_DIST = stdafx.h stdafx.cpp doxygen SConstruct
