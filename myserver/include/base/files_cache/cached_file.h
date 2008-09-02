@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "stdafx.h"
 #include <include/filter/stream.h>
 #include <include/base/file/file.h>
-#include <include/files_cache/cached_file_buffer.h>
+#include <include/base/files_cache/cached_file_buffer.h>
 #include <string>
 
 using namespace std;

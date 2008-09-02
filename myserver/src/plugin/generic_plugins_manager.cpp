@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "stdafx.h"
 #include <include/plugin/generic_plugins_manager.h>
-#include <include/find_data/find_data.h>
 #include <include/base/xml/xml_parser.h>
 #include <include/server/server.h>
 #include <string>

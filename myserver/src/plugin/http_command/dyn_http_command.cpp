@@ -15,11 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include <include/plugin/http_command/dyn_http_command.h>
-#include <include/base/xml/xml_parser.h>
 #include <include/server/server.h>
-#include <include/find_data/find_data.h>
 
 #include <string>
 

@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/plugin/executor/dynamic_executor.h>
 #include <include/base/xml/xml_parser.h>
 #include <include/server/server.h>
-#include <include/find_data/find_data.h>
 #include <include/base/file/file.h>
 
 #include <string>

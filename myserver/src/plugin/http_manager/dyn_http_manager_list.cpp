@@ -16,11 +16,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include <include/plugin/http_manager/dyn_http_manager.h>
 #include <include/plugin/http_manager/dyn_http_manager_list.h>
-#include <include/base/xml/xml_parser.h>
+#include <include/plugin/http_manager/dyn_http_manager.h>
 #include <include/server/server.h>
-#include <include/find_data/find_data.h>
 
 #include <string>
 

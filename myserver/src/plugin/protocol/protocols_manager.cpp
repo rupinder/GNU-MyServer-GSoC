@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/plugin/protocol/protocols_manager.h>
 #include <include/base/xml/xml_parser.h>
 #include <include/server/server.h>
-#include <include/find_data/find_data.h>
 #include <include/plugin/protocol/dynamic_protocol.h>
 #include <string>
 #include <algorithm>

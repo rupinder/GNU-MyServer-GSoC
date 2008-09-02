@@ -32,7 +32,6 @@ extern "C" {
 #ifdef WIN32
 #include <algorithm>
 #endif
-#include <include/find_data/find_data.h>
 
 /*!
  *Initialize the gzip structure value.

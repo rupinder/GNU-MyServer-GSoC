@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/server/server.h>
 #include <include/protocol/http/http.h>
 #include <include/protocol/http/http_headers.h>
-#include <include/protocol/http/http_dir.h>
+#include <include/http_handler/http_dir/http_dir.h>
 #include <include/filter/filters_chain.h>
 #include <include/base/file/files_utility.h>
 
@@ -36,7 +36,7 @@ extern "C"
 #endif
 }
 
-#include <include/find_data/find_data.h>
+#include <include/base/find_data/find_data.h>
 #include <include/base/string/stringutils.h>
 #ifdef NOT_WIN
 #endif

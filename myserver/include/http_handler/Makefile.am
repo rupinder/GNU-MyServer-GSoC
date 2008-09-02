@@ -1,3 +1,3 @@
 include_HEADERS =
-SUBDIRS = cgi fastcgi isapi mscgi scgi wincgi
+SUBDIRS = cgi fastcgi http_dir http_file isapi mscgi scgi wincgi
 

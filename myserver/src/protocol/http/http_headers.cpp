@@ -39,10 +39,6 @@ extern "C" {
 #endif
 }
 
-#ifdef NOT_WIN
-#include <include/find_data/find_data.h>
-#endif
-
 /*!
  *Builds an HTTP header string starting from an HttpResponseHeader structure.
  *\param str The buffer where write the HTTP header.

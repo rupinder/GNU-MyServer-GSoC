@@ -36,8 +36,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/http_handler/scgi/scgi.h>
 #include <include/http_handler/mscgi/mscgi.h>
 #include <include/http_handler/isapi/isapi.h>
-#include <include/protocol/http/http_file.h>
-#include <include/protocol/http/http_dir.h>
+#include <include/http_handler/http_file/http_file.h>
+#include <include/http_handler/http_dir/http_dir.h>
 #include <include/protocol/http/http_data_read.h>
 
 #include <string>
@@ -57,10 +57,6 @@ extern "C"
 #include <errno.h>
 #endif
 }
-
-#ifdef NOT_WIN
-#include <include/find_data/find_data.h>
-#endif
 
 static HttpStaticData staticHttp;
 

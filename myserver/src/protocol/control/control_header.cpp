@@ -32,10 +32,6 @@ extern "C"
 #endif
 }
 
-#ifdef NOT_WIN
-#include <include/find_data/find_data.h>
-#endif
-
 /*!
  *Return a string containing options specified by the client.
  */

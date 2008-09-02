@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/xml/xml_parser.h>
 #include <include/base/md5/md5.h>
 #include <include/server/server.h>
-#include <include/find_data/find_data.h>
+#include <include/base/find_data/find_data.h>
 #include <include/plugin/protocol/protocols_manager.h>
 #include <include/protocol/control/control_errors.h>
 #include <include/base/string/stringutils.h>
@@ -44,9 +44,6 @@ extern "C"
 using namespace std;
 
 extern const char *versionOfSoftware;
-
-#include <include/find_data/find_data.h>
-
 
 char ControlProtocol::adminLogin[64] = "";
 char ControlProtocol::adminPassword[64] = "";

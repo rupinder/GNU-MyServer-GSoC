@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <include/http_handler/scgi/scgi.h>
-#include <include/env/env.h>
+#include <include/protocol/http/env/env.h>
 #include <include/protocol/http/http.h>
 #include <include/base/string/stringutils.h>
 #include <include/server/server.h>

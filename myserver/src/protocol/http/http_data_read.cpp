@@ -45,10 +45,6 @@ extern "C"
 #endif
 }
 
-#ifdef NOT_WIN
-#include <include/find_data/find_data.h>
-#endif
-
 /*!
  *Read primitive post data as it is sent by the client without apply any filter
  *in a contiguous manner, first read from the memory buffer and after from the

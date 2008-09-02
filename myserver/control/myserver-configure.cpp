@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "fltkconfig.h"
 #include "language.h"
 
-#include <include/find_data/find_data.h>
+#include <include/base/find_data/find_data.h>
 
 extern "C"
 {

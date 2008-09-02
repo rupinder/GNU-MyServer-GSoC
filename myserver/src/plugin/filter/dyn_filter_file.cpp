@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/filter/stream.h>
 #include <include/filter/filter.h>
 #include <include/plugin/filter/dyn_filter_file.h>
-#include <include/find_data/find_data.h>
 #include <include/server/server.h>
 #include <string>
 #include <sstream>

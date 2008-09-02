@@ -38,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/plugin/executor/dyn_executor_manager.h>
 #include <include/base/hash_map/hash_map.h>
 #include <include/base/home_dir/home_dir.h>
-#include <include/files_cache/cached_file_factory.h>
+#include <include/base/files_cache/cached_file_factory.h>
 #include <include/plugin/generic_plugins_manager.h>
 #include <include/base/process/process_server_manager.h>
 #include <include/connections_scheduler/listen_threads.h>

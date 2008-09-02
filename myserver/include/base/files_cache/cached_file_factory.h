@@ -23,8 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/hash_map/hash_map.h>
 #include <include/base/file/file.h>
 #include <include/base/sync/mutex.h>
-#include <include/files_cache/cached_file.h>
-#include <include/files_cache/cached_file_buffer.h>
+#include <include/base/files_cache/cached_file.h>
+#include <include/base/files_cache/cached_file_buffer.h>
 #include <string>
 #include <list>
 
