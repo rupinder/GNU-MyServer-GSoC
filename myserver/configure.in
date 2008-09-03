@@ -127,7 +127,7 @@ else
 fi
 AC_SUBST(XNET_LIB)
 
-AC_CHECK_LIB(event, accept, have_event=yes)
+AC_CHECK_LIB(event, event_add, have_event=yes)
 if test x$have_event = xyes; then
    EVENT_LIB="-levent"
 else
@@ -377,7 +377,6 @@ AC_CONFIG_FILES([
     documentation/english/style/Makefile
     documentation/english/texts/Makefile
     include/Makefile
-		include/find_data/Makefile
 		include/connection/Makefile
 		include/log/Makefile
 		include/conf/Makefile
@@ -431,7 +430,6 @@ AC_CONFIG_FILES([
 		include/plugin/http_command/Makefile
 		include/server/Makefile
     src/Makefile
-		src/find_data/Makefile
 		src/connection/Makefile
 		src/log/Makefile
 		src/conf/Makefile

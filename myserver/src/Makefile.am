@@ -1,5 +1,5 @@
 # Makefile for MyServer (./src)
-SUBDIRS = base conf connection connections_scheduler filter find_data \
+SUBDIRS = base conf connection connections_scheduler filter\
 					http_handler log plugin protocol server .
 
 
