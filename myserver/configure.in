@@ -482,7 +482,6 @@ AC_CONFIG_FILES([
 		src/plugin/filter/Makefile
 		src/plugin/http_command/Makefile
 		src/server/Makefile
-
     tests/Makefile
     ])
 AC_OUTPUT
