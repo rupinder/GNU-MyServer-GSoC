@@ -255,7 +255,7 @@ if command == "build":
 if buildControlGui:
     filesControl = glob.glob('control/*.cpp')
     filesControl.append(["src/base/file/file.cpp", "src/base/file/files_utility.cpp", "src/base/xml/xml_parser.cpp", 
-                  "src/base/utility.cpp", "src/find_data/find_data.cpp", "src/base/md5/md5.cpp", "src/base/mem_buff/mem_buff.cpp",
+                  "src/base/utility.cpp", "src/base/find_data/find_data.cpp", "src/base/md5/md5.cpp", "src/base/mem_buff/mem_buff.cpp",
                   "src/base/socket/ssl_socket.cpp", "src/base/socket/socket.cpp",  "src/base/sync/mutex.cpp", 
                   "src/base/thread/thread.cpp", "src/filter/stream.cpp", "src/base/string/securestr.cpp"])
 
