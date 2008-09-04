@@ -10,7 +10,7 @@ SUBDIRS = base conf connection connections_scheduler filter\
 
 libmyserver.a:
 	rm -f libmyserver.a
-	find -iregex .*\\.o | xargs $(AR) cru libmyserver.a
+	find -iregex .*\\.$(OBJEXT) | xargs $(AR) cru libmyserver.a
 	$(RANLIB) libmyserver.a
 
 bin_PROGRAMS = myserver
