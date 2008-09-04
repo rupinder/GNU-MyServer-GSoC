@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 extern "C"
 {
 #ifdef WIN32
-#include <Ws2tcpip.h>
+  //#include <Ws2tcpip.h>
 #include <direct.h>
 #endif
 #ifdef NOT_WIN

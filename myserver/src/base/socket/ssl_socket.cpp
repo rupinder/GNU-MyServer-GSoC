@@ -24,7 +24,7 @@ extern "C" {
 #include <string.h>
 #include <stdio.h>
 #ifdef WIN32
-#include <Ws2tcpip.h>
+  //#include <Ws2tcpip.h>
 #endif
 #ifndef WIN32
 #include <sys/types.h>
@@ -137,8 +137,11 @@ int SslSocket::connect(MYSERVER_SOCKADDR* sa, int na)
 {
    if ( sa == NULL || (sa->ss_family != AF_INET && sa->ss_family != AF_INET6) )
       return 1;//Andu: TODO our error code or what?
-  if ( (sa->ss_family == AF_INET && na != sizeof(sockaddr_in)) || 
-  (sa->ss_family == AF_INET6 && na != sizeof(sockaddr_in6)) )
+  if ( (sa->ss_family == AF_INET && na != sizeof(sockaddr_in)) 
+#if HAVE_IPV6
+   || (sa->ss_family == AF_INET6 && na != sizeof(sockaddr_in6)) 
+#endif
+)
      return 1;//Andu: TODO our error code or what?
 #ifndef DO_NOT_USE_SSL
   sslMethod = SSLv23_client_method();

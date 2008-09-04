@@ -12,7 +12,7 @@ libpost.a :
 
 post.mscgi : $(libpost_a_OBJECTS) $(libpost_a_DEPENDENCIES)
 	-rm -f post.mscgi
-	$(CXX) $(libpost_a_OBJECTS) $(libpost_a_LIBADD) -o post.mscgi -shared
+	$(CXX) $(libpost_a_OBJECTS) ../../../../src/libmyserver.a $(libpost_a_LIBADD)  $(PTHREAD_LIB) $(IDN_LIB) $(XNET_LIB) $(EVENT_LIB) $(DL_LIB) $(OPENSSL_LIB) $(ZLIB_LIB) $(XML_LIBS) $(LDFLAGS) -o post.mscgi -shared
 
 install : post.mscgi
 	$(INSTALL) 'post.mscgi' '$(root_prefix)/var/web/cgi-bin/post.mscgi'

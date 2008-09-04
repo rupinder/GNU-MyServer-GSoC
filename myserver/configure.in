@@ -59,15 +59,14 @@ CFLAGS="$CFLAGS $_LT_AC_TAGVAR(lt_prog_compiler_pic, CXX)"
 CXXFLAGS="$CXXFLAGS $_LT_AC_TAGVAR(lt_prog_compiler_pic, CXX)"
 LDFLAGS="$LDFLAGS $_LT_AC_TAGVAR(lt_prog_compiler_pic, CXX)"
 
-AC_SUBST(CFLAGS)
-AC_SUBST(CXFLAGS)
-AC_SUBST(LDFLAGS)
-
 AC_ARG_WITH([root-prefix], [  --with-root-prefix=PREFIX override prefix variable for files to be placed in the root], root_prefix=$withval, root_prefix="")
 
 AC_ARG_ENABLE([control-gui], [ --disable-control-gui disable the myserver-configure GUI program], enable_control="no", enable_control="yes")
 
 AC_ARG_ENABLE([ipv6], [  --enable-ipv6 Build with IPv6 support], enable_ipv6="yes", enable_ipv6="")
+
+AC_ARG_ENABLE([cygwin], [ --enable-cygwin Enable cygwin], enable_cygwin="yes", enable_cygwin="")
+
 
 root_bindir='${root_prefix}/bin'
 root_sbindir='${root_prefix}/sbin'
@@ -110,13 +109,16 @@ AC_CHECK_FUNCS(snprintf, AC_DEFINE(SNPRINTF, 1, [Define if the snprintf function
 
 dnl Looking for pthreads
 GNOME_PTHREAD_CHECK
-if test x$PTHREAD_LIB = x; then
+if test x$PTHREAD_LIB = x  -a "x$enable_cygwin" != "xyes"; then
    AC_MSG_ERROR([
 *** This system appears to have no posix threads
 *** Threads are required for MyServer
 ])
 fi
-AC_DEFINE(HAVE_PTHREAD, 1, [POSIX threads required for MyServer in a non-windows environment])
+
+if test x$PTHREAD_LIB != x; then
+   AC_DEFINE(HAVE_PTHREAD, 1, [POSIX threads required for MyServer in a non-windows environment])
+fi
 
 dnl See if we need -lxnet for arpa
 AC_CHECK_LIB(xnet, accept, have_xnet=yes)
@@ -129,20 +131,22 @@ AC_SUBST(XNET_LIB)
 
 AC_CHECK_LIB(event, event_add, have_event=yes)
 if test x$have_event = xyes; then
+   AC_CHECK_HEADER(event.h,, 
+   [
+        AC_MSG_WARN([event.h not found which is part of libevent.])
+   ])
    EVENT_LIB="-levent"
 else
    EVENT_LIB=""
-   AC_MSG_ERROR([
+
+   if test "x$enable_cygwin" != "xyes"; then
+      AC_MSG_ERROR([
 *** This system appears to have no libevent
 *** Libevent is required by MyServer
-])
+      ])
+   fi
 fi
 AC_SUBST(EVENT_LIB)
-
-AC_CHECK_HEADER(event.h,, 
-[
-   AC_MSG_WARN([event.h not found which is part of libevent.])
-])
 
 AC_CHECK_FUNCS(event_loopbreak, AC_DEFINE(EVENT_LOOPBREAK, 1, [Define if the event_loopbreak function is present]) )
 
@@ -160,10 +164,14 @@ AC_CHECK_LIB(dl ,dlopen, have_dl=yes)
 AC_CHECK_LIB(c ,dlopen, have_dl=yes; no_dl_ld=yes)
 
 if test x$have_dl != xyes; then
-   AC_MSG_WARN([
+
+   if test "x$enable_cygwin" != "xyes"; then
+      AC_MSG_WARN([
 *** dlLIB not found
 *** MSCGI support will not function
-])
+    ])
+    fi
+
    DL_LIB=""
    MAKE_MSCGI=no
 else
@@ -174,8 +182,9 @@ fi
 if test x$no_dl_ld = xyes; then
    DL_LIB=""
 fi
-AC_SUBST(DL_LIB)
 
+
+AC_SUBST(DL_LIB)
 
 
 # Libidn checks
@@ -222,9 +231,16 @@ else
 	CPPFLAGS="$CPPFLAGS $XML_CPPFLAGS"
 fi
 
+OPENSSL_INC=""
+
+AC_ARG_WITH(openssl-include,
+  [[  --with-openssl-include=FILE     Use the given path to the openssl include files.]],
+  [
+        OPENSSL_INC=$withval
+  ])
 
 dnl CHECKING FOR OPENSSL
-    for dir in $withval /usr/local/ssl /usr/lib/ssl /usr/ssl /usr/pkg /usr/local /usr; do
+    for dir in $OPENSSL_INC /usr/local/ssl /usr/lib/ssl /usr/ssl /usr/pkg /usr/local /usr; do
         ssldir="$dir";
         if test -f "$dir/include/openssl/ssl.h"; then
             found_ssl="yes";
@@ -246,7 +262,7 @@ dnl CHECKING FOR OPENSSL
     else
         printf "OpenSSL found in $ssldir\n";
         LDFLAGS="$LDFLAGS -L$ssldir/lib";
-				OPENSSL_LIB="-lssl" # myserver
+				OPENSSL_LIB="-lssl -lcrypto" # myserver
         HAVE_SSL="yes"
     fi
     AC_SUBST(HAVE_SSL)
@@ -279,10 +295,10 @@ else
         AC_DEFINE(GZIP_CHECK_BOUNDS, 1, [Memory checking for Zlib, not defined in older vrs])
     fi
 fi
+
 AC_SUBST(ZLIB_LIB)
 
 if test x$enable_control == xyes; then
-
      AC_CHECK_LIB(fltk, main, have_fltk=yes)
     dnl Looking for FLTK
     AM_PATH_FLTK(1.1.0, have_fltk=yes)
@@ -340,9 +356,21 @@ if test x$have_cppunit != xyes; then
 *** tests driver program will not be built
 ])
     MAKE_TESTS=no
+    CPPUNIT_LDFLAGS=""
 else
     MAKE_TESTS=yes
+    CPPUNIT_LDFLAGS="-lcppunit"
 fi
+
+if test "x$enable_cygwin" = "xyes"; then
+   LDFLAGS="$LDFLAGS -levent_extra -levent_core  -lws2_32 -lgdi32 -lrx -luserenv -lole32  -luuid" 
+fi
+
+AC_SUBST(CFLAGS)
+AC_SUBST(CXFLAGS)
+AC_SUBST(LDFLAGS)
+AC_SUBST(CPPUNIT_LDFLAGS)
+
 
 AM_CONDITIONAL(BUILD_TESTS, test "$MAKE_TESTS" = "yes")
 
@@ -351,7 +379,7 @@ AM_CONDITIONAL(BUILD_CONTROL, test "$MAKE_CONTROL" = "yes")
 
 dnl AC_CONFIG_SUBDIRS()
 AC_CONFIG_FILES([
-    version.h	
+    version.h  
     Makefile
     binaries/Makefile
     binaries/certificates/Makefile
@@ -377,111 +405,111 @@ AC_CONFIG_FILES([
     documentation/english/style/Makefile
     documentation/english/texts/Makefile
     include/Makefile
-		include/connection/Makefile
-		include/log/Makefile
-		include/conf/Makefile
-		include/conf/mime/Makefile
-		include/conf/security/Makefile
-		include/conf/vhost/Makefile
-		include/connections_scheduler/Makefile
-		include/http_handler/Makefile
-		include/http_handler/wincgi/Makefile
-		include/http_handler/cgi/Makefile
-		include/http_handler/mscgi/Makefile
-		include/http_handler/fastcgi/Makefile
-		include/http_handler/http_file/Makefile
-		include/http_handler/scgi/Makefile
-		include/http_handler/isapi/Makefile
-		include/http_handler/http_dir/Makefile
-		include/base/Makefile
-		include/base/find_data/Makefile
-		include/base/file/Makefile
-		include/base/pipe/Makefile
-		include/base/base64/Makefile
-		include/base/mem_buff/Makefile
-		include/base/home_dir/Makefile
-		include/base/multicast/Makefile
-		include/base/sync/Makefile
-		include/base/safetime/Makefile
-		include/base/socket/Makefile
-		include/base/hash_map/Makefile
-		include/base/dynamic_lib/Makefile
-		include/base/process/Makefile
-		include/base/md5/Makefile
-		include/base/ssl/Makefile
-		include/base/xml/Makefile
-		include/base/files_cache/Makefile
-		include/base/string/Makefile
-		include/base/regex/Makefile
-		include/base/thread/Makefile
-		include/protocol/Makefile
-		include/protocol/ftp/Makefile
-		include/protocol/control/Makefile
-		include/protocol/https/Makefile
-		include/protocol/http/Makefile
-		include/protocol/http/env/Makefile
-		include/filter/Makefile
-		include/filter/gzip/Makefile
-		include/plugin/Makefile
-		include/plugin/executor/Makefile
-		include/plugin/http_manager/Makefile
-		include/plugin/protocol/Makefile
-		include/plugin/filter/Makefile
-		include/plugin/http_command/Makefile
-		include/server/Makefile
+    include/connection/Makefile
+    include/log/Makefile
+    include/conf/Makefile
+    include/conf/mime/Makefile
+    include/conf/security/Makefile
+    include/conf/vhost/Makefile
+    include/connections_scheduler/Makefile
+    include/http_handler/Makefile
+    include/http_handler/wincgi/Makefile
+    include/http_handler/cgi/Makefile
+    include/http_handler/mscgi/Makefile
+    include/http_handler/fastcgi/Makefile
+    include/http_handler/http_file/Makefile
+    include/http_handler/scgi/Makefile
+    include/http_handler/isapi/Makefile
+    include/http_handler/http_dir/Makefile
+    include/base/Makefile
+    include/base/find_data/Makefile
+    include/base/file/Makefile
+    include/base/pipe/Makefile
+    include/base/base64/Makefile
+    include/base/mem_buff/Makefile
+    include/base/home_dir/Makefile
+    include/base/multicast/Makefile
+    include/base/sync/Makefile
+    include/base/safetime/Makefile
+    include/base/socket/Makefile
+    include/base/hash_map/Makefile
+    include/base/dynamic_lib/Makefile
+    include/base/process/Makefile
+    include/base/md5/Makefile
+    include/base/ssl/Makefile
+    include/base/xml/Makefile
+    include/base/files_cache/Makefile
+    include/base/string/Makefile
+    include/base/regex/Makefile
+    include/base/thread/Makefile
+    include/protocol/Makefile
+    include/protocol/ftp/Makefile
+    include/protocol/control/Makefile
+    include/protocol/https/Makefile
+    include/protocol/http/Makefile
+    include/protocol/http/env/Makefile
+    include/filter/Makefile
+    include/filter/gzip/Makefile
+    include/plugin/Makefile
+    include/plugin/executor/Makefile
+    include/plugin/http_manager/Makefile
+    include/plugin/protocol/Makefile
+    include/plugin/filter/Makefile
+    include/plugin/http_command/Makefile
+    include/server/Makefile
     src/Makefile
-		src/connection/Makefile
-		src/log/Makefile
-		src/conf/Makefile
-		src/conf/mime/Makefile
-		src/conf/security/Makefile
-		src/conf/vhost/Makefile
-		src/connections_scheduler/Makefile
-		src/http_handler/Makefile
-		src/http_handler/wincgi/Makefile
-		src/http_handler/cgi/Makefile
-		src/http_handler/mscgi/Makefile
-		src/http_handler/fastcgi/Makefile
-		src/http_handler/http_file/Makefile
-		src/http_handler/scgi/Makefile
-		src/http_handler/isapi/Makefile
-		src/http_handler/http_dir/Makefile
-		src/base/Makefile
-		src/base/find_data/Makefile
-		src/base/file/Makefile
-		src/base/pipe/Makefile
-		src/base/base64/Makefile
-		src/base/mem_buff/Makefile
-		src/base/home_dir/Makefile
-		src/base/multicast/Makefile
-		src/base/sync/Makefile
-		src/base/safetime/Makefile
-		src/base/socket/Makefile
-		src/base/hash_map/Makefile
-		src/base/dynamic_lib/Makefile
-		src/base/process/Makefile
-		src/base/md5/Makefile
-		src/base/ssl/Makefile
-		src/base/xml/Makefile
-		src/base/files_cache/Makefile
-		src/base/string/Makefile
-		src/base/regex/Makefile
-		src/base/thread/Makefile
-		src/protocol/Makefile
-		src/protocol/ftp/Makefile
-		src/protocol/control/Makefile
-		src/protocol/https/Makefile
-		src/protocol/http/Makefile
-		src/protocol/http/env/Makefile
-		src/filter/Makefile
-		src/filter/gzip/Makefile
-		src/plugin/Makefile
-		src/plugin/executor/Makefile
-		src/plugin/http_manager/Makefile
-		src/plugin/protocol/Makefile
-		src/plugin/filter/Makefile
-		src/plugin/http_command/Makefile
-		src/server/Makefile
+    src/connection/Makefile
+    src/log/Makefile
+    src/conf/Makefile
+    src/conf/mime/Makefile
+    src/conf/security/Makefile
+    src/conf/vhost/Makefile
+    src/connections_scheduler/Makefile
+    src/http_handler/Makefile
+    src/http_handler/wincgi/Makefile
+    src/http_handler/cgi/Makefile
+    src/http_handler/mscgi/Makefile
+    src/http_handler/fastcgi/Makefile
+    src/http_handler/http_file/Makefile
+    src/http_handler/scgi/Makefile
+    src/http_handler/isapi/Makefile
+    src/http_handler/http_dir/Makefile
+    src/base/Makefile
+    src/base/find_data/Makefile
+    src/base/file/Makefile
+    src/base/pipe/Makefile
+    src/base/base64/Makefile
+    src/base/mem_buff/Makefile
+    src/base/home_dir/Makefile
+    src/base/multicast/Makefile
+    src/base/sync/Makefile
+    src/base/safetime/Makefile
+    src/base/socket/Makefile
+    src/base/hash_map/Makefile
+    src/base/dynamic_lib/Makefile
+    src/base/process/Makefile
+    src/base/md5/Makefile
+    src/base/ssl/Makefile
+    src/base/xml/Makefile
+    src/base/files_cache/Makefile
+    src/base/string/Makefile
+    src/base/regex/Makefile
+    src/base/thread/Makefile
+    src/protocol/Makefile
+    src/protocol/ftp/Makefile
+    src/protocol/control/Makefile
+    src/protocol/https/Makefile
+    src/protocol/http/Makefile
+    src/protocol/http/env/Makefile
+    src/filter/Makefile
+    src/filter/gzip/Makefile
+    src/plugin/Makefile
+    src/plugin/executor/Makefile
+    src/plugin/http_manager/Makefile
+    src/plugin/protocol/Makefile
+    src/plugin/filter/Makefile
+    src/plugin/http_command/Makefile
+    src/server/Makefile
     tests/Makefile
     ])
 AC_OUTPUT

@@ -38,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 extern "C" 
 {
 #ifdef WIN32
-#include <Ws2tcpip.h>
+  //#include <Ws2tcpip.h>
 #include <direct.h>
 #endif
 #ifdef NOT_WIN
@@ -66,7 +66,9 @@ extern "C"
 #define MAKEWORD(a, b) ((WORD) (((BYTE) (a)) | ((WORD) ((BYTE) (b))) << 8))
 #endif
 
+#if HAVE_IPV6
 const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
+#endif
 
 /*!
  *At startup the server instance is null.
@@ -1139,15 +1141,18 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
   /* Port used by the client.  */
     if ( asockIn->ss_family == AF_INET )
       port = ntohs(((sockaddr_in *)(asockIn))->sin_port);
+#if HAVE_IPV6
   else
     port = ntohs(((sockaddr_in6 *)(asockIn))->sin6_port);
+#endif
 
   /* Port used by the server. */
-    if ( localSockIn.ss_family == AF_INET )
+  if ( localSockIn.ss_family == AF_INET )
       myPort = ntohs(((sockaddr_in *)(&localSockIn))->sin_port);
+#if HAVE_IPV6
   else
     myPort = ntohs(((sockaddr_in6 *)(&localSockIn))->sin6_port);
-
+#endif
 
   if(!addConnectionToList(&s, asockIn, &ip[0], &localIp[0], port, myPort, 1))
   {

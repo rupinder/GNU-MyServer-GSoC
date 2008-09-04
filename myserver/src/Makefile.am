@@ -10,22 +10,22 @@ SUBDIRS = base conf connection connections_scheduler filter\
 
 libmyserver.a:
 	rm -f libmyserver.a
-	find -iregex .*\\.o | xargs ar cru libmyserver.a
-	ranlib libmyserver.a
+	find -iregex .*\\.o | xargs $(AR) cru libmyserver.a
+	$(RANLIB) libmyserver.a
 
 bin_PROGRAMS = myserver
 myserver_SOURCES = myserver.cpp
 
 INCLUDES = $(all_includes)
 
-myserver_LDADD =  	$(all_libraries) $(PTHREAD_LIB) $(IDN_LIB) \
-										$(XNET_LIB) $(EVENT_LIB) $(DL_LIB) $(OPENSSL_LIB) $(ZLIB_LIB) \
-										$(XML_LIBS)
+myserver_LDADD = libmyserver.a $(all_libraries) $(PTHREAD_LIB) $(IDN_LIB) \
+	$(XNET_LIB) $(EVENT_LIB) $(DL_LIB) $(OPENSSL_LIB) $(ZLIB_LIB) \
+	$(XML_LIBS) $(LDFLAGS)
 
 myserver_DEPENDENCIES = libmyserver.a
 
 myserver_CXXFLAGS = $(CXXFLAGS) $(XML_CFLAGS) -DHOST_STR=\"$(build)\" -DPREFIX=\"$(prefix)\"
-myserver_LDFLAGS =  -rdynamic libmyserver.a
+myserver_LDFLAGS =  -rdynamic
 
 build_parser: protocol/ftp/ftp_lexer.lpp protocol/ftp/ftp_parser.ypp
 	bison --defines=../include/protocol/ftp/ftp_parser.h protocol/ftp/ftp_parser.ypp

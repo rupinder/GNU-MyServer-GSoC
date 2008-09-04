@@ -38,7 +38,7 @@ struct TestMutexThreadArg
 };
 
 #ifdef WIN32
-unsigned int __stdcall test_mutex_incremented(void* pParam)
+unsigned int __stdcall test_mutex_incrementer(void* pParam)
 #endif
 #ifdef HAVE_PTHREAD
 void* test_mutex_incrementer(void* pParam)

@@ -39,7 +39,7 @@ using namespace std;
 #ifndef SOCKETLIBINCLUDED
 extern "C"
 {
-#include <Ws2tcpip.h>
+  //#include <ws2tcpip.h>
 #include <winsock2.h>
 }
 #define SOCKETLIBINCLUDED
