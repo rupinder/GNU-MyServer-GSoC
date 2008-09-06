@@ -364,7 +364,7 @@ else
 fi
 
 if test "x$enable_cygwin" = "xyes"; then
-   LDFLAGS="$LDFLAGS -levent_extra -levent_core  -lws2_32 -lgdi32 -lrx -luserenv -lole32  -luuid" 
+   LDFLAGS="$LDFLAGS -levent_extra -levent_core  -lws2_32 -lgdi32 -lrx -luserenv -lole32  -luuid -ly" 
 fi
 
 AC_SUBST(CFLAGS)
