@@ -26,9 +26,7 @@ from xml.dom.minidom import Node
 
 import string
  
-PKG_NAME = "MyServer"
-MYSERVER_VERSION = "0.9.0"
-PKG_VERSION = MYSERVER_VERSION + "-" + "rc2"
+MYSERVER_VERSION = "GNU MyServer 0.9.0"
 
 SVN_TRUNK = "svn://svn.savannah.gnu.org/myserver/trunk"
 HOMEPAGE = "http://www.gnu.org/software/myserver/"
@@ -39,7 +37,7 @@ prefix = ARGUMENTS.get('prefix', "")
 ddir = ARGUMENTS.get('destdir', "#/release")
 plugin = ARGUMENTS.get('plugin', "")
 
-destdir = ddir + "/" + PKG_NAME.lower() + "-" + PKG_VERSION
+destdir = ddir
 
 listinc=[
       '/usr/local/include',
@@ -112,8 +110,6 @@ if  not env.GetOption('clean'):
     if not conf.__dict__.has_key('Define'):
         conf.Define = Define_helper
 
-    conf.Define("PACKAGE_NAME", '"' + PKG_NAME + '"')
-    conf.Define("PACKAGE_VERSION", '"' + PKG_VERSION + '"')
     conf.Define("MYSERVER_VERSION", '"' + MYSERVER_VERSION + '"')
 
     if not conf.CheckLib("libxml2"):
@@ -311,7 +307,7 @@ if command == "install" or command == "package":
 
     #Prepare the package.
     if command == "package":
-        filename = PKG_NAME.lower() + "-" + PKG_VERSION + ".tar.gz"
+        filename = MYSERVER_VERSION.lower() + ".tar.gz"
         env = Environment(TARFLAGS = '-c -z')
         env.Tar(ddir + "/" + filename, destdir)
 

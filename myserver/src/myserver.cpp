@@ -58,14 +58,6 @@ void removeService();
 void RunAsService();
 static char *path;
 
-/*
- *Change this to reflect the version of the software.
- */
-#ifdef MYSERVER_VERSION
-const char *versionOfSoftware = MYSERVER_VERSION;
-#else
-const char *versionOfSoftware = "0.9.0";
-#endif
 int argn;
 char **argv;
 void registerSignals();
@@ -276,7 +268,7 @@ int main (int argn, char **argv)
   /* If the version flag is up, show the version and exit.  */
   if(input.version)
   {
-    cout << "GNU MyServer "<< versionOfSoftware << endl;
+    cout << MYSERVER_VERSION << endl;
     
     cout 
 #ifdef __DATE__
@@ -292,7 +284,7 @@ int main (int argn, char **argv)
   {       
     if(!strcmpi(argv[1], "VERSION"))
     {
-      cout << "MyServer " << versionOfSoftware << endl;
+      cout << MYSERVER_VERSION << endl;
       return 0;
     }
     if(!strcmpi(argv[1], "CONSOLE"))

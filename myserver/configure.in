@@ -1,7 +1,6 @@
-dnl MySever configuration script
+dnl GNU MySever configuration script
 dnl
-dnl MyServer
-dnl http://www.myserverproject.net/
+dnl GNU MyServer
 dnl
 dnl Copyright (C) 2002-2008 Free Software Foundation, Inc.
 dnl This program is free software; you can redistribute it and/or modify
@@ -17,7 +16,7 @@ dnl
 dnl You should have received a copy of the GNU General Public License
 dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-AC_INIT([MyServer], [0.9.0-rc2], [http://www.myserverproject.net/])
+AC_INIT([MyServer], [0.9.0-rc2], [bug-myserver@gnu.org])
 AC_PREREQ([2.50])
 AM_CONFIG_HEADER(config.h)
 CFLAGS="${CFLAGS=}"
@@ -33,7 +32,7 @@ MYSERVER_MAJOR_VERSION=0
 MYSERVER_MINOR_VERSION=9
 MYSERVER_MICRO_VERSION=0
 
-MYSERVER_VERSION="${MYSERVER_MAJOR_VERSION}.${MYSERVER_MINOR_VERSION}.${MYSERVER_MICRO_VERSION}"
+MYSERVER_VERSION="GNU MyServer ${MYSERVER_MAJOR_VERSION}.${MYSERVER_MINOR_VERSION}.${MYSERVER_MICRO_VERSION}"
 
 AC_SUBST(MYSERVER_MAJOR_VERSION)
 AC_SUBST(MYSERVER_MINOR_VERSION)

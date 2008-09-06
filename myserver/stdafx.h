@@ -80,7 +80,6 @@ typedef unsigned short u_short;
 typedef unsigned char u_char;
 
 typedef void* HANDLE;
-extern const char *versionOfSoftware;
 
 #ifndef SOCKET_ERROR
 #define SOCKET_ERROR -1

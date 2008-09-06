@@ -487,8 +487,8 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
   }
 
   td->buffer2->setLength(0);
-  *td->buffer2 << "</table>\r\n<hr />\r\n<address>GNU MyServer " 
-               << versionOfSoftware;
+  *td->buffer2 << "</table>\r\n<hr />\r\n<address>"
+               << MYSERVER_VERSION;
               
   if(host && host->value->length())
   {    

@@ -162,8 +162,8 @@ void Server::start()
     try
     {
       string softwareSignature;
-      softwareSignature.assign("************GNU MyServer ");
-      softwareSignature.append(versionOfSoftware);
+      softwareSignature.assign("************");
+      softwareSignature.append(MYSERVER_VERSION);
       softwareSignature.append("************");
 
       i = softwareSignature.length();

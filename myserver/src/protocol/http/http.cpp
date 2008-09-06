@@ -94,19 +94,19 @@ int Http::optionsHTTPRESOURCE(string& /*filename*/, int /*yetmapped*/)
     td->buffer2->setLength(0);
     *td->buffer2 <<  "HTTP/1.1 200 OK\r\n";
     *td->buffer2 << "Date: " << time ;
-    *td->buffer2 <<  "\r\nServer: MyServer "  << versionOfSoftware ;
+    *td->buffer2 <<  "\r\nServer: "<< MYSERVER_VERSION;
     if(connection && connection->value->length())
-      *td->buffer2 << "\r\nConnection:" << connection->value->c_str() ;
-    *td->buffer2 <<"\r\nContent-Length: 0\r\nAccept-Ranges: bytes\r\n";
-    *td->buffer2 << "Allow: " << methods;
+      *td->buffer2 << "\r\nConnection:" << connection->value->c_str() << "\r\n";
+    *td->buffer2 <<"Content-Length: 0\r\nAccept-Ranges: bytes\r\n";
+    *td->buffer2 << "Allow: " << methods << "\r\n";
 
     /*!
      *Check if the TRACE command is allowed on the virtual host.
      */
     if(allowHTTPTRACE())
-      *td->buffer2 << ", TRACE\r\n\r\n";
-    else
-      *td->buffer2 << "\r\n\r\n";
+      *td->buffer2 << ", TRACE\r\n";
+
+    *td->buffer2 << "r\n";
 
     /*! Send the HTTP header. */
     ret = td->connection->socket->send(td->buffer2->getBuffer(),
@@ -143,14 +143,14 @@ int Http::traceHTTPRESOURCE(string& /*filename*/, int /*yetmapped*/)
       return raiseHTTPError(401);
     td->buffer2->setLength(0);
     *td->buffer2 << "HTTP/1.1 200 OK\r\n";
-    *td->buffer2 << "Date: " << time ;
-    *td->buffer2 << "\r\nServer: MyServer " << versionOfSoftware ;
+    *td->buffer2 << "Date: " << time << "\r\n";
+    *td->buffer2 << "Server: " << MYSERVER_VERSION  << "\r\n";
     connection = td->request.other.get("Connection");
     if(connection && connection->value->length())
-      *td->buffer2 << "\r\nConnection:" << connection->value->c_str();
-    *td->buffer2 <<"\r\nContent-Length:" << tmp
-                << "\r\nContent-Type: message/http\r\n"
-                << "Accept-Ranges: bytes\r\n\r\n";
+      *td->buffer2 << "Connection:" << connection->value->c_str() << "\r\n";
+    *td->buffer2 <<"Content-Length:" << tmp << "\r\n"
+                 << "Content-Type: message/http\r\n"
+                 << "Accept-Ranges: bytes\r\n\r\n";
 
     /*! Send our HTTP header.  */
     ret = td->connection->socket->send(td->buffer2->getBuffer(),
@@ -1856,11 +1856,13 @@ int Http::requestAuthorization()
   td->response.httpStatus = 401;
   td->buffer2->setLength(0);
   *td->buffer2 << "HTTP/1.1 401 Unauthorized\r\n"
-              << "Accept-Ranges: bytes\r\nServer: MyServer " ;
-  *td->buffer2 << versionOfSoftware ;
-  *td->buffer2 << "\r\nContent-Type: text/html\r\nConnection: ";
+               << "Accept-Ranges: bytes\r\n";
+  *td->buffer2 << "Server: " << MYSERVER_VERSION << "\r\n";
+  *td->buffer2 << "Content-Type: text/html\r\n"
+               << "Connection: ";
   *td->buffer2 << (connection ? connection->value->c_str() : "");
   *td->buffer2 << "\r\nContent-Length: 0\r\n";
+
   if(td->authScheme == HTTP_AUTH_SCHEME_BASIC)
   {
     *td->buffer2 <<  "WWW-Authenticate: Basic realm=\""
@@ -2131,9 +2133,9 @@ Internal Server Error\n\
   *td->buffer << td->connection->getIpAddr() ;
   *td->buffer << "\r\n";
   td->buffer2->setLength(0);
-  *td->buffer2 << "HTTP/1.1 500 System Error\r\nServer: MyServer ";
-  *td->buffer2 << versionOfSoftware;
-  *td->buffer2 <<" \r\nContent-Type: text/html\r\nContent-Length: ";
+  *td->buffer2 << "HTTP/1.1 500 System Error\r\n";
+  *td->buffer2 << "Server: " << MYSERVER_VERSION << "\r\n";
+  *td->buffer2 <<" Content-Type: text/html\r\nContent-Length: ";
   tmp.intToStr((int)strlen(hardHTML), tmpStr, 12);
   *td->buffer2 << tmp;
   *td->buffer2 << "\r\n";
@@ -2262,7 +2264,7 @@ int Http::sendHTTPRedirect(const char *newURL)
   td->response.httpStatus = 302;
   td->buffer2->setLength(0);
   *td->buffer2 << "HTTP/1.1 302 Moved\r\nAccept-Ranges: bytes\r\n"
-              << "Server: MyServer "  << versionOfSoftware << "\r\n"
+              << "Server: "  << MYSERVER_VERSION << "\r\n"
               << "Content-Type: text/html\r\n"
               << "Location: " << newURL << "\r\n"
               << "Content-Length: 0\r\n";
@@ -2294,7 +2296,7 @@ int Http::sendHTTPNonModified()
   td->response.httpStatus = 304;
   td->buffer2->setLength(0);
   *td->buffer2 << "HTTP/1.1 304 Not Modified\r\nAccept-Ranges: bytes\r\n"
-              << "Server: MyServer "  << versionOfSoftware <<  "\r\n";
+              << "Server: "  << MYSERVER_VERSION << "\r\n";
 
   if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
     *td->buffer2 << "Connection: keep-alive\r\n";

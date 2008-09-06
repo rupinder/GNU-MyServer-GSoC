@@ -37,8 +37,8 @@ Libs=
 PrivateResource=myserver_private.rc
 ResourceIncludes=
 MakeIncludes=
-Compiler=
-CppCompiler=
+Compiler=-DMYSERVER_VERSION=\"GNU MyServer 0.9\"
+CppCompiler=-DMYSERVER_VERSION=\"GNU MyServer 0.9\"
 Linker=-lz.dll -llibxml2 -liconv -lintl -lssl -lcrypto -lrx -lgdi32 -lwininet -lwsock32 -luserenv -levent -rdynamic_@@_
 IsCpp=1
 Icon=
@@ -63,11 +63,11 @@ Release=0
 Build=3
 LanguageID=1033
 CharsetID=1252
-CompanyName=MyServer Project
+CompanyName=Free Software Foundation Inc.
 FileVersion=0.9.0
-FileDescription=MyServer webserver
+FileDescription=GNU MyServer webserver
 InternalName=
-LegalCopyright=MyServer Team
+LegalCopyright=Free Software Foundation Inc.
 LegalTrademarks=
 OriginalFilename=myserver.exe
 ProductName=MyServer

@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/md5/md5.h>
 #include <include/server/server.h>
 #include <include/base/find_data/find_data.h>
+#include <include/base/string/securestr.h>
 #include <include/plugin/protocol/protocols_manager.h>
 #include <include/protocol/control/control_errors.h>
 #include <include/base/string/stringutils.h>
@@ -42,8 +43,6 @@ extern "C"
 #include <sstream>
 
 using namespace std;
-
-extern const char *versionOfSoftware;
 
 char ControlProtocol::adminLogin[64] = "";
 char ControlProtocol::adminPassword[64] = "";
@@ -104,10 +103,10 @@ int ControlProtocol::loadProtocol(XmlParser* languageParser)
   tmpPassword[0]='\0';
   Md5 md5;
 
-  /*! Is the value in the config file still in MD5? */
+  /* Is the value in the config file still in MD5?  */
   int adminNameMD5ized = 0;
 
-  /*! Is the value in the config file still in MD5? */
+  /* Is the value in the config file still in MD5?  */
   int adminPasswordMD5ized = 0;
 
   char *data = 0;
@@ -126,26 +125,26 @@ int ControlProtocol::loadProtocol(XmlParser* languageParser)
     controlEnabled = 0;
   }
 
-  data=configurationFileManager.getValue("CONTROL_ADMIN");
+  data = configurationFileManager.getValue("CONTROL_ADMIN");
   if(data)
   {
     strncpy(tmpName, data, 64);
   }  
 
-  data=configurationFileManager.getValue("CONTROL_PASSWORD");
+  data = configurationFileManager.getValue("CONTROL_PASSWORD");
   if(data)
   {
     strncpy(tmpPassword, data, 64);
   }  
 
-  data=configurationFileManager.getAttr("CONTROL_ADMIN", "MD5");
+  data = configurationFileManager.getAttr("CONTROL_ADMIN", "MD5");
   if(data)
   {
     if(strcmpi(data, "YES") == 0)
       adminNameMD5ized = 1;
   }  
 
-  data=configurationFileManager.getAttr("CONTROL_PASSWORD", "MD5");
+  data = configurationFileManager.getAttr("CONTROL_PASSWORD", "MD5");
   if(data)
   {
     if(strcmpi(data, "YES") == 0)
@@ -174,7 +173,6 @@ int ControlProtocol::loadProtocol(XmlParser* languageParser)
     md5.end(adminPassword);
   }
 
-  
   configurationFileManager.close();
   return 0;
 }
@@ -234,17 +232,16 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
   /* Output file. */
   File *Ofile = 0;
 
-
   /* Use control_header to parse the request. */
   ControlHeader header;
 
-  /*! Is the specified command a know one? */
+  /* Is the specified command a know one? */
   int knownCommand;
   if(a->getToRemove())
   {
     switch(a->getToRemove())
     {
-      /*! Remove the connection from the list. */
+      /* Remove the connection from the list. */
       case CONNECTION_REMOVE_OVERLOAD:
         sendResponse(b2, bs2, a, CONTROL_SERVER_BUSY, header, 0);
         return 0;
@@ -256,7 +253,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
 
   ret = header.parse_header(b1, nbtr, &realHeaderLength);
 
-  /*! 
+  /*
    *On errors remove the connection from the connections list.
    *For return values look at protocol/control/control_errors.h.
    *Returning 0 from the controlConnection we will remove the connection
@@ -264,7 +261,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
    */
   if(ret != CONTROL_OK)
   {
-    /*! parse_header returns -1 on an incomplete header. */
+    /* parse_header returns -1 on an incomplete header.  */
     if(ret == -1)
     {
       return 2;
@@ -318,10 +315,10 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     }
   }
 
-  /*! Check if there are other bytes waiting to be read. */
+  /* Check if there are other bytes waiting to be read. */
   if(specified_length && (specified_length != static_cast<int>(nbtr - realHeaderLength) ))
   {
-    /*! Check if we can read all the specified data. */
+    /* Check if we can read all the specified data. */
     while(specified_length != static_cast<int>(nbtr - realHeaderLength))
     {
       if(a->socket->bytesToRead())
@@ -368,7 +365,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
       }
       else
       {
-        /*! Wait a bit. */
+        /* Wait a bit.  */
         Thread::wait(2);
       }
     }
@@ -395,10 +392,10 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
      
   authorized = checkAuth(header);
 
-  /*! 
+  /* 
    *If the client is not authorized remove the connection.
    */
-  if(authorized ==0)
+  if(authorized == 0)
   {
     strcpy(b2,"Control: Bad authorization");
     addToErrorLog(a,b2, strlen(b2), header);
@@ -412,7 +409,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     sendResponse(b2, bs2, a, CONTROL_AUTH, header, 0);
     return 0;
   }
-  /*! 
+  /*
    *If the specified length is different from the length that the 
    *server can read, remove the connection.
    */
@@ -436,7 +433,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
 
   knownCommand = 0;
 
-  /*! 
+  /* 
    *Create an out file. This can be used by commands that
    *needs it.
    */
@@ -556,7 +553,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     FilesUtility::deleteFile(IfilePath.str().c_str());
     FilesUtility::deleteFile(OfilePath.str().c_str());
     connection = header.getConnection();
-    /*! 
+    /* 
      *If the Keep-Alive was specified keep the connection in the
      *active connections list.
      */
@@ -598,7 +595,7 @@ int ControlProtocol::addToErrorLog(ConnectionPtr con, const char *b1, int bs1,
   string time;
   ostringstream out;
   ThreadID id = Thread::threadID();
-  /*!
+  /*
    *Check that the verbosity is at least 1.
    */
   if(Server::getInstance()->getVerbosity() < 1)
@@ -660,7 +657,7 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
   }
   if(outFile)
     dataLength = outFile->getFileSize();
-  /*! Build and send the first line. */
+  /* Build and send the first line.  */
 #ifdef HAVE_SNPRINTF
   snprintf(buffer, buffersize,
 #else
@@ -675,7 +672,7 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
     return -1;
   }
 
-  /*! Build and send the Length line. */
+  /* Build and send the Length line.  */
 #ifdef HAVE_SNPRINTF
   snprintf(buffer, buffersize,
 #else
@@ -691,7 +688,7 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
     return -1;
   }
 
-  /*! Send the end of the header. */
+  /* Send the end of the header.  */
   err = conn->socket->send("\r\n", 2, 0);
   if(err == -1)
   {
@@ -700,7 +697,7 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
     return -1;
   }
 
-  /*! Flush the content of the file if any. */
+  /* Flush the content of the file if any.  */
   if(dataLength)
   {
     int dataToSend = dataLength;
@@ -864,10 +861,10 @@ int ControlProtocol::getFile(ConnectionPtr a, char* fn, File* in,
   const char *filename = 0;
   File localfile;
   int ret = 0;
-  /*! # of bytes read. */
+  /* # of bytes read.  */
   u_long nbr = 0;
 
-  /*! # of bytes written. */
+  /* # of bytes written.  */
   u_long nbw = 0;
 
   if(!strcmpi(fn, "myserver.xml"))
@@ -884,7 +881,7 @@ int ControlProtocol::getFile(ConnectionPtr a, char* fn, File* in,
   }
   else if(!FilesUtility::fileExists(fn))
   {
-    /*! If we cannot find the file send the right error ID. */
+    /* If we cannot find the file send the right error ID.  */
     string msg;
     msg.assign("Control: Requested file doesn't exist ");
     msg.append(fn);
@@ -898,7 +895,7 @@ int ControlProtocol::getFile(ConnectionPtr a, char* fn, File* in,
   
   ret = localfile.openFile(filename, File::MYSERVER_OPEN_READ | File::MYSERVER_OPEN_IFEXISTS);
 
-  /*! An internal server error happens. */
+  /* An internal server error happens.  */
   if(ret)
   {
     string msg;
@@ -919,7 +916,7 @@ int ControlProtocol::getFile(ConnectionPtr a, char* fn, File* in,
       return CONTROL_INTERNAL;
     }
 
-    /*! Break the loop when we can't read no more data.*/
+    /* Break the loop when we can't read no more data.  */
     if(!nbr)
       break;
     
@@ -950,9 +947,9 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
   File localfile;
   int isAutoRebootToEnable = Server::getInstance()->isAutorebootEnabled();
   int ret = 0;
-  /*! # of bytes read. */
+  /*! # of bytes read.  */
   u_long nbr = 0;
-  /*! # of bytes written. */
+  /*! # of bytes written.  */
   u_long nbw = 0;
   Server::getInstance()->disableAutoReboot();
   if(!strcmpi(fn, "myserver.xml"))
@@ -972,10 +969,10 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
     filename = fn;    
   }  
 
-  /*! Remove the file before create it. */
+  /* Remove the file before create it.  */
   ret = FilesUtility::deleteFile(filename);
 
-  /*! An internal server error happens. */
+  /* An internal server error happens.  */
   if(ret)
   {
     strcpy(b1,"Control: Error deleting the file");
@@ -989,7 +986,7 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
 
   ret = localfile.openFile(filename, File::MYSERVER_OPEN_WRITE | File::MYSERVER_OPEN_ALWAYS);
 
-  /*! An internal server error happens. */
+  /* An internal server error happens.  */
   if(ret)
   {
     string msg;
@@ -1016,7 +1013,7 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
       return CONTROL_INTERNAL;
     }
 
-    /*! Break the loop when we can't read no more data.*/
+    /* Break the loop when we can't read no more data.  */
     if(!nbr)
       break;
     
@@ -1075,7 +1072,7 @@ int ControlProtocol::showLanguageFiles(ConnectionPtr a, File* out,
     string filename;
     string ext;
     u_long nbw = 0;
-    /*! Do not show files starting with a dot. */
+    /* Do not show files starting with a dot.  */
     if(fd.name[0]=='.')
       continue;
  
@@ -1105,16 +1102,12 @@ int ControlProtocol::showLanguageFiles(ConnectionPtr a, File* out,
 /*!
  *Return the current MyServer version.
  */
-int ControlProtocol::getVersion(ConnectionPtr a, File* out, char *b1,int bs1, 
+int ControlProtocol::getVersion(ConnectionPtr a, File* out, char *b1, int bs1, 
                                 ControlHeader& header)
 {
   u_long nbw;
-#ifdef HAVE_SNPRINTF
-  snprintf(b1, bs1,
-#else
-  sprintf(b1, 
-#endif
-          "MyServer %s", versionOfSoftware);
+  
+  myserver_strlcpy(b1, MYSERVER_VERSION, bs1);
  
   return out->writeToFile(b1, strlen(b1), &nbw);
 }

@@ -713,7 +713,7 @@ BOOL Isapi::buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
   if(valLen + 30 < maxLen)
     valLen += sprintf(&ValStr[valLen], 
                       "SERVER_SIGNATURE:<address>%s</address>\n",
-                      versionOfSoftware);
+                      MYSERVER_VERSION);
   else if(valLen + 30 < maxLen) 
     return 0;
 
