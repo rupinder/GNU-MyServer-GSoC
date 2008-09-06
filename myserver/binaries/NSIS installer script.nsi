@@ -1,4 +1,4 @@
-;NSIS Installation script for MyServer
+;NSIS Installation script for GNU MyServer
 
 !include "MUI2.nsh"
 
@@ -9,11 +9,11 @@ OutFile "MyServer-win32-0.9.0.exe"
 
 ; Versioning Information
 VIProductVersion "0.9.0.3"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName"         "MyServer"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "Comments"            "www.myserverproject.net"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName"         "MyServer Project"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright"      "MyServer Project"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription"     "MyServer webserver"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName"         "GNU MyServer"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "Comments"            "www.gnu.org/software/myserver/"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName"         "Free Software Foundation Inc."
+VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright"      "GNU MyServer"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription"     "GNU MyServer webserver"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion"         "0.9.0.3"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion"      "0.9.0.3"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "InternalName"        ""
@@ -191,16 +191,9 @@ Section "MyServer core" SecCore
   SetOutPath $INSTDIR
   WriteUninstaller "uninstall.exe"
   File "myserver.exe"
-  File "libxml2.dll"
-  File "iconv.dll"
-  File "libiconv-2.dll"
-  File "charset.dll"
-;  File "libpng13.dll"
-  File "zlib1.dll"
-  File "libssl32.dll"
-  File "intl.dll"
-  File "rx.dll"
-  File "libeay32.dll"
+  File  "libiconv-2.dll" 
+  File "libidn-11.dll"
+  File  "libxml2-2.dll"
   File "MIMEtypes.xml.default"
   File "myserver.xml.default"
   File "virtualhosts.xml.default"
@@ -268,7 +261,7 @@ SectionEnd
 Section "MyServer center" SecControl
   DetailPrint "Control Center Application"
   SetOutPath $INSTDIR
-  File "Myserver Configure.exe"
+  File "myserver-configure.exe"
   File "myserver.ico"
   CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Control Center.lnk" "$INSTDIR\Myserver Configure.exe"
 SectionEnd
@@ -316,7 +309,6 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCore} "Install the MyServer core application(this element is required)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecDocumentation} "Install the MyServer documentation"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecControl} "Install the Control Center application(the installation of this element is highly recommended)"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecMSCGI} "Copy the MyServer MSCGI library(premature status yet)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecLanguages} "Copy all the languages files(by default only the english language is copied)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecWebEx} "Install some web examples"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecService} "Install MyServer like a service (loaded automatically on startup)"
