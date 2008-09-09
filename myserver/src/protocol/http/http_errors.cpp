@@ -25,6 +25,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Mutex HttpErrors::mutex;
 HashMap<int, const char*> HttpErrors::messagesMap;
 
+bool HttpErrors::loaded = false;
+
+
 /*!
  *Get an error page from its error code.
  *\param statusCode The HTTP error.
@@ -79,6 +82,10 @@ void HttpErrors::putMessage(int id, const char* msg)
  */
 void HttpErrors::load()
 {
+  if(loaded)
+    return;
+
+  loaded = true;
 
   /* INFORMATIONAL.  */
   putMessage(100, "Continue");  

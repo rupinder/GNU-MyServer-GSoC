@@ -2378,6 +2378,7 @@ int Http::loadProtocolStatic(XmlParser* languageParser)
   staticHttp.browseDirCSSpath.assign("");
 
   Server::getInstance()->setGlobalData("http-static", getStaticData());
+
   /* Load the HTTP errors.  */
   HttpErrors::load();
 
