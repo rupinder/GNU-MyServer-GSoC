@@ -729,14 +729,20 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     filename.assign(uri);
     td->buffer->setLength(0);
 
-    if(!systemrequest)
+    if(systemrequest)
+    {
+      td->filenamePath.assign(uri);
+
+      getFilePermissions(filename, directory, file, 
+                         td->filenamePath, 1, &permissions);
+
+    }
+    else
     {
       ret = Http::preprocessHttpRequest(filename, yetmapped, &permissions);
 
       if(ret != 200)
-      {
         return raiseHTTPError(ret);
-      }
     }
 
     /* The security file doesn't exist in any case.  */
@@ -875,7 +881,20 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     }
 
     if(!FilesUtility::fileExists(td->filenamePath.c_str()))
+    {
+      if(systemrequest)
+      {
+        string error;
+        error.assign("Http: cannot find system request file ");
+        error.append(td->filenamePath);
+
+        td->connection->host->warningsLogRequestAccess(td->id);
+        td->connection->host->warningsLogWrite(error.c_str());
+        td->connection->host->warningsLogTerminateAccess(td->id);
+      }
+
       return raiseHTTPError(404);
+    }
 
     /*!
      *getMIME returns the type of command registered by the extension.
@@ -1962,6 +1981,7 @@ int Http::raiseHTTPError(int ID)
     HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
     const char *useMessagesVal = td->connection->host ?
       td->connection->host->getHashedData("USE_ERROR_FILE") : 0;
+
     if(useMessagesVal)
     {
       if(!strcmpi(useMessagesVal, "YES"))
@@ -1971,7 +1991,12 @@ int Http::raiseHTTPError(int ID)
      }
 
     if(td->lastError)
+    {
+      td->connection->host->warningsLogRequestAccess(td->id);
+      td->connection->host->warningsLogWrite("Http: recursive error ");
+      td->connection->host->warningsLogTerminateAccess(td->id);
       return sendHTTPhardError500();
+    }
 
     td->lastError = ID;
 
@@ -1989,18 +2014,16 @@ int Http::raiseHTTPError(int ID)
      *of the virtual host.
      */
     if(td->connection->host)
-      ret = staticHttp.secCache.getErrorFileName(td->getVhostDir(), ID,
-                                      td->getVhostSys(), defFile);
+      ret = staticHttp.secCache.getErrorFileName(td->getVhostDir(), 
+                                                 ID,
+                                                 td->getVhostSys(), 
+                                                 defFile);
     else
       ret = -1;
 
     staticHttp.secCacheMutex.unlock();
 
-    if(ret == -1)
-    {
-      useMessagesFiles = 0;
-    }
-    else if(ret)
+    if(ret > 0)
     {
       ostringstream nURL;
       int isPortSpecified = 0;
@@ -2019,6 +2042,7 @@ int Http::raiseHTTPError(int ID)
       }
       if(!isPortSpecified)
         nURL << ":" << td->connection->host->getPort();
+
       if(nURL.str()[nURL.str().length()-1] != '/')
         nURL << "/";
 
@@ -2036,21 +2060,29 @@ int Http::raiseHTTPError(int ID)
     getRFC822GMTTime(time, HTTP_RESPONSE_DATE_EXPIRES_DIM);
     td->response.dateExp.assign(time);
 
+    if(useMessagesFiles)
     {
       string page;
       HttpErrors::getErrorMessage(ID, td->response.errorType);
       HttpErrors::getErrorPage(ID, page);
       errorFile << td->getVhostSys() << "/" << page;
-    }
 
-    if(useMessagesFiles && FilesUtility::fileExists(errorFile.str().c_str()))
-    {
-      string tmp;
-      HttpErrors::getErrorPage(ID, tmp);
-      return sendHTTPResource(tmp, 1, td->onlyHeader);
+      if(FilesUtility::fileExists(errorFile.str().c_str()))
+      {
+        string errorFileStr = errorFile.str();
+        return sendHTTPResource(errorFileStr, 1, td->onlyHeader);
+      }
+      else
+      {
+        string error = "Http: The specified error page " + errorFile.str() + " does not exist";
+        td->connection->host->warningsLogRequestAccess(td->id);
+        td->connection->host->warningsLogWrite(error.c_str());
+        td->connection->host->warningsLogTerminateAccess(td->id);
+      }
     }
 
     HttpErrors::getErrorMessage(ID, errorMessage);
+
     /*! Send only the header (and the body if specified). */
     {
       const char* value = td->connection->host ? 
@@ -2063,15 +2095,10 @@ int Http::raiseHTTPError(int ID)
       else
       {
         ostringstream size;
-
         errorBodyMessage << ID << " - " << errorMessage << "\r\n";
-
         errorBodyLength = errorBodyMessage.str().length();
-
         size << errorBodyLength;
-
         td->response.contentLength.assign(size.str());
-
       }
     }
     HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
