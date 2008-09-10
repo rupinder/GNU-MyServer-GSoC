@@ -220,8 +220,8 @@ private:
   HashMap<string, string*> hashedData;
   NULL_REFERENCECB nullReferenceCb;
   Mutex refMutex;
-	LogManager warningsLogFile;
-	LogManager accessesLogFile;
+	LogManager *warningsLogFile;
+	LogManager *accessesLogFile;
 
   MimeManager mimeManager;
 

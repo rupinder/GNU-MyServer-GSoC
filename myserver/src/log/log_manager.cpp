@@ -202,7 +202,7 @@ int LogManager::write(const char *str, int len)
  */
 void LogManager::setGzip(bool useGzip)
 {
-  gzipLog=useGzip;
+  gzipLog = useGzip;
 }
 
 /*!

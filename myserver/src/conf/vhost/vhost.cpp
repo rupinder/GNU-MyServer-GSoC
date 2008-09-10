@@ -73,8 +73,11 @@ Vhost::~Vhost()
   
   warningsLogFileName.assign("");
  
-  warningsLogFile.close();
-  accessesLogFile.close();
+  warningsLogFile->close();
+  accessesLogFile->close();
+
+  delete warningsLogFile;
+  delete accessesLogFile;
   
   documentRoot.assign("");
   systemRoot.assign("");
@@ -159,39 +162,43 @@ int Vhost::openLogFiles(u_long maxlogSize)
 {
   const char* accessesLogFileName = getAccessesLogFileName();
   const char* warningsLogFileName = getWarningsLogFileName();
+
+  accessesLogFile = new LogManager();
+  warningsLogFile = new LogManager();
+
   if(accessesLogFileName)
   {
-    accessesLogFile.load(accessesLogFileName);
+    accessesLogFile->load(accessesLogFileName);
     
     if(strstr(getAccessLogOpt(), "cycle=yes"))
     {
-      accessesLogFile.setCycleLog(1);
+      accessesLogFile->setCycleLog(1);
     }
     if(strstr(getAccessLogOpt(), "cycle_gzip=no"))
     {
-      accessesLogFile.setGzip(0);
+      accessesLogFile->setGzip(0);
     }
     else
     {
-      accessesLogFile.setGzip(1);
+      accessesLogFile->setGzip(1);
     }  
   }
 
   if(warningsLogFileName)
   {
-    warningsLogFile.load(warningsLogFileName);
+    warningsLogFile->load(warningsLogFileName);
     if(strstr(getWarningLogOpt(), "cycle=yes"))
     {
-      warningsLogFile.setCycleLog(1);
+      warningsLogFile->setCycleLog(1);
     }
   
     if(strstr(getWarningLogOpt(), "cycle_gzip=no"))
     {
-      warningsLogFile.setGzip(0);
+      warningsLogFile->setGzip(0);
     }
     else
     {
-      warningsLogFile.setGzip(1);
+      warningsLogFile->setGzip(1);
     }
   }
 
@@ -399,7 +406,7 @@ void Vhost::addHost(const char *host, int isRegex)
  */
 u_long Vhost::accessesLogRequestAccess(int id)
 {
-  accessesLogFile.requestAccess();
+  accessesLogFile->requestAccess();
   return 0;
 }
 
@@ -409,7 +416,7 @@ u_long Vhost::accessesLogRequestAccess(int id)
  */
 u_long Vhost::warningsLogRequestAccess(int id)
 {
-  warningsLogFile.requestAccess();
+  warningsLogFile->requestAccess();
   return 0;
 }
 
@@ -419,7 +426,7 @@ u_long Vhost::warningsLogRequestAccess(int id)
  */
 u_long Vhost::accessesLogTerminateAccess(int id)
 {
-  accessesLogFile.terminateAccess();
+  accessesLogFile->terminateAccess();
   return 0;
 }
 
@@ -429,7 +436,7 @@ u_long Vhost::accessesLogTerminateAccess(int id)
  */
 u_long Vhost::warningsLogTerminateAccess(int id)
 {
-  warningsLogFile.terminateAccess();
+  warningsLogFile->terminateAccess();
   return 0;
 }
 
@@ -439,7 +446,7 @@ u_long Vhost::warningsLogTerminateAccess(int id)
  */
 int Vhost::accessesLogWrite(const char* str)
 {
-  return accessesLogFile.write(str);
+  return accessesLogFile->write(str);
 }
 
 /*!
@@ -447,7 +454,7 @@ int Vhost::accessesLogWrite(const char* str)
  */
 File* Vhost::getAccessesLogFile()
 {
-  return accessesLogFile.getFile();
+  return accessesLogFile->getFile();
 }
 
 /*!
@@ -455,7 +462,7 @@ File* Vhost::getAccessesLogFile()
  */
 LogManager* Vhost::getWarningsLog()
 {
-  return &warningsLogFile;
+  return warningsLogFile;
 }
 
 /*!
@@ -463,7 +470,7 @@ LogManager* Vhost::getWarningsLog()
  */
 LogManager* Vhost::getAccessesLog()
 {
-  return &accessesLogFile;
+  return accessesLogFile;
 }
 
 /*!
@@ -481,7 +488,7 @@ int Vhost::warningsLogWrite(const char* str)
 #else
   msg.append("\n");
 #endif  
-  return warningsLogFile.write(msg.c_str());
+  return warningsLogFile->write(msg.c_str());
 }
 
 /*!
@@ -489,7 +496,7 @@ int Vhost::warningsLogWrite(const char* str)
  */
 File* Vhost::getWarningsLogFile()
 {
-  return warningsLogFile.getFile();
+  return warningsLogFile->getFile();
 }
 
 /*!
@@ -498,8 +505,8 @@ File* Vhost::getWarningsLogFile()
  */
 void Vhost::setMaxLogSize(int newSize)
 {
-  warningsLogFile.setMaxSize(newSize);
-  accessesLogFile.setMaxSize(newSize);  
+  warningsLogFile->setMaxSize(newSize);
+  accessesLogFile->setMaxSize(newSize);  
 }
 
 /*!
@@ -511,7 +518,7 @@ int Vhost::getMaxLogSize()
    *warningsLogFile max log size is equal to the  
    *accessesLogFile one.
    */
-  return warningsLogFile.getMaxSize( );
+  return warningsLogFile->getMaxSize( );
 }
 
 /*!
