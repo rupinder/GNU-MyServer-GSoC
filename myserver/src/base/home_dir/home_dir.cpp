@@ -90,8 +90,8 @@ void HomeDir::clear()
   }
   data.clear();
   timestamp = 0;
-  loaded = 0;
 #endif
+  loaded = 0;
 }
 
 /*!
@@ -117,18 +117,18 @@ int HomeDir::loadImpl()
   DWORD len = 64;
   char *buf;
   buf = new char[len];
-  if(!GetProfilesDirectory(buf, &len))
+
+  if(GetProfilesDirectory(buf, &len) == FALSE)
   {
-    delete buf;
+    delete [] buf;
     buf = new char[len];
-    if(!GetProfilesDirectory(buf, &len))
+    if(GetProfilesDirectory(buf, &len) == FALSE)
     {
-      delete buf; 
+      delete [] buf; 
       return 1;                               
     }
   }
   data.assign(buf);
-  return 0;
 #else
   File usersFile;
   u_long size;
@@ -200,12 +200,12 @@ int HomeDir::loadImpl()
      while(buffer[counter++] != '\0');
     /* Next tuple.  */
   }
-  loaded = 1;
   delete [] buffer;
   usersFile.closeFile();
 #endif
-  return 0;
 
+  loaded = 1;
+  return 0;
 }
 
 /*!

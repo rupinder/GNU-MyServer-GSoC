@@ -74,7 +74,9 @@ int Thread::create(ThreadID*  ID, void * (*startRoutine)(void *),
 #endif
 {
 #ifdef WIN32
-  return !_beginthreadex(NULL, 0, startRoutine, arg, 0, (unsigned int*)ID);
+  *ID = _beginthreadex(NULL, 0, startRoutine, arg, 0, NULL);
+
+  return !(*ID);
 #endif
 #ifdef HAVE_PTHREAD
   return pthread_create((pthread_t*)ID, NULL, startRoutine, (void *)(arg));
