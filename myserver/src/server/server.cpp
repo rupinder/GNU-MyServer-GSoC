@@ -123,6 +123,11 @@ void Server::start()
   string buffer;
   int err = 0;
   int osVer = getOSVersion();
+  int ret;
+  ostringstream nCPU;
+  string strCPU;
+  u_long nbr, nbw;
+  char* data;
 #ifdef WIN32
   DWORD eventsCount, cNumRead;
   INPUT_RECORD irInBuf[128];
@@ -193,9 +198,6 @@ void Server::start()
 
   try
   {
-    /*
-     *Set the current working directory.
-     */
     setcwdBuffer();
 
     XmlParser::startXML();
@@ -269,7 +271,136 @@ void Server::start()
       logWriteln(msg.c_str());
     }
 
-    loadSettings();
+    if(filtersFactory.insert("gzip", Gzip::factory))
+    {
+      ostringstream stream;
+      stream <<  languageParser.getValue("ERR_ERROR") << ": Gzip Filter";
+      logPreparePrintError();
+      logWriteln(stream.str().c_str());
+      logEndPrintError();
+    }
+
+    /* Load the MIME types.  */
+    logWriteln(languageParser.getValue("MSG_LOADMIME"));
+    if(mimeManager)
+      delete mimeManager;
+    mimeManager = new MimeManager();
+
+    if(int nMIMEtypes = mimeManager->loadXML(mimeConfigurationFile->c_str()))
+    {
+      ostringstream stream;
+      stream << languageParser.getValue("MSG_MIMERUN") << ": " << nMIMEtypes;
+      logWriteln(stream.str().c_str());
+    }
+    else
+    {
+      logPreparePrintError();
+      logWriteln(languageParser.getValue("ERR_LOADMIME"));
+      logEndPrintError();
+    }
+
+    nCPU << (u_int)getCPUCount();
+
+    strCPU.assign(languageParser.getValue("MSG_NUM_CPU"));
+    strCPU.append(" ");
+    strCPU.append(nCPU.str());
+    logWriteln(strCPU.c_str());
+
+    connectionsScheduler.restart();
+
+    listenThreads.initialize(&languageParser);
+    if(vhostList)
+    {
+      delete vhostList;
+      vhostList = 0;
+    }
+
+    vhostList = new VhostManager(&listenThreads);
+    if(vhostList == 0)
+    {
+      return;
+    }
+
+    getProcessServerManager()->load();
+
+    /* Load the home directories configuration.  */
+    homeDir.load();
+
+
+    {
+      Protocol *protocolsSet[] = {new HttpProtocol(),
+                                  new HttpsProtocol(),
+                                  new FtpProtocol(),
+                                  new ControlProtocol(),
+                                  0};
+
+      for (int j = 0; protocolsSet[j]; j++)
+      {
+        char protocolName[32];
+        Protocol *protocol = protocolsSet[j];
+        protocol->loadProtocol(&languageParser);
+        protocol->registerName(protocolName, 32);
+        
+        getProtocolsManager()->addProtocol(protocolName, protocol);
+      }
+    }
+
+    getPluginsManager()->addNamespace(&executors);
+    getPluginsManager()->addNamespace(&protocols);
+    getPluginsManager()->addNamespace(&filters);
+    getPluginsManager()->addNamespace(&genericPluginsManager);
+
+
+    {
+      string res("plugins");
+      getPluginsManager()->preLoad(this, &languageParser, res);
+      getPluginsManager()->load(this, &languageParser, res);
+      getPluginsManager()->postLoad(this, &languageParser);
+    }
+
+
+    /* Load the virtual hosts configuration from the xml file.  */
+    vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
+                                        getMaxLogFileSize());
+
+
+    if(path == 0)
+      path = new string();
+
+     if(getdefaultwd(*path))
+      return;
+
+    setProcessPermissions();
+
+    if(getGid())
+    {
+      ostringstream out;
+      out << "gid: " << gid;
+      logWriteln(out.str().c_str());
+    }
+
+    if(getUid())
+    {
+      ostringstream out;
+      out << "uid: " << uid;
+      logWriteln(out.str().c_str());
+    }
+
+    for(i = 0; i < nStaticThreads; i++)
+    {
+      logWriteln(languageParser.getValue("MSG_CREATET"));
+      ret = addThread(1);
+
+      if(ret)
+        return;
+
+      logWriteln(languageParser.getValue("MSG_THREADR"));
+    }
+
+    logWriteln(languageParser.getValue("MSG_READY"));
+
+    if(logManager.getType() == LogManager::TYPE_CONSOLE)
+      logWriteln(languageParser.getValue("MSG_BREAK"));
 
     mainConfTime = 
       FilesUtility::getLastModTime(mainConfigurationFile->c_str());
@@ -278,6 +409,9 @@ void Server::start()
     mimeConf = 
       FilesUtility::getLastModTime(mimeConfigurationFile->c_str());
 
+ 
+    serverReady = 1;
+ 
     /*
      *Keep thread alive.
      *When the endServer flag is set to True exit
@@ -649,7 +783,9 @@ int Server::terminate()
   ipAddresses = 0;
   vhostList = 0;
   languageParser.close();
-  mimeManager->clean();
+
+  if(mimeManager)
+    mimeManager->clean();
   delete mimeManager;
   mimeManager = 0;
 #ifdef WIN32
@@ -733,115 +869,13 @@ int Server::initialize(int /*!osVer*/)
     delete serverAdmin;
   serverAdmin = 0;
   autoRebootEnabled = 1;
-  languagesPath = new string();
-#ifndef WIN32
 
-  /*
-   *Do not use the files in the directory /usr/share/myserver/languages
-   *if exists a local directory.
-   */
-  if(FilesUtility::fileExists("languages"))
-  {
-    languagesPath->assign(getdefaultwd(0, 0) );
-    languagesPath->append("/languages/");
+  if(loadConfFilesLocation())
+    return -1;
 
-  }
-  else
-  {
-#ifdef PREFIX
-    languagesPath->assign(PREFIX);
-    languagesPath->append("/share/myserver/languages/");
-#else
-    /* Default PREFIX is /usr/.  */
-    languagesPath->assign("/usr/share/myserver/languages/");
-#endif
-  }
-#endif
+  if(configurationFileManager.open(mainConfigurationFile->c_str()))
+    return -1;
 
-  if(mainConfigurationFile)
-    delete mainConfigurationFile;
-  mainConfigurationFile = new string();
-
-#ifdef WIN32
-  languagesPath->assign( "languages/" );
-#endif
-
-#ifndef WIN32
-
-  /*
-   *Under an *nix environment look for .xml files in the following order.
-   *1) myserver executable working directory
-   *2) ~/.myserver/
-   *3) /etc/myserver/
-   *4) default files will be copied in myserver executable working
-   */
-  if(FilesUtility::fileExists("myserver.xml"))
-  {
-    mainConfigurationFile->assign("myserver.xml");
-  }
-  else if(FilesUtility::fileExists("~/.myserver/myserver.xml"))
-  {
-    mainConfigurationFile->assign("~/.myserver/myserver.xml");
-  }
-  else if(FilesUtility::fileExists("/etc/myserver/myserver.xml"))
-  {
-    mainConfigurationFile->assign("/etc/myserver/myserver.xml");
-  }
-  else
-#endif
-  /* If the myserver.xml files doesn't exist copy it from the default one.  */
-  if(!FilesUtility::fileExists("myserver.xml"))
-  {
-    mainConfigurationFile->assign("myserver.xml");
-    File inputF;
-    File outputF;
-    ret = inputF.openFile("myserver.xml.default",
-                          File::MYSERVER_OPEN_READ | 
-                          File::MYSERVER_OPEN_IFEXISTS);
-    if(ret)
-    {
-      logPreparePrintError();
-      logWriteln("Error loading configuration file\n");
-      logEndPrintError();
-      return -1;
-    }
-    ret = outputF.openFile("myserver.xml", File::MYSERVER_OPEN_WRITE |
-                     File::MYSERVER_OPEN_ALWAYS);
-    if(ret)
-    {
-      logPreparePrintError();
-      logWriteln("Error loading configuration file\n");
-      logEndPrintError();
-      return -1;
-    }
-    for(;;)
-    {
-      ret = inputF.readFromFile(buffer, 512, &nbr );
-      if(ret)
-        return -1;
-
-      if(!nbr)
-        break;
-
-      ret = outputF.writeToFile(buffer, nbr, &nbw);
-      if(ret)
-        return -1;
-    }
-    inputF.closeFile();
-    outputF.closeFile();
-  }
-  else
-  {
-    mainConfigurationFile->assign("myserver.xml");
-  }
-  configurationFileManager.open(mainConfigurationFile->c_str());
-
-
-  data = configurationFileManager.getValue("VERBOSITY");
-  if(data)
-  {
-    verbosity = (u_long)atoi(data);
-  }
   data = configurationFileManager.getValue("LANGUAGE");
   if(languageFile)
     delete languageFile;
@@ -856,6 +890,25 @@ int Server::initialize(int /*!osVer*/)
   {
     languageFile->assign("languages/english.xml");
   }
+  
+  if(languageParser.open(languageFile->c_str()))
+  {
+    string err;
+    logPreparePrintError();
+    err.assign("Error loading: ");
+    err.append( *languageFile );
+    logWriteln( err.c_str() );
+    logEndPrintError();
+    return -1;
+  }
+  logWriteln(languageParser.getValue("MSG_LANGUAGE"));
+
+  data = configurationFileManager.getValue("VERBOSITY");
+  if(data)
+  {
+    verbosity = (u_long)atoi(data);
+  }
+
 
   data = configurationFileManager.getValue("BUFFER_SIZE");
   if(data)
@@ -1001,19 +1054,7 @@ int Server::initialize(int /*!osVer*/)
     }
   }
 
-  if(languageParser.open(languageFile->c_str()))
-  {
-    string err;
-    logPreparePrintError();
-    err.assign("Error loading: ");
-    err.append( *languageFile );
-    logWriteln( err.c_str() );
-    logEndPrintError();
-    return -1;
-  }
-  logWriteln(languageParser.getValue("MSG_LANGUAGE"));
   return 0;
-
 }
 
 /*!
@@ -1466,22 +1507,98 @@ const char* Server::getExternalPath()
 }
 
 /*!
- *Load the main server settings.
+ *Load the configuration files locations.
  *Return nonzero on errors.
  */
-int Server::loadSettings()
+int Server::loadConfFilesLocation()
 {
-  u_long i;
-  int ret;
-  ostringstream nCPU;
   string strCPU;
   char buffer[512];
   u_long nbr, nbw;
+  char* data;
+  int ret;
+
   try
   {
+    if(mainConfigurationFile)
+      delete mainConfigurationFile;
+    mainConfigurationFile = new string();
+
+#ifndef WIN32
+
+    /*
+     *Under an *nix environment look for .xml files in the following order.
+     *1) myserver executable working directory
+     *2) ~/.myserver/
+     *3) /etc/myserver/
+     *4) default files will be copied in myserver executable working
+     */
+    if(FilesUtility::fileExists("myserver.xml"))
+    {
+      mainConfigurationFile->assign("myserver.xml");
+    }
+    else if(FilesUtility::fileExists("~/.myserver/myserver.xml"))
+    {
+      mainConfigurationFile->assign("~/.myserver/myserver.xml");
+    }
+    else if(FilesUtility::fileExists("/etc/myserver/myserver.xml"))
+    {
+      mainConfigurationFile->assign("/etc/myserver/myserver.xml");
+    }
+    else
+#endif
+    /* If the myserver.xml files doesn't exist copy it from the default one.  */
+    if(mainConfigurationFile->length() == 0)
+    {
+      mainConfigurationFile->assign("myserver.xml");
+      File inputF;
+      File outputF;
+      ret = inputF.openFile("myserver.xml.default",
+                            File::MYSERVER_OPEN_READ | 
+                            File::MYSERVER_OPEN_IFEXISTS);
+      if(ret)
+      {
+        logPreparePrintError();
+        logWriteln("Error loading configuration file\n");
+        logEndPrintError();
+        return -1;
+      }
+      ret = outputF.openFile("myserver.xml", File::MYSERVER_OPEN_WRITE |
+                             File::MYSERVER_OPEN_ALWAYS);
+      if(ret)
+      {
+        logPreparePrintError();
+        logWriteln("Error loading configuration file\n");
+        logEndPrintError();
+        return -1;
+      }
+
+      for(;;)
+      {
+        ret = inputF.readFromFile(buffer, 512, &nbr );
+        if(ret)
+          return -1;
+
+        if(!nbr)
+          break;
+
+        ret = outputF.writeToFile(buffer, nbr, &nbw);
+        if(ret)
+          return -1;
+      }
+      inputF.closeFile();
+      outputF.closeFile();
+    }
+    else
+    {
+      mainConfigurationFile->assign("myserver.xml");
+    }
+
     if(mimeConfigurationFile)
       delete mimeConfigurationFile;
+    
     mimeConfigurationFile = new string();
+
 #ifndef WIN32
     /*
      *Under an *nix environment look for .xml files in the following order.
@@ -1502,84 +1619,10 @@ int Server::loadSettings()
     {
       mimeConfigurationFile->assign("/etc/myserver/MIMEtypes.xml");
     }
-    else
 #endif
-      /*
-       *If the MIMEtypes.xml files doesn't exist copy it
-       *from the default one.
-       */
-      if(!FilesUtility::fileExists("MIMEtypes.xml"))
-      {
-        File inputF;
-        File outputF;
-        mimeConfigurationFile->assign("MIMEtypes.xml");
-        ret = inputF.openFile("MIMEtypes.xml.default", 
-                              File::MYSERVER_OPEN_READ |
-                              File::MYSERVER_OPEN_IFEXISTS);
-        if(ret)
-        {
-          logPreparePrintError();
-          logWriteln(languageParser.getValue("ERR_LOADMIME"));
-          logEndPrintError();
-          return -1;
-        }
-        ret = outputF.openFile("MIMEtypes.xml", File::MYSERVER_OPEN_WRITE|
-                               File::MYSERVER_OPEN_ALWAYS);
-        if(ret)
-          return -1;
 
-        for(;;)
-        {
-          ret = inputF.readFromFile(buffer, 512, &nbr );
-          if(ret)
-            return -1;
-          if(nbr==0)
-            break;
-          ret = outputF.writeToFile(buffer, nbr, &nbw);
-          if(ret)
-            return -1;
-        }
-        inputF.closeFile();
-        outputF.closeFile();
-      }
-      else
-      {
-        mimeConfigurationFile->assign("MIMEtypes.xml");
-      }
-
-    if(filtersFactory.insert("gzip", Gzip::factory))
-    {
-      ostringstream stream;
-      stream <<  languageParser.getValue("ERR_ERROR") << ": Gzip Filter";
-      logPreparePrintError();
-      logWriteln(stream.str().c_str());
-      logEndPrintError();
-    }
-
-    /* Load the MIME types.  */
-    logWriteln(languageParser.getValue("MSG_LOADMIME"));
-    if(mimeManager)
-      delete mimeManager;
-    mimeManager = new MimeManager();
-    if(int nMIMEtypes = mimeManager->loadXML(mimeConfigurationFile->c_str()))
-    {
-      ostringstream stream;
-      stream << languageParser.getValue("MSG_MIMERUN") << ": " << nMIMEtypes;
-      logWriteln(stream.str().c_str());
-    }
-    else
-    {
-      logPreparePrintError();
-      logWriteln(languageParser.getValue("ERR_LOADMIME"));
-      logEndPrintError();
-      return -1;
-    }
-    nCPU << (u_int)getCPUCount();
-
-    strCPU.assign(languageParser.getValue("MSG_NUM_CPU"));
-    strCPU.append(" ");
-    strCPU.append(nCPU.str());
-    logWriteln(strCPU.c_str());
+    if(vhostConfigurationFile)
+      delete vhostConfigurationFile;
 
     vhostConfigurationFile = new string();
 
@@ -1603,13 +1646,77 @@ int Server::loadSettings()
     {
       vhostConfigurationFile->assign("/etc/myserver/virtualhosts.xml");
     }
-    else
 #endif
-      /*
-       *If the virtualhosts.xml file doesn't exist copy it
-       *from the default one.
-       */
-    if(!FilesUtility::fileExists("virtualhosts.xml"))
+
+    if(externalPath)
+      delete externalPath;
+    externalPath = new string();
+
+#ifdef NOT_WIN
+    if(FilesUtility::fileExists("plugins"))
+      externalPath->assign("plugins");
+    else
+    {
+#ifdef PREFIX
+      externalPath->assign(PREFIX);
+      externalPath->append("/lib/myserver/plugins");
+ #else
+      externalPath->assign("/usr/lib/myserver/plugins");
+#endif
+    }
+
+#endif
+
+#ifdef WIN32
+    externalPath->assign("plugins/protocols");
+#endif
+
+
+    /*
+     *If the MIMEtypes.xml files doesn't exist copy it
+     *from the default one.
+     */
+    if(mimeConfigurationFile->length() == 0)
+    {
+      File inputF;
+      File outputF;
+      mimeConfigurationFile->assign("MIMEtypes.xml");
+      ret = inputF.openFile("MIMEtypes.xml.default", 
+                            File::MYSERVER_OPEN_READ |
+                            File::MYSERVER_OPEN_IFEXISTS);
+      if(ret)
+      {
+        logPreparePrintError();
+        logWriteln(languageParser.getValue("ERR_LOADMIME"));
+        logEndPrintError();
+        return -1;
+      }
+      ret = outputF.openFile("MIMEtypes.xml", File::MYSERVER_OPEN_WRITE|
+                             File::MYSERVER_OPEN_ALWAYS);
+      if(ret)
+        return -1;
+
+      for(;;)
+      {
+        ret = inputF.readFromFile(buffer, 512, &nbr );
+        if(ret)
+          return -1;
+        if(nbr == 0)
+          break;
+        ret = outputF.writeToFile(buffer, nbr, &nbw);
+        if(ret)
+          return -1;
+      }
+      inputF.closeFile();
+      outputF.closeFile();
+    }
+    
+
+    /*
+     *If the virtualhosts.xml file doesn't exist copy it
+     *from the default one.
+     */
+    if(vhostConfigurationFile->length() == 0)
     {
       File inputF;
       File outputF;
@@ -1620,7 +1727,7 @@ int Server::loadSettings()
       if(ret)
       {
         logPreparePrintError();
-        logWriteln(languageParser.getValue("ERR_LOADMIME"));
+        logWriteln(languageParser.getValue("ERR_LOADVHOSTS"));
         logEndPrintError();
         return -1;
       }
@@ -1644,157 +1751,44 @@ int Server::loadSettings()
       inputF.closeFile();
       outputF.closeFile();
     }
-    else
-    {
-      vhostConfigurationFile->assign("virtualhosts.xml");
-    }
 
-    connectionsScheduler.restart();
 
-    listenThreads.initialize(&languageParser);
-    if(vhostList)
-    {
-      delete vhostList;
-      vhostList = 0;
-    }
+  if(languagesPath)
+    delete languagesPath;
 
-    vhostList = new VhostManager(&listenThreads);
-    if(vhostList == 0)
-    {
-      return -1;
-    }
-    if(externalPath)
-      delete externalPath;
-    externalPath = new string();
-#ifdef NOT_WIN
-    if(FilesUtility::fileExists("plugins"))
-      externalPath->assign("plugins");
-    else
-    {
+  languagesPath = new string();
+
+#ifndef WIN32
+  /*
+   *Do not use the files in the directory /usr/share/myserver/languages
+   *if exists a local directory.
+   */
+  if(FilesUtility::fileExists("languages"))
+  {
+    languagesPath->assign(getdefaultwd(0, 0) );
+    languagesPath->append("/languages/");
+  }
+  else
+  {
 #ifdef PREFIX
-      externalPath->assign(PREFIX);
-      externalPath->append("/lib/myserver/plugins");
- #else
-      externalPath->assign("/usr/lib/myserver/plugins");
+    languagesPath->assign(PREFIX);
+    languagesPath->append("/share/myserver/languages/");
+#else
+      /* Default PREFIX is /usr/.  */
+    languagesPath->assign("/usr/share/myserver/languages/");
 #endif
     }
-
 #endif
 
 #ifdef WIN32
-    externalPath->assign("plugins/protocols");
-
+  languagesPath->assign( "languages/" );
 #endif
-    getProcessServerManager()->load();
 
-    /* Load the home directories configuration.  */
-    homeDir.load();
-
-
-    {
-      Protocol *protocolsSet[] = {new HttpProtocol(),
-                                  new HttpsProtocol(),
-                                  new FtpProtocol(),
-                                  new ControlProtocol(),
-                                  0};
-
-      for (int j = 0; protocolsSet[j]; j++)
-      {
-        char protocolName[32];
-        Protocol *protocol = protocolsSet[j];
-        protocol->loadProtocol(&languageParser);
-        protocol->registerName(protocolName, 32);
-        
-        getProtocolsManager()->addProtocol(protocolName, protocol);
-      }
-    }
-
-    getPluginsManager()->addNamespace(&executors);
-    getPluginsManager()->addNamespace(&protocols);
-    getPluginsManager()->addNamespace(&filters);
-    getPluginsManager()->addNamespace(&genericPluginsManager);
-
-
-    {
-      string res("plugins");
-      getPluginsManager()->preLoad(this, &languageParser, res);
-      getPluginsManager()->load(this, &languageParser, res);
-      getPluginsManager()->postLoad(this, &languageParser);
-    }
-
-
-    /* Load the virtual hosts configuration from the xml file.  */
-    vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
-                                        getMaxLogFileSize());
-
-
-    if(path == 0)
-      path = new string();
-
-    /* Return 1 if we had an allocation problem.  */
-    if(getdefaultwd(*path))
-      return -1;
-
-    setProcessPermissions();
-
-    if(getGid())
-    {
-      ostringstream out;
-      out << "gid: " << gid;
-      logWriteln(out.str().c_str());
-    }
-
-    if(getUid())
-    {
-      ostringstream out;
-      out << "uid: " << uid;
-      logWriteln(out.str().c_str());
-    }
-
-    for(i = 0; i < nStaticThreads; i++)
-    {
-      logWriteln(languageParser.getValue("MSG_CREATET"));
-      ret = addThread(1);
-      if(ret)
-        return -1;
-      logWriteln(languageParser.getValue("MSG_THREADR"));
-    }
-
-    logWriteln(languageParser.getValue("MSG_READY"));
-
-    /*
-     *Print this message only if the log outputs to the console screen.
-     */
-    if(logManager.getType() == LogManager::TYPE_CONSOLE)
-      logWriteln(languageParser.getValue("MSG_BREAK"));
-
-    /*
-     *Server initialization is now completed.
-     */
-    serverReady = 1;
   }
-  catch(bad_alloc& ba)
-  {
-    logPreparePrintError();
-    logWriteln("Error allocating memory");
-    logEndPrintError();
-    return 1;
-  }
-  catch(exception& e)
-  {
-    ostringstream out;
-    out << "Error: " << e.what();
-    logPreparePrintError();
-    logWriteln(out.str().c_str());
-    logEndPrintError();
-    return 1;
-  }
-  catch(...)
-  {
-    return 1;
-  }
+  catch(...){}
   return 0;
 }
+
 
 /*!
  *If specified set the uid/gid for the process.
@@ -1916,14 +1910,14 @@ int Server::reboot()
   rebooting = 0;
 
   ret = initialize(0);
+
   if(ret)
     return ret;
 
-  ret = loadSettings();
 
+  logWriteln("Rebooted");
 
-  return ret;
-
+  return 0;
 }
 
 /*!

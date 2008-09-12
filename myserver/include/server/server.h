@@ -218,7 +218,7 @@ private:
 	int freeHashedData();
 	u_long connectionTimeout;
 	u_long maxLogFileSize;
-	int loadSettings();
+	int loadConfFilesLocation();
 	Mutex* connectionsMutex;
 	u_long nStaticThreads;
   u_long nMaxThreads;
