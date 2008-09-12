@@ -115,14 +115,8 @@ Server::~Server()
 void Server::start()
 {
   u_long i;
-  u_long configsCheck = 0;
-  u_long purgeThreadsCounter = 0;
-  time_t mainConfTime;
-  time_t hostsConfTime;
-  time_t mimeConf;
   string buffer;
   int err = 0;
-  int osVer = getOSVersion();
   int ret;
   ostringstream nCPU;
   string strCPU;
@@ -132,6 +126,395 @@ void Server::start()
   DWORD eventsCount, cNumRead;
   INPUT_RECORD irInBuf[128];
 #endif
+
+  displayBoot();
+
+  try
+  {
+    setcwdBuffer();
+
+    XmlParser::startXML();
+
+    myserver_safetime_init();
+
+    /*
+     *Setup the server configuration.
+     */
+    logWriteln("Initializing server configuration...");
+    err = 0;
+
+    err = initialize();
+    if(err)
+      return;
+
+    /* Initialize the SSL library.  */
+    initializeSSL();
+
+    logWriteln( languageParser.getValue("MSG_SERVER_CONF") );
+
+    /* Startup the socket library.  */
+    logWriteln( languageParser.getValue("MSG_ISOCK") );
+    err = startupSocketLib(/* MAKEWORD( 2, 2 ) */MAKEWORD( 1, 1));
+    if (err != 0)
+    {
+      logPreparePrintError();
+      logWriteln( languageParser.getValue("MSG_SERVER_CONF") );
+      logEndPrintError();
+      return;
+    }
+    logWriteln( languageParser.getValue("MSG_SOCKSTART") );
+
+    /*
+     *Get the name of the local machine.
+     */
+    memset(serverName, 0, HOST_NAME_MAX+1);
+    Socket::gethostname(serverName, HOST_NAME_MAX);
+
+    buffer.assign(languageParser.getValue("MSG_GETNAME"));
+    buffer.append(" ");
+    buffer.append(serverName);
+    logWriteln(buffer.c_str());
+
+    /*
+     *Find the IP addresses of the local machine.
+     */
+    if(ipAddresses)
+      delete ipAddresses;
+    ipAddresses = new string();
+    buffer.assign("Host: ");
+    buffer.append(serverName);
+    logWriteln(buffer.c_str() );
+
+    if(Socket::getLocalIPsList(*ipAddresses))
+    {
+      string msg;
+      msg.assign(languageParser.getValue("ERR_ERROR"));
+      msg.append(" : Reading IP list");
+      logPreparePrintError();
+      logWriteln(msg.c_str());
+      logEndPrintError();
+      return;
+    }
+    else
+    {
+      string msg;
+      msg.assign("IP: ");
+      msg.append(*ipAddresses);
+      logWriteln(msg.c_str());
+    }
+
+    /* Load the MIME types.  */
+    logWriteln(languageParser.getValue("MSG_LOADMIME"));
+    if(mimeManager)
+      delete mimeManager;
+    mimeManager = new MimeManager();
+
+    if(int nMIMEtypes = mimeManager->loadXML(mimeConfigurationFile->c_str()))
+    {
+      ostringstream stream;
+      stream << languageParser.getValue("MSG_MIMERUN") << ": " << nMIMEtypes;
+      logWriteln(stream.str().c_str());
+    }
+    else
+    {
+      logPreparePrintError();
+      logWriteln(languageParser.getValue("ERR_LOADMIME"));
+      logEndPrintError();
+    }
+
+    nCPU << (u_int)getCPUCount();
+
+    strCPU.assign(languageParser.getValue("MSG_NUM_CPU"));
+    strCPU.append(" ");
+    strCPU.append(nCPU.str());
+    logWriteln(strCPU.c_str());
+
+    connectionsScheduler.restart();
+
+    listenThreads.initialize(&languageParser);
+    if(vhostList)
+    {
+      delete vhostList;
+      vhostList = 0;
+    }
+
+    vhostList = new VhostManager(&listenThreads);
+    if(vhostList == 0)
+    {
+      return;
+    }
+
+    getProcessServerManager()->load();
+
+    /* Load the home directories configuration.  */
+    homeDir.load();
+    
+    loadPlugins();
+
+    /* Load the virtual hosts configuration from the xml file.  */
+    vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
+                                        getMaxLogFileSize());
+
+
+    if(path == 0)
+      path = new string();
+
+     if(getdefaultwd(*path))
+      return;
+
+    setProcessPermissions();
+
+    if(getGid())
+    {
+      ostringstream out;
+      out << "gid: " << gid;
+      logWriteln(out.str().c_str());
+    }
+
+    if(getUid())
+    {
+      ostringstream out;
+      out << "uid: " << uid;
+      logWriteln(out.str().c_str());
+    }
+
+    for(i = 0; i < nStaticThreads; i++)
+    {
+      logWriteln(languageParser.getValue("MSG_CREATET"));
+      ret = addThread(1);
+
+      if(ret)
+        return;
+
+      logWriteln(languageParser.getValue("MSG_THREADR"));
+    }
+
+    logWriteln(languageParser.getValue("MSG_READY"));
+
+    if(logManager.getType() == LogManager::TYPE_CONSOLE)
+      logWriteln(languageParser.getValue("MSG_BREAK"));
+ 
+    serverReady = 1;
+
+    /* Finally we can give control to the main loop.  */
+    mainLoop();
+
+  }
+  catch(bad_alloc &ba)
+  {
+    ostringstream s;
+    s << "Bad alloc: " << ba.what();
+    logWriteln(s.str().c_str());
+  }
+  catch(exception &e)
+  {
+    ostringstream s;
+    s << "Error: " << e.what();
+    logWriteln(s.str().c_str());
+  };
+  this->terminate();
+  finalCleanup();
+#ifdef WIN32
+  WSACleanup();
+#endif// WIN32
+}
+
+/*!
+ *Load the plugins.
+ */
+void Server::loadPlugins()
+{
+  if(filtersFactory.insert("gzip", Gzip::factory))
+  {
+    ostringstream stream;
+    stream <<  languageParser.getValue("ERR_ERROR") << ": Gzip Filter";
+    logPreparePrintError();
+    logWriteln(stream.str().c_str());
+    logEndPrintError();
+  }
+
+  Protocol *protocolsSet[] = {new HttpProtocol(),
+                              new HttpsProtocol(),
+                              new FtpProtocol(),
+                              new ControlProtocol(),
+                              0};
+  
+  for (int j = 0; protocolsSet[j]; j++)
+  {
+    char protocolName[32];
+    Protocol *protocol = protocolsSet[j];
+    protocol->loadProtocol(&languageParser);
+    protocol->registerName(protocolName, 32);
+    getProtocolsManager()->addProtocol(protocolName, protocol);
+  }
+  
+
+  getPluginsManager()->addNamespace(&executors);
+  getPluginsManager()->addNamespace(&protocols);
+  getPluginsManager()->addNamespace(&filters);
+  getPluginsManager()->addNamespace(&genericPluginsManager);
+  
+  getPluginsManager()->preLoad(this, &languageParser, *externalPath);
+  getPluginsManager()->load(this, &languageParser, *externalPath);
+  getPluginsManager()->postLoad(this, &languageParser);
+}
+
+/*!
+ *Server main loop.
+ */
+void Server::mainLoop()
+{
+  time_t mainConfTime;
+  time_t hostsConfTime;
+  time_t mimeConfTime;
+
+  u_long configsCheck = 0;
+  u_long purgeThreadsCounter = 0;
+
+  mainConfTime = 
+    FilesUtility::getLastModTime(mainConfigurationFile->c_str());
+  hostsConfTime = 
+    FilesUtility::getLastModTime(vhostConfigurationFile->c_str());
+  mimeConfTime = 
+    FilesUtility::getLastModTime(mimeConfigurationFile->c_str());
+  
+  /*
+   *Keep thread alive.
+   *When the endServer flag is set to True exit
+   *from the loop and terminate the server execution.
+   */
+  while(!endServer)
+  {
+    Thread::wait(100000);
+
+    /* Check threads.  */
+    if(purgeThreadsCounter++ >= 100)
+    {
+      purgeThreadsCounter = 0;
+      purgeThreads();
+    }
+
+    if(autoRebootEnabled)
+    {
+      configsCheck++;
+      /* Do not check for modified configuration files every cycle.  */
+      if(configsCheck > 10)
+      {
+        time_t mainConfTimeNow =
+          FilesUtility::getLastModTime(mainConfigurationFile->c_str());
+        time_t hostsConfTimeNow =
+          FilesUtility::getLastModTime(vhostConfigurationFile->c_str());
+        time_t mimeConfNow =
+          FilesUtility::getLastModTime(mimeConfigurationFile->c_str());
+
+        /* If a configuration file was modified reboot the server. */
+        if(((mainConfTimeNow!=-1) && (hostsConfTimeNow!=-1)  &&
+            (mimeConfNow!=-1)) || toReboot)
+        {
+          if( (mainConfTimeNow  != mainConfTime) || toReboot)
+          {
+            string msg("main-conf-changed");
+            notifyMulticast(msg, 0);
+            
+            reboot();
+            /* Store new mtime values.  */
+            mainConfTime = mainConfTimeNow;
+            mimeConfTime = mimeConfNow;
+          }
+          else if(mimeConfNow != mimeConfTime)
+          {
+            string msg("mime-conf-changed");
+            notifyMulticast(msg, 0);
+            
+            if(logManager.getType() == LogManager::TYPE_CONSOLE)
+            {
+              char beep[]={static_cast<char>(0x7), '\0'};
+              logManager.write(beep);
+            }
+
+            logWriteln("Reloading MIMEtypes.xml");
+
+            getMimeManager()->loadXML(getMIMEConfFile());
+            
+            logWriteln("Reloaded");
+            
+            mimeConfTime = mimeConfNow;
+          }
+          else if(hostsConfTimeNow != hostsConfTime)
+          {
+            VhostManager* oldvhost = vhostList;
+            string msg("vhosts-conf-changed");
+            notifyMulticast(msg, 0);
+
+            /* Do a beep if outputting to console.  */
+            if(logManager.getType() == LogManager::TYPE_CONSOLE)
+            {
+              char beep[]={static_cast<char>(0x7), '\0'};
+              logManager.write(beep);
+            }
+            
+            logWriteln("Rebooting...");
+            
+            connectionsScheduler.release();
+
+            Socket::stopBlockingOperations(true);
+              
+            listenThreads.beginFastReboot();
+
+            listenThreads.terminate();
+              
+            connectionsScheduler.terminateConnections();
+            clearAllConnections();
+
+              
+            Socket::stopBlockingOperations(false);
+
+            connectionsScheduler.restart();
+            listenThreads.initialize(&languageParser);
+              
+            vhostList = new VhostManager(&listenThreads);
+            
+            if(vhostList == 0)
+              continue;
+            
+            delete oldvhost;
+
+            /* Load the virtual hosts configuration from the xml file.  */
+            if(vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
+                                                   getMaxLogFileSize()))
+            {
+              listenThreads.rollbackFastReboot();
+            }
+            else
+            {
+              listenThreads.commitFastReboot();
+            }
+            
+            hostsConfTime = hostsConfTimeNow;
+            logWriteln("Reloaded");
+          }
+
+          configsCheck = 0;
+        }
+        else
+        {
+          /*
+           *If there are problems in loading mtimes
+           *check again after a bit.
+           */
+          configsCheck = 7;
+        }
+      }
+    }//end  if(autoRebootEnabled)
+  }
+}
+
+/*!
+ *Display the MyServer boot.
+ */
+void Server::displayBoot()
+{
+  u_long i;
 
 #ifdef CLEAR_BOOT_SCREEN
 
@@ -196,373 +579,6 @@ void Server::start()
     };
   }
 
-  try
-  {
-    setcwdBuffer();
-
-    XmlParser::startXML();
-
-    myserver_safetime_init();
-
-    /*
-     *Setup the server configuration.
-     */
-    logWriteln("Initializing server configuration...");
-    err = 0;
-    osVer = getOSVersion();
-
-    err = initialize(osVer);
-    if(err)
-      return;
-
-    /* Initialize the SSL library.  */
-    initializeSSL();
-
-    logWriteln( languageParser.getValue("MSG_SERVER_CONF") );
-
-    /* Startup the socket library.  */
-    logWriteln( languageParser.getValue("MSG_ISOCK") );
-    err = startupSocketLib(/* MAKEWORD( 2, 2 ) */MAKEWORD( 1, 1));
-    if (err != 0)
-    {
-      logPreparePrintError();
-      logWriteln( languageParser.getValue("MSG_SERVER_CONF") );
-      logEndPrintError();
-      return;
-    }
-    logWriteln( languageParser.getValue("MSG_SOCKSTART") );
-
-    /*
-     *Get the name of the local machine.
-     */
-    memset(serverName, 0, HOST_NAME_MAX+1);
-    Socket::gethostname(serverName, HOST_NAME_MAX);
-
-    buffer.assign(languageParser.getValue("MSG_GETNAME"));
-    buffer.append(" ");
-    buffer.append(serverName);
-    logWriteln(buffer.c_str());
-
-    /*
-     *Find the IP addresses of the local machine.
-     */
-    if(ipAddresses)
-      delete ipAddresses;
-    ipAddresses = new string();
-    buffer.assign("Host: ");
-    buffer.append(serverName);
-    logWriteln(buffer.c_str() );
-
-    if(Socket::getLocalIPsList(*ipAddresses))
-    {
-      string msg;
-      msg.assign(languageParser.getValue("ERR_ERROR"));
-      msg.append(" : Reading IP list");
-      logPreparePrintError();
-      logWriteln(msg.c_str());
-      logEndPrintError();
-      return;
-    }
-    else
-    {
-      string msg;
-      msg.assign("IP: ");
-      msg.append(*ipAddresses);
-      logWriteln(msg.c_str());
-    }
-
-    if(filtersFactory.insert("gzip", Gzip::factory))
-    {
-      ostringstream stream;
-      stream <<  languageParser.getValue("ERR_ERROR") << ": Gzip Filter";
-      logPreparePrintError();
-      logWriteln(stream.str().c_str());
-      logEndPrintError();
-    }
-
-    /* Load the MIME types.  */
-    logWriteln(languageParser.getValue("MSG_LOADMIME"));
-    if(mimeManager)
-      delete mimeManager;
-    mimeManager = new MimeManager();
-
-    if(int nMIMEtypes = mimeManager->loadXML(mimeConfigurationFile->c_str()))
-    {
-      ostringstream stream;
-      stream << languageParser.getValue("MSG_MIMERUN") << ": " << nMIMEtypes;
-      logWriteln(stream.str().c_str());
-    }
-    else
-    {
-      logPreparePrintError();
-      logWriteln(languageParser.getValue("ERR_LOADMIME"));
-      logEndPrintError();
-    }
-
-    nCPU << (u_int)getCPUCount();
-
-    strCPU.assign(languageParser.getValue("MSG_NUM_CPU"));
-    strCPU.append(" ");
-    strCPU.append(nCPU.str());
-    logWriteln(strCPU.c_str());
-
-    connectionsScheduler.restart();
-
-    listenThreads.initialize(&languageParser);
-    if(vhostList)
-    {
-      delete vhostList;
-      vhostList = 0;
-    }
-
-    vhostList = new VhostManager(&listenThreads);
-    if(vhostList == 0)
-    {
-      return;
-    }
-
-    getProcessServerManager()->load();
-
-    /* Load the home directories configuration.  */
-    homeDir.load();
-
-
-    {
-      Protocol *protocolsSet[] = {new HttpProtocol(),
-                                  new HttpsProtocol(),
-                                  new FtpProtocol(),
-                                  new ControlProtocol(),
-                                  0};
-
-      for (int j = 0; protocolsSet[j]; j++)
-      {
-        char protocolName[32];
-        Protocol *protocol = protocolsSet[j];
-        protocol->loadProtocol(&languageParser);
-        protocol->registerName(protocolName, 32);
-        
-        getProtocolsManager()->addProtocol(protocolName, protocol);
-      }
-    }
-
-    getPluginsManager()->addNamespace(&executors);
-    getPluginsManager()->addNamespace(&protocols);
-    getPluginsManager()->addNamespace(&filters);
-    getPluginsManager()->addNamespace(&genericPluginsManager);
-
-
-    {
-      string res("plugins");
-      getPluginsManager()->preLoad(this, &languageParser, res);
-      getPluginsManager()->load(this, &languageParser, res);
-      getPluginsManager()->postLoad(this, &languageParser);
-    }
-
-
-    /* Load the virtual hosts configuration from the xml file.  */
-    vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
-                                        getMaxLogFileSize());
-
-
-    if(path == 0)
-      path = new string();
-
-     if(getdefaultwd(*path))
-      return;
-
-    setProcessPermissions();
-
-    if(getGid())
-    {
-      ostringstream out;
-      out << "gid: " << gid;
-      logWriteln(out.str().c_str());
-    }
-
-    if(getUid())
-    {
-      ostringstream out;
-      out << "uid: " << uid;
-      logWriteln(out.str().c_str());
-    }
-
-    for(i = 0; i < nStaticThreads; i++)
-    {
-      logWriteln(languageParser.getValue("MSG_CREATET"));
-      ret = addThread(1);
-
-      if(ret)
-        return;
-
-      logWriteln(languageParser.getValue("MSG_THREADR"));
-    }
-
-    logWriteln(languageParser.getValue("MSG_READY"));
-
-    if(logManager.getType() == LogManager::TYPE_CONSOLE)
-      logWriteln(languageParser.getValue("MSG_BREAK"));
-
-    mainConfTime = 
-      FilesUtility::getLastModTime(mainConfigurationFile->c_str());
-    hostsConfTime = 
-      FilesUtility::getLastModTime(vhostConfigurationFile->c_str());
-    mimeConf = 
-      FilesUtility::getLastModTime(mimeConfigurationFile->c_str());
-
- 
-    serverReady = 1;
- 
-    /*
-     *Keep thread alive.
-     *When the endServer flag is set to True exit
-     *from the loop and terminate the server execution.
-     */
-    while(!endServer)
-    {
-      Thread::wait(100000);
-
-      /* Check threads.  */
-      if(purgeThreadsCounter++ >= 100)
-      {
-        purgeThreadsCounter = 0;
-        purgeThreads();
-      }
-
-      if(autoRebootEnabled)
-      {
-        configsCheck++;
-        /* Do not check for modified configuration files every cycle.  */
-        if(configsCheck > 10)
-        {
-          time_t mainConfTimeNow =
-            FilesUtility::getLastModTime(mainConfigurationFile->c_str());
-          time_t hostsConfTimeNow =
-            FilesUtility::getLastModTime(vhostConfigurationFile->c_str());
-          time_t mimeConfNow =
-            FilesUtility::getLastModTime(mimeConfigurationFile->c_str());
-
-          /* If a configuration file was modified reboot the server. */
-          if(((mainConfTimeNow!=-1) && (hostsConfTimeNow!=-1)  &&
-              (mimeConfNow!=-1)) || toReboot)
-          {
-            if( (mainConfTimeNow  != mainConfTime) || toReboot)
-            {
-              string msg("main-conf-changed");
-              notifyMulticast(msg, 0);
-              
-              reboot();
-              /* Store new mtime values.  */
-              mainConfTime = mainConfTimeNow;
-              mimeConf = mimeConfNow;
-            }
-            else if(mimeConfNow != mimeConf)
-            {
-              string msg("mime-conf-changed");
-              notifyMulticast(msg, 0);
-
-              if(logManager.getType() == LogManager::TYPE_CONSOLE)
-              {
-                char beep[]={static_cast<char>(0x7), '\0'};
-                logManager.write(beep);
-              }
-
-              logWriteln("Reloading MIMEtypes.xml");
-              
-              getMimeManager()->loadXML(getMIMEConfFile());
-
-              logWriteln("Reloaded");
-
-              mimeConf = mimeConfNow;
-            }
-            else if(hostsConfTimeNow != hostsConfTime)
-            {
-              VhostManager* oldvhost = vhostList;
-              string msg("vhosts-conf-changed");
-              notifyMulticast(msg, 0);
-
-              /* Do a beep if outputting to console.  */
-              if(logManager.getType() == LogManager::TYPE_CONSOLE)
-              {
-                char beep[]={static_cast<char>(0x7), '\0'};
-                logManager.write(beep);
-              }
-
-              logWriteln("Rebooting...");
-
-              connectionsScheduler.release();
-
-              Socket::stopBlockingOperations(true);
-
-              listenThreads.beginFastReboot();
-
-              listenThreads.terminate();
-              
-              connectionsScheduler.terminateConnections();
-              clearAllConnections();
-
-              
-              Socket::stopBlockingOperations(false);
-
-              connectionsScheduler.restart();
-              listenThreads.initialize(&languageParser);
-
-              vhostList = new VhostManager(&listenThreads);
-
-              if(vhostList == 0)
-              {
-                continue;
-              }
-
-              delete oldvhost;
-
-              /* Load the virtual hosts configuration from the xml file.  */
-              if(vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
-                                                     getMaxLogFileSize()))
-              {
-                listenThreads.rollbackFastReboot();
-
-              }
-              else
-              {
-                listenThreads.commitFastReboot();
-              }
-
-              hostsConfTime = hostsConfTimeNow;
-              logWriteln("Reloaded");
-
-            }
-
-            configsCheck = 0;
-          }
-          else
-          {
-            /*
-             *If there are problems in loading mtimes
-             *check again after a bit.
-             */
-            configsCheck = 7;
-          }
-        }
-      }//end  if(autoRebootEnabled)
-    }
-  }
-  catch(bad_alloc &ba)
-  {
-    ostringstream s;
-    s << "Bad alloc: " << ba.what();
-    logWriteln(s.str().c_str());
-  }
-  catch(exception &e)
-  {
-    ostringstream s;
-    s << "Error: " << e.what();
-    logWriteln(s.str().c_str());
-  };
-  this->terminate();
-  finalCleanup();
-#ifdef WIN32
-  WSACleanup();
-#endif// WIN32
 }
 
 /*!
@@ -838,7 +854,7 @@ const char *Server::getServerAdmin()
  *The configuration file is a XML file.
  *Return nonzero on errors.
  */
-int Server::initialize(int /*!osVer*/)
+int Server::initialize()
 {
   char *data;
   int ret;
@@ -1668,7 +1684,7 @@ int Server::loadConfFilesLocation()
 #endif
 
 #ifdef WIN32
-    externalPath->assign("plugins/protocols");
+    externalPath->assign("plugins");
 #endif
 
 
@@ -1909,7 +1925,7 @@ int Server::reboot()
 
   rebooting = 0;
 
-  ret = initialize(0);
+  ret = initialize();
 
   if(ret)
     return ret;

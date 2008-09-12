@@ -172,6 +172,10 @@ private:
 	/*! Do not allow to create directly objects.  */
 	Server();
 
+  void mainLoop();
+  void loadPlugins();
+  void displayBoot();
+
 	CachedFileFactory cachedFiles;
 
 	void *envString;
@@ -207,7 +211,7 @@ private:
 	string* path;
   string* externalPath;
 	string* serverAdmin;
-	int initialize(int);
+	int initialize();
   int addThread(int staticThread = 0);
 	ConnectionPtr addConnectionToList(Socket* s, MYSERVER_SOCKADDRIN *asock_in,
                                     char *ipAddr, char *localIpAddr,
