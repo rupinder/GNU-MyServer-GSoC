@@ -10,9 +10,9 @@ Libs=
 PrivateResource=myserver_private.rc
 ResourceIncludes=
 MakeIncludes=
-Compiler=
-CppCompiler=
-Linker=-lz.dll -llibxml2 -liconv -lintl -lssl -lcrypto -lrx -lgdi32 -lwininet -lwsock32 -luserenv -levent -rdynamic_@_@@_
+Compiler=-DMYSERVER_VERSION="GNU MyServer 0.9.0-rc2"
+CppCompiler=-DMYSERVER_VERSION="GNU MyServer 0.9.0-rc2"
+Linker=-lz.dll -llibxml2 -liconv -lintl -lssl -lcrypto -lrx -lgdi32 -lwininet -lwsock32 -luserenv -levent -rdynamic_@
 IsCpp=1
 Icon=
 ExeOutput=binaries
@@ -36,17 +36,16 @@ Release=0
 Build=3
 LanguageID=1033
 CharsetID=1252
-CompanyName=MyServer Project
+CompanyName=Free Software Foundation Inc.
 FileVersion=0.9.0
-FileDescription=MyServer webserver
+FileDescription=GNU MyServer webserver
 InternalName=
-LegalCopyright=MyServer Team
+LegalCopyright=Free Software Foundation Inc.
 LegalTrademarks=
 OriginalFilename=myserver.exe
 ProductName=MyServer
 ProductVersion=0.9.0
 AutoIncBuildNr=0
-
 [Unit1]
 FileName=stdafx.cpp
 CompileCpp=1
@@ -68,16 +67,6 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit3]
-FileName=src\find_data\find_data.cpp
-CompileCpp=1
-Folder=myserver
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit4]
 FileName=src\connection\connection.cpp
 CompileCpp=1
 Folder=myserver
@@ -87,17 +76,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit5]
-FileName=src\env\env.cpp
-CompileCpp=1
-Folder=myserver
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit6]
+[Unit4]
 FileName=src\log\log_manager.cpp
 CompileCpp=1
 Folder=myserver
@@ -107,7 +86,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit7]
+[Unit5]
 FileName=src\conf\mime\mime_manager.cpp
 CompileCpp=1
 Folder=myserver
@@ -117,7 +96,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit8]
+[Unit6]
 FileName=src\conf\security\security_cache.cpp
 CompileCpp=1
 Folder=myserver
@@ -127,7 +106,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit9]
+[Unit7]
 FileName=src\conf\security\security.cpp
 CompileCpp=1
 Folder=myserver
@@ -137,7 +116,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit10]
+[Unit8]
 FileName=src\conf\vhost\vhost.cpp
 CompileCpp=1
 Folder=myserver
@@ -147,7 +126,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit11]
+[Unit9]
 FileName=src\conf\vhost\vhost_manager.cpp
 CompileCpp=1
 Folder=myserver
@@ -157,7 +136,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit12]
+[Unit10]
 FileName=src\connections_scheduler\connections_scheduler.cpp
 CompileCpp=1
 Folder=myserver
@@ -167,7 +146,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit13]
+[Unit11]
 FileName=src\connections_scheduler\listen_threads.cpp
 CompileCpp=1
 Folder=myserver
@@ -177,7 +156,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit14]
+[Unit12]
 FileName=src\http_handler\wincgi\wincgi.cpp
 CompileCpp=1
 Folder=myserver
@@ -187,7 +166,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit15]
+[Unit13]
 FileName=src\http_handler\cgi\cgi.cpp
 CompileCpp=1
 Folder=myserver
@@ -197,7 +176,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit16]
+[Unit14]
 FileName=src\http_handler\mscgi\mscgi.cpp
 CompileCpp=1
 Folder=myserver
@@ -207,7 +186,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit17]
+[Unit15]
 FileName=src\http_handler\mscgi\mscgi_manager.cpp
 CompileCpp=1
 Folder=myserver
@@ -217,7 +196,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit18]
+[Unit16]
 FileName=src\http_handler\fastcgi\fastcgi.cpp
 CompileCpp=1
 Folder=myserver
@@ -227,7 +206,17 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit19]
+[Unit17]
+FileName=src\http_handler\http_file\http_file.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit18]
 FileName=src\http_handler\scgi\scgi.cpp
 CompileCpp=1
 Folder=myserver
@@ -237,8 +226,18 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit20]
+[Unit19]
 FileName=src\http_handler\isapi\isapi.cpp
+CompileCpp=1
+Folder=myserver
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit20]
+FileName=src\http_handler\http_dir\http_dir.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -258,7 +257,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit22]
-FileName=src\base\file\files_utility.cpp
+FileName=src\base\find_data\find_data.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -268,7 +267,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit23]
-FileName=src\base\file\file.cpp
+FileName=src\base\file\files_utility.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -278,7 +277,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit24]
-FileName=src\base\pipe\pipe.cpp
+FileName=src\base\file\file.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -288,7 +287,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit25]
-FileName=src\base\base64\mime_utils.cpp
+FileName=src\base\pipe\pipe.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -298,7 +297,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit26]
-FileName=src\base\mem_buff\mem_buff.cpp
+FileName=src\base\base64\mime_utils.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -308,7 +307,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit27]
-FileName=src\base\home_dir\home_dir.cpp
+FileName=src\base\mem_buff\mem_buff.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -318,7 +317,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit28]
-FileName=src\base\multicast\multicast.cpp
+FileName=src\base\home_dir\home_dir.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -328,7 +327,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit29]
-FileName=src\base\sync\recursive_mutex.cpp
+FileName=src\base\multicast\multicast.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -338,7 +337,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit30]
-FileName=src\base\sync\semaphore.cpp
+FileName=src\base\sync\recursive_mutex.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -348,7 +347,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit31]
-FileName=src\base\sync\mutex.cpp
+FileName=src\base\sync\semaphore.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -358,7 +357,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit32]
-FileName=src\base\sync\event.cpp
+FileName=src\base\sync\mutex.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -368,7 +367,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit33]
-FileName=src\base\sync\read_write_lock.cpp
+FileName=src\base\sync\event.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -378,7 +377,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit34]
-FileName=src\base\safetime\safetime.cpp
+FileName=src\base\sync\read_write_lock.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -388,7 +387,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit35]
-FileName=src\base\socket\socket.cpp
+FileName=src\base\safetime\safetime.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -398,7 +397,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit36]
-FileName=src\base\socket\ssl_socket.cpp
+FileName=src\base\socket\socket.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -408,7 +407,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit37]
-FileName=src\base\hash_map\hash_map.cpp
+FileName=src\base\socket\ssl_socket.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -418,7 +417,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit38]
-FileName=src\base\dynamic_lib\dynamiclib.cpp
+FileName=src\base\hash_map\hash_map.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -428,7 +427,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit39]
-FileName=src\base\process\process_server_manager.cpp
+FileName=src\base\dynamic_lib\dynamiclib.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -438,7 +437,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit40]
-FileName=src\base\process\process.cpp
+FileName=src\base\process\process_server_manager.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -448,7 +447,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit41]
-FileName=src\base\md5\md5.cpp
+FileName=src\base\process\process.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -458,7 +457,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit42]
-FileName=src\base\ssl\ssl.cpp
+FileName=src\base\md5\md5.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -468,7 +467,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit43]
-FileName=src\base\xml\xml_parser.cpp
+FileName=src\base\ssl\ssl.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -478,7 +477,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit44]
-FileName=src\base\string\stringutils.cpp
+FileName=src\base\xml\xml_parser.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -488,7 +487,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit45]
-FileName=src\base\string\securestr.cpp
+FileName=src\base\files_cache\cached_file_factory.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -498,7 +497,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit46]
-FileName=src\base\regex\myserver_regex.cpp
+FileName=src\base\files_cache\cached_file_buffer.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -508,7 +507,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit47]
-FileName=src\base\thread\thread.cpp
+FileName=src\base\files_cache\cached_file.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -518,7 +517,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit48]
-FileName=src\protocol\protocol.cpp
+FileName=src\base\string\stringutils.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -528,7 +527,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit49]
-FileName=src\protocol\protocol_buffer.cpp
+FileName=src\base\string\securestr.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -538,7 +537,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit50]
-FileName=src\protocol\ftp\ftp_parser.cpp
+FileName=src\base\regex\myserver_regex.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -548,7 +547,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit51]
-FileName=src\protocol\ftp\ftp_lexer.cpp
+FileName=src\base\thread\thread.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -558,7 +557,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit52]
-FileName=src\protocol\ftp\ftp.cpp
+FileName=src\protocol\protocol.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -568,7 +567,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit53]
-FileName=src\protocol\control\control_header.cpp
+FileName=src\protocol\protocol_buffer.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -578,7 +577,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit54]
-FileName=src\protocol\control\control_protocol.cpp
+FileName=src\protocol\ftp\ftp_parser.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -588,7 +587,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit55]
-FileName=src\protocol\https\https.cpp
+FileName=src\protocol\ftp\ftp_lexer.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -598,7 +597,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit56]
-FileName=src\protocol\http\http_data_handler.cpp
+FileName=src\protocol\ftp\ftp.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -608,7 +607,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit57]
-FileName=src\protocol\http\http_errors.cpp
+FileName=src\protocol\control\control_header.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -618,7 +617,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit58]
-FileName=src\protocol\http\http_response.cpp
+FileName=src\protocol\control\control_protocol.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -628,7 +627,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit59]
-FileName=src\protocol\http\http_data_read.cpp
+FileName=src\protocol\https\https.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -638,7 +637,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit60]
-FileName=src\protocol\http\http.cpp
+FileName=src\protocol\http\http_data_handler.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -648,7 +647,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit61]
-FileName=src\protocol\http\http_headers.cpp
+FileName=src\protocol\http\http_errors.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -658,7 +657,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit62]
-FileName=src\protocol\http\http_dir.cpp
+FileName=src\protocol\http\http_response.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -668,7 +667,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit63]
-FileName=src\protocol\http\http_thread_context.cpp
+FileName=src\protocol\http\http_data_read.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -678,7 +677,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit64]
-FileName=src\protocol\http\http_header_checker.cpp
+FileName=src\protocol\http\http.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -688,7 +687,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit65]
-FileName=src\protocol\http\http_request.cpp
+FileName=src\protocol\http\http_headers.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -698,7 +697,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit66]
-FileName=src\protocol\http\http_file.cpp
+FileName=src\protocol\http\http_thread_context.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -708,7 +707,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit67]
-FileName=src\files_cache\cached_file_factory.cpp
+FileName=src\protocol\http\http_header_checker.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -718,7 +717,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit68]
-FileName=src\files_cache\cached_file_buffer.cpp
+FileName=src\protocol\http\http_request.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
@@ -728,7 +727,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit69]
-FileName=src\files_cache\cached_file.cpp
+FileName=src\protocol\http\env\env.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1
