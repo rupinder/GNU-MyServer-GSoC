@@ -114,7 +114,10 @@ int HttpDir::unLoad()
  */
 double HttpDir::formatBytes(u_long bytes, u_int power)
 {
-  const u_long quotient = bytes >> power;
+  /* u_long can be 32 bits.  Don't do a right shift that is bigger than
+   * its size.  */
+  const u_long quotient = (bytes >> (power / 2)) >> (power / 2);
+
   if (quotient == 0)
     return -1;
 
