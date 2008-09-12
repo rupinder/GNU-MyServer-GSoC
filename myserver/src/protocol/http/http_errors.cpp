@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 
 
-Mutex HttpErrors::mutex;
 HashMap<int, const char*> HttpErrors::messagesMap;
 
 bool HttpErrors::loaded = false;
@@ -48,15 +47,12 @@ void HttpErrors::getErrorPage(int statusCode, string& out)
 void HttpErrors::getErrorMessage(int statusCode, string& out)
 {
   const char* msg;
-  mutex.lock();
   msg = messagesMap.get(statusCode);
   
   if(msg)
     out.assign(msg);
   else
     out.assign("");
-
-  mutex.unlock();
 }
 
 /*!

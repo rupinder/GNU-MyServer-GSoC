@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define HTTP_ERRORS_H
 
 #include <string>
-#include <include/base/sync/mutex.h>
 #include <include/base/hash_map/hash_map.h>
 
 using namespace std;
@@ -35,7 +34,6 @@ public:
 private:
   static bool loaded;
 	static void putMessage(int, const char*);
-	static Mutex mutex;
 	static HashMap<int, const char*> messagesMap;
 };
 #endif
