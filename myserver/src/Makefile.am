@@ -17,12 +17,6 @@ libmyserver.a: clean-libmyserver.a
 	find -iregex .*\\.$(OBJEXT) | xargs $(AR) cru libmyserver.a
 	$(RANLIB) libmyserver.a
 
-# build_parser: protocol/ftp/ftp_lexer.lpp protocol/ftp/ftp_parser.ypp
-# 	bison --defines=../include/protocol/ftp/ftp_parser.h protocol/ftp/ftp_parser.ypp
-# 	cp protocol/ftp/ftp_parser.tab.cpp protocol/ftp/ftp_parser.cpp
-# 	flex --header-file=../include/protocol/ftp/ftp_lexer.h protocol/ftp/ftp_lexer.lpp
-# 	cp ./protocol/ftp/lex.yy.c ./protocol/ftp/ftp_lexer.cpp
-
 all-local: libmyserver.a myserver${EXEEXT}
 	cp myserver${EXEEXT} ../binaries
 

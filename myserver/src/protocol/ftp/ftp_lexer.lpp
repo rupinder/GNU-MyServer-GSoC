@@ -1,14 +1,14 @@
 %{
-#include "../include/ftp_common.h"
+#include "../../../include/protocol/ftp/ftp_common.h"
 #include <string>
-#include "../include/ftp_parser.h"
+#include "../../../include/protocol/ftp/ftp_parser.h"
 #include <ctype.h>
 %}
 
 %option reentrant
 %option bison-bridge
 %option noyywrap
-/* %option header-file= "../include/ftp_lexer.h" */
+/* %option header-file= "../../../include/protocol/ftp/ftp_lexer.h" */
 %option case-insensitive
 %option bison-locations
 
