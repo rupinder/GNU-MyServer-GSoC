@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2006 Free Software Foundation, Inc.
+Copyright (C) 2006, 2008 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -28,9 +28,6 @@ using namespace std;
 
 class CachedFile : public File
 {
-protected:
-	u_long fseek;
-	CachedFileBuffer* buffer;
 public:
 	CachedFile(CachedFileBuffer* buffer);
 	virtual FileHandle getHandle();
@@ -51,6 +48,8 @@ public:
 
   /*! Inherithed from Stream. */
   virtual int write(const char* buffer, u_long len, u_long *nbw);
-
+protected:
+	u_long fseek;
+	CachedFileBuffer* buffer;
 };
 #endif

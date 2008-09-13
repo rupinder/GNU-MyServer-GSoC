@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2006, 2007 Free Software Foundation, Inc.
+Copyright (C) 2006, 2007, 2008 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -31,22 +31,27 @@ class CachedFileFactory;
 class CachedFileBuffer
 {
 public:
-	void addRef();
-	void decRef();
-	void setFactoryToNotify(CachedFileFactory *cff);
-	u_long getReferenceCounter();
-	u_long getFileSize(){return fileSize;}
-	CachedFileBuffer(const char* filename);
-	CachedFileBuffer(File* file);
-	~CachedFileBuffer();
-	const char* getFilename(){return filename.c_str();}
-	const char* getBuffer(){return buffer;}
+  void addRef();
+  void decRef();
+  u_long getReferenceCounter();
+
+  void setFactoryToNotify(CachedFileFactory *cff);
+  CachedFileFactory* getFactoryToNotify(){return factoryToNotify;}
+
+  u_long getFileSize(){return fileSize;}
+  CachedFileBuffer(const char* filename);
+  CachedFileBuffer(File* file);
+  CachedFileBuffer(const char* buffer, u_long size);
+  ~CachedFileBuffer();
+
+  const char* getFilename(){return filename.c_str();}
+  const char* getBuffer(){return buffer;}
 protected:
-	Mutex mutex;
-	char *buffer;
-	u_long refCounter;
-	u_long fileSize;
-	CachedFileFactory *factoryToNotify;
-	string filename;
+  Mutex mutex;
+  char *buffer;
+  u_long refCounter;
+  u_long fileSize;
+  CachedFileFactory *factoryToNotify;
+  string filename;
 };
 #endif

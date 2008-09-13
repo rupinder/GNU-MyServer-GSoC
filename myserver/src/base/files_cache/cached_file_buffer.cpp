@@ -117,6 +117,23 @@ u_long CachedFileBuffer::getReferenceCounter()
 }
 
 /*!
+ *Load a file in the buffer from a memory location.
+ *\param buffer The buffer to copy.
+ *\param size The memory buffer size.
+ */
+CachedFileBuffer::CachedFileBuffer(const char* buffer, u_long size)
+{
+  u_long nbr;
+  factoryToNotify = 0;
+  refCounter = 0;
+
+  fileSize = size;
+  this->buffer = new char[size];
+
+  memcpy(this->buffer, buffer, size);
+}
+
+/*!
  *Load a file in the buffer.
  *\param file The file object.
  */

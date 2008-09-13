@@ -179,7 +179,7 @@ int CachedFile::setFilePointer(u_long initialByte)
   if(initialByte <= buffer->getFileSize())
     fseek = initialByte;
   else
-    return 1;
+    return -1;
 
   return 0;
 }

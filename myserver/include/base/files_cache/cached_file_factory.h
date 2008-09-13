@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2006, 2007 Free Software Foundation, Inc.
+Copyright (C) 2006, 2007, 2008 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -33,65 +33,69 @@ using namespace std;
 class CachedFileFactory
 {
 public:
-	CachedFileFactory();
-	~CachedFileFactory();
-	CachedFileFactory(u_long m);
-	void initialize(u_long size);
-	void clean();
-	void setSize(u_long m){size = m;}
-	File *open(const char* file);
-	void nullReferences(CachedFileBuffer* cfb);
+  CachedFileFactory();
+  ~CachedFileFactory();
+  CachedFileFactory(u_long m);
+  void initialize(u_long size);
+  void clean();
+  void setSize(u_long m){size = m;}
+  u_long getSize(){return size;}
+  u_long getUsedSize(){return usedSize;}
+  u_long getUsed(){return used;}
 
-	void setMaxSize(u_long maxSize);
-	void setMinSize(u_long minSize);
-	u_long getMaxSize();
-	u_long getMinSize();
+  File *open(const char* file);
+  void nullReferences(CachedFileBuffer* cfb);
+
+  void setMaxSize(u_long maxSize);
+  void setMinSize(u_long minSize);
+  u_long getMaxSize();
+  u_long getMinSize();
 protected:
 
-	u_long purgeRecords();
+  u_long purgeRecords();
 
 
-	Mutex mutex;
+  Mutex mutex;
 
-	/*! Max elements count for this cache.  */
-	u_long size;
+  /*! Max elements count for this cache.  */
+  u_long size;
 
-	/*! Size currently used.  */
-	u_long usedSize;
+  /*! Size currently used.  */
+  u_long usedSize;
 
-	/*! Number of times the cache was used.  */
-	u_long used;
+  /*! Number of times the cache was used.  */
+  u_long used;
 
-	/*! Cache creation time.  */
-	u_long created;
+  /*! Cache creation time.  */
+  u_long created;
 
-	/*! Max size for single file.  */
-	u_long maxSize;
+  /*! Max size for single file.  */
+  u_long maxSize;
 
-	/*! Min size for single file.  */
-	u_long minSize;
+  /*! Min size for single file.  */
+  u_long minSize;
 
-	struct CachedFileFactoryRecord
-	{
-		CachedFileBuffer* buffer;
-		/*! Number of times the cache record was used.  */
-		u_long used;
+  struct CachedFileFactoryRecord
+  {
+    CachedFileBuffer* buffer;
+    /*! Number of times the cache record was used.  */
+    u_long used;
 
-		/*! Cache record creation time.  */
-		u_long created;
+    /*! Cache record creation time.  */
+    u_long created;
 
-		/*! Last mtime for this file.  */
-		time_t mtime;
+    /*! Last mtime for this file.  */
+    time_t mtime;
 
-		/*! Last time we checked for the mtime of the buffered file.  */
-		u_long lastModTimeCheck;
+    /*! Last time we checked for the mtime of the buffered file.  */
+    u_long lastModTimeCheck;
 
-		/*! This entry is not valid and will be removed when refCount = 0.  */
-		bool invalidCache;
-	};
+    /*! This entry is not valid and will be removed when refCount = 0.  */
+    bool invalidCache;
+  };
 
-	list<CachedFileFactoryRecord*> buffersToRemove;
-	HashMap<char*, CachedFileFactoryRecord*> buffers;
+  list<CachedFileFactoryRecord*> buffersToRemove;
+  HashMap<char*, CachedFileFactoryRecord*> buffers;
 };
 
 #endif
