@@ -17,14 +17,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <php_embed.h>
 
 #include <stdafx.h>
-#include <include/connection.h>
-#include <include/socket.h>
-#include <include/server.h>
-#include <include/semaphore.h>
-#include <include/mutex.h>
-#include <include/file.h>
-#include <include/files_utility.h>
-#include <include/http.h>
+#include <include/connection/connection.h>
+#include <include/socket/socket.h>
+#include <include/server/server.h>
+#include <include/base/sync/semaphore.h>
+#include <include/base/sync/mutex.h>
+#include <include/base/file/file.h>
+#include <include/base/file/files_utility.h>
+#include <include/protocol/http/http.h>
 
 #ifdef WIN32
 #define EXPORTABLE(x) x _declspec(dllexport);

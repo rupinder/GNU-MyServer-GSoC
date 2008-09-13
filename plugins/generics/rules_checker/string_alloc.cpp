@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "heading.h"
 
 #include <list>
-#include <include/thread.h>
+#include <include/base/thread/thread.h>
 
 static list<string*> strings;
 
@@ -37,7 +37,7 @@ string* allocate_new_str(const char* v)
 
 void free_strings(ThreadContext* context)
 {
-	
+
 	list<string*>::iterator it = context->strings.begin();
 	while(it != context->strings.end())
 	{

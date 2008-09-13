@@ -16,11 +16,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <stdafx.h>
 #include <string.h>
-#include <include/server.h>
-#include <include/http_data_handler.h>
-#include <include/multicast.h>
-#include <include/http.h>
-#include <include/dynamic_executor.h>
+#include <include/server/server.h>
+#include <include/protocol/http/http_data_handler.h>
+#include <include/base/multicast/multicast.h>
+#include <include/protocol/http/http.h>
+#include <include/plugin/executor/dynamic_executor.h>
 #include <Python.h>
 
 
@@ -54,7 +54,7 @@ public:
 
 	void setHttpThreadContext(HttpThreadContext* td){this->td = td;}
 	void setRet(int r){ret = r;}
-  
+
 
 	virtual int send(HttpThreadContext*, ConnectionPtr s,
                    const char* exec, const char* cmdLine,
@@ -67,7 +67,7 @@ public:
   {
     return appendDataToHTTPChannel(td, buffer, size, 0, &chain, 0, useChunks);
   }
-  
+
   void check()
   {
     checkDataChunks(td, &keepalive, &useChunks);
@@ -131,11 +131,11 @@ static PyObject *get_response_header(PyObject *self, PyObject *args)
 	string value;
 	if (!PyArg_ParseTuple(args, (char*)"s", &header))
 		return NULL;
-	
+
 	HttpThreadContext* context = getThreadContext();
-	
+
 	context->response.getValue(header, &value);
-	
+
 	return Py_BuildValue((char*)"s", value.c_str());
 }
 
@@ -145,11 +145,11 @@ static PyObject *get_request_header(PyObject *self, PyObject *args)
 	string value;
 	if (!PyArg_ParseTuple(args, (char*)"s", &header))
 		return NULL;
-	
+
 	HttpThreadContext* context = getThreadContext();
-	
+
 	context->request.getValue(header, &value);
-	
+
 	return Py_BuildValue((char*)"s", value.c_str());
 }
 
@@ -159,13 +159,13 @@ static PyObject *log_server_error(PyObject *self, PyObject *args)
 
 	if (!PyArg_ParseTuple(args, (char*)"s", &msg))
 		return NULL;
-	
+
   serverInstance->logLockAccess();
   serverInstance->logPreparePrintError();
   serverInstance->logWriteln(msg);
   serverInstance->logEndPrintError();
   serverInstance->logUnlockAccess();
-	
+
 	return NULL;
 }
 
@@ -176,9 +176,9 @@ static PyObject *set_response_header(PyObject *self, PyObject *args)
 	const char* ret;
 	if (!PyArg_ParseTuple(args, (char*)"ss", &header, &value))
 		return NULL;
-	
+
 	HttpThreadContext* context = getThreadContext();
-	
+
 	string *retS =  context->response.setValue(header, value);
 
   if(retS)
@@ -196,9 +196,9 @@ static PyObject *set_request_header(PyObject *self, PyObject *args)
 	const char* ret;
 	if (!PyArg_ParseTuple(args, (char*)"ss", &header, &value))
 		return NULL;
-	
+
 	HttpThreadContext* context = getThreadContext();
-	
+
 	string *retS =  context->request.setValue(header, value);
 
   if(retS)
@@ -216,18 +216,18 @@ static PyObject *send_header(PyObject *self, PyObject *args)
 
   tdata->check();
 
-  HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), 
+  HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
                                        &(td->response));
 
-  if(td->connection->socket->send(td->buffer->getBuffer(), 
-             (u_long)strlen(td->buffer->getBuffer()), 0) 
+  if(td->connection->socket->send(td->buffer->getBuffer(),
+             (u_long)strlen(td->buffer->getBuffer()), 0)
      == SOCKET_ERROR)
 		{
       return Py_BuildValue((char*)"i", 1);
-		}	
+		}
 
   tdata->setRet(1);
-	  
+
   return Py_BuildValue((char*)"i", 0);
 }
 
@@ -257,7 +257,7 @@ static PyObject *send_data(PyObject *self, PyObject *args)
     return Py_BuildValue((char*)"i", 0);
 
   tdata->setRet(1);
-		
+
 	return Py_BuildValue((char*)"i", size);
 }
 
@@ -280,11 +280,11 @@ static PyObject *raise_error(PyObject *self, PyObject *args)
 
 	if(data->getRet())
 		return NULL;
-	
+
 	data->getHttpThreadContext()->http->raiseHTTPError(error);
-	
+
 	data->setRet(1);
-	
+
 	return Py_BuildValue((char*)"s", "");
 }
 
@@ -308,11 +308,11 @@ static PyObject *send_redirect(PyObject *self, PyObject *args)
 
 	if(data->getRet())
 		return NULL;
-	
+
 	data->getHttpThreadContext()->http->sendHTTPRedirect(dest);
-	
+
 	data->setRet(1);
-	
+
 	return Py_BuildValue((char*)"s", dest);
 }
 
@@ -345,7 +345,7 @@ class HttpObserver : public Multicast<string, void*, int>
 		bool file;
 	};
 public:
-	
+
 	virtual int updateMulticast(MulticastRegistry<string, void*, int>* reg, string& msg, void* arg)
 	{
 		HttpThreadContext *td = (HttpThreadContext*)arg;
@@ -476,7 +476,7 @@ EXPORTABLE(int) load(void* server,void* parser)
 
 			observer.addRule(data, file);
 		}
-		
+
 	}
 
 	mutex.init();

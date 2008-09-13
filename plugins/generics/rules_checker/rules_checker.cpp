@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdafx.h>
 #include <string.h>
-#include <include/server.h>
+#include <include/server/server.h>
 #include "heading.h"
 
 #ifdef WIN32
@@ -56,7 +56,7 @@ public:
 
 				return 1;
 			}
-				
+
 		}
 		free_strings(&context);
 		return 0;
@@ -71,12 +71,12 @@ public:
 
 		if(pos == string::npos)
 			return; //TODO: error.
-		
+
 		it.condition.assign(ruleStr.substr(0, pos));
 		it.event.assign(ruleStr.substr(pos+2, string::npos));
 		rules.push_back(it);
 	}
-	
+
 private:
 	list<Item> rules;
 };
@@ -108,22 +108,22 @@ EXPORTABLE(int) load(void* server,void* parser)
 		serverInstance->logUnlockAccess();
 		return -1;
 	}
-	
-	
+
+
 	staticData->addMulticast(msg, &observer);
-	
+
 	configuration = serverInstance->getConfiguration();
 	xmlDoc = configuration->getDoc();
-	
+
 	for(xmlNodePtr ptr = xmlDoc->children->next->children; ptr; ptr = ptr->next)
 	{
 		char* data;
 		if(!xmlStrcmp(ptr->name, (const xmlChar *)"RULES_CHECKER_RULE"))
 		{
-			
+
 			if(ptr->children && ptr->children->next && ptr->children->next->content)
 				data = (char*)ptr->children->next->content;
-			
+
 			if(!data)
 			{
 				serverInstance->logLockAccess();
@@ -133,10 +133,10 @@ EXPORTABLE(int) load(void* server,void* parser)
 				serverInstance->logUnlockAccess();
 				return -1;
 			}
-			
+
 			observer.addRule(data);
 		}
-		
+
 	}
 
 	return 0;

@@ -15,13 +15,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "php.h"
-#include <include/thread.h>
-#include <include/mutex.h>
-#include <include/hash_map.h>
-#include <include/http_data_handler.h>
-#include <include/http_response.h>
-#include <include/cgi.h>
-#include <include/thread.h>
+#include <include/base/thread/thread.h>
+#include <include/base/sync/mutex.h>
+#include <include/base/hash_map/hash_map.h>
+#include <include/protocol/http/http_data_handler.h>
+#include <include/protocol/http/http_response.h>
+#include <include/http_handler/cgi/cgi.h>
 
 #include <main/php.h>
 #include <main/SAPI.h>
@@ -66,7 +65,7 @@ static PhpData* getPhpData()
 int modifyHeader(HttpResponseHeader *response, char* name, char* value)
 {
 	string* val = response->getValue(name, NULL);
-	
+
 	if(val)
 		val->assign(value);
 	else
@@ -100,12 +99,12 @@ int sendHeader(PhpData* data)
 																			 &data->td->response);
 
 
-			
+
 	location = data->td->response.getValue("Location", 0);
 
 	/*
-	 *If it is present Location: xxx in the header 
-	 *send a redirect to xxx.  
+	 *If it is present Location: xxx in the header
+	 *send a redirect to xxx.
 	 */
 	if(location && location->length())
 	{
@@ -120,7 +119,7 @@ int sendHeader(PhpData* data)
 
 
 
-	
+
 }
 
 int myphp_header_handler(sapi_header_struct *sapi_header, sapi_headers_struct *sapi_headers TSRMLS_DC)
@@ -140,7 +139,7 @@ int myphp_header_handler(sapi_header_struct *sapi_header, sapi_headers_struct *s
 
 	modifyHeader(&(data->td->response), sapi_header->header, valInit);
 
-	sapi_header->header[sep] = ':'; 
+	sapi_header->header[sep] = ':';
 
 	return 0;
 }
@@ -155,7 +154,7 @@ int myphp_read_post(char *buffer, uint count_bytes TSRMLS_DC)
 			nbr = 0;
 
 	return nbr;
-	
+
 }
 
 int myphp_send_headers(sapi_headers_struct *sapi_headers TSRMLS_DC)
@@ -183,8 +182,8 @@ void myphp_log_message(char* message)
 
 }
 
-int myphp_ub_write(const char *str, unsigned int str_length TSRMLS_DC) 
-{ 
+int myphp_ub_write(const char *str, unsigned int str_length TSRMLS_DC)
+{
 	PhpData* data = getPhpData();
 
 	if(!data->headerSent)
@@ -197,9 +196,9 @@ int myphp_ub_write(const char *str, unsigned int str_length TSRMLS_DC)
 	return HttpDataHandler::appendDataToHTTPChannel(data->td,
 																									(char*)str,
 																									(u_long)str_length,
-																									&(data->td->outputData), 
+																									&(data->td->outputData),
 																									&(data->chain),
-																									(bool)data->td->appendOutputs, 
+																									(bool)data->td->appendOutputs,
 																									data->useChunks);
 
 
@@ -251,8 +250,8 @@ void myphp_register_variables(zval *track_vars_array TSRMLS_DC)
 }
 
 int	myphp_startup(struct _sapi_module_struct *sapi_module)
-{	
-	if(php_module_startup(sapi_module, entries, loadedEntries) == FAILURE) 
+{
+	if(php_module_startup(sapi_module, entries, loadedEntries) == FAILURE)
 	{
 		return FAILURE;
 	}
@@ -260,7 +259,7 @@ int	myphp_startup(struct _sapi_module_struct *sapi_module)
 	return 0;
 }
 
-static sapi_module_struct myphp_module = 
+static sapi_module_struct myphp_module =
 {
 	"myphp",
 	"MyServer PHP Module",
@@ -274,20 +273,20 @@ static sapi_module_struct myphp_module =
 	myphp_flush,                          /* flush */
 	NULL, //myphp_get_stat,                       /* get uid */
 	NULL, //myphp_getenv,                         /* getenv */
-	
+
 	php_error,                                      /* error handler */
-	
+
 	myphp_header_handler,                 /* header handler */
 	myphp_send_headers,                   /* send headers handler */
 	NULL,                                           /* send header handler */
-	
+
 	myphp_read_post,                      /* read POST data */
 	myphp_read_cookies,                   /* read Cookies */
-	
+
 	myphp_register_variables,
 	myphp_log_message,                    /* Log message */
 	NULL,//myphp_sapi_get_request_time,               /* Request Time */
-	
+
 	STANDARD_SAPI_MODULE_PROPERTIES
 };
 
@@ -305,7 +304,7 @@ int load(void* server,void* parser)
 			singleRequest = 1;
 		else
 			singleRequest = 0;
-		
+
 		loadedEntries = 0;
 
 		if(singleRequest)
@@ -348,7 +347,7 @@ int unLoad(void* p)
 
 		if(singleRequest)
 			requestMutex.destroy();
-	
+
 #ifdef ZTS
     tsrm_shutdown();
 #endif
@@ -385,7 +384,7 @@ int sendManager(HttpThreadContext* td, ConnectionPtr s, const char *filenamePath
 
 	if(!req->ver.compare("HTTP/1.1") || !req->ver.compare("HTTPS/1.1"))
 		SG(request_info).proto_num = 1001;
-	else 
+	else
 		SG(request_info).proto_num = 1000;
 
 	SG(server_context) = data = new PhpData();
@@ -423,7 +422,7 @@ int sendManager(HttpThreadContext* td, ConnectionPtr s, const char *filenamePath
 		name = "html_errors";
 		zend_alter_ini_entry(name, strlen(name), "0", 1, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
 
-	}	
+	}
 
 	SG(request_info).post_data_length = SG(request_info).content_length;
 
@@ -432,23 +431,23 @@ int sendManager(HttpThreadContext* td, ConnectionPtr s, const char *filenamePath
 	script.opened_path = NULL;
 	script.free_filename = 0;
 
-	zend_first_try 
+	zend_first_try
 	{
 
-		if (php_request_startup(TSRMLS_C) == FAILURE) 
+		if (php_request_startup(TSRMLS_C) == FAILURE)
 		{
 			return FAILURE;
 		}
 
 		php_execute_script(&script TSRMLS_CC);
-		
+
 		if(data->useChunks)
 			HttpDataHandler::appendDataToHTTPChannel(data->td,
 																							 0,
 																							 0,
-																							 &(data->td->outputData), 
+																							 &(data->td->outputData),
 																							 &(data->chain),
-																							 (bool)data->td->appendOutputs, 
+																							 (bool)data->td->appendOutputs,
 																							 data->useChunks);
 
 		php_request_shutdown(NULL);

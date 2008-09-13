@@ -16,10 +16,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <stdafx.h>
 #include <string.h>
-#include <include/server.h>
-#include <include/multicast.h>
-#include <include/http.h>
-#include <include/dynamic_executor.h>
+#include <include/server/server.h>
+#include <include/multicast/multicast.h>
+#include <include/protocol/http/http.h>
+#include <include/plugin/executor/dynamic_executor.h>
 #include <Python.h>
 
 #ifdef WIN32
@@ -87,11 +87,11 @@ static PyObject *get_header(PyObject *self, PyObject *args)
 	string value;
 	if (!PyArg_ParseTuple(args, (char*)"s", &header))
 		return NULL;
-	
+
 	HttpThreadContext* context = getThreadContext();
-	
+
 	context->request.getValue(header, &value);
-	
+
 	return Py_BuildValue((char*)"s", value.c_str());
 }
 
@@ -102,11 +102,11 @@ static PyObject *set_header(PyObject *self, PyObject *args)
 	const char* ret;
 	if (!PyArg_ParseTuple(args, (char*)"ss", &header, &value))
 		return NULL;
-	
+
 	HttpThreadContext* context = getThreadContext();
-	
+
 	ret = context->request.setValue(header, value)->c_str();
-	
+
 	return Py_BuildValue((char*)"s", ret);
 }
 
@@ -120,11 +120,11 @@ static PyObject *raise_error(PyObject *self, PyObject *args)
 
 	if(data->ret)
 		return NULL;
-	
+
 	data->td->http->raiseHTTPError(error);
-	
+
 	data->ret = 1;
-	
+
 	return Py_BuildValue((char*)"s", "");
 }
 
@@ -138,11 +138,11 @@ static PyObject *send_redirect(PyObject *self, PyObject *args)
 
 	if(data->ret)
 		return NULL;
-	
+
 	data->td->http->sendHTTPRedirect(dest);
-	
+
 	data->ret = 1;
-	
+
 	return Py_BuildValue((char*)"s", dest);
 }
 
@@ -167,7 +167,7 @@ class HttpObserver : public Multicast<string, void*, int>
 		bool file;
 	};
 public:
-	
+
 	virtual int updateMulticast(MulticastRegistry<string, void*, int>* reg, string& msg, void* arg)
 	{
 		HttpThreadContext *td = (HttpThreadContext*)arg;
@@ -297,7 +297,7 @@ EXPORTABLE(int) load(void* server,void* parser)
 
 			observer.addRule(data, file);
 		}
-		
+
 	}
 
 	mutex.init();

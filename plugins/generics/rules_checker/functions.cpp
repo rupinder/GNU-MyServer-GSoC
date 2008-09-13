@@ -1,8 +1,8 @@
 using namespace std;
 
 #include "heading.h"
-#include <include/http.h>
-#include <include/http_headers.h>
+#include <include/protocol/http/http.h>
+#include <include/protocol/http/http_headers.h>
 
 string* call_function(void* context, string* func)
 {
