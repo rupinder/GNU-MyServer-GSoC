@@ -22,9 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 extern "C" {
 #include <string.h>
 #include <stdio.h>
-#ifdef WIN32
-//#include <Ws2tcpip.h>
-#endif
 #ifndef WIN32
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -40,13 +37,7 @@ extern "C" {
 
 using namespace std;
 
-#ifdef WIN32
-#pragma comment(lib,"wsock32.lib")
-#pragma comment(lib,"ws2_32.lib")
-#endif
-
 bool Socket::denyBlockingOperations = false;
-
 
 /*!
  *Source code to wrap the socket library to MyServer project.

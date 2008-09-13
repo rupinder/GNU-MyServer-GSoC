@@ -23,7 +23,6 @@ extern "C" {
 #ifdef WIN32
 #include <direct.h>
 #include <errno.h>
-#pragma comment (lib,"libz.lib")
 #endif
 #ifdef NOT_WIN
 #include <string.h>

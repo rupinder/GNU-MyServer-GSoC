@@ -35,11 +35,6 @@ extern "C" {
 #endif
 }
 
-/* External libraries to be included in the project.  */
-#ifdef WIN32
-#pragma comment(lib,"winmm.lib")
-#endif
-
 #define MYSERVER_RUNAS_CONSOLE 1
 #define MYSERVER_RUNAS_SERVICE 2
 
