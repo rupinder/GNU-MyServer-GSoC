@@ -204,7 +204,6 @@ int main (int argn, char **argv)
   try
   {
     Server::createInstance();
-    Process::initialize();
   }
   catch(...)
   {
@@ -553,7 +552,7 @@ void registerService()
   char path [MAX_PATH];
   GetCurrentDirectory(MAX_PATH,path);
   strcat(path,"\\");
-  strcat(path,"myServer.exe SERVICE");
+  strcat(path,"myserver.exe SERVICE");
   
   manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
   if (manager)

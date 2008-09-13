@@ -77,6 +77,8 @@ public:
 		return instance;
 	}
 
+  int loadLibraries();
+
 	CachedFileFactory* getCachedFiles();
   const char* getHashedData(const char* name);
 

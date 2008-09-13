@@ -102,6 +102,34 @@ Server::Server()
 }
 
 /*!
+ *Load here all the libraries.
+ */
+int Server::loadLibraries()
+{
+  Process::initialize();
+
+  setcwdBuffer();
+  XmlParser::startXML();
+  myserver_safetime_init();
+  
+  /* Startup the socket library.  */
+  logWriteln(languageParser.getValue("MSG_ISOCK") );
+
+  if(startupSocketLib(MAKEWORD( 1, 1)) != 0)
+  {
+    logPreparePrintError();
+    logWriteln( languageParser.getValue("MSG_SERVER_CONF") );
+    logEndPrintError();
+    return 1;
+  }
+
+  logWriteln(languageParser.getValue("MSG_SOCKSTART") );
+
+  return 0;
+}
+
+
+/*!
  *Destroy the object.
  */
 Server::~Server()
@@ -131,11 +159,8 @@ void Server::start()
 
   try
   {
-    setcwdBuffer();
-
-    XmlParser::startXML();
-
-    myserver_safetime_init();
+    if(loadLibraries())
+      return;
 
     /*
      *Setup the server configuration.
@@ -151,18 +176,6 @@ void Server::start()
     initializeSSL();
 
     logWriteln( languageParser.getValue("MSG_SERVER_CONF") );
-
-    /* Startup the socket library.  */
-    logWriteln( languageParser.getValue("MSG_ISOCK") );
-    err = startupSocketLib(/* MAKEWORD( 2, 2 ) */MAKEWORD( 1, 1));
-    if (err != 0)
-    {
-      logPreparePrintError();
-      logWriteln( languageParser.getValue("MSG_SERVER_CONF") );
-      logEndPrintError();
-      return;
-    }
-    logWriteln( languageParser.getValue("MSG_SOCKSTART") );
 
     /*
      *Get the name of the local machine.
@@ -232,17 +245,14 @@ void Server::start()
     connectionsScheduler.restart();
 
     listenThreads.initialize(&languageParser);
+
     if(vhostList)
-    {
       delete vhostList;
-      vhostList = 0;
-    }
 
     vhostList = new VhostManager(&listenThreads);
-    if(vhostList == 0)
-    {
+
+    if(vhostList == NULL)
       return;
-    }
 
     getProcessServerManager()->load();
 
@@ -314,6 +324,7 @@ void Server::start()
   };
   this->terminate();
   finalCleanup();
+
 #ifdef WIN32
   WSACleanup();
 #endif// WIN32
