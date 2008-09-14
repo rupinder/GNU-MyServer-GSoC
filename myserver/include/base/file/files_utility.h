@@ -25,11 +25,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-class FilesUtility 
+class FilesUtility
 {
 	FileHandle handle;
 	string filename;
-	
+
 private:
 	/*! Don't allow instances for this class.  */
 	FilesUtility();
@@ -73,11 +73,12 @@ public:
 	static int deleteFile(string const &file)
     {return deleteFile(file.c_str());}
 
-  static int renameFile(const char*, const char*);
+    static int renameFile(const char*, const char*);
 	static int renameFile(string const &before, string const &after)
     {return renameFile(before.c_str(), after.c_str());}
 
 	static int copyFile(const char*, const char*, int overwrite);
+	static int copyFile(File, File);
 	static int copyFile(string const &src, string const &dest, int overwrite)
 	{return copyFile(src.c_str(), dest.c_str(), overwrite);}
 

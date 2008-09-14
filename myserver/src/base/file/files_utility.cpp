@@ -81,7 +81,7 @@ int FilesUtility::getPathRecursionLevel(const char* path)
       lpath++;
       continue;
     }
-    
+
     if(*lpath=='.')
     {
       lpath++;
@@ -170,7 +170,7 @@ int FilesUtility::copyFile(const char* src, const char* dest, int overwrite)
     destFile = open(dest, O_WRONLY);
   else
     destFile = open(dest, O_WRONLY | O_CREAT);
-    
+
   if(destFile == -1)
   {
     close(srcFile);
@@ -193,7 +193,7 @@ int FilesUtility::copyFile(const char* src, const char* dest, int overwrite)
       close(srcFile);
       close(destFile);
       return -1;
-    }    
+    }
 
   }while(dim);
 
@@ -204,6 +204,33 @@ int FilesUtility::copyFile(const char* src, const char* dest, int overwrite)
 #endif
 }
 
+/*!
+ *Copy the file from [SRC] to [DEST]. Returns 0 on success.
+ *\param src The source File.
+ *\param dest The destination File.
+ *\param overwrite Overwrite the dest file if already exists?
+ */
+int FilesUtility::copyFile(File src, File dest)
+{
+  char buffer[512];
+  u_long nbr, nbw;
+  int ret;
+
+
+  for (;;) {
+	ret = src.readFromFile(buffer, 512, &nbr);
+	if (ret)
+	  return -1;
+
+	if (!nbr)
+	  break;
+
+	ret = dest.writeToFile(buffer, nbr, &nbw);
+	if (ret)
+	  return -1;
+  }
+  return 0;
+}
 
 /*!
  *Delete an existing file passing the path.
@@ -264,7 +291,7 @@ int FilesUtility::isLink(const char* filename)
 
   return (S_ISLNK(F_Stats.st_mode))? 1 : 0;
 #endif
- 
+
 }
 
 /*!
@@ -278,9 +305,9 @@ int FilesUtility::fileExists(const char* filename)
   OFSTRUCT of;
   int ret = OpenFile(filename, &of, OF_EXIST);
   return (ret != HFILE_ERROR)?1:0;*/
-  HANDLE hFile = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, 
-                       NULL, OPEN_EXISTING, 
-                       FILE_ATTRIBUTE_NORMAL | FILE_FLAG_BACKUP_SEMANTICS, 
+  HANDLE hFile = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ,
+                       NULL, OPEN_EXISTING,
+                       FILE_ATTRIBUTE_NORMAL | FILE_FLAG_BACKUP_SEMANTICS,
                        NULL);
  int nRet = hFile != INVALID_HANDLE_VALUE ? 1 : 0;
     CloseHandle(hFile);
@@ -373,7 +400,7 @@ int FilesUtility::chown(const char* filename, int uid, int gid)
 {
 #ifdef NOT_WIN
   return ::chown(filename, uid, gid) ? 1 : 0;
-#endif 
+#endif
   return 0;
 }
 
@@ -575,7 +602,7 @@ void FilesUtility::getFileExt(string& ext, string const &filename)
   {
     ext.assign("");
   }
-  
+
 }
 
 /*!
@@ -595,7 +622,7 @@ int FilesUtility::getShortFileName(char *filePath, char *out, int buffersize)
 #endif
 #ifdef NOT_WIN
   strncpy(out, filePath, buffersize);
-  return 0;  
+  return 0;
 #endif
 }
 

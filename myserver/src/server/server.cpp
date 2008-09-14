@@ -35,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/ssl/ssl.h>
 #include <include/base/socket/ssl_socket.h>
 
-extern "C" 
+extern "C"
 {
 #ifdef WIN32
   //#include <Ws2tcpip.h>
@@ -75,7 +75,7 @@ const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
  */
 Server* Server::instance = 0;
 
-Server::Server() : connectionsScheduler(this), 
+Server::Server() : connectionsScheduler(this),
                    listenThreads(&connectionsScheduler, this)
 {
   toReboot = 0;
@@ -112,7 +112,7 @@ int Server::loadLibraries()
   setcwdBuffer();
   XmlParser::startXML();
   myserver_safetime_init();
-  
+
   /* Startup the socket library.  */
   logWriteln(languageParser.getValue("MSG_ISOCK") );
 
@@ -259,7 +259,7 @@ void Server::start()
 
     /* Load the home directories configuration.  */
     homeDir.load();
-    
+
     loadPlugins();
 
     /* Load the virtual hosts configuration from the xml file.  */
@@ -304,7 +304,7 @@ void Server::start()
 
     if(logManager.getType() == LogManager::TYPE_CONSOLE)
       logWriteln(languageParser.getValue("MSG_BREAK"));
- 
+
     serverReady = 1;
 
     /* Finally we can give control to the main loop.  */
@@ -350,7 +350,7 @@ void Server::loadPlugins()
                               new FtpProtocol(),
                               new ControlProtocol(),
                               0};
-  
+
   for (int j = 0; protocolsSet[j]; j++)
   {
     char protocolName[32];
@@ -359,13 +359,13 @@ void Server::loadPlugins()
     protocol->registerName(protocolName, 32);
     getProtocolsManager()->addProtocol(protocolName, protocol);
   }
-  
+
 
   getPluginsManager()->addNamespace(&executors);
   getPluginsManager()->addNamespace(&protocols);
   getPluginsManager()->addNamespace(&filters);
   getPluginsManager()->addNamespace(&genericPluginsManager);
-  
+
   getPluginsManager()->preLoad(this, &languageParser, *externalPath);
   getPluginsManager()->load(this, &languageParser, *externalPath);
   getPluginsManager()->postLoad(this, &languageParser);
@@ -383,13 +383,13 @@ void Server::mainLoop()
   u_long configsCheck = 0;
   u_long purgeThreadsCounter = 0;
 
-  mainConfTime = 
+  mainConfTime =
     FilesUtility::getLastModTime(mainConfigurationFile->c_str());
-  hostsConfTime = 
+  hostsConfTime =
     FilesUtility::getLastModTime(vhostConfigurationFile->c_str());
-  mimeConfTime = 
+  mimeConfTime =
     FilesUtility::getLastModTime(mimeConfigurationFile->c_str());
-  
+
   /*
    *Keep thread alive.
    *When the endServer flag is set to True exit
@@ -427,7 +427,7 @@ void Server::mainLoop()
           {
             string msg("main-conf-changed");
             notifyMulticast(msg, 0);
-            
+
             reboot();
             /* Store new mtime values.  */
             mainConfTime = mainConfTimeNow;
@@ -437,7 +437,7 @@ void Server::mainLoop()
           {
             string msg("mime-conf-changed");
             notifyMulticast(msg, 0);
-            
+
             if(logManager.getType() == LogManager::TYPE_CONSOLE)
             {
               char beep[]={static_cast<char>(0x7), '\0'};
@@ -447,9 +447,9 @@ void Server::mainLoop()
             logWriteln("Reloading MIMEtypes.xml");
 
             getMimeManager()->loadXML(getMIMEConfFile());
-            
+
             logWriteln("Reloaded");
-            
+
             mimeConfTime = mimeConfNow;
           }
           else if(hostsConfTimeNow != hostsConfTime)
@@ -464,31 +464,31 @@ void Server::mainLoop()
               char beep[]={static_cast<char>(0x7), '\0'};
               logManager.write(beep);
             }
-            
+
             logWriteln("Rebooting...");
-            
+
             connectionsScheduler.release();
 
             Socket::stopBlockingOperations(true);
-              
+
             listenThreads.beginFastReboot();
 
             listenThreads.terminate();
-              
+
             connectionsScheduler.terminateConnections();
             clearAllConnections();
 
-              
+
             Socket::stopBlockingOperations(false);
 
             connectionsScheduler.restart();
             listenThreads.initialize(&languageParser);
-              
+
             vhostList = new VhostManager(&listenThreads);
-            
+
             if(vhostList == 0)
               continue;
-            
+
             delete oldvhost;
 
             /* Load the virtual hosts configuration from the xml file.  */
@@ -501,7 +501,7 @@ void Server::mainLoop()
             {
               listenThreads.commitFastReboot();
             }
-            
+
             hostsConfTime = hostsConfTimeNow;
             logWriteln("Reloaded");
           }
@@ -918,7 +918,7 @@ int Server::initialize()
   {
     languageFile->assign("languages/english.xml");
   }
-  
+
   if(languageParser.open(languageFile->c_str()))
   {
     string err;
@@ -1059,7 +1059,7 @@ int Server::initialize()
   {
     int serversProcessesInitialPort = atoi(data);
     getProcessServerManager()->setInitialPort(serversProcessesInitialPort);
-  }  
+  }
 
   {
     xmlNodePtr node =
@@ -1146,7 +1146,7 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
   /*
    *We can use MAX_IP_STRING_LEN only because we use NI_NUMERICHOST
    *in getnameinfo call; Otherwise we should have used NI_MAXHOST.
-   *ip is the string containing the address of the remote host connecting 
+   *ip is the string containing the address of the remote host connecting
    *to the server.
    *localIp is the local address used by the connection.
    *port is the remote port used by the client to open the connection.
@@ -1163,21 +1163,21 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
     return 0;
 
   /*
-   *Do not accept this connection if a MAX_CONNECTIONS_TO_ACCEPT limit is 
+   *Do not accept this connection if a MAX_CONNECTIONS_TO_ACCEPT limit is
    *defined.
    */
-  if(maxConnectionsToAccept && 
+  if(maxConnectionsToAccept &&
      ((u_long)connectionsScheduler.getConnectionsNumber() >= maxConnectionsToAccept))
     return 0;
 
 #if ( HAVE_IPV6 )
   if ( asockIn->ss_family == AF_INET )
-    ret = getnameinfo(reinterpret_cast<const sockaddr *>(asockIn), 
+    ret = getnameinfo(reinterpret_cast<const sockaddr *>(asockIn),
                       sizeof(sockaddr_in),
                       ip, MAX_IP_STRING_LEN, NULL, 0, NI_NUMERICHOST);
   else
-    ret = getnameinfo(reinterpret_cast<const sockaddr *>(asockIn), 
-                      sizeof(sockaddr_in6),  ip, MAX_IP_STRING_LEN, 
+    ret = getnameinfo(reinterpret_cast<const sockaddr *>(asockIn),
+                      sizeof(sockaddr_in6),  ip, MAX_IP_STRING_LEN,
                       NULL, 0, NI_NUMERICHOST);
   if(ret)
      return 0;
@@ -1189,19 +1189,19 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
   s.getsockname((MYSERVER_SOCKADDR*)&localSockIn, &dim);
 
   if ( asockIn->ss_family == AF_INET )
-    ret = getnameinfo(reinterpret_cast<const sockaddr *>(&localSockIn), 
-                      sizeof(sockaddr_in), localIp, MAX_IP_STRING_LEN, 
+    ret = getnameinfo(reinterpret_cast<const sockaddr *>(&localSockIn),
+                      sizeof(sockaddr_in), localIp, MAX_IP_STRING_LEN,
                       NULL, 0, NI_NUMERICHOST);
   else// AF_INET6
-    ret = getnameinfo(reinterpret_cast<const sockaddr *>(&localSockIn), 
-                      sizeof(sockaddr_in6), localIp, MAX_IP_STRING_LEN, 
+    ret = getnameinfo(reinterpret_cast<const sockaddr *>(&localSockIn),
+                      sizeof(sockaddr_in6), localIp, MAX_IP_STRING_LEN,
                       NULL, 0, NI_NUMERICHOST);
   if(ret)
      return 0;
 #else// !HAVE_IPV6
   dim = sizeof(localSockIn);
   s.getsockname((MYSERVER_SOCKADDR*)&localSockIn, &dim);
-  strncpy(ip,  inet_ntoa(((sockaddr_in *)asockIn)->sin_addr), 
+  strncpy(ip,  inet_ntoa(((sockaddr_in *)asockIn)->sin_addr),
           MAX_IP_STRING_LEN);
   strncpy(localIp,  inet_ntoa(((sockaddr_in *)&localSockIn)->sin_addr),
           MAX_IP_STRING_LEN);
@@ -1252,7 +1252,7 @@ int Server::getMaxThreads()
 ConnectionPtr Server::addConnectionToList(Socket* s,
                                           MYSERVER_SOCKADDRIN* /*asockIn*/,
                                           char *ipAddr, char *localIpAddr,
-                                          u_short port, u_short localPort, 
+                                          u_short port, u_short localPort,
                                           int /*id*/)
 {
   int doSSLhandshake = 0;
@@ -1284,22 +1284,22 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
   }
 
   protocol = Server::getInstance()->getProtocol(newConnection->host->getProtocolName());
-  
+
   if(protocol)
     opts = protocol->getProtocolOptions();
-  
+
   if(opts & PROTOCOL_USES_SSL)
     doSSLhandshake = 1;
-  
+
   if(opts & PROTOCOL_FAST_CHECK)
     doFastCheck = 1;
-  
+
 
   {
     string msg("new-connection");
-    
+
     handlers = getHandlers(msg);
-    
+
     if(handlers)
     {
       for(size_t i = 0; i < handlers->size(); i++)
@@ -1349,7 +1349,7 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
    *is bigger than it say to the protocol that will parse the connection
    *to remove it from the active connections list.
    */
-  if(maxConnections && 
+  if(maxConnections &&
      ((u_long)connectionsScheduler.getConnectionsNumber() > maxConnections))
     newConnection->setToRemove(CONNECTION_REMOVE_OVERLOAD);
 
@@ -1474,7 +1474,7 @@ u_long Server::getNumThreads()
   u_long ret;
   threadsMutex->lock();
   ret = threads.size();
-  threadsMutex->unlock();  
+  threadsMutex->unlock();
   return ret;
 }
 
@@ -1582,7 +1582,7 @@ int Server::loadConfFilesLocation()
       File inputF;
       File outputF;
       ret = inputF.openFile("myserver.xml.default",
-                            File::MYSERVER_OPEN_READ | 
+                            File::MYSERVER_OPEN_READ |
                             File::MYSERVER_OPEN_IFEXISTS);
       if(ret)
       {
@@ -1601,19 +1601,8 @@ int Server::loadConfFilesLocation()
         return -1;
       }
 
-      for(;;)
-      {
-        ret = inputF.readFromFile(buffer, 512, &nbr );
-        if(ret)
-          return -1;
+      FilesUtility::copyFile(inputF,outputF);
 
-        if(!nbr)
-          break;
-
-        ret = outputF.writeToFile(buffer, nbr, &nbw);
-        if(ret)
-          return -1;
-      }
       inputF.closeFile();
       outputF.closeFile();
     }
@@ -1624,7 +1613,7 @@ int Server::loadConfFilesLocation()
 
     if(mimeConfigurationFile)
       delete mimeConfigurationFile;
-    
+
     mimeConfigurationFile = new string();
 
 #ifndef WIN32
@@ -1709,7 +1698,7 @@ int Server::loadConfFilesLocation()
       File inputF;
       File outputF;
       mimeConfigurationFile->assign("MIMEtypes.xml");
-      ret = inputF.openFile("MIMEtypes.xml.default", 
+      ret = inputF.openFile("MIMEtypes.xml.default",
                             File::MYSERVER_OPEN_READ |
                             File::MYSERVER_OPEN_IFEXISTS);
       if(ret)
@@ -1738,7 +1727,7 @@ int Server::loadConfFilesLocation()
       inputF.closeFile();
       outputF.closeFile();
     }
-    
+
 
     /*
      *If the virtualhosts.xml file doesn't exist copy it
@@ -1749,7 +1738,7 @@ int Server::loadConfFilesLocation()
       File inputF;
       File outputF;
       vhostConfigurationFile->assign("virtualhosts.xml");
-      ret = inputF.openFile("virtualhosts.xml.default", 
+      ret = inputF.openFile("virtualhosts.xml.default",
                             File::MYSERVER_OPEN_READ |
                             File::MYSERVER_OPEN_IFEXISTS );
       if(ret)
@@ -1760,7 +1749,7 @@ int Server::loadConfFilesLocation()
         return -1;
       }
       ret = outputF.openFile("virtualhosts.xml",
-                             File::MYSERVER_OPEN_WRITE | 
+                             File::MYSERVER_OPEN_WRITE |
                              File::MYSERVER_OPEN_ALWAYS);
       if(ret)
         return -1;
@@ -1775,7 +1764,7 @@ int Server::loadConfFilesLocation()
         if(ret)
           return -1;
       }
-      
+
       inputF.closeFile();
       outputF.closeFile();
     }
@@ -1833,7 +1822,7 @@ void Server::setProcessPermissions()
 
        if(Process::setAdditionalGroups(0, 0))
        {
-         out << languageParser.getValue("ERR_ERROR") 
+         out << languageParser.getValue("ERR_ERROR")
              << ": setAdditionalGroups";
          logPreparePrintError();
          logWriteln(out.str().c_str());
@@ -2067,7 +2056,7 @@ int Server::addThread(int staticThread)
   vector<Multicast<string, void*, int>*>* handlers;
 
   purgeThreadsThreshold = 1;
-   
+
   if(isRebooting())
     return -1;
 
