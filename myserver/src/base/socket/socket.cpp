@@ -56,9 +56,9 @@ int startupSocketLib(u_short ver)
 }
 
 /*!
- *Returns the base/socket/socket.handle
+ *Returns the socket handle
  */
-SocketHandle Socket::getHandle()
+FileHandle Socket::getHandle()
 {
   return socketHandle;
 }
@@ -66,7 +66,7 @@ SocketHandle Socket::getHandle()
 /*!
  *Set the handle for the socket
  */
-int Socket::setHandle(SocketHandle h)
+int Socket::setHandle(FileHandle h)
 {
   socketHandle = h;
   return 1;
@@ -94,14 +94,14 @@ int Socket::operator=(Socket s)
  */
 int Socket::socket(int af, int type, int protocol)
 {
-  socketHandle = (SocketHandle)::socket(af, type, protocol);
+  socketHandle = (FileHandle)::socket(af, type, protocol);
   return  (int)socketHandle;
 }
 
 /*!
  *Set the base/socket/socket.handle.
  */
-Socket::Socket(SocketHandle handle)
+Socket::Socket(FileHandle handle)
 {
   throttlingRate = 0;
   setHandle(handle);
@@ -196,7 +196,7 @@ Socket Socket::accept(MYSERVER_SOCKADDR* sa, int* sockaddrlen)
   Socket s;
 
 #ifdef WIN32
-  SocketHandle h = (SocketHandle)::accept(socketHandle,(struct sockaddr*)sa,
+  FileHandle h = (FileHandle)::accept(socketHandle,(struct sockaddr*)sa,
                                           sockaddrlen);
   s.setHandle(h);
 #endif

@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2008 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -20,6 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "stdafx.h"
 
+#ifdef WIN32
+typedef void* FileHandle;
+#endif
+#ifdef NOT_WIN
+typedef long  FileHandle;
+#endif
+
 /*!
  *Abstract class to handle virtual data streams.
  */
@@ -29,6 +36,7 @@ public:
   virtual int read(char* buffer, u_long len, u_long*);
   virtual int write(const char* buffer, u_long len, u_long*);
 	virtual int flush(u_long*);
+  virtual FileHandle getHandle();
   Stream();
   /*! Avoid direct instances of this class. */
   virtual ~Stream() = 0;

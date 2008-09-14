@@ -22,13 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/filter/stream.h>
 #include <string>
 
-#ifdef WIN32
-typedef void* FileHandle;
-#endif
-#ifdef NOT_WIN
-typedef long  FileHandle;
-#endif
-
 using namespace std;
 
 class File : public Stream

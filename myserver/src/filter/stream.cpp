@@ -57,3 +57,11 @@ Stream::~Stream()
 {
 
 }
+
+/*! 
+ *Get the file handle.
+ */
+FileHandle Stream::getHandle()
+{
+  return 0;
+}

@@ -405,7 +405,7 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
     server->port = (initialPort + nServers++);
 
   server->socket.socket(AF_INET,SOCK_STREAM,0);
-  if(server->socket.getHandle() != (SocketHandle)INVALID_SOCKET)
+  if(server->socket.getHandle() != (FileHandle)INVALID_SOCKET)
   {
     ((sockaddr_in *)(&serverSockAddrIn))->sin_family = AF_INET;
 
@@ -480,7 +480,7 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
   {
 #if HAVE_IPV6 && 0
     server->socket.socket(AF_INET6, SOCK_STREAM, 0);
-    if(server->socket.getHandle() != (SocketHandle)INVALID_SOCKET)
+    if(server->socket.getHandle() != (FileHandle)INVALID_SOCKET)
     {
       ((sockaddr_in6 *)(&serverSockAddrIn))->sin6_family = AF_INET6;
 

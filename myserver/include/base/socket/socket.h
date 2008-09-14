@@ -39,7 +39,6 @@ using namespace std;
 #ifndef SOCKETLIBINCLUDED
 extern "C"
 {
-  //#include <ws2tcpip.h>
 #include <winsock2.h>
 }
 #define SOCKETLIBINCLUDED
@@ -68,11 +67,8 @@ extern "C" {
 #define MAX_IP_STRING_LEN	32
 #endif
 
-typedef unsigned int SocketHandle;
 typedef struct sockaddr_storage MYSERVER_SOCKADDR_STORAGE;
 typedef struct sockaddr_storage MYSERVER_SOCKADDRIN;
-//typedef struct sockaddr_in MYSERVER_SOCKADDRIN;
-//typedef struct sockaddr MYSERVER_SOCKADDR;
 typedef struct sockaddr_storage MYSERVER_SOCKADDR;
 typedef struct hostent MYSERVER_HOSTENT;
 int startupSocketLib(u_short);
@@ -84,8 +80,8 @@ public:
 	Socket* getServerSocket();
 
 	static void stopBlockingOperations(bool);
-	SocketHandle getHandle();
-	int setHandle(SocketHandle);
+	virtual FileHandle getHandle();
+	int setHandle(FileHandle);
 	static MYSERVER_HOSTENT *gethostbyaddr(char* addr, int len, int type);
 	static MYSERVER_HOSTENT *gethostbyname(const char*);
 	static int gethostname(char*, int);
@@ -94,7 +90,7 @@ public:
 	int listen(int);
 	Socket();
 	Socket(Socket*);
-	Socket(SocketHandle);
+	Socket(FileHandle);
 	Socket accept(MYSERVER_SOCKADDR*, int*);
 	int setsockopt(int,int, const char*,int);
 
@@ -112,11 +108,8 @@ public:
 	int operator=(Socket);
 	int getsockname(MYSERVER_SOCKADDR*,int*);
   int setNonBlocking(int);
-#ifdef __HURD__
-	virtual int dataOnRead(int sec = 1, int usec = 500);
-#else
 	virtual int dataOnRead(int sec = 0, int usec = 500);
-#endif
+
   u_long getThrottling();
   void setThrottling(u_long);
   static int getLocalIPsList(string&);
@@ -125,7 +118,7 @@ public:
   virtual int write(const char* buffer, u_long len, u_long *nbw);
 
 protected:
-	SocketHandle socketHandle;
+	FileHandle socketHandle;
 
 	/*! Pointer to the socket that has accepted this connection.  */
 	Socket *serverSocket;

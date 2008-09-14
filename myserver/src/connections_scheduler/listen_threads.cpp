@@ -94,7 +94,7 @@ int ListenThreads::createServerAndListener(u_short port)
     {
       server->logWriteln(languageParser->getValue("MSG_SSOCKCREATE"));
       serverSocketIPv4->socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-      if (serverSocketIPv4->getHandle() == (SocketHandle)INVALID_SOCKET)
+      if (serverSocketIPv4->getHandle() == (FileHandle)INVALID_SOCKET)
       {
         server->logPreparePrintError();
         server->logWriteln(languageParser->getValue("ERR_OPENP"));
@@ -159,7 +159,7 @@ int ListenThreads::createServerAndListener(u_short port)
     {
       server->logWriteln(languageParser->getValue("MSG_SSOCKCREATE"));
       serverSocketIPv6->socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
-      if ( serverSocketIPv6->getHandle() == (SocketHandle)INVALID_SOCKET )
+      if ( serverSocketIPv6->getHandle() == (FileHandle)INVALID_SOCKET )
       {
         server->logPreparePrintError();
         server->logWriteln(languageParser->getValue("ERR_OPENP"));
