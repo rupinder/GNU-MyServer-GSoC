@@ -224,6 +224,11 @@ private:
 	int freeHashedData();
 	u_long connectionTimeout;
 	u_long maxLogFileSize;
+	int loadMainConfFilesLocation();
+	int loadVHostConfFilesLocation();
+	int loadMimeConfFilesLocation();
+	int loadExternalPath();
+	int loadLanguagesPath();
 	int loadConfFilesLocation();
 	Mutex* connectionsMutex;
 	u_long nStaticThreads;

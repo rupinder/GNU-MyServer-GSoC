@@ -1535,20 +1535,15 @@ const char* Server::getExternalPath()
 }
 
 /*!
- *Load the configuration files locations.
+ *Load the main configuration files locations.
  *Return nonzero on errors.
  */
-int Server::loadConfFilesLocation()
+int Server::loadMainConfFilesLocation()
 {
-  string strCPU;
-  char buffer[512];
-  u_long nbr, nbw;
-  char* data;
   int ret;
-
   try
   {
-    if(mainConfigurationFile)
+    if (mainConfigurationFile)
       delete mainConfigurationFile;
     mainConfigurationFile = new string();
 
@@ -1561,39 +1556,38 @@ int Server::loadConfFilesLocation()
      *3) /etc/myserver/
      *4) default files will be copied in myserver executable working
      */
-    if(FilesUtility::fileExists("myserver.xml"))
+    if (FilesUtility::fileExists("myserver.xml"))
     {
       mainConfigurationFile->assign("myserver.xml");
     }
-    else if(FilesUtility::fileExists("~/.myserver/myserver.xml"))
+    else if (FilesUtility::fileExists("~/.myserver/myserver.xml"))
     {
       mainConfigurationFile->assign("~/.myserver/myserver.xml");
     }
-    else if(FilesUtility::fileExists("/etc/myserver/myserver.xml"))
+    else if (FilesUtility::fileExists("/etc/myserver/myserver.xml"))
     {
       mainConfigurationFile->assign("/etc/myserver/myserver.xml");
     }
     else
 #endif
     /* If the myserver.xml files doesn't exist copy it from the default one.  */
-    if(mainConfigurationFile->length() == 0)
+    if (mainConfigurationFile->length() == 0)
     {
       mainConfigurationFile->assign("myserver.xml");
       File inputF;
       File outputF;
-      ret = inputF.openFile("myserver.xml.default",
-                            File::MYSERVER_OPEN_READ |
-                            File::MYSERVER_OPEN_IFEXISTS);
-      if(ret)
+      ret = inputF.openFile("myserver.xml.default", File::MYSERVER_OPEN_READ
+          | File::MYSERVER_OPEN_IFEXISTS);
+      if (ret)
       {
         logPreparePrintError();
         logWriteln("Error loading configuration file\n");
         logEndPrintError();
         return -1;
       }
-      ret = outputF.openFile("myserver.xml", File::MYSERVER_OPEN_WRITE |
-                             File::MYSERVER_OPEN_ALWAYS);
-      if(ret)
+      ret = outputF.openFile("myserver.xml", File::MYSERVER_OPEN_WRITE
+          | File::MYSERVER_OPEN_ALWAYS);
+      if (ret)
       {
         logPreparePrintError();
         logWriteln("Error loading configuration file\n");
@@ -1601,7 +1595,7 @@ int Server::loadConfFilesLocation()
         return -1;
       }
 
-      FilesUtility::copyFile(inputF,outputF);
+      FilesUtility::copyFile(inputF, outputF);
 
       inputF.closeFile();
       outputF.closeFile();
@@ -1610,8 +1604,24 @@ int Server::loadConfFilesLocation()
     {
       mainConfigurationFile->assign("myserver.xml");
     }
+  }
+  catch (...)
+  {
+  }
+  return 0;
+}
 
-    if(mimeConfigurationFile)
+
+/*!
+ *Load the mime configuration files locations.
+ *Return nonzero on errors.
+ */
+int Server::loadMimeConfFilesLocation()
+{
+  int ret;
+  try
+  {
+    if (mimeConfigurationFile)
       delete mimeConfigurationFile;
 
     mimeConfigurationFile = new string();
@@ -1624,21 +1634,67 @@ int Server::loadConfFilesLocation()
      *3) /etc/myserver/
      *4) default files will be copied in myserver executable working
      */
-    if(FilesUtility::fileExists("MIMEtypes.xml"))
+    if (FilesUtility::fileExists("MIMEtypes.xml"))
     {
       mimeConfigurationFile->assign("MIMEtypes.xml");
     }
-    else if(FilesUtility::fileExists("~/.myserver/MIMEtypes.xml"))
+    else if (FilesUtility::fileExists("~/.myserver/MIMEtypes.xml"))
     {
       mimeConfigurationFile->assign("~/.myserver/MIMEtypes.xml");
     }
-    else if(FilesUtility::fileExists("/etc/myserver/MIMEtypes.xml"))
+    else if (FilesUtility::fileExists("/etc/myserver/MIMEtypes.xml"))
     {
       mimeConfigurationFile->assign("/etc/myserver/MIMEtypes.xml");
     }
+    else
 #endif
+    /*
+     *If the MIMEtypes.xml files doesn't exist copy it
+     *from the default one.
+     */
+    if (mimeConfigurationFile->length() == 0)
+    {
+      File inputF;
+      File outputF;
+      mimeConfigurationFile->assign("MIMEtypes.xml");
+      ret = inputF.openFile("MIMEtypes.xml.default", File::MYSERVER_OPEN_READ
+          | File::MYSERVER_OPEN_IFEXISTS);
+      if (ret)
+      {
+        logPreparePrintError();
+        logWriteln(languageParser.getValue("ERR_LOADMIME"));
+        logEndPrintError();
+        return -1;
+      }
+      ret = outputF.openFile("MIMEtypes.xml", File::MYSERVER_OPEN_WRITE
+          | File::MYSERVER_OPEN_ALWAYS);
+      if (ret)
+        return -1;
 
-    if(vhostConfigurationFile)
+      FilesUtility::copyFile(inputF, outputF);
+
+      inputF.closeFile();
+      outputF.closeFile();
+    }
+
+  }
+  catch (...)
+  {
+  }
+  return 0;
+}
+
+
+/*!
+ *Load the vhost configuration files locations.
+ *Return nonzero on errors.
+ */
+int Server::loadVHostConfFilesLocation()
+{
+  int ret;
+  try
+  {
+    if (vhostConfigurationFile)
       delete vhostConfigurationFile;
 
     vhostConfigurationFile = new string();
@@ -1651,33 +1707,77 @@ int Server::loadConfFilesLocation()
      *3) /etc/myserver/
      *4) default files will be copied in myserver executable working
      */
-    if(FilesUtility::fileExists("virtualhosts.xml"))
+    if (FilesUtility::fileExists("virtualhosts.xml"))
     {
       vhostConfigurationFile->assign("virtualhosts.xml");
     }
-    else if(FilesUtility::fileExists("~/.myserver/virtualhosts.xml"))
+    else if (FilesUtility::fileExists("~/.myserver/virtualhosts.xml"))
     {
       vhostConfigurationFile->assign("~/.myserver/virtualhosts.xml");
     }
-    else if(FilesUtility::fileExists("/etc/myserver/virtualhosts.xml"))
+    else if (FilesUtility::fileExists("/etc/myserver/virtualhosts.xml"))
     {
       vhostConfigurationFile->assign("/etc/myserver/virtualhosts.xml");
     }
+    else
 #endif
+    /*
+     *If the virtualhosts.xml file doesn't exist copy it
+     *from the default one.
+     */
+    if (vhostConfigurationFile->length() == 0)
+    {
+      File inputF;
+      File outputF;
 
-    if(externalPath)
+      vhostConfigurationFile->assign("virtualhosts.xml");
+      ret = inputF.openFile("virtualhosts.xml.default",
+          File::MYSERVER_OPEN_READ | File::MYSERVER_OPEN_IFEXISTS);
+      if (ret)
+      {
+        logPreparePrintError();
+        logWriteln(languageParser.getValue("ERR_LOADVHOSTS"));
+        logEndPrintError();
+        return -1;
+      }
+      ret = outputF.openFile("virtualhosts.xml", File::MYSERVER_OPEN_WRITE
+          | File::MYSERVER_OPEN_ALWAYS);
+      if (ret)
+        return -1;
+
+      FilesUtility::copyFile(inputF, outputF);
+
+      inputF.closeFile();
+      outputF.closeFile();
+    }
+  }
+  catch (...)
+  {
+  }
+  return 0;
+}
+
+/*!
+ *Load the external path.
+ *Return nonzero on errors.
+ */
+int Server::loadExternalPath()
+{
+  try
+  {
+    if (externalPath)
       delete externalPath;
     externalPath = new string();
 
 #ifdef NOT_WIN
     if(FilesUtility::fileExists("plugins"))
-      externalPath->assign("plugins");
+    externalPath->assign("plugins");
     else
     {
 #ifdef PREFIX
       externalPath->assign(PREFIX);
       externalPath->append("/lib/myserver/plugins");
- #else
+#else
       externalPath->assign("/usr/lib/myserver/plugins");
 #endif
     }
@@ -1687,122 +1787,83 @@ int Server::loadConfFilesLocation()
 #ifdef WIN32
     externalPath->assign("plugins");
 #endif
+  }
+  catch (...)
+  {
+  }
+  return 0;
+}
 
 
-    /*
-     *If the MIMEtypes.xml files doesn't exist copy it
-     *from the default one.
-     */
-    if(mimeConfigurationFile->length() == 0)
-    {
-      File inputF;
-      File outputF;
-      mimeConfigurationFile->assign("MIMEtypes.xml");
-      ret = inputF.openFile("MIMEtypes.xml.default",
-                            File::MYSERVER_OPEN_READ |
-                            File::MYSERVER_OPEN_IFEXISTS);
-      if(ret)
-      {
-        logPreparePrintError();
-        logWriteln(languageParser.getValue("ERR_LOADMIME"));
-        logEndPrintError();
-        return -1;
-      }
-      ret = outputF.openFile("MIMEtypes.xml", File::MYSERVER_OPEN_WRITE|
-                             File::MYSERVER_OPEN_ALWAYS);
-      if(ret)
-        return -1;
-
-      for(;;)
-      {
-        ret = inputF.readFromFile(buffer, 512, &nbr );
-        if(ret)
-          return -1;
-        if(nbr == 0)
-          break;
-        ret = outputF.writeToFile(buffer, nbr, &nbw);
-        if(ret)
-          return -1;
-      }
-      inputF.closeFile();
-      outputF.closeFile();
-    }
 
 
-    /*
-     *If the virtualhosts.xml file doesn't exist copy it
-     *from the default one.
-     */
-    if(vhostConfigurationFile->length() == 0)
-    {
-      File inputF;
-      File outputF;
-      vhostConfigurationFile->assign("virtualhosts.xml");
-      ret = inputF.openFile("virtualhosts.xml.default",
-                            File::MYSERVER_OPEN_READ |
-                            File::MYSERVER_OPEN_IFEXISTS );
-      if(ret)
-      {
-        logPreparePrintError();
-        logWriteln(languageParser.getValue("ERR_LOADVHOSTS"));
-        logEndPrintError();
-        return -1;
-      }
-      ret = outputF.openFile("virtualhosts.xml",
-                             File::MYSERVER_OPEN_WRITE |
-                             File::MYSERVER_OPEN_ALWAYS);
-      if(ret)
-        return -1;
-      for(;;)
-      {
-        ret = inputF.readFromFile(buffer, 512, &nbr );
-        if(ret)
-          return -1;
-        if(!nbr)
-          break;
-        ret = outputF.writeToFile(buffer, nbr, &nbw);
-        if(ret)
-          return -1;
-      }
+/*!
+ *Load the languages path.
+ *Return nonzero on errors.
+ */
+int Server::loadLanguagesPath()
+{
+  try
+  {
+    if (languagesPath)
+      delete languagesPath;
 
-      inputF.closeFile();
-      outputF.closeFile();
-    }
-
-
-  if(languagesPath)
-    delete languagesPath;
-
-  languagesPath = new string();
+    languagesPath = new string();
 
 #ifndef WIN32
-  /*
-   *Do not use the files in the directory /usr/share/myserver/languages
-   *if exists a local directory.
-   */
-  if(FilesUtility::fileExists("languages"))
-  {
-    languagesPath->assign(getdefaultwd(0, 0) );
-    languagesPath->append("/languages/");
-  }
-  else
-  {
+    /*
+     *Do not use the files in the directory /usr/share/myserver/languages
+     *if exists a local directory.
+     */
+    if (FilesUtility::fileExists("languages"))
+    {
+      languagesPath->assign(getdefaultwd(0, 0));
+      languagesPath->append("/languages/");
+    }
+    else
+    {
 #ifdef PREFIX
-    languagesPath->assign(PREFIX);
-    languagesPath->append("/share/myserver/languages/");
+      languagesPath->assign(PREFIX);
+      languagesPath->append("/share/myserver/languages/");
 #else
       /* Default PREFIX is /usr/.  */
-    languagesPath->assign("/usr/share/myserver/languages/");
+      languagesPath->assign("/usr/share/myserver/languages/");
 #endif
     }
 #endif
 
 #ifdef WIN32
-  languagesPath->assign( "languages/" );
+    languagesPath->assign( "languages/" );
 #endif
-
   }
-  catch(...){}
+  catch (...)
+  {
+  }
+  return 0;
+}
+
+
+/*!
+ *Load the configuration files locations.
+ *Return nonzero on errors.
+ */
+int Server::loadConfFilesLocation()
+{
+  if (loadMainConfFilesLocation())
+    return -1;
+
+  if (loadMimeConfFilesLocation())
+    return -1;
+
+  if (loadVHostConfFilesLocation())
+    return -1;
+
+  if (loadExternalPath())
+      return -1;
+
+  if (loadLanguagesPath())
+        return -1;
+
   return 0;
 }
 
