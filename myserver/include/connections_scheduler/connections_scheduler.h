@@ -36,6 +36,9 @@ using namespace std;
 
 #define PRIORITY_CLASSES 3
 
+
+class Server;
+
 class ConnectionsSchedulerVisitor
 {
 public:
@@ -53,10 +56,11 @@ public:
     bool *terminate;
     Mutex* eventsMutex;
     ConnectionsScheduler *scheduler;
-    void reset(Socket* sock, u_short p){serverSocket = sock; port = p;}
-    ListenerArg(Socket* sock, u_short p){reset(sock, p);}
-    ListenerArg(){reset(0, 0);}
-    ListenerArg(ListenerArg* l){serverSocket = l->serverSocket; port = l->port;}
+    Server* server;
+    void reset(Socket* sock, u_short p, Server* ser){serverSocket = sock; port = p; server = ser;}
+    ListenerArg(Socket* sock, u_short p, Server* server){reset(sock, p, server);}
+    ListenerArg(){reset(NULL, NULL, NULL);}
+    ListenerArg(ListenerArg* l){serverSocket = l->serverSocket; port = l->port; server = l->server;}
   };
 
   struct DispatcherArg
@@ -66,9 +70,11 @@ public:
     Mutex* mutex;
     int fd[2];
     event loopEvent;
+    Server* server;
+    ConnectionsScheduler* scheduler;
   };
 
-  ConnectionsScheduler();
+  ConnectionsScheduler(Server* server = NULL);
   ~ConnectionsScheduler();
 
   void addNewReadyConnection(ConnectionPtr);
@@ -83,7 +89,7 @@ public:
   void initialize();
   void listener(struct ListenerArg* );
   void removeListener(struct ListenerArg*);
-  int getConnectionsNumber();
+  u_long getConnectionsNumber();
   void removeConnection(ConnectionPtr connection);
   void terminateConnections();
   void getConnections(list<ConnectionPtr> &out);
@@ -94,7 +100,10 @@ public:
 
   u_long getNumTotalConnections();
 
+  void newData(short event, SocketHandle handle);
+
 private:
+  Server* server;
   void addWaitingConnectionImpl(ConnectionPtr, int lock);
   void addReadyConnectionImpl(ConnectionPtr);
   u_long nTotalConnections;

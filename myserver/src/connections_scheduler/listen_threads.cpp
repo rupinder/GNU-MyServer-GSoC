@@ -49,12 +49,14 @@ extern "C"
 using namespace std;
 
 /*!
- *Default c'tor.
+ *c'tor.
  */
-ListenThreads::ListenThreads()
+ListenThreads::ListenThreads(ConnectionsScheduler* scheduler, Server* server)
 {
   fastRebooting = false;
   committingFastReboot = false;
+  this->scheduler = scheduler;
+  this->server = server;
 }
 
 /*!
@@ -66,7 +68,6 @@ int ListenThreads::createServerAndListener(u_short port)
   int optvalReuseAddr = 1;
   ostringstream portBuff;
   string listenPortMsg;
-  Server* server = Server::getInstance();
 
   if(fastRebooting)
   {
@@ -302,14 +303,14 @@ void ListenThreads::registerListener(SocketInformation* si)
 
     if(si->ipv4)
     {
-      si->laIpv4.reset(si->ipv4, si->port);
-      Server::getInstance()->getConnectionsScheduler()->listener(&(si->laIpv4));
+      si->laIpv4.reset(si->ipv4, si->port, server);
+      scheduler->listener(&(si->laIpv4));
     }
 
     if(si->ipv6)
     {
-      si->laIpv6.reset(si->ipv6, si->port);
-      Server::getInstance()->getConnectionsScheduler()->listener(&(si->laIpv6));
+      si->laIpv6.reset(si->ipv6, si->port, server);
+      scheduler->listener(&(si->laIpv6));
     }
 }
 

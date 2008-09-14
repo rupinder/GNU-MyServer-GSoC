@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef LISTEN_THREADS_H
 #define LISTEN_THREADS_H
+
 #include "stdafx.h"
 #include <include/base/xml/xml_parser.h>
 #include <include/base/sync/mutex.h>
@@ -35,7 +36,8 @@ public:
 	void commitFastReboot();
 	void beginFastReboot();
 	void rollbackFastReboot();
-	ListenThreads();
+	ListenThreads(ConnectionsScheduler*, Server*);
+
 private:
 	struct SocketInformation
 	{
@@ -56,6 +58,9 @@ private:
 	XmlParser *languageParser;
 	int createServerAndListener(u_short port);
 	void registerListener(SocketInformation*);
+  
+  Server* server;
+  ConnectionsScheduler* scheduler;
 };
 
 #endif

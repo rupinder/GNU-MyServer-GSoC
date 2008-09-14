@@ -75,7 +75,8 @@ const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
  */
 Server* Server::instance = 0;
 
-Server::Server()
+Server::Server() : connectionsScheduler(this), 
+                   listenThreads(&connectionsScheduler, this)
 {
   toReboot = 0;
   autoRebootEnabled = 1;

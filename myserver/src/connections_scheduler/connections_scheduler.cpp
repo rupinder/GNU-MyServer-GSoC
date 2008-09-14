@@ -114,6 +114,9 @@ static void* dispatcher(void* p)
 {
   ConnectionsScheduler::DispatcherArg *da = (ConnectionsScheduler::DispatcherArg*)p;
 
+  if(da == NULL)
+    return NULL;
+
   da->mutex->lock();
   if(!da->terminated)
   {
@@ -143,23 +146,34 @@ static void* dispatcher(void* p)
   da->terminated = true;
   da->mutex->unlock();
 
-  return 0;
+  return NULL;
 }
 
 static void newDataHandler(int fd, short event, void *arg)
 {
-  ConnectionPtr connection = static_cast<ConnectionPtr>(arg);
+  ConnectionsScheduler* scheduler = (ConnectionsScheduler*) arg;
+
+  if(scheduler)
+    scheduler->newData(event, (SocketHandle)fd);
+}
+
+
+void ConnectionsScheduler::newData(short event, SocketHandle handle)
+{
+  ConnectionPtr connection = connections.get(handle);
+
+  if(connection == NULL || server == NULL)
+    return;
 
   if(event == EV_TIMEOUT)
   {
-    Server::getInstance()->deleteConnection(connection, 0);
+    server->deleteConnection(connection, 0);
   }
   else if(event == EV_READ)
   {
-    Server::getInstance()->getConnectionsScheduler()->addReadyConnection(connection);
+    server->getConnectionsScheduler()->addReadyConnection(connection);
   }
 }
-
 
 static void eventLoopHandler(int fd, short event, void *arg)
 {
@@ -190,7 +204,7 @@ static void eventLoopHandler(int fd, short event, void *arg)
         sock.recv((char*)&c, sizeof(ConnectionPtr), 0);
         sock.recv((char*)&tv, sizeof(timeval), 0);
 
-        event_once(handle, EV_READ | EV_TIMEOUT, newDataHandler, c, &tv);
+        event_once(handle, EV_READ | EV_TIMEOUT, newDataHandler, da->scheduler, &tv);
       }
       /* Handle other cmd without do anything else.  */
     }
@@ -216,10 +230,12 @@ static void listenerHandler(int fd, short event, void *arg)
 
     asockInLen = sizeof(sockaddr_in);
     asock = s->serverSocket->accept(&asockIn, &asockInLen);
-    if(asock.getHandle() != 0 &&
+
+    if(s->server &&
+       asock.getHandle() != 0 &&
        asock.getHandle() != (SocketHandle)INVALID_SOCKET)
     {
-      Server::getInstance()->addConnection(asock, &asockIn);
+      s->server->addConnection(asock, &asockIn);
     }
 
     event_add (&(s->ev), &tv);
@@ -243,6 +259,7 @@ void ConnectionsScheduler::listener(ConnectionsScheduler::ListenerArg *la)
 
   arg->terminate = &dispatcherArg.terminate;
   arg->scheduler = this;
+  arg->server = server;
   arg->eventsMutex = &eventsMutex;
   la->serverSocket->setNonBlocking(1);
 
@@ -272,7 +289,7 @@ void ConnectionsScheduler::removeListener(ConnectionsScheduler::ListenerArg* la)
 /*!
  *C'tor.
  */
-ConnectionsScheduler::ConnectionsScheduler()
+ConnectionsScheduler::ConnectionsScheduler(Server* server)
 {
   readyMutex.init();
   eventsMutex.init();
@@ -283,6 +300,7 @@ ConnectionsScheduler::ConnectionsScheduler()
   currentPriorityDone = 0;
   nTotalConnections = 0;
   ready = new queue<ConnectionPtr>[PRIORITY_CLASSES];
+  this->server = server;
 }
 
 /*!
@@ -334,6 +352,8 @@ void ConnectionsScheduler::initialize()
 
   dispatcherArg.terminated = true;
   dispatcherArg.mutex = &eventsMutex;
+  dispatcherArg.server = server;
+  dispatcherArg.scheduler = this;
 
 #ifdef WIN32
 #define LOCAL_SOCKETPAIR_AF AF_INET
@@ -344,11 +364,14 @@ void ConnectionsScheduler::initialize()
       dispatcherArg.fd);
   if (err == -1)
   {
-    Server::getInstance()->logLockAccess();
-    Server::getInstance()->logPreparePrintError();
-    Server::getInstance()->logWriteln("Error initializing socket pair.");
-    Server::getInstance()->logEndPrintError();
-    Server::getInstance()->logUnlockAccess();
+    if(server)
+    {
+      server->logLockAccess();
+      server->logPreparePrintError();
+      server->logWriteln("Error initializing socket pair.");
+      server->logEndPrintError();
+      server->logUnlockAccess();
+    }
     return;
   }
 
@@ -361,15 +384,18 @@ void ConnectionsScheduler::initialize()
   event_add(&(dispatcherArg.loopEvent), NULL);
 
   if(Thread::create(&dispatchedThreadId, dispatcher, &dispatcherArg))
-   {
-     Server::getInstance()->logLockAccess();
-     Server::getInstance()->logPreparePrintError();
-     Server::getInstance()->logWriteln("Error initializing dispatcher thread.");
-     Server::getInstance()->logEndPrintError();
-     Server::getInstance()->logUnlockAccess();
-     dispatchedThreadId = 0;
-   }
-
+  {
+    if(server)
+    {
+      server->logLockAccess();
+      server->logPreparePrintError();
+      server->logWriteln("Error initializing dispatcher thread.");
+      server->logEndPrintError();
+      server->logUnlockAccess();
+    }
+    dispatchedThreadId = 0;
+  }
+  
   releasing = false;
 }
 
@@ -423,7 +449,8 @@ void ConnectionsScheduler::addReadyConnectionImpl(ConnectionPtr c)
   ready[priority].push(c);
   readyMutex.unlock();
 
-  Server::getInstance()->checkThreadsNumber();
+  if(server)
+    server->checkThreadsNumber();
 
   readySemaphore->unlock();
 }
@@ -450,9 +477,13 @@ void ConnectionsScheduler::addWaitingConnection(ConnectionPtr c)
 void ConnectionsScheduler::addWaitingConnectionImpl(ConnectionPtr c, int lock)
 {
   static timeval tv = {10, 0};
-  SocketHandle handle = c->socket->getHandle();
+  SocketHandle handle = c->socket ? c->socket->getHandle() : NULL;
 
-  tv.tv_sec = Server::getInstance()->getTimeout() / 1000;
+  if(server)
+    tv.tv_sec = server->getTimeout() / 1000;
+  else
+    tv.tv_sec = 30000;
+
   c->setScheduled(0);
 
   connectionsMutex.lock();
@@ -479,7 +510,7 @@ void ConnectionsScheduler::addWaitingConnectionImpl(ConnectionPtr c, int lock)
   }
   else
   {
-    event_once(handle, EV_READ | EV_TIMEOUT, newDataHandler, c, &tv);
+    event_once(handle, EV_READ | EV_TIMEOUT, newDataHandler, this, &tv);
   }
 }
 
@@ -531,10 +562,14 @@ ConnectionPtr ConnectionsScheduler::getConnection()
  */
 void ConnectionsScheduler::release()
 {
+  u_long max = 100;
   releasing = true;
   dispatcherArg.terminate = true;
 
-  for(u_long i = 0; i < Server::getInstance()->getNumThreads()*10; i++)
+  if(server)
+    max = server->getNumThreads() * 10;
+
+  for(u_long i = 0; i < max; i++)
   {
     readySemaphore->unlock();
   }
@@ -597,7 +632,7 @@ void ConnectionsScheduler::getConnections(list<ConnectionPtr> &out)
 /*!
  *Get the alive connections number.
  */
-int ConnectionsScheduler::getConnectionsNumber()
+u_long ConnectionsScheduler::getConnectionsNumber()
 {
   return connections.size();
 }
@@ -608,7 +643,8 @@ int ConnectionsScheduler::getConnectionsNumber()
 void ConnectionsScheduler::removeConnection(ConnectionPtr connection)
 {
   connectionsMutex.lock();
-  connections.remove(connection->socket->getHandle());
+  if(connection->socket)
+    connections.remove(connection->socket->getHandle());
   connectionsMutex.unlock();
 }
 
