@@ -1,3 +1,4 @@
+/* -*- mode: cpp-mode */
 /*
 MyServer
 Copyright (C) 2005, 2008 Free Software Foundation, Inc.

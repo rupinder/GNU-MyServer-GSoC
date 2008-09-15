@@ -1,3 +1,4 @@
+/* -*- mode: cpp-mode */
 #ifndef yyHEADER_H
 #define yyHEADER_H 1
 #define yyIN_HEADER 1
