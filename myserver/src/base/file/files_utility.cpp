@@ -217,7 +217,8 @@ int FilesUtility::copyFile(File src, File dest)
   int ret;
 
 
-  for (;;) {
+  for (;;) 
+    {
 	ret = src.readFromFile(buffer, 512, &nbr);
 	if (ret)
 	  return -1;
@@ -228,7 +229,7 @@ int FilesUtility::copyFile(File src, File dest)
 	ret = dest.writeToFile(buffer, nbr, &nbw);
 	if (ret)
 	  return -1;
-  }
+    }
   return 0;
 }
 
