@@ -1,4 +1,4 @@
-/* -*- mode: cpp-mode */
+/* -*- mode: c++ -*- */
 /* A Bison parser, made by GNU Bison 2.3.  */
 
 /* Skeleton interface for Bison's Yacc-like parsers in C

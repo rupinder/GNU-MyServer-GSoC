@@ -1,4 +1,4 @@
-/* -*- mode: cpp-mode */
+/* -*- mode: c++ -*- */
 /*
 MyServer
 * strlcpy and strlcat by codingmaster

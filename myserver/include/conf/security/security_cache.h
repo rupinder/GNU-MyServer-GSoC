@@ -1,4 +1,4 @@
-/* -*- mode: cpp-mode */
+/* -*- mode: c++ -*- */
 /*
 MyServer
 Copyright (C) 2005, 2006, 2008 Free Software Foundation, Inc.
