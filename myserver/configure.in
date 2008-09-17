@@ -363,7 +363,6 @@ AM_CONDITIONAL(BUILD_CONTROL, test "$MAKE_CONTROL" = "yes")
 
 dnl AC_CONFIG_SUBDIRS()
 AC_CONFIG_FILES([
-    version.h  
     Makefile
     binaries/Makefile
     binaries/certificates/Makefile
