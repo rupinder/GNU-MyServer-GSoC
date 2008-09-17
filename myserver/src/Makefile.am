@@ -6,7 +6,7 @@ bin_PROGRAMS = myserver
 myserver_SOURCES = myserver.cpp
 myserver_CXXFLAGS = $(CXXFLAGS) $(XML_CFLAGS) -DHOST_STR=\"$(build)\" -DPREFIX=\"$(prefix)\"
 myserver_LDFLAGS =  -rdynamic
-myserver_LDADD = libmyserver.a $(all_libraries) $(PTHREAD_LIB) $(IDN_LIB) \
+myserver_LDADD = libmyserver.a $(PTHREAD_LIB) $(IDN_LIB) \
 	$(XNET_LIB) $(EVENT_LIB) $(DL_LIB) $(OPENSSL_LIB) $(ZLIB_LIB) \
 	$(XML_LIBS) $(LDFLAGS)
 
