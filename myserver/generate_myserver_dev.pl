@@ -39,8 +39,8 @@ Libs=
 PrivateResource=myserver_private.rc
 ResourceIncludes=
 MakeIncludes=
-Compiler=-DMYSERVER_VERSION=\"$version\"
-CppCompiler=-DMYSERVER_VERSION=\"$version\"
+Compiler=-DMYSERVER_VERSION=\"GNU MyServer $version\"
+CppCompiler=-DMYSERVER_VERSION=\"GNU MyServer $version\"
 Linker=-lz.dll -llibxml2 -liconv -lintl -lssl -lcrypto -lrx -lgdi32 -lwininet -lwsock32 -luserenv -levent -rdynamic_@@_
 IsCpp=1
 Icon=

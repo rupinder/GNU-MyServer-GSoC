@@ -27,7 +27,7 @@ from xml.dom.minidom import Node
 import string
 
 f = open('version','r')
-MYSERVER_VERSION = f.readline()
+MYSERVER_VERSION = "GNU MyServer " + f.readline()
 f.close()
 
 SVN_TRUNK = "svn://svn.savannah.gnu.org/myserver/trunk"
