@@ -261,7 +261,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
         if(td->inputData.readFromFile(td->buffer->getBuffer(),
                                      td->buffer->getRealLength(), &nbr))
         {
-          file.closeFile();
+          file.close();
           /*! Return an internal server error.  */
           return raiseHTTPError(500);
         }
@@ -269,7 +269,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
         {
           if(file.writeToFile(td->buffer->getBuffer(), nbr, &nbw))
           {
-            file.closeFile();
+            file.close();
             /*! Return an internal server error.  */
             return raiseHTTPError(500);
           }
@@ -278,12 +278,12 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
           break;
         if(nbw != nbr)
         {
-          file.closeFile();
+          file.close();
           /*! Internal server error.  */
           return raiseHTTPError(500);
         }
       }
-      file.closeFile();
+      file.close();
       /*! Successful updated.  */
       raiseHTTPError(200);
 
@@ -308,14 +308,14 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
         if(td->inputData.readFromFile(td->buffer->getBuffer(),
                                       td->buffer->getRealLength(), &nbr))
         {
-          file.closeFile();
+          file.close();
           return raiseHTTPError(500);
         }
         if(nbr)
         {
           if(file.writeToFile(td->buffer->getBuffer(), nbr, &nbw))
           {
-            file.closeFile();
+            file.close();
             return raiseHTTPError(500);
           }
         }
@@ -323,11 +323,11 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
           break;
         if( nbw != nbr )
         {
-          file.closeFile();
+          file.close();
           return raiseHTTPError(500);
         }
       }
-      file.closeFile();
+      file.close();
       /*! Successful created. */
       raiseHTTPError(201);
       return 1;
@@ -1170,12 +1170,12 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
 
       if(h.readFromFile(linkpath, linkpathSize, &nbr))
       {
-        h.closeFile();
+        h.close();
         delete [] linkpath;
         return raiseHTTPError(500);/*!Internal server error*/
       }
 
-      h.closeFile();
+      h.close();
       linkpath[nbr]='\0';
 
       pathInfo = new char[td->pathInfo.length() + 1];
@@ -1565,7 +1565,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
          */
         if(td->inputData.getHandle())
         {
-          td->inputData.closeFile();
+          td->inputData.close();
           FilesUtility::deleteFile(td->inputDataPath);
         }
 
@@ -1574,7 +1574,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
          */
         if(td->outputData.getHandle())
         {
-          td->outputData.closeFile();
+          td->outputData.close();
           FilesUtility::deleteFile(td->outputDataPath);
         }
         logHTTPaccess();
@@ -1610,7 +1610,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
            */
           if(td->inputData.getHandle())
           {
-            td->inputData.closeFile();
+            td->inputData.close();
             FilesUtility::deleteFile(td->inputDataPath);
           }
           /*!
@@ -1618,7 +1618,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
            */
           if(td->outputData.getHandle())
           {
-            td->outputData.closeFile();
+            td->outputData.close();
             FilesUtility::deleteFile(td->outputDataPath);
           }
           logHTTPaccess();
@@ -1817,7 +1817,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
      */
     if(td->inputData.getHandle())
     {
-      td->inputData.closeFile();
+      td->inputData.close();
       FilesUtility::deleteFile(td->inputDataPath);
     }
     /*
@@ -1825,7 +1825,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
      */
     if(td->outputData.getHandle())
     {
-      td->outputData.closeFile();
+      td->outputData.close();
       FilesUtility::deleteFile(td->outputDataPath);
     }
 

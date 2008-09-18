@@ -170,8 +170,8 @@ int main(int argc, char * argv[])
 		    break;
 		  outputF.writeToFile(buffer, nbr, &nbw);
 	       }
-	     inputF.closeFile();
-	     outputF.closeFile();
+	     inputF.close();
+	     outputF.close();
 
 	     if(FilesUtility::fileExists("MIMEtypes.xml.default"))
 	       {
@@ -186,8 +186,8 @@ int main(int argc, char * argv[])
 			 break;
 		       outputF.writeToFile(buffer, nbr, &nbw);
 		    }
-		  inputF.closeFile();
-		  outputF.closeFile();
+		  inputF.close();
+		  outputF.close();
 	       }
 
 	     if(FilesUtility::fileExists("virtualhosts.xml.default"))
@@ -205,8 +205,8 @@ int main(int argc, char * argv[])
 			 break;
 		       outputF.writeToFile(buffer, nbr, &nbw);
 		    }
-		  inputF.closeFile();
-		  outputF.closeFile();
+		  inputF.close();
+		  outputF.close();
 	       }
 	  }
      }

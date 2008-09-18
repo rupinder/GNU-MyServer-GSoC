@@ -741,7 +741,7 @@ int VhostManager::saveXMLConfigurationFile(const char *filename)
       }
     }
     out.writeToFile("</VHOSTS>\r\n", 11, &nbw);
-    out.closeFile();
+    out.close();
     mutex.unlock();
   }
   catch(...)

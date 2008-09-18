@@ -215,7 +215,7 @@ Socket Socket::accept(MYSERVER_SOCKADDR* sa, int* sockaddrlen)
 /*!
  *Close the socket.
  */
-int Socket::closesocket()
+int Socket::close()
 {
 #ifdef WIN32
   if(socketHandle)
@@ -554,7 +554,7 @@ int Socket::connect(const char* host, u_short port)
     if(Socket::connect((MYSERVER_SOCKADDR*)(&connectionSockAddrIn), 
                        nSockLen) == -1)
     {
-      Socket::closesocket();
+      Socket::close();
     }
     else
     {
@@ -587,7 +587,7 @@ int Socket::connect(const char* host, u_short port)
   sockAddr.sin_port = htons(port);
   if(Socket::connect((MYSERVER_SOCKADDR*)&sockAddr, sockLen) == -1)
   {
-    Socket::closesocket();
+    Socket::close();
     return -1;
   }
 #endif

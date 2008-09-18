@@ -184,7 +184,7 @@ int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
     chain.clearAllFilters();
     return td->http->raiseHTTPError(500);
   }
-  td->inputData.closeFile();
+  td->inputData.close();
   if(td->inputData.openFile(td->inputDataPath, File::MYSERVER_OPEN_READ | 
                             File::MYSERVER_OPEN_ALWAYS |
                             File::MYSERVER_NO_INHERIT))
@@ -233,9 +233,9 @@ int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
 
   chain.clearAllFilters();
-  con.tempOut.closeFile();
+  con.tempOut.close();
 
-  con.sock.closesocket();
+  con.sock.close();
   return ret;
 }
 

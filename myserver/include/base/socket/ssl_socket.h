@@ -62,7 +62,7 @@ public:
 	SSL* getSSLConnection();
 #endif
 
-	virtual int closesocket();
+	virtual int close();
 	virtual int shutdown(int how);
 	virtual int connect(MYSERVER_SOCKADDR* sa, int na);
 	virtual int recv(char* buffer,int len,int flags);

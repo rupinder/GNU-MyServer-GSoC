@@ -56,13 +56,13 @@ create_socketpair(int af, int type, int protocol, socket_t socks[2])
     e = bind(listener, (const struct sockaddr*) &addr, sizeof(addr));
     if (e == SOCKET_ERROR)
     {
-        closesocket(listener);
+        close(listener);
         return -1;
     }
     e = getsockname(listener, (struct sockaddr*) &addr, &addrlen);
     if (e == SOCKET_ERROR)
     {
-        closesocket(listener);
+        close(listener);
         return -1;
     }
 
@@ -77,13 +77,13 @@ create_socketpair(int af, int type, int protocol, socket_t socks[2])
       if ((socks[1] = accept(listener, NULL, NULL)) == INVALID_SOCKET)
         break;
       
-      closesocket(listener);
+      close(listener);
       return 0;
     } while (0);
 
-    closesocket(listener);
-    closesocket(socks[0]);
-    closesocket(socks[1]);
+    close(listener);
+    close(socks[0]);
+    close(socks[1]);
     return -1;
   #endif
 }
@@ -663,7 +663,7 @@ void ConnectionsScheduler::terminateConnections()
     {
       ConnectionPtr c = *it;
       if ( c->allowDelete(true) && c->socket)
-        c->socket->closesocket();
+        c->socket->close();
     }
   }
   catch(...)

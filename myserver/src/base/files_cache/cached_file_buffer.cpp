@@ -64,7 +64,7 @@ CachedFileBuffer::CachedFileBuffer(const char* filename)
 
   file.read(buffer, fileSize, &nbw);
 
-  file.closeFile();
+  file.close();
 }
 
 /*!

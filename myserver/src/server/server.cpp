@@ -1232,7 +1232,7 @@ int Server::addConnection(Socket s, MYSERVER_SOCKADDRIN *asockIn)
     s.shutdown(2);
 
     /* Then close it.  */
-    s.closesocket();
+    s.close();
   }
   return ret;
 }
@@ -1597,8 +1597,8 @@ int Server::loadMainConfFilesLocation()
 
       FilesUtility::copyFile(inputF, outputF);
 
-      inputF.closeFile();
-      outputF.closeFile();
+      inputF.close();
+      outputF.close();
     }
     else
     {
@@ -1673,8 +1673,8 @@ int Server::loadMimeConfFilesLocation()
 
       FilesUtility::copyFile(inputF, outputF);
 
-      inputF.closeFile();
-      outputF.closeFile();
+      inputF.close();
+      outputF.close();
     }
 
   }
@@ -1747,8 +1747,8 @@ int Server::loadVHostConfFilesLocation()
 
       FilesUtility::copyFile(inputF, outputF);
 
-      inputF.closeFile();
-      outputF.closeFile();
+      inputF.close();
+      outputF.close();
     }
   }
   catch (...)

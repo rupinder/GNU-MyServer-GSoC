@@ -63,12 +63,12 @@ SslSocket::~SslSocket()
 /*!
  *Close the socket.
  */
-int SslSocket::closesocket()
+int SslSocket::close()
 {
 #ifndef DO_NOT_USE_SSL
   freeSSL();
 #endif
-  return Socket::closesocket();
+  return Socket::close();
 }
 
 /*!
@@ -152,7 +152,7 @@ int SslSocket::connect(MYSERVER_SOCKADDR* sa, int na)
   if(SSL_connect(sslConnection) < 0)
   {
     SSL_CTX_free(sslContext);
-    closesocket();
+    close();
     sslContext = 0;
     return -1;
   }
@@ -229,7 +229,7 @@ int SslSocket::sslAccept()
   {
     shutdown(2);
     freeSSL();
-    closesocket();
+    close();
     return -1;
   }
   
@@ -243,7 +243,7 @@ int SslSocket::sslAccept()
   {
     shutdown(2);
     freeSSL();
-    closesocket();
+    close();
     return -1;
   }
   SSL_set_read_ahead(sslConnection, 0);
@@ -254,7 +254,7 @@ int SslSocket::sslAccept()
   {
     shutdown(2);
     freeSSL();
-    closesocket();
+    close();
     return -1;
   }
 #endif

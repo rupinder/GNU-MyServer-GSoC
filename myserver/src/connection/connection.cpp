@@ -58,7 +58,7 @@ Connection::~Connection()
       err = socket->recv(buffer, buffersize, 0);
     }while((err != -1) && err);
 
-    socket->closesocket();
+    socket->close();
     delete socket;
   }
 

@@ -381,7 +381,7 @@ int MimeManager::saveXML(const char *filename)
     f.writeToFile("</MANAGER>\r\n</MIMETYPE>\r\n", 25, &nbw);  
   }
   f.writeToFile("\r\n</MIMETYPES>", 14, &nbw);
-  f.closeFile();
+  f.close();
 
   rwLock.writeUnlock();
   return 1;

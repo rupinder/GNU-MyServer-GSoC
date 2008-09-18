@@ -122,7 +122,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     ret = file->setFilePointer(firstByte);
     if(ret)
     {
-      file->closeFile();
+      file->close();
       delete file;
       return td->http->raiseHTTPError(500);
     }
@@ -216,7 +216,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
                                                            &memStream, 
                                                            &nbw))
       {
-        file->closeFile();
+        file->close();
         delete file;
         chain.clearAllFilters();
         return 0;
@@ -233,7 +233,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       u_long nbw;
       if(!gzipFilter)
       {
-        file->closeFile();
+        file->close();
         delete file;
         chain.clearAllFilters();
         return 0;
@@ -241,7 +241,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       if(chain.addFilter(gzipFilter, &nbw))
       {
         delete gzipFilter;
-        file->closeFile();
+        file->close();
         delete file;
         chain.clearAllFilters();
         return 0;
@@ -311,7 +311,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       if(s->socket->send(td->buffer->getBuffer(), 
                          (u_long)td->buffer->getLength(), 0) == SOCKET_ERROR)
       {
-        file->closeFile();
+        file->close();
         delete file;
         chain.clearAllFilters();
         return 1;
@@ -324,7 +324,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
      */
     if(onlyHeader)
     {
-      file->closeFile();
+      file->close();
       delete file;
       chain.clearAllFilters();
       return 0;
@@ -344,7 +344,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       off_t offset = firstByte;
       ret = sendfile(s->socket->getHandle(), file->getHandle(),
                      &offset, bytesToSend);
-      file->closeFile();
+      file->close();
       delete file;
       chain.clearAllFilters();
 
@@ -373,7 +373,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       
       if(ret)
       {
-        file->closeFile();
+        file->close();
         delete file;
         chain.clearAllFilters();
         return 0;
@@ -391,7 +391,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
                                                     td->appendOutputs, 
                                                     useChunks))
         {
-          file->closeFile();
+          file->close();
           delete file;
           chain.clearAllFilters();
           return 1;
@@ -502,12 +502,12 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 
     }/* End for loop.  */
 
-    file->closeFile();
+    file->close();
     delete file;
   }
   catch(bad_alloc &ba)
   {
-    file->closeFile();
+    file->close();
     delete file;
     s->host->warningsLogRequestAccess(td->id);
     s->host->warningsLogWrite("HttpFile: Error allocating memory");
@@ -517,7 +517,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
   }
   catch(...)
   {
-    file->closeFile();
+    file->close();
     delete file;
     s->host->warningsLogRequestAccess(td->id);
     s->host->warningsLogWrite("HttpFile: Internal error");

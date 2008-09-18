@@ -45,7 +45,7 @@ public:
 	virtual int setFilePointer(u_long);
 
 	virtual int operator =(CachedFile);
-	virtual int closeFile();
+	virtual int close();
 
   /*! Inherithed from Stream. */
   virtual int write(const char* buffer, u_long len, u_long *nbw);

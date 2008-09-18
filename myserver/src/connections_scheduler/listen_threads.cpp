@@ -498,7 +498,7 @@ int ListenThreads::terminate()
         err = serverSocket->recv(buffer, 256, 0);
       }while(err != -1);
 
-      serverSocket->closesocket();
+      serverSocket->close();
       delete serverSocket;
     }
     delete (*it);

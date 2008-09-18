@@ -216,7 +216,7 @@ ProcessServerManager::getServer(const char* domain, const char* name)
   
   if(s && s->isLocal && !s->process.isProcessAlive())
   {
-    s->socket.closesocket();
+    s->socket.close();
     s->process.terminateProcess();
     if(!s->path.length())
       s->path.assign(name);
@@ -459,20 +459,20 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
         spi.stdOut = spi.stdError =(FileHandle) -1;
         if(server->process.execConcurrentProcess(&spi) == -1)
         {
-          server->socket.closesocket();
+          server->socket.close();
           //return 1; allow IPv6
         }
         
       }
       else
       {
-        server->socket.closesocket();
+        server->socket.close();
         //return 1; allow IPv6
     }
     }
     else
     {
-      server->socket.closesocket();
+      server->socket.close();
       //return 1; allow IPv6
     }
   }
@@ -490,12 +490,12 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
       if(server->socket.bind(&serverSockAddrIn,
                              sizeof(sockaddr_in6)))
       {
-        server->socket.closesocket();
+        server->socket.close();
         return 1;
       }
       if(server->socket.listen(SOMAXCONN))
       {
-        server->socket.closesocket();
+        server->socket.close();
         return 1;
       }
       server->DESCRIPTOR.fileHandle = server->socket.getHandle();
@@ -509,7 +509,7 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
 
       if(server->process.execConcurrentProcess(&spi) == -1)
       {
-        server->socket.closesocket();
+        server->socket.close();
         return 1;
       }
     }
@@ -538,7 +538,7 @@ int ProcessServerManager::connect(Socket* sock,
     /*! If the socket was created try to connect.  */
     if(sock->connect(server->host.c_str(), server->port) == -1)
     {
-      sock->closesocket();
+      sock->close();
       return -1;
     }
 
@@ -552,7 +552,7 @@ int ProcessServerManager::connect(Socket* sock,
     /*! If the socket was created try to connect.  */
     if(sock->connect(server->host, server->port) == -1)
     {
-      sock->closesocket();
+      sock->close();
       return -1;
     }
   }

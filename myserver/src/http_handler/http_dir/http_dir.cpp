@@ -292,7 +292,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
   if(ret)
   {
     /* Return an internal server error. */
-    td->outputData.closeFile();
+    td->outputData.close();
     chain.clearAllFilters(); 
     return td->http->raiseHTTPError(500);
   }
@@ -314,7 +314,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 
   if(ret)
   {
-    td->outputData.closeFile();
+    td->outputData.close();
     /* Return an internal server error.  */
     return td->http->raiseHTTPError(500);
   }
@@ -357,7 +357,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 
   if(ret)
   {
-    td->outputData.closeFile();
+    td->outputData.close();
     chain.clearAllFilters(); 
     /* Return an internal server error.  */
     return td->http->raiseHTTPError(500);
@@ -386,7 +386,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
     if(ret)
     {
       fd.findclose();
-      td->outputData.closeFile();
+      td->outputData.close();
       chain.clearAllFilters(); 
       /* Return an internal server error.  */
       return td->http->raiseHTTPError(500);
@@ -479,7 +479,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
                                   td->appendOutputs, useChunks);
     if(ret)
     {
-      td->outputData.closeFile();
+      td->outputData.close();
       chain.clearAllFilters(); 
       /* Return an internal server error.  */
       return td->http->raiseHTTPError(500);
@@ -515,7 +515,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 
   if(ret)
   {
-    td->outputData.closeFile();
+    td->outputData.close();
     /* Return an internal server error.  */
     return td->http->raiseHTTPError(500);
   }  

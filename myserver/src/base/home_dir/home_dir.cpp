@@ -145,7 +145,7 @@ int HomeDir::loadImpl()
   timestamp = usersFile.getLastModTime();
   if(size == (u_long) -1)
   {
-    usersFile.closeFile();
+    usersFile.close();
     return 1;
   }
 
@@ -201,7 +201,7 @@ int HomeDir::loadImpl()
     /* Next tuple.  */
   }
   delete [] buffer;
-  usersFile.closeFile();
+  usersFile.close();
 #endif
 
   loaded = 1;

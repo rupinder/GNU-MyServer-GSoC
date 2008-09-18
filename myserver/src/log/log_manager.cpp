@@ -96,7 +96,7 @@ int LogManager::load(const char *filename)
 int LogManager::close()
 {
   if(loaded)
-    file.closeFile();
+    file.close();
   return 0;
 }
 
@@ -280,7 +280,7 @@ int LogManager::storeFile()
       {
         delete [] buffer;
         delete [] buffer2;
-        newFile.closeFile();
+        newFile.close();
         return 1;
       }
       if(gzipLog)
@@ -291,7 +291,7 @@ int LogManager::storeFile()
         {
           delete [] buffer;
           delete [] buffer2;
-          newFile.closeFile();
+          newFile.close();
           return 1;
         }  
         gzip.initialize();
@@ -305,7 +305,7 @@ int LogManager::storeFile()
         {
           delete [] buffer;
           delete [] buffer2;      
-          newFile.closeFile();
+          newFile.close();
           return 1;
         }    
         if(nbr == 0)
@@ -318,7 +318,7 @@ int LogManager::storeFile()
           {
             delete [] buffer;
             delete [] buffer2;
-            newFile.closeFile();
+            newFile.close();
             return 1;
           } 
         }
@@ -326,7 +326,7 @@ int LogManager::storeFile()
         {
           delete [] buffer;
           delete [] buffer2;
-          newFile.closeFile();
+          newFile.close();
           return 1;
         } 
       }
@@ -338,7 +338,7 @@ int LogManager::storeFile()
         {
           delete [] buffer;
           delete [] buffer2;
-          newFile.closeFile();
+          newFile.close();
           return 1;
         }  
         len=gzip.getFooter(gzipData, 16);
@@ -346,13 +346,13 @@ int LogManager::storeFile()
         {
           delete [] buffer;
           delete [] buffer2;
-          newFile.closeFile();
+          newFile.close();
           return 1;
         }   
         gzip.free();
       }
-      newFile.closeFile();
-      currentFile->closeFile();
+      newFile.close();
+      currentFile->close();
       FilesUtility::deleteFile(filepath.c_str());
       if(currentFile->openFile(filepath.c_str(), File::MYSERVER_OPEN_APPEND|
                                File::MYSERVER_OPEN_ALWAYS | File::MYSERVER_OPEN_WRITE |

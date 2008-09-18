@@ -36,7 +36,7 @@ public:
 	void inverted(Pipe&);
   virtual int read(char* buffer, u_long len, u_long *nbr);
   virtual int write(const char* buffer, u_long len, u_long *nbw);
-	void close();
+	virtual int close();
 	void closeRead();
 	void closeWrite();
 	bool pipeTerminated(){return terminated;}

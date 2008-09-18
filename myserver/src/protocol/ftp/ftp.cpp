@@ -162,7 +162,7 @@ int FtpUserData::CloseDataConnection()
   if ( m_pDataConnection != NULL && m_pDataConnection->socket != NULL )
   {
     m_pDataConnection->socket->shutdown(SD_BOTH);
-    m_pDataConnection->socket->closesocket();
+    m_pDataConnection->socket->close();
     delete m_pDataConnection->socket;
     m_pDataConnection->socket = NULL;
     m_pDataConnection->setScheduled(0);
@@ -585,7 +585,7 @@ void Ftp::Pasv()
       return;
 
     pFtpUserData->m_pDataConnection->socket->shutdown(SD_BOTH);
-    pFtpUserData->m_pDataConnection->socket->closesocket();
+    pFtpUserData->m_pDataConnection->socket->close();
     delete pFtpUserData->m_pDataConnection->socket;
     pFtpUserData->m_pDataConnection->socket = new Socket(asock);
   }
@@ -780,7 +780,7 @@ void* SendAsciiFile(void* pParam)
       if ( file->readFromFile(buffer.getBuffer(), nBufferSize, &nbr) )
       {
         ftp_reply(pConnection, 451);
-        file->closeFile();
+        file->close();
         delete file;
         pFtpUserData->CloseDataConnection();
         pFtpUserData->m_DataConnBusy.unlock();
@@ -799,7 +799,7 @@ void* SendAsciiFile(void* pParam)
       if ( pLine == NULL )
       {
         ftp_reply(pConnection, 451);
-        file->closeFile();
+        file->close();
         delete file;
         pFtpUserData->CloseDataConnection();
         pFtpUserData->m_DataConnBusy.unlock();
@@ -835,8 +835,8 @@ void* SendAsciiFile(void* pParam)
           (u_long)buffer2.getLength(), 0) == SOCKET_ERROR )
             {
         ftp_reply(pConnection, 451);
-               file->closeFile();
-        file->closeFile();
+               file->close();
+        file->close();
         delete file;
         pFtpUserData->CloseDataConnection();
         pFtpUserData->m_DataConnBusy.unlock();
@@ -850,7 +850,7 @@ void* SendAsciiFile(void* pParam)
       if ( pFtpUserData->m_bBreakDataConnection )
       {
         pFtpUserData->m_bBreakDataConnection = false;
-               file->closeFile();
+               file->close();
         delete file;
         pFtpUserData->CloseDataConnection();
         pFtpUserData->m_DataConnBusy.unlock();
@@ -862,13 +862,13 @@ void* SendAsciiFile(void* pParam)
 #endif
       }
     }
-    file->closeFile();
+    file->close();
     delete file;
   }
   catch (bad_alloc &ba)
   {
     if ( file != NULL )
-      file->closeFile();
+      file->close();
     delete file;
     //report error
   }
@@ -1015,7 +1015,7 @@ void* SendImageFile(void* pParam)
           (u_long)nBufferSize, 0) == SOCKET_ERROR )
       {
         ftp_reply(pConnection, 451);
-        file->closeFile();
+        file->close();
         delete file;
         pFtpUserData->CloseDataConnection();
         pFtpUserData->m_DataConnBusy.unlock();
@@ -1032,7 +1032,7 @@ void* SendImageFile(void* pParam)
       if ( pFtpUserData->m_bBreakDataConnection )
       {
         pFtpUserData->m_bBreakDataConnection = false;
-               file->closeFile();
+               file->close();
         delete file;
         pFtpUserData->CloseDataConnection();
         pFtpUserData->m_DataConnBusy.unlock();
@@ -1044,13 +1044,13 @@ void* SendImageFile(void* pParam)
 #endif
       }
     }
-    file->closeFile();
+    file->close();
     delete file;
   }
   catch (bad_alloc &ba)
   {
     if ( file != NULL )
-      file->closeFile();
+      file->close();
     delete file;
     //report error
   }
@@ -1195,7 +1195,7 @@ void* ReceiveAsciiFile(void* pParam)
       if ( pLine == NULL )
       {
         ftp_reply(pConnection, 451);
-        file.closeFile();
+        file.close();
         pFtpUserData->CloseDataConnection();
         pFtpUserData->m_DataConnBusy.unlock();
         delete pWt;
@@ -1235,7 +1235,7 @@ void* ReceiveAsciiFile(void* pParam)
       if ( pFtpUserData->m_bBreakDataConnection )
       {
         pFtpUserData->m_bBreakDataConnection = false;
-               file.closeFile();
+               file.close();
         pFtpUserData->CloseDataConnection();
         pFtpUserData->m_DataConnBusy.unlock();
         delete pWt;
@@ -1247,11 +1247,11 @@ void* ReceiveAsciiFile(void* pParam)
       }
       memset(buffer.getBuffer(), 0, buffer.getRealLength());
     }
-    file.closeFile();
+    file.close();
   }
   catch (bad_alloc &ba)
   {
-    file.closeFile();
+    file.close();
     //report error
   }
 
@@ -1386,7 +1386,7 @@ void* ReceiveImageFile(void* pParam)
       if ( pFtpUserData->m_bBreakDataConnection )
       {
         pFtpUserData->m_bBreakDataConnection = false;
-               file.closeFile();
+               file.close();
         pFtpUserData->CloseDataConnection();
         pFtpUserData->m_DataConnBusy.unlock();
         delete pWt;
@@ -1397,12 +1397,12 @@ void* ReceiveImageFile(void* pParam)
 #endif
       }
     }
-    file.closeFile();
+    file.close();
   }
   catch (bad_alloc &ba)
   {
     //report error
-    file.closeFile();
+    file.close();
   }
 
   ftp_reply(pConnection, 226);

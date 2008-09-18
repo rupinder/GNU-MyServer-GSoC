@@ -164,7 +164,7 @@ int File::openFile(const char* nfilename,u_long opt)
       ret = setFilePointer(0);
       if(ret)
       {
-        closeFile();
+        close();
         filename.clear();
         return 1;
       }
@@ -356,7 +356,7 @@ int File::createTemporaryFile(const char* filename)
 /*!
  *Close an open base/file/file.handle.
  */
-int File::closeFile()
+int File::close()
 {
   int ret = 0;
   if(handle)
@@ -367,7 +367,7 @@ int File::closeFile()
 #endif
 #ifdef NOT_WIN
     ret = fsync((long)handle);
-    ret |= close((long)handle);
+    ret |= ::close((long)handle);
 #endif
   }
   filename.clear();

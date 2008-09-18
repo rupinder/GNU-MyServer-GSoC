@@ -344,7 +344,7 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
       {
         td->inputDataPath.assign("");
         td->outputDataPath.assign("");
-        td->inputData.closeFile();
+        td->inputData.close();
         return -1;
       }
       else if(ret)
@@ -373,7 +373,7 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
                                        &nbr,
                                        timeout))
     {
-      td->inputData.closeFile();
+      td->inputData.close();
       FilesUtility::deleteFile(td->inputDataPath);
       *httpRetCode = 400;
       return 1;
@@ -383,7 +383,7 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
       length -= nbr;
     else
     {
-      td->inputData.closeFile();
+      td->inputData.close();
       FilesUtility::deleteFile(td->inputDataPath);
       *httpRetCode = 400;
       return 1;
@@ -395,7 +395,7 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
     {
       td->inputDataPath.assign("");
       td->outputDataPath.assign("");
-      td->inputData.closeFile();
+      td->inputData.close();
       return -1;
     }
 

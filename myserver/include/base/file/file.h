@@ -65,7 +65,7 @@ public:
     {return setFilename(name.c_str());}
 
 	virtual int operator =(File);
-	virtual int closeFile();
+	virtual int close();
 
   /*! Inherithed from Stream. */
   virtual int read(char* buffer, u_long len, u_long *nbr);

@@ -209,7 +209,7 @@ File* CachedFileFactory::open(const char* filename)
       if(record == 0)
       {
         delete record;
-        file->closeFile();
+        file->close();
         delete file;
         mutex.unlock();
         return 0;
@@ -219,7 +219,7 @@ File* CachedFileFactory::open(const char* filename)
       record->mtime = file->getLastModTime();
 
       
-      file->closeFile();
+      file->close();
       delete file;
 
       if(buffer == 0)

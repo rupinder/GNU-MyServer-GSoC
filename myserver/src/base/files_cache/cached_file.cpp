@@ -155,7 +155,7 @@ int CachedFile::createTemporaryFile(const char* filename)
 /*!
  *Close an open base/file/file.handle.
  */
-int CachedFile::closeFile()
+int CachedFile::close()
 {
   buffer->decRef();
   return 0;

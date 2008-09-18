@@ -192,7 +192,7 @@ long Pipe::getWriteHandle()
 /*!
  *Close the pipe.
  */
-void Pipe::close()
+int Pipe::close()
 {
   terminated = true;
 #ifdef NOT_WIN
@@ -208,6 +208,7 @@ void Pipe::close()
     CloseHandle(writeHandle);
   readHandle = writeHandle = 0;
 #endif
+  return 0;
 }
 
 /*!

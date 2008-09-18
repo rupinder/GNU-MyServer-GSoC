@@ -108,7 +108,7 @@ int DynamicExecutor::loadFileAndExecute(char* fileName)
   if(buffer)
     delete []buffer;
 
-  file.closeFile();
+  file.close();
   
   return ret;
 }

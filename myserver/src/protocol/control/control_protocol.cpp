@@ -291,7 +291,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
       strcpy(b2,"Control: Error in the temporary file creation");
       addToErrorLog(a,b2, strlen(b2), header);
       sendResponse(b2, bs2, a, CONTROL_INTERNAL, header, 0);
-      Ifile->closeFile();
+      Ifile->close();
       FilesUtility::deleteFile(IfilePath.str().c_str());
       delete Ifile;
       return 0;
@@ -306,7 +306,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
         strcpy(b2,"Control: Error writing to temporary file");
         addToErrorLog(a,b2, strlen(b2), header);
         sendResponse(b2, bs2, a, CONTROL_INTERNAL, header, 0);
-        Ifile->closeFile();
+        Ifile->close();
         FilesUtility::deleteFile(IfilePath.str().c_str());
         delete Ifile;
         Ifile=0;
@@ -329,7 +329,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
           strcpy(b2,"Control: Error in communication");
           addToErrorLog(a,b2, strlen(b2), header);
           sendResponse(b2, bs2, a, CONTROL_INTERNAL, header, 0);
-          Ifile->closeFile();
+          Ifile->close();
           FilesUtility::deleteFile(IfilePath.str().c_str());
           delete Ifile;
           Ifile=0;
@@ -342,7 +342,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
           strcpy(b2,"Control: Error trying to write on the temporary file");
           addToErrorLog(a,b2, strlen(b2), header);
           sendResponse(b2, bs2, a, CONTROL_INTERNAL, header, 0);
-          Ifile->closeFile();
+          Ifile->close();
           FilesUtility::deleteFile(IfilePath.str().c_str());
           delete Ifile;
           Ifile=0;
@@ -357,7 +357,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
         strcpy(b2,"Control: Bad content length specified");
         addToErrorLog(a,b2, strlen(b2), header);
         sendResponse(b2, bs2, a, CONTROL_BAD_LEN, header, 0);
-        Ifile->closeFile();
+        Ifile->close();
         FilesUtility::deleteFile(IfilePath.str().c_str());
         delete Ifile;
         Ifile=0;
@@ -381,7 +381,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     addToErrorLog(a,b2, strlen(b2), header);
     if(Ifile)
     {
-      Ifile->closeFile();
+      Ifile->close();
       FilesUtility::deleteFile(IfilePath.str().c_str());
       delete Ifile;
       Ifile=0;
@@ -401,7 +401,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     addToErrorLog(a,b2, strlen(b2), header);
     if(Ifile)
     {
-      Ifile->closeFile();
+      Ifile->close();
       FilesUtility::deleteFile(IfilePath.str().c_str());
       delete Ifile;
       Ifile=0;
@@ -419,7 +419,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     addToErrorLog(a,b2, strlen(b2), header);
     if(Ifile)
     {
-      Ifile->closeFile();
+      Ifile->close();
       FilesUtility::deleteFile(IfilePath.str().c_str());
       delete Ifile;
       Ifile=0;
@@ -443,7 +443,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     strcpy(b2,"Control: Error in allocating memory");
     addToErrorLog(a,b2, strlen(b2), header);
     sendResponse(b2, bs2, a, CONTROL_INTERNAL, header, 0);
-    Ifile->closeFile();
+    Ifile->close();
     FilesUtility::deleteFile(IfilePath.str().c_str());
     delete Ifile;
     Ifile=0;
@@ -459,7 +459,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     addToErrorLog(a,b2, strlen(b2), header);
     sendResponse(b2, bs2, a, CONTROL_INTERNAL, header, 0);
     delete Ofile;
-    Ifile->closeFile();
+    Ifile->close();
     delete Ifile;
 
     FilesUtility::deleteFile(IfilePath.str().c_str());
@@ -540,13 +540,13 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
       sendResponse(b2, bs2, a, CONTROL_OK, header, Ofile);
     if(Ifile)
     {
-      Ifile->closeFile();
+      Ifile->close();
       delete Ifile;
       Ifile=0;
     }
     if(Ofile)
     {
-      Ofile->closeFile();
+      Ofile->close();
       delete Ofile;
       Ofile=0;
     }
@@ -570,13 +570,13 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
 
     if(Ifile)
     {
-      Ifile->closeFile();
+      Ifile->close();
       delete Ifile;
       Ifile=0;
     }
     if(Ofile)
     {
-      Ofile->closeFile();
+      Ofile->close();
       delete Ofile;
       Ofile=0;
     }
@@ -933,7 +933,7 @@ int ControlProtocol::getFile(ConnectionPtr a, char* fn, File* in,
 
   }
 
-  localfile.closeFile();
+  localfile.close();
   return 0;
 }
 
@@ -1031,7 +1031,7 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
       return CONTROL_INTERNAL;
     }
   }
-  localfile.closeFile();
+  localfile.close();
   
   if(isAutoRebootToEnable)
     Server::getInstance()->enableAutoReboot();

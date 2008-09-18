@@ -41,7 +41,7 @@ ControlClient::~ControlClient()
    memset(UserPass, 0, 64); // no memory snoops here
    Buffer.free();
    if(Connected)
-     socket->closesocket();
+     socket->close();
 	 if(socket)
 		 delete socket;
 }
@@ -91,7 +91,7 @@ int ControlClient::Login(const char * address, const int port,
    /*! If the socket was created try to connect. */
    if(tcpSocket->connect((MYSERVER_SOCKADDR*)&sockAddr, sockLen) == -1)
      {
-       socket->closesocket();
+       socket->close();
        delete tcpSocket;
        return -2;
      }
@@ -127,7 +127,7 @@ int ControlClient::Logout()
    memset(UserPass, 0, 64); // no memory snoops here
    Buffer.setLength(0);
    if(Connected)
-     socket->closesocket();
+     socket->close();
    Connected = false;
    return 0;
 }

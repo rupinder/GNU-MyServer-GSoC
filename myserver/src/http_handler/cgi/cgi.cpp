@@ -311,7 +311,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
   {
     if( cgiProc.execConcurrentProcess(&spi) == -1)
     {
-      stdInFile.closeFile();
+      stdInFile.close();
       stdOutFile.close();
       td->connection->host->warningsLogRequestAccess(td->id);
       td->connection->host->warningsLogWrite
@@ -351,7 +351,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
                        td->buffer2->getRealLength() - headerOffset - 1, 
                        &nBytesRead))
     {
-      stdInFile.closeFile();
+      stdInFile.close();
       stdOutFile.close();
       td->connection->host->warningsLogRequestAccess(td->id);
       td->connection->host->warningsLogWrite
@@ -386,7 +386,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
       td->connection->host->warningsLogTerminateAccess(td->id);
       td->http->raiseHTTPError(500);
       stdOutFile.close();
-      stdInFile.closeFile();
+      stdInFile.close();
       chain.clearAllFilters(); 
       cgiProc.terminateProcess();
       return 0;
@@ -449,7 +449,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
       {
         td->http->sendHTTPRedirect(location->c_str());
         stdOutFile.close();
-        stdInFile.closeFile();
+        stdInFile.close();
         chain.clearAllFilters(); 
         cgiProc.terminateProcess();
         return 1;
@@ -463,7 +463,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
       if(chain.write(td->buffer->getBuffer(),
                      static_cast<int>(td->buffer->getLength()), &nbw2))
       {
-        stdInFile.closeFile();
+        stdInFile.close();
         stdOutFile.close();
         chain.clearAllFilters(); 
         /* Remove the connection on sockets error.  */
@@ -476,7 +476,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
   if(!nph && onlyHeader)
   {
     stdOutFile.close();
-    stdInFile.closeFile();
+    stdInFile.close();
     chain.clearAllFilters(); 
     cgiProc.terminateProcess();
     return 1;
@@ -494,7 +494,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
     td->connection->host->warningsLogWrite("Cgi: Error loading filters");
     td->connection->host->warningsLogTerminateAccess(td->id);
     stdOutFile.close();
-    stdInFile.closeFile();
+    stdInFile.close();
     cgiProc.terminateProcess();
     chain.clearAllFilters(); 
     return td->http->raiseHTTPError(500);
@@ -512,7 +512,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
                                                 useChunks))
     {
       stdOutFile.close();
-      stdInFile.closeFile();
+      stdInFile.close();
       chain.clearAllFilters(); 
       /* Remove the connection on sockets error.  */
       cgiProc.terminateProcess();
@@ -531,7 +531,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
     if((int)(getTicks() - procStartTime) > cgiTimeout)
     {
       stdOutFile.close();
-      stdInFile.closeFile();
+      stdInFile.close();
       chain.clearAllFilters(); 
       /* Remove the connection on sockets error.  */
       cgiProc.terminateProcess();
@@ -546,7 +546,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
                        &nBytesRead))
     {
       stdOutFile.close();
-      stdInFile.closeFile();
+      stdInFile.close();
       chain.clearAllFilters(); 
       /* Remove the connection on sockets error.  */
       cgiProc.terminateProcess();
@@ -566,7 +566,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
                                                 useChunks))
     {
       stdOutFile.close();
-      stdInFile.closeFile();
+      stdInFile.close();
       chain.clearAllFilters(); 
       /* Remove the connection on sockets error.  */
       cgiProc.terminateProcess();
@@ -581,7 +581,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
   if(useChunks && chain.write("0\r\n\r\n", 5, &nbw2))
   {
     stdOutFile.close();
-    stdInFile.closeFile();
+    stdInFile.close();
     chain.clearAllFilters(); 
   
     /* Remove the connection on sockets error.  */
@@ -598,7 +598,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 
   /* Close the stdin and stdout files used by the CGI.  */
   stdOutFile.close();
-  stdInFile.closeFile();
+  stdInFile.close();
 
   /* Delete the file only if it was created by the CGI module.  */
   if(!td->inputData.getHandle())

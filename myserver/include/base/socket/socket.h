@@ -96,7 +96,7 @@ public:
 	int setsockopt(int,int, const char*,int);
 
 	virtual int connect(MYSERVER_SOCKADDR*, int);
-	virtual int closesocket();
+	virtual int close();
 	virtual int shutdown(int how);
 	virtual int recv(char*, int, int, u_long);
 	virtual int recv(char*, int, int);

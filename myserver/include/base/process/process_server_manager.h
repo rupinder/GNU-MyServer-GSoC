@@ -57,7 +57,7 @@ public:
 		{
 			if(isLocal)
 			{
-				socket.closesocket();
+				socket.close();
 				process.terminateProcess();
 			}
 		}
