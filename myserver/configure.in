@@ -27,7 +27,7 @@ AC_CANONICAL_TARGET
 
 AM_INIT_AUTOMAKE
 
-PACKAGE_STRING=`cat version`
+PACKAGE_STRING= m4_esyscmd([cat version])
 MYSERVER_VERSION="${PACKAGE_STRING}"
 
 AC_SUBST(MYSERVER_VERSION)
@@ -51,7 +51,8 @@ CFLAGS="$CFLAGS $_LT_AC_TAGVAR(lt_prog_compiler_pic, CXX)"
 CXXFLAGS="$CXXFLAGS $_LT_AC_TAGVAR(lt_prog_compiler_pic, CXX)"
 LDFLAGS="$LDFLAGS $_LT_AC_TAGVAR(lt_prog_compiler_pic, CXX)"
 
-AC_ARG_WITH([root-prefix], [  --with-root-prefix=PREFIX override prefix variable for files to be placed in the root], root_prefix=$withval, root_prefix="")
+AC_ARG_WITH([root-prefix], [  --with-root-prefix=PREFIX override prefix variable for files to be placed in the root], root_prefix=$withval, root_prefix="\$(DESTDIR)")
+
 
 AC_ARG_ENABLE([control-gui], [ --disable-control-gui disable the myserver-configure GUI program], enable_control="no", enable_control="yes")
 
