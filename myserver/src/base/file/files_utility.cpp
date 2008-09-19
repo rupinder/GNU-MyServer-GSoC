@@ -17,9 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "stdafx.h"
+#include <include/base/file/files_utility.h>
 #include <include/base/utility.h>
 #include <include/base/string/stringutils.h>
-#include <include/base/file/files_utility.h>
 
 #ifdef NOT_WIN
 extern "C" {
@@ -42,6 +42,8 @@ extern "C" {
 #include <memory>
 
 using namespace std;
+
+string FilesUtility::tmpPath;
 
 /*!
  *Constructor body.
@@ -779,4 +781,23 @@ int FilesUtility::deleteDirectory(const char *path)
 #else // NOT_WIN
   return rmdir(path);
 #endif
+}
+
+
+/*!
+ *Create an unique temporary file name.  This function doesn't create the
+ *file or open it but generates only its name.
+ *\param
+ */
+void FilesUtility::temporaryFileName(u_long tid, string &out)
+{
+  ostringstream stream;
+  static u_long counter = 1;
+  counter++;
+
+  if(tmpPath.length() == 0)
+    tmpPath.assign(getdefaultwd(0, 0));
+
+  stream << tmpPath << "/tmp_" << counter  << "_" << tid;
+  out.assign(stream.str());
 }

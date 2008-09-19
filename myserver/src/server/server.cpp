@@ -38,7 +38,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 extern "C"
 {
 #ifdef WIN32
-  //#include <Ws2tcpip.h>
 #include <direct.h>
 #endif
 #ifdef NOT_WIN
@@ -1014,12 +1013,9 @@ int Server::initialize()
   data = configurationFileManager.getValue("TEMP_DIRECTORY");
   if(data)
   {
-    tmpPath.assign(data);
+    string tmpPath(data);
     FilesUtility::completePath(tmpPath);
-  }
-  else
-  {
-    tmpPath.assign(getdefaultwd(0, 0));
+    FilesUtility::setTmpPath(tmpPath);
   }
 
   data = configurationFileManager.getValue("MAX_FILESCACHE_FILESIZE");
@@ -1272,9 +1268,9 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
   newConnection->setLocalPort(localPort);
   newConnection->setIpAddr(ipAddr);
   newConnection->setLocalIpAddr(localIpAddr);
-  newConnection->host = Server::getInstance()->vhostList->getVHost(0,
-                                                             localIpAddr,
-                                                             localPort);
+  newConnection->host = vhostList->getVHost(0,
+                                            localIpAddr,
+                                            localPort);
 
   /* No vhost for the connection so bail.  */
   if(newConnection->host == 0)
@@ -1283,7 +1279,7 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
     return 0;
   }
 
-  protocol = Server::getInstance()->getProtocol(newConnection->host->getProtocolName());
+  protocol = getProtocol(newConnection->host->getProtocolName());
 
   if(protocol)
     opts = protocol->getProtocolOptions();
@@ -2281,20 +2277,6 @@ int Server::logWriteln(const char* str)
       return 1;
   }
   return logManager.writeln((char*)str);
-}
-
-/*!
- *Create an unique temporary file name.  This function doesn't create the
- *file or open it but generates only its name.
- *\param
- */
-void Server::temporaryFileName(u_long tid, string &out)
-{
-  ostringstream stream;
-  static u_long counter = 1;
-  counter++;
-  stream << tmpPath << "/tmp_" << counter  << "_" << tid;
-  out.assign(stream.str());
 }
 
 /*!

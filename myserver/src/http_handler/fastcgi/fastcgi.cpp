@@ -387,7 +387,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
   initialTicks = getTicks();
 
-  Server::getInstance()->temporaryFileName(td->id, outDataPath);
+  FilesUtility::temporaryFileName(td->id, outDataPath);
 
   if(con.tempOut.createTemporaryFile(outDataPath.c_str()))
   {

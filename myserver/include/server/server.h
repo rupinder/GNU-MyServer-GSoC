@@ -140,7 +140,6 @@ public:
 	u_long getBuffersize();
 	u_long getBuffersize2();
   u_long getThrottlingRate();
-	void temporaryFileName(u_long tid, string &out);
 	int waitNewConnection(u_long tid, u_long timeout);
 	XmlParser *getConfiguration(){return &configurationFileManager;}
 	ListenThreads *getListenThreads(){return &listenThreads;}
@@ -248,7 +247,6 @@ private:
 	string* mainConfigurationFile;
 	string* vhostConfigurationFile;
 	string* mimeConfigurationFile;
-	string tmpPath;
 	PluginsManager pluginsManager;
 	GenericPluginsManager genericPluginsManager;
 	ProcessServerManager processServerManager;

@@ -1495,8 +1495,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
      *For methods that accept data after the HTTP header set the correct
      *pointer and create a file containing the informations after the header.
      */
-    Server::getInstance()->temporaryFileName(td->id, td->inputDataPath);
-    Server::getInstance()->temporaryFileName(td->id, td->outputDataPath);
+    FilesUtility::temporaryFileName(td->id, td->inputDataPath);
+    FilesUtility::temporaryFileName(td->id, td->outputDataPath);
 
     dynamicCommand = staticHttp.dynCmdManager.getPlugin(td->request.cmd);
 
