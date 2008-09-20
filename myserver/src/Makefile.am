@@ -25,4 +25,4 @@ all-local: libmyserver.a myserver${EXEEXT}
 
 clean-local:
 	rm -f libmyserver.a
-	find -iregex .*\\.$(OBJEXT) | xargs rm -f
+	find . | grep .*\\.$(OBJEXT)$ | xargs rm -f

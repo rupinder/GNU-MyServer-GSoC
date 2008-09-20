@@ -153,20 +153,28 @@ int HomeDir::loadImpl()
 
   usersFile.read(buffer, size, &read);
   buffer[read] = '\0';
-  
-  for(counter = 0; counter < read; counter++)
-    if(buffer[counter] == ':' || buffer[counter] == '\n')
-      buffer[counter] = '\0';
 
-  for(counter = 0; buffer[counter] != 0;)
+ for(counter = 0; counter < read; counter++)
+   if(buffer[counter] == ':')
+     buffer[counter] = '\0';
+
+
+  for(counter = 0; counter < size;)
   {
     char *username = 0;
     char *home = 0;
     string sUsername;
     string *sHome;
-     string *old;
-    /* Username.  */
- 
+    string *old;
+     
+    if(buffer[counter] == '#')
+      while(buffer[counter++] != '\n');
+
+    if(counter >= size)
+      break;
+
+     /* Username.  */
+
     username = &buffer[counter];
 
      while(buffer[counter++] != '\0');
@@ -183,7 +191,6 @@ int HomeDir::loadImpl()
 
      while(buffer[counter++] != '\0');
     /* Home.  */
-    
 
     home = &buffer[counter++];
     sUsername = string(username);
@@ -197,7 +204,7 @@ int HomeDir::loadImpl()
     while(buffer[counter++] != '\0');
     /* Shell.  */
 
-     while(buffer[counter++] != '\0');
+    while(buffer[counter++] != '\n');
     /* Next tuple.  */
   }
   delete [] buffer;

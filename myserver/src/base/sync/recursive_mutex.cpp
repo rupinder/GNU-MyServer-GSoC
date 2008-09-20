@@ -64,6 +64,7 @@ int RecursiveMutex::init()
   }
 #ifdef HAVE_PTHREAD
   pthread_mutexattr_t mta;
+  pthread_mutexattr_init(&mta);
   pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_RECURSIVE);
   ret = pthread_mutex_init(&mutex, &mta);
 #else

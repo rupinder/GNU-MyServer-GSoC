@@ -35,11 +35,12 @@ using namespace std;
 #define MYSERVER_KB(x) (x << 10)       //x * 1024
 #define MYSERVER_MB(x) (x << 20)       //x * 1024 * 1024
 #define MYSERVER_SEC(x) (x * 1000)
-#define OS_WINDOWS_9X		  1
-#define OS_WINDOWS_2000		2
-#define OS_WINDOWS_NT3		3
-#define OS_WINDOWS_XP		  4
-#define OS_LINUX	        100  // Add room for future windows
+#define OS_WINDOWS_9X      1
+#define OS_WINDOWS_2000    2
+#define OS_WINDOWS_NT3     3
+#define OS_WINDOWS_XP      4
+#define OS_GNU_LINUX       100
+#define OS_FREEBSD         200
 
 int preparePrintError();
 int endPrintError();

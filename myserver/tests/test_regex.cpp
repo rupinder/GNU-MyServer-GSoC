@@ -55,8 +55,8 @@ public:
     CPPUNIT_ASSERT_EQUAL(ret, 0);
 
 
-    CPPUNIT_ASSERT_EQUAL(pm[1].rm_so, 6);
-    CPPUNIT_ASSERT_EQUAL(pm[1].rm_eo, 11);
+    CPPUNIT_ASSERT_EQUAL((int)pm[1].rm_so, 6);
+    CPPUNIT_ASSERT_EQUAL((int)pm[1].rm_eo, 11);
   }
 
   void testStarMatch()

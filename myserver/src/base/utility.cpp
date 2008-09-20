@@ -86,13 +86,16 @@ int getOSVersion()
     ret = OS_WINDOWS_XP;
     break;
   }
-#else
+#endif
+
 #ifdef __linux__
-  ret = OS_LINUX;
-#else
-  ret = 0;
+  ret = OS_GNU_LINUX;
 #endif
+
+#ifdef __FreeBSD__
+  ret = OS_FREEBSD;
 #endif
+
   return ret;
 }  
 
