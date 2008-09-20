@@ -168,15 +168,14 @@ int HomeDir::loadImpl()
     string *old;
      
     if(buffer[counter] == '#')
+    {
       while(buffer[counter++] != '\n');
-
-    if(counter >= size)
-      break;
+      continue;
+    }
 
      /* Username.  */
-
     username = &buffer[counter];
-
+    
      while(buffer[counter++] != '\0');
     /* Password.  */
 
