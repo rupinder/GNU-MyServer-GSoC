@@ -25,10 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class MemoryStream : public Stream
 {
-private:
-  int internalData;
-  MemBuf *data;
-  int readSeek;
 public:
   virtual int read(char* buffer, u_long len, u_long*);
   virtual int write(const char* buffer, u_long len, u_long*);
@@ -39,6 +35,10 @@ public:
   MemoryStream();
   MemoryStream(MemBuf*);
   virtual ~MemoryStream();
+private:
+  int internalData;
+  MemBuf *data;
+  int readSeek;
 };
 
 

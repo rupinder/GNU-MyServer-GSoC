@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2008 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -22,20 +22,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 using namespace std;
 
+#include <string.h>
+
 /*!
  *Inherited from Stream.
  */
-int MemoryStream::read(char* buffer,u_long len, u_long *nbr)
+int MemoryStream::read(char* buffer, u_long len, u_long *nbr)
 {
   char *b;
-  u_long towrite;
-  towrite = *nbr = std::min(len, static_cast<u_long>(data->getLength() - readSeek));
+  *nbr = std::min(len, static_cast<u_long>(data->getLength() - readSeek));
   b = data->getBuffer() + readSeek;
-  while(towrite--)
-  {
-    *buffer++ = *b++;
-  }
+
+  memcpy(buffer, b, *nbr);
+
   readSeek += (*nbr);
+
   return 0;
 }
 
