@@ -1,0 +1,66 @@
+@c -*-texinfo-*-
+In the myserver.xml file you can set the default page for your
+websites hosted on MyServer.
+
+Similar lines already exist in your configuration file:
+
+@example
+<DEFAULT_FILENAME>default.htm</DEFAULT_FILENAME>
+<DEFAULT_FILENAME>default.php</DEFAULT_FILENAME>
+<DEFAULT_FILENAME>default.php3</DEFAULT_FILENAME>
+<DEFAULT_FILENAME>index.htm</DEFAULT_FILENAME>
+<DEFAULT_FILENAME>index.php</DEFAULT_FILENAME>
+<DEFAULT_FILENAME>index.php3</DEFAULT_FILENAME>
+<DEFAULT_FILENAME>default.htm</DEFAULT_FILENAME>
+@end example
+
+In the errors section you learned how to create and use your own error
+pages. But you can also disable the custom error pages, by changing
+the line below:
+
+@example
+<USE_ERROR_FILE>YES</USE_ERROR_FILE>
+@end example
+
+So, if you set the value to NO, like in the line below,
+
+@example
+<USE_ERROR_FILE>NO</USE_ERROR_FILE>
+@end example
+
+MyServer will (by default) just send a header to your browser with the
+error code. But you have the option to send a HTTP body included in
+the error, by adding this line:
+
+@example
+<ERRORS_INCLUDE_BODY>YES</ERRORS_INCLUDE_BODY>
+@end example
+
+You can change the layout of the directory browsing page. The line
+below, in myserver.xml, points to the CSS file used to configure the
+layout for the browsing directory pages:
+
+@example
+<BROWSEFOLDER_CSS>system/folderstyle.css</BROWSEFOLDER_CSS>
+@end example
+
+CGI Scripts can get the Server Administrator E-mail and show them to
+the user (through the SERVER_ADMIN environment variable). So, it can
+be important you define this address properly, by setting the value in
+the line below, in myserver.xml:
+
+@example
+<SERVER_ADMIN>administrator@@localhost</SERVER_ADMIN>
+@end example
+
+MyServer offers the feature to follow symlinks on Unix-like Operating
+systems (e.g.: Linux, *BSD, GNU/HURD, Solaris, etc.).
+You can add the symlink following feature for all hosts in the
+myserver.xml file.
+
+@example
+<FOLLOW_LINKS>YES</FOLLOW_LINKS>
+@end example
+
+The default value used by MyServer is:
+@code{<FOLLOW_LINKS>NO</FOLLOW_LINKS>}.
