@@ -23,29 +23,41 @@ looks like:
 </VHOSTS>
 @end example
 
-@noindent @code{<NAME>} gives the server administrator an idea of what the virtual host
+@itemize
+@item <NAME>
+it gives the server administrator an idea of what the virtual host
 is such as internal Ethernet, external ethernet or every connection.
-@code{<PORT>} is the port used for accepting connections.
-@code{<IP>} is optional. It is the IP address for the interface your
+@item <PORT>
+it is the port used for accepting connections.
+@item <IP>
+it is optional. It is the IP address for the interface your
 virtual host will be working on. The optional useRegex="YES" means the
 address would act as a regular expression, not only a fixed
 value. This is more useful for networks with dynamic IP addressing.
-@code{<PROTOCOL>} is the protocol to be used by the host.
-@code{<DOCROOT>} is the directory where the files are found.
-@code{<SYSFOLDER>} is the system directory.
-@code{<HOST>} is your virtual host's name. The optional useRegex="YES"
+@item <PROTOCOL>
+it is the protocol to be used by the host.
+@item <DOCROOT>
+it is the directory where the files are found.
+@item <SYSFOLDER>
+it is the system directory.
+@item <HOST>
+it is your virtual host's name. The optional useRegex="YES"
 means the address would act as a regular expression, not only a fixed
 value.
-@code{<ACCESSLOG>} is the access log used by the virtual host
-@code{<WARNINGLOG>} is the errors log file used by the virtual host.
-@code{<ALLOW_CGI>} This option would deny the access to CGI in this
+@item <ACCESSLOG>
+it is the access log used by the virtual host
+@item <WARNINGLOG>
+it is the errors log file used by the virtual host.
+@item <ALLOW_CGI>
+This option would deny the access to CGI in this
 virtual host. This line can exist in myserver.xml too, as a global
 configuration, but if it is included in virtualhosts.xml, this is the
 one that will be considered. @code{ALLOW_CGI} can also appear as
-@code{ALLOW_FASTCGI}, @code{ALLOW_ISAPI}, @code{ALLOW_MSCGI}, @code{ALLOW_WINCGI},
-@code{ALLOW_SEND_LINK}, @code{ALLOW_EXTERNAL_COMMANDS},
-@code{ALLOW_SEND_FILE}, each of them denying/allowing the proper HTTP
-data handler to be used.
+@code{ALLOW_FASTCGI}, @code{ALLOW_ISAPI}, @code{ALLOW_MSCGI},
+@code{ALLOW_WINCGI}, @code{ALLOW_SEND_LINK},
+@code{ALLOW_EXTERNAL_COMMANDS}, @code{ALLOW_SEND_FILE}, each of them
+denying/allowing the proper HTTP data handler to be used.
+@end itemize
 
 Log files can have extra options:
 @code{<ACCESSLOG type="combined">logs/myServerHTTP.log</ACCESSLOG>}

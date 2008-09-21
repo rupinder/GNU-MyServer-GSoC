@@ -1,4 +1,3 @@
-@c -*-texinfo-*-
 \input texinfo
 @setfilename myserver.info
 @settitle GNU MyServer documentation
@@ -26,6 +25,9 @@ This is the manual for the GNU MyServer web server.
 * General description:: GNU MyServer general description.
 * Basic configuration:: Basic server configuration.
 * Virtual hosts:: Virtual hosts configuration.
+* MIME types:: MIME types configuration.
+* Process security:: Process security.
+* SSL certificates:: Show how to use SSL certificates.
 @end menu
 
 
@@ -47,12 +49,28 @@ This is the manual for the GNU MyServer web server.
 @cindex Basic configuration
 @include basic_configuration.texi
 
-@node Virtual hosts, , Basic configuration, Top
+@node Virtual hosts, MIME types, Basic configuration, Top
 @chapter Virtual hosts
 @cindex Virtual hosts
 @include virtual_hosts.texi
+
+@node MIME types, Process security, Virtual hosts, Top
+@chapter MIME types
+@cindex MIME types
+@include mime_types.texi
+
+@node Process security, SSL certificates, MIME types, Top
+@chapter Process security
+@cindex Process security
+@include process_security.texi
+
+@node SSL certificates, , Process security, Top
+@chapter SSL certificates
+@cindex SSL certificates
+@include ssl_certificates.texi
 
 
 @printindex cp
 @contents
 @bye
+@c -*-texinfo-*-

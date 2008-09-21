@@ -1,0 +1,110 @@
+@c -*-texinfo-*-
+You can modify the MIME types used by MyServer by modifying the file
+"MIMEtypes.xml". The following is an example of the .xml file: 
+
+@example
+<MIMETYPES>
+
+  <MIMETYPE defaultAction="DENY">
+    <EXT>htm</EXT>
+    <MIME>text/html</MIME>
+    <CMD>SEND</CMD>
+    <ACTION name="Host" value="localhost">ALLOW</ACTION>
+    <FILTER>gzip</FILTER>
+    <MANAGER>NONE</MANAGER>
+  </MIMETYPE>
+
+</MIMETYPES>
+@end example
+
+@itemize
+Each block describes a different MIME type.
+
+@item EXT
+is the type of file
+
+@item MIME
+is the Mime type.
+
+@item CMD
+is the way to send the file to the client.
+@end itemize
+
+@noindent @code{<ACTION name="Host" value="localhost">ALLOW</ACTION>}
+will allow access to the desired MIME Type if the Host is
+"localhost".
+In the line @code{<MIMETYPE defaultAction="DENY">} we declare that 
+the MIME type will DENY access from any host we don't set in the
+proper ACTION tag (so, it will have to exist in the
+configuration). Also, the property defaultAction is optional (when
+it's omitted, it's set to "ALLOW"). In the above example, HTML files
+will be accessed only through the hostname "localhost".
+
+The tag @code{<ACTION>} is optional, unless you specify "DENY" for
+your defaultAction in your MIME Type.
+
+@code{<FILTER>} defines a filter for that MIME type. The data will
+pass through the filter before being sent to the user. In the example
+above, the data would be sent gzipped to the user. It means Gzip works
+as a filter in MyServer. you can define Gzip to automatically run for
+every file based in its size, setting the @code{<GZIP_THRESHOLD>}, in
+myserver.xml file. For obvious reasons, data will be sent gzipped only
+if the client supports gzip - otherwise he'd receive a lot of weird
+characters instead of the site requested.
+
+In general, filters can also be applied to dynamic data - like CGI,
+ISAPI, FastCGI - but they need to be filters that don't modify the
+contents of the page to be shown to the user.
+
+@code{<MANAGER>} completes the @code{<CMD>} command specifying, if
+necessary for the command, an external application to use.
+For example using the RUNCGI command, it will be necessary to specify
+an external process to execute the CGI command, MANAGER under
+GNU/Linux will be something like this:
+
+@example
+<MANAGER>/usr/bin/php-cgi</MANAGER>
+or under Windows:
+<MANAGER>c:\php\php-cgi.exe</MANAGER>
+@end example
+
+
+The following values for sending the file to the client are valid in
+the @code{<CMD>} section:
+@enumerate
+@item SEND
+Send the file statically as is.  This command is used for files
+extensions such as .html and .jpg that don't need any external
+intervention from the web server.
+@item RUNCGI
+Run the CGI script indicated in the path.  It is used for file
+extensions such as .php and .pl that need to be processed before
+sending any data to the client.
+@item RUNFASTCGI
+Run the Fastcgi script.  This type will need a fastcgi parser
+downloaded (see the PHP page).  It is also used for file extensions
+such as .php and .pl.
+@item EXECUTEFASTCGI
+This also runs the Fastcgi script, but unlike the RUNFASTCGI above, it
+does not need a server to run the script, instead it acts as a self
+server.
+@item RUNSCGI
+Handle a specified mime type with this SCGI server.
+@item EXECUTESCGI
+Handle the file as a self SCGI process.
+@item RUNMSCGI
+Run the MSCGI script. This library is only available for MyServer. It
+is used to build fast and efficient CGIs that needs to access MyServer
+internal data.
+@item EXECUTE
+Treat the file as an executable and send the output to the client. 
+@item SENDLINK
+Send the file that is contained in a link.
+@item EXECUTEWINCGI
+Send the file as a WinCGI
+@item RUNISAPI
+Run the ISAPI script.  
+@item EXECUTEISAPI
+Run the ISAPI script but does not need a server to run. Instead, it
+acts as a self server.
+@end enumerate

@@ -1,0 +1,23 @@
+@c -*-texinfo-*-
+On POSIX it is possible to change the MyServer process user identifier
+and group identifier after it has bound the necessary ports (only the
+root user can bind ports < 1024).
+
+To specify a different process user id (PID), you must specify it in
+the myserver.xml file as:
+
+@example
+<PROCESS_USER_ID>PID</PROCESS_USER_ID>
+@end example
+
+Differently, to change the process group id (GID), the configuration
+line to use is:
+
+@example
+<PROCESS_GROUP_ID>GID</PROCESS_GROUP_ID>
+@end example
+
+When one of these features is used, MyServer will not use the
+auto-reboot because it will not be possible to get back old
+permissions.
+
