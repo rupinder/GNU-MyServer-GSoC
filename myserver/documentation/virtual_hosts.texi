@@ -2,9 +2,8 @@
 In theory, virtual hosts allow users to lodge an infinite number of
 sites on a single machine. For example http://mypc.net is different
 from http://sub.mypc.net. To define virtual hosts in myServer open the
-file virtualhosts.xml in a text editor (such as notepad in Windows or
-GNU Emacs in GNU/Linux). A sample virtual hosts configuration file
-looks like:
+file @file{virtualhosts.xml} in a text editor. A sample virtual hosts
+configuration file looks like:
 
 @example
 <VHOSTS>
@@ -50,11 +49,11 @@ it is the access log used by the virtual host
 it is the errors log file used by the virtual host.
 @item <ALLOW_CGI>
 This option would deny the access to CGI in this
-virtual host. This line can exist in myserver.xml too, as a global
-configuration, but if it is included in virtualhosts.xml, this is the
-one that will be considered. @code{ALLOW_CGI} can also appear as
-@code{ALLOW_FASTCGI}, @code{ALLOW_ISAPI}, @code{ALLOW_MSCGI},
-@code{ALLOW_WINCGI}, @code{ALLOW_SEND_LINK},
+virtual host. This line can exist in @file{myserver.xml} too, as a global
+configuration, but if it is included in the @file{virtualhosts.xml}
+file, this is the one that will be considered. @code{ALLOW_CGI} can
+also appear as @code{ALLOW_FASTCGI}, @code{ALLOW_ISAPI},
+@code{ALLOW_MSCGI}, @code{ALLOW_WINCGI}, @code{ALLOW_SEND_LINK},
 @code{ALLOW_EXTERNAL_COMMANDS}, @code{ALLOW_SEND_FILE}, each of them
 denying/allowing the proper HTTP data handler to be used.
 @end itemize
@@ -91,10 +90,9 @@ Although FTP is used for public file sharing, restrictions may be
 imposed using security file.
 
 MyServer gives you the option to enable the HTTP TRACE command for
-each virtual host. All you need to do is edit the security.xml file of
-the root of your virtual host (not a subdirectory in it! if the file
-doesn't exist, you may create a new one, in the format described in
-the Security section of this documentation), and add the parameter
+each virtual host. All you need to do is edit the @file{security.xml}
+file of the root of your virtual host (not a subdirectory!  If the
+file doesn't exist, you may create a new one), and add the parameter:
 
 @example
 <HTTP TRACE="ON" />

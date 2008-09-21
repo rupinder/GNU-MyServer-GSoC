@@ -1,6 +1,6 @@
 @c -*-texinfo-*-
 You can modify the MIME types used by MyServer by modifying the file
-"MIMEtypes.xml". The following is an example of the .xml file: 
+@file{MIMEtypes.xml}. The following is an example of this file: 
 
 @example
 <MIMETYPES>
@@ -48,9 +48,9 @@ pass through the filter before being sent to the user. In the example
 above, the data would be sent gzipped to the user. It means Gzip works
 as a filter in MyServer. you can define Gzip to automatically run for
 every file based in its size, setting the @code{<GZIP_THRESHOLD>}, in
-myserver.xml file. For obvious reasons, data will be sent gzipped only
-if the client supports gzip - otherwise he'd receive a lot of weird
-characters instead of the site requested.
+@file{myserver.xml} file. For obvious reasons, data will be sent
+gzipped only if the client supports gzip - otherwise he'd receive a
+lot of weird characters instead of the site requested.
 
 In general, filters can also be applied to dynamic data - like CGI,
 ISAPI, FastCGI - but they need to be filters that don't modify the

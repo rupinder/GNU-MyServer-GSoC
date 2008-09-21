@@ -4,7 +4,7 @@ and group identifier after it has bound the necessary ports (only the
 root user can bind ports < 1024).
 
 To specify a different process user id (PID), you must specify it in
-the myserver.xml file as:
+the @file{myserver.xml} file as:
 
 @example
 <PROCESS_USER_ID>PID</PROCESS_USER_ID>

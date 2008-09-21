@@ -13,7 +13,7 @@
 Copyright @copyright{} 2008 Free Software Foundation, Inc.
 @end titlepage
 
-@node Top, Copying, (dir), (dir)
+@node Top, Copying,,
 
 This is the manual for the GNU MyServer web server.
 
@@ -28,8 +28,8 @@ This is the manual for the GNU MyServer web server.
 * MIME types:: MIME types configuration.
 * Process security:: Process security.
 * SSL certificates:: Show how to use SSL certificates.
+* Table of contents:: Table of contents.
 @end menu
-
 
 @node Copying, GNU Free Documentation License, Top, Top
 @appendix GNU GENERAL PUBLIC LICENSE
@@ -69,7 +69,8 @@ This is the manual for the GNU MyServer web server.
 @cindex SSL certificates
 @include ssl_certificates.texi
 
-
+@node Table of contents, , Top, Top
+@unnumbered Table of contents
 @printindex cp
 @contents
 @bye
