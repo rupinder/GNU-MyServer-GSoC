@@ -355,3 +355,13 @@ void FiltersChain::getName(string& out)
   }
 
 }
+
+list<string>
+FiltersChain::getFilters ()
+{
+  list<Filter*>::iterator it;
+  list<string> filters;
+  for (it = this->filters.begin (); it != this->filters.end (); it++)
+    filters.push_back (string ((*it)->getName (0, 0)));
+  return filters;
+}

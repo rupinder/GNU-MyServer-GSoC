@@ -59,6 +59,7 @@ public:
   int clear();
   void getName(string& out);
   int hasModifiersFilters();
+  list<string> getFilters ();
   virtual int read(char* buffer, u_long len, u_long*);
   virtual int write(const char* buffer, u_long len, u_long*);
 	virtual int flush(u_long*);

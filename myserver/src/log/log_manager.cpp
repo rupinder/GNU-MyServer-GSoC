@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2006, 2008 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -15,451 +15,342 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-#include "stdafx.h"
 #include <include/log/log_manager.h>
-#include <include/base/utility.h>
-#include <include/filter/gzip/gzip.h>
-#include <include/base/file/files_utility.h>
 
-#include <string>
-#include <sstream>
-#include <iostream>
+int const LogManager::TYPE_CONSOLE = 1;
+int const LogManager::TYPE_FILE = 2;
 
-using namespace std;
-
-const int LogManager::TYPE_CONSOLE = 1;
-const int LogManager::TYPE_FILE = 2;
-
-/*!
- *Initialize the object.
- */
-LogManager::LogManager()
+LogManager::LogManager (FiltersFactory* filtersFactory,
+			LogStreamFactory* logStreamFactory,
+			LoggingLevel level) : level (level)
 {
-  loaded = 0;
-  /*!
-   *By default put everything on the console.
-   */
+  this->filtersFactory = filtersFactory;
+  this->logStreamFactory = logStreamFactory;
+  mutex = new Mutex ();
+  mutex->init ();
+}
+
+LogManager::~LogManager ()
+{
+  if (!empty ())
+    clear ();
+  delete mutex;
+}
+
+void
+LogManager::addLogStream (string& location, 
+			  list<string>& filters, 
+			  u_long cycleLog)
+{
+  mutex->lock ();
+  if (!contains (location))
+    {
+      logStreams[location] = 
+	logStreamFactory->createLogStream (filtersFactory,
+					   location,
+					   filters,
+					   cycleLog);
+    }
+  mutex->unlock ();
+}
+
+void
+LogManager::removeLogStream (string& location)
+{
+  mutex->lock ();
+  if (contains (location))
+    {
+      delete logStreams[location];
+      logStreams.erase (location);
+    }
+  mutex->unlock ();
+}
+
+LogStream*
+LogManager::getLogStream (string& location)
+{
+  if (contains (location))
+    return logStreams[location];
+  return 0;
+}
+
+int
+LogManager::notifyLogStreams (LogStreamEvent evt, 
+			      void* message, 
+			      void* reply)
+{
+  mutex->lock ();
+  map<string, LogStream*>::iterator it;
+  int retVal = 0;
+  for (it = logStreams.begin (); it != logStreams.end (); it++)
+    {
+      retVal |= it->second->update (evt, message, reply);
+    }
+  mutex->unlock ();
+  return retVal;
+}
+
+int
+LogManager::log (string& message, LoggingLevel level, string location)
+{
+  if (level >= this->level)
+    {
+      if (contains (location))
+	{
+	  return logStreams[location]->log (message);
+	}
+      else
+	{
+	  return notifyLogStreams (EVT_LOG, static_cast<void*>(&message));
+	}
+    }
+  return 1;
+}
+
+int
+LogManager::close (string location)
+{
+  if (contains (location))
+    {
+      return logStreams[location]->close ();
+    }
+  return notifyLogStreams (EVT_CLOSE);
+}
+
+void
+LogManager::setCycleLog (u_long cycleLog, string location)
+{
+  if (contains (location))
+    {
+      logStreams[location]->setCycleLog (cycleLog);
+    }
+  else
+    {
+      notifyLogStreams (EVT_SET_CYCLE_LOG, static_cast<void*>(&cycleLog));
+    }
+}
+
+LoggingLevel
+LogManager::setLoggingLevel (LoggingLevel level)
+{
+  LoggingLevel oldLevel = level;
+  this->level = level;
+  return oldLevel;
+}
+
+u_long
+LogManager::getCycleLog (string& location)
+{
+  if (contains (location))
+    return logStreams[location]->getCycleLog ();
+}
+
+LoggingLevel
+LogManager::getLoggingLevel ()
+{
+  return level;
+}
+
+void
+LogManager::setLogStreamFactory (LogStreamFactory* logStreamFactory)
+{
+  this->logStreamFactory = logStreamFactory;
+}
+
+LogStreamFactory* 
+LogManager::getLogStreamFactory ()
+{
+  return logStreamFactory;
+}
+
+void
+LogManager::setFiltersFactory (FiltersFactory* filtersFactory)
+{
+  this->filtersFactory = filtersFactory;
+}
+
+FiltersFactory* 
+LogManager::getFiltersFactory ()
+{
+  return filtersFactory;
+}
+
+int
+LogManager::size ()
+{
+  return logStreams.size ();
+}
+
+void
+LogManager::clear ()
+{
+  map<string, LogStream*>::iterator it;
+  for (it = logStreams.begin (); it != logStreams.end (); it++)
+    delete it->second;
+  logStreams.clear ();
+}
+
+bool
+LogManager::empty ()
+{
+  return size () == 0;
+}
+
+bool
+LogManager::contains (string& location)
+{
+  return logStreams.count (location) > 0;
+}
+
+/*
+ * *******************************************************************
+ *
+ *               D   E   P   R   E   C   A   T   E   D
+ *
+ * *******************************************************************
+ */
+
+LogManager::LogManager () : level (WARNING)
+{
+  mutex = new Mutex ();
+  this->filtersFactory = new FiltersFactory ();
+  this->filtersFactory->insert ("gzip", Gzip::factory);
+  logStreamFactory = new LogStreamFactory ();
+  mutex->init ();
   type = TYPE_CONSOLE;
-  gzipLog = 1;
   maxSize = 0;
-  mutex.init();
+  gzipLog = 1;
   cycleLog = 0;
+  string location ("console://");
+  list<string> filters;
+  addLogStream (location, filters, maxSize);
 }
 
-/*!
- *Destroy the object.
- */
-LogManager::~LogManager()
+int
+LogManager::load (const char *filename)
 {
-  /*!
-   *Try to close the file.
-   */
-  mutex.destroy();
-  close();
-}
-
-/*!
- *Load and use the file to save logs.
- *Return zero on sucess.
- */
-int LogManager::load(const char *filename)
-{
-  int opt, ret;
-  /*!
-   *If the file is still loaded close it before load again.
-   */
-  if(loaded)
-    close();
-
-  opt = File::MYSERVER_OPEN_APPEND | 
-    File::MYSERVER_OPEN_ALWAYS |
-    File::MYSERVER_OPEN_WRITE | 
-    File::MYSERVER_OPEN_READ | 
-    File::MYSERVER_NO_INHERIT;
-
-  ret = file.openFile(filename, opt);
-
-  if(ret)
-  {
-    return 1;
-  }
-  setType(TYPE_FILE);
-  loaded = 1;
-  return 0;
-    
-}
-
-/*!
- *Close the file.
- */
-int LogManager::close()
-{
-  if(loaded)
-    file.close();
+  setType (TYPE_FILE);
+  clear ();
+  string location ("file://");
+  location.append (filename);
+  list<string> filters;
+  addLogStream (location, filters, maxSize);
   return 0;
 }
 
-/*!
- *Set the type for the log.
- */
-void LogManager::setType(int nType)
+int
+LogManager::write (const char *str, int len)
 {
-  type = nType;
+  string message (str);
+  return notifyLogStreams (EVT_LOG, static_cast<void*>(&message));
 }
 
-/*!
- *Set the max size for the log.
- *Returns the old limit.
- *Using a size of zero means that this limit is not used.
- */
-u_long LogManager::setMaxSize(u_long nMax)
+int LogManager::getLogSize ()
 {
-  u_long oldMax = maxSize;
-  maxSize = nMax;
-  return oldMax;
+  if (getFile ())
+    return getFile ()->getFileSize ();
+  return 0;
 }
 
-
-/*!
- *Write the string to the log plus termination character[s].
- *Returns 0 on success.
- */
-int LogManager::writeln(const char *str)
+void
+LogManager::setCycleLog (u_long cycleLog)
 {
-  int ret = write(str);
+  cycleLog = 1;
+  notifyLogStreams (EVT_SET_CYCLE_LOG, static_cast<void*>(&maxSize));
+}
+
+File*
+LogManager::getFile ()
+{
+  map<string, LogStream*>::iterator it;
+  for (it = logStreams.begin (); it != logStreams.end (); it++)
+    {
+      if (it->first.find ("file://") != string::npos)
+	{
+	  return dynamic_cast<File*>(it->second->getOutStream ());
+	}
+    }
+  return 0;
+}
+
+int 
+LogManager::writeln (const char *str)
+{
+  int ret = write (str);
 #ifdef WIN32
-  if(ret == 0)
-    ret = write("\r\n");
+  if (ret == 0)
+    ret = write ("\r\n");
 #else
-  if(ret == 0)
-    ret = write("\n");
+  if (ret == 0)
+    ret = write ("\n");
 #endif
   return ret;
 }
 
-/*!
- *Set the log to save results on a new file when the max size is reached.
- */
-void LogManager::setCycleLog(int l)
-{
-  cycleLog = l;
-}
-
-/*!
- *Get if the log store log data on a new file when the max size is reached.
- */
-int LogManager::getCycleLog()
-{
-  return cycleLog;
-}
-
-/*!
- *Write the string to the log.
- *Returns 0 on success.
- */
-int LogManager::write(const char *str, int len)
-{
-  int ret;
-  if(type == TYPE_CONSOLE)
-  {
-    cout << str;
-  }
-  else if(type == TYPE_FILE)
-  {
-    u_long nbw;
-
-    /*!
-     *File was not loaded correctly.
-     */
-    if(!loaded)
-    {
-       return 1;
-    }
-
-    /*!
-     *We reached the max file size.
-     *Don't use this limitation if maxSize is equal to zero.
-     */
-    if(maxSize && (file.getFileSize() > maxSize))
-    {
-      if(storeFile())
-        return 1;
-    }
-
-    /*!
-     *If the len specified is equal to zero write the string as
-     *a null character terminated one.
-     */
-    ret = file.writeToFile(str, len ? len : (u_long)strlen(str), &nbw);
-    return ret;
-  }
-  return 0;
-}
-
-/*!
- *Set if the log will cycle log files using gzip.
- */
-void LogManager::setGzip(bool useGzip)
-{
-  gzipLog = useGzip;
-}
-
-/*!
- *Returns nonzero if the log is using gzip for cycled logs.
- */
-int LogManager::getGzip()
-{
-  return gzipLog;
-}
-
-/*!
- *Store the log manager in another file and reload the file.
- */
-int LogManager::storeFile()
-{
-  char *buffer = 0;
-  char *buffer2= 0;
-  const u_long bufferSize = MYSERVER_KB(64);
-  try
-  {
-    string filepath;
-    string filedir;
-    string filename;
-    ostringstream newfilename;
-    string time;
-    Gzip gzip;
-
-    /*! Do nothing if we haven't to cycle log files. */
-    if(!cycleLog)
-      return 1;
-
-#ifdef DO_NOT_USE_GZIP
-    gzipLog = 0;
-#endif
-
-    filepath.assign(getFile()->getFilename());
-    FilesUtility::completePath(filepath);
-    FilesUtility::splitPath(filepath, filedir, filename);
-
-    getRFC822LocalTime(time, 32);
-    time = trim(time.substr(5,32));
-    
-    for(int i=0;i< static_cast<int>(time.length()); i++)
-      if((time[i] == ' ') || (time[i] == ':'))
-        time[i]= '.';
-
-    newfilename << filedir << "/" << filename << "." << time;
-    
-    if(gzipLog)
-      newfilename << ".gz";
-    
-    {
-      char gzipData[16];
-      File newFile;
-      File *currentFile = getFile();
-
-      buffer = new char[bufferSize];
-      if(buffer == 0)
-        return 1;
-      buffer2 = new char[bufferSize];
-      if(buffer == 0)
-        {
-          delete [] buffer;
-          return 1;
-        }
-     
-      if(newFile.openFile(newfilename.str().c_str(), 
-              File::MYSERVER_OPEN_WRITE | File::MYSERVER_NO_INHERIT | File::MYSERVER_CREATE_ALWAYS ))
-      {
-        delete [] buffer;
-        delete [] buffer2;
-        return 1;
-      }
-      if(currentFile->setFilePointer(0))
-      {
-        delete [] buffer;
-        delete [] buffer2;
-        newFile.close();
-        return 1;
-      }
-      if(gzipLog)
-      {    
-        u_long nbw;
-        u_long len = gzip.getHeader(gzipData, 16);
-        if(newFile.writeToFile(gzipData, len,  &nbw))
-        {
-          delete [] buffer;
-          delete [] buffer2;
-          newFile.close();
-          return 1;
-        }  
-        gzip.initialize();
-      }
-      
-      for(;;)
-      {
-        u_long nbr;
-        u_long nbw;
-        if(currentFile->readFromFile(buffer,gzipLog ? bufferSize/2 : bufferSize, &nbr))
-        {
-          delete [] buffer;
-          delete [] buffer2;      
-          newFile.close();
-          return 1;
-        }    
-        if(nbr == 0)
-          break;
-        if(gzipLog)
-        {
-          u_long nbw;
-          u_long size=gzip.compress(buffer,nbr, buffer2, bufferSize/2);
-          if(newFile.writeToFile(buffer2, size, &nbw))
-          {
-            delete [] buffer;
-            delete [] buffer2;
-            newFile.close();
-            return 1;
-          } 
-        }
-        else if(newFile.writeToFile(buffer, nbr, &nbw))
-        {
-          delete [] buffer;
-          delete [] buffer2;
-          newFile.close();
-          return 1;
-        } 
-      }
-      if(gzipLog)
-      {
-        u_long nbw;
-        u_long len = gzip.flush(buffer2, bufferSize/2);
-        if(newFile.writeToFile(buffer2, len, &nbw))
-        {
-          delete [] buffer;
-          delete [] buffer2;
-          newFile.close();
-          return 1;
-        }  
-        len=gzip.getFooter(gzipData, 16);
-        if(newFile.writeToFile(gzipData, len, &nbw))
-        {
-          delete [] buffer;
-          delete [] buffer2;
-          newFile.close();
-          return 1;
-        }   
-        gzip.free();
-      }
-      newFile.close();
-      currentFile->close();
-      FilesUtility::deleteFile(filepath.c_str());
-      if(currentFile->openFile(filepath.c_str(), File::MYSERVER_OPEN_APPEND|
-                               File::MYSERVER_OPEN_ALWAYS | File::MYSERVER_OPEN_WRITE |
-                               File::MYSERVER_OPEN_READ | File::MYSERVER_NO_INHERIT))
-      {
-        delete [] buffer;
-        delete [] buffer2;
-        return 1;
-      }
-    }
-
-    delete [] buffer;
-    delete [] buffer2;
-    return 0;
-  }
-  catch(...)
-  {
-    if(buffer)
-      delete [] buffer;
-    if(buffer2)
-      delete [] buffer2;
-    throw;
-  };
-}
-
-/*!
- *Get the type of log.
- */
-int LogManager::getType()
-{
-  return type;
-}
-
-/*!
- *Switch in the error output mode.
- */
-int LogManager::preparePrintError()
-{
-
-  if(type == TYPE_CONSOLE)
-  {
-    ::preparePrintError();
-  }
-
-  return 0;
-}
-
-/*!
- *Exit from printing errors.
- */
-int LogManager::endPrintError()
-{
-  if(type == TYPE_CONSOLE)
-  {
-    ::endPrintError();
-  }
-  return 0;
-}
-
-/*!
- *Get a pointer to the file object.
- */
-File *LogManager::getFile()
-{
-  return &file;
-}
-
-/*!
- *Request access for the thread.
- */
-int LogManager::requestAccess()
-{
-  mutex.lock();
-  return 0;
-}
-
-/*!
- *Terminate the access for the thread.
- */
-int LogManager::terminateAccess()
-{
-  mutex.unlock();
-  return 0;
-}
-
-/*!
- *Return the max size for the log.
- */
 u_long LogManager::getMaxSize()
 {
   return maxSize;
 }
 
-/*!
- *Return the actual size for the log file.
- */
-int LogManager::getLogSize()
+u_long
+LogManager::setMaxSize (u_long nMax)
 {
-  switch(type)
-  {
-    case TYPE_FILE:
-      return file.getFileSize();
+  u_long old = maxSize;
+  maxSize = nMax;
+  setCycleLog (cycleLog);
+  return old;
+}
 
-    case TYPE_CONSOLE:
-      return 0;
-  }
+void 
+LogManager::setGzip (int useGzip)
+{
+  gzipLog = useGzip;
+  if (gzipLog)
+    notifyLogStreams (EVT_ADD_FILTER, new Gzip ());
+}
 
+int
+LogManager::getType ()
+{
+  return type;
+}
+
+void
+LogManager::setType (int nType)
+{
+  type = nType;
+}
+
+int
+LogManager::preparePrintError ()
+{
   return 0;
+}
 
+int
+LogManager::endPrintError ()
+{
+  return 0;
+}
+
+int LogManager::requestAccess ()
+{
+  return 0;
+}
+
+int LogManager::terminateAccess ()
+{
+  return 0;
+}
+
+int 
+LogManager::getGzip ()
+{
+  return gzipLog;
+}
+
+int
+LogManager::storeFile()
+{
+  return 0;
 }

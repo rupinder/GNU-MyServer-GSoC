@@ -391,6 +391,7 @@ AC_CONFIG_FILES([
     include/Makefile
     include/connection/Makefile
     include/log/Makefile
+    include/log/stream/Makefile
     include/conf/Makefile
     include/conf/mime/Makefile
     include/conf/security/Makefile
@@ -444,6 +445,7 @@ AC_CONFIG_FILES([
     src/Makefile
     src/connection/Makefile
     src/log/Makefile
+    src/log/stream/Makefile
     src/conf/Makefile
     src/conf/mime/Makefile
     src/conf/security/Makefile
