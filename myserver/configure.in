@@ -384,10 +384,6 @@ AC_CONFIG_FILES([
     binaries/system/icons/codes/Makefile
     control/Makefile
     documentation/Makefile
-    documentation/english/Makefile
-    documentation/english/images/Makefile
-    documentation/english/style/Makefile
-    documentation/english/texts/Makefile
     include/Makefile
     include/connection/Makefile
     include/log/Makefile

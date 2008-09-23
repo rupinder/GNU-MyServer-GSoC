@@ -268,18 +268,7 @@ SectionEnd
 
 Section "Documentation" SecDocumentation
   SetOutPath "$INSTDIR\web\documentation"
-  File "..\documentation\english\*.htm"
-
-  SetOutPath "$INSTDIR\web\documentation\images"
-  File "..\Documentation\english\images\*.png"
-  File "..\Documentation\english\images\*.jpg"
-
-  SetOutPath "$INSTDIR\web\documentation\style"
-  File "..\documentation\english\style\*.css"
-
-  SetOutPath "$INSTDIR\web\documentation\texts"
-  File "..\documentation\english\texts\*.htm"
-
+  File "..\documentation\myserver\*.html"
 SectionEnd
 
 Section "Install other languages" SecLanguages
