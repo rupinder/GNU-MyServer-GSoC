@@ -1,3 +1,4 @@
-include_HEADERS = safetime.h
+safetimeincludedir=$(includedir)/myserver/include/base/safetime
+safetimeinclude_HEADERS = safetime.h
 SUBDIRS =
 

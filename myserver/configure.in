@@ -53,13 +53,11 @@ LDFLAGS="$LDFLAGS $_LT_AC_TAGVAR(lt_prog_compiler_pic, CXX)"
 
 AC_ARG_WITH([root-prefix], [  --with-root-prefix=PREFIX override prefix variable for files to be placed in the root], root_prefix=$withval, root_prefix="\$(DESTDIR)")
 
-
 AC_ARG_ENABLE([control-gui], [ --disable-control-gui disable the myserver-configure GUI program], enable_control="no", enable_control="yes")
 
 AC_ARG_ENABLE([ipv6], [  --enable-ipv6 Build with IPv6 support], enable_ipv6="yes", enable_ipv6="")
 
 AC_ARG_ENABLE([mingw32], [ --enable-mingw32 Enable mingw32], enable_mingw32="yes", enable_mingw32="")
-
 
 root_bindir='${root_prefix}/bin'
 root_sbindir='${root_prefix}/sbin'
@@ -69,13 +67,6 @@ AC_SUBST(root_prefix)
 AC_SUBST(root_bindir)
 AC_SUBST(root_sbindir)
 AC_SUBST(root_sysconfdir)
-
-
-AC_ARG_WITH([myserver-headers], [  --with-myserver-headers=path Override the myserver headers location (used by modules)], MYSERVER_HEADERS=$withval, MYSERVER_HEADERS="`pwd`")
-
-AC_SUBST(MYSERVER_HEADERS)
-AC_SUBST(MSCGI_HEADERS)
-
 
 dnl Looking for argp.h
 AC_CHECK_HEADER([argp.h], AC_DEFINE(ARGP, 1, [Define if GNU argp tools are available]))

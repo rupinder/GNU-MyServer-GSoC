@@ -1,3 +1,4 @@
-include_HEADERS = thread.h
+threadincludedir=$(includedir)/myserver/include/base/thread
+threadinclude_HEADERS = thread.h
 SUBDIRS =
 

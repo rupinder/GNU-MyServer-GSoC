@@ -1,3 +1,4 @@
-include_HEADERS = control_errors.h control_header.h control_protocol.h
+controlincludedir=$(includedir)/myserver/include/protocol/control
+controlinclude_HEADERS = control_errors.h control_header.h control_protocol.h
 SUBDIRS =
 

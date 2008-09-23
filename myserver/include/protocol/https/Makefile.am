@@ -1,3 +1,4 @@
-include_HEADERS = https.h
+httpsincludedir=$(includedir)/myserver/include/protocol/https
+httpsinclude_HEADERS = https.h
 SUBDIRS =
 

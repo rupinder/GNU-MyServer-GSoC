@@ -1,3 +1,4 @@
-include_HEADERS = vhost.h vhost_manager.h
+vhostincludedir=$(includedir)/myserver/include/conf/vhost
+vhostinclude_HEADERS = vhost.h vhost_manager.h
 SUBDIRS =
 

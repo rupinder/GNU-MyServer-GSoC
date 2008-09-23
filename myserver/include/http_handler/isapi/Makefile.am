@@ -1,3 +1,4 @@
-include_HEADERS = isapi.h
+isapiincludedir=$(includedir)/myserver/include/http_handler/isapi
+isapiinclude_HEADERS = isapi.h
 SUBDIRS =
 
