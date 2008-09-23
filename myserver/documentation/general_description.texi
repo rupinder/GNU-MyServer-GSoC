@@ -1,9 +1,0 @@
-@c -*-texinfo-*-
-MyServer is a powerful web server designed, to be easily run on a
-personal computer by the average computer user.
-It is based on multi-threaded architecture, which makes it extremely
-scalable and usable in large scale sites, as well as in small
-networks. It has built-in supports for the HTTP, HTTPS and FTP
-protocols.
-Support for dynamic pages is made available trough CGI, ISAPI, WinCGI,
-SCGI and FastCGI protocols.

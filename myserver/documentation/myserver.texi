@@ -1,8 +1,39 @@
 \input texinfo
-@setfilename myserver.info
-@settitle GNU MyServer documentation
+@setfilename myserver
+
+@settitle GNU MyServer Manual
 
 @setchapternewpage odd
+
+@copying
+This is the manual for GNU MyServer.
+
+Copyright @copyright{} 2008 Free Software Foundation, Inc.
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with the
+Invariant Sections being ``The GNU Manifesto,'' ``Distribution'' and
+``GNU GENERAL PUBLIC LICENSE,'' with the Front-Cover texts being ``A GNU
+Manual,'' and with the Back-Cover Texts as in (a) below.  A copy of the
+license is included in the section entitled ``GNU Free Documentation
+License.''
+
+(a) The FSF's Back-Cover Text is: ``You have the freedom to copy and
+modify this GNU manual.  Buying copies from the FSF supports it in
+developing GNU and promoting software freedom.''
+@end quotation
+@end copying
+
+@dircategory MyServer
+@direntry
+* MyServer: (myserver).	GNU MyServer.
+@end direntry
+
+@tex
+\global\hbadness=100000
+@end tex
 
 @titlepage
 @sp 10
@@ -13,38 +44,47 @@
 Copyright @copyright{} 2008 Free Software Foundation, Inc.
 @end titlepage
 
-@node Top, Copying,,
+@iftex
+@summarycontents
+@contents
+@end iftex
 
-This is the manual for the GNU MyServer web server.
+@ifnottex
+@node Top, Copying, (dir), (dir)
+@top GNU MyServer
+GNU MyServer is a powerful web server designed, to be easily executed
+on a personal computer by the average computer user.
+It is based on multi-threaded architecture, which makes it extremely
+scalable and usable in large scale sites, as well as in small
+networks.  It has built-in supports for the HTTP, HTTPS and FTP
+protocols.
+Support for dynamic pages is made available trough CGI, ISAPI, WinCGI,
+SCGI and FastCGI protocols.
+@end ifnottex
 
 @menu
 * Copying:: The GNU General Public License gives you permission to
             redistribute GNU MyServer on certain terms; it also explains that
             there is no warranty.
 * GNU Free Documentation License:: The license for this documentation.
-* General description:: GNU MyServer general description.
 * Basic configuration:: Basic server configuration.
 * Virtual hosts:: Virtual hosts configuration.
 * MIME types:: MIME types configuration.
 * Process security:: Process security.
 * SSL certificates:: Show how to use SSL certificates.
-* Table of contents:: Table of contents.
+
+* Concept Index::       An item for each concept.
 @end menu
 
 @node Copying, GNU Free Documentation License, Top, Top
 @appendix GNU GENERAL PUBLIC LICENSE
 @include gpl.texi
 
-@node GNU Free Documentation License, General description, Copying, Top
+@node GNU Free Documentation License, Basic configuration, Copying, Top
 @appendix GNU Free Documentation License
 @include doclicense.texi
 
-@node General description, Basic configuration, GNU Free Documentation License, Top
-@chapter General description
-@cindex General description
-@include general_description.texi
-
-@node Basic configuration, Virtual hosts, General description, Top
+@node Basic configuration, Virtual hosts, GNU Free Documentation License, Top
 @chapter Basic configuration
 @cindex Basic configuration
 @include basic_configuration.texi
@@ -64,14 +104,14 @@ This is the manual for the GNU MyServer web server.
 @cindex Process security
 @include process_security.texi
 
-@node SSL certificates, , Process security, Top
+@node SSL certificates, Concept Index, Process security, Top
 @chapter SSL certificates
 @cindex SSL certificates
 @include ssl_certificates.texi
 
-@node Table of contents, , Top, Top
-@unnumbered Table of contents
+@node Concept Index, , SSL certificates, Top
+@unnumbered Concept Index
 @printindex cp
-@contents
+
 @bye
 @c -*-texinfo-*-
