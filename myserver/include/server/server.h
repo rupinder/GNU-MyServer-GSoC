@@ -65,40 +65,40 @@ extern int rebootMyServerConsole;
 class Server : public MulticastRegistry<string, void*, int>
 {
 public:
-	ProcessServerManager* getProcessServerManager()
-	{
-		return &processServerManager;
-	}
-	PluginsManager* getPluginsManager(){return &pluginsManager;}
-	bool stopServer(){return mustEndServer;}
-	HomeDir* getHomeDir();
-	static void createInstance();
-	static Server* getInstance()
-	{
-		return instance;
-	}
+  ProcessServerManager* getProcessServerManager()
+  {
+    return &processServerManager;
+  }
+  PluginsManager* getPluginsManager(){return &pluginsManager;}
+  bool stopServer(){return mustEndServer;}
+  HomeDir* getHomeDir();
+  static void createInstance();
+  static Server* getInstance()
+  {
+    return instance;
+  }
 
   int loadLibraries();
 
-	CachedFileFactory* getCachedFiles();
+  CachedFileFactory* getCachedFiles();
   const char* getHashedData(const char* name);
 
   void setGlobalData(const char* name, void* data);
   void* getGlobalData(const char* name);
 
   FiltersFactory* getFiltersFactory();
-	int getMaxThreads();
+  int getMaxThreads();
   u_long getUid();
   u_long getGid();
   int countAvailableThreads();
-	void checkThreadsNumber();
+  void checkThreadsNumber();
   int removeThread(u_long ID);
   int isServerReady();
   ProtocolsManager* getProtocolsManager();
   void disableAutoReboot();
   void enableAutoReboot();
   int isAutorebootEnabled();
-	int isRebooting(){return rebooting;}
+  int isRebooting(){return rebooting;}
   void rebootOnNextLoop();
   const char* getMainConfFile();
   const char* getVhostConfFile();
@@ -107,28 +107,28 @@ public:
   const char* getLanguageFile();
   const char* getExternalPath();
   XmlParser* getLanguageParser();
-	~Server();
-	Protocol* getProtocol(const char *protocolName);
-	int addConnection(Socket,MYSERVER_SOCKADDRIN*);
-	u_long getNumConnections();
-	u_long getNumTotalConnections();
+  ~Server();
+  Protocol* getProtocol(const char *protocolName);
+  int addConnection(Socket,MYSERVER_SOCKADDRIN*);
+  u_long getNumConnections();
+  u_long getNumTotalConnections();
   void getConnections(list<ConnectionPtr>&);
-	ConnectionPtr getConnection(int);
-	u_long getTimeout();
-	const char *getAddresses();
-	const char *getPath();
-	u_long getNumThreads();
-	const char *getDefaultFilenamePath(u_long ID = 0);
-	const char *getServerName();
-	u_long getVerbosity();
-	const char *getServerAdmin();
-	int getMaxLogFileSize();
-	int mustUseLogonOption();
-	void setVerbosity(u_long);
-	void start();
-	void stop();
-	void finalCleanup();
-	int terminate();
+  ConnectionPtr getConnection(int);
+  u_long getTimeout();
+  const char *getAddresses();
+  const char *getPath();
+  u_long getNumThreads();
+  const char *getDefaultFilenamePath(u_long ID = 0);
+  const char *getServerName();
+  u_long getVerbosity();
+  const char *getServerAdmin();
+  int getMaxLogFileSize();
+  int mustUseLogonOption();
+  void setVerbosity(u_long);
+  void start(string &, string &, string &, string &, string &);
+  void stop();
+  void finalCleanup();
+  int terminate();
   int logWriteln(const char*);
   int logWriteln(string const &str)
     {return logWriteln(str.c_str());};
@@ -137,120 +137,118 @@ public:
   int logLockAccess();
   int logUnlockAccess();
   int setLogFile(char*);
-	u_long getBuffersize();
-	u_long getBuffersize2();
+  u_long getBuffersize();
+  u_long getBuffersize2();
   u_long getThrottlingRate();
-	int waitNewConnection(u_long tid, u_long timeout);
-	XmlParser *getConfiguration(){return &configurationFileManager;}
-	ListenThreads *getListenThreads(){return &listenThreads;}
+  int waitNewConnection(u_long tid, u_long timeout);
+  XmlParser *getConfiguration(){return &configurationFileManager;}
+  ListenThreads *getListenThreads(){return &listenThreads;}
 
-	void *getEnvString(){return envString;}
-	VhostManager *getVhosts(){return vhostList;}
-	MimeManager *getMimeManager(){return mimeManager;}
+  void *getEnvString(){return envString;}
+  VhostManager *getVhosts(){return vhostList;}
+  MimeManager *getMimeManager(){return mimeManager;}
 
-	void setProcessPermissions();
-	ConnectionsScheduler* getConnectionsScheduler(){return &connectionsScheduler;}
-	int deleteConnection(ConnectionPtr, int);
+  void setProcessPermissions();
+  ConnectionsScheduler* getConnectionsScheduler(){return &connectionsScheduler;}
+  int deleteConnection(ConnectionPtr, int);
 
-	void increaseFreeThread();
-	void decreaseFreeThread();
+  void increaseFreeThread();
+  void decreaseFreeThread();
 private:
   friend class ClientsThread;
 #ifdef WIN32
-	friend int __stdcall control_handler(u_long control_type);
+  friend int __stdcall control_handler(u_long control_type);
 #endif
 #ifdef NOT_WIN
-	friend int control_handler (u_long control_type);
+  friend int control_handler (u_long control_type);
 #endif
-	/*!
-	 *When the flag mustEndServer is 1 all the threads are
-	 *stopped and the application stop its execution.
-	 */
-	int mustEndServer;
+  /*!
+   *When the flag mustEndServer is 1 all the threads are
+   *stopped and the application stop its execution.
+   */
+  int mustEndServer;
 
-	/*! Singleton instance.  Call createInstance before use it.  */
-	static Server* instance;
+  /*! Singleton instance.  Call createInstance before use it.  */
+  static Server* instance;
 
-	/*! Do not allow to create directly objects.  */
-	Server();
+  /*! Do not allow to create directly objects.  */
+  Server();
 
   void mainLoop();
   void loadPlugins();
   void displayBoot();
 
-	CachedFileFactory cachedFiles;
+  CachedFileFactory cachedFiles;
 
-	void *envString;
-	VhostManager *vhostList;
-	MimeManager *mimeManager;
-	ListenThreads listenThreads;
-	HomeDir homeDir;
+  void *envString;
+  VhostManager *vhostList;
+  MimeManager *mimeManager;
+  ListenThreads listenThreads;
+  HomeDir homeDir;
   HashMap<string, string*> hashedData;
   HashMap<string, void*> globalData;
   FiltersFactory filtersFactory;
   DynamicFiltersManager filters;
-	DynExecutorManager executors;
+  DynExecutorManager executors;
   u_long uid;
   u_long gid;
   int currentThreadID;
-	/*! Used when rebooting to load new configuration files.  */
-	int pausing;
-	ProtocolsManager protocols;
-	XmlParser configurationFileManager;
-	XmlParser languageParser;
+  /*! Used when rebooting to load new configuration files.  */
+  int pausing;
+  ProtocolsManager protocols;
+  XmlParser configurationFileManager;
+  XmlParser languageParser;
   int autoRebootEnabled;
   int toReboot;
-	int rebooting;
+  int rebooting;
   LogManager logManager;
   int serverReady;
-	u_long verbosity;
+  u_long verbosity;
   u_long throttlingRate;
-	u_long buffersize;
-	u_long buffersize2;
-	/*! Buffer that contains all the local machine IP values.  */
-	string *ipAddresses;
-	char serverName[HOST_NAME_MAX + 1];
-	string* path;
+  u_long buffersize;
+  u_long buffersize2;
+  /*! Buffer that contains all the local machine IP values.  */
+  string *ipAddresses;
+  char serverName[HOST_NAME_MAX + 1];
+  string* path;
   string* externalPath;
-	string* serverAdmin;
-	int initialize();
+  string* serverAdmin;
+  int initialize();
   int addThread(int staticThread = 0);
-	ConnectionPtr addConnectionToList(Socket* s, MYSERVER_SOCKADDRIN *asock_in,
+  ConnectionPtr addConnectionToList(Socket* s, MYSERVER_SOCKADDRIN *asock_in,
                                     char *ipAddr, char *localIpAddr,
                                     u_short port, u_short localPort, int);
-	u_long maxConnections;
-	u_long maxConnectionsToAccept;
-	void clearAllConnections();
-	int freeHashedData();
-	u_long connectionTimeout;
-	u_long maxLogFileSize;
-	int loadMainConfFilesLocation();
-	int loadVHostConfFilesLocation();
-	int loadMimeConfFilesLocation();
-	int loadExternalPath();
-	int loadLanguagesPath();
-	int loadConfFilesLocation();
-	Mutex* connectionsMutex;
-	u_long nStaticThreads;
+  u_long maxConnections;
+  u_long maxConnectionsToAccept;
+  void clearAllConnections();
+  int freeHashedData();
+  u_long connectionTimeout;
+  u_long maxLogFileSize;
+  int copyConfigurationFromDefault(const char *);
+  void logWriteNTimes(const char *, unsigned);
+  int checkConfigurationPaths();
+  bool resetConfigurationPaths(string &, string &, string &, string &, string &);
+  Mutex* connectionsMutex;
+  u_long nStaticThreads;
   u_long nMaxThreads;
-	u_long freeThreads;
+  u_long freeThreads;
 
-	u_long purgeThreadsThreshold;
+  u_long purgeThreadsThreshold;
 
   Mutex* threadsMutex;
   list<ClientsThread*> threads;
 
   int purgeThreads();
-	int reboot();
-	string* languageFile;
-	string* languagesPath;
-	string* mainConfigurationFile;
-	string* vhostConfigurationFile;
-	string* mimeConfigurationFile;
-	PluginsManager pluginsManager;
-	GenericPluginsManager genericPluginsManager;
-	ProcessServerManager processServerManager;
-	ConnectionsScheduler connectionsScheduler;
+  int reboot();
+  string* languageFile;
+  string* languagesPath;
+  string* mainConfigurationFile;
+  string* vhostConfigurationFile;
+  string* mimeConfigurationFile;
+  PluginsManager pluginsManager;
+  GenericPluginsManager genericPluginsManager;
+  ProcessServerManager processServerManager;
+  ConnectionsScheduler connectionsScheduler;
   bool endServer;
 };
 
