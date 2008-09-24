@@ -19,18 +19,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 LogStream*
 FileStreamCreator::create (FiltersFactory* filtersFactory,
-			   string& location, 
-			   list<string>& filters,
-			   u_long cycleLog)
+                           string location, 
+                           list<string>& filters,
+                           u_long cycleLog)
 {
-  Stream* outStream = new File (const_cast<char*>(location.c_str ()),
-				FileStream::defaultFileMask);
-  u_long nbw;
-  FiltersChain* filtersChain = filtersFactory->chain (filters,
-						      outStream,
-						      &nbw);
-  return new FileStream (filtersFactory,
-			 cycleLog,
-			 outStream,
-			 filtersChain);
+  File* outStream = new File ();
+  if (!outStream->openFile (const_cast<char*>(location.c_str ()),
+                            FileStream::defaultFileMask))
+    {
+      u_long nbw;
+      FiltersChain* filtersChain = filtersFactory->chain (filters,
+                                                          outStream,
+                                                          &nbw);
+      return new FileStream (filtersFactory,
+                             cycleLog,
+                             outStream,
+                             filtersChain);
+    }
+  return 0;
 }

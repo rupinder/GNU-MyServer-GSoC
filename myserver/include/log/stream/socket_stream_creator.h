@@ -28,21 +28,21 @@ class SocketStreamCreator : public LogStreamCreator
 {
  public:
   virtual LogStream* create (FiltersFactory* filtersFactory, 
-			     string& location, 
-			     list<string>& filters,
-			     u_long cycleLog);
+                             string location, 
+                             list<string>& filters,
+                             u_long cycleLog);
 
 
   /*!
    * A helper method to get the port part of an URL.
    */
-  u_short getPort (string& location);
+  u_short getPort (string location);
 
 
   /*!
    * A helper method to get the host part of an URL.
    */
-  string getHost (string& location);
+  string getHost (string location);
 };
 
 #endif

@@ -62,7 +62,7 @@ public:
   list<string> getFilters ();
   virtual int read(char* buffer, u_long len, u_long*);
   virtual int write(const char* buffer, u_long len, u_long*);
-	virtual int flush(u_long*);
+        virtual int flush(u_long*);
   FiltersChain();
   ~FiltersChain();
 protected:

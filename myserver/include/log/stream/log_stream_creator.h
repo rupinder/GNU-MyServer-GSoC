@@ -28,10 +28,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class LogStreamCreator
 {
  public:
+  
+
+  /*!
+   * Create a new instance of a concrete LogStream. If something
+   * of wrong happens, it must return 0.
+   */
   virtual LogStream* create (FiltersFactory* filtersFactory, 
-			     string& location, 
-			     list<string>& filters,
-			     u_long cycleLog) = 0;
+                             string location, 
+                             list<string>& filters,
+                             u_long cycleLog) = 0;
 };
 
 #endif

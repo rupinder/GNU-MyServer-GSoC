@@ -18,9 +18,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/log/stream/log_stream.h>
 
 LogStream::LogStream (FiltersFactory* filtersFactory, 
-		      u_long cycleLog,
-		      Stream* outStream,
-		      FiltersChain* filtersChain) :
+                      u_long cycleLog,
+                      Stream* outStream,
+                      FiltersChain* filtersChain) :
 cycleLog (cycleLog), isOpened (1)
 {
   this->filtersFactory = filtersFactory;
@@ -46,7 +46,7 @@ LogStream::resetFilters ()
 }
 
 int
-LogStream::log (string& message)
+LogStream::log (string message)
 {
   if (needToCycle ())
     {
@@ -68,7 +68,7 @@ LogStream::doCycle ()
 }
 
 int
-LogStream::write (string& message)
+LogStream::write (string message)
 {
   return filtersChain->write (message.c_str (), message.size (), &nbw);
 }
@@ -100,7 +100,9 @@ LogStream::getFiltersChain ()
 int
 LogStream::close ()
 {
-  return isOpened = (filtersChain->flush (&nbw) || outStream->close ());
+  if (isOpened)
+    return isOpened = (filtersChain->flush (&nbw) || outStream->close ());
+  return isOpened;
 }
 
 int
@@ -110,23 +112,23 @@ LogStream::update (LogStreamEvent evt, void* message, void* reply)
     {
     case EVT_SET_CYCLE_LOG:
       {
-	setCycleLog (*static_cast<u_long*>(message));
-	return 0;
+        setCycleLog (*static_cast<u_long*>(message));
+        return 0;
       }
       break;
     case EVT_LOG:
       {
-	return log (*static_cast<string*>(message));
+        return log (*static_cast<string*>(message));
       }
       break;
     case EVT_CLOSE:
       {
-	return close ();
+        return close ();
       }
       break;
     case EVT_ADD_FILTER:
       {
-	return addFilter (static_cast<Filter*>(message));
+        return addFilter (static_cast<Filter*>(message));
       }
       break;
     default:
@@ -174,4 +176,10 @@ u_long
 LogStream::getLatestWrittenBytes ()
 {
   return nbw;
+}
+
+list<string>&
+LogStream::getCycledStreams ()
+{
+  return cycledStreams;
 }

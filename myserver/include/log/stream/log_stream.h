@@ -57,9 +57,9 @@ class LogStream
    * FiltersChain before being written to the Stream.
    */
   LogStream (FiltersFactory* filtersFactory,
-	     u_long cycleLog, 
-	     Stream* outStream,
-	     FiltersChain* filtersChain);
+             u_long cycleLog, 
+             Stream* outStream,
+             FiltersChain* filtersChain);
 
 
   /*!
@@ -123,10 +123,14 @@ class LogStream
   /*!
    * \return 0 on success.
    */
-  virtual int log (string& message);
+  virtual int log (string message);
 
 
   virtual ~LogStream ();
+
+
+  list<string>& getCycledStreams ();
+
 
  protected:
 
@@ -148,7 +152,7 @@ class LogStream
   /*!
    * \return 0 on success.
    */
-  int write (string& message);
+  int write (string message);
 
 
   /*!
@@ -184,6 +188,9 @@ class LogStream
 
 
   FiltersFactory* filtersFactory;
+
+
+  list<string> cycledStreams;
 };
 
 #endif

@@ -19,17 +19,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 LogStream*
 ConsoleStreamCreator::create (FiltersFactory* filtersFactory, 
-			      string& location, 
-			      list<string>& filters,
-			      u_long cycleLog)
+                              string location, 
+                              list<string>& filters,
+                              u_long cycleLog)
 {
   Console* outStream = new Console ();
   u_long nbw;
   FiltersChain* filtersChain = filtersFactory->chain (filters, 
-						      outStream, 
-						      &nbw);
+                                                      outStream, 
+                                                      &nbw);
   return new ConsoleStream (filtersFactory, 
-			    cycleLog,
-			    outStream,
-			    filtersChain);
+                            cycleLog,
+                            outStream,
+                            filtersChain);
 }

@@ -35,9 +35,9 @@ class FileStream : public LogStream
 
 
   FileStream (FiltersFactory* filtersFactory, 
-	      u_long cycleLog,
-	      Stream* outStream,
-	      FiltersChain* filtersChain);
+              u_long cycleLog,
+              Stream* outStream,
+              FiltersChain* filtersChain);
 
 
   /*!
@@ -47,6 +47,9 @@ class FileStream : public LogStream
 
 
   virtual u_long streamSize ();
+
+
+  string makeNewFileName (string oldFileName);
 
 
  protected:

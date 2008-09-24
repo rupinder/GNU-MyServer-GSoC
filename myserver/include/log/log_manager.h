@@ -55,14 +55,15 @@ public:
   
 
   LogManager (FiltersFactory* filtersFactory,
-	      LogStreamFactory* logStreamFactory,
-	      LoggingLevel level = WARNING);
+              LogStreamFactory* logStreamFactory,
+              LoggingLevel level = WARNING);
 
 
   /*!
    * Deallocates all LogStream owned by the LogManager and
-   * other objects (like the Mutex and the LogStreamFactory)
-   * allocated by the LogManager.
+   * the objects (like the Mutex) allocated by the LogManager.
+   * Other objects, like the FiltersFactory and the 
+   * LogStreamFactory should be destroied from the outside.
    */
   ~LogManager ();
 
@@ -74,21 +75,23 @@ public:
    * \param filters A list of filters used within the new LogStream.
    * \param cycleLog A non-zero value establishes the threshold for
    * the LogStream's growth before cycling it.
+   * \return 0 on success.
    */
-  void addLogStream (string& location, 
-		     list<string>& filters, 
-		     u_long cycleLog);
+  int addLogStream (string location, 
+                    list<string>& filters, 
+                    u_long cycleLog);
 
 
   /*!
    * Remove the LogStream that point to location if it exists.
    * \param location The location where the LogStream which has to
    * be removed points to.
+   * \return 0 on success.
    */
-  void removeLogStream (string& location);
+  int removeLogStream (string location);
 
 
-  LogStream* getLogStream (string& location);
+  LogStream* getLogStream (string location);
   
 
   /*!
@@ -101,9 +104,9 @@ public:
    * \param location The location where `message' will be written.
    * \return 0 on success.
    */
-  int log (string& message, 
-	   LoggingLevel level = WARNING,
-	   string location = "all");
+  int log (string message, 
+           LoggingLevel level = WARNING,
+           string location = "all");
 
 
   /*!
@@ -118,7 +121,7 @@ public:
    * \return The cycleLog value for the LogStream that points to
    * location.
    */
-  u_long getCycleLog (string& location);
+  u_long getCycleLog (string location);
 
 
   /*!
@@ -129,7 +132,7 @@ public:
    * \param location The LogStream whose cycleLog will be changed.
    */
   void setCycleLog (u_long cycleLog, 
-		    string location);
+                    string location);
 
 
   /*!
@@ -161,7 +164,7 @@ public:
   bool empty ();
 
 
-  bool contains (string& location);
+  bool contains (string location);
 
   
   /*!
@@ -177,8 +180,8 @@ public:
   int storeFile ();
   int load (char const*);
   void setGzip (int);
-  int write (char const*, int len = 0);
-  int writeln (char const*);
+  int write (string message, int len = 0);
+  int writeln (string message);
   File* getFile ();
   u_long setMaxSize (u_long);
   u_long getMaxSize ();
@@ -207,8 +210,8 @@ protected:
    * \return 0 on success.
    */
   int notifyLogStreams (LogStreamEvent evt,
-			void* message = 0,
-			void* reply = 0);
+                        void* message = 0,
+                        void* reply = 0);
 private:
 
 

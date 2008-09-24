@@ -29,9 +29,9 @@ class ConsoleStream : public LogStream
 {
  public:
   ConsoleStream (FiltersFactory* filtersFactory, 
-		 u_long cycleLog,
-		 Stream* outStream,
-		 FiltersChain* filtersChain);
+                 u_long cycleLog,
+                 Stream* outStream,
+                 FiltersChain* filtersChain);
 };
 
 #endif

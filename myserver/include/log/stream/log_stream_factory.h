@@ -63,30 +63,43 @@ public:
    * the new LogStream.
    * \param cycleLog Whether the log should be cycled or not. 0 means never
    * cycle.
-   * \return A new instance of one of LogStream subclasses.
+   * \return A new instance of one of LogStream subclasses or 0 if 
+   * the location string does not contain a protocol known by the
+   * LogStreamFactory or if something of wrong happened during the LogStream
+   * creation.
    */
   LogStream* createLogStream (FiltersFactory* filtersFactory, 
-			      string& location, 
-			      list<string>& filters,
-			      u_long cycleLog);
+                              string location, 
+                              list<string>& filters,
+                              u_long cycleLog);
 
 
   /*!
-   * A helper method useful to get the protocol part of a location string.
+   * Get the protocol part of a location string.
    * \param location The string representing a valid location as explained
    * in createLogStream method description.
-   * \return A new string with the protocol part of the location.
+   * \return A new string with the protocol part of the location, an empty
+   * string if an invalid protocol was detected.
    */
-  string getProtocol (string& location);
+  string getProtocol (string location);
 
 
   /*!
-   * A helper method useful to get the path part of a location string.
+   * Get the path part of a location string.
    * \param location The string representing a valid location as explained
    * in createLogStream method description.
-   * \return A new string with the path part of the location.
+   * \return A new string with the path part of the location, an empty
+   * string is an invalid protocol was detected.
    */
-  string getPath (string& location);
+  string getPath (string location);
+
+  
+  /*!
+   * Checks wheter `protocol' is between those known by the LogStreamFactory.
+   * \return true If it is.
+   */
+   bool protocolCheck (string protocol);
+
 
 private:
 

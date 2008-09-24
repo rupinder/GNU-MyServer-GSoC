@@ -19,31 +19,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 LogStream*
 SocketStreamCreator::create (FiltersFactory* filtersFactory,
-			     string& location, 
-			     list<string>& filters,
-			     u_long cycleLog)
+                             string location, 
+                             list<string>& filters,
+                             u_long cycleLog)
 {
-  Stream* outStream = new Socket ();
+  Socket* outStream = new Socket ();
   u_long nbw;
-  dynamic_cast<Socket*>(outStream)->connect (getHost (location).c_str (),
-					     getPort (location));
-  FiltersChain* filtersChain = filtersFactory->chain (filters, 
-						      outStream,
-						      &nbw);
-  return new SocketStream (filtersFactory,
-			   cycleLog,
-			   outStream,
-			   filtersChain);
+  if (!outStream->connect (getHost (location).c_str (), getPort (location)))
+    {
+      FiltersChain* filtersChain = filtersFactory->chain (filters, 
+                                                          outStream,
+                                                          &nbw);
+      return new SocketStream (filtersFactory,
+                               cycleLog,
+                               outStream,
+                               filtersChain);
+    }
+  return 0;
 }
 
 u_short
-SocketStreamCreator::getPort (string& location)
+SocketStreamCreator::getPort (string location)
 {
   return static_cast<u_short>(atoi (location.substr (location.find (":") + 1).c_str ()));
 }
 
 string
-SocketStreamCreator::getHost (string& location)
+SocketStreamCreator::getHost (string location)
 {
   return location.substr (0, location.find (":"));
 }

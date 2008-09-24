@@ -18,12 +18,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/log/stream/console_stream.h>
 
 ConsoleStream::ConsoleStream (FiltersFactory* filtersFactory, 
-			      u_long cycleLog,
-			      Stream* outStream,
-			      FiltersChain* filtersChain) : 
+                              u_long cycleLog,
+                              Stream* outStream,
+                              FiltersChain* filtersChain) : 
 LogStream (filtersFactory,
-	   cycleLog,
-	   outStream,
-	   filtersChain)
+           cycleLog,
+           outStream,
+           filtersChain)
 {
 }

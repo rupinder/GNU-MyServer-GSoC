@@ -36,26 +36,40 @@ LogStreamFactory::~LogStreamFactory ()
 
 LogStream*
 LogStreamFactory::createLogStream (FiltersFactory* filtersFactory, 
-				   string& location,
-				   list<string>& filters,
-				   u_long cycleLog)
+                                   string location,
+                                   list<string>& filters,
+                                   u_long cycleLog)
 {
   string protocol (getProtocol (location));
   string path (getPath (location));
-  return logStreamCreators[protocol]->create (filtersFactory,
-					      path,
-					      filters,
-					      cycleLog);
+  if (protocolCheck (protocol))
+    {
+      return logStreamCreators[protocol]->create (filtersFactory,
+                                                  path,
+                                                  filters,
+                                                  cycleLog);
+    }
+  return 0;
 }
 
 string
-LogStreamFactory::getProtocol (string& location)
+LogStreamFactory::getProtocol (string location)
 {
-  return (location.substr (0, location.find("://"))).append ("://");
+  if (location.find ("://") != string::npos)
+    return (location.substr (0, location.find("://"))).append ("://");
+  return string ("");
 }
 
 string
-LogStreamFactory::getPath (string& location)
+LogStreamFactory::getPath (string location)
 {
-  return location.substr (getProtocol (location).size (), location.size ());
+  if (protocolCheck (getProtocol (location)))
+    return location.substr (getProtocol (location).size (), location.size ());
+  return string ("");
+}
+
+bool
+LogStreamFactory::protocolCheck (string protocol)
+{
+  return logStreamCreators.count (protocol) != 0;
 }

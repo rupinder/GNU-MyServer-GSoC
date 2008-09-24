@@ -30,9 +30,9 @@ class SocketStream : public LogStream
  public:
 
   SocketStream (FiltersFactory* filtersFactory, 
-		u_long cycleLog,
-		Stream* outStream,
-		FiltersChain* filtersChain);
+                u_long cycleLog,
+                Stream* outStream,
+                FiltersChain* filtersChain);
 };
 
 #endif
