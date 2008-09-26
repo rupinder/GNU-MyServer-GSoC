@@ -95,7 +95,7 @@ public:
 
   
   /*!
-   * Checks wheter `protocol' is between those known by the LogStreamFactory.
+   * Checks whether `protocol' is between those known by the LogStreamFactory.
    * \return true If it is.
    */
    bool protocolCheck (string protocol);

@@ -34,28 +34,13 @@ class TestFileStream : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE (TestFileStream);
   CPPUNIT_TEST (testCycleLog);
-  CPPUNIT_TEST (testMakeNewFileName);
   CPPUNIT_TEST_SUITE_END ();
 public:
-  void setUp()
+  void setUp ()
   {
     fsc = new FileStreamCreator ();
     ff = new FiltersFactory ();
     setcwdBuffer ();
-  }
-
-  void testMakeNewFileName ()
-  {
-    list<string> filters;
-    LogStream* ls = fsc->create (ff, "foo", filters, 0);
-    FileStream* fs = dynamic_cast<FileStream*>(ls);
-    File* outStream = dynamic_cast<File*>(fs->getOutStream ());
-    string newFileName = fs->makeNewFileName (outStream->getFilename ());
-    string wd;
-    getdefaultwd (wd);
-    wd.append ("/foo");
-    CPPUNIT_ASSERT (newFileName.find (wd) != string::npos);
-    delete fs;
   }
 
   void testCycleLog ()
@@ -91,7 +76,7 @@ public:
     delete ls;
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete ff;
     delete fsc;

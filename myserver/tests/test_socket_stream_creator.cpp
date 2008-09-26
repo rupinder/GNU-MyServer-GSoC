@@ -55,7 +55,7 @@ public:
 
   void testGetHost ()
   {
-    CPPUNIT_ASSERT (!ssc->getHost ("foohost:8081").compare (string ("foohost")));
+    CPPUNIT_ASSERT (!ssc->getHost ("foohost:8081").compare ("foohost"));
   }
 
   void tearDown ()

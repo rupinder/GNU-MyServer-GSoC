@@ -146,7 +146,7 @@ FileStream::makeNewFileName (string oldFileName)
     {
       filename = (filename.substr (0, filename.find (string (".") + ext)));
     }
-  newfilename << filedir << filename << "." << time <<
+  newfilename << filedir << "/" << filename << "." << time <<
     (ext.size () ? "." : "") << ext;
   return newfilename.str ();
 }

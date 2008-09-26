@@ -259,10 +259,15 @@ int
 LogManager::load (const char *filename)
 {
   setType (TYPE_FILE);
-  clear ();
+  removeLogStream ("console://");
   string location ("file://");
   location.append (filename);
+  location.append (".gz");
   list<string> filters;
+  /* 
+     we use the gzip compression by default, for now.
+  */
+  filters.push_back ("gzip");
   addLogStream (location, filters, maxSize);
   return 0;
 }
@@ -270,34 +275,24 @@ LogManager::load (const char *filename)
 int
 LogManager::write (string message, int len)
 {
-  return notifyLogStreams (EVT_LOG, static_cast<void*>(&message));
+  return log (message);
 }
 
 int LogManager::getLogSize ()
 {
-  if (getFile ())
-    return getFile ()->getFileSize ();
   return 0;
 }
 
 void
-LogManager::setCycleLog (u_long cycleLog)
+LogManager::setCycleLog (u_long l)
 {
-  cycleLog = 1;
-  notifyLogStreams (EVT_SET_CYCLE_LOG, static_cast<void*>(&maxSize));
+  cycleLog = l;
+  setCycleLog (maxSize, "all");
 }
 
 File*
 LogManager::getFile ()
 {
-  map<string, LogStream*>::iterator it;
-  for (it = logStreams.begin (); it != logStreams.end (); it++)
-    {
-      if (it->first.find ("file://") != string::npos)
-        {
-          return dynamic_cast<File*>(it->second->getOutStream ());
-        }
-    }
   return 0;
 }
 
@@ -332,9 +327,7 @@ LogManager::setMaxSize (u_long nMax)
 void 
 LogManager::setGzip (int useGzip)
 {
-  gzipLog = useGzip;
-  if (gzipLog)
-    notifyLogStreams (EVT_ADD_FILTER, new Gzip ());
+  
 }
 
 int

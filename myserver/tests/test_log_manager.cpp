@@ -1,19 +1,19 @@
 /*
- MyServer
- Copyright (C) 2008 Free Software Foundation, Inc.
- This program is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 3 of the License, or
- (at your option) any later version.
+  MyServer
+  Copyright (C) 2008 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
  
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful, 
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
  
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include <list>
 #include <string>
@@ -46,9 +46,10 @@ class TestLogManager : public CppUnit::TestFixture
   CPPUNIT_TEST (testLoggingLevel);
   CPPUNIT_TEST (testClear);
   CPPUNIT_TEST (testLogThroughGzip);
+  CPPUNIT_TEST (testCycleLogWithGzipChain);
   CPPUNIT_TEST_SUITE_END ();
 public:
-  void setUp()
+  void setUp ()
   {
     lsf = new LogStreamFactory ();
     ff = new FiltersFactory ();
@@ -96,15 +97,9 @@ public:
     list<string> filters;
     lm->addLogStream ("file://foo", filters, 0);
     lm->log (message);
-    CPPUNIT_ASSERT (!lm->removeLogStream ("file://foo"));
+    lm->close ();
     File f;
-    f.openFile ("foo", 
-                File::MYSERVER_OPEN_APPEND | 
-                File::MYSERVER_OPEN_ALWAYS |
-                File::MYSERVER_OPEN_WRITE | 
-                File::MYSERVER_OPEN_READ | 
-                File::MYSERVER_NO_INHERIT);
-    f.setFilePointer (0);
+    f.openFile ("foo", FileStream::defaultFileMask);
     char buf[message.size () + 1];
     u_long nbr;
     f.read (buf, message.size () + 1, &nbr);
@@ -174,27 +169,69 @@ public:
   
   void testLogThroughGzip ()
   {
-//     list<string> filters;
-//     string message ("a message");
-//     filters.push_back (string ("gzip"));
-//     lm->addLogStream ("file://foo", filters, 0);
-//     lm->log (message);
-//     lm->close ();
-//     File f;
-//     f.openFile ("foo", FileStream::defaultFileMask);
-//     char buf[64];
-//     char d_buf[64];
-//     u_long nbr;
-//     f.read (buf, 64, &nbr);
-//     cout << nbr << endl;
-//     f.close ();
-//     GzipDecompress gzdc;
-//     gzdc.decompress (buf, 64, d_buf, 64);
-//     d_buf[message.size ()] = '\0';
-//     CPPUNIT_ASSERT (!message.compare (d_buf));
+    list<string> filters;
+    string message ("a message");
+    filters.push_back ("gzip");
+    lm->addLogStream ("file://foo", filters, 0);
+    lm->log (message);
+    lm->close ();
+    File f;
+    f.openFile ("foo", FileStream::defaultFileMask);
+    char gzipChainComp[64];
+    char gzipChainDecomp[64];
+    u_long nbr;
+    f.read (gzipChainComp, 64, &nbr);
+    f.close ();
+    GzipDecompress gzdc;
+    gzdc.decompress (&gzipChainComp[gzdc.headerSize ()], 
+                     nbr - gzdc.headerSize (),
+                     gzipChainDecomp, 64);
+    gzipChainDecomp[message.size ()] = '\0';
+    CPPUNIT_ASSERT (!message.compare (gzipChainDecomp));
   }
 
-  void tearDown()
+  void testCycleLogWithGzipChain ()
+  {
+    u_long cycleLog = 40;
+    list<string> filters;
+    string message ("The quick brown fox jumped over the lazy dog.");
+    string message1 ("Yet another short log message.");
+    File f;
+    char gzipComp[128];
+    char gzipDecomp[128];
+    GzipDecompress gzdc;
+    u_long nbr = 0;
+    list<string> cs;
+    list<string>::iterator it;
+    
+    filters.push_back ("gzip");
+    lm->addLogStream ("file://foo", filters, cycleLog);
+    lm->log (message);
+    CPPUNIT_ASSERT (!lm->log (message1));
+    f.openFile ("foo", FileStream::defaultFileMask);
+    f.read (gzipComp, 128, &nbr);
+    f.close ();
+    gzdc.decompress (&gzipComp[gzdc.headerSize ()], 
+                     nbr - gzdc.headerSize (),
+                     gzipDecomp, 128);
+    gzipDecomp[message1.size ()] = '\0';
+    CPPUNIT_ASSERT (!message1.compare (gzipDecomp));
+    cs = lm->getLogStream ("file://foo")->getCycledStreams ();
+    for (it = cs.begin (); it != cs.end (); it++)
+      {
+        f.openFile (*it, FileStream::defaultFileMask);
+        f.read (gzipComp, 128, &nbr);
+        f.close ();
+        gzdc.decompress (&gzipComp[gzdc.headerSize ()], 
+                         nbr - gzdc.headerSize (),
+                         gzipDecomp, 128);
+        gzipDecomp[message.size ()] = '\0';
+        CPPUNIT_ASSERT (!message.compare (gzipDecomp));
+        CPPUNIT_ASSERT (!FilesUtility::deleteFile (*it));
+      }
+  }
+
+  void tearDown ()
   {
     delete lm;
     delete lsf;
