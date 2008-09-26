@@ -212,6 +212,8 @@ int Server::copyConfigurationFromDefault(const char *fileName)
 
   inputF.close();
   outputF.close();
+
+  return 0;
 }
 
 
@@ -247,7 +249,39 @@ int Server::loadLibraries()
  */
 Server::~Server()
 {
+  if(languagesPath)
+    delete languagesPath;
+  languagesPath = 0;
 
+  if(languageFile)
+    delete languageFile;
+  languageFile = 0;
+  if(vhostList)
+    delete vhostList;
+
+  if(serverAdmin)
+    delete serverAdmin;
+  serverAdmin = 0;
+
+  delete vhostConfigurationFile;
+  vhostConfigurationFile = 0;
+
+  delete mainConfigurationFile;
+  mainConfigurationFile = 0;
+
+  delete mimeConfigurationFile;
+  mimeConfigurationFile = 0;
+
+  if(externalPath)
+    delete externalPath;
+  externalPath = 0;
+
+  if(path)
+    delete path;
+  path = 0;
+
+  if(ipAddresses)
+    delete ipAddresses;
 }
 
 /*!
@@ -261,8 +295,6 @@ void Server::start(string &mainConf, string &mimeConf, string &vhostConf, string
   int ret;
   ostringstream nCPU;
   string strCPU;
-  u_long nbr, nbw;
-  char* data;
 #ifdef WIN32
   DWORD eventsCount, cNumRead;
   INPUT_RECORD irInBuf[128];
@@ -894,40 +926,6 @@ int Server::terminate()
   /* Restore the blocking status in case of a reboot.  */
   Socket::stopBlockingOperations(false);
 
-  if(languagesPath)
-    delete languagesPath;
-  languagesPath = 0;
-
-  if(languageFile)
-    delete languageFile;
-  languageFile = 0;
-  if(vhostList)
-    delete vhostList;
-
-  if(serverAdmin)
-    delete serverAdmin;
-  serverAdmin = 0;
-
-  delete vhostConfigurationFile;
-  vhostConfigurationFile = 0;
-
-  delete mainConfigurationFile;
-  mainConfigurationFile = 0;
-
-  delete mimeConfigurationFile;
-  mimeConfigurationFile = 0;
-
-  if(externalPath)
-    delete externalPath;
-  externalPath = 0;
-
-  if(path)
-    delete path;
-  path = 0;
-
-  if(ipAddresses)
-    delete ipAddresses;
-
   ipAddresses = 0;
   vhostList = 0;
   languageParser.close();
@@ -989,10 +987,6 @@ const char *Server::getServerAdmin()
 int Server::initialize()
 {
   char *data;
-  int ret;
-  char buffer[512];
-  u_long nbr;
-  u_long nbw;
 #ifdef WIN32
   envString = GetEnvironmentStrings();
 #endif

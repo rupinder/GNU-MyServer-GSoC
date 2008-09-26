@@ -45,10 +45,17 @@ int DynamicLibrary::loadLibrary(const char* filename, int globally)
   handle = LoadLibrary(filename);
 #endif
 #ifdef HAVE_DL
+  int flag = 0;
   if(globally)
-    handle = dlopen(filename, RTLD_NOW | RTLD_GLOBAL);
+    flag = RTLD_NOW | RTLD_GLOBAL;
   else
-    handle = dlopen(filename, RTLD_LAZY);
+    flag = RTLD_LOCAL | RTLD_LAZY;
+
+#ifdef RTLD_DEEPBIND
+  flag |= RTLD_DEEPBIND;
+#endif
+
+  handle = dlopen(filename, flag);
 #endif
   return handle ? 0 : 1;
 }

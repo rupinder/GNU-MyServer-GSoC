@@ -6,7 +6,7 @@ extern "C" int EXPORTABLE myserver_main (char *cmd,MsCgiData* data)
 extern "C" int myserver_main (char *cmd,MsCgiData* data)
 #endif
 {
-	MscgiManager cm(data);
+  MscgiManager cm(data);
 	if(strlen(cmd)==0)	
 	{	
 		cm.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\r\n\
