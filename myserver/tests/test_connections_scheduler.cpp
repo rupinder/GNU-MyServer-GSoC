@@ -220,8 +220,7 @@ public:
     scheduler->removeConnection(conn);
 
     CPPUNIT_ASSERT_EQUAL(scheduler->getNumTotalConnections(), 0ul);
-
-    delete conn;
+    //The connection is freed by the scheduler.
   }
 
 
