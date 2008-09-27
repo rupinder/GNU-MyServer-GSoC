@@ -72,6 +72,7 @@ SCGI and FastCGI protocols.
 * MIME types:: MIME types configuration.
 * Process security:: Process security.
 * SSL certificates:: Show how to use SSL certificates.
+* Log management:: Describe how to use the log management features.
 
 * Concept Index::       An item for each concept.
 @end menu
@@ -104,12 +105,17 @@ SCGI and FastCGI protocols.
 @cindex Process security
 @include process_security.texi
 
-@node SSL certificates, Concept Index, Process security, Top
+@node SSL certificates, Log management, Process security, Top
 @chapter SSL certificates
 @cindex SSL certificates
 @include ssl_certificates.texi
 
-@node Concept Index, , SSL certificates, Top
+@node Log management, Concept Index, SSL certificates, Top
+@chapter Log management
+@cindex Log Management
+@include log_management.texi
+
+@node Concept Index, , Log management, Top
 @unnumbered Concept Index
 @printindex cp
 

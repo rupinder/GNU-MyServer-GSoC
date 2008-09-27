@@ -1,0 +1,115 @@
+@c -*-texinfo-*-
+
+@section Overview of the log management features
+The MyServer's log management system was designed to support logging
+over different targets. By default, log messages can be sent to a file,
+to a socket and of course to the console. The main class which achieves
+logging tasks is still the @code{LogManager} class. One single instance
+of it can now handle multiple targets. These targets are called
+@code{LogStream} objects. In addition, it is possible to provide a list
+of filters (e.g. the Gzip filter) to each @code{LogStream} object. This
+offers interesting possibilities, like logging over a TCP Socket while
+taking advantage of the Gzip compression. The new @code{LogManager} also
+ensures that all the operations that modify its internal data
+structures, through its interface, are atomics.
+
+@section Use of the new LogManager interface
+This section introduces the use of the new @code{LogManager}'s
+interface.
+
+@subsection Construction
+The @code{LogManager} constructor, requires an instance of
+@code{FiltersFactory}, an instance of @code{LogStreamFactory} and a
+logging level, choosen between @code{INFO, WARNING, ERROR}. The third
+parameter is optional. 
+@example
+LogManager (FiltersFactory* filtersFactory,
+            LogStreamFactory* logStreamFactory,
+            LoggingLevel level = WARNING);
+@end example
+
+
+@subsection Adding a new LogStream target
+The adding of a new @code{LogStream} target can be done calling the
+@code{addLogStream} method over an instance of the
+@code{LogManager}. Below, we can look at the method signature :
+@example
+int addLogStream (string location, 
+                  list<string>& filters, 
+                  u_long cycleLog);
+@end example
+The @code{location} string holds the location where the @code{LogStream}
+will point to as well as the protocol it will use. That string must
+follow a special syntax, that will be covered in next section. The
+@code{filters} parameter holds a list of filter names that will be added
+to the @code{LogStream}. Finally, the @code{cycleLog} parameter holds
+the max size, in bytes, that the new @code{LogStream} can reach. Over
+that limit, the @code{LogStream} will be cycled, that is, its content
+will be saved somewhere else. The current @code{LogStream} will be
+emptied and the location name of its saved content, will be available
+looking at the latest element of a FIFO queue returned by the
+@code{getCycledStreams} method. The @code{addLogStream} method returns a
+zero value if the new @code{LogStream} was successful added, a non-zero
+value otherwise, according to the MyServer standard.
+
+@subsubsection Location strings
+A location string must be provided in the form
+`@code{protocol://path/to/resource}'. The `@code{protocol://}' part is
+used by the @code{LogStreamFactory} to fetch the proper constructor for
+the new object that it will create. The `@code{path/to/resource}' part,
+instead, is used within the @code{LogStreamCreator}. The
+@code{LogStream} creation process, must ensure, through checks at
+increasing depth levels, that only valid @code{LogStream} objects can
+be returned. For example, syntactically a location string like
+`@code{socket://foo_host:-1}' is correct, but of course, the
+`@code{path/to/resource}' part doesn't represent any valid host:port 
+pair for a socket. So giving a such location string, the
+@code{addLogStream} method, must fail.
+
+@subsection Removing an existing LogStream
+The interface provides also a method that can detach a @code{LogStream}
+from the @code{LogManager}. Here is the method signature :
+@example
+int removeLogStream (string location);
+@end example
+It will remove the @code{LogStream} that points to @code{location}. If
+the provided location doesn't belong to the @code{LogManager}, the
+method doesn't nothing and it simply returns a non-zero value.
+
+@subsection Adding new LogStream classes
+To add new targets which can be used within the @code{LogManager}, you
+have to subclass the @code{LogStream} class. Then, if needed, override
+the following virtual methods :
+@example
+virtual u_long streamSize ();
+virtual int streamCycle ();
+@end example
+The first one should return the size of the @code{Stream} owned by the
+@code{LogStream} while the second should manage its cycling process. The
+return value for the latter method must conform with the MyServer
+standard. The next step is to subclass @code{LogStreamCreator},
+overriding the @code{create} abstract method. Finally, you have to add
+the new @code{LogStreamCreator} to the @code{LogStreamFactory}, merely
+adding a line to its constructor, something that looks like :
+@example
+logStreamCreators["foo://"] = new FooStreamCreator ();
+@end example
+
+@subsection Writing log messages on the LogStream objects
+To log messages, simply call the method @code{log} on a
+@code{LogManager} object. That method takes three parameters, but only
+the first one is needed.
+@example
+int log (string message, 
+         LoggingLevel level = WARNING, 
+         string location = "all");
+@end example
+The first parameter represent a message to output on the log. The
+@code{level} parameter represent the @code{LoggingLevel} of the incoming
+message. If it is lesser than the @code{LogManager}'s logging level, the
+@code{LogManager} discards the message. The @code{location} parameter
+tells the @code{LogManager} to output the message only to the specified
+location. By default, if no @code{location} is provided, the
+@code{LogManager} will log the message on all its
+@code{LogStream} objects. If a non-valid or non-existent location is
+provided, the @code{LogManager} simply discards the message.
