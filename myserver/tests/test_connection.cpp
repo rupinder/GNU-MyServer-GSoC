@@ -92,7 +92,7 @@ public:
 
   void testActiveThread()
   {
-    ClientsThread *ct = new ClientsThread();
+    ClientsThread *ct = new ClientsThread(NULL);
 
     connection->setActiveThread(ct);
 

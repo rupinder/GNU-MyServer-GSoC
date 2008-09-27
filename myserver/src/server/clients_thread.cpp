@@ -16,15 +16,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "stdafx.h"
+#include <include/server/clients_thread.h>
+
 #include <include/base/thread/thread.h>
 #include <include/server/server.h>
-#include <include/server/clients_thread.h>
 #include <include/conf/security/security.h>
-#include <include/protocol/http/http_request.h>
-#include <include/protocol/http/http_response.h>
 #include <include/base/socket/socket.h>
 #include <include/base/string/stringutils.h>
+
+#include <include/protocol/http/http.h>
 #include <include/base/mem_buff/mem_buff.h>
+#include <include/protocol/https/https.h>
+#include <include/protocol/control/control_protocol.h>
 #include <include/protocol/ftp/ftp.h>
 
 #ifdef NOT_WIN
@@ -48,13 +51,15 @@ extern "C" {
 /*!
  *Construct the object.
  */
-ClientsThread::ClientsThread()
+ClientsThread::ClientsThread(Server* server)
 {
+  this->server = server;
   busy = 0;
   initialized = 0;
   toDestroy = 0;
   staticThread = 0;
   nBytesToRead = 0;
+
   httpParser = 0;
   httpsParser = 0;
   controlProtocolParser = 0;
@@ -124,8 +129,6 @@ void* clients_thread(void* pParam)
 #endif
 
 {
-  Server* server = Server::getInstance();
-
 #ifdef NOT_WIN
   /* Block SigTerm, SigInt, and SigPipe in threads.  */
   sigset_t sigmask;
@@ -148,8 +151,8 @@ void* clients_thread(void* pParam)
 
   ct->threadIsRunning = 1;
   ct->threadIsStopped = 0;
-  ct->buffersize = server->getInstance()->getBuffersize();
-  ct->buffersize2 = server->getInstance()->getBuffersize2();
+  ct->buffersize = ct->server->getBuffersize();
+  ct->buffersize2 = ct->server->getBuffersize2();
   
   ct->buffer.setLength(ct->buffersize);
   ct->buffer.m_nSizeLimit = ct->buffersize;
@@ -163,11 +166,10 @@ void* clients_thread(void* pParam)
 
   ct->initialized = 1;
 
-  Server::getInstance()->increaseFreeThread();
-
+  ct->server->increaseFreeThread();
 
   /* Wait that the server is ready before go in the running loop.  */
-  while(!server->isServerReady() && ct->threadIsRunning)
+  while(!ct->server->isServerReady() && ct->threadIsRunning)
   {
     Thread::wait(500);
   }
@@ -191,7 +193,7 @@ void* clients_thread(void* pParam)
       }
 
       ret = ct->controlConnections();
-      Server::getInstance()->increaseFreeThread();
+      ct->server->increaseFreeThread();
       ct->busy = 0;
 
       /*
@@ -207,22 +209,23 @@ void* clients_thread(void* pParam)
       ostringstream s;
       s << "Bad alloc: " << ba.what();
       
-      Server::getInstance()->logPreparePrintError();
-      Server::getInstance()->logWriteln(s.str().c_str());
-      Server::getInstance()->logEndPrintError();
+      ct->server->logPreparePrintError();
+      ct->server->logWriteln(s.str().c_str());
+      ct->server->logEndPrintError();
     }
     catch( exception &e)
     {
       ostringstream s;
       s << "Error: " << e.what();
 
-      Server::getInstance()->logPreparePrintError();
-      Server::getInstance()->logWriteln(s.str().c_str());
-      Server::getInstance()->logEndPrintError();
+      ct->server->logPreparePrintError();
+      ct->server->logWriteln(s.str().c_str());
+      ct->server->logEndPrintError();
     };
     
   }
-  Server::getInstance()->decreaseFreeThread();
+
+  ct->server->decreaseFreeThread();
 
   delete ct;
 
@@ -303,8 +306,9 @@ int ClientsThread::controlConnections()
   Protocol* protocol = 0;
   u_long dataRead = 0;
 
-  c = Server::getInstance()->getConnection(this->id);
-  Server::getInstance()->decreaseFreeThread();
+  c = server->getConnection(this->id);
+
+  server->decreaseFreeThread();
 
 
   /*
@@ -319,7 +323,7 @@ int ClientsThread::controlConnections()
   err = c->socket->recv(&((char*)(buffer.getBuffer()))[dataRead],
                         MYSERVER_KB(8) - dataRead - 1, 0);
 
-  if(err == -1 && !Server::getInstance()->deleteConnection(c, this->id))
+  if(err == -1 && !server->deleteConnection(c))
     return 0;
 
   buffer.setLength(dataRead + err);    
@@ -336,7 +340,7 @@ int ClientsThread::controlConnections()
   }
   else
   {
-    Server::getInstance()->deleteConnection(c, this->id);
+    server->deleteConnection(c);
     return 0;
   }
 
@@ -365,7 +369,7 @@ int ClientsThread::controlConnections()
     }
     else
     {
-      protocol = Server::getInstance()->getProtocol(c->host->getProtocolName());
+      protocol = server->getProtocol(c->host->getProtocolName());
       if(protocol)
       {
         retcode = protocol->controlConnection(c, 
@@ -388,14 +392,14 @@ int ClientsThread::controlConnections()
   /*! Delete the connection.  */
   if(retcode == DELETE_CONNECTION)
   {
-    Server::getInstance()->deleteConnection(c, this->id);
+    server->deleteConnection(c);
     return 0;
   }
   /*! Keep the connection.  */
   else if(retcode == KEEP_CONNECTION)
   {
     c->connectionBuffer.setLength(0);
-    Server::getInstance()->getConnectionsScheduler()->addWaitingConnection(c);
+    server->getConnectionsScheduler()->addWaitingConnection(c);
   }
   /*! Incomplete request to buffer.  */
   else if(retcode == INCOMPLETE_REQUEST)
@@ -406,13 +410,13 @@ int ClientsThread::controlConnections()
      *Save the header in the connection buffer.
      */
     c->connectionBuffer.setBuffer(buffer.getBuffer(), nBytesToRead);
-    Server::getInstance()->getConnectionsScheduler()->addWaitingConnection(c);
+    server->getConnectionsScheduler()->addWaitingConnection(c);
   }
   /* Incomplete request to check before new data is available.  */
   else if(retcode == INCOMPLETE_REQUEST_NO_WAIT)
   {
     c->setForceControl(1);
-    Server::getInstance()->getConnectionsScheduler()->addReadyConnection(c);
+    server->getConnectionsScheduler()->addReadyConnection(c);
   }    
 
   c->setTimeout( getTicks() );

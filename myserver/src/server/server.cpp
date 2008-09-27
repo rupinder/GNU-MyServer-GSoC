@@ -77,12 +77,11 @@ Server* Server::instance = 0;
 Server::Server() : connectionsScheduler(this),
                    listenThreads(&connectionsScheduler, this)
 {
-  toReboot = 0;
-  autoRebootEnabled = 1;
-  pausing = 0;
-  rebooting = 0;
+  toReboot = false;
+  autoRebootEnabled = true;
+  rebooting = false;
   maxConnections = 0;
-  serverReady = 0;
+  serverReady = false;
   throttlingRate = 0;
   uid = 0;
   gid = 0;
@@ -289,12 +288,8 @@ Server::~Server()
  */
 void Server::start(string &mainConf, string &mimeConf, string &vhostConf, string &externPath, string &langPath)
 {
-  u_long i;
-  string buffer;
   int err = 0;
   int ret;
-  ostringstream nCPU;
-  string strCPU;
 #ifdef WIN32
   DWORD eventsCount, cNumRead;
   INPUT_RECORD irInBuf[128];
@@ -328,99 +323,7 @@ void Server::start(string &mainConf, string &mimeConf, string &vhostConf, string
 
     logWriteln( languageParser.getValue("MSG_SERVER_CONF") );
 
-    /*
-     *Get the name of the local machine.
-     */
-    memset(serverName, 0, HOST_NAME_MAX+1);
-    Socket::gethostname(serverName, HOST_NAME_MAX);
-
-    buffer.assign(languageParser.getValue("MSG_GETNAME"));
-    buffer.append(" ");
-    buffer.append(serverName);
-    logWriteln(buffer.c_str());
-
-    /*
-     *Find the IP addresses of the local machine.
-     */
-    if(ipAddresses)
-      delete ipAddresses;
-    ipAddresses = new string();
-    buffer.assign("Host: ");
-    buffer.append(serverName);
-    logWriteln(buffer.c_str() );
-
-    if(Socket::getLocalIPsList(*ipAddresses))
-    {
-      string msg;
-      msg.assign(languageParser.getValue("ERR_ERROR"));
-      msg.append(" : Reading IP list");
-      logPreparePrintError();
-      logWriteln(msg.c_str());
-      logEndPrintError();
-      return;
-    }
-    else
-    {
-      string msg;
-      msg.assign("IP: ");
-      msg.append(*ipAddresses);
-      logWriteln(msg.c_str());
-    }
-
-    /* Load the MIME types.  */
-    logWriteln(languageParser.getValue("MSG_LOADMIME"));
-    if(mimeManager)
-      delete mimeManager;
-    mimeManager = new MimeManager();
-
-    if(int nMIMEtypes = mimeManager->loadXML(mimeConfigurationFile->c_str()))
-    {
-      ostringstream stream;
-      stream << languageParser.getValue("MSG_MIMERUN") << ": " << nMIMEtypes;
-      logWriteln(stream.str().c_str());
-    }
-    else
-    {
-      logPreparePrintError();
-      logWriteln(languageParser.getValue("ERR_LOADMIME"));
-      logEndPrintError();
-    }
-
-    nCPU << (u_int)getCPUCount();
-
-    strCPU.assign(languageParser.getValue("MSG_NUM_CPU"));
-    strCPU.append(" ");
-    strCPU.append(nCPU.str());
-    logWriteln(strCPU.c_str());
-
-    connectionsScheduler.restart();
-
-    listenThreads.initialize(&languageParser);
-
-    if(vhostList)
-      delete vhostList;
-
-    vhostList = new VhostManager(&listenThreads);
-
-    if(vhostList == NULL)
-      return;
-
-    getProcessServerManager()->load();
-
-    /* Load the home directories configuration.  */
-    homeDir.load();
-
-    loadPlugins();
-
-    /* Load the virtual hosts configuration from the xml file.  */
-    vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
-                                        getMaxLogFileSize());
-
-
-    if(path == 0)
-      path = new string();
-
-     if(getdefaultwd(*path))
+    if(postLoad())
       return;
 
     setProcessPermissions();
@@ -439,23 +342,12 @@ void Server::start(string &mainConf, string &mimeConf, string &vhostConf, string
       logWriteln(out.str().c_str());
     }
 
-    for(i = 0; i < nStaticThreads; i++)
-    {
-      logWriteln(languageParser.getValue("MSG_CREATET"));
-      ret = addThread(1);
-
-      if(ret)
-        return;
-
-      logWriteln(languageParser.getValue("MSG_THREADR"));
-    }
-
     logWriteln(languageParser.getValue("MSG_READY"));
 
     if(logManager.getType() == LogManager::TYPE_CONSOLE)
       logWriteln(languageParser.getValue("MSG_BREAK"));
 
-    serverReady = 1;
+    serverReady = true;
 
     /* Finally we can give control to the main loop.  */
     mainLoop();
@@ -479,6 +371,124 @@ void Server::start(string &mainConf, string &mimeConf, string &vhostConf, string
 #ifdef WIN32
   WSACleanup();
 #endif// WIN32
+}
+
+/*!
+ *Complete the loading phase.
+ */
+int Server::postLoad()
+{
+  ostringstream nCPU;
+  string strCPU;
+  string buffer;
+
+  /*
+   *Get the name of the local machine.
+   */
+  memset(serverName, 0, HOST_NAME_MAX+1);
+  Socket::gethostname(serverName, HOST_NAME_MAX);
+  
+  buffer.assign(languageParser.getValue("MSG_GETNAME"));
+  buffer.append(" ");
+  buffer.append(serverName);
+  logWriteln(buffer.c_str());
+  
+  /*
+   *Find the IP addresses of the local machine.
+   */
+  if(ipAddresses)
+    delete ipAddresses;
+  ipAddresses = new string();
+  buffer.assign("Host: ");
+  buffer.append(serverName);
+  logWriteln(buffer.c_str() );
+  
+  if(Socket::getLocalIPsList(*ipAddresses))
+  {
+    string msg;
+    msg.assign(languageParser.getValue("ERR_ERROR"));
+    msg.append(" : Reading IP list");
+    logPreparePrintError();
+    logWriteln(msg.c_str());
+    logEndPrintError();
+    return -1;
+  }
+  else
+  {
+    string msg;
+    msg.assign("IP: ");
+    msg.append(*ipAddresses);
+    logWriteln(msg.c_str());
+  }
+
+  /* Load the MIME types.  */
+  logWriteln(languageParser.getValue("MSG_LOADMIME"));
+
+  if(mimeManager)
+    delete mimeManager;
+
+  mimeManager = new MimeManager();
+  
+  if(int nMIMEtypes = mimeManager->loadXML(mimeConfigurationFile->c_str()))
+  {
+    ostringstream stream;
+    stream << languageParser.getValue("MSG_MIMERUN") << ": " << nMIMEtypes;
+    logWriteln(stream.str().c_str());
+  }
+  else
+  {
+    logPreparePrintError();
+    logWriteln(languageParser.getValue("ERR_LOADMIME"));
+    logEndPrintError();
+  }
+
+  nCPU << (u_int)getCPUCount();
+  
+  strCPU.assign(languageParser.getValue("MSG_NUM_CPU"));
+  strCPU.append(" ");
+  strCPU.append(nCPU.str());
+  logWriteln(strCPU.c_str());
+  
+  connectionsScheduler.restart();
+  
+  listenThreads.initialize(&languageParser);
+  
+  if(vhostList)
+    delete vhostList;
+  
+  vhostList = new VhostManager(&listenThreads);
+  
+  if(vhostList == NULL)
+    return -1;
+
+  getProcessServerManager()->load();
+    
+  /* Load the home directories configuration.  */
+  homeDir.load();
+
+  loadPlugins();
+
+  /* Load the virtual hosts configuration from the xml file.  */
+  vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
+                                      getMaxLogFileSize());
+  
+
+  if(path == 0)
+    path = new string();
+  
+  if(getdefaultwd(*path))
+    return -1;
+
+  for(u_long i = 0; i < nStaticThreads; i++)
+  {
+    logWriteln(languageParser.getValue("MSG_CREATET"));
+    if(addThread(true))
+      return -1;
+
+    logWriteln(languageParser.getValue("MSG_THREADR"));
+  }
+
+  return 0;
 }
 
 /*!
@@ -625,9 +635,7 @@ void Server::mainLoop()
 
             listenThreads.terminate();
 
-            connectionsScheduler.terminateConnections();
             clearAllConnections();
-
 
             Socket::stopBlockingOperations(false);
 
@@ -918,7 +926,7 @@ int Server::terminate()
 
   if(verbosity > 1)
   {
-      logWriteln(languageParser.getValue("MSG_MEMCLEAN"));
+    logWriteln(languageParser.getValue("MSG_MEMCLEAN"));
   }
 
   freeHashedData();
@@ -931,15 +939,19 @@ int Server::terminate()
   languageParser.close();
 
   if(mimeManager)
+  {
     mimeManager->clean();
-  delete mimeManager;
-  mimeManager = 0;
+    delete mimeManager;
+    mimeManager = 0;
+  }
+
 #ifdef WIN32
   /*
    *Under WIN32 cleanup environment strings.
    */
   FreeEnvironmentStrings((LPTSTR)envString);
 #endif
+
   getProcessServerManager()->clear();
 
   filtersFactory.free();
@@ -1010,7 +1022,7 @@ int Server::initialize()
   if(serverAdmin)
     delete serverAdmin;
   serverAdmin = 0;
-  autoRebootEnabled = 1;
+  autoRebootEnabled = false;
 
   if(configurationFileManager.open(mainConfigurationFile->c_str()))
     return -1;
@@ -1207,9 +1219,8 @@ void Server::checkThreadsNumber()
    *we did not reach the limit.
    */
   if((threads.size() < nMaxThreads) && (freeThreads < 1))
-  {
-    addThread(0);
-  }
+    addThread(false);
+
   threadsMutex->unlock();
 }
 
@@ -1472,21 +1483,12 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
 }
 
 /*!
- *Delete a connection from the list.
+ *Get notified when a connection is closed.
  */
-int Server::deleteConnection(ConnectionPtr s, int /*id*/)
+int Server::deleteConnection(ConnectionPtr s)
 {
   string msg("remove-connection");
   vector<Multicast<string, void*, int>*>* handlers;
-  int ret = 0;
-
-  /*
-   *Remove the connection from the active connections list.
-   */
-  if(!s || !s->allowDelete())
-  {
-    return 0;
-  }
 
   handlers = getHandlers(msg);
 
@@ -1497,12 +1499,7 @@ int Server::deleteConnection(ConnectionPtr s, int /*id*/)
       (*handlers)[i]->updateMulticast(this, msg, s);
     }
   }
-
-  connectionsScheduler.removeConnection(s);
-
-  delete s;
-
-  return ret;
+  return 0;
 }
 
 /*!
@@ -1527,7 +1524,7 @@ void Server::clearAllConnections()
   {
     for(it = connections.begin(); it != connections.end(); it++)
     {
-      deleteConnection(*it, 1);
+      deleteConnection(*it);
     }
   }
   catch(...)
@@ -1673,7 +1670,7 @@ void Server::setProcessPermissions()
          logWriteln(out.str().c_str());
          logEndPrintError();
        }
-       autoRebootEnabled = 0;
+       autoRebootEnabled = false;
      }
 
     /*
@@ -1691,7 +1688,7 @@ void Server::setProcessPermissions()
         logWriteln(out.str().c_str());
         logEndPrintError();
       }
-      autoRebootEnabled = 0;
+      autoRebootEnabled = false;
     }
 }
 
@@ -1727,16 +1724,14 @@ int Server::reboot()
   if(handlers)
   {
     for(size_t i = 0; i < handlers->size(); i++)
-    {
       (*handlers)[i]->updateMulticast(this, msg, 0);
-    }
   }
 
-  serverReady = 0;
+  serverReady = false;
   /* Reset the toReboot flag.  */
-  toReboot = 0;
+  toReboot = false;
 
-  rebooting = 1;
+  rebooting = true;
 
   /* Do nothing if the reboot is disabled.  */
   if(!autoRebootEnabled)
@@ -1761,13 +1756,14 @@ int Server::reboot()
   mustEndServer = false;
 
 
-  rebooting = 0;
+  rebooting = false;
 
-  ret = initialize();
+  ret = initialize() || postLoad();
 
   if(ret)
     return ret;
 
+  serverReady = true;
 
   logWriteln("Rebooted");
 
@@ -1777,7 +1773,7 @@ int Server::reboot()
 /*!
  *Returns if the server is ready.
  */
-int Server::isServerReady()
+bool Server::isServerReady()
 {
   return serverReady;
 }
@@ -1787,8 +1783,8 @@ int Server::isServerReady()
  */
 void Server::rebootOnNextLoop()
 {
-  serverReady = 0;
-  toReboot = 1;
+  serverReady = false;
+  toReboot = true;
 }
 
 
@@ -1838,7 +1834,7 @@ void Server::getConnections(list<ConnectionPtr>& out)
  */
 void Server::disableAutoReboot()
 {
-  autoRebootEnabled = 0;
+  autoRebootEnabled = false;
 }
 
 /*!
@@ -1846,7 +1842,7 @@ void Server::disableAutoReboot()
  */
 void Server::enableAutoReboot()
 {
-  autoRebootEnabled = 1;
+  autoRebootEnabled = true;
 }
 
 
@@ -1877,7 +1873,7 @@ const char *Server::getLanguageFile()
 /*!
  *Return nonzero if the autoreboot is enabled.
  */
-int Server::isAutorebootEnabled()
+bool Server::isAutorebootEnabled()
 {
   return autoRebootEnabled;
 }
@@ -1885,7 +1881,7 @@ int Server::isAutorebootEnabled()
 /*!
  *Create a new thread.
  */
-int Server::addThread(int staticThread)
+int Server::addThread(bool staticThread)
 {
   int ret;
   string msg("new-thread");
@@ -1916,7 +1912,7 @@ int Server::addThread(int staticThread)
       return 0;
   }
 
-  newThread = new ClientsThread();
+  newThread = new ClientsThread(this);
 
   if(newThread == 0)
     return -1;
@@ -1949,9 +1945,6 @@ int Server::addThread(int staticThread)
     return -1;
   }
 
-  /*
-   *If everything was done correctly add the new thread to the linked list.
-   */
   threads.push_back(newThread);
   return 0;
 }

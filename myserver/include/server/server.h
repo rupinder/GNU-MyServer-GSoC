@@ -60,8 +60,6 @@ unsigned int __stdcall listenServer(void* pParam);
 void* listenServer(void* pParam);
 #endif
 
-extern int rebootMyServerConsole;
-
 class Server : public MulticastRegistry<string, void*, int>
 {
 public:
@@ -93,12 +91,12 @@ public:
   int countAvailableThreads();
   void checkThreadsNumber();
   int removeThread(u_long ID);
-  int isServerReady();
+  bool isServerReady();
   ProtocolsManager* getProtocolsManager();
   void disableAutoReboot();
   void enableAutoReboot();
-  int isAutorebootEnabled();
-  int isRebooting(){return rebooting;}
+  bool isAutorebootEnabled();
+  bool isRebooting(){return rebooting;}
   void rebootOnNextLoop();
   const char* getMainConfFile();
   const char* getVhostConfFile();
@@ -150,10 +148,12 @@ public:
 
   void setProcessPermissions();
   ConnectionsScheduler* getConnectionsScheduler(){return &connectionsScheduler;}
-  int deleteConnection(ConnectionPtr, int);
+  int deleteConnection(ConnectionPtr);
 
   void increaseFreeThread();
   void decreaseFreeThread();
+
+
 private:
   friend class ClientsThread;
 #ifdef WIN32
@@ -177,6 +177,7 @@ private:
   void mainLoop();
   void loadPlugins();
   void displayBoot();
+  int postLoad();
 
   CachedFileFactory cachedFiles;
 
@@ -193,16 +194,16 @@ private:
   u_long uid;
   u_long gid;
   int currentThreadID;
-  /*! Used when rebooting to load new configuration files.  */
-  int pausing;
   ProtocolsManager protocols;
   XmlParser configurationFileManager;
   XmlParser languageParser;
-  int autoRebootEnabled;
-  int toReboot;
-  int rebooting;
+
+  bool autoRebootEnabled;
+  bool toReboot;
+  bool rebooting;
+
   LogManager logManager;
-  int serverReady;
+  bool serverReady;
   u_long verbosity;
   u_long throttlingRate;
   u_long buffersize;
@@ -214,7 +215,7 @@ private:
   string* externalPath;
   string* serverAdmin;
   int initialize();
-  int addThread(int staticThread = 0);
+  int addThread(bool staticThread = false);
   ConnectionPtr addConnectionToList(Socket* s, MYSERVER_SOCKADDRIN *asock_in,
                                     char *ipAddr, char *localIpAddr,
                                     u_short port, u_short localPort, int);

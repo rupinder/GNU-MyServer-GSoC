@@ -167,11 +167,15 @@ void ConnectionsScheduler::newData(short event, FileHandle handle)
 
   if(event == EV_TIMEOUT)
   {
-    server->deleteConnection(connection, 0);
+    if(!connection->allowDelete())
+      return;
+
+    server->deleteConnection(connection);
+    removeConnection(connection);
   }
   else if(event == EV_READ)
   {
-    server->getConnectionsScheduler()->addReadyConnection(connection);
+    addReadyConnection(connection);
   }
 }
 
@@ -207,7 +211,7 @@ static void eventLoopHandler(int fd, short event, void *arg)
         event_once(handle, EV_READ | EV_TIMEOUT, newDataHandler, da, &tv);
       }
       if(cmd == 'r')
-        break;
+        return;
       /* Handle other cmd without do anything else.  */
     }
 
@@ -587,6 +591,8 @@ void ConnectionsScheduler::release()
   if(dispatchedThreadId)
     Thread::join(dispatchedThreadId);
 
+  terminateConnections();
+
   eventsMutex.lock();
 
   list<ListenerArg*>::iterator it = listeners.begin();
@@ -606,8 +612,6 @@ void ConnectionsScheduler::release()
   listeners.clear();
   
   eventsMutex.unlock();
-
-  terminateConnections();
 }
 
 /*!
@@ -645,6 +649,7 @@ void ConnectionsScheduler::removeConnection(ConnectionPtr connection)
   if(connection->socket)
     connections.remove(connection->socket->getHandle());
   connectionsMutex.unlock();
+  delete connection;
 }
 
 /*!
@@ -662,7 +667,7 @@ void ConnectionsScheduler::terminateConnections()
     for(; it != connections.end(); it++)
     {
       ConnectionPtr c = *it;
-      if ( c->allowDelete(true) && c->socket)
+      if (c->allowDelete(true) && c->socket)
         c->socket->close();
     }
   }
