@@ -27,9 +27,9 @@ class MIMEtype:
     #TODO: Override __str__ method
         
   
-def ParseTypes():
+def ParseTypes(filename):
     """ Parse types """
-    sock = open("MIMEtypes.xml")
+    sock = open(filename)
     tree = ET.parse(sock)
     sock.close()
     elem = tree.getroot()
@@ -50,7 +50,7 @@ def ParseTypes():
                 
 #To test if it works:  
 if __name__ == "__main__":
-    LIST =  ParseTypes()
+    LIST =  ParseTypes("MIMEtypes.xml")
     for el in LIST:
         print "======="
         print el.ext

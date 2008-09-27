@@ -16,6 +16,7 @@
 
 import sys
 import gobject
+
 try:
     import pygtk
     pygtk.require("2.0")
@@ -32,7 +33,6 @@ class ConfigGUIGTK:
     UI for configurtion tool"""
 
     def __init__(self):
-        """Default constructor for GUI. No params"""
 
         # Connect the Glade file
         self.gladefile = "XMLGui.glade"
@@ -79,17 +79,13 @@ class ConfigGUIGTK:
         renderer=gtk.CellRendererText()
         
         # Add list items to tree view
-        self.insert_row(self.treemodelEXT,None,'ai')
-        self.insert_row(self.treemodelEXT,None,'aif')
-        self.insert_row(self.treemodelEXT,None,'aifc')
-        self.insert_row(self.treemodelEXT,None,'aiff')
-        self.insert_row(self.treemodelEXT,None,'asc')
-        self.insert_row(self.treemodelEXT,None,'au')
-        self.insert_row(self.treemodelEXT,None,'avi')
-        self.insert_row(self.treemodelEXT,None,'bcpio')
-        self.insert_row(self.treemodelEXT,None,'bin')
-        self.insert_row(self.treemodelEXT,None,'bmp')
-        self.insert_row(self.treemodelEXT,None,'cdf')
+        # this types are parsed from xml file using helper class MIMEtpe
+        from MIMEtypes import MIMEtype, ParseTypes
+        TYPES = ParseTypes("MIMEtypes.xml")
+        
+        #populate
+        for element in TYPES:
+            self.insert_row(self.treemodelEXT,None,element.ext)
         self.treeviewEXT.show()
 
     
