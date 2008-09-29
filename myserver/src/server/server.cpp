@@ -1482,10 +1482,23 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
   return newConnection;
 }
 
+
+
+/*!
+ *Delete a connection.
+ */
+int Server::deleteConnection(ConnectionPtr s)
+{
+  notifyDeleteConnection(s);
+  connectionsScheduler.removeConnection (s);
+
+  return 0;
+}
+
 /*!
  *Get notified when a connection is closed.
  */
-int Server::deleteConnection(ConnectionPtr s)
+int Server::notifyDeleteConnection(ConnectionPtr s)
 {
   string msg("remove-connection");
   vector<Multicast<string, void*, int>*>* handlers;

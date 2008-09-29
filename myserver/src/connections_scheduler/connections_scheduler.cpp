@@ -170,7 +170,8 @@ void ConnectionsScheduler::newData(short event, FileHandle handle)
     if(!connection->allowDelete())
       return;
 
-    server->deleteConnection(connection);
+    server->notifyDeleteConnection(connection);
+
     removeConnection(connection);
   }
   else if(event == EV_READ)

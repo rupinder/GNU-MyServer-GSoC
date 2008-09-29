@@ -150,6 +150,8 @@ public:
   ConnectionsScheduler* getConnectionsScheduler(){return &connectionsScheduler;}
   int deleteConnection(ConnectionPtr);
 
+  int notifyDeleteConnection(ConnectionPtr);
+
   void increaseFreeThread();
   void decreaseFreeThread();
 
