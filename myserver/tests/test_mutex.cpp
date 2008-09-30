@@ -52,6 +52,8 @@ void* test_mutex_incrementer(void* pParam)
     arg->value++;
     arg->mutex->unlock();
   }
+
+  return NULL;
 }
 
 

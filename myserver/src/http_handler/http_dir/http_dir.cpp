@@ -182,7 +182,6 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
   int lastSlash = 0;
   bool useChunks = false;
   u_long sentData = 0;
-  int i;
   char fileTime[32];
   char* bufferloop;
   const char* browseDirCSSpath;

@@ -123,7 +123,6 @@ u_long CachedFileBuffer::getReferenceCounter()
  */
 CachedFileBuffer::CachedFileBuffer(const char* buffer, u_long size)
 {
-  u_long nbr;
   factoryToNotify = 0;
   refCounter = 0;
 

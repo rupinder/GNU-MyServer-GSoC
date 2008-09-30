@@ -82,7 +82,6 @@ public:
 
   void testSplitPath()
   {
-    char *path;
     char dir[256];
     char file[256];
 
@@ -106,7 +105,6 @@ public:
 
   void testSplitPathLength()
   {
-    char *path;
     int dir;
     int file;
 

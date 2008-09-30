@@ -186,7 +186,6 @@ private:
   void *envString;
   VhostManager *vhostList;
   MimeManager *mimeManager;
-  ListenThreads listenThreads;
   HomeDir homeDir;
   HashMap<string, string*> hashedData;
   HashMap<string, void*> globalData;
@@ -252,6 +251,7 @@ private:
   GenericPluginsManager genericPluginsManager;
   ProcessServerManager processServerManager;
   ConnectionsScheduler connectionsScheduler;
+  ListenThreads listenThreads;
   bool endServer;
 };
 

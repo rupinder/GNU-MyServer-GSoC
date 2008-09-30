@@ -76,7 +76,7 @@ public:
     int i = nLength;
     while ( !fc->read(szTemp, 64, &nbw) && i > 0 )
     {
-      strncpy(pBuff, szTemp, nbw>i?i:nbw);
+      strncpy(pBuff, szTemp, (int)nbw > i ? i : nbw);
       pBuff += nbw;
       i -= nbw;
     }

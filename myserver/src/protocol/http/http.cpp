@@ -709,14 +709,12 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
    */
   string filename;
   int permissions;
-  int providedMask;
   string dirscan;
   int filenamePathLen;
   string data;
   int mimecmd;
   time_t lastMT;
   int ret;
-  char authType[16];
   string tmpTime;
   string directory;
   string file;

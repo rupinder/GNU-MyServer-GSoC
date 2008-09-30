@@ -66,10 +66,7 @@ public:
   
   void testAvailableToRead()
   {
-    u_long nbr;
     u_long size = addSomeData(stream);
-
-    char buffer[20];
 
     CPPUNIT_ASSERT_EQUAL(size, (u_long)stream->availableToRead());
   } 
@@ -119,7 +116,7 @@ public:
   void testFlush()
   {
     u_long nbw;
-    u_long size = addSomeData(stream);
+    addSomeData(stream);
     int ret = stream->flush(&nbw);
     
     CPPUNIT_ASSERT(nbw >= 0);

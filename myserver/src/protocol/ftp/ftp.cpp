@@ -1796,7 +1796,7 @@ void Ftp::List(const std::string &sParam/*= ""*/)
 #ifdef NOT_WIN
       nlink_t nlink = 1;
       nlink = fd.getStatStruct()->st_nlink;
-      sprintf(nlinkStr, "%lu", nlink);
+      sprintf(nlinkStr, "%lu", (u_long) nlink);
 #endif
 
       char fdSizeStr[12];
@@ -1893,7 +1893,7 @@ void Ftp::List(const std::string &sParam/*= ""*/)
 #ifdef NOT_WIN
       nlink_t nlink = 1;
       nlink = fd.getStatStruct()->st_nlink;
-      sprintf(nlinkStr, "%lu", nlink);
+      sprintf(nlinkStr, "%lu", (u_long) nlink);
 #endif
 
       char fdSizeStr[12];
@@ -1996,7 +1996,7 @@ void Ftp::EscapeTelnet(MemBuf &In, MemBuf &Out)
   char *pIn = In.getBuffer();
   char szReply[3];
 
-    while ( pIn - In.getBuffer() < In.getLength() )
+  while ( (u_int) (pIn - In.getBuffer()) < In.getLength() )
     {
         if ( *pIn == '\377' )
         {

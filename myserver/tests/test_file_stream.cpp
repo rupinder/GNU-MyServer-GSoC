@@ -49,7 +49,7 @@ public:
     string message ("thisisaverylongmessage\n");
     string message2 ("thisisanothermessage\n");
     LogStream* ls = fsc->create (ff, "foo", filters, 10);
-    File* outStream = dynamic_cast<File*>(ls->getOutStream ());
+
     CPPUNIT_ASSERT (!ls->log (message));
     CPPUNIT_ASSERT (!ls->log (message2));
     ls->close ();

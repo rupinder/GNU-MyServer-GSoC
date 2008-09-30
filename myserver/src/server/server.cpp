@@ -289,7 +289,6 @@ Server::~Server()
 void Server::start(string &mainConf, string &mimeConf, string &vhostConf, string &externPath, string &langPath)
 {
   int err = 0;
-  int ret;
 #ifdef WIN32
   DWORD eventsCount, cNumRead;
   INPUT_RECORD irInBuf[128];
@@ -691,8 +690,6 @@ void Server::logWriteNTimes(const char *str, unsigned n)
  */
 void Server::displayBoot()
 {
-  u_long i;
-
 #ifdef CLEAR_BOOT_SCREEN
 
   if(logManager.getType() == LogManager::TYPE_CONSOLE )

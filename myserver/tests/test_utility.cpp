@@ -71,7 +71,7 @@ public:
   void testCWD()
   {
     char *buffer;
-    int bufferLen;
+    unsigned int bufferLen;
 
     setcwdBuffer();
 

@@ -23,8 +23,6 @@
 
 #include <string.h>
 
-char *versionOfSoftware = "MyServer";
-
 int main(int argc, char* argv[])
 {
   bool xml = argc > 1 && !strcmp(argv[1], "xml");

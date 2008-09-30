@@ -168,18 +168,18 @@ class LogStream
   
 
   /*!
-   * Will be zero after a successful call to the close method.
-   */
-  int isOpened;
-  
-
-  /*!
    * A zero value means `never cycle'. A non-zero value establishes
    * the maximum size allowed for the LogStream's growth before 
    * cycling it.
    */
   u_long cycleLog;
 
+
+  /*!
+   * Will be zero after a successful call to the close method.
+   */
+  int isOpened;
+  
 
   FiltersChain* filtersChain;
 

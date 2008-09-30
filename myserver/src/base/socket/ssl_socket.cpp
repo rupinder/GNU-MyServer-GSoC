@@ -273,15 +273,23 @@ int SslSocket::recv(char* buffer, int len, int flags)
 #ifndef DO_NOT_USE_SSL
   if(sslConnection)
   {
-    do
+    for (;;)
     {
-        err = SSL_read(sslConnection, buffer, len);
-    }while((err <= 0) &&
-           (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_X509_LOOKUP)
-           || (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ)
-            || (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_WRITE));
+      int sslError;
+      err = SSL_read(sslConnection, buffer, len);
 
-    if(err <= 0)
+      if (err > 0)
+        break;
+
+      sslError = SSL_get_error (sslConnection, err);
+      
+      if ((sslError != SSL_ERROR_WANT_X509_LOOKUP) &&
+          (sslError != SSL_ERROR_WANT_READ) &&
+          (sslError != SSL_ERROR_WANT_WRITE))
+        break;
+    }
+
+    if (err <= 0)
       return -1;
     else
       return err;

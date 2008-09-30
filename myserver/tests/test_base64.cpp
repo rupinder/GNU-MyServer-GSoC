@@ -59,7 +59,7 @@ public:
 
     CPPUNIT_ASSERT_EQUAL(strlen(input), strlen(decoded));
 
-    for (int i = 0; i < strlen(decoded); i++)
+    for (unsigned int i = 0; i < strlen(decoded); i++)
       CPPUNIT_ASSERT_EQUAL(input[i], decoded[i]);
 
   }

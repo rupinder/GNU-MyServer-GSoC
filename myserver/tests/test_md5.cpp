@@ -44,7 +44,6 @@ public:
 
   void testHash()
   {
-    const char* hex_chars = "0123456789abcdef";
     unsigned char out[33];
     const unsigned char* msg = (unsigned char* ) "hello world!\n";
 

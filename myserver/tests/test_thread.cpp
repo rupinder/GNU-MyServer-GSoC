@@ -40,8 +40,8 @@ void* test_thread(void* pParam)
 
   *arg *= *arg;
 
+  return NULL;
 }
-
 
 #ifdef WIN32
 #define ClientsThread_TYPE int
@@ -61,6 +61,8 @@ void* test_terminate_thread(void* pParam)
 
   //Should never be here.
   *arg = 1;
+
+  return NULL;
 }
 
 class TestThread : public CppUnit::TestFixture

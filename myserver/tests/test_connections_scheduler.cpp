@@ -88,6 +88,7 @@ public:
   virtual int visitConnection(ConnectionPtr conn, void* param)
   {
     arg = param;
+    return 0;
   }
 private:
   void *arg;
@@ -126,7 +127,6 @@ public:
 
     void* arg = this;
     u_long max = 3;
-    u_long sum = 0;
 
     for(u_long i = 0; i < max; i++)
     {

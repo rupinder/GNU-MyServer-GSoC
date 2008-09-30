@@ -67,6 +67,7 @@ public:
                                                         &header, 
                                                         &connection);
 
+    CPPUNIT_ASSERT_EQUAL(ret, 200);
     CPPUNIT_ASSERT(header.cmd.compare("GET") == 0);
     CPPUNIT_ASSERT(header.ver.compare("HTTP/1.1") == 0);
     CPPUNIT_ASSERT(header.uri.compare("/resource") == 0);

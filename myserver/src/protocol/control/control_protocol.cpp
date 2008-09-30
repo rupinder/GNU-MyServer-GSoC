@@ -750,9 +750,6 @@ int  ControlProtocol::showConnections(ConnectionPtr a,File* out, char *b1,
 int ControlProtocol::killConnection(ConnectionPtr a, u_long id, File* out, 
                                     char *b1, int bs1, ControlHeader& header)
 {
-  int ret = 0;
-  ConnectionPtr con;
-
   if(id == 0)
     return -1;
 

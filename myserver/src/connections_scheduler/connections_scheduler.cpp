@@ -88,21 +88,6 @@ create_socketpair(int af, int type, int protocol, socket_t socks[2])
   #endif
 }
 
-static int
-make_socket_nonblocking(socket_t fd)
-{
-  #ifdef WIN32
-  {
-    unsigned long nonblocking = 1;
-    ioctlsocket(fd, FIONBIO, (unsigned long*) &nonblocking);
-  }
-  #else
-  if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1) {
-    return -1;
-  }
-  #endif
-  return 0;
-}
 ///////////////////////////////////////////////////////////////////////////
 
 #ifdef WIN32
@@ -352,8 +337,6 @@ void ConnectionsScheduler::restart()
  */
 void ConnectionsScheduler::initialize()
 {
-  static timeval tv = {1, 0};
-
   event_init();
 
   dispatcherArg.terminated = true;
@@ -382,9 +365,6 @@ void ConnectionsScheduler::initialize()
     }
     return;
   }
-
-  //make_socket_nonblocking(dispatcherArg.fd[0]);
-  //make_socket_nonblocking(dispatcherArg.fd[1]);
 
   event_set(&(dispatcherArg.loopEvent), dispatcherArg.fd[0], EV_READ | EV_TIMEOUT,
          eventLoopHandler, &dispatcherArg);
@@ -550,8 +530,6 @@ ConnectionPtr ConnectionsScheduler::getConnection()
 
     if(ready[currentPriority].size())
     {
-      FileHandle handle;
-
       ret = ready[currentPriority].front();
       ret->setScheduled(0);
       ready[currentPriority].pop();
