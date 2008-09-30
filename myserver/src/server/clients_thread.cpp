@@ -389,6 +389,8 @@ int ClientsThread::controlConnections()
     retcode = DELETE_CONNECTION;
   };
 
+  c->setTimeout( getTicks() );
+
   /*! Delete the connection.  */
   if(retcode == DELETE_CONNECTION)
   {
@@ -418,8 +420,6 @@ int ClientsThread::controlConnections()
     c->setForceControl(1);
     server->getConnectionsScheduler()->addReadyConnection(c);
   }    
-
-  c->setTimeout( getTicks() );
 
   return 0;
 }
