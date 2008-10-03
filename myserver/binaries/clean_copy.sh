@@ -1,5 +1,6 @@
 #!/bin/sh
-#Create a *nix copy to be easily distribute
+#Create a clean binaries package.
+
 if [  $# = 0 ]; then
   echo "Usage: $0 dir_to_create [tar.bz2]"
   exit
@@ -58,20 +59,9 @@ cp web/downloads/*.php $1/web/downloads
 cp web/downloads/*.sh $1/web/downloads
 
 mkdir $1/web/documentation
-cp ../documentation/english/index.htm $1/web/documentation/
-
-mkdir $1/web/documentation/texts
-cp ../documentation/english/texts/*.htm $1/web/documentation/texts/
-
-mkdir $1/web/documentation/style
-cp ../documentation/english/style/*.css $1/web/documentation/style/
-
-mkdir $1/web/documentation/images
-cp ../documentation/english/images/*.png $1/web/documentation/images/
-cp ../documentation/english/images/*.jpg $1/web/documentation/images/
-
+cp ../documentation/myserver/*.html $1/web/documentation/
 
 if [  $# = 2 ]; then
-tar --create --bzip2 --file=$2.tar.bz2 $1
-rm -rf $1
+    tar --create --bzip2 --file=$2.tar.bz2 $1
+    rm -rf $1
 fi
