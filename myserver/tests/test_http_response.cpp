@@ -92,14 +92,14 @@ public:
                                          &nLinesptr,
                                          &ncharsptr);
 
-    CPPUNIT_ASSERT(ret == 0);
+    CPPUNIT_ASSERT_EQUAL(ret, 0);
 
 
     ret = HttpHeaders::validHTTPResponse(NULL,
                                          &nLinesptr,
                                          &ncharsptr);
 
-    CPPUNIT_ASSERT(ret == 0);
+    CPPUNIT_ASSERT_EQUAL(ret, 0);
   }
 
   void testReset()

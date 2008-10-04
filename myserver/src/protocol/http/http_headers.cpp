@@ -362,7 +362,7 @@ int HttpHeaders::validHTTPResponse(const char *res, u_long* nLinesptr, u_long* n
   /*
    *Count the number of lines in the header.
    */
-  for(i = 0;; i++)
+  for(i = 0; res[i]; i++)
   {
     if(res[i]=='\n')
     {
@@ -1242,7 +1242,7 @@ int HttpHeaders::validHTTPRequest(const char *req, u_long size,
   if(req == 0)
     return 400;
   
-  for(;(i < MYSERVER_KB(8)); i++)
+  for(;i < MYSERVER_KB(8); i++)
   {
     if(req[i] == '\n')
     {
