@@ -16,30 +16,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <include/conf/security/security_cache.h>
-#include <include/conf/security/security.h>
+#include <include/conf/security/security_manager.h>
+#include <include/conf/security/auth_domain.h>
 #include <include/base/file/file.h>
 #include <include/base/file/files_utility.h>
 
 #include <string>
 
 using namespace std;
-
+  
 /*!
  *Constructor for the SecurityCache object.
  */
-SecurityCache::SecurityCache()
+SecurityCache::SecurityCache ()
 {
   /*!
    *By default do not store more than 25 nodes.
    */
   limit = 25;
-
 }
 
 /*!
  *Destroy the security cache object.
  */
-SecurityCache::~SecurityCache()
+SecurityCache::~SecurityCache ()
 {
   free();
 }
@@ -47,11 +47,11 @@ SecurityCache::~SecurityCache()
 /*!
  *free the memory used by the SecurityCache object.
  */
-void SecurityCache::free()
+void SecurityCache::free ()
 {
   HashMap<string, XmlParser*>::Iterator it = dictionary.begin();
 
-  for (;it != dictionary.end(); it++)
+  for (;it != dictionary.end (); it++)
   {
     delete (*it);
   }
@@ -61,11 +61,15 @@ void SecurityCache::free()
 
 /*!
  *Set a new limit on the nodes to keep in memory.
+ *\param newLimit Number of files to cache.  it is adjusted 
+ *to be >= 1.
  */
-void SecurityCache::setMaxNodes(int newLimit)
+void SecurityCache::setMaxNodes (int newLimit)
 {
+  if (newLimit <= 0)
+    newLimit = 1;
+
   /*! Remove all the additional nodes from the dictionary. */
-  
   while(newLimit < dictionary.size())
   {
     XmlParser* toremove = dictionary.remove(dictionary.begin());
@@ -81,20 +85,25 @@ void SecurityCache::setMaxNodes(int newLimit)
  *\param dir The directory we need a security parser for.
  *\param sys The system directory.
  *\param out Output string where put the security file path. 
+ *\param secFileName The security file name.
  */
-int SecurityCache::getSecurityFile(const char* dir, const char* sys, 
-                                   string& out)
+int SecurityCache::getSecurityFile (const string& dir, 
+                                    const string& sys, 
+                                    string& out,
+                                    const char* secFileName)
 {
   int found = 0;
-  string file(dir);
   string secFile;
+  string file(dir);
+
   int i = file.length() - 1;
 
-  while(i && file[i] == '/')
+  while(i && dir[i] == '/')
     file.erase(i--, 1);
 
-  secFile.assign(file);
-  secFile.append("/security");
+  secFile.assign(dir);
+  secFile.append("/");
+  secFile.append(secFileName);
 
   /* The security file exists in the directory.  */
   if(FilesUtility::fileExists(secFile))
@@ -103,18 +112,11 @@ int SecurityCache::getSecurityFile(const char* dir, const char* sys,
     return 0;
   }
 
-  if(file.length() == 0)
-  {
-    out.assign(sys);
-    out.append("/security");
-    return !FilesUtility::fileExists(out);
-  }
-
-  
+ 
   /* Go upper in the tree till we find a security file.  */
-  do
+  for(;;)
   {
-    if(!file.length())
+    if(found || !file.length())
       break;
 
     for(i = file.length() - 1; i; i--)
@@ -124,22 +126,24 @@ int SecurityCache::getSecurityFile(const char* dir, const char* sys,
         break;
       }
 
-
     /* 
      *Top of the tree, check if the security file is present in the 
-     *system directory, returns an error if it is not.
+     *system directory.  Return an error if it is not.
      */
     if(i == 0)
     {
       out.assign(sys);
-      out.append("/security");
+      out.append("/");
+      out.append(secFileName);
       return !FilesUtility::fileExists(out);
     }
-    secFile.assign(file);
-    secFile.append("/security");
 
+    secFile.assign(file);
+    secFile.append("/");
+    secFile.append(secFileName);
+
+    found = FilesUtility::fileExists(secFile);
   }
-  while(!(found = FilesUtility::fileExists(secFile)));
 
   out.assign(secFile);
   return 0;
@@ -159,33 +163,36 @@ int SecurityCache::getMaxNodes()
  *\param dir The path where start looking.
  *\param sys The system directory.
  *\param useXpath Specify if XPath will be used on the file.
+ *\param secFileName The security file name.
  */
-XmlParser* SecurityCache::getParser(const char* dir, const char* sys, bool useXpath)
+XmlParser* SecurityCache::getParser (const string &dir, 
+                                     const string &sys, 
+                                     bool useXpath,
+                                     const char* secFileName)
 {
   XmlParser* parser;
   string file;
 
-  if(getSecurityFile(dir, sys, file))
+  if (getSecurityFile (dir, sys, file, secFileName))
     return NULL;
 
-  parser = dictionary.get(file);
-
+  parser = dictionary.get (file);
 
   /*!
    *If the parser is already present and satisfy XPath then use it.
    */
-  if(parser && (!useXpath || parser->isXpathEnabled()))
+  if (parser && (!useXpath || parser->isXpathEnabled ()))
   {
     time_t fileModTime;
     /*! If the file was modified reload it. */
-    fileModTime = FilesUtility::getLastModTime(file.c_str());
-    if((fileModTime != static_cast<time_t>(-1))  && 
-       (parser->getLastModTime() != fileModTime))
+    fileModTime = FilesUtility::getLastModTime (file.c_str ());
+    if ((fileModTime != static_cast<time_t>(-1))  && 
+       (parser->getLastModTime () != fileModTime))
     {
-      parser->close();
-      if(parser->open(file.c_str(), useXpath) == -1)
+      parser->close ();
+      if(parser->open (file.c_str (), useXpath) == -1)
       {
-        dictionary.remove(file.c_str());
+        dictionary.remove (file.c_str ());
         return NULL;
       }
 
@@ -193,77 +200,31 @@ XmlParser* SecurityCache::getParser(const char* dir, const char* sys, bool useXp
   }
   else
   {
-    /*! 
-     *Create the parser and append at the dictionary.
+    /*!
+     *Create the parser and add it to the dictionary.
      */
     XmlParser* old;
-    parser = new XmlParser();
-    if(parser == NULL)
+    parser = new XmlParser ();
+
+    if (parser == NULL)
     {  
       return NULL;
     }
 
-    if(dictionary.size() >= limit)
+    if (dictionary.size () >= limit)
     {
-      XmlParser* toremove = dictionary.remove(dictionary.begin());
-      if(toremove)
+      XmlParser* toremove = dictionary.remove (dictionary.begin ());
+      if (toremove)
         delete toremove;
     }
 
-    if(parser->open(file.c_str(), useXpath) == -1)
+    if (parser->open (file.c_str (), useXpath) == -1)
       return NULL;
 
-    old = dictionary.put(file, parser);
-    if(old)
-    {
+    old = dictionary.put (file, parser);
+    if (old)
       delete old;
-    }
   }
 
   return parser;
-}
-
-
-/*!
- *Get the permission mask for the specified file and user. If the security file to use
- *is not loaded it will be loaded and added to the cache dictionary for faster future 
- *accesses.
- */
-int SecurityCache::getPermissionMask(SecurityToken* st)
-{
-  XmlParser *parser;
-
-  if(st->directory == 0)
-    return -1;
-
-  if(st->filename == 0)
-    return -1;
-
-  parser = getParser(st->directory, st->sysdirectory);
-
-  if(parser == NULL)
-    return -1;
-
-  return sm.getPermissionMask(st, parser);
-}
-
-/*!
- *Get the error file name from the security file.
- */
-int SecurityCache::getErrorFileName(const char *directory, int error, 
-                                    const char* sysdirectory, string& out)
-{
-  XmlParser *parser;
-
-  out.assign("");
-
-  if(directory == 0)
-    return -1;
-
-  parser = getParser(directory, sysdirectory);
-
-  if(parser == NULL)
-    return -1;
- 
-  return sm.getErrorFileName(directory, error, out, parser);
 }

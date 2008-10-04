@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<SECURITY>
+
+  <USER name="Guest" password="" READ="YES" EXECUTE="YES" BROWSE="YES" WRITE="NO"/>
+
+</SECURITY>

@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <include/base/mem_buff/mem_buff.h>
 #include <include/base/xml/xml_parser.h>
 #include <include/protocol/ftp/ftp_common.h>
-#include <include/conf/security/security_cache.h>
 
 #include <include/protocol/ftp/ftp_parser.h>
 #include <include/protocol/ftp/ftp_lexer.h>
@@ -138,9 +137,6 @@ protected:
 	bool GetLocalPath(const std::string &sPath, std::string &sOutPath);
 	void RetrStor(bool bRetr, bool bAppend, const std::string &sPath);
 	void RemovePipelinedCmds(MemBuf &In, MemBuf &Out);
-
-	static Mutex secCacheMutex;
-	static SecurityCache secCache;
 
 public:
 	void EscapeTelnet(MemBuf &In, MemBuf &Out);

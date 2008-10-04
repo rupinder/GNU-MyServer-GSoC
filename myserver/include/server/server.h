@@ -46,6 +46,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/multicast/multicast.h>
 #include <include/connections_scheduler/connections_scheduler.h>
 
+
+#include <include/conf/security/security_manager.h>
+#include <include/conf/security/auth_method_factory.h>
+#include <include/conf/security/validator_factory.h>
+
 #include <string>
 #include <list>
 using namespace std;
@@ -155,6 +160,7 @@ public:
   void increaseFreeThread();
   void decreaseFreeThread();
 
+  SecurityManager* getSecurityManager (){return &securityManager;}
 
 private:
   friend class ClientsThread;
@@ -253,6 +259,10 @@ private:
   ConnectionsScheduler connectionsScheduler;
   ListenThreads listenThreads;
   bool endServer;
+
+  AuthMethodFactory authMethodFactory;
+  ValidatorFactory validatorFactory;
+  SecurityManager securityManager;
 };
 
 #endif

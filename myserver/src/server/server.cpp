@@ -74,8 +74,11 @@ const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
  */
 Server* Server::instance = 0;
 
-Server::Server() : connectionsScheduler(this),
-                   listenThreads(&connectionsScheduler, this)
+Server::Server() : connectionsScheduler (this),
+                   listenThreads (&connectionsScheduler, this),
+                   authMethodFactory (),
+                   validatorFactory (),
+                   securityManager (&validatorFactory, &authMethodFactory)
 {
   toReboot = false;
   autoRebootEnabled = true;
@@ -495,6 +498,13 @@ int Server::postLoad()
  */
 void Server::loadPlugins()
 {
+  string xml("xml"); 
+  //FIXME: xmlV is never freed.
+  XmlValidator *xmlV = new XmlValidator ();
+    
+  validatorFactory.addValidator (xml, xmlV);
+  authMethodFactory.addAuthMethod (xml, (AuthMethod*) xmlV);
+
   if(filtersFactory.insert("gzip", Gzip::factory))
   {
     ostringstream stream;

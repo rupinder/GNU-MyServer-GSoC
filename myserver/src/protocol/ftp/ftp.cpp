@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <include/base/find_data/find_data.h>
 #include <include/base/string/stringutils.h>
 #include <include/base/mem_buff/mem_buff.h>
+#include <include/conf/security/auth_domain.h>
 #include <assert.h>
 
 #ifndef WIN32
@@ -94,14 +95,6 @@ std::string GetHost(const FtpHost &host)
   s << host.h1 << ',' << host.h2 << ',' << host.h3 << ',' << host.h4 << ',' << host.p1 << ',' << host.p2;
   return s.str().c_str();
 }
-
-//////////////////////////////////////////////////////////////////////////////
-// Used at Ftp access control
-/*! Cache for security files. */
-SecurityCache Ftp::secCache;
-
-/*! Access the security cache safely. */
-Mutex Ftp::secCacheMutex;
 
 //////////////////////////////////////////////////////////////////////////////
 // FtpUserData class
@@ -2389,34 +2382,34 @@ int Ftp::CheckRights(const std::string &sUser, const std::string &sPass, const s
   FilesUtility::splitPath(sPath, sDir, sFileName);
 
   SecurityToken st;
+  string user;
+  string password;
   if ( strcmpi(sUser.c_str(), "anonymous") == 0 )
   {
-    st.user = "Guest";
-    st.password = "";
+    user.assign ("Guest");
+    password.assign("");
   }
   else
   {
-    st.user = sUser.c_str();
-    st.password = sPass.c_str();
+    user.assign (sUser);
+    password.assign (sPass);
   }
-  st.directory = sDir.c_str();
-  st.sysdirectory = td.pConnection->host->getSystemRoot().c_str();//pFtpUserData->m_pDataConnection->host->getSystemRoot().c_str();
-  st.authType = 0;
-  st.filename = sFileName.c_str();
-  //st.providedMask = &mask;
-  int perm = 0;
-  secCacheMutex.lock();
-  try
-  {
-    perm = secCache.getPermissionMask (&st);
-            secCacheMutex.unlock();
-  }
-  catch ( ... )
-  {
-    secCacheMutex.unlock();
-    throw;
-  }
-  return (perm & mask);
+
+  st.setUser (user);
+  st.setPassword (password);
+
+
+  st.setDirectory (&sDir);
+  st.setSysDirectory ((string *)&(td.pConnection->host->getSystemRoot ()));
+  st.setResource (&sFileName);
+
+  AuthDomain auth (&st);
+  string xml ("xml");//FIXME: don't hardly-code "xml".
+  SecurityDomain* domains[] = {&auth, NULL};
+
+  Server::getInstance()->getSecurityManager ()->getPermissionMask (&st, domains, xml, xml);
+
+  return (st.getMask () & mask);
 }
 
 void Ftp::Size(const std::string &sPath)

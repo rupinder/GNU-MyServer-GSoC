@@ -18,8 +18,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <include/protocol/http/http.h>
 #include <include/protocol/http/http_headers.h>
+#include <include/protocol/http/http_req_security_domain.h>
 #include <include/server/server.h>
 #include <include/conf/security/security.h>
+#include <include/conf/security/auth_domain.h>
 #include <include/base/base64/mime_utils.h>
 #include <include/base/file/file.h>
 #include <include/base/file/files_utility.h>
@@ -348,16 +350,21 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
 int Http::getFilePermissions(string& filename, string& directory, string& file, 
                              string &filenamePath, int yetmapped, int* permissions)
 {
-  SecurityToken st;
-  char authType[16];
   int providedMask;
+
+  securityToken.setServer (Server::getInstance ());
+  securityToken.setSysDirectory ((string*)&(td->connection->host->getSystemRoot ()));
+
+  securityToken.setVhost (td->connection->host);
 
   try
   {
-    st.authType = authType;
-    st.authTypeLen = 16;
-    st.td = td;
-    FilesUtility::splitPath(filename, directory, file);
+    FilesUtility::splitPath (filename, directory, file);
+    FilesUtility::completePath (directory);
+
+    securityToken.setResource (&filenamePath);
+    securityToken.setDirectory (&directory);
+
     /*!
      *td->filenamePath is the file system mapped path while filename
      *is the uri requested.
@@ -414,71 +421,53 @@ int Http::getFilePermissions(string& filename, string& directory, string& file,
       ((HttpUserData*)(td->connection->protocolBuffer))->reset();
     }
 
+    string user;
+    string password;
+
     if(td->request.auth.length())
     {
-      st.user = td->connection->getLogin();
-      st.password = td->connection->getPassword();
-      st.directory = directory.c_str();
-      st.sysdirectory = td->getVhostSys();
-      st.filename = file.c_str();
-      st.requiredPassword =
-        ((HttpUserData*)td->connection->protocolBuffer)->requiredPassword;
-      st.providedMask = &providedMask;
-      staticHttp.secCacheMutex.lock();
-      try
-      {
-        *permissions = staticHttp.secCache.getPermissionMask(&st);
-        staticHttp.secCacheMutex.unlock();
-      }
-      catch(...)
-      {
-        staticHttp.secCacheMutex.unlock();
-        throw;
-      };
+      user.assign (td->connection->getLogin());
+      password.assign (td->connection->getPassword ());
     }
-    else/*! The default user is Guest with a null password. */
+    else
     {
-      st.user = "Guest";
-      st.password = "";
-      st.directory = directory.c_str();
-      st.sysdirectory = td->getVhostSys();
-      st.filename = file.c_str();
-      st.requiredPassword = 0;
-      st.providedMask = 0;
-      staticHttp.secCacheMutex.lock();
-      try
-      {
-        *permissions = staticHttp.secCache.getPermissionMask(&st);
-        staticHttp.secCacheMutex.unlock();
-      }
-      catch(...)
-      {
-        staticHttp.secCacheMutex.unlock();
-        throw;
-      };
+      /* The default user is Guest with a null password. */
+      user.assign ("Guest");
+      password.assign ("");
     }
-    if(*permissions == -1)
-    {
-      td->connection->host->warningsLogRequestAccess(td->id);
-      td->connection->host->warningsLogWrite(
-                                     "Http: Error reading security file");
-      td->connection->host->warningsLogTerminateAccess(td->id);
-      return 500;
-    }
+
+    securityToken.setUser (user);
+    securityToken.setPassword (password);
+
+    AuthDomain auth (&securityToken);
+    HttpReqSecurityDomain httpReqSecDom (&(td->request));
+
+    string xml ("xml");//FIXME: don't hardly-code "xml".
+    SecurityDomain* domains[] = {&auth, &httpReqSecDom, NULL};
+
+    Server::getInstance()->getSecurityManager ()->getPermissionMask (&securityToken, domains, xml, xml);
+
+    const char *authType = securityToken.getHashedData ("http.auth", MYSERVER_SECURITY_CONF |
+                                                        MYSERVER_VHOST_CONF |
+                                                        MYSERVER_SERVER_CONF);
+    *permissions = securityToken.getMask ();
+
     /*! Check if we have to use digest for the current directory. */
-    if(!strcmpi(authType, "Digest"))
+    if(authType && !strcmpi(authType, "Digest"))
     {
+      HttpUserData* hud = (HttpUserData*)td->connection->protocolBuffer;
+
       if(!td->request.auth.compare("Digest"))
       {
-        if(!((HttpUserData*)td->connection->protocolBuffer)->digestChecked)
-          ((HttpUserData*)td->connection->protocolBuffer)->digest =
-            checkDigest();
-        ((HttpUserData*)td->connection->protocolBuffer)->digestChecked = 1;
-        if(((HttpUserData*)td->connection->protocolBuffer)->digest == 1)
+        if(!hud->digestChecked)
+          hud->digest = checkDigest();
+
+        hud->digestChecked = 1;
+
+        if(hud->digest == 1)
         {
-          td->connection->setPassword(
-               ((HttpUserData*)td->connection->protocolBuffer)->requiredPassword);
-          *permissions = providedMask;
+          td->connection->setPassword (securityToken.getNeededPassword ().c_str ());
+          *permissions = securityToken.getProvidedMask ();
         }
       }
       td->authScheme = HTTP_AUTH_SCHEME_DIGEST;
@@ -488,46 +477,19 @@ int Http::getFilePermissions(string& filename, string& directory, string& file,
     {
       td->authScheme = HTTP_AUTH_SCHEME_BASIC;
     }
-    /*! If there are no permissions, use the Guest permissions. */
-    if(td->request.auth.length() && (*permissions==0))
-    {
-      st.user = "Guest";
-      st.password = "";
-      st.directory = directory.c_str();
-      st.sysdirectory = td->getVhostSys();
-      st.filename = file.c_str();
-      st.requiredPassword = 0;
-      st.providedMask = 0;
-      staticHttp.secCacheMutex.lock();
-      try
-      {
-        *permissions = staticHttp.secCache.getPermissionMask(&st);
-        staticHttp.secCacheMutex.unlock();
-      }
-      catch(...)
-      {
-        staticHttp.secCacheMutex.unlock();
-        throw;
-      };
-    }
-    if(*permissions == -1)
-    {
-      td->connection->host->warningsLogRequestAccess(td->id);
-      td->connection->host->warningsLogWrite(
-                             "Http: Error reading security file");
-      td->connection->host->warningsLogTerminateAccess(td->id);
-      return 500;
-    }
   }
   catch(...)
   {
     return 500;
   }
 
+  const char *tr = securityToken.getHashedData ("connection.throttling", MYSERVER_SECURITY_CONF |
+                                                MYSERVER_VHOST_CONF |
+                                                MYSERVER_SERVER_CONF);
 
   /*! If a throttling rate was specifed use it.  */
-  if(st.throttlingRate != -1)
-    td->connection->socket->setThrottling(st.throttlingRate);
+  if(tr)
+    td->connection->socket->setThrottling( atoi (tr));
 
   return 200;
 }
@@ -543,12 +505,82 @@ int Http::preprocessHttpRequest(string& filename, int yetmapped, int* permission
 {
   string directory;
   string file;
+  int filenamePathLen;
+  string dirscan;
+
   try
   {
     if(td->request.isKeepAlive())
     {
       td->response.connection.assign( "keep-alive");
     }
+
+    /*!
+     *Get the PATH_INFO value.
+     *Use dirscan as a buffer for put temporary directory scan.
+     *When an '/' character is present check if the path up to '/' character
+     *is a file. If it is a file send the rest of the uri as PATH_INFO.
+     */
+    td->pathInfo.assign("");
+    td->pathTranslated.assign("");
+    filenamePathLen = (int)td->filenamePath.length();
+    dirscan.assign("");
+
+    for(int i = 0, len = 0; i < filenamePathLen ; i++)
+    {
+      /*!
+       *http://host/pathtofile/filetosend.php/PATH_INFO_VALUE?QUERY_INFO_VALUE
+       *When a request has this form send the file filetosend.php with the
+       *environment string PATH_INFO equals to PATH_INFO_VALUE and QUERY_INFO
+       *to QUERY_INFO_VALUE.
+       *
+       *If there is the '/' character check if dirscan is a file.
+       */
+      if(i && (td->filenamePath[i] == '/'))
+      {
+        /*!
+         *If the token is a file.
+         */
+        if(!FilesUtility::isDirectory(dirscan.c_str()))
+        {
+          td->pathInfo.assign((char*) & (td->filenamePath[i]));
+          td->filenamePath.assign(dirscan);
+          break;
+        }
+      }
+
+      if(len + 1 < filenamePathLen)
+      {
+        char db[2];
+        db[0] = (td->filenamePath)[i];
+        db[1] = '\0';
+        dirscan.append(db);
+      }
+    }
+
+    /*!
+     *If there is a PATH_INFO value the get the PATH_TRANSLATED too.
+     *PATH_TRANSLATED is the local filesystem mapped version of PATH_INFO.
+     */
+    if(td->pathInfo.length() > 1)
+    {
+      int ret;
+      /*!
+       *Start from the second character because the first is a
+       *slash character.
+       */
+      ret = getPath(td->pathTranslated, &((td->pathInfo.c_str())[1]), 0);
+
+      if(ret != 200)
+        td->pathTranslated.assign("");
+      else
+        FilesUtility::completePath(td->pathTranslated);
+    }
+    else
+    {
+      td->pathTranslated.assign("");
+    }
+    FilesUtility::completePath(td->filenamePath);
 
     return getFilePermissions(filename, directory, file, 
                              td->filenamePath, yetmapped, permissions);
@@ -632,7 +664,7 @@ u_long Http::checkDigest()
   md5.init();
   td->buffer2->setLength(0);
   *td->buffer2 << td->request.digestUsername << ":" << td->request.digestRealm
-      << ":" << ((HttpUserData*)td->connection->protocolBuffer)->requiredPassword;
+               << ":" << securityToken.getNeededPassword();
 
   md5.update((unsigned char const*)td->buffer2->getBuffer(),
              (unsigned int)td->buffer2->getLength());
@@ -692,7 +724,6 @@ void HttpUserData::reset()
   nonce[0] = '\0';
   cnonce[0] = '\0';
   digestChecked = 0;
-  requiredPassword[0] = '\0';
   nc = 0;
   digest = 0;
 }
@@ -709,8 +740,6 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
    */
   string filename;
   int permissions;
-  string dirscan;
-  int filenamePathLen;
   string data;
   int mimecmd;
   time_t lastMT;
@@ -742,76 +771,6 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       if(ret != 200)
         return raiseHTTPError(ret);
     }
-
-    /* The security file doesn't exist in any case.  */
-    if(!strcmpi(file.c_str(), "security"))
-      return raiseHTTPError(404);
-
-    /*!
-     *Get the PATH_INFO value.
-     *Use dirscan as a buffer for put temporary directory scan.
-     *When an '/' character is present check if the path up to '/' character
-     *is a file. If it is a file send the rest of the uri as PATH_INFO.
-     */
-    td->pathInfo.assign("");
-    td->pathTranslated.assign("");
-    filenamePathLen = (int)td->filenamePath.length();
-    dirscan.assign("");
-    for(int i = 0, len = 0; i < filenamePathLen ; i++)
-    {
-      /*!
-       *http://host/pathtofile/filetosend.php/PATH_INFO_VALUE?QUERY_INFO_VALUE
-       *When a request has this form send the file filetosend.php with the
-       *environment string PATH_INFO equals to PATH_INFO_VALUE and QUERY_INFO
-       *to QUERY_INFO_VALUE.
-       *
-       *If there is the '/' character check if dirscan is a file.
-       */
-      if(i && (td->filenamePath[i] == '/'))
-      {
-        /*!
-         *If the token is a file.
-         */
-        if(!FilesUtility::isDirectory(dirscan.c_str()))
-        {
-          td->pathInfo.assign((char*) & (td->filenamePath[i]));
-          td->filenamePath.assign(dirscan);
-          break;
-        }
-      }
-
-      if(len + 1 < filenamePathLen)
-      {
-        char db[2];
-        db[0] = (td->filenamePath)[i];
-        db[1] = '\0';
-        dirscan.append(db);
-      }
-    }
-
-    /*!
-     *If there is a PATH_INFO value the get the PATH_TRANSLATED too.
-     *PATH_TRANSLATED is the local filesystem mapped version of PATH_INFO.
-     */
-    if(td->pathInfo.length() > 1)
-    {
-      int ret;
-      /*!
-       *Start from the second character because the first is a
-       *slash character.
-       */
-      ret = getPath(td->pathTranslated, &((td->pathInfo.c_str())[1]), 0);
-
-      if(ret != 200)
-        td->pathTranslated.assign("");
-      else
-        FilesUtility::completePath(td->pathTranslated);
-    }
-    else
-    {
-      td->pathTranslated.assign("");
-    }
-    FilesUtility::completePath(td->filenamePath);
 
     /*!
      *If there are not any extension then we do one of this in order:
@@ -1967,7 +1926,6 @@ int Http::raiseHTTPError(int ID)
 {
   try
   {
-    string defFile;
     int ret = 0;
     string time;
     ostringstream errorFile;
@@ -2005,23 +1963,16 @@ int Http::raiseHTTPError(int ID)
     }
 
     td->response.httpStatus = ID;
-    staticHttp.secCacheMutex.lock();
 
-    /*!
-     *The specified error file name must be in the web directory
-     *of the virtual host.
-     */
-    if(td->connection->host)
-      ret = staticHttp.secCache.getErrorFileName(td->getVhostDir(), 
-                                                 ID,
-                                                 td->getVhostSys(), 
-                                                 defFile);
-    else
-      ret = -1;
 
-    staticHttp.secCacheMutex.unlock();
+    char errorName [32];
+    sprintf (errorName, "http.error.file.%i", ID);
 
-    if(ret > 0)
+    const char *defErrorFile = securityToken.getHashedData (errorName, MYSERVER_SECURITY_CONF |
+                                                            MYSERVER_VHOST_CONF |
+                                                            MYSERVER_SERVER_CONF);
+
+    if (defErrorFile)
     {
       ostringstream nURL;
       int isPortSpecified = 0;
@@ -2044,7 +1995,7 @@ int Http::raiseHTTPError(int ID)
       if(nURL.str()[nURL.str().length()-1] != '/')
         nURL << "/";
 
-      nURL << defFile;
+      nURL << defErrorFile;
 
       if(td->pathInfo.length())
         nURL << "/" << td->pathInfo;
@@ -2365,8 +2316,6 @@ int Http::loadProtocolStatic(XmlParser* languageParser)
   string pluginsResource(Server::getInstance()->getExternalPath());
   xmlDocPtr xmlDoc = configurationFileManager->getDoc();
 
-  staticHttp.secCacheMutex.init();
-
   /*
    *Store defaults value.
    *By default use GZIP with files bigger than a MB.
@@ -2485,10 +2434,6 @@ int Http::unLoadProtocolStatic(XmlParser* languageParser)
   HttpFile::unLoad();
 
   HttpDir::unLoad();
-
-  staticHttp.secCache.free();
-
-  staticHttp.secCacheMutex.destroy();
 
   staticHttp.defaultFilename.clear();
   staticHttp.browseDirCSSpath.assign("");

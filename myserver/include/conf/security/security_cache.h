@@ -18,7 +18,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SECURITY_CACHE_H
 #define SECURITY_CACHE_H
 #include <include/base/hash_map/hash_map.h>
-#include <include/conf/security/security.h>
+#include <include/conf/security/security_manager.h>
+
+#include <include/conf/security/auth_method_factory.h>
+#include <include/conf/security/auth_method.h>
+#include <include/conf/security/validator_factory.h>
+#include <include/conf/security/validator.h>
+#include <include/conf/security/xml_validator.h>
 
 #include <string>
 
@@ -26,21 +32,24 @@ using namespace std;
 
 class SecurityCache
 {
+
 public:
-  SecurityCache();
-  ~SecurityCache();
-  void free();
-  void setMaxNodes(int);
-  int getMaxNodes();
-  XmlParser* getParser(const char* dir, const char* sys, bool useXpath = true);
-	int getSecurityFile(const char* file, const char* sys, string& out);
-  int getPermissionMask(SecurityToken* st);
-  int getErrorFileName(const char *root, int error, 
-                       const char* sysdirectory, string& out);
+  SecurityCache ();
+  ~SecurityCache ();
+  void free ();
+  void setMaxNodes (int);
+  int getMaxNodes ();
+
+  XmlParser* getParser (const string &dir, const string &sys, bool useXpath = true, const char* secName = ".security.xml");
+	int getSecurityFile (const string &file, const string &sys, string &out, const char* secName = ".security.xml");
+
+  /////////OLD NASTY AND DISGUSTING.  TEMPORARY SOLUTION TO DON'T BREAK APIs////////////////////////////////////
+  int getPermissionMask (SecurityToken* st){return 0;}
+  int getErrorFileName (const char *root, int error, 
+                       const char* sysdirectory, string& out){return 0;}
 private:
-  /*! Object used to handle security on the server. */
-  SecurityManager sm;
-  /*! Store a list of opened files using a hash dictionary. */
+
+  /*! Store a list of opened files using a hash dictionary.  */
   HashMap<string, XmlParser*> dictionary;
   int limit;
 };

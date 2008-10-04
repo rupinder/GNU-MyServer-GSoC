@@ -398,9 +398,6 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
   {
     if(fd.name[0] == '.')
       continue;
-    /* Do not show the security file.  */
-    if(!strcmp(fd.name, "security"))
-      continue;
 
     FileStruct file;
     file.name.assign(fd.name);
@@ -408,7 +405,6 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
     file.attrib = fd.attrib;
     file.size = fd.size;
     files.push_back(file);
-
   }
   while(!fd.findnext());
 

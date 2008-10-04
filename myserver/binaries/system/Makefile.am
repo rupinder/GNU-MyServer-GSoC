@@ -1,6 +1,5 @@
 SUBDIRS = errors icons css
 myserverdatadir = $(datadir)/myserver/system
- 
 
-dist_myserverdata_DATA = security
+dist_myserverdata_DATA = .security.xml
 

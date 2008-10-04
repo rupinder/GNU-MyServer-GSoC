@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<SECURITY>
-
-
-<USER NAME="Guest" PASS="" READ="TRUE" EXECUTE="TRUE"  WRITE="FALSE" BROWSE="TRUE"/>
-
-</SECURITY>
-

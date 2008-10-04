@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/http/http_thread_context.h>
 #include <include/protocol/protocol.h>
 #include <include/protocol/http/http_headers.h>
+#include <include/conf/security/security_token.h>
 #include <include/conf/security/security_cache.h>
 #include <include/base/xml/xml_parser.h>
 #include <include/base/thread/thread.h>
@@ -54,10 +55,6 @@ public:
     clearMulticastRegistry();
   }
 
-
-  Mutex secCacheMutex;
-  SecurityCache secCache;
-
   DynHttpCommandManager dynCmdManager;
   DynHttpManagerList dynManagerList;
 
@@ -76,18 +73,22 @@ class HttpUserData : public ProtocolBuffer
 public:
   /*! Realm string used by Digest authorization scheme.  */
   char realm[48];
+
   /*! Opaque string used by Digest authorization scheme.  */
   char opaque[48];
+
   /*! Nonce string used by Digest authorization scheme.  */
   char nonce[48];
+
   /*! Cnonce string used by Digest authorization scheme.  */
   char cnonce[48];
-  /*! Password string used by Digest authorization scheme.  */
-  char requiredPassword[32];
+
   /*! Nonce count used by Digest authorization scheme.  */
   u_long nc;
+
   /*! Nonzero if the user was authenticated trough the Digest scheme.  */
   int digest;
+
   /*! Nonzero if the digest was already checked.  */
   int digestChecked;
   HttpUserData();
@@ -187,7 +188,10 @@ public:
 
   static HttpStaticData* getStaticData();
 
+  SecurityToken *getSecurityToken (){return &securityToken;}
+
 protected:
+  SecurityToken securityToken;
   HttpDataHandler* mscgi;
   HttpDataHandler* wincgi;
   HttpDataHandler* isapi;
