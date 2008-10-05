@@ -160,7 +160,10 @@ public:
   void increaseFreeThread();
   void decreaseFreeThread();
 
-  SecurityManager* getSecurityManager (){return &securityManager;}
+  SecurityManager *getSecurityManager (){return &securityManager;}
+  AuthMethodFactory *getAuthMethodFactory () {return &authMethodFactory;}
+  ValidatorFactory *getValidatorFactory (){return &validatorFactory;}
+
 
 private:
   friend class ClientsThread;
