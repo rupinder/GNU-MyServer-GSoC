@@ -583,22 +583,23 @@ void Vhost::setRef(int n)
 }
 
 /*! 
- *Get the value for name in the hash dictionary. If the data is not present
- *it tries to get it from the Server class.
- *\param name The key of the hashed entry.
+ *Get the value for name in the hash dictionary.
+ *\param name The hashed entry key.
  */
 const char* Vhost::getHashedData(const char* name)
 {
   
   string *s;
-  if(name == 0)
-    return 0;
+
+  if(!name)
+    return NULL;
+
   s = hashedData.get(name);
+
   if(s)
     return s->c_str();
 
-  return Server::getInstance() ? Server::getInstance()->getHashedData(name) 
-    : 0 ;
+  return NULL;
 }
   
 /*!

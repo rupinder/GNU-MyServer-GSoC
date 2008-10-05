@@ -47,7 +47,7 @@ public:
   SecurityToken();
   void reset();
 
-  const char* getHashedData (const char* name, int domains);
+  const char* getHashedData (const char* name, int domains, const char *def = NULL);
 
   string& getUser ()
   {

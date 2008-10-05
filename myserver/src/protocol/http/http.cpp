@@ -442,10 +442,16 @@ int Http::getFilePermissions(string& filename, string& directory, string& file,
     AuthDomain auth (&securityToken);
     HttpReqSecurityDomain httpReqSecDom (&(td->request));
 
-    string xml ("xml");//FIXME: don't hardly-code "xml".
+    string validator (securityToken.getHashedData ("sec.validator", MYSERVER_VHOST_CONF |
+                                                   MYSERVER_SERVER_CONF, "xml"));
+    string authMethod (securityToken.getHashedData ("sec.auth_method", MYSERVER_VHOST_CONF |
+                                                    MYSERVER_SERVER_CONF, "xml"));
+
+
     SecurityDomain* domains[] = {&auth, &httpReqSecDom, NULL};
 
-    Server::getInstance()->getSecurityManager ()->getPermissionMask (&securityToken, domains, xml, xml);
+    Server::getInstance()->getSecurityManager ()->getPermissionMask (&securityToken, domains, 
+                                                                     validator, authMethod);
 
     const char *authType = securityToken.getHashedData ("http.auth", MYSERVER_SECURITY_CONF |
                                                         MYSERVER_VHOST_CONF |

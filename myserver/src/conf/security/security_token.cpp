@@ -53,12 +53,14 @@ void SecurityToken::reset ()
 /*!
  *Get the value for the variable using the specified domains.
  *\param name Variable name.
+ *\param def Default value.
  *\param domains Domains where to look.  They are looked in this order: 
  *\li Security configuration file.
  *\li Virtual host configuration file.
  *\li Global security file.
+ *\li Default value.
  */
-const char* SecurityToken::getHashedData (const char* name, int domains)
+const char* SecurityToken::getHashedData (const char* name, int domains, const char *def)
 {
   if (domains & MYSERVER_SECURITY_CONF)
   {
@@ -87,5 +89,5 @@ const char* SecurityToken::getHashedData (const char* name, int domains)
   }
 
   
-  return NULL;
+  return def;
 }

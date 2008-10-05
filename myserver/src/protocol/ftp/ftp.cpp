@@ -2404,10 +2404,15 @@ int Ftp::CheckRights(const std::string &sUser, const std::string &sPass, const s
   st.setResource (&sFileName);
 
   AuthDomain auth (&st);
-  string xml ("xml");//FIXME: don't hardly-code "xml".
+  string validator (st.getHashedData ("sec.validator", MYSERVER_VHOST_CONF |
+                                      MYSERVER_SERVER_CONF, "xml"));
+  string authMethod (st.getHashedData ("sec.auth_method", MYSERVER_VHOST_CONF |
+                                       MYSERVER_SERVER_CONF, "xml"));
+
   SecurityDomain* domains[] = {&auth, NULL};
 
-  Server::getInstance()->getSecurityManager ()->getPermissionMask (&st, domains, xml, xml);
+  Server::getInstance()->getSecurityManager ()->getPermissionMask (&st, domains,
+                                                                   validator, authMethod);
 
   return (st.getMask () & mask);
 }
