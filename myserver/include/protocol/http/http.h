@@ -113,7 +113,7 @@ public:
                       int onlyHeader = 0,
                       int yetMapped = 0);
 
-  int allowHTTPTRACE();
+  bool allowHTTPTRACE();
 
 
   int optionsHTTPRESOURCE(string &filename,

@@ -75,10 +75,12 @@ HttpStaticData* Http::getStaticData()
 /*!
  *Build a response for an OPTIONS request.
  */
-int Http::optionsHTTPRESOURCE(string& /*filename*/, int /*yetmapped*/)
+int Http::optionsHTTPRESOURCE(string& filename, int yetmapped)
 {
   int ret;
   string time;
+  int permissions;
+
   try
   {
     HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
@@ -91,7 +93,12 @@ int Http::optionsHTTPRESOURCE(string& /*filename*/, int /*yetmapped*/)
       methods.append((*it)->getName(0, 0));
       it++;
     }
-    
+
+    ret = Http::preprocessHttpRequest(filename, yetmapped, &permissions);
+
+    if (ret != 200)
+      return raiseHTTPError (ret);
+   
     getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
     td->buffer2->setLength(0);
     *td->buffer2 <<  "HTTP/1.1 200 OK\r\n";
@@ -105,7 +112,7 @@ int Http::optionsHTTPRESOURCE(string& /*filename*/, int /*yetmapped*/)
     /*!
      *Check if the TRACE command is allowed on the virtual host.
      */
-    if(allowHTTPTRACE())
+    if (allowHTTPTRACE ())
       *td->buffer2 << ", TRACE\r\n";
 
     *td->buffer2 << "r\n";
@@ -128,21 +135,29 @@ int Http::optionsHTTPRESOURCE(string& /*filename*/, int /*yetmapped*/)
 /*!
  *Handle the HTTP TRACE command.
  */
-int Http::traceHTTPRESOURCE(string& /*filename*/, int /*yetmapped*/)
+int Http::traceHTTPRESOURCE(string& filename, int yetmapped)
 {
   int ret;
   char tmpStr[12];
   int contentLength = (int)td->nHeaderChars;
   string time;
+  int permissions;
   try
   {
     MemBuf tmp;
     HttpRequestHeader::Entry *connection;
 
+    ret = Http::preprocessHttpRequest(filename, yetmapped, &permissions);
+
+    if(ret != 200)
+      return raiseHTTPError(ret);
+
     tmp.intToStr(contentLength, tmpStr, 12);
     getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
-    if(!allowHTTPTRACE())
-      return raiseHTTPError(401);
+
+    if (!allowHTTPTRACE ())
+      return raiseHTTPError (401);
+
     td->buffer2->setLength(0);
     *td->buffer2 << "HTTP/1.1 200 OK\r\n";
     *td->buffer2 << "Date: " << time << "\r\n";
@@ -178,34 +193,17 @@ int Http::traceHTTPRESOURCE(string& /*filename*/, int /*yetmapped*/)
 }
 
 /*!
- *Check if the host allows the HTTP TRACE command
+ *Check if the host allows the HTTP TRACE command.
  */
-int Http::allowHTTPTRACE()
+bool Http::allowHTTPTRACE()
 {
-  int ret;
-  /*! Check if the host allows HTTP trace. */
-  ostringstream filename;
-  char *httpTraceValue;
-  XmlParser parser;
+  const char *allowTrace = securityToken.getHashedData ("http.allow_trace", MYSERVER_VHOST_CONF |
+                                                        MYSERVER_SERVER_CONF, "NO");
 
-  filename << td->getVhostDir() << "/security" ;
-  if(parser.open(filename.str().c_str()))
-  {
-    return 0;
-  }
-  httpTraceValue = parser.getAttr("HTTP", "TRACE");
-
-  /*!
-   *If the returned value is equal to ON so the
-   *HTTP TRACE is active for this vhost.
-   *By default don't allow the trace.
-   */
-  if(httpTraceValue && !strcmpi(httpTraceValue, "ON"))
-    ret = 1;
+  if (!strcmpi (allowTrace, "YES"))
+    return true;
   else
-    ret = 0;
-  parser.close();
-  return ret;
+    return false;
 }
 
 /*!
