@@ -549,7 +549,6 @@ void Server::mainLoop()
   time_t hostsConfTime;
   time_t mimeConfTime;
 
-  u_long configsCheck = 0;
   u_long purgeThreadsCounter = 0;
 
   mainConfTime =
@@ -566,10 +565,10 @@ void Server::mainLoop()
    */
   while(!endServer)
   {
-    Thread::wait(100000);
+    Thread::wait(1000000);
 
     /* Check threads.  */
-    if(purgeThreadsCounter++ >= 100)
+    if(purgeThreadsCounter++ >= 10)
     {
       purgeThreadsCounter = 0;
       purgeThreads();
@@ -577,114 +576,100 @@ void Server::mainLoop()
 
     if(autoRebootEnabled)
     {
-      configsCheck++;
-      /* Do not check for modified configuration files every cycle.  */
-      if(configsCheck > 10)
+      time_t mainConfTimeNow =
+        FilesUtility::getLastModTime(mainConfigurationFile->c_str());
+      time_t hostsConfTimeNow =
+        FilesUtility::getLastModTime(vhostConfigurationFile->c_str());
+      time_t mimeConfNow =
+        FilesUtility::getLastModTime(mimeConfigurationFile->c_str());
+      
+      /* If a configuration file was modified reboot the server. */
+      if(((mainConfTimeNow != -1) && (hostsConfTimeNow != -1)  &&
+          (mimeConfNow != -1)) || toReboot)
       {
-        time_t mainConfTimeNow =
-          FilesUtility::getLastModTime(mainConfigurationFile->c_str());
-        time_t hostsConfTimeNow =
-          FilesUtility::getLastModTime(vhostConfigurationFile->c_str());
-        time_t mimeConfNow =
-          FilesUtility::getLastModTime(mimeConfigurationFile->c_str());
-
-        /* If a configuration file was modified reboot the server. */
-        if(((mainConfTimeNow!=-1) && (hostsConfTimeNow!=-1)  &&
-            (mimeConfNow!=-1)) || toReboot)
+        if( (mainConfTimeNow  != mainConfTime) || toReboot)
         {
-          if( (mainConfTimeNow  != mainConfTime) || toReboot)
-          {
-            string msg("main-conf-changed");
-            notifyMulticast(msg, 0);
+          string msg("main-conf-changed");
+          notifyMulticast(msg, 0);
 
-            reboot();
-            /* Store new mtime values.  */
-            mainConfTime = mainConfTimeNow;
-            mimeConfTime = mimeConfNow;
+          reboot();
+          /* Store new mtime values.  */
+          mainConfTime = mainConfTimeNow;
+          mimeConfTime = mimeConfNow;
+        }
+        else if(mimeConfNow != mimeConfTime)
+        {
+          string msg("mime-conf-changed");
+          notifyMulticast(msg, 0);
+
+          if(logManager.getType() == LogManager::TYPE_CONSOLE)
+          {
+            char beep[]={static_cast<char>(0x7), '\0'};
+            logManager.write(beep);
           }
-          else if(mimeConfNow != mimeConfTime)
+
+          logWriteln("Reloading MIMEtypes.xml");
+          
+          getMimeManager()->loadXML(getMIMEConfFile());
+
+          logWriteln("Reloaded");
+
+          mimeConfTime = mimeConfNow;
+        }
+        else if(hostsConfTimeNow != hostsConfTime)
+        {
+          VhostManager* oldvhost = vhostList;
+          string msg("vhosts-conf-changed");
+          notifyMulticast(msg, 0);
+
+          /* Do a beep if outputting to console.  */
+          if(logManager.getType() == LogManager::TYPE_CONSOLE)
           {
-            string msg("mime-conf-changed");
-            notifyMulticast(msg, 0);
-
-            if(logManager.getType() == LogManager::TYPE_CONSOLE)
-            {
-              char beep[]={static_cast<char>(0x7), '\0'};
-              logManager.write(beep);
-            }
-
-            logWriteln("Reloading MIMEtypes.xml");
-
-            getMimeManager()->loadXML(getMIMEConfFile());
-
-            logWriteln("Reloaded");
-
-            mimeConfTime = mimeConfNow;
+            char beep[]={static_cast<char>(0x7), '\0'};
+            logManager.write(beep);
           }
-          else if(hostsConfTimeNow != hostsConfTime)
-          {
-            VhostManager* oldvhost = vhostList;
-            string msg("vhosts-conf-changed");
-            notifyMulticast(msg, 0);
 
-            /* Do a beep if outputting to console.  */
-            if(logManager.getType() == LogManager::TYPE_CONSOLE)
-            {
-              char beep[]={static_cast<char>(0x7), '\0'};
-              logManager.write(beep);
-            }
+          logWriteln("Rebooting...");
 
-            logWriteln("Rebooting...");
+          connectionsScheduler.release();
 
-            connectionsScheduler.release();
+          Socket::stopBlockingOperations(true);
 
-            Socket::stopBlockingOperations(true);
+          listenThreads.beginFastReboot();
 
-            listenThreads.beginFastReboot();
+          listenThreads.terminate();
 
-            listenThreads.terminate();
+          clearAllConnections();
 
-            clearAllConnections();
+          Socket::stopBlockingOperations(false);
 
-            Socket::stopBlockingOperations(false);
+          connectionsScheduler.restart();
+          listenThreads.initialize(&languageParser);
+            
+          vhostList = new VhostManager(&listenThreads);
 
-            connectionsScheduler.restart();
-            listenThreads.initialize(&languageParser);
+          if(vhostList == 0)
+            continue;
 
-            vhostList = new VhostManager(&listenThreads);
-
-            if(vhostList == 0)
-              continue;
-
-            delete oldvhost;
+          delete oldvhost;
 
             /* Load the virtual hosts configuration from the xml file.  */
-            if(vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
-                                                   getMaxLogFileSize()))
-            {
-              listenThreads.rollbackFastReboot();
-            }
-            else
-            {
-              listenThreads.commitFastReboot();
-            }
-
-            hostsConfTime = hostsConfTimeNow;
-            logWriteln("Reloaded");
+          if(vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
+                                                 getMaxLogFileSize()))
+          {
+            listenThreads.rollbackFastReboot();
+          }
+          else
+          {
+            listenThreads.commitFastReboot();
           }
 
-          configsCheck = 0;
-        }
-        else
-        {
-          /*
-           *If there are problems in loading mtimes
-           *check again after a bit.
-           */
-          configsCheck = 7;
+          hostsConfTime = hostsConfTimeNow;
+          logWriteln("Reloaded");
         }
       }
     }//end  if(autoRebootEnabled)
+
   }
 }
 
@@ -1029,7 +1014,6 @@ int Server::initialize()
   if(serverAdmin)
     delete serverAdmin;
   serverAdmin = 0;
-  autoRebootEnabled = false;
 
   if(configurationFileManager.open(mainConfigurationFile->c_str()))
     return -1;
@@ -1756,6 +1740,7 @@ int Server::reboot()
   /* Do nothing if the reboot is disabled.  */
   if(!autoRebootEnabled)
     return 0;
+
   /* Do a beep if outputting to console.  */
   if(logManager.getType() == LogManager::TYPE_CONSOLE)
   {
