@@ -784,6 +784,7 @@ spnish.xml
                         <child>
                           <widget class="GtkComboBox" id="combobox3">
                             <property name="visible">True</property>
+                            <property name="active">0</property>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
@@ -876,68 +877,102 @@ Run self contained SCGI</property>
                     <property name="visible">True</property>
                     <child>
                       <widget class="GtkHBox" id="hbox4">
-                        <property name="height_request">20</property>
+                        <property name="height_request">30</property>
                         <property name="visible">True</property>
                         <child>
-                          <widget class="GtkLabel" id="label23">
-                            <property name="width_request">100</property>
-                            <property name="height_request">20</property>
+                          <widget class="GtkVBox" id="vbox13">
                             <property name="visible">True</property>
-                            <property name="label" translatable="yes">Name:</property>
-                            <property name="single_line_mode">True</property>
+                            <child>
+                              <widget class="GtkLabel" id="label23">
+                                <property name="width_request">100</property>
+                                <property name="height_request">20</property>
+                                <property name="visible">True</property>
+                                <property name="xpad">1</property>
+                                <property name="ypad">5</property>
+                                <property name="label" translatable="yes">Name:</property>
+                                <property name="single_line_mode">True</property>
+                              </widget>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
                           </widget>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                          </packing>
                         </child>
                         <child>
-                          <widget class="GtkComboBox" id="combobox5">
-                            <property name="height_request">20</property>
-                            <property name="visible">True</property>
-                            <property name="has_frame">False</property>
-                            <property name="items" translatable="yes">Every HTTP connection
-FTP connection</property>
-                          </widget>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">1</property>
-                          </packing>
+                          <placeholder/>
                         </child>
                         <child>
-                          <widget class="GtkButton" id="btnAddHostName">
-                            <property name="height_request">20</property>
+                          <widget class="GtkVBox" id="vbox11">
                             <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="label">gtk-add</property>
-                            <property name="use_stock">True</property>
-                            <property name="response_id">0</property>
-                            <signal name="clicked" handler="on_btnAddHostName_clicked"/>
+                            <property name="spacing">3</property>
+                            <property name="homogeneous">True</property>
+                            <child>
+                              <widget class="GtkComboBox" id="combobox5">
+                                <property name="height_request">20</property>
+                                <property name="visible">True</property>
+                                <property name="has_frame">False</property>
+                              </widget>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
                           </widget>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">False</property>
+                            <property name="padding">3</property>
                             <property name="position">2</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="GtkButton" id="btnRemoveHostName">
-                            <property name="height_request">20</property>
+                          <widget class="GtkVBox" id="vbox14">
                             <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="label">gtk-remove</property>
-                            <property name="use_stock">True</property>
-                            <property name="response_id">0</property>
-                            <signal name="clicked" handler="on_btnRemoveHostName_clicked"/>
+                            <child>
+                              <widget class="GtkButton" id="btnAddHostName">
+                                <property name="height_request">20</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="label">gtk-add</property>
+                                <property name="use_stock">True</property>
+                                <property name="response_id">0</property>
+                                <signal name="clicked" handler="on_btnAddHostName_clicked"/>
+                              </widget>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
                           </widget>
                           <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
                             <property name="position">3</property>
                           </packing>
                         </child>
+                        <child>
+                          <widget class="GtkVBox" id="vbox10">
+                            <property name="visible">True</property>
+                            <property name="homogeneous">True</property>
+                            <child>
+                              <widget class="GtkButton" id="btnRemoveHostName">
+                                <property name="height_request">20</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="label">gtk-remove</property>
+                                <property name="use_stock">True</property>
+                                <property name="response_id">0</property>
+                                <signal name="clicked" handler="on_btnRemoveHostName_clicked"/>
+                              </widget>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">4</property>
+                          </packing>
+                        </child>
                       </widget>
+                      <packing>
+                        <property name="fill">False</property>
+                      </packing>
                     </child>
                     <child>
                       <widget class="GtkNotebook" id="notebook2">
