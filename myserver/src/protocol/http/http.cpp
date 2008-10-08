@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/http/http_headers.h>
 #include <include/protocol/http/http_req_security_domain.h>
 #include <include/server/server.h>
-#include <include/conf/security/security.h>
+#include <include/conf/security/security_manager.h>
 #include <include/conf/security/auth_domain.h>
 #include <include/base/base64/mime_utils.h>
 #include <include/base/file/file.h>

@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <include/base/thread/thread.h>
 #include <include/server/server.h>
-#include <include/conf/security/security.h>
 #include <include/base/socket/socket.h>
 #include <include/base/string/stringutils.h>
 

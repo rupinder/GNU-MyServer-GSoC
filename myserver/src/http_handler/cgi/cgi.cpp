@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/http/http.h>
 #include <include/protocol/http/http_errors.h>
 #include <include/server/server.h>
-#include <include/conf/security/security.h>
 #include <include/base/base64/mime_utils.h>
 #include <include/base/file/file.h>
 #include <include/base/file/files_utility.h>

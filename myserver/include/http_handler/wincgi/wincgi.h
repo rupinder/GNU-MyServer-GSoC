@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/http/http_request.h>
 #include <include/protocol/http/http_response.h>
 #include <include/conf/mime/mime_manager.h>
-#include <include/conf/security/security.h>
 #include <include/protocol/http/http_headers.h>
 #include <include/protocol/http/http_data_handler.h>
 

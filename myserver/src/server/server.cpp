@@ -25,8 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/https/https.h> /*Include the HTTPS protocol.  */
 #include <include/protocol/control/control_protocol.h> /*Include the control protocol.  */
 #include <include/protocol/ftp/ftp.h>
-
-#include <include/conf/security/security.h>
 #include <include/base/string/stringutils.h>
 #include <include/base/socket/socket.h>
 #include <include/filter/gzip/gzip.h>

@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/server/server.h>
 #include <include/base/file/files_utility.h>
 #include <include/base/string/stringutils.h>
-#include <include/conf/security/security.h>
+
 extern "C" {
 #ifdef WIN32
 #include <direct.h>
