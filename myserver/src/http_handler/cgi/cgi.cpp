@@ -195,7 +195,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
   {
     if(!FilesUtility::fileExists(tmpCgiPath.c_str()))
     {
-      td->connection->host->warningsLogRequestAccess(td->id);
       if(tmpCgiPath.length() > 0)
       {
         string msg;
@@ -209,7 +208,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
         td->connection->host->warningsLogWrite(
                                     "Cgi: Executable file not specified");
       }
-      td->connection->host->warningsLogTerminateAccess(td->id);    
       td->scriptPath.assign("");
       td->scriptFile.assign("");
       td->scriptDir.assign("");
@@ -253,10 +251,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
    */
   if(stdOutFile.create())
   {
-    td->connection->host->warningsLogRequestAccess(td->id);
     td->connection->host->warningsLogWrite
                           ("Cgi: Cannot create CGI stdout file");
-    td->connection->host->warningsLogTerminateAccess(td->id);
     chain.clearAllFilters(); 
     return td->http->raiseHTTPError(500);
   }
@@ -265,9 +261,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
   if(stdInFile.openFile(td->inputDataPath, 
                         File::MYSERVER_OPEN_READ | File::MYSERVER_OPEN_ALWAYS))
   {
-    td->connection->host->warningsLogRequestAccess(td->id);
     td->connection->host->warningsLogWrite("Cgi: Cannot open CGI stdin file");
-    td->connection->host->warningsLogTerminateAccess(td->id);
     stdOutFile.close();
     chain.clearAllFilters(); 
     return td->http->raiseHTTPError(500);
@@ -298,9 +292,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
        spi.stdIn == (FileHandle)-1 || 
        spi.stdOut == (FileHandle)-1)
   {
-    td->connection->host->warningsLogRequestAccess(td->id);
     td->connection->host->warningsLogWrite("Cgi: Invalid base/file/file.handler");
-    td->connection->host->warningsLogTerminateAccess(td->id);
     stdOutFile.close();
     chain.clearAllFilters(); 
     return td->http->raiseHTTPError(500);
@@ -312,10 +304,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
     {
       stdInFile.close();
       stdOutFile.close();
-      td->connection->host->warningsLogRequestAccess(td->id);
       td->connection->host->warningsLogWrite
                                        ("Cgi: Error in the CGI execution");
-      td->connection->host->warningsLogTerminateAccess(td->id);
       chain.clearAllFilters(); 
       return td->http->raiseHTTPError(500);
     }
@@ -352,10 +342,8 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
     {
       stdInFile.close();
       stdOutFile.close();
-      td->connection->host->warningsLogRequestAccess(td->id);
       td->connection->host->warningsLogWrite
         ("Cgi: Error reading from CGI std out file");
-      td->connection->host->warningsLogTerminateAccess(td->id);
       chain.clearAllFilters();
       return td->http->raiseHTTPError(500);
     }
@@ -380,9 +368,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
     
     if(headerOffset == 0)
     {
-      td->connection->host->warningsLogRequestAccess(td->id);
       td->connection->host->warningsLogWrite("Cgi: Error CGI zero bytes read");
-      td->connection->host->warningsLogTerminateAccess(td->id);
       td->http->raiseHTTPError(500);
       stdOutFile.close();
       stdInFile.close();
@@ -489,9 +475,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
                                                                    &nbw, 
                                                                    1))
   {
-    td->connection->host->warningsLogRequestAccess(td->id);
     td->connection->host->warningsLogWrite("Cgi: Error loading filters");
-    td->connection->host->warningsLogTerminateAccess(td->id);
     stdOutFile.close();
     stdInFile.close();
     cgiProc.terminateProcess();

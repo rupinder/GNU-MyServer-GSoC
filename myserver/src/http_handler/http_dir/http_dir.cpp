@@ -200,9 +200,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
                                                         td->mime->filters, 
                                              td->connection->socket, &nbw, 1))
   {
-    td->connection->host->warningsLogRequestAccess(td->id);
     td->connection->host->warningsLogWrite("HttpDir: Error loading filters");
-    td->connection->host->warningsLogTerminateAccess(td->id);
     chain.clearAllFilters(); 
     return td->http->raiseHTTPError(500);
   }

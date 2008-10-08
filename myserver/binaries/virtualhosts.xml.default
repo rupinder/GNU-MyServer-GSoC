@@ -11,8 +11,22 @@
 		<DOCROOT>web</DOCROOT>
 		<SYSFOLDER>system</SYSFOLDER>
 		
-		<ACCESSLOG>logs/MyServerHTTP.log</ACCESSLOG>
-		<WARNINGLOG>logs/MyServerHTTP.err</WARNINGLOG>
+		<ACCESSLOG>
+                  <STREAMS>
+                    <STREAM>
+                      <LOCATION>file://logs/MyServerHTTP.log</LOCATION>
+                      <CYCLE>1048576</CYCLE>
+                    </STREAM>
+                  </STREAMS>
+                </ACCESSLOG>
+		<WARNINGLOG>
+                  <STREAMS>
+                    <STREAM>
+                      <LOCATION>file://logs/MyServerHTTP.err</LOCATION>
+                      <CYCLE>1048576</CYCLE>                      
+                    </STREAM>
+                  </STREAMS>
+                </WARNINGLOG>
 	</VHOST>
 
 	<VHOST>
@@ -24,7 +38,21 @@
 		<DOCROOT>web</DOCROOT>
 		<SYSFOLDER>system</SYSFOLDER>
 		
-		<ACCESSLOG>logs/MyServerFTP.log</ACCESSLOG>
-		<WARNINGLOG>logs/MyServerFTP.err</WARNINGLOG>
+		<ACCESSLOG>
+                  <STREAMS>
+                    <STREAM>
+                      <LOCATION>file://logs/MyServerFTP.log</LOCATION>
+                      <CYCLE>1048576</CYCLE>
+                    </STREAM>
+                  </STREAMS>
+                </ACCESSLOG>
+		<WARNINGLOG>
+                  <STREAMS>
+                    <STREAM>
+                      <LOCATION>file://logs/MyServerFTP.err</LOCATION>
+                      <CYCLE>1048576</CYCLE>
+                    </STREAM>
+                  </STREAMS>
+                </WARNINGLOG>
 	</VHOST>
 </VHOSTS>

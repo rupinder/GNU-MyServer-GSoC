@@ -114,11 +114,7 @@ int PluginsManager::preLoad(Server *server, XmlParser* languageFile,
             {
               string error;
               error.assign("Warning: invalid namespace or plugin name in PLUGIN block");
-              server->logLockAccess();
-              server->logPreparePrintError();
-              server->logWriteln(error.c_str());     
-              server->logEndPrintError();
-              server->logUnlockAccess();
+              server->logWriteln(error.c_str(), ERROR);     
             }
             else
             {
@@ -127,11 +123,7 @@ int PluginsManager::preLoad(Server *server, XmlParser* languageFile,
               {
                 string error;
                 error.assign("Warning: invalid namespace name");
-                server->logLockAccess();
-                server->logPreparePrintError();
-                server->logWriteln(error.c_str());     
-                server->logEndPrintError();
-                server->logUnlockAccess();
+                server->logWriteln(error.c_str(), ERROR);     
               }
               else
                 ns->addPluginOption(pluginName, po);

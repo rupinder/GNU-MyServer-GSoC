@@ -99,8 +99,17 @@ Server::Server() : connectionsScheduler (this),
   vhostList = 0;
   purgeThreadsThreshold = 1;
   freeThreads = 0;
+  initLogManager ();
 }
 
+void
+Server::initLogManager ()
+{
+  logLocation.assign ("console://stdout");
+  logManager = new LogManager (&filtersFactory);
+  list<string> filters;
+  logManager->add (this, "MAINLOG", logLocation, filters, 0);
+}
 
 /*!
  *Reinitialize the configuration paths, setting them to the specified ones.
@@ -149,9 +158,7 @@ int Server::checkConfigurationPaths()
 
     if (copyConfigurationFromDefault("myserver.xml"))
     {
-      logPreparePrintError();
-      logWriteln("Error loading configuration file\n");
-      logEndPrintError();
+      logWriteln("Error loading configuration file\n", ERROR);
       return -1;
     }
   }
@@ -162,9 +169,7 @@ int Server::checkConfigurationPaths()
 
     if (copyConfigurationFromDefault("MIMEtypes.xml"))
     {
-      logPreparePrintError();
-      logWriteln(languageParser.getValue("ERR_LOADMIME"));
-      logEndPrintError();
+      logWriteln(languageParser.getValue("ERR_LOADMIME"), ERROR);
       return -1;
     }
   }
@@ -175,9 +180,7 @@ int Server::checkConfigurationPaths()
 
     if (copyConfigurationFromDefault("virtualhosts.xml") != 0)
     {
-      logPreparePrintError();
-      logWriteln(languageParser.getValue("ERR_LOADVHOSTS"));
-      logEndPrintError();
+      logWriteln(languageParser.getValue("ERR_LOADVHOSTS"), ERROR);
       return -1;
     }
   }
@@ -232,9 +235,7 @@ int Server::loadLibraries()
 
   if(startupSocketLib(MAKEWORD( 1, 1)) != 0)
   {
-    logPreparePrintError();
-    logWriteln( languageParser.getValue("MSG_SERVER_CONF") );
-    logEndPrintError();
+    logWriteln( languageParser.getValue ("MSG_SERVER_CONF"), ERROR);
     return 1;
   }
 
@@ -282,6 +283,9 @@ Server::~Server()
 
   if(ipAddresses)
     delete ipAddresses;
+  
+  if (logManager)
+    delete logManager;
 }
 
 /*!
@@ -344,8 +348,10 @@ void Server::start(string &mainConf, string &mimeConf, string &vhostConf, string
 
     logWriteln(languageParser.getValue("MSG_READY"));
 
-    if(logManager.getType() == LogManager::TYPE_CONSOLE)
-      logWriteln(languageParser.getValue("MSG_BREAK"));
+    if (logLocation.find ("console://") != string::npos)
+      {
+        logWriteln (languageParser.getValue ("MSG_BREAK"));
+      }
 
     serverReady = true;
 
@@ -408,9 +414,7 @@ int Server::postLoad()
     string msg;
     msg.assign(languageParser.getValue("ERR_ERROR"));
     msg.append(" : Reading IP list");
-    logPreparePrintError();
-    logWriteln(msg.c_str());
-    logEndPrintError();
+    logWriteln(msg.c_str(), ERROR);
     return -1;
   }
   else
@@ -437,9 +441,7 @@ int Server::postLoad()
   }
   else
   {
-    logPreparePrintError();
-    logWriteln(languageParser.getValue("ERR_LOADMIME"));
-    logEndPrintError();
+    logWriteln(languageParser.getValue("ERR_LOADMIME"), ERROR);
   }
 
   nCPU << (u_int)getCPUCount();
@@ -456,7 +458,7 @@ int Server::postLoad()
   if(vhostList)
     delete vhostList;
   
-  vhostList = new VhostManager(&listenThreads);
+  vhostList = new VhostManager(&listenThreads, logManager);
   
   if(vhostList == NULL)
     return -1;
@@ -469,9 +471,7 @@ int Server::postLoad()
   loadPlugins();
 
   /* Load the virtual hosts configuration from the xml file.  */
-  vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
-                                      getMaxLogFileSize());
-  
+  vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str());
 
   if(path == 0)
     path = new string();
@@ -507,9 +507,7 @@ void Server::loadPlugins()
   {
     ostringstream stream;
     stream <<  languageParser.getValue("ERR_ERROR") << ": Gzip Filter";
-    logPreparePrintError();
-    logWriteln(stream.str().c_str());
-    logEndPrintError();
+    logWriteln(stream.str().c_str(), ERROR);
   }
 
   Protocol *protocolsSet[] = {new HttpProtocol(),
@@ -600,12 +598,11 @@ void Server::mainLoop()
           string msg("mime-conf-changed");
           notifyMulticast(msg, 0);
 
-          if(logManager.getType() == LogManager::TYPE_CONSOLE)
-          {
-            char beep[]={static_cast<char>(0x7), '\0'};
-            logManager.write(beep);
-          }
-
+          if (logLocation.find ("console://") != string::npos)
+            {
+              char beep[] = { static_cast<char>(0x7), '\0' };
+              logManager->log (this, "MAINLOG", logLocation, string (beep));
+            }
           logWriteln("Reloading MIMEtypes.xml");
           
           getMimeManager()->loadXML(getMIMEConfFile());
@@ -621,11 +618,11 @@ void Server::mainLoop()
           notifyMulticast(msg, 0);
 
           /* Do a beep if outputting to console.  */
-          if(logManager.getType() == LogManager::TYPE_CONSOLE)
-          {
-            char beep[]={static_cast<char>(0x7), '\0'};
-            logManager.write(beep);
-          }
+          if (logLocation.find ("console://") != string::npos)
+            {
+              char beep[] = { static_cast<char>(0x7), '\0' };
+              logManager->log (this, "MAINLOG", logLocation, string (beep));
+            }
 
           logWriteln("Rebooting...");
 
@@ -644,7 +641,7 @@ void Server::mainLoop()
           connectionsScheduler.restart();
           listenThreads.initialize(&languageParser);
             
-          vhostList = new VhostManager(&listenThreads);
+          vhostList = new VhostManager(&listenThreads, logManager);
 
           if(vhostList == 0)
             continue;
@@ -652,8 +649,7 @@ void Server::mainLoop()
           delete oldvhost;
 
             /* Load the virtual hosts configuration from the xml file.  */
-          if(vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str(),
-                                                 getMaxLogFileSize()))
+          if(vhostList->loadXMLConfigurationFile(vhostConfigurationFile->c_str()))
           {
             listenThreads.rollbackFastReboot();
           }
@@ -671,11 +667,11 @@ void Server::mainLoop()
   }
 }
 
-void Server::logWriteNTimes(const char *str, unsigned n)
+void Server::logWriteNTimes(string str, unsigned n)
 {
   while (n--)
-    logManager.write(str);
-  logManager.writeln("");
+    logManager->log (this, "MAINLOG", logLocation, str);
+  logManager->log(this, "MAINLOG", logLocation, string (""), true);
 }
 
 /*!
@@ -683,9 +679,10 @@ void Server::logWriteNTimes(const char *str, unsigned n)
  */
 void Server::displayBoot()
 {
+
 #ifdef CLEAR_BOOT_SCREEN
 
-  if(logManager.getType() == LogManager::TYPE_CONSOLE )
+  if (logLocation.find ("console://") != string::npos)
   {
 #ifdef WIN32
 
@@ -712,7 +709,7 @@ void Server::displayBoot()
   /*
    *Print the MyServer signature only if the log writes to the console.
    */
-  if(logManager.getType() == LogManager::TYPE_CONSOLE )
+  if(logLocation.find ("console://") != string::npos)
   {
     try
     {
@@ -724,15 +721,14 @@ void Server::displayBoot()
       length = softwareSignature.length();
 
       logWriteNTimes("*", length);
-      logManager.writeln(softwareSignature.c_str());
+      logManager->log (this, "MAINLOG", logLocation, softwareSignature, true);
       logWriteNTimes("*", length);
     }
     catch(exception& e)
     {
       ostringstream err;
       err << "Error: " << e.what();
-      logManager.write(err.str().c_str());
-      logManager.write("\n");
+      logManager->log (this, "MAINLOG", logLocation, err.str (), true);
       return;
     }
     catch(...)
@@ -969,6 +965,9 @@ int Server::terminate()
   {
     logWriteln("MyServer is stopped");
   }
+  
+  logManager->clear ();
+  
   return 0;
 }
 
@@ -992,7 +991,6 @@ int Server::initialize()
 #ifdef WIN32
   envString = GetEnvironmentStrings();
 #endif
-
   connectionsMutex = new Mutex();
 
   threadsMutex = new Mutex();
@@ -1034,11 +1032,8 @@ int Server::initialize()
   if(languageParser.open(languageFile->c_str()))
   {
     string err;
-    logPreparePrintError();
     err.assign("Error loading: ");
-    err.append( *languageFile );
-    logWriteln( err.c_str() );
-    logEndPrintError();
+    logWriteln(err.c_str(), ERROR);
     return -1;
   }
   logWriteln(languageParser.getValue("MSG_LANGUAGE"));
@@ -1660,17 +1655,13 @@ void Server::setProcessPermissions()
        {
          out << languageParser.getValue("ERR_ERROR")
              << ": setAdditionalGroups";
-         logPreparePrintError();
-         logWriteln(out.str().c_str());
-         logEndPrintError();
+         logWriteln(out.str().c_str(), ERROR);
        }
 
        if(Process::setgid(gid))
        {
          out << languageParser.getValue("ERR_ERROR") << ": setgid " << gid;
-         logPreparePrintError();
-         logWriteln(out.str().c_str());
-         logEndPrintError();
+         logWriteln(out.str().c_str(), ERROR);
        }
        autoRebootEnabled = false;
      }
@@ -1686,29 +1677,10 @@ void Server::setProcessPermissions()
       if(Process::setuid(uid))
       {
         out << languageParser.getValue("ERR_ERROR") << ": setuid " << uid;
-        logPreparePrintError();
-        logWriteln(out.str().c_str());
-        logEndPrintError();
+        logWriteln(out.str().c_str(), ERROR);
       }
       autoRebootEnabled = false;
     }
-}
-
-
-/*!
- *Lock the access to the log file.
- */
-int Server::logLockAccess()
-{
-  return logManager.requestAccess();
-}
-
-/*!
- *Unlock the access to the log file.
- */
-int Server::logUnlockAccess()
-{
-  return logManager.terminateAccess();
 }
 
 /*!
@@ -1740,10 +1712,10 @@ int Server::reboot()
     return 0;
 
   /* Do a beep if outputting to console.  */
-  if(logManager.getType() == LogManager::TYPE_CONSOLE)
+  if (logLocation.find ("console://") != string::npos)
   {
-    char beep[]={static_cast<char>(0x7), '\0'};
-    logManager.write(beep);
+    char beep[] = { static_cast<char>(0x7), '\0' };
+    logManager->log (this, "MAINLOG", logLocation, string (beep));
   }
 
   logWriteln("Rebooting...");
@@ -1940,11 +1912,9 @@ int Server::addThread(bool staticThread)
   {
     string str;
     delete newThread;
-    logPreparePrintError();
     str.assign(languageParser.getValue("ERR_ERROR"));
     str.append(": Threads creation" );
-    logWriteln(str.c_str());
-    logEndPrintError();
+    logWriteln(str.c_str(), ERROR);
     return -1;
   }
 
@@ -2028,15 +1998,15 @@ int Server::countAvailableThreads()
 /*!
  *Write a string to the log file and terminate the line.
  */
-int Server::logWriteln(const char* str)
+int Server::logWriteln(char const* str, LoggingLevel level)
 {
   if(!str)
     return 0;
-
+  
   /*
    *If the log receiver is not the console output a timestamp.
    */
-  if(logManager.getType() != LogManager::TYPE_CONSOLE)
+  if (logLocation.find ("console://") == string::npos)
   {
     char time[38];
     int len;
@@ -2049,41 +2019,26 @@ int Server::logWriteln(const char* str)
     time[len + 3] = '-';
     time[len + 4] = ' ';
     time[len + 5] = '\0';
-    if(logManager.write(time))
+    if (logManager->log (this, "MAINLOG", logLocation, string (time), false, level))
       return 1;
   }
-  return logManager.writeln((char*)str);
+  return logManager->log (this, "MAINLOG", logLocation, string (str), true, level);
 }
 
 /*!
- *Prepare the log to print an error.
+ * Use a specified location as log.
  */
-int Server::logPreparePrintError()
+int
+Server::setLogLocation (string location)
 {
-  logManager.preparePrintError();
-  return 0;
-}
-
-/*!
- *Exit from the error printing mode.
- */
-int Server::logEndPrintError()
-{
-  logManager.endPrintError();
-  return 0;
-}
-
-/*!
- *Use a specified file as log.
- */
-int Server::setLogFile(char* fileName)
-{
-  if(fileName == 0)
-  {
-    logManager.setType(LogManager::TYPE_CONSOLE);
-    return 0;
-  }
-  return logManager.load(fileName);
+  list<string> filters;
+  if (location.size ())
+    {
+      logManager->remove (this);
+      logLocation.assign (location);
+      return logManager->add (this, "MAINLOG", logLocation, filters, 0);
+    }
+  return !logManager->contains (this, "MAINLOG", logLocation);
 }
 
 /*!

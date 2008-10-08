@@ -476,9 +476,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
    */
   td->buffer->setLength(0);
   *td->buffer << "WinCGI: Not implemented";
-  td->connection->host->warningsLogRequestAccess(td->id);
   td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-  td->connection->host->warningsLogTerminateAccess(td->id);
   return td->http->raiseHTTPError(501);
 #endif
 }

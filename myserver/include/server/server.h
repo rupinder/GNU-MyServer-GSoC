@@ -53,6 +53,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include <list>
+
 using namespace std;
 
 /*!
@@ -61,7 +62,7 @@ using namespace std;
 #ifdef WIN32
 unsigned int __stdcall listenServer(void* pParam);
 #endif
-#ifdef NOT_WIN
+#ifdef NO_WIN
 void* listenServer(void* pParam);
 #endif
 
@@ -132,14 +133,14 @@ public:
   void stop();
   void finalCleanup();
   int terminate();
-  int logWriteln(const char*);
+  int logWriteln(char const*, LoggingLevel level = WARNING);
   int logWriteln(string const &str)
     {return logWriteln(str.c_str());};
   int logPreparePrintError();
   int logEndPrintError();
   int logLockAccess();
   int logUnlockAccess();
-  int setLogFile(char*);
+  int setLogLocation(string);
   u_long getBuffersize();
   u_long getBuffersize2();
   u_long getThrottlingRate();
@@ -189,6 +190,7 @@ private:
   void loadPlugins();
   void displayBoot();
   int postLoad();
+  void initLogManager ();
 
   CachedFileFactory cachedFiles;
 
@@ -212,7 +214,7 @@ private:
   bool toReboot;
   bool rebooting;
 
-  LogManager logManager;
+  LogManager* logManager;
   bool serverReady;
   u_long verbosity;
   u_long throttlingRate;
@@ -236,7 +238,7 @@ private:
   u_long connectionTimeout;
   u_long maxLogFileSize;
   int copyConfigurationFromDefault(const char *);
-  void logWriteNTimes(const char *, unsigned);
+  void logWriteNTimes(string, unsigned);
   int checkConfigurationPaths();
   bool resetConfigurationPaths(string &, string &, string &, string &, string &);
   Mutex* connectionsMutex;
@@ -262,7 +264,7 @@ private:
   ConnectionsScheduler connectionsScheduler;
   ListenThreads listenThreads;
   bool endServer;
-
+  string logLocation;
   AuthMethodFactory authMethodFactory;
   ValidatorFactory validatorFactory;
   SecurityManager securityManager;

@@ -650,11 +650,7 @@ int MimeManager::addRecord(MimeRecord& mr)
       error.assign("Warning: multiple MIME types registered for the extension " );
       error.append(nmr->extension);
 
-      Server::getInstance()->logLockAccess();
-      Server::getInstance()->logPreparePrintError();
-      Server::getInstance()->logWriteln(error.c_str());     
-      Server::getInstance()->logEndPrintError();
-      Server::getInstance()->logUnlockAccess();      
+      Server::getInstance()->logWriteln(error.c_str(), ERROR);
       delete old;
     }
   }

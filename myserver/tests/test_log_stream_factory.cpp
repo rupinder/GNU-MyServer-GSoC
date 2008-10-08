@@ -53,17 +53,21 @@ public:
   {
     CPPUNIT_ASSERT (!lsf->getPath ("foo:bla").size ());
     CPPUNIT_ASSERT (!lsf->getPath ("foo://bar").size ());
-    CPPUNIT_ASSERT (lsf->getPath ("socket://foo").size ());
+    CPPUNIT_ASSERT (lsf->getPath ("socket://127.0.0.1:0").size ());
   }
 
   void testCreation ()
   {
     list<string> filters;
     FiltersFactory ff;
-    CPPUNIT_ASSERT (!lsf->createLogStream (&ff, "foo", filters, 0));
-    LogStream* ls = lsf->createLogStream (&ff, "console://", filters, 0);
+    CPPUNIT_ASSERT (!lsf->create (&ff, "foo", filters, 0));
+    LogStream* ls = lsf->create (&ff, "console://", filters, 0);
+    CPPUNIT_ASSERT (!ls);
+    ls = lsf->create (&ff, "console://foo", filters, 0);
+    CPPUNIT_ASSERT (!ls);
+    ls = lsf->create (&ff, "console://stdout", filters, 0);
     CPPUNIT_ASSERT (ls);
-    CPPUNIT_ASSERT (!lsf->createLogStream (&ff, "socket://foo_bar:-1", filters, 0));
+    CPPUNIT_ASSERT (!lsf->create (&ff, "socket://127.0.0.1:0", filters, 0));
     delete ls;
   }
   

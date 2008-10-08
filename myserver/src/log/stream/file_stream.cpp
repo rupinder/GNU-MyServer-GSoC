@@ -1,40 +1,39 @@
 /*
-MyServer
-Copyright (C) 2006, 2008 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2006, 2008 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <include/log/stream/file_stream.h>
 
-int const FileStream::defaultFileMask = File::MYSERVER_OPEN_APPEND | 
-                                       File::MYSERVER_OPEN_ALWAYS |
-                                       File::MYSERVER_OPEN_WRITE | 
-                                       File::MYSERVER_OPEN_READ | 
-                                       File::MYSERVER_NO_INHERIT;
+int const FileStream::defaultFileMask = 
+  File::MYSERVER_OPEN_APPEND | 
+  File::MYSERVER_OPEN_ALWAYS |
+  File::MYSERVER_OPEN_WRITE | 
+  File::MYSERVER_OPEN_READ | 
+  File::MYSERVER_NO_INHERIT;
 
-FileStream::FileStream (FiltersFactory* filtersFactory,
-                        u_long cycleLog,
-                        Stream* outStream,
-                        FiltersChain* filtersChain) : 
-  LogStream (filtersFactory, cycleLog, outStream, filtersChain)
+FileStream::FileStream (FiltersFactory* ff, u_long cycle, Stream* out,
+                        FiltersChain* fc) : 
+  LogStream (ff, cycle, out, fc)
 {
 }
 
 u_long
 FileStream::streamSize ()
 {
-  return dynamic_cast<File*>(outStream)->getFileSize ();
+  return dynamic_cast<File*>(out)->getFileSize ();
 }
 
 int
@@ -46,7 +45,7 @@ FileStream::streamCycle ()
   try
     {
       File newFile;
-      File *currentFile = dynamic_cast<File*>(outStream);
+      File *currentFile = dynamic_cast<File*>(out);
       string filepath (currentFile->getFilename ());
       string newFileName (makeNewFileName (currentFile->getFilename ()));
       cycledStreams.push_back (newFileName);
@@ -134,7 +133,7 @@ FileStream::makeNewFileName (string oldFileName)
 
   FilesUtility::completePath (oldFileName);
   FilesUtility::splitPath (oldFileName, filedir, filename);
-  FilesUtility::getFileExt (ext, oldFileName);
+  FilesUtility::getFileExt (ext, filename);
       
   getRFC822LocalTime (time, 32);
   time = trim (time.substr (5, 32));
@@ -146,7 +145,17 @@ FileStream::makeNewFileName (string oldFileName)
     {
       filename = (filename.substr (0, filename.find (string (".") + ext)));
     }
-  newfilename << filedir << "/" << filename << "." << time <<
+  newfilename << filedir << filename << "." << time <<
     (ext.size () ? "." : "") << ext;
   return newfilename.str ();
+}
+
+int
+FileStream::chown (int uid, int gid)
+{
+  mutex->lock ();
+  File* f = dynamic_cast<File*>(out);
+  int success =  FilesUtility::chown (f->getFilename (), uid, gid);
+  mutex->unlock ();
+  return success;
 }

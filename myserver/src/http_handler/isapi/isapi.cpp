@@ -1027,10 +1027,8 @@ in ISAPI application module");
   /*!
    *On other archs returns a non implemented error. 
    */
-  td->connection->host->warningsLogRequestAccess(td->id);
   td->connection->host->warningsLogWrite(
                                    "ISAPI: Not implemented");
-  td->connection->host->warningsLogTerminateAccess(td->id);  
   return td->http->raiseHTTPError(501);
 #endif  
 }

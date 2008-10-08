@@ -433,6 +433,12 @@ int Http::getFilePermissions(string& filename, string& directory, string& file,
       user.assign ("Guest");
       password.assign ("");
     }
+    if(*permissions == -1)
+    {
+      td->connection->host->warningsLogWrite(
+                                     "Http: Error reading security file");
+      return 500;
+    }
 
     securityToken.setUser (user);
     securityToken.setPassword (password);
@@ -849,9 +855,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         error.assign("Http: cannot find system request file ");
         error.append(td->filenamePath);
 
-        td->connection->host->warningsLogRequestAccess(td->id);
         td->connection->host->warningsLogWrite(error.c_str());
-        td->connection->host->warningsLogTerminateAccess(td->id);
       }
 
       return raiseHTTPError(404);
@@ -1320,9 +1324,7 @@ int Http::logHTTPaccess()
      */
      if(td->connection->host)
      {
-       td->connection->host->accessesLogRequestAccess(td->id);
        td->connection->host->accessesLogWrite(td->buffer2->getBuffer());
-       td->connection->host->accessesLogTerminateAccess(td->id);
      }
     td->buffer2->setLength(0);
   }
@@ -1558,12 +1560,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           errMsg.assign("Invalid virtual host requested from ");
           errMsg.append(a->getIpAddr());
 
-
-          Server::getInstance()->logLockAccess();
-          Server::getInstance()->logPreparePrintError();
-          Server::getInstance()->logWriteln(errMsg.c_str());
-          Server::getInstance()->logEndPrintError();
-          Server::getInstance()->logUnlockAccess();
+          Server::getInstance()->logWriteln(errMsg.c_str(), ERROR);
 
           raiseHTTPError(400);
           /*!
@@ -1952,9 +1949,7 @@ int Http::raiseHTTPError(int ID)
 
     if(td->lastError)
     {
-      td->connection->host->warningsLogRequestAccess(td->id);
       td->connection->host->warningsLogWrite("Http: recursive error ");
-      td->connection->host->warningsLogTerminateAccess(td->id);
       return sendHTTPhardError500();
     }
 
@@ -2028,9 +2023,7 @@ int Http::raiseHTTPError(int ID)
       else
       {
         string error = "Http: The specified error page " + errorFile.str() + " does not exist";
-        td->connection->host->warningsLogRequestAccess(td->id);
         td->connection->host->warningsLogWrite(error.c_str());
-        td->connection->host->warningsLogTerminateAccess(td->id);
       }
     }
 

@@ -25,7 +25,6 @@
 
 #include <include/log/log_manager.h>
 #include <include/filter/filters_factory.h>
-#include <include/log/stream/log_stream_factory.h>
 #include <include/base/file/files_utility.h>
 #include <include/base/file/file.h>
 #include <include/base/utility.h>
@@ -36,26 +35,26 @@ class TestLogManager : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE (TestLogManager);
   CPPUNIT_TEST (testEmpty);
-  CPPUNIT_TEST (testSize);
   CPPUNIT_TEST (testContains);
-  CPPUNIT_TEST (testAddLogStream);
-  CPPUNIT_TEST (testRemoveLogStream);
+  CPPUNIT_TEST (testAdd);
+  CPPUNIT_TEST (testRemove);
   CPPUNIT_TEST (testLog);
   CPPUNIT_TEST (testClose);
-  CPPUNIT_TEST (testCycleLog);
-  CPPUNIT_TEST (testLoggingLevel);
+  CPPUNIT_TEST (testCycle);
+  CPPUNIT_TEST (testLevel);
   CPPUNIT_TEST (testClear);
   CPPUNIT_TEST (testLogThroughGzip);
-  CPPUNIT_TEST (testCycleLogWithGzipChain);
+  CPPUNIT_TEST (testCycleWithGzipChain);
+  CPPUNIT_TEST (testCount);
+  CPPUNIT_TEST (testGet);
   CPPUNIT_TEST_SUITE_END ();
 public:
   void setUp ()
   {
-    lsf = new LogStreamFactory ();
     ff = new FiltersFactory ();
     ff->insert ("gzip", Gzip::factory);
     ff->insert ("gunzip", GzipDecompress::factory);
-    lm = new LogManager (ff, lsf);
+    lm = new LogManager (ff);
     setcwdBuffer ();
   }
 
@@ -64,40 +63,35 @@ public:
     CPPUNIT_ASSERT (lm->empty ());
   }
 
-  void testSize ()
-  {
-    CPPUNIT_ASSERT (lm->size () == 0);
-  }
-
   void testContains ()
   {
     CPPUNIT_ASSERT (!lm->contains ("foo"));
   }
 
-  void testAddLogStream ()
+  void testAdd ()
   {
     list<string> filters;
-    CPPUNIT_ASSERT (lm->addLogStream ("foo", filters, 0));
-    CPPUNIT_ASSERT (lm->addLogStream ("file", filters, 0));
-    CPPUNIT_ASSERT (!lm->addLogStream ("file://foo", filters, 0));
-    CPPUNIT_ASSERT (lm->addLogStream ("file://foo", filters, 0));
+    CPPUNIT_ASSERT (lm->add (this, "test", "foo", filters, 0));
+    CPPUNIT_ASSERT (lm->add (this, "test", "file", filters, 0));
+    CPPUNIT_ASSERT (!lm->add (this, "test", "file://foo", filters, 0));
+    CPPUNIT_ASSERT (lm->add (this, "test", "file://foo", filters, 0));
   }
 
-  void testRemoveLogStream ()
+  void testRemove ()
   {
     list<string> filters;
-    CPPUNIT_ASSERT (lm->removeLogStream ("foo"));
-    lm->addLogStream ("file://foo", filters, 0);
-    CPPUNIT_ASSERT (!lm->removeLogStream ("file://foo"));
+    CPPUNIT_ASSERT (lm->remove (this));
+    lm->add (this, "test", "file://foo", filters, 0);
+    CPPUNIT_ASSERT (!lm->remove (this));
   }
 
   void testLog ()
   {
     string message ("A message");
     list<string> filters;
-    lm->addLogStream ("file://foo", filters, 0);
-    lm->log (message);
-    lm->close ();
+    lm->add (this, "test", "file://foo", filters, 0);
+    lm->log (this, "test", "file://foo", message);
+    lm->close (this);
     File f;
     f.openFile ("foo", FileStream::defaultFileMask);
     char buf[message.size () + 1];
@@ -111,20 +105,21 @@ public:
   void testClose ()
   {
     list<string> filters;
-    lm->addLogStream ("file://foo", filters, 0);
-    lm->close ();
-    CPPUNIT_ASSERT (!lm->getLogStream ("file://foo")->getIsOpened ());
+    lm->add (this, "test", "file://foo", filters, 0);
+    CPPUNIT_ASSERT (lm->close (this, "test", "file://bar"));
+    CPPUNIT_ASSERT (!lm->close (this, "test", "file://foo"));
+    CPPUNIT_ASSERT (lm->close (this, "test", "file://foo"));
   }
 
-  void testCycleLog ()
+  void testCycle ()
   {
     string message ("A message\n");
     string message1 ("Another message\n");
     list<string> filters;
-    lm->addLogStream ("file://foo", filters, 10);
-    lm->log (message);
-    CPPUNIT_ASSERT (!lm->log (message1));
-    lm->close ();
+    lm->add (this, "test", "file://foo", filters, 10);
+    lm->log (this, "test", "file://foo", message);
+    CPPUNIT_ASSERT (!lm->log (this, "test", "file://foo", message1));
+    lm->close (this, "test", "file://foo");
     File f;
     f.openFile ("foo", FileStream::defaultFileMask);
     char buf[64];
@@ -133,7 +128,9 @@ public:
     buf[nbr] = '\0';
     f.close ();
     CPPUNIT_ASSERT (!message1.compare (buf));
-    list<string> cs = lm->getLogStream ("file://foo")->getCycledStreams ();
+    LogStream* ls;
+    CPPUNIT_ASSERT (!lm->get (this, "test", "file://foo", &ls));
+    list<string> cs = ls->getCycledStreams ();
     list<string>::iterator it;
     for (it = cs.begin (); it != cs.end (); it++)
       {
@@ -146,22 +143,22 @@ public:
       }
   }
 
-  void testLoggingLevel ()
+  void testLevel ()
   {
     list<string> filters;
-    lm->addLogStream ("file://foo", filters, 0);
-    CPPUNIT_ASSERT (lm->log ("a message", INFO));
-    CPPUNIT_ASSERT (!lm->log ("a message", ERROR));
-    CPPUNIT_ASSERT (!lm->log ("a message", WARNING));
-    lm->setLoggingLevel (INFO);
-    CPPUNIT_ASSERT (!lm->log ("a message", INFO));
+    lm->add (this, "test", "file://foo", filters, 0);
+    CPPUNIT_ASSERT (lm->log (this, "test", "a message", false, INFO));
+    CPPUNIT_ASSERT (!lm->log (this, "test", "a message", false, ERROR));
+    CPPUNIT_ASSERT (!lm->log (this, "test", "a message", false, WARNING));
+    lm->setLevel (INFO);
+    CPPUNIT_ASSERT (!lm->log (this, "test", "a message", false, INFO));
   }
 
   void testClear ()
   {
     list<string> filters;
-    lm->addLogStream ("file://foo", filters, 0);
-    lm->addLogStream ("console://", filters, 0);
+    lm->add (this, "test", "file://foo", filters, 0);
+    lm->add (this, "test", "console://stdout", filters, 0);
     CPPUNIT_ASSERT (!lm->empty ());
     lm->clear ();
     CPPUNIT_ASSERT (lm->empty ());
@@ -172,9 +169,9 @@ public:
     list<string> filters;
     string message ("a message");
     filters.push_back ("gzip");
-    lm->addLogStream ("file://foo", filters, 0);
-    lm->log (message);
-    lm->close ();
+    lm->add (this, "test", "file://foo", filters, 0);
+    lm->log (this, "test", "file://foo", message);
+    lm->close (this, "test", "file://foo");
     File f;
     f.openFile ("foo", FileStream::defaultFileMask);
     char gzipChainComp[64];
@@ -190,7 +187,7 @@ public:
     CPPUNIT_ASSERT (!message.compare (gzipChainDecomp));
   }
 
-  void testCycleLogWithGzipChain ()
+  void testCycleWithGzipChain ()
   {
     u_long cycleLog = 40;
     list<string> filters;
@@ -205,9 +202,9 @@ public:
     list<string>::iterator it;
     
     filters.push_back ("gzip");
-    lm->addLogStream ("file://foo", filters, cycleLog);
-    lm->log (message);
-    CPPUNIT_ASSERT (!lm->log (message1));
+    lm->add (this, "test", "file://foo", filters, cycleLog);
+    lm->log (this, "test", "file://foo", message);
+    CPPUNIT_ASSERT (!lm->log (this, "test", "file://foo", message1));
     f.openFile ("foo", FileStream::defaultFileMask);
     f.read (gzipComp, 128, &nbr);
     f.close ();
@@ -216,7 +213,9 @@ public:
                      gzipDecomp, 128);
     gzipDecomp[message1.size ()] = '\0';
     CPPUNIT_ASSERT (!message1.compare (gzipDecomp));
-    cs = lm->getLogStream ("file://foo")->getCycledStreams ();
+    LogStream* ls;
+    CPPUNIT_ASSERT (!lm->get (this, "test", "file://foo", &ls));
+    cs = ls->getCycledStreams ();
     for (it = cs.begin (); it != cs.end (); it++)
       {
         f.openFile (*it, FileStream::defaultFileMask);
@@ -231,17 +230,60 @@ public:
       }
   }
 
+  void testCount ()
+  {
+    list<string> filters;
+    lm->add (this, "test", "console://stdout", filters, 0);
+    lm->add (this, "test_1", "console://stderr", filters, 0);
+    lm->add (this, "test_1", "file://foo", filters, 0);
+    CPPUNIT_ASSERT_EQUAL (3, lm->count (this));
+    CPPUNIT_ASSERT_EQUAL (1, lm->count (this, "test"));
+    CPPUNIT_ASSERT_EQUAL (2, lm->count (this, "test_1"));
+    CPPUNIT_ASSERT_EQUAL (1, lm->count (this, "test", "console://stdout"));
+    CPPUNIT_ASSERT_EQUAL (1, lm->count (this, "test_1", "console://stderr"));
+    CPPUNIT_ASSERT_EQUAL (1, lm->count (this, "test_1", "file://foo"));
+    CPPUNIT_ASSERT_EQUAL (0, lm->count (this, "foo"));
+    CPPUNIT_ASSERT_EQUAL (0, lm->count (this, "test", "foo"));
+    CPPUNIT_ASSERT_EQUAL (0, lm->count (0));
+    CPPUNIT_ASSERT_EQUAL (0, lm->count (0, "foo"));
+  }
+
+  void testGet ()
+  {
+    list<string> filters;
+    list<string> tmp;
+    list<string> l;
+    
+    CPPUNIT_ASSERT (lm->get (this, &l));
+    CPPUNIT_ASSERT (lm->get (this, "test", &l));
+    lm->add (this, "test", "file://foo", filters, 0);
+    lm->add (this, "test", "console://stdout", filters, 0);
+    lm->add (this, "test_1", "console://stderr", filters, 0);
+    tmp.push_back ("file://foo");
+    tmp.push_back ("console://stdout");
+    tmp.push_back ("console://stderr");
+    CPPUNIT_ASSERT (!lm->get (this, &l));
+    tmp.sort (); l.sort ();
+    CPPUNIT_ASSERT (tmp == l);
+    CPPUNIT_ASSERT (!lm->get (this, "test", &l));
+    tmp.clear ();
+    tmp.push_back ("file://foo");
+    tmp.push_back ("console://stdout");
+    tmp.sort (); l.sort ();
+    CPPUNIT_ASSERT (tmp == l);
+    LogStream* ls;
+    CPPUNIT_ASSERT (!lm->get (this, "test", "console://stdout", &ls));
+  }
+
   void tearDown ()
   {
     delete lm;
-    delete lsf;
     delete ff;
     FilesUtility::deleteFile ("foo");
   }
 
 private:
   LogManager* lm;
-  LogStreamFactory* lsf;
   FiltersFactory* ff;
 };
 

@@ -129,7 +129,7 @@ static struct argp_option options[] =
   /* LONG NAME - SHORT NAME - PARAMETER NAME - FLAGS - DESCRIPTION.  */
   {"version", 'v', "VERSION", OPTION_ARG_OPTIONAL , "Print the version for the application"},
   {"run", 'r', "RUN", OPTION_ARG_OPTIONAL, "Specify how run the server (by default console mode)"},
-  {"logfile", 'l', "log", 0, "Specify the file to use to log main myserver messages"},
+  {"log", 'l', "location", 0, "Specify the location (in the format protocol://resource) to use to log main myserver messages"},
   {"pidfile", 'p', "pidfile", OPTION_HIDDEN, "Specify the file where write the PID"},
   {0}
 };
@@ -478,9 +478,9 @@ int main (int argn, char **argv)
   runas=input.runas;
   if(input.logFileName)
   {
-    if(Server::getInstance()->setLogFile(input.logFileName))
+    if (Server::getInstance ()->setLogLocation (input.logFileName))
     {
-      cout << "Error loading log file" << endl;
+      cout << "Error setting the location for the MyServer's main log" << endl;
       return 1;
     }
   }

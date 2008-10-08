@@ -1,108 +1,126 @@
 /*
-MyServer
-Copyright (C) 2006, 2008 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2006, 2008 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <include/log/stream/log_stream.h>
 
-LogStream::LogStream (FiltersFactory* filtersFactory, 
-                      u_long cycleLog,
-                      Stream* outStream,
-                      FiltersChain* filtersChain) :
-cycleLog (cycleLog), isOpened (1)
+LogStream::LogStream (FiltersFactory* ff, u_long cycle, Stream* out,
+                      FiltersChain* fc) : cycle (cycle), isOpened (1)
 {
-  this->filtersFactory = filtersFactory;
-  this->outStream = outStream;
-  this->filtersChain = filtersChain;
+  this->ff = ff;
+  this->out = out;
+  this->fc = fc;
+  mutex = new Mutex ();
+  mutex->init ();
 }
 
 LogStream::~LogStream ()
 {
   if (isOpened)
     close ();
-  filtersChain->clearAllFilters ();
-  delete outStream;
-  delete filtersChain;
+  fc->clearAllFilters ();
+  delete out;
+  delete fc;
+  delete mutex;
 }
 
 int
 LogStream::resetFilters ()
 {
-  list<string> filters (filtersChain->getFilters ());
-  filtersChain->clearAllFilters ();
-  return filtersFactory->chain (filtersChain, filters, outStream, &nbw);
+  list<string> filters (fc->getFilters ());
+  fc->clearAllFilters ();
+  return ff->chain (fc, filters, out, &nbw);
 }
 
 int
 LogStream::log (string message)
 {
+  mutex->lock ();
+  int success = 0;
   if (needToCycle ())
     {
-      return doCycle () || write (message);
+      success = doCycle () || write (message);
     }
-  return write (message);
+  else
+    {
+      success = write (message);
+    }
+  mutex->unlock ();
+  return success;
 }
 
 int
 LogStream::needToCycle ()
 {
-  return cycleLog && (streamSize () >= cycleLog);
+  return cycle && (streamSize () >= cycle);
 }
 
 int
 LogStream::doCycle ()
 {
-  return filtersChain->flush (&nbw) || streamCycle () || resetFilters ();
+  return fc->flush (&nbw) || streamCycle () || resetFilters ();
 }
 
 int
 LogStream::write (string message)
 {
-  return filtersChain->write (message.c_str (), message.size (), &nbw);
+  return fc->write (message.c_str (), message.size (), &nbw);
 }
 
-void
-LogStream::setCycleLog (u_long cycleLog)
+int
+LogStream::setCycle (u_long cycle)
 {
-  this->cycleLog = cycleLog;
+  mutex->lock ();
+  this->cycle = cycle;
+  mutex->unlock ();
+  return 0;
 }
 
 u_long
-LogStream::getCycleLog ()
+LogStream::getCycle ()
 {
-  return cycleLog;
+  return cycle;
 }
 
 Stream*
 LogStream::getOutStream ()
 {
-  return outStream;
+  return out;
 }
 
 FiltersChain*
 LogStream::getFiltersChain ()
 {
-  return filtersChain;
+  return fc;
 }
 
 int
 LogStream::close ()
 {
+  mutex->lock ();
+  int success = 1;
   if (isOpened)
-    return isOpened = (filtersChain->flush (&nbw) || outStream->close ());
-  return isOpened;
+    {
+      if (!(isOpened = (fc->flush (&nbw) || out->close ())))
+        {
+          success = 0;
+        }
+    }
+  mutex->unlock ();
+  return success;
 }
 
 int
@@ -110,10 +128,9 @@ LogStream::update (LogStreamEvent evt, void* message, void* reply)
 {
   switch (evt)
     {
-    case EVT_SET_CYCLE_LOG:
+    case EVT_SET_CYCLE:
       {
-        setCycleLog (*static_cast<u_long*>(message));
-        return 0;
+        return setCycle (*static_cast<u_long*>(message));
       }
       break;
     case EVT_LOG:
@@ -131,6 +148,21 @@ LogStream::update (LogStreamEvent evt, void* message, void* reply)
         return addFilter (static_cast<Filter*>(message));
       }
       break;
+    case EVT_CHOWN:
+      {
+        return chown (static_cast<int*>(message)[0], 
+                      static_cast<int*>(message)[1]);
+      }
+    case EVT_ENTER_ERROR_MODE:
+      {
+        return enterErrorMode ();
+      }
+      break;
+    case EVT_EXIT_ERROR_MODE:
+      {
+        return exitErrorMode ();
+      }
+      break;
     default:
       return 1;
     }
@@ -139,19 +171,25 @@ LogStream::update (LogStreamEvent evt, void* message, void* reply)
 int
 LogStream::addFilter (Filter* filter)
 {
-  return filtersChain->addFilter (filter, &nbw);
+  mutex->lock ();
+  int success = fc->addFilter (filter, &nbw);
+  mutex->unlock ();
+  return success;
 }
 
 int
 LogStream::removeFilter (Filter* filter)
 {
-  return filtersChain->removeFilter (filter);
+  mutex->lock ();
+  int success = fc->removeFilter (filter);
+  mutex->unlock ();
+  return success;
 }
 
 FiltersFactory const*
 LogStream::getFiltersFactory ()
 {
-  return filtersFactory;
+  return ff;
 }
 
 u_long
@@ -182,4 +220,22 @@ list<string>&
 LogStream::getCycledStreams ()
 {
   return cycledStreams;
+}
+
+int
+LogStream::chown (int uid, int gid)
+{
+  return 0;
+}
+
+int
+LogStream::enterErrorMode ()
+{
+  return 0;
+}
+
+int
+LogStream::exitErrorMode ()
+{
+  return 0;
 }

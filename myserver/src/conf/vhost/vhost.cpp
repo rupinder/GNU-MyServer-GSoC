@@ -1,18 +1,18 @@
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <include/conf/vhost/vhost.h>
@@ -33,15 +33,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /*!
  *vhost costructor
  */
-Vhost::Vhost()
+Vhost::Vhost(LogManager* lm)
 {
   ipList.clear();
   hostList.clear();
   refMutex.init();
   documentRoot.assign("");
   systemRoot.assign("");
-  accessesLogFileName.assign("");
-  warningsLogFileName.assign("");
   hashedData.clear();
   protocolData = 0;
 
@@ -54,6 +52,7 @@ Vhost::Vhost()
   refCount = 0;
   nullReferenceCb = 0;
   defaultPriority = 0;
+  logManager = lm;
 }
 
 
@@ -69,20 +68,10 @@ Vhost::~Vhost()
   freeSSL();
   freeHashedData();
   refMutex.destroy();
-  accessesLogFileName.assign("");
-  
-  warningsLogFileName.assign("");
- 
-  warningsLogFile->close();
-  accessesLogFile->close();
-
-  delete warningsLogFile;
-  delete accessesLogFile;
-  
   documentRoot.assign("");
   systemRoot.assign("");
-
   mimeManager.clean();
+  logManager->remove (this);
 }
 
 /*! 
@@ -92,18 +81,18 @@ Vhost::~Vhost()
 int Vhost::freeHashedData()
 {
   try
-  {
-    HashMap<string, string*>::Iterator it = hashedData.begin();
-    for (;it != hashedData.end(); it++)
     {
-      delete (*it);
+      HashMap<string, string*>::Iterator it = hashedData.begin();
+      for (;it != hashedData.end(); it++)
+        {
+          delete (*it);
+        }
+      hashedData.clear();
     }
-    hashedData.clear();
-  }
   catch(...)
-  {
-    return 1;
-  }
+    {
+      return 1;
+    }
   return 0;
 }
 
@@ -130,11 +119,11 @@ void Vhost::clearHostList()
 {
   list<StringRegex*>::iterator i = hostList.begin();
   while(i != hostList.end())
-  {
-    StringRegex* sr = *i;
-    delete sr;
-    i++;
-  }
+    {
+      StringRegex* sr = *i;
+      delete sr;
+      i++;
+    }
   hostList.clear();
 }
 
@@ -145,66 +134,31 @@ void Vhost::clearIPList()
 {
   list<StringRegex*>::iterator i = ipList.begin();
   while(i != ipList.end())
-  {
-    StringRegex* sr = *i;
-    delete sr;
-    i++;
-  }
+    {
+      StringRegex* sr = *i;
+      delete sr;
+      i++;
+    }
   hostList.clear();
 }
 
-
-/*!
- *Open the log files for the virtual hosts.
- *\param maxLogSize Define a max log size for the opened files.
- */
-int Vhost::openLogFiles(u_long maxlogSize)
+int
+Vhost::openAccessLog (string location, list<string>& filters, u_long cycle)
 {
-  const char* accessesLogFileName = getAccessesLogFileName();
-  const char* warningsLogFileName = getWarningsLogFileName();
+  return logManager->add (this, "ACCESSLOG", location, filters, cycle);
+}
 
-  accessesLogFile = new LogManager();
-  warningsLogFile = new LogManager();
+int
+Vhost::openWarningLog (string location, list<string>& filters, u_long cycle)
+{
+  return logManager->add (this, "WARNINGLOG", location, filters, cycle);
+}
 
-  if(accessesLogFileName)
-  {
-    accessesLogFile->load(accessesLogFileName);
-    
-    if(strstr(getAccessLogOpt(), "cycle=yes"))
-    {
-      accessesLogFile->setCycleLog(1);
-    }
-    if(strstr(getAccessLogOpt(), "cycle_gzip=no"))
-    {
-      accessesLogFile->setGzip(0);
-    }
-    else
-    {
-      accessesLogFile->setGzip(1);
-    }  
-  }
-
-  if(warningsLogFileName)
-  {
-    warningsLogFile->load(warningsLogFileName);
-    if(strstr(getWarningLogOpt(), "cycle=yes"))
-    {
-      warningsLogFile->setCycleLog(1);
-    }
-  
-    if(strstr(getWarningLogOpt(), "cycle_gzip=no"))
-    {
-      warningsLogFile->setGzip(0);
-    }
-    else
-    {
-      warningsLogFile->setGzip(1);
-    }
-  }
-
-  setMaxLogSize(maxlogSize);
-
-  return 0;
+int
+Vhost::openLogFiles ()
+{ 
+  return logManager->count (this, "ACCESSLOG") == 0 ||
+    logManager->count (this, "WARNINGLOG") == 0;
 }
 
 /*!
@@ -231,19 +185,19 @@ void Vhost::removeIP(const char *ip)
   list<StringRegex*>::iterator i = ipList.begin();
 
   while(i != ipList.end())
-  {
-    StringRegex* sr = *i;
-    /*
-     *If this is the virtual host with the right IP.
-     */
-    if(!stringcmp(sr->name,ip))
     {
-      ipList.erase(i);
-      return;
-    }
+      StringRegex* sr = *i;
+      /*
+       *If this is the virtual host with the right IP.
+       */
+      if(!stringcmp(sr->name,ip))
+        {
+          ipList.erase(i);
+          return;
+        }
     
-    i++;
-  }
+      i++;
+    }
 }
 
 /*!
@@ -255,19 +209,19 @@ void Vhost::removeHost(const char *host)
   list<StringRegex*>::iterator i = hostList.begin();
 
   while(i != hostList.end())
-  {
-    StringRegex* sr = *i;
-    /*
-     *If this is the virtual host with the right IP.
-     */
-    if(!stringcmp(sr->name, host))
     {
-      hostList.erase(i);
-      return;
-    }
+      StringRegex* sr = *i;
+      /*
+       *If this is the virtual host with the right IP.
+       */
+      if(!stringcmp(sr->name, host))
+        {
+          hostList.erase(i);
+          return;
+        }
     
-    i++;
-  }
+      i++;
+    }
 }
 /*!
  *Check if an host is allowed to the connection
@@ -281,22 +235,22 @@ int Vhost::isHostAllowed(const char* host)
     
   list<StringRegex*>::iterator i = hostList.begin();
   while(i != hostList.end())
-  {
-    StringRegex* sr = *i;
-    regmatch_t pm;
-    if(sr->regex.isCompiled())
     {
-      if (!sr->regex.exec(host, 1, &pm, REG_NOTBOL))
-      {
-        return 1;
-      }
-    }
+      StringRegex* sr = *i;
+      regmatch_t pm;
+      if(sr->regex.isCompiled())
+        {
+          if (!sr->regex.exec(host, 1, &pm, REG_NOTBOL))
+            {
+              return 1;
+            }
+        }
     
-    if(!stringcmp(sr->name, host))
-      return 1;
+      if(!stringcmp(sr->name, host))
+        return 1;
       
-    i++;
-  }
+      i++;
+    }
   return 0;
 }
 
@@ -327,28 +281,28 @@ int Vhost::areAllIPAllowed()
  */
 int Vhost::isIPAllowed(const char* ip)
 {
- /* If no IPs are specified then every host is allowed to connect here.  */
+  /* If no IPs are specified then every host is allowed to connect here.  */
   if(!ipList.size() || !ip)
     return 1;
     
   list<StringRegex*>::iterator i = ipList.begin();
   while(i != ipList.end())
-  {
-    StringRegex* sr = *i;
-    regmatch_t pm;
-    if(sr->regex.isCompiled())
     {
-      if (!sr->regex.exec(ip ,1, &pm, REG_NOTBOL))
-      {
-        return 1;
-      }
-    }
+      StringRegex* sr = *i;
+      regmatch_t pm;
+      if(sr->regex.isCompiled())
+        {
+          if (!sr->regex.exec(ip ,1, &pm, REG_NOTBOL))
+            {
+              return 1;
+            }
+        }
     
-    if(!stringcmp(sr->name, ip))
-      return 1;
+      if(!stringcmp(sr->name, ip))
+        return 1;
       
-    i++;
-  }
+      i++;
+    }
   return 0;
 }
 
@@ -370,20 +324,20 @@ void Vhost::addHost(const char *host, int isRegex)
   uint32_t* ucs4 = stringprep_utf8_to_ucs4 (host, -1, &len);
 
   if(!ucs4)
-  {
-    delete hl;
-    return;
-  }
+    {
+      delete hl;
+      return;
+    }
 
   ret = idna_to_ascii_4z (ucs4, &ascii, 0);
 
   free(ucs4);
   
   if (ret != IDNA_SUCCESS)
-  {   
-    delete hl;
-    return;
-  }
+    {   
+      delete hl;
+      return;
+    }
 
   host = ascii;
 #endif
@@ -401,124 +355,27 @@ void Vhost::addHost(const char *host, int isRegex)
 }
 
 /*!
- *Here threads get the permission to use the access log file.
- *\param id The caller thread ID.
+ * Write to the accesses log.
+ * \param str The line to log.
  */
-u_long Vhost::accessesLogRequestAccess(int id)
+int 
+Vhost::accessesLogWrite (const char* str)
 {
-  accessesLogFile->requestAccess();
-  return 0;
+  return logManager->log (this, "ACCESSLOG", string (str));
 }
 
 /*!
- *Here threads get the permission to use the warnings log file.
- *\param id The caller thread ID.
+ * Write a line to the warnings log.
+ * \param str The line to log.
  */
-u_long Vhost::warningsLogRequestAccess(int id)
-{
-  warningsLogFile->requestAccess();
-  return 0;
-}
-
-/*!
- *Here threads release the permission to use the access log file.
- *\param id The caller thread ID.
- */
-u_long Vhost::accessesLogTerminateAccess(int id)
-{
-  accessesLogFile->terminateAccess();
-  return 0;
-}
-
-/*!
- *Here threads release the permission to use the warnings log file.
- *\param id The caller thread ID.
- */
-u_long Vhost::warningsLogTerminateAccess(int id)
-{
-  warningsLogFile->terminateAccess();
-  return 0;
-}
-
-/*!
- *Write to the accesses log file.
- *\param str The line to log.
- */
-int Vhost::accessesLogWrite(const char* str)
-{
-  return accessesLogFile->write(str);
-}
-
-/*!
- *Return a pointer to the file used by the accesses log.
- */
-File* Vhost::getAccessesLogFile()
-{
-  return accessesLogFile->getFile();
-}
-
-/*!
- *Get the log object for the warnings.
- */
-LogManager* Vhost::getWarningsLog()
-{
-  return warningsLogFile;
-}
-
-/*!
- *Get the log object for the accesses.
- */
-LogManager* Vhost::getAccessesLog()
-{
-  return accessesLogFile;
-}
-
-/*!
- *Write a line to the warnings log file.
- *\param str The line to log.
- */
-int Vhost::warningsLogWrite(const char* str)
+int
+Vhost::warningsLogWrite (const char* str)
 {
   string msg;
-  getLocalLogFormatDate(msg, 100);
-  msg.append(" -- ");
-  msg.append(str);
-#ifdef WIN32
-  msg.append("\r\n");
-#else
-  msg.append("\n");
-#endif  
-  return warningsLogFile->write(msg.c_str());
-}
-
-/*!
- *Return a pointer to the file used by the warnings log.
- */
-File* Vhost::getWarningsLogFile()
-{
-  return warningsLogFile->getFile();
-}
-
-/*!
- *Set the max size of the log files.
- *\param newSize The new max dimension to use for the warning log files.
- */
-void Vhost::setMaxLogSize(int newSize)
-{
-  warningsLogFile->setMaxSize(newSize);
-  accessesLogFile->setMaxSize(newSize);  
-}
-
-/*!
- *Get the max size of the log files. Return 0 on success.
- */
-int Vhost::getMaxLogSize()
-{
-  /*
-   *warningsLogFile max log size is equal to the  
-   *accessesLogFile one.
-   */
-  return warningsLogFile->getMaxSize( );
+  getLocalLogFormatDate (msg, 100);
+  msg.append (" -- ");
+  msg.append (str);
+  return logManager->log (this, "WARNINGLOG", string (str), true);
 }
 
 /*!

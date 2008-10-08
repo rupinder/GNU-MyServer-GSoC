@@ -208,18 +208,14 @@ void* clients_thread(void* pParam)
       ostringstream s;
       s << "Bad alloc: " << ba.what();
       
-      ct->server->logPreparePrintError();
-      ct->server->logWriteln(s.str().c_str());
-      ct->server->logEndPrintError();
+      ct->server->logWriteln(s.str().c_str(), ERROR);
     }
     catch( exception &e)
     {
       ostringstream s;
       s << "Error: " << e.what();
 
-      ct->server->logPreparePrintError();
-      ct->server->logWriteln(s.str().c_str());
-      ct->server->logEndPrintError();
+      ct->server->logWriteln(s.str().c_str(), ERROR);
     };
     
   }

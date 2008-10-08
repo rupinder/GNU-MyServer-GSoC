@@ -2,114 +2,103 @@
 
 @section Overview of the log management features
 The MyServer's log management system was designed to support logging
-over different targets. By default, log messages can be sent to a file,
-to a socket and of course to the console. The main class which achieves
-logging tasks is still the @code{LogManager} class. One single instance
-of it can now handle multiple targets. These targets are called
-@code{LogStream} objects. In addition, it is possible to provide a list
-of filters (e.g. the Gzip filter) to each @code{LogStream} object. This
-offers interesting possibilities, like logging over a TCP Socket while
-taking advantage of the Gzip compression. The new @code{LogManager} also
-ensures that all the operations that modify its internal data
-structures, through its interface, are atomics.
+over different targets. At the moment, these targets are made out of
+files, sockets and, of course, consoles. Each target, must be referred
+through its @b{location string}. In addition, it is possible to provide
+a list of filters (e.g. the Gzip filter) to improve the logging
+capabilities.
 
-@section Use of the new LogManager interface
-This section introduces the use of the new @code{LogManager}'s
-interface.
+@section Use of the log manager
+This section will introduce you to the use of the log management
+features.
 
-@subsection Construction
-The @code{LogManager} constructor, requires an instance of
-@code{FiltersFactory}, an instance of @code{LogStreamFactory} and a
-logging level, choosen between @code{INFO, WARNING, ERROR}. The third
-parameter is optional. 
-@example
-LogManager (FiltersFactory* filtersFactory,
-            LogStreamFactory* logStreamFactory,
-            LoggingLevel level = WARNING);
-@end example
-
-
-@subsection Adding a new LogStream target
-The adding of a new @code{LogStream} target can be done calling the
-@code{addLogStream} method over an instance of the
-@code{LogManager}. Below, we can look at the method signature :
-@example
-int addLogStream (string location, 
-                  list<string>& filters, 
-                  u_long cycleLog);
-@end example
-The @code{location} string holds the location where the @code{LogStream}
-will point to as well as the protocol it will use. That string must
-follow a special syntax, that will be covered in next section. The
-@code{filters} parameter holds a list of filter names that will be added
-to the @code{LogStream}. Finally, the @code{cycleLog} parameter holds
-the max size, in bytes, that the new @code{LogStream} can reach. Over
-that limit, the @code{LogStream} will be cycled, that is, its content
-will be saved somewhere else. The current @code{LogStream} will be
-emptied and the location name of its saved content, will be available
-looking at the latest element of a FIFO queue returned by the
-@code{getCycledStreams} method. The @code{addLogStream} method returns a
-zero value if the new @code{LogStream} was successful added, a non-zero
-value otherwise, according to the MyServer standard.
-
-@subsubsection Location strings
+@subsection Location strings
 A location string must be provided in the form
-`@code{protocol://path/to/resource}'. The `@code{protocol://}' part is
-used by the @code{LogStreamFactory} to fetch the proper constructor for
-the new object that it will create. The `@code{path/to/resource}' part,
-instead, is used within the @code{LogStreamCreator}. The
-@code{LogStream} creation process, must ensure, through checks at
-increasing depth levels, that only valid @code{LogStream} objects can
-be returned. For example, syntactically a location string like
-`@code{socket://foo_host:-1}' is correct, but of course, the
-`@code{path/to/resource}' part doesn't represent any valid host:port 
-pair for a socket. So giving a such location string, the
-@code{addLogStream} method, must fail.
+@code{protocol://resource}, where @code{protocol} can ben choosen
+between :
+@enumerate
+@item @code{console}
+@item @code{file}
+@item @code{socket}
+@end enumerate
+while @code{resource} must be a valid filename or URL according to its
+@code{protocol}. The @code{console} protocol, can take as its
+@code{resource} argument, either @code{stdout} or @code{stderr}. 
 
-@subsection Removing an existing LogStream
-The interface provides also a method that can detach a @code{LogStream}
-from the @code{LogManager}. Here is the method signature :
+@subsubsection Location string examples
+@enumerate
+@item Send log messages to a host whose ip address is 192.168.1.18, on
+port 12345 :
 @example
-int removeLogStream (string location);
+socket://192.168.1.18:12345
 @end example
-It will remove the @code{LogStream} that points to @code{location}. If
-the provided location doesn't belong to the @code{LogManager}, the
-method doesn't nothing and it simply returns a non-zero value.
+@item Send log messages to the file /var/log/myserver/MyServerHTTP.log :
+@example
+file:///var/log/myserver/MyServerHTTP.log
+@end example
+Note the extra '/' needed to refer an absolute path.
+@item Send log messages to the standard error
+@example
+console://stderr
+@end example
+@end enumerate
 
-@subsection Adding new LogStream classes
-To add new targets which can be used within the @code{LogManager}, you
-have to subclass the @code{LogStream} class. Then, if needed, override
-the following virtual methods :
+@subsection Setting the MyServer's main log
+You can set the MyServer's main log location through the switch
 @example
-virtual u_long streamSize ();
-virtual int streamCycle ();
+--loglocation=protocol://resource
 @end example
-The first one should return the size of the @code{Stream} owned by the
-@code{LogStream} while the second should manage its cycling process. The
-return value for the latter method must conform with the MyServer
-standard. The next step is to subclass @code{LogStreamCreator},
-overriding the @code{create} abstract method. Finally, you have to add
-the new @code{LogStreamCreator} to the @code{LogStreamFactory}, merely
-adding a line to its constructor, something that looks like :
-@example
-logStreamCreators["foo://"] = new FooStreamCreator ();
-@end example
+where the @code{--loglocation} argument is a valid location string.
 
-@subsection Writing log messages on the LogStream objects
-To log messages, simply call the method @code{log} on a
-@code{LogManager} object. That method takes three parameters, but only
-the first one is needed.
+@subsection Setting the logging resources for virtual hosts
+Each virtual host needs two main log targets, one for the access
+messages and the other one for the error messages, whose entries in the
+configuration file, are respectively @code{ACCESSLOG} and
+@code{WARNINGLOG}. Each of these  targets, can in turn write its
+messages over different streams. To tell MyServer about all that, you
+can edit the @file{virtualhosts.xml} file, and apply the informations
+found in this section, to each @code{VHOST} entry of that file. As we
+can see in the following example, the @code{ACCESSLOG} root entry for
+the accesses log configuration, contains some @code{STREAMS}, and each
+@code{STREAM} is made out of a @code{LOCATION}, a @code{CYCLE} and some
+@code{FILTERS}.
 @example
-int log (string message, 
-         LoggingLevel level = WARNING, 
-         string location = "all");
+<ACCESSLOG type="combined">
+  <STREAMS>
+    <STREAM>
+      <LOCATION>file://logs/MyServerHTTP.log</LOCATION>
+      <CYCLE>1048576</CYCLE>
+      <FILTERS>
+         <FILTER>gzip</FILTER>
+      </FILTERS>
+    </STREAM>
+    <STREAM>
+      <LOCATION>console://stderr</LOCATION>
+    </STREAM>
+  </STREAMS>
+</ACCESSLOG>
 @end example
-The first parameter represent a message to output on the log. The
-@code{level} parameter represent the @code{LoggingLevel} of the incoming
-message. If it is lesser than the @code{LogManager}'s logging level, the
-@code{LogManager} discards the message. The @code{location} parameter
-tells the @code{LogManager} to output the message only to the specified
-location. By default, if no @code{location} is provided, the
-@code{LogManager} will log the message on all its
-@code{LogStream} objects. If a non-valid or non-existent location is
-provided, the @code{LogManager} simply discards the message.
+Above we have two streams attached to the @code{ACCESSLOG} entry. The
+first one, is a file. This file will grow up to 1048576 bytes, over that
+limit it will be cycled. Also, this target will take advantage of the
+gzip compression, since it will write to the file through the gzip
+filter. The second one is the standard error stream over the console.
+The next example, shows instead the @code{WARNINGLOG} entry. In that
+example, we still have two streams where warning messages will be
+sent. The first one is a socket, while the second one is a file that
+will grow with no limit over its size. No filters will be applied to
+that stream.
+@example
+<WARNINGLOG>
+  <STREAMS>
+    <STREAM>
+      <LOCATION>socket://192.168.1.13:8080</LOCATION>
+    </STREAM>
+    <STREAM>
+      <LOCATION>file://MyServerHTTP.err</LOCATION>
+    </STREAM>
+  </STREAMS>
+</WARNINGLOG>
+@end example
+It is important to notice that no duplicate location strings are
+admitted. If any, only the first one will be added.

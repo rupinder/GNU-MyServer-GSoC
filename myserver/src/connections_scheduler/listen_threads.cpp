@@ -96,9 +96,7 @@ int ListenThreads::createServerAndListener(u_short port)
       serverSocketIPv4->socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
       if (serverSocketIPv4->getHandle() == (FileHandle)INVALID_SOCKET)
       {
-        server->logPreparePrintError();
-        server->logWriteln(languageParser->getValue("ERR_OPENP"));
-        server->logEndPrintError();
+        server->logWriteln(languageParser->getValue("ERR_OPENP"), ERROR);
         delete serverSocketIPv4;
         serverSocketIPv4 = NULL;
       }
@@ -122,9 +120,7 @@ int ListenThreads::createServerAndListener(u_short port)
                                         (const char *)&optvalReuseAddr,
                                         sizeof(optvalReuseAddr)) < 0)
         {
-          server->logPreparePrintError();
-          server->logWriteln(languageParser->getValue("ERR_ERROR"));
-          server->logEndPrintError();
+          server->logWriteln(languageParser->getValue("ERR_ERROR"), ERROR);
           delete serverSocketIPv4;
           serverSocketIPv4 = NULL;
           //return 0; allow IPv6
@@ -140,9 +136,7 @@ int ListenThreads::createServerAndListener(u_short port)
           if (serverSocketIPv4->bind(&sockServerSocketIPv4,
                                      sizeof(sockaddr_in)) != 0)
           {
-            server->logPreparePrintError();
-            server->logWriteln(languageParser->getValue("ERR_BIND"));
-            server->logEndPrintError();
+            server->logWriteln(languageParser->getValue("ERR_BIND"), ERROR);
             delete serverSocketIPv4;
             serverSocketIPv4 = NULL;
           }
@@ -161,9 +155,7 @@ int ListenThreads::createServerAndListener(u_short port)
       serverSocketIPv6->socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
       if ( serverSocketIPv6->getHandle() == (FileHandle)INVALID_SOCKET )
       {
-        server->logPreparePrintError();
-        server->logWriteln(languageParser->getValue("ERR_OPENP"));
-        server->logEndPrintError();
+        server->logWriteln(languageParser->getValue("ERR_OPENP"), ERROR);
         delete serverSocketIPv6;
         serverSocketIPv6 = NULL;
       }
@@ -185,9 +177,7 @@ int ListenThreads::createServerAndListener(u_short port)
                                         (const char *)&optvalReuseAddr,
                                         sizeof(optvalReuseAddr))<0)
         {
-          server->logPreparePrintError();
-          server->logWriteln(languageParser->getValue("ERR_ERROR"));
-          server->logEndPrintError();
+          server->logWriteln(languageParser->getValue("ERR_ERROR"), ERROR);
           delete serverSocketIPv6;
           serverSocketIPv6 = NULL;
           //return 0;allow IPv6
@@ -197,9 +187,7 @@ int ListenThreads::createServerAndListener(u_short port)
                                         (const char *)&optvalReuseAddr,
                                         sizeof(optvalReuseAddr)) < 0)
         {
-          server->logPreparePrintError();
-          server->logWriteln(languageParser->getValue("ERR_ERROR"));
-          server->logEndPrintError();
+          server->logWriteln(languageParser->getValue("ERR_ERROR"), ERROR);
           delete serverSocketIPv6;
           serverSocketIPv6 = NULL;
           //return 0;allow IPv6
@@ -215,9 +203,7 @@ int ListenThreads::createServerAndListener(u_short port)
           if ( serverSocketIPv6->bind(&sockServerSocketIPv6,
                                       sizeof(sockaddr_in6)) != 0)
           {
-            server->logPreparePrintError();
-            server->logWriteln(languageParser->getValue("ERR_BIND"));
-            server->logEndPrintError();
+            server->logWriteln(languageParser->getValue("ERR_BIND"), ERROR);
             delete serverSocketIPv6;
             serverSocketIPv6 = NULL;
           }
@@ -241,18 +227,14 @@ int ListenThreads::createServerAndListener(u_short port)
     server->logWriteln(languageParser->getValue("MSG_SLISTEN"));
     if (serverSocketIPv4 != NULL && serverSocketIPv4->listen(SOMAXCONN))
     {
-      server->logPreparePrintError();
-      server->logWriteln(languageParser->getValue("ERR_LISTEN"));
-      server->logEndPrintError();
+      server->logWriteln(languageParser->getValue("ERR_LISTEN"), ERROR);
       delete serverSocketIPv4;
       serverSocketIPv4 = NULL;
     }
 
     if (serverSocketIPv6 != NULL && serverSocketIPv6->listen(SOMAXCONN))
     {
-      server->logPreparePrintError();
-      server->logWriteln(languageParser->getValue("ERR_LISTEN"));
-      server->logEndPrintError();
+      server->logWriteln(languageParser->getValue("ERR_LISTEN"), ERROR);
       delete serverSocketIPv6;
       serverSocketIPv6 = NULL;
     }

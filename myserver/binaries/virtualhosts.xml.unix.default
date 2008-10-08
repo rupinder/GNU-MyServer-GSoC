@@ -11,8 +11,22 @@
 		<DOCROOT>/var/web/</DOCROOT>
 		<SYSFOLDER>/usr/local/share/myserver/system/</SYSFOLDER>
 
-		<ACCESSLOG>/var/log/myserver/MyServerHTTP.log</ACCESSLOG>
-		<WARNINGLOG>/var/log/myserver/MyServerHTTP.err</WARNINGLOG>
+		<ACCESSLOG>
+		  <STREAMS>
+		    <STREAM>
+		      <LOCATION>file:///var/log/myserver/MyServerHTTP.log</LOCATION>
+		      <CYCLE>1048576</CYCLE>
+		    </STREAM>
+		  </STREAMS>
+		</ACCESSLOG>
+		<WARNINGLOG>
+		  <STREAMS>
+		    <STREAM>
+		      <LOCATION>file:///var/log/myserver/MyServerHTTP.err</LOCATION>
+		      <CYCLE>1048576</CYCLE>
+		    </STREAM>
+		  </STREAMS>
+		</WARNINGLOG>
 	</VHOST>
 
 	<VHOST>
@@ -24,7 +38,21 @@
 		<DOCROOT>/var/web/</DOCROOT>
 		<SYSFOLDER>/usr/local/share/myserver/system/</SYSFOLDER>
 
-		<ACCESSLOG>/var/log/myserver/MyServerFTP.log</ACCESSLOG>
-		<WARNINGLOG>/var/log/myserver/MyServerFTP.err</WARNINGLOG>
+		<ACCESSLOG>
+		  <STREAMS>
+		    <STREAM>
+		      <LOCATION>file:///var/log/myserver/MyServerFTP.log</LOCATION>
+		      <CYCLE>1048576</CYCLE>
+		    </STREAM>
+		  </STREAMS>
+		</ACCESSLOG>
+		<WARNINGLOG>
+		  <STREAMS>
+		    <STREAM>
+		      <LOCATION>file:///var/log/myserver/MyServerFTP.err</LOCATION>
+		      <CYCLE>1048576</CYCLE>
+		    </STREAM>
+		  </STREAMS>
+		</WARNINGLOG>
 	</VHOST>
 </VHOSTS>

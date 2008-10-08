@@ -17,15 +17,11 @@
 
 #include <include/log/log_manager.h>
 
-int const LogManager::TYPE_CONSOLE = 1;
-int const LogManager::TYPE_FILE = 2;
-
-LogManager::LogManager (FiltersFactory* filtersFactory,
-                        LogStreamFactory* logStreamFactory,
+LogManager::LogManager (FiltersFactory* ff,
                         LoggingLevel level) : level (level)
 {
-  this->filtersFactory = filtersFactory;
-  this->logStreamFactory = logStreamFactory;
+  this->ff = ff;
+  lsf = new LogStreamFactory ();
   mutex = new Mutex ();
   mutex->init ();
 }
@@ -35,123 +31,381 @@ LogManager::~LogManager ()
   if (!empty ())
     clear ();
   delete mutex;
+  delete lsf;
 }
 
 int
-LogManager::addLogStream (string location, 
-                          list<string>& filters, 
-                          u_long cycleLog)
+LogManager::clear ()
 {
   mutex->lock ();
-  int retVal = 1;
-  if (!contains (location))
-    {
-      LogStream* logStream = logStreamFactory->createLogStream (filtersFactory,
-                                                                location,
-                                                                filters,
-                                                                cycleLog);
-      if (logStream)
-        {
-          logStreams[location] = logStream;
-          retVal = 0;
-        }
-    }
-  mutex->unlock ();
-  return retVal;
-}
-
-int
-LogManager::removeLogStream (string location)
-{
-  mutex->lock ();
-  int retVal = 1;
-  if (contains (location))
-    {
-      delete logStreams[location];
-      logStreams.erase (location);
-      retVal = 0;
-    }
-  mutex->unlock ();
-  return retVal;
-}
-
-LogStream*
-LogManager::getLogStream (string location)
-{
-  LogStream* retVal = 0;
-  if (contains (location))
-    retVal = logStreams[location];
-  return retVal;
-}
-
-int
-LogManager::notifyLogStreams (LogStreamEvent evt, 
-                              void* message, 
-                              void* reply)
-{
   map<string, LogStream*>::iterator it;
-  int retVal = 0;
   for (it = logStreams.begin (); it != logStreams.end (); it++)
     {
-      retVal |= it->second->update (evt, message, reply);
+      delete it->second;
     }
-  return retVal;
+  logStreams.clear ();
+  owners.clear ();
+  mutex->unlock ();
+  return !empty ();
 }
 
 int
-LogManager::log (string message, LoggingLevel level, string location)
+LogManager::add (void* owner, string type, string location, 
+                 list<string>& filters, u_long cycle)
 {
   mutex->lock ();
-  int retVal = 1;
+  int success = 1;
+  if (!contains (location))
+    {
+      LogStream* ls = lsf->create (ff, location, filters, cycle);
+      if (ls)
+        {
+          success = (add (owner) || add (owner, type) ||
+                     add (owner, type, location, ls));
+        }
+    }
+  mutex->unlock ();
+  return success;
+}
+
+int
+LogManager::add (void* owner)
+{
+  int success = 1;
+  if (owner)
+    {
+      if (!contains (owner))
+        {
+          map<string, map<string, LogStream*> > type;
+          owners[owner] = type;
+        }
+      success = 0;
+    }
+  return success;
+}
+
+int
+LogManager::add (void* owner, string type)
+{
+  int success = 1;
+  if (type.size ())
+    {
+      if (!contains (owner, type))
+        {
+          map<string, LogStream*> target;
+          owners[owner][type] = target;
+        }
+      success = 0;
+    }
+  return success;
+}
+
+int
+LogManager::add (void* owner, string type, string location, LogStream* ls)
+{
+  logStreams[location] = ls;
+  owners[owner][type][location] = ls;
+  if (contains (location) && contains (owner, type, location))
+    {
+      return 0;
+    }
+  return 1;
+}
+
+int 
+LogManager::remove (void* owner)
+{
+  mutex->lock ();
+  int success = 1;
+  if (contains (owner))
+    {
+      map<string, map<string, LogStream*> > m = owners[owner];
+      map<string, map<string, LogStream*> >::iterator it_1;
+      for (it_1 = m.begin (); it_1 != m.end (); it_1++)
+        {
+          map<string, LogStream*> t = it_1->second;
+          map<string, LogStream*>::iterator it_2;
+          for (it_2 = t.begin (); it_2 != t.end (); it_2++)
+            {
+              delete it_2->second;
+              logStreams.erase (it_2->first);
+            }
+          t.clear ();
+        }
+      m.clear ();
+      success = 0;
+    }
+  mutex->unlock ();
+  return success;
+}
+
+int
+LogManager::notify (void* owner, string type, string location, 
+                    LogStreamEvent evt, void* message, void* reply)
+{
+  int success = 1;
+  if (contains (owner, type, location))
+    {
+      success = owners[owner][type][location]->update (evt, message, reply);
+    }
+  return success;
+}
+
+int
+LogManager::notify (void* owner, string type, LogStreamEvent evt, 
+                    void* message, void* reply)
+{
+  int success = 1;
+  if (contains (owner, type))
+    {
+      success = 0;
+      map<string, LogStream*> m = owners[owner][type];
+      map<string, LogStream*>::iterator it;
+      for (it = m.begin (); it != m.end (); it++)
+        {
+          success |= notify (owner, type, it->first, evt, message, reply);
+        }
+    }
+  return success;
+}
+
+int
+LogManager::notify (void* owner, LogStreamEvent evt, void* message, 
+                    void* reply)
+{
+  int success = 1;
+  if (contains (owner))
+    {
+      success = 0;
+      map<string, map<string, LogStream*> > m = owners[owner];
+      map<string, map<string, LogStream*> >::iterator it;
+      for (it = m.begin (); it != m.end (); it++)
+        {
+          success |= notify (owner, it->first, evt, message, reply);
+        }
+    }
+  return success;
+}
+
+int
+LogManager::chown (void* owner, int uid, int gid)
+{
+  int message[2];
+  message[0] = uid;
+  message[1] = gid;
+  return notify (owner, EVT_CHOWN, static_cast<void*>(message));
+}
+
+int
+LogManager::chown (void* owner, string type, int uid, int gid)
+{
+  int message[2];
+  message[0] = uid;
+  message[1] = gid;
+  return notify (owner, EVT_CHOWN, static_cast<void*>(message));
+}
+
+int
+LogManager::chown (void* owner, string type, string location, int uid, int gid)
+{
+  int message[2];
+  message[0] = uid;
+  message[1] = gid;
+  return notify (owner, type, location, EVT_CHOWN, static_cast<void*>(message));
+}
+
+int
+LogManager::log (void* owner, string message, bool appendNL,
+                 LoggingLevel level)
+{
+  int success = 1;
   if (level >= this->level)
     {
-      if (contains (location))
+      success = 0;
+      if (appendNL)
         {
-          retVal = logStreams[location]->log (message);
+          message.append (NL);
         }
-      else if (!location.compare ("all"))
+      if (level == ERROR)
         {
-          retVal = notifyLogStreams (EVT_LOG, static_cast<void*>(&message));
+          success = 
+            notify (owner, EVT_ENTER_ERROR_MODE) ||
+            notify (owner, EVT_LOG, static_cast<void*>(&message)) ||
+            notify (owner, EVT_EXIT_ERROR_MODE);
+        }
+      else
+        {
+          success = notify (owner, EVT_LOG, static_cast<void*>(&message));
         }
     }
-  mutex->unlock ();
-  return retVal;
+  return success;
 }
 
 int
-LogManager::close (string location)
+LogManager::log (void* owner, string type, string message, bool appendNL,
+                 LoggingLevel level)
 {
-  mutex->lock ();
-  int retVal = 1;
-  if (contains (location))
+  int success = 1;
+  if (level >= this->level)
     {
-      retVal = logStreams[location]->close ();
+      success = 0;
+      if (appendNL)
+        {
+          message.append (NL);
+        }
+      if (level == ERROR)
+        {
+          success = 
+            notify (owner, type, EVT_ENTER_ERROR_MODE) ||
+            notify (owner, type, EVT_LOG, static_cast<void*>(&message)) ||
+            notify (owner, type, EVT_EXIT_ERROR_MODE);
+        }
+      else
+        {
+          success = notify (owner, type, EVT_LOG, static_cast<void*>(&message));
+        }
     }
-  else if (!location.compare ("all"))
-    {
-      retVal = notifyLogStreams (EVT_CLOSE);
-    }
-  mutex->unlock ();
-  return retVal;
+  return success;
 }
 
-void
-LogManager::setCycleLog (u_long cycleLog, string location)
+int
+LogManager::log (void* owner, string type, string location, string message, 
+                 bool appendNL, LoggingLevel level)
 {
-  mutex->lock ();
+  int success = 1;
+  if (level >= this->level)
+    {
+      if (appendNL)
+        {
+          message.append (NL);
+        }
+      if (level == ERROR)
+        {
+          success = 
+            notify (owner, type, location, EVT_ENTER_ERROR_MODE) ||
+            notify (owner, type, location, EVT_LOG, static_cast<void*>(&message)) ||
+            notify (owner, type, location, EVT_EXIT_ERROR_MODE);
+        }
+      else
+        {
+          success = notify (owner, type, location, EVT_LOG, 
+                            static_cast<void*>(&message));
+        }
+    }
+  return success;
+}
+
+int
+LogManager::close (void* owner)
+{
+  return notify (owner, EVT_CLOSE);
+}
+
+int
+LogManager::close (void* owner, string type)
+{
+  return notify (owner, type, EVT_CLOSE);
+}
+
+int
+LogManager::close (void* owner, string type, string location)
+{
+  return notify (owner, type, location, EVT_CLOSE);
+}
+
+int
+LogManager::setCycle (void* owner, u_long cycle)
+{
+  return notify (owner, EVT_SET_CYCLE, static_cast<void*>(&cycle));
+}
+
+int
+LogManager::setCycle (void* owner, string type, u_long cycle)
+{
+  return notify (owner, type, EVT_SET_CYCLE, static_cast<void*>(&cycle));
+}
+
+int
+LogManager::setCycle (void* owner, string type, string location, u_long cycle)
+{
+  return notify (owner, type, location, EVT_SET_CYCLE, 
+                 static_cast<void*>(&cycle));
+}
+
+int
+LogManager::getCycle (string location, u_long* cycle)
+{
   if (contains (location))
     {
-      logStreams[location]->setCycleLog (cycleLog);
+      *cycle = logStreams[location]->getCycle ();
+      return 0;
     }
-  else if (!location.compare ("all"))
+  return 1;
+}
+
+int
+LogManager::get (void* owner, list<string>* l)
+{
+  if (contains (owner))
     {
-      notifyLogStreams (EVT_SET_CYCLE_LOG, static_cast<void*>(&cycleLog));
+      l->clear ();
+      map<string, map<string, LogStream*> > m = owners[owner];
+      map<string, map<string, LogStream*> >::iterator it;
+      for (it = m.begin (); it != m.end (); it++)
+        {
+          map<string, LogStream*> k = it->second;
+          map<string, LogStream*>::iterator it_1;
+          for (it_1 = k.begin (); it_1 != k.end (); it_1++)
+            {
+              l->push_back (it_1->first);
+            }
+        }
+      return 0;
     }
-  mutex->unlock ();
+  return 1;
+}
+
+int
+LogManager::get (void* owner, string type, list<string>* l)
+{
+  if (contains (owner, type))
+    {
+      l->clear ();
+      map<string, LogStream*> m = owners[owner][type];
+      map<string, LogStream*>::iterator it;
+      for (it = m.begin (); it != m.end (); it++)
+        {
+          l->push_back (it->first);
+        }
+      return 0;
+    }
+  return 1;
+}
+
+int
+LogManager::get (void* owner, string type, string location, LogStream** ls)
+{
+  if (contains (owner, type, location))
+    {
+      *ls = owners[owner][type][location];
+      return 0;
+    }
+  return 1;
+}
+
+int
+LogManager::getFilters (string location, list<string>* l)
+{
+  if (contains (location))
+    {
+      *l = logStreams[location]->getFiltersChain ()->getFilters ();
+      return 0;
+    }
+  return 1;
 }
 
 LoggingLevel
-LogManager::setLoggingLevel (LoggingLevel level)
+LogManager::setLevel (LoggingLevel level)
 {
   mutex->lock ();
   LoggingLevel oldLevel = level;
@@ -160,70 +414,30 @@ LogManager::setLoggingLevel (LoggingLevel level)
   return oldLevel;
 }
 
-u_long
-LogManager::getCycleLog (string location)
-{
-  u_long retVal = -1;
-  if (contains (location))
-    retVal = logStreams[location]->getCycleLog ();
-  return retVal;
-}
-
 LoggingLevel
-LogManager::getLoggingLevel ()
+LogManager::getLevel ()
 {
   return level;
 }
 
 void
-LogManager::setLogStreamFactory (LogStreamFactory* logStreamFactory)
+LogManager::setFiltersFactory (FiltersFactory* ff)
 {
   mutex->lock ();
-  this->logStreamFactory = logStreamFactory;
-  mutex->unlock ();
-}
-
-LogStreamFactory* 
-LogManager::getLogStreamFactory ()
-{
-  return logStreamFactory;
-}
-
-void
-LogManager::setFiltersFactory (FiltersFactory* filtersFactory)
-{
-  mutex->lock ();
-  this->filtersFactory = filtersFactory;
+  this->ff = ff;
   mutex->unlock ();
 }
 
 FiltersFactory* 
 LogManager::getFiltersFactory ()
 {
-  return filtersFactory;
-}
-
-int
-LogManager::size ()
-{
-  return logStreams.size ();
-}
-
-void
-LogManager::clear ()
-{
-  mutex->lock ();
-  map<string, LogStream*>::iterator it;
-  for (it = logStreams.begin (); it != logStreams.end (); it++)
-    delete it->second;
-  logStreams.clear ();
-  mutex->unlock ();
+  return ff;
 }
 
 bool
 LogManager::empty ()
 {
-  return size () == 0;
+  return logStreams.size () == 0 && owners.size () == 0;
 }
 
 bool
@@ -232,146 +446,45 @@ LogManager::contains (string location)
   return logStreams.count (location) > 0;
 }
 
-/*
- * *******************************************************************
- *
- *               D   E   P   R   E   C   A   T   E   D
- *
- * *******************************************************************
- */
-
-LogManager::LogManager () : level (WARNING)
+bool
+LogManager::contains (void* owner)
 {
-  mutex = new Mutex ();
-  this->filtersFactory = new FiltersFactory ();
-  this->filtersFactory->insert ("gzip", Gzip::factory);
-  logStreamFactory = new LogStreamFactory ();
-  mutex->init ();
-  type = TYPE_CONSOLE;
-  maxSize = 0;
-  gzipLog = 1;
-  cycleLog = 0;
-  list<string> filters;
-  addLogStream ("console://", filters, maxSize);
+  return owners.count (owner) > 0;
 }
 
-int
-LogManager::load (const char *filename)
+bool
+LogManager::contains (void* owner, string type)
 {
-  setType (TYPE_FILE);
-  removeLogStream ("console://");
-  string location ("file://");
-  location.append (filename);
-  location.append (".gz");
-  list<string> filters;
-  /* 
-     we use the gzip compression by default, for now.
-  */
-  filters.push_back ("gzip");
-  addLogStream (location, filters, maxSize);
-  return 0;
+  return owners[owner].count (type) > 0;
 }
 
-int
-LogManager::write (string message, int len)
+bool
+LogManager::contains (void* owner, string type, string location)
 {
-  return log (message);
-}
-
-int LogManager::getLogSize ()
-{
-  return 0;
-}
-
-void
-LogManager::setCycleLog (u_long l)
-{
-  cycleLog = l;
-  setCycleLog (maxSize, "all");
-}
-
-File*
-LogManager::getFile ()
-{
-  return 0;
+  return owners[owner][type].count (location) > 0;
 }
 
 int 
-LogManager::writeln (string message)
+LogManager::count (void* owner)
 {
-  int ret = write (message);
-#ifdef WIN32
-  if (ret == 0)
-    ret = write ("\r\n");
-#else
-  if (ret == 0)
-    ret = write ("\n");
-#endif
-  return ret;
-}
-
-u_long LogManager::getMaxSize()
-{
-  return maxSize;
-}
-
-u_long
-LogManager::setMaxSize (u_long nMax)
-{
-  u_long old = maxSize;
-  maxSize = nMax;
-  setCycleLog (cycleLog);
-  return old;
-}
-
-void 
-LogManager::setGzip (int useGzip)
-{
-  
+  int size = 0;
+  map<string, map<string, LogStream*> > m = owners[owner];
+  map<string, map<string, LogStream*> >::iterator it;
+  for (it = m.begin (); it != m.end (); it++)
+    {
+      size += it->second.size ();
+    }
+  return size;
 }
 
 int
-LogManager::getType ()
+LogManager::count (void* owner, string type)
 {
-  return type;
-}
-
-void
-LogManager::setType (int nType)
-{
-  type = nType;
+  return owners[owner][type].size ();
 }
 
 int
-LogManager::preparePrintError ()
+LogManager::count (void* owner, string type, string location)
 {
-  return 0;
-}
-
-int
-LogManager::endPrintError ()
-{
-  return 0;
-}
-
-int LogManager::requestAccess ()
-{
-  return 0;
-}
-
-int LogManager::terminateAccess ()
-{
-  return 0;
-}
-
-int 
-LogManager::getGzip ()
-{
-  return gzipLog;
-}
-
-int
-LogManager::storeFile()
-{
-  return 0;
+  return owners[owner][type].count (location);
 }
