@@ -45,10 +45,6 @@ public:
     list<string> filters;
     LogStream* ls = fsc->create (ff, "foo", filters, 0);
     CPPUNIT_ASSERT (ls);
-#ifdef NOT_WIN
-    ls = fsc->create (ff, "/dev/", filters, 0);
-    CPPUNIT_ASSERT (!ls);
-#endif
   }
   
   void tearDown ()

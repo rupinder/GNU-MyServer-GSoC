@@ -47,6 +47,7 @@ class TestLogManager : public CppUnit::TestFixture
   CPPUNIT_TEST (testCycleWithGzipChain);
   CPPUNIT_TEST (testCount);
   CPPUNIT_TEST (testGet);
+  CPPUNIT_TEST (testReOpen);
   CPPUNIT_TEST_SUITE_END ();
 public:
   void setUp ()
@@ -273,6 +274,37 @@ public:
     CPPUNIT_ASSERT (tmp == l);
     LogStream* ls;
     CPPUNIT_ASSERT (!lm->get (this, "test", "console://stdout", &ls));
+  }
+
+  void testReOpen ()
+  {
+    list<string> filters;
+    File f;
+    string message1;
+    string message2;
+    char buf[128];
+    u_long nbr;
+
+#ifdef WIN32
+    message1.assign ("message1\r\n");
+    message2.assign ("message2\r\n");
+#endif
+#ifdef NOT_WIN
+    message1.assign ("message1\n");
+    message2.assign ("message2\n");
+#endif
+
+    lm->add (this, "test", "file://foo", filters, 0);
+    lm->log (this, "test", "file://foo", message1);
+    lm->clear ();
+    CPPUNIT_ASSERT (!lm->add (this, "test", "file://foo", filters, 0));
+    CPPUNIT_ASSERT (!lm->log (this, "test", "file://foo", message2));
+    lm->clear ();
+    f.openFile ("foo", FileStream::defaultFileMask);
+    f.read (buf, 128, &nbr);
+    f.close ();
+    buf[nbr] = '\0';
+    CPPUNIT_ASSERT (!string (buf).compare (message1.append (message2)));
   }
 
   void tearDown ()
