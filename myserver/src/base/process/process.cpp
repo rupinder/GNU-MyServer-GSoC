@@ -214,7 +214,7 @@ int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
     //close(2); // close stderr
     //dup2((int)spi->stdError, 2);
     // Run the script
-    ret = execve((const char*)(spi->cmd.c_str()),
+    ret = execve((const char*)args[0], 
                  (char* const*)args, (char* const*) envp);
     exit(0);
 
@@ -390,7 +390,7 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
           {
             args[count++] = (const char*)&(spi->arg.c_str())[start];
             spi->arg[i] = '\0';
-
+            
             while((spi->arg[i] == ' ') && (i < len))
               i++;
 
@@ -427,6 +427,7 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
       // change to working dir
     if(spi->cwd.length())
       chdir((const char*)(spi->cwd.c_str()));
+
     // If stdOut is -1, pipe to /dev/null
     if((long)spi->stdOut == -1)
       spi->stdOut = (FileHandle)open("/dev/null",O_WRONLY);
@@ -453,9 +454,8 @@ int Process::execConcurrentProcess(StartProcInfo* spi)
     //dup2((int)spi->stdError, 2);
     // Run the script
 
-    ret = execve((const char*)(spi->cmd.c_str()),
-                 (char* const*)args,(char* const*) envp);
-
+    ret = execve ((const char*) args[0],
+                 (char* const*)args, (char* const*) envp);
 
     exit(1);
   } // end else if(pid == 0)

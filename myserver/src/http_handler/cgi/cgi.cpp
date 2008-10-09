@@ -137,7 +137,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
     
   tmpScriptPath.assign(scriptpath);
   FilesUtility::splitPath(tmpScriptPath, td->scriptDir, td->scriptFile);
-  
 
   chain.setProtocol(td->http);
   chain.setProtocolData(td);
@@ -261,7 +260,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
   if(stdInFile.openFile(td->inputDataPath, 
                         File::MYSERVER_OPEN_READ | File::MYSERVER_OPEN_ALWAYS))
   {
-    td->connection->host->warningsLogWrite("Cgi: Cannot open CGI stdin file");
+    td->connection->host->warningsLogWrite("Cgi: Cannot open CGI stdin file.");
     stdOutFile.close();
     chain.clearAllFilters(); 
     return td->http->raiseHTTPError(500);
@@ -292,7 +291,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
        spi.stdIn == (FileHandle)-1 || 
        spi.stdOut == (FileHandle)-1)
   {
-    td->connection->host->warningsLogWrite("Cgi: Invalid base/file/file.handler");
+    td->connection->host->warningsLogWrite("Cgi: Invalid file handler.");
     stdOutFile.close();
     chain.clearAllFilters(); 
     return td->http->raiseHTTPError(500);
