@@ -344,6 +344,8 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
  *\param filename Resource to access.
  *\param yetmapped Is the resource mapped to the localfilesystem?
  *\param permissions Permission mask for this resource.
+ *\return Return 200 on success.
+ *\return Any other value is the HTTP error code.
  */
 int Http::getFilePermissions(string& filename, string& directory, string& file, 
                              string &filenamePath, int yetmapped, int* permissions)
@@ -510,6 +512,8 @@ int Http::getFilePermissions(string& filename, string& directory, string& file,
  *\param filename Resource to access.
  *\param yetmapped Is the resource mapped to the localfilesystem?
  *\param permissions Permission mask for this resource.
+ *\return Return 200 on success.
+ *\return Any other value is the HTTP error code.
  */
 int Http::preprocessHttpRequest(string& filename, int yetmapped, int* permissions)
 {
@@ -517,6 +521,7 @@ int Http::preprocessHttpRequest(string& filename, int yetmapped, int* permission
   string file;
   int filenamePathLen;
   string dirscan;
+  int ret;
 
   try
   {
@@ -524,6 +529,13 @@ int Http::preprocessHttpRequest(string& filename, int yetmapped, int* permission
     {
       td->response.connection.assign( "keep-alive");
     }
+
+
+    ret = getFilePermissions (filename, directory, file, 
+                              td->filenamePath, yetmapped, permissions);
+
+    if (ret != 200)
+      return ret;
 
     /*!
      *Get the PATH_INFO value.
@@ -591,9 +603,6 @@ int Http::preprocessHttpRequest(string& filename, int yetmapped, int* permission
       td->pathTranslated.assign("");
     }
     FilesUtility::completePath(td->filenamePath);
-
-    return getFilePermissions(filename, directory, file, 
-                             td->filenamePath, yetmapped, permissions);
   }
   catch(...)
   {
