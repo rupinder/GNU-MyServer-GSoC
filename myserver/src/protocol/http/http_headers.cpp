@@ -74,7 +74,7 @@ void HttpHeaders::buildHTTPResponseHeader(char *str,
   }
   else
   {
-    pos += myserver_strlcpy(pos, "Server: ", MAX-(long)(pos-str));
+    pos += myserver_strlcpy(pos, "Server: GNU MyServer ", MAX-(long)(pos-str));
     pos += myserver_strlcpy(pos, MYSERVER_VERSION,  MAX-(long)(pos-str));
     pos += myserver_strlcpy(pos, "\r\n", MAX-(long)(pos-str));
   }
@@ -305,7 +305,8 @@ void HttpHeaders::buildDefaultHTTPResponseHeader(HttpResponseHeader* response)
   getRFC822GMTTime(date,HTTP_RESPONSE_DATE_DIM);
   response->date.assign(date);
   response->dateExp.assign(date);
-  response->serverName.assign(MYSERVER_VERSION);
+  response->serverName.assign("GNU MyServer ");
+  response->serverName.append(MYSERVER_VERSION);
 }
 
 /*!

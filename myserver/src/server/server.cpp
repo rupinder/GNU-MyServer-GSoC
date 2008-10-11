@@ -715,7 +715,7 @@ void Server::displayBoot()
     {
       size_t length;
       string softwareSignature;
-      softwareSignature.assign("************");
+      softwareSignature.assign("************ GNU MyServer ");
       softwareSignature.append(MYSERVER_VERSION);
       softwareSignature.append("************");
       length = softwareSignature.length();
