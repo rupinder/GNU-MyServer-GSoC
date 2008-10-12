@@ -15,6 +15,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cppunit/TextOutputter.h>
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/XmlOutputter.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
@@ -23,18 +24,22 @@
 
 #include <string.h>
 
-int main(int argc, char* argv[])
+int main (int argc, char* argv[])
 {
-  bool xml = argc > 1 && !strcmp(argv[1], "xml");
+  bool xml = argc > 1 && !strcmp (argv[1], "xml");
+  bool compiler = argc > 1 && !strcmp (argv[1], "compiler");
+
   CppUnit::Outputter * out;
   CppUnit::Test *suite = CppUnit::TestFactoryRegistry::getRegistry().makeTest();
   CppUnit::TextUi::TestRunner runner;
-  runner.addTest( suite );
+  runner.addTest ( suite );
 
   if (xml)
     out = new CppUnit::XmlOutputter( &runner.result(), std::cerr );
-  else
+  else if (compiler)
     out = new CppUnit::CompilerOutputter( &runner.result(), std::cerr );
+  else
+    out = new CppUnit::TextOutputter( &runner.result(), std::cerr );
 
   runner.setOutputter( out );
 
