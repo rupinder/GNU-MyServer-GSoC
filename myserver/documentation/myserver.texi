@@ -71,6 +71,7 @@ SCGI and FastCGI protocols.
 * Virtual hosts:: Virtual hosts configuration.
 * MIME types:: MIME types configuration.
 * Process security:: Process security.
+* Security files:: Describe how use security files.
 * SSL certificates:: Show how to use SSL certificates.
 * Log management:: Describe how to use the log management features.
 
@@ -100,12 +101,17 @@ SCGI and FastCGI protocols.
 @cindex MIME types
 @include mime_types.texi
 
-@node Process security, SSL certificates, MIME types, Top
+@node Process security, Security files, MIME types, Top
 @chapter Process security
 @cindex Process security
 @include process_security.texi
 
-@node SSL certificates, Log management, Process security, Top
+@node Security files, SSL certificates, Process security, Top
+@chapter Process security
+@cindex Process security
+@include process_security.texi
+
+@node SSL certificates, Log management, Security files, Top
 @chapter SSL certificates
 @cindex SSL certificates
 @include ssl_certificates.texi

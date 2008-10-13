@@ -1,0 +1,73 @@
+@c -*-texinfo-*-
+It is possible to change almost any configuration for a single
+directory or a single resource trough the @file{.security.xml}.
+This file can be placed in any web directory and it will overwrite
+default configuration values.  If the @file{.security.xml} file is not
+found in the directory where the requested resource is, then MyServer
+will look in the parents directory until the file is found.
+If @file{.security.xml} is not present in the virtual host root
+directory then the default one which is present in the system
+directory will be used.
+
+Usually consider the first valid value found in this order:
+@enumerate
+@item Local @file{.security.xml}.
+@item Parent directories @file{.security.xml}.
+@item System vhost directory @file{.security.xml}.
+@item Virtual host configuration.
+@item Global server configuration.
+@end enumerate
+
+Some values are not configurable in any @file{.security.xml} file and
+they are took directly from the Virtual host configuration and in some
+cases directly from the global configuration file.
+
+In MyServer there are two different steps involved in the logging
+phase: user authentication and validation.
+
+In the first step a permission mask is found given the
+username:password pair, no other information are used in this phase.
+In the second phase this value is refined using more information.
+The two phases are completely separated and it is possible to use
+different sources for any of them.
+
+The @file{.security.xml} can be used for both phases and by default it
+is.
+
+The anonymous user is matched inside MyServer with the ``Guest''
+username and an empty password.
+
+@section Security file user authentication
+The information used for the first phase of logging is a simple list
+of USER elements.  Any permission is configured by an attribute, if
+the attribute value is equal to ``YES'' then the permission is granted.
+
+The permissions that MyServer considers are:
+@enumerate
+@item READ
+@item EXECUTE
+@item BROWSE
+@item WRITE
+@item DELETE
+@end enumerate
+
+In the following example we enable an anonymous user to access
+resources in READ/EXECUTE/BROWSE mode, DELETE and WRITE are both
+denied.
+
+@example
+<SECURITY>
+  <USER name="Guest" password="" READ="YES" EXECUTE="YES" BROWSE="YES"
+     DELETE="NO" WRITE="NO"/>
+</SECURITY>
+@end example
+
+As no other information beside username:password is used, this first
+phase is the same for any protocol supported by MyServer.
+
+@subsection FTP Anonymous user
+To allow the @file{.security.xml} re-use, the FTP ``Anonymous'' user
+is mapped internally by MyServer to the ``Guest'' user.
+@end subsection
+
+@end section
