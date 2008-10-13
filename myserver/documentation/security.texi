@@ -68,6 +68,4 @@ phase is the same for any protocol supported by MyServer.
 @subsection FTP Anonymous user
 To allow the @file{.security.xml} re-use, the FTP ``Anonymous'' user
 is mapped internally by MyServer to the ``Guest'' user.
-@end subsection
 
-@end section
