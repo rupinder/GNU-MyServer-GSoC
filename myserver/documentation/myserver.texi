@@ -109,7 +109,7 @@ SCGI and FastCGI protocols.
 @node Security files, SSL certificates, Process security, Top
 @chapter Process security
 @cindex Process security
-@include process_security.texi
+@include security.texi
 
 @node SSL certificates, Log management, Security files, Top
 @chapter SSL certificates
