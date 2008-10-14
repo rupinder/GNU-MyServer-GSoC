@@ -311,32 +311,34 @@ int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
   
   sentData += read - headerSize;
 
-  for(;;)
+  if (td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL)
   {
-    nbr = ctx->sock.recv(td->buffer2->getBuffer(),
-                         td->buffer2->getRealLength(),
-                         0);
+    for(;;)
+    {
+      nbr = ctx->sock.recv(td->buffer2->getBuffer(),
+                           td->buffer2->getRealLength(),
+                           0);
+      
+      if(!nbr || (nbr == (u_long)-1))
+        break;
 
-    if(!nbr || (nbr == (u_long)-1))
-      break;
-
-    if(appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
-                               nbr,
-                               &(td->outputData), 
-                               chain,
-                               td->appendOutputs, 
-                               useChunks))
-     return -1;
-
-    sentData += nbr;
+      if(appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
+                                 nbr,
+                                 &(td->outputData), 
+                                 chain,
+                                 td->appendOutputs, 
+                                 useChunks))
+        return -1;
+      
+      sentData += nbr;
+    }
+    
+    if(!td->appendOutputs && useChunks)
+    {
+      if(chain->write("0\r\n\r\n", 5, &nbw))
+        return -1;
+    }
   }
-
-  if(!td->appendOutputs && useChunks)
-  {
-    if(chain->write("0\r\n\r\n", 5, &nbw))
-      return -1;
-  }
-
   /* For logging activity.  */  
   td->sentData += sentData;
 

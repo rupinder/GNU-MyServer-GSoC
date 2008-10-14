@@ -504,71 +504,74 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
     nbw += headerOffset - headerSize;
   }
 
-  /* Send the rest of the data until we can read from the pipe.  */
-  for(;;)
+  if (td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL)
   {
-    int aliveProcess = 0;
+    /* Send the rest of the data until we can read from the pipe.  */
+    for(;;)
+    {
+      int aliveProcess = 0;
 
-    /* Process timeout.  */
-    if((int)(getTicks() - procStartTime) > cgiTimeout)
+      /* Process timeout.  */
+      if((int)(getTicks() - procStartTime) > cgiTimeout)
+      {
+        stdOutFile.close();
+        stdInFile.close();
+        chain.clearAllFilters(); 
+        /* Remove the connection on sockets error.  */
+        cgiProc.terminateProcess();
+        return 0;       
+      }
+    
+      aliveProcess = cgiProc.isProcessAlive();
+
+      /* Read data from the process standard output file.  */
+      if(stdOutFile.read(td->buffer2->getBuffer(), 
+                         td->buffer2->getRealLength(), 
+                         &nBytesRead))
+      {
+        stdOutFile.close();
+        stdInFile.close();
+        chain.clearAllFilters(); 
+        /* Remove the connection on sockets error.  */
+        cgiProc.terminateProcess();
+        return 0;      
+      }
+      
+      if(!aliveProcess && !nBytesRead)
+        break;
+      
+      if(nBytesRead && 
+         HttpDataHandler::appendDataToHTTPChannel(td, 
+                                                  td->buffer2->getBuffer(),
+                                                  nBytesRead,
+                                                  &(td->outputData),
+                                                  &chain,
+                                                  td->appendOutputs, 
+                                                  useChunks))
+      {
+        stdOutFile.close();
+        stdInFile.close();
+        chain.clearAllFilters(); 
+        /* Remove the connection on sockets error.  */
+        cgiProc.terminateProcess();
+        return 0;       
+      }
+      
+      nbw += nBytesRead;
+    }
+  
+  
+    /* Send the last null chunk if needed.  */
+    if(useChunks && chain.write("0\r\n\r\n", 5, &nbw2))
     {
       stdOutFile.close();
       stdInFile.close();
       chain.clearAllFilters(); 
+  
       /* Remove the connection on sockets error.  */
       cgiProc.terminateProcess();
       return 0;       
     }
-    
-    aliveProcess = cgiProc.isProcessAlive();
-
-    /* Read data from the process standard output file.  */
-    if(stdOutFile.read(td->buffer2->getBuffer(), 
-                       td->buffer2->getRealLength(), 
-                       &nBytesRead))
-    {
-      stdOutFile.close();
-      stdInFile.close();
-      chain.clearAllFilters(); 
-      /* Remove the connection on sockets error.  */
-      cgiProc.terminateProcess();
-      return 0;      
-    }
-    
-    if(!aliveProcess && !nBytesRead)
-      break;
-
-    if(nBytesRead && 
-       HttpDataHandler::appendDataToHTTPChannel(td, 
-                                                td->buffer2->getBuffer(),
-                                                nBytesRead,
-                                                &(td->outputData),
-                                                &chain,
-                                                td->appendOutputs, 
-                                                useChunks))
-    {
-      stdOutFile.close();
-      stdInFile.close();
-      chain.clearAllFilters(); 
-      /* Remove the connection on sockets error.  */
-      cgiProc.terminateProcess();
-      return 0;       
-    }
-
-    nbw += nBytesRead;
-  }
-  
-  
-  /* Send the last null chunk if needed.  */
-  if(useChunks && chain.write("0\r\n\r\n", 5, &nbw2))
-  {
-    stdOutFile.close();
-    stdInFile.close();
-    chain.clearAllFilters(); 
-  
-    /* Remove the connection on sockets error.  */
-    cgiProc.terminateProcess();
-    return 0;       
   }
 
   /* Update the Content-Length field for logging activity.  */

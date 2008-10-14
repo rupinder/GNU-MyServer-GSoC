@@ -276,3 +276,24 @@ string* HttpResponseHeader::setValue(const char* name, const char* in)
     return 0;
   }
 } 
+
+/*!
+ *Get the kind of HTTP status code specified by the httpStatus variable.
+ *\return the HTTP status kind.
+ */
+int HttpResponseHeader::getStatusType()
+{
+  if (httpStatus < 200)
+    return HttpResponseHeader::INFORMATIONAL;
+
+  if (httpStatus < 300)
+    return HttpResponseHeader::SUCCESSFUL;
+  
+  if (httpStatus < 400)
+    return HttpResponseHeader::REDIRECTION;
+
+  if (httpStatus < 500)
+    return HttpResponseHeader::CLIENT_ERROR;
+  
+  return HttpResponseHeader::SERVER_ERROR;
+}

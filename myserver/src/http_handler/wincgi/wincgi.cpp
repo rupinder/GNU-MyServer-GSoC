@@ -423,45 +423,47 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
     nbw += nbw2;
   }
 
-  /* Flush the rest of the file.  */
-  do
+  if (td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL)
   {
-    OutFileHandle.readFromFile(buffer, td->buffer2->getLength(), 
-                               &nBytesRead);
-    if(nBytesRead)
+    /* Flush the rest of the file.  */
+    do
     {
-      int ret;
-      if(td->appendOutputs)
+      OutFileHandle.readFromFile(buffer, td->buffer2->getLength(), 
+                                 &nBytesRead);
+      if(nBytesRead)
       {
-        ret = td->outputData.writeToFile(buffer, nBytesRead, &nbw);
-        if(ret)
+        int ret;
+        if(td->appendOutputs)
         {
-          OutFileHandle.close();
-          FilesUtility::deleteFile(outFilePath);
-          FilesUtility::deleteFile(dataFilePath);
-          chain.clearAllFilters();
-          return 0;
-        }
-      }      
-      else
-      {
-        u_long nbw2;
-        ret = chain.write((char*)buffer, nBytesRead, &nbw2);
-        if(ret == -1)
+          ret = td->outputData.writeToFile(buffer, nBytesRead, &nbw);
+          if(ret)
+          {
+            OutFileHandle.close();
+            FilesUtility::deleteFile(outFilePath);
+            FilesUtility::deleteFile(dataFilePath);
+            chain.clearAllFilters();
+            return 0;
+          }
+        }      
+        else
         {
-          OutFileHandle.close();
-          FilesUtility::deleteFile(outFilePath);
-          FilesUtility::deleteFile(dataFilePath);
-          chain.clearAllFilters();
-          return 0;
+          u_long nbw2;
+          ret = chain.write((char*)buffer, nBytesRead, &nbw2);
+          if(ret == -1)
+          {
+            OutFileHandle.close();
+            FilesUtility::deleteFile(outFilePath);
+            FilesUtility::deleteFile(dataFilePath);
+            chain.clearAllFilters();
+            return 0;
+          }
         }
       }
-    }
-    else
-      break;
-
-  }while(nBytesRead);
-
+      else
+        break;
+      
+    }while(nBytesRead);
+  }
   td->sentData += nbw;
 
   chain.clearAllFilters();  

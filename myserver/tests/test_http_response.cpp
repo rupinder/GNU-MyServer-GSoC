@@ -123,7 +123,26 @@ public:
  }
 
 
+  void testStatusType ()
+  {
+    HttpResponseHeader header;
 
+    header.httpStatus = 100;
+    CPPUNIT_ASSERT_EQUAL(header.getStatusType(), HttpResponseHeader::INFORMATIONAL);
+    
+    header.httpStatus = 200;
+    CPPUNIT_ASSERT_EQUAL(header.getStatusType(), HttpResponseHeader::SUCCESSFUL);
+
+    header.httpStatus = 300;
+    CPPUNIT_ASSERT_EQUAL(header.getStatusType(), HttpResponseHeader::REDIRECTION);
+
+    header.httpStatus = 400;
+    CPPUNIT_ASSERT_EQUAL(header.getStatusType(), HttpResponseHeader::CLIENT_ERROR);
+
+    header.httpStatus = 500;
+    CPPUNIT_ASSERT_EQUAL(header.getStatusType(), HttpResponseHeader::SERVER_ERROR);
+  }
+  
   
 };
 

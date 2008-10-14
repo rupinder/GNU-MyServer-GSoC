@@ -310,7 +310,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
       ConnInfo->headerSent=1;
       
       /*! If only the header was requested return. */
-      if(ConnInfo->headerSent && ConnInfo->onlyHeader)
+      if(ConnInfo->headerSent && ConnInfo->onlyHeader || ConnInfo->td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL)
         return 0;
 
       /*!Send the first chunk. */

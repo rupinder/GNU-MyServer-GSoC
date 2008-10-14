@@ -618,67 +618,70 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
       }
     }
 
-    /*! Flush the data.  */
-    do
+    if (td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL)
     {
-      if(con.tempOut.readFromFile(td->buffer->getBuffer(),
-                                  td->buffer->getRealLength(), &nbr))
+      /*! Flush the data.  */
+      do
       {
-        exit = 1;
-        ret = 0;
-        break;
-      }
-
-      if(!td->appendOutputs)
-      {
-        u_long nbw2;
-        if(nbr)
+        if(con.tempOut.readFromFile(td->buffer->getBuffer(),
+                                    td->buffer->getRealLength(), &nbr))
         {
-          if(useChunks)
+          exit = 1;
+          ret = 0;
+          break;
+        }
+
+        if(!td->appendOutputs)
+        {
+          u_long nbw2;
+          if(nbr)
           {
-            ostringstream tmp;
-            tmp << hex << nbr << "\r\n";
-            td->response.contentLength.assign(tmp.str());
-            if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
+            if(useChunks)
+            {
+              ostringstream tmp;
+              tmp << hex << nbr << "\r\n";
+              td->response.contentLength.assign(tmp.str());
+              if(chain.write(tmp.str().c_str(), tmp.str().length(), &nbw2))
+              {
+                exit = 1;
+                ret = 0;
+                break;
+              }
+            }
+
+            if(chain.write(td->buffer->getBuffer(), nbr, &nbw2))
+            {
+              exit = 1;
+              ret = 0;
+              break;
+            }
+
+            if(useChunks && chain.write("\r\n", 2, &nbw2))
             {
               exit = 1;
               ret = 0;
               break;
             }
           }
-
-          if(chain.write(td->buffer->getBuffer(), nbr, &nbw2))
-          {
-            exit = 1;
-            ret = 0;
-            break;
-          }
-
-          if(useChunks && chain.write("\r\n", 2, &nbw2))
-          {
-            exit = 1;
-            ret = 0;
-            break;
-          }
         }
-      }
-      else
-      {
-        u_long nbw = 0;
-        if(td->outputData.writeToFile(td->buffer->getBuffer(), nbr, &nbw))
+        else
         {
-          exit = 1;
-          ret = 0;
-          break;
+          u_long nbw = 0;
+          if(td->outputData.writeToFile(td->buffer->getBuffer(), nbr, &nbw))
+          {
+            exit = 1;
+            ret = 0;
+            break;
+          }
         }
-      }
-    }while(nbr);
+      }while(nbr);
 
-    if(useChunks && chain.write("0\r\n\r\n", 5, &nbw2))
-    {
-      exit = 1;
-      ret = 0;
-      break;
+      if(useChunks && chain.write("0\r\n\r\n", 5, &nbw2))
+      {
+        exit = 1;
+        ret = 0;
+        break;
+      }
     }
 
     break;

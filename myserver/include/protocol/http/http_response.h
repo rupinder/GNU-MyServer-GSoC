@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2008 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -48,6 +48,12 @@ using namespace std;
  */
 struct HttpResponseHeader : public HttpHeader
 {
+  const static int INFORMATIONAL = 100;
+  const static int SUCCESSFUL = 200;
+  const static int REDIRECTION = 300;
+  const static int CLIENT_ERROR = 400;
+  const static int SERVER_ERROR = 500;
+
   struct Entry
   {
     string *name;
@@ -90,6 +96,8 @@ struct HttpResponseHeader : public HttpHeader
 	HashMap<string,HttpResponseHeader::Entry*> other;	
   HttpResponseHeader();
   ~HttpResponseHeader();
+
+  int getStatusType();
 
   virtual string* getValue(const char* name, string* out);
   virtual string* setValue(const char* name, const char* in);
