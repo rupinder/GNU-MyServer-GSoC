@@ -385,7 +385,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     {
       if((clock_t)(getTicks() - initialTicks) > timeout)
         break;
-      Thread::wait(1);
+      con.sock.dataOnRead (timeout / 1000, timeout % 1000);
     }
 
     if(con.sock.bytesToRead() >= sizeof(FcgiHeader))
