@@ -37,7 +37,9 @@ HttpRequestHeader::HttpRequestHeader()
  */
 HttpRequestHeader::~HttpRequestHeader()
 {
-  free();
+  HashMap<string, HttpRequestHeader::Entry*>::Iterator it = other.begin();
+  for(; it != other.end(); it++)
+    delete (*it);
 }
 
 /*!

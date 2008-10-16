@@ -36,7 +36,9 @@ HttpResponseHeader::HttpResponseHeader()
  */
 HttpResponseHeader::~HttpResponseHeader()
 {
-  free();
+  HashMap<string, HttpResponseHeader::Entry*>::Iterator it = other.begin();
+  for(;it != other.end(); it++)
+    delete (*it);
 }
 
 /*!

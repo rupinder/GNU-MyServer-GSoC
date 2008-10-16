@@ -77,7 +77,7 @@ public:
   bool stopServer(){return mustEndServer;}
   HomeDir* getHomeDir();
   static void createInstance();
-  static Server* getInstance()
+  static inline Server* getInstance()
   {
     return instance;
   }
