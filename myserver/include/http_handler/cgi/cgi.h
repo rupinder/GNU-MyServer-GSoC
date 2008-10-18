@@ -24,15 +24,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/http/http_headers.h>
 #include <include/protocol/http/http_data_handler.h>
 
+class Pipe;
+class FiltersChain;
+
 class Cgi : public HttpDataHandler
 {
-  static int cgiTimeout;
 public:
-  static void setTimeout(int);
-  static int getTimeout();
-	virtual int send(HttpThreadContext*, ConnectionPtr s,
+  static void setTimeout (int);
+  static int getTimeout ();
+	virtual int send (HttpThreadContext*, ConnectionPtr s,
                    const char* scriptpath, const char* exec = 0,
                    int execute = 0, int onlyHeader = 0);
+private:
+  int sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain, 
+                Process& cgiProc, int onlyHeader, bool nph);
+  int sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain, 
+                  Process& cgiProc, int onlyHeader, bool nph, u_long procStartTime, 
+                  bool keepalive, bool useChunks, int *ret);
+
+  static int cgiTimeout;
 };
 #endif
-

@@ -187,7 +187,7 @@ void* clients_thread(void* pParam)
        */
       if((!ct->isStatic()) && ct->isToDestroy())
       {
-        Thread::wait(1);
+        Thread::wait(1000);
         continue;
       }
 

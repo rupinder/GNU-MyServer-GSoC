@@ -98,7 +98,7 @@ int Pipe::create(bool readPipe)
 #ifdef NOT_WIN
 
 #ifdef HAVE_PIPE
-  return pipe(handles);
+  return pipe (handles);
 #else
   return 1;
 #endif
@@ -270,4 +270,46 @@ void Pipe::closeWrite()
     CloseHandle(writeHandle);
     writeHandle = 0;
 #endif
+}
+
+/*!
+ *Wait until new data is ready.  Do not wait more 
+ *than the specified timeout.
+ *\param sec Seconds part of the timeout.
+ *\param sec Micro seconds part of the timeout.
+ */
+int Pipe::waitForData (int sec, int usec)
+{
+#ifdef NOT_WIN
+
+#if HAVE_PIPE
+  struct timeval tv;
+  fd_set readfds;
+  int ret;
+  tv.tv_sec = sec;
+  tv.tv_usec = usec;
+
+  FD_ZERO(&readfds);
+
+  FD_SET(handles[0], &readfds);
+
+  ret = ::select(handles[0] + 1, &readfds, NULL, NULL, &tv);
+
+  if(ret == -1 || ret == 0)
+  {
+    return 0;
+  }
+
+  if (FD_ISSET(handles[0], &readfds))
+    return 1;
+
+  return 0;
+#else
+  return 0;
+#endif
+
+#else
+  return WaitForSingleObject (readHandle, sec * 1000 + usec / 1000) == WAIT_OBJECT_0;
+#endif
+
 }

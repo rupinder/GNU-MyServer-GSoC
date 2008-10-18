@@ -40,6 +40,7 @@ public:
 	void closeRead();
 	void closeWrite();
 	bool pipeTerminated(){return terminated;}
+  int waitForData (int sec, int usec);
 private:
   bool terminated;
 #ifdef NOT_WIN

@@ -546,7 +546,7 @@ void ConnectionsScheduler::release()
   dispatcherArg.terminate = true;
 
   if(server)
-    max = server->getNumThreads() * 10;
+    max = server->getNumThreads() * 2;
 
   for(u_long i = 0; i < max; i++)
   {

@@ -30,6 +30,7 @@ class TestPipe : public CppUnit::TestFixture
   CPPUNIT_TEST( testCreateClose ); 
   CPPUNIT_TEST( testWriteRead );
   CPPUNIT_TEST( testInverted );
+  CPPUNIT_TEST( testWaitForData );
   CPPUNIT_TEST_SUITE_END();
 
   Pipe *pipe;
@@ -83,6 +84,26 @@ public:
 
     CPPUNIT_ASSERT_EQUAL(nbr, nbw);
     CPPUNIT_ASSERT(strcmp(outBuff, inBuff) == 0);
+
+    pipe->close();
+  }
+
+  void testWaitForData()
+  {
+    char outBuff[256];
+    char inBuff[256];
+    u_long nbw;
+    u_long nbr;
+
+    strcpy(outBuff, "MyServer is a powerful and easy to configure web server");
+
+    int ret = pipe->create();
+
+    CPPUNIT_ASSERT_EQUAL(pipe->waitForData(0, 100), 0);
+
+    ret = pipe->write(outBuff, 256, &nbw);
+
+    CPPUNIT_ASSERT_EQUAL(pipe->waitForData(0, 100), 1);
 
     pipe->close();
   }
