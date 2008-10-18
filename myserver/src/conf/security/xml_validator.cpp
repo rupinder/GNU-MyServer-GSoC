@@ -229,15 +229,31 @@ int XmlValidator::computeXmlNode (xmlNodePtr node,
   if (!node)
     return 0;
 
-  for (xmlNodePtr cur = node->children; cur; cur = cur->next)
+  xmlNodePtr cur = node->children;
+  for (;;)
   {
+    if (cur->next == NULL)
+    {
+      cur = cur->parent;
+
+      /* The root is reached.  */
+      if (cur == node)
+        return 1;
+
+      /* This should never happen.  */
+      if (cur == NULL)
+        return 0;
+    }
+    else
+      cur = cur->next;
+
     if (cur->type != XML_ELEMENT_NODE)
       continue;
     
     if (!xmlStrcmp (cur->name, (const xmlChar *) "CONDITION"))
     {
-      if (doCondition (cur, hashedDomains) && computeXmlNode (cur, st, cmd, hashedDomains))
-          return 1;
+      if (doCondition (cur, hashedDomains))
+        cur = cur->children;
     }
     else if (!xmlStrcmp (cur->name, (const xmlChar *) "RETURN"))
     {
@@ -285,7 +301,7 @@ bool XmlValidator::doCondition (xmlNodePtr node, HashMap<string, SecurityDomain*
   }
       
   string *storedValue = getValue (hashedDomains, name);
-      
+
   if (!storedValue)
     return false;
 
