@@ -443,24 +443,21 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
         spi.cmdLine.assign(path);
         server->path.assign(path);
 
-        spi.stdOut = spi.stdError =(FileHandle) -1;
-        if(server->process.execConcurrentProcess(&spi) == -1)
+        spi.stdOut = spi.stdError = (FileHandle) -1;
+        if (server->process.exec (&spi) == -1)
         {
           server->socket.close();
-          //return 1; allow IPv6
         }
         
       }
       else
       {
         server->socket.close();
-        //return 1; allow IPv6
     }
     }
     else
     {
       server->socket.close();
-      //return 1; allow IPv6
     }
   }
   else
@@ -494,7 +491,7 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
 
       spi.stdOut = spi.stdError =(FileHandle) -1;
 
-      if(server->process.execConcurrentProcess(&spi) == -1)
+      if(server->process.exec (&spi) == -1)
       {
         server->socket.close();
         return 1;

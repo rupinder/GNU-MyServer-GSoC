@@ -47,12 +47,11 @@ Mutex Process::forkMutex;
 #endif
 
 /*!
- *Execute an hidden process and wait until it ends itself or its execution
- *time is greater than the timeout value.
+ *Execute a process and wait for its execution or the timeout.
  *Return -1 on fails.
  *Return 0 on success.
  */
-int Process::execHiddenProcess(StartProcInfo *spi, u_long timeout)
+int Process::execAndWait (StartProcInfo *spi, u_long timeout)
 {
   int ret = 0;
 #ifdef NOT_WIN
@@ -309,7 +308,7 @@ int Process::isProcessAlive()
  *Return -1 on fails.
  *Return the new process identifier on success.
  */
-int Process::execConcurrentProcess(StartProcInfo* spi)
+int Process::exec(StartProcInfo* spi)
 {
   int ret;
   pid = 0;

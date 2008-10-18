@@ -276,7 +276,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 
   /* Execute the CGI process. */
   {
-    if( cgiProc.execConcurrentProcess(&spi) == -1)
+    if( cgiProc.exec (&spi) == -1)
     {
       stdInFile.close();
       stdOutFile.close();
@@ -360,11 +360,14 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
       int aliveProcess = 0;
       u_long ticks = getTicks() - procStartTime;
 
-      if (ticks >= cgiTimeout)
+      if (ticks >= cgiTimeout || 
+          stdOutFile.waitForData ((cgiTimeout - ticks) / 1000, (cgiTimeout - ticks) % 1000) == 0)
+      {
+        ostringstream msg;
+        msg << "Cgi: timeout for process " << cgiProc.getPid();
+        td->connection->host->warningsLogWrite (msg.str ().c_str ());
         break;
-
-      if (stdOutFile.waitForData ((cgiTimeout - ticks) / 1000, (cgiTimeout - ticks) % 1000) == 0)
-        break;
+      }
 
       aliveProcess = !(stdOutFile.pipeTerminated ());
 
@@ -435,7 +438,12 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
     term = stdOutFile.pipeTerminated();
 
     if (stdOutFile.waitForData ((cgiTimeout - ticks) / 1000, (cgiTimeout - ticks) % 1000) == 0)
+    {
+      ostringstream msg;
+      msg << "Cgi: timeout for process " << cgiProc.getPid ();
+      td->connection->host->warningsLogWrite (msg.str ().c_str ());    
       break;
+    }
 
     if (stdOutFile.read (td->buffer2->getBuffer() + headerOffset, 
                          td->buffer2->getRealLength() - headerOffset - 1, 

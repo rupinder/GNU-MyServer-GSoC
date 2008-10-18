@@ -53,8 +53,6 @@ struct StartProcInfo
 
 class Process
 {
-private:
-  int pid;
 public:
 #ifdef HAVE_PTHREAD
 	static Mutex forkMutex;
@@ -63,8 +61,8 @@ public:
 	static void forkChild();
 #endif
 	static void initialize();
-  int execHiddenProcess(StartProcInfo* spi, u_long timeout = 0xFFFFFFFF);
-  int execConcurrentProcess(StartProcInfo* spi);
+  int execAndWait (StartProcInfo* spi, u_long timeout = 0xFFFFFFFF);
+  int exec (StartProcInfo* spi);
   int terminateProcess();
   int isProcessAlive();
   static int setuid(u_long);
@@ -72,5 +70,10 @@ public:
 	static int setAdditionalGroups(u_long len, u_long *groups);
   Process();
   ~Process();
+
+  /*! Return the process ID.  */
+  int getPid (){return pid;}
+private:
+  int pid;
 };
 #endif

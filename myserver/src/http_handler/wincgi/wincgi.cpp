@@ -307,7 +307,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
   spi.cmdLine.append(dataFilePath);
   spi.cwd.assign(pathname);
   spi.envString = 0;
-  if (proc.execHiddenProcess(&spi, timeout))
+  if (proc.execAndWait (&spi, timeout))
   {
     ostringstream msg;
     msg << "WinCGI: Error executing process " << filename;
