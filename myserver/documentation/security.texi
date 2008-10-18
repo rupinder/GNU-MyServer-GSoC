@@ -69,3 +69,117 @@ phase is the same for any protocol supported by MyServer.
 To allow the @file{.security.xml} re-use, the FTP ``Anonymous'' user
 is mapped internally by MyServer to the ``Guest'' user.
 
+@section Validation phase
+The second phase allows to define some rules that can overload the
+settings specified in the authorization phase.
+
+The default validator used by MyServer is the @file{.security.xml}
+file.
+
+@subsection XML Validation file
+The XML validation phase reads the tag contained in the order that
+they are specified.  It works almost in the same way a programming
+language does, but differently the XML validator doesn't allow a loop
+structure, this is required to terminate the parsing in a finite
+time.
+
+The XML validation is done using four commands: 
+
+@enumerate
+@item CONDITION
+It defines a block that is evaluated only when the specified condition
+is true.
+@item DEFINE
+It defines a new value for a variable that can be used later by the server.
+@item PERMISSION
+Redefine the permission found in the authorization phase.
+@item RETURN
+Immediately return from the validation.
+@end enumerate
+
+@subsubsection CONDITION element
+The @code{CONDITION} block allows to evaluate a condition and in case
+it is satisfied then the inner XML is evaluated too, in case it is not
+satisfied then the inner code is not considered.  It works like the
+@code{if} statement usually present in any programming language but
+offering less syntactical freedom.
+
+Here it is showed a simple use of @code{CONDITION}:
+@example
+<CONDITION name="auth.user" value="Guest">
+...
+</CONDITION>
+@end example
+
+The inner XML code, omitted for clarity, is evaluated only when the
+@code{auth.user} variable is equals to the value "Guest".
+
+
+It may be necessary to specify the other case, evaluate the inner
+block every time the condition is not satisfied.  It is done using the
+@code{not} attribute:
+
+@example
+<CONDITION name="auth.user" value="Guest" not="yes">
+...
+</CONDITION>
+@end example
+
+In this case, the inner block is evaluated every time the
+@code{auth.user} is different than "Guest".
+
+@subsubsection DEFINE element
+The @code{DEFINE} block is used to specify a value for a variable that
+later can be accessed by the server.
+This is the way to specify variables that it is possible to specify in
+the security file (not all variables are allowed to be defined here),
+overloading the value specified in the virtual host or in the server
+global configuration.
+The syntax for the @code{DEFINE} command is:
+@example
+<DEFINE name="http.error.file.404" value="404.html"/>
+@end example
+
+In the previous example the HTTP 404 error page was replaced with a
+customized HTML page.
+
+As the same configuration file can be used by different contexts, as
+a web host or a FTP site, any variable has meaning only in its
+original environment, define @code{http.error.file.404} in a FTP site
+will not have any effect.
+
+@subsubsection PERMISSION element
+The @code{PERMISSION} element has the same syntax used in the first
+authorization phase, the only difference is that username and password
+are not specified.
+
+@example
+<PERMISSION READ="NO" EXECUTE="NO" BROWSE="NO" DELETE="NO" WRITE="NO">
+@end example
+
+The previous example denies any access to the resource, replacing any
+value found previously.
+
+@subsubsection RETURN element
+The @code{RETURN} element allows to exit immediately from the XML flow
+without consider any other other command specified in the file.
+
+It has an additional attribute @code{value} that must be set to the
+value @code{ALLOW} to keep the previous found attribute mask.
+
+To immediately return from the XML file and at the same time deny any
+access, without care of the previous found permission mask, you must
+do:
+@example
+<RETURN value="DENY" />
+@end example
+
+Differently, to return from the flow keeping the found permission mask
+there is need to do like:
+@example
+<RETURN value="DENY" />
+@end example
+
+Pay attention, if at the same time you want to change the permissions
+then you will need to specify them explicitly by the @code{PERMISSION}
+command.
