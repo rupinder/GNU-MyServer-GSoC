@@ -47,6 +47,14 @@ AC_PROG_LIBTOOL
 AM_PROG_LEX
 AC_PROG_YACC
 
+AC_CHECK_PROG(make_info, makeinfo, yes, no)
+if test x$make_info = xno ; then
+   AC_MSG_WARN([ Cannot find makeinfo: info file will not be created])
+   MAKE_DOC=no
+else
+   MAKE_DOC=yes
+fi
+
 CFLAGS="$CFLAGS $_LT_AC_TAGVAR(lt_prog_compiler_pic, CXX)"
 CXXFLAGS="$CXXFLAGS $_LT_AC_TAGVAR(lt_prog_compiler_pic, CXX)"
 LDFLAGS="$LDFLAGS $_LT_AC_TAGVAR(lt_prog_compiler_pic, CXX)"
@@ -352,6 +360,7 @@ AM_CONDITIONAL(BUILD_TESTS, test "$MAKE_TESTS" = "yes")
 
 AM_CONDITIONAL(BUILD_MSCGI, test "$MAKE_MSCGI" = "yes")
 AM_CONDITIONAL(BUILD_CONTROL, test "$MAKE_CONTROL" = "yes")
+AM_CONDITIONAL(BUILD_DOC, test "$MAKE_DOC" = "yes")
 
 dnl AC_CONFIG_SUBDIRS()
 AC_CONFIG_FILES([
