@@ -156,7 +156,7 @@ char* MscgiManager::postParam(const char* param)
     return 0;
   do
   {
-    cgidata->td->inputData.readFromFile(&c, 1, &nbr);
+    cgidata->td->inputData.read(&c, 1, &nbr);
     if(nbr == 0)
       break;
     if((c == '&') |(toRead == 1))

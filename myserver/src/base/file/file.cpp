@@ -317,27 +317,6 @@ const char *File::getFilename()
 }
 
 /*!
- *Read data from a file to a buffer.
- *Return 1 on errors.
- *Return 0 on success.
- *\param buffer The buffer where write.
- *\param buffersize The length of the buffer in bytes.
- *\param nbr How many bytes were read to the buffer.
- */
-int File::readFromFile(char* buffer,u_long buffersize,u_long* nbr)
-{
-#ifdef WIN32
-  int ret = ReadFile((HANDLE)handle, buffer, buffersize, nbr, NULL);
-  return (!ret);
-#endif
-#ifdef NOT_WIN
-  int ret  = ::read((long)handle, buffer, buffersize);
-  *nbr = (u_long)ret;
-  return (ret == -1) ;
-#endif
-}
-
-/*!
  *Create a temporary file.
  *\param filename The new temporary file name.
  */
@@ -446,21 +425,31 @@ time_t File::getLastAccTime()
 /*!
  *Inherited from Stream.
  */
-int File::read(char* buffer, u_long len, u_long *nbr)
-{
-  int ret = readFromFile(buffer, len, nbr );
-  if(ret != 0)
-    return -1;
-  return 0;
-}
-
-/*!
- *Inherited from Stream.
- */
 int File::write(const char* buffer, u_long len, u_long *nbw)
 {
   int ret = writeToFile(buffer, len, nbw );
   if(ret != 0)
     return -1;
   return 0;
+}
+
+/*!
+ *Read data from a file to a buffer.
+ *Return 1 on errors.
+ *Return 0 on success.
+ *\param buffer The buffer where write.
+ *\param buffersize The length of the buffer in bytes.
+ *\param nbr How many bytes were read to the buffer.
+ */
+int File::read(char* buffer,u_long buffersize,u_long* nbr)
+{
+#ifdef WIN32
+  int ret = ReadFile((HANDLE)handle, buffer, buffersize, nbr, NULL);
+  return (!ret);
+#endif
+#ifdef NOT_WIN
+  int ret  = ::read((long)handle, buffer, buffersize);
+  *nbr = (u_long)ret;
+  return (ret == -1) ;
+#endif
 }

@@ -40,7 +40,7 @@ int
 FileStream::streamCycle ()
 {
   char *buffer = 0;
-  char *buffer2 = 0;
+  char *secondaryBuffer = 0;
   const u_long bufferSize = MYSERVER_KB (64);
   try
     {
@@ -54,7 +54,7 @@ FileStream::streamCycle ()
         {
           return 1;
         }
-      buffer2 = new char[bufferSize];
+      secondaryBuffer = new char[bufferSize];
       if (buffer == 0)
         {
           delete [] buffer;
@@ -68,13 +68,13 @@ FileStream::streamCycle ()
         {
           cerr << "could not open " << newFileName << endl;
           delete [] buffer;
-          delete [] buffer2;
+          delete [] secondaryBuffer;
           return 1;
         }
       if (currentFile->setFilePointer (0))
         {
           delete [] buffer;
-          delete [] buffer2;
+          delete [] secondaryBuffer;
           newFile.close ();
           return 1;
         }
@@ -82,10 +82,10 @@ FileStream::streamCycle ()
         {
           u_long nbr;
           u_long nbw;
-          if(currentFile->readFromFile (buffer, bufferSize, &nbr))
+          if(currentFile->read (buffer, bufferSize, &nbr))
             {
               delete [] buffer;
-              delete [] buffer2;
+              delete [] secondaryBuffer;
               newFile.close ();
               return 1;
             }
@@ -94,7 +94,7 @@ FileStream::streamCycle ()
           if (newFile.writeToFile (buffer, nbr, &nbw))
             {
               delete [] buffer;
-              delete [] buffer2;
+              delete [] secondaryBuffer;
               newFile.close ();
               return 1;
             }
@@ -105,19 +105,19 @@ FileStream::streamCycle ()
       if (currentFile->openFile (filepath.c_str(), defaultFileMask))
         {
           delete [] buffer;
-          delete [] buffer2;
+          delete [] secondaryBuffer;
           return 1;
         }
       delete [] buffer;
-      delete [] buffer2;
+      delete [] secondaryBuffer;
       return 0;
     }
   catch (...)
     {
       if (buffer)
         delete [] buffer;
-      if (buffer2)
-        delete [] buffer2;
+      if (secondaryBuffer)
+        delete [] secondaryBuffer;
       throw;
     };
 }

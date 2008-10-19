@@ -64,7 +64,7 @@ public:
     INCOMPLETE_REQUEST_NO_WAIT = 3
   };
   MemBuf *getBuffer();
-  MemBuf *getBuffer2();
+  MemBuf *getSecondaryBuffer();
   ClientsThread(Server* server);
   ~ClientsThread();
   void stop();
@@ -92,7 +92,7 @@ private:
   int threadIsStopped;
   int threadIsRunning;
   u_long buffersize;
-  u_long buffersize2;
+  u_long secondaryBufferSize;
   int isRunning();
   int isStopped();
   FtpProtocol *ftpParser;
@@ -100,7 +100,7 @@ private:
   HttpsProtocol* httpsParser;
   ControlProtocol  *controlProtocolParser;
   MemBuf buffer;
-  MemBuf buffer2;
+  MemBuf secondaryBuffer;
   int controlConnections();
   u_long nBytesToRead;
 };

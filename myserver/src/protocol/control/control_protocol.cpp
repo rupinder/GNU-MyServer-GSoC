@@ -700,7 +700,7 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
     u_long nbr;
     for( ; ; )
     {
-      err = outFile->readFromFile(buffer, min(dataToSend, buffersize), &nbr);
+      err = outFile->read(buffer, min(dataToSend, buffersize), &nbr);
       if(err)
       {
         strcpy(buffer,"Control: Error reading from temporary file");
@@ -899,7 +899,7 @@ int ControlProtocol::getFile(ConnectionPtr a, char* fn, File* in,
   }
   for(;;)
   {
-    ret = localfile.readFromFile(b1, bs1, &nbr);
+    ret = localfile.read(b1, bs1, &nbr);
     if(ret)
     {
       string msg;
@@ -993,7 +993,7 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
   }
   for(;;)
   {
-    ret = in->readFromFile(b1, bs1, &nbr);
+    ret = in->read(b1, bs1, &nbr);
     if(ret)
     {
       string msg;

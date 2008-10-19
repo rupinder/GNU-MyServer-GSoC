@@ -88,7 +88,7 @@ int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
   }
 
   td->buffer->setLength(0);
-  td->buffer2->getAt(0) = '\0';
+  td->secondaryBuffer->getAt(0) = '\0';
 
 
   {
@@ -168,7 +168,7 @@ int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
   Env::buildEnvironmentString(td, td->buffer->getBuffer());
   sizeEnvString = buildScgiEnvironmentString(td,td->buffer->getBuffer(),
-                                             td->buffer2->getBuffer());
+                                             td->secondaryBuffer->getBuffer());
   if(sizeEnvString == -1)
   {
     td->buffer->setLength(0);
@@ -209,7 +209,7 @@ int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
     chain.clearAllFilters();
     return td->http->raiseHTTPError(500);
   }
-  ret = sendNetString(&con, td->buffer2->getBuffer(), sizeEnvString);
+  ret = sendNetString(&con, td->secondaryBuffer->getBuffer(), sizeEnvString);
   
   if(td->request.contentLength.size() && 
      !td->request.contentLength.compare("0"))
@@ -261,8 +261,8 @@ int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
     if(!ctx->sock.bytesToRead())
       return -1;
 
-    nbr = ctx->sock.recv(td->buffer2->getBuffer() + read,
-                        td->buffer2->getRealLength() - read,
+    nbr = ctx->sock.recv(td->secondaryBuffer->getBuffer() + read,
+                        td->secondaryBuffer->getRealLength() - read,
                         static_cast<u_long>(timeout));
 
     read += nbr;
@@ -271,10 +271,10 @@ int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
     for(tmpHeaderSize = (tmpHeaderSize > 3) 
           ? tmpHeaderSize - 4 : tmpHeaderSize;
         tmpHeaderSize < read - 4; tmpHeaderSize++)
-      if((td->buffer2->getBuffer()[tmpHeaderSize] == '\r') &&
-         (td->buffer2->getBuffer()[tmpHeaderSize + 1] == '\n') &&
-         (td->buffer2->getBuffer()[tmpHeaderSize + 2] == '\r') &&
-         (td->buffer2->getBuffer()[tmpHeaderSize + 3] == '\n'))
+      if((td->secondaryBuffer->getBuffer()[tmpHeaderSize] == '\r') &&
+         (td->secondaryBuffer->getBuffer()[tmpHeaderSize + 1] == '\n') &&
+         (td->secondaryBuffer->getBuffer()[tmpHeaderSize + 2] == '\r') &&
+         (td->secondaryBuffer->getBuffer()[tmpHeaderSize + 3] == '\n'))
       {
         headerSize = tmpHeaderSize + 4;
         break;
@@ -288,7 +288,7 @@ int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
   {
     if(headerSize)
     {
-      HttpHeaders::buildHTTPResponseHeaderStruct(td->buffer2->getBuffer(),
+      HttpHeaders::buildHTTPResponseHeaderStruct(td->secondaryBuffer->getBuffer(),
                                                  &td->response, 
                                                  &(td->nBytesToRead));
     }
@@ -301,7 +301,7 @@ int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
   }
 
   if(read - headerSize)
-    if(appendDataToHTTPChannel(td, td->buffer2->getBuffer() + headerSize,
+    if(appendDataToHTTPChannel(td, td->secondaryBuffer->getBuffer() + headerSize,
                                read - headerSize,
                                &(td->outputData), 
                                chain,
@@ -315,14 +315,14 @@ int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
   {
     for(;;)
     {
-      nbr = ctx->sock.recv(td->buffer2->getBuffer(),
-                           td->buffer2->getRealLength(),
+      nbr = ctx->sock.recv(td->secondaryBuffer->getBuffer(),
+                           td->secondaryBuffer->getRealLength(),
                            0);
       
       if(!nbr || (nbr == (u_long)-1))
         break;
 
-      if(appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
+      if(appendDataToHTTPChannel(td, td->secondaryBuffer->getBuffer(),
                                  nbr,
                                  &(td->outputData), 
                                  chain,
@@ -373,14 +373,14 @@ int Scgi::sendPostData(ScgiContext* ctx)
     u_long nbr;
     do
     {
-      if(ctx->td->inputData.readFromFile(ctx->td->buffer2->getBuffer(),
-                                         ctx->td->buffer2->getRealLength(), 
+      if(ctx->td->inputData.read(ctx->td->secondaryBuffer->getBuffer(),
+                                         ctx->td->secondaryBuffer->getRealLength(), 
                                          &nbr))
       {
         return -1;
       }
 
-      if(nbr && (ctx->sock.send(ctx->td->buffer2->getBuffer(), nbr, 0) == -1))
+      if(nbr && (ctx->sock.send(ctx->td->secondaryBuffer->getBuffer(), nbr, 0) == -1))
       { 
         return -1;
       }

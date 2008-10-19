@@ -79,7 +79,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
   bool keepalive = false;
   bool useChunks = false;
   bool useModifiers = false;
-  MemoryStream memStream(td->buffer2);
+  MemoryStream memStream(td->secondaryBuffer);
   FiltersChain chain;
   u_long nbw;
   u_long nbr;
@@ -411,7 +411,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       if(bytesToSend)
       {
         /* Read from the file the bytes to send.  */
-        ret = file->readFromFile(td->buffer->getBuffer(),
+        ret = file->read(td->buffer->getBuffer(),
                                  std::min(static_cast<u_long>(bytesToSend), 
                                           static_cast<u_long>(td->buffer->getRealLength()/2)), 
                                  &nbr);

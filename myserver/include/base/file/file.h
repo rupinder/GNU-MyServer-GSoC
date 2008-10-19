@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2008 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -27,9 +27,6 @@ using namespace std;
 
 class File : public Stream
 {
-protected:
-	FileHandle handle;
-	string filename;
 public:
 	static const u_long MYSERVER_OPEN_READ;
 	static const u_long MYSERVER_OPEN_WRITE;
@@ -45,7 +42,6 @@ public:
   File(char *,int);
 	virtual FileHandle getHandle();
 	virtual int setHandle(FileHandle);
-	virtual int readFromFile(char* ,u_long ,u_long* );
 	virtual int writeToFile(const char* ,u_long ,u_long* );
 	virtual int createTemporaryFile(const char* );
 
@@ -70,6 +66,8 @@ public:
   /*! Inherithed from Stream. */
   virtual int read(char* buffer, u_long len, u_long *nbr);
   virtual int write(const char* buffer, u_long len, u_long *nbw);
-
+protected:
+	FileHandle handle;
+	string filename;
 };
 #endif

@@ -1048,7 +1048,7 @@ int Server::initialize()
   data = configurationFileManager.getValue("BUFFER_SIZE");
   if(data)
   {
-    buffersize=buffersize2= (atol(data) > 81920) ?  atol(data) :  81920 ;
+    buffersize=secondaryBufferSize= (atol(data) > 81920) ?  atol(data) :  81920 ;
   }
   data = configurationFileManager.getValue("CONNECTION_TIMEOUT");
   if(data)
@@ -2056,7 +2056,7 @@ u_long Server::getBuffersize()
  */
 u_long Server::getBuffersize2()
 {
-  return buffersize2;
+  return secondaryBufferSize;
 }
 
 /*!

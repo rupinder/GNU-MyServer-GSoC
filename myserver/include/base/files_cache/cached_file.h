@@ -30,12 +30,12 @@ using namespace std;
 class CachedFile : public File
 {
 public:
-	CachedFile(CachedFileBuffer* buffer);
-	virtual FileHandle getHandle();
-	virtual int setHandle(FileHandle);
-	virtual int readFromFile(char* ,u_long ,u_long* );
-	virtual int writeToFile(const char* ,u_long ,u_long* );
-	virtual int createTemporaryFile(const char* );
+	CachedFile (CachedFileBuffer* buffer);
+	virtual FileHandle getHandle ();
+	virtual int setHandle (FileHandle);
+	virtual int read (char* ,u_long ,u_long* );
+	virtual int writeToFile (const char* ,u_long ,u_long* );
+	virtual int createTemporaryFile (const char* );
 
 	virtual int openFile(const char*, u_long );
   virtual int openFile(string const &file, u_long opt)

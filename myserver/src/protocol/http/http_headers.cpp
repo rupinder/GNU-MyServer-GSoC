@@ -671,8 +671,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(const char* input,
         const char *base64 = &token[strlen("Basic ")];
         int len = getEndLine(base64, 64);
         const char *tmp = base64 + len - 1;
-        const char* lbuffer2;
-        const char* keep_lbuffer2;
+        const char* lsecondaryBuffer;
+        const char* keep_lsecondaryBuffer;
         char login[32];
         char password[32];
         
@@ -688,24 +688,24 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(const char* input,
         }
         if (len <= 1)
           return 400;
-        lbuffer2 = base64Utils.Decode(base64,&len);
-        keep_lbuffer2 = lbuffer2;
+        lsecondaryBuffer = base64Utils.Decode(base64,&len);
+        keep_lsecondaryBuffer = lsecondaryBuffer;
    
-        for(i = 0; (*lbuffer2 != ':') && (i < 32);i++)
+        for(i = 0; (*lsecondaryBuffer != ':') && (i < 32);i++)
         {
-          login[i] = *lbuffer2++;
+          login[i] = *lsecondaryBuffer++;
           login[i+1] = '\0';
         }
-        lbuffer2++;
-        for(i = 0; (*lbuffer2) && (i < 31); i++)
+        lsecondaryBuffer++;
+        for(i = 0; (*lsecondaryBuffer) && (i < 31); i++)
         {
-          password[i] = *lbuffer2++;
+          password[i] = *lsecondaryBuffer++;
           password[i+1] = '\0';
         }
         connection->setLogin(login);
         connection->setPassword(password);
         tokenOff = getEndLine(token, 100);
-        delete keep_lbuffer2;
+        delete keep_lsecondaryBuffer;
       }
       else if(!request->auth.compare("Digest"))
       {

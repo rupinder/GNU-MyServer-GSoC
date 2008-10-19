@@ -334,8 +334,8 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
                                     &inPos,
                                     bufferDataSize,
                                     td->connection->socket,
-                                    td->buffer2->getBuffer(),
-                                    td->buffer2->getRealLength() - 1,
+                                    td->secondaryBuffer->getBuffer(),
+                                    td->secondaryBuffer->getRealLength() - 1,
                                     &nbr,
                                     timeout,
                                     &(td->inputData));
@@ -368,8 +368,8 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
                                        &inPos,
                                        bufferDataSize,
                                        td->connection->socket,
-                                       td->buffer2->getBuffer(),
-                                       td->buffer2->getRealLength() - 1,
+                                       td->secondaryBuffer->getBuffer(),
+                                       td->secondaryBuffer->getRealLength() - 1,
                                        &nbr,
                                        timeout))
     {
@@ -389,9 +389,9 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
       return 1;
     }
 
-    td->buffer2->getBuffer()[nbr] = '\0';
+    td->secondaryBuffer->getBuffer()[nbr] = '\0';
 
-    if(nbr && td->inputData.writeToFile(td->buffer2->getBuffer(), nbr, &nbw))
+    if(nbr && td->inputData.writeToFile(td->secondaryBuffer->getBuffer(), nbr, &nbw))
     {
       td->inputDataPath.assign("");
       td->outputDataPath.assign("");

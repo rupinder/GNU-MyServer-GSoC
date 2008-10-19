@@ -259,14 +259,14 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 
   browseDirCSSpath = td->http->getBrowseDirCSSFile();
 
-  td->buffer2->setLength(0);
-  *td->buffer2 << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+  td->secondaryBuffer->setLength(0);
+  *td->secondaryBuffer << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
     "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\r\n"
     "\"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\r\n"
     "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">"
     "\r\n<head>\r\n<title>" ;
-  *td->buffer2 << td->request.uri.c_str() ;
-  *td->buffer2 << "</title>\r\n";
+  *td->secondaryBuffer << td->request.uri.c_str() ;
+  *td->secondaryBuffer << "</title>\r\n";
 
   /*
    *If it is defined a CSS file for the graphic layout of 
@@ -274,16 +274,16 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
    */
   if(browseDirCSSpath != 0)
   {
-    *td->buffer2 << "<link rel=\"stylesheet\" href=\""
+    *td->secondaryBuffer << "<link rel=\"stylesheet\" href=\""
                  << browseDirCSSpath 
                  << "\" type=\"text/css\" media=\"all\"/>\r\n";
   }
 
 
-  *td->buffer2 << "</head>\r\n"; 
+  *td->secondaryBuffer << "</head>\r\n"; 
 
-  ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
-                                td->buffer2->getLength(),
+  ret = appendDataToHTTPChannel(td, td->secondaryBuffer->getBuffer(),
+                                td->secondaryBuffer->getLength(),
                                 &(td->outputData), &chain,
                                 td->appendOutputs, useChunks);
   if(ret)
@@ -294,18 +294,18 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
     return td->http->raiseHTTPError(500);
   }
 
-  sentData = td->buffer2->getLength();
+  sentData = td->secondaryBuffer->getLength();
               
   browseDirCSSpath = td->http->getBrowseDirCSSFile();
 
   filename = directory;
-  td->buffer2->setLength(0);
-  *td->buffer2 << "<body>\r\n<h1>Contents of directory ";
-  *td->buffer2 <<  &td->request.uri[lastSlash] ;
-  *td->buffer2 << "</h1>\r\n<hr />\r\n";
+  td->secondaryBuffer->setLength(0);
+  *td->secondaryBuffer << "<body>\r\n<h1>Contents of directory ";
+  *td->secondaryBuffer <<  &td->request.uri[lastSlash] ;
+  *td->secondaryBuffer << "</h1>\r\n<hr />\r\n";
 
-  ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
-                                td->buffer2->getLength(),
+  ret = appendDataToHTTPChannel(td, td->secondaryBuffer->getBuffer(),
+                                td->secondaryBuffer->getLength(),
                                 &(td->outputData), &chain,
                                 td->appendOutputs, useChunks);
 
@@ -315,7 +315,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
     /* Return an internal server error.  */
     return td->http->raiseHTTPError(500);
   }
-  sentData += td->buffer2->getLength();
+  sentData += td->secondaryBuffer->getLength();
 
   ret = fd.findfirst(filename.c_str());
 
@@ -329,26 +329,26 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
    *With the current code we build the HTML TABLE to indicize the
    *files in the directory.
    */
-  td->buffer2->setLength(0);
-  *td->buffer2 << "<table width=\"100%\">\r\n<tr>\r\n" ;
+  td->secondaryBuffer->setLength(0);
+  *td->secondaryBuffer << "<table width=\"100%\">\r\n<tr>\r\n" ;
 
   if(sortType == 'f' && !sortReverse)
-    *td->buffer2 << "<th><a href=\"?sort=fI\">File</a></th>\r\n";
+    *td->secondaryBuffer << "<th><a href=\"?sort=fI\">File</a></th>\r\n";
   else
-    *td->buffer2 << "<th><a href=\"?sort=f\">File</a></th>\r\n";
+    *td->secondaryBuffer << "<th><a href=\"?sort=f\">File</a></th>\r\n";
 
   if(sortType == 't' && !sortReverse)
-    *td->buffer2 << "<th><a href=\"?sort=tI\">Last Modified</a></th>\r\n";
+    *td->secondaryBuffer << "<th><a href=\"?sort=tI\">Last Modified</a></th>\r\n";
   else
-    *td->buffer2 << "<th><a href=\"?sort=t\">Last Modified</a></th>\r\n";
+    *td->secondaryBuffer << "<th><a href=\"?sort=t\">Last Modified</a></th>\r\n";
 
   if(sortType == 's' && !sortReverse)
-    *td->buffer2 << "<th><a href=\"?sort=sI\">Size</a></th>\r\n</tr>\r\n";
+    *td->secondaryBuffer << "<th><a href=\"?sort=sI\">Size</a></th>\r\n</tr>\r\n";
   else
-    *td->buffer2 << "<th><a href=\"?sort=s\">Size</a></th>\r\n</tr>\r\n";
+    *td->secondaryBuffer << "<th><a href=\"?sort=s\">Size</a></th>\r\n</tr>\r\n";
 
-  ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
-                                td->buffer2->getLength(),
+  ret = appendDataToHTTPChannel(td, td->secondaryBuffer->getBuffer(),
+                                td->secondaryBuffer->getLength(),
                                 &(td->outputData), &chain,
                                 td->appendOutputs, useChunks);
 
@@ -360,9 +360,9 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
     return td->http->raiseHTTPError(500);
   }
 
-  sentData += td->buffer2->getLength();
+  sentData += td->secondaryBuffer->getLength();
 
-  td->buffer2->setLength(0);
+  td->secondaryBuffer->setLength(0);
 
   if(FilesUtility::getPathRecursionLevel(td->request.uri) >= 1)
   {
@@ -370,14 +370,14 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
     file.assign(td->request.uri);
     file.append("/../");
     
-    *td->buffer2 << "<tr>\r\n<td colspan=\"2\">"
+    *td->secondaryBuffer << "<tr>\r\n<td colspan=\"2\">"
                  << "<a href=\""
                  << (td->request.uriEndsWithSlash ? ".." : ".")
            << "\">[ .. ]</a></td>\n"
                  << "<td>[directory]</td></tr>\r\n";
     
-    ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
-                                  td->buffer2->getLength(),
+    ret = appendDataToHTTPChannel(td, td->secondaryBuffer->getBuffer(),
+                                  td->secondaryBuffer->getLength(),
                                   &(td->outputData), &chain,
                                   td->appendOutputs, useChunks);
     if(ret)
@@ -388,7 +388,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
       /* Return an internal server error.  */
       return td->http->raiseHTTPError(500);
     }
-    sentData += td->buffer2->getLength();
+    sentData += td->secondaryBuffer->getLength();
   }
 
   /* Put all files in a vector.  */
@@ -432,42 +432,42 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 
     FileStruct& file = *it;
 
-    td->buffer2->setLength(0);
+    td->secondaryBuffer->setLength(0);
 
-    *td->buffer2 << "<tr>\r\n<td><a href=\"";
+    *td->secondaryBuffer << "<tr>\r\n<td><a href=\"";
     if(!td->request.uriEndsWithSlash)
     {
-      *td->buffer2 << &td->request.uri[lastSlash];
-      *td->buffer2 << "/" ;
+      *td->secondaryBuffer << &td->request.uri[lastSlash];
+      *td->secondaryBuffer << "/" ;
     }
     formattedName.assign(file.name);
 
     formatHtml(file.name, formattedName);
 
-    *td->buffer2 << formattedName ;
-    *td->buffer2 << "\">" ;
-    *td->buffer2 << formattedName;
-    *td->buffer2 << "</a></td>\r\n<td>";
+    *td->secondaryBuffer << formattedName ;
+    *td->secondaryBuffer << "\">" ;
+    *td->secondaryBuffer << formattedName;
+    *td->secondaryBuffer << "</a></td>\r\n<td>";
   
     getRFC822GMTTime(file.time_write, fileTime, 32);
 
-    *td->buffer2 << fileTime ;
-    *td->buffer2 << "</td>\r\n<td>";
+    *td->secondaryBuffer << fileTime ;
+    *td->secondaryBuffer << "</td>\r\n<td>";
     
     if(file.attrib & FILE_ATTRIBUTE_DIRECTORY)
     {
-      *td->buffer2 << "[directory]";
+      *td->secondaryBuffer << "[directory]";
     }
     else
     {
       string out;
       getFormattedSize(file.size, out);
-       *td->buffer2 << out;
+       *td->secondaryBuffer << out;
     }
 
-    *td->buffer2 << "</td>\r\n</tr>\r\n";
-    ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
-                                  td->buffer2->getLength(),
+    *td->secondaryBuffer << "</td>\r\n</tr>\r\n";
+    ret = appendDataToHTTPChannel(td, td->secondaryBuffer->getBuffer(),
+                                  td->secondaryBuffer->getLength(),
                                   &(td->outputData), &chain,
                                   td->appendOutputs, useChunks);
     if(ret)
@@ -478,31 +478,31 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
       return td->http->raiseHTTPError(500);
     }
 
-    sentData += td->buffer2->getLength();
+    sentData += td->secondaryBuffer->getLength();
 
   }
 
-  td->buffer2->setLength(0);
-  *td->buffer2 << "</table>\r\n<hr />\r\n<address>"
+  td->secondaryBuffer->setLength(0);
+  *td->secondaryBuffer << "</table>\r\n<hr />\r\n<address>"
                << MYSERVER_VERSION;
               
   if(host && host->value->length())
   {    
     ostringstream portBuff;
     size_t portSeparator = host->value->find(':');
-    *td->buffer2 << " on ";
+    *td->secondaryBuffer << " on ";
     if(portSeparator != string::npos)
-      *td->buffer2 << host->value->substr(0, portSeparator).c_str() ;
+      *td->secondaryBuffer << host->value->substr(0, portSeparator).c_str() ;
     else
-      *td->buffer2 << host->value->c_str() ;
+      *td->secondaryBuffer << host->value->c_str() ;
     
-    *td->buffer2 << " Port ";
+    *td->secondaryBuffer << " Port ";
     portBuff << td->connection->getLocalPort();
-    *td->buffer2 << portBuff.str();
+    *td->secondaryBuffer << portBuff.str();
   }
-  *td->buffer2 << "</address>\r\n</body>\r\n</html>\r\n";
-  ret = appendDataToHTTPChannel(td, td->buffer2->getBuffer(),
-                                td->buffer2->getLength(),
+  *td->secondaryBuffer << "</address>\r\n</body>\r\n</html>\r\n";
+  ret = appendDataToHTTPChannel(td, td->secondaryBuffer->getBuffer(),
+                                td->secondaryBuffer->getLength(),
                                 &(td->outputData), &chain,
                                 td->appendOutputs, useChunks);
 
@@ -512,11 +512,11 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
     /* Return an internal server error.  */
     return td->http->raiseHTTPError(500);
   }  
-  sentData += td->buffer2->getLength();
+  sentData += td->secondaryBuffer->getLength();
 
-  *td->buffer2 << end_str;
+  *td->secondaryBuffer << end_str;
   /* Changes the \ character in the / character.  */
-  bufferloop = td->buffer2->getBuffer();
+  bufferloop = td->secondaryBuffer->getBuffer();
   while(*bufferloop++)
     if(*bufferloop == '\\')
       *bufferloop = '/';

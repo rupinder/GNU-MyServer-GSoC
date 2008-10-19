@@ -96,7 +96,7 @@ public:
 
     char *buffer =new char[size];
 
-    int ret = cf->readFromFile(buffer, size, &nbr);
+    int ret = cf->read(buffer, size, &nbr);
 
     CPPUNIT_ASSERT_EQUAL(ret, 0);
     CPPUNIT_ASSERT(nbr > 0);

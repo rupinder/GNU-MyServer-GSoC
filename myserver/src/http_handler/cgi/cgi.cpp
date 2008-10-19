@@ -251,10 +251,10 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
   
   /*
    *Build the environment string used by the CGI process.
-   *Use the td->buffer2 to build the environment string.
+   *Use the td->secondaryBuffer to build the environment string.
    */
-  (td->buffer2->getBuffer())[0] = '\0';
-  Env::buildEnvironmentString(td, td->buffer2->getBuffer());
+  (td->secondaryBuffer->getBuffer())[0] = '\0';
+  Env::buildEnvironmentString(td, td->secondaryBuffer->getBuffer());
   
   spi.cmdLine = cmdLine.str();
   spi.cwd.assign(td->scriptDir);
@@ -262,7 +262,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
   spi.stdError = (FileHandle) stdOutFile.getWriteHandle();
   spi.stdIn = (FileHandle) stdInFile.getHandle();
   spi.stdOut = (FileHandle) stdOutFile.getWriteHandle();
-  spi.envString = td->buffer2->getBuffer();
+  spi.envString = td->secondaryBuffer->getBuffer();
   
   if(spi.stdError ==  (FileHandle)-1 || 
        spi.stdIn == (FileHandle)-1 || 
@@ -322,8 +322,8 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
   bool keepalive = false;
   int ret = 0;
 
-  /* Reset the buffer2 length counter. */
-  td->buffer2->setLength(0);
+  /* Reset the secondaryBuffer length counter. */
+  td->secondaryBuffer->setLength(0);
 
   procStartTime = getTicks();
 
@@ -372,8 +372,8 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
       aliveProcess = !(stdOutFile.pipeTerminated ());
 
       /* Read data from the process standard output file.  */
-      if (stdOutFile.read(td->buffer2->getBuffer (), 
-                          td->buffer2->getRealLength (), 
+      if (stdOutFile.read(td->secondaryBuffer->getBuffer (), 
+                          td->secondaryBuffer->getRealLength (), 
                           &nBytesRead))
       {
         return 0;      
@@ -384,7 +384,7 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
       
       if (nBytesRead && 
           HttpDataHandler::appendDataToHTTPChannel (td, 
-                                                    td->buffer2->getBuffer(),
+                                                    td->secondaryBuffer->getBuffer(),
                                                     nBytesRead,
                                                     &(td->outputData),
                                                     &chain,
@@ -432,7 +432,7 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
     nBytesRead = 0;
     /* Do not try to read using a small buffer as this has some
        bad influence on the performances.  */
-    if(td->buffer2->getRealLength() - headerOffset - 1 < 512)
+    if(td->secondaryBuffer->getRealLength() - headerOffset - 1 < 512)
       break;
     
     term = stdOutFile.pipeTerminated();
@@ -445,8 +445,8 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
       break;
     }
 
-    if (stdOutFile.read (td->buffer2->getBuffer() + headerOffset, 
-                         td->buffer2->getRealLength() - headerOffset - 1, 
+    if (stdOutFile.read (td->secondaryBuffer->getBuffer() + headerOffset, 
+                         td->secondaryBuffer->getRealLength() - headerOffset - 1, 
                          &nBytesRead))
     {
       *ret = td->http->raiseHTTPError(500);
@@ -461,8 +461,8 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
 
     headerOffset += nBytesRead;
 
-    if(headerOffset > td->buffersize2 - 5)
-      (td->buffer2->getBuffer())[headerOffset] = '\0';
+    if(headerOffset > td->secondaryBufferSize - 5)
+      (td->secondaryBuffer->getBuffer())[headerOffset] = '\0';
     
     if(headerOffset == 0)
     {
@@ -473,7 +473,7 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
     for(u_long i = std::max(0, (int)headerOffset - (int)nBytesRead - 10); 
         i < headerOffset; i++)
     {
-      char *buff = td->buffer2->getBuffer();
+      char *buff = td->secondaryBuffer->getBuffer();
       if( (buff[i] == '\r') && (buff[i+1] == '\n') 
           && (buff[i+2] == '\r') && (buff[i+3] == '\n') )
       {
@@ -506,7 +506,7 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
 
     /* Send the header.  */
     if(headerSize)
-      HttpHeaders::buildHTTPResponseHeaderStruct(td->buffer2->getBuffer(),
+      HttpHeaders::buildHTTPResponseHeaderStruct(td->secondaryBuffer->getBuffer(),
                                                  &td->response, 
                                                  &(td->nBytesToRead));
     /*
@@ -545,7 +545,7 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
   {
     /* Flush the buffer.  Data from the header parsing can be present.  */
     if(HttpDataHandler::appendDataToHTTPChannel(td, 
-                                                td->buffer2->getBuffer() + headerSize, 
+                                                td->secondaryBuffer->getBuffer() + headerSize, 
                                                 headerOffset - headerSize,
                                                 &(td->outputData),
                                                 &chain,

@@ -184,9 +184,9 @@ FtpThreadContext::FtpThreadContext()
 {
   pConnection = NULL;
   buffer = NULL;
-  buffer2 = NULL;
+  secondaryBuffer = NULL;
   buffersize = 0;
-  buffersize2 = 0;
+  secondaryBufferSize = 0;
   m_nParseLength = 0;
   pProtocolInterpreter = NULL;
 }
@@ -352,9 +352,9 @@ int Ftp::controlConnection(ConnectionPtr pConnection, char *b1, char *b2,
   //switch context
   td.pConnection = pConnection;
   td.buffer = pConnection->getActiveThread()->getBuffer();
-  td.buffer2 = pConnection->getActiveThread()->getBuffer2();
+  td.secondaryBuffer = pConnection->getActiveThread()->getSecondaryBuffer();
   td.buffersize = bs1;
-  td.buffersize2 = bs2;
+  td.secondaryBufferSize = bs2;
   td.nBytesToRead = nbtr;
   td.pProtocolInterpreter = this;
   td.m_nParseLength = 0;
@@ -764,13 +764,13 @@ void* SendAsciiFile(void* pParam)
     char *pLine = NULL;
     int nLineLength = 0;
     std::string sLine;
-    MemBuf buffer, buffer2;
+    MemBuf buffer, secondaryBuffer;
     buffer.setLength(1024);
     while ( filesize != 0 )
     {
       memset(buffer.getBuffer(), 0, buffer.getRealLength());
       nBufferSize = std::min(static_cast<u_long>(filesize), static_cast<u_long>(buffer.getRealLength()/2));
-      if ( file->readFromFile(buffer.getBuffer(), nBufferSize, &nbr) )
+      if ( file->read(buffer.getBuffer(), nBufferSize, &nbr) )
       {
         ftp_reply(pConnection, 451);
         file->close();
@@ -787,7 +787,7 @@ void* SendAsciiFile(void* pParam)
       filesize -= nbr;
       pFtpUserData->m_nBytesSent += nbr;
 
-      buffer2.setLength(0);
+      secondaryBuffer.setLength(0);
       pLine = buffer.getBuffer();
       if ( pLine == NULL )
       {
@@ -810,13 +810,13 @@ void* SendAsciiFile(void* pParam)
         {
           sLine.assign(pLine, strlen(pLine));
           if ( !sLine.empty() )
-            buffer2 << sLine;
+            secondaryBuffer << sLine;
           pLine += strlen(pLine);
         }
         else
         {
           sLine.assign(pLine, nLineLength);
-          buffer2 << sLine << "\r\n";
+          secondaryBuffer << sLine << "\r\n";
           if ( *(pLine + nLineLength) == '\r' )
             nLineLength++;
           if ( *(pLine + nLineLength) == '\n' )
@@ -824,8 +824,8 @@ void* SendAsciiFile(void* pParam)
           pLine += nLineLength;
         }
       }
-            if ( pFtpUserData->m_pDataConnection->socket->send(buffer2.getBuffer(), 
-          (u_long)buffer2.getLength(), 0) == SOCKET_ERROR )
+            if ( pFtpUserData->m_pDataConnection->socket->send(secondaryBuffer.getBuffer(), 
+          (u_long)secondaryBuffer.getLength(), 0) == SOCKET_ERROR )
             {
         ftp_reply(pConnection, 451);
                file->close();
@@ -998,13 +998,13 @@ void* SendImageFile(void* pParam)
     pFtpUserData->m_sCurrentFileName = pWt->m_sFilePath;
     pFtpUserData->m_nFileSize = filesize;
 
-    MemBuf buffer2;
-    buffer2.setLength(1024);
+    MemBuf secondaryBuffer;
+    secondaryBuffer.setLength(1024);
     while ( filesize != 0 )
     {
-      nBufferSize = std::min(static_cast<u_long>(filesize), static_cast<u_long>(buffer2.getRealLength()/2));
-      if ( file->readFromFile(buffer2.getBuffer(), nBufferSize, &nbr) ||
-        pFtpUserData->m_pDataConnection->socket->send(buffer2.getBuffer(), 
+      nBufferSize = std::min(static_cast<u_long>(filesize), static_cast<u_long>(secondaryBuffer.getRealLength()/2));
+      if ( file->read(secondaryBuffer.getBuffer(), nBufferSize, &nbr) ||
+        pFtpUserData->m_pDataConnection->socket->send(secondaryBuffer.getBuffer(), 
           (u_long)nBufferSize, 0) == SOCKET_ERROR )
       {
         ftp_reply(pConnection, 451);
@@ -1172,7 +1172,7 @@ void* ReceiveAsciiFile(void* pParam)
 #endif
     }
 
-    MemBuf buffer, buffer2;
+    MemBuf buffer, secondaryBuffer;
     buffer.setLength(1024);
     memset(buffer.getBuffer(), 0, buffer.getRealLength());
     char *pLine = NULL;
@@ -1182,8 +1182,8 @@ void* ReceiveAsciiFile(void* pParam)
     while ( pFtpUserData->m_pDataConnection->socket->read(buffer.getBuffer(), 
           (u_long)buffer.getRealLength()-1, &nbr) != SOCKET_ERROR && nbr != 0 )
     {
-      memset(buffer2.getBuffer(), 0, buffer2.getRealLength());
-      buffer2.setLength(0);
+      memset(secondaryBuffer.getBuffer(), 0, secondaryBuffer.getRealLength());
+      secondaryBuffer.setLength(0);
       pLine = buffer.getBuffer();
       if ( pLine == NULL )
       {
@@ -1205,16 +1205,16 @@ void* ReceiveAsciiFile(void* pParam)
         {
           sLine.assign(pLine, strlen(pLine));
           if ( !sLine.empty() )
-            buffer2 << sLine;
+            secondaryBuffer << sLine;
           pLine += strlen(pLine);
         }
         else
         {
           sLine.assign(pLine, nLineLength);
 #ifdef WIN32
-          buffer2 << sLine << "\r\n";
+          secondaryBuffer << sLine << "\r\n";
 #else
-          buffer2 << sLine << "\n";
+          secondaryBuffer << sLine << "\n";
 #endif
           if ( *(pLine + nLineLength) == '\r' )
             nLineLength++;
@@ -1223,7 +1223,7 @@ void* ReceiveAsciiFile(void* pParam)
           pLine += nLineLength;
         }
       }
-      file.write(buffer2.getBuffer(), (u_long)buffer2.getLength(), &nbr);
+      file.write(secondaryBuffer.getBuffer(), (u_long)secondaryBuffer.getLength(), &nbr);
 
       if ( pFtpUserData->m_bBreakDataConnection )
       {
@@ -1706,8 +1706,8 @@ void Ftp::List(const std::string &sParam/*= ""*/)
   time_t now;
   time(&now);
 
-  MemBuf &buffer2 = *td.buffer2;
-  buffer2.setLength(0);
+  MemBuf &secondaryBuffer = *td.secondaryBuffer;
+  secondaryBuffer.setLength(0);
   char perm[11];
   if ( FilesUtility::isDirectory(sPath) )
   {
@@ -1795,7 +1795,7 @@ void Ftp::List(const std::string &sParam/*= ""*/)
       char fdSizeStr[12];
       sprintf(fdSizeStr, "%li", fd.size);
 
-      buffer2 << (const char *)perm << " " << nlinkStr << " " 
+      secondaryBuffer << (const char *)perm << " " << nlinkStr << " " 
               << username << " " << username << " " << fdSizeStr 
               << " " << (const char *)dateFtpFormat << " " 
               << fd.name << "\r\n";
@@ -1892,7 +1892,7 @@ void Ftp::List(const std::string &sParam/*= ""*/)
       char fdSizeStr[12];
       sprintf(fdSizeStr, "%li", fd.size);
 
-      buffer2 << (const char *)perm << " " << nlinkStr << " " 
+      secondaryBuffer << (const char *)perm << " " << nlinkStr << " " 
               << username << " " << username << " " << fdSizeStr 
               << " " << (const char *)dateFtpFormat << " " 
               << fd.name << "\r\n";
@@ -1900,8 +1900,8 @@ void Ftp::List(const std::string &sParam/*= ""*/)
       while (!fd.findnext());
     fd.findclose();
   }
-  if( pFtpUserData->m_pDataConnection->socket->send(td.buffer2->getBuffer(), 
-      (u_long)td.buffer2->getLength(), 0) == SOCKET_ERROR)
+  if( pFtpUserData->m_pDataConnection->socket->send(td.secondaryBuffer->getBuffer(), 
+      (u_long)td.secondaryBuffer->getLength(), 0) == SOCKET_ERROR)
   {
     ftp_reply(451);
   }
@@ -1947,20 +1947,20 @@ void Ftp::Nlst(const std::string &sParam/* = ""*/)
     return;
   }
 
-  MemBuf &buffer2 = *td.buffer2;
-  buffer2.setLength(0);
+  MemBuf &secondaryBuffer = *td.secondaryBuffer;
+  secondaryBuffer.setLength(0);
   do
   {
     if(fd.name[0] == '.' || !strcmpi(fd.name, "security") )
       continue;
     if ( !sParam.empty() )
-      buffer2 << sParam << "/";
-    buffer2 << fd.name << "\r\n";
+      secondaryBuffer << sParam << "/";
+    secondaryBuffer << fd.name << "\r\n";
   } while (!fd.findnext());
   fd.findclose();
 
-  if( pFtpUserData->m_pDataConnection->socket->send(td.buffer2->getBuffer(), 
-      (u_long)td.buffer2->getLength(), 0) == SOCKET_ERROR)
+  if( pFtpUserData->m_pDataConnection->socket->send(td.secondaryBuffer->getBuffer(), 
+      (u_long)td.secondaryBuffer->getLength(), 0) == SOCKET_ERROR)
   {
     ftp_reply(451);
   }

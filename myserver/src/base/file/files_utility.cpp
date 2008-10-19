@@ -221,7 +221,7 @@ int FilesUtility::copyFile(File src, File dest)
 
   for (;;) 
   {
-    ret = src.readFromFile(buffer, 512, &nbr);
+    ret = src.read(buffer, 512, &nbr);
     if (ret)
       return -1;
     

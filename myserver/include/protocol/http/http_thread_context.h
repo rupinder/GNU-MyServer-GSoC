@@ -55,9 +55,9 @@ struct HttpThreadContext
   int onlyHeader;/*! Is the client asking only for the header? */
 	ConnectionPtr connection;
 	MemBuf *buffer;
-	MemBuf *buffer2;
+	MemBuf *secondaryBuffer;
 	u_long buffersize;
-	u_long buffersize2;
+	u_long secondaryBufferSize;
 	u_long id;
 	u_long nBytesToRead;
 	u_long nHeaderChars;

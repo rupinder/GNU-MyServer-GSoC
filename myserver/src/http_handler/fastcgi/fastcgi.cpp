@@ -109,7 +109,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   }
 
   td->buffer->setLength (0);
-  td->buffer2->getAt (0) = '\0';
+  td->secondaryBuffer->getAt (0) = '\0';
 
 
   {
@@ -566,7 +566,7 @@ int FastCgi::fastCgiRequest (FcgiContext* con, int id)
 
   Env::buildEnvironmentString(td, td->buffer->getBuffer());
   sizeEnvString = buildFASTCGIEnvironmentString(td,td->buffer->getBuffer(),
-                                                td->buffer2->getBuffer());
+                                                td->secondaryBuffer->getBuffer());
   if(sizeEnvString == -1)
   {
     td->buffer->setLength(0);
@@ -595,7 +595,7 @@ int FastCgi::fastCgiRequest (FcgiContext* con, int id)
     return 1;
   }
 
-  if(sendFcgiBody(con, td->buffer2->getBuffer(), sizeEnvString,
+  if(sendFcgiBody(con, td->secondaryBuffer->getBuffer(), sizeEnvString,
                   FCGIPARAMS, id))
   {
     td->buffer->setLength(0);
@@ -633,7 +633,7 @@ int FastCgi::fastCgiRequest (FcgiContext* con, int id)
     /*! Send the STDIN data.  */
     do
     {
-      if(td->inputData.readFromFile(td->buffer->getBuffer(),
+      if(td->inputData.read(td->buffer->getBuffer(),
                                     maxStdinChunk, &nbr))
       {
         td->buffer->setLength(0);
@@ -788,11 +788,11 @@ int FastCgi::handleHeader (FcgiContext* con, FiltersChain* chain, bool* response
       return 0;
     }
 
-    HttpHeaders::buildHTTPResponseHeader(con->td->buffer2->getBuffer(),
+    HttpHeaders::buildHTTPResponseHeader(con->td->secondaryBuffer->getBuffer(),
                                          &con->td->response);
 
-    if(con->td->connection->socket->send(con->td->buffer2->getBuffer(),
-                                         static_cast<int>(strlen(con->td->buffer2->getBuffer())),
+    if(con->td->connection->socket->send(con->td->secondaryBuffer->getBuffer(),
+                                         static_cast<int>(strlen(con->td->secondaryBuffer->getBuffer())),
                                          0) == SOCKET_ERROR )
     {
       *responseCompleted = true;

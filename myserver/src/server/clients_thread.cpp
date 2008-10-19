@@ -92,7 +92,7 @@ ClientsThread::~ClientsThread()
   controlProtocolParser = 0;
 
   buffer.free();
-  buffer2.free();
+  secondaryBuffer.free();
 }
 
 /*!
@@ -151,12 +151,12 @@ void* clients_thread(void* pParam)
   ct->threadIsRunning = 1;
   ct->threadIsStopped = 0;
   ct->buffersize = ct->server->getBuffersize();
-  ct->buffersize2 = ct->server->getBuffersize2();
+  ct->secondaryBufferSize = ct->server->getBuffersize2();
   
   ct->buffer.setLength(ct->buffersize);
   ct->buffer.m_nSizeLimit = ct->buffersize;
-  ct->buffer2.setLength(ct->buffersize2);
-  ct->buffer2.m_nSizeLimit = ct->buffersize2;
+  ct->secondaryBuffer.setLength(ct->secondaryBufferSize);
+  ct->secondaryBuffer.m_nSizeLimit = ct->secondaryBufferSize;
 
   /* Built-in protocols will be initialized at the first use.  */
   ct->httpParser = 0;
@@ -355,9 +355,9 @@ int ClientsThread::controlConnections()
     {
       retcode = c->getContinuation()(c, 
                                      (char*)buffer.getBuffer(), 
-                                     (char*)buffer2.getBuffer(), 
+                                     (char*)secondaryBuffer.getBuffer(), 
                                      buffer.getRealLength(), 
-                                     buffer2.getRealLength(), 
+                                     secondaryBuffer.getRealLength(), 
                                      nBytesToRead, 
                                      id);
       c->setContinuation(NULL);
@@ -369,9 +369,9 @@ int ClientsThread::controlConnections()
       {
         retcode = protocol->controlConnection(c, 
                                               (char*)buffer.getBuffer(), 
-                                              (char*)buffer2.getBuffer(), 
+                                              (char*)secondaryBuffer.getBuffer(), 
                                               buffer.getRealLength(), 
-                                              buffer2.getRealLength(), 
+                                              secondaryBuffer.getRealLength(), 
                                               nBytesToRead, 
                                               id);
       }
@@ -457,11 +457,11 @@ MemBuf* ClientsThread::getBuffer()
   return &buffer;
 }
 /*!
- *Get a pointer to the buffer2.
+ *Get a pointer to the secondaryBuffer.
  */
-MemBuf *ClientsThread::getBuffer2()
+MemBuf *ClientsThread::getSecondaryBuffer()
 {
-  return &buffer2;
+  return &secondaryBuffer;
 }
 
 /*!

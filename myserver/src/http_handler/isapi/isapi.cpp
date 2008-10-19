@@ -299,11 +299,11 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
           ConnInfo->td->response.connection.assign("Close");
         
         HttpHeaders::buildHTTPResponseHeader(
-                 (char*)ConnInfo->td->buffer2->getBuffer(),&(ConnInfo->td->response));
+                 (char*)ConnInfo->td->secondaryBuffer->getBuffer(),&(ConnInfo->td->response));
   
         if(ConnInfo->connection->socket->send(
-                     (char*)ConnInfo->td->buffer2->getBuffer(),
-                     (int)strlen((char*)ConnInfo->td->buffer2->getBuffer()), 0)==-1)
+                     (char*)ConnInfo->td->secondaryBuffer->getBuffer(),
+                     (int)strlen((char*)ConnInfo->td->secondaryBuffer->getBuffer()), 0)==-1)
           return 0;
       }
       /*! Save the headerSent status. */
@@ -415,7 +415,7 @@ BOOL WINAPI ISAPI_ReadClientExport(HCONN hConn, LPVOID lpvBuffer,
     return 0;
   }
 
-  ConnInfo->td->inputData.readFromFile((char*)lpvBuffer, *lpdwSize, &NumRead);
+  ConnInfo->td->inputData.read((char*)lpvBuffer, *lpdwSize, &NumRead);
 
   if (NumRead == -1) 
   {
@@ -916,9 +916,9 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
     return td->http->raiseHTTPError(500);
   }
   /*!
-   *Store the environment string in the buffer2.
+   *Store the environment string in the secondaryBuffer.
    */
-  connTable[connIndex].envString=td->buffer2->getBuffer();
+  connTable[connIndex].envString=td->secondaryBuffer->getBuffer();
   
   /*!
    *Build the environment string.

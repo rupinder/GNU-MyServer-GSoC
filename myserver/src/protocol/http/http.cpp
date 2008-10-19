@@ -100,26 +100,26 @@ int Http::optionsHTTPRESOURCE(string& filename, int yetmapped)
       return raiseHTTPError (ret);
    
     getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
-    td->buffer2->setLength(0);
-    *td->buffer2 <<  "HTTP/1.1 200 OK\r\n";
-    *td->buffer2 << "Date: " << time ;
-    *td->buffer2 <<  "\r\nServer: "<< MYSERVER_VERSION;
+    td->secondaryBuffer->setLength(0);
+    *td->secondaryBuffer <<  "HTTP/1.1 200 OK\r\n";
+    *td->secondaryBuffer << "Date: " << time ;
+    *td->secondaryBuffer <<  "\r\nServer: "<< MYSERVER_VERSION;
     if(connection && connection->value->length())
-      *td->buffer2 << "\r\nConnection:" << connection->value->c_str() << "\r\n";
-    *td->buffer2 <<"Content-Length: 0\r\nAccept-Ranges: bytes\r\n";
-    *td->buffer2 << "Allow: " << methods << "\r\n";
+      *td->secondaryBuffer << "\r\nConnection:" << connection->value->c_str() << "\r\n";
+    *td->secondaryBuffer <<"Content-Length: 0\r\nAccept-Ranges: bytes\r\n";
+    *td->secondaryBuffer << "Allow: " << methods << "\r\n";
 
     /*!
      *Check if the TRACE command is allowed on the virtual host.
      */
     if (allowHTTPTRACE ())
-      *td->buffer2 << ", TRACE\r\n";
+      *td->secondaryBuffer << ", TRACE\r\n";
 
-    *td->buffer2 << "r\n";
+    *td->secondaryBuffer << "r\n";
 
     /*! Send the HTTP header. */
-    ret = td->connection->socket->send(td->buffer2->getBuffer(),
-                                      (u_long)td->buffer2->getLength(), 0);
+    ret = td->connection->socket->send(td->secondaryBuffer->getBuffer(),
+                                      (u_long)td->secondaryBuffer->getLength(), 0);
     if( ret == SOCKET_ERROR )
     {
       return 0;
@@ -158,20 +158,20 @@ int Http::traceHTTPRESOURCE(string& filename, int yetmapped)
     if (!allowHTTPTRACE ())
       return raiseHTTPError (401);
 
-    td->buffer2->setLength(0);
-    *td->buffer2 << "HTTP/1.1 200 OK\r\n";
-    *td->buffer2 << "Date: " << time << "\r\n";
-    *td->buffer2 << "Server: " << MYSERVER_VERSION  << "\r\n";
+    td->secondaryBuffer->setLength(0);
+    *td->secondaryBuffer << "HTTP/1.1 200 OK\r\n";
+    *td->secondaryBuffer << "Date: " << time << "\r\n";
+    *td->secondaryBuffer << "Server: " << MYSERVER_VERSION  << "\r\n";
     connection = td->request.other.get("Connection");
     if(connection && connection->value->length())
-      *td->buffer2 << "Connection:" << connection->value->c_str() << "\r\n";
-    *td->buffer2 <<"Content-Length:" << tmp << "\r\n"
+      *td->secondaryBuffer << "Connection:" << connection->value->c_str() << "\r\n";
+    *td->secondaryBuffer <<"Content-Length:" << tmp << "\r\n"
                  << "Content-Type: message/http\r\n"
                  << "Accept-Ranges: bytes\r\n\r\n";
 
     /*! Send our HTTP header.  */
-    ret = td->connection->socket->send(td->buffer2->getBuffer(),
-                                      (u_long)td->buffer2->getLength(), 0);
+    ret = td->connection->socket->send(td->secondaryBuffer->getBuffer(),
+                                      (u_long)td->secondaryBuffer->getLength(), 0);
     if( ret == SOCKET_ERROR )
     {
       return 0;
@@ -258,7 +258,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
       for(;;)
       {
         u_long nbr = 0, nbw = 0;
-        if(td->inputData.readFromFile(td->buffer->getBuffer(),
+        if(td->inputData.read(td->buffer->getBuffer(),
                                      td->buffer->getRealLength(), &nbr))
         {
           file.close();
@@ -305,7 +305,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
       for(;;)
       {
         u_long nbr = 0, nbw = 0;
-        if(td->inputData.readFromFile(td->buffer->getBuffer(),
+        if(td->inputData.read(td->buffer->getBuffer(),
                                       td->buffer->getRealLength(), &nbr))
         {
           file.close();
@@ -679,12 +679,12 @@ u_long Http::checkDigest()
     ((HttpUserData*)td->connection->protocolBuffer)->nc++;
 
   md5.init();
-  td->buffer2->setLength(0);
-  *td->buffer2 << td->request.digestUsername << ":" << td->request.digestRealm
+  td->secondaryBuffer->setLength(0);
+  *td->secondaryBuffer << td->request.digestUsername << ":" << td->request.digestRealm
                << ":" << securityToken.getNeededPassword();
 
-  md5.update((unsigned char const*)td->buffer2->getBuffer(),
-             (unsigned int)td->buffer2->getLength());
+  md5.update((unsigned char const*)td->secondaryBuffer->getBuffer(),
+             (unsigned int)td->secondaryBuffer->getLength());
   md5.end(A1);
 
   md5.init();
@@ -694,20 +694,20 @@ u_long Http::checkDigest()
   else
     uri = (char*)td->request.uriOpts.c_str();
 
-  td->buffer2->setLength(0);
-  *td->buffer2 <<  td->request.cmd.c_str() <<  ":" << uri;
-  md5.update((unsigned char const*)td->buffer2->getBuffer(),
-             (unsigned int)td->buffer2->getLength());
+  td->secondaryBuffer->setLength(0);
+  *td->secondaryBuffer <<  td->request.cmd.c_str() <<  ":" << uri;
+  md5.update((unsigned char const*)td->secondaryBuffer->getBuffer(),
+             (unsigned int)td->secondaryBuffer->getLength());
   md5.end( A2);
 
   md5.init();
-  td->buffer2->setLength(0);
-  *td->buffer2 << A1 << ":"
+  td->secondaryBuffer->setLength(0);
+  *td->secondaryBuffer << A1 << ":"
               << ((HttpUserData*)td->connection->protocolBuffer)->nonce << ":"
               << td->request.digestNc << ":"  << td->request.digestCnonce << ":"
               << td->request.digestQop  << ":" << A2;
-  md5.update((unsigned char const*)td->buffer2->getBuffer(),
-             (unsigned int)td->buffer2->getLength());
+  md5.update((unsigned char const*)td->secondaryBuffer->getBuffer(),
+             (unsigned int)td->secondaryBuffer->getLength());
   md5.end(response);
 
   if(!strcmp(response, td->request.digestResponse))
@@ -1140,7 +1140,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         return sendHTTPhardError500();
       }
 
-      if(h.readFromFile(linkpath, linkpathSize, &nbr))
+      if(h.read(linkpath, linkpathSize, &nbr))
       {
         h.close();
         delete [] linkpath;
@@ -1265,52 +1265,52 @@ int Http::logHTTPaccess()
 
   try
   {
-    td->buffer2->setLength(0);
-    *td->buffer2 << td->connection->getIpAddr();
-    *td->buffer2<< " ";
+    td->secondaryBuffer->setLength(0);
+    *td->secondaryBuffer << td->connection->getIpAddr();
+    *td->secondaryBuffer<< " ";
 
     if(td->connection->getLogin()[0])
-      *td->buffer2 << td->connection->getLogin();
+      *td->secondaryBuffer << td->connection->getLogin();
     else
-      *td->buffer2 << "-";
+      *td->secondaryBuffer << "-";
 
-    *td->buffer2<< " ";
+    *td->secondaryBuffer<< " ";
 
     if(td->connection->getLogin()[0])
-      *td->buffer2 << td->connection->getLogin();
+      *td->secondaryBuffer << td->connection->getLogin();
     else
-      *td->buffer2 << "-";
+      *td->secondaryBuffer << "-";
 
-    *td->buffer2 << " [";
+    *td->secondaryBuffer << " [";
 
     getLocalLogFormatDate(time, HTTP_RESPONSE_DATE_DIM);
-    *td->buffer2 <<  time  << "] \"";
+    *td->secondaryBuffer <<  time  << "] \"";
 
     if(td->request.cmd.length())
-      *td->buffer2 << td->request.cmd.c_str() << "";
+      *td->secondaryBuffer << td->request.cmd.c_str() << "";
 
     if(td->request.cmd.length() || td->request.uri.length())
-      *td->buffer2 << " ";
+      *td->secondaryBuffer << " ";
 
     if(td->request.uri.length() == '\0')
-      *td->buffer2 <<  "/";
+      *td->secondaryBuffer <<  "/";
     else
-      *td->buffer2 << td->request.uri.c_str();
+      *td->secondaryBuffer << td->request.uri.c_str();
 
 
     if(td->request.uriOpts.length())
-      *td->buffer2 << "?" << td->request.uriOpts.c_str();
+      *td->secondaryBuffer << "?" << td->request.uriOpts.c_str();
 
     sprintf(tmpStrInt, "%u ", td->response.httpStatus);
 
     if(td->request.ver.length())
-      *td->buffer2 << " " << td->request.ver.c_str()  ;
+      *td->secondaryBuffer << " " << td->request.ver.c_str()  ;
 
-    *td->buffer2<< "\" " << tmpStrInt  << " ";
+    *td->secondaryBuffer<< "\" " << tmpStrInt  << " ";
 
 
     sprintf(tmpStrInt, "%u", td->sentData);
-    *td->buffer2 << tmpStrInt;
+    *td->secondaryBuffer << tmpStrInt;
 
     if(td->connection->host)
     {
@@ -1318,22 +1318,22 @@ int Http::logHTTPaccess()
       HttpRequestHeader::Entry *referer = td->request.other.get("Refer");
 
       if(strstr((td->connection->host)->getAccessLogOpt(), "type=combined"))
-        *td->buffer2 << " "  << (referer   ? referer->value->c_str() : "")
+        *td->secondaryBuffer << " "  << (referer   ? referer->value->c_str() : "")
                     << " "  << (userAgent ? userAgent->value->c_str() : "");
     }
 #ifdef WIN32
-    *td->buffer2  << "\r\n" << end_str;
+    *td->secondaryBuffer  << "\r\n" << end_str;
 #else
-    *td->buffer2  << "\n" << end_str;
+    *td->secondaryBuffer  << "\n" << end_str;
 #endif
     /*!
      *Request the access to the log file then append the message.
      */
      if(td->connection->host)
      {
-       td->connection->host->accessesLogWrite(td->buffer2->getBuffer());
+       td->connection->host->accessesLogWrite(td->secondaryBuffer->getBuffer());
      }
-    td->buffer2->setLength(0);
+    td->secondaryBuffer->setLength(0);
   }
   catch(...)
   {
@@ -1360,9 +1360,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
   try
   {
     td->buffer = a->getActiveThread()->getBuffer();
-    td->buffer2 = a->getActiveThread()->getBuffer2();
+    td->secondaryBuffer = a->getActiveThread()->getSecondaryBuffer();
     td->buffersize = bs1;
-    td->buffersize2 = bs2;
+    td->secondaryBufferSize = bs2;
     td->nBytesToRead = nbtr;
     td->connection = a;
     td->id = id;
@@ -1838,18 +1838,18 @@ int Http::requestAuthorization()
   HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
   HttpRequestHeader::Entry *host = td->request.other.get("Host");
   td->response.httpStatus = 401;
-  td->buffer2->setLength(0);
-  *td->buffer2 << "HTTP/1.1 401 Unauthorized\r\n"
+  td->secondaryBuffer->setLength(0);
+  *td->secondaryBuffer << "HTTP/1.1 401 Unauthorized\r\n"
                << "Accept-Ranges: bytes\r\n";
-  *td->buffer2 << "Server: " << MYSERVER_VERSION << "\r\n";
-  *td->buffer2 << "Content-Type: text/html\r\n"
+  *td->secondaryBuffer << "Server: " << MYSERVER_VERSION << "\r\n";
+  *td->secondaryBuffer << "Content-Type: text/html\r\n"
                << "Connection: ";
-  *td->buffer2 << (connection ? connection->value->c_str() : "");
-  *td->buffer2 << "\r\nContent-Length: 0\r\n";
+  *td->secondaryBuffer << (connection ? connection->value->c_str() : "");
+  *td->secondaryBuffer << "\r\nContent-Length: 0\r\n";
 
   if(td->authScheme == HTTP_AUTH_SCHEME_BASIC)
   {
-    *td->buffer2 <<  "WWW-Authenticate: Basic realm=\""
+    *td->secondaryBuffer <<  "WWW-Authenticate: Basic realm=\""
                 << (host ? host->value->c_str() : "") <<  "\"\r\n";
   }
   else if(td->authScheme == HTTP_AUTH_SCHEME_DIGEST)
@@ -1890,7 +1890,7 @@ int Http::requestAuthorization()
       ((HttpUserData*)td->connection->protocolBuffer)->nc = 0;
     }
 
-    *td->buffer2 << "WWW-Authenticate: digest "
+    *td->secondaryBuffer << "WWW-Authenticate: digest "
                 << " qop=\"auth\", algorithm =\"MD5\", realm =\""
                 << ((HttpUserData*)td->connection->protocolBuffer)->realm
                 << "\",  opaque =\""
@@ -1901,11 +1901,11 @@ int Http::requestAuthorization()
 
     if(((HttpUserData*)td->connection->protocolBuffer)->cnonce[0])
     {
-      *td->buffer2 << ", cnonce =\""
+      *td->secondaryBuffer << ", cnonce =\""
                   <<((HttpUserData*)td->connection->protocolBuffer)->cnonce
                   <<"\" ";
     }
-    *td->buffer2 << "\r\n";
+    *td->secondaryBuffer << "\r\n";
   }
   else
   {
@@ -1914,12 +1914,12 @@ int Http::requestAuthorization()
      */
     return raiseHTTPError(501);
   }
-  *td->buffer2 << "Date: ";
+  *td->secondaryBuffer << "Date: ";
   getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
-  *td->buffer2  << time
+  *td->secondaryBuffer  << time
                << "\r\n\r\n";
-  if(td->connection->socket->send(td->buffer2->getBuffer(),
-                                 td->buffer2->getLength(), 0) == -1)
+  if(td->connection->socket->send(td->secondaryBuffer->getBuffer(),
+                                 td->secondaryBuffer->getLength(), 0) == -1)
   {
     return 0;
   }
@@ -2112,20 +2112,20 @@ Internal Server Error\n\
   *td->buffer << " from: " ;
   *td->buffer << td->connection->getIpAddr() ;
   *td->buffer << "\r\n";
-  td->buffer2->setLength(0);
-  *td->buffer2 << "HTTP/1.1 500 System Error\r\n";
-  *td->buffer2 << "Server: " << MYSERVER_VERSION << "\r\n";
-  *td->buffer2 <<" Content-Type: text/html\r\nContent-Length: ";
+  td->secondaryBuffer->setLength(0);
+  *td->secondaryBuffer << "HTTP/1.1 500 System Error\r\n";
+  *td->secondaryBuffer << "Server: " << MYSERVER_VERSION << "\r\n";
+  *td->secondaryBuffer <<" Content-Type: text/html\r\nContent-Length: ";
   tmp.intToStr((int)strlen(hardHTML), tmpStr, 12);
-  *td->buffer2 << tmp;
-  *td->buffer2 << "\r\n";
-  *td->buffer2 <<"Date: ";
+  *td->secondaryBuffer << tmp;
+  *td->secondaryBuffer << "\r\n";
+  *td->secondaryBuffer <<"Date: ";
   getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
-  *td->buffer2 << time;
-  *td->buffer2 << "\r\n\r\n";
+  *td->secondaryBuffer << time;
+  *td->secondaryBuffer << "\r\n\r\n";
   /*! Send the header.  */
-  if(td->connection->socket->send(td->buffer2->getBuffer(),
-                                 (u_long)td->buffer2->getLength(), 0) != -1)
+  if(td->connection->socket->send(td->secondaryBuffer->getBuffer(),
+                                 (u_long)td->secondaryBuffer->getLength(), 0) != -1)
   {
     /*! Send the body.  */
     if(!td->onlyHeader)
@@ -2242,24 +2242,24 @@ int Http::sendHTTPRedirect(const char *newURL)
   HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
 
   td->response.httpStatus = 302;
-  td->buffer2->setLength(0);
-  *td->buffer2 << "HTTP/1.1 302 Moved\r\nAccept-Ranges: bytes\r\n"
+  td->secondaryBuffer->setLength(0);
+  *td->secondaryBuffer << "HTTP/1.1 302 Moved\r\nAccept-Ranges: bytes\r\n"
               << "Server: "  << MYSERVER_VERSION << "\r\n"
               << "Content-Type: text/html\r\n"
               << "Location: " << newURL << "\r\n"
               << "Content-Length: 0\r\n";
 
   if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
-    *td->buffer2 << "Connection: keep-alive\r\n";
+    *td->secondaryBuffer << "Connection: keep-alive\r\n";
   else
-    *td->buffer2 << "Connection: close\r\n";
+    *td->secondaryBuffer << "Connection: close\r\n";
 
-  *td->buffer2<< "Date: ";
+  *td->secondaryBuffer<< "Date: ";
   getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
-  *td->buffer2 << time
+  *td->secondaryBuffer << time
               << "\r\n\r\n";
-  if(td->connection->socket->send(td->buffer2->getBuffer(),
-                                 (int)td->buffer2->getLength(), 0) == -1)
+  if(td->connection->socket->send(td->secondaryBuffer->getBuffer(),
+                                 (int)td->secondaryBuffer->getLength(), 0) == -1)
     return 0;
 
   return 1;
@@ -2274,21 +2274,21 @@ int Http::sendHTTPNonModified()
   HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
 
   td->response.httpStatus = 304;
-  td->buffer2->setLength(0);
-  *td->buffer2 << "HTTP/1.1 304 Not Modified\r\nAccept-Ranges: bytes\r\n"
+  td->secondaryBuffer->setLength(0);
+  *td->secondaryBuffer << "HTTP/1.1 304 Not Modified\r\nAccept-Ranges: bytes\r\n"
               << "Server: "  << MYSERVER_VERSION << "\r\n";
 
   if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
-    *td->buffer2 << "Connection: keep-alive\r\n";
+    *td->secondaryBuffer << "Connection: keep-alive\r\n";
   else
-    *td->buffer2 << "Connection: close\r\n";
+    *td->secondaryBuffer << "Connection: close\r\n";
 
   getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
 
-  *td->buffer2 << "Date: " << time << "\r\n\r\n";
+  *td->secondaryBuffer << "Date: " << time << "\r\n\r\n";
 
-  if(td->connection->socket->send(td->buffer2->getBuffer(),
-                                 (int)td->buffer2->getLength(), 0) == -1)
+  if(td->connection->socket->send(td->secondaryBuffer->getBuffer(),
+                                 (int)td->secondaryBuffer->getLength(), 0) == -1)
     return 0;
   return 1;
 }

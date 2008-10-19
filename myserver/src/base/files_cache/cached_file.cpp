@@ -128,7 +128,7 @@ int CachedFile::operator =(CachedFile f)
  *\param buffersize The length of the buffer in bytes.
  *\param nbr How many bytes were read to the buffer.
  */
-int CachedFile::readFromFile(char* buffer, u_long buffersize, u_long* nbr)
+int CachedFile::read(char* buffer, u_long buffersize, u_long* nbr)
 {
   u_long toRead = std::min(buffersize, this->buffer->getFileSize() - fseek);
   const char* src = &(this->buffer->getBuffer()[fseek]);

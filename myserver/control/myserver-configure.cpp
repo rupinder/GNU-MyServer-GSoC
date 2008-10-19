@@ -165,7 +165,7 @@ int main(int argc, char * argv[])
 	     outputF.openFile("myserver.xml", File::MYSERVER_OPEN_WRITE|File::MYSERVER_OPEN_ALWAYS);
 	     for(;;)
 	       {
-		  inputF.readFromFile(buffer, 512, &nbr );
+		  inputF.read(buffer, 512, &nbr );
 		  if(nbr==0)
 		    break;
 		  outputF.writeToFile(buffer, nbr, &nbw);
@@ -181,7 +181,7 @@ int main(int argc, char * argv[])
 		  outputF.openFile("MIMEtypes.xml", File::MYSERVER_OPEN_WRITE|File::MYSERVER_OPEN_ALWAYS);
 		  for(;;)
 		    {
-		       inputF.readFromFile(buffer, 512, &nbr );
+		       inputF.read(buffer, 512, &nbr );
 		       if(nbr==0)
 			 break;
 		       outputF.writeToFile(buffer, nbr, &nbw);
@@ -200,7 +200,7 @@ int main(int argc, char * argv[])
 											 File::MYSERVER_OPEN_ALWAYS);
 		  for(;;)
 		    {
-		       inputF.readFromFile(buffer, 512, &nbr );
+		       inputF.read(buffer, 512, &nbr );
 		       if(nbr==0)
 			 break;
 		       outputF.writeToFile(buffer, nbr, &nbw);
