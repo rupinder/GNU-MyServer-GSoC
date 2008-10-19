@@ -25,8 +25,6 @@
  */
 int VhostManager::addVHost(Vhost* vh)
 {
-  Vhost* hostl;
-  
   list<Vhost*>::iterator it;
   
   mutex.lock();

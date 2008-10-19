@@ -67,8 +67,6 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   FiltersChain chain;
   u_long nbw;
 
-  u_long headerSize = 0;
-
   int exit;
   int ret;
 
@@ -77,8 +75,6 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   FastCgiServer* server = 0;
   int id;
   ostringstream cmdLine;
-  char *buffer = 0;
-
   string moreArg;
 
   con.useChunks = false;
@@ -242,7 +238,6 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   do
   {
     u_long dim;
-    u_long nbw;
     
     if (readHeader (&con, &header, initialTicks, timeout, id))
     {

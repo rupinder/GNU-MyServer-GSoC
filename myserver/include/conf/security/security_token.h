@@ -140,7 +140,7 @@ public:
     resource = r;
   }
 
-  int setMask (int m)
+  void setMask (int m)
   {
     mask = m;
   }
@@ -155,12 +155,12 @@ public:
     neededPassword.assign (pw);
   }
 
-  bool setDone (bool d)
+  void setDone (bool d)
   {
     done = d;
   }
 
-  bool setAuthenticated (bool a)
+  void setAuthenticated (bool a)
   {
     authenticated = a;
   }

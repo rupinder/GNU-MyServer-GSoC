@@ -360,7 +360,7 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
       int aliveProcess = 0;
       u_long ticks = getTicks() - procStartTime;
 
-      if (ticks >= cgiTimeout || 
+      if (ticks >= (u_long)cgiTimeout || 
           stdOutFile.waitForData ((cgiTimeout - ticks) / 1000, (cgiTimeout - ticks) % 1000) == 0)
       {
         ostringstream msg;

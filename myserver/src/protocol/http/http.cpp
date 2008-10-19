@@ -350,8 +350,6 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
 int Http::getFilePermissions(string& filename, string& directory, string& file, 
                              string &filenamePath, int yetmapped, int* permissions)
 {
-  int providedMask;
-
   securityToken.setServer (Server::getInstance ());
   securityToken.setSysDirectory ((string*)&(td->connection->host->getSystemRoot ()));
 

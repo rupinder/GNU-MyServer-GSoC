@@ -220,18 +220,18 @@ int FilesUtility::copyFile(File src, File dest)
 
 
   for (;;) 
-    {
-	ret = src.readFromFile(buffer, 512, &nbr);
-	if (ret)
-	  return -1;
-
-	if (!nbr)
-	  break;
-
-	ret = dest.writeToFile(buffer, nbr, &nbw);
-	if (ret)
-	  return -1;
-    }
+  {
+    ret = src.readFromFile(buffer, 512, &nbr);
+    if (ret)
+      return -1;
+    
+    if (!nbr)
+      break;
+    
+    ret = dest.writeToFile(buffer, nbr, &nbw);
+    if (ret)
+      return -1;
+  }
   return 0;
 }
 
@@ -777,9 +777,39 @@ int FilesUtility::simpleMakeDirectory(const char *path)
 int FilesUtility::deleteDirectory(const char *path)
 {
 #ifdef WIN32
-     return RemoveDirectory(path)?0:-1;
+  return RemoveDirectory(path)?0:-1;
 #else // NOT_WIN
   return rmdir(path);
+#endif
+}
+
+/*!
+ *Set the temporary path to a default one.
+ */
+void FilesUtility::resetTmpPath()
+{
+#ifdef WIN32
+  const char *tmpDir = getenv ("TMPDIR");
+  if (tmpDir)
+    tmpPath.assign (tmpDir);
+  else
+  {
+    TCHAR lpPathBuffer[MAX_PATH];
+    GetTempPath (MAX_PATH, lpPathBuffer);
+    tmpPath.assign (lpPathBuffer);
+  }
+#else
+  const char *tmpDir = getenv ("TMPDIR");
+
+#ifdef P_tmpdir
+  if (tmpDir == NULL)
+    tmpDir = P_tmpdir;
+#endif
+
+  if (tmpDir == NULL)
+    tmpDir = "/tmp";
+
+  tmpPath.assign (tmpDir);
 #endif
 }
 
@@ -798,6 +828,6 @@ void FilesUtility::temporaryFileName(u_long tid, string &out)
   if(tmpPath.length() == 0)
     tmpPath.assign(getdefaultwd(0, 0));
 
-  stream << tmpPath << "/tmp_" << counter  << "_" << tid;
+  stream << tmpPath << "/myserver_" << counter  << "_" << tid << ".tmp";
   out.assign(stream.str());
 }

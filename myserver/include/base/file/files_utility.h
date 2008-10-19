@@ -101,6 +101,7 @@ public:
 
   static void temporaryFileName(u_long tid, string &out);
 
+  static void resetTmpPath();
   static void setTmpPath(string & path){tmpPath.assign(path);}
 private:
 	static string tmpPath;

@@ -1119,12 +1119,14 @@ int Server::initialize()
     cachedFiles.initialize(1 << 23);
 
   data = configurationFileManager.getValue("TEMP_DIRECTORY");
-  if(data)
+  if (data)
   {
-    string tmpPath(data);
-    FilesUtility::completePath(tmpPath);
-    FilesUtility::setTmpPath(tmpPath);
+    string tmpPath (data);
+    FilesUtility::completePath (tmpPath);
+    FilesUtility::setTmpPath (tmpPath);
   }
+  else
+    FilesUtility::resetTmpPath ();
 
   data = configurationFileManager.getValue("MAX_FILESCACHE_FILESIZE");
   if(data)
