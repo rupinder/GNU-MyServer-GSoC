@@ -149,31 +149,46 @@ struct FcgiContext
 	HttpThreadContext* td;
   FastCgiServer* server;
 	Socket sock;
-	File tempOut;
+
+  bool useChunks;
+  bool keepalive;
+  bool headerSent;
 };
+
+class FiltersChain;
 
 class FastCgi : public HttpDataHandler
 {
 public:
-  static int getTimeout();
-  static void setTimeout(int);
-	FastCgi();
-	static int load(XmlParser*);
-	virtual int send(HttpThreadContext* td, ConnectionPtr connection,
+  static int getTimeout ();
+  static void setTimeout (int);
+	FastCgi ();
+	static int load (XmlParser*);
+	virtual int send (HttpThreadContext* td, ConnectionPtr connection,
                    const char* scriptpath, const char *cgipath, 
                    int execute = 0, int onlyHeader = 0);
-	static int unLoad();
+	static int unLoad ();
 private:
 	static ProcessServerManager *processServerManager;
 	static int timeout;
 	static int initialized;
 
-	void generateFcgiHeader( FcgiHeader&, int ,int, int );
-	Socket getFcgiConnection();
-	int buildFASTCGIEnvironmentString(HttpThreadContext*,char*,char*);
-	int sendFcgiBody(FcgiContext* con, char* buffer, int len, int type, int id);
-	FastCgiServer* isFcgiServerRunning(const char*);
-  FastCgiServer* runFcgiServer(FcgiContext*, const char*);
-	FastCgiServer* connect(FcgiContext*, const char*);
+  int handleHeader (FcgiContext* con, FiltersChain* chain, 
+                    bool *responseCompleted);
+  int sendData (FcgiContext* con, u_long dim, 
+                u_long timeout, FiltersChain* chain,
+                bool *responseCompleted, int onlyHeader);
+  int fastCgiRequest (FcgiContext* con, int id);
+  int readHeader (FcgiContext *con, FcgiHeader* header,
+                  u_long started, u_long timeout, int id);
+
+
+	void generateFcgiHeader ( FcgiHeader&, int ,int, int );
+	Socket getFcgiConnection ();
+	int buildFASTCGIEnvironmentString (HttpThreadContext*,char*,char*);
+	int sendFcgiBody (FcgiContext* con, char* buffer, int len, int type, int id);
+	FastCgiServer* isFcgiServerRunning (const char*);
+  FastCgiServer* runFcgiServer (FcgiContext*, const char*);
+	FastCgiServer* connect (FcgiContext*, const char*);
 };
 #endif

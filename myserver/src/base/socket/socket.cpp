@@ -622,17 +622,11 @@ int Socket::connect(MYSERVER_SOCKADDR* sa, int na)
  */
 int Socket::recv(char* buffer, int len, int flags, u_long timeout)
 {
-  u_long time = getTicks();
-  while(getTicks() - time < timeout)
-  {
-    /*! Check if there is data to read before do it. */
-    if(bytesToRead())
-      return recv(buffer, len, flags);
-  }
+  if (dataOnRead (timeout / 1000, timeout % 1000))
+    return recv(buffer, len, flags);
+
   return 0;
-
 }
-
 
 /*!
  *Receive data from the socket.
