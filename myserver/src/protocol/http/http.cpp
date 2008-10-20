@@ -197,8 +197,8 @@ int Http::traceHTTPRESOURCE(string& filename, int yetmapped)
  */
 bool Http::allowHTTPTRACE()
 {
-  const char *allowTrace = securityToken.getHashedData ("http.allow_trace", MYSERVER_VHOST_CONF |
-                                                        MYSERVER_SERVER_CONF, "NO");
+  const char *allowTrace = td->securityToken.getHashedData ("http.allow_trace", MYSERVER_VHOST_CONF |
+                                                              MYSERVER_SERVER_CONF, "NO");
 
   if (!strcmpi (allowTrace, "YES"))
     return true;
@@ -350,18 +350,18 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
 int Http::getFilePermissions(string& filename, string& directory, string& file, 
                              string &filenamePath, int yetmapped, int* permissions)
 {
-  securityToken.setServer (Server::getInstance ());
-  securityToken.setSysDirectory ((string*)&(td->connection->host->getSystemRoot ()));
+  td->securityToken.setServer (Server::getInstance ());
+  td->securityToken.setSysDirectory ((string*)&(td->connection->host->getSystemRoot ()));
 
-  securityToken.setVhost (td->connection->host);
+  td->securityToken.setVhost (td->connection->host);
 
   try
   {
     FilesUtility::splitPath (filename, directory, file);
     FilesUtility::completePath (directory);
 
-    securityToken.setResource (&filenamePath);
-    securityToken.setDirectory (&directory);
+    td->securityToken.setResource (&filenamePath);
+    td->securityToken.setDirectory (&directory);
 
     /*!
      *td->filenamePath is the file system mapped path while filename
@@ -440,27 +440,27 @@ int Http::getFilePermissions(string& filename, string& directory, string& file,
       return 500;
     }
 
-    securityToken.setUser (user);
-    securityToken.setPassword (password);
+    td->securityToken.setUser (user);
+    td->securityToken.setPassword (password);
 
-    AuthDomain auth (&securityToken);
+    AuthDomain auth (&(td->securityToken));
     HttpReqSecurityDomain httpReqSecDom (&(td->request));
 
-    string validator (securityToken.getHashedData ("sec.validator", MYSERVER_VHOST_CONF |
+    string validator (td->securityToken.getHashedData ("sec.validator", MYSERVER_VHOST_CONF |
                                                    MYSERVER_SERVER_CONF, "xml"));
-    string authMethod (securityToken.getHashedData ("sec.auth_method", MYSERVER_VHOST_CONF |
+    string authMethod (td->securityToken.getHashedData ("sec.auth_method", MYSERVER_VHOST_CONF |
                                                     MYSERVER_SERVER_CONF, "xml"));
 
 
     SecurityDomain* domains[] = {&auth, &httpReqSecDom, NULL};
 
-    Server::getInstance()->getSecurityManager ()->getPermissionMask (&securityToken, domains, 
+    Server::getInstance()->getSecurityManager ()->getPermissionMask (&(td->securityToken), domains, 
                                                                      validator, authMethod);
 
-    const char *authType = securityToken.getHashedData ("http.auth", MYSERVER_SECURITY_CONF |
+    const char *authType = td->securityToken.getHashedData ("http.auth", MYSERVER_SECURITY_CONF |
                                                         MYSERVER_VHOST_CONF |
                                                         MYSERVER_SERVER_CONF);
-    *permissions = securityToken.getMask ();
+    *permissions = td->securityToken.getMask ();
 
     /*! Check if we have to use digest for the current directory. */
     if(authType && !strcmpi(authType, "Digest"))
@@ -476,8 +476,8 @@ int Http::getFilePermissions(string& filename, string& directory, string& file,
 
         if(hud->digest == 1)
         {
-          td->connection->setPassword (securityToken.getNeededPassword ().c_str ());
-          *permissions = securityToken.getProvidedMask ();
+          td->connection->setPassword (td->securityToken.getNeededPassword ().c_str ());
+          *permissions = td->securityToken.getProvidedMask ();
         }
       }
       td->authScheme = HTTP_AUTH_SCHEME_DIGEST;
@@ -493,7 +493,7 @@ int Http::getFilePermissions(string& filename, string& directory, string& file,
     return 500;
   }
 
-  const char *tr = securityToken.getHashedData ("connection.throttling", MYSERVER_SECURITY_CONF |
+  const char *tr = td->securityToken.getHashedData ("connection.throttling", MYSERVER_SECURITY_CONF |
                                                 MYSERVER_VHOST_CONF |
                                                 MYSERVER_SERVER_CONF);
 
@@ -681,7 +681,7 @@ u_long Http::checkDigest()
   md5.init();
   td->secondaryBuffer->setLength(0);
   *td->secondaryBuffer << td->request.digestUsername << ":" << td->request.digestRealm
-               << ":" << securityToken.getNeededPassword();
+               << ":" << td->securityToken.getNeededPassword();
 
   md5.update((unsigned char const*)td->secondaryBuffer->getBuffer(),
              (unsigned int)td->secondaryBuffer->getLength());
@@ -1934,7 +1934,6 @@ int Http::raiseHTTPError(int ID)
 {
   try
   {
-    int ret = 0;
     string time;
     ostringstream errorFile;
     string errorMessage;
@@ -1974,9 +1973,9 @@ int Http::raiseHTTPError(int ID)
     char errorName [32];
     sprintf (errorName, "http.error.file.%i", ID);
 
-    const char *defErrorFile = securityToken.getHashedData (errorName, MYSERVER_SECURITY_CONF |
-                                                            MYSERVER_VHOST_CONF |
-                                                            MYSERVER_SERVER_CONF);
+    const char *defErrorFile = td->securityToken.getHashedData (errorName, MYSERVER_SECURITY_CONF |
+                                                                MYSERVER_VHOST_CONF |
+                                                                MYSERVER_SERVER_CONF);
 
     if (defErrorFile)
     {

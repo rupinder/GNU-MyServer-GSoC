@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/mem_buff/mem_buff.h>
 #include <include/connection/connection.h>
 #include <include/conf/mime/mime_manager.h>
+#include <include/conf/security/security_token.h>
 
 extern "C" {
 #ifdef WIN32
@@ -83,6 +84,8 @@ struct HttpThreadContext
 	Http* http;
 	MimeRecord *mime;
 	int sentData;
+  SecurityToken securityToken;
+
 	const char* getVhostDir();
 	const char* getVhostSys();
 	const char* getHashedData (const char *name);

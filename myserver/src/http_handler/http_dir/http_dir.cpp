@@ -163,6 +163,126 @@ void HttpDir::getFormattedSize(u_long bytes, string & out)
 }
 
 /*!
+ *Generate the HTML header for the results table.
+ *\param out Buffer where write it.
+ *\param sortType How elements are sorted.
+ *\param sortReverse True if element are in reverse order.
+ *\param formatString Decide which fields show.
+ */
+void HttpDir::generateHeader (MemBuf &out, char sortType, bool sortReverse,
+                              const char* formatString)
+{
+  const char* cur = formatString;
+
+  out << "<tr>\r\n";
+
+  for (;;)
+  {
+    while (*cur && ((*cur == '%' ) || (*cur == ' ' )))
+      cur++;
+
+    if (!(*cur))
+      break;
+
+    switch (*cur)
+    {
+    case 'f':
+      if (sortType == 'f' && !sortReverse)
+        out << "<th><a href=\"?sort=fI\">File</a></th>\r\n";
+      else
+        out << "<th><a href=\"?sort=f\">File</a></th>\r\n";
+      break;
+
+    case 't':
+      if (sortType == 't' && !sortReverse)
+        out << "<th><a href=\"?sort=tI\">Last Modified</a></th>\r\n";
+      else
+        out << "<th><a href=\"?sort=t\">Last Modified</a></th>\r\n";
+      break;
+
+    case 's':
+    if (sortType == 's' && !sortReverse)
+      out << "<th><a href=\"?sort=sI\">Size</a></th>\r\n";
+    else
+      out << "<th><a href=\"?sort=s\">Size</a></th>\r\n";
+    break;
+    }
+    cur++;
+  }
+
+  out << "</tr>\r\n";
+}
+
+/*!
+ *Generate the HTML code for an element in the result table.
+ *\param out Buffer where write the HTML.
+ *\param file Structure with information on the element.
+ *\param uriEndWithSlash Specify if the requested resource 
+ *ends with a slash.
+ *\param formatString Specify which element show.
+ */
+void HttpDir::generateElement (MemBuf &out, 
+                               FileStruct &file, 
+                               string &linkPrefix,
+                               const char *formatString)
+{
+  char fileTime[32];
+  string name;
+
+  formatHtml (file.name, name);
+
+  out << "<tr>\r\n";
+  
+  const char* cur = formatString;
+
+  for (;;)
+  {
+    while (*cur && ((*cur == '%' ) || (*cur == ' ' )))
+      cur++;
+
+    if (!(*cur))
+      break;
+
+    switch (*cur)
+    {
+    case 'f':
+      out << "<td><a href=\"";
+      out << linkPrefix << name;
+      out << "\">" ;
+      out << name;
+      out << "</a></td>\r\n";
+      break;
+
+    case 't':
+      getRFC822GMTTime(file.time_write, fileTime, 32);
+      out << "<td>";
+      out << fileTime ;
+      out << "</td>\r\n";
+      break;
+
+    case 's':
+      out << "<td>";
+      if(file.attrib & FILE_ATTRIBUTE_DIRECTORY)
+      {
+        out << "[directory]";
+      }
+      else
+      {
+        string tmp;
+        getFormattedSize(file.size, tmp);
+        out << tmp;
+      }
+      out << "</td>";
+      break;
+    }
+
+    cur++;
+  }
+  out << "</tr>\r\n";
+}
+
+
+/*!
  *Browse a directory printing its contents in an HTML file.
  *\param td The current thread context.
  *\param s The current connection structure.
@@ -182,7 +302,6 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
   int lastSlash = 0;
   bool useChunks = false;
   u_long sentData = 0;
-  char fileTime[32];
   char* bufferloop;
   const char* browseDirCSSpath;
   bool keepalive = false;
@@ -190,6 +309,12 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
   size_t sortIndex;
   char sortType;
   bool sortReverse = false;
+  string linkPrefix;
+  const char *formatString = td->securityToken.getHashedData ("http.dir.format", 
+                                                              MYSERVER_SECURITY_CONF | MYSERVER_VHOST_CONF |
+                                                              MYSERVER_SERVER_CONF, "%f%t%s");
+
+
   HttpRequestHeader::Entry *host = td->request.other.get("Host");
 
 
@@ -330,22 +455,9 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
    *files in the directory.
    */
   td->secondaryBuffer->setLength(0);
-  *td->secondaryBuffer << "<table width=\"100%\">\r\n<tr>\r\n" ;
+  *td->secondaryBuffer << "<table width=\"100%\">\r\n" ;
 
-  if(sortType == 'f' && !sortReverse)
-    *td->secondaryBuffer << "<th><a href=\"?sort=fI\">File</a></th>\r\n";
-  else
-    *td->secondaryBuffer << "<th><a href=\"?sort=f\">File</a></th>\r\n";
-
-  if(sortType == 't' && !sortReverse)
-    *td->secondaryBuffer << "<th><a href=\"?sort=tI\">Last Modified</a></th>\r\n";
-  else
-    *td->secondaryBuffer << "<th><a href=\"?sort=t\">Last Modified</a></th>\r\n";
-
-  if(sortType == 's' && !sortReverse)
-    *td->secondaryBuffer << "<th><a href=\"?sort=sI\">Size</a></th>\r\n</tr>\r\n";
-  else
-    *td->secondaryBuffer << "<th><a href=\"?sort=s\">Size</a></th>\r\n</tr>\r\n";
+  generateHeader (*td->secondaryBuffer, sortType, sortReverse, formatString);
 
   ret = appendDataToHTTPChannel(td, td->secondaryBuffer->getBuffer(),
                                 td->secondaryBuffer->getLength(),
@@ -366,15 +478,33 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 
   if(FilesUtility::getPathRecursionLevel(td->request.uri) >= 1)
   {
+    const char* cur = formatString;
     string file;
     file.assign(td->request.uri);
     file.append("/../");
     
-    *td->secondaryBuffer << "<tr>\r\n<td colspan=\"2\">"
-                 << "<a href=\""
-                 << (td->request.uriEndsWithSlash ? ".." : ".")
-           << "\">[ .. ]</a></td>\n"
-                 << "<td>[directory]</td></tr>\r\n";
+    *td->secondaryBuffer << "<tr>\r\n";
+
+    for (;;)
+    {
+      while (*cur && ((*cur == '%' ) || (*cur == ' ' )))
+        cur++;
+      
+      if (!(*cur))
+        break;
+
+      if (*cur == 'f')
+        *td->secondaryBuffer << "<td>\n"
+                             << "<a href=\""
+                             << (td->request.uriEndsWithSlash ? ".." : ".")
+                             << "\">[ .. ]</a></td>\n";
+      else
+        *td->secondaryBuffer << "<td></td>\n";
+
+      cur++;
+    }
+
+    *td->secondaryBuffer << "</tr>\r\n";
     
     ret = appendDataToHTTPChannel(td, td->secondaryBuffer->getBuffer(),
                                   td->secondaryBuffer->getLength(),
@@ -424,48 +554,25 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
   if(sortReverse)
     reverse (files.begin(), files.end());
 
+  if(!td->request.uriEndsWithSlash)
+  {
+    linkPrefix.assign (&td->request.uri[lastSlash]);
+    linkPrefix.append ("/");
+  }
+  else
+    linkPrefix.assign ("");
+
+
   /* Build the files table and send it.  */
   for(vector<FileStruct>::iterator it = files.begin();
       it != files.end(); it++)
   {  
-    string formattedName;
-
     FileStruct& file = *it;
 
     td->secondaryBuffer->setLength(0);
 
-    *td->secondaryBuffer << "<tr>\r\n<td><a href=\"";
-    if(!td->request.uriEndsWithSlash)
-    {
-      *td->secondaryBuffer << &td->request.uri[lastSlash];
-      *td->secondaryBuffer << "/" ;
-    }
-    formattedName.assign(file.name);
+    generateElement (*td->secondaryBuffer, file, linkPrefix, formatString);
 
-    formatHtml(file.name, formattedName);
-
-    *td->secondaryBuffer << formattedName ;
-    *td->secondaryBuffer << "\">" ;
-    *td->secondaryBuffer << formattedName;
-    *td->secondaryBuffer << "</a></td>\r\n<td>";
-  
-    getRFC822GMTTime(file.time_write, fileTime, 32);
-
-    *td->secondaryBuffer << fileTime ;
-    *td->secondaryBuffer << "</td>\r\n<td>";
-    
-    if(file.attrib & FILE_ATTRIBUTE_DIRECTORY)
-    {
-      *td->secondaryBuffer << "[directory]";
-    }
-    else
-    {
-      string out;
-      getFormattedSize(file.size, out);
-       *td->secondaryBuffer << out;
-    }
-
-    *td->secondaryBuffer << "</td>\r\n</tr>\r\n";
     ret = appendDataToHTTPChannel(td, td->secondaryBuffer->getBuffer(),
                                   td->secondaryBuffer->getLength(),
                                   &(td->outputData), &chain,
