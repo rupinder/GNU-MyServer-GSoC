@@ -546,36 +546,32 @@ int Http::preprocessHttpRequest(string& filename, int yetmapped, int* permission
     filenamePathLen = (int)td->filenamePath.length();
     dirscan.assign("");
 
-    for(int i = 0, len = 0; i < filenamePathLen ; i++)
+    for(u_long i = 0; i < filenamePathLen ; )
     {
       /*!
-       *http://host/pathtofile/filetosend.php/PATH_INFO_VALUE?QUERY_INFO_VALUE
-       *When a request has this form send the file filetosend.php with the
+       *http://host/path/to/file/file.txt/PATH_INFO_VALUE?QUERY_INFO_VALUE
+       *When a request has this form send the file file.txt with the
        *environment string PATH_INFO equals to PATH_INFO_VALUE and QUERY_INFO
        *to QUERY_INFO_VALUE.
        *
        *If there is the '/' character check if dirscan is a file.
        */
-      if(i && (td->filenamePath[i] == '/'))
+
+      u_long next = td->filenamePath.find ('/', i + 1);
+
+      if (next == string::npos)
+        break;
+
+      const char *curr = td->filenamePath.substr (0, next).c_str ();
+
+      if(!FilesUtility::isDirectory (curr))
       {
-        /*!
-         *If the token is a file.
-         */
-        if(!FilesUtility::isDirectory(dirscan.c_str()))
-        {
-          td->pathInfo.assign((char*) & (td->filenamePath[i]));
-          td->filenamePath.assign(dirscan);
-          break;
-        }
+        td->pathInfo.assign (&(td->filenamePath.c_str ()[next]));
+        td->filenamePath.erase (next);
+        break;
       }
 
-      if(len + 1 < filenamePathLen)
-      {
-        char db[2];
-        db[0] = (td->filenamePath)[i];
-        db[1] = '\0';
-        dirscan.append(db);
-      }
+      i = next;
     }
 
     /*!

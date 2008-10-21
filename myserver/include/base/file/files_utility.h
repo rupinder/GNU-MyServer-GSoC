@@ -103,6 +103,7 @@ public:
 
   static void resetTmpPath();
   static void setTmpPath(string & path){tmpPath.assign(path);}
+
 private:
 	static string tmpPath;
 };

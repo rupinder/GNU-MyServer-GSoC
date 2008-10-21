@@ -312,9 +312,10 @@ int FilesUtility::fileExists(const char* filename)
                        NULL, OPEN_EXISTING,
                        FILE_ATTRIBUTE_NORMAL | FILE_FLAG_BACKUP_SEMANTICS,
                        NULL);
- int nRet = hFile != INVALID_HANDLE_VALUE ? 1 : 0;
-    CloseHandle(hFile);
-    return nRet;
+
+  int nRet = hFile != INVALID_HANDLE_VALUE ? 1 : 0;
+  CloseHandle(hFile);
+  return nRet;
 #endif
 #ifdef NOT_WIN
   struct stat F_Stats;

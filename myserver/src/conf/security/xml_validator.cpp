@@ -319,8 +319,6 @@ bool XmlValidator::doCondition (xmlNodePtr node, HashMap<string, SecurityDomain*
 void XmlValidator::doPermission (xmlNodePtr node, SecurityToken *st, HashMap<string, SecurityDomain*> *hashedDomains)
 {
   string name;
-  const xmlChar *isNot = (const xmlChar*)"";
-  const xmlChar *value = (const xmlChar*)"";
   xmlAttr *attrs = node->properties;
 
   st->setProvidedMask (getPermissions (attrs));
