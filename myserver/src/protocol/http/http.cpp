@@ -886,11 +886,6 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       }
     }
 
-    if(td->mime)
-    {
-      return sendAuth();
-    }
-
     if(mimecmd == CGI_CMD_RUNCGI)
     {
       int allowCgi = 1;
