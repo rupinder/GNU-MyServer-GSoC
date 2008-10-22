@@ -77,7 +77,6 @@ MimeRecord::MimeRecord(MimeRecord& m)
   command = m.command;
   cmdName.assign(m.cmdName);
   cgiManager.assign(m.cgiManager);
-  headerChecker.clone(m.headerChecker);
 } 
 
 /*!
@@ -86,7 +85,6 @@ MimeRecord::MimeRecord(MimeRecord& m)
 void MimeRecord::clear()
 {
   filters.clear();
-  headerChecker.clear();
   extension.assign(""); 
   mimeType.assign(""); 
   cmdName.assign("");
@@ -148,54 +146,8 @@ int MimeManager::loadXML(const char *fn)
       continue;
     rc.clear();
 
-    while(attrs)
-    {
-      if(!xmlStrcmp(attrs->name, (const xmlChar *)"defaultAction"))
-      {
-        if(attrs->children && attrs->children->content && 
-           (!xmlStrcmp(attrs->children->content, (const xmlChar *)"ALLOW")))
-          rc.headerChecker.setDefaultCmd(HttpHeaderChecker::ALLOW);
-        else
-          rc.headerChecker.setDefaultCmd(HttpHeaderChecker::DENY);
-      }
-      attrs = attrs->next;
-    }
-
     while(lcur)
     {
-      if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"ACTION"))
-      {
-        HttpHeaderChecker::Rule r;
-        xmlAttr *actionAttrs = lcur->properties; 
-
-        if(lcur->children->content && lcur->children->content &&
-           (!xmlStrcmp(lcur->children->content, (const xmlChar *)"DENY")))
-          r.cmd = HttpHeaderChecker::DENY;
-        else
-          r.cmd = HttpHeaderChecker::ALLOW;
-
-        while(actionAttrs)
-        {
-          if(!xmlStrcmp(actionAttrs->name, (const xmlChar *)"name"))
-          {
-            if(actionAttrs->children && actionAttrs->children->content)
-              r.name.assign((const char*)actionAttrs->children->content);
-
-          }
-
-          if(!xmlStrcmp(actionAttrs->name, (const xmlChar *)"value"))
-          {
-            if(actionAttrs->children && actionAttrs->children->content)
-              r.value.compile((const char*)actionAttrs->children->content, 
-                              REG_EXTENDED);
-          }
-          actionAttrs=actionAttrs->next;
-
-        }
-        rc.headerChecker.addRule(r);
-      }
-
-
       if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"EXT"))
       {
         if(lcur->children->content)

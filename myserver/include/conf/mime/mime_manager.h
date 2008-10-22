@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <include/base/utility.h>
 #include <include/base/hash_map/hash_map.h>
-#include <include/protocol/http/http_header_checker.h>
 #include <include/base/sync/read_write_lock.h>
 
 #ifdef WIN32
@@ -99,9 +98,8 @@ struct MimeRecord
 	int command;
 	string cgiManager;
 	unsigned int extensionHashCode;
-	HttpHeaderChecker headerChecker;
 	MimeRecord()
-	{headerChecker.clear(); filters.clear(); extension.assign(""); 
+	{filters.clear(); extension.assign(""); 
 		mimeType.assign(""); cgiManager.assign(""); cmdName.assign("");
 		command=extensionHashCode = 0;}
 	MimeRecord(MimeRecord&);

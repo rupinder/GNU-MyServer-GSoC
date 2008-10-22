@@ -886,8 +886,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       }
     }
 
-    if(td->mime &&
-       !td->mime->headerChecker.isAllowed(&(td->request)))
+    if(td->mime)
     {
       return sendAuth();
     }
