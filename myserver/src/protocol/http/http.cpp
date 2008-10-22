@@ -760,7 +760,8 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
   string tmpTime;
   string directory;
   string file;
-    
+  DynamicHttpManager* manager;
+
   /*! By default allows only few actions. */
   permissions = MYSERVER_PERMISSION_READ | MYSERVER_PERMISSION_BROWSE ;
 
@@ -875,18 +876,16 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       if(td->mime)
       {
         td->response.contentType.assign(td->mime->mimeType);
-        mimecmd = td->mime->command;
         data.assign(td->mime->cgiManager);
       }
       else
       {
         td->response.contentType.assign("text/html");
-        mimecmd = CGI_CMD_SEND;
         data.assign("");
       }
     }
 
-    if(mimecmd == CGI_CMD_RUNCGI)
+    if(!td->mime->cmdName.compare ("RUNCGI"))
     {
       int allowCgi = 1;
       const char *dataH = td->connection->host->getHashedData("ALLOW_CGI");
@@ -906,7 +905,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                       data.c_str(), 0,  onlyHeader);
       return ret;
     }
-    else if(mimecmd == CGI_CMD_EXECUTE )
+    else if(!td->mime->cmdName.compare ("EXECUTE"))
     {
       int allowCgi = 1;
       const char *dataH = td->connection->host->getHashedData("ALLOW_CGI");
@@ -926,7 +925,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                       data.c_str(), 1, onlyHeader);
       return ret;
     }
-    else if(mimecmd == CGI_CMD_RUNISAPI)
+    else if(!td->mime->cmdName.compare ("RUNISAPI"))
     {
       int allowIsapi = 1;
       const char *dataH = td->connection->host->getHashedData("ALLOW_ISAPI");
@@ -946,7 +945,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       return ret;
 
     }
-    else if(mimecmd == CGI_CMD_EXECUTEISAPI)
+    else if(!td->mime->cmdName.compare ("EXECUTEISAPI"))
     {
       if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
       {
@@ -956,7 +955,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                         data.c_str(), 1, onlyHeader);
       return ret;
     }
-    else if( mimecmd == CGI_CMD_RUNMSCGI )
+    else if(!td->mime->cmdName.compare ("RUNMSGI"))
     {
       char* target;
       int allowMscgi = 1;
@@ -982,7 +981,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                         target, 1, onlyHeader);
       return ret;
     }
-    else if( mimecmd == CGI_CMD_EXECUTEWINCGI )
+    else if(!td->mime->cmdName.compare ("EXECUTEWINCGI"))
     {
       ostringstream cgipath;
       int allowWincgi = 1;
@@ -1011,7 +1010,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                          0, 1, onlyHeader);
       return ret;
     }
-    else if( mimecmd == CGI_CMD_RUNFASTCGI )
+    else if(!td->mime->cmdName.compare ("RUNFASTCGI"))
     {
       int allowFastcgi = 1;
       const char *dataH = td->connection->host->getHashedData("ALLOW_FASTCGI");
@@ -1030,7 +1029,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                           data.c_str(), 0, onlyHeader);
       return ret;
     }
-    else if(mimecmd == CGI_CMD_EXECUTEFASTCGI)
+    else if(!td->mime->cmdName.compare ("EXECUTEFASTCGI"))
     {
       int allowFastcgi = 1;
       const char *dataH = td->connection->host->getHashedData("ALLOW_FASTCGI");
@@ -1049,7 +1048,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                           data.c_str(), 1, onlyHeader);
       return ret;
     }
-    else if( mimecmd == CGI_CMD_RUNSCGI )
+    else if(!td->mime->cmdName.compare ("RUNSCGI"))
     {
       int allowScgi = 1;
       const char *dataH = td->connection->host->getHashedData("ALLOW_SCGI");
@@ -1068,7 +1067,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                        data.c_str(), 0, onlyHeader);
       return ret;
     }
-    else if(mimecmd == CGI_CMD_EXECUTESCGI)
+    else if(!td->mime->cmdName.compare ("EXECUTESCGI"))
     {
       int allowScgi = 1;
       const char *dataH = td->connection->host->getHashedData("ALLOW_SCGI");
@@ -1087,8 +1086,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                        data.c_str(), 1, onlyHeader);
       return ret;
     }
-
-    else if( mimecmd == CGI_CMD_SENDLINK )
+    else if(!td->mime->cmdName.compare ("SENDLINK"))
     {
       u_long nbr;
       char* linkpath;
@@ -1164,7 +1162,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       delete [] pathInfo;
       return ret;
     }
-    else if( mimecmd == CGI_CMD_EXTERNAL )
+    else if ((manager = staticHttp.dynManagerList.getPlugin(td->mime->cmdName)))
     {
       int allowExternal = 1;
       const char *dataH =
@@ -1180,9 +1178,6 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
 
       if(allowExternal && td->mime)
       {
-        DynamicHttpManager* manager =
-          staticHttp.dynManagerList.getPlugin(td->mime->cmdName);
-
         if(manager)
           return manager->send(td, td->connection, td->filenamePath.c_str(),
                                data.c_str(), onlyHeader);
@@ -2134,9 +2129,9 @@ MimeRecord* Http::getMIME(string &filename)
 
   if(staticHttp.allowVhostMime && td->connection->host->isMIME() )
   {
-    return td->connection->host->getMIME()->getRecord(ext);
+    return td->connection->host->getMIME()->getMIME(ext);
   }
-  return Server::getInstance()->getMimeManager()->getRecord(ext);
+  return Server::getInstance()->getMimeManager()->getMIME(ext);
 }
 
 /*!
