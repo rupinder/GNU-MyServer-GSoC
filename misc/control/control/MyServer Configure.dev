@@ -1,0 +1,189 @@
+[Project]
+FileName=MyServer Configure.dev
+Name=MyServer Configure
+UnitCount=9
+Type=0
+Ver=1
+ObjFiles=
+Includes=..;.
+Libs=
+PrivateResource=MyServer_Configure_private.rc
+ResourceIncludes=
+MakeIncludes=
+Compiler=-DWIN32_@@_
+CppCompiler=
+Linker=../src/securestr.o ../src/utility.o  ../src/safetime.o   ../src/thread.o  ../src/file.o ../src/ssl_socket.o   ../src/stringutils.o ../src/socket.o ../src/stream.o ../src/find_data.o ../src/xml_parser.o  ../src/mem_buff.o ../src/md5.o   ../src/files_utility.o -lfltk -lm -lz.dll -llibxml2 -liconv -lintl -lssl  -lcrypto -lwininet -lwsock32  -lole32  -luuid  _@@_
+IsCpp=1
+Icon=MyServer Configure.ico
+ExeOutput=..\binaries
+ObjectOutput=tmp
+OverrideOutput=0
+OverrideOutputName=myserver-configure.exe
+HostApplication=
+Folders=
+CommandLine=
+UseCustomMakefile=0
+CustomMakefile=
+IncludeVersionInfo=1
+SupportXPThemes=0
+CompilerSet=0
+CompilerSettings=0000000001000000000100
+
+[VersionInfo]
+Major=0
+Minor=9
+Release=0
+Build=3
+LanguageID=1033
+CharsetID=1252
+CompanyName=MyServer Project
+FileVersion=0.9.0
+FileDescription=MyServer Configuration Interface
+InternalName=
+LegalCopyright=MyServer Team
+LegalTrademarks=
+OriginalFilename=MyServer Configure.exe
+ProductName=MyServer
+ProductVersion=0.9.0
+AutoIncBuildNr=0
+
+[Unit2]
+FileName=language.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit5]
+FileName=service.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit9]
+FileName=progress.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit11]
+FileName=vhost.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit12]
+FileName=vector.h
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit13]
+FileName=vector.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit14]
+FileName=control_client.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit15]
+FileName=progress.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit1]
+FileName=fltkconfig.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit3]
+FileName=myserver-configure.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit4]
+FileName=mimetype.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit6]
+FileName=vhost.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit7]
+FileName=vector.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit8]
+FileName=control_client.cpp
+CompileCpp=1
+Folder=MyServer Configure
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+

@@ -258,14 +258,6 @@ Section "Web examples" SecWebEx
   File "web\downloads\*.sh"
 SectionEnd
 
-Section "MyServer center" SecControl
-  DetailPrint "Control Center Application"
-  SetOutPath $INSTDIR
-  File "myserver-configure.exe"
-  File "myserver.ico"
-  CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Control Center.lnk" "$INSTDIR\Myserver Configure.exe"
-SectionEnd
-
 Section "Documentation" SecDocumentation
   SetOutPath "$INSTDIR\web\documentation"
   File "..\documentation\myserver\*.html"
@@ -297,7 +289,6 @@ SectionEnd
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCore} "Install the MyServer core application(this element is required)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecDocumentation} "Install the MyServer documentation"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecControl} "Install the Control Center application(the installation of this element is highly recommended)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecLanguages} "Copy all the languages files(by default only the english language is copied)"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecWebEx} "Install some web examples"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecService} "Install MyServer like a service (loaded automatically on startup)"

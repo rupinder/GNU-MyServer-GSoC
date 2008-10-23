@@ -1,0 +1,21 @@
+--- fltkconfig.h.old	2007-04-05 20:31:23.000000000 +0200
++++ fltkconfig.h	2007-04-05 20:31:57.000000000 +0200
+@@ -20,6 +20,18 @@
+ #include <FL/Fl_Progress.H>
+ #include <FL/Fl_Output.H>
+ #include <FL/Fl_Counter.H>
++#include <FL/Fl_File_Chooser.H>
++#include <FL/fl_ask.H>
++#include "../include/xml_parser.h"
++#include "../include/stringutils.h"
++#include "../include/md5.h"
++#include "../include/utility.h"
++#include "service.h"
++#include "language.h"
++#include "mimetype.h"
++#include "vhost.h"
++#include "control_client.h"
++#include "progress.h"
+ 
+ class MainDlg {
+ public:

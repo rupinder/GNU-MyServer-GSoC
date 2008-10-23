@@ -8,7 +8,6 @@ fi
 
 mkdir $1
 cp myserver $1
-cp myserver-configure $1
 cp myserver-daemon $1
 cp *.default $1
 cp readme.txt $1
