@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/utility.h>
 #include <include/base/hash_map/hash_map.h>
 #include <include/base/sync/mutex.h>
+#include <include/base/xml/xml_parser.h>
+
 
 #ifdef WIN32
 #include <windows.h>
@@ -39,6 +41,7 @@ extern "C" {
 
 #include <string>
 #include <map>
+#include <vector>
 #include <list>
 
 using namespace std;
@@ -50,11 +53,9 @@ struct MimeRecord
 	string mimeType;
 	string cmdName;
 	string cgiManager;
-	MimeRecord()
-	{filters.clear(); extension.assign(""); 
-		mimeType.assign(""); cgiManager.assign(""); cmdName.assign("");}
+	MimeRecord();
 	MimeRecord(MimeRecord&);
-	int addFilter(const char*, int acceptDuplicate = 1);
+	int addFilter(const char*, bool acceptDuplicate = true);
 	~MimeRecord();
 	void clear();
 };
@@ -73,20 +74,21 @@ public:
 	MimeRecord* getMIME(const char* ext);
   MimeRecord* getMIME(string const &ext);
 
-  int isLoaded();
+  bool isLoaded();
 	void clean();
 
 protected:
+  MimeRecord *readRecord (xmlNodePtr node);
 	const char *getFilename();
-	int addRecord(MimeRecord& record);
+	int addRecord(MimeRecord *record);
 	void removeAllRecords();
-	void removeRecord(const string& ext);
 private:
-  int loaded;
-  HashMap<string, MimeRecord*> *data;
+  bool loaded;
+  HashMap<string, int> extIndex;
+  vector <MimeRecord*> records;
+
 	u_long numMimeTypesLoaded;
 	string *filename;
-	Mutex mutex;
 };
 
 #endif 

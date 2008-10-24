@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/conf/mime/mime_manager.h>
 #include <include/base/file/file.h>
 #include <include/base/string/stringutils.h>
-#include <include/base/xml/xml_parser.h>
 #include <include/server/server.h>
 #include <include/base/file/files_utility.h>
 
@@ -31,6 +30,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 using namespace std;
+
+MimeRecord::MimeRecord()
+{
+  filters.clear();
+  extension.assign(""); 
+  mimeType.assign("");
+  cgiManager.assign("");
+  cmdName.assign("");
+}
 
 /*!
  *Destroy the object.
@@ -44,7 +52,7 @@ MimeRecord::~MimeRecord()
  *Add a filter to the list of filters to apply on this MIME type.
  *Return zero if the filters was not added.
  */
-int MimeRecord::addFilter(const char* n, int acceptDuplicate) 
+int MimeRecord::addFilter(const char* n, bool acceptDuplicate) 
 {
   if(!acceptDuplicate)
   {
@@ -101,6 +109,53 @@ const char *MimeManager::getFilename()
 }
 
 /*!
+ *Read a MIME record from a XML node.
+ */
+MimeRecord *MimeManager::readRecord (xmlNodePtr node)
+{
+  xmlNodePtr lcur = node->children;
+  xmlAttr *attrs;
+
+  if(xmlStrcmp(node->name, (const xmlChar *)"MIME"))
+    return NULL;
+
+
+  MimeRecord *rc = new MimeRecord;
+
+  for (attrs = node->properties; attrs; attrs = attrs->next)
+  {
+    if (!xmlStrcmp (attrs->name, (const xmlChar *)"handler") && 
+        attrs->children && attrs->children->content)
+      rc->cmdName.assign ((const char*)attrs->children->content);
+    
+    if (!xmlStrcmp (attrs->name, (const xmlChar *)"param") && 
+        attrs->children && attrs->children->content)
+      rc->cgiManager.assign ((const char*)attrs->children->content);
+  }
+
+  for( ;lcur; lcur = lcur->next)
+  {
+    if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"EXTENSION"))
+    {
+      for (attrs = lcur->properties; attrs; attrs = attrs->next)
+      {
+        if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") && 
+            attrs->children && attrs->children->content)
+          rc->extension.assign ((const char*)attrs->children->content);
+      }
+    }
+
+    if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"FILTER"))
+    {
+      if(lcur->children->content)
+        rc->addFilter((const char*)lcur->children->content);
+    }
+  }
+
+  return rc;
+}
+
+/*!
  *Load the MIME types from a XML file. Returns the number of
  *MIME types loaded successfully.
  */
@@ -109,90 +164,41 @@ int MimeManager::loadXML(const char *fn)
   XmlParser parser;
   xmlNodePtr node;
   xmlDocPtr doc;
-  int retSize;
+
   if(!fn)
     return -1;
-
-  mutex.lock();
 
   if(filename)
     delete filename;
 
   filename = new string(fn);
 
-  if(data)
-    delete data;
-
-  data = new HashMap<string, MimeRecord*>();
-
   if(parser.open (fn))
   {
-    mutex.unlock ();
     return -1;
   }
 
   removeAllRecords();
+
+  /* The first record is not used to store information.  */
+  records.push_back (NULL);
 
   doc = parser.getDoc();
   node = doc->children->children;
 
   for(; node; node = node->next )
   {
-    xmlNodePtr lcur = node->children;
-    xmlAttr *attrs;
-    MimeRecord rc;
-    if(xmlStrcmp(node->name, (const xmlChar *)"MIME"))
-      continue;
+    MimeRecord *rc = readRecord (node);
 
-    rc.clear();
-
-    for (attrs = node->properties; attrs; attrs = attrs->next)
-    {
-      if (!xmlStrcmp (attrs->name, (const xmlChar *)"handler") && 
-          attrs->children && attrs->children->content)
-        rc.cmdName.assign ((const char*)attrs->children->content);
-
-      if (!xmlStrcmp (attrs->name, (const xmlChar *)"param") && 
-          attrs->children && attrs->children->content)
-        rc.cgiManager.assign ((const char*)attrs->children->content);
-    }
-
-    for( ;lcur; lcur = lcur->next)
-    {
-      if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"EXTENSION"))
-      {
-        for (attrs = lcur->properties; attrs; attrs = attrs->next)
-        {
-          if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") && 
-              attrs->children && attrs->children->content)
-            rc.extension.assign ((const char*)attrs->children->content);
-        }
-      }
-
-      if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"FILTER"))
-      {
-        if(lcur->children->content)
-          rc.addFilter((const char*)lcur->children->content);
-      }
-    }
-
-    if(addRecord(rc))
-    {
-      clean();
-      mutex.unlock ();
-      return 0;
-    }
+    if (rc)
+      addRecord (rc);
   }
   parser.close();
   
   /*! Store the loaded status. */
-  loaded = 1;
+  loaded = true;
 
-  retSize = data->size();
-
-  mutex.unlock ();
-
-  return retSize;
+  return getNumMIMELoaded ();
 }
 
 /*!
@@ -210,15 +216,11 @@ void MimeManager::clean()
 {
   if(loaded)
   {
-    mutex.lock ();
-    loaded = 0;
+    loaded = false;
     if(filename) 
       delete filename;
     filename = 0;
     removeAllRecords();
-    delete data;
-    data = 0;
-    mutex.unlock ();
   }
 }
 
@@ -227,83 +229,55 @@ void MimeManager::clean()
  */
 MimeManager::MimeManager()
 {
-  data = 0;
   filename = 0;
-  loaded = 0;
-  mutex.init ();
+  loaded = false;
 }
 
 /*!
- *Add a new record. Returns zero on success.
+ *Add a new record.
+ *\return Return the position for the new record.
  */
-int MimeManager::addRecord(MimeRecord& mr)
+int MimeManager::addRecord (MimeRecord *mr)
 {
-  /*!
-   *If the MIME type already exists remove it.
-   */
-  MimeRecord *nmr = 0;
-  try
-  {
-    MimeRecord *old;
+  u_long position = records.size ();
 
 #ifdef MIME_LOWER_CASE
-    transform(mr.extension.begin(), mr.extension.end(), mr.extension.begin(), ::tolower);
+  transform (mr->extension.begin(), mr->extension.end(), mr->extension.begin(), ::tolower);
 #endif
-    nmr = new MimeRecord(mr);
-    if(!nmr)  
-      return 1;
-
-    old = data->put(nmr->extension, nmr);
-    if(old)
-    {
-      string error;
-      error.assign("Warning: multiple MIME types registered for the extension " );
-      error.append(nmr->extension);
-
-      Server::getInstance()->logWriteln(error.c_str(), ERROR);
-      delete old;
-    }
-  }
-  catch(...)
-  {
-    if(nmr)
-      delete nmr;
-    return 1;
-  };
   
-  return 0;
-}
+  records.push_back (mr);
 
-/*!
- *Remove a record by the extension of the MIME type.
- */
-void MimeManager::removeRecord(const string& ext)
-{
-  MimeRecord *rec = data->remove(ext.c_str());
-  if(rec)
-    delete rec;
+  extIndex.put (mr->extension, position);
+  
+  return position;
 }
 
 /*!
  *Remove all records from the linked list.
  */
-void MimeManager::removeAllRecords()
+void MimeManager::removeAllRecords ()
 {
-  HashMap<string, MimeRecord*>::Iterator it = data->begin();
-  for(; it != data->end(); it++)
+  vector <MimeRecord*>::iterator i = records.begin ();
+
+  while (i != records.end ())
   {
-    MimeRecord *rec = *it;
-    if(rec)
-      delete rec;
+    MimeRecord *r = *i;
+
+    if (r)
+      delete r;
+    
+    i++;
   }
 
-  data->clear();
+  records.clear ();
+
+  extIndex.clear ();
 }
 
 /*!
- *Get a pointer to an existing record passing its extension.
+ *Get a pointer to a MIME record by its extension.
  */
-MimeRecord *MimeManager::getMIME(const char *ext)
+MimeRecord *MimeManager::getMIME (const char *ext)
 {
   string str (ext);
   return getMIME (str);
@@ -312,39 +286,28 @@ MimeRecord *MimeManager::getMIME(const char *ext)
 /*!
  *Get a pointer to an existing record passing its extension.
  */
-MimeRecord *MimeManager::getMIME(string const &ext)
+MimeRecord *MimeManager::getMIME (string const &ext)
 {
-  MimeRecord* mr;
+  u_long pos = extIndex.get (ext.c_str ());
 
-  mutex.lock ();
+  if (pos)
+    return records [pos];
 
-  mr = data ? data->get(ext.c_str()) : 0;
-
-  mutex.unlock ();
-
-  return mr;
+  return NULL;
 }
 
 /*!
  *Returns the number of MIME types loaded.
  */
-u_long MimeManager::getNumMIMELoaded()
+u_long MimeManager::getNumMIMELoaded ()
 {
-  u_long ret;
-
-  mutex.lock ();
-
-  ret = data ? data->size() : 0;
-
-  mutex.unlock ();
-
-  return ret;
+  return records.size () -1;
 }
 
 /*!
  *Check if the MIME manager is loaded.
  */
-int MimeManager::isLoaded()
+bool MimeManager::isLoaded ()
 {
   return loaded;
 }
