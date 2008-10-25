@@ -49,46 +49,47 @@ using namespace std;
 struct MimeRecord
 {
 	list<string> filters;
-	string extension;
+	list<string> extensions;
 	string mimeType;
 	string cmdName;
 	string cgiManager;
-	MimeRecord();
-	MimeRecord(MimeRecord&);
-	int addFilter(const char*, bool acceptDuplicate = true);
-	~MimeRecord();
-	void clear();
+	MimeRecord ();
+	MimeRecord (MimeRecord&);
+	int addFilter (const char*, bool acceptDuplicate = true);
+	~MimeRecord ();
+	void clear ();
 };
 
 class MimeManager
 {
 public:
-	MimeManager();
-  ~MimeManager();
-	u_long getNumMIMELoaded();
+	MimeManager ();
+  ~MimeManager ();
+	u_long getNumMIMELoaded ();
 
-	int loadXML(const char *filename);
-	int loadXML(string &filename)
-    {return loadXML(filename.c_str());}
+  u_long loadXML (XmlParser* parser);
+	u_long loadXML (const char *filename);
+	u_long loadXML (string &filename)
+    {return loadXML (filename.c_str ());}
 
-	MimeRecord* getMIME(const char* ext);
-  MimeRecord* getMIME(string const &ext);
+	MimeRecord* getMIME (const char *ext);
+  MimeRecord* getMIME (string const &ext);
 
-  bool isLoaded();
-	void clean();
+  bool isLoaded ();
+	void clean ();
+	int addRecord (MimeRecord *record);
 
 protected:
   MimeRecord *readRecord (xmlNodePtr node);
-	const char *getFilename();
-	int addRecord(MimeRecord *record);
-	void removeAllRecords();
+	const char *getFilename ();
+	void clearRecords ();
 private:
   bool loaded;
   HashMap<string, int> extIndex;
   vector <MimeRecord*> records;
 
 	u_long numMimeTypesLoaded;
-	string *filename;
+	string filename;
 };
 
 #endif 

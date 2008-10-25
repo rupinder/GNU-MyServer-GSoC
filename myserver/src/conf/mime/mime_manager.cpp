@@ -31,28 +31,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-MimeRecord::MimeRecord()
+MimeRecord::MimeRecord ()
 {
-  filters.clear();
-  extension.assign(""); 
-  mimeType.assign("");
-  cgiManager.assign("");
-  cmdName.assign("");
+  filters.clear ();
+  extensions.clear ();
+  mimeType.assign ("");
+  cgiManager.assign ("");
+  cmdName.assign ("");
 }
 
 /*!
  *Destroy the object.
  */
-MimeRecord::~MimeRecord()
+MimeRecord::~MimeRecord ()
 {
-  clear();
+  clear ();
 }
 
 /*!
  *Add a filter to the list of filters to apply on this MIME type.
  *Return zero if the filters was not added.
  */
-int MimeRecord::addFilter(const char* n, bool acceptDuplicate) 
+int MimeRecord::addFilter (const char* n, bool acceptDuplicate) 
 {
   if(!acceptDuplicate)
   {
@@ -70,42 +70,49 @@ int MimeRecord::addFilter(const char* n, bool acceptDuplicate)
 /*!
  *Copy constructor.
  */
-MimeRecord::MimeRecord(MimeRecord& m)
+MimeRecord::MimeRecord (MimeRecord& m)
 {
-  list<string>::iterator i = m.filters.begin();
+  list<string>::iterator i = m.filters.begin ();
 
-  filters.clear(); 
+  filters.clear (); 
 
-  for( ; i != m.filters.end(); i++)
+  for( ; i != m.filters.end (); i++)
   {
-    filters.push_back(*i);
+    filters.push_back (*i);
   }
-  extension.assign(m.extension); 
-  mimeType.assign(m.mimeType);
-  cmdName.assign(m.cmdName);
-  cgiManager.assign(m.cgiManager);
+
+  i = m.extensions.begin ();
+
+  extensions.clear (); 
+
+  for( ; i != m.extensions.end (); i++)
+  {
+    filters.push_back (*i);
+  }
+
+  mimeType.assign (m.mimeType);
+  cmdName.assign (m.cmdName);
+  cgiManager.assign (m.cgiManager);
 } 
 
 /*!
   *Clear the used memory.
   */
-void MimeRecord::clear()
+void MimeRecord::clear ()
 {
-  filters.clear();
-  extension.assign(""); 
-  mimeType.assign(""); 
-  cmdName.assign("");
-  cgiManager.assign("");
+  filters.clear ();
+  extensions.clear ();
+  mimeType.assign (""); 
+  cmdName.assign ("");
+  cgiManager.assign ("");
 }  
 
 /*!
  *Get the name of the file opened by the class.
  */
-const char *MimeManager::getFilename()
+const char *MimeManager::getFilename ()
 {
-  if(filename == 0)
-    return "";
-  return filename->c_str();
+  return filename.c_str();
 }
 
 /*!
@@ -133,22 +140,31 @@ MimeRecord *MimeManager::readRecord (xmlNodePtr node)
       rc->cgiManager.assign ((const char*)attrs->children->content);
   }
 
-  for( ;lcur; lcur = lcur->next)
+  for ( ;lcur; lcur = lcur->next)
   {
-    if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"EXTENSION"))
+    if (lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"EXTENSION"))
     {
       for (attrs = lcur->properties; attrs; attrs = attrs->next)
       {
         if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") && 
             attrs->children && attrs->children->content)
-          rc->extension.assign ((const char*)attrs->children->content);
+        {
+          string ext ((const char*)attrs->children->content);
+          rc->extensions.push_back (ext);
+        }
       }
     }
 
-    if(lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"FILTER"))
+    if (lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"FILTER"))
     {
-      if(lcur->children->content)
-        rc->addFilter((const char*)lcur->children->content);
+      for (attrs = lcur->properties; attrs; attrs = attrs->next)
+      {
+        if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") && 
+            attrs->children && attrs->children->content)
+        {
+          rc->addFilter ((const char*)attrs->children->content);
+        }
+      }
     }
   }
 
@@ -159,31 +175,37 @@ MimeRecord *MimeManager::readRecord (xmlNodePtr node)
  *Load the MIME types from a XML file. Returns the number of
  *MIME types loaded successfully.
  */
-int MimeManager::loadXML(const char *fn)
+u_long MimeManager::loadXML (const char *fn)
 {
   XmlParser parser;
-  xmlNodePtr node;
-  xmlDocPtr doc;
-
-  if(!fn)
-    return -1;
-
-  if(filename)
-    delete filename;
-
-  filename = new string(fn);
+  u_long ret = 0;
 
   if(parser.open (fn))
   {
     return -1;
   }
 
-  removeAllRecords();
+  filename.assign (fn);
 
-  /* The first record is not used to store information.  */
-  records.push_back (NULL);
+  ret = loadXML (&parser);
+  
+  parser.close ();
+  
+  return ret;
+}
 
-  doc = parser.getDoc();
+/*!
+ *Load the MIME types from a XML parser object. Returns the number 
+ *of MIME types loaded successfully.
+ */
+u_long MimeManager::loadXML (XmlParser* parser)
+{
+  xmlNodePtr node;
+  xmlDocPtr doc;
+
+  clearRecords ();
+
+  doc = parser->getDoc();
   node = doc->children->children;
 
   for(; node; node = node->next )
@@ -193,7 +215,6 @@ int MimeManager::loadXML(const char *fn)
     if (rc)
       addRecord (rc);
   }
-  parser.close();
   
   /*! Store the loaded status. */
   loaded = true;
@@ -204,7 +225,7 @@ int MimeManager::loadXML(const char *fn)
 /*!
  *Destroy the object.
  */
-MimeManager::~MimeManager()
+MimeManager::~MimeManager ()
 {
   clean();
 }
@@ -212,24 +233,21 @@ MimeManager::~MimeManager()
 /*!
  *Clean the memory allocated by the structure.
  */
-void MimeManager::clean()
+void MimeManager::clean ()
 {
   if(loaded)
   {
     loaded = false;
-    if(filename) 
-      delete filename;
-    filename = 0;
-    removeAllRecords();
+    filename.assign ("");
+    clearRecords ();
   }
 }
 
 /*!
  *Constructor of the class.
  */
-MimeManager::MimeManager()
+MimeManager::MimeManager ()
 {
-  filename = 0;
   loaded = false;
 }
 
@@ -241,21 +259,26 @@ int MimeManager::addRecord (MimeRecord *mr)
 {
   u_long position = records.size ();
 
-#ifdef MIME_LOWER_CASE
-  transform (mr->extension.begin(), mr->extension.end(), mr->extension.begin(), ::tolower);
-#endif
-  
   records.push_back (mr);
 
-  extIndex.put (mr->extension, position);
+  for (list<string>::iterator it = mr->extensions.begin (); it != mr->extensions.end (); it++)
+  {
+    string &ext = *it;
+
+#ifdef MIME_LOWER_CASE
+    transform (ext.begin(), ext.end(), ext.begin(), ::tolower);
+#endif
+
+    extIndex.put (ext, position);
+  }
   
   return position;
 }
 
 /*!
- *Remove all records from the linked list.
+ *Remove all the stored records.
  */
-void MimeManager::removeAllRecords ()
+void MimeManager::clearRecords ()
 {
   vector <MimeRecord*>::iterator i = records.begin ();
 
@@ -272,6 +295,9 @@ void MimeManager::removeAllRecords ()
   records.clear ();
 
   extIndex.clear ();
+
+  /* The first record is not used to store information.  */
+  records.push_back (NULL);
 }
 
 /*!

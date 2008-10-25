@@ -3,74 +3,47 @@ You can modify the MIME types used by MyServer by modifying the file
 @file{MIMEtypes.xml}. The following is an example of this file: 
 
 @example
-<MIMETYPES>
+<?xml version ="1.0"?>
+<MIME mime="text/html" handler="SEND" param="">
+<EXTENSION value="html"/>
+</MIME>
 
-  <MIMETYPE defaultAction="DENY">
-    <EXT>htm</EXT>
-    <MIME>text/html</MIME>
-    <CMD>SEND</CMD>
-    <ACTION name="Host" value="localhost">ALLOW</ACTION>
-    <FILTER>gzip</FILTER>
-    <MANAGER>NONE</MANAGER>
-  </MIMETYPE>
-
-</MIMETYPES>
+<MIME mime="text/html" handler="RUNCGI" param="/usr/bin/perl">
+<FILTER value="gzip"/>
+<EXTENSION value="pl"/>
+</MIME>
 @end example
 
 @itemize
 Each block describes a different MIME type.
 
-@item EXT
-is the type of file
+@item mime
+the MIME attribute specifies the MIME name.
 
-@item MIME
-is the Mime type.
+@item extension
+the MIME type will be used by any file with this extension.
 
-@item CMD
-is the way to send the file to the client.
+@item filter
+this directive registers a filter to use with MIME type.
+
+@item handler
+specifies the way the file is handled by the server.
+
+@item param
+specifies additional params for the handler.
+
 @end itemize
 
-@noindent @code{<ACTION name="Host" value="localhost">ALLOW</ACTION>}
-will allow access to the desired MIME Type if the Host is
-"localhost".
-In the line @code{<MIMETYPE defaultAction="DENY">} we declare that 
-the MIME type will DENY access from any host we don't set in the
-proper ACTION tag (so, it will have to exist in the
-configuration). Also, the property defaultAction is optional (when
-it's omitted, it's set to "ALLOW"). In the above example, HTML files
-will be accessed only through the hostname "localhost".
+@code{<FILTER>} defines a filter for the MIME type.  The data will
+pass through the filter before being sent to the user.  
+In the example above, the data would be sent gzipped to the user.
+It is possible to specify multiple filters for the same MIME type,
+they will be applied in the specified order.
 
-The tag @code{<ACTION>} is optional, unless you specify "DENY" for
-your defaultAction in your MIME Type.
+The same MIME type can have several extensions, you will need to
+specify a different @code{<EXTENSION>} element for each extension.
 
-@code{<FILTER>} defines a filter for that MIME type. The data will
-pass through the filter before being sent to the user. In the example
-above, the data would be sent gzipped to the user. It means Gzip works
-as a filter in MyServer. you can define Gzip to automatically run for
-every file based in its size, setting the @code{<GZIP_THRESHOLD>}, in
-@file{myserver.xml} file. For obvious reasons, data will be sent
-gzipped only if the client supports gzip - otherwise he'd receive a
-lot of weird characters instead of the site requested.
-
-In general, filters can also be applied to dynamic data - like CGI,
-ISAPI, FastCGI - but they need to be filters that don't modify the
-contents of the page to be shown to the user.
-
-@code{<MANAGER>} completes the @code{<CMD>} command specifying, if
-necessary for the command, an external application to use.
-For example using the RUNCGI command, it will be necessary to specify
-an external process to execute the CGI command, MANAGER under
-GNU/Linux will be something like this:
-
-@example
-<MANAGER>/usr/bin/php-cgi</MANAGER>
-or under Windows:
-<MANAGER>c:\php\php-cgi.exe</MANAGER>
-@end example
-
-
-The following values for sending the file to the client are valid in
-the @code{<CMD>} section:
+These are valid HTTP handlers:
 @enumerate
 @item SEND
 Send the file statically as is.  This command is used for files
