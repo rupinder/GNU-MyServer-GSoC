@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # MyServer
 # Copyright (C) 2002, 2003, 2004, 2007, 2008 The MyServer Team
 # This program is free software; you can redistribute it and/or modify
@@ -44,7 +46,16 @@ class ConfigGUIGTK:
         if (self.window):
             self.window.connect("destroy", gtk.main_quit)
 
-        # Create treeview widget structure (one column) for default filenames
+        # Here we call the methods creating widgets with functionality
+        self.create_treeview_for_default_filenames
+        self.create_treeview_for_host_names
+        self.create_treeview_for_IP_addresses
+        self.create_a_combobox_for_connection_types
+        self.create_treeview_with_MIME_types
+        self.bind_signals
+
+    def create_treeview_for_default_filenames(self):
+        """ Create treeview widget structure (one column) for default filenames """
         self.treeview=self.wTree.get_widget("treeview1")
         self.treemodel=gtk.TreeStore(gobject.TYPE_STRING)
         self.treeview.set_model(self.treemodel)
@@ -66,7 +77,8 @@ class ConfigGUIGTK:
 
         self.treeview.show()
 
-        # Create treeview widget structure (one column) for host names
+    def create_treeview_for_host_names(self):
+        """ Create treeview widget structure (one column) for host names """
         self.treeviewHost=self.wTree.get_widget("treeviewHost")
         self.treemodelHost=gtk.TreeStore(gobject.TYPE_STRING)
         self.treeviewHost.set_model(self.treemodelHost)
@@ -78,7 +90,8 @@ class ConfigGUIGTK:
         renderer=gtk.CellRendererText()
         self.treeviewHost.show()
 
-        # Create treeview widget structure (one column) for IP addresses
+    def create_treeview_for_IP_addresses(self):
+        """ Create treeview widget structure (one column) for IP addresses """
         self.treeviewIP=self.wTree.get_widget("treeviewIP")
         self.treemodelIP=gtk.TreeStore(gobject.TYPE_STRING)
         self.treeviewIP.set_model(self.treemodelIP)
@@ -90,8 +103,8 @@ class ConfigGUIGTK:
         renderer=gtk.CellRendererText()
         self.treeviewIP.show()
 
-
-
+    def create_a_combobox_for_connection_types(self):
+        """ Cretes a combobox with connection types """
         self.store2 = gtk.ListStore(gobject.TYPE_STRING)
         #populate
         self.store2.append(["Every HTTP connection"])
@@ -102,9 +115,10 @@ class ConfigGUIGTK:
         self.cbHost.pack_start(cell, True)
         self.cbHost.add_attribute(cell, 'text',0)
 
-        # Add list items to tree view
-        # this types are parsed from xml file using helper class MIMEtpe
-        # the result is used to poulate the treeview and the combobox
+    def create_treeview_with_MIME_types(self):
+        """ Add list items to tree view. The types are parsed
+        from xml file using helper class MIMEtpe
+        the result is used to poulate the treeview and the combobox """
 
         from MIMEtypes import MIMEtype, ParseTypes
         TYPES = ParseTypes("MIMEtypes.xml")
@@ -138,41 +152,42 @@ class ConfigGUIGTK:
             self.insert_row(self.treemodelEXT,None,element.ext)
         self.treeviewEXT.show()
 
+    def bind_signals(self):
+        """ This method creates a dictionary of pairs
+        signal naem : event, and then binds them
+        using signal_autoconnect method """
 
-        # dic - dictionary with pairs:
-        #        "signal name" : event
         dic = { "on_btnAddFileName_clicked" : \
-                    self.buttonAddefaultFileName_clicked,
+                self.buttonAddefaultFileName_clicked,
                 "on_btnRemoveFileName_clicked" : \
-                    self.buttonRemoveDefultFileName_clicked,
+                self.buttonRemoveDefultFileName_clicked,
                 "on_btnAddMIMEExtenesion_clicked" : \
-                    self.buttonAddMIMEExtension_clicked,
+                self.buttonAddMIMEExtension_clicked,
                 "on_btnAddMIMEType_clicked" : \
-                    self.buttonAddMIMEType_clicked,
+                self.buttonAddMIMEType_clicked,
                 "on_filechooserbutton2_file_set" : \
-                    self.filechooserbutton2_file_set,
+                self.filechooserbutton2_file_set,
                 "on_filechooserbutton1_file_set" : \
-                    self.filechooserbutton1_file_set,
+                self.filechooserbutton1_file_set,
                 "on_filechooserbutton4_file_set" : \
-                    self.filechooserbutton4_file_set,
+                self.filechooserbutton4_file_set,
                 "on_filechooserbutton3_file_set" : \
-                    self.filechooserbutton3_file_set,
+                self.filechooserbutton3_file_set,
                 "on_btnRemoveMIMEExtension_clicked" : \
-                    self.buttonRemoveMIMEExtension_clicked,
+                self.buttonRemoveMIMEExtension_clicked,
                 "on_btnAddHostName_clicked" : \
-                    self.buttonAddHostName_clicked,
+                self.buttonAddHostName_clicked,
                 "on_btnRemoveHostName_clicked" : \
-                    self.buttonRemoveHostName_clicked,
+                self.buttonRemoveHostName_clicked,
                 "on_btnAddHost_clicked" : \
-                    self.btnAddHost_clicked,
+                self.btnAddHost_clicked,
                 "on_btnAddIP_clicked" : \
-                    self.btnAddIP_clicked,
+                self.btnAddIP_clicked,
                 "on_btnRemoveHost_clicked" : \
-                    self.btnRemoveHost_clicked,
+                self.btnRemoveHost_clicked,
                 "on_btnRemoveIP_clicked" : \
-                    self.btnRemoveIP_clicked
+                self.btnRemoveIP_clicked
                 }
-
         # Connect signals
         self.wTree.signal_autoconnect (dic)
 
