@@ -66,6 +66,32 @@ class ConfigGUIGTK:
 
         self.treeview.show()
 
+        # Create treeview widget structure (one column) for host names
+        self.treeviewHost=self.wTree.get_widget("treeviewHost")
+        self.treemodelHost=gtk.TreeStore(gobject.TYPE_STRING)
+        self.treeviewHost.set_model(self.treemodelHost)
+
+        renderer=gtk.CellRendererText()
+        column=gtk.TreeViewColumn("Host:",renderer, text=0)
+        column.set_resizable(True)
+        self.treeviewHost.append_column(column)
+        renderer=gtk.CellRendererText()
+        self.treeviewHost.show()
+
+        # Create treeview widget structure (one column) for IP addresses
+        self.treeviewIP=self.wTree.get_widget("treeviewIP")
+        self.treemodelIP=gtk.TreeStore(gobject.TYPE_STRING)
+        self.treeviewIP.set_model(self.treemodelIP)
+
+        renderer=gtk.CellRendererText()
+        column=gtk.TreeViewColumn("IP:",renderer, text=0)
+        column.set_resizable(True)
+        self.treeviewIP.append_column(column)
+        renderer=gtk.CellRendererText()
+        self.treeviewIP.show()
+
+
+
         self.store2 = gtk.ListStore(gobject.TYPE_STRING)
         #populate
         self.store2.append(["Every HTTP connection"])
@@ -127,13 +153,26 @@ class ConfigGUIGTK:
                     self.filechooserbutton2_file_set,
                 "on_filechooserbutton1_file_set" : \
                     self.filechooserbutton1_file_set,
+                "on_filechooserbutton4_file_set" : \
+                    self.filechooserbutton4_file_set,
+                "on_filechooserbutton3_file_set" : \
+                    self.filechooserbutton3_file_set,
                 "on_btnRemoveMIMEExtension_clicked" : \
                     self.buttonRemoveMIMEExtension_clicked,
                 "on_btnAddHostName_clicked" : \
                     self.buttonAddHostName_clicked,
                 "on_btnRemoveHostName_clicked" : \
-                    self.buttonRemoveHostName_clicked
+                    self.buttonRemoveHostName_clicked,
+                "on_btnAddHost_clicked" : \
+                    self.btnAddHost_clicked,
+                "on_btnAddIP_clicked" : \
+                    self.btnAddIP_clicked,
+                "on_btnRemoveHost_clicked" : \
+                    self.btnRemoveHost_clicked,
+                "on_btnRemoveIP_clicked" : \
+                    self.btnRemoveIP_clicked
                 }
+
         # Connect signals
         self.wTree.signal_autoconnect (dic)
 
@@ -155,6 +194,22 @@ class ConfigGUIGTK:
         selection = treeV.get_selection()
         model, selected = selection.get_selected()
         model.remove(selected)
+
+    def btnAddHost_clicked(self, button):
+        """ Add new host name to treeview """
+        self.insert_row(self.treemodelHost,None, self.ShowDialogBox("Add new host name"))
+
+    def btnRemoveHost_clicked(self, button):
+        """ Removes selected file name """
+        self.delete_rows(self.treeviewHost)
+
+    def btnAddIP_clicked(self, button):
+        """ Add new IP address to trreview """
+        self.insert_row(self.treemodelIP,None, self.ShowDialogBox("Add new IP address"))
+
+    def btnRemoveIP_clicked(self, button):
+        """ Removes selected file name """
+        self.delete_rows(self.treeviewIP)
 
     def buttonAddMIMEType_clicked(self, button):
         """ Add new MIME type to list """
@@ -187,6 +242,14 @@ class ConfigGUIGTK:
     def filechooserbutton2_file_set(self, widget):
         """ Place file path in entry field """
         self.wTree.get_widget("enManager").set_text(self.wTree.get_widget("filechooserbutton2").get_filename())
+
+    def filechooserbutton4_file_set(self, widget):
+        """ Place file path in entry field """
+        self.wTree.get_widget("enSystemFolder").set_text(self.wTree.get_widget("filechooserbutton4").get_filename())
+
+    def filechooserbutton3_file_set(self, widget):
+        """ Place file path in entry field """
+        self.wTree.get_widget("enDocummentRoot").set_text(self.wTree.get_widget("filechooserbutton3").get_filename())
 
     def filechooserbutton1_file_set(self, widget):
         """ Place file path in entry field """
