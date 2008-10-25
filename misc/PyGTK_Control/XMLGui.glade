@@ -144,14 +144,6 @@
                             <property name="use_stock">True</property>
                           </widget>
                         </child>
-                        <child>
-                          <widget class="GtkImageMenuItem" id="imagemenuitem4">
-                            <property name="visible">True</property>
-                            <property name="label">gtk-open</property>
-                            <property name="use_underline">True</property>
-                            <property name="use_stock">True</property>
-                          </widget>
-                        </child>
                       </widget>
                     </child>
                   </widget>
@@ -991,39 +983,100 @@ Run self contained SCGI</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <child>
-                          <widget class="GtkVBox" id="vbox9">
+                          <widget class="GtkVBox" id="vbox22">
                             <property name="visible">True</property>
                             <child>
-                              <widget class="GtkHBox" id="hbox6">
+                              <widget class="GtkHBox" id="hbox14">
                                 <property name="visible">True</property>
+                                <property name="homogeneous">True</property>
                                 <child>
-                                  <widget class="GtkLabel" id="label32">
+                                  <widget class="GtkLabel" id="label36">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">Accesses log file:</property>
+                                    <property name="label" translatable="yes">Protocol:</property>
                                   </widget>
                                 </child>
                                 <child>
-                                  <widget class="GtkEntry" id="entry13">
+                                  <widget class="GtkComboBox" id="ddProtocol">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
+                                    <property name="items">HTTP
+FTP
+</property>
                                   </widget>
                                   <packing>
                                     <property name="position">1</property>
                                   </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
                                 </child>
                               </widget>
                             </child>
                             <child>
-                              <widget class="GtkHBox" id="hbox7">
+                              <widget class="GtkHBox" id="hbox15">
                                 <property name="visible">True</property>
+                                <property name="homogeneous">True</property>
                                 <child>
-                                  <widget class="GtkLabel" id="label33">
+                                  <widget class="GtkLabel" id="label37">
                                     <property name="visible">True</property>
-                                    <property name="label" translatable="yes">Wrning log file:</property>
+                                    <property name="label" translatable="yes">SSL Private Key:</property>
                                   </widget>
                                 </child>
                                 <child>
-                                  <widget class="GtkEntry" id="entry14">
+                                  <widget class="GtkFileChooserButton" id="filechooserbutton5">
+                                    <property name="visible">True</property>
+                                    <property name="preview_widget_active">False</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                              </widget>
+                              <packing>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkHBox" id="hbox16">
+                                <property name="visible">True</property>
+                                <property name="homogeneous">True</property>
+                                <child>
+                                  <widget class="GtkLabel" id="label38">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">SSL Certyfikate:</property>
+                                  </widget>
+                                </child>
+                                <child>
+                                  <widget class="GtkFileChooserButton" id="filechooserbutton6">
+                                    <property name="visible">True</property>
+                                    <property name="preview_widget_active">False</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                              </widget>
+                              <packing>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkHBox" id="hbox17">
+                                <property name="visible">True</property>
+                                <property name="homogeneous">True</property>
+                                <child>
+                                  <widget class="GtkLabel" id="label39">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">SSL Password:</property>
+                                  </widget>
+                                </child>
+                                <child>
+                                  <widget class="GtkEntry" id="enPassword">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                   </widget>
@@ -1031,9 +1084,12 @@ Run self contained SCGI</property>
                                     <property name="position">1</property>
                                   </packing>
                                 </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
                               </widget>
                               <packing>
-                                <property name="position">1</property>
+                                <property name="position">3</property>
                               </packing>
                             </child>
                           </widget>
@@ -1444,7 +1500,55 @@ Run self contained SCGI</property>
                           </packing>
                         </child>
                         <child>
-                          <placeholder/>
+                          <widget class="GtkVBox" id="vbox9">
+                            <property name="visible">True</property>
+                            <child>
+                              <widget class="GtkHBox" id="hbox6">
+                                <property name="visible">True</property>
+                                <child>
+                                  <widget class="GtkLabel" id="label32">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">Accesses log file:</property>
+                                  </widget>
+                                </child>
+                                <child>
+                                  <widget class="GtkEntry" id="entry13">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkHBox" id="hbox7">
+                                <property name="visible">True</property>
+                                <child>
+                                  <widget class="GtkLabel" id="label33">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">Wrning log file:</property>
+                                  </widget>
+                                </child>
+                                <child>
+                                  <widget class="GtkEntry" id="entry14">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </widget>
+                              <packing>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="position">4</property>
+                          </packing>
                         </child>
                         <child>
                           <widget class="GtkLabel" id="label28">
