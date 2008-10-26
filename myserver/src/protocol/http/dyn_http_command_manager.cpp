@@ -16,25 +16,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include <include/plugin/http_command/dyn_http_command_manager.h>
-#include <include/plugin/http_command/dyn_http_command.h>
+#include <include/protocol/http/dyn_http_command_manager.h>
+#include <include/protocol/http/dyn_http_command.h>
 
 #include <string>
-
-/*!
- *Create the plugin object.
- */
-Plugin* DynHttpCommandManager::createPluginObject()
-{
-  return new DynamicHttpCommand();
-}
 
 
 /*!
  *Initialize the object.
  */
-DynHttpCommandManager::DynHttpCommandManager() : 
-  PluginsNamespaceManager(string("http_commands"))
+DynHttpCommandManager::DynHttpCommandManager()
 {
 
 }
@@ -45,4 +36,23 @@ DynHttpCommandManager::DynHttpCommandManager() :
 DynHttpCommandManager::~DynHttpCommandManager()
 {
 
+}
+
+/*!
+ *Get the DynamicHttpCommand.
+ *\param name http command name.
+ */
+DynamicHttpCommand* DynHttpCommandManager::getHttpCommand(string& name)
+{
+  return dynamicHttpCommands.get(name);
+}
+
+/*!
+ *Add the DynamicHttpCommand.
+ *\param name http command name.
+ *\param httpManager http command to add.
+ */
+void DynHttpCommandManager::addHttpCommand(string& name, DynamicHttpCommand* httpCommand)
+{
+  dynamicHttpCommands.put(name,httpCommand);
 }

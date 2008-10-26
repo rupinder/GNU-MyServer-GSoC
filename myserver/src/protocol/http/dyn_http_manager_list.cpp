@@ -16,25 +16,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include <include/plugin/http_manager/dyn_http_manager_list.h>
-#include <include/plugin/http_manager/dyn_http_manager.h>
+#include <include/protocol/http/dyn_http_manager_list.h>
+#include <include/protocol/http/dyn_http_manager.h>
 #include <include/server/server.h>
 
 #include <string>
 
-/*!
- *Create the plugin object.
- */
-Plugin* DynHttpManagerList::createPluginObject()
-{
-  return new DynamicHttpManager();
-}
 
 /*!
  *Initialize the object.
  */
-DynHttpManagerList::DynHttpManagerList() : 
-  PluginsNamespaceManager(string("http_managers"))
+DynHttpManagerList::DynHttpManagerList() 
 {
 
 }
@@ -45,5 +37,24 @@ DynHttpManagerList::DynHttpManagerList() :
 DynHttpManagerList::~DynHttpManagerList()
 {
 
+}
+
+/*!
+ *Get the DynamicHttpManagers.
+ *\param name http manager name.
+ */
+DynamicHttpManager* DynHttpManagerList::getHttpManager(string& name)
+{
+  return dynamicHttpManagers.get(name);
+}
+
+/*!
+ *Add the DynamicHttpManagers.
+ *\param name http manager name.
+ *\param httpManager http manager to add.
+ */
+void DynHttpManagerList::addHttpManager(string& name, DynamicHttpManager* httpManager)
+{
+  dynamicHttpManagers.put(name,httpManager);
 }
 

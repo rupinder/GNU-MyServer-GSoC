@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/server/server.h>
 #include <include/base/find_data/find_data.h>
 #include <include/base/string/securestr.h>
-#include <include/plugin/protocol/protocols_manager.h>
 #include <include/protocol/control/control_errors.h>
 #include <include/base/string/stringutils.h>
 #include <include/base/file/files_utility.h>
@@ -517,11 +516,6 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
     knownCommand = 1;
     ret = showLanguageFiles(a, Ofile, b1, bs1, header);
   }
-  else if(!strcmp(command, "SHOWDYNAMICPROTOCOLS"))
-  {
-    knownCommand = 1;
-    ret = showDynamicProtocols(a, Ofile, b1, bs1, header);
-  }
   else if(!strcmp(command, "VERSION"))
   {
     knownCommand = 1;
@@ -811,39 +805,7 @@ int ControlProtocol::visitConnection(ConnectionPtr con, void* argP)
   return 0;
 }
 
-/*!
- *List all the dynamic protocols used by the server.
- */
-int ControlProtocol::showDynamicProtocols(ConnectionPtr a, File* out, 
-                                          char *b1,int bs1, ControlHeader& header)
-{
-  int i = 0;
-  u_long nbw;
-  int ret;
-  HashMap<string, Plugin*>::Iterator it = 
-    Server::getInstance()->getProtocolsManager()->begin();
 
-  for(; it != Server::getInstance()->getProtocolsManager()->end(); it++)
-  {
-    DynamicProtocol* dp = (DynamicProtocol*) *it;
-#ifdef HAVE_SNPRINTF
-    snprintf(b1, bs1, "%s\r\n", dp->getName(0, 0) );
-
-#else
-    sprintf(b1, "%s\r\n", dp->getName(0, 0) );
-#endif
-   
-    ret = out->writeToFile(b1, strlen(b1), &nbw);
-    if(ret)
-    {
-      strcpy(b1, "Control: Error while writing to file");
-      addToErrorLog(a, b1, strlen(b1), header);
-      return CONTROL_INTERNAL;
-    }
-    i++;
-  }
-  return 0;
-}
 
 /*!
  *Return the requested file to the client.

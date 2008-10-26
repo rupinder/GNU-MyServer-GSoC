@@ -26,10 +26,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/xml/xml_parser.h>
 #include <include/base/thread/thread.h>
 #include <include/base/sync/mutex.h>
-#include <include/plugin/http_command/dyn_http_command_manager.h>
-#include <include/plugin/http_command/dyn_http_command.h>
-#include <include/plugin/http_manager/dyn_http_manager_list.h>
-#include <include/plugin/http_manager/dyn_http_manager.h>
+#include <include/protocol/http/dyn_http_command_manager.h>
+#include <include/protocol/http/dyn_http_command.h>
+#include <include/protocol/http/dyn_http_manager_list.h>
+#include <include/protocol/http/dyn_http_manager.h>
 #include <include/base/multicast/multicast.h>
 #include <include/protocol/http/http_data_handler.h>
 #include <include/base/string/securestr.h>

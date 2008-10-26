@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2005 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -16,29 +16,27 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PLUGINS_NAMESPACE_MANAGER_H
-#define PLUGINS_NAMESPACE_MANAGER_H
+#ifndef DYN_HTTP_MANAGER_H
+#define DYN_HTTP_MANAGER_H
 
 #include "stdafx.h"
-#include <include/plugin/plugins_namespace.h>
-
+#include <include/base/xml/xml_parser.h>
+#include <include/protocol/protocol.h>
+#include <include/connection/connection.h>
+#include <include/base/dynamic_lib/dynamiclib.h>
+#include <include/protocol/http/http_headers.h>
+#include <include/base/hash_map/hash_map.h>
+#include <string>
 using namespace std;
 
-class PluginsNamespaceManager : public PluginsNamespace
+
+class DynamicHttpManager 
 {
 public:
-	PluginsNamespaceManager(string name);
-
-	virtual int preLoad(Server* server, XmlParser* languageFile, 
-											string& resource);
-	virtual int load(Server* server, XmlParser* languageFile, 
-									 string& resource);
-
-protected:
-	virtual Plugin* createPluginObject();
-private:
-	int addPlugin(string& file, Server* server, 
-                XmlParser* languageFile, bool global);
+	DynamicHttpManager();
+	virtual ~DynamicHttpManager();
+	virtual int send(HttpThreadContext*, ConnectionPtr s, const char *filenamePath,
+                   const char* cgi, int selfExecuted, int onlyHeader = 0) = 0;
 
 };
 

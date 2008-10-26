@@ -29,18 +29,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/sync/event.h>
 #include <include/conf/mime/mime_manager.h>
 #include <include/conf/vhost/vhost_manager.h>
-#include <include/plugin/protocol/protocols_manager.h>
+#include <include/protocol/protocols_manager.h>
 #include <include/connection/connection.h>
 #include <include/log/log_manager.h>
 #include <include/filter/filters_factory.h>
 #include <include/plugin/plugins_manager.h>
-#include <include/plugin/filter/dyn_filters_manager.h>
-#include <include/plugin/filter/dyn_filter.h>
-#include <include/plugin/executor/dyn_executor_manager.h>
+//#include <include/plugin/filter/dyn_filters_manager.h>
+//#include <include/plugin/filter/dyn_filter.h>
+//#include <include/plugin/executor/dyn_executor_manager.h>
 #include <include/base/hash_map/hash_map.h>
 #include <include/base/home_dir/home_dir.h>
 #include <include/base/files_cache/cached_file_factory.h>
-#include <include/plugin/generic_plugins_manager.h>
 #include <include/base/process/process_server_manager.h>
 #include <include/connections_scheduler/listen_threads.h>
 #include <include/base/multicast/multicast.h>
@@ -201,8 +200,8 @@ private:
   HashMap<string, string*> hashedData;
   HashMap<string, void*> globalData;
   FiltersFactory filtersFactory;
-  DynamicFiltersManager filters;
-  DynExecutorManager executors;
+  //DynamicFiltersManager filters;
+  //DynExecutorManager executors;
   u_long uid;
   u_long gid;
   int currentThreadID;
@@ -259,7 +258,6 @@ private:
   string* vhostConfigurationFile;
   string* mimeConfigurationFile;
   PluginsManager pluginsManager;
-  GenericPluginsManager genericPluginsManager;
   ProcessServerManager processServerManager;
   ConnectionsScheduler connectionsScheduler;
   ListenThreads listenThreads;

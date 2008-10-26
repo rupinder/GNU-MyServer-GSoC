@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DYN_HTTP_COMMAND_MANAGER_H
-#define DYN_HTTP_COMMAND_MANAGER_H
+#ifndef DYN_HTTP_MANAGER_LIST_H
+#define DYN_HTTP_MANAGER_LIST_H
 
 #include "stdafx.h"
 #include <include/base/xml/xml_parser.h>
@@ -26,25 +26,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/dynamic_lib/dynamiclib.h>
 #include <include/protocol/http/http_headers.h>
 #include <include/base/hash_map/hash_map.h>
-#include <include/plugin/plugin.h>
-#include <include/plugin/plugins_namespace_manager.h>
 #include <string>
-
-class DynamicHttpCommand;
-
 using namespace std;
 
-class DynHttpCommandManager : public PluginsNamespaceManager
+class DynamicHttpManager;
+
+class DynHttpManagerList
 {
 public:
-  DynHttpCommandManager();
-  virtual ~DynHttpCommandManager();
-  DynamicHttpCommand* getPlugin(string& name)
-	{
-		return (DynamicHttpCommand*)PluginsNamespaceManager::getPlugin(name);
-	}
-protected:
-	virtual Plugin* createPluginObject();
+  DynamicHttpManager* getHttpManager(string& name);
+
+  HashMap<string, DynamicHttpManager*>::Iterator begin(){return dynamicHttpManagers.begin();}
+  HashMap<string, DynamicHttpManager*>::Iterator end(){return dynamicHttpManagers.end();}
+
+  void addHttpManager(string& name, DynamicHttpManager* httpManager);
+
+  void addHttpManager(char* name, DynamicHttpManager* httpManager)
+  {
+   	string strName(name);
+   	addHttpManager(strName, httpManager);
+  }
+
+  DynHttpManagerList();
+  ~DynHttpManagerList();
+private:
+	HashMap<string, DynamicHttpManager*> dynamicHttpManagers;
 };
 
 #endif

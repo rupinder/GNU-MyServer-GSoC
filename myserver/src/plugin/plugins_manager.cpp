@@ -18,56 +18,49 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "stdafx.h"
 #include <include/plugin/plugins_manager.h>
 #include <include/base/xml/xml_parser.h>
+#include <include/base/find_data/find_data.h>
 #include <include/server/server.h>
 
 #include <string>
 using namespace std;
 
 /*!
- *Get a plugin trough its namespace and its name.
- *\param namespacename The namespace name to use.
- *\param plugin The plugin name.
+ *Default constructor.
  */
-Plugin* PluginsManager::getPlugin(string& namespacename, string& plugin)
+PluginsManager::PluginsManager()
 {
-  PluginsNamespace* pn = namespaces.get((char*)namespacename.c_str());
-
-  if(pn)
-    return pn->getPlugin(plugin);
-  return 0;
+	
 }
+
 /*!
- *Get a plugin trough its namespace and its name namespace-plugin.
- *\param fullname The plugin complete name.
+ *Destroy the object.
  */
-Plugin* PluginsManager::getPlugin(string& fullname)
+PluginsManager::~PluginsManager()
 {
-  size_t sep = fullname.find('-', 0);
-  if(sep != string::npos)
-  {
-    string namespacename(fullname.substr(0, sep - 1));
-    string plugin(fullname.substr(sep + 1, fullname.length()));
-    
-    return getPlugin(namespacename, plugin);
-  }
-  return 0;
+	
+}
+
+/*!
+ *Get a plugin trough  its name plugin.
+ *\param name The plugin name.
+ */
+Plugin* PluginsManager::getPlugin(string& name)
+{
+  return plugins.get(name);
 }
   
 /*!
- *Preload the plugins.
+ *Load the plugin soptions.
  *\param server The server object to use.
  *\param languageFile The language file to use to get errors and warnings 
  *messages.
- *\param resource The resource to use to load plugins.
  */
-int PluginsManager::preLoad(Server *server, XmlParser* languageFile, 
-                            string& resource)
+int PluginsManager::loadOptions(Server *server, XmlParser* languageFile)
 {
   xmlDocPtr xmlDoc;
   int ret = 0;
   XmlParser* configuration;
-  HashMap<char*, PluginsNamespace*>::Iterator it = namespaces.begin();
-
+  
   configuration = server->getConfiguration();
   
   xmlDoc = configuration->getDoc();
@@ -79,7 +72,7 @@ int PluginsManager::preLoad(Server *server, XmlParser* languageFile,
         {
           string namespaceName;
           string pluginName;
-          PluginsNamespace::PluginOption po;
+          PluginsManager::PluginOption po;
           
           if(!xmlStrcmp(node->name, (const xmlChar *)"PLUGIN"))
           {
@@ -92,13 +85,6 @@ int PluginsManager::preLoad(Server *server, XmlParser* languageFile,
                 if(properties->children && properties->children->content)
                   pluginName.assign((char*)properties->children->content);
               }
-        
-              if(!xmlStrcmp(properties->name, (const xmlChar *)"namespace"))
-              {
-                if(properties->children && properties->children->content)
-                  namespaceName.assign((char*)properties->children->content);
-              }
-              
               properties = properties->next;
             }
             
@@ -110,36 +96,165 @@ int PluginsManager::preLoad(Server *server, XmlParser* languageFile,
                 po.global = strcmpi("YES", (const char*)internal->children->content) ? false : true;
             }
 
-            if(!namespaceName.length() || !pluginName.length())
+            if(!pluginName.length())
             {
               string error;
-              error.assign("Warning: invalid namespace or plugin name in PLUGIN block");
-              server->logWriteln(error.c_str(), ERROR);     
+              error.assign("Warning: invalid plugin name in PLUGIN block");
+              server->logWriteln(error.c_str(), ERROR);   
+              ret = -1;  
             }
             else
             {
-              PluginsNamespace* ns = getNamespace(namespaceName);
-              if(!ns)
-              {
-                string error;
-                error.assign("Warning: invalid namespace name");
-                server->logWriteln(error.c_str(), ERROR);     
-              }
-              else
-                ns->addPluginOption(pluginName, po);
-
+                addPluginOption(pluginName, po);
             }
 
           }
         }
 
-  while(it != namespaces.end())
-  {
-    ret |= (*it)->preLoad(server, languageFile, resource);
-    it++;
-  }
   return ret;
   
+}
+
+
+/*!
+ *Preload sequence, called when all the plugins are not yet loaded.
+ *\param server The server object to use.
+ *\param languageFile The language file to use to retrieve warnings/errors 
+ *messages.
+ *\param resource The resource location to use to load plugins, in this 
+ *implementation it is a directory name.
+ */
+int PluginsManager::preLoad(Server* server, XmlParser* languageFile, 
+                                     string& resource)
+{
+  FindData fdir;
+  FindData flib;
+  string filename;
+  string completeFileName;  
+  int ret;
+
+  loadOptions(server,languageFile);
+  
+  filename.assign(resource);
+
+  
+
+  ret = fdir.findfirst(filename.c_str());  
+  
+  if(ret == -1)
+  {
+    return ret;  
+  }
+
+  ret = 0;
+
+  do
+  {  
+  	string dirname(filename);
+  	
+  	dirname.append("/");
+  	dirname.append(fdir.name);
+    if(fdir.name[0]=='.')
+      continue;
+      
+    
+    ret = flib.findfirst(dirname.c_str());  
+  
+  	if(ret == -1)
+  	  continue;
+  	
+  	do
+  	{
+  	  string name(flib.name);
+      PluginsManager::PluginOption *po;
+      if(flib.name[0]=='.')
+      	continue;
+          /*!
+     *Do not consider file other than dynamic libraries.
+     */
+#ifdef WIN32
+      if(!strstr(flib.name,".dll"))
+#endif
+#ifdef NOT_WIN
+      if(!strstr(flib.name,".so"))
+#endif    
+        continue;
+      completeFileName.assign(filename);
+      
+      if((fdir.name[0] != '/') && (fdir.name[0] != '\\')) 
+        completeFileName.append("/");
+      completeFileName.append(fdir.name);
+      
+      if((flib.name[0] != '/') && (flib.name[0] != '\\')) 
+        completeFileName.append("/");
+      completeFileName.append(flib.name);
+
+#ifdef WIN32
+      name = name.substr(0, name.length() - 4);
+#endif
+#ifdef NOT_WIN
+      name = name.substr(0, name.length() - 3);
+#endif
+      po = getPluginOption(name);
+    
+       if(!po || po->enabled)
+         ret |= addPlugin(completeFileName, server, languageFile, po && po->global);
+
+     }while(!flib.findnext());
+   }while(!fdir.findnext());
+  fdir.findclose();
+  flib.findclose();
+  return ret;
+}
+
+/*!
+ *Create the appropriate object to keep a plugin.
+ */
+Plugin* PluginsManager::createPluginObject()
+{
+  return new Plugin();
+}
+
+/*!
+ *Add a plugin.
+ *\param file The plugin file name.
+ *\param server The server object to use.
+ *\param languageFile The language file to use to retrieve warnings/errors 
+ *messages.
+ *\param global Specify if the library should be loaded globally.
+ */
+int PluginsManager::addPlugin(string& file, Server* server, 
+                                       XmlParser* languageFile, bool global)
+{
+  Plugin *plugin = createPluginObject();
+  string logBuf;
+  string name;
+  const char* namePtr;
+
+  if(plugin->preLoad(file, server, languageFile, global))
+  {
+    delete plugin;
+    return 1;
+  }
+  namePtr = plugin->getName(0, 0);
+
+  if(namePtr)
+    name.assign(namePtr);
+  else
+  {
+    delete plugin;
+    return 1;
+  }
+    
+  plugins.put(name, plugin);
+
+  logBuf.assign(languageFile->getValue("MSG_LOADED"));
+  logBuf.append(" ");
+  logBuf.append(file);
+  logBuf.append(" --> ");
+  logBuf.append(name);
+  server->logWriteln( logBuf.c_str() );
+  return 0;
 }
 
 /*!
@@ -152,15 +267,13 @@ int PluginsManager::preLoad(Server *server, XmlParser* languageFile,
 int PluginsManager::load(Server *server, XmlParser* languageFile, 
                          string& resource)
 {
-  int ret = 0;
-  HashMap<char*, PluginsNamespace*>::Iterator it = namespaces.begin();
-
-  while(it != namespaces.end())
+  HashMap<string, Plugin*>::Iterator it = plugins.begin();
+  while(it != plugins.end())
   {
-    ret |= (*it)->load(server, languageFile, resource);
+    (*it)->load(resource, server, languageFile);
     it++;
   }
-  return ret;
+  return 0;
   
 }
 
@@ -172,16 +285,13 @@ int PluginsManager::load(Server *server, XmlParser* languageFile,
  */
 int PluginsManager::postLoad(Server *server, XmlParser* languageFile)
 {
-  int ret = 0;
-  HashMap<char*, PluginsNamespace*>::Iterator it = namespaces.begin();
-
-  while(it != namespaces.end())
+  HashMap<string, Plugin*>::Iterator it = plugins.begin();
+  while(it != plugins.end())
   {
-    ret |= (*it)->postLoad(server, languageFile);
+    (*it)->postLoad(server, languageFile);
     it++;
   }
-
-  return ret;
+  return 0;
 }
 
 /*!
@@ -192,44 +302,57 @@ int PluginsManager::postLoad(Server *server, XmlParser* languageFile)
  */
 int PluginsManager::unLoad(Server *server, XmlParser* languageFile)
 {
-  int ret = 0;
+  HashMap<string, Plugin*>::Iterator it = plugins.begin();
+  HashMap<string, PluginOption*>::Iterator poit = pluginsOptions.begin();
 
-  HashMap<char*, PluginsNamespace*>::Iterator it = namespaces.begin();
-
-  while(it != namespaces.end())
+  while(it != plugins.end())
   {
-    ret |= (*it)->unLoad(languageFile);
+    (*it)->unLoad(languageFile);
+    delete *it;
     it++;
   }
 
-  namespaces.clear();
-  return ret;
+  while(poit != pluginsOptions.end())
+  {
+    delete *poit;
+    poit++;
+  }
+
+  plugins.clear();
+  pluginsOptions.clear();
+  return 0;
 }
 
 /*!
- *Add a new namespace to the plugins system.
- *\param newnamespace The namespace to add.
+ *Remove a plugin  without clean it.
+ *\param name The plugin to remove.
  */
-void PluginsManager::addNamespace(PluginsNamespace* newnamespace)
+void PluginsManager::removePlugin(string& name)
 {
-  removeNamespace(newnamespace->getName());
-  namespaces.put((char*)newnamespace->getName().c_str(), newnamespace);
+  plugins.remove(name);
 }
 
 /*!
- *Get a namespace by its name.
- *\param name The namespace name.
+ *Add a plugin option structure.
+ *\param plugin The plugin name.
+ *\param po The options for the plugin.
  */
-PluginsNamespace* PluginsManager::getNamespace(string &name)
+int PluginsManager::addPluginOption(string& plugin, PluginOption& po)
 {
-  return namespaces.get((char*)name.c_str());
+  PluginOption* newPo = new PluginOption(po);
+  PluginOption* oldPo = pluginsOptions.put(plugin, newPo);
+
+  if(oldPo)
+    delete oldPo;
+
+  return 0;
 }
 
 /*!
- *Remove a namespace by its name.
- *\param name The namespace name.
+ *Return a pluginOption.
+ *\param name The plugin name.
  */
-PluginsNamespace* PluginsManager::removeNamespace(string& name)
+PluginsManager::PluginOption* PluginsManager::getPluginOption(string& plugin)
 {
-  return namespaces.remove((char*)name.c_str());
+  return pluginsOptions.get(plugin);
 }

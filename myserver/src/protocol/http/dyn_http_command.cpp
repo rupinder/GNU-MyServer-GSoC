@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2005, 2006, 2008 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -15,18 +15,31 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "stdafx.h"
-#include <include/plugin/generic_plugins_manager.h>
-#include <include/base/xml/xml_parser.h>
+#include <include/protocol/http/dyn_http_command.h>
 #include <include/server/server.h>
-#include <string>
-using namespace std;
+
+
 
 /*!
- *Constructor for the class.
+ *Default constructor.
  */
-GenericPluginsManager::GenericPluginsManager() : 
-  PluginsNamespaceManager("generics")
+DynamicHttpCommand::DynamicHttpCommand(string& name) 
 {
-
+  this->name = name;
 }
+
+/*!
+ *Default constructor.
+ */
+string DynamicHttpCommand::getName() 
+{
+  return name;
+}
+
+/*!
+ *Destroy the object.
+ */
+DynamicHttpCommand::~DynamicHttpCommand()
+{
+}
+

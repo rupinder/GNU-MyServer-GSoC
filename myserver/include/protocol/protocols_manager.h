@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2007 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2007, 2008 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -16,32 +16,39 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DYNAMIC_EXECUTOR_H
-#define DYNAMIC_EXECUTOR_H
-
+#ifndef PROTOCOLS_MANAGER_H
+#define PROTOCOLS_MANAGER_H
 #include "stdafx.h"
 #include <include/base/xml/xml_parser.h>
 #include <include/protocol/protocol.h>
 #include <include/connection/connection.h>
 #include <include/base/dynamic_lib/dynamiclib.h>
-#include <include/protocol/http/http_headers.h>
-#include <include/base/hash_map/hash_map.h>
 #include <include/plugin/plugin.h>
-#include <include/plugin/plugins_namespace_manager.h>
+#include <include/base/hash_map/hash_map.h>
+#include <list>
 #include <string>
+
 using namespace std;
 
-class DynamicExecutor : public Plugin
+class ProtocolsManager 
 {
 public:
-	DynamicExecutor();
-	virtual ~DynamicExecutor();
-	int execute(char* buffer, u_long length);
-	int executeFromFile(char* fileName);
-private:
-	int loadFileAndExecute(char* fileName);
-  XmlParser *errorParser;
-	string filename;
+	ProtocolsManager();
+	~ProtocolsManager();
+
+  Protocol* getProtocol(string& name);
+
+  void addProtocol(string& name, Protocol* protocol);
+
+  void addProtocol(char* name, Protocol* protocol)
+  {
+    string strName(name);
+    addProtocol(strName, protocol);
+  }
+
+protected:
+  list<Protocol*> staticProtocolsList;
+  HashMap<string, Protocol*> staticProtocols;
 };
 
 #endif

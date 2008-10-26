@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "stdafx.h"
 #include <include/plugin/plugin.h>
-#include <include/plugin/plugins_namespace.h>
 #include <include/base/dynamic_lib/dynamiclib.h>
 #include <include/base/hash_map/hash_map.h>
 #include <string>
@@ -33,18 +32,43 @@ class XmlParser;
 class PluginsManager
 {
 public:
-	Plugin* getPlugin(string& namespacename, string& plugin);
-	Plugin* getPlugin(string& fullname);
+
+	struct PluginOption
+	{
+		PluginOption(PluginOption& po){enabled = po.enabled; global = po.global;}
+		PluginOption(){enabled = true; global = false;}
+		bool enabled;
+    	bool global;
+	};
+	
+	
+	
+	HashMap<string, Plugin*>::Iterator begin(){return plugins.begin();}
+	HashMap<string, Plugin*>::Iterator end(){return plugins.end();}
+	
+	Plugin* getPlugin(string& name);
 	
 	int preLoad(Server *server, XmlParser* languageFile, string& resource);
 	int load(Server *server, XmlParser* languageFile, string& resource);
 	int postLoad(Server *server, XmlParser* languageFile);
 	int unLoad(Server *server, XmlParser* languageFile);
-	void addNamespace(PluginsNamespace* namespacename);
-	PluginsNamespace* getNamespace(string &name);
-	PluginsNamespace* removeNamespace(string& name);
+
+	virtual void removePlugin(string& name);
+
+	virtual int addPluginOption(string&, PluginOption&);
+	virtual PluginOption* getPluginOption(string&);
+	
+	virtual Plugin* createPluginObject();
+	
+	PluginsManager();
+	~PluginsManager();
+	
 private:
-	HashMap<char*, PluginsNamespace*> namespaces;
+	HashMap<string, PluginOption*> pluginsOptions;
+	HashMap<string, Plugin*> plugins;
+	int loadOptions(Server *server, XmlParser* languageFile);
+	int addPlugin(string& file, Server* server, 
+                XmlParser* languageFile, bool global);
 };
 
 #endif

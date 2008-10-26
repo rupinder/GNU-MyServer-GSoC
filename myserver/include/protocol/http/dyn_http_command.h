@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2005, 2008 Free Software Foundation, Inc.
+Copyright (C) 2005, 2007 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DYN_HTTP_MANAGER_H
-#define DYN_HTTP_MANAGER_H
+#ifndef DYN_HTTP_COMMAND_H
+#define DYN_HTTP_COMMAND_H
 
 #include "stdafx.h"
 #include <include/base/xml/xml_parser.h>
@@ -26,20 +26,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/dynamic_lib/dynamiclib.h>
 #include <include/protocol/http/http_headers.h>
 #include <include/base/hash_map/hash_map.h>
-#include <include/plugin/plugin.h>
-#include <include/plugin/plugins_namespace_manager.h>
 #include <string>
 using namespace std;
 
-
-class DynamicHttpManager : public Plugin
+class DynamicHttpCommand 
 {
 public:
-	DynamicHttpManager();
-	virtual ~DynamicHttpManager();
-	virtual int send(HttpThreadContext*, ConnectionPtr s, const char *filenamePath,
-                   const char* cgi, int selfExecuted, int onlyHeader = 0);
-
+  DynamicHttpCommand(string&);
+  virtual ~DynamicHttpCommand();
+  string getName();
+  virtual int acceptData() = 0;
+  virtual int send(HttpThreadContext* context, ConnectionPtr lpconnection, 
+									 string& Uri, int systemrequest = 0, 
+									 int OnlyHeader = 0, int yetmapped = 0) = 0;
+private:
+  string name;
 };
 
 #endif

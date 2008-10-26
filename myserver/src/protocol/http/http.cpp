@@ -86,11 +86,11 @@ int Http::optionsHTTPRESOURCE(string& filename, int yetmapped)
     HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
     string methods("OPTIONS, GET, POST, HEAD, DELETE, PUT");
 
-    HashMap<string, Plugin*>::Iterator it = staticHttp.dynCmdManager.begin();
+    HashMap<string, DynamicHttpCommand*>::Iterator it = staticHttp.dynCmdManager.begin();
     while(it != staticHttp.dynCmdManager.end())
     {
       methods.append(", ");
-      methods.append((*it)->getName(0, 0));
+      methods.append((*it)->getName());
       it++;
     }
 
@@ -958,7 +958,102 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                        data.c_str(), td->mime->selfExecuted, onlyHeader);
       return ret;
     }
-    else if (td->mime && (manager = staticHttp.dynManagerList.getPlugin (td->mime->cmdName)))
+    else if (td->mime && (manager = staticHttp.dynManagerList.getHttpManager (td->mime->cmdName)))
+    {
+      int allowScgi = 1;
+      const char *dataH = td->connection->host->getHashedData("ALLOW_SCGI");
+      if(dataH)
+      {
+        if(!strcmpi(dataH, "YES"))
+          allowScgi = 1;
+        else
+          allowScgi = 0;
+      }
+      if(!allowScgi || !(permissions & MYSERVER_PERMISSION_EXECUTE))
+      {
+        return sendAuth();
+      }
+      ret = scgi->send(td, td->connection, td->filenamePath.c_str(),
+                       data.c_str(), 1, onlyHeader);
+      return ret;
+    }
+    else if(!td->mime->cmdName.compare ("SENDLINK"))
+    {
+      u_long nbr;
+      char* linkpath;
+      char* pathInfo;
+      int linkpathSize;
+      File h;
+      int allowSendlink = 1;
+      const char *dataH =
+        td->connection->host->getHashedData("ALLOW_SEND_LINK");
+
+      if(dataH)
+      {
+        if(!strcmpi(dataH, "YES"))
+          allowSendlink = 1;
+        else
+          allowSendlink = 0;
+      }
+
+      if(!allowSendlink || !(permissions & MYSERVER_PERMISSION_READ))
+      {
+        return sendAuth();
+      }
+
+      if(h.openFile(td->filenamePath.c_str(),
+                    File::MYSERVER_OPEN_IFEXISTS|File::MYSERVER_OPEN_READ))
+      {
+        return raiseHTTPError(500);
+      }
+
+      linkpathSize = h.getFileSize() + td->pathInfo.length() + 1;
+
+      if(linkpathSize > MYSERVER_KB(10))
+        linkpathSize = MYSERVER_KB(10);
+
+      linkpath=new char[linkpathSize];
+
+      if(linkpath == 0)
+      {
+        return sendHTTPhardError500();
+      }
+
+      if(h.read(linkpath, linkpathSize, &nbr))
+      {
+        h.close();
+        delete [] linkpath;
+        return raiseHTTPError(500);/*!Internal server error*/
+      }
+
+      h.close();
+      linkpath[nbr]='\0';
+
+      pathInfo = new char[td->pathInfo.length() + 1];
+
+      if(pathInfo == 0)
+      {
+        delete [] linkpath;
+        return raiseHTTPError(500);/*!Internal server error*/
+      }
+      strcpy(pathInfo, td->pathInfo.c_str());
+      translateEscapeString(pathInfo);
+      strncat(linkpath, pathInfo,strlen(linkpath));
+
+      if(nbr)
+      {
+        string uri;
+        uri.assign(linkpath);
+        ret = sendHTTPResource(uri, systemrequest, onlyHeader, 1);
+      }
+      else
+        ret = raiseHTTPError(404);
+
+      delete [] linkpath;
+      delete [] pathInfo;
+      return ret;
+    }
+    else if ((manager = staticHttp.dynManagerList.getHttpManager(td->mime->cmdName)))
     {
       int allowExternal = 1;
       const char *dataH =
@@ -1250,7 +1345,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     FilesUtility::temporaryFileName(td->id, td->inputDataPath);
     FilesUtility::temporaryFileName(td->id, td->outputDataPath);
 
-    dynamicCommand = staticHttp.dynCmdManager.getPlugin(td->request.cmd);
+    dynamicCommand = staticHttp.dynCmdManager.getHttpCommand(td->request.cmd);
 
     /* If the used method supports POST data, read it.  */
     if((!td->request.cmd.compare("POST")) ||
@@ -2200,9 +2295,6 @@ int Http::loadProtocolStatic(XmlParser* languageParser)
 
   HttpFile::load(configurationFileManager);
   HttpDir::load(configurationFileManager);
-
-  Server::getInstance()->getPluginsManager()->addNamespace(&staticHttp.dynCmdManager);
-  Server::getInstance()->getPluginsManager()->addNamespace(&staticHttp.dynManagerList);
 
   /*! Determine the min file size that will use GZIP compression.  */
   data = configurationFileManager->getValue("GZIP_THRESHOLD");

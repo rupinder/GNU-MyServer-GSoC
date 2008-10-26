@@ -16,26 +16,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include <include/plugin/protocol/protocols_manager.h>
+#include <include/protocol/protocols_manager.h>
 #include <include/base/xml/xml_parser.h>
 #include <include/server/server.h>
-#include <include/plugin/protocol/dynamic_protocol.h>
 #include <string>
 #include <algorithm>
 #include <cctype> 
 
-/*!
- *Create the appropriate object to keep a plugin.
- */
-Plugin* ProtocolsManager::createPluginObject()
-{
-  return new DynamicProtocol();
-}
+
 
 /*!
  *Class constructor.
  */
-ProtocolsManager::ProtocolsManager() : PluginsNamespaceManager("protocols")
+ProtocolsManager::ProtocolsManager() 
 {
 
 }
@@ -53,14 +46,7 @@ ProtocolsManager::~ProtocolsManager()
  */
 Protocol* ProtocolsManager::getProtocol(string& name)
 {
-  Protocol* staticProtocol = staticProtocols.get(name);
-
-  if(staticProtocol)
-  {
-    return staticProtocol;
-  }
-
-  return getPlugin(name);
+  return staticProtocols.get(name);
 }
 
 /*!
@@ -77,23 +63,4 @@ void ProtocolsManager::addProtocol(string& name, Protocol* protocol)
   staticProtocolsList.push_back(protocol);
 }
 
-/*!
- *Clear the protocols.
- */
-int ProtocolsManager::unLoad(XmlParser* languageFile)
-{
-  list<Protocol*>::iterator it = staticProtocolsList.begin();
-  int ret = PluginsNamespace::unLoad(languageFile);
 
-  staticProtocols.clear();
-
-  for(; it != staticProtocolsList.end(); it++)
-  {
-    (*it)->unLoadProtocol(languageFile);
-    delete *it;
-  }
-
-  staticProtocolsList.clear();
-
-  return ret;
-}
