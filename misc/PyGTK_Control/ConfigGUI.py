@@ -37,8 +37,8 @@ class ConfigGUIGTK:
     def __init__(self):
 
         # Connect the Glade file
-        self.gladefile = "XMLGui.glade"
-        self.wTree = gtk.glade.XML(self.gladefile)
+        gladefile = "XMLGui.glade"
+        self.wTree = gtk.glade.XML(gladefile)
 
         # Bind main window
         self.window = self.wTree.get_widget("ConfigUI")
@@ -47,12 +47,12 @@ class ConfigGUIGTK:
             self.window.connect("destroy", gtk.main_quit)
 
         # Here we call the methods creating widgets with functionality
-        self.create_treeview_for_default_filenames
-        self.create_treeview_for_host_names
-        self.create_treeview_for_IP_addresses
-        self.create_a_combobox_for_connection_types
-        self.create_treeview_with_MIME_types
-        self.bind_signals
+        self.create_treeview_for_default_filenames()
+        self.create_treeview_for_host_names()
+        self.create_treeview_for_IP_addresses()
+        self.create_a_combobox_for_connection_types()
+        self.create_treeview_with_MIME_types()
+        self.bind_signals()
 
     def create_treeview_for_default_filenames(self):
         """ Create treeview widget structure (one column) for default filenames """
@@ -287,6 +287,13 @@ class ConfigGUIGTK:
         dia.destroy()
         return name
 
+    def run(self):
+        gtk.main()
+
+def main():
+    app = ConfigGUIGTK()
+    app.run()
+
 if __name__ == "__main__":
-    ConfigUI = ConfigGUIGTK()
-    gtk.main()
+    main()
+
