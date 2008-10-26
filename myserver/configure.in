@@ -413,11 +413,6 @@ AC_CONFIG_FILES([
     include/filter/Makefile
     include/filter/gzip/Makefile
     include/plugin/Makefile
-    include/plugin/executor/Makefile
-    include/plugin/http_manager/Makefile
-    include/plugin/protocol/Makefile
-    include/plugin/filter/Makefile
-    include/plugin/http_command/Makefile
     include/server/Makefile
     src/Makefile
     src/connection/Makefile
@@ -467,11 +462,6 @@ AC_CONFIG_FILES([
     src/filter/Makefile
     src/filter/gzip/Makefile
     src/plugin/Makefile
-    src/plugin/executor/Makefile
-    src/plugin/http_manager/Makefile
-    src/plugin/protocol/Makefile
-    src/plugin/filter/Makefile
-    src/plugin/http_command/Makefile
     src/server/Makefile
     tests/Makefile
     ])
