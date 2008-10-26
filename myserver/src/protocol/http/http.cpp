@@ -771,11 +771,9 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
    */
   string filename;
   int permissions;
-  string data;
+  const char *cgiManager;
   int mimecmd;
-  time_t lastMT;
   int ret;
-  string tmpTime;
   string directory;
   string file;
   DynamicHttpManager *manager;
@@ -809,20 +807,18 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       return processDefaultFile (uri, permissions, onlyHeader);
     }
 
-    data.assign("");
-
     td->response.contentType[0] = '\0';
 
     /* If not specified differently, set the default content type to text/html.  */
     if(td->mime)
     {
-      td->response.contentType.assign(td->mime->mimeType);
-      data.assign(td->mime->cgiManager);
+      td->response.contentType.assign (td->mime->mimeType);
+      cgiManager = td->mime->cgiManager.c_str ();
     }
     else
     {
       td->response.contentType.assign("text/html");
-      data.assign("");
+      cgiManager = "";
     }
 
 
@@ -843,7 +839,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         return sendAuth();
       }
       ret = cgi->send(td, td->connection, td->filenamePath.c_str(),
-                      data.c_str(), td->mime->selfExecuted,  onlyHeader);
+                      cgiManager, td->mime->selfExecuted,  onlyHeader);
       return ret;
     }
     else if(td->mime && !td->mime->cmdName.compare ("ISAPI"))
@@ -862,7 +858,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         return sendAuth();
       }
       ret = isapi->send(td, td->connection, td->filenamePath.c_str(),
-                        data.c_str(), td->mime->selfExecuted, onlyHeader);
+                        cgiManager, td->mime->selfExecuted, onlyHeader);
       return ret;
     }
     else if(td->mime && !td->mime->cmdName.compare ("MSGI"))
@@ -893,7 +889,6 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     }
     else if(td->mime && !td->mime->cmdName.compare ("WINCGI"))
     {
-      ostringstream cgipath;
       int allowWincgi = 1;
       const char *dataH = td->connection->host->getHashedData("ALLOW_WINCGI");
       if(dataH)
@@ -908,16 +903,11 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       {
         return sendAuth();
       }
-      if(data.length())
-      {
-        cgipath <<  data << " \""<< td->filenamePath <<  "\"";
-      }
-      else
-      {
-        cgipath << td->filenamePath;
-      }
-      ret = wincgi->send(td, td->connection, cgipath.str().c_str(),
-                         0, td->mime->selfExecuted, onlyHeader);
+
+      ret = wincgi->send(td, td->connection, 
+                         td->filenamePath.c_str(),
+                         cgiManager,
+                         td->mime->selfExecuted, onlyHeader);
       return ret;
     }
     else if(td->mime && !td->mime->cmdName.compare ("FASTCGI"))
@@ -936,7 +926,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         return sendAuth();
       }
       ret = fastcgi->send(td, td->connection, td->filenamePath.c_str(),
-                          data.c_str(), td->mime->selfExecuted, onlyHeader);
+                          cgiManager, td->mime->selfExecuted, onlyHeader);
       return ret;
     }
     else if(td->mime && !td->mime->cmdName.compare ("SCGI"))
@@ -955,7 +945,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         return sendAuth();
       }
       ret = scgi->send(td, td->connection, td->filenamePath.c_str(),
-                       data.c_str(), td->mime->selfExecuted, onlyHeader);
+                       cgiManager, td->mime->selfExecuted, onlyHeader);
       return ret;
     }
     else if (td->mime && (manager = staticHttp.dynManagerList.getHttpManager (td->mime->cmdName)))
@@ -974,86 +964,10 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
         return sendAuth();
       }
       ret = scgi->send(td, td->connection, td->filenamePath.c_str(),
-                       data.c_str(), 1, onlyHeader);
+                       cgiManager, 1, onlyHeader);
       return ret;
     }
-    else if(!td->mime->cmdName.compare ("SENDLINK"))
-    {
-      u_long nbr;
-      char* linkpath;
-      char* pathInfo;
-      int linkpathSize;
-      File h;
-      int allowSendlink = 1;
-      const char *dataH =
-        td->connection->host->getHashedData("ALLOW_SEND_LINK");
-
-      if(dataH)
-      {
-        if(!strcmpi(dataH, "YES"))
-          allowSendlink = 1;
-        else
-          allowSendlink = 0;
-      }
-
-      if(!allowSendlink || !(permissions & MYSERVER_PERMISSION_READ))
-      {
-        return sendAuth();
-      }
-
-      if(h.openFile(td->filenamePath.c_str(),
-                    File::MYSERVER_OPEN_IFEXISTS|File::MYSERVER_OPEN_READ))
-      {
-        return raiseHTTPError(500);
-      }
-
-      linkpathSize = h.getFileSize() + td->pathInfo.length() + 1;
-
-      if(linkpathSize > MYSERVER_KB(10))
-        linkpathSize = MYSERVER_KB(10);
-
-      linkpath=new char[linkpathSize];
-
-      if(linkpath == 0)
-      {
-        return sendHTTPhardError500();
-      }
-
-      if(h.read(linkpath, linkpathSize, &nbr))
-      {
-        h.close();
-        delete [] linkpath;
-        return raiseHTTPError(500);/*!Internal server error*/
-      }
-
-      h.close();
-      linkpath[nbr]='\0';
-
-      pathInfo = new char[td->pathInfo.length() + 1];
-
-      if(pathInfo == 0)
-      {
-        delete [] linkpath;
-        return raiseHTTPError(500);/*!Internal server error*/
-      }
-      strcpy(pathInfo, td->pathInfo.c_str());
-      translateEscapeString(pathInfo);
-      strncat(linkpath, pathInfo,strlen(linkpath));
-
-      if(nbr)
-      {
-        string uri;
-        uri.assign(linkpath);
-        ret = sendHTTPResource(uri, systemrequest, onlyHeader, 1);
-      }
-      else
-        ret = raiseHTTPError(404);
-
-      delete [] linkpath;
-      delete [] pathInfo;
-      return ret;
-    }
-    else if ((manager = staticHttp.dynManagerList.getHttpManager(td->mime->cmdName)))
+    else if (td->mime && (manager = staticHttp.dynManagerList.getHttpManager(td->mime->cmdName)))
     {
       int allowExternal = 1;
       const char *dataH =
@@ -1073,7 +987,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
           return manager->send(td,
                                td->connection,
                                td->filenamePath.c_str(),
-                               data.c_str(),
+                               cgiManager,
                                td->mime->selfExecuted,
                                onlyHeader);
         else
@@ -1101,26 +1015,6 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       return sendAuth();
     }
 
-    lastMT = FilesUtility::getLastModTime(td->filenamePath.c_str());
-    if(lastMT == -1)
-    {
-      return raiseHTTPError(500);
-    }
-    getRFC822GMTTime(lastMT, tmpTime, HTTP_RESPONSE_LAST_MODIFIED_DIM);
-    td->response.lastModified.assign(tmpTime);
-
-    {
-      HttpRequestHeader::Entry *ifModifiedSince =
-        td->request.other.get("Last-Modified");
-
-      if(ifModifiedSince && ifModifiedSince->value->length())
-      {
-        if(!ifModifiedSince->value->compare(td->response.lastModified.c_str()))
-        {
-          return sendHTTPNonModified();
-        }
-      }
-    }
     ret = httpFile->send(td, td->connection, td->filenamePath.c_str(),
                          0, onlyHeader);
   }

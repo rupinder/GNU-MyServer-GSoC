@@ -83,11 +83,30 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
   FiltersChain chain;
   u_long nbw;
   u_long nbr;
-  
+  time_t lastMT;
+  string tmpTime;
   u_long dataSent = 0;
 
   try
   {
+
+    if (!FilesUtility::fileExists (filenamePath))
+      return td->http->raiseHTTPError(404);
+
+    lastMT = FilesUtility::getLastModTime(td->filenamePath.c_str());
+    if(lastMT == -1)
+      return td->http->raiseHTTPError(500);
+
+    getRFC822GMTTime(lastMT, tmpTime, HTTP_RESPONSE_LAST_MODIFIED_DIM);
+    td->response.lastModified.assign(tmpTime);
+
+    HttpRequestHeader::Entry *ifModifiedSince = 
+      td->request.other.get("Last-Modified");
+
+    if(ifModifiedSince && ifModifiedSince->value->length() && 
+       !ifModifiedSince->value->compare(td->response.lastModified.c_str()))
+          return td->http->sendHTTPNonModified();
+
     file = Server::getInstance()->getCachedFiles()->open(filenamePath);
     if(file == 0)
     {  

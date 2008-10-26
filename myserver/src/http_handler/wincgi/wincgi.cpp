@@ -80,8 +80,9 @@ u_long WinCgi::getTimeout()
 /*!
  *Send the WinCGI data.
  */
-int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename, 
-                 const char* cmdLine, int /*execute*/, int onlyHeader)
+int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,
+                 const char* scriptpath, const char *cgipath,
+                 int /*execute*/, int onlyHeader)
 {
 #ifdef WIN32
   FiltersChain chain;
@@ -105,10 +106,10 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
   u_long nbw = 0;
   ostringstream stream;
 
-  if(!FilesUtility::fileExists(filename))
+  if(!FilesUtility::fileExists(scriptpath))
     return td->http->raiseHTTPError(404);
 
-  FilesUtility::splitPath(filename,pathname,execname);
+  FilesUtility::splitPath(scriptpath, pathname, execname);
   
   getdefaultwd(dataFilePath,MAX_PATH);
   GetShortPathName(dataFilePath,dataFilePath,MAX_PATH);
@@ -302,7 +303,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
   }
   OutFileHandle.close();
   spi.cmdLine.assign("cmd /c \"");
-  spi.cmdLine.append(filename);
+  spi.cmdLine.append(scriptpath);
   spi.cmdLine.append("\" ");
   spi.cmdLine.append(dataFilePath);
   spi.cwd.assign(pathname);
@@ -310,7 +311,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,const char* filename,
   if (proc.execAndWait (&spi, timeout))
   {
     ostringstream msg;
-    msg << "WinCGI: Error executing process " << filename;
+    msg << "WinCGI: Error executing process " << scriptpath;
     td->connection->host->warningsLogRequestAccess(td->id);
     td->connection->host->warningsLogWrite(msg.str().c_str());
     td->connection->host->warningsLogTerminateAccess(td->id);
