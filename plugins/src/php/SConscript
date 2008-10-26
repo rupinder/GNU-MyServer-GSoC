@@ -1,6 +1,7 @@
 #-*- mode: python -*-
+Import('dest_dir','listinc')
 
-listinc=[
+local_listinc=[
       GetLaunchDir(),
       '../../../',
       '/usr/local/include',
@@ -10,7 +11,9 @@ listinc=[
       '.'
       ]
 
-env = Environment(CPPPATH=listinc)
+local_listinc.extend(listinc)
+
+env = Environment(CPPPATH=local_listinc)
 
 conf = Configure(env, config_h="config.h")
 
@@ -29,5 +32,7 @@ if not conf.CheckFunc("crypt"):
 
 env = conf.Finish()
 
-env.SharedLibrary(GetLaunchDir() + "/binaries/plugins/http_managers/php", ["php.cpp"], SHLIBPREFIX="")
+env.SharedLibrary(GetLaunchDir() + "/" + dest_dir + "/php", ["php.cpp"], SHLIBPREFIX="")
+
+Command(GetLaunchDir() + "/" + dest_dir + "/README","README", Copy("$TARGET", "$SOURCE"))
 

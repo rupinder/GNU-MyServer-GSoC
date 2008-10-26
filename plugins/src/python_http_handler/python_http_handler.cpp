@@ -20,11 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/http/http_data_handler.h>
 #include <include/base/multicast/multicast.h>
 #include <include/protocol/http/http.h>
-#include <include/plugin/executor/dynamic_executor.h>
+#include <include/plugin/plugin.h>
 #include <Python.h>
 
 
 static Server* serverInstance;
+
+
 
 
 #ifdef WIN32
@@ -33,6 +35,8 @@ static Server* serverInstance;
 #define EXPORTABLE(x) extern "C" x
 #endif
 
+typedef int (*executePROC)(char*, u_long);
+typedef int (*executeFromFilePROC)(char*);
 
 class ThreadData : public HttpDataHandler
 {
@@ -360,10 +364,18 @@ public:
 
 		for(it = rules.begin(); it != rules.end(); it++)
 		{
-			if((*it).file)
-				python->executeFromFile((char*)(*it).data.c_str());
-			else
-				python->execute((char*)(*it).data.c_str(), (*it).data.length());
+			if((*it).file) 
+			{
+				executeFromFilePROC execute = ((executeFromFilePROC)python->getDirectMethod((char*)"executeFromFile"));
+				if (execute)
+				  execute((char*)(*it).data.c_str());
+			}else
+			{
+				executePROC execute = ((executePROC)python->getDirectMethod((char*)"execute"));
+				
+				if (execute)
+				  execute((char*)(*it).data.c_str(), (*it).data.length());
+			}
 		}
 		return threadData.getRet();
 	}
@@ -376,11 +388,11 @@ public:
 		rules.push_back(it);
 	}
 
-	void setPythonExecutor(DynamicExecutor* python){this->python = python;}
+	void setPythonExecutor(Plugin* python){this->python = python;}
 
 private:
 	list<Item> rules;
-	DynamicExecutor* python;
+	Plugin* python;
 };
 
 static HttpObserver observer;
@@ -399,7 +411,6 @@ EXPORTABLE(int) load(void* server,void* parser)
 	serverInstance = (Server*)server;
 	HttpStaticData* staticData =(HttpStaticData*) serverInstance->getGlobalData("http-static");
 	string msg("new-http-request");
-	string pythonNamespace("executors");
 	string pythonName("python");
 	Plugin* python;
 	XmlParser* configuration;
@@ -413,7 +424,7 @@ EXPORTABLE(int) load(void* server,void* parser)
 		serverInstance->logUnlockAccess();
 		return -1;
 	}
-	python = serverInstance->getPluginsManager()->getPlugin(pythonNamespace, pythonName);
+	python = serverInstance->getPluginsManager()->getPlugin(pythonName);
 
 	if(!python)
 	{
@@ -424,7 +435,7 @@ EXPORTABLE(int) load(void* server,void* parser)
 		serverInstance->logUnlockAccess();
 		return -1;
 	}
-	observer.setPythonExecutor((DynamicExecutor*)python);
+	observer.setPythonExecutor(python);
 
 	staticData->addMulticast(msg, &observer);
 

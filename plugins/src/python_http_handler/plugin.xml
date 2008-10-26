@@ -1,11 +1,10 @@
 <?xml version="1.0"?>
 
 <PLUGIN>
-<NAME>http_checker</NAME>
-<TYPE>generics</TYPE>
+<NAME>python_http_handler</NAME>
 <VERSION>0.1</VERSION>
 <AUTHOR>The Free Software Foundation Inc.</AUTHOR>
 <MAINTAINER>The Free Software Foundation Inc.</MAINTAINER>
-<DESCRIPTION>This plugin permits to validate HTTP requests using python</DESCRIPTION>
-<DEPENDS>executors::python</DEPENDS>
+<DESCRIPTION>This plugin permits to use python as handler</DESCRIPTION>
+<DEPENDS>python</DEPENDS>
 </PLUGIN>

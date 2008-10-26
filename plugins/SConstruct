@@ -1,0 +1,127 @@
+#-*- mode: python -*-
+# MySever plugins configuration script for scons.
+#
+# MyServer
+# http://www.gnu.org/software/myserver/
+#
+# Copyright (C) 2002-2008 Free Software Foundation, Inc.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import os
+import glob
+
+import xml.dom.minidom
+from xml.dom.minidom import Node
+
+import string
+
+def print_help():
+    print "usage: scons [package|release] plugin=<plugin1>,<plugin2>,...,<pluginN>"
+
+src_dir = "src/"
+bin_dir = "bin/"
+release_dir = "pub/"
+
+plugin = ARGUMENTS.get('plugin', "")
+command = ARGUMENTS.get('command', "build")
+
+
+if plugin=="":
+    print_help()
+    Exit(1)
+
+plugins = plugin.split(",");
+
+
+msheaders = ARGUMENTS.get('msheaders', "")
+
+listinc=[
+      '/usr/local/include',
+      '/usr/include',
+      '/usr/local/include/libxml2',
+      '/usr/include/libxml2',
+      msheaders,
+      '.'
+      ]
+
+def build_plugin(name):
+    dest_dir = bin_dir + name
+    SConscript([src_dir + name + "/SConscript"],['dest_dir','listinc'])
+    Command(dest_dir + "/plugin.xml",src_dir + name + "/plugin.xml", Copy("$TARGET", "$SOURCE"))
+    
+def build_plugins(plugins):
+	for name in plugins:
+		build_plugin(name)
+		
+
+def pack_plugin(name):
+    doc = xml.dom.minidom.parse(bin_dir + name + "/plugin.xml")
+    version = doc.getElementsByTagName("VERSION")
+    filename = name + "-" + version[0].firstChild.data + ".tar.gz"
+    tarenv = Environment(TARFLAGS = '-c -z')
+    tarenv.Tar(release_dir + filename, bin_dir + name)	
+
+
+
+def pack_plugins(plugins):
+	for name in plugins:
+		pack_plugin(name)
+
+
+build = True
+package = False
+release = False
+
+  
+
+if command=='package':
+	build = False
+	package = True
+	
+if command=='release':
+	package = True
+	release = True
+
+
+env = Environment(CPPPATH=listinc,CXXFLAGS="-fPIC -DPIC  -DHAVE_CONFIG_H",
+                      LINKFLAGS="-rdynamic")
+
+conf = Configure(env, config_h="config.h")
+
+
+if not conf.CheckCXXHeader("include/server/server.h"):
+    print "unable to find myserver headers"
+    Exit(1)
+
+
+env = conf.Finish()
+
+if build:
+	build_plugins(plugins)
+
+if package:
+	pack_plugins(plugins)
+
+#TODO: test compile and run.
+#if command == "build":
+#    testsFiles = glob.glob('tests/*.cpp') + files
+#    testsFiles.remove('src/myserver.cpp')
+#    testsFiles.sort()
+#    t = env.Program('tests/tests_suite', testsFiles)
+
+#if command == "tests":
+#    AddPostAction('tests/tests_suite', env.Execute('tests/tests_suite'))
+
+
+

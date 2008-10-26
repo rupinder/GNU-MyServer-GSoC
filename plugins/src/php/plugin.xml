@@ -1,10 +1,9 @@
 <?xml version="1.0"?>
 
 <PLUGIN>
-<NAME>rules_checker</NAME>
-<TYPE>generics</TYPE>
+<NAME>php</NAME>
 <VERSION>0.1</VERSION>
 <AUTHOR>The Free Software Foundation Inc.</AUTHOR>
 <MAINTAINER>The Free Software Foundation Inc.</MAINTAINER>
-<DESCRIPTION>Validate HTTP request using a custom language</DESCRIPTION>
+<DESCRIPTION>The PHP scritping language embedded directly into MyServer</DESCRIPTION>
 </PLUGIN>

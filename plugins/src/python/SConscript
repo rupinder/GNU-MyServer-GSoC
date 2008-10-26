@@ -1,10 +1,8 @@
 #-*- mode: python -*-
 
-listinc=[
-      GetLaunchDir(),
-      '../../../',
-      '/usr/local/include',
-      '/usr/include/',
+Import('dest_dir','listinc')
+
+local_listinc=[
       '/usr/include/python2.5',
       '/usr/local/include/python2.5',
       '/usr/local/include/libxml2',
@@ -12,7 +10,9 @@ listinc=[
       '.'
       ]
 
-env = Environment(CPPPATH=listinc)
+local_listinc.extend(listinc)
+
+env = Environment(CPPPATH=local_listinc)
 
 conf = Configure(env, config_h="config.h")
 
@@ -25,4 +25,5 @@ conf.CheckLib("dl")
 
 env = conf.Finish()
 
-env.SharedLibrary(GetLaunchDir() + "/binaries/plugins/executors/python", ["python.cpp"], SHLIBPREFIX="")
+env.SharedLibrary(GetLaunchDir() + "/" + dest_dir + "/python", ["python.cpp"], SHLIBPREFIX="")
+

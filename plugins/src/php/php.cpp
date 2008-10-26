@@ -358,9 +358,25 @@ int unLoad(void* p)
 }
 
 
+/*!
+ *Default constructor.
+ */
+PhpManager::PhpManager() 
+{
 
-int sendManager(HttpThreadContext* td, ConnectionPtr s, const char *filenamePath,
-								const char* cgi, int onlyHeader)
+}
+
+/*!
+ *Destroy the object.
+ */
+PhpManager::~PhpManager()
+{
+
+}
+
+
+int PhpManager::send(HttpThreadContext*, ConnectionPtr s, const char *filenamePath,
+                   const char* cgi, int selfExecuted, int onlyHeader = 0)
 {
 	PhpData* data;
 	zend_file_handle script;

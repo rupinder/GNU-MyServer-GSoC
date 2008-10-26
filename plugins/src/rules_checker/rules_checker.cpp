@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdafx.h>
 #include <string.h>
 #include <include/server/server.h>
+#include <include/protocol/http/http.h>
 #include "heading.h"
 
 #ifdef WIN32
