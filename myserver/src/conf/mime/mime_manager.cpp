@@ -38,6 +38,7 @@ MimeRecord::MimeRecord ()
   mimeType.assign ("");
   cgiManager.assign ("");
   cmdName.assign ("");
+  selfExecuted = false;
 }
 
 /*!
@@ -90,6 +91,7 @@ MimeRecord::MimeRecord (MimeRecord& m)
     filters.push_back (*i);
   }
 
+  selfExecuted = m.selfExecuted;
   mimeType.assign (m.mimeType);
   cmdName.assign (m.cmdName);
   cgiManager.assign (m.cgiManager);
@@ -130,7 +132,12 @@ MimeRecord *MimeManager::readRecord (xmlNodePtr node)
     if (!xmlStrcmp (attrs->name, (const xmlChar *)"handler") && 
         attrs->children && attrs->children->content)
       rc->cmdName.assign ((const char*)attrs->children->content);
-    
+ 
+    if (!xmlStrcmp (attrs->name, (const xmlChar *)"self") && 
+        attrs->children && attrs->children->content)
+      rc->selfExecuted = xmlStrcmp (attrs->children->content, 
+                                    (const xmlChar *)"YES");
+   
     if (!xmlStrcmp (attrs->name, (const xmlChar *)"param") && 
         attrs->children && attrs->children->content)
       rc->cgiManager.assign ((const char*)attrs->children->content);

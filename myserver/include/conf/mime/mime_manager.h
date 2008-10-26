@@ -53,6 +53,7 @@ struct MimeRecord
 	string mimeType;
 	string cmdName;
 	string cgiManager;
+  bool selfExecuted;
 	MimeRecord ();
 	MimeRecord (MimeRecord&);
 	int addFilter (const char*, bool acceptDuplicate = true);

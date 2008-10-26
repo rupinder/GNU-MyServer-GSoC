@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2005 Free Software Foundation, Inc.
+Copyright (C) 2005, 2008 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -38,7 +38,7 @@ public:
 	DynamicHttpManager();
 	virtual ~DynamicHttpManager();
 	virtual int send(HttpThreadContext*, ConnectionPtr s, const char *filenamePath,
-                   const char* cgi, int onlyHeader = 0);
+                   const char* cgi, int selfExecuted, int onlyHeader = 0);
 
 };
 

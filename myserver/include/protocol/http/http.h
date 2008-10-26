@@ -190,6 +190,9 @@ public:
   SecurityToken *getSecurityToken (){return &(td->securityToken);}
 
 protected:
+
+  int processDefaultFile (string& uri, int permissions, int onlyHeader);
+
   HttpDataHandler* mscgi;
   HttpDataHandler* wincgi;
   HttpDataHandler* isapi;

@@ -200,13 +200,10 @@ void VhostManager::changeLocationsOwner ()
        *Change the log files owner if a different user or group
        *identifier is specified.
        */
-      for(int i = 0; ; i++)
+      for(list<Vhost*>::iterator it = hostList.begin (); it != hostList.end (); it++)
         {
           int err;
-          Vhost* vh = getVHostByNumber(i);
-          /* Break if we reach the end of the list.  */
-          if(!vh)
-            break;
+          Vhost* vh = *it;
 
           /* Chown the log files.  */
           err = logManager->chown (vh, "ACCESSLOG", uid, gid);
@@ -235,48 +232,10 @@ int VhostManager::getHostsNumber()
   return hostList.size();
 }
 
-string
-VhostManager::saveXMLlogData (string name, Vhost* vh)
-{
-  list<string> l;
-  ostringstream oss;
-  if (!logManager->get (vh, name, &l))
-    {
-      list<string>::iterator it;
-      oss << "<STREAMS>\r\n";
-      for (it = l.begin (); it != l.end (); it++)
-        {
-          oss << "<STREAM>\r\n";
-          oss << "<LOCATION>";
-          oss << *it;
-          oss << "</LOCATION>\r\n";
-          u_long cycle = 0;
-          if (!logManager->getCycle (*it, &cycle))
-            {
-              oss << "<CYCLE>";
-              oss << cycle;
-              oss << "</CYCLE>\r\n";
-            }
-          list<string> f;
-          if (!logManager->getFilters (*it, &f))
-            {
-              oss << "<FILTERS>\r\n";
-              list<string>::iterator it_1;
-              for (it_1 = f.begin (); it_1 != f.end (); it_1++)
-                {
-                  oss << "<FILTER>";
-                  oss << *it_1;
-                  oss << "</FILTER>\r\n";
-                }
-              oss << "</FILTERS>\r\n";
-            }
-          oss << "</STREAM>\r\n";
-        }
-      oss << "</STREAMS>\r\n";
-    }
-  return oss.str ();
-}
 
+/*!
+ *Load a log XML node.
+ */
 void
 VhostManager::loadXMLlogData (string name, Vhost* vh, xmlNode* lcur)
 {

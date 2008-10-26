@@ -64,7 +64,6 @@ public:
   void changeLocationsOwner ();
 private:
   void loadXMLlogData (string, Vhost*, xmlNode*);
-  string saveXMLlogData (string, Vhost*);
   ListenThreads* listenThreads;
   Mutex mutex;
   VhostSource* extSource;

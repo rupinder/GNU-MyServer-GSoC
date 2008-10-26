@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 
 typedef int (*sendManagerPROC)(volatile void*, volatile void*, const char*, 
-                               const char*, int); 
+                               const char*, int, int); 
 
 
 /*!
@@ -47,11 +47,11 @@ DynamicHttpManager::~DynamicHttpManager()
  */
 int DynamicHttpManager::send(HttpThreadContext* context, ConnectionPtr s, 
                              const char *filenamePath, const char* cgi, 
-                             int onlyHeader)
+                             int selfExecuted, int onlyHeader)
 {
   sendManagerPROC control = (sendManagerPROC)hinstLib.getProc("sendManager");
   if(control)
-    return control(context, s, filenamePath, cgi, onlyHeader);
+    return control(context, s, filenamePath, cgi, selfExecuted, onlyHeader);
   else
     return 0;
 }

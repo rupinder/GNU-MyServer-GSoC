@@ -8,7 +8,7 @@ You can modify the MIME types used by MyServer by modifying the file
 <EXTENSION value="html"/>
 </MIME>
 
-<MIME mime="text/html" handler="RUNCGI" param="/usr/bin/perl">
+<MIME mime="text/html" handler="RUNCGI" param="/usr/bin/perl" selfExecuted="NO">
 <FILTER value="gzip"/>
 <EXTENSION value="pl"/>
 </MIME>
@@ -32,6 +32,13 @@ specifies the way the file is handled by the server.
 @item param
 specifies additional params for the handler.
 
+@item selfExecuted
+where it is supported, lanuch the accessed resource as a process or a
+server.
+For example, there is need to use selfExecuted on the CGI protocol if
+the accessed resource can be used as a process.  Differently if it is
+not specified the resource mapped by the URI will be used as an
+argument to @code{param}.
 @end itemize
 
 @code{<FILTER>} defines a filter for the MIME type.  The data will
@@ -49,35 +56,20 @@ These are valid HTTP handlers:
 Send the file statically as is.  This command is used for files
 extensions such as .html and .jpg that don't need any external
 intervention from the web server.
-@item RUNCGI
+@item CGI
 Run the CGI script indicated in the path.  It is used for file
 extensions such as .php and .pl that need to be processed before
 sending any data to the client.
-@item RUNFASTCGI
+@item FASTCGI
 Run the Fastcgi script.  This type will need a fastcgi parser
 downloaded (see the PHP page).  It is also used for file extensions
 such as .php and .pl.
-@item EXECUTEFASTCGI
-This also runs the Fastcgi script, but unlike the RUNFASTCGI above, it
-does not need a server to run the script, instead it acts as a self
-server.
-@item RUNSCGI
+@item SCGI
 Handle a specified mime type with this SCGI server.
-@item EXECUTESCGI
-Handle the file as a self SCGI process.
-@item RUNMSCGI
+@item MSCGI
 Run the MSCGI script. This library is only available for MyServer. It
 is used to build fast and efficient CGIs that needs to access MyServer
 internal data.
-@item EXECUTE
-Treat the file as an executable and send the output to the client. 
-@item SENDLINK
-Send the file that is contained in a link.
-@item EXECUTEWINCGI
-Send the file as a WinCGI
-@item RUNISAPI
+@item ISAPI
 Run the ISAPI script.  
-@item EXECUTEISAPI
-Run the ISAPI script but does not need a server to run. Instead, it
-acts as a self server.
 @end enumerate

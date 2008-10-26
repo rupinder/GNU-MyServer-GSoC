@@ -2,23 +2,23 @@
 
 <MIMES>
 
-<MIME mime="text/html" handler="RUNMSCGI" param="">
+<MIME mime="text/html" handler="MSCGI" param="">
 <EXTENSION value="mscgi"/>
 </MIME>
 
-<MIME mime="text/html" handler="EXECUTE" param="">
+<MIME mime="text/html" handler="CGI" self="YES" param="">
 <EXTENSION value="cgi"/>
 </MIME>
 
-<MIME mime="text/html" handler="EXECUTEISAPI" param="">
+<MIME mime="text/html" handler="ISAPI" param="">
 <EXTENSION value="isapi"/>
 </MIME>
 
-<MIME mime="text/html" handler="EXECUTEFASTCGI" param="">
+<MIME mime="text/html" handler="FASTCGI" param="">
 <EXTENSION value="fcgi"/>
 </MIME>
 
-<MIME mime="text/html" handler="EXECUTEWINCGI" param="">
+<MIME mime="text/html" handler="WINCGI" param="">
 <EXTENSION value="wincgi"/>
 </MIME>
 
