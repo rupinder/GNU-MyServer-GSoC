@@ -123,10 +123,6 @@ MimeRecord *MimeManager::readRecord (xmlNodePtr node)
   xmlNodePtr lcur = node->children;
   xmlAttr *attrs;
 
-  if(xmlStrcmp(node->name, (const xmlChar *)"MIME"))
-    return NULL;
-
-
   MimeRecord *rc = new MimeRecord;
 
   for (attrs = node->properties; attrs; attrs = attrs->next)
@@ -210,6 +206,9 @@ u_long MimeManager::loadXML (XmlParser* parser)
 
   for(; node; node = node->next )
   {
+    if(xmlStrcmp(node->name, (const xmlChar *)"MIME"))
+      continue;
+
     MimeRecord *rc = readRecord (node);
 
     if (rc)

@@ -60,9 +60,6 @@ public:
   /*! Load the virtual hosts list from a xml configuration file.  */
   int loadXMLConfigurationFile(const char *);
 	
-  /*! Save the virtual hosts list to a xml configuration file.  */
-  int saveXMLConfigurationFile(const char *);
-	
   /*! Set the right owner for the log locations.  */
   void changeLocationsOwner ();
 private:

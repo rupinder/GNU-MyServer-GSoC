@@ -67,6 +67,16 @@ Vhost::~Vhost()
   clearIPList();
   freeSSL();
   freeHashedData();
+
+  HashMap<string, MimeRecord*>::Iterator it = locationsMime.begin ();
+
+  while (it != locationsMime.end ())
+    {
+      delete *it;
+      it++;
+    }
+
+
   refMutex.destroy();
   documentRoot.assign("");
   systemRoot.assign("");

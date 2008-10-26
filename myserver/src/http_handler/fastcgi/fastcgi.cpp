@@ -772,9 +772,6 @@ int FastCgi::handleHeader (FcgiContext* con, FiltersChain* chain, bool* response
     }
   }
 
-  if (headerSize == 0)
-    return 0;
-
   HttpHeaders::buildHTTPResponseHeaderStruct(con->td->buffer->getBuffer(),
                                              &con->td->response, 
                                              &(con->td->nBytesToRead));

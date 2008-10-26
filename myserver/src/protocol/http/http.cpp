@@ -350,13 +350,13 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
 int Http::getFilePermissions(string& filename, string& directory, string& file, 
                              string &filenamePath, int yetmapped, int* permissions)
 {
-  td->securityToken.setServer (Server::getInstance ());
-  td->securityToken.setSysDirectory ((string*)&(td->connection->host->getSystemRoot ()));
-
-  td->securityToken.setVhost (td->connection->host);
-
   try
   {
+    td->securityToken.setServer (Server::getInstance ());
+    td->securityToken.setSysDirectory ((string*)&(td->connection->host->getSystemRoot ()));
+    
+    td->securityToken.setVhost (td->connection->host);
+
     FilesUtility::splitPath (filename, directory, file);
     FilesUtility::completePath (directory);
 
@@ -369,9 +369,9 @@ int Http::getFilePermissions(string& filename, string& directory, string& file,
      *systemrequest is 1 if the file is in the system directory.
      *If filename is already mapped on the file system don't map it again.
      */
-    if(yetmapped)
+    if (yetmapped)
     {
-      filenamePath.assign(filename);
+      filenamePath.assign (filename);
     }
     else
     {
@@ -380,39 +380,39 @@ int Http::getFilePermissions(string& filename, string& directory, string& file,
        *If the client tries to access files that aren't in the web directory
        *send a HTTP 401 error page.
        */
-      translateEscapeString(filename);
-      if((filename[0] != '\0') &&
-         (FilesUtility::getPathRecursionLevel(filename) < 1))
+      translateEscapeString (filename);
+      if ((filename[0] != '\0') &&
+          (FilesUtility::getPathRecursionLevel(filename) < 1))
       {
         return 401;
       }
 
-      ret = getPath(filenamePath, filename, 0);
+      ret = getPath (filenamePath, filename, 0);
 
-      if(ret != 200)
+      if (ret != 200)
         return ret;
     }
 
-    if(FilesUtility::isLink(td->filenamePath.c_str()))
+    if (FilesUtility::isLink (td->filenamePath.c_str()))
     {
       const char *perm = td->connection->host->getHashedData("FOLLOW_LINKS");
       if(!perm || strcmpi(perm, "YES"))
         return raiseHTTPError(401);
     }
 
-    if(FilesUtility::isDirectory(filenamePath.c_str()))
+    if (FilesUtility::isDirectory (filenamePath.c_str()))
     {
       directory.assign(filenamePath);
     }
     else
     {
-      FilesUtility::splitPath(filenamePath, directory, file);
+      FilesUtility::splitPath (filenamePath, directory, file);
     }
 
-    if(td->connection->protocolBuffer == 0)
+    if (td->connection->protocolBuffer == 0)
     {
       td->connection->protocolBuffer = new HttpUserData;
-      if(!td->connection->protocolBuffer)
+      if (!td->connection->protocolBuffer)
       {
         return 500;
       }
@@ -535,7 +535,7 @@ int Http::preprocessHttpRequest(string& filename, int yetmapped, int* permission
     if (ret != 200)
       return ret;
 
-    /*!
+    /*
      *Get the PATH_INFO value.
      *Use dirscan as a buffer for put temporary directory scan.
      *When an '/' character is present check if the path up to '/' character
@@ -546,9 +546,11 @@ int Http::preprocessHttpRequest(string& filename, int yetmapped, int* permission
     filenamePathLen = (int)td->filenamePath.length();
     dirscan.assign("");
 
-    for(u_long i = 0; i < filenamePathLen ; )
+    MimeRecord* mimeLoc = NULL;
+
+    for(u_long i = 0;; )
     {
-      /*!
+      /*
        *http://host/path/to/file/file.txt/PATH_INFO_VALUE?QUERY_INFO_VALUE
        *When a request has this form send the file file.txt with the
        *environment string PATH_INFO equals to PATH_INFO_VALUE and QUERY_INFO
@@ -559,12 +561,30 @@ int Http::preprocessHttpRequest(string& filename, int yetmapped, int* permission
 
       u_long next = td->filenamePath.find ('/', i + 1);
 
-      if (next == string::npos)
+      string curr = td->filenamePath.substr (0, next);
+
+      mimeLoc = td->connection->host ? td->connection->host->getLocationMime (curr) : NULL;
+
+      if(mimeLoc)
+      {
+        if (next != string::npos)
+        {
+          td->pathInfo.assign (&(td->filenamePath.c_str ()[next]));
+          td->filenamePath.erase (next);
+        }
+        else
+        {
+          td->pathInfo.assign ("");
+        }
+
+        break;
+      }
+
+      if (next >= filenamePathLen)
         break;
 
-      const char *curr = td->filenamePath.substr (0, next).c_str ();
-
-      if(!FilesUtility::isDirectory (curr))
+      if(mimeLoc ||
+         !FilesUtility::isDirectory (curr.c_str ()))
       {
         td->pathInfo.assign (&(td->filenamePath.c_str ()[next]));
         td->filenamePath.erase (next);
@@ -574,29 +594,27 @@ int Http::preprocessHttpRequest(string& filename, int yetmapped, int* permission
       i = next;
     }
 
-    /*!
-     *If there is a PATH_INFO value the get the PATH_TRANSLATED too.
+    /*
      *PATH_TRANSLATED is the local filesystem mapped version of PATH_INFO.
      */
-    if(td->pathInfo.length() > 1)
+    if(td->pathInfo.length () > 1)
     {
       int ret;
-      /*!
-       *Start from the second character because the first is a
-       *slash character.
-       */
-      ret = getPath(td->pathTranslated, &((td->pathInfo.c_str())[1]), 0);
+      /* Omit the first slash character.  */
+      ret = getPath (td->pathTranslated, &((td->pathInfo.c_str())[1]), 0);
 
-      if(ret != 200)
-        td->pathTranslated.assign("");
+      if (ret != 200)
+        td->pathTranslated.assign ("");
       else
-        FilesUtility::completePath(td->pathTranslated);
+        FilesUtility::completePath (td->pathTranslated);
     }
     else
     {
-      td->pathTranslated.assign("");
+      td->pathTranslated.assign ("");
     }
-    FilesUtility::completePath(td->filenamePath);
+    FilesUtility::completePath (td->filenamePath);
+
+    td->mime = mimeLoc ? mimeLoc : getMIME (td->filenamePath);
   }
   catch(...)
   {
@@ -792,7 +810,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
      *2)We send the directory content.
      *3)We send an error.
      */
-    if(FilesUtility::isDirectory(td->filenamePath.c_str()))
+    if(!td->mime && FilesUtility::isDirectory(td->filenamePath.c_str()))
     {
       int i;
       if(!(permissions & MYSERVER_PERMISSION_BROWSE))
@@ -851,41 +869,24 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                            onlyHeader);
     }
 
-    if(!FilesUtility::fileExists(td->filenamePath.c_str()))
-    {
-      if(systemrequest)
-      {
-        string error;
-        error.assign("Http: cannot find system request file ");
-        error.append(td->filenamePath);
-
-        td->connection->host->warningsLogWrite(error.c_str());
-      }
-
-      return raiseHTTPError(404);
-    }
-
-    /*!
-     *getMIME returns the type of command registered by the extension.
-     */
     data.assign("");
+
+    td->response.contentType[0] = '\0';
+
+    /* If not specified differently, set the default content type to text/html.  */
+    if(td->mime)
     {
-      td->response.contentType[0] = '\0';
-      td->mime = getMIME(td->filenamePath);
-      /*! Set the default content type, this can be changed later. */
-      if(td->mime)
-      {
-        td->response.contentType.assign(td->mime->mimeType);
-        data.assign(td->mime->cgiManager);
-      }
-      else
-      {
-        td->response.contentType.assign("text/html");
-        data.assign("");
-      }
+      td->response.contentType.assign(td->mime->mimeType);
+      data.assign(td->mime->cgiManager);
+    }
+    else
+    {
+      td->response.contentType.assign("text/html");
+      data.assign("");
     }
 
-    if(!td->mime->cmdName.compare ("RUNCGI"))
+
+    if(td->mime && !td->mime->cmdName.compare ("RUNCGI"))
     {
       int allowCgi = 1;
       const char *dataH = td->connection->host->getHashedData("ALLOW_CGI");
@@ -905,7 +906,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                       data.c_str(), 0,  onlyHeader);
       return ret;
     }
-    else if(!td->mime->cmdName.compare ("EXECUTE"))
+    else if(td->mime && !td->mime->cmdName.compare ("EXECUTE"))
     {
       int allowCgi = 1;
       const char *dataH = td->connection->host->getHashedData("ALLOW_CGI");
@@ -925,7 +926,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                       data.c_str(), 1, onlyHeader);
       return ret;
     }
-    else if(!td->mime->cmdName.compare ("RUNISAPI"))
+    else if(td->mime && !td->mime->cmdName.compare ("RUNISAPI"))
     {
       int allowIsapi = 1;
       const char *dataH = td->connection->host->getHashedData("ALLOW_ISAPI");
@@ -945,7 +946,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       return ret;
 
     }
-    else if(!td->mime->cmdName.compare ("EXECUTEISAPI"))
+    else if(td->mime && !td->mime->cmdName.compare ("EXECUTEISAPI"))
     {
       if(!(permissions & MYSERVER_PERMISSION_EXECUTE))
       {
@@ -955,7 +956,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                         data.c_str(), 1, onlyHeader);
       return ret;
     }
-    else if(!td->mime->cmdName.compare ("RUNMSGI"))
+    else if(td->mime && !td->mime->cmdName.compare ("RUNMSGI"))
     {
       char* target;
       int allowMscgi = 1;
@@ -981,7 +982,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                         target, 1, onlyHeader);
       return ret;
     }
-    else if(!td->mime->cmdName.compare ("EXECUTEWINCGI"))
+    else if(td->mime && !td->mime->cmdName.compare ("EXECUTEWINCGI"))
     {
       ostringstream cgipath;
       int allowWincgi = 1;
@@ -1010,7 +1011,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                          0, 1, onlyHeader);
       return ret;
     }
-    else if(!td->mime->cmdName.compare ("RUNFASTCGI"))
+    else if(td->mime && !td->mime->cmdName.compare ("RUNFASTCGI"))
     {
       int allowFastcgi = 1;
       const char *dataH = td->connection->host->getHashedData("ALLOW_FASTCGI");
@@ -1029,7 +1030,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                           data.c_str(), 0, onlyHeader);
       return ret;
     }
-    else if(!td->mime->cmdName.compare ("EXECUTEFASTCGI"))
+    else if(td->mime && !td->mime->cmdName.compare ("EXECUTEFASTCGI"))
     {
       int allowFastcgi = 1;
       const char *dataH = td->connection->host->getHashedData("ALLOW_FASTCGI");
@@ -1048,7 +1049,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                           data.c_str(), 1, onlyHeader);
       return ret;
     }
-    else if(!td->mime->cmdName.compare ("RUNSCGI"))
+    else if(td->mime && !td->mime->cmdName.compare ("RUNSCGI"))
     {
       int allowScgi = 1;
       const char *dataH = td->connection->host->getHashedData("ALLOW_SCGI");
@@ -1067,7 +1068,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                        data.c_str(), 0, onlyHeader);
       return ret;
     }
-    else if(!td->mime->cmdName.compare ("EXECUTESCGI"))
+    else if(td->mime && !td->mime->cmdName.compare ("EXECUTESCGI"))
     {
       int allowScgi = 1;
       const char *dataH = td->connection->host->getHashedData("ALLOW_SCGI");
@@ -1086,7 +1087,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                        data.c_str(), 1, onlyHeader);
       return ret;
     }
-    else if(!td->mime->cmdName.compare ("SENDLINK"))
+    else if(td->mime && !td->mime->cmdName.compare ("SENDLINK"))
     {
       u_long nbr;
       char* linkpath;
@@ -1162,7 +1163,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       delete [] pathInfo;
       return ret;
     }
-    else if ((manager = staticHttp.dynManagerList.getPlugin(td->mime->cmdName)))
+    else if (td->mime && (manager = staticHttp.dynManagerList.getPlugin(td->mime->cmdName)))
     {
       int allowExternal = 1;
       const char *dataH =
@@ -1203,7 +1204,6 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       }
     }
 
-    /*! By default try to send the file as it is.  */
     if(!(permissions & MYSERVER_PERMISSION_READ))
     {
       return sendAuth();
@@ -2141,7 +2141,7 @@ MimeRecord* Http::getMIME(string &filename)
 int Http::getPath(HttpThreadContext* td, string& filenamePath, const char *filename,
                   int systemrequest)
 {
-  /*!
+  /*
    *If it is a system request, search the file in the system directory.
    */
   if(systemrequest)
@@ -2156,7 +2156,7 @@ int Http::getPath(HttpThreadContext* td, string& filenamePath, const char *filen
       filenamePath.append("/");
     filenamePath.append(filename);
   }
-  /*!
+  /*
    *Else the file is in the web directory.
    */
   else
@@ -2164,7 +2164,7 @@ int Http::getPath(HttpThreadContext* td, string& filenamePath, const char *filen
     if(filename[0])
     {
       const char *root;
-      /*!
+      /*
        *uri starting with a /sys/ will use the system directory as
        *the root path. Be sure to don't allow access to the system root
        *but only to subdirectories.
@@ -2173,7 +2173,7 @@ int Http::getPath(HttpThreadContext* td, string& filenamePath, const char *filen
          && filename[3] == 's' && filename[4] == '/')
       {
         root = td->getVhostSys();
-        /*!
+        /*
          *Do not allow access to the system directory root but only
          *to subdirectories.
          */
@@ -2188,8 +2188,10 @@ int Http::getPath(HttpThreadContext* td, string& filenamePath, const char *filen
         root = td->getVhostDir();
       }
       filenamePath.assign(root);
+
       if(filename[0] != '/')
         filenamePath.append("/");
+
       filenamePath.append(filename);
     }
     else

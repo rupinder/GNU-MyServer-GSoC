@@ -16,6 +16,7 @@
 */
 #include <include/conf/vhost/vhost_manager.h>
 #include <include/conf/vhost/vhost.h>
+#include <include/conf/mime/mime_manager.h>
 #include <include/server/server.h>
 #include <include/base/file/files_utility.h>
 
@@ -427,8 +428,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
           if(!xmlStrcmp(lcur->name, (const xmlChar *)"HOST"))
             {
               int useRegex = 0;
-              xmlAttr *attrs = lcur->properties;
-              while(attrs)
+              for (xmlAttr *attrs = lcur->properties; attrs; attrs = attrs->next)
                 {
                   if(!xmlStrcmp(attrs->name, (const xmlChar *)"isRegex"))
                     {
@@ -439,7 +439,6 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
                           useRegex = 1;
                         }
                     }
-                  attrs = attrs->next;
                 }
 
               vh->addHost((const char*)lcur->children->content, useRegex);
@@ -447,6 +446,18 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
           else if(!xmlStrcmp(lcur->name, (const xmlChar *)"NAME"))
             {
               vh->setName((char*)lcur->children->content);
+            }
+          else if(!xmlStrcmp(lcur->name, (const xmlChar *)"LOCATION"))
+            {
+              string loc (vh->getDocumentRoot ());
+              loc.append ("/");
+              for (xmlAttr *attrs = lcur->properties; attrs; attrs = attrs->next)
+                {
+                  if(!xmlStrcmp (attrs->name, (const xmlChar *)"path"))
+                    loc.append ((const char*) attrs->children->content);
+                }
+              MimeRecord *rc = MimeManager::readRecord (lcur);
+              vh->locationsMime.put (loc, rc);
             }
           else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PRIVATEKEY"))
             {
@@ -619,143 +630,6 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
   parser.close();
 
   changeLocationsOwner ();
-
-  return 0;
-}
-
-/*!
- *Save the virtual hosts to a XML configuration file.
- *\param filename The filename where write the XML file.
- */
-int VhostManager::saveXMLConfigurationFile(const char *filename)
-{
-  File out;
-  u_long nbw;
-
-  mutex.lock();
-
-  if(extSource)
-    {
-      int ret = extSource->save();
-      mutex.unlock();
-      return ret;
-    }
-
-  out.openFile(filename, File::MYSERVER_CREATE_ALWAYS | File::MYSERVER_OPEN_WRITE);
-  out.writeToFile("<?xml version=\"1.0\"?>\r\n<VHOSTS>\r\n", 33, &nbw);
-
-  try
-    {
-      list<Vhost*>::iterator i = hostList.begin();
-      for( ; i != hostList.end() ; i++)
-        {
-          char port[6];
-          list<Vhost::StringRegex*>::iterator il = (*i)->getIpList()->begin();
-          list<Vhost::StringRegex*>::iterator hl = (*i)->getHostList()->begin();
-          out.writeToFile("<VHOST>\r\n",9,&nbw);
-      
-          out.writeToFile("<NAME>",6,&nbw);
-          out.writeToFile((*i)->getName(), strlen((*i)->getName()), &nbw);
-          out.writeToFile("</NAME>\r\n",9,&nbw);
-       
-          for(; il != (*i)->getIpList()->end(); il++)
-            {
-              string *n = &((*il)->name);
-              out.writeToFile("<IP>",4,&nbw);
-              out.writeToFile(n->c_str(), n->length(), &nbw);
-              out.writeToFile("</IP>\r\n",7,&nbw);
-            }
-
-          for(; hl != (*i)->getHostList()->end(); hl++)
-            {
-              string *n = &((*hl)->name);
-              out.writeToFile("<HOST>",6,&nbw);
-              out.writeToFile(n->c_str(), n->length(), &nbw);
-              out.writeToFile("</HOST>\r\n",9,&nbw);
-            }
-
-          out.writeToFile("<PORT>",6,&nbw);
-          sprintf(port,"%i", (*i)->getPort());
-          out.writeToFile(port,(u_long)strlen(port),&nbw);
-          out.writeToFile("</PORT>\r\n",9,&nbw);
-
-          if((*i)->getVhostSSLContext()->getPrivateKeyFile().length())
-            {
-              string &pk = (*i)->getVhostSSLContext()->getPrivateKeyFile();
-              out.writeToFile("<SSL_PRIVATEKEY>",16,&nbw);
-              out.writeToFile(pk.c_str(), pk.length(),&nbw);
-              out.writeToFile("</SSL_PRIVATEKEY>\r\n",19,&nbw);
-            }
-      
-          if((*i)->getVhostSSLContext()->getCertificateFile().length())
-            {
-              string &certificate = (*i)->getVhostSSLContext()->getCertificateFile();
-              out.writeToFile("<SSL_CERTIFICATE>", 17, &nbw);
-              out.writeToFile(certificate.c_str(), (u_long)certificate.length(), 
-                              &nbw);
-              out.writeToFile("</SSL_CERTIFICATE>\r\n", 20, &nbw);
-            }
-
-          if((*i)->getVhostSSLContext()->getPassword().length())
-            {
-              string& pw = (*i)->getVhostSSLContext()->getPassword();
-              out.writeToFile("<SSL_PASSWORD>", 14, &nbw);
-              out.writeToFile(pw.c_str(), pw.length(), &nbw);
-              out.writeToFile("</SSL_PASSWORD>\r\n", 17, &nbw);
-            }
-
-          out.writeToFile("<PROTOCOL>", 10, &nbw);
-          out.writeToFile((*i)->getProtocolName(), 
-                          strlen((*i)->getProtocolName()), &nbw);
-
-          out.writeToFile("</PROTOCOL>\r\n", 13, &nbw);
-      
-          out.writeToFile("<DOCROOT>", 9, &nbw);
-          out.writeToFile((*i)->getDocumentRoot().c_str(), 
-                          (*i)->getDocumentRoot().length(), &nbw);
-          out.writeToFile("</DOCROOT>\r\n", 12, &nbw);
-      
-          out.writeToFile("<SYSFOLDER>", 11, &nbw);
-          out.writeToFile((*i)->getSystemRoot().c_str(), 
-                          (*i)->getSystemRoot().length(), &nbw);
-      
-          out.writeToFile("</SYSFOLDER>\r\n", 14, &nbw);
-      
-          out.writeToFile("<ACCESSLOG>", 13, &nbw);
-
-          string accessData = saveXMLlogData ("ACCESSLOG", *i);
-          string warningData = saveXMLlogData ("WARNINGLOG", *i);
-
-          out.writeToFile (accessData.c_str (), accessData.size (), &nbw);
-          
-          out.writeToFile("</ACCESSLOG>\r\n", 16, &nbw);
-      
-          out.writeToFile("<WARNINGLOG>", 12, &nbw);
-
-          out.writeToFile (warningData.c_str (), warningData.size (), &nbw);
-          
-          out.writeToFile("</WARNINGLOG>\r\n", 15, &nbw);
-      
-          {
-            HashMap<string, string*>::Iterator it = (*i)->hashedData.begin();
-            for(; it != (*i)->hashedData.end(); it++)
-              {
-                ostringstream outString;
-                outString << "<" << it.getKey() << ">" << (*it)  << "</" 
-                          << it.getKey() << ">" << endl;
-                out.writeToFile(outString.str().c_str(),outString.str().size(),&nbw);
-              }
-            out.writeToFile("</VHOST>\r\n", 10, &nbw);
-          }
-        }
-      out.writeToFile("</VHOSTS>\r\n", 11, &nbw);
-      out.close();
-      mutex.unlock();
-    }
-  catch(...)
-    {
-      mutex.unlock();
-    };
 
   return 0;
 }

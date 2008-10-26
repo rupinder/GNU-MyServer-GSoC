@@ -79,8 +79,9 @@ public:
 	void clean ();
 	int addRecord (MimeRecord *record);
 
+  static MimeRecord *readRecord (xmlNodePtr node);
+
 protected:
-  MimeRecord *readRecord (xmlNodePtr node);
 	const char *getFilename ();
 	void clearRecords ();
 private:

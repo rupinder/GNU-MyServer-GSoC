@@ -193,12 +193,16 @@ public:
 
   /*! Set the protocol data. */
   void setProtocolData(VhostProtocolData* data){protocolData = data;}
+
+  MimeRecord* getLocationMime (string& loc){return locationsMime.get (loc);}
 private:
   VhostProtocolData*  protocolData;
   HashMap<string, string*> hashedData;
   NULL_REFERENCECB nullReferenceCb;
   Mutex refMutex;
   LogManager* logManager;
+
+  HashMap<string, MimeRecord*> locationsMime;
 
   MimeManager mimeManager;
 

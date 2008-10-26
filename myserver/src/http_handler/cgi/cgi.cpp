@@ -197,17 +197,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
       return td->http->raiseHTTPError(500);
 
     }
-    
-
-     /* Check if the CGI executable exists.  */
-    if(!FilesUtility::fileExists(tmpScriptPath.c_str()))
-    {
-      td->scriptPath.assign("");
-      td->scriptFile.assign("");
-      td->scriptDir.assign("");
-      chain.clearAllFilters(); 
-      return td->http->raiseHTTPError(500);
-    }
 
     spi.arg.assign(moreArg);
     spi.arg.append(" ");
@@ -437,7 +426,8 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
     
     term = stdOutFile.pipeTerminated();
 
-    if (stdOutFile.waitForData ((cgiTimeout - ticks) / 1000, (cgiTimeout - ticks) % 1000) == 0)
+    if (!term && 
+        stdOutFile.waitForData ((cgiTimeout - ticks) / 1000, (cgiTimeout - ticks) % 1000) == 0)
     {
       ostringstream msg;
       msg << "Cgi: timeout for process " << cgiProc.getPid ();
@@ -455,8 +445,9 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
       
     if (nBytesRead == 0 && term)
     {
-      *ret = td->http->raiseHTTPError(500);
-      return 1;
+      headerCompleted = true;
+      headerSize = 0;
+      break;
     }
 
     headerOffset += nBytesRead;
