@@ -290,6 +290,20 @@ class ConfigGUIGTK:
     def run(self):
         gtk.main()
 
+    # Here begins the functionality implementation
+    def get(self, name):
+        """ Helper/alias function returns widgetwith specified name """
+        return self.wTree.get_widget(name)
+
+    def serialize_config(self):
+        """ This function serializes the configurtion settings
+        and returns a dictionary with pairs:
+        name_of_setting: vlue """
+        settings = { 'LANGUGE' : self.get("combobox2").get_active_text().partition(".")[0].capitalize(), \
+                     'VERBOSITY' :  self.get("cbVerbosityLevel").get_active_text() }
+        return settings
+
+
 def main():
     app = ConfigGUIGTK()
     app.run()
