@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 import sys
 import gobject
 
@@ -299,8 +298,41 @@ class ConfigGUIGTK:
         """ This function serializes the configurtion settings
         and returns a dictionary with pairs:
         name_of_setting: vlue """
+        # TODO: Change the combobox to have default prop
         settings = { 'LANGUGE' : self.get("combobox2").get_active_text().partition(".")[0].capitalize(), \
-                     'VERBOSITY' :  self.get("cbVerbosityLevel").get_active_text() }
+                     'VERBOSITY' :  self.get("cbVerbosityLevel").get_active_text(), \
+                     'NTHREADS_STATIC' : self.get("enAlwysActiveThreads").get_text(), \
+                     'NTHREADS_MAX' : self.get("enMaximumNumberOfThreads").get_text(), \
+                     'BUFFER_SIZE' : self.get("enMemoryBuffer").get_text(), \
+                     #TODO Inesrt default filenames from treeview
+                     'CONNECTION_TIMEOUT' : self.get("enConnectionTimeOut").get_text(), \
+                     #'USE_ERROR_FILE' : self.get
+                     'MAX_CONNECTIONS' : self.get("enMaxConnections").get_text(), \
+                     'MAX_LOG_FILE_SIZE' : self.get("enMaxLogFileSize").get_text(), \
+                     'BROWSEFOLDER_CSS' : self.get("enStylesheet").get_text(), \
+                     'SERVER_ADMIN' : self.get("entry10").get_text(), \
+                     'GZIP_THRESHOLD' : self.get("enGzipCompressionThreshold").get_text(), \
+                     #'FOLLOW_LINKS'
+                     #'MAX_FILESCACHE_SIZE' : self.get("").get_text(), \
+                     #'MAX_FILESCACHE_FILESIZE' : self.get("").get_text(), \
+                     #'MIN_FILESCACHE_FILESIZE' : self.get("").get_text(), \
+                     #'USE_HOME_DIRECTORY' : self.get("").get_text(), \
+                     #'HOME_DIRECTORY' : self.get("").get_text(), \
+                     #'CONTROL_ENABLED' : self.get("").get_text(), \
+                     'ALLOW_CGI' : 'YES' if self.get("checkbutton8").get_active() else 'NO', \
+                     'ALLOW_FASTCGI'  : 'YES' if self.get("checkbutton12").get_active() else 'NO', \
+                     'ALLOW_ISAPI' : 'YES' if self.get("checkbutton9").get_active() else 'NO', \
+                     'ALLOW_WINCGI' : 'YES' if self.get("checkbutton11").get_active() else 'NO', \
+                     'ALLOW_MSCGI' : 'YES' if self.get("checkbutton10").get_active() else 'NO', \
+                     'ALLOW_SCGI' : 'YES' if self.get("checkbutton13").get_active() else 'NO', \
+                     'ALLOW_SEND_LINK' : 'YES' if self.get("checkbutton14").get_active() else 'NO', \
+                     'ALLOW_EXTERNAL_COMMANDS' : 'YES' if self.get("checkbutton15").get_active() else 'NO', \
+                     'ALLOW_SEND_FILE' : 'YES' if self.get("checkbutton16").get_active() else 'NO', \
+                     #'MAX_SERVERS_PROCESSES' : self.get("").get_text(), \
+                     #'SERVERS_PROCESSES_INITIAL_PORT' : self.get("").get_text(), \
+                     'CONTROL_ADMIN' : self.get("entry11").get_text(), \
+                     'CONTROL_PASSWORD' : self.get("entry12").get_text(), \
+                      }
         return settings
 
 
