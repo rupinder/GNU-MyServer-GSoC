@@ -654,180 +654,10 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(const char* input,
     /* Authorization.  */
     if(!strcmpi(command,"Authorization"))
     {
-      while(*token==' ')
-        token++;
-      tokenOff = getCharInString(token," ",HTTP_REQUEST_AUTH_DIM);
-            
-      if(tokenOff==-1)return 400;
-    
+      int ret = readReqAuthLine (request, connection, token, &tokenOff);
+      if (ret)
+        return ret;
       lineControlled = 1;
-  
-      request->auth.assign(token,tokenOff);
-      connection->setLogin("");
-      connection->setPassword("");
-      if(!request->auth.compare("Basic"))
-      {
-        u_long i;
-        const char *base64 = &token[strlen("Basic ")];
-        int len = getEndLine(base64, 64);
-        const char *tmp = base64 + len - 1;
-        const char* lsecondaryBuffer;
-        const char* keep_lsecondaryBuffer;
-        char login[32];
-        char password[32];
-        
-        if(len == -1)
-          return 400;    
-
-        login[0] = password[0] = '\0';
-
-        while (len > 0 && (*tmp == '\r' || *tmp == '\n'))
-        {
-          tmp--;
-          len--;
-        }
-        if (len <= 1)
-          return 400;
-        lsecondaryBuffer = base64Utils.Decode(base64,&len);
-        keep_lsecondaryBuffer = lsecondaryBuffer;
-   
-        for(i = 0; (*lsecondaryBuffer != ':') && (i < 32);i++)
-        {
-          login[i] = *lsecondaryBuffer++;
-          login[i+1] = '\0';
-        }
-        lsecondaryBuffer++;
-        for(i = 0; (*lsecondaryBuffer) && (i < 31); i++)
-        {
-          password[i] = *lsecondaryBuffer++;
-          password[i+1] = '\0';
-        }
-        connection->setLogin(login);
-        connection->setPassword(password);
-        tokenOff = getEndLine(token, 100);
-        delete keep_lsecondaryBuffer;
-      }
-      else if(!request->auth.compare("Digest"))
-      {
-        char *digestBuff;
-        char *digestToken;
-        token += tokenOff;
-        while(*token == ' ')
-          token++;
-        tokenOff = getEndLine(token, 1024);
-        if(tokenOff==-1)
-          return 400;    
-        digestBuff=new char[tokenOff+1];
-        if(!digestBuff)
-          return 400;
-        memcpy(digestBuff,token,tokenOff);
-        digestBuff[tokenOff]='\0';
-        digestToken = strtok( digestBuff, "=" );
-        if(!digestToken)
-          return 400;
-        do
-        {
-          StrTrim(digestToken, (char*)" ");
-          if(!strcmpi(digestToken, (char*)"nonce"))
-          {
-            digestToken = strtok( NULL, (char*)"," );
-            if(digestToken)
-            {
-              StrTrim(digestToken, (char*)"\" ");
-              myserver_strlcpy(request->digestNonce,digestToken,48+1);
-            }
-          }
-          else if(!strcmpi(digestToken, (char*)"opaque"))
-          {
-            digestToken = strtok( NULL, (char*)"," );
-            if(digestToken)
-            {
-              StrTrim(digestToken, (char*)"\" ");
-              myserver_strlcpy(request->digestOpaque,digestToken,48+1);
-            }
-          }
-          else if(!strcmpi(digestToken, (char*)"uri"))
-          {
-            digestToken = strtok( NULL, (char*)"\r\n," );
-            if(digestToken)
-            {
-              StrTrim(digestToken, (char*)"\" ");
-              myserver_strlcpy(request->digestUri,digestToken,1024+1);
-            }
-          }
-          else if(!strcmpi(digestToken, (char*)"method"))
-          {
-            digestToken = strtok( NULL, (char*)"\r\n," );
-            if(digestToken)
-            {
-              StrTrim(digestToken, (char*)"\" ");
-              myserver_strlcpy(request->digestMethod,digestToken,16+1);
-            }
-          }  
-          else if(!strcmpi(digestToken, (char*)"qop"))
-          {
-            digestToken = strtok( NULL, (char*)"\r\n," );
-            if(digestToken)
-            {
-              StrTrim(digestToken,(char*)"\" ");
-              myserver_strlcpy(request->digestQop,digestToken,16+1);
-            }
-          }          
-          else if(!strcmpi(digestToken, (char*)"realm"))
-          {
-            digestToken = strtok( NULL, (char*)"\r\n," );
-            if(digestToken)
-            {
-              StrTrim(digestToken, (char*)"\" ");
-              myserver_strlcpy(request->digestRealm,digestToken,48+1);
-            }
-          }
-          else if(!strcmpi(digestToken, (char*)"cnonce"))
-          {
-            digestToken = strtok( NULL, (char*)"\r\n," );
-            if(digestToken)
-            {
-              StrTrim(digestToken, (char*)" \"");
-              myserver_strlcpy(request->digestCnonce, digestToken, 48+1);
-            }
-          }
-          else if(!strcmpi(digestToken, (char*)"username"))
-          {
-            digestToken = strtok( NULL, (char*)"\r\n," );
-            if(digestToken)
-            {
-              StrTrim(digestToken, (char*)"\" ");
-              myserver_strlcpy(request->digestUsername, digestToken, 48+1);
-              connection->setLogin(digestToken);
-            }
-          }
-          else if(!strcmpi(digestToken, (char*)"response"))
-          {
-            digestToken = strtok( NULL, "\r\n," );
-            if(digestToken)
-             {
-               StrTrim(digestToken, (char*)"\" ");
-               myserver_strlcpy(request->digestResponse,digestToken,48+1);
-             }
-          }
-          else if(!strcmpi(digestToken, (char*)"nc"))
-          {
-            digestToken = strtok( NULL, (char*)"\r\n," );
-            if(digestToken)
-            {
-              StrTrim(digestToken, (char*)"\" ");
-              myserver_strlcpy(request->digestNc,digestToken,10+1);
-            }
-          }
-          else 
-          {
-            digestToken = strtok( NULL, (char*)"\r\n," );
-          }
-          /* Update digestToken.  */
-          digestToken = strtok( NULL, (char*)"=" );
-        }while(digestToken);
-        delete  [] digestBuff;
-      }
     }else
     /* Content-Length.  */
     if(!strcmpi(command, (char*)"Content-Length"))
@@ -841,71 +671,10 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(const char* input,
     /* Range.  */
     if(!strcmpi(command, (char*)"Range"))
     {
-      char rangeByteBegin[13];
-      char rangeByteEnd[13];
-      const char *localToken = token;
-      int i=0;
-      rangeByteBegin[0] = '\0';
-      rangeByteEnd[0] = '\0';
+      int ret = readReqRangeLine (request, connection, token, &tokenOff);
+      if (ret)
+        return ret;
       lineControlled = 1;
-      tokenOff = getEndLine(token, HTTP_REQUEST_RANGE_TYPE_DIM+30);
-      if(tokenOff ==-1)
-        return 400;
-      do
-      {
-        i++;
-      }
-      while((*(++localToken) != '=')&&(i<HTTP_REQUEST_RANGE_TYPE_DIM));
-
-      request->rangeType.assign(token, i);
-
-      i=0;
-      localToken++;
-      do
-      {
-        rangeByteBegin[i++] = *localToken;
-        rangeByteBegin[i] = '\0';
-      }
-      while((*(++localToken) != '-') && (i<12) && (*localToken != '\r'));
-      i = 0;
-      localToken++;
-      do
-      {
-        rangeByteEnd[i++] = *localToken;
-        rangeByteEnd[i] = '\0';
-      }
-      while((*(++localToken) != '\r' )&&(i<12));
-
-      for(i=0;i < static_cast<int>(request->rangeType.length()); i++)
-        if(request->rangeType[i] == '=')
-          request->rangeType[i] = '\0';
-
-      for(i = 0; i < static_cast<int>(strlen(rangeByteBegin)); i++)
-        if(rangeByteBegin[i] == '=')
-          rangeByteBegin[i] = '\0';
-
-      for(i = 0; i < static_cast<int>(strlen(rangeByteEnd)); i++)
-        if(rangeByteEnd[i]== '=')
-          rangeByteEnd[i]='\0';
-      
-      if(rangeByteBegin[0] == 0)
-      {
-        request->rangeByteBegin=0;
-      }      
-      else
-      {
-        request->rangeByteBegin = (u_long)atol(rangeByteBegin); 
-      }
-      if(rangeByteEnd[0] == '\r')
-      {
-        request->rangeByteEnd = 0;
-      }
-      else
-      {
-        request->rangeByteEnd = (u_long)atol(rangeByteEnd);
-        if(request->rangeByteEnd < request->rangeByteBegin)
-          return 400;
-      }
     }else
     if(!lineControlled)
     {
@@ -938,14 +707,300 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(const char* input,
       }
     }
     token+= tokenOff + 2;
-    tokenOff = getCharInString(token,":",maxTotchars);
-  }while(((u_long)(token-input)<maxTotchars) && token[0]!='\r');
+    tokenOff = getCharInString(token, ":", maxTotchars);
+  }while (((u_long)(token - input) < maxTotchars) && token[0] != '\r');
 
   /*
    *END REQUEST STRUCTURE BUILD.
    */
   *nHeaderChars = maxTotchars;
   return 200;
+}
+
+/*!
+ *Parse the range line in a HTTP request.
+ *\param request HttpRequest object to fill.
+ *\param connection Pointer to a connection structure.
+ *\param token Pointer to the beginning of the authorization line.
+ *\param lenOut Pointer to an itneger to keep the line length.
+ *\return 0 on success, any other value is the HTTP error.
+ */
+int HttpHeaders::readReqRangeLine (HttpRequestHeader *request, 
+                                   Connection *connection, 
+                                   const char *token,
+                                   int *lenOut)
+{
+  char rangeByteBegin[13];
+  char rangeByteEnd[13];
+  const char *localToken = token;
+  int i = 0;
+  rangeByteBegin[0] = '\0';
+  rangeByteEnd[0] = '\0';
+
+  int tokenOff = getEndLine(token, HTTP_REQUEST_RANGE_TYPE_DIM + 30);
+  if(tokenOff ==-1)
+    return 400;
+  
+  *lenOut = tokenOff;
+
+  do
+    {
+      i++;
+    }
+  while((*(++localToken) != '=') && (i < HTTP_REQUEST_RANGE_TYPE_DIM));
+
+  request->rangeType.assign(token, i);
+
+  i = 0;
+  localToken++;
+  
+  do
+    {
+      rangeByteBegin[i++] = *localToken;
+      rangeByteBegin[i] = '\0';
+    }
+  while((*(++localToken) != '-') && (i<12) && (*localToken != '\r'));
+  
+  i = 0;
+  localToken++;
+  do
+    {
+      rangeByteEnd[i++] = *localToken;
+      rangeByteEnd[i] = '\0';
+    }
+  while((*(++localToken) != '\r' )&&(i<12));
+
+  for(i=0;i < static_cast<int>(request->rangeType.length()); i++)
+    if(request->rangeType[i] == '=')
+      request->rangeType[i] = '\0';
+  
+  for(i = 0; i < static_cast<int>(strlen(rangeByteBegin)); i++)
+    if(rangeByteBegin[i] == '=')
+      rangeByteBegin[i] = '\0';
+  
+  for(i = 0; i < static_cast<int>(strlen(rangeByteEnd)); i++)
+    if(rangeByteEnd[i]== '=')
+      rangeByteEnd[i]='\0';
+      
+  if(rangeByteBegin[0] == 0)
+    {
+      request->rangeByteBegin=0;
+    }      
+  else
+    {
+      request->rangeByteBegin = (u_long)atol(rangeByteBegin); 
+    }
+  if(rangeByteEnd[0] == '\r')
+    {
+      request->rangeByteEnd = 0;
+    }
+  else
+    {
+      request->rangeByteEnd = (u_long)atol(rangeByteEnd);
+      if(request->rangeByteEnd < request->rangeByteBegin)
+        return 400;
+    }
+
+  return 0;
+}
+
+/*!
+ *Parse the authorization line in a HTTP request.
+ *\param request HttpRequest object to fill.
+ *\param connection Pointer to a connection structure.
+ *\param token Pointer to the beginning of the authorization line.
+ *\param lenOut Pointer to an itneger to keep the line length.
+ *\return 0 on success, any other value is the HTTP error.
+ */
+int HttpHeaders::readReqAuthLine (HttpRequestHeader *request, 
+                                  Connection *connection,
+                                  const char *token,
+                                  int *lenOut)
+{
+  while(*token==' ')
+    token++;
+  int tokenOff = getCharInString(token, " ", HTTP_REQUEST_AUTH_DIM);
+  
+  if(tokenOff==-1)
+    return 400;
+
+  request->auth.assign(token, tokenOff);
+  connection->setLogin("");
+  connection->setPassword("");
+
+  if(!request->auth.compare("Basic"))
+    {
+      u_long i;
+      const char *base64 = &token[6];
+      int len = getEndLine(base64, 64);
+      const char *tmp = base64 + len - 1;
+      const char* lsecondaryBuffer;
+      const char* lsecondaryBufferOr;
+      char login[32];
+      char password[32];
+      
+      if(len == -1)
+        return 400;    
+      
+      login[0] = password[0] = '\0';
+        
+      while (len > 0 && (*tmp == '\r' || *tmp == '\n'))
+        {
+          tmp--;
+          len--;
+        }
+      if (len <= 1)
+        return 400;
+      
+      lsecondaryBuffer = base64Utils.Decode(base64,&len);
+      lsecondaryBufferOr = lsecondaryBuffer;
+   
+      for(i = 0; (*lsecondaryBuffer != ':') && (i < 32);i++)
+        {
+          login[i] = *lsecondaryBuffer++;
+        }
+      login[i] = '\0';
+      
+      lsecondaryBuffer++;
+      for(i = 0; (*lsecondaryBuffer) && (i < 31); i++)
+        {
+          password[i] = *lsecondaryBuffer++;
+        }
+      password[i] = '\0';
+      
+      connection->setLogin(login);
+      connection->setPassword(password);
+      delete lsecondaryBufferOr;
+      *lenOut = tokenOff = getEndLine(token, 100);
+    }
+  else if(!request->auth.compare("Digest"))
+    {
+      char *digestBuff;
+      char *digestToken;
+      token += tokenOff;
+      
+      while(*token == ' ')
+        token++;
+
+      *lenOut = tokenOff = getEndLine(token, 1024);
+
+      if (tokenOff == -1)
+        return 400;    
+
+      digestBuff=new char[tokenOff+1];
+
+      if (!digestBuff)
+        return 400;
+
+      memcpy(digestBuff, token, tokenOff);
+      digestBuff[tokenOff]='\0';
+      digestToken = strtok( digestBuff, "=" );
+      if(!digestToken)
+        return 400;
+      do
+        {
+          StrTrim(digestToken, (char*)" ");
+          if(!strcmpi(digestToken, (char*)"nonce"))
+            {
+              digestToken = strtok( NULL, (char*)"," );
+              if(digestToken)
+                {
+                  StrTrim(digestToken, (char*)"\" ");
+                  myserver_strlcpy(request->digestNonce,digestToken,48+1);
+                }
+            }
+          else if(!strcmpi(digestToken, (char*)"opaque"))
+            {
+              digestToken = strtok( NULL, (char*)"," );
+              if(digestToken)
+                {
+                  StrTrim(digestToken, (char*)"\" ");
+                  myserver_strlcpy(request->digestOpaque,digestToken,48+1);
+                }
+            }
+          else if(!strcmpi(digestToken, (char*)"uri"))
+            {
+              digestToken = strtok( NULL, (char*)"\r\n," );
+              if(digestToken)
+                {
+                  StrTrim(digestToken, (char*)"\" ");
+                  myserver_strlcpy(request->digestUri,digestToken,1024+1);
+                }
+            }
+          else if(!strcmpi(digestToken, (char*)"method"))
+            {
+              digestToken = strtok( NULL, (char*)"\r\n," );
+              if(digestToken)
+                {
+                  StrTrim(digestToken, (char*)"\" ");
+                  myserver_strlcpy(request->digestMethod,digestToken,16+1);
+                }
+            }  
+          else if(!strcmpi(digestToken, (char*)"qop"))
+            {
+              digestToken = strtok( NULL, (char*)"\r\n," );
+              if(digestToken)
+                {
+                  StrTrim(digestToken,(char*)"\" ");
+                  myserver_strlcpy(request->digestQop,digestToken,16+1);
+                }
+            }          
+          else if(!strcmpi(digestToken, (char*)"realm"))
+            {
+              digestToken = strtok( NULL, (char*)"\r\n," );
+              if(digestToken)
+                {
+                  StrTrim(digestToken, (char*)"\" ");
+                  myserver_strlcpy(request->digestRealm,digestToken,48+1);
+                }
+            }
+          else if(!strcmpi(digestToken, (char*)"cnonce"))
+            {
+              digestToken = strtok( NULL, (char*)"\r\n," );
+              if(digestToken)
+                {
+                  StrTrim(digestToken, (char*)" \"");
+                  myserver_strlcpy(request->digestCnonce, digestToken, 48+1);
+                }
+            }
+          else if(!strcmpi(digestToken, (char*)"username"))
+            {
+              digestToken = strtok( NULL, (char*)"\r\n," );
+              if(digestToken)
+                {
+                  StrTrim(digestToken, (char*)"\" ");
+                  myserver_strlcpy(request->digestUsername, digestToken, 48+1);
+                  connection->setLogin(digestToken);
+                }
+            }
+          else if(!strcmpi(digestToken, (char*)"response"))
+            {
+              digestToken = strtok( NULL, "\r\n," );
+              if(digestToken)
+                {
+                  StrTrim(digestToken, (char*)"\" ");
+                  myserver_strlcpy(request->digestResponse,digestToken,48+1);
+                }
+            }
+          else if(!strcmpi(digestToken, (char*)"nc"))
+            {
+              digestToken = strtok( NULL, (char*)"\r\n," );
+              if(digestToken)
+                {
+                  StrTrim(digestToken, (char*)"\" ");
+                  myserver_strlcpy(request->digestNc,digestToken,10+1);
+                }
+            }
+          else 
+            {
+              digestToken = strtok( NULL, (char*)"\r\n," );
+            }
+          /* Update digestToken.  */
+          digestToken = strtok( NULL, (char*)"=" );
+        }while(digestToken);
+      delete  [] digestBuff;
+    }
+  return 0;
 }
 
 /*!

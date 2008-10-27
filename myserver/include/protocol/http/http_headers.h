@@ -48,26 +48,37 @@ struct HttpResponseHeader;
 class HttpHeaders
 {
 public:
-	static int buildHTTPRequestHeaderStruct(const char* input,
-                                          u_long inputSize,
-                                          u_long* nHeaderChars,
-                                          HttpRequestHeader *request, 
-                                          Connection* connection);
-
-	static int buildHTTPResponseHeaderStruct(const char *input, 
+	static int buildHTTPRequestHeaderStruct (const char* input,
+                                           u_long inputSize,
+                                           u_long* nHeaderChars,
+                                           HttpRequestHeader *request, 
+                                           Connection* connection);
+  
+	static int buildHTTPResponseHeaderStruct (const char *input, 
                                            HttpResponseHeader *response, 
                                            u_long* nbtr);
 
-	static int validHTTPRequest(const char*, u_long, u_long*, u_long*);
-	static int validHTTPResponse(const char*, u_long*, u_long*);
+	static int validHTTPRequest (const char*, u_long, u_long*, u_long*);
+	static int validHTTPResponse (const char*, u_long*, u_long*);
 
-	static void resetHTTPRequest(HttpRequestHeader *request);
-	static void resetHTTPResponse(HttpResponseHeader *response);
+	static void resetHTTPRequest (HttpRequestHeader *request);
+	static void resetHTTPResponse (HttpResponseHeader *response);
 
-	static void buildDefaultHTTPResponseHeader(HttpResponseHeader*);
-	static void buildDefaultHTTPRequestHeader(HttpRequestHeader*);
+	static void buildDefaultHTTPResponseHeader (HttpResponseHeader*);
+	static void buildDefaultHTTPRequestHeader (HttpRequestHeader*);
 
-	static void buildHTTPResponseHeader(char *, HttpResponseHeader*);
-	static void buildHTTPRequestHeader(char *, HttpRequestHeader*);
+	static void buildHTTPResponseHeader (char *, HttpResponseHeader*);
+	static void buildHTTPRequestHeader (char *, HttpRequestHeader*);
+
+protected:
+  static int readReqAuthLine (HttpRequestHeader *request, 
+                              Connection *connection, 
+                              const char *token,
+                              int *lenOut);
+
+  static int readReqRangeLine (HttpRequestHeader *request, 
+                               Connection *connection, 
+                               const char *token,
+                               int *lenOut);
 };
 #endif
