@@ -54,6 +54,13 @@ listinc=[
       msheaders,
       '.'
       ]
+    
+
+def tar_package(src_dir, name, filename):
+    import tarfile
+    tarf = tarfile.open(filename.encode("ascii"),"w|gz")
+    tarf.add(src_dir + name,name)
+    tarf.close()
 
 def build_plugin(name):
     dest_dir = bin_dir + name
@@ -69,8 +76,7 @@ def pack_plugin(name):
     doc = xml.dom.minidom.parse(bin_dir + name + "/plugin.xml")
     version = doc.getElementsByTagName("VERSION")
     filename = name + "-" + version[0].firstChild.data + ".tar.gz"
-    tarenv = Environment(TARFLAGS = '-c -z')
-    tarenv.Tar(release_dir + filename, bin_dir + name)	
+    tar_package(bin_dir, name, release_dir + filename)	
 
 
 
