@@ -112,6 +112,11 @@ LogManager::add (void* owner, string type, string location, LogStream* ls)
   return 1;
 }
 
+/*
+ * Remove all the logs owned by `owner' and `owner' as well.
+ * After the call to this method, a call to contains (owner)
+ * must return false.
+ */
 int 
 LogManager::remove (void* owner)
 {
@@ -119,20 +124,21 @@ LogManager::remove (void* owner)
   int success = 1;
   if (contains (owner))
     {
-      map<string, map<string, LogStream*> > m = owners[owner];
+      map<string, map<string, LogStream*> > *m = &owners[owner];
       map<string, map<string, LogStream*> >::iterator it_1;
-      for (it_1 = m.begin (); it_1 != m.end (); it_1++)
+      for (it_1 = m->begin (); it_1 != m->end (); it_1++)
         {
-          map<string, LogStream*> t = it_1->second;
+          map<string, LogStream*> *t = &it_1->second;
           map<string, LogStream*>::iterator it_2;
-          for (it_2 = t.begin (); it_2 != t.end (); it_2++)
+          for (it_2 = t->begin (); it_2 != t->end (); it_2++)
             {
               delete it_2->second;
               logStreams.erase (it_2->first);
             }
-          t.clear ();
+          t->clear ();
         }
-      m.clear ();
+      m->clear ();
+      owners.erase (owner);
       success = 0;
     }
   mutex->unlock ();

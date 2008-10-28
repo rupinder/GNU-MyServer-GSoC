@@ -99,16 +99,22 @@ Server::Server() : connectionsScheduler (this),
   vhostList = 0;
   purgeThreadsThreshold = 1;
   freeThreads = 0;
+  logManager = new LogManager (&filtersFactory);
   initLogManager ();
 }
 
 void
 Server::initLogManager ()
 {
-  logLocation.assign ("console://stdout");
-  logManager = new LogManager (&filtersFactory);
-  list<string> filters;
-  logManager->add (this, "MAINLOG", logLocation, filters, 0);
+  if (!logLocation.size ())
+    {
+      logLocation.assign ("console://stdout");
+    }
+  if (!logManager->contains (this))
+    {
+      list<string> filters;
+      logManager->add (this, "MAINLOG", logLocation, filters, 0);
+    }
 }
 
 /*!
@@ -987,6 +993,7 @@ const char *Server::getServerAdmin()
  */
 int Server::initialize()
 {
+  initLogManager ();
   char *data;
 #ifdef WIN32
   envString = GetEnvironmentStrings();

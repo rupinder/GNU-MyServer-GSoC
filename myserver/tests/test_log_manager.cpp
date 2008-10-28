@@ -84,6 +84,7 @@ public:
     CPPUNIT_ASSERT (lm->remove (this));
     lm->add (this, "test", "file://foo", filters, 0);
     CPPUNIT_ASSERT (!lm->remove (this));
+    CPPUNIT_ASSERT (!lm->contains (this));
   }
 
   void testLog ()
