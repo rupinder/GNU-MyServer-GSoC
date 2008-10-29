@@ -42,3 +42,5 @@ public:
     CPPUNIT_ASSERT( testRange.InRange("192.168.0.127") );
   }
 };
+
+CPPUNIT_TEST_SUITE_REGISTRATION( TestIpRange );
