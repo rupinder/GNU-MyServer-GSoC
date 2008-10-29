@@ -26,6 +26,9 @@ class TestIpRange : public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE( TestIpRange );
   CPPUNIT_TEST( testRangeInclusion );
   CPPUNIT_TEST( testIpInRange );
+  CPPUNIT_TEST( testSingleIpRange );
+  CPPUNIT_TEST( testEmptyRange );
+  CPPUNIT_TEST( testRangeFactory );
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -40,6 +43,24 @@ public:
   {
     Ipv4Range testRange("192.168.0.0/24");
     CPPUNIT_ASSERT( testRange.InRange("192.168.0.127") );
+  }
+  void testSingleIpRange()
+  {
+    Ipv4Range singleIpRange("192.168.0.100");
+    CPPUNIT_ASSERT( singleIpRange.InRange(&singleIpRange) );
+  }
+  void testEmptyRange()
+  {
+    Ipv4Range emptyRange("");
+    CPPUNIT_ASSERT( emptyRange.InRange("10.0.0.0") );//anyy IP addr
+  }
+  void testRangeFactory()
+  {
+    IpRange *pRange = IpRange::RangeFactory("192.168.51.0/23");
+    CPPUNIT_ASSERT( pRange->InRange("192.168.51.100") );
+
+    delete pRange;
+    pRange = NULL;
   }
 };
 

@@ -19,11 +19,36 @@
 #include <sstream>
 
 /*!
+ * comment here
+ */
+IpRange *IpRange::RangeFactory(const std::string &ipRange)
+{
+  Ipv4Range *pV4 = new Ipv4Range();
+  if ( pV4->SetRange(ipRange) )
+    return pV4;
+
+  /* when will be implemented
+  Ipv6Range *pV6 = new Ipv6Range();
+  if ( pV6->SetRange(ipRange) )
+    return pV6;
+  */
+
+  return NULL;
+}
+
+/*!
+ * Ipv4Range c-tor
+ */
+Ipv4Range::Ipv4Range()
+{
+  Init();
+}
+
+/*!
  * Ipv4Range c-tor
  */
 Ipv4Range::Ipv4Range(const std::string &sRange)
 {
-  Init();
   SetRange(sRange);
 }
 
@@ -32,12 +57,16 @@ Ipv4Range::Ipv4Range(const std::string &sRange)
  */
 bool Ipv4Range::SetRange(const std::string &sRange)
 {
+  if ( !Init() )
+    return false;
+  if ( sRange.empty() )
+    return true;//just init
   std::string::size_type nPos = sRange.find('-');
   if ( nPos != std::string::npos )// x.x.x.x-y.y.y.y form
     {
       std::string start(sRange.substr(0, nPos));
       std::string end(sRange.substr(nPos + 1));
-      SetRange(start, end);
+      return SetRange(start, end);
     }
   else// x.x.x.x/y form
     {
@@ -51,8 +80,13 @@ bool Ipv4Range::SetRange(const std::string &sRange)
 	  nAddr[i] = nTemp;
 	  istream >> nSep;
 	}
+
+      nTemp = 32;
       if ( nSep == '/' )
-	istream >> nTemp;
+	  istream >> nTemp;
+
+      if ( !istream.eof() )
+	return false;
 
       for ( int i = 0, nByte = 0; i < nTemp && nByte < 4; i++ )
 	{
@@ -89,6 +123,8 @@ bool Ipv4Range::SetRange(const std::string &sStartHost, const std::string &sEndH
       m_nEnd[i] = nTemp;
       end >> nSep;
     }
+  if ( !start.eof() || !end.eof() )
+    return false;
 
   // get mask lenght(max common addr part)
   char bs = 0;
