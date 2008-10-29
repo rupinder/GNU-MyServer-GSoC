@@ -1,5 +1,5 @@
 lib_LIBRARIES = libvhost.a
-libvhost_a_SOURCES = vhost.cpp vhost_manager.cpp
+libvhost_a_SOURCES = vhost.cpp vhost_manager.cpp ip.cpp
 SUBDIRS =
 INCLUDES = $(all_includes)
 
