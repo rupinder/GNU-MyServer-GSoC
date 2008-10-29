@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /*!
  *Initialize the object.
  */
-DynHttpManagerList::DynHttpManagerList() 
+DynHttpManagerList::DynHttpManagerList () 
 {
 
 }
@@ -34,27 +34,26 @@ DynHttpManagerList::DynHttpManagerList()
 /*!
  *Destroy the object.
  */
-DynHttpManagerList::~DynHttpManagerList()
+DynHttpManagerList::~DynHttpManagerList ()
 {
 
 }
 
 /*!
- *Get the DynamicHttpManagers.
+ *Get the HttpDataHandlers.
  *\param name http manager name.
  */
-DynamicHttpManager* DynHttpManagerList::getHttpManager(string& name)
+HttpDataHandler* DynHttpManagerList::getHttpManager (string& name)
 {
-  return dynamicHttpManagers.get(name);
+  return dynamicHttpManagers.get (name);
 }
 
 /*!
- *Add the DynamicHttpManagers.
+ *Add the HttpDataHandlers.
  *\param name http manager name.
  *\param httpManager http manager to add.
  */
-void DynHttpManagerList::addHttpManager(string& name, DynamicHttpManager* httpManager)
+void DynHttpManagerList::addHttpManager (string& name, HttpDataHandler* httpManager)
 {
-  dynamicHttpManagers.put(name,httpManager);
+  dynamicHttpManagers.put (name, httpManager);
 }
-

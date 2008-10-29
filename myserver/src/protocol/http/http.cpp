@@ -66,9 +66,34 @@ static HttpStaticData staticHttp;
 /*!
  *Get a pointer to a structure shared among all the instances.
  */
-HttpStaticData* Http::getStaticData()
+HttpStaticData* Http::getStaticData ()
 {
   return &staticHttp;
+}
+
+
+HttpStaticData::HttpStaticData ()
+{
+  mscgi = new MsCgi();
+  wincgi = new WinCgi();
+  isapi = new Isapi();
+  cgi = new Cgi();
+  scgi = new Scgi();
+  fastcgi = new FastCgi();
+  httpFile = new HttpFile();
+  httpDir = new HttpDir();
+}
+
+HttpStaticData::~HttpStaticData ()
+{
+  delete mscgi;
+  delete wincgi;
+  delete isapi;
+  delete cgi;
+  delete scgi;
+  delete fastcgi;
+  delete httpFile;
+  delete httpDir;
 }
 
 
@@ -776,7 +801,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
   int ret;
   string directory;
   string file;
-  DynamicHttpManager *manager;
+  HttpDataHandler *manager;
 
   /*! By default allows only few actions. */
   permissions = MYSERVER_PERMISSION_READ | MYSERVER_PERMISSION_BROWSE ;
@@ -822,205 +847,37 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     }
 
 
-    if(td->mime && !td->mime->cmdName.compare ("CGI"))
+    if (td->mime && (manager = staticHttp.dynManagerList.getHttpManager (td->mime->cmdName)))
     {
-      int allowCgi = 1;
-      const char *dataH = td->connection->host->getHashedData("ALLOW_CGI");
-      if(dataH)
+      if (manager)
       {
-        if(!strcmpi(dataH, "YES"))
-          allowCgi = 1;
-        else
-          allowCgi = 0;
-      }
+        if (!(permissions & MYSERVER_PERMISSION_EXECUTE))
+            return sendAuth();
 
-      if(!allowCgi || !(permissions & MYSERVER_PERMISSION_EXECUTE))
-      {
-        return sendAuth();
-      }
-      ret = cgi->send(td, td->connection, td->filenamePath.c_str(),
-                      cgiManager, td->mime->selfExecuted,  onlyHeader);
-      return ret;
-    }
-    else if(td->mime && !td->mime->cmdName.compare ("ISAPI"))
-    {
-      int allowIsapi = 1;
-      const char *dataH = td->connection->host->getHashedData("ALLOW_ISAPI");
-      if(dataH)
-      {
-        if(!strcmpi(dataH, "YES"))
-          allowIsapi = 1;
-        else
-          allowIsapi = 0;
-      }
-      if(!allowIsapi || !(permissions & MYSERVER_PERMISSION_EXECUTE))
-      {
-        return sendAuth();
-      }
-      ret = isapi->send(td, td->connection, td->filenamePath.c_str(),
-                        cgiManager, td->mime->selfExecuted, onlyHeader);
-      return ret;
-    }
-    else if(td->mime && !td->mime->cmdName.compare ("MSGI"))
-    {
-      char* target;
-      int allowMscgi = 1;
-      const char *dataH = td->connection->host->getHashedData("ALLOW_MSCGI");
-      if(dataH)
-      {
-        if(!strcmpi(dataH, "YES"))
-          allowMscgi = 1;
-        else
-          allowMscgi = 0;
-      }
-
-      if(!allowMscgi || !(permissions & MYSERVER_PERMISSION_EXECUTE))
-      {
-        return sendAuth();
-      }
-      if(td->request.uriOptsPtr)
-        target = td->request.uriOptsPtr;
-      else
-        target = (char*)td->request.uriOpts.c_str();
-
-      ret = mscgi->send(td, td->connection, td->filenamePath.c_str(),
-                        target, td->mime->selfExecuted, onlyHeader);
-      return ret;
-    }
-    else if(td->mime && !td->mime->cmdName.compare ("WINCGI"))
-    {
-      int allowWincgi = 1;
-      const char *dataH = td->connection->host->getHashedData("ALLOW_WINCGI");
-      if(dataH)
-      {
-        if(!strcmpi(dataH, "YES"))
-          allowWincgi = 1;
-        else
-          allowWincgi = 0;
-      }
-
-      if(!allowWincgi || !(permissions & MYSERVER_PERMISSION_EXECUTE))
-      {
-        return sendAuth();
-      }
-
-      ret = wincgi->send(td, td->connection, 
-                         td->filenamePath.c_str(),
-                         cgiManager,
-                         td->mime->selfExecuted, onlyHeader);
-      return ret;
-    }
-    else if(td->mime && !td->mime->cmdName.compare ("FASTCGI"))
-    {
-      int allowFastcgi = 1;
-      const char *dataH = td->connection->host->getHashedData("ALLOW_FASTCGI");
-      if(dataH)
-      {
-        if(!strcmpi(dataH, "YES"))
-          allowFastcgi=1;
-        else
-          allowFastcgi=0;
-      }
-      if(!allowFastcgi || !(permissions & MYSERVER_PERMISSION_EXECUTE))
-      {
-        return sendAuth();
-      }
-      ret = fastcgi->send(td, td->connection, td->filenamePath.c_str(),
-                          cgiManager, td->mime->selfExecuted, onlyHeader);
-      return ret;
-    }
-    else if(td->mime && !td->mime->cmdName.compare ("SCGI"))
-    {
-      int allowScgi = 1;
-      const char *dataH = td->connection->host->getHashedData("ALLOW_SCGI");
-      if(dataH)
-      {
-        if(!strcmpi(dataH, "YES"))
-          allowScgi = 1;
-        else
-          allowScgi = 0;
-      }
-      if(!allowScgi || !(permissions & MYSERVER_PERMISSION_EXECUTE))
-      {
-        return sendAuth();
-      }
-      ret = scgi->send(td, td->connection, td->filenamePath.c_str(),
-                       cgiManager, td->mime->selfExecuted, onlyHeader);
-      return ret;
-    }
-    else if (td->mime && (manager = staticHttp.dynManagerList.getHttpManager (td->mime->cmdName)))
-    {
-      int allowScgi = 1;
-      const char *dataH = td->connection->host->getHashedData("ALLOW_SCGI");
-      if(dataH)
-      {
-        if(!strcmpi(dataH, "YES"))
-          allowScgi = 1;
-        else
-          allowScgi = 0;
-      }
-      if(!allowScgi || !(permissions & MYSERVER_PERMISSION_EXECUTE))
-      {
-        return sendAuth();
-      }
-      ret = scgi->send(td, td->connection, td->filenamePath.c_str(),
-                       cgiManager, 1, onlyHeader);
-      return ret;
-    }
-    else if (td->mime && (manager = staticHttp.dynManagerList.getHttpManager(td->mime->cmdName)))
-    {
-      int allowExternal = 1;
-      const char *dataH =
-        td->connection->host->getHashedData ("ALLOW_EXTERNAL_COMMANDS");
-
-      if(dataH)
-      {
-        if(!strcmpi(dataH, "YES"))
-          allowExternal = 1;
-        else
-          allowExternal = 0;
-      }
-
-      if(allowExternal && td->mime)
-      {
-        if(manager)
-          return manager->send(td,
-                               td->connection,
-                               td->filenamePath.c_str(),
-                               cgiManager,
-                               td->mime->selfExecuted,
-                               onlyHeader);
-        else
-          return raiseHTTPError(501);
+        return manager->send (td,
+                              td->connection,
+                              td->filenamePath.c_str(),
+                              cgiManager,
+                              td->mime->selfExecuted,
+                              onlyHeader);
       }
     }
 
-    int allowSend = 1;
-    const char *data = td->connection->host->getHashedData("ALLOW_SEND_FILE");
-    if(data)
-    {
-      if(!strcmpi(data, "YES"))
-        allowSend = 1;
-      else
-        allowSend = 0;
-    }
 
-    if(!allowSend)
-    {
-      return sendAuth();
-    }
+    if (!(permissions & MYSERVER_PERMISSION_READ))
+      return sendAuth ();
 
-    if(!(permissions & MYSERVER_PERMISSION_READ))
-    {
-      return sendAuth();
-    }
+    manager = staticHttp.dynManagerList.getHttpManager ("FILE");
 
-    ret = httpFile->send(td, td->connection, td->filenamePath.c_str(),
-                         0, onlyHeader);
+    if (!manager)
+      return raiseHTTPError (500);
+
+    return manager->send (td, td->connection, td->filenamePath.c_str(),
+                          0, onlyHeader);
   }
-  catch(...)
+  catch (...)
   {
-    return raiseHTTPError(500);
+    return raiseHTTPError (500);
   };
 
   return ret;
@@ -2007,11 +1864,6 @@ int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
   int i;
   int ret;
 
-  if( !(permissions & MYSERVER_PERMISSION_BROWSE) )
-    {
-      return sendAuth();
-    }
-
   for(i = 0;; i++)
     {
       const char *defaultFileNamePath = getDefaultFilenamePath(i);
@@ -2055,8 +1907,17 @@ int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
           return ret;
         }
     }
-  return httpDir->send(td, td->connection, td->filenamePath.c_str(), 0,
-                       onlyHeader);
+
+  if( !(permissions & MYSERVER_PERMISSION_BROWSE) )
+      return sendAuth();
+
+  HttpDataHandler *handler = staticHttp.dynManagerList.getHttpManager ("DIR");
+
+  if (!handler)
+    return raiseHTTPError (500);
+
+  return handler->send (td, td->connection, td->filenamePath.c_str(),
+                        0, onlyHeader);
 }
 
 /*!
@@ -2173,24 +2034,33 @@ int Http::loadProtocolStatic(XmlParser* languageParser)
   Server::getInstance()->setGlobalData("http-static", getStaticData());
 
   /* Load the HTTP errors.  */
-  HttpErrors::load();
+  HttpErrors::load ();
 
   /* Initialize ISAPI.  */
-  Isapi::load(configurationFileManager);
+  Isapi::load (configurationFileManager);
 
   /* Initialize FastCGI.  */
-  FastCgi::load(configurationFileManager);
+  FastCgi::load (configurationFileManager);
 
   /* Initialize SCGI.  */
-  Scgi::load(configurationFileManager);
+  Scgi::load (configurationFileManager);
 
   /* Load the MSCGI library.  */
-  MsCgi::load(configurationFileManager);
+  MsCgi::load (configurationFileManager);
 
-  HttpFile::load(configurationFileManager);
-  HttpDir::load(configurationFileManager);
+  HttpFile::load (configurationFileManager);
+  HttpDir::load (configurationFileManager);
 
-  /*! Determine the min file size that will use GZIP compression.  */
+  staticHttp.dynManagerList.addHttpManager ("FILE", staticHttp.httpFile);
+  staticHttp.dynManagerList.addHttpManager ("DIR", staticHttp.httpDir);
+  staticHttp.dynManagerList.addHttpManager ("CGI", staticHttp.cgi);
+  staticHttp.dynManagerList.addHttpManager ("MSCGI", staticHttp.mscgi);
+  staticHttp.dynManagerList.addHttpManager ("SCGI", staticHttp.scgi);
+  staticHttp.dynManagerList.addHttpManager ("WINCGI", staticHttp.wincgi);
+  staticHttp.dynManagerList.addHttpManager ("FASTCGI", staticHttp.fastcgi);
+  staticHttp.dynManagerList.addHttpManager ("ISAPI", staticHttp.isapi);
+
+  /* Determine the min file size that will use GZIP compression.  */
   data = configurationFileManager->getValue("GZIP_THRESHOLD");
   if(data)
   {
@@ -2329,15 +2199,6 @@ Http::Http()
   td->scriptFile.assign("");
   td->inputDataPath.assign("");
   td->outputDataPath.assign("");
-
-  mscgi = new MsCgi();
-  wincgi = new WinCgi();
-  isapi = new Isapi();
-  cgi = new Cgi();
-  scgi = new Scgi();
-  fastcgi = new FastCgi();
-  httpFile = new HttpFile();
-  httpDir = new HttpDir();
 }
 
 /*!
@@ -2363,15 +2224,5 @@ void Http::clean()
   td->scriptFile.assign("");
   td->inputDataPath.assign("");
   td->outputDataPath.assign("");
-
-  delete mscgi;
-  delete wincgi;
-  delete isapi;
-  delete cgi;
-  delete scgi;
-  delete fastcgi;
-  delete httpFile;
-  delete httpDir;
-  
   delete td;
 }

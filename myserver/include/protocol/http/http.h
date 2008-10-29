@@ -49,19 +49,32 @@ public:
     return MulticastRegistry<string, void*, int>::getHandlers(msg);
   }
 
+  HttpStaticData ();
+  virtual ~HttpStaticData ();
+
   void clear()
   {
     clearMulticastRegistry();
   }
-
-  DynHttpCommandManager dynCmdManager;
-  DynHttpManagerList dynManagerList;
 
   string browseDirCSSpath;
   u_long gzipThreshold;
   vector<string> defaultFilename;
   int cgiTimeout;
   int allowVhostMime;
+
+  HttpDataHandler *mscgi;
+  HttpDataHandler *wincgi;
+  HttpDataHandler *isapi;
+  HttpDataHandler *cgi;
+  HttpDataHandler *scgi;
+  HttpDataHandler *fastcgi;
+  HttpDataHandler *httpFile;
+  HttpDataHandler *httpDir;
+
+
+  DynHttpCommandManager dynCmdManager;
+  DynHttpManagerList dynManagerList;
 };
 
 /*!
@@ -193,14 +206,6 @@ protected:
 
   int processDefaultFile (string& uri, int permissions, int onlyHeader);
 
-  HttpDataHandler* mscgi;
-  HttpDataHandler* wincgi;
-  HttpDataHandler* isapi;
-  HttpDataHandler* cgi;
-  HttpDataHandler* scgi;
-  HttpDataHandler* fastcgi;
-  HttpDataHandler* httpFile;
-  HttpDataHandler* httpDir;
   struct HttpThreadContext *td;
   void clean();
   void computeDigest(char*, char*);

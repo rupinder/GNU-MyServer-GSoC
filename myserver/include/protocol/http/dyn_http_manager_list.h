@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2005, 2007 Free Software Foundation, Inc.
+Copyright (C) 2005, 2007, 2008 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -29,28 +29,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 using namespace std;
 
-class DynamicHttpManager;
+class HttpDataHandler;
 
 class DynHttpManagerList
 {
 public:
-  DynamicHttpManager* getHttpManager(string& name);
+  HttpDataHandler *getHttpManager (string& name);
 
-  HashMap<string, DynamicHttpManager*>::Iterator begin(){return dynamicHttpManagers.begin();}
-  HashMap<string, DynamicHttpManager*>::Iterator end(){return dynamicHttpManagers.end();}
-
-  void addHttpManager(string& name, DynamicHttpManager* httpManager);
-
-  void addHttpManager(char* name, DynamicHttpManager* httpManager)
+  HttpDataHandler *getHttpManager (const char *name)
   {
-   	string strName(name);
-   	addHttpManager(strName, httpManager);
+   	string strName (name);
+   	return getHttpManager (strName);
   }
 
-  DynHttpManagerList();
-  ~DynHttpManagerList();
+  HashMap<string, HttpDataHandler*>::Iterator begin (){return dynamicHttpManagers.begin ();}
+  HashMap<string, HttpDataHandler*>::Iterator end (){return dynamicHttpManagers.end ();}
+
+  void addHttpManager (string& name, HttpDataHandler* httpManager);
+
+  void addHttpManager (const char* name, HttpDataHandler* httpManager)
+  {
+   	string strName (name);
+   	addHttpManager (strName, httpManager);
+  }
+
+  DynHttpManagerList ();
+  ~DynHttpManagerList ();
 private:
-	HashMap<string, DynamicHttpManager*> dynamicHttpManagers;
+	HashMap<string, HttpDataHandler*> dynamicHttpManagers;
 };
 
 #endif
