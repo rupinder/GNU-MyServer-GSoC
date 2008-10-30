@@ -128,6 +128,16 @@ block every time the condition is not satisfied.  It is done using the
 In this case, the inner block is evaluated every time the
 @code{auth.user} is different than "Guest".
 
+It is possible to match a value against a regular expression, in this
+case you will need to declare it explicitly.
+
+@example
+<CONDITION name="auth.user" value="admin.*" regex="yes" not="yes">
+...
+</CONDITION>
+@end example
+
+
 @subsubsection DEFINE element
 The @code{DEFINE} block is used to specify a value for a variable that
 later can be accessed by the server.

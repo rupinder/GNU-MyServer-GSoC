@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/conf/security/xml_validator.h>
 #include <include/conf/security/auth_domain.h>
 #include <include/conf/security/security_cache.h>
+#include <include/base/regex/myserver_regex.h>
 
 XmlValidator::XmlValidator ()
 {
@@ -281,21 +282,26 @@ bool XmlValidator::doCondition (xmlNodePtr node, HashMap<string, SecurityDomain*
   string name;
   const xmlChar *isNot = (const xmlChar*)"";
   const xmlChar *value = (const xmlChar*)"";
+  const xmlChar *regex = (const xmlChar*)"";
   xmlAttr *attrs = node->properties;
   
   while (attrs)
   {
-    if(!xmlStrcmp (attrs->name, (const xmlChar *)"name") &&
+    if (!xmlStrcmp (attrs->name, (const xmlChar *)"name") &&
        attrs->children && attrs->children->content)
       name.assign ((const char*)attrs->children->content);
     
-    if(!xmlStrcmp (attrs->name, (const xmlChar *)"value") &&
+    if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") &&
        attrs->children && attrs->children->content)
       value = attrs->children->content;
 
-    if(!xmlStrcmp (attrs->name, (const xmlChar *)"not") &&
+    if (!xmlStrcmp (attrs->name, (const xmlChar *)"not") &&
        attrs->children && attrs->children->content)
       isNot = attrs->children->content;
+
+    if (!xmlStrcmp (attrs->name, (const xmlChar *)"regex") &&
+       attrs->children && attrs->children->content)
+      regex = attrs->children->content;
     
     attrs = attrs->next;
   }
@@ -305,7 +311,21 @@ bool XmlValidator::doCondition (xmlNodePtr node, HashMap<string, SecurityDomain*
   if (!storedValue)
     return false;
 
-  bool eq = storedValue->compare ((const char*)value) == 0;
+  bool eq;
+
+  if (!xmlStrcmp (regex, (const xmlChar *) "yes"))
+  {
+    Regex regex;
+
+    if (regex.compile ((const char*)value, REG_EXTENDED))
+      return false;
+
+    regmatch_t pm;
+
+    eq = regex.exec (storedValue->c_str (), 1, &pm, 0) == 0;
+  }
+  else
+    eq = storedValue->compare ((const char*)value) == 0;
   
   if (!xmlStrcmp (isNot, (const xmlChar *) "yes"))
     return !eq;
