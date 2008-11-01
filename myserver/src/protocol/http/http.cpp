@@ -795,7 +795,6 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
    *that we must send over the HTTP.
    */
   string filename;
-  int permissions;
   const char *cgiManager;
   int mimecmd;
   int ret;
@@ -804,7 +803,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
   HttpDataHandler *manager;
 
   /*! By default allows only few actions. */
-  permissions = MYSERVER_PERMISSION_READ | MYSERVER_PERMISSION_BROWSE ;
+  td->permissions = MYSERVER_PERMISSION_READ | MYSERVER_PERMISSION_BROWSE ;
 
   try
   {
@@ -816,12 +815,12 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       td->filenamePath.assign(uri);
 
       getFilePermissions(filename, directory, file, 
-                         td->filenamePath, 1, &permissions);
+                         td->filenamePath, 1, &td->permissions);
 
     }
     else
     {
-      ret = Http::preprocessHttpRequest(filename, yetmapped, &permissions);
+      ret = Http::preprocessHttpRequest(filename, yetmapped, &td->permissions);
 
       if(ret != 200)
         return raiseHTTPError(ret);
@@ -829,7 +828,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
 
     if(!td->mime && FilesUtility::isDirectory(td->filenamePath.c_str()))
     {
-      return processDefaultFile (uri, permissions, onlyHeader);
+      return processDefaultFile (uri, td->permissions, onlyHeader);
     }
 
     td->response.contentType[0] = '\0';
@@ -851,9 +850,6 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     {
       if (manager)
       {
-        if (!(permissions & MYSERVER_PERMISSION_EXECUTE))
-            return sendAuth();
-
         return manager->send (td,
                               td->connection,
                               td->filenamePath.c_str(),
@@ -864,7 +860,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     }
 
 
-    if (!(permissions & MYSERVER_PERMISSION_READ))
+    if (!(td->permissions & MYSERVER_PERMISSION_READ))
       return sendAuth ();
 
     manager = staticHttp.dynManagerList.getHttpManager ("FILE");
@@ -1907,9 +1903,6 @@ int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
           return ret;
         }
     }
-
-  if( !(permissions & MYSERVER_PERMISSION_BROWSE) )
-      return sendAuth();
 
   HttpDataHandler *handler = staticHttp.dynManagerList.getHttpManager ("DIR");
 

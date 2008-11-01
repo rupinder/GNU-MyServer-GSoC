@@ -85,6 +85,7 @@ struct HttpThreadContext
 	MimeRecord *mime;
 	int sentData;
   SecurityToken securityToken;
+  int permissions;
 
 	const char* getVhostDir();
 	const char* getVhostSys();

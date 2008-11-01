@@ -23,6 +23,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/filter/stream.h>
 #include <string>
 
+#include <include/base/socket/socket.h>
+#include <include/base/mem_buff/mem_buff.h>
+
 using namespace std;
 
 class File : public Stream
@@ -66,6 +69,9 @@ public:
   /*! Inherithed from Stream. */
   virtual int read(char* buffer, u_long len, u_long *nbr);
   virtual int write(const char* buffer, u_long len, u_long *nbw);
+
+  virtual int fastCopyToSocket (Socket *dest, u_long offset, 
+                                MemBuf *buf, u_long *nbw);
 protected:
 	FileHandle handle;
 	string filename;

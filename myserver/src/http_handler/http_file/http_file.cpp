@@ -37,15 +37,6 @@ extern "C"
 #ifdef NOT_WIN
 #include <string.h>
 #include <errno.h>
-#ifdef SENDFILE
-#include <fcntl.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/sendfile.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-#endif
 #endif
 }
 
@@ -89,6 +80,9 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 
   try
   {
+
+    if ( !(td->permissions & MYSERVER_PERMISSION_READ))
+      return td->http->sendAuth ();
 
     if (!FilesUtility::fileExists (filenamePath))
       return td->http->raiseHTTPError(404);
@@ -323,6 +317,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
  
     HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), 
                                          &td->response);
+
     td->buffer->setLength((u_long)strlen(td->buffer->getBuffer()));
     if(!td->appendOutputs)
     {
@@ -349,30 +344,26 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       return 0;
     }
 
-#ifdef SENDFILE
     /* 
      * Check if there are all the conditions to use a direct copy from the 
-     * file to the socket.  The sendfile syscall copy from a descriptor to
-     * another directly in the kernel space without performs an extra copy
-     * to an userspace buffer.
+     * file to the socket.
      */
     if(!useChunks && chain.isEmpty() && 
-       !td->appendOutputs && (file->getHandle() != -1) && 
+       !td->appendOutputs &&
        !(td->http->getProtocolOptions() & PROTOCOL_USES_SSL))
     {
-      off_t offset = firstByte;
-      ret = sendfile(s->socket->getHandle(), file->getHandle(),
-                     &offset, bytesToSend);
+      u_long nbw = 0;
+      int ret = file->fastCopyToSocket (s->socket, firstByte, td->buffer, &nbw);
+
       file->close();
       delete file;
+
       chain.clearAllFilters();
 
-      /* For logging activity.  */
-      td->sentData += ret;
+      td->sentData += nbw;
 
-      return 0;
+      return ret;
     }
-#endif
 
     if(td->appendOutputs)
       chain.setStream(&(td->outputData));

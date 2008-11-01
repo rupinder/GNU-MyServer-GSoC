@@ -65,7 +65,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
     return 0;
   }
 
-   switch (dwHSERRequest) 
+  switch (dwHSERRequest) 
   {
     case HSE_REQ_MAP_URL_TO_PATH_EX:
       HSE_URL_MAPEX_INFO  *mapInfo;
@@ -776,6 +776,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
   int retvalue = 0;
   /*! Under windows there is MAX_PATH then we can use it. */
   char fullpath[MAX_PATH * 2];
+
   if(!execute)
   {
     if(cgipath && strlen(cgipath))
@@ -788,7 +789,10 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
     sprintf(fullpath, "%s", cgipath);
   }
 
-    td->inputData.setFilePointer(0);
+  if (!(td->permissions & MYSERVER_PERMISSION_EXECUTE))
+    return td->http->sendAuth();
+
+  td->inputData.setFilePointer(0);
 
   EnterCriticalSection(&GetTableEntryCritSec);
   connIndex = 0;

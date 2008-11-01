@@ -34,6 +34,18 @@ extern "C" {
 #include <string.h>
 #include <math.h>
 #include <time.h>
+
+#ifdef SENDFILE
+#include <fcntl.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/sendfile.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+
+
 }
 #endif
 
@@ -159,7 +171,7 @@ int File::openFile(const char* nfilename,u_long opt)
   else/*! Open the file. */
   {
     if(opt & File::MYSERVER_OPEN_APPEND)
-      ret = setFilePointer(getFileSize());
+      ret = setFilePointer(getFileSize ());
     else
       ret = setFilePointer(0);
       if(ret)
@@ -451,5 +463,53 @@ int File::read(char* buffer,u_long buffersize,u_long* nbr)
   int ret  = ::read((long)handle, buffer, buffersize);
   *nbr = (u_long)ret;
   return (ret == -1) ;
+#endif
+}
+
+/*!
+ *Copy the file directly to the socket.
+ *\param dest Destination socket.
+ *\param firstByte File offset.
+ *\param buf Temporary buffer that can be used by this function.
+ *\param nbw Number of bytes sent.
+ */
+int File::fastCopyToSocket (Socket *dest, u_long firstByte, MemBuf *buf, u_long *nbw)
+{
+#ifdef SENDFILE
+  off_t offset = firstByte;
+  int ret = sendfile (dest->getHandle(), 
+                      getHandle(), &offset, getFileSize () - firstByte);
+
+  if (ret < 0)
+    return ret;
+
+  *nbw = ret;
+  return 0;
+#else
+  const char *buffer = buf->getBuffer ();
+  u_long size = buf->getRealSize ();
+  *nbw = 0;
+
+	if (setFilePointer (firstByte))
+    return 0;
+
+  for (;;)
+  {
+    u_long nbr;
+    u_long tmpNbw;
+
+    if (read (buffer, size, &nbr))
+      return -1;
+
+    if (nbr == 0)
+      break;
+
+    if (dest->write (buffer, nbr, tmpNbw))
+      return -1;
+
+    *nbw += tmpNbw;
+  }
+ 
+  return 0;
 #endif
 }

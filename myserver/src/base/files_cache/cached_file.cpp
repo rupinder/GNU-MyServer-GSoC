@@ -191,3 +191,17 @@ int CachedFile::write(const char* buffer, u_long len, u_long *nbw)
 {
   return -1;
 }
+
+/*!
+ *Copy the file directly to the socket.
+ *\param dest Destination socket.
+ *\param firstByte File offset.
+ *\param buf Temporary buffer that can be used by this function.
+ *\param nbw Number of bytes sent.
+ */
+int CachedFile::fastCopyToSocket (Socket *dest, u_long firstByte, 
+                                  MemBuf *buf, u_long *nbw)
+{
+  return dest->write (&(this->buffer->getBuffer()[firstByte]), 
+                      buffer->getFileSize() - firstByte, nbw);
+}

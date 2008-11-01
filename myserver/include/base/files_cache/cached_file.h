@@ -47,7 +47,9 @@ public:
 	virtual int operator =(CachedFile);
 	virtual int close();
 
-  /*! Inherithed from Stream. */
+  virtual int fastCopyToSocket (Socket *dest, u_long offset, 
+                                MemBuf *buf, u_long *nbw);
+
   virtual int write(const char* buffer, u_long len, u_long *nbw);
 protected:
 	u_long fseek;

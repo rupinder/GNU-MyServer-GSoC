@@ -86,6 +86,9 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
   int len = strlen (cgipath);
   int i;
 
+  if (!(td->permissions & MYSERVER_PERMISSION_EXECUTE))
+    return td->http->sendAuth();
+
   td->scriptPath.assign (scriptpath);
   
   

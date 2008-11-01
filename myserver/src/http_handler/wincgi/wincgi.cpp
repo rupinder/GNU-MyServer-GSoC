@@ -106,6 +106,9 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,
   u_long nbw = 0;
   ostringstream stream;
 
+  if (!(td->permissions & MYSERVER_PERMISSION_EXECUTE))
+    return td->http->sendAuth();
+
   if(!FilesUtility::fileExists(scriptpath))
     return td->http->raiseHTTPError(404);
 

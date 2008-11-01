@@ -321,6 +321,10 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
   chain.setProtocol(td->http);
   chain.setProtocolData(td);
   chain.setStream(td->connection->socket);
+
+  if ( !(td->permissions & MYSERVER_PERMISSION_BROWSE))
+    return td->http->sendAuth ();
+
   if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain, 
                                                         td->mime->filters, 
                                              td->connection->socket, &nbw, 1))

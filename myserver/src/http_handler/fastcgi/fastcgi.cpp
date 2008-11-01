@@ -85,6 +85,11 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
   td->scriptPath.assign(scriptpath);
 
+
+  if (!(td->permissions & MYSERVER_PERMISSION_EXECUTE))
+    return td->http->sendAuth();
+
+
   {
     string tmp;
     tmp.assign(cgipath);

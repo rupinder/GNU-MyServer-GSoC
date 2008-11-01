@@ -86,7 +86,10 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
   data.keepAlive = false;
   data.useChunks = false;
 
-   td->scriptPath.assign(exec);
+  if (!(td->permissions & MYSERVER_PERMISSION_EXECUTE))
+    return td->http->sendAuth();
+
+  td->scriptPath.assign(exec);
 
   {
     string tmp;
