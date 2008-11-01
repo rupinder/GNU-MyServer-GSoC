@@ -23,6 +23,7 @@
 #include <include/connection/connection.h>
 #include <include/base/string/stringutils.h>
 #include <include/base/string/securestr.h>
+#include <include/conf/vhost/ip.h>
 
 #ifdef HAVE_IDN
 #include <stringprep.h>
@@ -35,7 +36,7 @@
  */
 Vhost::Vhost(LogManager* lm)
 {
-  ipList.clear();
+  //ipList.clear();
   hostList.clear();
   refMutex.init();
   documentRoot.assign("");
@@ -142,6 +143,23 @@ void Vhost::clearHostList()
  */
 void Vhost::clearIPList()
 {
+  list<IpRange *>::iterator it = ipListAllow.begin();
+  while(it != ipListAllow.end())
+    {
+      delete (*it);
+      it++;
+    }
+  ipListAllow.clear();
+
+  it = ipListDeny.begin();
+  while(it != ipListDeny.end())
+    {
+      delete (*it);
+      it++;
+    }
+  ipListDeny.clear();
+
+  /*
   list<StringRegex*>::iterator i = ipList.begin();
   while(i != ipList.end())
     {
@@ -150,6 +168,7 @@ void Vhost::clearIPList()
       i++;
     }
   hostList.clear();
+  */
 }
 
 int
@@ -177,29 +196,41 @@ Vhost::openLogFiles ()
  */
 void Vhost::addIP(const char *ip, int isRegex)
 {
+  std::string sTempIp(ip);
+  IpRange *pNewRange = IpRange::RangeFactory(sTempIp);
+  if ( pNewRange != NULL )
+    ipListAllow.push_back(pNewRange);
+
+  /* old code
   StringRegex* sr = new StringRegex();
   if(sr == 0)
     return;
   sr->name.assign(ip);
-  /* If is a regular expression, the ip string is a pattern.  */
+  / * If is a regular expression, the ip string is a pattern.  * /
   if(isRegex)
     sr->regex.compile(ip, REG_EXTENDED);
   ipList.push_back(sr);
+  */
 }
+
 /*!
  *Remove the IP address to the list.
  *\param ip The ip to remove.
  */
 void Vhost::removeIP(const char *ip)
 {
+  std::string sTempIp(ip);
+  ipListDeny.push_back(IpRange::RangeFactory(sTempIp));
+
+  /*
   list<StringRegex*>::iterator i = ipList.begin();
 
   while(i != ipList.end())
     {
       StringRegex* sr = *i;
-      /*
+      / *
        *If this is the virtual host with the right IP.
-       */
+       * /
       if(!stringcmp(sr->name,ip))
         {
           ipList.erase(i);
@@ -208,6 +239,7 @@ void Vhost::removeIP(const char *ip)
     
       i++;
     }
+  */
 }
 
 /*!
@@ -279,7 +311,11 @@ int Vhost::areAllHostAllowed()
  */
 int Vhost::areAllIPAllowed()
 {
+  /*
   if(ipList.size() == 0)
+    return 1;
+  */
+  if ( ipListDeny.empty() && ipListAllow.empty() )
     return 1;
   return 0;
 }
@@ -291,7 +327,35 @@ int Vhost::areAllIPAllowed()
  */
 int Vhost::isIPAllowed(const char* ip)
 {
-  /* If no IPs are specified then every host is allowed to connect here.  */
+  if ( areAllIPAllowed() )
+    return 1;
+
+  std::string sTempIp(ip);
+  IpRange *pTempIp = IpRange::RangeFactory(sTempIp);
+  list<IpRange *>::const_iterator it = ipListDeny.begin();
+  while ( it != ipListDeny.end() )
+    {
+      if ( (*it)->InRange(pTempIp) )
+	{
+	  delete pTempIp;
+	  return 0;
+	}
+      it++;
+    }
+  it = ipListAllow.begin();
+  while ( it != ipListAllow.end() )
+    {
+      if ( (*it)->InRange(pTempIp) )
+	{
+	  delete pTempIp;
+	  return 1;
+	}
+      it++;
+    }
+  delete pTempIp;
+  return 0;
+  /*
+  / * If no IPs are specified then every host is allowed to connect here.  * /
   if(!ipList.size() || !ip)
     return 1;
     
@@ -313,6 +377,7 @@ int Vhost::isIPAllowed(const char* ip)
       
       i++;
     }
+  */
   return 0;
 }
 

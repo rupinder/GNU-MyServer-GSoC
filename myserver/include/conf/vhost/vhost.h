@@ -34,6 +34,7 @@
 #include <include/base/sync/mutex.h>
 #include <include/base/ssl/ssl.h>
 #include <include/connections_scheduler/listen_threads.h>
+#include <include/conf/vhost/ip.h>
 
 using namespace std;
 typedef int (*NULL_REFERENCECB)(class Vhost*); 
@@ -102,14 +103,14 @@ public:
 
   SSL_CTX* getSSLContext();
 
-
   /*! Get the list of hosts allowed.*/
   list<StringRegex*>* getHostList()
   {return &hostList;}
-	
-  /*! List of IPs allowed by the vhost. */
-  list<StringRegex*>* getIpList()
-  {return &ipList;}
+
+  //TODO: remove
+  ///*! List of IPs allowed by the vhost. */
+  //list<StringRegex*>* getIpList()
+  //{return &ipList;}
 
   /*! Return the port used by the host. */
   u_short getPort()
@@ -139,25 +140,28 @@ public:
   ~Vhost();
 
   const char* getHashedData(const char* name);
-  void addIP(const char *, int);
   void addHost(const char *, int);
-  void removeIP(const char *);
   void removeHost(const char *);
   int areAllHostAllowed();
-  int areAllIPAllowed();
   void addRef();
   void removeRef();
   int getRef();
   void setRef(int);
-  void clearIPList();
   void clearHostList();
   int isHostAllowed(const char*);
-  int isIPAllowed(const char*);
   int isMIME();
   int getDefaultPriority(){return defaultPriority;}
   void setDefaultPriority(int priority){defaultPriority = priority;}
   void setNullRefCB(NULL_REFERENCECB);
   NULL_REFERENCECB getNullRefCB();
+
+  ////////////////////
+  //IP related members
+  void addIP(const char *, int);
+  void removeIP(const char *);
+  void clearIPList();
+  int areAllIPAllowed();
+  int isIPAllowed(const char*);//used
 
   MimeManager* getMIME();
 
@@ -219,7 +223,9 @@ private:
   list<StringRegex*> hostList;
 
   /*! List of IPs allowed by the vhost. */
-  list<StringRegex*> ipList;
+  list<IpRange*> ipListAllow;
+  /*! List of IPs denied by the vhost. */
+  list<IpRange*> ipListDeny;
 
   /*! TCP port used to listen on. */
   u_short port;

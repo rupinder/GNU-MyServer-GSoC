@@ -53,7 +53,7 @@ Ipv4Range::Ipv4Range(const std::string &sRange)
 }
 
 /*!
- * range given as x.x.x.x-y.y.y.y or x.x.x.x/y
+ * range given as x.x.x.x-y.y.y.y or x.x.x.x(/y)
  */
 bool Ipv4Range::SetRange(const std::string &sRange)
 {
@@ -68,7 +68,7 @@ bool Ipv4Range::SetRange(const std::string &sRange)
       std::string end(sRange.substr(nPos + 1));
       return SetRange(start, end);
     }
-  else// x.x.x.x/y form
+  else// x.x.x.x(/y) form
     {
       std::istringstream istream(sRange);
       char nSep = 0;
@@ -170,6 +170,11 @@ Ipv4Range::~Ipv4Range()
 bool Ipv4Range::InRange(const unsigned char addr[4])
 {
   unsigned char hostMask[4];
+  for ( int i = 0; i < 4; i++ )
+    {
+      if ( (addr[i] & m_nMask[i]) != (m_nStart[i] & m_nMask[i]) )
+	return false;//networks differ
+    }
   for ( int i = 0; i < 4; i++ )
     {
       hostMask[i] = ~m_nMask[i];
