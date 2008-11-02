@@ -132,10 +132,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,
                                                  td->mime->filters, 
                                                  td->connection->socket, &nbw2, 1))
       {
-        td->connection->host->warningsLogRequestAccess(td->id);
         td->connection->host->warningsLogWrite("WinCGI: Error loading filters");
-        td->connection->host->warningsLogTerminateAccess(td->id);
-
         chain.clearAllFilters(); 
         return td->http->raiseHTTPError(500);
       }
@@ -149,9 +146,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,
                      File::MYSERVER_CREATE_ALWAYS|File::MYSERVER_OPEN_WRITE);
   if ( ret ) 
   {
-    td->connection->host->warningsLogRequestAccess(td->id);
     td->connection->host->warningsLogWrite("WinCGI: Error creating .ini");
-    td->connection->host->warningsLogTerminateAccess(td->id);
     return td->http->raiseHTTPError(500);
   }
 
@@ -293,10 +288,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,
     ret = OutFileHandle.openFile(outFilePath, File::MYSERVER_CREATE_ALWAYS);
     if (ret)
     {
-      td->connection->host->warningsLogRequestAccess(td->id);
       td->connection->host->warningsLogWrite(
                                       "WinCGI: Error creating output file");
-      td->connection->host->warningsLogTerminateAccess(td->id);
       DataFileHandle.close();
       FilesUtility::deleteFile(outFilePath);
       FilesUtility::deleteFile(dataFilePath);
@@ -315,9 +308,8 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,
   {
     ostringstream msg;
     msg << "WinCGI: Error executing process " << scriptpath;
-    td->connection->host->warningsLogRequestAccess(td->id);
     td->connection->host->warningsLogWrite(msg.str().c_str());
-    td->connection->host->warningsLogTerminateAccess(td->id);
+
     FilesUtility::deleteFile(outFilePath);
     FilesUtility::deleteFile(dataFilePath);
     chain.clearAllFilters();
@@ -330,9 +322,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,
   {
     ostringstream msg;
     msg << "WinCGI: Error opening output file " << outFilePath;
-    td->connection->host->warningsLogRequestAccess(td->id);
     td->connection->host->warningsLogWrite(msg.str().c_str());
-    td->connection->host->warningsLogTerminateAccess(td->id);
     chain.clearAllFilters();
     return td->http->raiseHTTPError(500);
   }
@@ -342,9 +332,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,
     ostringstream msg;
     msg << "WinCGI: Error zero bytes read from the WinCGI output file " 
         << outFilePath;
-    td->connection->host->warningsLogRequestAccess(td->id);
     td->connection->host->warningsLogWrite(msg.str().c_str());
-    td->connection->host->warningsLogTerminateAccess(td->id);
     OutFileHandle.close();
     FilesUtility::deleteFile(outFilePath);
     FilesUtility::deleteFile(dataFilePath);

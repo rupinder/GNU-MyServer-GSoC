@@ -691,7 +691,8 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
     MyServiceStatus.dwCurrentState = SERVICE_RUNNING;
     SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 
-    Server::getInstance()->start();
+    string null ("");
+    Server::getInstance()->start(null, null, null, null, null);
 
     MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
     SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
@@ -744,9 +745,10 @@ void runService()
 #ifdef WIN32
   SERVICE_TABLE_ENTRY serviceTable[] =
     {
-      { "MyServer", myServerMain },
+      { (CHAR*) "MyServer", myServerMain },
       { 0, 0 }
     };
+
   if(!StartServiceCtrlDispatcher( serviceTable ))
   {
     if(GetLastError() == ERROR_INVALID_DATA)
@@ -780,7 +782,7 @@ void registerService()
   manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
   if (manager)
   {
-    service = CreateService(manager,"MyServer","MyServer",
+    service = CreateService(manager,"GNU MyServer","GNU MyServer",
                             SERVICE_ALL_ACCESS,SERVICE_WIN32_OWN_PROCESS,
                             SERVICE_AUTO_START, SERVICE_ERROR_IGNORE, path,
                             0, 0, 0, 0, 0);
@@ -804,7 +806,7 @@ void removeService()
   manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
   if (manager)
   {
-    service = OpenService (manager, "MyServer", SERVICE_ALL_ACCESS);
+    service = OpenService (manager, "GNU MyServer", SERVICE_ALL_ACCESS);
     if (service)
     {
       ControlService (service, SERVICE_CONTROL_STOP,&MyServiceStatus);

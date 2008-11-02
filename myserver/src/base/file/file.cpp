@@ -486,8 +486,8 @@ int File::fastCopyToSocket (Socket *dest, u_long firstByte, MemBuf *buf, u_long 
   *nbw = ret;
   return 0;
 #else
-  const char *buffer = buf->getBuffer ();
-  u_long size = buf->getRealSize ();
+  char *buffer = buf->getBuffer ();
+  u_long size = buf->getRealLength ();
   *nbw = 0;
 
 	if (setFilePointer (firstByte))
@@ -504,7 +504,7 @@ int File::fastCopyToSocket (Socket *dest, u_long firstByte, MemBuf *buf, u_long 
     if (nbr == 0)
       break;
 
-    if (dest->write (buffer, nbr, tmpNbw))
+    if (dest->write (buffer, nbr, &tmpNbw))
       return -1;
 
     *nbw += tmpNbw;

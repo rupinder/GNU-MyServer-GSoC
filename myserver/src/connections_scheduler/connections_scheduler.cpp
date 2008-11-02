@@ -171,7 +171,7 @@ static void eventLoopHandler(int fd, short event, void *arg)
  
   if(event == EV_READ || event == EV_TIMEOUT)
   {
-    Socket sock(da->fd[0]);
+    Socket sock((FileHandle) da->fd[0]);
 
     while(sock.bytesToRead())
     {
@@ -194,7 +194,7 @@ static void eventLoopHandler(int fd, short event, void *arg)
         sock.recv((char*)&c, sizeof(ConnectionPtr), 0);
         sock.recv((char*)&tv, sizeof(timeval), 0);
 
-        event_once(handle, EV_READ | EV_TIMEOUT, newDataHandler, da, &tv);
+        event_once((int) handle, EV_READ | EV_TIMEOUT, newDataHandler, da, &tv);
       }
       if(cmd == 'r')
         return;
@@ -245,7 +245,7 @@ void ConnectionsScheduler::listener(ConnectionsScheduler::ListenerArg *la)
   ConnectionsScheduler::ListenerArg *arg = new ConnectionsScheduler::ListenerArg(la);
   static timeval tv = {3, 0};
 
-  event_set(&(arg->ev), la->serverSocket->getHandle(), EV_READ | EV_TIMEOUT, 
+  event_set(&(arg->ev), (int) la->serverSocket->getHandle(), EV_READ | EV_TIMEOUT, 
             listenerHandler, arg);
 
   arg->terminate = &dispatcherArg.terminate;
@@ -259,7 +259,7 @@ void ConnectionsScheduler::listener(ConnectionsScheduler::ListenerArg *la)
   event_add(&(arg->ev), &tv);
 
   u_long nbw;
-  Socket sock(dispatcherArg.fd[1]);
+  Socket sock ((FileHandle)dispatcherArg.fd[1]);
 
   eventsSocketMutex.lock();
   sock.write("l", 1, &nbw);  
@@ -479,7 +479,7 @@ void ConnectionsScheduler::addWaitingConnectionImpl(ConnectionPtr c, int lock)
   if(lock)
   {
     u_long nbw;
-    Socket sock(dispatcherArg.fd[1]);
+    Socket sock ((FileHandle)dispatcherArg.fd[1]);
 
     eventsSocketMutex.lock();
     sock.write("c", 1, &nbw);
@@ -490,7 +490,7 @@ void ConnectionsScheduler::addWaitingConnectionImpl(ConnectionPtr c, int lock)
   }
   else
   {
-    event_once(handle, EV_READ | EV_TIMEOUT, newDataHandler, &dispatcherArg, &tv);
+    event_once((int)handle, EV_READ | EV_TIMEOUT, newDataHandler, &dispatcherArg, &tv);
   }
 }
 
@@ -553,7 +553,7 @@ void ConnectionsScheduler::release()
     readySemaphore->unlock();
   }
 
-  Socket sock(dispatcherArg.fd[1]);
+  Socket sock((FileHandle)dispatcherArg.fd[1]);
 
   eventsSocketMutex.lock();
   sock.write("r", 1, &nbw);

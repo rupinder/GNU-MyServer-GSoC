@@ -35,6 +35,18 @@ using namespace std;
 #define NL "\n"
 #endif
 
+#ifdef INFO
+#undef INFO
+#endif
+
+#ifdef WARNING
+#undef WARNING
+#endif
+
+#ifdef ERROR
+#undef ERROR
+#endif
+
 enum LoggingLevel
   {
     INFO,

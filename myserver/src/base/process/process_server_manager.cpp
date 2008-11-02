@@ -435,7 +435,7 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
         }
 
 
-        server->DESCRIPTOR.fileHandle = server->socket.getHandle();
+        server->DESCRIPTOR.fileHandle = (unsigned long) server->socket.getHandle();
         spi.envString = 0;
         spi.stdIn = (FileHandle)server->DESCRIPTOR.fileHandle;
         spi.cmd.assign(tmpCgiPath);
@@ -512,7 +512,7 @@ int ProcessServerManager::connect(Socket* sock,
 {
   MYSERVER_SOCKADDRIN serverSock = { 0 };
   socklen_t nLength = sizeof(MYSERVER_SOCKADDRIN);
-  getsockname(server->socket.getHandle(), (sockaddr *)&serverSock, &nLength);
+  getsockname((SOCKET) server->socket.getHandle(), (sockaddr *)&serverSock, &nLength);
   if(serverSock.ss_family == AF_INET || !server->isLocal)
   {
     /*! Try to create the socket.  */

@@ -57,11 +57,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
   Isapi::isapiMutex->unlock();
   if (ConnInfo == NULL) 
   {
-    Server::getInstance()->logLockAccess();
-    Server::getInstance()->logPreparePrintError();
     Server::getInstance()->logWriteln("isapi::ServerSupportFunctionExport: invalid hConn");
-    Server::getInstance()->logEndPrintError();
-    Server::getInstance()->logUnlockAccess();
     return 0;
   }
 
@@ -221,12 +217,8 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 
   if (ConnInfo == NULL) 
   {
-    ((Vhost*)(ConnInfo->td->connection->host))->warningsLogRequestAccess(
-                                                                ConnInfo->td->id);
     ((Vhost*)(ConnInfo->td->connection->host))->warningsLogWrite(
                                         "ISAPI: WriteClientExport: invalid hConn");
-    ((Vhost*)(ConnInfo->td->connection->host))->warningsLogTerminateAccess(
-                                                                ConnInfo->td->id);
     return 0;
   }
   keepalive =connection && (!stringcmpi(connection->value->c_str(), "keep-alive")) ;
@@ -406,12 +398,8 @@ BOOL WINAPI ISAPI_ReadClientExport(HCONN hConn, LPVOID lpvBuffer,
   Isapi::isapiMutex->unlock();
   if (ConnInfo == NULL) 
   {
-    ((Vhost*)(ConnInfo->td->connection->host))->warningsLogRequestAccess(
-                                                             ConnInfo->td->id);
     ((Vhost*)(ConnInfo->td->connection->host))->warningsLogWrite(
                                     "ISAPI: ReadClientExport: invalid hConn");
-    ((Vhost*)(ConnInfo->td->connection->host))->warningsLogTerminateAccess(
-                                                           ConnInfo->td->id);
     return 0;
   }
 
@@ -444,12 +432,8 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn,
   Isapi::isapiMutex->unlock();
   if (ConnInfo == NULL) 
   {
-    Server::getInstance()->logLockAccess();
-    Server::getInstance()->logPreparePrintError();
     Server::getInstance()->logWriteln(
                        "Isapi::GetServerVariableExport: invalid hConn");
-    Server::getInstance()->logEndPrintError();
-    Server::getInstance()->logUnlockAccess();
     return 0;
   }
 
@@ -807,10 +791,8 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 
   if (connIndex == maxConnections) 
   {
-    td->connection->host->warningsLogRequestAccess(td->id);
     td->connection->host->warningsLogWrite(
                                             "ISAPI: Error max connections");
-    td->connection->host->warningsLogTerminateAccess(td->id);
     return td->http->raiseHTTPError(503);
   }
   if(execute)
@@ -825,9 +807,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
     string msg;
     msg.assign("ISAPI: Cannot load library ");
     msg.append(loadLib);
-    td->connection->host->warningsLogRequestAccess(td->id);
     td->connection->host->warningsLogWrite(msg.c_str());
-    td->connection->host->warningsLogTerminateAccess(td->id);
     return td->http->raiseHTTPError(500);
   }
 
@@ -843,9 +823,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
                                           td->connection->socket, 
                                           &nbw, 1))
       {
-        td->connection->host->warningsLogRequestAccess(td->id);
         td->connection->host->warningsLogWrite("Error loading filters");
-        td->connection->host->warningsLogTerminateAccess(td->id);
         connTable[connIndex].chain.clearAllFilters(); 
         return td->http->raiseHTTPError(500);
       }
@@ -865,37 +843,30 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 
   if (GetExtensionVersion == NULL) 
   {
-    td->connection->host->warningsLogRequestAccess(td->id);
     td->connection->host->warningsLogWrite(
            "ISAPI: Failed to get pointer to GetExtensionVersion() in ISAPI application");
-    td->connection->host->warningsLogTerminateAccess(td->id);
     if(!appHnd.close())
     {
       string msg;
       msg.assign("ISAPI: Failed to freeLibrary in ISAPI module: ");
       msg.append(cgipath);
       msg.append("\r\n");
-      td->connection->host->warningsLogRequestAccess(td->id);
       td->connection->host->warningsLogWrite(msg.c_str());
-      td->connection->host->warningsLogTerminateAccess(td->id);
     }
     connTable[connIndex].chain.clearAllFilters(); 
     return td->http->raiseHTTPError(500);
   }
   if(!GetExtensionVersion(&Ver)) 
   {
-    td->connection->host->warningsLogRequestAccess(td->id);
     td->connection->host->warningsLogWrite(
                              "ISAPI: GetExtensionVersion() returned FALSE");
-    td->connection->host->warningsLogTerminateAccess(td->id);
+
     if(!appHnd.close())
     {
       string msg;
       msg.assign("ISAPI: Failed to freeLibrary in ISAPI module: ");
       msg.append(cgipath);
-      td->connection->host->warningsLogRequestAccess(td->id);
       td->connection->host->warningsLogWrite(msg.c_str());
-      td->connection->host->warningsLogTerminateAccess(td->id);
     }
     connTable[connIndex].chain.clearAllFilters(); 
     return td->http->raiseHTTPError(500);
@@ -903,18 +874,15 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
   if (Ver.dwExtensionVersion > MAKELONG(HSE_VERSION_MINOR, 
                                         HSE_VERSION_MAJOR)) 
   {
-    td->connection->host->warningsLogRequestAccess(td->id);
     td->connection->host->warningsLogWrite(
                                        "ISAPI: version not supported");
-    td->connection->host->warningsLogRequestAccess(td->id);
+
     if(!appHnd.close())
     {
       string msg;
       msg.assign("ISAPI: Failed to freeLibrary in ISAPI module: ");
       msg.append(cgipath);
-      td->connection->host->warningsLogRequestAccess(td->id);
       td->connection->host->warningsLogWrite(msg.c_str());
-      td->connection->host->warningsLogTerminateAccess(td->id);
     }
     connTable[connIndex].chain.clearAllFilters(); 
     return td->http->raiseHTTPError(500);
@@ -971,12 +939,10 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
   HttpExtensionProc = (PFN_HTTPEXTENSIONPROC)appHnd.getProc("HttpExtensionProc");
   if (HttpExtensionProc == NULL) 
   {
-    td->connection->host->warningsLogRequestAccess(td->id);
     td->connection->host->warningsLogWrite(
                      "ISAPI: Failed to get pointer to HttpExtensionProc() \
 in ISAPI application module");
 
-    td->connection->host->warningsLogTerminateAccess(td->id);
     appHnd.close();
     connTable[connIndex].chain.clearAllFilters(); 
     return td->http->raiseHTTPError(500);
@@ -1014,9 +980,7 @@ in ISAPI application module");
     string msg;
     msg.assign("ISAPI: Failed to unLoad module "); 
     msg.append(cgipath);
-    td->connection->host->warningsLogRequestAccess(td->id);
     td->connection->host->warningsLogWrite(msg.c_str());
-    td->connection->host->warningsLogTerminateAccess(td->id);
   }
 
   {

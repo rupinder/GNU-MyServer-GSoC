@@ -135,10 +135,6 @@ public:
   int logWriteln(char const*, LoggingLevel level = WARNING);
   int logWriteln(string const &str)
     {return logWriteln(str.c_str());};
-  int logPreparePrintError();
-  int logEndPrintError();
-  int logLockAccess();
-  int logUnlockAccess();
   int setLogLocation(string);
   u_long getBuffersize();
   u_long getBuffersize2();

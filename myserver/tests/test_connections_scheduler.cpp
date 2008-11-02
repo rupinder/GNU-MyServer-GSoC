@@ -131,7 +131,7 @@ public:
     for(u_long i = 0; i < max; i++)
     {
       ConnectionPtr conn = new Connection;
-      conn->socket = new MockSocket(i);
+      conn->socket = new MockSocket((FileHandle) i);
       scheduler->addWaitingConnection(conn);
     }
     
@@ -144,7 +144,7 @@ public:
   void testGetConnections()
   {
     ConnectionPtr conn = new Connection;
-    conn->socket = new MockSocket(1);
+    conn->socket = new MockSocket((FileHandle) 1);
     
     list<ConnectionPtr> out;
 
@@ -153,7 +153,7 @@ public:
     CPPUNIT_ASSERT_EQUAL(out.size(), (size_t)0);
 
     conn = new Connection;
-    conn->socket = new MockSocket(2);
+    conn->socket = new MockSocket((FileHandle) 2);
     
     scheduler->addWaitingConnection(conn);
 
@@ -165,7 +165,7 @@ public:
   void testGetNumTotalConnections()
   {
     ConnectionPtr conn = new Connection;
-    conn->socket = new MockSocket(1);
+    conn->socket = new MockSocket((FileHandle) 1);
 
     CPPUNIT_ASSERT_EQUAL(scheduler->getNumTotalConnections(), 0ul);
 
@@ -189,7 +189,7 @@ public:
     ConnectionPtr gotConn;
 
     ConnectionPtr conn = new Connection;
-    conn->socket = new MockSocket(1);
+    conn->socket = new MockSocket((FileHandle) 1);
 
     CPPUNIT_ASSERT_EQUAL(scheduler->getNumTotalConnections(), 0ul);
 
@@ -209,7 +209,7 @@ public:
   void testAddNewConnection()
   {
     ConnectionPtr conn = new Connection;
-    conn->socket = new MockSocket(1);
+    conn->socket = new MockSocket((FileHandle) 1);
 
     CPPUNIT_ASSERT_EQUAL(scheduler->getNumTotalConnections(), 0ul);
 

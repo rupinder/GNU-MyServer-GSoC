@@ -60,16 +60,19 @@ int startupSocketLib(u_short ver)
  */
 FileHandle Socket::getHandle()
 {
-  return socketHandle;
+  return (FileHandle) socketHandle;
 }
 
 /*!
  *Set the handle for the socket
  */
-int Socket::setHandle(FileHandle h)
+void Socket::setHandle(FileHandle h)
 {
+#ifdef WIN32
+  socketHandle = (SOCKET) h;
+#else
   socketHandle = h;
-  return 1;
+#endif
 }
 
 /*!
@@ -94,7 +97,11 @@ int Socket::operator=(Socket s)
  */
 int Socket::socket(int af, int type, int protocol)
 {
+#ifdef WIN32
+  socketHandle = (SOCKET)::socket(af, type, protocol);
+#else
   socketHandle = (FileHandle)::socket(af, type, protocol);
+#endif
   return  (int)socketHandle;
 }
 
@@ -186,8 +193,6 @@ int Socket::listen(int max)
  */
 Socket Socket::accept(MYSERVER_SOCKADDR* sa, int* sockaddrlen)
 {
-   if ( sa == NULL )
-      return 1;//Andu: TODO our error code or what?
 #ifdef NOT_WIN
   socklen_t connectSize;
   int acceptHandle;

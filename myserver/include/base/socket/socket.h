@@ -71,7 +71,7 @@ public:
 
 	static void stopBlockingOperations(bool);
 	virtual FileHandle getHandle();
-	int setHandle(FileHandle);
+	void setHandle(FileHandle);
 	static MYSERVER_HOSTENT *gethostbyaddr(char* addr, int len, int type);
 	static MYSERVER_HOSTENT *gethostbyname(const char*);
 	static int gethostname(char*, int);
@@ -108,7 +108,11 @@ public:
   virtual int write(const char* buffer, u_long len, u_long *nbw);
 
 protected:
+#ifdef WIN32
+	SOCKET socketHandle;
+#else
 	FileHandle socketHandle;
+#endif
 
 	/*! Pointer to the socket that has accepted this connection.  */
 	Socket *serverSocket;
