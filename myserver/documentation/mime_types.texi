@@ -73,3 +73,18 @@ internal data.
 @item ISAPI
 Run the ISAPI script.  
 @end enumerate
+
+It is possible to match the file name against a regular expression
+instead of specifying only its extension.
+
+It is done using the @code{PATH} directive in the following way:
+
+@example
+<?xml version ="1.0"?>
+<MIME mime="text/html" handler="SEND" param="">
+<PATH regex="/foo/bar/.*" />
+</MIME>
+@end example
+
+The @code{PATH} regular expressions are checked before the file
+extension, in the order they are specified in the configuration file.

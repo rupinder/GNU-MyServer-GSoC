@@ -1761,16 +1761,14 @@ Internal Server Error\n\
  *Returns the MIME type passing its extension.
  *Returns zero if the file is registered.
  */
-MimeRecord* Http::getMIME(string &filename)
+MimeRecord* Http::getMIME (string &filename)
 {
-  string ext;
-  FilesUtility::getFileExt(ext, filename);
-
-  if(staticHttp.allowVhostMime && td->connection->host->isMIME() )
+  if(staticHttp.allowVhostMime && td->connection->host->isMIME () )
   {
-    return td->connection->host->getMIME()->getMIME(ext);
+    return td->connection->host->getMIME ()->getMIME (filename);
   }
-  return Server::getInstance()->getMimeManager()->getMIME(ext);
+
+  return Server::getInstance ()->getMimeManager ()->getMIME (filename);
 }
 
 /*!

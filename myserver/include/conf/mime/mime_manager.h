@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/hash_map/hash_map.h>
 #include <include/base/sync/mutex.h>
 #include <include/base/xml/xml_parser.h>
+#include <include/base/regex/myserver_regex.h>
 
 
 #ifdef WIN32
@@ -46,6 +47,12 @@ extern "C" {
 
 using namespace std;
 
+struct PathRegex
+{
+  Regex *regex;
+  int record;
+};
+
 struct MimeRecord
 {
 	list<string> filters;
@@ -54,6 +61,8 @@ struct MimeRecord
 	string cmdName;
 	string cgiManager;
   bool selfExecuted;
+  list<Regex*> pathRegex;
+
 	MimeRecord ();
 	MimeRecord (MimeRecord&);
 	int addFilter (const char*, bool acceptDuplicate = true);
@@ -88,7 +97,8 @@ protected:
 private:
   bool loaded;
   HashMap<string, int> extIndex;
-  vector <MimeRecord*> records;
+  vector<MimeRecord*> records;
+  list<PathRegex*> pathRegex;
 
 	u_long numMimeTypesLoaded;
 	string filename;

@@ -49,8 +49,8 @@ extern "C"
 using namespace std;
 
 /*!
-*This class is used to manage regular expressions in MyServer.
-*/
+ *This class is used to manage regular expressions in MyServer.
+ */
 class Regex
 {
 public:

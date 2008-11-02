@@ -90,7 +90,9 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
     return td->http->sendAuth();
 
   td->scriptPath.assign (scriptpath);
-  
+
+  if (!FilesUtility::fileExists (scriptpath))
+    return td->http->raiseHTTPError(404);
   
   int subString = cgipath[0] == '"';
   /* Do not modify the text between " and ".  */
@@ -178,7 +180,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
   }
   else
   {
-    if(!FilesUtility::fileExists(tmpCgiPath.c_str()))
+    if (!FilesUtility::fileExists (tmpCgiPath.c_str ()))
     {
       if(tmpCgiPath.length() > 0)
       {
@@ -198,7 +200,6 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
       td->scriptDir.assign("");
       chain.clearAllFilters(); 
       return td->http->raiseHTTPError(500);
-
     }
 
     spi.arg.assign(moreArg);

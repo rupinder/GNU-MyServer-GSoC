@@ -107,6 +107,15 @@ void MimeRecord::clear ()
   mimeType.assign (""); 
   cmdName.assign ("");
   cgiManager.assign ("");
+
+  for (list<Regex*>::iterator it = pathRegex.begin (); 
+       it != pathRegex.end (); 
+       it++)
+  {
+    delete *it;
+  }
+
+  pathRegex.clear ();
 }  
 
 /*!
@@ -143,6 +152,7 @@ MimeRecord *MimeManager::readRecord (xmlNodePtr node)
       rc->cgiManager.assign ((const char*)attrs->children->content);
   }
 
+
   for ( ;lcur; lcur = lcur->next)
   {
     if (lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"EXTENSION"))
@@ -154,6 +164,23 @@ MimeRecord *MimeManager::readRecord (xmlNodePtr node)
         {
           string ext ((const char*)attrs->children->content);
           rc->extensions.push_back (ext);
+        }
+      }
+    }
+
+    if (lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"PATH"))
+    {
+      for (attrs = lcur->properties; attrs; attrs = attrs->next)
+      {
+        if (!xmlStrcmp (attrs->name, (const xmlChar *)"regex") && 
+            attrs->children && attrs->children->content)
+        {
+          Regex *r = new Regex;
+
+          if (r->compile ((const char*)attrs->children->content, 0))
+            return NULL;
+
+          rc->pathRegex.push_back (r);
         }
       }
     }
@@ -277,7 +304,18 @@ int MimeManager::addRecord (MimeRecord *mr)
 
     extIndex.put (ext, position);
   }
-  
+
+  for (list<Regex*>::iterator it = mr->pathRegex.begin (); 
+       it != mr->pathRegex.end (); 
+       it++)
+  {
+    PathRegex *pr = new PathRegex;
+    pr->regex = *it;
+    pr->record = position;
+
+    pathRegex.push_back (pr);
+  }
+
   return position;
 }
 
@@ -298,6 +336,14 @@ void MimeManager::clearRecords ()
     i++;
   }
 
+  for (list<PathRegex*>::iterator it = pathRegex.begin (); 
+       it != pathRegex.end (); 
+       it++)
+  {
+    delete *it;
+  }
+
+  pathRegex.clear ();
   records.clear ();
 
   extIndex.clear ();
@@ -307,20 +353,42 @@ void MimeManager::clearRecords ()
 }
 
 /*!
- *Get a pointer to a MIME record by its extension.
+ *Get the MIME type to use on the specified file.
  */
-MimeRecord *MimeManager::getMIME (const char *ext)
+MimeRecord *MimeManager::getMIME (const char *filename)
 {
-  string str (ext);
-  return getMIME (str);
+  string str (filename);
+  return getMIME (filename);
 }
 
 /*!
- *Get a pointer to an existing record passing its extension.
+ *Get the MIME type to use on the specified file.
  */
-MimeRecord *MimeManager::getMIME (string const &ext)
+MimeRecord *MimeManager::getMIME (string const &filename)
 {
-  u_long pos = extIndex.get (ext.c_str ());
+  string ext;
+  u_long pos = 0;
+  
+
+  for (list<PathRegex*>::iterator it = pathRegex.begin (); 
+       it != pathRegex.end (); 
+       it++)
+  {
+    PathRegex *pr = *it;
+    regmatch_t pm;
+
+    if (pr->regex->exec(filename.c_str (), 1, &pm, 0) == 0)
+    {
+      pos = pr->record;
+      break;
+    }
+  }
+ 
+  if (pos == 0)
+  {
+    FilesUtility::getFileExt (ext, filename);
+    pos = extIndex.get (ext.c_str ());
+  }
 
   if (pos)
     return records [pos];
