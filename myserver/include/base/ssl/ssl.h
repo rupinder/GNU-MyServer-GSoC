@@ -21,33 +21,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "stdafx.h"
 
-#ifdef DO_NOT_USE_SSL
-typedef int SSL_CTX;
-typedef int SSL_METHOD;
-#else 
-#include <openssl/ssl.h>
-#include <openssl/rsa.h>
-#include <openssl/crypto.h>
-#include <openssl/lhash.h>
-#include <openssl/err.h>
-#include <openssl/bn.h>
-#include <openssl/pem.h>
-#include <openssl/x509.h>
-#include <openssl/rand.h>
-#endif
-
+#include <gnutls/openssl.h>
 #include <string>
 
 using namespace std;
 
 class SslContext
 {
-	SSL_CTX* context;
-	SSL_METHOD* method;
-
-	string certificateFile;
-	string privateKeyFile;
-	string password;
 public:
 	SslContext();
 
@@ -61,12 +41,17 @@ public:
 	string& getPrivateKeyFile(){return privateKeyFile;}
 	string& getPassword(){return password;}
 
-	void setCertificateFile(string& c){certificateFile.assign(c);}
-	void setPrivateKeyFile(string& pk){privateKeyFile.assign(pk);}
-	void setPassword(string& p){password.assign(p);}
+	void setCertificateFile(string& c){certificateFile.assign (c);}
+	void setPrivateKeyFile(string& pk){privateKeyFile.assign (pk);}
+	void setPassword(string& p){password.assign (p);}
 
 private:
-	void generateRsaKey();
+	SSL_CTX* context;
+	SSL_METHOD* method;
+
+	string certificateFile;
+	string privateKeyFile;
+	string password;
 };
 
 void initializeSSL();

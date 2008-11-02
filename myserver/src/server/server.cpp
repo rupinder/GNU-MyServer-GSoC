@@ -236,6 +236,8 @@ int Server::loadLibraries()
   XmlParser::startXML();
   myserver_safetime_init();
 
+  gnutls_global_init ();
+
   /* Startup the socket library.  */
   logWriteln(languageParser.getValue("MSG_ISOCK") );
 

@@ -25,17 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 using namespace std;
 
-#ifndef DO_NOT_USE_SSL
-#include<openssl/ssl.h>
-#include<openssl/crypto.h>
-#include<openssl/lhash.h>
-#include<openssl/err.h>
-#include<openssl/bn.h>
-#include<openssl/pem.h>
-#include<openssl/x509.h>
-#include<openssl/rand.h>
-#endif
-
 #ifdef WIN32
 #ifndef SOCKETLIBINCLUDED
 extern "C"

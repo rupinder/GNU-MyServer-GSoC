@@ -216,42 +216,13 @@ else
 	CPPFLAGS="$CPPFLAGS $XML_CPPFLAGS"
 fi
 
-OPENSSL_INC=""
+AC_CHECK_LIB(gnutls-openssl, main, have_ssl=yes)
 
-AC_ARG_WITH(openssl-include,
-  [[  --with-openssl-include=PATH       Use the given path to the openssl include files.]],
-  [
-        OPENSSL_INC=$withval
-  ])
-
-dnl CHECKING FOR OPENSSL
-    for dir in $OPENSSL_INC /usr/local/ssl /usr/lib/ssl /usr/ssl /usr/pkg /usr/local /usr; do
-        ssldir="$dir";
-        if test -f "$dir/include/openssl/ssl.h"; then
-            found_ssl="yes";
-            CFLAGS="$CFLAGS -I$ssldir/include/openssl -DHAVE_SSL";
-            CXXFLAGS="$CXXFLAGS -I$ssldir/include/openssl -DHAVE_SSL";
-            break
-        fi
-        if test -f "$dir/include/ssl.h"; then
-            found_ssl="yes";
-            CFLAGS="$CFLAGS -I$ssldir/include/ -DHAVE_SSL";
-            CXXFLAGS="$CXXFLAGS -I$ssldir/include/ -DHAVE_SSL";
-            break
-        fi
-    done
-    if test x_$found_ssl != x_yes; then
-        AC_MSG_ERROR(Cannot find ssl libraries)
-	AC_DEFINE(DO_NOT_USE_SSL, 1, [SSL support in MyServer, define to 1 to disable])
-	OPENSSL_LIB="" # not set
-    else
-        printf "OpenSSL found in $ssldir\n";
-        LDFLAGS="$LDFLAGS -L$ssldir/lib";
-				OPENSSL_LIB="-lssl -lcrypto" # myserver
-        HAVE_SSL="yes"
-    fi
-    AC_SUBST(HAVE_SSL)
-    AC_SUBST(OPENSSL_LIB) # myserver
+if test x_$have_ssl == x_yes; then
+   SSL_LIB="-lgnutls-openssl"
+else
+   AC_MSG_ERROR(Cannot find ssl libraries)
+fi
 
 dnl Looking for zlib
 AC_CHECK_LIB(z, uncompress, have_libz=yes)
@@ -279,7 +250,7 @@ else
 fi
 
 AC_SUBST(ZLIB_LIB)
-
+AC_SUBST(SSL_LIB)
 
 if test x$enable_ipv6 = xyes; then
     dnl Check for IPv6

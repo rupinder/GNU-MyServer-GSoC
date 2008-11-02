@@ -43,21 +43,17 @@ using namespace std;
  */
 SslSocket::SslSocket(Socket* socket) : Socket(socket)
 {
-#ifndef DO_NOT_USE_SSL
   this->socket = socket;
   sslConnection = 0;
   sslContext = 0;
   clientCert = 0;
   sslMethod = 0;
   externalContext = false;
-#endif
 }
 
 SslSocket::~SslSocket()
 {
-#ifndef DO_NOT_USE_SSL
   freeSSL();
-#endif
 }
 
 /*!
@@ -65,9 +61,8 @@ SslSocket::~SslSocket()
  */
 int SslSocket::close()
 {
-#ifndef DO_NOT_USE_SSL
   freeSSL();
-#endif
+
   return Socket::close();
 }
 
@@ -76,12 +71,10 @@ int SslSocket::close()
  */
 int SslSocket::shutdown(int how)
 {
-#ifndef DO_NOT_USE_SSL
   if(sslConnection)
   {
     SSL_shutdown(sslConnection);
   }
-#endif
 
 #ifdef WIN32
   return ::shutdown(socketHandle, how);
@@ -99,7 +92,6 @@ int SslSocket::shutdown(int how)
  */
 int SslSocket::rawSend(const char* buffer, int len, int flags)
 {
-#ifndef DO_NOT_USE_SSL
   int err;
   do
   {
@@ -111,7 +103,6 @@ int SslSocket::rawSend(const char* buffer, int len, int flags)
     return -1;
   else
     return err;
-#endif
 }
 
 /*!
@@ -127,7 +118,7 @@ int SslSocket::connect(MYSERVER_SOCKADDR* sa, int na)
 #endif
 )
      return 1;//Andu: TODO our error code or what?
-#ifndef DO_NOT_USE_SSL
+
   sslMethod = SSLv23_client_method();
   /*! Create the local context. */
   sslContext = SSL_CTX_new(sslMethod);
@@ -158,23 +149,19 @@ int SslSocket::connect(MYSERVER_SOCKADDR* sa, int na)
   }
   externalContext = false;
   return 0;
-#endif
 }
-
 
 /*!
  *Set the SSL context.
  */
 int SslSocket::setSSLContext(SSL_CTX* context)
 {
-#ifndef DO_NOT_USE_SSL
   sslContext = context;
   externalContext = true;
-#endif
+
   return 1;
 }
 
-#ifndef DO_NOT_USE_SSL
 /*!
  *Free the SSL connection.
  */
@@ -204,15 +191,12 @@ SSL* SslSocket::getSSLConnection()
   return sslConnection;
 }
 
-#endif /*Endif for routines used only with the SSL library*/
-
 /*!
  *SSL handshake procedure.
  *Return nonzero on errors.
  */
 int SslSocket::sslAccept()
 {
-#ifndef DO_NOT_USE_SSL
   int sslAccept;
   if(sslContext == 0)
     return -1;
@@ -224,7 +208,7 @@ int SslSocket::sslAccept()
     freeSSL();
     return -1;
   }
-  SSL_set_accept_state(sslConnection);
+
   if(SSL_set_fd(sslConnection,socketHandle) == 0)
   {
     shutdown(2);
@@ -235,9 +219,8 @@ int SslSocket::sslAccept()
   
   do
   {
-    sslAccept = SSL_accept(sslConnection);
-  }while(SSL_get_error(sslConnection, sslAccept) == SSL_ERROR_WANT_X509_LOOKUP
-         || SSL_get_error(sslConnection, sslAccept) == SSL_ERROR_WANT_READ);
+    sslAccept = SSL_accept (sslConnection);
+  }while (SSL_get_error (sslConnection, sslAccept) == SSL_ERROR_WANT_READ);
 
   if(sslAccept != 1 )
   {
@@ -246,20 +229,10 @@ int SslSocket::sslAccept()
     close();
     return -1;
   }
-  SSL_set_read_ahead(sslConnection, 0);
 
-  clientCert = SSL_get_peer_certificate(sslConnection);
+  clientCert = SSL_get_peer_certificate (sslConnection);
 
-  if(SSL_get_verify_result(sslConnection) != X509_V_OK)
-  {
-    shutdown(2);
-    freeSSL();
-    close();
-    return -1;
-  }
-#endif
   return 0;
-
 }
 
 
@@ -270,21 +243,20 @@ int SslSocket::sslAccept()
 int SslSocket::recv(char* buffer, int len, int flags)
 {
   int err = 0;
-#ifndef DO_NOT_USE_SSL
-  if(sslConnection)
+
+  if (sslConnection)
   {
     for (;;)
     {
       int sslError;
-      err = SSL_read(sslConnection, buffer, len);
+      err = SSL_read (sslConnection, buffer, len);
 
       if (err > 0)
         break;
 
       sslError = SSL_get_error (sslConnection, err);
       
-      if ((sslError != SSL_ERROR_WANT_X509_LOOKUP) &&
-          (sslError != SSL_ERROR_WANT_READ) &&
+      if ((sslError != SSL_ERROR_WANT_READ) &&
           (sslError != SSL_ERROR_WANT_WRITE))
         break;
     }
@@ -294,7 +266,7 @@ int SslSocket::recv(char* buffer, int len, int flags)
     else
       return err;
   }
-#endif
+
   return 0;
 }
 
@@ -304,29 +276,23 @@ int SslSocket::recv(char* buffer, int len, int flags)
 u_long SslSocket::bytesToRead()
 {
   u_long nBytesToRead = 0;
-#ifndef DO_NOT_USE_SSL
-  nBytesToRead = SSL_pending(sslConnection);
 
-  if(nBytesToRead)
+  nBytesToRead = SSL_pending (sslConnection);
+
+  if (nBytesToRead)
     return nBytesToRead;
 
-  return Socket::bytesToRead();
-#endif
-  return nBytesToRead;
+  return Socket::bytesToRead ();
 }
 
-
-
 /*!
- *Returns the number of bytes waiting to be read.
+ *Check if there is data ready to be read.
  */
-int SslSocket::dataOnRead(int, int)
+int SslSocket::dataOnRead (int sec, int usec)
 {
-  return Socket::dataOnRead(0, 0);
-
-  if(bytesToRead())
+  if(bytesToRead ())
     return 1;
 
-  return 0;
+  return Socket::dataOnRead (sec, usec);
 }
 

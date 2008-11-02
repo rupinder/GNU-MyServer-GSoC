@@ -1,10 +1,9 @@
-Use the openSSL package that you can get at
-http://www.openssl.org. 
+In order to generate a certificate you need the certtool utility
+provided by GNU TLS.
+Look here for more information: http://www.gnu.org/software/gnutls/.
 
-After you have installed openSSL, execute the following commands:
-
-openssl genrsa  -out server.key 
-openssl req -new -x509 -days 730 -key server.key -out server.pem 
+certtool --generate-privkey --outfile server.key
+certtool --generate-self-signed --load-privkey server.key --outfile server.pem
 
 These commands will create two files server.key and server.pem. Put
 them in this directory and configure your virtual host file to use these

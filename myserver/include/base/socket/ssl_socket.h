@@ -26,16 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 using namespace std;
 
-#ifndef DO_NOT_USE_SSL
-#include<openssl/ssl.h>
-#include<openssl/crypto.h>
-#include<openssl/lhash.h>
-#include<openssl/err.h>
-#include<openssl/bn.h>
-#include<openssl/pem.h>
-#include<openssl/x509.h>
-#include<openssl/rand.h>
-#endif
+#include <gnutls/openssl.h>
 
 
 #ifdef NOT_WIN
@@ -57,10 +48,8 @@ public:
 	int setSSLContext(SSL_CTX*);
 	int sslAccept();
 
-#ifndef DO_NOT_USE_SSL
 	int freeSSL();
 	SSL* getSSLConnection();
-#endif
 
 	virtual int close();
 	virtual int shutdown(int how);
@@ -68,12 +57,12 @@ public:
 	virtual int recv(char* buffer,int len,int flags);
 	virtual int rawSend(const char* buffer, int len, int flags);
 	virtual u_long bytesToRead();
+
 #ifdef __HURD__
 	virtual int dataOnRead(int sec = 1, int usec = 500);
 #else
 	virtual int dataOnRead(int sec = 0, int usec = 500);
 #endif
-
 
 	SslSocket(Socket*);
 	~SslSocket();
@@ -81,14 +70,12 @@ public:
 protected:
 	bool externalContext;
 	Socket* socket;
-#ifndef DO_NOT_USE_SSL
 	SSL *sslConnection;
 	SSL_CTX *sslContext;
-	X509 *clientCert;
+	const X509 *clientCert;
 
   /*! This is used only by clients sockets.  */
   SSL_METHOD* sslMethod;
-#endif
 };
 
 
