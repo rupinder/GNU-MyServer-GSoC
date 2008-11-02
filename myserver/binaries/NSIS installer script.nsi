@@ -191,9 +191,7 @@ Section "MyServer core" SecCore
   SetOutPath $INSTDIR
   WriteUninstaller "uninstall.exe"
   File "myserver.exe"
-  File  "libiconv-2.dll" 
-  File "libidn-11.dll"
-  File  "libxml2-2.dll"
+  File  "*.dll"
   File "MIMEtypes.xml.default"
   File "myserver.xml.default"
   File "virtualhosts.xml.default"
@@ -314,9 +312,6 @@ File /oname=$PLUGINSDIR\splash.bmp "splash.bmp"
 
 
 !insertmacro MUI_LANGDLL_DISPLAY
-
-
-
   Push $0
   StrCpy $1 ${SecCore}
   SectionGetFlags ${SecCore} $0
