@@ -810,21 +810,13 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     filename.assign(uri);
     td->buffer->setLength(0);
 
+    ret = Http::preprocessHttpRequest(filename, yetmapped, &td->permissions);
+
     if(systemrequest)
-    {
       td->filenamePath.assign(uri);
 
-      getFilePermissions(filename, directory, file, 
-                         td->filenamePath, 1, &td->permissions);
-
-    }
-    else
-    {
-      ret = Http::preprocessHttpRequest(filename, yetmapped, &td->permissions);
-
-      if(ret != 200)
-        return raiseHTTPError(ret);
-    }
+    if(ret != 200)
+      return raiseHTTPError(ret);
 
     if(!td->mime && FilesUtility::isDirectory(td->filenamePath.c_str()))
     {
