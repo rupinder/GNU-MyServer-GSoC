@@ -51,7 +51,7 @@ int VhostManager::addVHost(Vhost* vh)
           error.append(vh->getName());
           error.append(", using HTTP by default");
           vh->setProtocolName("http");
-          Server::getInstance()->logWriteln(error.c_str(), ERROR);
+          Server::getInstance()->logWriteln(error.c_str(), MYSERVER_LOG_ERROR);
         }
       hostList.push_back(vh);
       mutex.unlock();
@@ -210,14 +210,14 @@ void VhostManager::changeLocationsOwner ()
           if(err)
             {
               string str ("Error changing owner for accesses log locations");
-              Server::getInstance()->logWriteln(str.c_str (), ERROR);
+              Server::getInstance()->logWriteln(str.c_str (), MYSERVER_LOG_ERROR);
             }
 
           err = logManager->chown (vh, "WARNINGLOG", uid, gid);
           if(err)
             {
               string str ("Error changing owner for errors log locations");
-              Server::getInstance()->logWriteln(str.c_str (), ERROR);
+              Server::getInstance()->logWriteln(str.c_str (), MYSERVER_LOG_ERROR);
             }
         }
     }
@@ -334,7 +334,7 @@ VhostManager::loadXMLlogData (string name, Vhost* vh, xmlNode* lcur)
                     }
                   if (err)
                     {
-                      Server::getInstance ()->logWriteln (str.c_str (), ERROR);
+                      Server::getInstance ()->logWriteln (str.c_str (), MYSERVER_LOG_ERROR);
                     }
                 }
             }
@@ -358,7 +358,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
     {
       errMsg.assign("Error opening: ");
       errMsg.append(filename);
-      Server::getInstance()->logWriteln(errMsg.c_str(), ERROR);
+      Server::getInstance()->logWriteln(errMsg.c_str(), MYSERVER_LOG_ERROR);
       return -1;
     }
   doc = parser.getDoc();
@@ -376,7 +376,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
           parser.close();
           clean();
           errMsg.assign("Error: allocating memory");
-          Server::getInstance()->logWriteln(errMsg.c_str(), ERROR);
+          Server::getInstance()->logWriteln(errMsg.c_str(), MYSERVER_LOG_ERROR);
           return -1;
         }
     
@@ -470,7 +470,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
                 {
                   errMsg.assign("Error: specified port greater than 65536 or invalid: ");
                   errMsg.append((char*)lcur->children->content);
-                  Server::getInstance()->logWriteln(errMsg.c_str(), ERROR);
+                  Server::getInstance()->logWriteln(errMsg.c_str(), MYSERVER_LOG_ERROR);
                 }
               vh->setPort((u_short)val);
             }
@@ -562,7 +562,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
       if (vh->openLogFiles ())
         {
           errMsg.assign ("Error: opening log files");
-          Server::getInstance ()->logWriteln (errMsg.c_str (), ERROR);
+          Server::getInstance ()->logWriteln (errMsg.c_str (), MYSERVER_LOG_ERROR);
           delete vh;
           vh = 0;
           continue;
@@ -571,7 +571,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
       if ( vh->initializeSSL() < 0 )
         {
           errMsg.assign("Error: initializing vhost");
-          Server::getInstance()->logWriteln(errMsg.c_str(), ERROR);
+          Server::getInstance()->logWriteln(errMsg.c_str(), MYSERVER_LOG_ERROR);
           delete vh;
           vh = 0;
           continue;
@@ -580,7 +580,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
       if(addVHost(vh))
         {
           errMsg.assign("Error: adding vhost");
-          Server::getInstance()->logWriteln(errMsg.c_str(), ERROR);
+          Server::getInstance()->logWriteln(errMsg.c_str(), MYSERVER_LOG_ERROR);
           delete vh;
           vh = 0;
           continue;

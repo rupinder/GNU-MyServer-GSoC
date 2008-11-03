@@ -164,7 +164,7 @@ int Server::checkConfigurationPaths()
 
     if (copyConfigurationFromDefault("myserver.xml"))
     {
-      logWriteln("Error loading configuration file\n", ERROR);
+      logWriteln("Error loading configuration file", MYSERVER_LOG_ERROR);
       return -1;
     }
   }
@@ -175,7 +175,7 @@ int Server::checkConfigurationPaths()
 
     if (copyConfigurationFromDefault("MIMEtypes.xml"))
     {
-      logWriteln(languageParser.getValue("ERR_LOADMIME"), ERROR);
+      logWriteln(languageParser.getValue("ERR_LOADMIME"), MYSERVER_LOG_ERROR);
       return -1;
     }
   }
@@ -186,7 +186,7 @@ int Server::checkConfigurationPaths()
 
     if (copyConfigurationFromDefault("virtualhosts.xml") != 0)
     {
-      logWriteln(languageParser.getValue("ERR_LOADVHOSTS"), ERROR);
+      logWriteln(languageParser.getValue("ERR_LOADVHOSTS"), MYSERVER_LOG_ERROR);
       return -1;
     }
   }
@@ -243,7 +243,7 @@ int Server::loadLibraries()
 
   if(startupSocketLib(MAKEWORD( 1, 1)) != 0)
   {
-    logWriteln( languageParser.getValue ("MSG_SERVER_CONF"), ERROR);
+    logWriteln( languageParser.getValue ("MSG_SERVER_CONF"), MYSERVER_LOG_ERROR);
     return 1;
   }
 
@@ -422,7 +422,7 @@ int Server::postLoad()
     string msg;
     msg.assign(languageParser.getValue("ERR_ERROR"));
     msg.append(" : Reading IP list");
-    logWriteln(msg.c_str(), ERROR);
+    logWriteln(msg.c_str(), MYSERVER_LOG_ERROR);
     return -1;
   }
   else
@@ -449,7 +449,7 @@ int Server::postLoad()
   }
   else
   {
-    logWriteln(languageParser.getValue("ERR_LOADMIME"), ERROR);
+    logWriteln(languageParser.getValue("ERR_LOADMIME"), MYSERVER_LOG_ERROR);
   }
 
   nCPU << (u_int)getCPUCount();
@@ -515,7 +515,7 @@ void Server::loadPlugins()
   {
     ostringstream stream;
     stream <<  languageParser.getValue("ERR_ERROR") << ": Gzip Filter";
-    logWriteln(stream.str().c_str(), ERROR);
+    logWriteln(stream.str().c_str(), MYSERVER_LOG_ERROR);
   }
 
   Protocol *protocolsSet[] = {new HttpProtocol(),
@@ -1042,7 +1042,7 @@ int Server::initialize()
   {
     string err;
     err.assign("Error loading: ");
-    logWriteln(err.c_str(), ERROR);
+    logWriteln(err.c_str(), MYSERVER_LOG_ERROR);
     return -1;
   }
   logWriteln(languageParser.getValue("MSG_LANGUAGE"));
@@ -1666,13 +1666,13 @@ void Server::setProcessPermissions()
        {
          out << languageParser.getValue("ERR_ERROR")
              << ": setAdditionalGroups";
-         logWriteln(out.str().c_str(), ERROR);
+         logWriteln(out.str().c_str(), MYSERVER_LOG_ERROR);
        }
 
        if(Process::setgid(gid))
        {
          out << languageParser.getValue("ERR_ERROR") << ": setgid " << gid;
-         logWriteln(out.str().c_str(), ERROR);
+         logWriteln(out.str().c_str(), MYSERVER_LOG_ERROR);
        }
        autoRebootEnabled = false;
      }
@@ -1688,7 +1688,7 @@ void Server::setProcessPermissions()
       if(Process::setuid(uid))
       {
         out << languageParser.getValue("ERR_ERROR") << ": setuid " << uid;
-        logWriteln(out.str().c_str(), ERROR);
+        logWriteln(out.str().c_str(), MYSERVER_LOG_ERROR);
       }
       autoRebootEnabled = false;
     }
@@ -1925,7 +1925,7 @@ int Server::addThread(bool staticThread)
     delete newThread;
     str.assign(languageParser.getValue("ERR_ERROR"));
     str.append(": Threads creation" );
-    logWriteln(str.c_str(), ERROR);
+    logWriteln(str.c_str(), MYSERVER_LOG_ERROR);
     return -1;
   }
 

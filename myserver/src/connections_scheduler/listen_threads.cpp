@@ -96,7 +96,7 @@ int ListenThreads::createServerAndListener(u_short port)
       serverSocketIPv4->socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
       if (serverSocketIPv4->getHandle() == (FileHandle)INVALID_SOCKET)
       {
-        server->logWriteln(languageParser->getValue("ERR_OPENP"), ERROR);
+        server->logWriteln(languageParser->getValue("ERR_OPENP"), MYSERVER_LOG_ERROR);
         delete serverSocketIPv4;
         serverSocketIPv4 = NULL;
       }
@@ -120,7 +120,7 @@ int ListenThreads::createServerAndListener(u_short port)
                                         (const char *)&optvalReuseAddr,
                                         sizeof(optvalReuseAddr)) < 0)
         {
-          server->logWriteln(languageParser->getValue("ERR_ERROR"), ERROR);
+          server->logWriteln(languageParser->getValue("ERR_ERROR"), MYSERVER_LOG_ERROR);
           delete serverSocketIPv4;
           serverSocketIPv4 = NULL;
           //return 0; allow IPv6
@@ -136,7 +136,7 @@ int ListenThreads::createServerAndListener(u_short port)
           if (serverSocketIPv4->bind(&sockServerSocketIPv4,
                                      sizeof(sockaddr_in)) != 0)
           {
-            server->logWriteln(languageParser->getValue("ERR_BIND"), ERROR);
+            server->logWriteln(languageParser->getValue("ERR_BIND"), MYSERVER_LOG_ERROR);
             delete serverSocketIPv4;
             serverSocketIPv4 = NULL;
           }
@@ -155,7 +155,7 @@ int ListenThreads::createServerAndListener(u_short port)
       serverSocketIPv6->socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
       if ( serverSocketIPv6->getHandle() == (FileHandle)INVALID_SOCKET )
       {
-        server->logWriteln(languageParser->getValue("ERR_OPENP"), ERROR);
+        server->logWriteln(languageParser->getValue("ERR_OPENP"), MYSERVER_ERROR);
         delete serverSocketIPv6;
         serverSocketIPv6 = NULL;
       }
@@ -177,7 +177,7 @@ int ListenThreads::createServerAndListener(u_short port)
                                         (const char *)&optvalReuseAddr,
                                         sizeof(optvalReuseAddr))<0)
         {
-          server->logWriteln(languageParser->getValue("ERR_ERROR"), ERROR);
+          server->logWriteln(languageParser->getValue("ERR_ERROR"), MYSERVER_ERROR);
           delete serverSocketIPv6;
           serverSocketIPv6 = NULL;
           //return 0;allow IPv6
@@ -187,7 +187,7 @@ int ListenThreads::createServerAndListener(u_short port)
                                         (const char *)&optvalReuseAddr,
                                         sizeof(optvalReuseAddr)) < 0)
         {
-          server->logWriteln(languageParser->getValue("ERR_ERROR"), ERROR);
+          server->logWriteln(languageParser->getValue("ERR_ERROR"), MYSERVER_ERROR);
           delete serverSocketIPv6;
           serverSocketIPv6 = NULL;
           //return 0;allow IPv6
@@ -203,7 +203,7 @@ int ListenThreads::createServerAndListener(u_short port)
           if ( serverSocketIPv6->bind(&sockServerSocketIPv6,
                                       sizeof(sockaddr_in6)) != 0)
           {
-            server->logWriteln(languageParser->getValue("ERR_BIND"), ERROR);
+            server->logWriteln(languageParser->getValue("ERR_BIND"), MYSERVER_ERROR);
             delete serverSocketIPv6;
             serverSocketIPv6 = NULL;
           }
@@ -227,14 +227,14 @@ int ListenThreads::createServerAndListener(u_short port)
     server->logWriteln(languageParser->getValue("MSG_SLISTEN"));
     if (serverSocketIPv4 != NULL && serverSocketIPv4->listen(SOMAXCONN))
     {
-      server->logWriteln(languageParser->getValue("ERR_LISTEN"), ERROR);
+      server->logWriteln(languageParser->getValue("ERR_LISTEN"), MYSERVER_LOG_ERROR);
       delete serverSocketIPv4;
       serverSocketIPv4 = NULL;
     }
 
     if (serverSocketIPv6 != NULL && serverSocketIPv6->listen(SOMAXCONN))
     {
-      server->logWriteln(languageParser->getValue("ERR_LISTEN"), ERROR);
+      server->logWriteln(languageParser->getValue("ERR_LISTEN"), MYSERVER_LOG_ERROR);
       delete serverSocketIPv6;
       serverSocketIPv6 = NULL;
     }

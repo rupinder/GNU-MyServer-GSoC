@@ -230,9 +230,11 @@ LogManager::log (void* owner, string message, bool appendNL,
       success = 0;
       if (appendNL)
         {
-          message.append (NL);
+          ostringstream oss;
+          oss << message << endl;
+          message.assign (oss.str ());
         }
-      if (level == ERROR)
+      if (level == MYSERVER_LOG_ERROR)
         {
           success = 
             notify (owner, EVT_ENTER_ERROR_MODE) ||
@@ -257,9 +259,11 @@ LogManager::log (void* owner, string type, string message, bool appendNL,
       success = 0;
       if (appendNL)
         {
-          message.append (NL);
+          ostringstream oss;
+          oss << message << endl;
+          message.assign (oss.str ());
         }
-      if (level == ERROR)
+      if (level == MYSERVER_LOG_ERROR)
         {
           success = 
             notify (owner, type, EVT_ENTER_ERROR_MODE) ||
@@ -283,9 +287,11 @@ LogManager::log (void* owner, string type, string location, string message,
     {
       if (appendNL)
         {
-          message.append (NL);
+          ostringstream oss;
+          oss << message << endl;
+          message.assign (oss.str ());
         }
-      if (level == ERROR)
+      if (level == MYSERVER_LOG_ERROR)
         {
           success = 
             notify (owner, type, location, EVT_ENTER_ERROR_MODE) ||
