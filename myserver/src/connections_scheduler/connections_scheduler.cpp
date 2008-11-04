@@ -27,64 +27,77 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 static int
-create_socketpair(int af, int type, int protocol, socket_t socks[2])
+make_socket_nonblocking(FileHandle fd)
 {
-  #ifndef WIN32
-  return socketpair(af, type, protocol, socks);
-  #else
-   struct sockaddr_in addr;
-    SOCKET listener;
-    int e;
-    int addrlen = sizeof(addr);
-    DWORD flags = 0;
+#ifdef WIN32
+  unsigned long nonblocking = 1;
+  ioctlsocket(fd, FIONBIO, (unsigned long*) &nonblocking);
+#else
+  return fcntl(fd, F_SETFL, O_NONBLOCK);
+#endif
+  return 0;
+}
 
-    if (socks == 0)
-    {
-        return -1;
-    }
-
-    socks[0] = socks[1] = INVALID_SOCKET;
-    listener = socket(AF_INET, type, 0);
-    if (listener == INVALID_SOCKET)
-        return -1;
-
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = htonl(0x7f000001);
-    addr.sin_port = 0;
-
-    e = bind(listener, (const struct sockaddr*) &addr, sizeof(addr));
-    if (e == SOCKET_ERROR)
-    {
-        close(listener);
-        return -1;
-    }
-    e = getsockname(listener, (struct sockaddr*) &addr, &addrlen);
-    if (e == SOCKET_ERROR)
-    {
-        close(listener);
-        return -1;
-    }
-
-    do
-    {
-      if (listen(listener, 1) == SOCKET_ERROR)
-        break;
-      if ((socks[0] = socket(AF_INET, type, 0)) == INVALID_SOCKET)
-        break;
-      if (connect(socks[0], (const struct sockaddr*) &addr, sizeof(addr)) == SOCKET_ERROR)
-        break;
-      if ((socks[1] = accept(listener, NULL, NULL)) == INVALID_SOCKET)
-        break;
-      
-      close(listener);
-      return 0;
-    } while (0);
-
-    close(listener);
-    close(socks[0]);
-    close(socks[1]);
+static int
+create_socketpair(int af, int type, int protocol, FileHandle socks[2])
+{
+#ifndef WIN32
+  return socketpair(af, type, protocol, (int*)socks);
+#else
+  struct sockaddr_in addr;
+  SOCKET listener;
+  int e;
+  int addrlen = sizeof(addr);
+  DWORD flags = 0;
+  
+  if (socks == 0)
     return -1;
+
+  socks[0] = socks[1] = INVALID_SOCKET;
+  listener = socket(AF_INET, type, 0);
+
+  if (listener == INVALID_SOCKET)
+    return -1;
+
+  memset(&addr, 0, sizeof(addr));
+  addr.sin_family = AF_INET;
+  addr.sin_addr.s_addr = htonl(0x7f000001);
+  addr.sin_port = 0;
+
+  e = bind(listener, (const struct sockaddr*) &addr, sizeof(addr));
+  if (e == SOCKET_ERROR)
+  {
+    close(listener);
+    return -1;
+  }
+  
+  e = getsockname(listener, (struct sockaddr*) &addr, &addrlen);
+  if (e == SOCKET_ERROR)
+  {
+    close(listener);
+    return -1;
+  }
+  
+  do
+  {
+    if (listen(listener, 1) == SOCKET_ERROR)
+      break;
+    if ((socks[0] = socket(AF_INET, type, 0)) == INVALID_SOCKET)
+      break;
+    if (connect(socks[0], (const struct sockaddr*) &addr, sizeof(addr)) == SOCKET_ERROR)
+      break;
+    if ((socks[1] = accept(listener, NULL, NULL)) == INVALID_SOCKET)
+      break;
+    
+    close(listener);
+    return 0;
+  } while (0);
+  
+  close(listener);
+  close(socks[0]);
+  close(socks[1]);
+  
+  return -1;
   #endif
 }
 
@@ -337,13 +350,21 @@ void ConnectionsScheduler::restart()
  */
 void ConnectionsScheduler::initialize()
 {
-  event_init();
+  static int initialized = 0;
+
+  if (!initialized)
+  {
+    event_init();
+    initialized = 1;
+  }
 
   dispatcherArg.terminated = true;
   dispatcherArg.terminate = false;
   dispatcherArg.mutex = &eventsMutex;
   dispatcherArg.server = server;
   dispatcherArg.scheduler = this;
+
+  dispatchedThreadId = 0;
 
 #ifdef WIN32
 #define LOCAL_SOCKETPAIR_AF AF_INET
@@ -362,8 +383,11 @@ void ConnectionsScheduler::initialize()
     return;
   }
 
+  make_socket_nonblocking(dispatcherArg.fd[0]);
+  make_socket_nonblocking(dispatcherArg.fd[1]);
+
   event_set(&(dispatcherArg.loopEvent), dispatcherArg.fd[0], EV_READ | EV_TIMEOUT,
-         eventLoopHandler, &dispatcherArg);
+            eventLoopHandler, &dispatcherArg);
 
   event_add(&(dispatcherArg.loopEvent), NULL);
 
@@ -479,7 +503,7 @@ void ConnectionsScheduler::addWaitingConnectionImpl(ConnectionPtr c, int lock)
   if(lock)
   {
     u_long nbw;
-    Socket sock ((FileHandle)dispatcherArg.fd[1]);
+    Socket sock (dispatcherArg.fd[1]);
 
     eventsSocketMutex.lock();
     sock.write("c", 1, &nbw);
@@ -545,18 +569,19 @@ void ConnectionsScheduler::release()
   releasing = true;
   dispatcherArg.terminate = true;
 
-  if(server)
+  if (server)
     max = server->getNumThreads() * 2;
 
-  for(u_long i = 0; i < max; i++)
+  for (u_long i = 0; i < max; i++)
   {
     readySemaphore->unlock();
   }
 
-  Socket sock((FileHandle)dispatcherArg.fd[1]);
+  Socket sockR (dispatcherArg.fd[0]);
+  Socket sockW (dispatcherArg.fd[1]);
 
   eventsSocketMutex.lock();
-  sock.write("r", 1, &nbw);
+  sockW.write("r", 1, &nbw);
   eventsSocketMutex.unlock();
   
   if(dispatchedThreadId)
@@ -577,12 +602,15 @@ void ConnectionsScheduler::release()
 
   event_del(&(dispatcherArg.loopEvent));
 
-  close(dispatcherArg.fd[0]);
-  close(dispatcherArg.fd[1]);
-
   listeners.clear();
   
   eventsMutex.unlock();
+
+  sockR.shutdown(SD_BOTH);
+  sockW.shutdown(SD_BOTH);
+
+  sockR.close();
+  sockW.close();
 }
 
 /*!

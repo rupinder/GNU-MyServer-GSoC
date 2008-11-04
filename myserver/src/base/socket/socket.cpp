@@ -434,8 +434,7 @@ int Socket::send(const char* buffer, int len, int flags)
        */
       if(toSend)
       {
-        while((getTicks() <= time) && !denyBlockingOperations)
-          Thread::wait(1);
+        Thread::wait(getTicks () - time);
       }
       else
         break;
@@ -452,14 +451,13 @@ int Socket::send(const char* buffer, int len, int flags)
 int Socket::ioctlsocket(long cmd,unsigned long* argp)
 {
 #ifdef WIN32
-  return ::ioctlsocket(socketHandle,cmd,argp);
+  return ::ioctlsocket(socketHandle, cmd, argp);
 #endif
 #ifdef NOT_WIN
   int int_argp = 0;
-  int ret = ::ioctl((int)socketHandle,cmd,&int_argp);
+  int ret = ::ioctl((int)socketHandle, cmd, &int_argp);
   *argp = int_argp;
   return ret;
-
 #endif
 }
 

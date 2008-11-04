@@ -634,9 +634,9 @@ void Server::mainLoop()
 
           logWriteln("Rebooting...");
 
-          connectionsScheduler.release();
-
           Socket::stopBlockingOperations(true);
+
+          connectionsScheduler.release();
 
           listenThreads.beginFastReboot();
 
