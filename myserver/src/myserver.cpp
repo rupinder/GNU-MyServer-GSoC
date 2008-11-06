@@ -89,7 +89,11 @@ void registerSignals()
 {
 #ifdef NOT_WIN
   struct sigaction sig1, sig2, sig3;
+  struct sigaction sa;
 
+  memset(&sa, 0, sizeof(sa));
+  sa.sa_handler = SIG_IGN;
+  sa.sa_flags   = SA_RESTART;
   memset(&sig1, 0, sizeof(sig1));
   memset(&sig2, 0, sizeof(sig2));
   memset(&sig3, 0, sizeof(sig3));
@@ -100,6 +104,9 @@ void registerSignals()
   sigaction(SIGINT, &sig2,NULL); // catch ctrl-c
   sigaction(SIGTERM,&sig2,NULL); // catch the kill signal
   sigaction(SIGHUP,&sig3,NULL); // catch the HUP signal
+
+  /* Avoid zombie processes.  */
+  sigaction(SIGCHLD, &sa, (struct sigaction *)NULL);
 #else
   SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), ENABLE_PROCESSED_INPUT);
   SetConsoleCtrlHandler( (PHANDLER_ROUTINE) SignalHandler, TRUE );

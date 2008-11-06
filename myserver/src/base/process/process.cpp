@@ -47,11 +47,110 @@ Mutex Process::forkMutex;
 #endif
 
 /*!
- *Execute a process and wait for its execution or the timeout.
- *Return -1 on fails.
- *Return 0 on success.
+ *Generate the arguments vector for execve.
+ *\param args The output arguments vector to fill.
+ *\param proc The executable.
+ *\param additionalArgs additional arguments.
  */
-int Process::execAndWait (StartProcInfo *spi, u_long timeout)
+int Process::generateArgList (const char **args, const char *proc, string &additionalArgs)
+{
+  args[0] = proc;
+  
+  const char *arg = additionalArgs.c_str ();
+  int count = 1;
+  int len = additionalArgs.length ();
+  int start = 0;
+
+  while((arg[start] == ' ') && (start < len))
+    start++;
+
+  for(int i = start; i < len; i++)
+    {
+      if(arg[i] == '"')
+        {
+          start = i++;
+          while(additionalArgs[++i] != '"' && i < len);
+          if(i == len)
+            exit(1);
+
+          if(count < 100)
+            {
+              args[count++] = &(additionalArgs[start + 1]);
+              start = i + 1;
+              additionalArgs[i] = '\0';
+            }
+          else
+            break;
+        }
+      else if(arg[i] == ' ')
+        {
+          if(i - start <= 1)
+            continue;
+          if(count < 100)
+            {
+              args[count++] = &(additionalArgs[start]);
+              additionalArgs[i] = '\0';
+
+              while((arg[i] == ' ') && (i < len))
+                i++;
+
+              start = i + 1;
+            }
+          else
+            break;
+        }
+    }
+  if(count < 100 && len != start)
+    {
+      args[count++] = &(additionalArgs[start]);
+    }
+
+  args[count] = NULL;
+
+  return 0;
+}
+
+
+/*!
+ *Generate the env array for execve.
+ *\param envp Enviroment variables array.
+ *\param envString Enviroment values separed by '\0'.
+ */
+int Process::generateEnvString (const char **envp, char *envString)
+{
+  int i = 0;
+  int index = 0;
+ 
+
+  if(envString != NULL)
+    {
+      while(*(envString + i) != '\0')
+        {
+          envp[index] = envString + i;
+          index++;
+          
+          while(*(envString + i++) != '\0');
+        }
+      envp[index] = NULL;
+    }
+  else
+    envp[0] = NULL;
+  return 0;
+}
+
+
+
+/*!
+ *Spawn a new process.
+ *
+ *\param spi new process information.
+ *\param waitEnd Specify if wait until the process finishes.
+ *\param timeout The maximum amount to wait for the process.
+ *
+ *\return -1 on failure.
+ *\return the new process identifier on success.
+ */
+int Process::exec(StartProcInfo* spi, bool waitEnd, u_long timeout)
 {
   int ret = 0;
 #ifdef NOT_WIN
@@ -83,104 +182,60 @@ int Process::execAndWait (StartProcInfo *spi, u_long timeout)
     return (-1);
   pid = (u_long)pi.hProcess;
 
-  /*
-   *Wait until the process stops its execution.
-   */
-  ret = WaitForSingleObject(pi.hProcess, timeout);
-  if(ret == WAIT_FAILED)
-    return (u_long)(-1);
-  ret = CloseHandle( pi.hProcess );
-  if(!ret)
-    return (u_long)(-1);
-  ret = CloseHandle( pi.hThread );
-  if(!ret)
-    return (u_long)(-1);
-  return 0;
+  if (waitEnd)
+    {
+      /*
+       *Wait until the process stops its execution.
+       */
+      ret = WaitForSingleObject(pi.hProcess, timeout);
+
+      if(ret == WAIT_FAILED)
+        return (u_long)(-1);
+
+      ret = CloseHandle( pi.hProcess );
+
+      if(!ret)
+        return (u_long)(-1);
+
+      ret = CloseHandle( pi.hThread );
+
+      if(!ret)
+        return (u_long)(-1);
+
+      return 0;
+  }
+  else
+    {
+      ret = CreateProcess(NULL, (char*)spi->cmdLine.c_str(), NULL, NULL, TRUE, 0,
+                          spi->envString, cwd, &si, &pi);
+
+      if(!ret)
+        return (-1);
+
+      pid = (*((int*)&pi.hProcess));
+
+      return pid;
+    }
 #endif
+
 #ifdef NOT_WIN
   pid = fork();
+
   if(pid < 0) // a bad thing happened
     return 0;
-  else if(pid == 0) // child
+
+  if(pid == 0) // child
   {
     // Set env vars
-    int i = 0;
-    int index = 0;
     const char *envp[100];
     const char *args[100];
-    /*! Build the args vector. */
-    args[0] = spi->cmd.c_str();
-    {
-      int count = 1;
-      int len = spi->arg.length();
-      int start = 0;
 
-      while((spi->arg[start] == ' ') && (start < len))
-        start++;
+    if (generateArgList (args, spi->cmd.c_str(), spi->arg))
+      exit (1);
 
-      for(int i = start; i < len; i++)
-      {
+    if (generateEnvString (envp, (char*) spi->envString))
+      exit (1);
 
-        if(spi->arg[i] == '"')
-        {
-          start = i++;
-          while(spi->arg[++i] != '"' && i < len);
-          if(i == len)
-            exit(1);
-          if(count < 100)
-          {
-            args[count++] = (const char*)&(spi->arg.c_str())[start + 1];
-            start = i + 1;
-            spi->arg[i] = '\0';
-          }
-          else
-            break;
-        }
-        else if(spi->arg[i] == ' ')
-        {
-          if(i - start <= 1)
-            continue;
-          if(count < 100)
-          {
-            args[count++] = (const char*)&(spi->arg.c_str())[start];
-            spi->arg[i] = '\0';
-
-            while((spi->arg[i] == ' ') && (i < len))
-              i++;
-
-            start = i + 1;
-          }
-          else
-            break;
-        }
-      }
-      if(count < 100 && len != start)
-      {
-        args[count++] = (const char*)&(spi->arg.c_str())[start];
-      }
-
-      args[count] = NULL;
-    }
-
-    if(spi->envString != NULL)
-    {
-      while(*((char *)(spi->envString) + i) != '\0')
-      {
-        envp[index] = ((char *)(spi->envString) + i);
-        index++;
-        if(index + 1 == 100  )
-        {
-          break;
-        }
-
-        while(*((char *)(spi->envString) + i) != '\0')
-          i++;
-        i++;
-      }
-      envp[index] = NULL;
-    }
-    else
-      envp[0] = NULL;
     // change to working dir
     if(spi->cwd.length())
     {
@@ -217,36 +272,42 @@ int Process::execAndWait (StartProcInfo *spi, u_long timeout)
                  (char* const*)args, (char* const*) envp);
     exit(0);
 
-  } // end else if(pid == 0)
-  // Parent
-  // Wait till child dies
-  count = 0;
-  for( ;  ; count++)
-  {
-    if(count >= timeout)
-    {
-      kill(pid, SIGKILL);
-      ret = -1;
-      break;
-    }
-    ret = waitpid(pid, NULL, WNOHANG);
-    if(ret == -1)
-    {
-      if(errno == ECHILD)
-        return 0;
-      else
-        return (-1);
-    }
-    else if(ret != 0)
-    {
-      break;
-    }
-    Thread::wait(1);
   }
 
-  if(ret == -1)
-    return (-1);
-  return 0;
+  if (waitEnd)
+  {
+    //XXX: Fix polling.
+    count = 0;
+    for( ;  ; count++)
+      {
+        if(count >= timeout / 100)
+          {
+            kill(pid, SIGKILL);
+            ret = -1;
+            break;
+          }
+        ret = waitpid(pid, NULL, WNOHANG);
+        if(ret == -1)
+          {
+            if(errno == ECHILD)
+              return 0;
+            else
+              return (-1);
+          }
+        else if(ret != 0)
+          {
+            break;
+          }
+        Thread::wait(100);
+      }
+
+    if(ret == -1)
+      return (-1);
+    return 0;
+  }
+  else
+    return pid;
+
 
 #endif
 
@@ -304,175 +365,17 @@ int Process::isProcessAlive()
 }
 
 /*!
- *Start a process that runs simultaneously with the MyServer process.
- *Return -1 on fails.
- *Return the new process identifier on success.
+ *Execute a process and wait for its execution to be completed or the timeout, 
+ *whatever happens before.
+ *
+ *\param spi The new process information.
+ *\param timeout Maximum amount of time to wait for.
+ *\return -1 on fails.
+ *\return 0 on success.
  */
-int Process::exec(StartProcInfo* spi)
+int Process::execAndWait (StartProcInfo *spi, u_long timeout)
 {
-  int ret;
-  pid = 0;
-#ifdef WIN32
-  /*!
-   *Set the standard output values for the CGI process.
-   */
-  STARTUPINFO si;
-  PROCESS_INFORMATION pi;
-  char* cwd;
-  ZeroMemory( &si, sizeof(si) );
-  si.cb = sizeof(si);
-  SetHandleInformation(spi->stdIn, HANDLE_FLAG_INHERIT,TRUE);
-  si.hStdInput = (HANDLE)spi->stdIn;
-  si.hStdOutput =(HANDLE)spi->stdOut;
-  si.hStdError = (HANDLE)spi->stdError;
-  si.dwFlags = (u_long)STARTF_USESHOWWINDOW;
-  cwd  = (char*)spi->cwd.length() ? (char*)spi->cwd.c_str() : 0;
-  if(si.hStdInput || si.hStdOutput|| si.hStdError)
-    si.dwFlags |= STARTF_USESTDHANDLES;
-  si.wShowWindow = SW_HIDE;
-  ZeroMemory( &pi, sizeof(pi) );
-
-  ret = CreateProcess(NULL, (char*)spi->cmdLine.c_str(), NULL, NULL, TRUE, 0,
-                      spi->envString, cwd, &si, &pi);
-   if(!ret)
-    return (-1);
-  pid = (*((int*)&pi.hProcess));
- if ( !isProcessAlive())
-   return -1;
-  return pid;
-#endif
-#ifdef NOT_WIN
-  pid = fork();
-  if(pid < 0) // a bad thing happened
-    return 0;
-  else if(pid == 0) // child
-  {
-    // Set env vars
-    int i = 0;
-    int index = 0;
-    const char *envp[100];
-    const char *args[100];
-
-   /*! Build the args vector.  */
-    args[0] = spi->cmd.c_str();
-    {
-      int count = 1;
-      int len = spi->arg.length();
-      int start = 0;
-
-      while((spi->arg[start] == ' ') && (start < len))
-        start++;
-
-      for(int i = start; i < len; i++)
-      {
-
-        if(spi->arg[i] == '"')
-        {
-          start = i++;
-          while(spi->arg[++i] != '"' && i < len);
-          if(i == len)
-            exit(1);
-          if(count < 100)
-          {
-            args[count++] = (const char*)&(spi->arg.c_str())[start + 1];
-            start = i + 1;
-            spi->arg[i] = '\0';
-          }
-          else
-            break;
-        }
-        else if(spi->arg[i] == ' ')
-        {
-          if(i - start <= 1)
-            continue;
-          if(count < 100)
-          {
-            args[count++] = (const char*)&(spi->arg.c_str())[start];
-            spi->arg[i] = '\0';
-            
-            while((spi->arg[i] == ' ') && (i < len))
-              i++;
-
-            start = i + 1;
-          }
-          else
-            break;
-        }
-      }
-      if(count < 100 && len != start)
-      {
-        args[count++] = (const char*)&(spi->arg.c_str())[start];
-      }
-
-      args[count] = NULL;
-    }
-
-    if(spi->envString != NULL)
-    {
-      while(*((char *)(spi->envString) + i) != '\0')
-      {
-        envp[index] = ((char *)(spi->envString) + i);
-        index++;
-
-        while(*((char *)(spi->envString) + i) != '\0')
-          i++;
-        i++;
-      }
-      envp[index] = NULL;
-    }
-    else
-      envp[0] = NULL;
-
-      // change to working dir
-    if(spi->cwd.length())
-      chdir((const char*)(spi->cwd.c_str()));
-
-    // If stdOut is -1, pipe to /dev/null
-    if((long)spi->stdOut == -1)
-      spi->stdOut = (FileHandle)open("/dev/null",O_WRONLY);
-    // map stdio to files
-    ret = close(0); // close stdin
-    if(ret == -1)
-      exit (1);
-    ret = dup2((long)spi->stdIn, 0);
-    if(ret == -1)
-      exit (1);
-    ret = close((long)spi->stdIn);
-    if(ret == -1)
-      exit (1);
-    ret = close(1); // close stdout
-    if(ret == -1)
-      exit (1);
-    ret = dup2((long)spi->stdOut, 1);
-    if(ret == -1)
-      exit (1);
-    ret = close((long)spi->stdOut);
-    if(ret == -1)
-      exit (1);
-    //close(2); // close stderr
-    //dup2((int)spi->stdError, 2);
-    // Run the script
-
-    ret = execve ((const char*) args[0],
-                 (char* const*)args, (char* const*) envp);
-
-    exit(1);
-  } // end else if(pid == 0)
-  else
- {
-   /*!
-    *Avoid to become a zombie process. This is needed by the
-    *Process::isProcessAlive routine.
-    */
-   struct sigaction sa;
-   memset(&sa, 0, sizeof(sa));
-   sa.sa_handler = SIG_IGN;
-   sa.sa_flags   = SA_RESTART;
-   sigaction(SIGCHLD, &sa, (struct sigaction *)NULL);
-   return pid;
- }
-#endif
-
+  return exec(spi, true, timeout);
 }
 
 #ifdef HAVE_PTHREAD

@@ -61,8 +61,8 @@ public:
 	static void forkChild();
 #endif
 	static void initialize();
-  int execAndWait (StartProcInfo* spi, u_long timeout = 0xFFFFFFFF);
-  int exec (StartProcInfo* spi);
+  int execAndWait (StartProcInfo *spi, u_long timeout = 0xFFFFFFFF);
+  int exec (StartProcInfo *spi, bool waitEnd = false, u_long timeout = 0xFFFFFFFF);
   int terminateProcess();
   int isProcessAlive();
   static int setuid(u_long);
@@ -73,6 +73,9 @@ public:
 
   /*! Return the process ID.  */
   int getPid (){return pid;}
+
+  static int generateEnvString (const char **envp, char *envString);
+  static int generateArgList (const char **args, const char *proc, string &additionalArgs);
 private:
   int pid;
 };
