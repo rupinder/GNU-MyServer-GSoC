@@ -206,11 +206,9 @@ int executeFromFileImpl(char* filename, PyThreadState *threadState, int newThrea
 		msg.assign ("Python: Cannot load file ");
 		msg.append (filename);
 
-		serverInstance->logLockAccess ();
-		serverInstance->logPreparePrintError ();
+
 		serverInstance->logWriteln (msg.c_str ());
-		serverInstance->logEndPrintError ();
-		serverInstance->logUnlockAccess ();
+
 
 		ret = -1;
 	}

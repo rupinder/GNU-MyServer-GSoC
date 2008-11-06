@@ -164,11 +164,7 @@ static PyObject *log_server_error(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, (char*)"s", &msg))
 		return NULL;
 
-  serverInstance->logLockAccess();
-  serverInstance->logPreparePrintError();
   serverInstance->logWriteln(msg);
-  serverInstance->logEndPrintError();
-  serverInstance->logUnlockAccess();
 
 	return NULL;
 }
@@ -417,22 +413,14 @@ EXPORTABLE(int) load(void* server,void* parser)
 	xmlDocPtr xmlDoc;
 	if(!staticData)
 	{
-		serverInstance->logLockAccess();
-		serverInstance->logPreparePrintError();
 		serverInstance->logWriteln("PythonHttpHandler: Invalid HTTP static data");
-		serverInstance->logEndPrintError();
-		serverInstance->logUnlockAccess();
 		return -1;
 	}
 	python = serverInstance->getPluginsManager()->getPlugin(pythonName);
 
 	if(!python)
 	{
-		serverInstance->logLockAccess();
-		serverInstance->logPreparePrintError();
 		serverInstance->logWriteln("PythonHttpHandler: Cannot find executors::python");
-		serverInstance->logEndPrintError();
-		serverInstance->logUnlockAccess();
 		return -1;
 	}
 	observer.setPythonExecutor(python);
@@ -443,11 +431,7 @@ EXPORTABLE(int) load(void* server,void* parser)
 
 	if(!init)
 	{
-		serverInstance->logLockAccess();
-		serverInstance->logPreparePrintError();
 		serverInstance->logWriteln("PythonHttpHandler: Cannot find method initModule in executors::python");
-		serverInstance->logEndPrintError();
-		serverInstance->logUnlockAccess();
 		return -1;
 	}
 	configuration = serverInstance->getConfiguration();
@@ -477,11 +461,7 @@ EXPORTABLE(int) load(void* server,void* parser)
 
 			if(!data)
 			{
-				serverInstance->logLockAccess();
-				serverInstance->logPreparePrintError();
 				serverInstance->logWriteln("PythonHttpHandler: Invalid rule");
-				serverInstance->logEndPrintError();
-				serverInstance->logUnlockAccess();
 				return -1;
 			}
 

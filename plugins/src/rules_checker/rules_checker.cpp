@@ -102,11 +102,7 @@ EXPORTABLE(int) load(void* server,void* parser)
 	xmlDocPtr xmlDoc;
 	if(!staticData)
 	{
-		serverInstance->logLockAccess();
-		serverInstance->logPreparePrintError();
 		serverInstance->logWriteln("RulesChecker: Invalid HTTP static data");
-		serverInstance->logEndPrintError();
-		serverInstance->logUnlockAccess();
 		return -1;
 	}
 
@@ -127,11 +123,7 @@ EXPORTABLE(int) load(void* server,void* parser)
 
 			if(!data)
 			{
-				serverInstance->logLockAccess();
-				serverInstance->logPreparePrintError();
 				serverInstance->logWriteln("RulesChecker: Invalid rule");
-				serverInstance->logEndPrintError();
-				serverInstance->logUnlockAccess();
 				return -1;
 			}
 

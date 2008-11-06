@@ -238,22 +238,14 @@ EXPORTABLE(int) load(void* server,void* parser)
 	xmlDocPtr xmlDoc;
 	if(!staticData)
 	{
-		serverInstance->logLockAccess();
-		serverInstance->logPreparePrintError();
 		serverInstance->logWriteln("HttpChecker: Invalid HTTP static data");
-		serverInstance->logEndPrintError();
-		serverInstance->logUnlockAccess();
 		return -1;
 	}
 	python = serverInstance->getPluginsManager()->getPlugin(pythonName);
 
 	if(!python)
 	{
-		serverInstance->logLockAccess();
-		serverInstance->logPreparePrintError();
 		serverInstance->logWriteln("HttpChecker: Cannot find executors::python");
-		serverInstance->logEndPrintError();
-		serverInstance->logUnlockAccess();
 		return -1;
 	}
 	observer.setPythonExecutor(python);
@@ -264,11 +256,7 @@ EXPORTABLE(int) load(void* server,void* parser)
 
 	if(!init)
 	{
-		serverInstance->logLockAccess();
-		serverInstance->logPreparePrintError();
 		serverInstance->logWriteln("HttpChecker: Cannot find method initModule in executors::python");
-		serverInstance->logEndPrintError();
-		serverInstance->logUnlockAccess();
 		return -1;
 	}
 	configuration = serverInstance->getConfiguration();
@@ -298,11 +286,7 @@ EXPORTABLE(int) load(void* server,void* parser)
 
 			if(!data)
 			{
-				serverInstance->logLockAccess();
-				serverInstance->logPreparePrintError();
 				serverInstance->logWriteln("HttpChecker: Invalid rule");
-				serverInstance->logEndPrintError();
-				serverInstance->logUnlockAccess();
 				return -1;
 			}
 
