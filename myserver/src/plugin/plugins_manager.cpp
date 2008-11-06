@@ -72,7 +72,8 @@ int PluginsManager::loadOptions(Server *server, XmlParser* languageFile)
         {
           string namespaceName;
           string pluginName;
-          PluginsManager::PluginOption po;
+		  bool global = false;
+		  bool enabled = false;
           
           if(!xmlStrcmp(node->name, (const xmlChar *)"PLUGIN"))
           {
@@ -91,9 +92,9 @@ int PluginsManager::loadOptions(Server *server, XmlParser* languageFile)
             for(xmlNode *internal = node->children; internal; internal = internal->next)  
             {
               if(!xmlStrcmp(internal->name, (const xmlChar *)"ENABLED"))
-                po.enabled = strcmpi("NO", (const char*)internal->children->content) ? true : false;
+                enabled = strcmpi("NO", (const char*)internal->children->content) ? true : false;
               else if(!xmlStrcmp(internal->name, (const xmlChar *)"GLOBAL"))
-                po.global = strcmpi("YES", (const char*)internal->children->content) ? false : true;
+                global = strcmpi("YES", (const char*)internal->children->content) ? false : true;
             }
 
             if(!pluginName.length())
@@ -105,7 +106,7 @@ int PluginsManager::loadOptions(Server *server, XmlParser* languageFile)
             }
             else
             {
-                addPluginOption(pluginName, po);
+                addPluginInfo(pluginName, new PluginInfo(pluginName,enabled,global));
             }
 
           }
@@ -166,17 +167,17 @@ int PluginsManager::preLoad(Server* server, XmlParser* languageFile,
   	do
   	{
   	  string name(flib.name);
-      PluginsManager::PluginOption *po;
       if(flib.name[0]=='.')
       	continue;
+
           /*!
      *Do not consider file other than dynamic libraries.
      */
 #ifdef WIN32
-      if(!strstr(flib.name,".dll"))
+      if(!strstr(flib.name,".dll") && !strstr(flib.name,"plugin.xml"))
 #endif
 #ifdef NOT_WIN
-      if(!strstr(flib.name,".so"))
+      if(!strstr(flib.name,".so") && !strstr(flib.name,"plugin.xml"))
 #endif    
         continue;
       completeFileName.assign(filename);
@@ -189,17 +190,23 @@ int PluginsManager::preLoad(Server* server, XmlParser* languageFile,
         completeFileName.append("/");
       completeFileName.append(flib.name);
 
+	  if(strstr(flib.name,"plugin.xml"))
+	  {
+	  	string pname(fdir.name);
+        ret |= loadInfo(pname, completeFileName);
+        continue;
+	  }
 #ifdef WIN32
       name = name.substr(0, name.length() - 4);
 #endif
 #ifdef NOT_WIN
       name = name.substr(0, name.length() - 3);
 #endif
-      po = getPluginOption(name);
-    
-       if(!po || po->enabled)
-         ret |= addPlugin(completeFileName, server, languageFile, po && po->global);
-
+      PluginInfo* pinfo = getPluginInfo(name);
+    	
+       if(!pinfo || pinfo->isEnabled())
+         ret |= addPlugin(completeFileName, server, languageFile, pinfo && pinfo->isGlobal());
+	   
      }while(!flib.findnext());
    }while(!fdir.findnext());
   fdir.findclose();
@@ -216,6 +223,100 @@ Plugin* PluginsManager::createPluginObject()
 }
 
 /*!
+ *Loads the plugin info.
+ *\param name The plugin name.
+ *\param path the plugin xml descriptor path.
+ */
+int PluginsManager::loadInfo(string& name, string& path)
+{
+  PluginInfo* pinfo;
+  
+  pinfo = getPluginInfo(name);
+  if (!pinfo)
+    pinfo = new PluginInfo(name);
+    
+  XmlParser xml;
+  
+  if (xml.open(path,true))
+    return 1;
+  
+  XmlXPathResult* xpathRes = xml.evaluateXpath("/PLUGIN");
+  
+  xmlNodeSetPtr nodes = xpathRes->getNodeSet();
+  
+  int size = (nodes) ? nodes->nodeNr : 0;
+  
+  if (size!=1)
+    return 1;
+  
+  const char* mSMinVersion = (const char*)xmlGetProp(nodes->nodeTab[0],(const xmlChar*)"min-version");
+  
+  const char* mSMaxVersion = (const char*)xmlGetProp(nodes->nodeTab[0],(const xmlChar*)"max-version");
+  
+  pinfo->setMyServerMinVersion(PluginInfo::convertVersion(new string(mSMinVersion)));
+  pinfo->setMyServerMaxVersion(PluginInfo::convertVersion(new string(mSMaxVersion)));
+  
+  delete xpathRes;
+  
+  xpathRes = xml.evaluateXpath("/PLUGIN/NAME/text()");
+  nodes = xpathRes->getNodeSet();
+  size = (nodes) ? nodes->nodeNr : 0;
+  
+  
+  if (size!=1)
+    return 1;
+  const char* cname = (const char*)nodes->nodeTab[0]->content;
+
+  
+  if (strcmp(name.c_str(),cname))
+    return 1;
+  
+  delete xpathRes;
+  
+  xpathRes = xml.evaluateXpath("/PLUGIN/VERSION/text()");
+  nodes = xpathRes->getNodeSet();
+  size = (nodes) ? nodes->nodeNr : 0;
+  
+  
+  
+  if (size!=1)
+    return 1;
+  const char* version = (const char*)nodes->nodeTab[0]->content;
+  
+  
+  
+  pinfo->setVersion(PluginInfo::convertVersion(new string(version)));
+  
+  
+  delete xpathRes;
+  
+  xpathRes = xml.evaluateXpath("/PLUGIN/DEPENDS");
+  nodes = xpathRes->getNodeSet();
+  size = (nodes) ? nodes->nodeNr : 0;
+  
+  
+  for (int i=0; i<size; i++)
+  {
+  	const char* depends = (const char*)nodes->nodeTab[i]->children->content;
+  	
+  	string nameDep(depends);
+  	
+  	const char* minVersion = (const char*)xmlGetProp(nodes->nodeTab[i],(const xmlChar*)"min-version");
+    
+    const char* maxVersion = (const char*)xmlGetProp(nodes->nodeTab[i],(const xmlChar*)"max-version");
+    
+    pinfo->addDependence(nameDep, PluginInfo::convertVersion(new string(minVersion)),PluginInfo::convertVersion(new string(maxVersion)));
+  }
+
+  delete xpathRes;
+  
+  addPluginInfo(name,pinfo);
+  
+  
+  return 0;
+}
+
+/*!
  *Add a plugin.
  *\param file The plugin file name.
  *\param server The server object to use.
@@ -227,7 +328,7 @@ int PluginsManager::addPlugin(string& file, Server* server,
                                        XmlParser* languageFile, bool global)
 {
   Plugin *plugin = createPluginObject();
-  string logBuf;
+  
   string name;
   const char* namePtr;
 
@@ -248,12 +349,8 @@ int PluginsManager::addPlugin(string& file, Server* server,
     
   plugins.put(name, plugin);
 
-  logBuf.assign(languageFile->getValue("MSG_LOADED"));
-  logBuf.append(" ");
-  logBuf.append(file);
-  logBuf.append(" --> ");
-  logBuf.append(name);
-  server->logWriteln( logBuf.c_str() );
+  
+  
   return 0;
 }
 
@@ -267,12 +364,80 @@ int PluginsManager::addPlugin(string& file, Server* server,
 int PluginsManager::load(Server *server, XmlParser* languageFile, 
                          string& resource)
 {
+	
+  
+  list<string*> toRemove;
   HashMap<string, Plugin*>::Iterator it = plugins.begin();
   while(it != plugins.end())
   {
-    (*it)->load(resource, server, languageFile);
+  	string logBuf;
+  	
+  	string name(it.getKey());
+  	
+  	
+  	PluginInfo* pinfo = getPluginInfo(name);
+    
+    
+  	HashMap<string, pair<int,int>* >::Iterator depIt = pinfo->begin();
+  	bool goodVersions = true;
+
+  	string msversion(MYSERVER_VERSION);
+  	int i = msversion.find("-",0);
+  	if (i!=string::npos)
+  	  msversion = msversion.substr(0,i); 
+  	
+  	int msVersion = PluginInfo::convertVersion(&msversion);
+  	if (msVersion < pinfo->getMyServerMinVersion() || msVersion > pinfo->getMyServerMaxVersion())
+  	{
+  	  logBuf.append("myserver version not compatible --> ");
+  	  goodVersions = false;
+  	}
+  	else
+  	  for (;depIt != pinfo->end(); depIt++)
+  	  {
+  	  	string dname = depIt.getKey();
+  	  	
+  	  	PluginInfo* dep = getPluginInfo(dname);
+  	  	
+  	  	if (!dep)
+  	  	{
+  	  	  logBuf.append("missing dependence: ");
+  	  	  logBuf.append(dname);
+  	  	  logBuf.append(" --> ");
+  	  	  logBuf.append(name);
+  	  	  goodVersions = false;
+  	  	  break;
+  	  	}
+  	  	  
+  	  	if (dep->getVersion() < (*depIt)->first || dep->getVersion() > (*depIt)->second)
+  	  	{
+  	  	  logBuf.append("plugin version not compatible: ");
+  	  	  logBuf.append(dname);
+  	  	  logBuf.append(" --> ");
+  	  	  logBuf.append(name);
+  	  	  goodVersions = false;
+  	  	  break;
+  	  	}
+  	  }
+  	
+  	
+  	if (goodVersions)
+  	{
+  	  logBuf.assign(languageFile->getValue("MSG_LOADED"));
+  	  logBuf.append(" -plugin- ");
+      logBuf.append(name);
+      (*it)->load(resource, server, languageFile);
+  	} 
+  	else
+  	  toRemove.push_front(&name);
+  	server->logWriteln( logBuf.c_str() );
     it++;
   }
+
+  list<string*>::iterator tRIt = toRemove.begin();
+  for (;tRIt != toRemove.end(); tRIt++)
+    removePlugin(**tRIt);
+  
   return 0;
   
 }
@@ -303,7 +468,7 @@ int PluginsManager::postLoad(Server *server, XmlParser* languageFile)
 int PluginsManager::unLoad(Server *server, XmlParser* languageFile)
 {
   HashMap<string, Plugin*>::Iterator it = plugins.begin();
-  HashMap<string, PluginOption*>::Iterator poit = pluginsOptions.begin();
+  HashMap<string, PluginInfo*>::Iterator poit = pluginsInfos.begin();
 
   while(it != plugins.end())
   {
@@ -312,14 +477,14 @@ int PluginsManager::unLoad(Server *server, XmlParser* languageFile)
     it++;
   }
 
-  while(poit != pluginsOptions.end())
+  while(poit != pluginsInfos.end())
   {
     delete *poit;
     poit++;
   }
 
   plugins.clear();
-  pluginsOptions.clear();
+  pluginsInfos.clear();
   return 0;
 }
 
@@ -337,13 +502,12 @@ void PluginsManager::removePlugin(string& name)
  *\param plugin The plugin name.
  *\param po The options for the plugin.
  */
-int PluginsManager::addPluginOption(string& plugin, PluginOption& po)
+int PluginsManager::addPluginInfo(string& plugin, PluginInfo* pi)
 {
-  PluginOption* newPo = new PluginOption(po);
-  PluginOption* oldPo = pluginsOptions.put(plugin, newPo);
+  PluginInfo* oldPi = pluginsInfos.put(plugin, pi);
 
-  if(oldPo)
-    delete oldPo;
+  if(oldPi)
+    delete oldPi;
 
   return 0;
 }
@@ -352,7 +516,7 @@ int PluginsManager::addPluginOption(string& plugin, PluginOption& po)
  *Return a pluginOption.
  *\param name The plugin name.
  */
-PluginsManager::PluginOption* PluginsManager::getPluginOption(string& plugin)
+PluginInfo* PluginsManager::getPluginInfo(string& plugin)
 {
-  return pluginsOptions.get(plugin);
+  return pluginsInfos.get(plugin);
 }

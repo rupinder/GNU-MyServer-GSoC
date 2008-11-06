@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "stdafx.h"
 #include <include/plugin/plugin.h>
+#include <include/plugin/plugin_info.h>
 #include <include/base/dynamic_lib/dynamiclib.h>
 #include <include/base/hash_map/hash_map.h>
 #include <string>
@@ -32,17 +33,6 @@ class XmlParser;
 class PluginsManager
 {
 public:
-
-	struct PluginOption
-	{
-		PluginOption(PluginOption& po){enabled = po.enabled; global = po.global;}
-		PluginOption(){enabled = true; global = false;}
-		bool enabled;
-    	bool global;
-	};
-	
-	
-	
 	HashMap<string, Plugin*>::Iterator begin(){return plugins.begin();}
 	HashMap<string, Plugin*>::Iterator end(){return plugins.end();}
 	
@@ -55,8 +45,8 @@ public:
 
 	virtual void removePlugin(string& name);
 
-	virtual int addPluginOption(string&, PluginOption&);
-	virtual PluginOption* getPluginOption(string&);
+	virtual int addPluginInfo(string&, PluginInfo*);
+	virtual PluginInfo* getPluginInfo(string&);
 	
 	virtual Plugin* createPluginObject();
 	
@@ -64,11 +54,13 @@ public:
 	~PluginsManager();
 	
 private:
-	HashMap<string, PluginOption*> pluginsOptions;
+	HashMap<string, PluginInfo*> pluginsInfos;
 	HashMap<string, Plugin*> plugins;
 	int loadOptions(Server *server, XmlParser* languageFile);
 	int addPlugin(string& file, Server* server, 
                 XmlParser* languageFile, bool global);
+                
+    int loadInfo(string& name, string& path);
 };
 
 #endif

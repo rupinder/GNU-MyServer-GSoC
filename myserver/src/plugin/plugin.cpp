@@ -31,7 +31,7 @@ typedef const char* (*getNamePROC)(char*, u_long);
  */
 Plugin::Plugin()
 {
-  version = 1;
+	
 }
 
 /*!
@@ -109,20 +109,8 @@ int Plugin::unLoad(XmlParser* languageFile)
   return 0;
 }
 
-/*!
- *Get the version number for this plugin.
- */
-int Plugin::getVersion()
-{
-  if(hinstLib.validHandle())
-  {
-    versionPROC proc = (versionPROC)hinstLib.getProc("version"); 
-    if(proc)
-      return proc();
-    return 1;
-  }
-  return 0;
-}
+
+
 
 /*!
  *Get the plugin name.
