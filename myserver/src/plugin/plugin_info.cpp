@@ -165,10 +165,9 @@ Plugin* PluginInfo::getPlugin()
 */
 void PluginInfo::detachPlugin()
 {
-  if (this->plugin!=NULL)
+  if (!this->plugin)
   {
-  	delete(this->plugin);
-    this->plugin = NULL;
+  	delete this->plugin;
   }
 }
 
