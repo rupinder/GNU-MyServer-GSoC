@@ -25,6 +25,7 @@
 class FileStreamCreator : public LogStreamCreator
 {
 public:
+  FileStreamCreator () {}
   virtual LogStream* create (FiltersFactory*, string, list<string>&, u_long);
 };
 
