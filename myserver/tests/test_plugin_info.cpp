@@ -40,9 +40,6 @@ class TestPluginInfo : public CppUnit::TestFixture
   CPPUNIT_TEST( testGetMyServerMaxVersion );
   CPPUNIT_TEST( testGetName );
   CPPUNIT_TEST( testDependencies );
-  CPPUNIT_TEST( testGetNullPlugin );
-  CPPUNIT_TEST( testAddAndGetPlugin );
-  CPPUNIT_TEST( testDetachPlugin );
   CPPUNIT_TEST( testVersionConversionStringInt );
   CPPUNIT_TEST_SUITE_END();
 private:
@@ -52,7 +49,7 @@ public:
   void setUp()
   {
   	string name("test");
-	pluginfo = new PluginInfo(name,false,false,0,0,0);
+	pluginfo = new PluginInfo(name,false,false);
   }
 
   void tearDown()
@@ -69,7 +66,7 @@ public:
   {
   	delete(pluginfo);
   	string name("test");
-  	pluginfo = new PluginInfo(name,true,false,0,0,0);
+  	pluginfo = new PluginInfo(name,true,false);
   	CPPUNIT_ASSERT(pluginfo->isEnabled());
   }
 
@@ -82,7 +79,7 @@ public:
   {
   	delete(pluginfo);
   	string name("test");
-  	pluginfo = new PluginInfo(name,false,true,0,0,0);
+  	pluginfo = new PluginInfo(name,false,true);
   	CPPUNIT_ASSERT(pluginfo->isGlobal());
   }
   
@@ -115,24 +112,7 @@ public:
   	CPPUNIT_ASSERT_EQUAL( pluginfo->begin().getKey().compare("test-dep"),0);
   }
   
-  void testGetNullPlugin()
-  {
-  	CPPUNIT_ASSERT( pluginfo->getPlugin()==NULL);
-  }
-  
-  void testAddAndGetPlugin()
-  {
-  	pluginfo->attachPlugin(new Plugin());
-  	CPPUNIT_ASSERT( pluginfo->getPlugin()!=NULL);
-  }
-  
-  void testDetachPlugin()
-  {
-  	pluginfo->attachPlugin(new Plugin());
-  	CPPUNIT_ASSERT( pluginfo->getPlugin()!=NULL);
-  	pluginfo->detachPlugin();
-  	CPPUNIT_ASSERT( pluginfo->getPlugin()==NULL);
-  }
+
   
   void testVersionConversionStringInt()
   {

@@ -20,6 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
+Regex* PluginInfo::regex = new Regex("^[1-2]?[1-9]?[0-9](\\.[1-2]?[0-9]?[0-9](\\.[1-2]?[0-9]?[0-9](\\.[1-2]?[0-9]?[0-9])?)?)?$",REG_EXTENDED | REG_NOSUB);
+
+
 /*!
  *Construct a plugin info object.
  *\param name plugin name.
@@ -28,28 +31,15 @@ using namespace std;
  */
 PluginInfo::PluginInfo(string& name, bool enabled, bool global)
 {
-  PluginInfo(name,enabled,global,0,0,0);
-}
-
-/*!
- *Construct a plugin info object.
- *\param name plugin name.
- *\param enabled is true if the plugin has to be enabled. 
- *\param global is true if the plugin's symbols have to be loaded globally.
- *\param version the version of the plugin, in the format: a.b.c.d where a = version >> 24, b = (version >> 16) & 255, c = (version >> 8) & 255, d = version & 255.
- *\param msMinVersion is the minimum MyServer version plugin is compatible. 
- *\param msMaxVersion is the maximum MyServer version plugin is compatible. 
- */
-PluginInfo::PluginInfo(string& name, bool enabled, bool global, int version, int msMinVersion, int msMaxVersion)
-{
   this->name = name;	
   this->enabled = enabled;
   this->global = global;
-  this->version = version;
-  this->msMinVersion = msMinVersion;
-  this->msMaxVersion = msMaxVersion;
-  this->plugin = NULL;
+  this->version = 0;
+  this->msMinVersion = 0;
+  this->msMaxVersion = 0;
 }
+
+
 
 
 /*!
@@ -57,7 +47,7 @@ PluginInfo::PluginInfo(string& name, bool enabled, bool global, int version, int
 */	
 PluginInfo::~PluginInfo()
 {
-	detachPlugin();
+
 }
 
 /*!
@@ -142,38 +132,6 @@ string PluginInfo::getName()
 {
   return this->name;
 }
-
-/*!
- * Attaches the corrispondent Plugin object.
-*/
-void PluginInfo::attachPlugin(Plugin* plugin)
-{
-	this->plugin = plugin;
-}
-
-
-/*!
- * Returns the attached plugin object.
-*/
-Plugin* PluginInfo::getPlugin()
-{
-  return this->plugin;
-}
-	
-/*!
- * Detaches the Plugin object.
-*/
-void PluginInfo::detachPlugin()
-{
-  if (!this->plugin)
-  {
-  	delete this->plugin;
-  }
-}
-
-
-
-Regex* PluginInfo::regex = new Regex("^[1-2]?[1-9]?[0-9](\\.[1-2]?[0-9]?[0-9](\\.[1-2]?[0-9]?[0-9](\\.[1-2]?[0-9]?[0-9])?)?)?$",REG_EXTENDED | REG_NOSUB);
 
 /*!
  * Converts a string in the format "a.b.c.d" in an int in the format abcd where each number takes 8 bit.

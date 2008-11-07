@@ -37,7 +37,6 @@ class PluginInfo
 public:
 
     PluginInfo(string& name, bool enabled = 1, bool global = 0);
-	PluginInfo(string& name, bool enabled, bool global, int version, int msMinVersion, int msMaxVersion);
 	
 	~PluginInfo();
 	
@@ -63,12 +62,6 @@ public:
 	HashMap<string, pair<int,int>* >::Iterator begin(){return dependences.begin();}
 	HashMap<string, pair<int,int>* > ::Iterator end(){return dependences.end();}
 	
-	void attachPlugin(Plugin* plugin);
-	
-	Plugin* getPlugin();
-	
-	void detachPlugin();
-	
 	
 	static int convertVersion(string* s);
 	
@@ -84,7 +77,6 @@ private:
     int msMinVersion;
     int msMaxVersion;
     HashMap<string, pair<int,int>* > dependences;
-    Plugin* plugin;
     static Regex* regex;
 };
 
