@@ -61,8 +61,7 @@ public:
 	static void forkChild();
 #endif
 	static void initialize();
-  int execAndWait (StartProcInfo *spi, u_long timeout = 0xFFFFFFFF);
-  int exec (StartProcInfo *spi, bool waitEnd = false, u_long timeout = 0xFFFFFFFF);
+  int exec (StartProcInfo *spi, bool waitEnd = false);
   int terminateProcess();
   int isProcessAlive();
   static int setuid(u_long);
