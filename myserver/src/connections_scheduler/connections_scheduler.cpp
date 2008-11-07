@@ -39,7 +39,7 @@ make_socket_nonblocking(FileHandle fd)
 }
 
 static int
-create_socketpair(int af, int type, int protocol, int socks[2])
+create_socketpair(int af, int type, int protocol, FileHandle socks[2])
 {
 #ifndef WIN32
   return socketpair(af, type, protocol, (int*)socks);

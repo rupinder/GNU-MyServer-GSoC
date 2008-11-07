@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 typedef void* FileHandle;
 #endif
 #ifdef NOT_WIN
-typedef long  FileHandle;
+typedef int  FileHandle;
 #endif
 
 /*!
