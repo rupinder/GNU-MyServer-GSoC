@@ -69,7 +69,7 @@ public:
     bool terminated; 
     bool terminate;
     Mutex* mutex;
-    FileHandle fd[2];
+    int fd[2];
     event loopEvent;
     Server* server;
     ConnectionsScheduler* scheduler;
