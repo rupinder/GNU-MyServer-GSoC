@@ -21,8 +21,8 @@
  * Default color values to use when outputting log messages over the
  * console. Change them according to your tastes :)
  *
- * c[i][0] = Foreground color for the LoggingLevel `i'
- * c[i][1] = Background color for the LoggingLevel `i'
+ * defaultColors[i][0] = Foreground color for the LoggingLevel `i'
+ * defaultColors[i][1] = Background color for the LoggingLevel `i'
  */
 MyServerColor defaultColors[][2] =
   {
@@ -32,15 +32,15 @@ MyServerColor defaultColors[][2] =
     },
     {
       MYSERVER_FG_COLOR_WHITE, // } MYSERVER_LOG_MSG_INFO
-      MYSERVER_BG_COLOR_BLACK  // }
+      MYSERVER_BG_COLOR_NONE  // }
     },
     {
       MYSERVER_FG_COLOR_YELLOW, // } MYSERVER_LOG_MSG_WARNING
-      MYSERVER_BG_COLOR_BLACK   // }
+      MYSERVER_BG_COLOR_NONE   // }
     },
     {
       MYSERVER_FG_COLOR_RED,   // } MYSERVER_LOG_MSG_ERROR
-      MYSERVER_BG_COLOR_BLACK  // }
+      MYSERVER_BG_COLOR_NONE  // }
     }
   };
 

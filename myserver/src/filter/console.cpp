@@ -26,10 +26,11 @@ WORD colors[] =
     FOREGROUND_GREEN, // Green
     FOREGROUND_RED | FOREGROUND_GREEN, // Yellow
     FOREGROUND_BLUE, // Blue
-    FOREGROUND_RED | FOREGROUND_BLUE // Magenta
-    FOREGROUND_BLUE | FOREGROUND_GREEN // Cyan
+    FOREGROUND_RED | FOREGROUND_BLUE, // Magenta
+    FOREGROUND_BLUE | FOREGROUND_GREEN, // Cyan
     FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, // White
-    FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE // Reset
+    FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, // Reset
+    -1, // None
     /* Background colors */
     0, // Black
     BACKGROUND_RED, // Red
@@ -39,7 +40,8 @@ WORD colors[] =
     BACKGROUND_RED | BACKGROUND_BLUE, // Magenta
     BACKGROUND_BLUE | BACKGROUND_GREEN, // Cyan
     BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE, // White
-    0 // Reset
+    0, // Reset
+    -1 // None
   };
 #endif
 #ifdef NOT_WIN
@@ -55,6 +57,7 @@ char const* colors[] =
     "\033[36m", // Cyan
     "\033[37m", // White
     "\033[0m", // Reset
+    "NO_COLOR", // None
     /* Background colors */
     "\033[40m", // Black
     "\033[41m", // Red
@@ -64,7 +67,8 @@ char const* colors[] =
     "\033[45m", // Magenta
     "\033[46m", // Cyan
     "\033[47m", // White
-    "\033[0m" // Reset
+    "\033[0m", // Reset
+    "NO_COLOR" // None
   };
 #endif
 
@@ -141,9 +145,9 @@ Console::checkColors (MyServerColor c[])
 {
   return 
     c[0] < MYSERVER_FG_COLOR_BLACK || 
-    c[0] > MYSERVER_FG_COLOR_RESET ||
+    c[0] > MYSERVER_FG_COLOR_NONE ||
     c[1] < MYSERVER_BG_COLOR_BLACK || 
-    c[1] > MYSERVER_BG_COLOR_RESET;
+    c[1] > MYSERVER_BG_COLOR_NONE;
 }
 
 /*!
@@ -157,11 +161,22 @@ Console::setColor (MyServerColor c[])
   if (!checkColors (c))
     {
 #ifdef WIN32
-      SetConsoleTextAttribute (GetStdHandle ((fd == &cout) ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE),
-                               colors[c[0]] | colors[c[1]]);
+      WORD attrs =
+        ((c[0] != MYSERVER_FG_COLOR_NONE) ? colors[c[0]] : 0) |
+        ((c[1] != MYSERVER_BG_COLOR_NONE) ? colors[c[1]] : 0);
+      DWORD nStdHandle = (fd == &cout) ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE;
+      HANDLE h = GetStdHandle (nStdHandle);
+      SetConsoleTextAttribute (attrs, h);
 #endif
 #ifdef NOT_WIN
-      *fd << colors[c[0]] << colors[c[1]];
+      if (c[0] != MYSERVER_FG_COLOR_NONE)
+        {
+          *fd << colors[c[0]];
+        }
+      if (c[1] != MYSERVER_BG_COLOR_NONE)
+        {
+          *fd << colors[c[1]];
+        }
 #endif
       return 0;
     }
