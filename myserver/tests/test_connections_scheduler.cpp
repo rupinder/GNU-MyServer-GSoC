@@ -111,7 +111,7 @@ public:
 
   void setUp()
   {
-    scheduler = new ConnectionsScheduler(NULL);
+    scheduler = new ConnectionsScheduler ();
     scheduler->initialize();
   }
 
