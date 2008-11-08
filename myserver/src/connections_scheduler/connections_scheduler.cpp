@@ -378,7 +378,7 @@ void ConnectionsScheduler::initialize()
   {
     if(server)
     {
-      server->logWriteln("Error initializing socket pair.", MYSERVER_LOG_ERROR);
+      server->logWriteln("Error initializing socket pair.", MYSERVER_LOG_MSG_ERROR);
     }
     return;
   }
@@ -395,7 +395,7 @@ void ConnectionsScheduler::initialize()
   {
     if(server)
     {
-      server->logWriteln("Error initializing dispatcher thread.", MYSERVER_LOG_ERROR);
+      server->logWriteln("Error initializing dispatcher thread.", MYSERVER_LOG_MSG_ERROR);
     }
     dispatchedThreadId = 0;
   }

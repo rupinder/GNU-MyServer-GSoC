@@ -31,25 +31,25 @@ using namespace std;
 
 enum LoggingLevel
   {
-    MYSERVER_LOG_INFO,
-    MYSERVER_LOG_WARNING,
-    MYSERVER_LOG_ERROR
+    MYSERVER_LOG_MSG_INFO,
+    MYSERVER_LOG_MSG_WARNING,
+    MYSERVER_LOG_MSG_ERROR
   };
 
 class LogManager
 {
 public:
-  LogManager (FiltersFactory* ff, LoggingLevel level = MYSERVER_LOG_WARNING);
+  LogManager (FiltersFactory* ff, LoggingLevel level = MYSERVER_LOG_MSG_WARNING);
   ~LogManager ();
   int add (void* owner, string type, string location, 
            list<string>& filters, u_long cycle);
   int remove (void* owner);
   int log (void* owner, string message, bool appendNL = false,
-           LoggingLevel level = MYSERVER_LOG_WARNING);
+           LoggingLevel level = MYSERVER_LOG_MSG_WARNING);
   int log (void* owner, string type, string message, bool appendNL = false,
-           LoggingLevel level = MYSERVER_LOG_WARNING);
+           LoggingLevel level = MYSERVER_LOG_MSG_WARNING);
   int log (void* owner, string type, string location, string message, 
-           bool appendNL = false, LoggingLevel level = MYSERVER_LOG_WARNING);
+           bool appendNL = false, LoggingLevel level = MYSERVER_LOG_MSG_WARNING);
   int close (void* owner);
   int close (void* owner, string type);
   int close (void* owner, string type, string location);

@@ -102,7 +102,7 @@ void ProcessServerManager::load()
           ostringstream msg;
           msg << "Error: incomplete remote PROCESS_SERVER block, " 
               << domain  << ":" << name << " needs a port";
-          ::Server::getInstance()->logWriteln(msg.str().c_str(), MYSERVER_LOG_ERROR);
+          ::Server::getInstance()->logWriteln(msg.str().c_str(), MYSERVER_LOG_MSG_ERROR);
         }
       }
 
@@ -110,7 +110,7 @@ void ProcessServerManager::load()
     else
     {
       const char *msg = "Error: incomplete PROCESS_SERVER block";
-      ::Server::getInstance()->logWriteln(msg, MYSERVER_LOG_ERROR);
+      ::Server::getInstance()->logWriteln(msg, MYSERVER_LOG_MSG_ERROR);
     }
 
   }
@@ -382,7 +382,7 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
     ostringstream stream;
     stream << "Cannot run process " << path 
            << ": Reached max number of servers";
-    ::Server::getInstance()->logWriteln(stream.str().c_str(), MYSERVER_LOG_ERROR);
+    ::Server::getInstance()->logWriteln(stream.str().c_str(), MYSERVER_LOG_MSG_ERROR);
     return 1;
   }
 

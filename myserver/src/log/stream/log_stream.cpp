@@ -128,37 +128,37 @@ LogStream::update (LogStreamEvent evt, void* message, void* reply)
 {
   switch (evt)
     {
-    case EVT_SET_CYCLE:
+    case MYSERVER_LOG_EVT_SET_CYCLE:
       {
         return setCycle (*static_cast<u_long*>(message));
       }
       break;
-    case EVT_LOG:
+    case MYSERVER_LOG_EVT_LOG:
       {
         return log (*static_cast<string*>(message));
       }
       break;
-    case EVT_CLOSE:
+    case MYSERVER_LOG_EVT_CLOSE:
       {
         return close ();
       }
       break;
-    case EVT_ADD_FILTER:
+    case MYSERVER_LOG_EVT_ADD_FILTER:
       {
         return addFilter (static_cast<Filter*>(message));
       }
       break;
-    case EVT_CHOWN:
+    case MYSERVER_LOG_EVT_CHOWN:
       {
         return chown (static_cast<int*>(message)[0], 
                       static_cast<int*>(message)[1]);
       }
-    case EVT_ENTER_ERROR_MODE:
+    case MYSERVER_LOG_EVT_ENTER_ERROR_MODE:
       {
         return enterErrorMode ();
       }
       break;
-    case EVT_EXIT_ERROR_MODE:
+    case MYSERVER_LOG_EVT_EXIT_ERROR_MODE:
       {
         return exitErrorMode ();
       }

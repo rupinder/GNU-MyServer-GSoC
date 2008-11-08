@@ -199,7 +199,7 @@ LogManager::chown (void* owner, int uid, int gid)
   int message[2];
   message[0] = uid;
   message[1] = gid;
-  return notify (owner, EVT_CHOWN, static_cast<void*>(message));
+  return notify (owner, MYSERVER_LOG_EVT_CHOWN, static_cast<void*>(message));
 }
 
 int
@@ -208,7 +208,7 @@ LogManager::chown (void* owner, string type, int uid, int gid)
   int message[2];
   message[0] = uid;
   message[1] = gid;
-  return notify (owner, EVT_CHOWN, static_cast<void*>(message));
+  return notify (owner, MYSERVER_LOG_EVT_CHOWN, static_cast<void*>(message));
 }
 
 int
@@ -217,7 +217,7 @@ LogManager::chown (void* owner, string type, string location, int uid, int gid)
   int message[2];
   message[0] = uid;
   message[1] = gid;
-  return notify (owner, type, location, EVT_CHOWN, static_cast<void*>(message));
+  return notify (owner, type, location, MYSERVER_LOG_EVT_CHOWN, static_cast<void*>(message));
 }
 
 int
@@ -234,16 +234,16 @@ LogManager::log (void* owner, string message, bool appendNL,
           oss << message << endl;
           message.assign (oss.str ());
         }
-      if (level == MYSERVER_LOG_ERROR)
+      if (level == MYSERVER_LOG_MSG_ERROR)
         {
           success = 
-            notify (owner, EVT_ENTER_ERROR_MODE) ||
-            notify (owner, EVT_LOG, static_cast<void*>(&message)) ||
-            notify (owner, EVT_EXIT_ERROR_MODE);
+            notify (owner, MYSERVER_LOG_EVT_ENTER_ERROR_MODE) ||
+            notify (owner, MYSERVER_LOG_EVT_LOG, static_cast<void*>(&message)) ||
+            notify (owner, MYSERVER_LOG_EVT_EXIT_ERROR_MODE);
         }
       else
         {
-          success = notify (owner, EVT_LOG, static_cast<void*>(&message));
+          success = notify (owner, MYSERVER_LOG_EVT_LOG, static_cast<void*>(&message));
         }
     }
   return success;
@@ -263,16 +263,16 @@ LogManager::log (void* owner, string type, string message, bool appendNL,
           oss << message << endl;
           message.assign (oss.str ());
         }
-      if (level == MYSERVER_LOG_ERROR)
+      if (level == MYSERVER_LOG_MSG_ERROR)
         {
           success = 
-            notify (owner, type, EVT_ENTER_ERROR_MODE) ||
-            notify (owner, type, EVT_LOG, static_cast<void*>(&message)) ||
-            notify (owner, type, EVT_EXIT_ERROR_MODE);
+            notify (owner, type, MYSERVER_LOG_EVT_ENTER_ERROR_MODE) ||
+            notify (owner, type, MYSERVER_LOG_EVT_LOG, static_cast<void*>(&message)) ||
+            notify (owner, type, MYSERVER_LOG_EVT_EXIT_ERROR_MODE);
         }
       else
         {
-          success = notify (owner, type, EVT_LOG, static_cast<void*>(&message));
+          success = notify (owner, type, MYSERVER_LOG_EVT_LOG, static_cast<void*>(&message));
         }
     }
   return success;
@@ -291,16 +291,16 @@ LogManager::log (void* owner, string type, string location, string message,
           oss << message << endl;
           message.assign (oss.str ());
         }
-      if (level == MYSERVER_LOG_ERROR)
+      if (level == MYSERVER_LOG_MSG_ERROR)
         {
           success = 
-            notify (owner, type, location, EVT_ENTER_ERROR_MODE) ||
-            notify (owner, type, location, EVT_LOG, static_cast<void*>(&message)) ||
-            notify (owner, type, location, EVT_EXIT_ERROR_MODE);
+            notify (owner, type, location, MYSERVER_LOG_EVT_ENTER_ERROR_MODE) ||
+            notify (owner, type, location, MYSERVER_LOG_EVT_LOG, static_cast<void*>(&message)) ||
+            notify (owner, type, location, MYSERVER_LOG_EVT_EXIT_ERROR_MODE);
         }
       else
         {
-          success = notify (owner, type, location, EVT_LOG, 
+          success = notify (owner, type, location, MYSERVER_LOG_EVT_LOG, 
                             static_cast<void*>(&message));
         }
     }
@@ -310,37 +310,37 @@ LogManager::log (void* owner, string type, string location, string message,
 int
 LogManager::close (void* owner)
 {
-  return notify (owner, EVT_CLOSE);
+  return notify (owner, MYSERVER_LOG_EVT_CLOSE);
 }
 
 int
 LogManager::close (void* owner, string type)
 {
-  return notify (owner, type, EVT_CLOSE);
+  return notify (owner, type, MYSERVER_LOG_EVT_CLOSE);
 }
 
 int
 LogManager::close (void* owner, string type, string location)
 {
-  return notify (owner, type, location, EVT_CLOSE);
+  return notify (owner, type, location, MYSERVER_LOG_EVT_CLOSE);
 }
 
 int
 LogManager::setCycle (void* owner, u_long cycle)
 {
-  return notify (owner, EVT_SET_CYCLE, static_cast<void*>(&cycle));
+  return notify (owner, MYSERVER_LOG_EVT_SET_CYCLE, static_cast<void*>(&cycle));
 }
 
 int
 LogManager::setCycle (void* owner, string type, u_long cycle)
 {
-  return notify (owner, type, EVT_SET_CYCLE, static_cast<void*>(&cycle));
+  return notify (owner, type, MYSERVER_LOG_EVT_SET_CYCLE, static_cast<void*>(&cycle));
 }
 
 int
 LogManager::setCycle (void* owner, string type, string location, u_long cycle)
 {
-  return notify (owner, type, location, EVT_SET_CYCLE, 
+  return notify (owner, type, location, MYSERVER_LOG_EVT_SET_CYCLE, 
                  static_cast<void*>(&cycle));
 }
 

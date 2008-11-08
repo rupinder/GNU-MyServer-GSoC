@@ -101,7 +101,7 @@ int PluginsManager::loadOptions(Server *server, XmlParser* languageFile)
             {
               string error;
               error.assign("Warning: invalid plugin name in PLUGIN block");
-              server->logWriteln(error.c_str(), MYSERVER_LOG_ERROR);   
+              server->logWriteln(error.c_str(), MYSERVER_LOG_MSG_ERROR);
               ret = -1;  
             }
             else
