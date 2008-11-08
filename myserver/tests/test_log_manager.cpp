@@ -149,6 +149,7 @@ public:
   {
     list<string> filters;
     lm->add (this, "test", "file://foo", filters, 0);
+    lm->setLevel (MYSERVER_LOG_MSG_WARNING);
     CPPUNIT_ASSERT (lm->log (this, "test", "a message", false, MYSERVER_LOG_MSG_INFO));
     CPPUNIT_ASSERT (!lm->log (this, "test", "a message", false, MYSERVER_LOG_MSG_ERROR));
     CPPUNIT_ASSERT (!lm->log (this, "test", "a message", false, MYSERVER_LOG_MSG_WARNING));

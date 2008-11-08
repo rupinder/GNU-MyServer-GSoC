@@ -29,27 +29,20 @@
 
 using namespace std;
 
-enum LoggingLevel
-  {
-    MYSERVER_LOG_MSG_INFO,
-    MYSERVER_LOG_MSG_WARNING,
-    MYSERVER_LOG_MSG_ERROR
-  };
-
 class LogManager
 {
 public:
-  LogManager (FiltersFactory* ff, LoggingLevel level = MYSERVER_LOG_MSG_WARNING);
+  LogManager (FiltersFactory* ff, LoggingLevel level = MYSERVER_LOG_MSG_INFO);
   ~LogManager ();
   int add (void* owner, string type, string location, 
            list<string>& filters, u_long cycle);
   int remove (void* owner);
   int log (void* owner, string message, bool appendNL = false,
-           LoggingLevel level = MYSERVER_LOG_MSG_WARNING);
+           LoggingLevel level = MYSERVER_LOG_MSG_INFO);
   int log (void* owner, string type, string message, bool appendNL = false,
-           LoggingLevel level = MYSERVER_LOG_MSG_WARNING);
+           LoggingLevel level = MYSERVER_LOG_MSG_INFO);
   int log (void* owner, string type, string location, string message, 
-           bool appendNL = false, LoggingLevel level = MYSERVER_LOG_MSG_WARNING);
+           bool appendNL = false, LoggingLevel level = MYSERVER_LOG_MSG_INFO);
   int close (void* owner);
   int close (void* owner, string type);
   int close (void* owner, string type, string location);
@@ -86,6 +79,7 @@ protected:
   int add (void* owner);
   int add (void* owner, string type);
   int add (void* owner, string type, string location, LogStream* ls);
+  int computeNewLine ();
 private:
   LoggingLevel level;
   Mutex* mutex;
@@ -93,6 +87,7 @@ private:
   FiltersFactory* ff;
   map<string, LogStream*> logStreams;
   map<void*, map<string, map<string, LogStream*> > > owners;
+  string newline;
 };
 
 #endif

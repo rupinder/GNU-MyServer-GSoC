@@ -132,7 +132,7 @@ public:
   void stop();
   void finalCleanup();
   int terminate();
-  int logWriteln(char const*, LoggingLevel level = MYSERVER_LOG_MSG_WARNING);
+  int logWriteln(char const*, LoggingLevel level = MYSERVER_LOG_MSG_INFO);
   int logWriteln(string const &str)
     {return logWriteln(str.c_str());};
   int setLogLocation(string);

@@ -153,16 +153,11 @@ LogStream::update (LogStreamEvent evt, void* message, void* reply)
         return chown (static_cast<int*>(message)[0], 
                       static_cast<int*>(message)[1]);
       }
-    case MYSERVER_LOG_EVT_ENTER_ERROR_MODE:
-      {
-        return enterErrorMode ();
-      }
       break;
-    case MYSERVER_LOG_EVT_EXIT_ERROR_MODE:
+    case MYSERVER_LOG_EVT_SET_MODE:
       {
-        return exitErrorMode ();
+        return setMode (*static_cast<LoggingLevel*>(message));
       }
-      break;
     default:
       return 1;
     }
@@ -229,13 +224,7 @@ LogStream::chown (int uid, int gid)
 }
 
 int
-LogStream::enterErrorMode ()
-{
-  return 0;
-}
-
-int
-LogStream::exitErrorMode ()
+LogStream::setMode (LoggingLevel level)
 {
   return 0;
 }

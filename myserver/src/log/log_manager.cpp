@@ -24,6 +24,7 @@ LogManager::LogManager (FiltersFactory* ff,
   lsf = new LogStreamFactory ();
   mutex = new Mutex ();
   mutex->init ();
+  computeNewLine ();
 }
 
 LogManager::~LogManager ()
@@ -32,6 +33,18 @@ LogManager::~LogManager ()
     clear ();
   delete mutex;
   delete lsf;
+}
+
+/*!
+ * Precalculate the newline string for the host operating system.
+ * \return 0 on success, 1 on error.
+ */
+int
+LogManager::computeNewLine ()
+{
+  ostringstream oss;
+  oss << endl;
+  newline.assign (oss.str ());
 }
 
 int
@@ -227,23 +240,15 @@ LogManager::log (void* owner, string message, bool appendNL,
   int success = 1;
   if (level >= this->level)
     {
-      success = 0;
+      success = 
+        notify (owner, MYSERVER_LOG_EVT_SET_MODE, static_cast<void*>(&level)) ||
+        notify (owner, MYSERVER_LOG_EVT_LOG, static_cast<void*>(&message));
       if (appendNL)
         {
-          ostringstream oss;
-          oss << message << endl;
-          message.assign (oss.str ());
-        }
-      if (level == MYSERVER_LOG_MSG_ERROR)
-        {
-          success = 
-            notify (owner, MYSERVER_LOG_EVT_ENTER_ERROR_MODE) ||
-            notify (owner, MYSERVER_LOG_EVT_LOG, static_cast<void*>(&message)) ||
-            notify (owner, MYSERVER_LOG_EVT_EXIT_ERROR_MODE);
-        }
-      else
-        {
-          success = notify (owner, MYSERVER_LOG_EVT_LOG, static_cast<void*>(&message));
+          LoggingLevel l = MYSERVER_LOG_MSG_PLAIN;
+          success |= 
+            (notify (owner, MYSERVER_LOG_EVT_SET_MODE, (static_cast<void*>(&l))) ||
+             notify (owner, MYSERVER_LOG_EVT_LOG, (static_cast<void*>(&newline))));
         }
     }
   return success;
@@ -256,23 +261,15 @@ LogManager::log (void* owner, string type, string message, bool appendNL,
   int success = 1;
   if (level >= this->level)
     {
-      success = 0;
+      success = 
+        notify (owner, type, MYSERVER_LOG_EVT_SET_MODE, static_cast<void*>(&level)) ||
+        notify (owner, type, MYSERVER_LOG_EVT_LOG, static_cast<void*>(&message));
       if (appendNL)
         {
-          ostringstream oss;
-          oss << message << endl;
-          message.assign (oss.str ());
-        }
-      if (level == MYSERVER_LOG_MSG_ERROR)
-        {
-          success = 
-            notify (owner, type, MYSERVER_LOG_EVT_ENTER_ERROR_MODE) ||
-            notify (owner, type, MYSERVER_LOG_EVT_LOG, static_cast<void*>(&message)) ||
-            notify (owner, type, MYSERVER_LOG_EVT_EXIT_ERROR_MODE);
-        }
-      else
-        {
-          success = notify (owner, type, MYSERVER_LOG_EVT_LOG, static_cast<void*>(&message));
+          LoggingLevel l = MYSERVER_LOG_MSG_PLAIN;
+          success |= 
+            (notify (owner, MYSERVER_LOG_EVT_SET_MODE, (static_cast<void*>(&l))) ||
+             notify (owner, MYSERVER_LOG_EVT_LOG, (static_cast<void*>(&newline))));
         }
     }
   return success;
@@ -285,23 +282,15 @@ LogManager::log (void* owner, string type, string location, string message,
   int success = 1;
   if (level >= this->level)
     {
+      success = 
+        notify (owner, type, location, MYSERVER_LOG_EVT_SET_MODE, static_cast<void*>(&level)) ||
+        notify (owner, type, location, MYSERVER_LOG_EVT_LOG, static_cast<void*>(&message));
       if (appendNL)
         {
-          ostringstream oss;
-          oss << message << endl;
-          message.assign (oss.str ());
-        }
-      if (level == MYSERVER_LOG_MSG_ERROR)
-        {
-          success = 
-            notify (owner, type, location, MYSERVER_LOG_EVT_ENTER_ERROR_MODE) ||
-            notify (owner, type, location, MYSERVER_LOG_EVT_LOG, static_cast<void*>(&message)) ||
-            notify (owner, type, location, MYSERVER_LOG_EVT_EXIT_ERROR_MODE);
-        }
-      else
-        {
-          success = notify (owner, type, location, MYSERVER_LOG_EVT_LOG, 
-                            static_cast<void*>(&message));
+          LoggingLevel l = MYSERVER_LOG_MSG_PLAIN;
+          success |=
+            (notify (owner, MYSERVER_LOG_EVT_SET_MODE, (static_cast<void*>(&l))) ||
+             notify (owner, MYSERVER_LOG_EVT_LOG, (static_cast<void*>(&newline))));
         }
     }
   return success;

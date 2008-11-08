@@ -25,12 +25,13 @@
 #include <include/log/stream/log_stream.h>
 #include <include/filter/console.h>
 
+extern MyServerColor defaultColors[][2];
+
 class ConsoleStream : public LogStream
 {
 public:
   ConsoleStream (FiltersFactory*, u_long, Stream*, FiltersChain*);
-  virtual int enterErrorMode ();
-  virtual int exitErrorMode ();
+  virtual int setMode (LoggingLevel level);
 };
 
 #endif

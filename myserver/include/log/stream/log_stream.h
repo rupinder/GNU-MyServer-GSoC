@@ -29,6 +29,18 @@
 
 using namespace std;
 
+enum LoggingLevel
+  {
+    /* The MYSERVER_LOG_MSG_PLAIN is only used within the
+     * LogManager class to print new lines with normal text 
+     * attributes over the ConsoleStream.
+     */
+    MYSERVER_LOG_MSG_PLAIN,
+    MYSERVER_LOG_MSG_INFO,
+    MYSERVER_LOG_MSG_WARNING,
+    MYSERVER_LOG_MSG_ERROR
+  };
+
 enum LogStreamEvent
   {
     MYSERVER_LOG_EVT_SET_CYCLE,
@@ -36,8 +48,7 @@ enum LogStreamEvent
     MYSERVER_LOG_EVT_CLOSE,
     MYSERVER_LOG_EVT_ADD_FILTER,
     MYSERVER_LOG_EVT_CHOWN,
-    MYSERVER_LOG_EVT_ENTER_ERROR_MODE,
-    MYSERVER_LOG_EVT_EXIT_ERROR_MODE
+    MYSERVER_LOG_EVT_SET_MODE
   };
 
 class LogStream
@@ -60,8 +71,7 @@ public:
   virtual int log (string message);
   virtual u_long streamSize ();
   virtual int chown (int uid, int gid);
-  virtual int enterErrorMode ();
-  virtual int exitErrorMode ();
+  virtual int setMode (LoggingLevel level);
   virtual ~LogStream ();
 protected:
   virtual int streamCycle ();
