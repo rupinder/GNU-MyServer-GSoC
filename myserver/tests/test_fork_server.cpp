@@ -91,8 +91,6 @@ public:
 
     CPPUNIT_ASSERT_EQUAL (ret, 0);
 
-    printf ("letto %s\n", buffer);
-
     CPPUNIT_ASSERT_EQUAL (strncmp (buffer, msg, strlen (msg)), 0);
 
     fs->killServer ();
