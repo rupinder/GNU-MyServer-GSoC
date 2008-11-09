@@ -18,6 +18,7 @@
 
 #include <include/base/process/fork_server.h>
 #include <include/base/process/process.h>
+#include <include/base/pipe/pipe.h>
 
 #ifdef NOT_WIN
 #include <unistd.h>
@@ -32,7 +33,7 @@ int ForkServer::writeInt (Socket *socket, int num)
 {
   u_long nbw;
 
-  if (socket->write ((const char*)&num, sizeof (num), &nbw))
+  if (socket->write ((const char*)&num, 4, &nbw))
     return 1;
 
   return 0;
@@ -46,14 +47,14 @@ int ForkServer::writeInt (Socket *socket, int num)
  *\param str string to write.
  *\param len string length.
  */
-int ForkServer::writeString (Socket *socket, const char* str, u_long len)
+int ForkServer::writeString (Socket *socket, const char* str, int len)
 {
   u_long nbw;
 
   if (str == NULL)
     len = 0;
 
-  if (socket->write ((const char*)&len, sizeof (len), &nbw))
+  if (socket->write ((const char*)&len, 4, &nbw))
     return 1;
 
   if (len && socket->write (str, len, &nbw))
@@ -120,7 +121,7 @@ int ForkServer::readString (Socket *sock, char **out)
 /*!
  *Handle a request on the socket.
  */
-int ForkServer::handleRequest (Socket sin, Socket sout)
+int ForkServer::handleRequest (Socket sin, Socket sout, Socket *serverSock)
 {
 #ifdef NOT_WIN
   int ret, flags, stdIn, stdOut, stdErr;
@@ -200,32 +201,42 @@ int ForkServer::handleRequest (Socket sin, Socket sout)
   spi.cmd.assign (exec);
   spi.arg.assign (arg);
   spi.cwd.assign (cwd);
-  /* spi.cmdLine is used only under Windows and 
-   * the fork server doesn't work there. */
 
+  Pipe syncPipe;
+  syncPipe.create ();
+  /* spi.cmdLine is used only under Windows and 
+   * the fork server doesn't work there.  */
   ret = fork ();
 
   if (ret)
     {
+      u_long nbw;
       writeInt (&sout, ret);
       writeInt (&sout, stdInPort);
 
       /* Synchronize with the child process.  It avoids that the
        * child process starts to write on `sout' before the process
        * information are sent back.  */
-      writeInt (&sin, 1);
+      syncPipe.write ("1", 1, &nbw);
+      syncPipe.close ();
     }
 
   /* Code already present in process.cpp, refactoring needed.  */
   if (ret == 0) // child
     {
-      int syncInt;
+      u_long nbr;
+      char syncB;
       const char *envp[100];
       const char *args[100];
 
-      /* The parent process sent an ack when the child can start its execution.  */
-      readInt (&sin, &syncInt);
-      
+      /* The parent process sent an ack when the child can start 
+       * its execution.  */
+      syncPipe.read (&syncB, 1, &nbr);
+      syncPipe.close ();
+
+      /* Close the fork server descriptor in the child process.  */
+      serverSock->close ();
+     
       if (Process::generateArgList (args, spi.cmd.c_str (), spi.arg))
         exit (1);
 
@@ -239,9 +250,18 @@ int ForkServer::handleRequest (Socket sin, Socket sout)
             exit (1);
         }
       if ((long)spi.stdIn == -1)
+      {
         spi.stdIn = (FileHandle)open ("/dev/null", O_RDONLY);
+      }
+
+      if ((long)spi.stdIn == -1 || flags & FLAG_STDIN_SOCKET)
+        sin.close ();
+
       if ((long)spi.stdOut == -1)
+      {
         spi.stdOut = (FileHandle)open ("/dev/null", O_WRONLY);
+        sout.close ();
+      }
 
       ret = close(0);
       if (ret == -1)
@@ -321,7 +341,7 @@ int ForkServer::forkServerLoop (Socket *socket)
           exit (0);
           return 0;
         case 'r':
-          if (handleRequest (sin, sout))
+          if (handleRequest (sin, sout, socket))
             {
               sin.shutdown (2);
               sin.close ();

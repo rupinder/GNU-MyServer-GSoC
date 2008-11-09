@@ -39,11 +39,11 @@ class ForkServer
   int startForkServer ();
 
   int writeInt (Socket *socket, int num);
-  int writeString (Socket *socket, const char* str, u_long len);
+  int writeString (Socket *socket, const char* str, int len);
   int readInt (Socket *sock, int *dest);
   int readString (Socket *sock, char **out);
 
-  int handleRequest (Socket sin, Socket sout);
+  int handleRequest (Socket sin, Socket sout, Socket *serverSock);
   int forkServerLoop (Socket *socket);
 
   int getConnection (Socket *socket, Socket *socket2);
