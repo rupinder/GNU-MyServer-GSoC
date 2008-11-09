@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/server/server.h>
 #include <include/base/file/files_utility.h>
 #include <include/base/string/stringutils.h>
+#include <include/base/process/process.h>
 
 extern "C" {
 #ifdef WIN32
@@ -125,6 +126,7 @@ struct argp_input
   /* Define how run the server.  */
   int runas;
   char* pidFileName;
+  int useForkServer;
 };
 
 static char doc[] = "GNU MyServer ";
@@ -137,7 +139,8 @@ static struct argp_option options[] =
   {"version", 'v', "VERSION", OPTION_ARG_OPTIONAL , "Print the version for the application"},
   {"run", 'r', "RUN", OPTION_ARG_OPTIONAL, "Specify how run the server (by default console mode)"},
   {"log", 'l', "location", 0, "Specify the location (in the format protocol://resource) to use to log main myserver messages"},
-  {"pidfile", 'p', "pidfile", OPTION_HIDDEN, "Specify the file where write the PID"},
+  {"pidfile", 'p', "pidfile", 0, "Specify the file where write the PID"},
+  {"fork_server", 'f', "", OPTION_ARG_OPTIONAL, "Specify if use a fork server"},
   {0}
 };
 
@@ -164,6 +167,10 @@ static error_t parseOpt(int key, char *arg, struct argp_state *state)
 
   case 'l':
     in->logFileName = arg;
+    break;
+
+  case 'f':
+    in->useForkServer = 1;
     break;
 
   case 'p':
@@ -480,6 +487,8 @@ int main (int argn, char **argv)
   input.logFileName = 0;
   input.runas = MYSERVER_RUNAS_CONSOLE;
   input.pidFileName = 0;
+  input.useForkServer = 0;
+
   /* Call the parser.  */
   argp_parse(&myserverArgp, argn, argv, 0, 0, &input);
   runas=input.runas;
@@ -545,6 +554,17 @@ int main (int argn, char **argv)
     }
   }
 #endif
+
+#ifdef ARGP
+
+#ifdef NOT_WIN
+  setpgid (0, 0);
+#endif
+
+  if (input.useForkServer)
+    Process::getForkServer ()->startForkServer ();
+#endif
+
   /*
    *Start here the MyServer execution.
    */
@@ -619,6 +639,12 @@ int main (int argn, char **argv)
      {
        return 1;
      };
+
+#ifdef ARGP
+  if (input.useForkServer)
+    Process::getForkServer ()->killServer ();
+#endif
+
    return 0;
 }
 

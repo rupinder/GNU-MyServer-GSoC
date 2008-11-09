@@ -725,7 +725,7 @@ void Server::displayBoot()
       string softwareSignature;
       softwareSignature.assign("************ GNU MyServer ");
       softwareSignature.append(MYSERVER_VERSION);
-      softwareSignature.append("************");
+      softwareSignature.append(" ************");
       length = softwareSignature.length();
 
       logWriteNTimes("*", length);
@@ -1167,13 +1167,6 @@ int Server::initialize()
   {
     int maxServersProcesses = atoi(data);
     getProcessServerManager()->setMaxServers(maxServersProcesses);
-  }
-
-  data = configurationFileManager.getValue("SERVERS_PROCESSES_INITIAL_PORT");
-  if(data)
-  {
-    int serversProcessesInitialPort = atoi(data);
-    getProcessServerManager()->setInitialPort(serversProcessesInitialPort);
   }
 
   {

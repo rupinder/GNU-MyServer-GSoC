@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*!
+/*
  *To get more info about the FastCGI protocol please visit the official 
  *FastCGI site at: http://www.fastcgi.com.
  *On that site you can find samples and all the supported languages.
@@ -248,6 +248,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
     {
       exit = 1;
       ret = 1;
+      td->http->raiseHTTPError(500);
       break;
     }
 
@@ -325,9 +326,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   }while (!exit);
 
   /* Send the last null chunk if needed.  */
-  if((td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL) && 
-     con.useChunks && chain.write("0\r\n\r\n", 5, &nbw))
-    return 0;       
+  if(con.useChunks && 
+     (td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL))
+    chain.write("0\r\n\r\n", 5, &nbw);
 
   chain.clearAllFilters();
   con.sock.close();

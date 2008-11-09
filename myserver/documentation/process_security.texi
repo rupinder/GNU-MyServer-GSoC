@@ -1,5 +1,5 @@
 @c -*-texinfo-*-
-On POSIX it is possible to change the MyServer process user identifier
+Under POSIX it is possible to change the MyServer process user identifier
 and group identifier after it has bound the necessary ports (only the
 root user can bind ports < 1024).
 
@@ -21,3 +21,19 @@ When one of these features is used, MyServer will not use the
 auto-reboot because it will not be possible to get back old
 permissions.
 
+@section Fork Server
+In a POSIX environment the @code{fork} syscall is used to execute new
+processes.  It clones the caller process keeping any open file or
+connection in the child process too.  To avoid this problem a fork
+server is present in MyServer.
+The communication between the MyServer process and the
+fork server is done trought a socket.  When MyServer wants to execute
+a new process two connections are opened to the fork server, for
+the stdin and stdout streams, and the fork server will fork itself and
+execute the process using these connections as its I/O streams.
+
+It is not configurable in any configuration file as the MyServer
+process is forked to create it before any file or connection is
+active.
+
+It is enabled passing the @code{-f} switch to the myserver process.

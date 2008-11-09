@@ -46,6 +46,8 @@ extern "C" {
 Mutex Process::forkMutex;
 #endif
 
+ForkServer Process::forkServer;
+
 /*!
  *Generate the arguments vector for execve.
  *\param args The output arguments vector to fill.
@@ -213,7 +215,7 @@ int Process::exec(StartProcInfo* spi, bool waitEnd)
       
       if (generateArgList (args, spi->cmd.c_str (), spi->arg))
         exit (1);
-      
+
       if (generateEnvString (envp, (char*) spi->envString))
         exit (1);
       

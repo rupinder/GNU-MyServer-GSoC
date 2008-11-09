@@ -28,7 +28,6 @@ ProcessServerManager::ProcessServerManager()
 {
   mutex.init();
   nServers = 0;
-  initialPort = 3333;
   maxServers = 25;
 }
 
@@ -88,6 +87,7 @@ void ProcessServerManager::load()
     if(name.size() && domain.size())
     {
       u_short portN = 0;
+
       if(port.size())
         portN = atoi(port.c_str());
 
@@ -211,6 +211,9 @@ ProcessServerManager::getServer(const char* domain, const char* name)
     s->process.terminateProcess();
     if(!s->path.length())
       s->path.assign(name);
+
+    s->port = 0;
+    
     if(runServer(s, s->path.c_str(), s->port))
     {
       sd->servers.remove(name);
@@ -374,6 +377,8 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
 {
   StartProcInfo spi;
   MYSERVER_SOCKADDRIN serverSockAddrIn;
+  int addrLen = sizeof (serverSockAddrIn);
+
   server->host.assign("localhost");
   server->isLocal = true;
 
@@ -389,116 +394,99 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
   if(port)
     server->port = port;
   else
-    server->port = (initialPort + nServers++);
+    server->port = 0;
 
-  server->socket.socket(AF_INET,SOCK_STREAM,0);
-  if(server->socket.getHandle() != (FileHandle)INVALID_SOCKET)
-  {
-    ((sockaddr_in *)(&serverSockAddrIn))->sin_family = AF_INET;
+  string tmpCgiPath;
+  string moreArg;
+  int subString = path[0] == '"';
+  int i;
+  int len = strlen(path);
 
-    ((sockaddr_in *)(&serverSockAddrIn))->sin_addr.s_addr = 
-      htonl(INADDR_LOOPBACK);
-    ((sockaddr_in *)(&serverSockAddrIn))->sin_port = 
-      htons(server->port);
-    if ( !server->socket.bind(&serverSockAddrIn,
-                              sizeof(sockaddr_in)) )
+  for(i = 1; i < len; i++)
     {
-      if( !server->socket.listen(SOMAXCONN) )
-      {
-        string tmpCgiPath;
-        string moreArg;
-        int subString = path[0] == '"';
-        int i;
-        int len = strlen(path);
-        for(i = 1; i < len; i++)
-        {
-          if(!subString && path[i] == ' ')
-            break;
-          if(path[i] == '"' && path[i - 1] != '\\')
-            subString = !subString;
-        }
+      if(!subString && path[i] == ' ')
+        break;
 
-        if(i < len)
-        {
-          string tmpString(path);
-          int begin = tmpString[0] == '"' ? 1 : 0;
-          int end   = tmpString[i] == '"' ? i + 1 : i ;
-          tmpCgiPath.assign(tmpString.substr(begin, end));
-          moreArg.assign(tmpString.substr(i, len));  
-        }
-        else
-        {
-          int begin = (path[0] == '"') ? 1 : 0;
-          int end   = (path[len] == '"') ? len-1 : len;
-          tmpCgiPath.assign(&path[begin], end-begin);
-          moreArg.assign("");
-        }
-
-
-        server->DESCRIPTOR.fileHandle = (unsigned long) server->socket.getHandle();
-        spi.envString = 0;
-        spi.stdIn = (FileHandle)server->DESCRIPTOR.fileHandle;
-        spi.cmd.assign(tmpCgiPath);
-        spi.arg.assign(moreArg);
-        spi.cmdLine.assign(path);
-        server->path.assign(path);
-
-        spi.stdOut = spi.stdError = (FileHandle) -1;
-        if (server->process.exec (&spi) == -1)
-        {
-          server->socket.close();
-        }
-        
-      }
-      else
-      {
-        server->socket.close();
+      if(path[i] == '"' && path[i - 1] != '\\')
+        subString = !subString;
     }
-    }
-    else
+  
+  if(i < len)
     {
-      server->socket.close();
+      string tmpString(path);
+      int begin = tmpString[0] == '"' ? 1 : 0;
+      int end   = tmpString[i] == '"' ? i + 1 : i ;
+      tmpCgiPath.assign(tmpString.substr(begin, end));
+      moreArg.assign(tmpString.substr(i, len));  
     }
-  }
   else
-  {
-#if HAVE_IPV6 && 0
-    server->socket.socket(AF_INET6, SOCK_STREAM, 0);
-    if(server->socket.getHandle() != (FileHandle)INVALID_SOCKET)
     {
-      ((sockaddr_in6 *)(&serverSockAddrIn))->sin6_family = AF_INET6;
-
-      /*! The FastCGI server accepts connections only by the localhost.  */
-      ((sockaddr_in6 *)(&serverSockAddrIn))->sin6_addr=in6addr_any;
-      ((sockaddr_in6 *)(&serverSockAddrIn))->sin6_port=htons(server->port);
-      if(server->socket.bind(&serverSockAddrIn,
-                             sizeof(sockaddr_in6)))
-      {
-        server->socket.close();
-        return 1;
-      }
-      if(server->socket.listen(SOMAXCONN))
-      {
-        server->socket.close();
-        return 1;
-      }
-      server->DESCRIPTOR.fileHandle = server->socket.getHandle();
-      spi.envString = 0;
-      spi.stdIn = (FileHandle)server->DESCRIPTOR.fileHandle;
-      spi.cmd.assign(path);
-      spi.cmdLine.assign(path);
-      server->path.assign(path);
-
-      spi.stdOut = spi.stdError =(FileHandle) -1;
-
-      if(server->process.exec (&spi) == -1)
-      {
-        server->socket.close();
-        return 1;
-      }
+      int begin = (path[0] == '"') ? 1 : 0;
+      int end   = (path[len] == '"') ? len-1 : len;
+      tmpCgiPath.assign(&path[begin], end-begin);
+      moreArg.assign("");
     }
-#endif
-  }
+  
+  spi.envString = 0;
+  spi.stdOut = spi.stdError = (FileHandle) -1;
+  
+  spi.cmd.assign(tmpCgiPath);
+  spi.arg.assign(moreArg);
+  spi.cmdLine.assign(path);
+  server->path.assign(path);
+
+  if (Process::getForkServer ()->isInitialized ())
+    {
+      Socket forkSockIn, forkSockOut;
+      int ret, port, pid;
+      ret = Process::getForkServer ()->executeProcess (&spi, 
+                                                       &forkSockIn,
+                                                       &forkSockOut,
+                                                       ForkServer::FLAG_STDIN_SOCKET, 
+                                                       &pid,
+                                                       &port);
+
+      if (ret == 0)
+        {
+          server->port = port;
+          server->process.setPid (pid);
+          server->DESCRIPTOR.fileHandle = 0;
+          return 0;
+        }
+
+    }
+
+  server->socket.socket (AF_INET, SOCK_STREAM, 0);
+
+  if(server->socket.getHandle () == (FileHandle)INVALID_SOCKET)
+    return 1;
+
+  ((sockaddr_in *)(&serverSockAddrIn))->sin_family = AF_INET;
+
+  ((sockaddr_in *)(&serverSockAddrIn))->sin_addr.s_addr = 
+    htonl(INADDR_LOOPBACK);
+  ((sockaddr_in *)(&serverSockAddrIn))->sin_port = 
+    htons(server->port);
+
+  if ( server->socket.bind (&serverSockAddrIn,
+                            sizeof(sockaddr_in)) ||
+       server->socket.listen(SOMAXCONN) )
+    {
+      server->socket.close ();
+      return 1;
+    }
+
+  server->DESCRIPTOR.fileHandle = (unsigned long) server->socket.getHandle();
+  spi.stdIn = (FileHandle)server->DESCRIPTOR.fileHandle;
+
+  if (server->socket.getsockname (&serverSockAddrIn, &addrLen))
+    return -1;
+
+  server->port = ntohs (((sockaddr_in *)&serverSockAddrIn)->sin_port);
+
+  server->process.exec (&spi);
+  server->socket.close();
+
   return 0;
 }
 
@@ -512,8 +500,11 @@ int ProcessServerManager::connect(Socket* sock,
 {
   MYSERVER_SOCKADDRIN serverSock = { 0 };
   socklen_t nLength = sizeof(MYSERVER_SOCKADDRIN);
-  getsockname((SOCKET) server->socket.getHandle(), (sockaddr *)&serverSock, &nLength);
-  if(serverSock.ss_family == AF_INET || !server->isLocal)
+  
+  if (server->socket.getHandle())
+    getsockname(server->socket.getHandle(), (sockaddr *)&serverSock, &nLength);
+
+  if(!serverSock.ss_family || serverSock.ss_family == AF_INET || !server->isLocal)
   {
     /*! Try to create the socket.  */
     if(sock->socket(AF_INET, SOCK_STREAM, 0) == -1)

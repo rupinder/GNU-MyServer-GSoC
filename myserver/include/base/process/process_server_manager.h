@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2007 Free Software Foundation, Inc.
+Copyright (C) 2007, 2008 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -83,8 +83,6 @@ public:
 	int connect(Socket* sock, Server* server);
 	void setMaxServers(int max){maxServers = max;}
 	int getMaxServers(){return maxServers;}
-	void setInitialPort(u_short port){initialPort = port;}
-	u_short getInitialPort(){return initialPort;}
 	void removeServer(const char* domain, const char* name);
 	void removeDomain(const char* domain);
 	int domainServers(const char* domain);
@@ -95,7 +93,6 @@ public:
 													const char* host, u_short port);
 private:
 	int maxServers;
-	u_short initialPort;
 	int nServers;
   Mutex mutex;
 	HashMap<string, ServerDomain*> domains;

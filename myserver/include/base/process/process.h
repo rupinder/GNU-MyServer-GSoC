@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <include/base/file/file.h>
 #include <include/base/sync/mutex.h>
+#include <include/base/process/fork_server.h>
 #include <include/base/string/stringutils.h>
 
 #include <string>
@@ -73,9 +74,15 @@ public:
   /*! Return the process ID.  */
   int getPid (){return pid;}
 
+  /*! Change the process ID.  */
+  void setPid (int pid){this->pid = pid;}
+
   static int generateEnvString (const char **envp, char *envString);
   static int generateArgList (const char **args, const char *proc, string &additionalArgs);
+
+  static ForkServer *getForkServer (){return &forkServer;}
 private:
   int pid;
+  static ForkServer forkServer;
 };
 #endif
