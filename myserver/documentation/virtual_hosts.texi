@@ -1,20 +1,22 @@
 @c -*-texinfo-*-
-In theory, virtual hosts allow users to lodge an infinite number of
-sites on a single machine. For example http://mypc.net is different
-from http://sub.mypc.net. To define virtual hosts in myServer open the
-file @file{virtualhosts.xml} in a text editor. A sample virtual hosts
-configuration file looks like:
+Virtual hosts is a method to link more than a domain name to the same
+machine, even if they refer to the same network interface.  Virtual
+hosts are supported by the HTTP and HTTPS protocols.
+
+For example http://mypc.net is different from http://sub.mypc.net.  
+Virtual hosts are defined in the file @file{virtualhosts.xml}. 
+A sample virtual hosts configuration file looks like:
 
 @example
 <VHOSTS>
   <VHOST>
     <NAME>Every connection</NAME>
     <PORT>80</PORT>
-    <IP>127.0.0.1</IP>
+    <IP>192.168.0.0/24</IP>
     <PROTOCOL>HTTP</PROTOCOL>
     <DOCROOT>web</DOCROOT>
     <SYSFOLDER>system</SYSFOLDER>
-    <HOST>www.mysite.com</HOST>
+    <HOST>foo.bar.com</HOST>
     <ACCESSLOG>logs/myServer.log</ACCESSLOG>
     <WARNINGLOG>logs/myServer.err</WARNINGLOG>
     <ALLOW_CGI>NO</ALLOW_CGI>
@@ -27,14 +29,14 @@ configuration file looks like:
 it gives the server administrator an idea of what the virtual host
 is such as internal Ethernet, external ethernet or every connection.
 @item <PORT>
-it is the port used for accepting connections.
+it is the port used to accept connections.
 @item <IP>
-it is optional. It is the IP address for the interface your
-virtual host will be working on. The optional useRegex="YES" means the
-address would act as a regular expression, not only a fixed
-value. This is more useful for networks with dynamic IP addressing.
+it is optional.  It defines a CIDR subnet mask in the format A.B.C.D/E
+or defining the first and the last IP address in the range as
+A.B.C.D-E.F.G.H.  Multiple masks can be defined for the same virtual
+host.
 @item <PROTOCOL>
-it is the protocol to be used by the host.
+it is the protocol used by the host.
 @item <DOCROOT>
 it is the directory where the files are found.
 @item <SYSFOLDER>
@@ -42,20 +44,11 @@ it is the system directory.
 @item <HOST>
 it is your virtual host's name. The optional useRegex="YES"
 means the address would act as a regular expression, not only a fixed
-value.
+value.  Multiple host names can be defined for the same virtual host.
 @item <ACCESSLOG>
 it is the access log used by the virtual host
 @item <WARNINGLOG>
 it is the errors log file used by the virtual host.
-@item <ALLOW_CGI>
-This option would deny the access to CGI in this
-virtual host. This line can exist in @file{myserver.xml} too, as a global
-configuration, but if it is included in the @file{virtualhosts.xml}
-file, this is the one that will be considered. @code{ALLOW_CGI} can
-also appear as @code{ALLOW_FASTCGI}, @code{ALLOW_ISAPI},
-@code{ALLOW_MSCGI}, @code{ALLOW_WINCGI}, @code{ALLOW_SEND_LINK},
-@code{ALLOW_EXTERNAL_COMMANDS}, @code{ALLOW_SEND_FILE}, each of them
-denying/allowing the proper HTTP data handler to be used.
 @end itemize
 
 Log files can have extra options:
@@ -78,11 +71,11 @@ Here is an example of a FTP virtual host:
   <VHOST>
     <NAME>Ftp connection</NAME>
     <PORT>21</PORT>
-    <IP>127.0.0.1</IP>
+    <IP>127.0.0.1/32</IP>
     <PROTOCOL>FTP</PROTOCOL>
     <DOCROOT>web</DOCROOT>
     <SYSFOLDER>system</SYSFOLDER>
-    <HOST>ftp.downloads.com</HOST>
+    <HOST>ftp.foo.bar.com</HOST>
     <ACCESSLOG>logs/myServer.log</ACCESSLOG>
     <WARNINGLOG>logs/myServer.err</WARNINGLOG>
   </VHOST>
