@@ -22,7 +22,11 @@
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <exception>
 #include <string.h>
+
+using namespace std;
+
 class TestForkServer : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( TestForkServer );
@@ -62,39 +66,46 @@ public:
 
   void testExecuteProcess()
   {
+    try
+      {
 #ifndef WIN32
-    int pid = 0;
-    int port = 0;
-    StartProcInfo spi;
-    Socket sin, sout;
-    char buffer [32];
-    const char *msg = "ForkServer";
-    u_long nbr;
-    int ret = fs->startForkServer ();
-    CPPUNIT_ASSERT_EQUAL (ret, 0);
+        int pid = 0;
+        int port = 0;
+        StartProcInfo spi;
+        Socket sin, sout;
+        char buffer [32];
+        const char *msg = "ForkServer";
+        u_long nbr;
+        int ret = fs->startForkServer ();
+        CPPUNIT_ASSERT_EQUAL (ret, 0);
 
-    spi.stdIn = spi.stdOut = spi.stdError = -1;
+        spi.stdIn = spi.stdOut = spi.stdError = -1;
     
-    spi.cmd.assign ("/bin/echo");
-    spi.arg.assign (msg);
-    spi.cwd.assign ("");
+        spi.cmd.assign ("/bin/echo");
+        spi.arg.assign (msg);
+        spi.cwd.assign ("");
 
-    ret = fs->executeProcess (&spi, &sin, &sout, ForkServer::FLAG_USE_OUT, &pid, &port);
-    sin.shutdown(2);
-    sin.close ();
+        ret = fs->executeProcess (&spi, &sin, &sout, ForkServer::FLAG_USE_OUT, &pid, &port);
+        sin.shutdown(2);
+        sin.close ();
 
-    CPPUNIT_ASSERT_EQUAL (ret, 0);
+        CPPUNIT_ASSERT_EQUAL (ret, 0);
     
-    ret = sout.read (buffer, 32, &nbr);
+        ret = sout.read (buffer, 32, &nbr);
 
-    sout.close();
+        sout.close();
 
-    CPPUNIT_ASSERT_EQUAL (ret, 0);
+        CPPUNIT_ASSERT_EQUAL (ret, 0);
 
-    CPPUNIT_ASSERT_EQUAL (strncmp (buffer, msg, strlen (msg)), 0);
+        CPPUNIT_ASSERT_EQUAL (strncmp (buffer, msg, strlen (msg)), 0);
 
-    fs->killServer ();
- #endif
+        fs->killServer ();
+#endif
+      }
+    catch (exception &e)
+      {
+        CPPUNIT_FAIL (e.what ());
+      }
   }
 
 };
