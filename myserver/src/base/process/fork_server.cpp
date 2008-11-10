@@ -93,7 +93,7 @@ int ForkServer::readInt (Socket *sock, int *dest)
  */
 int ForkServer::readString (Socket *sock, char **out)
 {
-  u_long len;
+  int len;
   u_long nbr;
   
   if (sock->read ((char*)&len, 4, &nbr) || nbr < 4)
