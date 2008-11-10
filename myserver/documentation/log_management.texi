@@ -59,23 +59,17 @@ messages over different streams. To tell MyServer about all that, you
 can edit the @file{virtualhosts.xml} file, and apply the informations
 found in this section, to each @code{VHOST} entry of that file. As we
 can see in the following example, the @code{ACCESSLOG} root entry for
-the accesses log configuration, contains some @code{STREAMS}, and each
-@code{STREAM} is made out of a @code{LOCATION}, a @code{CYCLE} and some
-@code{FILTERS}.
+the accesses log configuration, contains some @code{STREAM} nodes, and
+each @code{STREAM} contains two attributes, the mandatory
+@code{location} and the optional @code{cycle}. A @code{STREAM} node, can
+also contain optional @code{FILTER} subnodes, one for each filter that
+we want to add to the @code{STREAM}.
 @example
 <ACCESSLOG type="combined">
-  <STREAMS>
-    <STREAM>
-      <LOCATION>file://logs/MyServerHTTP.log</LOCATION>
-      <CYCLE>1048576</CYCLE>
-      <FILTERS>
-         <FILTER>gzip</FILTER>
-      </FILTERS>
-    </STREAM>
-    <STREAM>
-      <LOCATION>console://stderr</LOCATION>
-    </STREAM>
-  </STREAMS>
+  <STREAM location="file://logs/MyServerHTTP.log" cycle="1048576">
+    <FILTER>gzip</FILTER>
+  </STREAM>
+  <STREAM location="console://stderr"/>
 </ACCESSLOG>
 @end example
 Above we have two streams attached to the @code{ACCESSLOG} entry. The
@@ -87,18 +81,15 @@ The next example, shows instead the @code{WARNINGLOG} entry. In that
 example, we still have two streams where warning messages will be
 sent. The first one is a socket, while the second one is a file that
 will grow with no limit over its size. No filters will be applied to
-that stream.
+that stream. Note that if we don't specify the @code{cycle} attribute,
+it is assumed to be zero by default, which means to never cycle the
+@code{STREAM}.
 @example
 <WARNINGLOG>
-  <STREAMS>
-    <STREAM>
-      <LOCATION>socket://192.168.1.13:8080</LOCATION>
-    </STREAM>
-    <STREAM>
-      <LOCATION>file://MyServerHTTP.err</LOCATION>
-    </STREAM>
-  </STREAMS>
+  <STREAM location="socket://192.168.1.13:8080"/>
+  <STREAM location="file://MyServerHTTP.err"/>
 </WARNINGLOG>
 @end example
 It is important to notice that no duplicate location strings are
-admitted. If any, only the first one will be added.
+admitted. If any, only the first one will be added. Also, if a wrong
+filter is specified, its relative @code{STREAM} willn't be added.

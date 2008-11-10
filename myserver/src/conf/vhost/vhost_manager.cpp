@@ -244,99 +244,68 @@ VhostManager::loadXMLlogData (string name, Vhost* vh, xmlNode* lcur)
   attr = lcur->properties;
   while (attr)
     {
-      opt.append((char*)attr->name);
-      opt.append("=");
-      opt.append((char*)attr->children->content);
-      if(attr->next)
+      opt.append ((char*)attr->name);
+      opt.append ("=");
+      opt.append ((char*)attr->children->content);
+      if (attr->next)
         {
-          opt.append(",");
+          opt.append (",");
         }
       attr = attr->next;
     }
   string location;
   list<string> filters;
   u_long cycle;
-  xmlNode* streams = lcur->children;
-  for (; streams->next; streams = streams->next)
+  xmlNode* stream = lcur->children;
+  for (; stream; stream = stream->next, location.assign (""), cycle = 0, filters.clear ())
     {
-      if (streams->type == XML_ELEMENT_NODE &&
-          !xmlStrcmp (streams->name, (const xmlChar*)"STREAMS"))
+      if (stream->type == XML_ELEMENT_NODE &&
+          !xmlStrcmp (stream->name, (xmlChar const*)"STREAM"))
         {
-          xmlNode* currStream = streams->children;
-          for (; currStream->next; currStream = currStream->next)
+          xmlAttr* streamAttr = stream->properties;
+          while (streamAttr)
             {
-              if (currStream->type == XML_ELEMENT_NODE &&
-                  !xmlStrcmp (currStream->name, (const xmlChar*)"STREAM"))
+              if (!strcmp ((char*)streamAttr->name, "location"))
                 {
-                  xmlNode* parameters = currStream->children;
-                  location.assign ("");
-                  filters.clear ();
-                  cycle = 0;
-                  for (; parameters->next; parameters = parameters->next)
+                  location.assign ((char*)streamAttr->children->content);
+                }
+              else if (!strcmp ((char*)streamAttr->name, "cycle"))
+                {
+                  cycle = atoi ((char*)streamAttr->children->content);
+                }
+              streamAttr = streamAttr->next;
+            }
+          xmlNode* filterList = stream->children;
+          for (; filterList; filterList = filterList->next)
+            {
+              if (filterList->type == XML_ELEMENT_NODE &&
+                  !xmlStrcmp (filterList->name, (xmlChar const*)"FILTER"))
+                {
+                  if (filterList->children && filterList->children->content)
                     {
-                      if (parameters->type == XML_ELEMENT_NODE)
-                        {
-                          if (!xmlStrcmp (parameters->name,
-                                          (const xmlChar*)"LOCATION"))
-                            {
-                              if (parameters->children &&
-                                  parameters->children->content)
-                                {
-                                  location.assign ((char*)parameters->children->content);
-                                }
-                            }
-                          else if (!xmlStrcmp (parameters->name,
-                                               (const xmlChar*)"CYCLE"))
-                            {
-                              if (parameters->children &&
-                                  parameters->children->content)
-                                {
-                                  cycle = atoi ((char*)parameters->children->content);
-                                }
-                            }
-                          else if (!xmlStrcmp (parameters->name,
-                                               (const xmlChar*)"FILTERS"))
-                            {
-                              xmlNode* filterList = parameters->children;
-                              for (; filterList; filterList = filterList->next)
-                                {
-                                  if (filterList->type == XML_ELEMENT_NODE)
-                                    {
-                                      if (!xmlStrcmp (filterList->name,
-                                                      (const xmlChar*)"FILTER"))
-                                        {
-                                          if (filterList->children &&
-                                              filterList->children->content)
-                                            {
-                                              string filter ((char*)filterList->children->content);
-                                              filters.push_back (filter);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                  int err = 1;
-                  string str ("VhostManager::loadXMLlogData : Unrecognized log type");
-
-                  if (!name.compare ("ACCESSLOG"))
-                    {
-                      err = vh->openAccessLog (location, filters, cycle);
-                      vh->setAccessLogOpt (opt.c_str ());
-                      str.assign ("Error opening accesses log location " + location);
-                    }
-                  else if (!name.compare ("WARNINGLOG"))
-                    {
-                      err = vh->openWarningLog (location, filters, cycle);
-                      vh->setWarningLogOpt (opt.c_str ());
-                      str.assign ("Error opening warnings log location " + location);
-                    }
-                  if (err)
-                    {
-                      Server::getInstance ()->logWriteln (str.c_str (), MYSERVER_LOG_MSG_ERROR);
+                      string filter ((char*)filterList->children->content);
+                      filters.push_back (filter);
                     }
                 }
+            }
+          int err = 1;
+          string str ("VhostManager::loadXMLlogData : Unrecognized log type");
+
+          if (!name.compare ("ACCESSLOG"))
+            {
+              err = vh->openAccessLog (location, filters, cycle);
+              vh->setAccessLogOpt (opt.c_str ());
+              str.assign ("Error opening accesses log location " + location);
+            }
+          else if (!name.compare ("WARNINGLOG"))
+            {
+              err = vh->openWarningLog (location, filters, cycle);
+              vh->setWarningLogOpt (opt.c_str ());
+              str.assign ("Error opening warnings log location " + location);
+            }
+          if (err)
+            {
+              Server::getInstance ()->logWriteln (str.c_str (), MYSERVER_LOG_MSG_ERROR);
             }
         }
     }
