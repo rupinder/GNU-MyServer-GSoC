@@ -48,6 +48,7 @@ class TestLogManager : public CppUnit::TestFixture
   CPPUNIT_TEST (testCount);
   CPPUNIT_TEST (testGet);
   CPPUNIT_TEST (testReOpen);
+  CPPUNIT_TEST (testAddWithNotExistingFilter);
   CPPUNIT_TEST_SUITE_END ();
 public:
   void setUp ()
@@ -286,15 +287,12 @@ public:
     string message2;
     char buf[128];
     u_long nbr;
+    ostringstream oss;
 
-#ifdef WIN32
-    message1.assign ("message1\r\n");
-    message2.assign ("message2\r\n");
-#endif
-#ifdef NOT_WIN
-    message1.assign ("message1\n");
-    message2.assign ("message2\n");
-#endif
+    oss << "message1" << endl;
+    message1.assign (oss.str ());
+    oss << "message2" << endl;
+    message2.assign (oss.str ());
 
     lm->add (this, "test", "file://foo", filters, 0);
     lm->log (this, "test", "file://foo", message1);
@@ -307,6 +305,16 @@ public:
     f.close ();
     buf[nbr] = '\0';
     CPPUNIT_ASSERT (!string (buf).compare (message1.append (message2)));
+  }
+
+  void testAddWithNotExistingFilter ()
+  {
+    list<string> filters;
+
+    filters.push_back ("not_existing_filter");
+    CPPUNIT_ASSERT (lm->add (this, "test", "file://foo", filters, 0));
+    CPPUNIT_ASSERT (lm->add (this, "test", "socket://127.0.0.1:6666", filters, 0));
+    CPPUNIT_ASSERT (lm->add (this, "test", "console://stdout", filters, 0));
   }
 
   void tearDown ()

@@ -28,7 +28,10 @@ SocketStreamCreator::create (FiltersFactory* ff, string location,
     {
       u_long nbw;
       FiltersChain* fc = ff->chain (filters, out, &nbw);
-      return new SocketStream (ff, cycle, out, fc);
+      if (fc)
+        {
+          return new SocketStream (ff, cycle, out, fc);
+        }
     }
   if (out)
     {

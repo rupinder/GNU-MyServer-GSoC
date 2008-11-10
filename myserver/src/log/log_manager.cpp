@@ -44,7 +44,11 @@ LogManager::computeNewLine ()
 {
   ostringstream oss;
   oss << endl;
-  newline.assign (oss.str ());
+  if (newline.assign (oss.str ()).size ())
+    {
+      return 0;
+    }
+  return 1;
 }
 
 int

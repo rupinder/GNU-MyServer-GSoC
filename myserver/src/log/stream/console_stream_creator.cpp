@@ -26,7 +26,10 @@ ConsoleStreamCreator::create (FiltersFactory* ff, string location,
     {
       u_long nbw;
       FiltersChain* fc = ff->chain (filters, out, &nbw);
-      return new ConsoleStream (ff, cycle, out, fc);
+      if (fc)
+        {
+          return new ConsoleStream (ff, cycle, out, fc);
+        }
     }
   if (out)
     {
