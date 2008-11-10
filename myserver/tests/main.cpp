@@ -22,12 +22,28 @@
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <fstream>
 #include <string.h>
+
+using namespace std;
 
 int main (int argc, char* argv[])
 {
   bool xml = argc > 1 && !strcmp (argv[1], "xml");
   bool compiler = argc > 1 && !strcmp (argv[1], "compiler");
+  char *filename = argc > 2 ? argv[2] : NULL;
+
+
+  std::ostream *str = &(std::cerr);
+
+  ofstream ofile;
+
+  if (filename)
+    {
+      ofile.open (filename);
+
+      str = &ofile;
+    }
 
   CppUnit::Outputter * out;
   CppUnit::Test *suite = CppUnit::TestFactoryRegistry::getRegistry().makeTest();
@@ -35,13 +51,18 @@ int main (int argc, char* argv[])
   runner.addTest ( suite );
 
   if (xml)
-    out = new CppUnit::XmlOutputter( &runner.result(), std::cerr );
+    out = new CppUnit::XmlOutputter( &runner.result(), *str );
   else if (compiler)
-    out = new CppUnit::CompilerOutputter( &runner.result(), std::cerr );
+    out = new CppUnit::CompilerOutputter( &runner.result(), *str );
   else
-    out = new CppUnit::TextOutputter( &runner.result(), std::cerr );
+    out = new CppUnit::TextOutputter( &runner.result(), *str );
 
   runner.setOutputter( out );
 
-  return runner.run() ? 0 : 1;
+  int ret = runner.run() ? 0 : 1;
+
+  if (filename)
+      ofile.close ();
+
+  return ret;
 }
