@@ -450,7 +450,7 @@ Vhost::warningsLogWrite (const char* str)
   getLocalLogFormatDate (msg, 100);
   msg.append (" -- ");
   msg.append (str);
-  return logManager->log (this, "WARNINGLOG", string (str), true);
+  return logManager->log (this, "WARNINGLOG", msg, true);
 }
 
 /*!

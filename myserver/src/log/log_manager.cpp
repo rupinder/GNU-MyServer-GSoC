@@ -205,7 +205,7 @@ LogManager::add (void* owner, string type, string location, LogStream* ls)
  * After the call to this method, a call to contains (owner)
  * must return false. If `owner' owns some LogStream shared with
  * another object, that LogStream will be left within the LogManager
- * until all its owners will be removed.
+ * until all its owners willn't be removed.
  *
  * \param owner The object whose LogStream objects will be removed.
  *
