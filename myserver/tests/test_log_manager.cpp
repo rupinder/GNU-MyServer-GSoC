@@ -18,6 +18,11 @@
 #include <list>
 #include <string>
 
+#ifdef NOT_WIN
+#include <unistd.h>
+#include <sys/types.h>
+#endif
+
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
@@ -36,7 +41,7 @@ class TestLogManager : public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE (TestLogManager);
   CPPUNIT_TEST (testEmpty);
   CPPUNIT_TEST (testContains);
-  CPPUNIT_TEST (testAdd);
+  CPPUNIT_TEST (testSuccessfulAdd);
   CPPUNIT_TEST (testRemove);
   CPPUNIT_TEST (testLog);
   CPPUNIT_TEST (testClose);
@@ -48,8 +53,19 @@ class TestLogManager : public CppUnit::TestFixture
   CPPUNIT_TEST (testCount);
   CPPUNIT_TEST (testGet);
   CPPUNIT_TEST (testReOpen);
-  CPPUNIT_TEST (testAddWithNotExistingFilter);
+  CPPUNIT_TEST (testNotExistingFilterAdd);
+  CPPUNIT_TEST (testFailureAdd);
+  CPPUNIT_TEST (testSharedAdd);
+  CPPUNIT_TEST (testSharedGet);
+  CPPUNIT_TEST (testSharedRemove);
+  CPPUNIT_TEST (testFailureLog);
+  CPPUNIT_TEST (testChown);
   CPPUNIT_TEST_SUITE_END ();
+  
+  class AnObject
+  {
+  };
+
 public:
   void setUp ()
   {
@@ -70,18 +86,17 @@ public:
     CPPUNIT_ASSERT (!lm->contains ("foo"));
   }
 
-  void testAdd ()
+  void testSuccessfulAdd ()
   {
     list<string> filters;
-    CPPUNIT_ASSERT (lm->add (this, "test", "foo", filters, 0));
-    CPPUNIT_ASSERT (lm->add (this, "test", "file", filters, 0));
+
     CPPUNIT_ASSERT (!lm->add (this, "test", "file://foo", filters, 0));
-    CPPUNIT_ASSERT (lm->add (this, "test", "file://foo", filters, 0));
   }
 
   void testRemove ()
   {
     list<string> filters;
+
     CPPUNIT_ASSERT (lm->remove (this));
     lm->add (this, "test", "file://foo", filters, 0);
     CPPUNIT_ASSERT (!lm->remove (this));
@@ -92,13 +107,14 @@ public:
   {
     string message ("A message");
     list<string> filters;
+    File f;
+    char buf[message.size () + 1];
+    u_long nbr;
+
     lm->add (this, "test", "file://foo", filters, 0);
     lm->log (this, "test", "file://foo", message);
     lm->close (this);
-    File f;
     f.openFile ("foo", FileStream::defaultFileMask);
-    char buf[message.size () + 1];
-    u_long nbr;
     f.read (buf, message.size () + 1, &nbr);
     buf[nbr] = '\0';
     CPPUNIT_ASSERT (!message.compare (buf));
@@ -108,6 +124,7 @@ public:
   void testClose ()
   {
     list<string> filters;
+
     lm->add (this, "test", "file://foo", filters, 0);
     CPPUNIT_ASSERT (lm->close (this, "test", "file://bar"));
     CPPUNIT_ASSERT (!lm->close (this, "test", "file://foo"));
@@ -119,22 +136,24 @@ public:
     string message ("A message\n");
     string message1 ("Another message\n");
     list<string> filters;
+    File f;
+    char buf[64];
+    u_long nbr;
+    LogStream* ls;
+    list<string> cs;
+    list<string>::iterator it;
+
     lm->add (this, "test", "file://foo", filters, 10);
     lm->log (this, "test", "file://foo", message);
     CPPUNIT_ASSERT (!lm->log (this, "test", "file://foo", message1));
     lm->close (this, "test", "file://foo");
-    File f;
     f.openFile ("foo", FileStream::defaultFileMask);
-    char buf[64];
-    u_long nbr;
     f.read (buf, 64, &nbr);
     buf[nbr] = '\0';
     f.close ();
     CPPUNIT_ASSERT (!message1.compare (buf));
-    LogStream* ls;
     CPPUNIT_ASSERT (!lm->get (this, "test", "file://foo", &ls));
-    list<string> cs = ls->getCycledStreams ();
-    list<string>::iterator it;
+    cs = ls->getCycledStreams ();
     for (it = cs.begin (); it != cs.end (); it++)
       {
         f.openFile (*it, FileStream::defaultFileMask);
@@ -149,6 +168,7 @@ public:
   void testLevel ()
   {
     list<string> filters;
+
     lm->add (this, "test", "file://foo", filters, 0);
     lm->setLevel (MYSERVER_LOG_MSG_WARNING);
     CPPUNIT_ASSERT (lm->log (this, "test", "a message", false, MYSERVER_LOG_MSG_INFO));
@@ -161,6 +181,7 @@ public:
   void testClear ()
   {
     list<string> filters;
+
     lm->add (this, "test", "file://foo", filters, 0);
     lm->add (this, "test", "console://stdout", filters, 0);
     CPPUNIT_ASSERT (!lm->empty ());
@@ -172,18 +193,19 @@ public:
   {
     list<string> filters;
     string message ("a message");
+    File f;
+    char gzipChainComp[64];
+    char gzipChainDecomp[64];
+    u_long nbr;
+    GzipDecompress gzdc;
+
     filters.push_back ("gzip");
     lm->add (this, "test", "file://foo", filters, 0);
     lm->log (this, "test", "file://foo", message);
     lm->close (this, "test", "file://foo");
-    File f;
     f.openFile ("foo", FileStream::defaultFileMask);
-    char gzipChainComp[64];
-    char gzipChainDecomp[64];
-    u_long nbr;
     f.read (gzipChainComp, 64, &nbr);
     f.close ();
-    GzipDecompress gzdc;
     gzdc.decompress (&gzipChainComp[gzdc.headerSize ()], 
                      nbr - gzdc.headerSize (),
                      gzipChainDecomp, 64);
@@ -204,6 +226,7 @@ public:
     u_long nbr = 0;
     list<string> cs;
     list<string>::iterator it;
+    LogStream* ls;
     
     filters.push_back ("gzip");
     lm->add (this, "test", "file://foo", filters, cycleLog);
@@ -217,7 +240,6 @@ public:
                      gzipDecomp, 128);
     gzipDecomp[message1.size ()] = '\0';
     CPPUNIT_ASSERT (!message1.compare (gzipDecomp));
-    LogStream* ls;
     CPPUNIT_ASSERT (!lm->get (this, "test", "file://foo", &ls));
     cs = ls->getCycledStreams ();
     for (it = cs.begin (); it != cs.end (); it++)
@@ -237,6 +259,7 @@ public:
   void testCount ()
   {
     list<string> filters;
+
     lm->add (this, "test", "console://stdout", filters, 0);
     lm->add (this, "test_1", "console://stderr", filters, 0);
     lm->add (this, "test_1", "file://foo", filters, 0);
@@ -257,6 +280,7 @@ public:
     list<string> filters;
     list<string> tmp;
     list<string> l;
+    LogStream* ls;
     
     CPPUNIT_ASSERT (lm->get (this, &l));
     CPPUNIT_ASSERT (lm->get (this, "test", &l));
@@ -275,7 +299,6 @@ public:
     tmp.push_back ("console://stdout");
     tmp.sort (); l.sort ();
     CPPUNIT_ASSERT (tmp == l);
-    LogStream* ls;
     CPPUNIT_ASSERT (!lm->get (this, "test", "console://stdout", &ls));
   }
 
@@ -293,7 +316,6 @@ public:
     message1.assign (oss.str ());
     oss << "message2" << endl;
     message2.assign (oss.str ());
-
     lm->add (this, "test", "file://foo", filters, 0);
     lm->log (this, "test", "file://foo", message1);
     lm->clear ();
@@ -307,7 +329,7 @@ public:
     CPPUNIT_ASSERT (!string (buf).compare (message1.append (message2)));
   }
 
-  void testAddWithNotExistingFilter ()
+  void testNotExistingFilterAdd ()
   {
     list<string> filters;
 
@@ -315,6 +337,78 @@ public:
     CPPUNIT_ASSERT (lm->add (this, "test", "file://foo", filters, 0));
     CPPUNIT_ASSERT (lm->add (this, "test", "socket://127.0.0.1:6666", filters, 0));
     CPPUNIT_ASSERT (lm->add (this, "test", "console://stdout", filters, 0));
+  }
+
+  void testFailureAdd ()
+  {
+    list<string> filters;
+
+    CPPUNIT_ASSERT (lm->add (this, "test", "foo", filters, 0));
+    CPPUNIT_ASSERT (lm->add (this, "test", "file", filters, 0));
+    CPPUNIT_ASSERT (!lm->add (this, "test", "file://foo", filters, 0));
+    CPPUNIT_ASSERT (lm->add (this, "test", "file://foo", filters, 0));
+  }
+
+  void testSharedAdd ()
+  {
+    list<string> filters;
+    AnObject anObject;
+
+    CPPUNIT_ASSERT (!lm->add (this, "test", "file://foo", filters, 0));
+    CPPUNIT_ASSERT (!lm->add (&anObject, "test", "file://foo", filters, 0));
+  }
+
+  void testSharedGet ()
+  {
+    list<string> filters;
+    AnObject anObject;
+    list<void*> l;
+
+    CPPUNIT_ASSERT (!lm->add (this, "test", "file://foo", filters, 0));
+    CPPUNIT_ASSERT (!lm->add (&anObject, "test", "file://foo", filters, 0));
+    CPPUNIT_ASSERT (!lm->getOwnersList ("file://foo", &l));
+    CPPUNIT_ASSERT (l.size () == 2);
+  }
+
+  void testSharedRemove ()
+  {
+    list<string> filters;
+    AnObject anObject;
+    AnObject anotherObject;
+    list<void*> l;
+
+    CPPUNIT_ASSERT (!lm->add (this, "test", "file://foo", filters, 0));
+    CPPUNIT_ASSERT (!lm->add (&anObject, "test1", "file://foo", filters, 0));
+    CPPUNIT_ASSERT (!lm->add (&anotherObject, "test2", "file://foo", filters, 0));
+    lm->remove (this);
+    CPPUNIT_ASSERT (lm->contains ("file://foo"));
+    lm->getOwnersList ("file://foo", &l);
+    CPPUNIT_ASSERT (l.size () == 2);
+    lm->remove (&anObject);
+    CPPUNIT_ASSERT (lm->contains ("file://foo"));
+    lm->getOwnersList ("file://foo", &l);
+    CPPUNIT_ASSERT (l.size () == 1);
+    lm->remove (&anotherObject);
+    CPPUNIT_ASSERT (lm->getOwnersList ("file://foo", &l));
+  }
+  
+  void testFailureLog ()
+  {
+    list<string> filters;
+
+    lm->add (this, "test", "file://foo", filters, 0);
+    lm->close (this, "test", "file://foo");
+    CPPUNIT_ASSERT (lm->log (this, "test", "file://foo", "message"));
+  }
+
+  void testChown ()
+  {
+#ifdef NOT_WIN
+    list<string> filters;
+
+    lm->add (this, "test", "file://foo", filters, 0);
+    CPPUNIT_ASSERT (!lm->chown (this, "test", "file://foo", getuid (), getgid ()));
+#endif
   }
 
   void tearDown ()

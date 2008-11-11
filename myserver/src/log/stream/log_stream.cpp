@@ -112,12 +112,10 @@ LogStream::close ()
 {
   mutex->lock ();
   int success = 1;
-  if (isOpened)
+  isOpened = fc->flush (&nbw) || out->close ();
+  if (!isOpened)
     {
-      if (!(isOpened = (fc->flush (&nbw) || out->close ())))
-        {
-          success = 0;
-        }
+      success = 0;
     }
   mutex->unlock ();
   return success;
@@ -130,33 +128,33 @@ LogStream::update (LogStreamEvent evt, void* message, void* reply)
     {
     case MYSERVER_LOG_EVT_SET_CYCLE:
       {
-        return setCycle (*static_cast<u_long*>(message));
+        return !isOpened || setCycle (*static_cast<u_long*>(message));
       }
       break;
     case MYSERVER_LOG_EVT_LOG:
       {
-        return log (*static_cast<string*>(message));
+        return !isOpened || log (*static_cast<string*>(message));
       }
       break;
     case MYSERVER_LOG_EVT_CLOSE:
       {
-        return close ();
+        return !isOpened || close ();
       }
       break;
     case MYSERVER_LOG_EVT_ADD_FILTER:
       {
-        return addFilter (static_cast<Filter*>(message));
+        return !isOpened || addFilter (static_cast<Filter*>(message));
       }
       break;
     case MYSERVER_LOG_EVT_CHOWN:
       {
-        return chown (static_cast<int*>(message)[0], 
-                      static_cast<int*>(message)[1]);
+        return !isOpened || chown (static_cast<int*>(message)[0], 
+                                   static_cast<int*>(message)[1]);
       }
       break;
     case MYSERVER_LOG_EVT_SET_MODE:
       {
-        return setMode (*static_cast<LoggingLevel*>(message));
+        return !isOpened || setMode (*static_cast<LoggingLevel*>(message));
       }
     default:
       return 1;

@@ -19,6 +19,7 @@
 #ifndef LOG_MANAGER_H
 #define LOG_MANAGER_H
 
+#include <algorithm>
 #include <map>
 #include <string>
 
@@ -70,6 +71,7 @@ public:
   int count (void* owner, string type);
   int count (void* owner, string type, string location);
   int clear ();
+  int getOwnersList (string, list<void*>*);
 protected:
   int notify (void* owner, string type, string location, LogStreamEvent evt, 
               void* msg = 0, void* reply = 0);
@@ -85,8 +87,27 @@ private:
   Mutex* mutex;
   LogStreamFactory* lsf;
   FiltersFactory* ff;
+
+  /*!
+   * Store all the LogStream objects, each identified through its location string.
+   * There can't be two LogStream objects pointing to the same location,
+   * anyway it is possible to share the same LogStream between more owners.
+   */
   map<string, LogStream*> logStreams;
+  
+  /*!
+   * For each LogStream, store the list of objects that use it.
+   */
+  map<string, list<void*> > logStreamOwners;
+
+  /*!
+   * For each owner, store the LogStream objects that it owns.
+   */
   map<void*, map<string, map<string, LogStream*> > > owners;
+
+  /*!
+   * Store the newline string for the host operating system.
+   */
   string newline;
 };
 
