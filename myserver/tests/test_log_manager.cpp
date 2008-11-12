@@ -356,6 +356,7 @@ public:
 
     CPPUNIT_ASSERT (!lm->add (this, "test", "file://foo", filters, 0));
     CPPUNIT_ASSERT (!lm->add (&anObject, "test", "file://foo", filters, 0));
+    CPPUNIT_ASSERT (!lm->add (this, "test1", "file://foo", filters, 0));
   }
 
   void testSharedGet ()
@@ -363,9 +364,17 @@ public:
     list<string> filters;
     AnObject anObject;
     list<void*> l;
+    LogStream* ls;
+    LogStream* ls1;
 
     CPPUNIT_ASSERT (!lm->add (this, "test", "file://foo", filters, 0));
     CPPUNIT_ASSERT (!lm->add (&anObject, "test", "file://foo", filters, 0));
+    CPPUNIT_ASSERT (!lm->getOwnersList ("file://foo", &l));
+    CPPUNIT_ASSERT (l.size () == 2);
+    CPPUNIT_ASSERT (!lm->get (this, "test", "file://foo", &ls));
+    CPPUNIT_ASSERT (!lm->get (this, "test", "file://foo", &ls1));
+    CPPUNIT_ASSERT (ls1 == ls);
+    CPPUNIT_ASSERT (!lm->add (this, "test1", "file://foo", filters, 0));
     CPPUNIT_ASSERT (!lm->getOwnersList ("file://foo", &l));
     CPPUNIT_ASSERT (l.size () == 2);
   }

@@ -82,6 +82,7 @@ protected:
   int add (void* owner, string type);
   int add (void* owner, string type, string location, LogStream* ls);
   int computeNewLine ();
+  int logWriteln (string, LoggingLevel);
 private:
   LoggingLevel level;
   Mutex* mutex;
