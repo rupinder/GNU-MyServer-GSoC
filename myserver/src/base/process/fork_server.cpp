@@ -310,46 +310,55 @@ int ForkServer::forkServerLoop (Socket *socket)
 #ifdef NOT_WIN
   for (;;)
     {
-      char command;
-      u_long nbr;
-      MYSERVER_SOCKADDR_STORAGE sockaddr;
-      int len = sizeof (sockaddr);
-
-      if (!socket->dataOnRead(5, 0))
-        continue;
-
-      Socket sin = socket->accept (&sockaddr, &len);
-      Socket sout = socket->accept (&sockaddr, &len);
-
-      //if (sin.getHandle () == -1 || sout.getHandle ())
-      //  {
-      //    continue;
-      //  }
-
-      if (sin.read (&command, 1, &nbr))
+      try
         {
-          sin.shutdown (2);
-          sin.close ();
-          sout.shutdown (2);
-          sout.close ();
-          continue;
-        }
-
-      switch (command)
-        {
-        case 'e': //exit process
-          exit (0);
-          return 0;
-        case 'r':
-          if (handleRequest (sin, sout, socket))
+          char command;
+          u_long nbr;
+          MYSERVER_SOCKADDR_STORAGE sockaddr;
+          int len = sizeof (sockaddr);
+          
+          if (!socket->dataOnRead(5, 0))
+            continue;
+          
+          Socket sin = socket->accept (&sockaddr, &len);
+          Socket sout = socket->accept (&sockaddr, &len);
+          
+          //if (sin.getHandle () == -1 || sout.getHandle ())
+          //  {
+          //    continue;
+          //  }
+          
+          if (sin.read (&command, 1, &nbr))
             {
               sin.shutdown (2);
               sin.close ();
               sout.shutdown (2);
               sout.close ();
+              continue;
+            }
+        
+          switch (command)
+            {
+            case 'e': //exit process
+              exit (0);
+              return 0;
+            case 'r':
+              if (handleRequest (sin, sout, socket))
+                {
+                  sin.shutdown (2);
+                  sin.close ();
+                  sout.shutdown (2);
+                  sout.close ();
+                }
             }
         }
-
+      /* Don't let the fork server come back from this function 
+         in _any_ case.  */
+      catch(...)
+        {
+          perror ("fork server died.");
+          exit (1);
+        }
     }
 #endif
   return 0;
