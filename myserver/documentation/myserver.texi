@@ -50,7 +50,7 @@ Copyright @copyright{} 2008 Free Software Foundation, Inc.
 @end iftex
 
 @ifnottex
-@node Top, Copying, (dir), (dir)
+@node Top, Basic configuration, (dir), (dir)
 @top GNU MyServer
 GNU MyServer is a powerful web server designed, to be easily executed
 on a personal computer by the average computer user.
@@ -63,30 +63,18 @@ SCGI and FastCGI protocols.
 @end ifnottex
 
 @menu
-* Copying:: The GNU General Public License gives you permission to
-            redistribute GNU MyServer on certain terms; it also explains that
-            there is no warranty.
-* GNU Free Documentation License:: The license for this documentation.
 * Basic configuration:: Basic server configuration.
 * Virtual hosts:: Virtual hosts configuration.
 * MIME types:: MIME types configuration.
 * Process security:: Process security.
-* Security files:: Describe how use security files.
+* Security files:: Describe how to use security files.
 * SSL certificates:: Show how to use SSL certificates.
 * Log management:: Describe how to use the log management features.
-
-* Concept Index::       An item for each concept.
+* Concept index::       An item for each concept.
+* GNU Free Documentation License:: The license for this documentation.
 @end menu
 
-@node Copying, GNU Free Documentation License, Top, Top
-@appendix GNU GENERAL PUBLIC LICENSE
-@include gpl.texi
-
-@node GNU Free Documentation License, Basic configuration, Copying, Top
-@appendix GNU Free Documentation License
-@include doclicense.texi
-
-@node Basic configuration, Virtual hosts, GNU Free Documentation License, Top
+@node Basic configuration, Virtual hosts, Top, Top
 @chapter Basic configuration
 @cindex Basic configuration
 @include basic_configuration.texi
@@ -116,14 +104,18 @@ SCGI and FastCGI protocols.
 @cindex SSL certificates
 @include ssl_certificates.texi
 
-@node Log management, Concept Index, SSL certificates, Top
+@node Log management, Concept index, SSL certificates, Top
 @chapter Log management
 @cindex Log Management
 @include log_management.texi
 
-@node Concept Index, , Log management, Top
-@unnumbered Concept Index
+@node Concept index, GNU Free Documentation License, Log management, Top
+@unnumbered Concept index
 @printindex cp
+
+@node GNU Free Documentation License, , Concept index, Top
+@appendix GNU Free Documentation License
+@include doclicense.texi
 
 @bye
 @c -*-texinfo-*-
