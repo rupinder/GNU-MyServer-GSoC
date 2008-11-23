@@ -1,6 +1,32 @@
 @c -*-texinfo-*-
-In the @file{myserver.xml} file you can set the default page for your
-websites hosted on MyServer.
+@section Configuration files
+The configuration is done trought three different XML files:
+
+@itemize
+@item @file{myserver.xml}
+It contains the main myserver configuration.  Almost all settings here
+can be redefined locally for virtual hosts or directories.
+@item @file{MIMEtypes.xml}
+It contains the default MIME types configuration.  It can be redefined
+for any virtual host.
+@item @file{virtualhosts.xml}
+This file defines the different virtual hosts used by MyServer.
+Virtual host here is not used properly, as this file is used to define
+sites on a protocol different than HTTP/HTTPS where there are not
+virtual hosts, for example FTP.
+@end itemize
+
+These files can exist in different locations, they are looked in the
+following order:
+@enumerate
+@item Current working directory.
+@item Personal directory, ~/.myserver/.
+@item Global scope inside /etc/myserver.
+@end enumerate
+
+@section Default resource
+In the @file{myserver.xml} file it is possible to set the default page
+for the sites hosted on MyServer.
 
 Similar lines already exist in your configuration file:
 
@@ -14,9 +40,13 @@ Similar lines already exist in your configuration file:
 <DEFAULT_FILENAME>default.htm</DEFAULT_FILENAME>
 @end example
 
-In the errors section you learned how to create and use your own error
-pages. But you can also disable the custom error pages, by changing
-the line below:
+The previous line define the order of files to look for when a
+directory is requested.  If a default file is not found and the user
+has browsing access permissions then the directory contents are
+listed.
+
+It is possible to specify a page when a HTTP error happens using the
+option:
 
 @example
 <USE_ERROR_FILE>YES</USE_ERROR_FILE>
@@ -28,9 +58,10 @@ So, if you set the value to NO, like in the line below,
 <USE_ERROR_FILE>NO</USE_ERROR_FILE>
 @end example
 
-MyServer will (by default) just send a header to your browser with the
-error code. But you have the option to send a HTTP body included in
-the error, by adding this line:
+If an error page is not used MyServer will (by default) just send a
+header to your browser with the error code.
+You have the option to send a HTTP body included in the error, by
+adding this line:
 
 @example
 <ERRORS_INCLUDE_BODY>YES</ERRORS_INCLUDE_BODY>
