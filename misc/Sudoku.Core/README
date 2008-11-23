@@ -1,0 +1,6 @@
+Sudoku.Core in an ASP.NET application distributed as 
+a GNU MyServer sample.
+It loads a set sudoku symbols into a table and tries 
+to solve with loaded givens.
+It may be extended to load a partial solution and let
+the user complete the table and check the result.

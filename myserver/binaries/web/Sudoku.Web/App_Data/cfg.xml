@@ -1,0 +1,36 @@
+<SudokuCfg>
+  <CurrentTable name="RightTableOf4"/>
+  <Tables>
+    <Table name="RightTableOf4" rows = "4" columns = "4" boxRows ="2" boxColumns ="2">
+      <Row index="0">1,2,3,4</Row>
+      <Row index="1">3,4,1,2</Row>
+      <Row index="2">2,3,4,1</Row>
+      <Row index="3">4,1,2,3</Row>
+    </Table>
+    <Table name="WrongTableOf4" rows = "4" columns = "4" boxRows ="2" boxColumns ="2">
+      <Row index="0">1,1,3,4</Row>
+      <Row index="1">1,1,4,1</Row>
+      <Row index="2">3,4,1,2</Row>
+      <Row index="3">4,1,2,3</Row>
+    </Table>
+    <Table name="TableOf6" rows = "6" columns = "6" boxRows ="2" boxColumns ="3">
+	    <Row index="0">1,2,3,4,5,6</Row>
+	    <Row index="1">4,5,6,1,2,3</Row>
+	    <Row index="2">2,3,4,5,6,1</Row>
+	    <Row index="3">5,6,1,2,3,4</Row>
+	    <Row index="4">3,4,5,6,1,2</Row>
+	    <Row index="5">6,1,2,3,4,5</Row>
+    </Table>
+    <Table name="TableOf9" rows = "9" columns = "9" boxRows ="3" boxColumns ="3">
+      <Row index="0">1,2,3,4,5,6,7,8,9</Row>
+      <Row index="1">4,5,6,7,8,9,1,2,3</Row>
+      <Row index="2">7,8,9,1,2,3,4,5,6</Row>
+      <Row index="3">2,3,1,5,6,4,8,9,7</Row>
+      <Row index="4">5,6,4,8,9,7,2,3,1</Row>
+      <Row index="5">8,9,7,2,3,1,5,6,4</Row>
+      <Row index="6">3,2,1,6,4,5,9,7,8</Row>
+      <Row index="7">5,6,7,9,7,8,3,1,2</Row>
+      <Row index="8">2,1,3,3,1,2,6,4,5</Row>
+    </Table>
+  </Tables>
+</SudokuCfg>

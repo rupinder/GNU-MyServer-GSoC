@@ -1,0 +1,23 @@
+﻿<UserCombinePreferences version="1.0" filename="/home/andu/development/Sudoku/Sudoku.Core/Sudoku/Sudoku.mds">
+  <Files>
+    <File name="Welcome" />
+    <File name="../src/Configuration.cs" line="5" column="14" />
+  </Files>
+  <Views>
+    <ViewMemento id="ProjectPad">
+      <Node expanded="True">
+        <Node name="Sudoku" expanded="True" selected="True">
+          <Node name="References" expanded="True" />
+          <Node name="ExternalFiles" expanded="True" />
+        </Node>
+      </Node>
+    </ViewMemento>
+    <ViewMemento id="ClassPad">
+      <Node expanded="True" />
+    </ViewMemento>
+  </Views>
+  <Properties>
+    <Property key="ActiveWindow" value="/home/andu/development/Sudoku/Sudoku.Core/src/Configuration.cs" />
+    <Property key="ActiveConfiguration" value="Debug" />
+  </Properties>
+</UserCombinePreferences>

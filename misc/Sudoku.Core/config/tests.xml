@@ -1,0 +1,69 @@
+<SudokuCfg>
+  <CurrentTable name="Right" nTime="100"/>
+  <Tables>
+    <Table name="Right" rows = "4" columns = "4" boxRows ="2" boxColumns ="2">
+      <Row index="0">1,2,3,4</Row>
+      <Row index="1">3,4,2,1</Row>
+      <Row index="0">2,3,4,1</Row>
+      <Row index="1">4,1,2,3</Row>
+    </Table>
+    <Table name="Wrong" rows = "4" columns = "4" boxRows ="2" boxColumns ="2">
+      <Row index="0">1,2,3,4</Row>
+      <Row index="1">2,3,4,1</Row>
+      <Row index="0">3,4,1,2</Row>
+      <Row index="1">4,1,2,3</Row>
+    </Table>
+    <Table name="Dummy" rows = "2" columns = "2">
+      <Row index="0">1,2</Row>
+      <Row index="1">3,4</Row>
+    </Table>
+    <Table name="TabelaDesfasurata" rows = "16" columns = "16">
+      <Row  index="0">1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0</Row>
+      <Row  index="1">0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0</Row>
+      <Row  index="2">0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0</Row>
+      <Row  index="3">0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0</Row>
+      <Row  index="4">0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0</Row>
+      <Row  index="5">0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0</Row>
+      <Row  index="6">0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0</Row>
+      <Row  index="7">0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0</Row>
+      <Row  index="8">0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0</Row>
+      <Row  index="9">0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0</Row>
+      <Row index="10">0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0</Row>
+      <Row index="11">0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0</Row>
+      <Row index="12">0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0</Row>
+      <Row index="13">0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0</Row>
+      <Row index="14">0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0</Row>
+      <Row index="15">0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1</Row>
+    </Table>
+    <Table name="Exemplu" rows = "4" columns = "4">
+      <Row index="0">0,1,0,0</Row>
+      <Row index="1">1,0,0,0</Row>
+      <Row index="2">1,1,1,0</Row>
+      <Row index="3">0,0,1,1</Row>
+    </Table>
+    <Table name="TabelaDe3" rows = "3" columns = "3">
+      <Row index="0">1,2,3</Row>
+      <Row index="1">4,5,6</Row>
+      <Row index="2">7,8,9</Row>
+    </Table>
+    <Table name="TabelaDe6" rows = "6" columns = "6">
+	    <Row index="0">1,2,3,4,5,6</Row>
+	    <Row index="1">4,5,6,1,2,3</Row>
+	    <Row index="2">2,3,4,5,6,1</Row>
+	    <Row index="3">5,6,1,2,3,4</Row>
+	    <Row index="4">3,4,5,6,1,2</Row>
+	    <Row index="5">6,1,2,3,4,5</Row>
+    </Table>
+    <Table name="TabelaDe9" rows = "9" columns = "9">
+      <Row index="0">1,2,3,4,5,6,7,8,9</Row>
+      <Row index="1">4,5,6,7,8,9,1,2,3</Row>
+      <Row index="2">7,8,9,1,6,4,8,9,7</Row>
+      <Row index="3">2,3,1,5,9,7,2,3,1</Row>
+      <Row index="4">5,6,4,8,3,1,5,6,8</Row>
+      <Row index="5">8,9,7,2,5,6,7,8,9</Row>
+      <Row index="6">3,1,2,9,7,5,3,1,7</Row>
+      <Row index="7">6,4,3,3,1,8,6,8,1</Row>
+      <Row index="8">9,7,8,5,6,2,8,9,6</Row>
+    </Table>
+  </Tables>
+</SudokuCfg>
