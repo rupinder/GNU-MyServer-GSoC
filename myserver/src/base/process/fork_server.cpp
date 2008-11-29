@@ -124,7 +124,7 @@ int ForkServer::readString (Socket *sock, char **out)
 int ForkServer::handleRequest (Socket sin, Socket sout, Socket *serverSock)
 {
 #ifdef NOT_WIN
-  int ret, flags, stdIn, stdOut, stdErr;
+  int ret, flags, stdIn, stdOut, stdErr, gid, uid;
   char *exec;
   char *cwd;
   char *arg;
@@ -133,7 +133,9 @@ int ForkServer::handleRequest (Socket sin, Socket sout, Socket *serverSock)
   if (readInt (&sin, &flags) ||
       readInt (&sin, &stdIn) ||
       readInt (&sin, &stdOut) ||
-      readInt (&sin, &stdErr))
+      readInt (&sin, &stdErr) ||
+      readInt (&sin, &gid) ||
+      readInt (&sin, &uid))
     {
       return -1;     
     }
@@ -236,6 +238,12 @@ int ForkServer::handleRequest (Socket sin, Socket sout, Socket *serverSock)
 
       /* Close the fork server descriptor in the child process.  */
       serverSock->close ();
+
+      if (gid)
+        Process::setgid (gid);
+
+      if (uid)
+        Process::setuid (uid);
      
       if (Process::generateArgList (args, spi.cmd.c_str (), spi.arg))
         exit (1);
@@ -420,6 +428,9 @@ int ForkServer::executeProcess (StartProcInfo *spi, Socket *sin, Socket *sout,
   writeInt (sin, spi->stdIn);
   writeInt (sin, spi->stdOut);
   writeInt (sin, spi->stdError);
+
+  writeInt (sin, spi->gid);
+  writeInt (sin, spi->uid);
 
   writeString (sin, spi->cmd.c_str (), spi->cmd.length () + 1);
   writeString (sin, spi->cwd.c_str (), spi->cwd.length () + 1);

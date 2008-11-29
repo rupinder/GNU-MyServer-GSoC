@@ -48,8 +48,20 @@ struct StartProcInfo
 	/*! added for unix support.  */
 	string cmd;
 	string arg;
-	
+
+  /*! Group id for the new process.  */
+  int gid;
+
+  /*! User id for the new process.  */
+  int uid;
+
 	void *envString;
+
+  StartProcInfo ()
+  {
+    gid = uid = 0;
+    envString = NULL;
+  }
 };
 
 class Process

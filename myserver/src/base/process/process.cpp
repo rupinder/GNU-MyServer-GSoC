@@ -212,7 +212,14 @@ int Process::exec(StartProcInfo* spi, bool waitEnd)
       // Set env vars
       const char *envp[100];
       const char *args[100];
+
+      if (spi->gid)
+        Process::setgid (spi->gid);
+
+      if (spi->uid)
+        Process::setuid (spi->uid);
       
+
       if (generateArgList (args, spi->cmd.c_str (), spi->arg))
         exit (1);
 
