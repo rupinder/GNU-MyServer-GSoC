@@ -71,7 +71,7 @@ FileStream::streamCycle ()
           delete [] secondaryBuffer;
           return 1;
         }
-      if (currentFile->setFilePointer (0))
+      if (currentFile->seek (0))
         {
           delete [] buffer;
           delete [] secondaryBuffer;

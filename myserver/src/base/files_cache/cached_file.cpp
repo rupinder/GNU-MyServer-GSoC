@@ -165,16 +165,16 @@ int CachedFile::close()
  *Returns the file size in bytes.
  *Returns -1 on errors.
  */
-u_long CachedFile::getFileSize()
+u_long CachedFile::getFileSize ()
 {
-  return buffer->getFileSize();
+  return buffer->getFileSize ();
 }
 
 /*!
  *Change the position of the pointer to the file.
  *\param initialByte The new file pointer position.
  */
-int CachedFile::setFilePointer(u_long initialByte)
+int CachedFile::seek (u_long initialByte)
 {
   if(initialByte <= buffer->getFileSize())
     fseek = initialByte;
@@ -187,7 +187,7 @@ int CachedFile::setFilePointer(u_long initialByte)
 /*!
  *Inherited from Stream.
  */
-int CachedFile::write(const char* buffer, u_long len, u_long *nbw)
+int CachedFile::write (const char* buffer, u_long len, u_long *nbw)
 {
   return -1;
 }

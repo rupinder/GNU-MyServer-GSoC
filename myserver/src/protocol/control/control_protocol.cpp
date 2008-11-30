@@ -371,7 +371,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
   }
   if(Ifile)
   {
-    Ifile->setFilePointer(0);
+    Ifile->seek (0);
   }
 
   if(strcmpi(version, "CONTROL/1.0"))
@@ -525,7 +525,7 @@ int ControlProtocol::controlConnection(ConnectionPtr a, char *b1, char *b2,
   if(knownCommand)
   {
     char *connection;
-    Ofile->setFilePointer(0);
+    Ofile->seek (0);
     if(ret)
     {
       sendResponse(b2, bs2, a, CONTROL_INTERNAL, header, 0);

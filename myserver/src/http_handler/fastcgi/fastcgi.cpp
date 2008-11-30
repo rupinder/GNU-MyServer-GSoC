@@ -629,7 +629,7 @@ int FastCgi::fastCgiRequest (FcgiContext* con, int id)
     td->buffer->setLength(0);
 
 
-    if(td->inputData.setFilePointer(0))
+    if(td->inputData.seek (0))
       if(Server::getInstance()->getVerbosity() > 2)
       {
         *td->buffer << "FastCGI: Error sending POST data" << '\0';

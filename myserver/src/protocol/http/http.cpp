@@ -279,12 +279,12 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
         /*! Return an internal server error. */
         return raiseHTTPError(500);
       }
-      file.setFilePointer(firstByte);
+      file.seek (firstByte);
       for(;;)
       {
         u_long nbr = 0, nbw = 0;
-        if(td->inputData.read(td->buffer->getBuffer(),
-                                     td->buffer->getRealLength(), &nbr))
+        if(td->inputData.read (td->buffer->getBuffer(),
+                               td->buffer->getRealLength(), &nbr))
         {
           file.close();
           /*! Return an internal server error.  */

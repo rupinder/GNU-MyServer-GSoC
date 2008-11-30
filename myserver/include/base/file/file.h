@@ -53,7 +53,7 @@ public:
     {return openFile(file.c_str(), opt);}
 
 	virtual u_long getFileSize();
-	virtual int setFilePointer(u_long);
+	virtual int seek (u_long);
 
 	virtual time_t getLastModTime();
 	virtual time_t getCreationTime();

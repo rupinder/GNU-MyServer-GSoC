@@ -776,7 +776,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
   if (!(td->permissions & MYSERVER_PERMISSION_EXECUTE))
     return td->http->sendAuth();
 
-  td->inputData.setFilePointer(0);
+  td->inputData.seek (0);
 
   EnterCriticalSection(&GetTableEntryCritSec);
   connIndex = 0;

@@ -403,6 +403,6 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
       break;
   }
 
-  td->inputData.setFilePointer(0);
+  td->inputData.seek (0);
   return 0;
 }

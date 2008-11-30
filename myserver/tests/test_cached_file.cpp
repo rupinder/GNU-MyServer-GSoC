@@ -60,8 +60,8 @@ public:
 
   void testFilePointer()
   {
-    CPPUNIT_ASSERT_EQUAL(cf->setFilePointer(3), 0);
-    CPPUNIT_ASSERT(cf->setFilePointer(100000));
+    CPPUNIT_ASSERT_EQUAL(cf->seek (3), 0);
+    CPPUNIT_ASSERT(cf->seek (100000));
   }
 
 

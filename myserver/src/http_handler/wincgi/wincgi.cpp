@@ -120,7 +120,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,
   
   strcpy(outFilePath,td->outputDataPath.c_str());
   strcat(outFilePath,"WC");
-  td->inputData.setFilePointer(0);
+  td->inputData.seek (0);
 
   chain.setProtocol(td->http);
   chain.setProtocolData(td);

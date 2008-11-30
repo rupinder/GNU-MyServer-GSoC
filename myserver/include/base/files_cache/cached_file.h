@@ -42,7 +42,7 @@ public:
     {return openFile(file.c_str(), opt);}
 
 	virtual u_long getFileSize();
-	virtual int setFilePointer(u_long);
+	virtual int seek (u_long);
 
 	virtual int operator =(CachedFile);
 	virtual int close();

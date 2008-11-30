@@ -991,7 +991,7 @@ void* SendImageFile(void* pParam)
     u_long nbr, nBufferSize = 0;
     if ( pWt->m_bAppend && pFtpUserData->m_nRestartOffset < filesize )
     {
-      file->setFilePointer(pFtpUserData->m_nRestartOffset);
+      file->seek (pFtpUserData->m_nRestartOffset);
       filesize -= pFtpUserData->m_nRestartOffset;
     }
 

@@ -171,9 +171,9 @@ int File::openFile(const char* nfilename,u_long opt)
   else/*! Open the file. */
   {
     if(opt & File::MYSERVER_OPEN_APPEND)
-      ret = setFilePointer(getFileSize ());
+      ret = seek (getFileSize ());
     else
-      ret = setFilePointer(0);
+      ret = seek (0);
       if(ret)
       {
         close();
@@ -396,17 +396,17 @@ u_long File::getFileSize()
  *Change the position of the pointer to the file.
  *\param initialByte The new file pointer position.
  */
-int File::setFilePointer(u_long initialByte)
+int File::seek (u_long initialByte)
 {
   u_long ret;
 #ifdef WIN32
-  ret=SetFilePointer((HANDLE)handle,initialByte,NULL,FILE_BEGIN);
+  ret = SetFilePointer ((HANDLE)handle, initialByte, NULL, FILE_BEGIN);
   /*! SetFilePointer returns INVALID_SET_FILE_POINTER on an error.  */
   return (ret == INVALID_SET_FILE_POINTER) ? 1 : 0;
 #endif
 #ifdef NOT_WIN
-  ret = lseek((long)handle, initialByte, SEEK_SET);
-  return (ret!=initialByte)?1:0;
+  ret = lseek ((long)handle, initialByte, SEEK_SET);
+  return (ret != initialByte ) ? 1 : 0;
 #endif
 }
 
@@ -490,7 +490,7 @@ int File::fastCopyToSocket (Socket *dest, u_long firstByte, MemBuf *buf, u_long 
   u_long size = buf->getRealLength ();
   *nbw = 0;
 
-	if (setFilePointer (firstByte))
+	if (seek (firstByte))
     return 0;
 
   for (;;)

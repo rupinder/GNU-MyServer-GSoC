@@ -132,7 +132,7 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
     /*
      * If fail to set the file pointer returns an internal server error.  
      */
-    ret = file->setFilePointer(firstByte);
+    ret = file->seek (firstByte);
     if(ret)
     {
       file->close();

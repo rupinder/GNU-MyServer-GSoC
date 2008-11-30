@@ -129,7 +129,7 @@ CachedFileBuffer::CachedFileBuffer(const char* buffer, u_long size)
   fileSize = size;
   this->buffer = new char[size];
 
-  memcpy(this->buffer, buffer, size);
+  memcpy (this->buffer, buffer, size);
 }
 
 /*!
@@ -141,11 +141,11 @@ CachedFileBuffer::CachedFileBuffer(File* file)
   u_long nbr;
   factoryToNotify = 0;
   refCounter = 0;
-  fileSize = file->getFileSize();
+  fileSize = file->getFileSize ();
   buffer = new char[fileSize];
-  filename.assign(file->getFilename());
-  file->setFilePointer(0);
-  file->read(buffer, fileSize, &nbr);
+  filename.assign (file->getFilename());
+  file->seek (0);
+  file->read (buffer, fileSize, &nbr);
 }
 
 /*!
