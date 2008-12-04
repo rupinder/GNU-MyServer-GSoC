@@ -69,7 +69,7 @@ private:
 
   int getPermissions (xmlAttr* attrs, xmlChar** user = NULL, xmlChar** password = NULL);
 
-  SecurityCache *getCache(Server*);
+  SecurityCache *getCache(SecurityToken*);
   SecurityCache *secCache;
   Mutex cacheMutex;
 };

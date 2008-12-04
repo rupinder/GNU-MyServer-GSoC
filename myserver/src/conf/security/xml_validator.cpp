@@ -38,12 +38,14 @@ XmlValidator::~XmlValidator ()
 /*!
  *Get the security files cache.
  */
-SecurityCache* XmlValidator::getCache (Server *server)
+SecurityCache* XmlValidator::getCache (SecurityToken *st)
 {
-  if (!secCache && server)
+  if (!secCache)
   {
-    const char *data = server->getHashedData ("SECURITY_CACHE_NODES");
+    const char *data = st->getHashedData ("SECURITY_CACHE_NODES", MYSERVER_SERVER_CONF, NULL);
+
     secCache = new SecurityCache ();
+
     if (data)
     {
       int nodes = atoi (data);
@@ -61,18 +63,12 @@ XmlParser* XmlValidator::getParser (SecurityToken* st)
 {
   const char *secName;
 
-  SecurityCache *cache = getCache (st->getServer ());
+  SecurityCache *cache = getCache (st);
 
   if (!cache)
     return NULL;
 
-  secName = st->getVhost () ? st->getVhost ()->getHashedData ("SECURITY_FILE_NAME") : NULL;
-
-  if (!secName)
-    secName = st->getServer () ? st->getServer ()->getHashedData ("SECURITY_FILE_NAME") : NULL;
-
-  if (!secName)
-    secName = ".security.xml";
+  secName = st->getHashedData ("SECURITY_FILE_NAME", MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, ".security.xml");
 
   return cache->getParser (*(st->getResource ()), *(st->getSysDirectory ()), false, secName);
 }

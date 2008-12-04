@@ -420,7 +420,10 @@ int Http::getFilePermissions(string& filename, string& directory, string& file,
 
     if (FilesUtility::isLink (td->filenamePath.c_str()))
     {
-      const char *perm = td->connection->host->getHashedData("FOLLOW_LINKS");
+      const char *perm = td->securityToken.getHashedData ("FOLLOW_LINKS", MYSERVER_VHOST_CONF |
+							  MYSERVER_SERVER_CONF, "NO");
+
+
       if(!perm || strcmpi(perm, "YES"))
         return raiseHTTPError(401);
     }
@@ -1220,23 +1223,19 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 
         if(documentRoot.length())
         {
-
-          const char *useHomeDir = td->connection-> host ?
-            td->connection->host->getHashedData("USE_HOME_DIRECTORY") : 0;
-
-          const char *homeDir = td->connection-> host ?
-            td->connection->host->getHashedData("HOME_DIRECTORY") : 0;
-
-          if(homeDir == 0)
-            homeDir = "public_html";
-
-          if(useHomeDir == 0 || strcmpi(useHomeDir, "YES"))
-            return raiseHTTPError(404);
+          const char *useHomeDir = td->securityToken.getHashedData ("USE_HOME_DIRECTORY", MYSERVER_VHOST_CONF |
+								    MYSERVER_SERVER_CONF, "YES");
 
 
-          td->vhostDir.assign(documentRoot);
-          td->vhostDir.append("/");
-          td->vhostDir.append(homeDir);
+	  const char *homeDir = td->securityToken.getHashedData ("HOME_DIRECTORY", MYSERVER_VHOST_CONF |
+								 MYSERVER_SERVER_CONF, "public_html");
+
+	  if (strcmpi (useHomeDir, "YES"))
+	    return raiseHTTPError (404);
+
+          td->vhostDir.assign (documentRoot);
+          td->vhostDir.append ("/");
+          td->vhostDir.append (homeDir);
 
           if(!td->request.uriEndsWithSlash && !(td->request.uri.length() - pos))
           {
@@ -1258,7 +1257,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
        *virtual host A value of zero means no limit.
        */
       {
-        const char* val = a->host->getHashedData("MAX_CONNECTIONS");
+        const char* val = td->securityToken.getHashedData ("MAX_CONNECTIONS", MYSERVER_VHOST_CONF |
+							   MYSERVER_SERVER_CONF, NULL);
+
         if(val)
         {
           u_long limit = (u_long)atoi(val);
@@ -1558,8 +1559,8 @@ int Http::raiseHTTPError(int ID)
     int useMessagesFiles = 1;
     HttpRequestHeader::Entry *host = td->request.other.get("Host");
     HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
-    const char *useMessagesVal = td->connection->host ?
-      td->connection->host->getHashedData("USE_ERROR_FILE") : 0;
+    const char *useMessagesVal = td->securityToken.getHashedData ("USE_ERROR_FILE", MYSERVER_VHOST_CONF |
+								  MYSERVER_SERVER_CONF, NULL);
 
     if(useMessagesVal)
     {
@@ -1653,8 +1654,9 @@ int Http::raiseHTTPError(int ID)
 
     /*! Send only the header (and the body if specified). */
     {
-      const char* value = td->connection->host ? 
-        td->connection->host->getHashedData("ERRORS_INCLUDE_BODY") : 0;
+      const char* value = td->securityToken.getHashedData ("USE_ERROR_FILE", MYSERVER_VHOST_CONF |
+							   MYSERVER_SERVER_CONF, NULL);
+
       if(value && !strcmpi(value, "NO"))
       {
         errorBodyLength = 0;
