@@ -1,9 +1,0 @@
-TODO List for PyGTK based MyServer configuration tool.
-
-* Assigning proper names to widgets
-
-* Setting remaining widgets signals
-
-* Binding signals with events
-
-* Implementing events

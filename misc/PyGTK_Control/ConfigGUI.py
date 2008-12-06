@@ -185,7 +185,9 @@ class ConfigGUIGTK:
                 "on_btnRemoveHost_clicked" : \
                 self.btnRemoveHost_clicked,
                 "on_btnRemoveIP_clicked" : \
-                self.btnRemoveIP_clicked
+                self.btnRemoveIP_clicked,
+                "on_save_activate" : \
+                self.serialize_config
                 }
         # Connect signals
         self.wTree.signal_autoconnect (dic)
@@ -294,12 +296,24 @@ class ConfigGUIGTK:
         """ Helper/alias function returns widgetwith specified name """
         return self.wTree.get_widget(name)
 
-    def serialize_config(self):
+    def save_dict_to_xml(self, d, filename="settings.xml"):
+        """ Saves dictionary (with settings) to a XML file"""
+        out = ""
+        for k, v in d.iteritems():
+            out += "<" + k.__str__() + ">"
+            out += v.__str__()
+            out += "</" + k.__str__() + ">\n"
+
+        FILE = open(filename,"w")
+        FILE.writelines(out)
+        FILE.close()
+
+    def serialize_config(self, widget):
         """ This function serializes the configurtion settings
-        and returns a dictionary with pairs:
+        and creates a dictionary with pairs:
         name_of_setting: vlue """
         # TODO: Change the combobox to have default prop
-        settings = { 'LANGUGE' : self.get("combobox2").get_active_text().partition(".")[0].capitalize(), \
+        settings = { 'LANGUGE' : self.get("combobox2").get_active_text().split(".")[0].capitalize(), \
                      'VERBOSITY' :  self.get("cbVerbosityLevel").get_active_text(), \
                      'NTHREADS_STATIC' : self.get("enAlwysActiveThreads").get_text(), \
                      'NTHREADS_MAX' : self.get("enMaximumNumberOfThreads").get_text(), \
@@ -333,7 +347,8 @@ class ConfigGUIGTK:
                      'CONTROL_ADMIN' : self.get("entry11").get_text(), \
                      'CONTROL_PASSWORD' : self.get("entry12").get_text(), \
                       }
-        return settings
+        print settings
+        self.save_dict_to_xml(settings)
 
 
 def main():
