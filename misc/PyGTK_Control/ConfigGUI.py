@@ -45,6 +45,10 @@ class ConfigGUIGTK:
         if (self.window):
             self.window.connect("destroy", gtk.main_quit)
 
+        # Set defult values on comboboxes
+        self.wTree.get_widget("cbVerbosityLevel").set_active(0)
+        self.wTree.get_widget("combobox2").set_active(0)
+
         # Here we call the methods creating widgets with functionality
         self.create_treeview_for_default_filenames()
         self.create_treeview_for_host_names()
@@ -52,6 +56,7 @@ class ConfigGUIGTK:
         self.create_a_combobox_for_connection_types()
         self.create_treeview_with_MIME_types()
         self.bind_signals()
+
 
     def create_treeview_for_default_filenames(self):
         """ Create treeview widget structure (one column) for default filenames """
@@ -312,7 +317,6 @@ class ConfigGUIGTK:
         """ This function serializes the configurtion settings
         and creates a dictionary with pairs:
         name_of_setting: vlue """
-        # TODO: Change the combobox to have default prop
         settings = { 'LANGUGE' : self.get("combobox2").get_active_text().split(".")[0].capitalize(), \
                      'VERBOSITY' :  self.get("cbVerbosityLevel").get_active_text(), \
                      'NTHREADS_STATIC' : self.get("enAlwysActiveThreads").get_text(), \
@@ -347,8 +351,13 @@ class ConfigGUIGTK:
                      'CONTROL_ADMIN' : self.get("entry11").get_text(), \
                      'CONTROL_PASSWORD' : self.get("entry12").get_text(), \
                       }
-        print settings
         self.save_dict_to_xml(settings)
+        dia = gtk.Dialog("Settings save")
+        dia.show()
+        dia.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
+        dia.set_default_response(gtk.RESPONSE_OK)
+        response = dia.run()
+        dia.destroy()
 
 
 def main():
