@@ -303,11 +303,12 @@ class ConfigGUIGTK:
 
     def save_dict_to_xml(self, d, filename="settings.xml"):
         """ Saves dictionary (with settings) to a XML file"""
-        out = ""
+        out = "<?xml version=\"1.0\"?>\n <!--MODIFY THE FILE ONLY IF YOU ARE SURE OF WHAT YOU ARE DOING--> \n <MYSERVER> \n"
         for k, v in d.iteritems():
             out += "<" + k.__str__() + ">"
             out += v.__str__()
             out += "</" + k.__str__() + ">\n"
+        out += "</MYSERVER>"
 
         FILE = open(filename,"w")
         FILE.writelines(out)
@@ -358,6 +359,8 @@ class ConfigGUIGTK:
         dia.set_default_response(gtk.RESPONSE_OK)
         response = dia.run()
         dia.destroy()
+
+
 
 
 def main():
