@@ -155,7 +155,7 @@ int ListenThreads::createServerAndListener(u_short port)
       serverSocketIPv6->socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
       if ( serverSocketIPv6->getHandle() == (FileHandle)INVALID_SOCKET )
       {
-        server->logWriteln(languageParser->getValue("ERR_OPENP"), MYSERVER_ERROR);
+        server->logWriteln(languageParser->getValue("ERR_OPENP"), MYSERVER_LOG_MSG_ERROR);
         delete serverSocketIPv6;
         serverSocketIPv6 = NULL;
       }
@@ -177,7 +177,7 @@ int ListenThreads::createServerAndListener(u_short port)
                                         (const char *)&optvalReuseAddr,
                                         sizeof(optvalReuseAddr))<0)
         {
-          server->logWriteln(languageParser->getValue("ERR_ERROR"), MYSERVER_ERROR);
+          server->logWriteln(languageParser->getValue("ERR_ERROR"), MYSERVER_LOG_MSG_ERROR);
           delete serverSocketIPv6;
           serverSocketIPv6 = NULL;
           //return 0;allow IPv6
@@ -187,7 +187,7 @@ int ListenThreads::createServerAndListener(u_short port)
                                         (const char *)&optvalReuseAddr,
                                         sizeof(optvalReuseAddr)) < 0)
         {
-          server->logWriteln(languageParser->getValue("ERR_ERROR"), MYSERVER_ERROR);
+          server->logWriteln(languageParser->getValue("ERR_ERROR"), MYSERVER_LOG_MSG_ERROR);
           delete serverSocketIPv6;
           serverSocketIPv6 = NULL;
           //return 0;allow IPv6
@@ -203,7 +203,7 @@ int ListenThreads::createServerAndListener(u_short port)
           if ( serverSocketIPv6->bind(&sockServerSocketIPv6,
                                       sizeof(sockaddr_in6)) != 0)
           {
-            server->logWriteln(languageParser->getValue("ERR_BIND"), MYSERVER_ERROR);
+            server->logWriteln(languageParser->getValue("ERR_BIND"), MYSERVER_LOG_MSG_ERROR);
             delete serverSocketIPv6;
             serverSocketIPv6 = NULL;
           }
