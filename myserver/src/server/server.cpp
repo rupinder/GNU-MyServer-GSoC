@@ -55,14 +55,6 @@ extern "C"
 }
 #include <sstream>
 
-#ifdef NOT_WIN
-#define LPINT int *
-#define INVALID_SOCKET -1
-#define WORD unsigned int
-#define BYTE unsigned char
-#define MAKEWORD(a, b) ((WORD) (((BYTE) (a)) | ((WORD) ((BYTE) (b))) << 8))
-#endif
-
 #if HAVE_IPV6
 const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
 #endif
@@ -241,7 +233,7 @@ int Server::loadLibraries()
   /* Startup the socket library.  */
   logWriteln(languageParser.getValue("MSG_ISOCK") );
 
-  if(startupSocketLib(MAKEWORD( 1, 1)) != 0)
+  if(Socket::startupSocketLib() != 0)
   {
     logWriteln( languageParser.getValue ("MSG_SERVER_CONF"), MYSERVER_LOG_MSG_ERROR);
     return 1;

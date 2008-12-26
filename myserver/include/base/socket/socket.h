@@ -61,11 +61,12 @@ typedef struct sockaddr_storage MYSERVER_SOCKADDR_STORAGE;
 typedef struct sockaddr_storage MYSERVER_SOCKADDRIN;
 typedef struct sockaddr_storage MYSERVER_SOCKADDR;
 typedef struct hostent MYSERVER_HOSTENT;
-int startupSocketLib(u_short);
 
 class Socket: public Stream
 {
 public:
+  static int startupSocketLib ();
+
 	void setServerSocket(Socket*);
 	Socket* getServerSocket();
 

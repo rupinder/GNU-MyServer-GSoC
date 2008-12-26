@@ -42,14 +42,14 @@ bool Socket::denyBlockingOperations = false;
 /*!
  *Source code to wrap the socket library to MyServer project.
  */
-int startupSocketLib(u_short ver)
+int Socket::startupSocketLib()
 {
 #ifdef WIN32
   /*!
    *Under windows we need to initialize the socket library before use it.
    */
   WSADATA wsaData;
-  return WSAStartup(ver, &wsaData);
+  return WSAStartup(MAKEWORD( 1, 1), &wsaData);
 #else
   return 0;
 #endif
