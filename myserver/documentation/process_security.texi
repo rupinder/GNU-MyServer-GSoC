@@ -37,3 +37,34 @@ process is forked to create it before any file or connection is
 active.
 
 It is enabled passing the @code{-f} switch to the myserver process.
+
+@section FastCGI/SCGI servers
+By default, FastCGI and SCGI servers are lazily initialized by
+MyServer on the first request to a resource that is handled trought
+these protocols.  In this case MyServer will initialize it using a
+random TCP port.
+There may be cases where a different configuration is needed and it is
+done using the @code{PROCESS_SERVER} directive inside the
+@file{myserver.xml} file.
+
+A @code{PROCESS_SERVER} entry makes it possible to access a specific
+FastCGI/SCGI configuration inside MIME types by its name.
+
+
+@example
+<PROCESS_SERVER>
+        <NAME>/opt/bin/fastcgi_server</NAME>
+        <DOMAIN>fastcgi</DOMAIN>
+        <HOST>localhost</HOST>
+        <PORT>2010</PORT>
+        <LOCAL>yes</LOCAL>
+</PROCESS_SERVER>
+@end example
+
+In the previous example a FastCGI server
+@code{/opt/bin/fastcgi_server} is created.  The @code{domain} must be
+"fastcgi" or "scgi", depending on the protocol to use.
+@code{LOCAL} specifies if the server is handled by myserver or it is
+already running, thus myserver will simply access and use it.  In this
+case @code{name} can be anything without any specific meaning.
+
