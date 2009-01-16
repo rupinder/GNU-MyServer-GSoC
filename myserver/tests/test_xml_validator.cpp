@@ -46,6 +46,10 @@ public:
   {
     string val("value");
     SecurityToken secToken;
+    secToken.setResource (&val);
+    secToken.setResource (&val);
+    secToken.setDirectory (&val);
+    secToken.setSysDirectory (&val);
     CPPUNIT_ASSERT_EQUAL(xmlValidator->getPermissionMaskImpl(&secToken, NULL, NULL), 0);
  
   }
@@ -53,6 +57,11 @@ public:
   void testGetPermissionMask()
   {
     SecurityToken secToken;
+    string val("value");
+    secToken.setResource (&val);
+    secToken.setDirectory (&val);
+    secToken.setSysDirectory (&val);
+
     CPPUNIT_ASSERT_EQUAL (xmlValidator->getPermissionMask (&secToken, (SecurityDomain**) NULL, NULL), 0);
     CPPUNIT_ASSERT_EQUAL (xmlValidator->getPermissionMask (&secToken, (list<SecurityDomain*>*) NULL, NULL), 0);
   }
