@@ -2,7 +2,7 @@ dnl GNU MySever configuration script
 dnl
 dnl GNU MyServer
 dnl
-dnl Copyright (C) 2002-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 2002-2009 Free Software Foundation, Inc.
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
 dnl the Free Software Foundation; either version 3 of the License, or
@@ -365,6 +365,7 @@ AC_CONFIG_FILES([
     include/base/sync/Makefile
     include/base/safetime/Makefile
     include/base/socket/Makefile
+    include/base/socket_pair/Makefile
     include/base/hash_map/Makefile
     include/base/dynamic_lib/Makefile
     include/base/process/Makefile
@@ -414,6 +415,7 @@ AC_CONFIG_FILES([
     src/base/sync/Makefile
     src/base/safetime/Makefile
     src/base/socket/Makefile
+    src/base/socket_pair/Makefile
     src/base/hash_map/Makefile
     src/base/dynamic_lib/Makefile
     src/base/process/Makefile
