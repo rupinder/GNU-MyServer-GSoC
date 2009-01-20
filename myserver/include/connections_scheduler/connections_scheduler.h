@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/sync/semaphore.h>
 #include <include/base/hash_map/hash_map.h>
 #include <include/base/thread/thread.h>
+#include <include/base/socket_pair/socket_pair.h>
 
 #include <list>
 #include <queue>
@@ -69,10 +70,10 @@ public:
     bool terminated; 
     bool terminate;
     Mutex* mutex;
-    FileHandle fd[2];
     event loopEvent;
     Server* server;
     ConnectionsScheduler* scheduler;
+    SocketPair socketPair;
   };
 
   ConnectionsScheduler(Server* server = NULL);

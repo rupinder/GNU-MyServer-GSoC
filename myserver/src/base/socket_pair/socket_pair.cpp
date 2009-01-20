@@ -206,3 +206,25 @@ void SocketPair::closeSecondHandle ()
   Socket sock (handles[1]);
   sock.close ();
 }
+
+/*!
+ *Configure the server socket blocking or not blocking.
+ *\param blocking The new blocking status.
+ */
+void SocketPair::setNonBlocking (bool notBlocking)
+{
+   Socket sock0 (handles[0]);
+   sock0.setNonBlocking (notBlocking);
+
+   Socket sock1 (handles[1]);
+   sock1.setNonBlocking (notBlocking);
+}
+
+/*!
+ *Return how many bytes can be read on the first socket.
+ */
+u_long SocketPair::bytesToRead()
+{
+  Socket sock (handles[0]);
+  return sock.bytesToRead ();
+}

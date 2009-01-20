@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PIPE_H
-#define PIPE_H
+#ifndef SOCKET_PAIR_H
+#define SOCKET_PAIR_H
 
 #include "stdafx.h"
 #include <include/filter/stream.h>
@@ -39,6 +39,8 @@ public:
 	virtual int close ();
 	void closeFirstHandle ();
 	void closeSecondHandle ();
+  void setNonBlocking (bool blocking);
+	virtual u_long bytesToRead();
 private:
 	FileHandle handles[2];
 };
