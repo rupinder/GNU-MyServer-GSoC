@@ -33,6 +33,9 @@ extern "C" {
 #include <string.h>
 #include <math.h>
 #include <time.h>
+
+#include <sys/socket.h>
+#include <sys/uio.h>
 }
 #else
 #include <windows.h>
@@ -227,4 +230,70 @@ u_long SocketPair::bytesToRead()
 {
   Socket sock (handles[0]);
   return sock.bytesToRead ();
+}
+
+/*!
+ *Read a file handle on the socket pair.
+ *\param fd The file descriptor to read.
+ *\return 0 on success.
+ */
+int SocketPair::readHandle (FileHandle* fd)
+{
+#ifdef WIN32
+  return -1;
+#else
+  struct msghdr mh;
+  struct cmsghdr cmh[2];
+  struct iovec iov;
+  int ret;
+  char tbuf[4];
+  mh.msg_name = 0;
+  mh.msg_namelen = 0;
+  mh.msg_iov = &iov;
+  mh.msg_iovlen = 1;
+  mh.msg_control = (caddr_t)&cmh[0];
+  mh.msg_controllen = sizeof (cmh[0]) * 2;
+  iov.iov_base = tbuf;
+  iov.iov_len = 4;
+  cmh[0].cmsg_len = sizeof (cmh[0]) + sizeof(int);
+  ret = recvmsg (handles[0], &mh, 0);
+  
+  if (ret < 0)
+    return ret;
+
+  *fd = *(FileHandle *)&cmh[1];
+
+  return 0;
+#endif
+}
+
+/*!
+ *Transmit a file descriptor on the socket.
+ *\param fd The file descriptor to transmit.
+ *\return 0 on success.
+ */
+int SocketPair::writeHandle (FileHandle fd)
+{
+#ifdef WIN32
+  return -1;
+#else
+  struct msghdr mh;
+  struct cmsghdr cmh[2];
+  struct iovec iov;
+  memset (&mh,0,sizeof (mh));
+  mh.msg_name = 0;
+  mh.msg_namelen = 0;
+  mh.msg_iov = &iov;
+  mh.msg_iovlen = 1;
+  mh.msg_control = (caddr_t)&cmh[0];
+  mh.msg_controllen = sizeof (cmh[0]) + sizeof (int);
+  mh.msg_flags = 0;
+  iov.iov_base = NULL;
+  iov.iov_len = (strlen ((const char*)iov.iov_base) + 1);
+  cmh[0].cmsg_level = SOL_SOCKET;
+  cmh[0].cmsg_type = SCM_RIGHTS;
+  cmh[0].cmsg_len = sizeof(cmh[0]) + sizeof(int);
+  *(int *)&cmh[1] = fd;
+  return sendmsg (handles[1], &mh, 0);
+#endif
 }

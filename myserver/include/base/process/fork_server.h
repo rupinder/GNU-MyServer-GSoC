@@ -53,6 +53,7 @@ class ForkServer
   u_short getPort (){return port;}
   bool isInitialized (){return initialized;}
   int generateListenerSocket (Socket &socket, u_short *port);
+
  private:
   Mutex serverLock;
   u_short port;

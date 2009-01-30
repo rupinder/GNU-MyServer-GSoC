@@ -41,6 +41,9 @@ public:
 	void closeSecondHandle ();
   void setNonBlocking (bool blocking);
 	virtual u_long bytesToRead();
+
+  int readHandle (FileHandle*);
+  int writeHandle (FileHandle);
 private:
 	FileHandle handles[2];
 };
