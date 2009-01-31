@@ -233,18 +233,27 @@ int Process::exec(StartProcInfo* spi, bool waitEnd)
           if (ret == -1)
             exit (1);
         }
-
-      // If stdOut is -1, pipe to /dev/null
+ 
       if ((long)spi->stdOut == -1)
         spi->stdOut = (FileHandle)open ("/dev/null", O_WRONLY);
+
+      if ((long)spi->stdError == -1)
+        spi->stdError = (FileHandle)open ("/dev/null", O_WRONLY);
+
       // map stdio to files
       ret = close(0); // close stdin
       if (ret == -1)
         exit (1);
-      ret = dup2(spi->stdIn, 0);
-      if (ret == -1)
-        exit (1);
-      ret = close(spi->stdIn);
+
+
+      if (spi->stdIn != -1)
+        {
+          ret = dup2(spi->stdIn, 0);
+          if (ret == -1)
+            exit (1);
+          ret = close(spi->stdIn);
+        }
+
       if (ret == -1)
         exit (1);
       ret = close (1); // close stdout

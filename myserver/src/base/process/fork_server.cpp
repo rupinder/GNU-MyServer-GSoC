@@ -1,6 +1,6 @@
 /*
   MyServer
-  Copyright (C) 2008 Free Software Foundation, Inc.
+  Copyright (C) 2008, 2009 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -18,6 +18,7 @@
 
 #include <include/base/process/fork_server.h>
 #include <include/base/process/process.h>
+#include <include/base/socket_pair/socket_pair.h>
 #include <include/base/pipe/pipe.h>
 
 #ifdef NOT_WIN
@@ -25,11 +26,38 @@
 #endif
 
 /*!
+ *Read a file descriptor from the specified socket.
+ *\param socket Socket to use.
+ *\param num Integer to write.
+ */
+int ForkServer::writeFd (SocketPair *socket, FileHandle fd)
+{
+
+  if (socket->writeHandle (fd))
+    return 1;
+
+  return 0;
+}
+
+/*!
+ *Write a file descriptor on the specified socket.
+ *\param socket Socket to use.
+ *\param num Integer to write.
+ */
+int ForkServer::readFd (SocketPair *socket, FileHandle *fd)
+{
+  if (socket->readHandle (fd))
+    return 1;
+
+  return 0;
+}
+
+/*!
  *Write an integer on the specified socket.
  *\param socket Socket to use.
  *\param num Integer to write.
  */
-int ForkServer::writeInt (Socket *socket, int num)
+int ForkServer::writeInt (SocketPair *socket, int num)
 {
   u_long nbw;
 
@@ -47,7 +75,7 @@ int ForkServer::writeInt (Socket *socket, int num)
  *\param str string to write.
  *\param len string length.
  */
-int ForkServer::writeString (Socket *socket, const char* str, int len)
+int ForkServer::writeString (SocketPair *socket, const char* str, int len)
 {
   u_long nbw;
 
@@ -70,7 +98,7 @@ int ForkServer::writeString (Socket *socket, const char* str, int len)
  *\param dest integer where write
  *\return 0 on success.
  */
-int ForkServer::readInt (Socket *sock, int *dest)
+int ForkServer::readInt (SocketPair *sock, int *dest)
 {
   u_long nbr;
   
@@ -91,7 +119,7 @@ int ForkServer::readInt (Socket *sock, int *dest)
  *\param out destination buffer pointer.
  *\return 0 on success.
  */
-int ForkServer::readString (Socket *sock, char **out)
+int ForkServer::readString (SocketPair *sock, char **out)
 {
   int len;
   u_long nbr;
@@ -101,15 +129,10 @@ int ForkServer::readString (Socket *sock, char **out)
       return -1;
     }
 
-  *out = new char[len];
+  *out = new char[len + 1];
+  (*out)[len] = '\0';
 
-  if (!len)
-    {
-      *out = NULL;
-      return 0;
-    }
-
-  if (sock->read (*out, len, &nbr) || nbr < len)
+  if (len && (sock->read (*out, len, &nbr) || nbr < len))
     {
       delete [] *out;
       return -1;      
@@ -121,59 +144,42 @@ int ForkServer::readString (Socket *sock, char **out)
 /*!
  *Handle a request on the socket.
  */
-int ForkServer::handleRequest (Socket sin, Socket sout, Socket *serverSock)
+int ForkServer::handleRequest (SocketPair *serverSock)
 {
 #ifdef NOT_WIN
-  int ret, flags, stdIn, stdOut, stdErr, gid, uid;
+  int ret, flags, stdIn = -1, stdOut = -1, stdErr = -1;
+  int gid, uid;
+  int stdInPort = 0;
   char *exec;
   char *cwd;
   char *arg;
   char *env;
 
-  if (readInt (&sin, &flags) ||
-      readInt (&sin, &stdIn) ||
-      readInt (&sin, &stdOut) ||
-      readInt (&sin, &stdErr) ||
-      readInt (&sin, &gid) ||
-      readInt (&sin, &uid))
-    {
-      return -1;     
-    }
-   
-  if (readString (&sin, &exec))
-    {
-      return -1;
-    }
+  readInt (serverSock, &flags);
 
-  if (readString (&sin, &cwd))
-    {
-      delete [] exec;
-      return -1;
-    }
+  if (flags & FLAG_USE_IN)
+    readFd (serverSock, &stdIn);
 
-  if (readString (&sin, &arg))
-    {
-      delete [] exec;
-      delete [] cwd;
-      return -1;
-    }
+  if (flags & FLAG_USE_OUT)
+    readFd (serverSock, &stdOut);
+  
+  if (flags & FLAG_USE_ERR)
+    readFd (serverSock, &stdErr);
+
+  readInt (serverSock, &gid);
+  readInt (serverSock, &uid);
+
+  readString (serverSock, &exec);
+  readString (serverSock, &cwd);
+
+  readString (serverSock, &arg);
+ 
   string argS (arg);
   
 
-  if (readString (&sin, &env))
-    {
-      delete [] exec;
-      delete [] cwd;
-      delete [] arg;
-      return -1;
-    }
-  
-  FileHandle stdHandles[3] = {flags & FLAG_USE_IN ? sin.getHandle () : -1,
-                              flags & FLAG_USE_OUT ? sout.getHandle () : -1,
-                              -1};
+  readString (serverSock, &env);
 
   Socket socketIn;
-  int stdInPort = 0;
 
   if (flags & FLAG_STDIN_SOCKET)
     {
@@ -184,124 +190,59 @@ int ForkServer::handleRequest (Socket sin, Socket sout, Socket *serverSock)
           delete [] exec;
           delete [] cwd;
           delete [] arg;
+          writeInt (serverSock, -1);
+          writeInt (serverSock, -1);
           return -1;
         }
       stdInPort = (int) stdInPortS;
 
-      stdHandles[0] = socketIn.getHandle ();
-      stdHandles[1] = stdHandles[2] = (FileHandle) -1;
+      stdIn = socketIn.getHandle ();
+      stdOut = stdErr = (FileHandle) -1;
     }
 
   StartProcInfo spi;
 
   spi.envString = (env && env[0]) ? env : NULL;
 
-  spi.stdIn = stdHandles[0];
-  spi.stdOut = stdHandles[1];
-  spi.stdError = stdHandles[2];
+  spi.stdIn = stdIn;
+  spi.stdOut = stdOut;
+  spi.stdError = stdErr;
 
   spi.cmd.assign (exec);
   spi.arg.assign (arg);
   spi.cwd.assign (cwd);
 
-  Pipe syncPipe;
-  syncPipe.create ();
-  /* spi.cmdLine is used only under Windows and 
-   * the fork server doesn't work there.  */
-  ret = fork ();
+  Process pi;
+  int pid = pi.exec (&spi, false);
 
-  if (ret)
-    {
-      u_long nbw;
-      writeInt (&sout, ret);
-      writeInt (&sout, stdInPort);
-
-      /* Synchronize with the child process.  It avoids that the
-       * child process starts to write on `sout' before the process
-       * information are sent back.  */
-      syncPipe.write ("1", 1, &nbw);
-      syncPipe.close ();
-    }
-
-  /* Code already present in process.cpp, refactoring needed.  */
-  if (ret == 0) // child
-    {
-      u_long nbr;
-      char syncB;
-      const char *envp[100];
-      const char *args[100];
-
-      /* The parent process sent an ack when the child can start 
-       * its execution.  */
-      syncPipe.read (&syncB, 1, &nbr);
-      syncPipe.close ();
-
-      /* Close the fork server descriptor in the child process.  */
-      serverSock->close ();
-
-      if (gid)
-        Process::setgid (gid);
-
-      if (uid)
-        Process::setuid (uid);
-     
-      if (Process::generateArgList (args, spi.cmd.c_str (), spi.arg))
-        exit (1);
-
-      if (Process::generateEnvString (envp, (char*) spi.envString))
-        exit (1);
-      
-      if (spi.cwd.length ())
-        {
-          ret = chdir ((const char*)(spi.cwd.c_str()));
-          if (ret == -1)
-            exit (1);
-        }
-      if ((long)spi.stdIn == -1)
-      {
-        spi.stdIn = (FileHandle)open ("/dev/null", O_RDONLY);
-      }
-
-      if ((long)spi.stdIn == -1 || flags & FLAG_STDIN_SOCKET)
-        sin.close ();
-
-      if ((long)spi.stdOut == -1)
-      {
-        spi.stdOut = (FileHandle)open ("/dev/null", O_WRONLY);
-        sout.close ();
-      }
-
-      ret = close(0);
-      if (ret == -1)
-        exit (1);
-      ret = dup2(spi.stdIn, 0);
-      if (ret == -1)
-        exit (1);
-      ret = close(spi.stdIn);
-      if (ret == -1)
-        exit (1);
-      ret = close (1);
-      if (ret == -1)
-        exit (1);
-    ret = dup2(spi.stdOut, 1);
-    if (ret == -1)
-      exit (1);
-    ret = close (spi.stdOut);
-    if (ret == -1)
-      exit (1);
-
-    execve ((const char*)args[0], 
-            (char* const*)args, (char* const*) envp);
-    exit (0);
-
-  }
+  writeInt (serverSock, pid);
+  writeInt (serverSock, stdInPort);
 
   delete [] exec;
   delete [] cwd;
   delete [] arg;
   delete [] env;
 
-  return ret == -1 ? -1 : 0;
+  if (flags & FLAG_USE_IN)
+    {
+      Socket s0 (stdIn);
+      s0.close ();
+    }
+
+  if (flags & FLAG_USE_OUT)
+    {
+      Socket s1 (stdOut);
+      s1.close ();
+    }
+  
+  if (flags & FLAG_USE_ERR)
+    {
+      Socket s0 (stdIn);
+      s0.close ();
+    }
+
+
+  return 0;
 #endif
   return 0;
 }
@@ -313,7 +254,7 @@ int ForkServer::handleRequest (Socket sin, Socket sout, Socket *serverSock)
  *\param socket Socket where wait for new connections.
  *\return 0 on success.
  */
-int ForkServer::forkServerLoop (Socket *socket)
+int ForkServer::forkServerLoop (SocketPair *socket)
 {
 #ifdef NOT_WIN
   for (;;)
@@ -325,38 +266,18 @@ int ForkServer::forkServerLoop (Socket *socket)
           MYSERVER_SOCKADDR_STORAGE sockaddr;
           int len = sizeof (sockaddr);
           
-          if (!socket->dataOnRead(5, 0))
+          if (socket->read (&command, 1, &nbr))
             continue;
-          
-          Socket sin = socket->accept (&sockaddr, &len);
-          Socket sout = socket->accept (&sockaddr, &len);
-          
-          //if (sin.getHandle () == -1 || sout.getHandle ())
-          //  {
-          //    continue;
-          //  }
-          
-          if (sin.read (&command, 1, &nbr))
-            {
-              sin.shutdown (2);
-              sin.close ();
-              sout.shutdown (2);
-              sout.close ();
-              continue;
-            }
-        
+
           switch (command)
             {
             case 'e': //exit process
               exit (0);
               return 0;
             case 'r':
-              if (handleRequest (sin, sout, socket))
+              if (handleRequest (socket))
                 {
-                  sin.shutdown (2);
-                  sin.close ();
-                  sout.shutdown (2);
-                  sout.close ();
+                  continue;
                 }
             }
         }
@@ -373,78 +294,58 @@ int ForkServer::forkServerLoop (Socket *socket)
 }
 
 /*!
- *Get a connection to the fork server on the specified sockets.
- *
- *\param sin Socket where obtain the input connection.
- *\param sout Socket where obtain the output connection.
- *\return 0 on success.
- */
-int ForkServer::getConnection (Socket *sin, Socket *sout)
-{
-  int len = sizeof(sockaddr_in);
-  MYSERVER_SOCKADDR_STORAGE sockaddr = { 0 };
-  ((sockaddr_in*)(&sockaddr))->sin_family = AF_INET;
-  ((sockaddr_in*)(&sockaddr))->sin_addr.s_addr = htonl (INADDR_LOOPBACK);
-  ((sockaddr_in*)(&sockaddr))->sin_port = htons (port);
-
-  sin->socket (AF_INET, SOCK_STREAM, 0);
-  sout->socket (AF_INET, SOCK_STREAM, 0);
-  
-  serverLock.lock ();
-
-  int ret = sin->connect ((MYSERVER_SOCKADDR*)&sockaddr, len);
-  ret |= sout->connect ((MYSERVER_SOCKADDR*)&sockaddr, len) ;
-
-  serverLock.unlock ();
-
-  return ret;
-}
-
-
-/*!
  *Execute a process using the fork server.
  *\param spi New process information.
- *\param sin Socket to use for the process stdin.
- *\param sout Socket to use for the process stdout.
  *\param flags Flags.
  *\param pid The new process ID.
  *\param port if FLAG_STDIN_SOCKET was specified.
  */
-int ForkServer::executeProcess (StartProcInfo *spi, Socket *sin, Socket *sout, 
+int ForkServer::executeProcess (StartProcInfo *spi, 
                                 int flags, int *pid, int *port)
 {
   u_long nbw;
   int len = 0;
   const char * env = (const char *) spi->envString;
 
-  if (getConnection (sin, sout))
+  serverLock.lock ();
+
+  try
     {
-      return 1;
+      socket.write ("r", 1, &nbw);
+      
+      writeInt (&socket, flags);
+      
+      if (flags & FLAG_USE_IN)
+        writeFd (&socket, spi->stdIn);
+      
+      if (flags & FLAG_USE_OUT)
+        writeFd (&socket, spi->stdOut);
+      
+      if (flags & FLAG_USE_ERR)
+        writeFd (&socket, spi->stdError);
+      
+      writeInt (&socket, spi->gid);
+      writeInt (&socket, spi->uid);
+      
+      writeString (&socket, spi->cmd.c_str (), spi->cmd.length ());
+      writeString (&socket, spi->cwd.c_str (), spi->cwd.length ());
+      writeString (&socket, spi->arg.c_str (), spi->arg.length ());
+      
+      if (env)
+        for (len = 0; env[len] != '\0' || env[len + 1] != '\0' ; len++);
+      
+      writeString (&socket, env, len);
+      
+      readInt (&socket, pid);
+      readInt (&socket, port);
+    }
+  catch (exception &e)
+    {
+      serverLock.unlock ();
+      throw e;
     }
 
-  sin->write ("r", 1, &nbw);
-
-  writeInt (sin, flags);
-  writeInt (sin, spi->stdIn);
-  writeInt (sin, spi->stdOut);
-  writeInt (sin, spi->stdError);
-
-  writeInt (sin, spi->gid);
-  writeInt (sin, spi->uid);
-
-  writeString (sin, spi->cmd.c_str (), spi->cmd.length () + 1);
-  writeString (sin, spi->cwd.c_str (), spi->cwd.length () + 1);
-  writeString (sin, spi->arg.c_str (), spi->arg.length () + 1);
-
-  if (env)
-    {
-      for (len = 0; env[len] != '\0' || env[len + 1] != '\0' ; len++);
-    }
-
-  writeString (sin, env, len + 1);
-
-  readInt (sout, pid);
-  readInt (sout, port);
+  serverLock.unlock ();
 
   return 0;
 }
@@ -454,20 +355,17 @@ int ForkServer::executeProcess (StartProcInfo *spi, Socket *sin, Socket *sout,
  */
 void ForkServer::killServer ()
 {
-  Socket sin;
-  Socket sout;
   u_long nbw;
 
-  if (getConnection (&sin, &sout))
-    {
-      return;
-    }
+  serverLock.lock ();
 
-  sin.write ("e", 1, &nbw);
-  sin.shutdown (2);
-  sout.shutdown (2);
-  sin.close ();
-  sout.close ();
+  socket.write ("e", 1, &nbw);
+
+  serverLock.unlock ();
+
+  serverLock.destroy ();
+
+  socket.close ();
 }
                   
 /*!
@@ -478,13 +376,10 @@ void ForkServer::killServer ()
 int ForkServer::startForkServer ()
 {
 #ifdef NOT_WIN
-  Socket socket;
-
-  if (generateListenerSocket (socket, &port))
-    return 1;
-
-  if (socket.listen (2))
-    return -1;
+  socket.create ();
+  serverLock.init ();
+  SocketPair inverted;
+  socket.inverted (inverted);
 
   switch (fork ())
     {
@@ -492,12 +387,14 @@ int ForkServer::startForkServer ()
       return -1;
     case 0:
       initialized = true;
-      forkServerLoop (&socket);
+      socket.closeFirstHandle ();
+      forkServerLoop (&inverted);
+      exit (1);
       break;
 
     default:
+      socket.closeSecondHandle ();
       initialized = true;
-      socket.close ();
       break;
     }  
 #endif

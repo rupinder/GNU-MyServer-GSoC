@@ -1,6 +1,6 @@
 /*
   MyServer
-  Copyright (C) 2008 Free Software Foundation, Inc.
+  Copyright (C) 2008, 2009 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -17,6 +17,7 @@
 
 
 #include <unistd.h>
+#include <include/base/socket_pair/socket_pair.h>
 #include <include/base/socket/socket.h>
 #include <include/base/sync/mutex.h>
 
@@ -28,9 +29,10 @@ struct StartProcInfo;
 class ForkServer
 {
  public:
-  const static int FLAG_USE_OUT = 1;
-  const static int FLAG_USE_IN = 2;
-  const static int FLAG_STDIN_SOCKET = 4;
+  const static int FLAG_USE_IN = 1;
+  const static int FLAG_USE_OUT = 2;
+  const static int FLAG_USE_ERR = 4;
+  const static int FLAG_STDIN_SOCKET = 8;
 
   ForkServer () {initialized = false; serverLock.init ();}
   ~ForkServer () {serverLock.destroy ();}
@@ -38,23 +40,28 @@ class ForkServer
   void killServer ();
   int startForkServer ();
 
-  int writeInt (Socket *socket, int num);
-  int writeString (Socket *socket, const char* str, int len);
-  int readInt (Socket *sock, int *dest);
-  int readString (Socket *sock, char **out);
+  int writeInt (SocketPair *socket, int num);
+  int writeString (SocketPair *socket, const char* str, int len);
+  int readInt (SocketPair *sock, int *dest);
+  int readString (SocketPair *sock, char **out);
 
-  int handleRequest (Socket sin, Socket sout, Socket *serverSock);
-  int forkServerLoop (Socket *socket);
+  int writeFd (SocketPair *socket, FileHandle fd);
+  int readFd (SocketPair *sock, FileHandle *fd);
 
-  int getConnection (Socket *socket, Socket *socket2);
-  int executeProcess (StartProcInfo *spi, Socket *sin, Socket *sout, 
-                      int flags, int *pid, int *port);
+  int handleRequest (SocketPair *serverSock);
+  int forkServerLoop (SocketPair *socket);
+
+  int executeProcess (StartProcInfo *spi, int flags,
+                      int *pid, int *port);
 
   u_short getPort (){return port;}
   bool isInitialized (){return initialized;}
   int generateListenerSocket (Socket &socket, u_short *port);
 
  private:
+
+  SocketPair socket;
+
   Mutex serverLock;
   u_short port;
   bool initialized;

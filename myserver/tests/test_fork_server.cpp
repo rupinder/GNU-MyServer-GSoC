@@ -21,6 +21,7 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
+#include <include/base/pipe/pipe.h>
 
 #include <exception>
 #include <string.h>
@@ -30,8 +31,8 @@ using namespace std;
 class TestForkServer : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( TestForkServer );
-  CPPUNIT_TEST (testStartKillLoop);
   CPPUNIT_TEST( testExecuteProcess );
+  CPPUNIT_TEST (testStartKillLoop);
   CPPUNIT_TEST_SUITE_END();
 
   ForkServer *fs;
@@ -58,8 +59,6 @@ public:
 
     CPPUNIT_ASSERT_EQUAL (fs->isInitialized (), true);
 
-    CPPUNIT_ASSERT (fs->getPort ());
-
     fs->killServer ();
 #endif
   }
@@ -72,32 +71,34 @@ public:
         int pid = 0;
         int port = 0;
         StartProcInfo spi;
-        Socket sin, sout;
         char buffer [32];
         const char *msg = "ForkServer";
         u_long nbr;
         int ret = fs->startForkServer ();
-        CPPUNIT_ASSERT_EQUAL (ret, 0);
 
-        spi.stdIn = spi.stdOut = spi.stdError = -1;
+        Pipe pipe;
+        pipe.create();
     
+        spi.stdIn = spi.stdError = -1;
+        spi.stdOut =  pipe.getWriteHandle();
+
         spi.cmd.assign ("/bin/echo");
         spi.arg.assign (msg);
         spi.cwd.assign ("");
+        spi.envString = NULL;
 
-        ret = fs->executeProcess (&spi, &sin, &sout, ForkServer::FLAG_USE_OUT, &pid, &port);
-        sin.shutdown(2);
-        sin.close ();
+        ret = fs->executeProcess (&spi, ForkServer::FLAG_USE_OUT, &pid, &port);
 
         CPPUNIT_ASSERT_EQUAL (ret, 0);
-    
-        ret = sout.read (buffer, 32, &nbr);
+        pipe.closeWrite ();
 
-        sout.close();
+        ret = pipe.read (buffer, 32, &nbr);
 
         CPPUNIT_ASSERT_EQUAL (ret, 0);
 
         CPPUNIT_ASSERT_EQUAL (strncmp (buffer, msg, strlen (msg)), 0);
+
+        pipe.closeRead ();
 
         fs->killServer ();
 #endif

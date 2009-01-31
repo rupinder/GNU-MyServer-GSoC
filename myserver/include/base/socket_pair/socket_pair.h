@@ -21,12 +21,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "stdafx.h"
 #include <include/filter/stream.h>
+#include <include/base/socket/socket.h>
 #include <string>
 
 using namespace std;
 
 
-class SocketPair : public Stream
+class SocketPair : public Socket
 {
 public:
 	SocketPair ();
@@ -34,17 +35,15 @@ public:
 	FileHandle getFirstHandle ();
 	FileHandle getSecondHandle ();
 	void inverted (SocketPair&);
-  virtual int read (char* buffer, u_long len, u_long *nbr);
-  virtual int write (const char* buffer, u_long len, u_long *nbw);
 	virtual int close ();
 	void closeFirstHandle ();
 	void closeSecondHandle ();
   void setNonBlocking (bool blocking);
-	virtual u_long bytesToRead();
 
   int readHandle (FileHandle*);
   int writeHandle (FileHandle);
-private:
+
+protected:
 	FileHandle handles[2];
 };
 #endif

@@ -70,7 +70,13 @@ int SocketPair::create ()
   int protocol = 0;
 
 #ifndef WIN32
-  return socketpair (af, type, protocol, (int*)handles);
+  int ret = socketpair (af, type, protocol, (int*)handles);
+
+  if (ret == 0)
+    socketHandle = handles[0];
+
+  return ret;
+
 #else
   struct sockaddr_in addr;
   SOCKET listener;
@@ -117,6 +123,8 @@ int SocketPair::create ()
       if ((handles[1] = accept (listener, NULL, NULL)) == INVALID_SOCKET)
         break;
     
+      socketHandle = handles[0];
+
       close (listener);
       return 0;
     } while (0);
@@ -158,27 +166,8 @@ void SocketPair::inverted (SocketPair& inverted)
 {
   inverted.handles[0] = handles[1];
   inverted.handles[1] = handles[0];
-}
 
-/*!
- *Read using the first handle.
- *\see Stream#read.
- */
-int SocketPair::read (char* buffer, u_long len, u_long *nbr)
-{
-  Socket sock (handles[0]);
-  return sock.read (buffer, len, nbr);
-
-}
-
-/*!
- *Write using the first handle.
- *\see Stream#write.
- */
-int SocketPair::write (const char* buffer, u_long len, u_long *nbw)
-{
-  Socket sock (handles[0]);
-  return sock.write (buffer, len, nbw);
+  inverted.socketHandle = handles[1];
 }
 
 /*!
@@ -224,15 +213,6 @@ void SocketPair::setNonBlocking (bool notBlocking)
 }
 
 /*!
- *Return how many bytes can be read on the first socket.
- */
-u_long SocketPair::bytesToRead()
-{
-  Socket sock (handles[0]);
-  return sock.bytesToRead ();
-}
-
-/*!
  *Read a file handle on the socket pair.
  *\param fd The file descriptor to read.
  *\return 0 on success.
@@ -257,7 +237,7 @@ int SocketPair::readHandle (FileHandle* fd)
   iov.iov_len = 4;
   cmh[0].cmsg_len = sizeof (cmh[0]) + sizeof(int);
   ret = recvmsg (handles[0], &mh, 0);
-  
+
   if (ret < 0)
     return ret;
 
@@ -280,6 +260,7 @@ int SocketPair::writeHandle (FileHandle fd)
   struct msghdr mh;
   struct cmsghdr cmh[2];
   struct iovec iov;
+  char tbuf[4];
   memset (&mh,0,sizeof (mh));
   mh.msg_name = 0;
   mh.msg_namelen = 0;
@@ -288,12 +269,12 @@ int SocketPair::writeHandle (FileHandle fd)
   mh.msg_control = (caddr_t)&cmh[0];
   mh.msg_controllen = sizeof (cmh[0]) + sizeof (int);
   mh.msg_flags = 0;
-  iov.iov_base = NULL;
-  iov.iov_len = (strlen ((const char*)iov.iov_base) + 1);
+  iov.iov_base = tbuf;
+  iov.iov_len = 4;
   cmh[0].cmsg_level = SOL_SOCKET;
   cmh[0].cmsg_type = SCM_RIGHTS;
   cmh[0].cmsg_len = sizeof(cmh[0]) + sizeof(int);
   *(int *)&cmh[1] = fd;
-  return sendmsg (handles[1], &mh, 0);
+  return sendmsg (handles[0], &mh, 0);
 #endif
 }
