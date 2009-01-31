@@ -33,6 +33,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 struct StartProcInfo
 {
+  StartProcInfo ()
+  {
+    gid = uid = 0;
+    envString = NULL;
+    handlesToClose = NULL;
+  }
+
 	/*! STDIN file for new process.  */
 	FileHandle stdIn;	
 	
@@ -57,11 +64,9 @@ struct StartProcInfo
 
 	void *envString;
 
-  StartProcInfo ()
-  {
-    gid = uid = 0;
-    envString = NULL;
-  }
+  /*! Pointer to a NULL terminated array of 
+   *  file pointers to close.  */
+  FileHandle *handlesToClose; 
 };
 
 class Process

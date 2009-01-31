@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -218,7 +218,7 @@ int Process::exec(StartProcInfo* spi, bool waitEnd)
 
       if (spi->uid)
         Process::setuid (spi->uid);
-      
+
 
       if (generateArgList (args, spi->cmd.c_str (), spi->arg))
         exit (1);
@@ -229,8 +229,7 @@ int Process::exec(StartProcInfo* spi, bool waitEnd)
       // change to working dir
       if (spi->cwd.length ())
         {
-          ret = chdir ((const char*)(spi->cwd.c_str()));
-          if (ret == -1)
+          if (chdir ((const char*)(spi->cwd.c_str())) == -1)
             exit (1);
         }
  
@@ -241,36 +240,45 @@ int Process::exec(StartProcInfo* spi, bool waitEnd)
         spi->stdError = (FileHandle)open ("/dev/null", O_WRONLY);
 
       // map stdio to files
-      ret = close(0); // close stdin
-      if (ret == -1)
+      if (close(0) == -1) // close stdin
         exit (1);
-
 
       if (spi->stdIn != -1)
         {
-          ret = dup2(spi->stdIn, 0);
-          if (ret == -1)
+          if (dup2 (spi->stdIn, 0) == -1)
             exit (1);
-          ret = close(spi->stdIn);
+          
+          if (close (spi->stdIn) == -1)
+            exit (1);
         }
 
-      if (ret == -1)
+      if (close (1) == -1) // close stdout
         exit (1);
-      ret = close (1); // close stdout
-      if (ret == -1)
+
+      if (dup2 (spi->stdOut, 1) == -1)
         exit (1);
-    ret = dup2(spi->stdOut, 1);
-    if (ret == -1)
-      exit (1);
-    ret = close (spi->stdOut);
-    if (ret == -1)
-      exit (1);
-    //close(2); // close stderr
-    //dup2((int)spi->stdError, 2);
-    // Run the script
-    ret = execve ((const char*)args[0], 
-                 (char* const*)args, (char* const*) envp);
-    exit (0);
+
+      if (close (2) == -1) // close stderr
+        exit (1);
+
+      if (dup2 (spi->stdError, 1) == -1)
+        exit (1);
+      
+      if (spi->handlesToClose)
+        {
+          FileHandle* h = spi->handlesToClose;
+          while (*h)
+            {
+              if (close (*h) == -1)
+                exit (1);
+              h++;
+            }
+        }
+      // Run the script
+      execve ((const char*)args[0], 
+              (char* const*)args, (char* const*) envp);
+
+    exit (1);
 
   }
 
