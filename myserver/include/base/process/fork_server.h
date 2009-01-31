@@ -52,7 +52,8 @@ class ForkServer
   int forkServerLoop (SocketPair *socket);
 
   int executeProcess (StartProcInfo *spi, int flags,
-                      int *pid, int *port);
+                      int *pid, int *port, 
+                      bool waitEnd = false);
 
   u_short getPort (){return port;}
   bool isInitialized (){return initialized;}

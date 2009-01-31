@@ -269,7 +269,24 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
 
   /* Execute the CGI process. */
   {
-    if( cgiProc.exec (&spi) == -1)
+    int ret;
+    if (Process::getForkServer ()->isInitialized ())
+      {
+        int pid;
+        int port;
+
+        ret = Process::getForkServer ()->executeProcess (&spi, 
+                                                         ForkServer::FLAG_USE_IN | 
+                                                         ForkServer::FLAG_USE_OUT | 
+                                                         ForkServer::FLAG_USE_ERR, 
+                                                         &pid, 
+                                                         &port);
+        cgiProc.setPid (pid);
+      }
+    else
+      ret = cgiProc.exec (&spi);
+
+    if( ret == -1)
     {
       stdInFile.close();
       stdOutFile.close();
@@ -277,7 +294,7 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
                                        ("Cgi: Error in the CGI execution");
       chain.clearAllFilters(); 
       return td->http->raiseHTTPError(500);
-    }
+      }
     /* Close the write stream of the pipe on the server.  */
     stdOutFile.closeWrite();  
   }

@@ -23,6 +23,7 @@
 
 #ifdef NOT_WIN
 #include <unistd.h>
+#include <sys/wait.h>
 #endif
 
 /*!
@@ -32,7 +33,6 @@
  */
 int ForkServer::writeFd (SocketPair *socket, FileHandle fd)
 {
-
   if (socket->writeHandle (fd))
     return 1;
 
@@ -208,6 +208,9 @@ int ForkServer::handleRequest (SocketPair *serverSock)
   spi.stdOut = stdOut;
   spi.stdError = stdErr;
 
+  spi.uid = uid;
+  spi.gid = gid;
+
   spi.cmd.assign (exec);
   spi.arg.assign (arg);
   spi.cwd.assign (cwd);
@@ -225,23 +228,13 @@ int ForkServer::handleRequest (SocketPair *serverSock)
   delete [] env;
 
   if (flags & FLAG_USE_IN)
-    {
-      Socket s0 (stdIn);
-      s0.close ();
-    }
+    close (stdIn);
 
   if (flags & FLAG_USE_OUT)
-    {
-      Socket s1 (stdOut);
-      s1.close ();
-    }
+    close (stdOut);
   
   if (flags & FLAG_USE_ERR)
-    {
-      Socket s0 (stdIn);
-      s0.close ();
-    }
-
+    close (stdErr);
 
   return 0;
 #endif
@@ -300,10 +293,18 @@ int ForkServer::forkServerLoop (SocketPair *socket)
  *\param flags Flags.
  *\param pid The new process ID.
  *\param port if FLAG_STDIN_SOCKET was specified.
+ *\param waitEnd If true `executeProcess' will wait until
+ *the process terminates.
  */
 int ForkServer::executeProcess (StartProcInfo *spi, 
-                                int flags, int *pid, int *port)
+                                int flags, 
+                                int *pid, 
+                                int *port,
+                                bool waitEnd)
 {
+#ifdef WIN32
+  return 0;
+#else
   u_long nbw;
   int len = 0;
   const char * env = (const char *) spi->envString;
@@ -348,7 +349,14 @@ int ForkServer::executeProcess (StartProcInfo *spi,
 
   serverLock.unlock ();
 
+  if (waitEnd)
+    {
+      return waitpid (*pid, NULL, 0);
+    }
+  
   return 0;
+#endif
+
 }
 
 /*!
