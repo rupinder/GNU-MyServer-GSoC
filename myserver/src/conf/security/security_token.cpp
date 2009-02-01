@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002-2008 Free Software Foundation, Inc.
+Copyright (C) 2002-2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -43,7 +43,7 @@ void SecurityToken::reset ()
   done = false;
   server = NULL;
   vhost = NULL;
-
+  mimeRecord = NULL;
   directory = NULL;
   sysdirectory = NULL;
   resource = NULL;
@@ -69,7 +69,15 @@ const char* SecurityToken::getHashedData (const char* name, int domains, const c
 
     if (ret)
       return ret->c_str ();
+  }
 
+  if (mimeRecord && (domains & MYSERVER_MIME_CONF))
+  {
+    string strName (name);
+    const char *ret = mimeRecord->getHashedData (strName);
+
+    if (ret)
+      return ret;
   }
 
   if (vhost && (domains & MYSERVER_VHOST_CONF))

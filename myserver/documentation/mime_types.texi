@@ -11,6 +11,7 @@ You can modify the MIME types used by MyServer by modifying the file
 <MIME mime="text/html" handler="RUNCGI" param="/usr/bin/perl" selfExecuted="NO">
 <FILTER value="gzip"/>
 <EXTENSION value="pl"/>
+<DEFINE name="http.error.file.404" value="404.html"/>
 </MIME>
 @end example
 
@@ -46,6 +47,10 @@ pass through the filter before being sent to the user.
 In the example above, the data would be sent gzipped to the user.
 It is possible to specify multiple filters for the same MIME type,
 they will be applied in the specified order.
+
+@code{<DEFINE>} It defines a new value for a variable, take a look
+here @xref{Security files} for more details on the @code{<DEFINE>}
+element.
 
 The same MIME type can have several extensions, you will need to
 specify a different @code{<EXTENSION>} element for each extension.

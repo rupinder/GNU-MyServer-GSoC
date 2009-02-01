@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -28,17 +28,21 @@ using namespace std;
 
 class Server;
 class Vhost;
+struct MimeRecord;
 
 enum SECURITY_RING
 {
   /*! Security file configuration.  */
-  MYSERVER_SECURITY_CONF     =	(1<<0),
+  MYSERVER_SECURITY_CONF = (1 << 0),
 
   /*! Virtual host configuration.  */
-  MYSERVER_VHOST_CONF	  = (1<<1),
+  MYSERVER_VHOST_CONF = (1 << 1),
+
+  /*! Mime type.  */
+  MYSERVER_MIME_CONF = (1 << 2),
 
   /*! Global server configuration. */
-  MYSERVER_SERVER_CONF  = (1<<2),
+  MYSERVER_SERVER_CONF = (1 << 3),
 };
 
 class SecurityToken
@@ -175,6 +179,16 @@ public:
     vhost = v;
   }
 
+  MimeRecord *getMime ()
+  {
+    return mimeRecord;
+  }
+
+  void setMime (MimeRecord *mr)
+  {
+    mimeRecord = mr;
+  }
+
 private:
   /*! User to check for.  */
   string user;
@@ -214,10 +228,13 @@ private:
   bool done;
 
   /*! Server instance.  */
-  Server* server;
+  Server *server;
 
   /*! VHost.  */
-  Vhost* vhost;
+  Vhost *vhost;
+
+  MimeRecord *mimeRecord;
+
 };
 
 #endif

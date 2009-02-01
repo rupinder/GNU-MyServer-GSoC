@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -115,8 +115,28 @@ void MimeRecord::clear ()
     delete *it;
   }
 
+  HashMap<string, string*>::Iterator it = hashedData.begin();
+  for (;it != hashedData.end(); it++)
+  {
+    delete (*it);
+  }
+  hashedData.clear();
+
+
   pathRegex.clear ();
 }  
+
+/*!
+ *Get the value stored in the hash dictionary for the `name' key.
+ */
+const char* MimeRecord::getHashedData(string &name)
+{
+  string *str = hashedData.get (name);
+  if (str)
+    return str->c_str ();
+
+  return NULL;
+}
 
 /*!
  *Get the name of the file opened by the class.
@@ -153,6 +173,8 @@ MimeRecord *MimeManager::readRecord (xmlNodePtr node)
   }
 
 
+ 
+
   for ( ;lcur; lcur = lcur->next)
   {
     if (lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"EXTENSION"))
@@ -166,6 +188,31 @@ MimeRecord *MimeManager::readRecord (xmlNodePtr node)
           rc->extensions.push_back (ext);
         }
       }
+    }
+
+    if (lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"DEFINE"))
+    {
+      const char *name = NULL;
+      const char *value = NULL;
+
+      for (attrs = lcur->properties; attrs; attrs = attrs->next)
+      {
+        if (!xmlStrcmp (attrs->name, (const xmlChar *)"name") && 
+            attrs->children && attrs->children->content)
+          name = (const char*)attrs->children->content;
+
+        if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") && 
+            attrs->children && attrs->children->content)
+          value = (const char*)attrs->children->content;
+      }
+
+      if (name && value)
+      {
+        string key (name);
+        string *v = new string (value);
+        rc->hashedData.put(key, v);
+      }
+
     }
 
     if (lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"PATH"))
