@@ -252,6 +252,17 @@ int Cgi::send(HttpThreadContext* td, ConnectionPtr s,
   spi.cmdLine = cmdLine.str();
   spi.cwd.assign(td->scriptDir);
 
+  spi.gid =  atoi (td->securityToken.getHashedData ("cgi.gid", MYSERVER_VHOST_CONF |
+                                                    MYSERVER_MIME_CONF |
+                                                    MYSERVER_SECURITY_CONF |
+                                                    MYSERVER_SERVER_CONF, "0"));
+
+  spi.uid =  atoi (td->securityToken.getHashedData ("cgi.uid", MYSERVER_VHOST_CONF |
+                                                    MYSERVER_MIME_CONF |
+                                                    MYSERVER_SECURITY_CONF |
+                                                    MYSERVER_SERVER_CONF, "0"));
+
+
   spi.stdError = (FileHandle) stdOutFile.getWriteHandle();
   spi.stdIn = (FileHandle) stdInFile.getHandle();
   spi.stdOut = (FileHandle) stdOutFile.getWriteHandle();
