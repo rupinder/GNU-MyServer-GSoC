@@ -71,7 +71,7 @@ public:
         int pid = 0;
         int port = 0;
         StartProcInfo spi;
-        char buffer [32];
+        char buffer [32] = {'\0'};
         const char *msg = "ForkServer";
         u_long nbr;
         int ret = fs->startForkServer ();
@@ -79,7 +79,8 @@ public:
         Pipe pipe;
         pipe.create();
     
-        spi.stdIn = spi.stdError = -1;
+        spi.stdIn = -1;
+        spi.stdError = -1;
         spi.stdOut =  pipe.getWriteHandle();
 
         spi.cmd.assign ("/bin/echo");
@@ -88,9 +89,9 @@ public:
         spi.envString = NULL;
 
         ret = fs->executeProcess (&spi, ForkServer::FLAG_USE_OUT, &pid, &port);
+        pipe.closeWrite ();
 
         CPPUNIT_ASSERT_EQUAL (ret, 0);
-        pipe.closeWrite ();
 
         ret = pipe.read (buffer, 32, &nbr);
 

@@ -219,7 +219,6 @@ int Process::exec(StartProcInfo* spi, bool waitEnd)
       if (spi->uid)
         Process::setuid (spi->uid);
 
-
       if (generateArgList (args, spi->cmd.c_str (), spi->arg))
         exit (1);
 
@@ -239,29 +238,24 @@ int Process::exec(StartProcInfo* spi, bool waitEnd)
       if ((long)spi->stdError == -1)
         spi->stdError = (FileHandle)open ("/dev/null", O_WRONLY);
 
-      // map stdio to files
-      if (close(0) == -1) // close stdin
-        exit (1);
+      close(0);
 
       if (spi->stdIn != -1)
         {
           if (dup2 (spi->stdIn, 0) == -1)
             exit (1);
-          
-          if (close (spi->stdIn) == -1)
-            exit (1);
+          close (spi->stdIn);
         }
 
-      if (close (1) == -1) // close stdout
-        exit (1);
+      close (1);
 
       if (dup2 (spi->stdOut, 1) == -1)
         exit (1);
 
-      if (close (2) == -1) // close stderr
-        exit (1);
 
-      if (dup2 (spi->stdError, 1) == -1)
+      close (2);
+
+      if (dup2 (spi->stdError, 2) == -1)
         exit (1);
       
       if (spi->handlesToClose)
@@ -269,12 +263,11 @@ int Process::exec(StartProcInfo* spi, bool waitEnd)
           FileHandle* h = spi->handlesToClose;
           while (*h)
             {
-              if (close (*h) == -1)
-                exit (1);
+              close (*h);
               h++;
             }
         }
-      // Run the script
+
       execve ((const char*)args[0], 
               (char* const*)args, (char* const*) envp);
 
