@@ -54,55 +54,63 @@ void ProcessServerManager::load()
     string port;
     string local;
     bool localBool = true;
+    int uid = 0;
+    int gid = 0;
     xmlNodePtr node2;
-    if(strcmpi((const char*)node->name, "PROCESS_SERVER"))
+    if (strcmpi((const char*)node->name, "PROCESS_SERVER"))
       continue;
     node2 = node->children;
-    for(;node2; node2 = node2->next)
+    for (;node2; node2 = node2->next)
     {
-      if(!node2->children || !node2->children->content)
+      if (!node2->children || !node2->children->content)
         continue;
       
-      if(!strcmpi((const char*)node2->name, "NAME"))
-        name.assign((const char*) node2->children->content);
+      if (!strcmpi ((const char*)node2->name, "NAME"))
+        name.assign ((const char*) node2->children->content);
 
-      if(!strcmpi((const char*)node2->name, "HOST"))
-        host.assign((const char*) node2->children->content);
+      if (!strcmpi ((const char*)node2->name, "HOST"))
+        host.assign ((const char*) node2->children->content);
 
-      if(!strcmpi((const char*)node2->name, "DOMAIN"))
-        domain.assign((const char*) node2->children->content);
+      if (!strcmpi ((const char*)node2->name, "DOMAIN"))
+        domain.assign ((const char*) node2->children->content);
 
-      if(!strcmpi((const char*)node2->name, "PORT"))
-        port.assign((const char*) node2->children->content);
+      if (!strcmpi ((const char*)node2->name, "PORT"))
+        port.assign ((const char*) node2->children->content);
 
-      if(!strcmpi((const char*)node2->name, "LOCAL"))
-        local.assign((const char*) node2->children->content);
+      if (!strcmpi ((const char*)node2->name, "LOCAL"))
+        local.assign ((const char*) node2->children->content);
+
+      if (!strcmpi ((const char*)node2->name, "UID"))
+        uid = atoi ((const char*) node2->children->content);
+
+      if (!strcmpi ((const char*)node2->name, "GID"))
+        gid = atoi ((const char*) node2->children->content);
     }
     
-    if(!local.compare("YES") || !local.compare("yes"))
+    if (!local.compare("YES") || !local.compare("yes"))
       localBool = true;
     else
       localBool = false;
 
-    if(name.size() && domain.size())
+    if (name.size () && domain.size ())
     {
       u_short portN = 0;
 
-      if(port.size())
-        portN = atoi(port.c_str());
+      if(port.size ())
+        portN = atoi (port.c_str());
 
-      if(localBool)
-        runAndAddServer(domain.c_str(), name.c_str(), portN);
+      if (localBool)
+        runAndAddServer (domain.c_str(), name.c_str(), uid, gid, portN);
       else
       {
-        if(portN)
-          addRemoteServer(domain.c_str(), name.c_str(), host.c_str(), portN);
+        if (portN)
+          addRemoteServer (domain.c_str(), name.c_str(), host.c_str(), portN);
         else
         {
           ostringstream msg;
           msg << "Error: incomplete remote PROCESS_SERVER block, " 
               << domain  << ":" << name << " needs a port";
-          ::Server::getInstance()->logWriteln(msg.str().c_str(), MYSERVER_LOG_MSG_ERROR);
+          ::Server::getInstance ()->logWriteln(msg.str().c_str(), MYSERVER_LOG_MSG_ERROR);
         }
       }
 
@@ -110,7 +118,7 @@ void ProcessServerManager::load()
     else
     {
       const char *msg = "Error: incomplete PROCESS_SERVER block";
-      ::Server::getInstance()->logWriteln(msg, MYSERVER_LOG_MSG_ERROR);
+      ::Server::getInstance ()->logWriteln(msg, MYSERVER_LOG_MSG_ERROR);
     }
 
   }
@@ -350,14 +358,16 @@ int ProcessServerManager::domainServers(const char* domain)
  *Run and add a server to the collection.
  *\param domain The server's domain.
  *\param path The path to the executable.
+ *\param uid User id to use for the new process.
+ *\param gid Group id to use for the new process.
  *\param port Port to use for the server.
  */
 ProcessServerManager::Server* 
 ProcessServerManager::runAndAddServer(const char* domain,  const char* path,
-                                      u_short port)
+                                      int uid, int gid, u_short port)
 {
   Server* server = new Server;
-  if(runServer(server, path, port))
+  if(runServer(server, path, uid, gid, port))
   {
     delete server;
     return 0;
@@ -370,10 +380,13 @@ ProcessServerManager::runAndAddServer(const char* domain,  const char* path,
  *Run a new server.
  *\param server The server object.
  *\param path The path to the executable.
+ *\param uid User id to use for the new process.
+ *\param gid Group id to use for the new process.
  *\param port The listening port.
  */
 int ProcessServerManager::runServer(ProcessServerManager::Server* server, 
-                                    const char* path, int port)
+                                    const char* path, int uid, int gid, 
+                                    u_short port)
 {
   StartProcInfo spi;
   MYSERVER_SOCKADDRIN serverSockAddrIn;
@@ -434,6 +447,9 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
   spi.arg.assign(moreArg);
   spi.cmdLine.assign(path);
   server->path.assign(path);
+
+  spi.uid = uid;
+  spi.gid = gid;
 
   if (Process::getForkServer ()->isInitialized ())
     {

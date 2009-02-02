@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -88,7 +88,7 @@ public:
 	int domainServers(const char* domain);
 	void load();
 	Server* runAndAddServer(const char* domain, const char* name, 
-													u_short port = 0);
+                          int uid = 0, int gid = 0, u_short port = 0);
 	Server* addRemoteServer(const char* domain, const char* name, 
 													const char* host, u_short port);
 private:
@@ -96,7 +96,8 @@ private:
 	int nServers;
   Mutex mutex;
 	HashMap<string, ServerDomain*> domains;
-  int runServer(Server* server, const char* path, int port = 0);
+  int runServer(Server* server, const char* path, int uid = 0, 
+                int gid = 0, u_short port = 0);
 	void addServer(Server* server, const char* domain, const char* name);
 };
 

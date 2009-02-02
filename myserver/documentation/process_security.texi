@@ -73,6 +73,8 @@ FastCGI/SCGI configuration inside MIME types by its name.
         <HOST>localhost</HOST>
         <PORT>2010</PORT>
         <LOCAL>yes</LOCAL>
+        <UID>1000</UID>
+        <GID>1000</GID>
 </PROCESS_SERVER>
 @end example
 
@@ -84,6 +86,10 @@ already running; in the former case, myserver will simply access and
 use it.
 If the server is not local then the @code{name} is a simple label that
 can be used by a MIME type trought @code{param} to access it.
+
+It is possible to specify a different uid/gid for the local server
+process and don't maintain the original myserver process privileges.
+It can be done using the @code{uid} and @code{gid} elements.
 
 
 The following code, declare an already running FastCGI server and
