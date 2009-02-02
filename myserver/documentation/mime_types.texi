@@ -22,13 +22,18 @@ Each block describes a different MIME type.
 the MIME attribute specifies the MIME name.
 
 @item extension
-the MIME type will be used by any file with this extension.
+the MIME type will be used by any file with this extension.  More
+@code{extension} items can be specified for the same MIME type.
 
 @item filter
-this directive registers a filter to use with MIME type.
+this directive registers a filter to use on the MIME type.  It depends
+from the protocol how it will be handled, a protocol may ignore this
+directive.  For example HTTP will use a modifier filter only if it is
+accepted by the client.
 
 @item handler
-specifies the way the file is handled by the server.
+specifies how the server will manage this file.  It is protocol
+specific, for example, FTP doesn't support it.
 
 @item param
 specifies additional params for the handler.
@@ -38,8 +43,8 @@ where it is supported, lanuch the accessed resource as a process or a
 server.
 For example, there is need to use selfExecuted on the CGI protocol if
 the accessed resource can be used as a process.  Differently if it is
-not specified the resource mapped by the URI will be used as an
-argument to @code{param}.
+not specified, the resource mapped by the URI will be used as an
+additional argument to @code{param}.
 @end itemize
 
 @code{<FILTER>} defines a filter for the MIME type.  The data will

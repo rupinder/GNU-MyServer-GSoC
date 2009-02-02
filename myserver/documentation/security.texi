@@ -14,6 +14,7 @@ Usually consider the first valid value found in this order:
 @item Local @file{.security.xml}.
 @item Parent directories @file{.security.xml}.
 @item System vhost directory @file{.security.xml}.
+@item MIME type configuration @file{MIMEtypes.xml}.
 @item Virtual host configuration.
 @item Global server configuration.
 @end enumerate

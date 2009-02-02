@@ -86,14 +86,15 @@ Tags semantics are identical with first example.
 Although FTP is used for public file sharing, restrictions may be
 imposed using security file.
 
+@subsection HTTP specific configuration
 MyServer gives you the option to enable the HTTP TRACE command for
 each virtual host. All you need to do is edit the @file{security.xml}
 file of the root of your virtual host (not a subdirectory!  If the
 file doesn't exist, you may create a new one), and add the parameter:
 
 @example
-<HTTP TRACE="ON" />
+<DEFINE name="http.allow_trace" value="YES" />
 @end example
 
-Once you do that, you enable HTTP TRACE command. By default, it's
-disabled (so, simply delete the line, if you want to disable it)
+Once you do that, you enable the HTTP TRACE command. By default, it's
+disabled.

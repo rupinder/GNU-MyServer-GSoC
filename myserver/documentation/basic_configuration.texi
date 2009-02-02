@@ -52,7 +52,7 @@ option:
 <USE_ERROR_FILE>YES</USE_ERROR_FILE>
 @end example
 
-So, if you set the value to NO, like in the line below,
+So, if you set the value to @code{NO}, like in the line below,
 
 @example
 <USE_ERROR_FILE>NO</USE_ERROR_FILE>
