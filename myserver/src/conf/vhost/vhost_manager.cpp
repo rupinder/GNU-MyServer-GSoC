@@ -1,6 +1,6 @@
 /*
   MyServer
-  Copyright (C) 2007, 2008 Free Software Foundation, Inc.
+  Copyright (C) 2007, 2008, 2009 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -122,6 +122,7 @@ Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
 /*!
  *VhostManager costructor.
  *\param lt A ListenThreads object to use to create new threads.
+ *\param lm The log manager to use.
  */
 VhostManager::VhostManager(ListenThreads* lt, LogManager* lm)
 {
@@ -315,7 +316,6 @@ VhostManager::loadXMLlogData (string name, Vhost* vh, xmlNode* lcur)
  *Load the virtual hosts from a XML configuration file
  *Returns non-null on errors.
  *\param filename The XML file to open.
- *\param maxlogSize The maximum dimension for the log file.
  */
 int VhostManager::loadXMLConfigurationFile(const char *filename)
 {

@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2006, 2008 Free Software Foundation, Inc.
+Copyright (C) 2006, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -57,13 +57,7 @@ CachedFile::CachedFile(CachedFileBuffer* cfb)
 /*!
  *Write data to a file is not supported by a CachedFile, return immediately -1.
  *Inherithed by File.
- *buffer is the pointer to the data to write
- *buffersize is the number of byte to write
- *nbw is a pointer to an unsigned long that receive the number of the
- *bytes written correctly.
- *\param buffer The buffer where write.
- *\param buffersize The length of the buffer in bytes.
- *\param nbw How many bytes were written to the file.
+ *\see File#writeToFile.
  */
 int CachedFile::writeToFile(const char* buffer, u_long buffersize, u_long* nbw)
 {
@@ -74,10 +68,10 @@ int CachedFile::writeToFile(const char* buffer, u_long buffersize, u_long* nbw)
  *A CachedFile can't be opened directly, use a factory instead.
  *If the function have success the return value is nonzero.
  *\param nfilename Filename to open.
- *\agument opt Specify how open the file.
- *openFile returns 0 if the call was successfull, any other value on errors.
+ *\param opt Specify how open the file.
+ *\return 0 if the call was successfull, any other value on errors.
  */
-int CachedFile::openFile(const char* nfilename,u_long opt)
+int CachedFile::openFile(const char* nfilename, u_long opt)
 {
   return -1;
 }

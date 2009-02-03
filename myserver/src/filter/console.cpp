@@ -1,6 +1,6 @@
 /*
   MyServer
-  Copyright (C) 2006, 2008 Free Software Foundation, Inc.
+  Copyright (C) 2006, 2008, 2009 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -152,7 +152,7 @@ Console::checkColors (MyServerColor c[])
 
 /*!
  * Set the attributes for the console text.
- * \param c[0] holds the foreground color, c[1] the background one.
+ * \param c c[0] holds the foreground color, c[1] the background one.
  * \return 0 on success, 1 on error.
  */
 int

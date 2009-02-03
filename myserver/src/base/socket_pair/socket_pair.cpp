@@ -201,7 +201,7 @@ void SocketPair::closeSecondHandle ()
 
 /*!
  *Configure the server socket blocking or not blocking.
- *\param blocking The new blocking status.
+ *\param notBlocking The new non-blocking status.
  */
 void SocketPair::setNonBlocking (bool notBlocking)
 {

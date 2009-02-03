@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2005, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -46,11 +46,12 @@ extern "C"
  *\param s A pointer to the connection.
  *\param filenamePath The path of the static file to send.
  *\param exec Not used.
+ *\param execute Not used.
  *\param onlyHeader Specify if send only the HTTP header.
   */
 int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, 
-                   const char *filenamePath, const char* /*exec*/,
-                   int /*execute*/, int onlyHeader)
+                   const char *filenamePath, const char* exec,
+                   int execute, int onlyHeader)
 {
   /*
    *With this routine we send a file through the HTTP protocol.
@@ -559,7 +560,7 @@ HttpFile::~HttpFile()
  *Load the static elements.
  *\param confFile Not used.
  */
-int HttpFile::load(XmlParser* /*confFile*/)
+int HttpFile::load(XmlParser* confFile)
 {
   return 0;
 }

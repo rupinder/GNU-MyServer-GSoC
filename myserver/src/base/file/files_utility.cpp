@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -210,7 +210,6 @@ int FilesUtility::copyFile(const char* src, const char* dest, int overwrite)
  *Copy the file from [SRC] to [DEST]. Returns 0 on success.
  *\param src The source File.
  *\param dest The destination File.
- *\param overwrite Overwrite the dest file if already exists?
  */
 int FilesUtility::copyFile(File src, File dest)
 {
@@ -818,7 +817,8 @@ void FilesUtility::resetTmpPath()
 /*!
  *Create an unique temporary file name.  This function doesn't create the
  *file or open it but generates only its name.
- *\param
+ *\param tid Caller thread id.
+ *\param out Output string.
  */
 void FilesUtility::temporaryFileName(u_long tid, string &out)
 {

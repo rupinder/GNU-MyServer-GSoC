@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2004, 2005, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2004, 2005, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -124,14 +124,16 @@ ControlHeader::~ControlHeader()
  *Parse the header in buffer. Put the effective length of the header in len.
  *Return a control_error. See protocol/control/control_errors.h to have a list of all errors.
  *Return -1 on an incomplete header.
- *The header has this form:
- *_/CMD VERSION more_options\r\n
- *_/AUTH name:password\r\n
- *_/LEN length of data\r\n
+ *
+ *The header has this form (where CR is carriage return and NL a newline):
+ *
+ *"_/CMD VERSION more_optionsCRNL"
+ *"_/AUTH name:passwordCRNL"
+ *"_/LEN length of dataCRNL"
  *_***
  *_Additional fields.(Not used now)
  *_***
- *_\r\n        -> Header ends with a \r\n.
+ *_"CRNL"        -> Header ends with a "CRNL".
  *_Data...
  */
 int ControlHeader::parse_header(char *buffer, int bufferlen, int *len)

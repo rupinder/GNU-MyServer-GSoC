@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -500,7 +500,7 @@ void PluginsManager::removePlugin(string& name)
 /*!
  *Add a plugin option structure.
  *\param plugin The plugin name.
- *\param po The options for the plugin.
+ *\param pi The options for the plugin.
  */
 int PluginsManager::addPluginInfo(string& plugin, PluginInfo* pi)
 {
@@ -514,7 +514,7 @@ int PluginsManager::addPluginInfo(string& plugin, PluginInfo* pi)
 
 /*!
  *Return a pluginOption.
- *\param name The plugin name.
+ *\param plugin The plugin name.
  */
 PluginInfo* PluginsManager::getPluginInfo(string& plugin)
 {

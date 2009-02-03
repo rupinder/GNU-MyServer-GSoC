@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002-2008 Free Software Foundation, Inc.
+Copyright (C) 2002-2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -80,7 +80,7 @@ int SecurityManager::getPermissionMask (SecurityToken* st,
  *\param validatorName The validator name to find.
  *\param authMethodName The auth method name to find.
  *\param validator Pointer to the Validator to initialize. 
- *\param validator Pointer to the AuthMethod initialize.
+ *\param authMethod Pointer to the AuthMethod initialize.
  *\return 0 if the pointers were successfully initialized.
  */
 int SecurityManager::getValidatorAndAuthMethod (string &validatorName,

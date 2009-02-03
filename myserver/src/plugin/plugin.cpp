@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -76,7 +76,6 @@ int Plugin::preLoad(string& file, Server* server, XmlParser* languageFile,
 
 /*!
  *Post load initialization.  This is called once all the plugins are loaded.
- *\param file The filename to load.
  *\param server The server instance to use.
  *\param languageFile The language file to use to retrieve warnings/errors 
  *messages.

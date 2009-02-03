@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2005, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -217,8 +217,7 @@ void HttpDir::generateHeader (MemBuf &out, char sortType, bool sortReverse,
  *Generate the HTML code for an element in the result table.
  *\param out Buffer where write the HTML.
  *\param file Structure with information on the element.
- *\param uriEndWithSlash Specify if the requested resource 
- *ends with a slash.
+ *\param linkPrefix Prefix to use for the generated links.
  *\param formatString Specify which element show.
  */
 void HttpDir::generateElement (MemBuf &out, 
@@ -287,12 +286,13 @@ void HttpDir::generateElement (MemBuf &out,
  *\param td The current thread context.
  *\param s The current connection structure.
  *\param directory Directory to show.
- *\param cgi non used.
+ *\param cgi not used.
+ *\param execute not used.
  *\param onlyHeader Specify if send only the HTTP header.
 */
 int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, 
-                  const char* directory, const char* /*cgi*/, 
-                  int /*execute*/, int onlyHeader)
+                  const char* directory, const char* cgi, 
+                  int execute, int onlyHeader)
 {
   u_long nbw;
   string filename;
@@ -648,7 +648,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 
 /*!
  *Format a string to html.
- *\param name String to convert.
+ *\param in String to convert.
  *\param out HTML converted string.
  */
 void HttpDir::formatHtml(string& in, string& out)

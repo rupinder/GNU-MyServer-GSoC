@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -56,7 +56,7 @@ CachedFileFactory::~CachedFileFactory()
 
 /*!
  *Class constructor.
- *\param m Max size to use for the cache.
+ *\param size Max size to use for the cache.
  */
 CachedFileFactory::CachedFileFactory(u_long size)
 {
@@ -131,10 +131,11 @@ void CachedFileFactory::initialize(u_long size)
   created = getTicks();
   mutex.init();
 }
+
 /*!
  *Open a new file in read-only mode, if the file is present in the cache then
  *use the cache instead of a real file.
- *\param file The file name.
+ *\param filename The file name.
  */
 File* CachedFileFactory::open(const char* filename)
 {

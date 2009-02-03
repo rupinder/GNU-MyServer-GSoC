@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005, 2007 Free Software Foundation, Inc.
+Copyright (C) 2005, 2007, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -26,7 +26,7 @@ using namespace std;
 
 /*!
  *Read [len] characters using the filter. Returns -1 on errors.
- *\argument buffer The buffer where receive read data.
+ *\param buffer The buffer where receive read data.
  *\param len The buffer length in bytes.
  *\param nbr A pointer to receive the number of read bytes.
  */

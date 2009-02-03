@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -409,7 +409,7 @@ int HttpHeaders::validHTTPResponse(const char *res, u_long* nLinesptr, u_long* n
  *\param inputSize Size of the buffer
  *\param nHeaderChars Real size of the header.
  *\param request HTTP request structure to fullfill with data.
- *\param td the current executing thread context.
+ *\param connection The current connection.
  */
 int HttpHeaders::buildHTTPRequestHeaderStruct(const char* input,
                                               u_long inputSize,

@@ -29,7 +29,7 @@
 /*!
  *Read a file descriptor from the specified socket.
  *\param socket Socket to use.
- *\param num Integer to write.
+ *\param fd File handle to write.
  */
 int ForkServer::writeFd (SocketPair *socket, FileHandle fd)
 {
@@ -42,7 +42,7 @@ int ForkServer::writeFd (SocketPair *socket, FileHandle fd)
 /*!
  *Write a file descriptor on the specified socket.
  *\param socket Socket to use.
- *\param num Integer to write.
+ *\param fd Pointer to the file handle that is read.
  */
 int ForkServer::readFd (SocketPair *socket, FileHandle *fd)
 {

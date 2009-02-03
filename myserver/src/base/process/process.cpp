@@ -116,7 +116,7 @@ int Process::generateArgList (const char **args, const char *proc, string &addit
 /*!
  *Generate the env array for execve.
  *\param envp Enviroment variables array.
- *\param envString Enviroment values separed by '\0'.
+ *\param envString Enviroment values separed by the NULL character.
  */
 int Process::generateEnvString (const char **envp, char *envString)
 {
@@ -147,7 +147,6 @@ int Process::generateEnvString (const char **envp, char *envString)
  *
  *\param spi new process information.
  *\param waitEnd Specify if wait until the process finishes.
- *\param timeout The maximum amount to wait for the process.
  *
  *\return -1 on failure.
  *\return the new process identifier on success.

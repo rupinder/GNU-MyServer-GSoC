@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -28,7 +28,7 @@ extern "C"
  * Internal call back functions for saveMemBuf
  * \param context Context
  * \param buffer Buffer
- * \param length Length
+ * \param len Length
  * \return Returns the length
  */
 static int MemBufWriteCallback(void * context, const char * buffer, int len)
@@ -331,7 +331,7 @@ char *XmlParser::getAttr(const char* field, const char *attr)
 
 /**
  *Evaluate an XPath expression.
- *\param query The xpath expression.
+ *\param expr The xpath expression.
  *\return NULL on errors.
  *\return The XmlXPathResult containing the result.
  */

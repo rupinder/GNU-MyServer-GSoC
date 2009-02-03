@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2005, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -144,7 +144,7 @@ int Pipe::create(bool readPipe)
  *Write from the pipe.
  *\param buffer What write.
  *\param len Buffer size.
- *\param nbr Get how many bytes were really written.
+ *\param nbw Get how many bytes were written.
  */
 int Pipe::write(const char* buffer, u_long len, u_long *nbw)
 {
@@ -276,7 +276,7 @@ void Pipe::closeWrite()
  *Wait until new data is ready.  Do not wait more 
  *than the specified timeout.
  *\param sec Seconds part of the timeout.
- *\param sec Micro seconds part of the timeout.
+ *\param usec Micro seconds part of the timeout.
  */
 int Pipe::waitForData (int sec, int usec)
 {

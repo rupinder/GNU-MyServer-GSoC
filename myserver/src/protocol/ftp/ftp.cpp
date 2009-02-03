@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -1976,8 +1976,8 @@ void Ftp::Nlst(const std::string &sParam/* = ""*/)
  * WONTx    -> ignore
  * IACx     -> ignore
  * IACIAC   -> IAC
- *\param szIn client's requests
- *\param szOut client's requests without telnet codes
+ *\param In client's requests
+ *\param Out client's requests without telnet codes
  */
 void Ftp::EscapeTelnet(MemBuf &In, MemBuf &Out)
 {
@@ -2028,8 +2028,8 @@ void Ftp::EscapeTelnet(MemBuf &In, MemBuf &Out)
 
 /*!
  *Let only first cmd to be handled.
- *\param szIn client's requests
- *\param szOut client's requests without telnet codes
+ *\param In client's requests
+ *\param Out client's requests without telnet codes
  */
 void Ftp::RemovePipelinedCmds(MemBuf &In, MemBuf &Out)
 {

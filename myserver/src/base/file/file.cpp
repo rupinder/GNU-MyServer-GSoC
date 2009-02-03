@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2005, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -103,7 +103,7 @@ int File::writeToFile(const char* buffer, u_long buffersize, u_long* nbw)
 /*!
  *Constructor for the class.
  *\param nfilename Filename to open.
- *\agument opt Specify how open the file.
+ *\param opt Specify how open the file.
  */
 File::File(char *nfilename, int opt) 
   : handle(0)
@@ -112,10 +112,10 @@ File::File(char *nfilename, int opt)
 }
 
 /*!
- *Open(or create if not exists) a file.
+ *Open (or create if not exists) a file.
  *If the function have success the return value is nonzero.
  *\param nfilename Filename to open.
- *\agument opt Specify how open the file.
+ *\param opt Specify how open the file.
  *openFile returns 0 if the call was successful, any other value on errors.
  */
 int File::openFile(const char* nfilename,u_long opt)

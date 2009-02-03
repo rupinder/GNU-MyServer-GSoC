@@ -1,6 +1,6 @@
 /*
   MyServer
-  Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 Free Software Foundation, Inc.
+  Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -193,6 +193,7 @@ Vhost::openLogFiles ()
 /*!
  *Add an IP address to the list.
  *\param ip The ip to add.
+ *\param isRegex Specify if the ip is specified as a regex.
  */
 void Vhost::addIP(const char *ip, int isRegex)
 {

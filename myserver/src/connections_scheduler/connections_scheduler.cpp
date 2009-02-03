@@ -166,7 +166,6 @@ static void listenerHandler (int fd, short event, void *arg)
  *Add a listener socket to the event queue.
  *This is used to renew the event after the listener thread is notified.
  *
- *\param sock Listening socket.
  *\param la Structure containing an Event to be notified on new data.
  */
 void ConnectionsScheduler::listener(ConnectionsScheduler::ListenerArg *la)

@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002-2008 Free Software Foundation, Inc.
+Copyright (C) 2002-2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -367,6 +367,9 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
 /*!
  *Get the file permissions mask.
  *\param filename Resource to access.
+ *\param directory Directory where the resource is.
+ *\param file The file specified by the resource.
+ *\param filenamePath Complete path to the file.
  *\param yetmapped Is the resource mapped to the localfilesystem?
  *\param permissions Permission mask for this resource.
  *\return Return 200 on success.
