@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002-2008 Free Software Foundation, Inc.
+Copyright (C) 2002-2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -556,11 +556,6 @@ int main (int argn, char **argv)
 #endif
 
 #ifdef ARGP
-
-#ifdef NOT_WIN
-  setpgid (0, 0);
-#endif
-
   if (input.useForkServer)
     Process::getForkServer ()->startForkServer ();
 #endif
@@ -594,38 +589,36 @@ int main (int argn, char **argv)
           */
          if (pid < 0)
          {
-           return 1;
+	   return 1;
          }
-         /*
-          *A good process id, return with success.
-          */
-         if (pid > 0)
-         {
-           return 0;
-         }
-         /*
-          *Store the PID.
-          */
+
+	 if (pid)
+	 {
+	   /*
+	    *Store the PID.
+	    */
 #ifdef ARGP
-         if(input.pidFileName)
-           writePidfile(input.pidFileName);
-         else
-           writePidfile("/var/run/myserver.pid");
+	   if(input.pidFileName)
+	     writePidfile(input.pidFileName);
+	   else
+	     writePidfile("/var/run/myserver.pid");
 #else
-         writePidfile("/var/run/myserver.pid");
+	   writePidfile("/var/run/myserver.pid");
 #endif
+	   return 0;
+	 }
+
          /*
           *Create a SID for the new process.
           */
-         sid = setsid();
+	 sid = setsid();
 
          /*
           *Error in setting a new sid, return the error.
           */
-         if (sid < 0)
-         {
-           return 1;
-         }
+	 if (sid < 0)
+	   return 1;
+         
 
          /*
           *Finally run the server from the forked process.
@@ -645,7 +638,7 @@ int main (int argn, char **argv)
     Process::getForkServer ()->killServer ();
 #endif
 
-   return 0;
+  return 0;
 }
 
 #ifndef WIN32
