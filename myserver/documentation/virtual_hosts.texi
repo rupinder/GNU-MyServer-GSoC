@@ -87,6 +87,24 @@ Although FTP is used for public file sharing, restrictions may be
 imposed using security file.
 
 @subsection HTTP specific configuration
+
+@subsubsection The LOCATION element
+It may be necessary to register an entire location with a single
+handler and it is done trought @code{LOCATION}.
+Any other element passed after the location will be part of the
+@code{PATH_INFO} variable.
+
+@example
+    <LOCATION path="foo/bar" mime="text/html" handler="CGI" param="/usr/local/bin/handler" />
+@end example
+
+In the previous example, the CGI process @file{/usr/local/bin/handler}
+is used to manage any request to the location @file{foo/bar}, this
+location includes for example: @file{foo/bar}, @file{foo/bar/baz},
+@file{foo/bar/a/file}, everything that follows @file{foo/bar} will be
+part of @code{PATH_INFO}.
+
+@subsubsection HTTP trace command
 MyServer gives you the option to enable the HTTP TRACE command for
 each virtual host. All you need to do is edit the @file{security.xml}
 file of the root of your virtual host (not a subdirectory!  If the
