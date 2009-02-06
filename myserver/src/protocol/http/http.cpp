@@ -845,8 +845,6 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
 
 
     if (td->mime && (manager = staticHttp.dynManagerList.getHttpManager (td->mime->cmdName)))
-    {
-      if (manager)
       {
         return manager->send (td,
                               td->connection,
@@ -854,7 +852,6 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
                               cgiManager,
                               td->mime->selfExecuted,
                               onlyHeader);
-      }
     }
 
 
