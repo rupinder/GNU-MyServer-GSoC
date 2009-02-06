@@ -60,8 +60,15 @@ public:
 	int setMyServerMaxVersion(int v);
 	
 	HashMap<string, pair<int,int>* >::Iterator begin(){return dependences.begin();}
-	HashMap<string, pair<int,int>* > ::Iterator end(){return dependences.end();}
+	HashMap<string, pair<int,int>* >::Iterator end(){return dependences.end();}
 	
+	void setPlugin(Plugin* plugin);
+	Plugin* getPlugin();
+	Plugin* removePlugin();
+	
+	void setEnabled(bool enabled);
+	
+	pair<int,int>* getDependence(string name);
 	
 	static int convertVersion(string* s);
 	
@@ -76,6 +83,7 @@ private:
     int version;
     int msMinVersion;
     int msMaxVersion;
+    Plugin* plugin;
     HashMap<string, pair<int,int>* > dependences;
     static Regex* regex;
 };

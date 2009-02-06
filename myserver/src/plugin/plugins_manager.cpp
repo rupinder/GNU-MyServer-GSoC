@@ -46,7 +46,10 @@ PluginsManager::~PluginsManager()
  */
 Plugin* PluginsManager::getPlugin(string& name)
 {
-  return plugins.get(name);
+  PluginInfo* info = pluginsInfos.get(name);
+  if (info)
+  	return info->getPlugin();
+  return NULL;
 }
   
 /*!
@@ -100,7 +103,7 @@ int PluginsManager::loadOptions(Server *server, XmlParser* languageFile)
             if(!pluginName.length())
             {
               string error;
-              error.assign("Warning: invalid plugin name in PLUGIN block");
+              error.assign("PLUGINS MANAGER: Warning: invalid plugin name in PLUGIN block");
               server->logWriteln(error.c_str(), MYSERVER_LOG_MSG_ERROR);
               ret = -1;  
             }
@@ -170,15 +173,8 @@ int PluginsManager::preLoad(Server* server, XmlParser* languageFile,
       if(flib.name[0]=='.')
       	continue;
 
-          /*!
-     *Do not consider file other than dynamic libraries.
-     */
-#ifdef WIN32
-      if(!strstr(flib.name,".dll") && !strstr(flib.name,"plugin.xml"))
-#endif
-#ifdef NOT_WIN
-      if(!strstr(flib.name,".so") && !strstr(flib.name,"plugin.xml"))
-#endif    
+          
+      if(!strstr(flib.name,"plugin.xml"))
         continue;
       completeFileName.assign(filename);
       
@@ -190,23 +186,38 @@ int PluginsManager::preLoad(Server* server, XmlParser* languageFile,
         completeFileName.append("/");
       completeFileName.append(flib.name);
 
-	  if(strstr(flib.name,"plugin.xml"))
-	  {
-	  	string pname(fdir.name);
-        ret |= loadInfo(pname, completeFileName);
+	  string pname(fdir.name);
+      PluginInfo* pinfo = loadInfo(server,pname, completeFileName);
+      if(!pinfo)
+      {
+        ret|=1;
         continue;
-	  }
+      }
+      string libname;
+      libname.assign(dirname);
+         
+      libname.append("/");
+      libname.append(pinfo->getName());
 #ifdef WIN32
-      name = name.substr(0, name.length() - 4);
+      libname.append(".dll");
 #endif
 #ifdef NOT_WIN
-      name = name.substr(0, name.length() - 3);
+      libname.append(".so");
 #endif
-      PluginInfo* pinfo = getPluginInfo(name);
-    	
-       if(!pinfo || pinfo->isEnabled())
-         ret |= addPlugin(completeFileName, server, languageFile, pinfo && pinfo->isGlobal());
-	   
+       if(pinfo->isEnabled())
+       {
+         Plugin* plugin = preLoadPlugin(libname, server, languageFile, pinfo->isGlobal());
+         if (!plugin)
+         {
+           ret|=1;
+           string logBuf;
+  	       logBuf.append("PLUGINS MANAGER: Error!! Unable to enable plugin ");
+  	       logBuf.append(name);
+  	       server->logWriteln( logBuf.c_str() );
+         }else
+           pinfo->setPlugin(plugin);
+       }
+       addPluginInfo(pname,pinfo);
      }while(!flib.findnext());
    }while(!fdir.findnext());
   fdir.findclose();
@@ -227,18 +238,27 @@ Plugin* PluginsManager::createPluginObject()
  *\param name The plugin name.
  *\param path the plugin xml descriptor path.
  */
-int PluginsManager::loadInfo(string& name, string& path)
+PluginInfo* PluginsManager::loadInfo(Server* server, string& name, string& path)
 {
   PluginInfo* pinfo;
   
   pinfo = getPluginInfo(name);
   if (!pinfo)
     pinfo = new PluginInfo(name);
-    
+  else
+  	if (pinfo->getVersion()!=0)
+  	{
+  	  string logBuf;
+  	  logBuf.append("PLUGINS MANAGER: Error!!! a version of plugin ");
+  	  logBuf.append(name);
+  	  logBuf.append(" is already loading!");
+  	  server->logWriteln( logBuf.c_str() );
+  	  return NULL;
+  	}  
   XmlParser xml;
   
   if (xml.open(path,true))
-    return 1;
+    return NULL;
   
   XmlXPathResult* xpathRes = xml.evaluateXpath("/PLUGIN");
   
@@ -247,7 +267,7 @@ int PluginsManager::loadInfo(string& name, string& path)
   int size = (nodes) ? nodes->nodeNr : 0;
   
   if (size!=1)
-    return 1;
+    return NULL;
   
   const char* mSMinVersion = (const char*)xmlGetProp(nodes->nodeTab[0],(const xmlChar*)"min-version");
   
@@ -264,12 +284,12 @@ int PluginsManager::loadInfo(string& name, string& path)
   
   
   if (size!=1)
-    return 1;
+    return NULL;
   const char* cname = (const char*)nodes->nodeTab[0]->content;
 
   
   if (strcmp(name.c_str(),cname))
-    return 1;
+    return NULL;
   
   delete xpathRes;
   
@@ -280,7 +300,7 @@ int PluginsManager::loadInfo(string& name, string& path)
   
   
   if (size!=1)
-    return 1;
+    return NULL;
   const char* version = (const char*)nodes->nodeTab[0]->content;
   
   
@@ -309,11 +329,8 @@ int PluginsManager::loadInfo(string& name, string& path)
   }
 
   delete xpathRes;
-  
-  addPluginInfo(name,pinfo);
-  
-  
-  return 0;
+
+  return pinfo;
 }
 
 /*!
@@ -324,7 +341,7 @@ int PluginsManager::loadInfo(string& name, string& path)
  *messages.
  *\param global Specify if the library should be loaded globally.
  */
-int PluginsManager::addPlugin(string& file, Server* server, 
+Plugin* PluginsManager::preLoadPlugin(string& file, Server* server, 
                                        XmlParser* languageFile, bool global)
 {
   Plugin *plugin = createPluginObject();
@@ -335,7 +352,7 @@ int PluginsManager::addPlugin(string& file, Server* server,
   if(plugin->preLoad(file, server, languageFile, global))
   {
     delete plugin;
-    return 1;
+    return NULL;
   }
   namePtr = plugin->getName(0, 0);
 
@@ -344,14 +361,33 @@ int PluginsManager::addPlugin(string& file, Server* server,
   else
   {
     delete plugin;
-    return 1;
+    return NULL;
   }
-    
-  plugins.put(name, plugin);
+ 
+  return plugin;
+}
 
+void PluginsManager::recursiveDependencesFallDown(Server* server, string name, HashMap<string,bool> remove,  HashMap<string,list<string>*> dependsOn)
+{
+  remove.put(name,true);
+  list<string>* dependsList = dependsOn.get(name);
+  if (!dependsList || dependsList->empty())
+    return;
   
-  
-  return 0;
+  list<string>::iterator lit = dependsList->begin();
+
+  for (;lit!=dependsList->end();lit++)
+  {
+  	
+  	string logBuf;
+  	logBuf.append("PLUGINS MANAGER: missing dependence: ");
+  	logBuf.append(*lit);
+  	logBuf.append(" --> ");
+  	logBuf.append(name);
+  	recursiveDependencesFallDown(server,*lit,remove,dependsOn);
+  	server->logWriteln( logBuf.c_str() );
+  }
+  	
 }
 
 /*!
@@ -367,15 +403,17 @@ int PluginsManager::load(Server *server, XmlParser* languageFile,
 	
   
   list<string*> toRemove;
-  HashMap<string, Plugin*>::Iterator it = plugins.begin();
-  while(it != plugins.end())
+  HashMap<string,list<string>*> dependsOn;
+  HashMap<string, PluginInfo*>::Iterator it = pluginsInfos.begin();
+  HashMap<string,bool> remove;
+  while(it != pluginsInfos.end())
   {
-  	string logBuf;
+  	
   	
   	string name(it.getKey());
   	
   	
-  	PluginInfo* pinfo = getPluginInfo(name);
+  	PluginInfo* pinfo = *it;
     
     
   	HashMap<string, pair<int,int>* >::Iterator depIt = pinfo->begin();
@@ -389,55 +427,103 @@ int PluginsManager::load(Server *server, XmlParser* languageFile,
   	int msVersion = PluginInfo::convertVersion(&msversion);
   	if (msVersion < pinfo->getMyServerMinVersion() || msVersion > pinfo->getMyServerMaxVersion())
   	{
-  	  logBuf.append("myserver version not compatible --> ");
-  	  goodVersions = false;
+	  string logBuf;
+  	  logBuf.append("PLUGINS MANAGER: ");
+  	  logBuf.append(name);
+  	  logBuf.append(" not compatible with this myserver version! ");
+  	  server->logWriteln( logBuf.c_str() );
+  	  toRemove.push_front(&name);
   	}
   	else
+  	  remove.put(name,false);
   	  for (;depIt != pinfo->end(); depIt++)
   	  {
   	  	string dname = depIt.getKey();
   	  	
-  	  	PluginInfo* dep = getPluginInfo(dname);
+  	  	list<string>* deps = dependsOn.get(dname);
+  	  	if (!deps)
+  	  	{
+  	  	  deps = new list<string>();
+  	  	  dependsOn.put(dname,deps);
+  	  	}
   	  	
-  	  	if (!dep)
-  	  	{
-  	  	  logBuf.append("missing dependence: ");
-  	  	  logBuf.append(dname);
-  	  	  logBuf.append(" --> ");
-  	  	  logBuf.append(name);
-  	  	  goodVersions = false;
-  	  	  break;
-  	  	}
-  	  	  
-  	  	if (dep->getVersion() < (*depIt)->first || dep->getVersion() > (*depIt)->second)
-  	  	{
-  	  	  logBuf.append("plugin version not compatible: ");
-  	  	  logBuf.append(dname);
-  	  	  logBuf.append(" --> ");
-  	  	  logBuf.append(name);
-  	  	  goodVersions = false;
-  	  	  break;
-  	  	}
+  	  	deps->push_front(name);
   	  }
+  	  
   	
-  	
-  	if (goodVersions)
-  	{
-  	  logBuf.assign(languageFile->getValue("MSG_LOADED"));
-  	  logBuf.append(" -plugin- ");
-      logBuf.append(name);
-      (*it)->load(resource, server, languageFile);
-  	} 
-  	else
-  	  toRemove.push_front(&name);
-  	server->logWriteln( logBuf.c_str() );
     it++;
   }
 
   list<string*>::iterator tRIt = toRemove.begin();
   for (;tRIt != toRemove.end(); tRIt++)
     removePlugin(**tRIt);
+  toRemove.clear();
   
+  
+  
+  HashMap<string,list<string>*>::Iterator dIt = dependsOn.begin();
+  for(;dIt!=dependsOn.end();dIt++)
+  {
+  	string logBuf;
+  	string dname = dIt.getKey();
+  	
+  	PluginInfo* pinfo = getPluginInfo(dname);
+  	
+  	if (!pinfo || pinfo->getVersion()==0)
+  	  	remove.put(dname,true);
+  	  	
+  	list<string>* dependsList = (*dIt);
+  	if (!dependsList)
+  	  continue;
+  	if(dependsList->empty())
+  	  continue;
+  	
+  	bool rem = remove.get(dname);
+  	if (rem)
+  	{
+  	  recursiveDependencesFallDown(server,dname,remove,dependsOn);
+  	  continue;
+  	}
+  	
+  	HashMap<string, pair<int,int>* >::Iterator lit = pinfo->begin();
+  	for (;lit!=pinfo->end();lit++)
+  	{
+  		string depN = lit.getKey();
+  		PluginInfo* dep = getPluginInfo(depN);
+  		if (!dep || remove.get(depN))
+  	  	{
+  	  	  logBuf.append("PLUGINS MANAGER: missing dependence: ");
+  	  	  logBuf.append(dname);
+  	  	  logBuf.append(" --> ");
+  	  	  logBuf.append(depN);
+  	  	  recursiveDependencesFallDown(server,dname,remove,dependsOn);
+  	  	  server->logWriteln( logBuf.c_str() );
+  	  	  break;
+  	  	}
+  	  	
+
+  	  	pair<int,int>* pdep = *lit;
+  	  	if (dep->getVersion() < pdep->first || dep->getVersion() > pdep->second)
+  	  	{
+  	  	  logBuf.append("PLUGINS MANAGER: plugin version not compatible: ");
+  	  	  logBuf.append(dname);
+  	  	  logBuf.append(" --> ");
+  	  	  logBuf.append(depN);
+  	  	  recursiveDependencesFallDown(server,dname,remove,dependsOn);
+  	  	  server->logWriteln( logBuf.c_str() );
+  	  	  break;
+  	  	}
+  	}
+  }
+  
+  
+  HashMap<string,bool>::Iterator rIt = remove.begin();
+  for(;rIt!=remove.end();rIt++)
+  {
+  	string name(rIt.getKey());
+  	if (*rIt)
+  	  removePlugin(name);
+  }
   return 0;
   
 }
@@ -450,10 +536,19 @@ int PluginsManager::load(Server *server, XmlParser* languageFile,
  */
 int PluginsManager::postLoad(Server *server, XmlParser* languageFile)
 {
-  HashMap<string, Plugin*>::Iterator it = plugins.begin();
-  while(it != plugins.end())
+  HashMap<string, PluginInfo*>::Iterator it = pluginsInfos.begin();
+  while(it != pluginsInfos.end())
   {
-    (*it)->postLoad(server, languageFile);
+    Plugin* plugin = (*it)->getPlugin();
+    if (plugin)
+    {
+      plugin->postLoad(server, languageFile);
+      string logBuf;
+      logBuf.append("PLUGINS MANAGER: plugin ");
+  	  logBuf.append((*it)->getName());
+  	  logBuf.append(" loaded! ");
+  	  server->logWriteln( logBuf.c_str() );
+    }
     it++;
   }
   return 0;
@@ -467,15 +562,8 @@ int PluginsManager::postLoad(Server *server, XmlParser* languageFile)
  */
 int PluginsManager::unLoad(Server *server, XmlParser* languageFile)
 {
-  HashMap<string, Plugin*>::Iterator it = plugins.begin();
-  HashMap<string, PluginInfo*>::Iterator poit = pluginsInfos.begin();
 
-  while(it != plugins.end())
-  {
-    (*it)->unLoad(languageFile);
-    delete *it;
-    it++;
-  }
+  HashMap<string, PluginInfo*>::Iterator poit = pluginsInfos.begin();
 
   while(poit != pluginsInfos.end())
   {
@@ -483,7 +571,6 @@ int PluginsManager::unLoad(Server *server, XmlParser* languageFile)
     poit++;
   }
 
-  plugins.clear();
   pluginsInfos.clear();
   return 0;
 }
@@ -494,7 +581,9 @@ int PluginsManager::unLoad(Server *server, XmlParser* languageFile)
  */
 void PluginsManager::removePlugin(string& name)
 {
-  plugins.remove(name);
+  PluginInfo* info = pluginsInfos.remove(name);
+  
+  delete info;
 }
 
 /*!

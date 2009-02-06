@@ -33,8 +33,8 @@ class XmlParser;
 class PluginsManager
 {
 public:
-	HashMap<string, Plugin*>::Iterator begin(){return plugins.begin();}
-	HashMap<string, Plugin*>::Iterator end(){return plugins.end();}
+	HashMap<string, PluginInfo*>::Iterator begin(){return pluginsInfos.begin();}
+	HashMap<string, PluginInfo*>::Iterator end(){return pluginsInfos.end();}
 	
 	Plugin* getPlugin(string& name);
 	
@@ -55,12 +55,12 @@ public:
 	
 private:
 	HashMap<string, PluginInfo*> pluginsInfos;
-	HashMap<string, Plugin*> plugins;
 	int loadOptions(Server *server, XmlParser* languageFile);
-	int addPlugin(string& file, Server* server, 
+	void recursiveDependencesFallDown(Server* server, string name, HashMap<string,bool> remove,  HashMap<string,list<string>*> dependsOn);
+	Plugin* preLoadPlugin(string& file, Server* server, 
                 XmlParser* languageFile, bool global);
                 
-    int loadInfo(string& name, string& path);
+    PluginInfo* loadInfo(Server* server, string& name, string& path);
 };
 
 #endif

@@ -526,11 +526,7 @@ void Server::loadPlugins()
   }
 
 
-  //getPluginsManager()->addNamespace(&executors);
-  //getPluginsManager()->addNamespace(&protocols);
-  //getPluginsManager()->addNamespace(&filters);
-  //getPluginsManager()->addNamespace(&genericPluginsManager);
-
+  
   getPluginsManager()->preLoad(this, &languageParser, *externalPath);
   getPluginsManager()->load(this, &languageParser, *externalPath);
   getPluginsManager()->postLoad(this, &languageParser);

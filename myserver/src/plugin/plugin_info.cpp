@@ -37,6 +37,7 @@ PluginInfo::PluginInfo(string& name, bool enabled, bool global)
   this->version = 0;
   this->msMinVersion = 0;
   this->msMaxVersion = 0;
+  this->plugin = NULL;
 }
 
 
@@ -47,7 +48,8 @@ PluginInfo::PluginInfo(string& name, bool enabled, bool global)
 */	
 PluginInfo::~PluginInfo()
 {
-
+  if (this->plugin)
+  	delete this->plugin;
 }
 
 /*!
@@ -133,6 +135,56 @@ int PluginInfo::setMyServerMaxVersion(int v)
 string PluginInfo::getName()
 {
   return this->name;
+}
+
+/*!
+ * Returns the plugin object.
+*/
+Plugin* PluginInfo::getPlugin()
+{
+  return this->plugin;
+}
+
+/*!
+ * Sets the state of the plugin.
+*/
+void PluginInfo::setEnabled(bool enabled)
+{
+  this->enabled = enabled;	
+}
+
+/*!
+ * Returns the depandence, if any exists, with a plugin with the specified name.
+*/
+pair<int,int>* PluginInfo::getDependence(string name)
+{   
+	if(dependences.empty())
+	  return NULL;
+	if (!this->dependences.containsKey(name))
+	  return NULL;
+  	pair<int,int>* p =  this->dependences.get(name);
+  	if (p)
+  	  return p;
+  	return NULL;
+}
+/*!
+ * Sets the plugin object.
+*/
+void PluginInfo::setPlugin(Plugin* plugin)
+{
+  //if(this->plugin)
+  //	delete this->plugin;
+  this->plugin = plugin;
+}
+
+/*!
+ * Removes the plugin object.
+*/
+Plugin* PluginInfo::removePlugin()
+{
+  if(this->plugin)
+  	delete this->plugin;
+  this->plugin = NULL;
 }
 
 /*!
