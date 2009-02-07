@@ -858,7 +858,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     if (!(td->permissions & MYSERVER_PERMISSION_READ))
       return sendAuth ();
 
-    manager = staticHttp.dynManagerList.getHttpManager ("FILE");
+    manager = staticHttp.dynManagerList.getHttpManager ("SEND");
 
     if (!manager)
       return raiseHTTPError (500);
@@ -2036,7 +2036,7 @@ int Http::loadProtocolStatic(XmlParser* languageParser)
   HttpFile::load (configurationFileManager);
   HttpDir::load (configurationFileManager);
 
-  staticHttp.dynManagerList.addHttpManager ("FILE", staticHttp.httpFile);
+  staticHttp.dynManagerList.addHttpManager ("SEND", staticHttp.httpFile);
   staticHttp.dynManagerList.addHttpManager ("DIR", staticHttp.httpDir);
   staticHttp.dynManagerList.addHttpManager ("CGI", staticHttp.cgi);
   staticHttp.dynManagerList.addHttpManager ("MSCGI", staticHttp.mscgi);
