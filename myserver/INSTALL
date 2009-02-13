@@ -1,24 +1,50 @@
                      GNU MyServer
 
-I. Compiling from Source
+Copyright (C) 2002-2009 Free Software Foundation, Inc.
 
-MyServer can be compiled from source with:
+This file contains generic information describing how build and
+install MyServer, please refer to your operating system manual for
+more detailed information about how source packages should be
+installed.
 
-./configure
+BULD MYSERVER FROM SOURCE CODE
 
-You can pass special environment and specific options 
-to configure.  To view them type "./configure --help" 
-instead.
+MyServer can be compiled from its source code using the `configure'
+shell script which attempts to guess the correct configuration for
+various system dependent variables.
 
-To compile the sources type:
+After the configure script has checked if MyServer can be compiled on
+your system and have setted some variables, you can build it using the
+`make' utility.
 
-make
+To compile MyServer from source code then you will need:
 
-Finally to install the sources type:
+   1. `cd' to the directory where the source code is contained.
+   2. ./configure
+   3. make
 
-make install (as root user)
+It is possible to install the obtained binaries invoking:
 
-II. Binary Version
+make install
 
-Binary versions can be always downloaded from:
+
+EXTERNAL DEPENDENCIES
+
+In order to build MyServer you will need the following external
+libraries:
+
+- libxml2
+- GNU libidn
+- GNU tls
+- libevent
+- libz
+
+Be sure to have all of them before build MyServer.
+
+
+BINARIES
+
+It may be possible to find precompiled binaries for your platform
+here:
+
 http://savannah.gnu.org/projects/myserver/
