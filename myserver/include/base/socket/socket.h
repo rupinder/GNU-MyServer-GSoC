@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -52,9 +52,9 @@ extern "C" {
 #endif
 
 #ifdef INET6_ADDRSTRLEN
-#define MAX_IP_STRING_LEN	INET6_ADDRSTRLEN
+#define MAX_IP_STRING_LEN  INET6_ADDRSTRLEN
 #else
-#define MAX_IP_STRING_LEN	32
+#define MAX_IP_STRING_LEN  32
 #endif
 
 typedef struct sockaddr_storage MYSERVER_SOCKADDR_STORAGE;
@@ -67,39 +67,39 @@ class Socket: public Stream
 public:
   static int startupSocketLib ();
 
-	void setServerSocket(Socket*);
-	Socket* getServerSocket();
+  void setServerSocket(Socket*);
+  Socket* getServerSocket();
 
-	static void stopBlockingOperations(bool);
-	virtual FileHandle getHandle();
-	void setHandle(FileHandle);
-	static MYSERVER_HOSTENT *gethostbyaddr(char* addr, int len, int type);
-	static MYSERVER_HOSTENT *gethostbyname(const char*);
-	static int gethostname(char*, int);
-	int socket(int, int, int);
-	int bind(MYSERVER_SOCKADDR*, int);
-	int listen(int);
-	Socket();
-	Socket(Socket*);
-	Socket(FileHandle);
-	Socket accept(MYSERVER_SOCKADDR*, int*);
-	int setsockopt(int,int, const char*,int);
+  static void stopBlockingOperations(bool);
+  virtual FileHandle getHandle();
+  void setHandle(FileHandle);
+  static MYSERVER_HOSTENT *gethostbyaddr(char* addr, int len, int type);
+  static MYSERVER_HOSTENT *gethostbyname(const char*);
+  static int gethostname(char*, int);
+  int socket(int, int, int);
+  int bind(MYSERVER_SOCKADDR*, int);
+  int listen(int);
+  Socket();
+  Socket(Socket*);
+  Socket(FileHandle);
+  Socket accept(MYSERVER_SOCKADDR*, int*);
+  int setsockopt(int,int, const char*,int);
 
-	virtual int connect(MYSERVER_SOCKADDR*, int);
-	virtual int close();
-	virtual int shutdown(int how);
-	virtual int recv(char*, int, int, u_long);
-	virtual int recv(char*, int, int);
-	virtual u_long bytesToRead();
+  virtual int connect(MYSERVER_SOCKADDR*, int);
+  virtual int close();
+  virtual int shutdown(int how);
+  virtual int recv(char*, int, int, u_long);
+  virtual int recv(char*, int, int);
+  virtual u_long bytesToRead();
 
-	int ioctlsocket(long, unsigned long*);
-	int send(const char*, int, int);
-	int connect(const char* host, u_short port);
-	int operator==(Socket);
-	int operator=(Socket);
-	int getsockname(MYSERVER_SOCKADDR*,int*);
+  int ioctlsocket(long, unsigned long*);
+  int send(const char*, int, int);
+  int connect(const char* host, u_short port);
+  int operator==(Socket);
+  int operator=(Socket);
+  int getsockname(MYSERVER_SOCKADDR*,int*);
   int setNonBlocking(int);
-	virtual int dataOnRead(int sec = 0, int usec = 500);
+  virtual int dataOnRead(int sec = 0, int usec = 500);
 
   u_long getThrottling();
   void setThrottling(u_long);
@@ -110,19 +110,19 @@ public:
 
 protected:
 #ifdef WIN32
-	SOCKET socketHandle;
+  SOCKET socketHandle;
 #else
-	FileHandle socketHandle;
+  FileHandle socketHandle;
 #endif
 
-	/*! Pointer to the socket that has accepted this connection.  */
-	Socket *serverSocket;
+  /*! Pointer to the socket that has accepted this connection.  */
+  Socket *serverSocket;
 
   /*! Send throttling rate.  */
   u_long throttlingRate;
 
-	/*! Stop the sockets system.  */
-	static bool denyBlockingOperations;
+  /*! Stop the sockets system.  */
+  static bool denyBlockingOperations;
 
   virtual int rawSend(const char* buffer, int len, int flags);
 };
