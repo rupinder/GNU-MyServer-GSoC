@@ -27,7 +27,7 @@ from xml.dom.minidom import Node
 import string
 
 def print_help():
-    print "usage: scons [package|release] plugin=<plugin1>,<plugin2>,...,<pluginN>"
+    print "usage: scons [command=build|package] plugin=<plugin1>,<plugin2>,...,<pluginN>"
 
 src_dir = "src/"
 bin_dir = "bin/"
@@ -35,6 +35,19 @@ release_dir = "pub/"
 
 plugin = ARGUMENTS.get('plugin', "")
 command = ARGUMENTS.get('command', "build")
+
+
+arch = ""
+import os
+if os.name=="nt":
+    arch = "win32"
+else:
+    import string
+    arch = string.lower(os.uname()[0])
+    if string.find(os.uname()[4],"64")==-1:
+        arch = arch + "32"
+    else:
+        arch = arch + "64"
 
 
 if plugin=="":
@@ -56,6 +69,7 @@ listinc=[
       ]
     
 
+
 def tar_package(src_dir, name, filename):
     import tarfile
     tarf = tarfile.open(filename.encode("ascii"),"w|gz")
@@ -68,36 +82,20 @@ def build_plugin(name):
     Command(dest_dir + "/plugin.xml",src_dir + name + "/plugin.xml", Copy("$TARGET", "$SOURCE"))
     
 def build_plugins(plugins):
-	for name in plugins:
+    for name in plugins:
 		build_plugin(name)
-		
 
 def pack_plugin(name):
     doc = xml.dom.minidom.parse(bin_dir + name + "/plugin.xml")
     version = doc.getElementsByTagName("VERSION")
-    filename = name + "-" + version[0].firstChild.data + ".tar.gz"
+    filename = name + "-" + version[0].firstChild.data + "-" + arch + ".tar.gz"
     tar_package(bin_dir, name, release_dir + filename)	
-
+    
 
 
 def pack_plugins(plugins):
-	for name in plugins:
+    for name in plugins:
 		pack_plugin(name)
-
-
-build = True
-package = False
-release = False
-
-  
-
-if command=='package':
-	build = False
-	package = True
-	
-if command=='release':
-	package = True
-	release = True
 
 
 env = Environment(CPPPATH=listinc,CXXFLAGS="-fPIC -DPIC  -DHAVE_CONFIG_H",
@@ -113,11 +111,16 @@ if not conf.CheckCXXHeader("include/server/server.h"):
 
 env = conf.Finish()
 
-if build:
+if command=='build':
 	build_plugins(plugins)
 
-if package:
-	pack_plugins(plugins)
+
+
+if command=='package':
+    pack_plugins(plugins)
+
+    
+
 
 #TODO: test compile and run.
 #if command == "build":
