@@ -72,7 +72,9 @@ public:
   int count (void* owner, string type, string location);
   int clear ();
   int getOwnersList (string, list<void*>*);
-protected:
+  list<string> getLoggingLevelsByNames ();
+  map<LoggingLevel, string>& getLoggingLevels () { return loggingLevels; }
+private:
   int notify (void* owner, string type, string location, LogStreamEvent evt, 
               void* msg = 0, void* reply = 0);
   int notify (void* owner, string type, LogStreamEvent evt, void* msg = 0, 
@@ -82,8 +84,9 @@ protected:
   int add (void* owner, string type);
   int add (void* owner, string type, string location, LogStream* ls);
   int computeNewLine ();
+  void associateLoggingLevelsWithNames ();
   int logWriteln (string, LoggingLevel);
-private:
+
   LoggingLevel level;
   Mutex* mutex;
   LogStreamFactory* lsf;
@@ -110,6 +113,11 @@ private:
    * Store the newline string for the host operating system.
    */
   string newline;
+  
+  /*!
+   * Associate each LoggingLevel with its string representation.
+   */
+  map<LoggingLevel, string> loggingLevels;
 };
 
 #endif

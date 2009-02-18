@@ -17,64 +17,51 @@
 
 #include <include/filter/console.h>
 
-#ifdef WIN32
-WORD colors[] =
-  {
-    /* Foreground colors */
-    0, // Black
-    FOREGROUND_RED, // Red
-    FOREGROUND_GREEN, // Green
-    FOREGROUND_RED | FOREGROUND_GREEN, // Yellow
-    FOREGROUND_BLUE, // Blue
-    FOREGROUND_RED | FOREGROUND_BLUE, // Magenta
-    FOREGROUND_BLUE | FOREGROUND_GREEN, // Cyan
-    FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, // White
-    FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE, // Reset
-    -1, // None
-    /* Background colors */
-    0, // Black
-    BACKGROUND_RED, // Red
-    BACKGROUND_GREEN, // Green
-    BACKGROUND_RED | BACKGROUND_GREEN, // Yellow
-    BACKGROUND_BLUE, // Blue
-    BACKGROUND_RED | BACKGROUND_BLUE, // Magenta
-    BACKGROUND_BLUE | BACKGROUND_GREEN, // Cyan
-    BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE, // White
-    0, // Reset
-    -1 // None
-  };
-#endif
-#ifdef NOT_WIN
-char const* colors[] =
-  {
-    /* Foreground colors */
-    "\033[30m", // Black
-    "\033[31m", // Red
-    "\033[32m", // Green
-    "\033[33m", // Yellow
-    "\033[34m", // Blue
-    "\033[35m", // Magenta
-    "\033[36m", // Cyan
-    "\033[37m", // White
-    "\033[0m", // Reset
-    "NO_COLOR", // None
-    /* Background colors */
-    "\033[40m", // Black
-    "\033[41m", // Red
-    "\033[42m", // Green
-    "\033[43m", // Yellow
-    "\033[44m", // Blue
-    "\033[45m", // Magenta
-    "\033[46m", // Cyan
-    "\033[47m", // White
-    "\033[0m", // Reset
-    "NO_COLOR" // None
-  };
-#endif
-
 Console::Console () : Stream ()
 {
   fd = 0;
+#ifdef WIN32
+  fg_colors["black"] = 0;
+  fg_colors["red"] = FOREGROUND_RED;
+  fg_colors["green"] = FOREGROUND_GREEN;
+  fg_colors["yellow"] = FOREGROUND_RED | FOREGROUND_GREEN;
+  fg_colors["blue"] = FOREGROUND_BLUE;
+  fg_colors["magenta"] = FOREGROUND_RED | FOREGROUND_BLUE;
+  fg_colors["cyan"] = FOREGROUND_BLUE | FOREGROUND_GREEN;
+  fg_colors["white"] = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+  fg_colors["reset"] = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+
+  bg_colors["black"] = 0;
+  bg_colors["red"] = BACKGROUND_RED;
+  bg_colors["green"] = BACKGROUND_GREEN;
+  bg_colors["yellow"] = BACKGROUND_RED | BACKGROUND_GREEN;
+  bg_colors["blue"] = BACKGROUND_BLUE;
+  bg_colors["magenta"] = BACKGROUND_RED | BACKGROUND_BLUE;
+  bg_colors["cyan"] = BACKGROUND_BLUE | BACKGROUND_GREEN;
+  bg_colors["white"] = BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
+  bg_colors["reset"] = 0;
+#endif
+#ifdef NOT_WIN
+  fg_colors["black"] = "\033[30m";
+  fg_colors["red"] = "\033[31m";
+  fg_colors["green"] = "\033[32m";
+  fg_colors["yellow"] = "\033[33m";
+  fg_colors["blue"] = "\033[34m";
+  fg_colors["magenta"] = "\033[35m";
+  fg_colors["cyan"] = "\033[36m";
+  fg_colors["white"] = "\033[37m";
+  fg_colors["reset"] = "\033[0m";
+
+  bg_colors["black"] = "\033[40m";
+  bg_colors["red"] = "\033[41m";
+  bg_colors["green"] = "\033[42m";
+  bg_colors["yellow"] = "\033[43m";
+  bg_colors["blue"] = "\033[44m";
+  bg_colors["magenta"] = "\033[45m";
+  bg_colors["cyan"] = "033[46m";
+  bg_colors["white"] = "\033[47m";
+  bg_colors["reset"] = "\033[0m";
+#endif
 }
 
 Console::~Console ()
@@ -135,52 +122,50 @@ Console::openConsole (string fd)
 }
 
 /*!
- * Check that only allowed values are provided for background and 
- * foreground colors.
- * \param c the array to validate.
- * \return 0 if c is a valid array, 1 else.
- */
-int
-Console::checkColors (MyServerColor c[])
-{
-  return 
-    c[0] < MYSERVER_FG_COLOR_BLACK || 
-    c[0] > MYSERVER_FG_COLOR_NONE ||
-    c[1] < MYSERVER_BG_COLOR_BLACK || 
-    c[1] > MYSERVER_BG_COLOR_NONE;
-}
-
-/*!
- * Set the attributes for the console text.
- * \param c c[0] holds the foreground color, c[1] the background one.
+ * Set the attributes for the console text. If a not valid color is provided,
+ * the console attribute for both background and foreground text will be
+ * reset.
+ * \param fg_color the foreground text attribute.
+ * \param bg_color the background text attribute.
  * \return 0 on success, 1 on error.
  */
 int
-Console::setColor (MyServerColor c[])
+Console::setColor (string fg_color, string bg_color)
 {
-  if (!checkColors (c))
-    {
 #ifdef WIN32
-      WORD attrs =
-        ((c[0] != MYSERVER_FG_COLOR_NONE) ? colors[c[0]] : 0) |
-        ((c[1] != MYSERVER_BG_COLOR_NONE) ? colors[c[1]] : 0);
-      DWORD nStdHandle = (fd == &cout) ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE;
-      HANDLE h = GetStdHandle (nStdHandle);
-      SetConsoleTextAttribute (attrs, h);
+  WORD attrs;
+  DWORD nStdHandle;
+  HANDLE h;
+  if (fg_colors.count (fg_color) && bg_colors.count (bg_color))
+    {
+      attrs = fg_colors[fg_color] | bg_colors[bg_color];
+    }
+  else
+    {
+      attrs = fg_colors["reset"] | bg_colors["reset"];
+    }
+  if (fd == &cout)
+    {
+      nStdHandle = STD_OUTPUT_HANDLE;
+    }
+  else
+    {
+      nStdHandle = STD_ERROR_HANDLE;
+    }
+  h = GetStdHandle (nStdHandle);
+  SetConsoleTextAttribute (attrs, h);
 #endif
 #ifdef NOT_WIN
-      if (c[0] != MYSERVER_FG_COLOR_NONE)
-        {
-          *fd << colors[c[0]];
-        }
-      if (c[1] != MYSERVER_BG_COLOR_NONE)
-        {
-          *fd << colors[c[1]];
-        }
+  if (fg_colors.count (fg_color) && bg_colors.count (bg_color))
+    {
+      *fd << fg_colors[fg_color].c_str () << bg_colors[bg_color].c_str ();
+    }
+  else
+    {
+      *fd << fg_colors["reset"].c_str () << bg_colors["reset"].c_str ();
+    }
 #endif
       return 0;
-    }
-  return 1;
 }
 
 /*!
@@ -191,6 +176,5 @@ Console::setColor (MyServerColor c[])
 int
 Console::reset ()
 {
-  MyServerColor c[] = { MYSERVER_FG_COLOR_RESET, MYSERVER_BG_COLOR_RESET };
-  return setColor (c);
+  return setColor ("reset", "reset");
 }

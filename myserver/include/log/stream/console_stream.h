@@ -20,12 +20,11 @@
 #define CONSOLE_STREAM_H
 
 #include <list>
+#include <map>
 #include <string>
 
 #include <include/log/stream/log_stream.h>
 #include <include/filter/console.h>
-
-extern MyServerColor defaultColors[][2];
 
 class ConsoleStream : public LogStream
 {

@@ -50,6 +50,10 @@
 	<!--DEFINE THE MAX NUMBER OF CONNECTIONS TO ACCEPT.-->
 	<MAX_CONNECTIONS_TO_ACCEPT>0</MAX_CONNECTIONS_TO_ACCEPT>
 
+        <!-- TEXT AND BACKGROUND ATTRIBUTES FOR CONSOLE LOG MESSAGES. -->
+        <CONSOLE_COLORS info_fg="white" info_bg="black" warning_fg="yellow" 
+                        warning_bg="black" error_fg="red" error_bg="black"/>
+        
 	<!--MAX SIZE OF THE LOG FILE IN BYTES	-->
 	<MAX_LOG_FILE_SIZE>1048576</MAX_LOG_FILE_SIZE>
 

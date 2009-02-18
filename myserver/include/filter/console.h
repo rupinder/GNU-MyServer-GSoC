@@ -20,43 +20,11 @@
 #define CONSOLE_H
 
 #include <iostream>
+#include <map>
 
 #include <include/filter/stream.h>
 
 using namespace std;
-
-enum MyServerColor
-  {
-    /* Foreground colors. */
-    MYSERVER_FG_COLOR_BLACK,
-    MYSERVER_FG_COLOR_RED,
-    MYSERVER_FG_COLOR_GREEN,
-    MYSERVER_FG_COLOR_YELLOW,
-    MYSERVER_FG_COLOR_BLUE,
-    MYSERVER_FG_COLOR_MAGENTA,
-    MYSERVER_FG_COLOR_CYAN,
-    MYSERVER_FG_COLOR_WHITE,
-    MYSERVER_FG_COLOR_RESET,
-    MYSERVER_FG_COLOR_NONE,
-    /* Background colors */
-    MYSERVER_BG_COLOR_BLACK,
-    MYSERVER_BG_COLOR_RED,
-    MYSERVER_BG_COLOR_GREEN,
-    MYSERVER_BG_COLOR_YELLOW,
-    MYSERVER_BG_COLOR_BLUE,
-    MYSERVER_BG_COLOR_MAGENTA,
-    MYSERVER_BG_COLOR_CYAN,
-    MYSERVER_BG_COLOR_WHITE,
-    MYSERVER_BG_COLOR_RESET,
-    MYSERVER_BG_COLOR_NONE
-  };
-
-#ifdef WIN32
-extern WORD colors[];
-#endif
-#ifdef NOT_WIN
-extern char const* colors[];
-#endif
 
 class Console : public Stream
 {
@@ -67,11 +35,18 @@ public:
   virtual int read (char* buffer, u_long len, u_long* nbr);
   virtual int write (const char* buffer, u_long len, u_long* nbw);
   virtual int openConsole (string fd);
-  int setColor (MyServerColor color[]);
+  int setColor (string fg_color, string bg_color);
   int reset ();
 protected:
-  int checkColors (MyServerColor c[]);
   ostream* fd;
+#ifdef WIN32
+  map<string, WORD> fg_colors;
+  map<string, WORD> bg_colors;
+#endif
+#ifdef NOT_WIN
+  map<string, string> fg_colors;
+  map<string, string> bg_colors;
+#endif
 };
 
 #endif

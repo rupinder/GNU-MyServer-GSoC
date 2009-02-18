@@ -160,6 +160,9 @@ public:
   AuthMethodFactory *getAuthMethodFactory () {return &authMethodFactory;}
   ValidatorFactory *getValidatorFactory (){return &validatorFactory;}
 
+  map<string, string>& getConsoleColors () { return consoleColors; }
+
+  LogManager* getLogManager () { return logManager; }
 
 private:
   friend class ClientsThread;
@@ -262,6 +265,7 @@ private:
   AuthMethodFactory authMethodFactory;
   ValidatorFactory validatorFactory;
   SecurityManager securityManager;
+  map<string, string> consoleColors;
 };
 
 #endif

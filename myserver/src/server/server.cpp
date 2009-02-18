@@ -983,7 +983,6 @@ const char *Server::getServerAdmin()
  */
 int Server::initialize()
 {
-  initLogManager ();
   char *data;
 #ifdef WIN32
   envString = GetEnvironmentStrings();
@@ -1010,6 +1009,28 @@ int Server::initialize()
 
   if(configurationFileManager.open(mainConfigurationFile->c_str()))
     return -1;
+
+  /*
+   * Process console colors information.
+   */
+  list<string> levels = logManager->getLoggingLevelsByNames ();
+  for (list<string>::iterator it = levels.begin (); it != levels.end (); it++)
+    {
+      string fg (*it + "_fg");
+      string bg (*it + "_bg");
+      data = configurationFileManager.getAttr ("CONSOLE_COLORS", fg.c_str ());
+      if (data)
+        {
+          consoleColors[fg] = string (data);
+        }
+      data = configurationFileManager.getAttr ("CONSOLE_COLORS", bg.c_str ());
+      if (data)
+        {
+          consoleColors[bg] = string (data);
+        }
+    }
+
+  initLogManager ();
 
   data = configurationFileManager.getValue("LANGUAGE");
   if(languageFile)

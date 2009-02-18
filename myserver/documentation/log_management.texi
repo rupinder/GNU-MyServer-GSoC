@@ -13,17 +13,17 @@ This section will introduce you to the use of the log management
 features.
 
 @subsection Location strings
-A location string must be provided in the form
-@code{protocol://resource}, where @code{protocol} can ben choosen
-between :
+A location string can be provided as an URI; the basic schema is in
+the form @code{protocol://resource}. @code{protocol} can be chosen
+between
 @enumerate
 @item @code{console}
 @item @code{file}
 @item @code{socket}
 @end enumerate
-while @code{resource} must be a valid filename or URL according to its
-@code{protocol}. The @code{console} protocol, can take as its
-@code{resource} argument, either @code{stdout} or @code{stderr}. 
+and @code{resource} can be either a valid filename or an hostname according
+to its @code{protocol}. The @code{console} protocol, can take as its
+@code{resource} argument, either @code{stdout} or @code{stderr}.
 
 @subsubsection Location string examples
 @enumerate
@@ -62,7 +62,7 @@ can see in the following example, the @code{ACCESSLOG} root entry for
 the accesses log configuration, contains some @code{STREAM} nodes, and
 each @code{STREAM} contains two attributes, the mandatory
 @code{location} and the optional @code{cycle}. A @code{STREAM} node, can
-also contain optional @code{FILTER} subnodes, one for each filter that
+also contain optional @code{FILTER} sub-nodes, one for each filter that
 we want to add to the @code{STREAM}.
 @example
 <ACCESSLOG type="combined">
@@ -90,5 +90,28 @@ it is assumed to be zero by default, which means to never cycle the
   <STREAM location="file://MyServerHTTP.err"/>
 </WARNINGLOG>
 @end example
-If a wrong filter is specified, its relative @code{STREAM} willn't 
+If a wrong filter is specified, its relative @code{STREAM} will not
 be added.
+
+@subsection Console colors
+It is possible to set color attributes for the text written over the
+console. In this way, messages can look different according to the
+logging level which they belong to.
+For example, you may wish to write error messages with a red text over a
+black background, info messages with a white text over a black
+background and warning messages with a yellow text over a black
+background. You can easily tell MyServer about that information by
+editing the @file{myserver.xml} configuration file and adding the
+following code:
+@example
+<CONSOLE_COLORS info_fg="white" info_bg="black" warning_fg="yellow" 
+                warning_bg="black" error_fg="red" error_bg="black"/>
+@end example
+Allowed values for colors are @code{black}, @code{red}, @code{green},
+@code{yellow}, @code{blue}, @code{magenta}, @code{cyan} and
+@code{white}. The two common suffixes @code{fg} and @code{bg} represent
+respectively the foreground attribute and the background one, while the
+three prefixes, @code{info}, @code{warning} and @code{error} represent
+kinds of logging messages managed by MyServer.
+If the @code{CONSOLE_COLORS} information is missing or it is partially
+provided, MyServer will use default values.

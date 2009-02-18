@@ -16,33 +16,7 @@
 */
 
 #include <include/log/stream/console_stream.h>
-
-/*!
- * Default color values to use when outputting log messages over the
- * console. Change them according to your tastes :)
- *
- * defaultColors[i][0] = Foreground color for the LoggingLevel `i'
- * defaultColors[i][1] = Background color for the LoggingLevel `i'
- */
-MyServerColor defaultColors[][2] =
-  {
-    {
-      MYSERVER_FG_COLOR_RESET, // } MYSERVER_LOG_MSG_PLAIN
-      MYSERVER_BG_COLOR_RESET  // } Don't modify this
-    },
-    {
-      MYSERVER_FG_COLOR_WHITE, // } MYSERVER_LOG_MSG_INFO
-      MYSERVER_BG_COLOR_NONE  // }
-    },
-    {
-      MYSERVER_FG_COLOR_YELLOW, // } MYSERVER_LOG_MSG_WARNING
-      MYSERVER_BG_COLOR_NONE   // }
-    },
-    {
-      MYSERVER_FG_COLOR_RED,   // } MYSERVER_LOG_MSG_ERROR
-      MYSERVER_BG_COLOR_NONE  // }
-    }
-  };
+#include <include/server/server.h>
 
 ConsoleStream::ConsoleStream (FiltersFactory* ff, u_long cycle, Stream* out,
                               FiltersChain* fc) :  
@@ -59,7 +33,22 @@ int
 ConsoleStream::setMode (LoggingLevel level)
 {
   mutex->lock ();
-  int success = dynamic_cast<Console*>(out)->setColor (defaultColors[level]);
+  int success = 1;
+  Console* c = dynamic_cast<Console*>(out);
+  if (level == MYSERVER_LOG_MSG_PLAIN)
+    {
+      success = c->setColor ("reset", "reset");
+    }
+  else
+    {
+      Server* server = Server::getInstance ();
+      LogManager* lm = server->getLogManager ();
+      map<string, string> userColors = server->getConsoleColors ();
+      map<LoggingLevel, string> levels = lm->getLoggingLevels ();
+      string fg_color = userColors[levels[level] + "_fg"];
+      string bg_color = userColors[levels[level] + "_bg"];
+      success = c->setColor (fg_color, bg_color);
+    }
   mutex->unlock ();
   return success;
 }

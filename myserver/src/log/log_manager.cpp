@@ -32,6 +32,7 @@ LogManager::LogManager (FiltersFactory* ff,
   mutex = new Mutex ();
   mutex->init ();
   computeNewLine ();
+  associateLoggingLevelsWithNames ();
 }
 
 /*!
@@ -956,4 +957,28 @@ LogManager::logWriteln (string msg, LoggingLevel l)
       return Server::getInstance ()->logWriteln (msg.c_str (), l);
     }
   return 1;
+}
+
+/*!
+ * \return a list of strings each representing one of logging levels that
+ * MyServer understands.
+ */
+list<string>
+LogManager::getLoggingLevelsByNames ()
+{
+  list<string> l; 
+  for (map<LoggingLevel, string>::iterator it = loggingLevels.begin ();
+       it != loggingLevels.end (); it++)
+    {
+      l.push_back (it->second);
+    }
+  return l;
+}
+
+void
+LogManager::associateLoggingLevelsWithNames ()
+{
+  loggingLevels[MYSERVER_LOG_MSG_INFO] = "info";
+  loggingLevels[MYSERVER_LOG_MSG_WARNING] = "warning";
+  loggingLevels[MYSERVER_LOG_MSG_ERROR] = "error";
 }
