@@ -16,24 +16,26 @@ Anyone know the public key but only the owner knows the private one.
 In this way the key owner do not have to distribute the key only to
 know clients but he can distributes it to a large scale network.
 
-@section How create SSL certificates with OpenSSL
+@section How create SSL certificates with GNU TLS
 A certificate is needed to certify your identity through a
 CA (Certification Authority).  You can use a certificate without
 register it to third party CA, it is called self-signed certificate.
-You can find all the necessary tools to create certificates in  the
-library OpenSSL at: www.openssl.org.
+You can find all the necessary tools to create certificates in the
+GNU TLS command line tools.  Look here for more information:
+@url{http://www.gnu.org/software/gnutls/}.
 
-After OpenSSL is installed correctly, type the following commands:
+To generate a private key/self signed certificate couple you will need
+to execute these two commands:
 
 @example
-openssl genrsa -out server.key
-openssl req -new -x509 -days 730 -config openssl.cnf \
-        -key server.key -out server.pem
+certtool --generate-privkey --outfile cert.key
+certtool --generate-self-signed --load-privkey cert.key \
+         --outfile cert.pem
 @end example
 
 @section How use certificates in MyServer
 To configure certificates in MyServer you have to put the two files:
-@code{server.key}, @code{server.pem} in the MyServer certificates
+@code{cert.key}, @code{cert.pem} in the MyServer certificates
 directory.
 
 To configure a HTTPS host that will use the created certificate, add
@@ -43,8 +45,8 @@ the following lines in the @file{virtualhosts.xml} file:
 <VHOST>
   <NAME>Every connection</NAME>
   <PORT>443</PORT>
-  <SSL_PRIVATEKEY>certificates/server.key</SSL_PRIVATEKEY>
-  <SSL_CERTIFICATE>certificates/server.pem</SSL_CERTIFICATE>
+  <SSL_PRIVATEKEY>certificates/cert.key</SSL_PRIVATEKEY>
+  <SSL_CERTIFICATE>certificates/cert.pem</SSL_CERTIFICATE>
   <PROTOCOL>HTTPS</PROTOCOL>
   <DOCROOT>web</DOCROOT>
   <SYSFOLDER>system</SYSFOLDER>

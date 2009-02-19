@@ -1,14 +1,3 @@
-In order to generate a certificate you need the certtool utility
-provided by GNU TLS.
-Look here for more information: http://www.gnu.org/software/gnutls/.
-
-certtool --generate-privkey --outfile cert.key
-certtool --generate-self-signed --load-privkey privkey.key --outfile cert.pem
-
-These commands will create two files server.key and server.pem. Put
-them in this directory and configure your virtual host file to use these
-files adding the following lines under the <VHOST> section:
-
-<SSL_PRIVATEKEY>certificates/cert.key</SSL_PRIVATEKEY>
-<SSL_CERTIFICATE>certificates/privkey.pem</SSL_CERTIFICATE>
-<SSL_PASSWORD></SSL_PASSWORD>
+Take a look at the "How create SSL certificates with GNU TLS" section
+in the MyServer manual for a guide about how certificates should be
+created and used.
