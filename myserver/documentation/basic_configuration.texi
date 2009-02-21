@@ -1,6 +1,6 @@
 @c -*-texinfo-*-
 @section Configuration files
-The configuration is done trought three different XML files:
+The MyServer configuration is done using three different XML files:
 
 @itemize
 @item @file{myserver.xml}
@@ -24,11 +24,17 @@ following order:
 @item Global scope inside /etc/myserver.
 @end enumerate
 
+@section Message localization
+It is possible to change the localization for some MyServer messages
+changing the @code{LANGUAGE} value in the @file{myserver.xml} file.
+By default the english language is used, the value specified here must
+refer to a xml file contained in the @file{languages/} directory.
+
 @section Default resource
 In the @file{myserver.xml} file it is possible to set the default page
-for the sites hosted on MyServer.
+for the HTTP/HTTPS sites hosted on MyServer.
 
-Similar lines already exist in your configuration file:
+Similar lines already exist in the default configuration file:
 
 @example
 <DEFAULT_FILENAME>default.htm</DEFAULT_FILENAME>

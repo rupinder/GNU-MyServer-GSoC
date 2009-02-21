@@ -27,7 +27,7 @@ A sample virtual hosts configuration file looks like:
 @itemize
 @item <NAME>
 it gives the server administrator an idea of what the virtual host
-is such as internal Ethernet, external ethernet or every connection.
+specifying a name for it.
 @item <PORT>
 it is the port used to accept connections.
 @item <IP>
@@ -86,6 +86,20 @@ Tags semantics are identical with first example.
 Although FTP is used for public file sharing, restrictions may be
 imposed using security file.
 
+@subsection Data throttling
+It is possible to specify a throttling rate for the connection by the
+@code{connection.throttling} value.  It can be specified in any
+configuration file, at a global level, in the virtual host definition
+and in the local security file.
+Its value is specified in bytes/second.
+
+The following line, for example, set the maximum transfer rate to 1
+KByte/second:
+
+@example
+    <DEFINE name="connection.throttling" value="1024"/>
+@end example
+
 @subsection HTTP specific configuration
 
 @subsubsection The LOCATION element
@@ -106,13 +120,13 @@ part of @code{PATH_INFO}.
 
 @subsubsection HTTP trace command
 MyServer gives you the option to enable the HTTP TRACE command for
-each virtual host. All you need to do is edit the @file{security.xml}
-file of the root of your virtual host (not a subdirectory!  If the
-file doesn't exist, you may create a new one), and add the parameter:
+each virtual host.
+
+This value can be specified in the global and in the virtual host
+configuration.
 
 @example
 <DEFINE name="http.allow_trace" value="YES" />
 @end example
 
-Once you do that, you enable the HTTP TRACE command. By default, it's
-disabled.
+By default, it's disabled.
