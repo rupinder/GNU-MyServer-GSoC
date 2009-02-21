@@ -281,12 +281,6 @@ void ConnectionsScheduler::initialize()
 
   dispatchedThreadId = 0;
 
-#ifdef WIN32
-#define LOCAL_SOCKETPAIR_AF AF_INET
-#else
-#define LOCAL_SOCKETPAIR_AF AF_UNIX
-#endif
-
   int err = dispatcherArg.socketPair.create ();
 
   if (err == -1)
@@ -524,7 +518,7 @@ void ConnectionsScheduler::release()
 }
 
 /*!
- *Fullfill a list with all the connections.
+ *Fill a list with all the alive connections.
  *\param out A list that will receive all the connections alive on the
  *server.
  */
