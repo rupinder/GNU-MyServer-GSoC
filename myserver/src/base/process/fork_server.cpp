@@ -214,7 +214,9 @@ int ForkServer::handleRequest (SocketPair *serverSock)
   spi.cmd.assign (exec);
   spi.arg.assign (arg);
   spi.cwd.assign (cwd);
-  spi.handlesToClose = (FileHandle[]){serverSock->getFirstHandle (), NULL};
+
+  FileHandle handlesToClose[] = {serverSock->getFirstHandle (), 0};
+  spi.handlesToClose = handlesToClose;
 
   Process pi;
   int pid = pi.exec (&spi, false);
