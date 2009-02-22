@@ -1,6 +1,7 @@
 import xml.dom.minidom
 import error
 import config
+import string
 
 class PluginInfoElement:
     def __init__(self,name,element, document):
@@ -9,13 +10,15 @@ class PluginInfoElement:
         self.document = document
     
     def __getitem__(self, key):
+        key = string.lower(key)
         if key == "value":
-            return self.__element.firstChild.data
+            return string.replace(self.element.firstChild.data,'\n','')
         att = self.element.attributes[key]
         if att!=None:
             return att.value
     
     def __setitem__(self, key, item):
+        key = string.lower(key)
         if key == "value":
             self.document.createTextNode(item)
             oldChild = self.__element.firstChild
@@ -29,11 +32,13 @@ class PluginInfo:
         self.__manager = manager
     
     def __getitem__(self, key):
+        key = string.upper(key)
         elementList = self.__xmlElement.getElementsByTagName(key)
         
-        return [PluginInfoElement(key,element.childNodes[0].data, element, self.__manager) for element in elementList]
+        return [PluginInfoElement(key, element, self.__manager) for element in elementList]
 
     def __setitem__(self, key, item):
+        key = string.upper(key)
         elementList = self.__xmlElement.getElementsByTagName(key) 
         for element in elementList:
             self.__xmlElement.removeChild(element)
@@ -43,10 +48,10 @@ class PluginInfo:
             element.document = self.__manager.listDOM
     
     def getMyServerMinVersion(self):
-        return self.__mxlElement.getAttribute("min-version")
+        return self.__xmlElement.getAttribute("min-version")
     
     def getMyServerMaxVersion(self):
-        return self.__mxlElement.getAttribute("max-version")
+        return self.__xmlElement.getAttribute("max-version")
     
     def finalize(self):
         self.__manager.synchronizeListWithFileSystem()
@@ -130,7 +135,7 @@ class ListManager:
         
         return [PluginInfo(plugin,self) for plugin in plugins]
     
-    
+
     def getRevision(self):
         pluginsList = self.listDOM.getElementsByTagName("PLUGINS")
         plugins = pluginsList[0]
