@@ -195,8 +195,8 @@ Section "MyServer core" SecCore
   File "MIMEtypes.xml.default"
   File "myserver.xml.default"
   File "virtualhosts.xml.default"
-  File "readme.txt"
-  File "license.txt"
+  File "../README"
+  File "../COPYING"
   CreateDirectory "$INSTDIR\logs"
   SetOutPath $INSTDIR\web
   File "web\*.html"
@@ -258,7 +258,7 @@ SectionEnd
 
 Section "Documentation" SecDocumentation
   SetOutPath "$INSTDIR\web\documentation"
-  File "..\documentation\myserver\*.html"
+  File "..\documentation\myserver.html\*"
 SectionEnd
 
 Section "Install other languages" SecLanguages
