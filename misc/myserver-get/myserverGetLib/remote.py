@@ -19,8 +19,12 @@ class RepositoryManager:
     
     def getRepository(self, url):
         url = string.lower(url)
-        if string.find(url,"svn")!=-1:
+        if string.find(url,"svn")==0:
             return self.__reps["svn"]
+        elif string.find(url,"http")==0:
+            return self.__reps["http"]
+        elif string.find(url,"ftp")==0:
+            return self.__reps["ftp"]
         return None
             
 if __name__ == "__main__":

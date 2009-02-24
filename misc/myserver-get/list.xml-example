@@ -1,0 +1,8 @@
+<!--TO PUT INTO REPOSITORY ROOT -->
+<PLUGINS revision="1">
+    <PLUGIN>php</PLUGIN>
+    <PLUGIN>python_http_handler</PLUGIN>
+    <PLUGIN>rules_checker</PLUGIN>
+    <PLUGIN>python</PLUGIN>
+    <PLUGIN>http_checker</PLUGIN>
+</PLUGINS>

@@ -3,6 +3,7 @@ import local
 import config
 import remote
 import remoteSvn
+import remoteGenericUrl
 import console
 
 class MyServerGet:
@@ -11,6 +12,8 @@ class MyServerGet:
         self.__listDir = listDir
         self.__repManager = remote.RepositoryManager()
         self.__repManager.addSupportedRepository("svn",remoteSvn.RepositorySvn)
+        self.__repManager.addSupportedRepository("http",remoteGenericUrl.RepositoryGenericUrl)
+        self.__repManager.addSupportedRepository("ftp",remoteGenericUrl.RepositoryGenericUrl)
         self.__list = []
         self.loadRepositoryList()
     

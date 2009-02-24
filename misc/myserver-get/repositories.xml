@@ -1,3 +1,3 @@
 <REPOSITORIES>
-   <REPOSITORY>svn://svn.savannah.gnu.org/myserver/trunk/plugins</REPOSITORY>
+   <REPOSITORY>http://localhost/plugins</REPOSITORY>
 </REPOSITORIES>
