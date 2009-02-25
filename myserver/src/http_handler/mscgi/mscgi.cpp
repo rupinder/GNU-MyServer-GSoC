@@ -127,7 +127,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 
     if(ProcMain)
     {
-      (ProcMain)(cmdLine, &data);
+      (ProcMain)(td->request.uriOpts.c_str (), &data);
     }
     else
     {

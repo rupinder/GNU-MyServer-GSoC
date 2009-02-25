@@ -16,8 +16,9 @@ extern "C" int EXPORTABLE myserver_main (char *cmd, MsCgiData* data)
 extern "C" int myserver_main (char *cmd, MsCgiData* data)
 #endif
 {     
-	MscgiManager cm(data);     
-	if(strlen(cmd)==0)     
+	MscgiManager cm(data);
+
+	if(strlen (cmd) == 0)     
 	{  	
 		cm.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\r\n\
 \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\r\n\
@@ -38,7 +39,7 @@ extern "C" int myserver_main (char *cmd, MsCgiData* data)
 		char *tmp;
     int validNumbers = 1;
 		int iRes;
-		char res[22]; // a 64-bit number has a maximun of 20 digits and 1 for the sign
+		char res[22]; // a 64-bit number has a maximum of 20 digits and 1 for the sign
 		cm.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\r\n\
 \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\r\n\
 <html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">\r\n\
