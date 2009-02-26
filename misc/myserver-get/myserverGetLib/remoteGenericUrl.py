@@ -4,6 +4,7 @@ import xml.dom.minidom
 from remote import Repository
 import console
 import urllib
+import config
 
 class RepositoryGenericUrl(Repository):
     def __init__ (self,url):
@@ -45,4 +46,15 @@ class RepositoryGenericUrl(Repository):
                 pluginInfo = list.addPluginWithXml(element[0])
             list.synchronizeListWithFileSystem()
             console.write("DONE.\n")
-
+    
+    def getPluginBinary(self,list,plugin):
+        url ="%s/pub/%s-%s-%s.tar.gz" % (list.repository,plugin["name"][0]["value"],plugin["version"][0]["value"],config.arch)
+        filename = config.MYSERVER_PLUGIN_DIR + "/%s-%s-%s.tar.gz" % (plugin["name"][0]["value"],plugin["version"][0]["value"],config.arch)
+        console.writeln("Downloading %s-%s-%s.tar.gz..." % (plugin["name"][0]["value"],plugin["version"][0]["value"],config.arch))
+        try:
+            urllib.urlretrieve(url, filename)
+        except Exception:
+            console.writeln("Error while retriving remote file!")
+            return False
+        return True
+        

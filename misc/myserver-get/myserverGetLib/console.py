@@ -6,3 +6,6 @@ def write(arg):
     
 def writeln(arg):
     write(arg + "\n")
+    
+def readln():
+    return sys.stdin.readline()

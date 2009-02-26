@@ -11,7 +11,19 @@ def main(argv):
     myserverGet = MyServerGet() 
     command = ""                        
     
-    commands = {"":usage, "update":myserverGet.update, "search":myserverGet.search}
+    commands = {"":usage, "update":myserverGet.update, "search":myserverGet.search,"install":myserverGet.install}
+    
+
+    import os
+    if os.name=="nt":
+        myserverGetLib.config.arch = "win32"
+    else:
+        import string
+        myserverGetLib.config.arch = string.lower(os.uname()[0])
+        if string.find(os.uname()[4],"64")==-1:
+            myserverGetLib.config.arch = myserverGetLib.config.arch + "32"
+        else:
+            myserverGetLib.config.arch = myserverGetLib.config.arch + "64"
         
     try:                                
         opts, args = getopt.getopt(argv, "hv", ["help","verbose"]) 
@@ -23,11 +35,11 @@ def main(argv):
             usage("")                     
             sys.exit()
         elif opt in ("-v", "--verbose"):      
-            myserverGetLib.config.VERBOSE = True   
+            myserverGetLib.config.verbose = True   
     
     arguments = []
     for arg in args:
-        if arg in ("update","search"):
+        if arg in ("update","search","install"):
             command = arg
         else:
             arguments.append(arg)

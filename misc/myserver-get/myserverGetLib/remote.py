@@ -8,7 +8,8 @@ class Repository:
     def synchronizeListWithRepository(self, list):
         pass
     
-    
+    def getPluginBinary(self,list,plugin):
+        pass
     
 class RepositoryManager:
     def __init__(self):
