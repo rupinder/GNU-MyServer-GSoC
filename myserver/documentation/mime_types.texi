@@ -123,3 +123,15 @@ It is done using the @code{PATH} directive in the following way:
 
 The @code{PATH} regular expressions are checked before the file
 extension, in the order they are specified in the configuration file.
+
+@section Symbolic links
+MyServer offers the feature to follow symlinks where they are
+supported.
+You can configure MyServer to follow symbolic links specifying this
+line in the @file{myserver.xml} file.
+
+@example
+<FOLLOW_LINKS>YES</FOLLOW_LINKS>
+@end example
+
+By default MyServer doesn't follow symbolic links.

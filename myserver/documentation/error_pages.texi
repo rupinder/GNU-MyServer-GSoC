@@ -1,0 +1,23 @@
+@c -*-texinfo-*-
+
+@section Error pages
+It is possible to specify a page when a HTTP error happens using the
+option:
+
+@example
+<USE_ERROR_FILE>YES</USE_ERROR_FILE>
+@end example
+
+So, if you set the value to @code{NO}, like in the line below,
+
+@example
+<USE_ERROR_FILE>NO</USE_ERROR_FILE>
+@end example
+
+If an error page is not used MyServer will (by default) just send a
+header to your browser with the error code.
+It is possible to include a HTTP body in the error page, using:
+
+@example
+<ERRORS_INCLUDE_BODY>YES</ERRORS_INCLUDE_BODY>
+@end example

@@ -69,8 +69,10 @@ SCGI and FastCGI protocols.
 * Process security:: Process security.
 * Security files:: Describe how to use security files.
 * SSL certificates:: Show how to use SSL certificates.
+* Error pages:: How configure error pages.
+* Directory listing:: Show how directories are handled.
 * Log management:: Describe how to use the log management features.
-* Concept index::       An item for each concept.
+* Concept index:: An item for each concept.
 * GNU Free Documentation License:: The license for this documentation.
 @end menu
 
@@ -94,12 +96,22 @@ SCGI and FastCGI protocols.
 @cindex Process security
 @include process_security.texi
 
-@node Security files, SSL certificates, Process security, Top
+@node Security files, Error pages, Process security, Top
 @chapter Process security
 @cindex Process security
 @include security.texi
 
-@node SSL certificates, Log management, Security files, Top
+@node Error pages, Directory listing, Security files, Top
+@chapter Error pages
+@cindex Error pages
+@include error_pages.texi
+
+@node Directory listing, SSL certificates, Error pages, Top
+@chapter Directory listing
+@cindex Directory listing
+@include directory_listing.texi
+
+@node SSL certificates, Log management, Directory listing, Top
 @chapter SSL certificates
 @cindex SSL certificates
 @include ssl_certificates.texi

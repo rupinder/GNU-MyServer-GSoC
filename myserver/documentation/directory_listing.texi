@@ -1,0 +1,71 @@
+@c -*-texinfo-*-
+
+@section Directory Listing
+When a resource mapped to a local directory is requested, MyServer
+shows its content like an usual file manager does.
+
+
+@subsection Default files
+In the @file{myserver.xml} file it is possible to set the default file
+to send instead of the directory content.
+
+Default files are defined using the @code{DEFAULT_FILENAME} element
+and they are checked in the specified order until one is found.
+If a default file can't be found in the directory then its content is
+listed.
+
+@example
+<DEFAULT_FILENAME>default.htm</DEFAULT_FILENAME>
+<DEFAULT_FILENAME>index.htm</DEFAULT_FILENAME>
+<DEFAULT_FILENAME>default.html</DEFAULT_FILENAME>
+<DEFAULT_FILENAME>index.html</DEFAULT_FILENAME>
+@end example
+
+The previous lines define the order of files that are checked by the
+web server when a directory is requested.
+For example, given the previous configuration and a request to the
+@file{http://foo/bar/} resource, where @file{bar/} is mapped to a
+local directory, the server will look for these files in order:
+
+@example
+http://foo/bar/default.htm
+http://foo/bar/index.htm
+http://foo/bar/default.html
+http://foo/bar/index.html
+@end example
+
+If that resources don't exist then the content of @file{bar/} is
+listed.
+
+@subsection Directory listing columns
+When the directory content is listed, by default MyServer shows the
+file name, last modified time and file size.  This default bahaviour
+can be changed redefining the @code{http.dir.format} value.
+
+It can be redefined in the local security file, in the virtual host or
+in the global server configuration.
+Its value is a formatting string, columns are showed in the same order
+that they are specified.
+
+@itemize
+@item %f
+specifies the file name.
+@item %t
+specifies the file last modified time.
+@item %s
+specifies the file size.
+@end itemize
+
+For example, the @code{%f%s} value displays the file name followed
+by its size, while @code{%f%t} displays the file name and its last
+modified time.
+
+@subsection Directory listing layout
+
+You can change the layout of the directory browsing page. The line
+below, in @file{myserver.xml}, points to the CSS file used to
+configure the layout for the browsing directory pages:
+
+@example
+<BROWSEFOLDER_CSS>system/folderstyle.css</BROWSEFOLDER_CSS>
+@end example
