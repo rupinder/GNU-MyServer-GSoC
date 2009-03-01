@@ -9,7 +9,7 @@ fi
 mkdir $1
 cp -v myserver $1
 cp -v myserver-daemon $1
-cp -v *.default $1
+cp -v *.default.xml $1
 cp -v ../COPYING $1
 cp -v ../INSTALL $1
 cp -v ../NEWS $1

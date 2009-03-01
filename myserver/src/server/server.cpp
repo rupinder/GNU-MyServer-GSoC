@@ -967,15 +967,15 @@ int Server::terminate()
  *The configuration file is a XML file.
  *Return nonzero on errors.
  */
-int Server::initialize()
+int Server::initialize ()
 {
   const char *data;
 #ifdef WIN32
-  envString = GetEnvironmentStrings();
+  envString = GetEnvironmentStrings ();
 #endif
-  connectionsMutex = new Mutex();
+  connectionsMutex = new Mutex ();
 
-  threadsMutex = new Mutex();
+  threadsMutex = new Mutex ();
 
   /* Store the default values.  */
   nStaticThreads = 20;
@@ -990,10 +990,10 @@ int Server::initialize()
   maxConnections = 0;
   maxConnectionsToAccept = 0;
 
-  if(configurationFileManager.open(mainConfigurationFile->c_str()))
+  if (configurationFileManager.open (mainConfigurationFile->c_str ()))
     return -1;
 
-  readHashedData (xmlDocGetRootElement(configurationFileManager.getDoc())->xmlChildrenNode);
+  readHashedData (xmlDocGetRootElement(configurationFileManager.getDoc ())->xmlChildrenNode);
 
   /*
    * Process console colors information.
@@ -1047,57 +1047,53 @@ int Server::initialize()
     verbosity = (u_long)atoi(data);
   }
 
-
-  data = configurationFileManager.getValue("server.buffer_size");
+  data = getHashedData ("server.buffer_size");
   if(data)
   {
     buffersize=secondaryBufferSize= (atol(data) > 81920) ?  atol(data) :  81920 ;
   }
-  data = configurationFileManager.getValue("server.connection_timeout");
+
+  data = getHashedData ("server.connection_timeout");
   if(data)
   {
     connectionTimeout = MYSERVER_SEC((u_long)atol(data));
   }
 
-  data = configurationFileManager.getValue("server.static_threads");
+  data = getHashedData ("server.static_threads");
   if(data)
   {
     nStaticThreads = atoi(data);
   }
-  data = configurationFileManager.getValue("server.max_threads");
+
+  data = getHashedData ("server.max_threads");
   if(data)
   {
     nMaxThreads = atoi(data);
   }
 
   /* Get the max connections number to allow.  */
-  data = configurationFileManager.getValue("server.max_connections");
+  data = getHashedData ("server.max_connections");
   if(data)
   {
     maxConnections = atoi(data);
   }
 
   /* Get the max connections number to accept.  */
-  data = configurationFileManager.getValue("server.max_accepted_connections");
+  data = getHashedData ("server.max_accepted_connections");
   if(data)
   {
     maxConnectionsToAccept = atoi(data);
   }
 
   /* Get the default throttling rate to use on connections.  */
-  data = configurationFileManager.getValue("connection.throttling");
+  data = getHashedData ("connection.throttling");
   if(data)
   {
     throttlingRate = (u_long)atoi(data);
   }
 
-  data = configurationFileManager.getValue("connection.timeout");
-  if(data)
-  {
-    connectionTimeout=MYSERVER_SEC((u_long)atol(data));
-  }
 
-  data = configurationFileManager.getValue("server.max_log_size");
+  data = getHashedData ("server.max_log_size");
   if(data)
   {
     maxLogFileSize=(u_long)atol(data);
@@ -1112,7 +1108,7 @@ int Server::initialize()
   else
     cachedFiles.initialize(1 << 23);
 
-  data = configurationFileManager.getValue("server.temp_directory");
+  data = getHashedData ("server.temp_directory");
   if (data)
   {
     string tmpPath (data);
@@ -1122,32 +1118,33 @@ int Server::initialize()
   else
     FilesUtility::resetTmpPath ();
 
-  data = configurationFileManager.getValue("server.max_file_cache");
+  data = getHashedData ("server.max_file_cache");
   if(data)
   {
     u_long maxSize = (u_long)atol(data);
     cachedFiles.setMaxSize(maxSize);
   }
 
-  data = configurationFileManager.getValue("server.min_file_cache");
+  data = getHashedData ("server.min_file_cache");
   if(data)
   {
     u_long minSize = (u_long)atol(data);
     cachedFiles.setMinSize(minSize);
   }
 
-  data = configurationFileManager.getValue("server.uid");
+  data = getHashedData ("server.uid");
   if(data)
   {
     uid = atoi(data);
   }
-  data = configurationFileManager.getValue("server.gid");
+
+  data = getHashedData ("server.gid");
   if(data)
   {
     gid = atoi(data);
   }
 
-  data = configurationFileManager.getValue("server.max_servers");
+  data = getHashedData ("server.max_servers");
   if(data)
   {
     int maxServersProcesses = atoi(data);
