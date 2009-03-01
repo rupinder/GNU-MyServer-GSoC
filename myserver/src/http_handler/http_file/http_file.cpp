@@ -146,11 +146,16 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
       /* 
        *Use GZIP compression to send files bigger than GZIP threshold.  
        */
-      const char* val = s->host->getHashedData("GZIP_THRESHOLD");
+      const char *val = td->securityToken.getHashedData ("gzip.threshold", 
+                                                         MYSERVER_SECURITY_CONF | 
+                                                         MYSERVER_VHOST_CONF |
+                                                         MYSERVER_MIME_CONF |
+                                                         MYSERVER_SERVER_CONF, "0");
+
       useGzip = false;
-      if(val)
+      if (val)
       {
-        u_long gzipThreshold = atoi(val);
+        u_long gzipThreshold = atoi (val);
         if(bytesToSend >= gzipThreshold)
           useGzip = true;
       }

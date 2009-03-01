@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -34,9 +34,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/log/log_manager.h>
 #include <include/filter/filters_factory.h>
 #include <include/plugin/plugins_manager.h>
-//#include <include/plugin/filter/dyn_filters_manager.h>
-//#include <include/plugin/filter/dyn_filter.h>
-//#include <include/plugin/executor/dyn_executor_manager.h>
 #include <include/base/hash_map/hash_map.h>
 #include <include/base/home_dir/home_dir.h>
 #include <include/base/files_cache/cached_file_factory.h>
@@ -124,7 +121,6 @@ public:
   const char *getDefaultFilenamePath(u_long ID = 0);
   const char *getServerName();
   u_long getVerbosity();
-  const char *getServerAdmin();
   int getMaxLogFileSize();
   int mustUseLogonOption();
   void setVerbosity(u_long);
@@ -184,6 +180,7 @@ private:
   /*! Do not allow to create directly objects.  */
   Server();
 
+  void readHashedData (xmlNodePtr lcur);
   void mainLoop();
   void loadPlugins();
   void displayBoot();
@@ -199,8 +196,6 @@ private:
   HashMap<string, string*> hashedData;
   HashMap<string, void*> globalData;
   FiltersFactory filtersFactory;
-  //DynamicFiltersManager filters;
-  //DynExecutorManager executors;
   u_long uid;
   u_long gid;
   int currentThreadID;
@@ -218,12 +213,12 @@ private:
   u_long throttlingRate;
   u_long buffersize;
   u_long secondaryBufferSize;
-  /*! Buffer that contains all the local machine IP values.  */
+
+  /* Buffer that contains all the local machine IP values.  */
   string *ipAddresses;
   char serverName[HOST_NAME_MAX + 1];
   string* path;
   string* externalPath;
-  string* serverAdmin;
   int initialize();
   int addThread(bool staticThread = false);
   ConnectionPtr addConnectionToList(Socket* s, MYSERVER_SOCKADDRIN *asock_in,

@@ -201,17 +201,6 @@ void Vhost::addIP(const char *ip, int isRegex)
   IpRange *pNewRange = IpRange::RangeFactory(sTempIp);
   if ( pNewRange != NULL )
     ipListAllow.push_back(pNewRange);
-
-  /* old code
-  StringRegex* sr = new StringRegex();
-  if(sr == 0)
-    return;
-  sr->name.assign(ip);
-  / * If is a regular expression, the ip string is a pattern.  * /
-  if(isRegex)
-    sr->regex.compile(ip, REG_EXTENDED);
-  ipList.push_back(sr);
-  */
 }
 
 /*!

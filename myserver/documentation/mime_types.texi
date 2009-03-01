@@ -131,7 +131,7 @@ You can configure MyServer to follow symbolic links specifying this
 line in the @file{myserver.xml} file.
 
 @example
-<FOLLOW_LINKS>YES</FOLLOW_LINKS>
+	<DEFINE name="symlinks.follow" value="YES" />
 @end example
 
 By default MyServer doesn't follow symbolic links.

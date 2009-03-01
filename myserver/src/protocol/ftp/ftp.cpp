@@ -381,35 +381,33 @@ char* Ftp::registerNameImpl(char* out, int len)
 int Ftp::loadProtocolStatic(XmlParser*)
 {
   // load custom messages from cfg here
-  XmlParser *configurationFileManager = Server::getInstance()->getConfiguration();
-
-  if ( configurationFileManager == NULL )
-    return 0;
+  Server *server = Server::getInstance ();
 
   // allow anonymous access
-  char *pData = configurationFileManager->getValue("ALLOW_ANONYMOUS");
+  const char *pData = server->getHashedData ("ftp.allow_anonymous");
   if ( pData != NULL )
     m_bAllowAnonymous = strcmpi("Yes", pData) == 0 ? true : false;
 
   // request password for anonymous
-  pData = configurationFileManager->getValue("ANONYMOUS_NEED_PASS");
+  pData = server->getHashedData ("ftp.anonymous_need_pass");
   if ( pData != NULL )
     m_bAnonymousNeedPass = strcmpi("Yes", pData) == 0 ? true : false;
 
   // enable asyncronous cmds
-  pData = configurationFileManager->getValue("ALLOW_ASYNCHRONOUS_CMDS");
+  pData = server->getHashedData ("ftp.allow_asynchronous_cmds");
   if ( pData != NULL )
     m_bAllowAsynchronousCmds = strcmpi("Yes", pData) == 0 ? true : false;
 
   // enable pipelining
-  pData = configurationFileManager->getValue("ALLOW_PIPELINING");
+  pData = server->getHashedData ("ftp.allow_pipelining");
   if ( pData != NULL )
     m_bEnablePipelining = strcmpi("Yes", pData) == 0 ? true : false;
 
-  // enable write commands
-  pData = configurationFileManager->getValue("ALLOW_STORE");
+  // enable write commands 
+  pData = server->getHashedData ("ftp.allow_store");
   if ( pData != NULL )
     m_bEnableStoreCmds = strcmpi("Yes", pData) == 0 ? true : false;
+
   return 1;
 }
 

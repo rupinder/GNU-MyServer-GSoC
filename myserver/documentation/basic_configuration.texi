@@ -26,16 +26,12 @@ following order:
 
 @section Message localization
 It is possible to change the localization for some MyServer messages
-changing the @code{LANGUAGE} value in the @file{myserver.xml} file.
+changing the @code{server.language} value in the @file{myserver.xml} file.
 By default the english language is used, the value specified here must
 refer to a xml file contained in the @file{languages/} directory.
 
 @section Server administrator
 CGI scripts can get the server administrator e-mail and show them to
-the user (through the SERVER_ADMIN environment variable). So, it can
-be important you define this address properly, by setting the value in
-the line below, in @file{myserver.xml}:
-
-@example
-<SERVER_ADMIN>root@@foo.com</SERVER_ADMIN>
-@end example
+the user (through the SERVER_ADMIN environment variable). 
+It is defined trought the @code{server.admin} variable, that can be
+set in the global configuration file or for virtual host.

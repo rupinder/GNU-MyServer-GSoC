@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002-2008 Free Software Foundation, Inc.
+Copyright (C) 2002-2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -78,7 +78,6 @@ Server::Server() : connectionsScheduler (this),
   throttlingRate = 0;
   uid = 0;
   gid = 0;
-  serverAdmin = 0;
   mimeManager = 0;
   mimeConfigurationFile = 0;
   mainConfigurationFile = 0;
@@ -259,10 +258,6 @@ Server::~Server()
   languageFile = 0;
   if(vhostList)
     delete vhostList;
-
-  if(serverAdmin)
-    delete serverAdmin;
-  serverAdmin = 0;
 
   delete vhostConfigurationFile;
   vhostConfigurationFile = 0;
@@ -968,22 +963,13 @@ int Server::terminate()
 }
 
 /*!
- *Get the server administrator e-mail address.
- *To change this use the main configuration file.
- */
-const char *Server::getServerAdmin()
-{
-  return serverAdmin ? serverAdmin->c_str() : "";
-}
-
-/*!
  *Here is loaded the configuration of the server.
  *The configuration file is a XML file.
  *Return nonzero on errors.
  */
 int Server::initialize()
 {
-  char *data;
+  const char *data;
 #ifdef WIN32
   envString = GetEnvironmentStrings();
 #endif
@@ -1003,12 +989,11 @@ int Server::initialize()
   throttlingRate = 0;
   maxConnections = 0;
   maxConnectionsToAccept = 0;
-  if(serverAdmin)
-    delete serverAdmin;
-  serverAdmin = 0;
 
   if(configurationFileManager.open(mainConfigurationFile->c_str()))
     return -1;
+
+  readHashedData (xmlDocGetRootElement(configurationFileManager.getDoc())->xmlChildrenNode);
 
   /*
    * Process console colors information.
@@ -1032,7 +1017,7 @@ int Server::initialize()
 
   initLogManager ();
 
-  data = configurationFileManager.getValue("LANGUAGE");
+  data = getHashedData ("server.language");
   if(languageFile)
     delete languageFile;
   languageFile = new string();
@@ -1056,78 +1041,69 @@ int Server::initialize()
   }
   logWriteln(languageParser.getValue("MSG_LANGUAGE"));
 
-  data = configurationFileManager.getValue("VERBOSITY");
+  data = getHashedData ("server.verbosity");
   if(data)
   {
     verbosity = (u_long)atoi(data);
   }
 
 
-  data = configurationFileManager.getValue("BUFFER_SIZE");
+  data = configurationFileManager.getValue("server.buffer_size");
   if(data)
   {
     buffersize=secondaryBufferSize= (atol(data) > 81920) ?  atol(data) :  81920 ;
   }
-  data = configurationFileManager.getValue("CONNECTION_TIMEOUT");
+  data = configurationFileManager.getValue("server.connection_timeout");
   if(data)
   {
     connectionTimeout = MYSERVER_SEC((u_long)atol(data));
   }
 
-  data = configurationFileManager.getValue("NTHREADS_STATIC");
+  data = configurationFileManager.getValue("server.static_threads");
   if(data)
   {
     nStaticThreads = atoi(data);
   }
-  data = configurationFileManager.getValue("NTHREADS_MAX");
+  data = configurationFileManager.getValue("server.max_threads");
   if(data)
   {
     nMaxThreads = atoi(data);
   }
 
   /* Get the max connections number to allow.  */
-  data = configurationFileManager.getValue("MAX_CONNECTIONS");
+  data = configurationFileManager.getValue("server.max_connections");
   if(data)
   {
     maxConnections = atoi(data);
   }
 
   /* Get the max connections number to accept.  */
-  data = configurationFileManager.getValue("MAX_CONNECTIONS_TO_ACCEPT");
+  data = configurationFileManager.getValue("server.max_accepted_connections");
   if(data)
   {
     maxConnectionsToAccept = atoi(data);
   }
 
   /* Get the default throttling rate to use on connections.  */
-  data = configurationFileManager.getValue("THROTTLING_RATE");
+  data = configurationFileManager.getValue("connection.throttling");
   if(data)
   {
     throttlingRate = (u_long)atoi(data);
   }
 
-  /* Load the server administrator e-mail.  */
-  data = configurationFileManager.getValue("SERVER_ADMIN");
-  if(data)
-  {
-    if(serverAdmin == 0)
-      serverAdmin = new string();
-    serverAdmin->assign(data);
-  }
-
-  data = configurationFileManager.getValue("CONNECTION_TIMEOUT");
+  data = configurationFileManager.getValue("connection.timeout");
   if(data)
   {
     connectionTimeout=MYSERVER_SEC((u_long)atol(data));
   }
 
-  data = configurationFileManager.getValue("MAX_LOG_FILE_SIZE");
+  data = configurationFileManager.getValue("server.max_log_size");
   if(data)
   {
     maxLogFileSize=(u_long)atol(data);
   }
 
-  data = configurationFileManager.getValue("MAX_FILESCACHE_SIZE");
+  data = configurationFileManager.getValue("server.max_files_cache");
   if(data)
   {
     u_long maxSize = (u_long)atol(data);
@@ -1136,7 +1112,7 @@ int Server::initialize()
   else
     cachedFiles.initialize(1 << 23);
 
-  data = configurationFileManager.getValue("TEMP_DIRECTORY");
+  data = configurationFileManager.getValue("server.temp_directory");
   if (data)
   {
     string tmpPath (data);
@@ -1146,60 +1122,78 @@ int Server::initialize()
   else
     FilesUtility::resetTmpPath ();
 
-  data = configurationFileManager.getValue("MAX_FILESCACHE_FILESIZE");
+  data = configurationFileManager.getValue("server.max_file_cache");
   if(data)
   {
     u_long maxSize = (u_long)atol(data);
     cachedFiles.setMaxSize(maxSize);
   }
 
-  data = configurationFileManager.getValue("MIN_FILESCACHE_FILESIZE");
+  data = configurationFileManager.getValue("server.min_file_cache");
   if(data)
   {
     u_long minSize = (u_long)atol(data);
     cachedFiles.setMinSize(minSize);
   }
 
-  data = configurationFileManager.getValue("PROCESS_USER_ID");
+  data = configurationFileManager.getValue("server.uid");
   if(data)
   {
     uid = atoi(data);
   }
-  data = configurationFileManager.getValue("PROCESS_GROUP_ID");
+  data = configurationFileManager.getValue("server.gid");
   if(data)
   {
     gid = atoi(data);
   }
 
-  data = configurationFileManager.getValue("MAX_SERVERS_PROCESSES");
+  data = configurationFileManager.getValue("server.max_servers");
   if(data)
   {
     int maxServersProcesses = atoi(data);
     getProcessServerManager()->setMaxServers(maxServersProcesses);
   }
 
-  {
-    xmlNodePtr node =
-      xmlDocGetRootElement(configurationFileManager.getDoc())->xmlChildrenNode;
-    for(;node; node = node->next)
-    {
-      if(node->children && node->children->content)
-      {
-        string* old;
-        string *value = new string((const char*)node->children->content);
-        string key((const char*)node->name);
-        if(value == 0)
-          return -1;
-        old = hashedData.put(key, value);
-        if(old)
-        {
-          delete old;
-        }
-      }
-    }
-  }
-
   return 0;
+}
+
+/*!
+ *Read the values defined in the global configuration file.
+ */
+void Server::readHashedData (xmlNodePtr lcur)
+{
+  xmlAttr *attrs;
+  for(;lcur; lcur = lcur->next)
+    {
+      
+      if (lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"DEFINE"))
+        {
+          const char *name = NULL;
+          const char *value = NULL;
+          
+          for (attrs = lcur->properties; attrs; attrs = attrs->next)
+            {
+              if (!xmlStrcmp (attrs->name, (const xmlChar *)"name") && 
+                  attrs->children && attrs->children->content)
+                name = (const char*)attrs->children->content;
+              
+              if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") && 
+                  attrs->children && attrs->children->content)
+                value = (const char*)attrs->children->content;
+            }
+          
+          if(name && value)
+            {
+              string* old;
+              string *v = new string((const char*)value);
+              string key((const char*)name);
+              old = hashedData.put(key, v);
+
+              if(old)
+                delete old;
+            }
+        }
+    }
 }
 
 

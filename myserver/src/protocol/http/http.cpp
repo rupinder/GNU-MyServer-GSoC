@@ -222,8 +222,9 @@ int Http::traceHTTPRESOURCE(string& filename, int yetmapped)
  */
 bool Http::allowHTTPTRACE()
 {
-  const char *allowTrace = td->securityToken.getHashedData ("http.allow_trace", MYSERVER_VHOST_CONF |
-                                                              MYSERVER_SERVER_CONF, "NO");
+  const char *allowTrace = td->securityToken.getHashedData ("http.allow_trace", 
+                                                            MYSERVER_VHOST_CONF |
+                                                            MYSERVER_SERVER_CONF, "NO");
 
   if (!strcmpi (allowTrace, "YES"))
     return true;
@@ -249,6 +250,7 @@ int Http::putHTTPRESOURCE(string& filename, int, int,
   int permissions = -1;
   int keepalive = 0;
   int ret;
+
   try
   {
     HttpHeaders::buildDefaultHTTPResponseHeader(&td->response);
@@ -423,9 +425,8 @@ int Http::getFilePermissions(string& filename, string& directory, string& file,
 
     if (FilesUtility::isLink (td->filenamePath.c_str()))
     {
-      const char *perm = td->securityToken.getHashedData ("FOLLOW_LINKS", MYSERVER_VHOST_CONF |
-							  MYSERVER_SERVER_CONF, "NO");
-
+      const char *perm = td->securityToken.getHashedData ("symlinks.follow", MYSERVER_VHOST_CONF |
+                                                          MYSERVER_SERVER_CONF, "NO");
 
       if(!perm || strcmpi(perm, "YES"))
         return raiseHTTPError(401);
@@ -485,7 +486,8 @@ int Http::getFilePermissions(string& filename, string& directory, string& file,
 
     SecurityDomain* domains[] = {&auth, &httpReqSecDom, NULL};
 
-    Server::getInstance()->getSecurityManager ()->getPermissionMask (&(td->securityToken), domains, 
+    Server::getInstance()->getSecurityManager ()->getPermissionMask (&(td->securityToken), 
+                                                                     domains, 
                                                                      validator, authMethod);
 
     const char *authType = td->securityToken.getHashedData ("http.auth", MYSERVER_SECURITY_CONF |
@@ -524,9 +526,10 @@ int Http::getFilePermissions(string& filename, string& directory, string& file,
     return 500;
   }
 
-  const char *tr = td->securityToken.getHashedData ("connection.throttling", MYSERVER_SECURITY_CONF |
-                                                MYSERVER_VHOST_CONF |
-                                                MYSERVER_SERVER_CONF);
+  const char *tr = td->securityToken.getHashedData ("connection.throttling", 
+                                                    MYSERVER_SECURITY_CONF |
+                                                    MYSERVER_VHOST_CONF |
+                                                    MYSERVER_SERVER_CONF);
 
   /*! If a throttling rate was specifed use it.  */
   if(tr)
@@ -1223,91 +1226,95 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 
         if(documentRoot.length())
         {
-          const char *useHomeDir = td->securityToken.getHashedData ("USE_HOME_DIRECTORY", MYSERVER_VHOST_CONF |
-								    MYSERVER_SERVER_CONF, "YES");
+          const char *useHomeDir = td->securityToken.getHashedData ("http.use_home_directory", 
+                                                                    MYSERVER_VHOST_CONF |
+                                                                    MYSERVER_SERVER_CONF, "YES");
 
 
-	  const char *homeDir = td->securityToken.getHashedData ("HOME_DIRECTORY", MYSERVER_VHOST_CONF |
-								 MYSERVER_SERVER_CONF, "public_html");
+          const char *homeDir = td->securityToken.getHashedData ("http.home_directory", 
+                                                                 MYSERVER_VHOST_CONF |
+                                                                 MYSERVER_SERVER_CONF, 
+                                                                 "public_html");
 
 	  if (strcmpi (useHomeDir, "YES"))
 	    return raiseHTTPError (404);
 
-          td->vhostDir.assign (documentRoot);
-          td->vhostDir.append ("/");
-          td->vhostDir.append (homeDir);
-
-          if(!td->request.uriEndsWithSlash && !(td->request.uri.length() - pos))
-          {
-            td->request.uri.append("/");
-
-            return sendHTTPRedirect(td->request.uri.c_str());
-          }
-
-          if(td->request.uri.length() - pos)
-            td->request.uri.assign(td->request.uri.substr(pos,
-                                td->request.uri.length()));
+    td->vhostDir.assign (documentRoot);
+    td->vhostDir.append ("/");
+    td->vhostDir.append (homeDir);
+    
+    if(!td->request.uriEndsWithSlash && !(td->request.uri.length() - pos))
+      {
+        td->request.uri.append("/");
+        
+        return sendHTTPRedirect(td->request.uri.c_str());
+      }
+    
+    if(td->request.uri.length() - pos)
+      td->request.uri.assign(td->request.uri.substr(pos,
+                                                    td->request.uri.length()));
           else
             td->request.uri.assign("");
         }
       }
-
+      
       /*!
        *Check if there is a limit for the number of connections in the
        *virtual host A value of zero means no limit.
        */
       {
-        const char* val = td->securityToken.getHashedData ("MAX_CONNECTIONS", MYSERVER_VHOST_CONF |
-							   MYSERVER_SERVER_CONF, NULL);
-
+        const char* val = td->securityToken.getHashedData ("MAX_CONNECTIONS", 
+                                                           MYSERVER_VHOST_CONF |
+                                                           MYSERVER_SERVER_CONF, NULL);
+        
         if(val)
-        {
-          u_long limit = (u_long)atoi(val);
-          if(limit && (u_long)a->host->getRef() >= limit)
           {
-            retvalue = raiseHTTPError(500);
-            logHTTPaccess();
-            return retvalue ? ClientsThread::KEEP_CONNECTION
-                            : ClientsThread::DELETE_CONNECTION;
+            u_long limit = (u_long)atoi(val);
+            if(limit && (u_long)a->host->getRef() >= limit)
+              {
+                retvalue = raiseHTTPError(500);
+                logHTTPaccess();
+                return retvalue ? ClientsThread::KEEP_CONNECTION
+                  : ClientsThread::DELETE_CONNECTION;
+              }
           }
-        }
       }
-
+      
       if(td->request.isKeepAlive())
-      {
-        /*!
-         *Support for HTTP pipelining.
-         */
-        if(contentLength == 0)
         {
           /*!
-           *connectionBuffer is 8 KB, so don't copy more bytes.
+           *Support for HTTP pipelining.
            */
-          u_long bufferStrLen = strlen(td->buffer->getBuffer());
-          u_long remainingData = 0;
-
-          if(bufferStrLen - td->nHeaderChars >= MYSERVER_KB(8))
-            remainingData = MYSERVER_KB(8);
-          else 
-            remainingData = bufferStrLen - td->nHeaderChars;
-
-          if(remainingData)
-          {
-            u_long toCopy = nbtr - td->nHeaderChars;
-            a->connectionBuffer.setBuffer((td->buffer->getBuffer() + td->nHeaderChars), toCopy);
-            retvalue = ClientsThread::INCOMPLETE_REQUEST_NO_WAIT;
-          }
+          if(contentLength == 0)
+            {
+              /*!
+               *connectionBuffer is 8 KB, so don't copy more bytes.
+               */
+              u_long bufferStrLen = strlen(td->buffer->getBuffer());
+              u_long remainingData = 0;
+              
+              if(bufferStrLen - td->nHeaderChars >= MYSERVER_KB(8))
+                remainingData = MYSERVER_KB(8);
+              else 
+                remainingData = bufferStrLen - td->nHeaderChars;
+              
+              if(remainingData)
+                {
+                  u_long toCopy = nbtr - td->nHeaderChars;
+                  a->connectionBuffer.setBuffer((td->buffer->getBuffer() + td->nHeaderChars), 
+                                                toCopy);
+                  retvalue = ClientsThread::INCOMPLETE_REQUEST_NO_WAIT;
+                }
+              else
+                retvalue = ClientsThread::KEEP_CONNECTION;
+            }
           else
             retvalue = ClientsThread::KEEP_CONNECTION;
-
         }
-        else
-          retvalue = ClientsThread::KEEP_CONNECTION;
-      }
       else
-      {
-        retvalue = ClientsThread::DELETE_CONNECTION;
-      }
+        {
+          retvalue = ClientsThread::DELETE_CONNECTION;
+        }
 
       /*!
        *Set the throttling rate for the socket. This setting can be
@@ -1559,8 +1566,9 @@ int Http::raiseHTTPError(int ID)
     int useMessagesFiles = 1;
     HttpRequestHeader::Entry *host = td->request.other.get("Host");
     HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
-    const char *useMessagesVal = td->securityToken.getHashedData ("USE_ERROR_FILE", MYSERVER_VHOST_CONF |
-								  MYSERVER_SERVER_CONF, NULL);
+    const char *useMessagesVal = td->securityToken.getHashedData ("http.use_error_file", 
+                                                                  MYSERVER_VHOST_CONF |
+                                                                 MYSERVER_SERVER_CONF, NULL);
 
     if(useMessagesVal)
     {
@@ -1590,7 +1598,8 @@ int Http::raiseHTTPError(int ID)
     char errorName [32];
     sprintf (errorName, "http.error.file.%i", ID);
 
-    const char *defErrorFile = td->securityToken.getHashedData (errorName, MYSERVER_SECURITY_CONF |
+    const char *defErrorFile = td->securityToken.getHashedData (errorName, 
+                                                                MYSERVER_SECURITY_CONF |
                                                                 MYSERVER_VHOST_CONF |
                                                                 MYSERVER_SERVER_CONF);
 
@@ -1654,7 +1663,8 @@ int Http::raiseHTTPError(int ID)
 
     /*! Send only the header (and the body if specified). */
     {
-      const char* value = td->securityToken.getHashedData ("USE_ERROR_FILE", MYSERVER_VHOST_CONF |
+      const char* value = td->securityToken.getHashedData ("http.error_body", 
+                                                           MYSERVER_VHOST_CONF |
 							   MYSERVER_SERVER_CONF, NULL);
 
       if(value && !strcmpi(value, "NO"))
@@ -1906,22 +1916,6 @@ int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
 }
 
 /*!
- *Get the CSS file used in a browsed directory.
- */
-const char* Http::getBrowseDirCSSFile()
-{
-  return staticHttp.browseDirCSSpath.c_str();
-}
-
-/*!
- *Get the GZIP threshold.
- */
-u_long Http::getGzipThreshold()
-{
-  return staticHttp.gzipThreshold;
-}
-
-/*!
  *Send a redirect message to the client.
  */
 int Http::sendHTTPRedirect(const char *newURL)
@@ -2013,8 +2007,6 @@ int Http::loadProtocolStatic(XmlParser* languageParser)
    *By default use GZIP with files bigger than a MB.
    */
   staticHttp.cgiTimeout = MYSERVER_SEC(15);
-  staticHttp.gzipThreshold = 1 << 20;
-  staticHttp.browseDirCSSpath.assign("");
 
   Server::getInstance()->setGlobalData("http-static", getStaticData());
 
@@ -2045,13 +2037,7 @@ int Http::loadProtocolStatic(XmlParser* languageParser)
   staticHttp.dynManagerList.addHttpManager ("FASTCGI", staticHttp.fastcgi);
   staticHttp.dynManagerList.addHttpManager ("ISAPI", staticHttp.isapi);
 
-  /* Determine the min file size that will use GZIP compression.  */
-  data = configurationFileManager->getValue("GZIP_THRESHOLD");
-  if(data)
-  {
-    staticHttp.gzipThreshold = atoi(data);
-  }
-  data = configurationFileManager->getValue("ALLOW_VHOST_MIME");
+  data = configurationFileManager->getValue("vhost.allow_mime");
   if(data)
   {
 
@@ -2060,15 +2046,10 @@ int Http::loadProtocolStatic(XmlParser* languageParser)
     else
       staticHttp.allowVhostMime = 0;
   }
-  data = configurationFileManager->getValue("CGI_TIMEOUT");
+  data = configurationFileManager->getValue("cgi.timeout");
   if(data)
   {
     staticHttp.cgiTimeout = MYSERVER_SEC(atoi(data));
-  }
-  data = configurationFileManager->getValue("BROWSEFOLDER_CSS");
-  if(data)
-  {
-    staticHttp.browseDirCSSpath.append(data);
   }
 
   Cgi::setTimeout(staticHttp.cgiTimeout);
@@ -2134,7 +2115,6 @@ int Http::unLoadProtocolStatic(XmlParser* languageParser)
   HttpDir::unLoad();
 
   staticHttp.defaultFilename.clear();
-  staticHttp.browseDirCSSpath.assign("");
 
   staticHttp.clear();
 
@@ -2144,7 +2124,7 @@ int Http::unLoadProtocolStatic(XmlParser* languageParser)
 /*!
  *Returns the default filename.
  */
-const char *Http::getDefaultFilenamePath(u_long ID)
+const char *Http::getDefaultFilenamePath (u_long ID)
 {
   if(staticHttp.defaultFilename.size() <= ID)
     return 0;

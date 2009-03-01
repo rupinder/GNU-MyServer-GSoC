@@ -386,7 +386,9 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
       sort (files.begin(), files.end(), compareFileStructByName);
   }
 
-  browseDirCSSpath = td->http->getBrowseDirCSSFile();
+  browseDirCSSpath = td->securityToken.getHashedData ("http.dir.css",                                                               MYSERVER_SECURITY_CONF | MYSERVER_VHOST_CONF |
+                                                      MYSERVER_SERVER_CONF, NULL);
+
 
   td->secondaryBuffer->setLength(0);
   *td->secondaryBuffer << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
@@ -401,13 +403,12 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
    *If it is defined a CSS file for the graphic layout of 
    *the browse directory insert it in the page.  
    */
-  if(browseDirCSSpath != 0)
+  if(browseDirCSSpath)
   {
     *td->secondaryBuffer << "<link rel=\"stylesheet\" href=\""
                  << browseDirCSSpath 
                  << "\" type=\"text/css\" media=\"all\"/>\r\n";
   }
-
 
   *td->secondaryBuffer << "</head>\r\n"; 
 
@@ -425,8 +426,6 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 
   sentData = td->secondaryBuffer->getLength();
               
-  browseDirCSSpath = td->http->getBrowseDirCSSFile();
-
   filename = directory;
   td->secondaryBuffer->setLength(0);
   *td->secondaryBuffer << "<body>\r\n<h1>Contents of directory ";

@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2004, 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -108,13 +108,9 @@ int ControlProtocol::loadProtocol(XmlParser* languageParser)
   /* Is the value in the config file still in MD5?  */
   int adminPasswordMD5ized = 0;
 
-  char *data = 0;
-  const char *mainConfigurationFile = Server::getInstance()->getMainConfFile();
-  XmlParser configurationFileManager;
+  const char *data = 0;
 
-  configurationFileManager.open(mainConfigurationFile);
-
-  data=configurationFileManager.getValue("CONTROL_ENABLED");
+  data = Server::getInstance()->getHashedData ("control.enabled");
   if(data && (!strcmpi(data, "YES")))
   {
     controlEnabled = 1;
@@ -124,26 +120,26 @@ int ControlProtocol::loadProtocol(XmlParser* languageParser)
     controlEnabled = 0;
   }
 
-  data = configurationFileManager.getValue("CONTROL_ADMIN");
+  data = Server::getInstance()->getHashedData ("control.admin");
   if(data)
   {
     strncpy(tmpName, data, 64);
   }  
 
-  data = configurationFileManager.getValue("CONTROL_PASSWORD");
+  data = Server::getInstance()->getHashedData ("control.password");
   if(data)
   {
     strncpy(tmpPassword, data, 64);
   }  
 
-  data = configurationFileManager.getAttr("CONTROL_ADMIN", "MD5");
+  data = Server::getInstance()->getHashedData ("control.admin.md5");
   if(data)
   {
     if(strcmpi(data, "YES") == 0)
       adminNameMD5ized = 1;
   }  
 
-  data = configurationFileManager.getAttr("CONTROL_PASSWORD", "MD5");
+  data = Server::getInstance()->getHashedData ("control.password.md5");
   if(data)
   {
     if(strcmpi(data, "YES") == 0)
@@ -172,7 +168,6 @@ int ControlProtocol::loadProtocol(XmlParser* languageParser)
     md5.end(adminPassword);
   }
 
-  configurationFileManager.close();
   return 0;
 }
 

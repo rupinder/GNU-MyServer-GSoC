@@ -67,5 +67,5 @@ below, in @file{myserver.xml}, points to the CSS file used to
 configure the layout for the browsing directory pages:
 
 @example
-<BROWSEFOLDER_CSS>system/folderstyle.css</BROWSEFOLDER_CSS>
+  <DEFINE name="http.dir.css" value="/sys/css/browsestyle.css" />
 @end example

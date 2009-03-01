@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002-2008 Free Software Foundation, Inc.
+Copyright (C) 2002-2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -57,8 +57,6 @@ public:
     clearMulticastRegistry();
   }
 
-  string browseDirCSSpath;
-  u_long gzipThreshold;
   vector<string> defaultFilename;
   int cgiTimeout;
   int allowVhostMime;
@@ -173,8 +171,6 @@ public:
   int sendHTTPNonModified();
   Http();
   virtual ~Http();
-  const char* getBrowseDirCSSFile();
-  u_long getGzipThreshold();
   virtual char* registerName(char* out,int len){return registerNameImpl(out, len);}
 
   static char* registerNameImpl(char*, int len);
