@@ -123,9 +123,6 @@ public:
                       int onlyHeader = 0,
                       int yetMapped = 0);
 
-  bool allowHTTPTRACE();
-
-
   int optionsHTTPRESOURCE(string &filename,
                           int yetMapped = 0);
 
@@ -134,6 +131,8 @@ public:
 
   int deleteHTTPRESOURCE(string& filename,
                          int yetMapped = 0);
+
+  bool allowMethod(const char *name);
 
   int raiseHTTPError(int ID);
 

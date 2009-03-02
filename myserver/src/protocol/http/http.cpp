@@ -109,7 +109,7 @@ int Http::optionsHTTPRESOURCE(string& filename, int yetmapped)
   try
   {
     HttpRequestHeader::Entry *connection = td->request.other.get("Connection");
-    string methods("OPTIONS, GET, POST, HEAD, DELETE, PUT");
+    string methods("OPTIONS, GET, POST, HEAD, DELETE, PUT, TRACE");
 
     HashMap<string, DynamicHttpCommand*>::Iterator it = staticHttp.dynCmdManager.begin();
     while(it != staticHttp.dynCmdManager.end())
@@ -132,17 +132,9 @@ int Http::optionsHTTPRESOURCE(string& filename, int yetmapped)
     if(connection && connection->value->length())
       *td->secondaryBuffer << "\r\nConnection:" << connection->value->c_str() << "\r\n";
     *td->secondaryBuffer <<"Content-Length: 0\r\nAccept-Ranges: bytes\r\n";
-    *td->secondaryBuffer << "Allow: " << methods << "\r\n";
+    *td->secondaryBuffer << "Allow: " << methods << "\r\n\r\n";
 
-    /*!
-     *Check if the TRACE command is allowed on the virtual host.
-     */
-    if (allowHTTPTRACE ())
-      *td->secondaryBuffer << ", TRACE\r\n";
-
-    *td->secondaryBuffer << "r\n";
-
-    /*! Send the HTTP header. */
+    /* Send the HTTP header. */
     ret = td->connection->socket->send(td->secondaryBuffer->getBuffer(),
                                       (u_long)td->secondaryBuffer->getLength(), 0);
     if( ret == SOCKET_ERROR )
@@ -180,9 +172,6 @@ int Http::traceHTTPRESOURCE(string& filename, int yetmapped)
     tmp.intToStr(contentLength, tmpStr, 12);
     getRFC822GMTTime(time, HTTP_RESPONSE_DATE_DIM);
 
-    if (!allowHTTPTRACE ())
-      return raiseHTTPError (401);
-
     td->secondaryBuffer->setLength(0);
     *td->secondaryBuffer << "HTTP/1.1 200 OK\r\n";
     *td->secondaryBuffer << "Date: " << time << "\r\n";
@@ -218,18 +207,22 @@ int Http::traceHTTPRESOURCE(string& filename, int yetmapped)
 }
 
 /*!
- *Check if the host allows the HTTP TRACE command.
+ *Check if the method is allowed.
+ *\param method The HTTP method name.
+ *\return true if it is allowed.
  */
-bool Http::allowHTTPTRACE()
+bool Http::allowMethod(const char *method)
 {
-  const char *allowTrace = td->securityToken.getHashedData ("http.allow_trace", 
-                                                            MYSERVER_VHOST_CONF |
-                                                            MYSERVER_SERVER_CONF, "NO");
+  char name[64];
+  sprintf ("http.%s.allow", method);
+  const char *allow = td->securityToken.getHashedData (name, 
+                                                       MYSERVER_VHOST_CONF |
+                                                       MYSERVER_SERVER_CONF, "YES");
 
-  if (!strcmpi (allowTrace, "YES"))
-    return true;
-  else
+  if (!strcmpi (allow, "NO"))
     return false;
+  else
+    return true;
 }
 
 /*!
@@ -1356,10 +1349,9 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 
       if(!ret)
       {
-        /*
-         *Here we control all the HTTP commands.
-         */
-        
+        if (!allowMethod (td->request.cmd.c_str ()))
+          return raiseHTTPError (401);
+
         /* GET REQUEST.  */
         if(!td->request.cmd.compare("GET"))
           ret = sendHTTPResource(td->request.uri);

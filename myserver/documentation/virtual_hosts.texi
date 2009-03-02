@@ -118,15 +118,13 @@ location includes for example: @file{foo/bar}, @file{foo/bar/baz},
 @file{foo/bar/a/file}, everything that follows @file{foo/bar} will be
 part of @code{PATH_INFO}.
 
-@subsubsection HTTP trace command
-MyServer gives you the option to enable the HTTP TRACE command for
-each virtual host.
+@subsubsection Disable specific HTTP methods
+MyServer gives you the option to enable or disable HTTP methods
+command for each virtual host.  It can be done trought the
+@code{http.COMMAND.allow} variable.
 
-This value can be specified in the global and in the virtual host
-configuration.
+For example, the HTTP TRACE command can be disabled using:
 
 @example
-<DEFINE name="http.allow_trace" value="YES" />
+<DEFINE name="http.trace.allow" value="NO" />
 @end example
-
-By default, it's disabled.
