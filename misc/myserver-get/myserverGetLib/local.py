@@ -149,9 +149,19 @@ class DatabaseManager:
         self.plugins = [f for f in os.listdir(self.pluginsDir) if not os.path.isfile(os.path.join(self.pluginsDir, f))]
         
     def isPluginInstalled(self,plugin):
-        return plugin["name"][0]["value"] in self.plugins   
+        return plugin in self.plugins   
     
-            
+    
+    def removePlugin(self,plugin):
+        import shutil
+        import os
+        pluginPath = os.path.join(self.pluginsDir,plugin)
+        try:
+            shutil.rmtree(pluginPath)
+        except Exception:
+            return False
+        return True
+                
 
 if __name__ == "__main__":
     manager = ListManager("localhost.it",".","localhost.it-plugins.list")

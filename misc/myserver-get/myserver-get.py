@@ -5,13 +5,13 @@ import myserverGetLib.config
 
 
 def usage(arg):
-    print "usage: myserver-get [update|search|install|source|source-auto] [-v|--verbose|-h|--help] "    
+    print "usage: myserver-get [update|search|install|source|source-auto|remove] [-v|--verbose|-h|--help] "    
         
 def main(argv):
     myserverGet = MyServerGet() 
     command = ""                        
     
-    commands = {"":usage, "update":myserverGet.update, "search":myserverGet.search,"install":myserverGet.install,"source":myserverGet.source,"source-auto":myserverGet.sourceAuto}
+    commands = {"":usage, "update":myserverGet.update, "search":myserverGet.search,"install":myserverGet.install,"source":myserverGet.source,"source-auto":myserverGet.sourceAuto,"remove":myserverGet.remove}
     
 
     import os
@@ -39,7 +39,7 @@ def main(argv):
     
     arguments = []
     for arg in args:
-        if arg in ("update","search","install","source","source-auto"):
+        if arg in ("update","search","install","source","source-auto","remove"):
             command = arg
         else:
             arguments.append(arg)

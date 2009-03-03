@@ -13,7 +13,6 @@ class MyServerGet:
         self.__rep = repositoryFile
         self.__listDir = listDir
         self.__repManager = remote.RepositoryManager()
-        self.__repManager.addSupportedRepository("svn",remoteSvn.RepositorySvn)
         self.__repManager.addSupportedRepository("http",remoteGenericUrl.RepositoryGenericUrl)
         self.__repManager.addSupportedRepository("ftp",remoteGenericUrl.RepositoryGenericUrl)
         self.__list = []
@@ -128,7 +127,7 @@ class MyServerGet:
             
             downloadErrors = []
             for (plugin,list) in toInstall:
-                if self.__dbManager.isPluginInstalled(plugin):
+                if self.__dbManager.isPluginInstalled(plugin["name"][0]["value"]):
                     console.writeln ("plugin %s already installed." % (plugin["name"][0]["value"]))
                     continue
                 rep = self.__repManager.getRepository(list.repository)
@@ -141,7 +140,7 @@ class MyServerGet:
                 return None
                 
             for (plugin,list) in toInstall:
-                if self.__dbManager.isPluginInstalled(plugin):
+                if self.__dbManager.isPluginInstalled(plugin["name"][0]["value"]):
                     continue
                 
                 filename = config.MYSERVER_PLUGIN_DIR + "/%s-%s-%s.tar.gz" % (plugin["name"][0]["value"],plugin["version"][0]["value"],config.arch)
@@ -209,4 +208,24 @@ class MyServerGet:
                  continue
                  
              console.writeln("Error while compiling the source package. check scons error message.")
-             
+    
+    def remove(self,args):
+        console.write ("the following plugins will be removed:\n %s\n do you want to continue?[Y|n] " % (", ".join(args)))
+        resp = string.lower(console.readln())
+            
+        while not resp in  ("y\n","n\n","\n"):
+            console.write ("the following plugins will be removed:\n %s\n do you want to continue?[Y|n] " % (", ".join(args)))
+            resp = string.lower(console.readln())
+        if resp == 'n\n':
+            console.writeln ("Install aborted.")
+            return None
+        
+        console.writeln ("")
+        
+        for arg in args:
+            if not self.__dbManager.isPluginInstalled(arg):
+                console.writeln("Plugin %s already not installed.\n" % (arg))
+            elif self.__dbManager.removePlugin(arg):
+                console.writeln("Plugin %s removed.\n" % (arg))
+            else:
+                console.writeln("Error while removing plugin %s.\n" % (arg))            
