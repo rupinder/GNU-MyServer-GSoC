@@ -73,7 +73,7 @@ listinc=[
 def tar_package(src_dir, name, filename):
     import tarfile
     tarf = tarfile.open(filename.encode("ascii"),"w|gz")
-    tarf.add(src_dir + name,name)
+    tarf.add(src_dir,name)
     tarf.close()
 
 def build_plugin(name):
@@ -89,13 +89,30 @@ def pack_plugin(name):
     doc = xml.dom.minidom.parse(bin_dir + name + "/plugin.xml")
     version = doc.getElementsByTagName("VERSION")
     filename = name + "-" + version[0].firstChild.data + "-" + arch + ".tar.gz"
-    tar_package(bin_dir, name, release_dir + filename)	
+    tar_package(bin_dir + name, name, release_dir + filename)	
     
-
+def pack_source(name):
+    doc = xml.dom.minidom.parse(src_dir + name + "/plugin.xml")
+    version = doc.getElementsByTagName("VERSION")
+    filename = name + "-" + version[0].firstChild.data + "-src.tar.gz"
+    import tempfile
+    import os
+    temp = tempfile.mkdtemp()
+    import shutil
+    shutil.copytree(os.path.join(src_dir, name),os.path.join(temp,src_dir, name))
+    shutil.rmtree(os.path.join(temp,src_dir, name,".svn"))
+    shutil.copy("SConstruct",temp)
+    tar_package(temp, name, release_dir + filename)
+    shutil.rmtree(temp)
+     
 
 def pack_plugins(plugins):
     for name in plugins:
 		pack_plugin(name)
+		
+def pack_sources(plugins):
+    for name in plugins:
+		pack_source(name)
 
 
 env = Environment(CPPPATH=listinc,CXXFLAGS="-fPIC -DPIC  -DHAVE_CONFIG_H",
@@ -113,11 +130,10 @@ env = conf.Finish()
 
 if command=='build':
 	build_plugins(plugins)
-
-
-
-if command=='package':
+elif command=='package':
     pack_plugins(plugins)
+elif command=='source':
+    pack_sources(plugins)
 
     
 
