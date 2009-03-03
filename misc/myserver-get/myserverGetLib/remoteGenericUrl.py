@@ -17,6 +17,7 @@ class RepositoryGenericUrl(Repository):
         
     
     def synchronizeListWithRepository(self, list):
+        Repository.synchronizeListWithRepository(self,list)
         console.write("update: "+ list.repository + '\n')
         console.write("loading ")
         localRevision = int(list.getRevision())
@@ -47,14 +48,26 @@ class RepositoryGenericUrl(Repository):
             list.synchronizeListWithFileSystem()
             console.write("DONE.\n")
     
-    def getPluginBinary(self,list,plugin):
-        url ="%s/pub/%s-%s-%s.tar.gz" % (list.repository,plugin["name"][0]["value"],plugin["version"][0]["value"],config.arch)
-        filename = config.MYSERVER_PLUGIN_DIR + "/%s-%s-%s.tar.gz" % (plugin["name"][0]["value"],plugin["version"][0]["value"],config.arch)
-        console.writeln("Downloading %s-%s-%s.tar.gz..." % (plugin["name"][0]["value"],plugin["version"][0]["value"],config.arch))
+    def __getRemoteFile(self, url,filename):
+        import os
+        (filepath, file) = os.path.split(filename)
+        console.writeln("Downloading %s..\n" % (file))
         try:
             urllib.urlretrieve(url, filename)
         except Exception:
             console.writeln("Error while retriving remote file!")
             return False
         return True
+    
+    def getPluginBinary(self,list,plugin):
+        Repository.getPluginBinary(self,list,plugin)
+        url ="%s/pub/%s-%s-%s.tar.gz" % (list.repository,plugin["name"][0]["value"],plugin["version"][0]["value"],config.arch)
+        filename = config.MYSERVER_PLUGIN_DIR + "/%s-%s-%s.tar.gz" % (plugin["name"][0]["value"],plugin["version"][0]["value"],config.arch)
+        return self.__getRemoteFile(url, filename)
+    
+    def getPluginSource(self,list,plugin, dir):
+        Repository.getPluginSource(self,list,plugin,dir)
+        url ="%s/src/%s-%s-src.tar.gz" % (list.repository,plugin["name"][0]["value"],plugin["version"][0]["value"])
+        filename = dir + "/%s-%s-src.tar.gz" % (plugin["name"][0]["value"],plugin["version"][0]["value"])
+        return self.__getRemoteFile(url, filename)
         

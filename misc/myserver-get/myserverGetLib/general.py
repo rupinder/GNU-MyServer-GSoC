@@ -17,6 +17,7 @@ class MyServerGet:
         self.__repManager.addSupportedRepository("http",remoteGenericUrl.RepositoryGenericUrl)
         self.__repManager.addSupportedRepository("ftp",remoteGenericUrl.RepositoryGenericUrl)
         self.__list = []
+        self.__dbManager = local.DatabaseManager()
         self.loadRepositoryList()
         self.__versionRegex = re.compile(r'^([1-2]?[1-9]?[0-9])?(.[1-2]?[0-9]?[0-9])?(.[1-2]?[0-9]?[0-9])?(.[1-2]?[0-9]?[0-9])?$')
         
@@ -28,10 +29,12 @@ class MyServerGet:
             result = numbers[i] << 8*(4-i)
         return result
         
+        
     def loadRepositoryList(self):
         list = xml.dom.minidom.parse(self.__rep)
         repXmlList = list.getElementsByTagName("REPOSITORY")
         self.__list = [local.ListManager(repXml.firstChild.data,self.__listDir) for repXml in repXmlList]
+        
         
     def update(self, arg):
         for list in self.__list:
@@ -49,6 +52,7 @@ class MyServerGet:
                     results.append(plugin)
         return results
         
+        
     def search(self,arg):
         arg = " ".join(arg)     
         if config.verbose:
@@ -57,6 +61,7 @@ class MyServerGet:
             results = [plugin["name"][0]["value"] + " - " + plugin["description"][0]["value"] for plugin in self.__search(arg)]
         console.writeln("\n".join(results))
     
+    
     def __find(self,arg):
         for list in self.__list:
             plugins = list.getPluginsList()
@@ -64,6 +69,7 @@ class MyServerGet:
                 if string.lower(plugin["name"][0]["value"]) == string.lower(arg):
                     return (plugin,list)
         return [None, None]
+    
     
     def __recursiveDependencesChecker(self,pluginRoot):
         result = []
@@ -84,6 +90,7 @@ class MyServerGet:
             result.extend(res)
             errors.extend(er)
         return (result,errors)    
+    
     
     def install(self,args):
         for arg in args:
@@ -107,6 +114,7 @@ class MyServerGet:
                     console.writeln("Error while install %s: %s" % (plugin["name"][0]["value"],msg))
                 return None
             toInstall.extend(result)
+
             
             console.write ("the following plugins will be installed:\n %s\n do you want to continue?[Y|n] " % (", ".join(plugin["name"][0]["value"] for (plugin,list) in toInstall)))
             resp = string.lower(console.readln())
@@ -120,6 +128,9 @@ class MyServerGet:
             
             downloadErrors = []
             for (plugin,list) in toInstall:
+                if self.__dbManager.isPluginInstalled(plugin):
+                    console.writeln ("plugin %s already installed." % (plugin["name"][0]["value"]))
+                    continue
                 rep = self.__repManager.getRepository(list.repository)
                 rep = rep(list.repository)
                 if not rep.getPluginBinary(list,plugin):
@@ -130,6 +141,9 @@ class MyServerGet:
                 return None
                 
             for (plugin,list) in toInstall:
+                if self.__dbManager.isPluginInstalled(plugin):
+                    continue
+                
                 filename = config.MYSERVER_PLUGIN_DIR + "/%s-%s-%s.tar.gz" % (plugin["name"][0]["value"],plugin["version"][0]["value"],config.arch)
                 import tarfile
                 console.writeln("Exctracting plugin package..")
@@ -141,4 +155,58 @@ class MyServerGet:
                     return None
                 import os
                 os.remove(filename)
-                console.writeln("plugin %s installed." % (plugin["name"][0]["value"]))
+                console.writeln("plugin %s installed.\n" % (plugin["name"][0]["value"]))
+    
+    def source(self,args):
+        for arg in args:
+            (plugin,list) = self.__find(arg)
+            if plugin == None:
+                console.writeln("No plugin with this name is present in the plugin database.")
+                return None
+            import tempfile
+            dir = "./"
+            rep = self.__repManager.getRepository(list.repository)
+            rep = rep(list.repository)
+            if not rep.getPluginSource(list,plugin,dir):
+                console.writeln ("Errors retriving the source package: %s-%s-src.tar.gz" % (plugin["name"][0]["value"],plugin["version"][0]["value"]))
+                return None
+            
+            filename = dir + "/%s-%s-src.tar.gz" % (plugin["name"][0]["value"],plugin["version"][0]["value"])
+                    
+                
+            import tarfile
+            console.writeln("Exctracting source package..")
+            try:
+                tarf = tarfile.open(filename.encode("ascii"),"r|gz")
+                tarf.extractall (dir)
+            except Exception:
+                console.writeln("Error while exctracting source package!")
+                return None
+            
+            console.writeln("%s source installed." % (plugin["name"][0]["value"]))
+            
+    def sourceAuto(self,args):
+         self.source(args)
+         import os
+         rootpath = os.path.abspath("./")
+         for arg in args:
+             import subprocess
+             
+             path = os.path.join(rootpath,arg)
+             os.chdir(path)
+             try:
+                 os.mkdir("bin")
+             except Exception:
+                 pass
+             print os.path.abspath("./")
+             retcode = subprocess.call(["scons", "plugin="+arg,"command=build", "msheaders="+ config.MSHEADERS])
+             if retcode==0:
+                 import shutil
+                 os.chdir(rootpath)
+                 shutil.copytree(os.path.join(arg,"bin",arg),os.path.join(config.MYSERVER_PLUGIN_DIR,arg))
+                 console.writeln("\n plugin %s installed." % (arg))
+                 console.writeln("WARNING! no dependeces checked!")
+                 continue
+                 
+             console.writeln("Error while compiling the source package. check scons error message.")
+             

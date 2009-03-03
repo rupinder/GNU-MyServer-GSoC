@@ -13,10 +13,9 @@ MYSERVER_PLUGIN_DIR = "../../myserver/binaries/plugins"
 
 MYSERVER_VERSION = "0.9"
 
+MSHEADERS = "/home/dany/srcprojects/myserver/myserver"
+
 verbose = False
 
 arch = ""
 
-class ConfigLoader:
-    def __init__(self, configFile):
-        self.__configFile = configFile

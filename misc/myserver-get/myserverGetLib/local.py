@@ -56,6 +56,7 @@ class PluginInfo:
     def finalize(self):
         self.__manager.synchronizeListWithFileSystem()
 
+
 class ListManager:   
     def __init__ (self,repository, listFilePath, listFile = None):
         self.repository = repository
@@ -140,7 +141,17 @@ class ListManager:
         pluginsList = self.listDOM.getElementsByTagName("PLUGINS")
         plugins = pluginsList[0]
         return plugins.getAttribute("revision")
-           
+
+class DatabaseManager:
+    def __init__ (self,path = config.MYSERVER_PLUGIN_DIR):
+        import os
+        self.pluginsDir = path
+        self.plugins = [f for f in os.listdir(self.pluginsDir) if not os.path.isfile(os.path.join(self.pluginsDir, f))]
+        
+    def isPluginInstalled(self,plugin):
+        return plugin["name"][0]["value"] in self.plugins   
+    
+            
 
 if __name__ == "__main__":
     manager = ListManager("localhost.it",".","localhost.it-plugins.list")

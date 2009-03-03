@@ -11,6 +11,9 @@ class Repository:
     def getPluginBinary(self,list,plugin):
         pass
     
+    def getPluginSource(self,list,source,dir):
+        pass
+    
 class RepositoryManager:
     def __init__(self):
         self.__reps = {}
