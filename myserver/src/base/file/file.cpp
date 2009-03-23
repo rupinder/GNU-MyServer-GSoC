@@ -112,8 +112,7 @@ File::File(char *nfilename, int opt)
 }
 
 /*!
- *Open (or create if not exists) a file.
- *If the function have success the return value is nonzero.
+ *Open (or create if not exists) a file, but must explicitly use read and/or write flags and open flag.
  *\param nfilename Filename to open.
  *\param opt Specify how open the file.
  *openFile returns 0 if the call was successful, any other value on errors.
@@ -265,6 +264,8 @@ int File::openFile(const char* nfilename,u_long opt)
   {
     handle = (FileHandle)0;
     filename.clear();
+    
+    return 1;
   }
 #endif
   
