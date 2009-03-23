@@ -214,7 +214,7 @@ int Http::traceHTTPRESOURCE(string& filename, int yetmapped)
 bool Http::allowMethod(const char *method)
 {
   char name[64];
-  sprintf ("http.%s.allow", method);
+  sprintf (name, "http.%s.allow", method);
   const char *allow = td->securityToken.getHashedData (name, 
                                                        MYSERVER_VHOST_CONF |
                                                        MYSERVER_SERVER_CONF, "YES");
