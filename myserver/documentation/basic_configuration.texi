@@ -35,3 +35,28 @@ CGI scripts can get the server administrator e-mail and show them to
 the user (through the SERVER_ADMIN environment variable). 
 It is defined trought the @code{server.admin} variable, that can be
 set in the global configuration file or for virtual host.
+
+@section Temporary files position
+There can be need for the server to save temporary files as a form of
+inter-process communication.
+It is possible to configure the directory where temporary files are
+stored trought the @code{server.temp_directory} variable inside the
+main configuration file.
+Operations on disk are much slower than read or write directly from
+the primary memory.  To solve this problem under GNU/Linux you can
+think about use virtual memory instead of a persistent storage device
+to store files.
+
+It can be done, by the root user, as:
+
+@example
+# mount -t tmpfs -o size=256m tmpfs /tmp/tmpfs
+@end example
+
+The previous command mount a portion of memory, 256M, on the
+/tmp/tmpfs and it can be used as a normal file system.
+At this point, @code{server.temp_directory} shall be set to
+@file{/tmp/tmpfs} to benefit from it.
+Files saved on the primary memory are not persistent between reboots,
+introducing another level of security as temporary data will not be
+saved on the server.
