@@ -3,20 +3,20 @@
 <VHOSTS>
 
 	<VHOST>
-		<NAME>Every connection</NAME>
+		<NAME>Every HTTP connection</NAME>
 		
 		<PORT>80</PORT>
 		<PROTOCOL>HTTP</PROTOCOL>
-
-		<DOCROOT>/var/web/</DOCROOT>
-		<SYSFOLDER>/usr/local/share/myserver/system/</SYSFOLDER>
+		
+		<DOCROOT>web</DOCROOT>
+		<SYSFOLDER>system</SYSFOLDER>
 
 		<ACCESSLOG>
-                  <STREAM location="file:///var/log/myserver/MyServerHTTP.log" cycle="1048576"/>
+                  <STREAM location="file://logs/MyServerHTTP.log" cycle="1048576"/>
                 </ACCESSLOG>
 
                 <WARNINGLOG>
-                  <STREAM location="file:///var/log/myserver/MyServerHTTP.err" cycle="1048576"/>
+                  <STREAM location="file://logs/MyServerHTTP.err" cycle="1048576"/>
                 </WARNINGLOG>
 	</VHOST>
 
@@ -25,16 +25,16 @@
 		
 		<PORT>21</PORT>
 		<PROTOCOL>FTP</PROTOCOL>
-
-		<DOCROOT>/var/web/</DOCROOT>
-		<SYSFOLDER>/usr/local/share/myserver/system/</SYSFOLDER>
-
+		
+		<DOCROOT>web</DOCROOT>
+		<SYSFOLDER>system</SYSFOLDER>
+		
 		<ACCESSLOG>
-                  <STREAM location="file:///var/log/myserver/MyServerFTP.log" cycle="1048576"/>
+                  <STREAM location="file://logs/MyServerFTP.log" cycle="1048576"/>
                 </ACCESSLOG>
 
 		<WARNINGLOG>
-                  <STREAM location="file:///var/log/myserver/MyServerFTP.err" cycle="1048576"/>
+                  <STREAM location="file://logs/MyServerFTP.err" cycle="1048576"/>
                 </WARNINGLOG>
 	</VHOST>
 </VHOSTS>
