@@ -160,14 +160,14 @@ Socket::Socket()
 int Socket::bind(MYSERVER_SOCKADDR* sa,int namelen)
 {
    if ( sa == NULL || (sa->ss_family != AF_INET && sa->ss_family != AF_INET6) )
-      return 1;//Andu: TODO our error code or what?
+      return -1;
   if ( (sa->ss_family == AF_INET && namelen != sizeof(sockaddr_in)) 
 #if HAVE_IPV6
   || (sa->ss_family == AF_INET6 && namelen != sizeof(sockaddr_in6))
 #endif
  )
 
-     return 1;//Andu: TODO our error code or what?
+     return -1;
 #ifdef WIN32
   return ::bind((SOCKET)socketHandle,(const struct sockaddr*)sa,namelen);
 #endif
