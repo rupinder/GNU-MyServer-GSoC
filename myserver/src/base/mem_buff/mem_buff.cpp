@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2008, 2009 Free Software Foundation, Inc.
 Copyright (C) 2004, Guinet Adrien (grainailleur)
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -133,7 +133,7 @@ MemBuf::MemBuf(const MemBuf& srcBuf)
   m_nRealSize = srcBuf.m_nRealSize;
   m_nSizeLimit = 0;
   m_nBlockLength = srcBuf.m_nBlockLength;
-  m_bCanDelete = 1;
+  m_bCanDelete = 0;
 }
 
 /*! Copy constructor */
