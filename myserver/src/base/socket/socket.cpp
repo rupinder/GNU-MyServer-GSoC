@@ -686,13 +686,12 @@ u_long Socket::bytesToRead()
 int Socket::setNonBlocking(int non_blocking)
 {
   int ret = -1;
-#ifdef FIONBIO
+#ifdef WIN32
   u_long nonblock = non_blocking ? 1 : 0;
   ret = ioctlsocket( FIONBIO, &nonblock);
 
 #else
 
-#ifdef NOT_WIN
   int flags;
   flags = fcntl((int)socketHandle, F_GETFL, 0);
   if (flags < 0)
@@ -704,9 +703,9 @@ int Socket::setNonBlocking(int non_blocking)
     flags &= ~O_NONBLOCK;
 
   ret = fcntl((int)socketHandle, F_SETFL, flags);
-#endif
 
 #endif
+
   return ret;
 }
 
