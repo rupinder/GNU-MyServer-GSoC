@@ -180,7 +180,6 @@ void ConnectionsScheduler::listener(ConnectionsScheduler::ListenerArg *la)
   arg->scheduler = this;
   arg->server = server;
   arg->eventsMutex = &eventsMutex;
-  la->serverSocket->setNonBlocking(1);
 
   listeners.push_front(arg);
 
@@ -291,8 +290,6 @@ void ConnectionsScheduler::initialize()
     }
     return;
   }
-
-  dispatcherArg.socketPair.setNonBlocking (true);
 
   event_set (&(dispatcherArg.loopEvent), dispatcherArg.socketPair.getFirstHandle (), EV_READ | EV_TIMEOUT,
             eventLoopHandler, &dispatcherArg);
