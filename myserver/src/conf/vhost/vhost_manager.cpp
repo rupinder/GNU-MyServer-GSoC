@@ -378,7 +378,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
           else if(!xmlStrcmp(lcur->name, (const xmlChar *)"LOCATION"))
             {
               string loc (vh->getDocumentRoot());
-              //loc.append ("/");
+              loc.append ("/");
               for (xmlAttr *attrs = lcur->properties; attrs; attrs = attrs->next)
                 {
                   if(!xmlStrcmp (attrs->name, (const xmlChar *)"path"))

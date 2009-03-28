@@ -269,7 +269,6 @@ int FilesUtility::isDirectory(const char *filename)
 #ifdef NOT_WIN
   struct stat F_Stats;
   int ret = stat(filename, &F_Stats);
-  int nErr = errno;
   if(ret < 0)
     return 0;
 
