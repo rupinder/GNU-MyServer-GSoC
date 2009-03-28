@@ -844,7 +844,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       {
         return manager->send (td,
                               td->connection,
-                              filename.c_str(),
+                              td->filenamePath.c_str(),
                               cgiManager,
                               td->mime->selfExecuted,
                               onlyHeader);
