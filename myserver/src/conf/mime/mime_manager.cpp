@@ -170,6 +170,12 @@ MimeRecord *MimeManager::readRecord (xmlNodePtr node)
     if (!xmlStrcmp (attrs->name, (const xmlChar *)"param") && 
         attrs->children && attrs->children->content)
       rc->cgiManager.assign ((const char*)attrs->children->content);
+    /*
+    if (!xmlStrcmp (attrs->name, (const xmlChar *)"host") && 
+        attrs->children && attrs->children->content)
+      rc-> = xmlStrcmp (attrs->children->content, 
+                                    (const xmlChar *)"YES");
+*/
   }
 
 

@@ -66,13 +66,14 @@ void SetFtpHost(FtpHost &out, const char *szIn)
   free(szLocalIn);
 }
 
-void GetIpAddr(const FtpHost &host, char *pOut)
+void GetIpAddr(const FtpHost &host, char *pOut, const int &nBuffSize)
 {
   if ( pOut == NULL )
     return;
   std::ostringstream sRet;
   sRet << host.h1 << '.' << host.h2 << '.' << host.h3 << '.' << host.h4;
-  strcpy(pOut, sRet.str().c_str());
+  memset(pOut, 0, nBuffSize);
+  strncpy(pOut, sRet.str().c_str(), nBuffSize-1);
 }
 
 int GetPortNo(const FtpHost &host)
@@ -145,6 +146,12 @@ void FtpUserData::reset()
   m_sCurrentFileName = "";
   m_nFileSize = 0;
   m_nBytesSent = 0;
+  m_cdh.h1 = 0;
+  m_cdh.h2 = 0;
+  m_cdh.h3 = 0;
+  m_cdh.h4 = 0;
+  m_cdh.p1 = 0;
+  m_cdh.p2 = 0;
 }
 
 int FtpUserData::CloseDataConnection()
@@ -544,7 +551,10 @@ void Ftp::Pasv()
 
   pFtpUserData->m_bPassiveSrv = true;
     if ( OpenDataConnection() == 0 )
-    ftp_reply(425);//RFC959 command replay exception
+      {
+	ftp_reply(425);//RFC959 command replay exception
+	return;
+      }
 
   std::string sTempText;
   get_ftp_reply(227, sTempText);
@@ -1573,7 +1583,7 @@ int Ftp::OpenDataPassive()
   ((sockaddr_in*)(&storage))->sin_family = AF_INET;
   char szIpAddr[16];
   memset(szIpAddr, 0, 16);
-  GetIpAddr(pFtpUserData->m_cdh, szIpAddr);
+  GetIpAddr(pFtpUserData->m_cdh, szIpAddr, 16);
 #ifdef WIN32
   ((sockaddr_in*)(&storage))->sin_addr.s_addr = inet_addr(szIpAddr);
 #else
@@ -1604,7 +1614,7 @@ int Ftp::OpenDataActive()
   dataSocket.socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
   char szIpAddr[16];
   memset(szIpAddr, 0, 16);
-  GetIpAddr(pFtpUserData->m_cdh, szIpAddr);
+  GetIpAddr(pFtpUserData->m_cdh, szIpAddr, 16);
   if ( dataSocket.connect(szIpAddr, GetPortNo(pFtpUserData->m_cdh)) < 0 )
     return 0;
 
@@ -1691,7 +1701,10 @@ void Ftp::List(const std::string &sParam/*= ""*/)
     {
       ftp_reply(150);
         if ( OpenDataConnection() == 0 )
-        ftp_reply(425);
+	  {
+	    ftp_reply(425);
+	    return;
+	  }
     }
 
   std::string sPath(sLocalPath);
@@ -1924,7 +1937,10 @@ void Ftp::Nlst(const std::string &sParam/* = ""*/)
     {
       ftp_reply(150);
         if ( OpenDataConnection() == 0 )
-        ftp_reply(425);
+	  {
+	    ftp_reply(425);
+	    return;
+	  }
     }
 
   std::string sPath(sLocalPath);

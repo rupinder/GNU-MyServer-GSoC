@@ -820,7 +820,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     if(ret != 200)
       return raiseHTTPError(ret);
 
-    if(!td->mime && FilesUtility::isDirectory(td->filenamePath.c_str()))
+    if(!td->mime && FilesUtility::isDirectory(td->filenamePath.c_str()) /*&& filename.empty()*/)
     {
       return processDefaultFile (uri, td->permissions, onlyHeader);
     }
@@ -844,7 +844,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
       {
         return manager->send (td,
                               td->connection,
-                              td->filenamePath.c_str(),
+                              filename.c_str(), //td->filenamePath.c_str(),
                               cgiManager,
                               td->mime->selfExecuted,
                               onlyHeader);

@@ -32,7 +32,7 @@ struct FtpHost
 
 void SetFtpHost(FtpHost &out, const FtpHost &in);
 void SetFtpHost(FtpHost &out, const char *szIn);
-void GetIpAddr(const FtpHost &host, char *pOut);
+void GetIpAddr(const FtpHost &host, char *pOut, const int &nBuffSize);
 int GetPortNo(const FtpHost &host);
 std::string GetPortNo(unsigned int nPort);
 std::string GetHost(const FtpHost &host);
