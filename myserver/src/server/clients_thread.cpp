@@ -315,25 +315,11 @@ int ClientsThread::controlConnections()
   busy = 1;
   dataRead = c->connectionBuffer.getLength();
 
-  bool bSocketChanged = false;
-  if ( strcmp(c->host->getProtocolName(), "ftp") == 0 )
-    {
-      FileHandle sh = c->socket->getHandle();
-      int flags = fcntl((int)sh, F_GETFL, 0);
-      if ( (flags >= 0) && ((flags & O_NONBLOCK) == 0) )
-	{
-	  c->socket->setNonBlocking(1);
-	  bSocketChanged = true;
-	}
-    }
   err = c->socket->recv(&((char*)(buffer.getBuffer()))[dataRead],
                         MYSERVER_KB(8) - dataRead - 1, 0);
 
   if(err == -1 && !server->deleteConnection(c))
     return 0;
-
-  if ( bSocketChanged )
-       c->socket->setNonBlocking(0);
 
   buffer.setLength(dataRead + err);    
 

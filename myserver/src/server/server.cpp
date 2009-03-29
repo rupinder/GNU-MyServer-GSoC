@@ -1447,6 +1447,7 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
   {
     newConnection->setScheduled(1);
     newConnection->setForceControl(1);
+    newConnection->socket->setNonBlocking (1);
     connectionsScheduler.addNewReadyConnection(newConnection);
   }
   else
