@@ -92,6 +92,7 @@ int Socket::operator=(Socket s)
   socketHandle = s.socketHandle;
   serverSocket = s.serverSocket;
   throttlingRate = s.throttlingRate;
+  isNonBlocking = s.isNonBlocking;
   return 0;
 }
 /*!
@@ -113,7 +114,8 @@ int Socket::socket(int af, int type, int protocol)
 Socket::Socket(FileHandle handle)
 {
   throttlingRate = 0;
-  setHandle(handle);
+  setHandle (handle);
+  isNonBlocking = false;
 }
 
 /*!
@@ -124,6 +126,7 @@ Socket::Socket(Socket* socket)
   socketHandle = socket->socketHandle;
   serverSocket = socket->serverSocket;
   throttlingRate = socket->throttlingRate;
+  isNonBlocking = socket->isNonBlocking;
 }
 
 /*!
@@ -647,7 +650,10 @@ int Socket::recv(char* buffer,int len,int flags)
     err = ::recv(socketHandle, buffer, len, flags);
   }while((err == SOCKET_ERROR) && (GetLastError() == WSAEWOULDBLOCK));
 
-  if(err == SOCKET_ERROR)
+  if ( err == SOCKET_ERROR && GetLastError() == WSAEWOULDBLOCK && isNonBlocking)
+    return 0;
+
+  if (err == SOCKET_ERROR)
     return -1;
   else
     return err;
@@ -655,14 +661,9 @@ int Socket::recv(char* buffer,int len,int flags)
 #endif
 #ifdef NOT_WIN
   err = ::recv((int)socketHandle, buffer, len, flags);
-  if ( err < 0 && errno == EAGAIN )
-    {// if temporarily unavailable ...
-      int flags = fcntl((int)socketHandle, F_GETFL, 0);
-      if ( (flags >= 0) && ((flags & O_NONBLOCK) != 0) )
-	{// ... and nonblocking it's allright
-	  return 0;
-	}
-    }
+
+  if ( err < 0 && errno == EAGAIN && isNonBlocking)
+    return 0;
 
   if(err == 0)
     err = -1;
@@ -690,13 +691,18 @@ u_long Socket::bytesToRead()
 }
 
 /*!
- *Pass a nonzero value to set the socket to be nonblocking.
+ *Change the socket behaviour when an operation can't be completed
+ *immediately.
+ *If the socket is configured to be non blocking then it will return
+ *immediately the control to the caller function.
+ *A blocking socket will wait until the operation can be performed.
+ *\param nonBlocking Nonzero to configure the socket non blocking.
  */
-int Socket::setNonBlocking(int non_blocking)
+int Socket::setNonBlocking(int nonBlocking)
 {
   int ret = -1;
 #ifdef WIN32
-  u_long nonblock = non_blocking ? 1 : 0;
+  u_long nonblock = nonBlocking ? 1 : 0;
   ret = ioctlsocket( FIONBIO, &nonblock);
 
 #else
@@ -706,7 +712,7 @@ int Socket::setNonBlocking(int non_blocking)
   if (flags < 0)
     return -1;
 
-  if(non_blocking)
+  if(nonBlocking)
     flags |= O_NONBLOCK;
   else
     flags &= ~O_NONBLOCK;
@@ -714,7 +720,7 @@ int Socket::setNonBlocking(int non_blocking)
   ret = fcntl((int)socketHandle, F_SETFL, flags);
 
 #endif
-
+  isNonBlocking = nonBlocking ? true : false;
   return ret;
 }
 

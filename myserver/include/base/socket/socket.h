@@ -99,6 +99,7 @@ public:
   int operator=(Socket);
   int getsockname(MYSERVER_SOCKADDR*,int*);
   int setNonBlocking(int);
+  bool getNonBLocking () {return isNonBlocking;}
   virtual int dataOnRead(int sec = 0, int usec = 500);
 
   u_long getThrottling();
@@ -120,6 +121,9 @@ protected:
 
   /*! Send throttling rate.  */
   u_long throttlingRate;
+
+  /*! Is the socket non blocking?  */
+  bool isNonBlocking;
 
   /*! Stop the sockets system.  */
   static bool denyBlockingOperations;
