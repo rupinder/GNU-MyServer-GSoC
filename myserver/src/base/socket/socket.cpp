@@ -780,7 +780,7 @@ int Socket::dataOnRead(int sec, int usec)
 
 /*!
  *Inherited from Stream.
- *Return zero on success.
+ *Return zero on success, or -1 error. Also sets nbr to -1 if error.
  */
 int Socket::read(char* buffer, u_long len, u_long *nbr)
 {
@@ -794,16 +794,14 @@ int Socket::read(char* buffer, u_long len, u_long *nbr)
 
 /*!
  *Inherited from Stream.
- *Return values are equals to send.
+ *Return zero on success, or -1 on error. Also sets nbw to -1 if error.
  */
 int Socket::write(const char* buffer, u_long len, u_long *nbw)
 {
-  int ret = send(buffer, len, 0);
+  *nbw = static_cast<u_long>(send(buffer, len, 0));
 
-  if(ret == -1)
+  if ( *nbw == static_cast<u_long>(-1) )
     return -1;
-
-  *nbw = static_cast<u_long>(ret);
 
   return 0;
 }
