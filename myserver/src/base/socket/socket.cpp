@@ -31,6 +31,7 @@ extern "C" {
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #endif
+#include <errno.h>
 }
 
 #include <sstream>
@@ -654,6 +655,14 @@ int Socket::recv(char* buffer,int len,int flags)
 #endif
 #ifdef NOT_WIN
   err = ::recv((int)socketHandle, buffer, len, flags);
+  if ( err < 0 && errno == EAGAIN )
+    {// if temporarily unavailable ...
+      int flags = fcntl((int)socketHandle, F_GETFL, 0);
+      if ( (flags >= 0) && ((flags & O_NONBLOCK) != 0) )
+	{// ... and nonblocking it's allright
+	  return 0;
+	}
+    }
 
   if(err == 0)
     err = -1;
