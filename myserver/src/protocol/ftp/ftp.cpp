@@ -1496,7 +1496,9 @@ bool Ftp::BuildLocalPath(const std::string &sPath, std::string &sOutPath)
     return false;
   }
   ///////////////////////////////////////
-  
+  if ( FilesUtility::isDirectory(sOutPath) && 
+       (sOutPath[sOutPath.length()] != '/' || sOutPath[sOutPath.length()] != '\\') )
+    sOutPath.append("/");
   return true;
 }
 
