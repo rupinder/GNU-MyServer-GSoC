@@ -84,7 +84,7 @@ int FindData::findfirst(const char filename[])
    DirName.assign(filename);
    
    if(DirName[DirName.length() - 1] == '/')
-     DirName[DirName.length() - 1] = '\0';
+     DirName.erase(DirName.length() - 1);
      
    dh = opendir(DirName.c_str());
    if(dh == NULL)
