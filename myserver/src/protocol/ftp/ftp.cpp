@@ -1497,7 +1497,7 @@ bool Ftp::BuildLocalPath(const std::string &sPath, std::string &sOutPath)
   }
   ///////////////////////////////////////
   if ( FilesUtility::isDirectory(sOutPath) && 
-       (sOutPath[sOutPath.length()] != '/' || sOutPath[sOutPath.length()] != '\\') )
+       (sOutPath[sOutPath.length() - 1] != '/' || sOutPath[sOutPath.length() - 1] != '\\') )
     sOutPath.append("/");
   return true;
 }
