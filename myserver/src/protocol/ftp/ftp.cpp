@@ -2101,6 +2101,11 @@ void Ftp::Cwd(const std::string &sPath)
   std::string sLocalPath;
   if ( !GetLocalPath(sPath, sLocalPath) )
     return;
+  if ( !FilesUtility::isDirectory(sLocalPath) )
+    {
+      ftp_reply(550);
+      return;
+    }
   FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
   assert(pFtpUserData != NULL);
   pFtpUserData->m_cwd = sLocalPath;
