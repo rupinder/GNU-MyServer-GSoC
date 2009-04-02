@@ -149,7 +149,7 @@ static void listenerHandler (int fd, short event, void *arg)
     int asockInLen = 0;
     Socket asock;
 
-    asockInLen = sizeof (sockaddr_in);
+    asockInLen = sizeof (asockIn);
     asock = s->serverSocket->accept (&asockIn, &asockInLen);
 
     if (s->server &&
