@@ -307,7 +307,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
   bool keepalive = false;
   vector<HttpDir::FileStruct> files;
   size_t sortIndex;
-  char sortType;
+  char sortType = 0;
   bool sortReverse = false;
   string linkPrefix;
   const char *formatString = td->securityToken.getHashedData ("http.dir.format", 
@@ -386,9 +386,9 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
       sort (files.begin(), files.end(), compareFileStructByName);
   }
 
-  browseDirCSSpath = td->securityToken.getHashedData ("http.dir.css",                                                               MYSERVER_SECURITY_CONF | MYSERVER_VHOST_CONF |
+  browseDirCSSpath = td->securityToken.getHashedData ("http.dir.css",
+                                                      MYSERVER_SECURITY_CONF | MYSERVER_VHOST_CONF |
                                                       MYSERVER_SERVER_CONF, NULL);
-
 
   td->secondaryBuffer->setLength(0);
   *td->secondaryBuffer << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
