@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/control/control_protocol.h>
 #include <include/protocol/ftp/ftp.h>
 
-#ifdef NOT_WIN
+#ifndef WIN32
 extern "C" {
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -128,7 +128,7 @@ void* clients_thread(void* pParam)
 #endif
 
 {
-#ifdef NOT_WIN
+#ifndef WIN32
   /* Block SigTerm, SigInt, and SigPipe in threads.  */
   sigset_t sigmask;
   sigemptyset(&sigmask);

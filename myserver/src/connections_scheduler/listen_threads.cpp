@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -26,7 +26,7 @@ extern "C"
   //#include <Ws2tcpip.h>
 #include <direct.h>
 #endif
-#ifdef NOT_WIN
+#ifndef WIN32
 #include <unistd.h>
 #include <string.h>
 #include <signal.h>
@@ -110,7 +110,7 @@ int ListenThreads::createServerAndListener(u_short port)
         ((sockaddr_in*)(&sockServerSocketIPv4))->sin_port =
           htons((u_short)port);
 
-#ifdef NOT_WIN
+#ifndef WIN32
         /*
          *Under the unix environment the application needs some time before
          * create a new socket for the same address.
@@ -167,7 +167,7 @@ int ListenThreads::createServerAndListener(u_short port)
         ((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_addr = in6addr_any;
         ((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_port = 
           htons((u_short)port);
-#ifdef NOT_WIN
+#ifndef WIN32
         /*
          *Under the unix environment the application needs some time before
          * create a new socket for the same address.

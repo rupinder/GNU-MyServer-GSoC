@@ -1,6 +1,6 @@
 /*
  MyServer
- Copyright (C) 2008 Free Software Foundation, Inc.
+ Copyright (C) 2008, 2009 Free Software Foundation, Inc.
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
@@ -52,8 +52,7 @@ public:
 #ifdef WIN32
     /* Try to get home dir for Administrator under Windows.  */
     username.assign("Administrator");
-#endif
-#ifdef NOT_WIN
+#else
     /* Under systems different than Windows, "root" should be present, 
      * if it doesn't handle this differently.  */
     username.assign("root");

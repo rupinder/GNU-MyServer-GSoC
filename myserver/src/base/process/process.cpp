@@ -200,7 +200,7 @@ int Process::exec(StartProcInfo* spi, bool waitEnd)
     }
 #endif
 
-#ifdef NOT_WIN
+#ifndef WIN32
   pid = fork ();
 
   if (pid < 0) // a bad thing happened
@@ -304,7 +304,7 @@ int Process::isProcessAlive ()
   return 0;
 #endif
 
-#ifdef NOT_WIN
+#ifndef WIN32
   int status = 0;
 #ifdef PROCESS_ALIVE_USEWAITPID
   int ret;
@@ -406,7 +406,7 @@ int Process::terminateProcess ()
   pid = 0;
   return (!ret);
 #endif
-#ifdef NOT_WIN
+#ifndef WIN32
   ret = kill ((pid_t)pid, SIGKILL);
   pid = 0;
   return ret;
@@ -418,7 +418,7 @@ int Process::terminateProcess ()
  */
 int Process::setuid (u_long uid)
 {
-#ifdef NOT_WIN
+#ifndef WIN32
   return ::setuid (uid);
 #endif
   return 0;
@@ -429,7 +429,7 @@ int Process::setuid (u_long uid)
  */
 int Process::setgid (u_long gid)
 {
-#ifdef NOT_WIN
+#ifndef WIN32
   return ::setgid (gid);
 #endif
   return 0;
@@ -440,7 +440,7 @@ int Process::setgid (u_long gid)
  */
 int Process::setAdditionalGroups (u_long len, u_long *groups)
 {
-#ifdef NOT_WIN
+#ifndef WIN32
 
 #if HAVE_SETGROUPS
   u_long i;

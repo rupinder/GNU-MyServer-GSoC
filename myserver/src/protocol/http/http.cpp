@@ -54,7 +54,7 @@ extern "C"
 #include <errno.h>
 #endif
 
-#ifdef NOT_WIN
+#ifndef WIN32
 #include <string.h>
 #include <errno.h>
 #endif

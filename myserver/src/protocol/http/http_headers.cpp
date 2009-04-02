@@ -31,8 +31,7 @@ extern "C" {
 #ifdef WIN32
 #include <direct.h>
 #include <errno.h>
-#endif
-#ifdef NOT_WIN
+#else
 #include <string.h>
 #include <errno.h>
 #endif

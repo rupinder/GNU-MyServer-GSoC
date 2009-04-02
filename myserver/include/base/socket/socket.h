@@ -35,7 +35,7 @@ extern "C"
 #endif
 #endif
 
-#ifdef NOT_WIN
+#ifndef WIN32
 extern "C" {
 #include <sys/types.h>
 #include <sys/socket.h>

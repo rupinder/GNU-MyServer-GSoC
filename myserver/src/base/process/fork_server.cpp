@@ -15,13 +15,12 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include <include/base/process/fork_server.h>
 #include <include/base/process/process.h>
 #include <include/base/socket_pair/socket_pair.h>
 #include <include/base/pipe/pipe.h>
 
-#ifdef NOT_WIN
+#ifndef WIN32
 #include <unistd.h>
 #include <sys/wait.h>
 #endif
@@ -146,7 +145,7 @@ int ForkServer::readString (SocketPair *sock, char **out)
  */
 int ForkServer::handleRequest (SocketPair *serverSock)
 {
-#ifdef NOT_WIN
+#ifndef WIN32
   int ret, flags, stdIn = -1, stdOut = -1, stdErr = -1;
   int gid, uid;
   int stdInPort = 0;
@@ -252,7 +251,7 @@ int ForkServer::handleRequest (SocketPair *serverSock)
  */
 int ForkServer::forkServerLoop (SocketPair *socket)
 {
-#ifdef NOT_WIN
+#ifndef WIN32
   for (;;)
     {
       try
@@ -386,7 +385,7 @@ void ForkServer::killServer ()
  */
 int ForkServer::startForkServer ()
 {
-#ifdef NOT_WIN
+#ifndef WIN32
   socket.create ();
   serverLock.init ();
   SocketPair inverted;

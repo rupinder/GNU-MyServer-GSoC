@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/utility.h>
 #include <include/base/pipe/pipe.h>
 
-#ifdef NOT_WIN
+#ifndef WIN32
 extern "C" {
 #include <fcntl.h>
 #include <unistd.h>
@@ -52,7 +52,7 @@ using namespace std;
 int Pipe::read(char* buffer, u_long len, u_long *nbr)
 {
   *nbr = 0;
-#ifdef NOT_WIN
+#ifndef WIN32
   int ret = ::read(handles[0], buffer, len);
   if(ret == -1)
   {
@@ -95,7 +95,7 @@ int Pipe::read(char* buffer, u_long len, u_long *nbr)
  */
 int Pipe::create(bool readPipe)
 {
-#ifdef NOT_WIN
+#ifndef WIN32
 
 #ifdef HAVE_PIPE
   return pipe (handles);
@@ -149,7 +149,7 @@ int Pipe::create(bool readPipe)
 int Pipe::write(const char* buffer, u_long len, u_long *nbw)
 {
   *nbw = 0;
-#ifdef NOT_WIN
+#ifndef WIN32
   int ret = ::write(handles[1], buffer, len);
   if(ret == -1)
   {
@@ -169,7 +169,7 @@ int Pipe::write(const char* buffer, u_long len, u_long *nbw)
  */
 long Pipe::getReadHandle()
 {
-#ifdef NOT_WIN
+#ifndef WIN32
   return handles[0];
 #else
   return (long)readHandle;
@@ -181,7 +181,7 @@ long Pipe::getReadHandle()
  */
 long Pipe::getWriteHandle()
 {
-#ifdef NOT_WIN
+#ifndef WIN32
   return handles[1];
 #else
   return (long)writeHandle;
@@ -195,7 +195,7 @@ long Pipe::getWriteHandle()
 int Pipe::close()
 {
   terminated = true;
-#ifdef NOT_WIN
+#ifndef WIN32
   if(handles[0])
     ::close(handles[0]);
   if(handles[1])
@@ -218,7 +218,7 @@ int Pipe::close()
  */
 void Pipe::inverted(Pipe& pipe)
 {
-#ifdef NOT_WIN
+#ifndef WIN32
   handles[0] = pipe.handles[1];
   handles[1] = pipe.handles[0];
 #else
@@ -230,7 +230,7 @@ void Pipe::inverted(Pipe& pipe)
 Pipe::Pipe()
 {
   terminated = false;
-#ifdef NOT_WIN
+#ifndef WIN32
   handles[0] = handles[1] = 0;
 #else
   readHandle = writeHandle = 0;
@@ -243,7 +243,7 @@ Pipe::Pipe()
 void Pipe::closeRead()
 {
   terminated = true;
-#ifdef NOT_WIN
+#ifndef WIN32
   if(handles[0])
     ::close(handles[0]);
   handles[0] = 0;
@@ -261,7 +261,7 @@ void Pipe::closeRead()
 void Pipe::closeWrite()
 {
   terminated = true;
-#ifdef NOT_WIN
+#ifndef WIN32
   if(handles[1])
     ::close(handles[1]);
   handles[1] = 0;
@@ -280,7 +280,7 @@ void Pipe::closeWrite()
  */
 int Pipe::waitForData (int sec, int usec)
 {
-#ifdef NOT_WIN
+#ifndef WIN32
 
 #if HAVE_PIPE
   struct timeval tv;

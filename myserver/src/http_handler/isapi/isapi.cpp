@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -744,10 +744,6 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
 /*!
  *ISAPI works only on the windows architecture.
  */
-#ifdef NOT_WIN
-  return td->http->raiseHTTPError(501);
-#endif
-
 #ifdef WIN32
   DWORD Ret;
   EXTENSION_CONTROL_BLOCK ExtCtrlBlk;

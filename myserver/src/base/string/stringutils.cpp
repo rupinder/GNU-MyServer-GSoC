@@ -24,7 +24,7 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#ifdef NOT_WIN
+#ifndef WIN32
 #include <stdio.h>
 #endif
 }
@@ -478,7 +478,7 @@ const char* getLocalLogFormatDate(const time_t t, char* out, int len)
   out[19] = asct[18];
   out[20] = ' ';
 
-#ifdef NOT_WIN
+#ifndef WIN32
   extern long timezone; 
   offset = -timezone;
 #else
@@ -896,7 +896,7 @@ int stringcmp(string const &a, const char* b)
   return strcmp(a.c_str(), b);
 }
 
-#ifdef NOT_WIN 
+#ifndef WIN32 
 char* strupr(char * s)
 {
     unsigned int len = strlen(s);

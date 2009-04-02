@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -170,7 +170,7 @@ int setcwdBuffer()
   return currentPath ? 0 : 1;
 #endif
 
-#ifdef NOT_WIN
+#ifndef WIN32
   int size = 16;
   char *ret = 0;
   currentPath = new char[size];
@@ -204,8 +204,10 @@ int setcwdBuffer()
 int getdefaultwd(string& out)
 {
   char *wd = getdefaultwd(0, 0);
+
   if(wd == 0)
     return -1;
+
   out.assign(wd);
   return 0;
 }
@@ -256,7 +258,7 @@ int setcwd(const char *dir)
 #ifdef WIN32  
   return _chdir(dir);
 #endif
-#ifdef NOT_WIN
+#ifndef WIN32
   return chdir(dir);
 #endif
 }
@@ -274,7 +276,7 @@ int preparePrintError()
   if(ret)
     return 0;
 #endif
-#ifdef NOT_WIN
+#ifndef WIN32
   cout << "\033[31;1m";
   return 0;
 #endif
@@ -294,8 +296,7 @@ int endPrintError()
                                     FOREGROUND_BLUE);
   if(ret)
     return 0;
-#endif
-#ifdef NOT_WIN
+#else
   cout << "\033[0m";
   return 0;
 #endif

@@ -30,7 +30,7 @@ extern "C" {
 #include <argp.h>
 #endif
 
-#ifdef NOT_WIN
+#ifndef WIN32
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
@@ -58,7 +58,7 @@ int argn;
 char **argv;
 void registerSignals();
 
-#ifdef NOT_WIN
+#ifndef WIN32
 void Sig_Quit(int signal)
 {
   Server::getInstance()->logWriteln("Exiting...");
@@ -88,7 +88,7 @@ static BOOL SignalHandler(DWORD type)
 
 void registerSignals()
 {
-#ifdef NOT_WIN
+#ifndef WIN32
   struct sigaction sig1, sig2, sig3;
   struct sigaction sa;
 
@@ -433,7 +433,7 @@ int main (int argn, char **argv)
 #ifdef ARGP
   struct argp_input input;
 #endif
-#ifdef NOT_WIN
+#ifndef WIN32
   pid_t pid;
   pid_t sid;
 #endif

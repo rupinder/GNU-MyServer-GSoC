@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/utility.h>
 #include <include/base/string/stringutils.h>
 
-#ifdef NOT_WIN
+#ifndef WIN32
 extern "C" {
 #include <fcntl.h>
 #include <unistd.h>
@@ -60,7 +60,7 @@ FilesUtility::FilesUtility()
  *The second IF tries to find at least two dots.
  *if it finds only 1, does nothing,
  *WIN32 if it finds 2 or more rec=rec-(number of dots -1)
- *UNIX if it finds 2, decrements rec, if it finds more,
+ * *NIX if it finds 2, decrements rec, if it finds more,
  *increments it considering it's a name if it ends with
  *something else other then a bar of a NULL,
  *then it's a path of the form "/...qwerty/" that should be considered rec++
@@ -139,13 +139,7 @@ int FilesUtility::renameFile(const char* before, const char* after)
 #ifdef WIN32
   return MoveFile(before, after) ? 0 : 1;
 #else
-
-#ifdef NOT_WIN
   return rename(before, after);
-#else
-  return -1;
-#endif
-
 #endif
 }
 
@@ -246,8 +240,7 @@ int FilesUtility::deleteFile(const char *filename)
   ret = DeleteFile(filename);
   if(ret)
     return 0;
-#endif
-#ifdef NOT_WIN
+#else
   ret = remove(filename);
 #endif
   return ret;
@@ -265,8 +258,7 @@ int FilesUtility::isDirectory(const char *filename)
     return(fa & FILE_ATTRIBUTE_DIRECTORY)?1:0;
   else
     return 0;
-#endif
-#ifdef NOT_WIN
+#else
   struct stat F_Stats;
   int ret = stat(filename, &F_Stats);
   if(ret < 0)
@@ -284,8 +276,7 @@ int FilesUtility::isLink(const char* filename)
 {
 #ifdef WIN32
   return 0;
-#endif
-#ifdef NOT_WIN
+#else
   struct stat F_Stats;
   int ret = lstat(filename, &F_Stats);
   if(ret < 0)
@@ -315,8 +306,7 @@ int FilesUtility::fileExists(const char* filename)
   int nRet = hFile != INVALID_HANDLE_VALUE ? 1 : 0;
   CloseHandle(hFile);
   return nRet;
-#endif
-#ifdef NOT_WIN
+#else
   struct stat F_Stats;
   int ret = stat(filename, &F_Stats);
   if(ret < 0)
@@ -337,12 +327,12 @@ time_t FilesUtility::getLastModTime(const char *filename)
 #ifdef WIN32
   struct _stat sf;
   res = _stat(filename,&sf);
-#endif
-#ifdef NOT_WIN
+#else
   struct stat sf;
   res = stat(filename,&sf);
 #endif
-  if(res==0)
+
+  if(res == 0)
     return sf.st_mtime;
   else
     return (-1);
@@ -359,8 +349,7 @@ time_t FilesUtility::getCreationTime(const char *filename)
 #ifdef WIN32
   struct _stat sf;
   res = _stat(filename, &sf);
-#endif
-#ifdef NOT_WIN
+#else
   struct stat sf;
   res = stat(filename, &sf);
 #endif
@@ -381,8 +370,7 @@ time_t FilesUtility::getLastAccTime(const char *filename)
 #ifdef WIN32
   struct _stat sf;
   res = _stat(filename, &sf);
-#endif
-#ifdef NOT_WIN
+#else
   struct stat sf;
   res = stat(filename, &sf);
 #endif
@@ -401,7 +389,7 @@ time_t FilesUtility::getLastAccTime(const char *filename)
  */
 int FilesUtility::chown(const char* filename, int uid, int gid)
 {
-#ifdef NOT_WIN
+#ifndef WIN32
   return ::chown(filename, uid, gid) ? 1 : 0;
 #endif
   return 0;
@@ -622,8 +610,7 @@ int FilesUtility::getShortFileName(char *filePath, char *out, int buffersize)
   if(!ret)
     return -1;
   return 0;
-#endif
-#ifdef NOT_WIN
+#else
   strncpy(out, filePath, buffersize);
   return 0;
 #endif
@@ -674,9 +661,7 @@ int FilesUtility::completePath(char **fileName,int *size, int dontRealloc)
     return -1;
 
   return 0;
-#endif
-
-#ifdef NOT_WIN
+#else
   char *buffer;
   int bufferLen;
   int bufferNewLen;
@@ -739,9 +724,7 @@ int FilesUtility::completePath(string &fileName)
   fileName.assign(buffer);
 
   return 0;
-#endif
-
-#ifdef NOT_WIN
+#else
   ostringstream stream;
   /* We assume that path starting with / are yet completed. */
   if(fileName[0] != '/')
@@ -763,7 +746,7 @@ int FilesUtility::simpleMakeDirectory(const char *path)
 {
 #ifdef WIN32
   return CreateDirectory(path, NULL)?0:-1;
-#else // NOT_WIN
+#else
   return mkdir(path, S_IRUSR | S_IWUSR);
 #endif
 }
@@ -778,7 +761,7 @@ int FilesUtility::deleteDirectory(const char *path)
 {
 #ifdef WIN32
   return RemoveDirectory(path)?0:-1;
-#else // NOT_WIN
+#else
   return rmdir(path);
 #endif
 }

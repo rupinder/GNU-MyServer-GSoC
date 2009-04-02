@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/file/files_utility.h>
 #include <include/base/files_cache/cached_file_factory.h>
 
-#ifdef NOT_WIN
+#ifndef WIN32
 extern "C" {
 #include <fcntl.h>
 #include <unistd.h>

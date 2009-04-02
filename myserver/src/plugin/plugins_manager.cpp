@@ -200,8 +200,7 @@ int PluginsManager::preLoad(Server* server, XmlParser* languageFile,
       libname.append(pinfo->getName());
 #ifdef WIN32
       libname.append(".dll");
-#endif
-#ifdef NOT_WIN
+#else
       libname.append(".so");
 #endif
        if(pinfo->isEnabled())

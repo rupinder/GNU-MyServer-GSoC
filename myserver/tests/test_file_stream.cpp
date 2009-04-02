@@ -1,6 +1,6 @@
 /*
   MyServer
-  Copyright (C) 2008 Free Software Foundation, Inc.
+  Copyright (C) 2008, 2009 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -57,8 +57,7 @@ public:
 #ifdef WIN32
     message.assign ("thisisaverylongmessage\r\n");
     message2.assign ("thisisanothermessage\r\n");
-#endif
-#ifdef NOT_WIN
+#else
     message.assign ("thisisaverylongmessage\n");
     message2.assign ("thisisanothermessage\n");
 #endif

@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -31,7 +31,7 @@ extern "C"
 #include <stdlib.h>
 #include <fcntl.h>
 #include <stdio.h>
-#ifdef NOT_WIN
+#ifndef WIN32
 #include <dirent.h>
 #endif
 #include <limits.h>
@@ -67,17 +67,20 @@ class FindData
    int findclose();
    FindData();
    ~FindData();
-#ifdef NOT_WIN
-	 struct stat* getStatStruct(){return &stats;}
+  struct stat* getStatStruct()
+  {
+#ifndef WIN32
+    return &stats;
+#else
+    return NULL;
 #endif
+  }
 
  private:
 #ifdef WIN32
 	_finddata_t fd;
    intptr_t  ff;
-#endif
-
-#ifdef NOT_WIN
+#else
    string DirName;
    DIR *dh;
    struct stat stats;

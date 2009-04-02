@@ -30,7 +30,7 @@ extern "C"
 #include <errno.h>
 #endif
 
-#ifdef NOT_WIN
+#ifndef WIN32
 #include <string.h>
 #include <errno.h>
 #endif
@@ -38,7 +38,7 @@ extern "C"
 
 #include <include/base/find_data/find_data.h>
 #include <include/base/string/stringutils.h>
-#ifdef NOT_WIN
+#ifndef WIN32
 #endif
 
 #include <string>

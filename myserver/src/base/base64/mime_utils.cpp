@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -21,15 +21,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/string/securestr.h>
 extern "C" 
 {
-#include <stdlib.h>
-#include <string.h>
-#ifdef NOT_WIN
+#ifndef WIN32
 #include <stdio.h>
 #include <ctype.h>
 #endif
+
+#include <stdlib.h>
+#include <string.h>
 }
+
 #define strupos(x, y) (strustr(x, y) != NULL ? strustr(x, y) - x : -1) //char version
-char* strustr(char *source, char *s)
+
+static char* strustr(char *source, char *s)
 {
 
   char *csource = new char[strlen(source) + 1];

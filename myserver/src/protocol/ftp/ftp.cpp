@@ -1799,7 +1799,7 @@ void Ftp::List(const std::string &sParam/*= ""*/)
 
       char nlinkStr[12];
       memset(nlinkStr, 0, sizeof(char)*12);
-#ifdef NOT_WIN
+#ifndef WIN32
       nlink_t nlink = 1;
       nlink = fd.getStatStruct()->st_nlink;
       sprintf(nlinkStr, "%lu", (u_long) nlink);
@@ -1896,7 +1896,7 @@ void Ftp::List(const std::string &sParam/*= ""*/)
 
       char nlinkStr[12];
       memset(nlinkStr, 0, sizeof(char)*12);
-#ifdef NOT_WIN
+#ifndef WIN32
       nlink_t nlink = 1;
       nlink = fd.getStatStruct()->st_nlink;
       sprintf(nlinkStr, "%lu", (u_long) nlink);

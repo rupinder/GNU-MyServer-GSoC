@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2005, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2005, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -31,10 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <pthread.h>
 #endif
 
-/* If we are not windows, assume *nix */
-#ifndef WIN32
-#define NOT_WIN
-#endif
+
 extern "C" {
 #include <stdio.h>
 #include <fcntl.h>
@@ -43,7 +40,8 @@ extern "C" {
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#ifdef NOT_WIN
+
+#ifndef WIN32
 #include <limits.h>
 #endif
 }
@@ -57,7 +55,6 @@ extern "C"
 #include <io.h>
 }
 #endif
-
 
 #ifndef MAX_PATH
 #ifdef PATH_MAX

@@ -174,8 +174,7 @@ int Socket::bind(MYSERVER_SOCKADDR* sa,int namelen)
      return -1;
 #ifdef WIN32
   return ::bind((SOCKET)socketHandle,(const struct sockaddr*)sa,namelen);
-#endif
-#ifdef NOT_WIN
+#else
   return ::bind((int)socketHandle,(const struct sockaddr*)sa,namelen);
 #endif
 }
@@ -187,8 +186,7 @@ int Socket::listen(int max)
 {
 #ifdef WIN32
   return ::listen(socketHandle,max);
-#endif
-#ifdef NOT_WIN
+#else
   return ::listen((int)socketHandle,max);
 #endif
 }
@@ -198,20 +196,15 @@ int Socket::listen(int max)
  */
 Socket Socket::accept(MYSERVER_SOCKADDR* sa, int* sockaddrlen)
 {
-#ifdef NOT_WIN
-  socklen_t connectSize;
-  int acceptHandle;
-#endif
-
   Socket s;
 
 #ifdef WIN32
   FileHandle h = (FileHandle)::accept(socketHandle,(struct sockaddr*)sa,
                                           sockaddrlen);
   s.setHandle(h);
-#endif
-
-#ifdef NOT_WIN
+#else
+  socklen_t connectSize;
+  int acceptHandle;
   connectSize = (socklen_t) *sockaddrlen;
 
   acceptHandle = ::accept((int)socketHandle, (struct sockaddr *)sa,
@@ -236,9 +229,7 @@ int Socket::close()
   }
   else
     return 0;
-#endif
-
-#ifdef NOT_WIN
+#else
   if(socketHandle)
   {
     int ret = ::close((int)socketHandle);
@@ -257,8 +248,7 @@ MYSERVER_HOSTENT *Socket::gethostbyaddr(char* addr,int len,int type)
 {
 #ifdef WIN32
   HOSTENT *he = ::gethostbyaddr(addr,len,type);
-#endif
-#ifdef NOT_WIN
+#else
   struct hostent * he = ::gethostbyaddr(addr,len,type);
 #endif
   return he;
@@ -279,9 +269,7 @@ int Socket::shutdown(int how)
 {
 #ifdef WIN32
   return ::shutdown(socketHandle,how);
-#endif
-
-#ifdef NOT_WIN
+#else
   return ::shutdown((int)socketHandle,how);
 #endif
 }
@@ -351,8 +339,7 @@ int Socket::getLocalIPsList(string &out)
     {
 #ifdef WIN32
       ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
-#endif
-#ifdef NOT_WIN
+#else
       ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
 #endif
       stream << ( (i != 0) ? ", " : "") << inet_ntoa(ia);
@@ -457,8 +444,7 @@ int Socket::ioctlsocket(long cmd,unsigned long* argp)
 {
 #ifdef WIN32
   return ::ioctlsocket(socketHandle, cmd, argp);
-#endif
-#ifdef NOT_WIN
+#else
   int int_argp = 0;
   int ret = ::ioctl((int)socketHandle, cmd, &int_argp);
   *argp = int_argp;
@@ -609,18 +595,17 @@ int Socket::connect(const char* host, u_short port)
 int Socket::connect(MYSERVER_SOCKADDR* sa, int na)
 {
   if ( sa == NULL || (sa->ss_family != AF_INET && sa->ss_family != AF_INET6) )
-    return 1;//Andu: TODO our error code or what?
+    return -1;
   if ( (sa->ss_family == AF_INET && na != sizeof(sockaddr_in)) 
 #if HAVE_IPV6
     || (sa->ss_family == AF_INET6 && na != sizeof(sockaddr_in6))
 #endif
  )
-    return 1;//Andu: TODO our error code or what?
+    return -1;
   
 #ifdef WIN32
   return ::connect((SOCKET)socketHandle,(const sockaddr *)sa, na);
-#endif
-#ifdef NOT_WIN
+#else
   return ::connect((int)socketHandle,(const sockaddr *)sa,na);
 #endif
 }
@@ -657,9 +642,7 @@ int Socket::recv(char* buffer,int len,int flags)
     return -1;
   else
     return err;
-
-#endif
-#ifdef NOT_WIN
+#else
   err = ::recv((int)socketHandle, buffer, len, flags);
 
   if ( err < 0 && errno == EAGAIN && isNonBlocking)
@@ -727,7 +710,7 @@ int Socket::setNonBlocking(int nonBlocking)
 /*!
  *Returns the hostname.
  */
-int Socket::gethostname(char *name,int namelen)
+int Socket::gethostname(char *name, int namelen)
 {
   return ::gethostname(name,namelen);
 }
@@ -735,16 +718,14 @@ int Socket::gethostname(char *name,int namelen)
 /*!
  *Returns the sockname.
  */
-int Socket::getsockname(MYSERVER_SOCKADDR *ad,int *namelen)
+int Socket::getsockname(MYSERVER_SOCKADDR *ad, int *namelen)
 {
 #ifdef WIN32
-     return ::getsockname(socketHandle,(sockaddr *)ad,namelen);
-#endif
-#ifdef NOT_WIN
+  return ::getsockname(socketHandle,(sockaddr *)ad,namelen);
+#else
   socklen_t len =(socklen_t) *namelen;
   int ret = ::getsockname((int)socketHandle, (struct sockaddr *)ad, &len);
   *namelen = (int)len;
-
   return ret;
 #endif
 }

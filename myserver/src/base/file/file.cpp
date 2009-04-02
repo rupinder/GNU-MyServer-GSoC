@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/string/stringutils.h>
 #include <include/base/file/files_utility.h>
 
-#ifdef NOT_WIN
+#ifndef WIN32
 extern "C" {
 #include <fcntl.h>
 #include <unistd.h>
@@ -93,8 +93,7 @@ int File::writeToFile(const char* buffer, u_long buffersize, u_long* nbw)
 #ifdef WIN32
   int ret = WriteFile((HANDLE)handle,buffer,buffersize,nbw,NULL);
   return (!ret);
-#endif
-#ifdef NOT_WIN
+#else
   *nbw =  ::write((long)handle, buffer, buffersize);
   return (*nbw == buffersize) ? 0 : 1 ;
 #endif
@@ -180,9 +179,7 @@ int File::openFile(const char* nfilename,u_long opt)
         return 1;
       }
   }
-
-#endif
-#ifdef NOT_WIN
+#else
   struct stat F_Stats;
   int F_Flags;
   if(opt & File::MYSERVER_OPEN_READ && opt & File::MYSERVER_OPEN_WRITE)
@@ -356,8 +353,7 @@ int File::close()
 #ifdef WIN32
     ret = !FlushFileBuffers((HANDLE)handle);
     ret |= CloseHandle((HANDLE)handle);
-#endif
-#ifdef NOT_WIN
+#else
     ret = fsync((long)handle);
     ret |= ::close((long)handle);
 #endif
@@ -382,8 +378,7 @@ u_long File::getFileSize()
   }
   else
     return (u_long)-1;
-#endif
-#ifdef NOT_WIN
+#else
   struct stat F_Stats;
   ret = fstat((long)handle, &F_Stats);
   if(ret)
@@ -404,8 +399,7 @@ int File::seek (u_long initialByte)
   ret = SetFilePointer ((HANDLE)handle, initialByte, NULL, FILE_BEGIN);
   /*! SetFilePointer returns INVALID_SET_FILE_POINTER on an error.  */
   return (ret == INVALID_SET_FILE_POINTER) ? 1 : 0;
-#endif
-#ifdef NOT_WIN
+#else
   ret = lseek ((long)handle, initialByte, SEEK_SET);
   return (ret != initialByte ) ? 1 : 0;
 #endif
@@ -459,8 +453,7 @@ int File::read(char* buffer,u_long buffersize,u_long* nbr)
 #ifdef WIN32
   int ret = ReadFile((HANDLE)handle, buffer, buffersize, nbr, NULL);
   return (!ret);
-#endif
-#ifdef NOT_WIN
+#else
   int ret  = ::read((long)handle, buffer, buffersize);
   *nbr = (u_long)ret;
   return (ret == -1) ;

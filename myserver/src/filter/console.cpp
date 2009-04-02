@@ -41,7 +41,7 @@ Console::Console () : Stream ()
   bg_colors["white"] = BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE;
   bg_colors["reset"] = 0;
 #endif
-#ifdef NOT_WIN
+#ifndef WIN32
   fg_colors["black"] = "\033[30m";
   fg_colors["red"] = "\033[31m";
   fg_colors["green"] = "\033[32m";
@@ -154,8 +154,7 @@ Console::setColor (string fg_color, string bg_color)
     }
   h = GetStdHandle (nStdHandle);
   SetConsoleTextAttribute (attrs, h);
-#endif
-#ifdef NOT_WIN
+#else
   if (fg_colors.count (fg_color) && bg_colors.count (bg_color))
     {
       *fd << fg_colors[fg_color].c_str () << bg_colors[bg_color].c_str ();

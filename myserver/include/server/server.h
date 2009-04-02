@@ -57,8 +57,7 @@ using namespace std;
  */
 #ifdef WIN32
 unsigned int __stdcall listenServer(void* pParam);
-#endif
-#ifdef NO_WIN
+#else
 void* listenServer(void* pParam);
 #endif
 

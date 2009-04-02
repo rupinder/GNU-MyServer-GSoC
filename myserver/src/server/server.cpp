@@ -37,8 +37,7 @@ extern "C"
 {
 #ifdef WIN32
 #include <direct.h>
-#endif
-#ifdef NOT_WIN
+#else
 #include <unistd.h>
 #include <string.h>
 #include <signal.h>
@@ -683,9 +682,7 @@ void Server::displayBoot()
      */
     _flushall();
     system("cls");
-#endif
-#ifdef NOT_WIN
-
+#else
   /*
    *Under an UNIX environment, clearing the screen
    *can be done in a similar method

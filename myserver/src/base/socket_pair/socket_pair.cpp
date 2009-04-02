@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/utility.h>
 #include <include/base/socket_pair/socket_pair.h>
 
-#ifdef NOT_WIN
+#ifndef WIN32
 extern "C" {
 #include <fcntl.h>
 #include <unistd.h>
