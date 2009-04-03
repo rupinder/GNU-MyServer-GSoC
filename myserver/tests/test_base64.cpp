@@ -1,6 +1,6 @@
 /*
  MyServer
- Copyright (C) 2008 Free Software Foundation, Inc.
+ Copyright (C) 2008, 2009 Free Software Foundation, Inc.
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
@@ -51,17 +51,16 @@ public:
   {
     int len = 0;
     char* input = (char*) "Hello world!\n";
-    char* encoded = base64->Encode(input, 13);
+    char* encoded = base64->encode(input, 13);
 
     len = strlen(encoded);
 
-    char* decoded = base64->Decode(encoded, &len);
+    char* decoded = base64->decode(encoded, &len);
 
     CPPUNIT_ASSERT_EQUAL(strlen(input), strlen(decoded));
 
     for (unsigned int i = 0; i < strlen(decoded); i++)
       CPPUNIT_ASSERT_EQUAL(input[i], decoded[i]);
-
   }
 };
 

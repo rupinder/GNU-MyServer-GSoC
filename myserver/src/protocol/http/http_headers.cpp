@@ -836,8 +836,9 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
       const char* lsecondaryBuffer;
       const char* lsecondaryBufferOr;
       char login[32];
-      char password[32];
-      
+      char password[32]; 
+      CBase64Utils base64Utils;
+    
       if(len == -1)
         return 400;    
       
@@ -851,7 +852,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
       if (len <= 1)
         return 400;
       
-      lsecondaryBuffer = base64Utils.Decode(base64,&len);
+      lsecondaryBuffer = base64Utils.decode(base64, &len);
       lsecondaryBufferOr = lsecondaryBuffer;
    
       for(i = 0; (*lsecondaryBuffer != ':') && (i < 32);i++)
