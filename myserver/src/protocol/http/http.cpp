@@ -798,7 +798,6 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
    */
   string filename;
   const char *cgiManager;
-  int mimecmd;
   int ret;
   string directory;
   string file;

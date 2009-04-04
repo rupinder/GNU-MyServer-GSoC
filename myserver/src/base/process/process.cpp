@@ -153,7 +153,6 @@ int Process::generateEnvString (const char **envp, char *envString)
  */
 int Process::exec(StartProcInfo* spi, bool waitEnd)
 {
-  int ret = 0;
   pid = 0;
 #ifdef WIN32
   STARTUPINFO si;

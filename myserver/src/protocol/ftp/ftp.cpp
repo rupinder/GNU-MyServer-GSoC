@@ -579,7 +579,7 @@ void Ftp::Pasv()
   int asockInLen = 0;
   Socket asock;
   if ( pFtpUserData->m_pDataConnection->socket->dataOnRead(timeoutvalue, 0) == 1 )
-  {
+    {
     asockInLen = sizeof(sockaddr_in);
     asock = pFtpUserData->m_pDataConnection->socket->accept(&asockIn, &asockInLen);
     if ( asock.getHandle() == (FileHandle)INVALID_SOCKET )
@@ -1497,7 +1497,7 @@ bool Ftp::BuildLocalPath(const std::string &sPath, std::string &sOutPath)
   }
   ///////////////////////////////////////
   if ( FilesUtility::isDirectory(sOutPath) && 
-       (sOutPath[sOutPath.length() - 1] != '/' || sOutPath[sOutPath.length() - 1] != '\\') )
+       (sOutPath[sOutPath.length() - 1] != '/' && sOutPath[sOutPath.length() - 1] != '\\') )
     sOutPath.append("/");
   return true;
 }
@@ -2399,8 +2399,11 @@ int Ftp::CheckRights(const std::string &sUser, const std::string &sPass, const s
 {
   if ( sPath.empty() )
     return 0;
-  std::string sDir, sFileName;
-  FilesUtility::splitPath(sPath, sDir, sFileName);
+  std::string sDir(""), sFileName("");
+  if ( !FilesUtility::isDirectory(sPath.c_str()) )
+    FilesUtility::splitPath(sPath, sDir, sFileName);
+  else
+    sDir = sPath;
 
   SecurityToken st;
   string user;

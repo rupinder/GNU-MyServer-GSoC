@@ -583,7 +583,6 @@ int ControlProtocol::addToErrorLog(ConnectionPtr con, const char *b1, int bs1,
 {
   string time;
   ostringstream out;
-  ThreadID id = Thread::threadID();
   /*
    *Check that the verbosity is at least 1.
    */
@@ -607,7 +606,6 @@ int ControlProtocol::addToLog(int retCode, ConnectionPtr con, char *b1,
                               int bs1, ControlHeader& header)
 {
   string time;
-  ThreadID id = Thread::threadID();
   getRFC822GMTTime(time, 32);
 
 #ifdef HAVE_SNPRINTF

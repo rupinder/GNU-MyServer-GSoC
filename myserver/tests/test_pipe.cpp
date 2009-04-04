@@ -91,9 +91,7 @@ public:
   void testWaitForData()
   {
     char outBuff[256];
-    char inBuff[256];
     u_long nbw;
-    u_long nbr;
 
     strcpy(outBuff, "MyServer is a powerful and easy to configure web server");
 

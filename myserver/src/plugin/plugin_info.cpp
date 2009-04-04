@@ -119,6 +119,7 @@ int PluginInfo::getMyServerMaxVersion()
 int PluginInfo::setMyServerMinVersion(int v)
 {
   this->msMinVersion = v;
+  return this->msMinVersion;
 }
 	
 /*!
@@ -127,6 +128,7 @@ int PluginInfo::setMyServerMinVersion(int v)
 int PluginInfo::setMyServerMaxVersion(int v)
 {
   this->msMaxVersion = v;
+  return this->msMaxVersion;
 }
 
 /*!
@@ -185,6 +187,7 @@ Plugin* PluginInfo::removePlugin()
   if(this->plugin)
   	delete this->plugin;
   this->plugin = NULL;
+  return NULL;
 }
 
 /*!

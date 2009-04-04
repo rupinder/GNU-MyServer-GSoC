@@ -416,7 +416,6 @@ int PluginsManager::load(Server *server, XmlParser* languageFile,
     
     
   	HashMap<string, pair<int,int>* >::Iterator depIt = pinfo->begin();
-  	bool goodVersions = true;
 
   	string msversion(MYSERVER_VERSION);
   	int i = msversion.find("-",0);

@@ -70,7 +70,7 @@ XmlParser* XmlValidator::getParser (SecurityToken* st)
 
   secName = st->getHashedData ("SECURITY_FILE_NAME", MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, ".security.xml");
 
-  return cache->getParser (*(st->getResource ()), *(st->getSysDirectory ()), false, secName);
+  return cache->getParser (*(st->getDirectory ()), *(st->getSysDirectory ()), false, secName);
 }
 
 /*!

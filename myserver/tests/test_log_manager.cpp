@@ -541,7 +541,6 @@ public:
   void testGetLogStreamSharedByTheSameObject ()
   {
     list<string> filters;
-    AnObject anObject;
     list<void*> l;
     LogStream* ls;
     LogStream* ls1;
