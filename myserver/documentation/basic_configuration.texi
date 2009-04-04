@@ -60,3 +60,19 @@ At this point, @code{server.temp_directory} shall be set to
 Files saved on the primary memory are not persistent between reboots,
 introducing another level of security as temporary data will not be
 saved on the server.
+
+@section Connections timeout
+Protocols like FTP or HTTP/1.1 support keep-alive connections, in
+other words the connection is kept alive between requests to avoid a
+different connection to the server on every request.
+MyServer performances are not affected by the number of active
+connections but if they are not controlled, they can reach the maximum
+number of allowed connections without give the possibility to new
+connections that really want to request a resource to be
+estabilished.
+Active connections are closed after a fixed amount of time has passed
+without any activity.
+The amount of time, before an inactive connection is closed, is
+configured trought the @code{server.connection_timeout} value defined
+in the global configuration file.  This value is specified in
+seconds.
