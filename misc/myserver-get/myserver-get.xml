@@ -1,0 +1,20 @@
+<MYSERVER-GET>
+	
+	<REP_LIST_FILE>repositories.xml</REP_LIST_FILE>
+	
+	
+	<PLUGIN_LIST_FILES_DIR>list</PLUGIN_LIST_FILES_DIR>
+	
+	
+	<PLUGIN_LIST_PREFIX>myserver-get-</PLUGIN_LIST_PREFIX>
+
+
+	<PLUGIN_LIST_SUFFIX>-plugin-list.xml</PLUGIN_LIST_SUFFIX>
+
+
+	<MYSERVER_PLUGIN_DIR>../../myserver/binaries/plugins</MYSERVER_PLUGIN_DIR>
+
+	<MYSERVER_VERSION>0.9</MYSERVER_VERSION>
+
+	<MSHEADERS>/home/dany/srcprojects/myserver/myserver</MSHEADERS>
+</MYSERVER-GET>
