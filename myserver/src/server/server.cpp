@@ -194,23 +194,29 @@ int Server::copyConfigurationFromDefault(const char *fileName)
   File inputF;
   File outputF;
   int ret;
-  string sSource(fileName);
+  string sSource (fileName);
+  sSource = sSource.substr (0, sSource.length () - 3);
 
-  sSource.append(".default");
-  ret = inputF.openFile(sSource, File::MYSERVER_OPEN_READ
-      | File::MYSERVER_OPEN_IFEXISTS);
+#ifdef WIN32
+  sSource.append ("default.windows.xml");
+#else
+  sSource.append ("default.xml");
+#endif
+
+  ret = inputF.openFile (sSource, File::MYSERVER_OPEN_READ
+                        | File::MYSERVER_OPEN_IFEXISTS);
   if (ret)
     return -1;
 
-  ret = outputF.openFile(fileName, File::MYSERVER_OPEN_WRITE
-      | File::MYSERVER_OPEN_ALWAYS);
+  ret = outputF.openFile (fileName, File::MYSERVER_OPEN_WRITE
+                         | File::MYSERVER_OPEN_ALWAYS);
   if (ret)
     return -1;
 
-  FilesUtility::copyFile(inputF, outputF);
+  FilesUtility::copyFile (inputF, outputF);
 
-  inputF.close();
-  outputF.close();
+  inputF.close ();
+  outputF.close ();
 
   return 0;
 }
