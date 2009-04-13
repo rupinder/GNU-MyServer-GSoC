@@ -408,7 +408,7 @@ void ConnectionsScheduler::addWaitingConnectionImpl(ConnectionPtr c, int lock)
   if(lock)
   {
     u_long nbw;
-    Socket sock (dispatcherArg.socketPair.getSecondHandle ());
+    Socket sock ((FileHandle)dispatcherArg.socketPair.getSecondHandle ());
 
     eventsSocketMutex.lock();
     sock.write("c", 1, &nbw);
@@ -482,8 +482,8 @@ void ConnectionsScheduler::release()
     readySemaphore->unlock();
   }
 
-  Socket sockR (dispatcherArg.socketPair.getFirstHandle ());
-  Socket sockW (dispatcherArg.socketPair.getSecondHandle ());
+  Socket sockR ((FileHandle)dispatcherArg.socketPair.getFirstHandle ());
+  Socket sockW ((FileHandle)dispatcherArg.socketPair.getSecondHandle ());
 
   eventsSocketMutex.lock();
   sockW.write("r", 1, &nbw);

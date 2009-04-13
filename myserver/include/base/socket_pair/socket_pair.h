@@ -32,8 +32,13 @@ class SocketPair : public Socket
 public:
 	SocketPair ();
 	int create ();
+#ifdef WIN32
+	SOCKET getFirstHandle ();
+	SOCKET getSecondHandle ();
+#else
 	FileHandle getFirstHandle ();
 	FileHandle getSecondHandle ();
+#endif
 	void inverted (SocketPair&);
 	virtual int close ();
 	void closeFirstHandle ();
@@ -44,6 +49,10 @@ public:
   int writeHandle (FileHandle);
 
 protected:
+#ifdef WIN32
+	SOCKET handles[2];
+#else
 	FileHandle handles[2];
+#endif
 };
 #endif

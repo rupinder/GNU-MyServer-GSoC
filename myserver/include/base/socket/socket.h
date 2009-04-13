@@ -82,6 +82,7 @@ public:
   Socket();
   Socket(Socket*);
   Socket(FileHandle);
+
   Socket accept(MYSERVER_SOCKADDR*, int*);
   int setsockopt(int,int, const char*,int);
 

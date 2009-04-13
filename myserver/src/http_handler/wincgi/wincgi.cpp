@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -159,7 +159,9 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,
   strcpy(buffer, "CGI Version=CGI/1.3a WIN\r\n");
   DataFileHandle.writeToFile(buffer,26,&nbr);
 
-  *td->secondaryBuffer << "Server Admin=" << Server::getInstance()->getServerAdmin() << "\r\n";
+  *td->secondaryBuffer << "Server Admin=" << 
+    td->securityToken.getHashedData ("server.admin", MYSERVER_VHOST_CONF |
+                                     MYSERVER_SERVER_CONF, "")<< "\r\n";
   DataFileHandle.writeToFile(buffer,td->secondaryBuffer->getLength(),&nbr);
 
   {
@@ -304,7 +306,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,
   spi.cmdLine.append(dataFilePath);
   spi.cwd.assign(pathname);
   spi.envString = 0;
-  if (proc.execAndWait (&spi, timeout))
+  if (proc.exec (&spi, true))
   {
     ostringstream msg;
     msg << "WinCGI: Error executing process " << scriptpath;

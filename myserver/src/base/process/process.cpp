@@ -171,8 +171,8 @@ int Process::exec(StartProcInfo* spi, bool waitEnd)
   cwd = spi->cwd.length() ? (char*)spi->cwd.c_str() : 0;
   ZeroMemory( &pi, sizeof(pi) );
 
-  ret = CreateProcess(NULL, (char*)spi->cmdLine.c_str(), NULL, NULL, TRUE,0,
-                      spi->envString, cwd, &si, &pi);
+  BOOL ret = CreateProcess(NULL, (char*)spi->cmdLine.c_str(), NULL, NULL, TRUE,0,
+                           spi->envString, cwd, &si, &pi);
 
   if (!ret)
     return (-1);

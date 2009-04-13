@@ -153,7 +153,7 @@ Console::setColor (string fg_color, string bg_color)
       nStdHandle = STD_ERROR_HANDLE;
     }
   h = GetStdHandle (nStdHandle);
-  SetConsoleTextAttribute (attrs, h);
+  SetConsoleTextAttribute (h, attrs);
 #else
   if (fg_colors.count (fg_color) && bg_colors.count (bg_color))
     {

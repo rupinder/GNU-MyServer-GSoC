@@ -515,7 +515,7 @@ int ProcessServerManager::connect(Socket* sock,
   socklen_t nLength = sizeof(MYSERVER_SOCKADDRIN);
   
   if (server->socket.getHandle())
-    getsockname(server->socket.getHandle(), (sockaddr *)&serverSock, &nLength);
+    server->socket.getsockname ((MYSERVER_SOCKADDR*)&serverSock, (int*)&nLength);
 
   if(!serverSock.ss_family || serverSock.ss_family == AF_INET || !server->isLocal)
   {

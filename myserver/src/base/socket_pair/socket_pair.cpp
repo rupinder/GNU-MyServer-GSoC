@@ -98,40 +98,40 @@ int SocketPair::create ()
   addr.sin_addr.s_addr = htonl (0x7f000001);
   addr.sin_port = 0;
 
-  e = bind(listener, (const struct sockaddr*) &addr, sizeof(addr));
+  e = ::bind(listener, (const struct sockaddr*) &addr, sizeof(addr));
   if (e == SOCKET_ERROR)
     {
-      close(listener);
+      closesocket (listener);
       return -1;
     }
   
-  e = getsockname(listener, (struct sockaddr*) &addr, &addrlen);
+  e = ::getsockname(listener, (struct sockaddr*) &addr, &addrlen);
   if (e == SOCKET_ERROR)
     {
-      close (listener);
+      closesocket (listener);
       return -1;
     }
   
   do
     {
-      if (listen (listener, 1) == SOCKET_ERROR)
+      if (::listen (listener, 1) == SOCKET_ERROR)
         break;
-      if ((handles[0] = socket (AF_INET, type, 0)) == INVALID_SOCKET)
+      if ((handles[0] = ::socket (AF_INET, type, 0)) == INVALID_SOCKET)
         break;
-      if (connect(handles[0], (const struct sockaddr*) &addr, sizeof (addr)) == SOCKET_ERROR)
+      if (::connect(handles[0], (const struct sockaddr*) &addr, sizeof (addr)) == SOCKET_ERROR)
         break;
-      if ((handles[1] = accept (listener, NULL, NULL)) == INVALID_SOCKET)
+      if ((handles[1] = ::accept (listener, NULL, NULL)) == INVALID_SOCKET)
         break;
     
       socketHandle = handles[0];
 
-      close (listener);
+      closesocket (listener);
       return 0;
     } while (0);
   
-  close (listener);
-  close (handles[0]);
-  close (handles[1]);
+  closesocket (listener);
+  closesocket (handles[0]);
+  closesocket (handles[1]);
   
   return -1;
 #endif
@@ -142,7 +142,11 @@ int SocketPair::create ()
 /*!
  *Get the first handle used by the socket pair.
  */
+#ifdef WIN32
+SOCKET SocketPair::getFirstHandle ()
+#else
 FileHandle SocketPair::getFirstHandle ()
+#endif
 {
   return handles[0];
 }
@@ -150,7 +154,11 @@ FileHandle SocketPair::getFirstHandle ()
 /*!
  *Get the second handle used by the socket pair.
  */
+#ifdef WIN32
+SOCKET SocketPair::getSecondHandle ()
+#else
 FileHandle SocketPair::getSecondHandle ()
+#endif
 {
   return handles[1];
 }
@@ -186,7 +194,7 @@ int SocketPair::close ()
  */
 void SocketPair::closeFirstHandle ()
 {
-  Socket sock (handles[0]);
+  Socket sock ((FileHandle)handles[0]);
   sock.close ();
 }
 
@@ -195,7 +203,7 @@ void SocketPair::closeFirstHandle ()
  */
 void SocketPair::closeSecondHandle ()
 {
-  Socket sock (handles[1]);
+  Socket sock ((FileHandle)handles[1]);
   sock.close ();
 }
 
@@ -205,10 +213,10 @@ void SocketPair::closeSecondHandle ()
  */
 void SocketPair::setNonBlocking (bool notBlocking)
 {
-   Socket sock0 (handles[0]);
+  Socket sock0 ((FileHandle)handles[0]);
    sock0.setNonBlocking (notBlocking);
 
-   Socket sock1 (handles[1]);
+   Socket sock1 ((FileHandle)handles[1]);
    sock1.setNonBlocking (notBlocking);
 }
 
