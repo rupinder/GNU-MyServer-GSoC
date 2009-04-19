@@ -31,30 +31,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <pthread.h>
 #endif
 
-
-extern "C" {
-#include <stdio.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
-
-#ifndef WIN32
-#include <limits.h>
-#endif
-}
-
 #ifdef WIN32
 extern "C"
 {
 #include <winsock2.h>
 #include <tchar.h>
 #include <process.h>
-#include <io.h>
 }
 #endif
+
+
+extern "C" {
+#include <stdlib.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <math.h>
+#include <time.h>
+
+#ifndef WIN32
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <limits.h>
+#endif
+}
 
 #ifndef MAX_PATH
 #ifdef PATH_MAX

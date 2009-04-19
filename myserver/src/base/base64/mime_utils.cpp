@@ -19,15 +19,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/base64/mime_utils.h>
 #include <include/base/string/stringutils.h>
 #include <include/base/string/securestr.h>
+
 extern "C" 
 {
-#ifndef WIN32
 #include <stdio.h>
-#include <ctype.h>
-#endif
-
 #include <stdlib.h>
 #include <string.h>
+
+#ifndef WIN32
+#include <ctype.h>
+#endif
 }
 
 #define strupos(x, y) (strustr(x, y) != NULL ? strustr(x, y) - x : -1) //char version
@@ -569,11 +570,9 @@ char* CQPUtils::encode(char *input)
         LineLen = 0;
       }
       finalresult = expandBuffer(finalresult, UsedSize, &BufSize, 0);
-#ifdef WIN32
-      itoa(mid, mids, 16);
-#else
+
       snprintf(mids, 3, "%X", mid);
-#endif
+
       strupr(mids);
       *(fresult++) = '=';
       *(fresult++) = mids[0];

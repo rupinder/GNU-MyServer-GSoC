@@ -21,12 +21,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/utility.h>
 #include <include/base/string/stringutils.h>
 
+extern "C"
+{
+#include <sys/stat.h>
+}
+
 #ifndef WIN32
-extern "C" {
+extern "C"
+{
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <errno.h>
 #include <stdio.h>
 #include <fcntl.h>
