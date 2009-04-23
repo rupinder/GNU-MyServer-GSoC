@@ -104,8 +104,14 @@ background. You can easily tell MyServer about that information by
 editing the @file{myserver.xml} configuration file and adding the
 following code:
 @example
-<CONSOLE_COLORS info_fg="white" info_bg="black" warning_fg="yellow" 
-                warning_bg="black" error_fg="red" error_bg="black"/>
+  <DEFINE name="log_color.info_fg" value="white">
+  <DEFINE name="log_color.info_bg" value="black">
+
+  <DEFINE name="log_color.warning_fg" value="yellow">
+  <DEFINE name="log_color.warning_bg" value="black">
+
+  <DEFINE name="log_color.error_fg" value="red">
+  <DEFINE name="log_color.error_bg" value="black">
 @end example
 Allowed values for colors are @code{black}, @code{red}, @code{green},
 @code{yellow}, @code{blue}, @code{magenta}, @code{cyan} and
@@ -113,5 +119,5 @@ Allowed values for colors are @code{black}, @code{red}, @code{green},
 respectively the foreground attribute and the background one, while the
 three prefixes, @code{info}, @code{warning} and @code{error} represent
 kinds of logging messages managed by MyServer.
-If the @code{CONSOLE_COLORS} information is missing or it is partially
+If the console colours information is missing or it is partially
 provided, MyServer will use default values.

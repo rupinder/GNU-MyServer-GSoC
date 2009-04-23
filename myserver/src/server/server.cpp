@@ -1006,12 +1006,16 @@ int Server::initialize ()
     {
       string fg (*it + "_fg");
       string bg (*it + "_bg");
-      data = configurationFileManager.getAttr ("CONSOLE_COLORS", fg.c_str ());
+
+      string fullFg ("log_color." + *it + "_fg");
+      string fullBg ("log_color." + *it + "_bg");
+      data = getHashedData (fullFg.c_str ());
       if (data)
         {
           consoleColors[fg] = string (data);
         }
-      data = configurationFileManager.getAttr ("CONSOLE_COLORS", bg.c_str ());
+
+      data = getHashedData (fullBg.c_str ());
       if (data)
         {
           consoleColors[bg] = string (data);
