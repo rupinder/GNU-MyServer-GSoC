@@ -985,7 +985,7 @@ int Server::initialize ()
   nMaxThreads = 50;
   currentThreadID = 0;
   freeThreads = 0;
-  connectionTimeout = MYSERVER_SEC(25);
+  connectionTimeout = MYSERVER_SEC (180);
   endServer = false;
   verbosity = 1;
   purgeThreadsThreshold = 1;
