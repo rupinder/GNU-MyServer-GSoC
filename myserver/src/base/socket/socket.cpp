@@ -97,6 +97,7 @@ int Socket::operator=(Socket s)
 }
 /*!
  *Create the socket.
+ *\return 0 on error.
  */
 int Socket::socket(int af, int type, int protocol)
 {
@@ -163,15 +164,16 @@ Socket::Socket()
  */
 int Socket::bind(MYSERVER_SOCKADDR* sa,int namelen)
 {
-   if ( sa == NULL || (sa->ss_family != AF_INET && sa->ss_family != AF_INET6) )
+   if ( sa == NULL )
       return -1;
-  if ( (sa->ss_family == AF_INET && namelen != sizeof(sockaddr_in)) 
+
+  if ((sa->ss_family == AF_INET && namelen != sizeof(sockaddr_in))
 #if HAVE_IPV6
   || (sa->ss_family == AF_INET6 && namelen != sizeof(sockaddr_in6))
 #endif
- )
+       )
+    return -1;
 
-     return -1;
 #ifdef WIN32
   return ::bind((SOCKET)socketHandle,(const struct sockaddr*)sa,namelen);
 #else
@@ -185,9 +187,9 @@ int Socket::bind(MYSERVER_SOCKADDR* sa,int namelen)
 int Socket::listen(int max)
 {
 #ifdef WIN32
-  return ::listen(socketHandle,max);
+  return ::listen(socketHandle, max);
 #else
-  return ::listen((int)socketHandle,max);
+  return ::listen((int)socketHandle, max);
 #endif
 }
 
@@ -592,10 +594,11 @@ int Socket::connect(const char* host, u_short port)
 /*!
  *Connect the socket.
  */
-int Socket::connect(MYSERVER_SOCKADDR* sa, int na)
+int Socket::connect (MYSERVER_SOCKADDR* sa, int na)
 {
-  if ( sa == NULL || (sa->ss_family != AF_INET && sa->ss_family != AF_INET6) )
+  if ( sa == NULL )
     return -1;
+
   if ( (sa->ss_family == AF_INET && na != sizeof(sockaddr_in)) 
 #if HAVE_IPV6
     || (sa->ss_family == AF_INET6 && na != sizeof(sockaddr_in6))

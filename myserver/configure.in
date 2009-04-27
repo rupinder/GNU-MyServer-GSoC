@@ -370,6 +370,7 @@ AC_CONFIG_FILES([
     include/base/string/Makefile
     include/base/regex/Makefile
     include/base/thread/Makefile
+    include/base/unix_socket/Makefile
     include/protocol/Makefile
     include/protocol/ftp/Makefile
     include/protocol/control/Makefile
@@ -420,6 +421,7 @@ AC_CONFIG_FILES([
     src/base/string/Makefile
     src/base/regex/Makefile
     src/base/thread/Makefile
+    src/base/unix_socket/Makefile
     src/protocol/Makefile
     src/protocol/ftp/Makefile
     src/protocol/control/Makefile
