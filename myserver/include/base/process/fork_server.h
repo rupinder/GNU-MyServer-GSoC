@@ -45,9 +45,6 @@ class ForkServer
   int readInt (SocketPair *sock, int *dest);
   int readString (SocketPair *sock, char **out);
 
-  int writeFd (SocketPair *socket, FileHandle fd);
-  int readFd (SocketPair *sock, FileHandle *fd);
-
   int handleRequest (SocketPair *serverSock);
   int forkServerLoop (SocketPair *socket);
 

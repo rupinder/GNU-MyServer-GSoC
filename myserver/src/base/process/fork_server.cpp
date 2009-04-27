@@ -26,47 +26,6 @@
 #endif
 
 /*!
- *Read a file descriptor from the specified socket.
- *\param socket Socket to use.
- *\param fd File handle to write.
- */
-int ForkServer::writeFd (SocketPair *socket, FileHandle fd)
-{
-  if (socket->writeHandle (fd))
-    return 1;
-
-  return 0;
-}
-
-/*!
- *Write a file descriptor on the specified socket.
- *\param socket Socket to use.
- *\param fd Pointer to the file handle that is read.
- */
-int ForkServer::readFd (SocketPair *socket, FileHandle *fd)
-{
-  if (socket->readHandle (fd))
-    return 1;
-
-  return 0;
-}
-
-/*!
- *Write an integer on the specified socket.
- *\param socket Socket to use.
- *\param num Integer to write.
- */
-int ForkServer::writeInt (SocketPair *socket, int num)
-{
-  u_long nbw;
-
-  if (socket->write ((const char*)&num, 4, &nbw))
-    return 1;
-
-  return 0;
-}
-
-/*!
  *Write a string to the socket.
  *The string length is sent before the content.
  *
@@ -89,6 +48,22 @@ int ForkServer::writeString (SocketPair *socket, const char* str, int len)
 
   return 0;
 }
+
+/*!
+ *Write an integer on the specified socket.
+ *\param socket Socket to use.
+ *\param num Integer to write.
+ */
+int ForkServer::writeInt (SocketPair *socket, int num)
+{
+  u_long nbw;
+
+  if (socket->write ((const char*)&num, 4, &nbw))
+    return 1;
+
+  return 0;
+}
+
 
 /*!
  *Read an integer from the socket.
@@ -157,14 +132,14 @@ int ForkServer::handleRequest (SocketPair *serverSock)
   readInt (serverSock, &flags);
 
   if (flags & FLAG_USE_IN)
-    readFd (serverSock, &stdIn);
+    serverSock->readHandle (&stdIn);
 
   if (flags & FLAG_USE_OUT)
-    readFd (serverSock, &stdOut);
+    serverSock->readHandle (&stdOut);
   
   if (flags & FLAG_USE_ERR)
-    readFd (serverSock, &stdErr);
-
+    serverSock->readHandle (&stdErr);
+  
   readInt (serverSock, &gid);
   readInt (serverSock, &uid);
 
@@ -319,13 +294,13 @@ int ForkServer::executeProcess (StartProcInfo *spi,
       writeInt (&socket, flags);
       
       if (flags & FLAG_USE_IN)
-        writeFd (&socket, spi->stdIn);
+        socket.writeHandle (spi->stdIn);
       
       if (flags & FLAG_USE_OUT)
-        writeFd (&socket, spi->stdOut);
+        socket.writeHandle (spi->stdOut);
       
       if (flags & FLAG_USE_ERR)
-        writeFd (&socket, spi->stdError);
+        socket.writeHandle (spi->stdError);
       
       writeInt (&socket, spi->gid);
       writeInt (&socket, spi->uid);
