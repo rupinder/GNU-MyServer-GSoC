@@ -47,6 +47,9 @@ protected:
   sockaddr_un addr;
 #endif
 
+  int readHandle (FileHandle* fd);
+  int writeHandle (FileHandle fd);
+
 private:
 #ifdef AF_UNIX
   void makeAddrInfo (sockaddr_un *info, const char *path)

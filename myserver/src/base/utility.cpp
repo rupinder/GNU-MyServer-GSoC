@@ -318,3 +318,72 @@ u_long getTicks()
   return  (tval.tv_sec * 1000) + (tval.tv_usec / 1000);
 #endif
 }
+
+/*!
+ *Read a file handle from a socket.
+ *\param s Socket handle to read from.
+ *\param File handle received.
+ *\return 0 on success.
+ */
+int readFileHandle (FileHandle s, FileHandle* fd)
+{
+#ifdef WIN32
+  return -1;
+#else
+  struct msghdr mh;
+  struct cmsghdr cmh[2];
+  struct iovec iov;
+  int ret;
+  char tbuf[4];
+  mh.msg_name = 0;
+  mh.msg_namelen = 0;
+  mh.msg_iov = &iov;
+  mh.msg_iovlen = 1;
+  mh.msg_control = (caddr_t)&cmh[0];
+  mh.msg_controllen = sizeof (cmh[0]) * 2;
+  iov.iov_base = tbuf;
+  iov.iov_len = 4;
+  cmh[0].cmsg_len = sizeof (cmh[0]) + sizeof(int);
+  ret = recvmsg (s, &mh, 0);
+
+  if (ret < 0)
+    return ret;
+
+  *fd = *(FileHandle *)&cmh[1];
+
+  return 0;
+#endif
+}
+
+/*!
+ *Write a file handle to a socket.
+ *\param s Socket handle to write to.
+ *\param File handle received.
+ *\return 0 on success.
+ */
+int writeFileHandle (FileHandle s, FileHandle fd)
+{
+#ifdef WIN32
+  return -1;
+#else
+  struct msghdr mh;
+  struct cmsghdr cmh[2];
+  struct iovec iov;
+  char tbuf[4];
+  memset (&mh,0,sizeof (mh));
+  mh.msg_name = 0;
+  mh.msg_namelen = 0;
+  mh.msg_iov = &iov;
+  mh.msg_iovlen = 1;
+  mh.msg_control = (caddr_t)&cmh[0];
+  mh.msg_controllen = sizeof (cmh[0]) + sizeof (int);
+  mh.msg_flags = 0;
+  iov.iov_base = tbuf;
+  iov.iov_len = 4;
+  cmh[0].cmsg_level = SOL_SOCKET;
+  cmh[0].cmsg_type = SCM_RIGHTS;
+  cmh[0].cmsg_len = sizeof(cmh[0]) + sizeof(int);
+  *(int *)&cmh[1] = fd;
+  return sendmsg (s, &mh, 0);
+#endif
+}

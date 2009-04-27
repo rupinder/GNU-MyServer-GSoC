@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "stdafx.h"
 #include <include/base/unix_socket/unix_socket.h>
+#include <include/base/utility.h>
 
 UnixSocket::UnixSocket ()
 {
@@ -119,4 +120,25 @@ Socket UnixSocket::accept ()
   s.setHandle (0);
   return s;
 #endif
+}
+
+
+/*!
+ *Read a file handle on the socket pair.
+ *\param fd The file descriptor to read.
+ *\return 0 on success.
+ */
+int UnixSocket::readHandle (FileHandle* fd)
+{
+  return readFileHandle (getHandle (), fd);
+}
+
+/*!
+ *Transmit a file descriptor on the socket.
+ *\param fd The file descriptor to transmit.
+ *\return 0 on success.
+ */
+int UnixSocket::writeHandle (FileHandle fd)
+{
+  return writeFileHandle (getHandle (), fd);
 }
