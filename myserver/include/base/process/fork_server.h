@@ -17,9 +17,7 @@
 
 
 #include <unistd.h>
-#include <include/base/socket_pair/socket_pair.h>
-#include <include/base/socket/socket.h>
-#include <include/base/sync/mutex.h>
+#include <include/base/unix_socket/unix_socket.h>
 
 #ifndef FORK_SERVER_H
 #define FORK_SERVER_H
@@ -34,19 +32,19 @@ class ForkServer
   const static int FLAG_USE_ERR = 4;
   const static int FLAG_STDIN_SOCKET = 8;
 
-  ForkServer () {initialized = false; serverLock.init ();}
-  ~ForkServer () {serverLock.destroy ();}
+  ForkServer () {initialized = false;}
+  ~ForkServer () {}
 
   void killServer ();
   int startForkServer ();
 
-  int writeInt (SocketPair *socket, int num);
-  int writeString (SocketPair *socket, const char* str, int len);
-  int readInt (SocketPair *sock, int *dest);
-  int readString (SocketPair *sock, char **out);
+  int writeInt (Socket *socket, int num);
+  int writeString (Socket *socket, const char* str, int len);
+  int readInt (Socket *sock, int *dest);
+  int readString (Socket *sock, char **out);
 
-  int handleRequest (SocketPair *serverSock);
-  int forkServerLoop (SocketPair *socket);
+  int handleRequest (Socket *serverSock);
+  int forkServerLoop (UnixSocket *socket);
 
   int executeProcess (StartProcInfo *spi, int flags,
                       int *pid, int *port, 
@@ -57,10 +55,10 @@ class ForkServer
   int generateListenerSocket (Socket &socket, u_short *port);
 
  private:
+  string socketPath;
+  UnixSocket socket;
 
-  SocketPair socket;
 
-  Mutex serverLock;
   u_short port;
   bool initialized;
 };

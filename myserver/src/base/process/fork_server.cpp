@@ -16,15 +16,16 @@
 */
 
 #include <include/base/process/fork_server.h>
-#include <include/base/process/process.h>
-#include <include/base/socket_pair/socket_pair.h>
-#include <include/base/pipe/pipe.h>
+#include <include/base/file/files_utility.h>
+#include <include/base/utility.h>
 
 #ifndef WIN32
+extern "C"
+{
 #include <unistd.h>
 #include <sys/wait.h>
+}
 #endif
-
 /*!
  *Write a string to the socket.
  *The string length is sent before the content.
@@ -33,7 +34,7 @@
  *\param str string to write.
  *\param len string length.
  */
-int ForkServer::writeString (SocketPair *socket, const char* str, int len)
+int ForkServer::writeString (Socket *socket, const char* str, int len)
 {
   u_long nbw;
 
@@ -54,7 +55,7 @@ int ForkServer::writeString (SocketPair *socket, const char* str, int len)
  *\param socket Socket to use.
  *\param num Integer to write.
  */
-int ForkServer::writeInt (SocketPair *socket, int num)
+int ForkServer::writeInt (Socket *socket, int num)
 {
   u_long nbw;
 
@@ -64,7 +65,6 @@ int ForkServer::writeInt (SocketPair *socket, int num)
   return 0;
 }
 
-
 /*!
  *Read an integer from the socket.
  *
@@ -72,7 +72,7 @@ int ForkServer::writeInt (SocketPair *socket, int num)
  *\param dest integer where write
  *\return 0 on success.
  */
-int ForkServer::readInt (SocketPair *sock, int *dest)
+int ForkServer::readInt (Socket *sock, int *dest)
 {
   u_long nbr;
   
@@ -93,7 +93,7 @@ int ForkServer::readInt (SocketPair *sock, int *dest)
  *\param out destination buffer pointer.
  *\return 0 on success.
  */
-int ForkServer::readString (SocketPair *sock, char **out)
+int ForkServer::readString (Socket *sock, char **out)
 {
   int len;
   u_long nbr;
@@ -118,7 +118,7 @@ int ForkServer::readString (SocketPair *sock, char **out)
 /*!
  *Handle a request on the socket.
  */
-int ForkServer::handleRequest (SocketPair *serverSock)
+int ForkServer::handleRequest (Socket *sock)
 {
 #ifndef WIN32
   int ret, flags, stdIn = -1, stdOut = -1, stdErr = -1;
@@ -129,29 +129,28 @@ int ForkServer::handleRequest (SocketPair *serverSock)
   char *arg;
   char *env;
 
-  readInt (serverSock, &flags);
+  readInt (sock, &flags);
 
   if (flags & FLAG_USE_IN)
-    serverSock->readHandle (&stdIn);
+    readFileHandle (sock->getHandle (), &stdIn);
 
   if (flags & FLAG_USE_OUT)
-    serverSock->readHandle (&stdOut);
+    readFileHandle (sock->getHandle (), &stdOut);
   
   if (flags & FLAG_USE_ERR)
-    serverSock->readHandle (&stdErr);
+    readFileHandle (sock->getHandle (), &stdErr);
   
-  readInt (serverSock, &gid);
-  readInt (serverSock, &uid);
+  readInt (sock, &gid);
+  readInt (sock, &uid);
 
-  readString (serverSock, &exec);
-  readString (serverSock, &cwd);
+  readString (sock, &exec);
+  readString (sock, &cwd);
 
-  readString (serverSock, &arg);
+  readString (sock, &arg);
  
   string argS (arg);
-  
 
-  readString (serverSock, &env);
+  readString (sock, &env);
 
   Socket socketIn;
 
@@ -164,8 +163,8 @@ int ForkServer::handleRequest (SocketPair *serverSock)
           delete [] exec;
           delete [] cwd;
           delete [] arg;
-          writeInt (serverSock, -1);
-          writeInt (serverSock, -1);
+          writeInt (sock, -1);
+          writeInt (sock, -1);
           return -1;
         }
       stdInPort = (int) stdInPortS;
@@ -189,14 +188,14 @@ int ForkServer::handleRequest (SocketPair *serverSock)
   spi.arg.assign (arg);
   spi.cwd.assign (cwd);
 
-  FileHandle handlesToClose[] = {serverSock->getFirstHandle (), 0};
+  FileHandle handlesToClose[] = {0};
   spi.handlesToClose = handlesToClose;
 
   Process pi;
   int pid = pi.exec (&spi, false);
 
-  writeInt (serverSock, pid);
-  writeInt (serverSock, stdInPort);
+  writeInt (sock, pid);
+  writeInt (sock, stdInPort);
 
   delete [] exec;
   delete [] cwd;
@@ -221,32 +220,38 @@ int ForkServer::handleRequest (SocketPair *serverSock)
  *Entry point for the fork server.
  *Listen for new connections on the specified socket.
  *
- *\param socket Socket where wait for new connections.
+ *\param serverSocket Socket where wait for new connections.
  *\return 0 on success.
  */
-int ForkServer::forkServerLoop (SocketPair *socket)
+int ForkServer::forkServerLoop (UnixSocket *serverSocket)
 {
 #ifndef WIN32
   for (;;)
     {
       try
         {
+          Socket socket = serverSocket->accept ();
+ 
           char command;
           u_long nbr;
-          MYSERVER_SOCKADDR_STORAGE sockaddr;
-          int len = sizeof (sockaddr);
           
-          if (socket->read (&command, 1, &nbr))
-            continue;
-
+          if (socket.read (&command, 1, &nbr))
+            {
+              socket.close ();
+              continue;
+            }
           switch (command)
             {
             case 'e': //exit process
+              socket.close ();
+              serverSocket->shutdown ();
+              serverSocket->close ();
               exit (0);
               return 0;
             case 'r':
-              if (handleRequest (socket))
+              if (handleRequest (&socket))
                 {
+                  socket.close ();
                   continue;
                 }
             }
@@ -255,6 +260,8 @@ int ForkServer::forkServerLoop (SocketPair *socket)
          in _any_ case.  */
       catch(...)
         {
+          serverSocket->close ();
+          socket.close ();
           perror ("fork server died.");
           exit (1);
         }
@@ -285,45 +292,43 @@ int ForkServer::executeProcess (StartProcInfo *spi,
   int len = 0;
   const char * env = (const char *) spi->envString;
 
-  serverLock.lock ();
-
   try
     {
-      socket.write ("r", 1, &nbw);
+      UnixSocket sock;
+      sock.socket ();
+      sock.connect (socketPath.c_str ());
+      sock.write ("r", 1, &nbw);
       
-      writeInt (&socket, flags);
+      writeInt (&sock, flags);
       
       if (flags & FLAG_USE_IN)
-        socket.writeHandle (spi->stdIn);
+        writeFileHandle (sock.getHandle (), spi->stdIn);
       
       if (flags & FLAG_USE_OUT)
-        socket.writeHandle (spi->stdOut);
+        writeFileHandle (sock.getHandle (), spi->stdOut);
       
       if (flags & FLAG_USE_ERR)
-        socket.writeHandle (spi->stdError);
+        writeFileHandle (sock.getHandle (), spi->stdError);
       
-      writeInt (&socket, spi->gid);
-      writeInt (&socket, spi->uid);
+      writeInt (&sock, spi->gid);
+      writeInt (&sock, spi->uid);
       
-      writeString (&socket, spi->cmd.c_str (), spi->cmd.length ());
-      writeString (&socket, spi->cwd.c_str (), spi->cwd.length ());
-      writeString (&socket, spi->arg.c_str (), spi->arg.length ());
+      writeString (&sock, spi->cmd.c_str (), spi->cmd.length ());
+      writeString (&sock, spi->cwd.c_str (), spi->cwd.length ());
+      writeString (&sock, spi->arg.c_str (), spi->arg.length ());
       
       if (env)
         for (len = 0; env[len] != '\0' || env[len + 1] != '\0' ; len++);
       
-      writeString (&socket, env, len);
+      writeString (&sock, env, len);
       
-      readInt (&socket, pid);
-      readInt (&socket, port);
+      readInt (&sock, pid);
+      readInt (&sock, port);
     }
   catch (exception &e)
     {
-      serverLock.unlock ();
       throw e;
     }
-
-  serverLock.unlock ();
 
   if (waitEnd)
     {
@@ -341,16 +346,11 @@ int ForkServer::executeProcess (StartProcInfo *spi,
 void ForkServer::killServer ()
 {
   u_long nbw;
-
-  serverLock.lock ();
-
-  socket.write ("e", 1, &nbw);
-
-  serverLock.unlock ();
-
-  serverLock.destroy ();
-
-  socket.close ();
+  UnixSocket s;
+  s.socket ();
+  s.connect (socketPath.c_str ());
+  s.write ("e", 1, &nbw);
+  s.close ();
 }
                   
 /*!
@@ -361,24 +361,24 @@ void ForkServer::killServer ()
 int ForkServer::startForkServer ()
 {
 #ifndef WIN32
-  socket.create ();
-  serverLock.init ();
-  SocketPair inverted;
-  socket.inverted (inverted);
+  FilesUtility::temporaryFileName(0, socketPath);
 
   switch (fork ())
     {
     case -1:
       return -1;
     case 0:
+      socket.socket ();
+      socket.bind (socketPath.c_str ());
+      socket.listen (SOMAXCONN);
+
       initialized = true;
-      socket.closeFirstHandle ();
-      forkServerLoop (&inverted);
+
+      forkServerLoop (&socket);
       exit (1);
       break;
 
     default:
-      socket.closeSecondHandle ();
       initialized = true;
       break;
     }  
