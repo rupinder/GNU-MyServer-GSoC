@@ -2286,7 +2286,7 @@ void Ftp::Mkd(const std::string &sPath)
     ftp_reply(550);
     return;
   }
-  if ( FilesUtility::simpleMakeDirectory(sLocalPath) == 0 )
+  if ( FilesUtility::mkdir (sLocalPath) == 0 )
     ftp_reply(250);
   else
     ftp_reply(501);
@@ -2320,7 +2320,7 @@ void Ftp::Rmd(const std::string &sPath)
     ftp_reply(550);
     return;
   }
-  if ( FilesUtility::deleteDirectory(sLocalPath) == 0 )
+  if ( FilesUtility::rmdir (sLocalPath) == 0 )
     ftp_reply(250);
   else
     ftp_reply(501);

@@ -212,14 +212,14 @@ int FilesUtility::copyFile(const char* src, const char* dest, int overwrite)
  */
 int FilesUtility::copyFile(File src, File dest)
 {
-  char buffer[512];
+  char buffer[4096];
   u_long nbr, nbw;
   int ret;
 
 
   for (;;) 
   {
-    ret = src.read(buffer, 512, &nbr);
+    ret = src.read(buffer, 4096, &nbr);
     if (ret)
       return -1;
     
@@ -747,12 +747,12 @@ int FilesUtility::completePath(string &fileName)
  *Return non-zero on errors.
  *\param path The path to the directory to create.
  */
-int FilesUtility::simpleMakeDirectory(const char *path)
+int FilesUtility::mkdir (const char *path)
 {
 #ifdef WIN32
   return CreateDirectory(path, NULL)?0:-1;
 #else
-  return mkdir(path, S_IRUSR | S_IWUSR);
+  return ::mkdir(path, S_IRUSR | S_IWUSR);
 #endif
 }
 
@@ -762,12 +762,12 @@ int FilesUtility::simpleMakeDirectory(const char *path)
  *Return non-zero on errors.
  *\param path The directory to remove.
  */
-int FilesUtility::deleteDirectory(const char *path)
+int FilesUtility::rmdir (const char *path)
 {
 #ifdef WIN32
   return RemoveDirectory(path)?0:-1;
 #else
-  return rmdir(path);
+  return ::rmdir(path);
 #endif
 }
 
@@ -803,20 +803,20 @@ void FilesUtility::resetTmpPath()
 
 
 /*!
- *Create an unique temporary file name.  This function doesn't create the
- *file or open it but generates only its name.
+ *Create an unique temporary file name.  This function doesn't create
+ *or open the file but generates only its name.
  *\param tid Caller thread id.
  *\param out Output string.
  */
-void FilesUtility::temporaryFileName(u_long tid, string &out)
+void FilesUtility::temporaryFileName (u_long tid, string &out)
 {
   ostringstream stream;
   static u_long counter = 1;
   counter++;
 
-  if(tmpPath.length() == 0)
-    tmpPath.assign(getdefaultwd(0, 0));
+  if (tmpPath.length () == 0)
+    tmpPath.assign (getdefaultwd (0, 0));
 
   stream << tmpPath << "/myserver_" << counter  << "_" << tid << ".tmp";
-  out.assign(stream.str());
+  out.assign (stream.str ());
 }

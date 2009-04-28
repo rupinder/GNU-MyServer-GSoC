@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -92,12 +92,13 @@ public:
   static void getFilename(const char* path, char* filename);
   static void getFilename(string const &path, string& filename);
 
-  static int simpleMakeDirectory(const char *path);
-  static int deleteDirectory(const char *path);
-  static int simpleMakeDirectory(string const &path)
-  { return simpleMakeDirectory(path.c_str()); }
-  static int deleteDirectory(string const &path)
-  { return deleteDirectory(path.c_str()); }
+  static int rmdir (const char *path);
+  static int rmdir (string const &path)
+  { return rmdir (path.c_str()); }
+
+  static int mkdir (const char *path);
+  static int mkdir (string const &path)
+  { return mkdir (path.c_str()); }
 
   static void temporaryFileName(u_long tid, string &out);
 
