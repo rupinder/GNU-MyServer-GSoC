@@ -46,10 +46,16 @@ extern "C" {
 #include <unistd.h>
 }
 
-#define SOCKET int
 #define INVALID_SOCKET -1
 #define SD_BOTH SHUT_RDWR
 #endif
+
+#ifdef WIN32
+typedef SOCKET SocketHandle;
+#else
+typedef int SocketHandle;
+#endif
+
 
 #ifdef INET6_ADDRSTRLEN
 #define MAX_IP_STRING_LEN  INET6_ADDRSTRLEN
@@ -71,8 +77,8 @@ public:
   Socket* getServerSocket();
 
   static void stopBlockingOperations(bool);
-  virtual FileHandle getHandle();
-  void setHandle(FileHandle);
+  virtual Handle getHandle();
+  void setHandle(SocketHandle);
   static MYSERVER_HOSTENT *gethostbyaddr(char* addr, int len, int type);
   static MYSERVER_HOSTENT *gethostbyname(const char*);
   static int gethostname(char*, int);
@@ -81,7 +87,7 @@ public:
   int listen(int);
   Socket();
   Socket(Socket*);
-  Socket(FileHandle);
+  Socket(SocketHandle);
 
   Socket accept(MYSERVER_SOCKADDR*, int*);
   int setsockopt(int,int, const char*,int);
@@ -111,11 +117,7 @@ public:
   virtual int write(const char* buffer, u_long len, u_long *nbw);
 
 protected:
-#ifdef WIN32
-  SOCKET socketHandle;
-#else
-  FileHandle socketHandle;
-#endif
+  SocketHandle socketHandle;
 
   /*! Pointer to the socket that has accepted this connection.  */
   Socket *serverSocket;

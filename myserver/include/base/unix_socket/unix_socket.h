@@ -49,8 +49,8 @@ protected:
   sockaddr_un addr;
 #endif
 
-  int readHandle (FileHandle* fd);
-  int writeHandle (FileHandle fd);
+  int readHandle (Handle* fd);
+  int writeHandle (Handle fd);
 
 private:
 #ifdef AF_UNIX

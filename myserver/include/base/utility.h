@@ -55,7 +55,7 @@ int getdefaultwd(string&);
 int setcwd(const char * cwd);
 int freecwdBuffer();
 
-int readFileHandle (FileHandle s, FileHandle* fd);
-int writeFileHandle (FileHandle s, FileHandle fd);
+int readFileHandle (SocketHandle s, Handle* fd);
+int writeFileHandle (SocketHandle s, Handle fd);
 
 #endif

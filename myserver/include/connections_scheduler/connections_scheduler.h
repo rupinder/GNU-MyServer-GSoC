@@ -102,7 +102,7 @@ public:
 
   u_long getNumTotalConnections();
 
-  void newData(short event, FileHandle handle);
+  void newData(short event, SocketHandle handle);
 
 private:
   Server* server;
@@ -116,7 +116,7 @@ private:
   Mutex eventsMutex;
   Mutex eventsSocketMutex;
   queue<ConnectionPtr> *ready;
-  HashMap<FileHandle, ConnectionPtr> connections;
+  HashMap<SocketHandle, ConnectionPtr> connections;
   list<ListenerArg*> listeners;
   u_long currentPriority;
   u_long currentPriorityDone;

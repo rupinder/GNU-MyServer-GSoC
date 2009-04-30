@@ -325,7 +325,7 @@ u_long getTicks()
  *\param File handle received.
  *\return 0 on success.
  */
-int readFileHandle (FileHandle s, FileHandle* fd)
+int readFileHandle (SocketHandle s, Handle* fd)
 {
 #ifdef WIN32
   return -1;
@@ -361,7 +361,7 @@ int readFileHandle (FileHandle s, FileHandle* fd)
  *\param File handle received.
  *\return 0 on success.
  */
-int writeFileHandle (FileHandle s, FileHandle fd)
+int writeFileHandle (SocketHandle s, Handle fd)
 {
 #ifdef WIN32
   return -1;

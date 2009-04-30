@@ -42,7 +42,7 @@ public:
 		union 
 		{
 			unsigned long fileHandle;
-			SOCKET sock;
+			SocketHandle sock;
 			unsigned int value;
 		}DESCRIPTOR;
 

@@ -142,11 +142,7 @@ int SocketPair::create ()
 /*!
  *Get the first handle used by the socket pair.
  */
-#ifdef WIN32
-SOCKET SocketPair::getFirstHandle ()
-#else
-FileHandle SocketPair::getFirstHandle ()
-#endif
+SocketHandle SocketPair::getFirstHandle ()
 {
   return handles[0];
 }
@@ -154,11 +150,7 @@ FileHandle SocketPair::getFirstHandle ()
 /*!
  *Get the second handle used by the socket pair.
  */
-#ifdef WIN32
-SOCKET SocketPair::getSecondHandle ()
-#else
-FileHandle SocketPair::getSecondHandle ()
-#endif
+SocketHandle SocketPair::getSecondHandle ()
 {
   return handles[1];
 }
@@ -194,7 +186,7 @@ int SocketPair::close ()
  */
 void SocketPair::closeFirstHandle ()
 {
-  Socket sock ((FileHandle)handles[0]);
+  Socket sock (handles[0]);
   sock.close ();
 }
 
@@ -203,7 +195,7 @@ void SocketPair::closeFirstHandle ()
  */
 void SocketPair::closeSecondHandle ()
 {
-  Socket sock ((FileHandle)handles[1]);
+  Socket sock (handles[1]);
   sock.close ();
 }
 
@@ -213,10 +205,10 @@ void SocketPair::closeSecondHandle ()
  */
 void SocketPair::setNonBlocking (bool notBlocking)
 {
-  Socket sock0 ((FileHandle)handles[0]);
+  Socket sock0 (handles[0]);
    sock0.setNonBlocking (notBlocking);
 
-   Socket sock1 ((FileHandle)handles[1]);
+   Socket sock1 (handles[1]);
    sock1.setNonBlocking (notBlocking);
 }
 
@@ -225,9 +217,9 @@ void SocketPair::setNonBlocking (bool notBlocking)
  *\param fd The file descriptor to read.
  *\return 0 on success.
  */
-int SocketPair::readHandle (FileHandle* fd)
+int SocketPair::readHandle (Handle* fd)
 {
-  return readFileHandle ((FileHandle)handles[0], fd);
+  return readFileHandle (handles[0], fd);
 }
 
 /*!
@@ -235,7 +227,7 @@ int SocketPair::readHandle (FileHandle* fd)
  *\param fd The file descriptor to transmit.
  *\return 0 on success.
  */
-int SocketPair::writeHandle (FileHandle fd)
+int SocketPair::writeHandle (Handle fd)
 {
-  return writeFileHandle ((FileHandle)handles[0], fd);
+  return writeFileHandle (handles[0], fd);
 }

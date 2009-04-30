@@ -22,7 +22,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "stdafx.h"
 
 #ifdef WIN32
-typedef void* FileHandle;
+typedef void* Handle;
+#else
+typedef int Handle;
+#endif
+
+#ifdef WIN32
+typedef HANDLE FileHandle;
 #else
 typedef int  FileHandle;
 #endif
@@ -36,7 +42,7 @@ public:
   virtual int read(char* buffer, u_long len, u_long*);
   virtual int write(const char* buffer, u_long len, u_long*);
 	virtual int flush(u_long*);
-  virtual FileHandle getHandle();
+  virtual Handle getHandle();
   virtual int close();
   Stream();
   /*! Avoid direct instances of this class. */

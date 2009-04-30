@@ -68,13 +68,13 @@ static void newDataHandler(int fd, short event, void *param)
   ConnectionsScheduler::DispatcherArg* arg = (ConnectionsScheduler::DispatcherArg*) param;
 
   if(!arg->terminate && arg->scheduler)
-    arg->scheduler->newData(event, (FileHandle)fd);
+    arg->scheduler->newData(event, fd);
 }
 
 
-void ConnectionsScheduler::newData(short event, FileHandle handle)
+void ConnectionsScheduler::newData(short event, SocketHandle handle)
 {
-  ConnectionPtr connection = connections.get(handle);
+  ConnectionPtr connection = connections.get (handle);
 
   if(connection == NULL || server == NULL)
     return;
@@ -100,7 +100,7 @@ static void eventLoopHandler(int fd, short event, void *arg)
   u_long nbr;
   if (event == EV_READ || event == EV_TIMEOUT)
   {
-    Socket sock ((FileHandle) da->socketPair.getFirstHandle ());
+    Socket sock (da->socketPair.getFirstHandle ());
 
     while (da->socketPair.bytesToRead())
     {
@@ -111,15 +111,15 @@ static void eventLoopHandler(int fd, short event, void *arg)
         /*
          *Schedule a new connection.
          *The 'c' command is followed by:
-         *FileHandle  -> Socket to monitor for new data.
+         *SocketHandle  -> Socket to monitor for new data.
          *ConnectionPtr -> Related Connection.
          *timeval       -> Timeout.
          */
-        FileHandle handle;
+        SocketHandle handle;
         ConnectionPtr c;
         timeval tv = {10, 0};
 
-        da->socketPair.read ((char*)&handle, sizeof(FileHandle), &nbr);
+        da->socketPair.read ((char*)&handle, sizeof(SocketHandle), &nbr);
         da->socketPair.read ((char*)&c, sizeof(ConnectionPtr), &nbr);
         da->socketPair.read ((char*)&tv, sizeof(timeval), &nbr);
 
@@ -152,8 +152,7 @@ static void listenerHandler (int fd, short event, void *arg)
     asockInLen = sizeof (asockIn);
     asock = s->serverSocket->accept (&asockIn, &asockInLen);
 
-    if (s->server &&
-       asock.getHandle() != (FileHandle)INVALID_SOCKET)
+    if (s->server && (SocketHandle)asock.getHandle() != INVALID_SOCKET)
     {
       s->server->addConnection (asock, &asockIn);
     }
@@ -186,7 +185,7 @@ void ConnectionsScheduler::listener(ConnectionsScheduler::ListenerArg *la)
   event_add(&(arg->ev), &tv);
 
   u_long nbw;
-  Socket sock ((FileHandle)dispatcherArg.socketPair.getSecondHandle ());
+  Socket sock (dispatcherArg.socketPair.getSecondHandle ());
 
   eventsSocketMutex.lock();
   sock.write("l", 1, &nbw);  
@@ -386,7 +385,7 @@ void ConnectionsScheduler::addWaitingConnection(ConnectionPtr c)
 void ConnectionsScheduler::addWaitingConnectionImpl(ConnectionPtr c, int lock)
 {
   static timeval tv = {10, 0};
-  FileHandle handle = c->socket ? c->socket->getHandle() : NULL;
+  SocketHandle handle = c->socket ? (SocketHandle) c->socket->getHandle() : NULL;
 
   if(server)
     tv.tv_sec = server->getTimeout() / 1000;
@@ -408,11 +407,11 @@ void ConnectionsScheduler::addWaitingConnectionImpl(ConnectionPtr c, int lock)
   if(lock)
   {
     u_long nbw;
-    Socket sock ((FileHandle)dispatcherArg.socketPair.getSecondHandle ());
+    Socket sock (dispatcherArg.socketPair.getSecondHandle ());
 
     eventsSocketMutex.lock();
     sock.write("c", 1, &nbw);
-    sock.write((char*)&handle, sizeof(FileHandle), &nbw);
+    sock.write((char*)&handle, sizeof(SocketHandle), &nbw);
     sock.write((char*)&c, sizeof(ConnectionPtr), &nbw);
     sock.write((char*)&tv, sizeof(timeval), &nbw);
     eventsSocketMutex.unlock();
@@ -482,8 +481,8 @@ void ConnectionsScheduler::release()
     readySemaphore->unlock();
   }
 
-  Socket sockR ((FileHandle)dispatcherArg.socketPair.getFirstHandle ());
-  Socket sockW ((FileHandle)dispatcherArg.socketPair.getSecondHandle ());
+  Socket sockR (dispatcherArg.socketPair.getFirstHandle ());
+  Socket sockW (dispatcherArg.socketPair.getSecondHandle ());
 
   eventsSocketMutex.lock();
   sockW.write("r", 1, &nbw);
@@ -525,7 +524,7 @@ void ConnectionsScheduler::getConnections(list<ConnectionPtr> &out)
 
   connectionsMutex.lock();
 
-  HashMap<FileHandle, ConnectionPtr>::Iterator it = connections.begin();
+  HashMap<SocketHandle, ConnectionPtr>::Iterator it = connections.begin();
   for(; it != connections.end(); it++)
     out.push_back(*it);
 
@@ -547,7 +546,7 @@ void ConnectionsScheduler::removeConnection(ConnectionPtr connection)
 {
   connectionsMutex.lock();
   if(connection->socket)
-    connections.remove(connection->socket->getHandle());
+    connections.remove((SocketHandle)connection->socket->getHandle());
   connectionsMutex.unlock();
   delete connection;
 }
@@ -563,7 +562,7 @@ void ConnectionsScheduler::terminateConnections()
   {
     connectionsMutex.lock();
 
-    HashMap<FileHandle, ConnectionPtr>::Iterator it = connections.begin();
+    HashMap<SocketHandle, ConnectionPtr>::Iterator it = connections.begin();
     for(; it != connections.end(); it++)
     {
       ConnectionPtr c = *it;
@@ -601,7 +600,7 @@ int ConnectionsScheduler::accept(ConnectionsSchedulerVisitor* visitor, void* arg
   try
   {
 
-    for(HashMap<FileHandle, ConnectionPtr>::Iterator it = connections.begin(); 
+    for(HashMap<SocketHandle, ConnectionPtr>::Iterator it = connections.begin(); 
         it != connections.end()  && !ret; 
         it++)
     {

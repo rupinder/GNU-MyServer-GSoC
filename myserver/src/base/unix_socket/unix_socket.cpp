@@ -128,9 +128,9 @@ Socket UnixSocket::accept ()
  *\param fd The file descriptor to read.
  *\return 0 on success.
  */
-int UnixSocket::readHandle (FileHandle* fd)
+int UnixSocket::readHandle (Handle* fd)
 {
-  return readFileHandle (getHandle (), fd);
+  return readFileHandle (socketHandle, fd);
 }
 
 /*!
@@ -138,7 +138,7 @@ int UnixSocket::readHandle (FileHandle* fd)
  *\param fd The file descriptor to transmit.
  *\return 0 on success.
  */
-int UnixSocket::writeHandle (FileHandle fd)
+int UnixSocket::writeHandle (Handle fd)
 {
-  return writeFileHandle (getHandle (), fd);
+  return writeFileHandle (socketHandle, fd);
 }
