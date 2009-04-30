@@ -227,7 +227,7 @@ void SocketPair::setNonBlocking (bool notBlocking)
  */
 int SocketPair::readHandle (FileHandle* fd)
 {
-  return readFileHandle (handles[0], fd);
+  return readFileHandle ((FileHandle)handles[0], fd);
 }
 
 /*!
@@ -237,5 +237,5 @@ int SocketPair::readHandle (FileHandle* fd)
  */
 int SocketPair::writeHandle (FileHandle fd)
 {
-  return writeFileHandle (handles[0], fd);
+  return writeFileHandle ((FileHandle)handles[0], fd);
 }

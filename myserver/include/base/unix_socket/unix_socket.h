@@ -25,7 +25,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 extern "C"
 {
-#ifndef WIN32
+#ifdef WIN32
+#undef AF_UNIX //This shouldn't happen, but better be sure.
+#else
 #include <sys/un.h>
 #endif
 }
