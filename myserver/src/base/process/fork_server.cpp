@@ -363,15 +363,15 @@ int ForkServer::startForkServer ()
 #ifndef WIN32
   FilesUtility::temporaryFileName(0, socketPath);
 
+  socket.socket ();
+  socket.bind (socketPath.c_str ());
+  socket.listen (SOMAXCONN);
+
   switch (fork ())
     {
     case -1:
       return -1;
     case 0:
-      socket.socket ();
-      socket.bind (socketPath.c_str ());
-      socket.listen (SOMAXCONN);
-
       initialized = true;
 
       forkServerLoop (&socket);
@@ -379,6 +379,7 @@ int ForkServer::startForkServer ()
       break;
 
     default:
+      socket.close ();
       initialized = true;
       break;
     }  
