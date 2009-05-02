@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2005, 2008 Free Software Foundation, Inc.
+Copyright (C) 2005, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -35,6 +35,12 @@ public:
                    int execute = 0, int OnlyHeader = 0); 
   HttpFile();
   virtual ~HttpFile();
+
+protected:
+  int putFile (HttpThreadContext* td,
+               string& filename);
+  int deleteFile (HttpThreadContext* td,
+                  string& filename);
 private:
   static int appendDataToHTTPChannel(HttpThreadContext* td, 
                                      char* buffer, 

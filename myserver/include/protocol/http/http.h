@@ -129,7 +129,9 @@ public:
   int traceHTTPRESOURCE(string& filename,
                         int yetMapped = 0);
 
-  int deleteHTTPRESOURCE(string& filename,
+  int deleteHTTPRESOURCE(string &filename,
+                         int systemrequest = 0,
+                         int onlyHeader = 0,
                          int yetMapped = 0);
 
   bool allowMethod(const char *name);

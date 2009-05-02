@@ -39,6 +39,163 @@ extern "C"
 }
 
 /*!
+ *Main function to handle the HTTP PUT command.
+ */
+int HttpFile::putFile (HttpThreadContext* td,
+                       string& filename)
+{
+  u_long firstByte = td->request.rangeByteBegin;
+  int keepalive = 0;
+  int ret;
+
+  try
+  {
+    HttpHeaders::buildDefaultHTTPResponseHeader(&td->response);
+
+    if(td->request.isKeepAlive())
+    {
+      td->response.connection.assign("keep-alive");
+      keepalive = 1;
+    }
+
+    if(!(td->permissions & MYSERVER_PERMISSION_WRITE))
+    {
+      return td->http->sendAuth();
+    }
+
+    if(FilesUtility::fileExists(td->filenamePath.c_str()))
+    {
+      /*! If the file exists update it. */
+      File file;
+      if(file.openFile(td->filenamePath.c_str(), File::MYSERVER_OPEN_IFEXISTS |
+                       File::MYSERVER_OPEN_WRITE))
+      {
+        /*! Return an internal server error. */
+        return td->http->raiseHTTPError(500);
+      }
+      file.seek (firstByte);
+      for(;;)
+      {
+        u_long nbr = 0, nbw = 0;
+        if(td->inputData.read (td->buffer->getBuffer(),
+                               td->buffer->getRealLength(), &nbr))
+        {
+          file.close();
+          /*! Return an internal server error.  */
+          return td->http->raiseHTTPError(500);
+        }
+        if(nbr)
+        {
+          if(file.writeToFile(td->buffer->getBuffer(), nbr, &nbw))
+          {
+            file.close();
+            /*! Return an internal server error.  */
+            return td->http->raiseHTTPError(500);
+          }
+        }
+        else
+          break;
+        if(nbw != nbr)
+        {
+          file.close();
+          /*! Internal server error.  */
+          return td->http->raiseHTTPError(500);
+        }
+      }
+      file.close();
+      /*! Successful updated.  */
+      td->http->raiseHTTPError(200);
+
+      return keepalive;
+    }
+    else
+    {
+      /*!
+       *If the file doesn't exist create it.
+       */
+      File file;
+      if(file.openFile(td->filenamePath.c_str(),
+                       File::MYSERVER_CREATE_ALWAYS |
+                       File::MYSERVER_OPEN_WRITE))
+      {
+        /*! Internal server error. */
+        return td->http->raiseHTTPError(500);
+      }
+      for(;;)
+      {
+        u_long nbr = 0, nbw = 0;
+        if(td->inputData.read(td->buffer->getBuffer(),
+                                      td->buffer->getRealLength(), &nbr))
+        {
+          file.close();
+          return td->http->raiseHTTPError(500);
+        }
+        if(nbr)
+        {
+          if(file.writeToFile(td->buffer->getBuffer(), nbr, &nbw))
+          {
+            file.close();
+            return td->http->raiseHTTPError(500);
+          }
+        }
+        else
+          break;
+        if( nbw != nbr )
+        {
+          file.close();
+          return td->http->raiseHTTPError(500);
+        }
+      }
+      file.close();
+      /*! Successful created. */
+      td->http->raiseHTTPError(201);
+      return 1;
+    }
+  }
+  catch(...)
+  {
+    return td->http->raiseHTTPError(500);
+  };
+}
+
+/*!
+ *Delete the resource identified by filename.
+ */
+int HttpFile::deleteFile (HttpThreadContext* td,
+                          string& filename)
+{
+  int permissions = -1;
+  string directory;
+  string file;
+  int ret;
+  try
+  {
+    HttpHeaders::buildDefaultHTTPResponseHeader(&td->response);
+
+    if(!(td->permissions & MYSERVER_PERMISSION_DELETE))
+      return td->http->sendAuth();
+
+    if(FilesUtility::fileExists(td->filenamePath))
+    {
+      FilesUtility::deleteFile(td->filenamePath.c_str());
+
+      /*! Successful deleted.  */
+      return td->http->raiseHTTPError(202);
+    }
+    else
+    {
+      /*! No content.  */
+      return td->http->raiseHTTPError(204);
+    }
+  }
+  catch(...)
+  {
+    return td->http->raiseHTTPError(500);
+  };
+
+}
+
+/*!
  *Send a file to the client using the HTTP protocol.
  *\param td The current HTTP thread context.
  *\param s A pointer to the connection.
@@ -47,9 +204,12 @@ extern "C"
  *\param execute Not used.
  *\param onlyHeader Specify if send only the HTTP header.
   */
-int HttpFile::send(HttpThreadContext* td, ConnectionPtr s, 
-                   const char *filenamePath, const char* exec,
-                   int execute, int onlyHeader)
+int HttpFile::send(HttpThreadContext* td,
+                   ConnectionPtr s,
+                   const char *filenamePath,
+                   const char* exec,
+                   int execute,
+                   int onlyHeader)
 {
   /*
    *With this routine we send a file through the HTTP protocol.
@@ -79,6 +239,12 @@ int HttpFile::send(HttpThreadContext* td, ConnectionPtr s,
 
   try
   {
+
+    if(!td->request.cmd.compare("PUT"))
+      return putFile (td, td->filenamePath);
+
+    if(!td->request.cmd.compare("DELETE"))
+      return deleteFile (td, td->filenamePath);
 
     if ( !(td->permissions & MYSERVER_PERMISSION_READ))
       return td->http->sendAuth ();

@@ -236,127 +236,12 @@ int Http::getCGItimeout()
 /*!
  *Main function to handle the HTTP PUT command.
  */
-int Http::putHTTPRESOURCE(string& filename, int, int,
+int Http::putHTTPRESOURCE(string& filename,
+                          int sysReq,
+                          int onlyHeader,
                           int yetmapped)
 {
-  u_long firstByte = td->request.rangeByteBegin;
-  int permissions = -1;
-  int keepalive = 0;
-  int ret;
-
-  try
-  {
-    HttpHeaders::buildDefaultHTTPResponseHeader(&td->response);
-
-    if(td->request.isKeepAlive())
-    {
-      td->response.connection.assign("keep-alive");
-      keepalive = 1;
-    }
-
-    ret = Http::preprocessHttpRequest(filename, yetmapped, &permissions);
-
-    if(ret != 200)
-      return raiseHTTPError(ret);
-
-    if(!(permissions & MYSERVER_PERMISSION_WRITE))
-    {
-      return sendAuth();
-    }
-
-    if(FilesUtility::fileExists(td->filenamePath.c_str()))
-    {
-      /*! If the file exists update it. */
-      File file;
-      if(file.openFile(td->filenamePath.c_str(), File::MYSERVER_OPEN_IFEXISTS |
-                       File::MYSERVER_OPEN_WRITE))
-      {
-        /*! Return an internal server error. */
-        return raiseHTTPError(500);
-      }
-      file.seek (firstByte);
-      for(;;)
-      {
-        u_long nbr = 0, nbw = 0;
-        if(td->inputData.read (td->buffer->getBuffer(),
-                               td->buffer->getRealLength(), &nbr))
-        {
-          file.close();
-          /*! Return an internal server error.  */
-          return raiseHTTPError(500);
-        }
-        if(nbr)
-        {
-          if(file.writeToFile(td->buffer->getBuffer(), nbr, &nbw))
-          {
-            file.close();
-            /*! Return an internal server error.  */
-            return raiseHTTPError(500);
-          }
-        }
-        else
-          break;
-        if(nbw != nbr)
-        {
-          file.close();
-          /*! Internal server error.  */
-          return raiseHTTPError(500);
-        }
-      }
-      file.close();
-      /*! Successful updated.  */
-      raiseHTTPError(200);
-
-      return keepalive;
-    }
-    else
-    {
-      /*!
-       *If the file doesn't exist create it.
-       */
-      File file;
-      if(file.openFile(td->filenamePath.c_str(),
-                       File::MYSERVER_CREATE_ALWAYS |
-                       File::MYSERVER_OPEN_WRITE))
-      {
-        /*! Internal server error. */
-        return raiseHTTPError(500);
-      }
-      for(;;)
-      {
-        u_long nbr = 0, nbw = 0;
-        if(td->inputData.read(td->buffer->getBuffer(),
-                                      td->buffer->getRealLength(), &nbr))
-        {
-          file.close();
-          return raiseHTTPError(500);
-        }
-        if(nbr)
-        {
-          if(file.writeToFile(td->buffer->getBuffer(), nbr, &nbw))
-          {
-            file.close();
-            return raiseHTTPError(500);
-          }
-        }
-        else
-          break;
-        if( nbw != nbr )
-        {
-          file.close();
-          return raiseHTTPError(500);
-        }
-      }
-      file.close();
-      /*! Successful created. */
-      raiseHTTPError(201);
-      return 1;
-    }
-  }
-  catch(...)
-  {
-    return raiseHTTPError(500);
-  };
+  return sendHTTPResource (filename, sysReq, onlyHeader, yetmapped);
 }
 
 /*!
@@ -654,42 +539,12 @@ int Http::preprocessHttpRequest(string& filename, int yetmapped, int* permission
 /*!
  *Delete the resource identified by filename.
  */
-int Http::deleteHTTPRESOURCE(string& filename, int yetmapped)
+int Http::deleteHTTPRESOURCE(string& filename,
+                             int sysReq,
+                             int onlyHeader,
+                             int yetmapped)
 {
-  int permissions = -1;
-  string directory;
-  string file;
-  int ret;
-  try
-  {
-    HttpHeaders::buildDefaultHTTPResponseHeader(&td->response);
-
-    ret = Http::preprocessHttpRequest(filename, yetmapped, &permissions);
-
-    if(ret != 200)
-      return raiseHTTPError(ret);
-
-    if(FilesUtility::fileExists(td->filenamePath))
-    {
-      if(!(permissions & MYSERVER_PERMISSION_DELETE))
-        return 401;
-
-      FilesUtility::deleteFile(td->filenamePath.c_str());
-
-      /*! Successful deleted.  */
-      return raiseHTTPError(202);
-    }
-    else
-    {
-      /*! No content.  */
-      return raiseHTTPError(204);
-    }
-  }
-  catch(...)
-  {
-    return raiseHTTPError(500);
-  };
-
+  return sendHTTPResource (filename, sysReq, onlyHeader, yetmapped);
 }
 
 /*!
@@ -1205,7 +1060,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         }
       }
 
-      if(td->request.uri.length() > 2 && td->request.uri[1] == '~'){
+      if(td->request.uri.length() > 2 && td->request.uri[1] == '~')
+      {
         string documentRoot;
         u_long pos = 2;
         string user;
@@ -1228,23 +1084,22 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
                                                                  MYSERVER_SERVER_CONF, 
                                                                  "public_html");
 
-	  if (strcmpi (useHomeDir, "YES"))
-	    return raiseHTTPError (404);
+          if (strcmpi (useHomeDir, "YES"))
+            return raiseHTTPError (404);
 
-    td->vhostDir.assign (documentRoot);
-    td->vhostDir.append ("/");
-    td->vhostDir.append (homeDir);
+          td->vhostDir.assign (documentRoot);
+          td->vhostDir.append ("/");
+          td->vhostDir.append (homeDir);
+
+          if(!td->request.uriEndsWithSlash && !(td->request.uri.length() - pos))
+          {
+            td->request.uri.append("/");
+            return sendHTTPRedirect(td->request.uri.c_str());
+          }
     
-    if(!td->request.uriEndsWithSlash && !(td->request.uri.length() - pos))
-      {
-        td->request.uri.append("/");
-        
-        return sendHTTPRedirect(td->request.uri.c_str());
-      }
-    
-    if(td->request.uri.length() - pos)
-      td->request.uri.assign(td->request.uri.substr(pos,
-                                                    td->request.uri.length()));
+          if(td->request.uri.length() - pos)
+            td->request.uri.assign(td->request.uri.substr(pos,
+                                                          td->request.uri.length()));
           else
             td->request.uri.assign("");
         }
@@ -1365,7 +1220,7 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
         }
         /* DELETE REQUEST.  */
         else if(!td->request.cmd.compare("DELETE"))
-          ret = deleteHTTPRESOURCE(td->request.uri, 0);
+          ret = deleteHTTPRESOURCE(td->request.uri, 0, 1);
         /* PUT REQUEST.  */
         else if(!td->request.cmd.compare("PUT"))
           ret = putHTTPRESOURCE(td->request.uri, 0, 1);
