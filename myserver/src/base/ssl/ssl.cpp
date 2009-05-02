@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -47,7 +47,7 @@ int SslContext::initialize()
   if(FilesUtility::fileExists(certificateFile.c_str()) == 0)
     return -1;
   
-  if(!SSL_CTX_use_certificate_file (context, certificateFile.c_str (),SSL_FILETYPE_PEM))
+  if(SSL_CTX_use_certificate_file (context, certificateFile.c_str (),SSL_FILETYPE_PEM) != 1)
     return -1;
 
   /*
@@ -56,10 +56,9 @@ int SslContext::initialize()
   if(FilesUtility::fileExists(privateKeyFile) == 0)
     return -1;
 
-  if(!(SSL_CTX_use_PrivateKey_file(context, privateKeyFile.c_str(), 
-                                   SSL_FILETYPE_PEM)))
+  if(SSL_CTX_use_PrivateKey_file(context, privateKeyFile.c_str(),
+                                   SSL_FILETYPE_PEM) != 1)
     return -1;
-
 
   return 1;
 }  

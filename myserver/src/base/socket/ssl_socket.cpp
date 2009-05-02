@@ -95,7 +95,7 @@ int SslSocket::rawSend(const char* buffer, int len, int flags)
   {
     err = SSL_write(sslConnection,buffer,len);
   }while((err <= 0) &&
-         (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_WRITE 
+         (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_WRITE
           || SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ));
   if(err <= 0)
     return -1;
@@ -108,14 +108,14 @@ int SslSocket::rawSend(const char* buffer, int len, int flags)
  */
 int SslSocket::connect(MYSERVER_SOCKADDR* sa, int na)
 {
-   if ( sa == NULL || (sa->ss_family != AF_INET && sa->ss_family != AF_INET6) )
-      return 1;//Andu: TODO our error code or what?
-  if ( (sa->ss_family == AF_INET && na != sizeof(sockaddr_in)) 
+  if ( sa == NULL || (sa->ss_family != AF_INET && sa->ss_family != AF_INET6) )
+    return 1;
+  if ( (sa->ss_family == AF_INET && na != sizeof(sockaddr_in))
 #if HAVE_IPV6
-   || (sa->ss_family == AF_INET6 && na != sizeof(sockaddr_in6)) 
+       || (sa->ss_family == AF_INET6 && na != sizeof(sockaddr_in6))
 #endif
-)
-     return 1;//Andu: TODO our error code or what?
+       )
+    return 1;
 
   sslMethod = SSLv23_client_method();
   /*! Create the local context. */
@@ -218,7 +218,8 @@ int SslSocket::sslAccept()
   do
   {
     sslAccept = SSL_accept (sslConnection);
-  }while (SSL_get_error (sslConnection, sslAccept) == SSL_ERROR_WANT_READ);
+  }while (sslAccept != 1 &&
+          SSL_get_error (sslConnection, sslAccept) == SSL_ERROR_WANT_READ);
 
   if(sslAccept != 1 )
   {
