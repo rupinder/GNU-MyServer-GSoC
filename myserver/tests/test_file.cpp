@@ -70,7 +70,8 @@ public:
     u_long nbw;
     u_long nbr;
     
-    CPPUNIT_ASSERT_EQUAL( tfile->openFile( fname.c_str(), File::MYSERVER_OPEN_WRITE | File::MYSERVER_OPEN_READ | File::MYSERVER_CREATE_ALWAYS ), 0 );
+    CPPUNIT_ASSERT_EQUAL( tfile->openFile( fname.c_str(), File::MYSERVER_OPEN_WRITE | 
+                                           File::MYSERVER_OPEN_READ | File::MYSERVER_CREATE_ALWAYS ), 0 );
     
     CPPUNIT_ASSERT_EQUAL( tfile->writeToFile ( buf, bufLen, &nbw ), 0 );
     
