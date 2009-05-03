@@ -1,6 +1,6 @@
 /*
  MyServer
- Copyright (C) 2008 Free Software Foundation, Inc.
+ Copyright (C) 2008, 2009 Free Software Foundation, Inc.
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
@@ -26,15 +26,7 @@
 #include <iostream>
 using namespace std;
 
-#ifdef WIN32
-#define ClientsThread_TYPE int
-unsigned int __stdcall test_thread(void* pParam)
-#endif
-
-#ifdef HAVE_PTHREAD
-#define ClientsThread_TYPE void*
-void* test_thread(void* pParam)
-#endif
+static DEFINE_THREAD(test_thread,pParam)
 {
   int *arg = (int*) pParam;
 
@@ -43,15 +35,7 @@ void* test_thread(void* pParam)
   return NULL;
 }
 
-#ifdef WIN32
-#define ClientsThread_TYPE int
-unsigned int __stdcall test_terminate_thread(void* pParam)
-#endif
-
-#ifdef HAVE_PTHREAD
-#define ClientsThread_TYPE void*
-void* test_terminate_thread(void* pParam)
-#endif
+static DEFINE_THREAD(test_terminate_thread, pParam)
 {
   int *arg = (int*) pParam;
 

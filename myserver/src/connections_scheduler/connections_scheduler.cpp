@@ -18,12 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/connections_scheduler/connections_scheduler.h>
 #include <include/server/server.h>
 
-
-#ifdef WIN32
-static unsigned int __stdcall dispatcher(void* p)
-#else
-static void* dispatcher(void* p)
-#endif
+static DEFINE_THREAD(dispatcher, p)
 {
   ConnectionsScheduler::DispatcherArg *da = (ConnectionsScheduler::DispatcherArg*)p;
 

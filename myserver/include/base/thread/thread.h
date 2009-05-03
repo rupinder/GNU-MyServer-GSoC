@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -25,9 +25,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef WIN32
 	typedef unsigned int ThreadID;
+#define DEFINE_THREAD(NAME,PARAM) unsigned int __stdcall NAME(void* PARAM)
 #endif
 #ifdef HAVE_PTHREAD
 	typedef pthread_t ThreadID;
+#define DEFINE_THREAD(NAME,PARAM) void* NAME(void* PARAM)
 #endif
 
 class Thread

@@ -82,9 +82,7 @@ FX3J22wtVUi4Ve/XftYt6RJKd764o5WTdh/Z+RUbtusXnj3ygpI/G7fTzuPUj9uF\n\
 3K2VTrZpJnbMs7+i3w/ziC/cqWRVK6Rcq3bLzTXrig==\n\
 -----END CERTIFICATE-----\n";
 
-
-
-void* testSslRecvClient ( void* ); //
+static DEFINE_THREAD(testSslRecvClient, pParam);
 
 class TestSslSocket : public CppUnit::TestFixture
 {
@@ -186,7 +184,11 @@ public:
     
     char buf[32] = {0};
     
-    CPPUNIT_ASSERT( sslObj->recv ( buf, sizeof(buf), 0 ) != -1 );
+    ret = sslObj->recv ( buf, sizeof(buf), 0 );
+
+    sslObj->send ( "a", 1, 0);
+
+    CPPUNIT_ASSERT(ret != -1 );
 
     CPPUNIT_ASSERT( sslObj->close ( ) != -1 );
 
@@ -201,14 +203,13 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION( TestSslSocket );
 
-void*
-testSslRecvClient ( void *arg )
+static DEFINE_THREAD(testSslRecvClient, pParam)
 {
   Socket *obj2 = new Socket;
   SslSocket *sslObj2 = NULL;
   int optvalReuseAddr = 1;
   char host[] = "localhost";
-  int port = *((int*)arg);
+  int port = *((int*)pParam);
   int cstatus = 0;
   MYSERVER_SOCKADDRIN sockIn = { 0 };
 
@@ -226,7 +227,12 @@ testSslRecvClient ( void *arg )
 
   char buf[] = "Works?\n";
 
-  CPPUNIT_ASSERT(sslObj2->rawSend ( buf, strlen(buf), 0 ) != -1 );
+  int ret = sslObj2->send ( buf, strlen(buf), 0 );
+
+  sslObj2->recv ( buf, 1, 0 );
+
+  CPPUNIT_ASSERT(ret != -1 );
+
 
   CPPUNIT_ASSERT( sslObj2->close ( ) != -1 );
 

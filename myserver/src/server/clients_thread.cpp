@@ -30,7 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/ftp/ftp.h>
 
 #ifndef WIN32
-extern "C" {
+extern "C" 
+{
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -117,16 +118,7 @@ void ClientsThread::setTimeout(int newTimeout)
  *class instance.
  *\param pParam Params to pass to the new thread.
  */
-#ifdef WIN32
-#define ClientsThread_TYPE int
-unsigned int __stdcall clients_thread(void* pParam)
-#endif
-
-#ifdef HAVE_PTHREAD
-#define ClientsThread_TYPE void*
-void* clients_thread(void* pParam)
-#endif
-
+DEFINE_THREAD(clients_thread, pParam)
 {
 #ifndef WIN32
   /* Block SigTerm, SigInt, and SigPipe in threads.  */

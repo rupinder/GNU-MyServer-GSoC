@@ -40,6 +40,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <arpa/inet.h>
 #endif
 
+static DEFINE_THREAD(SendAsciiFile,pParam);
+static DEFINE_THREAD(SendImageFile,pParam);
+
+static DEFINE_THREAD(ReceiveAsciiFile,pParam);
+static DEFINE_THREAD(ReceiveImageFile,pParam);
+
 //////////////////////////////////////////////////////////////////////////////
 // FtpHost class
 void SetFtpHost(FtpHost &out, const FtpHost &in)
@@ -657,11 +663,7 @@ void Ftp::RetrStor(bool bRetr, bool bAppend, const std::string &sPath)
   }
 }
 
-#ifdef WIN32
-unsigned int __stdcall SendAsciiFile(void* pParam)
-#elif HAVE_PTHREAD
-void* SendAsciiFile(void* pParam)
-#endif //HAVE_PTHREAD
+static DEFINE_THREAD(SendAsciiFile, pParam)
 {
   DataConnectionWorkerThreadData *pWt = reinterpret_cast<DataConnectionWorkerThreadData *>(pParam);
   if ( pWt == NULL )
@@ -890,11 +892,7 @@ void* SendAsciiFile(void* pParam)
 
 }
 
-#ifdef WIN32
-unsigned int __stdcall SendImageFile(void* pParam)
-#elif HAVE_PTHREAD
-void* SendImageFile(void* pParam)
-#endif //HAVE_PTHREAD
+static DEFINE_THREAD(SendImageFile, pParam)
 {
   DataConnectionWorkerThreadData *pWt = reinterpret_cast<DataConnectionWorkerThreadData *>(pParam);
   if ( pWt == NULL )
@@ -1071,11 +1069,7 @@ void* SendImageFile(void* pParam)
 #endif
 }
 
-#ifdef WIN32
-unsigned int __stdcall ReceiveAsciiFile(void* pParam)
-#elif HAVE_PTHREAD
-void* ReceiveAsciiFile(void* pParam)
-#endif //HAVE_PTHREAD
+static DEFINE_THREAD(ReceiveAsciiFile, pParam)
 {
   DataConnectionWorkerThreadData *pWt = reinterpret_cast<DataConnectionWorkerThreadData *>(pParam);
   if ( pWt == NULL )
@@ -1267,11 +1261,7 @@ void* ReceiveAsciiFile(void* pParam)
 #endif
 }
 
-#ifdef WIN32
-unsigned int __stdcall ReceiveImageFile(void* pParam)
-#elif HAVE_PTHREAD
-void* ReceiveImageFile(void* pParam)
-#endif //HAVE_PTHREAD
+static DEFINE_THREAD(ReceiveImageFile, pParam)
 {
   DataConnectionWorkerThreadData *pWt = reinterpret_cast<DataConnectionWorkerThreadData *>(pParam);
   if ( pWt == NULL )

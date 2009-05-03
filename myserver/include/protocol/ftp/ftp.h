@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2008 Free Software Foundation, Inc.
+Copyright (C) 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -194,19 +194,6 @@ public:
 
 int get_ftp_reply(int nReplyCode, std::string &sReply);
 void ftp_reply(ConnectionPtr pConnection, int nReplyCode, const std::string &sCustomText = "");
-
-#ifdef WIN32
-unsigned int __stdcall SendAsciiFile(void* pParam);
-unsigned int __stdcall SendImageFile(void* pParam);
-unsigned int __stdcall ReceiveAsciiFile(void* pParam);
-unsigned int __stdcall ReceiveImageFile(void* pParam);
-#elif HAVE_PTHREAD
-void* SendAsciiFile(void* pParam);
-void* SendImageFile(void* pParam);
-void* ReceiveAsciiFile(void* pParam);
-void* ReceiveImageFile(void* pParam);
-#endif //HAVE_PTHREAD
-
 void yyerror(YYLTYPE *pLoc, Ftp *pContext, const char *msg);
 
 
