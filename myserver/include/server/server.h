@@ -118,7 +118,12 @@ public:
   const char *getAddresses();
   const char *getPath();
   u_long getNumThreads();
-  const char *getDefaultFilenamePath(u_long ID = 0);
+
+  NodeTree<string>* getNodeTree (string& key)
+  {
+    return hashedData.get (key);
+  }
+
   const char *getServerName();
   u_long getVerbosity();
   int getMaxLogFileSize();

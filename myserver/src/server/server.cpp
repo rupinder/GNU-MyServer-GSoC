@@ -187,7 +187,6 @@ int Server::checkConfigurationPaths()
   return 0;
 }
 
-
 /*!
  *Copy a configuration file from the default one.
  *Return nonzero on errors.

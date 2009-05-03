@@ -1707,48 +1707,53 @@ int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
 {
   int i;
   int ret;
+  string key ("http.default_file");
+  NodeTree<string> *node = Server::getInstance()->getNodeTree (key);
 
-  for(i = 0;; i++)
+  if (node)
     {
-      const char *defaultFileNamePath = getDefaultFilenamePath(i);
-      ostringstream defaultFileName;
-      defaultFileName.clear();
-      if(defaultFileNamePath)
+      list<NodeTree<string>*> *children = node->getChildren ();
+
+      for(list<NodeTree<string>*>::iterator it = children->begin ();
+          it != children->end ();
+          it++)
         {
-          defaultFileName << td->filenamePath << "/" << defaultFileNamePath;
-        }
-      else
-          break;
-      
-      if(FilesUtility::fileExists(defaultFileName.str().c_str()))
-        {
-          ostringstream nUrl;
-          
-          if(td->request.uriEndsWithSlash)
-              nUrl << defaultFileNamePath;
-          else
+          ostringstream defaultFileName;
+          const string *file = (*it)->getValue ();
+          defaultFileName.clear();
+          defaultFileName << td->filenamePath << "/" << *file;
+
+          if(FilesUtility::fileExists (defaultFileName.str ().c_str ()))
             {
-              u_long lastSlashOffset = uri.length();
-              while(lastSlashOffset && uri[lastSlashOffset] != '/')
-                --lastSlashOffset;
-              
-              nUrl << &(uri.c_str()[lastSlashOffset < uri.length() ?
-                                    lastSlashOffset + 1 : 0])
-                   << "/" << defaultFileNamePath;
+              ostringstream nUrl;
+
+              if (td->request.uriEndsWithSlash)
+                nUrl << *file;
+              else
+                {
+                  u_long lastSlashOffset = uri.length();
+                  while (lastSlashOffset && uri[lastSlashOffset] != '/')
+                    --lastSlashOffset;
+
+                  nUrl << &(uri.c_str ()[lastSlashOffset < uri.length() ?
+                                         lastSlashOffset + 1 : 0])
+                       << "/" << *file;
+                }
+
+              if (td->pathInfo.length())
+                nUrl << "/" << td->pathInfo;
+
+              if (td->request.uriOpts.length())
+                nUrl << "?" << td->request.uriOpts;
+
+              /*! Send a redirect to the new location.  */
+              if (sendHTTPRedirect(nUrl.str().c_str()))
+                ret = 1;
+              else
+                ret = 0;
+
+              return ret;
             }
-          
-          if(td->pathInfo.length())
-            nUrl << "/" << td->pathInfo;
-
-          if(td->request.uriOpts.length())
-            nUrl << "?" << td->request.uriOpts;
-
-          /*! Send a redirect to the new location.  */
-          if(sendHTTPRedirect(nUrl.str().c_str()))
-            ret = 1;
-          else
-            ret = 0;
-          return ret;
         }
     }
 
@@ -1843,7 +1848,6 @@ int Http::sendAuth()
 int Http::loadProtocolStatic(XmlParser* languageParser)
 {
   char *data = 0;
-  int  nDefaultFilename = 0;
   XmlParser *configurationFileManager = Server::getInstance()->getConfiguration();
   string pluginsResource(Server::getInstance()->getExternalPath());
   xmlDocPtr xmlDoc = configurationFileManager->getDoc();
@@ -1903,36 +1907,6 @@ int Http::loadProtocolStatic(XmlParser* languageParser)
   WinCgi::setTimeout(staticHttp.cgiTimeout);
   Isapi::setTimeout(staticHttp.cgiTimeout);
 
-  nDefaultFilename = 0;
-  staticHttp.defaultFilename.clear();
-
-
-  for(xmlNode *node = xmlDoc->children; node; node = node->next)
-  {
-
-    if(!xmlStrcmp(node->name, (const xmlChar *)"MYSERVER"))
-    {
-      for(node = node->children; node; node = node->next)
-      {
-        if(!xmlStrncmp(node->name, (const xmlChar *)"DEFAULT_FILENAME", xmlStrlen((const xmlChar *)"DEFAULT_FILENAME")))
-        {
-          staticHttp.defaultFilename.push_back((char*)node->children->content);
-          nDefaultFilename++;
-        }
-      }
-      break;
-    }
-  }
-
-  /*!
-   *Copy the right values in the buffer.
-   */
-  if(nDefaultFilename == 0)
-  {
-    staticHttp.defaultFilename.push_back("default.html");
-    nDefaultFilename++;
-  }
-
   return 1;
 }
 
@@ -1960,22 +1934,9 @@ int Http::unLoadProtocolStatic(XmlParser* languageParser)
 
   HttpDir::unLoad();
 
-  staticHttp.defaultFilename.clear();
-
   staticHttp.clear();
 
   return 1;
-}
-
-/*!
- *Returns the default filename.
- */
-const char *Http::getDefaultFilenamePath (u_long ID)
-{
-  if(staticHttp.defaultFilename.size() <= ID)
-    return 0;
-
-  return staticHttp.defaultFilename[ID].c_str();
 }
 
 /*!

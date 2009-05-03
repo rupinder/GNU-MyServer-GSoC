@@ -57,7 +57,6 @@ public:
     clearMulticastRegistry();
   }
 
-  vector<string> defaultFilename;
   int cgiTimeout;
   int allowVhostMime;
 
@@ -111,7 +110,6 @@ class Http : public Protocol
 {
 public:
   int requestAuthorization();
-  const char *getDefaultFilenamePath(u_long ID);
 
   int sendHTTPResource(string& filename,
                        int systemrequest = 0, 
