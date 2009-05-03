@@ -28,11 +28,17 @@
 #include "../include/base/file/files_utility.h"
 #include "../include/base/thread/thread.h"
 
+extern "C"
+{
 #include <string.h>
 #include <errno.h>
-#include <arpa/inet.h>
-#include <iostream>
 
+#ifndef WIN32
+#include <arpa/inet.h>
+#endif
+
+#include <iostream>
+}
 using namespace std;
 
 
@@ -83,8 +89,12 @@ FX3J22wtVUi4Ve/XftYt6RJKd764o5WTdh/Z+RUbtusXnj3ygpI/G7fTzuPUj9uF\n\
 -----END CERTIFICATE-----\n";
 
 
-
-void* testSslRecvClient ( void* ); //
+#ifdef WIN32
+unsigned int  __stdcall
+#else
+void *
+#endif
+testSslRecvClient ( void* ); //
 
 class TestSslSocket : public CppUnit::TestFixture
 {
@@ -201,7 +211,11 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION( TestSslSocket );
 
-void*
+#ifdef WIN32
+unsigned int  __stdcall
+#else
+void *
+#endif
 testSslRecvClient ( void *arg )
 {
   Socket *obj2 = new Socket;

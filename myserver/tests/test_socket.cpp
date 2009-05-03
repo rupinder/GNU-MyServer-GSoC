@@ -23,14 +23,26 @@
 #include "../include/base/socket/socket.h"
 #include "../include/base/thread/thread.h"
 
+extern "C"
+{
 #include <string.h>
 #include <errno.h>
+
+#ifndef WIN32
 #include <arpa/inet.h>
+#endif
+
 #include <iostream>
+}
 
 using namespace std;
 
-void* testRecvClient ( void* );
+#ifdef WIN32
+unsigned int  __stdcall
+#else
+void *
+#endif
+testRecvClient ( void* );
 
 class TestSocket : public CppUnit::TestFixture
 {
@@ -102,7 +114,7 @@ public:
     
     CPPUNIT_ASSERT( obj->listen ( 1 ) != -1 );
     
-    CPPUNIT_ASSERT_EQUAL( Thread::create ( &tid, testRecvClient, &port ), 0 );
+    CPPUNIT_ASSERT (!Thread::create (&tid, testRecvClient, &port ));
     
     Socket s = obj->accept ( &sockIn, &sockInLen );
     
@@ -159,7 +171,11 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION( TestSocket );
 
-void*
+#ifdef WIN32
+unsigned int  __stdcall
+#else
+void *
+#endif
 testRecvClient ( void *arg )
 {
   Socket *obj2 = new Socket;
@@ -179,8 +195,6 @@ testRecvClient ( void *arg )
   strcpy ( buf, "ehlo" );
   
   CPPUNIT_ASSERT( obj2->send ( buf, strlen ( buf ), 0 ) != -1 );
-  
-  sleep ( 2 );
   
   CPPUNIT_ASSERT( obj2->shutdown ( SD_BOTH ) != -1 );
  
