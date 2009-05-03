@@ -31,6 +31,7 @@
 #include <idna.h>
 #endif
 
+
 /*!
  *vhost costructor
  */
@@ -93,11 +94,14 @@ int Vhost::freeHashedData()
 {
   try
     {
-      HashMap<string, string*>::Iterator it = hashedData.begin();
-      for (;it != hashedData.end(); it++)
+      list<NodeTree<string>*>::iterator it = hashedDataTrees.begin ();
+      while (it != hashedDataTrees.end ())
         {
-          delete (*it);
+          delete *it;
+          it++;
         }
+
+      hashedDataTrees.clear ();
       hashedData.clear();
     }
   catch(...)
@@ -510,18 +514,9 @@ void Vhost::setRef(int n)
  */
 const char* Vhost::getHashedData(const char* name)
 {
-  
-  string *s;
+  NodeTree<string> *s = hashedData.get(name);
 
-  if(!name)
-    return NULL;
-
-  s = hashedData.get(name);
-
-  if(s)
-    return s->c_str();
-
-  return NULL;
+  return s ? s->getValue ()->c_str() : 0;
 }
   
 /*!

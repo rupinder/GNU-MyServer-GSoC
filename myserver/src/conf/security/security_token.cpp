@@ -50,11 +50,63 @@ void SecurityToken::reset ()
 
 }
 
+
+/*!
+ *Get the value for the variable using the specified domains.
+ *\param key Variable name.
+ *\param def Default value.
+ *\param domains Domains where to look.  They are looked in this order:
+ *\li Security configuration file.
+ *\li Virtual host configuration file.
+ *\li Global security file.
+ *\li Default value.
+ */
+NodeTree<string>* SecurityToken::getNodeTree (string& key, int domains, NodeTree<string>* def)
+{
+/*
+  if (domains & MYSERVER_SECURITY_CONF)
+  {
+    string strName (key);
+    NodeTree<string>* ret = values.get (strName);
+
+    if (ret)
+      return ret->c_str ();
+  }
+
+  if (mimeRecord && (domains & MYSERVER_MIME_CONF))
+  {
+    string strName (key);
+    NodeTree<string>* ret = mimeRecord->getNodeTree (strName);
+
+    if (ret)
+      return ret;
+  }
+*/
+  if (vhost && (domains & MYSERVER_VHOST_CONF))
+  {
+    NodeTree<string>* ret = vhost->getNodeTree (key);
+
+    if (ret)
+      return ret;
+  }
+
+  if (server && (domains & MYSERVER_SERVER_CONF))
+  {
+    NodeTree<string>* ret = server->getNodeTree (key);
+
+    if (ret)
+      return ret;
+  }
+
+  return def;
+}
+
+
 /*!
  *Get the value for the variable using the specified domains.
  *\param name Variable name.
  *\param def Default value.
- *\param domains Domains where to look.  They are looked in this order: 
+ *\param domains Domains where to look.  They are looked in this order:
  *\li Security configuration file.
  *\li Virtual host configuration file.
  *\li Global security file.
@@ -96,6 +148,5 @@ const char* SecurityToken::getHashedData (const char* name, int domains, const c
       return ret;
   }
 
-  
   return def;
 }

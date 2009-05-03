@@ -20,6 +20,8 @@
 #include <include/server/server.h>
 #include <include/base/file/files_utility.h>
 
+#include <include/conf/xml_conf.h>
+
 /*!
  *VhostManager add function.
  *\param vh The virtual host to add.
@@ -353,6 +355,10 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
     
       while(lcur)
         {
+          XmlConf::build (lcur,
+                          &vh->hashedDataTrees,
+                          &vh->hashedData);
+
           if(!xmlStrcmp(lcur->name, (const xmlChar *)"HOST"))
             {
               int useRegex = 0;
@@ -508,23 +514,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
             {
               vh->setThrottlingRate((u_long)atoi((char*)lcur->children->content));
             }
-          else if(lcur->children && lcur->children->content)
-            {
-              string *old;
-              string *s = new string((const char*)lcur->children->content);
-              if(s == 0)
-                {
-                  parser.close();
-                  clean();
-                  return -1;
-                }
-              string keyValue((const char*)lcur->name);
-              old = vh->hashedData.put(keyValue, s);
-              if(old)
-                {
-                  delete old;
-                }            
-            }
+
           lcur = lcur->next;
         }//while(lcur)
       

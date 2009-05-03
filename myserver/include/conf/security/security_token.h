@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "stdafx.h"
 #include <include/base/hash_map/hash_map.h>
-
+#include <include/conf/nodetree.h>
 #include <string>
 
 using namespace std;
@@ -52,6 +52,8 @@ public:
   void reset();
 
   const char* getHashedData (const char* name, int domains, const char *def = NULL);
+  NodeTree<string>* getNodeTree (string& key, int domains, NodeTree<string>* def = NULL);
+
 
   string& getUser ()
   {
