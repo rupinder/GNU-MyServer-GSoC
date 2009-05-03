@@ -33,6 +33,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/ssl/ssl.h>
 #include <include/base/socket/ssl_socket.h>
 
+#include <include/conf/xml_conf.h>
+
+
 extern "C"
 {
 #ifdef WIN32
@@ -1166,38 +1169,9 @@ int Server::initialize ()
  */
 void Server::readHashedData (xmlNodePtr lcur)
 {
-  xmlAttr *attrs;
-  for(;lcur; lcur = lcur->next)
-    {
-      
-      if (lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"DEFINE"))
-        {
-          const char *name = NULL;
-          const char *value = NULL;
-          
-          for (attrs = lcur->properties; attrs; attrs = attrs->next)
-            {
-              if (!xmlStrcmp (attrs->name, (const xmlChar *)"name") && 
-                  attrs->children && attrs->children->content)
-                name = (const char*)attrs->children->content;
-              
-              if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") && 
-                  attrs->children && attrs->children->content)
-                value = (const char*)attrs->children->content;
-            }
-          
-          if(name && value)
-            {
-              string* old;
-              string *v = new string((const char*)value);
-              string key((const char*)name);
-              old = hashedData.put(key, v);
-
-              if(old)
-                delete old;
-            }
-        }
-    }
+  XmlConf::build (lcur,
+                  &hashedDataTrees,
+                  &hashedData);
 }
 
 
@@ -1610,9 +1584,14 @@ int Server::freeHashedData()
 {
   try
   {
-    HashMap<string, string*>::Iterator it = hashedData.begin();
-    for (;it != hashedData.end(); it++)
-      delete *it;
+    list<NodeTree<string>*>::iterator it = hashedDataTrees.begin ();
+    while (it != hashedDataTrees.end ())
+      {
+        delete *it;
+        it++;
+      }
+
+    hashedDataTrees.clear ();
     hashedData.clear();
   }
   catch(...)
@@ -1627,8 +1606,9 @@ int Server::freeHashedData()
  */
 const char* Server::getHashedData(const char* name)
 {
-  string *s = hashedData.get(name);
-  return s ? s->c_str() : 0;
+  NodeTree<string> *s = hashedData.get(name);
+
+  return s ? s->getValue ()->c_str() : 0;
 }
 
 /*!

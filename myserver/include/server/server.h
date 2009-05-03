@@ -42,6 +42,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/multicast/multicast.h>
 #include <include/connections_scheduler/connections_scheduler.h>
 
+#include <include/conf/nodetree.h>
 
 #include <include/conf/security/security_manager.h>
 #include <include/conf/security/auth_method_factory.h>
@@ -192,7 +193,10 @@ private:
   VhostManager *vhostList;
   MimeManager *mimeManager;
   HomeDir homeDir;
-  HashMap<string, string*> hashedData;
+
+  list<NodeTree<string>*> hashedDataTrees;
+  HashMap<string, NodeTree<string>*> hashedData;
+
   HashMap<string, void*> globalData;
   FiltersFactory filtersFactory;
   u_long uid;
