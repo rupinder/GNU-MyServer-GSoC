@@ -1708,7 +1708,10 @@ int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
   int i;
   int ret;
   string key ("http.default_file");
-  NodeTree<string> *node = Server::getInstance()->getNodeTree (key);
+  NodeTree<string> *node = td->securityToken.getNodeTree (key,
+                                                          MYSERVER_VHOST_CONF |
+                                                          MYSERVER_SERVER_CONF, NULL);
+
 
   if (node)
     {

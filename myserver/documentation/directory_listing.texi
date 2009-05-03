@@ -6,14 +6,14 @@ shows its content like an usual file manager does.
 
 
 @subsection Default files
-In the @file{myserver.xml} file it is possible to set the default file
-to send instead of the directory content.
+In the @file{myserver.xml} main configuration or in the
+@file{virtualhosts.xml} file, it is possible to set a list of default
+file names to use instead of the directory content.
 
-Default files are defined using a list called @code{http.default_file}
-element and they are checked in the specified order until one is
-found.
-If a default file can't be found in the directory then its content is
-listed.
+Default file names are defined using a list called
+@code{http.default_file} and they are checked in the specified order
+until one is found.  If the file can't be found in the directory then
+the directory content is listed.
 
 @example
 <DEFINE name="http.default_file">
