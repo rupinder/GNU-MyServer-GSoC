@@ -96,6 +96,8 @@ AC_CHECK_FUNCS(pipe, AC_DEFINE(PIPE, 1, [Define if the pipe function is present]
 
 AC_CHECK_FUNCS(snprintf, AC_DEFINE(SNPRINTF, 1, [Define if the snprintf function is present]) )
 
+AC_CHECK_FUNCS(getpwnam, AC_DEFINE(GETPWNAM, 1, [Define if the getpwnam function is present]) )
+
 
 case "${host}" in
     *-*-mingw32*)

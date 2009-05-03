@@ -57,17 +57,11 @@ public:
      * if it doesn't handle this differently.  */
     username.assign("root");
 #endif
+    string dir;
 
-    const string *dir = homeDir->getHomeDir(username);
-    CPPUNIT_ASSERT(dir);
-    CPPUNIT_ASSERT(dir->length());
+    CPPUNIT_ASSERT_EQUAL (homeDir->getHomeDir(username, dir), 0);
 
-    string dirOut;
-
-    homeDir->getHomeDir(username, dirOut);
-
-    CPPUNIT_ASSERT(dirOut.length());
-
+    CPPUNIT_ASSERT(dir.length());
 
     homeDir->clear();
   }

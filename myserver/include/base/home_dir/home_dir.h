@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2006, 2008 Free Software Foundation, Inc.
+Copyright (C) 2006, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -36,10 +36,10 @@ public:
 
 	void clear();
 	int load();
-	const string *getHomeDir(string& userName);
-	void getHomeDir(string& userName, string& out);
 
-  int isLoaded(){return loaded;}
+	int getHomeDir (string& userName, string& out);
+
+  int isLoaded (){return loaded;}
 
 private:
   Mutex loadMutex;
@@ -47,7 +47,7 @@ private:
 
 #ifdef WIN32
   string data;
-#else
+#elif !GETPWNAM
 	HashMap<string, string*> data;
 #endif
 	time_t timestamp;
