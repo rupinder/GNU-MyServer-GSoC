@@ -20,6 +20,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <string.h>
 
+extern "C"
+{
+#if GCRY_CONTROL
+
+#include <errno.h>
+#include <gcrypt.h>
+GCRY_THREAD_OPTION_PTHREAD_IMPL;
+
+#endif
+
+#include <pthread.h>
+}
+
 SslContext::SslContext()
 {
   context = 0;
@@ -32,65 +45,69 @@ SslContext::SslContext()
 /*!
  *Initialize SSL on the virtual host.
  */
-int SslContext::initialize()
+int SslContext::initialize ()
 {
   context = 0;
   method = 0;
-  method = SSLv23_server_method();
-  context = SSL_CTX_new(method);
+  method = SSLv23_server_method ();
+  context = SSL_CTX_new (method);
 
-  if(!context)
+  if (!context)
     return -1;
   /*
    *The specified file doesn't exist.
    */
-  if(FilesUtility::fileExists(certificateFile.c_str()) == 0)
+  if (FilesUtility::fileExists(certificateFile.c_str()) == 0)
     return -1;
   
-  if(SSL_CTX_use_certificate_file (context, certificateFile.c_str (),SSL_FILETYPE_PEM) != 1)
+  if (SSL_CTX_use_certificate_file (context, certificateFile.c_str (),SSL_FILETYPE_PEM) != 1)
     return -1;
 
   /*
    *The specified file doesn't exist.
    */
-  if(FilesUtility::fileExists(privateKeyFile) == 0)
+  if (FilesUtility::fileExists(privateKeyFile) == 0)
     return -1;
 
-  if(SSL_CTX_use_PrivateKey_file(context, privateKeyFile.c_str(),
-                                   SSL_FILETYPE_PEM) != 1)
+  if (SSL_CTX_use_PrivateKey_file(context, privateKeyFile.c_str(),
+                                  SSL_FILETYPE_PEM) != 1)
     return -1;
 
   return 1;
 }  
 
-int SslContext::free()
+int SslContext::free ()
 {
   int ret = 0;
-  if(context)
+  if (context)
   {
-    SSL_CTX_free(context);
+    SSL_CTX_free (context);
     ret = 1;
     context = 0;
   }
   else 
     ret = 0;
-  certificateFile.assign("");
-  privateKeyFile.assign("");
+  certificateFile.assign ("");
+  privateKeyFile.assign ("");
   return ret;
 }
 
-void initializeSSL()
+void initializeSSL ()
 {
   static bool initialized = false;
-  if(!initialized)
+
+  if (!initialized)
   {
-    SSL_load_error_strings();
-    SSL_library_init();
+#if GCRY_CONTROL
+    gcry_control (GCRYCTL_SET_THREAD_CBS, &gcry_threads_pthread);
+    gnutls_global_init ();
+#endif
+
     initialized = true;
   }
 }
 
-void cleanupSSL()
+void cleanupSSL ()
 {
 
 }
