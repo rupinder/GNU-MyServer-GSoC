@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <string.h>
 #include <string>
+#include <map>
 
 using namespace std;
 
@@ -30,12 +31,14 @@ public:
   {
     value = NULL;
     children = NULL;
+    attrs = NULL;
   }
 
   NodeTree (T& v)
   {
     value = new T (v);
     children = NULL;
+    attrs = NULL;
   }
 
   ~NodeTree ()
@@ -52,9 +55,10 @@ public:
       }
 
     if (value)
-      {
-        delete value;
-      }
+      delete value;
+
+    if (attrs)
+      delete attrs;
   }
 
   void setValue (T *v)
@@ -68,6 +72,29 @@ public:
       children = new list<NodeTree<T>*>;
 
     children->push_back (child);
+  }
+
+  void addAttr (string &name, T value)
+  {
+    if (attrs == NULL)
+      attrs = new list<pair<string, T> > ();
+
+    attrs->push_back (pair<string, T> (name, value));
+  }
+
+  T* getAttr (string &name)
+  {
+    if (attrs == NULL)
+      return NULL;
+    for (typename list<pair<string, T> >::iterator it = attrs->begin ();
+         it != attrs->end ();
+         it++)
+      {
+        if ((*it).first.compare (name) == 0)
+          return &((*it).second);
+      }
+
+    return NULL;
   }
 
   bool isLeaf ()
@@ -86,5 +113,6 @@ public:
   }
 protected:
   list<NodeTree<T>*> *children;
+  list<pair<string, T> > *attrs;
   T *value;
 };

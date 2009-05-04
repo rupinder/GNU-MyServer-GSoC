@@ -48,6 +48,7 @@ void XmlConf::readNode (xmlNodePtr lcur,
   for(; lcur; lcur = lcur->next)
     if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *)"DEFINE"))
       {
+        NodeTree<string> *node = new NodeTree<string> ();
         const char *name = NULL;
         const char *value = NULL;
 
@@ -56,14 +57,19 @@ void XmlConf::readNode (xmlNodePtr lcur,
             if (!xmlStrcmp (attrs->name, (const xmlChar *)"name") && 
                 attrs->children && attrs->children->content)
               name = (const char*)attrs->children->content;
-            
-            if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") && 
+            else if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") && 
                 attrs->children && attrs->children->content)
               value = (const char*)attrs->children->content;
+            else
+              {
+                string attr ((const char*)attrs->name);
+                string valueAttr ((const char*)attrs->children->content);
+                node->addAttr (attr, valueAttr);
+              }
           }
 
         string *v = value ? new string((const char*)value) : NULL;
-        NodeTree<string> *node = new NodeTree<string> ();
+
         node->setValue (v);
  
         if(name)

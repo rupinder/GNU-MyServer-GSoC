@@ -28,39 +28,55 @@ class TestNodeTree : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( TestNodeTree );
   CPPUNIT_TEST( testCreateDestroy );
+  CPPUNIT_TEST( testAttributes );
   CPPUNIT_TEST_SUITE_END();
 
 
 public:
 
+  NodeTree<string> *node;
+
   void setUp()
   {
-
+    node = new NodeTree<string> ();
   }
 
   void tearDown()
   {
+    delete node;
+  }
 
+  void testAttributes ()
+  {
+    string name ("my_attrib");
+    string value ("foo.bar");
+    string *value2;
+
+    value2 = node->getAttr (name);
+    CPPUNIT_ASSERT_EQUAL (value2, (string*)NULL);
+
+    node->addAttr (name, value);
+
+    value2 = node->getAttr (name);
+    CPPUNIT_ASSERT (value2);
+
+    CPPUNIT_ASSERT_EQUAL (value2->compare (value), 0);
   }
 
   void testCreateDestroy ()
   {
-    NodeTree<string> *c = new NodeTree<string> ();
-
     for (int j = 0; j < 5; j++)
       {
-        NodeTree<string> *cc = new NodeTree<string> ();
-        c->addChild (cc);
+        NodeTree<string> *child = new NodeTree<string> ();
+        node->addChild (child);
         for (int i = 0; i < 10; i++)
           {
             string s = "just a string";
-            cc->addChild (new NodeTree<string> (s));
+            child->addChild (new NodeTree<string> (s));
           }
       }
 
-    CPPUNIT_ASSERT_EQUAL (countLeafNodes (c), 50);
-
-    delete c;
+    CPPUNIT_ASSERT_EQUAL (countLeafNodes (node), 50);
   }
 
 protected:
