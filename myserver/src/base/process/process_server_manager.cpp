@@ -42,86 +42,94 @@ ProcessServerManager::~ProcessServerManager()
 /*!
  *Load the class.
  */
-void ProcessServerManager::load()
+void ProcessServerManager::load ()
 {
-  XmlParser* conf = ::Server::getInstance()->getConfiguration();
-  xmlNodePtr node =  xmlDocGetRootElement(conf->getDoc())->xmlChildrenNode;
-  for(;node; node = node->next)
-  {
-    string domain;
-    string host;
-    string name;
-    string port;
-    string local;
-    bool localBool = true;
-    int uid = 0;
-    int gid = 0;
-    xmlNodePtr node2;
-    if (strcmpi((const char*)node->name, "PROCESS_SERVER"))
-      continue;
-    node2 = node->children;
-    for (;node2; node2 = node2->next)
+ 
+  string key ("process_servers.list");
+  NodeTree<string> *node = ::Server::getInstance()->getNodeTree (key);
+
+  if (node == NULL)
+    return;
+
+  string serverKey ("server");
+  string domainKey ("domain");
+  string hostKey ("host");
+  string portKey ("port");
+  string localKey ("local");
+  string uidKey ("uid");
+  string gidKey ("gid");
+
+  list<NodeTree<string>*> *children = node->getChildren ();
+
+  for(list<NodeTree<string>*>::iterator it = children->begin ();
+      it != children->end ();
+      it++)
     {
-      if (!node2->children || !node2->children->content)
-        continue;
-      
-      if (!strcmpi ((const char*)node2->name, "NAME"))
-        name.assign ((const char*) node2->children->content);
+      string domain;
+      string host;
+      string name;
+      string port;
+      string local;
+      bool localBool = true;
+      int uid = 0;
+      int gid = 0;
 
-      if (!strcmpi ((const char*)node2->name, "HOST"))
-        host.assign ((const char*) node2->children->content);
+      NodeTree<string>* n = *it;
 
-      if (!strcmpi ((const char*)node2->name, "DOMAIN"))
-        domain.assign ((const char*) node2->children->content);
+      if (n->getAttr (serverKey))
+        name.assign (*n->getAttr (serverKey));
 
-      if (!strcmpi ((const char*)node2->name, "PORT"))
-        port.assign ((const char*) node2->children->content);
+      if (n->getAttr (domainKey))
+        domain.assign (*n->getAttr (domainKey));
 
-      if (!strcmpi ((const char*)node2->name, "LOCAL"))
-        local.assign ((const char*) node2->children->content);
+      if (n->getAttr (hostKey))
+        host.assign (*n->getAttr (hostKey));
 
-      if (!strcmpi ((const char*)node2->name, "UID"))
-        uid = atoi ((const char*) node2->children->content);
+      if (n->getAttr (portKey))
+        port.assign (*n->getAttr (portKey));
 
-      if (!strcmpi ((const char*)node2->name, "GID"))
-        gid = atoi ((const char*) node2->children->content);
-    }
-    
-    if (!local.compare("YES") || !local.compare("yes"))
-      localBool = true;
-    else
-      localBool = false;
+      if (n->getAttr (localKey))
+        local.assign (*n->getAttr (localKey));
 
-    if (name.size () && domain.size ())
-    {
-      u_short portN = 0;
+      if (n->getAttr (uidKey))
+        uid = atoi (n->getAttr (uidKey)->c_str ());
 
-      if(port.size ())
-        portN = atoi (port.c_str());
+      if (n->getAttr (gidKey))
+        gid = atoi (n->getAttr (gidKey)->c_str ());
 
-      if (localBool)
-        runAndAddServer (domain.c_str(), name.c_str(), uid, gid, portN);
+      if (!local.compare("YES") || !local.compare("yes"))
+        localBool = true;
       else
-      {
-        if (portN)
-          addRemoteServer (domain.c_str(), name.c_str(), host.c_str(), portN);
-        else
+        localBool = false;
+
+      if (name.size () && domain.size ())
         {
-          ostringstream msg;
-          msg << "Error: incomplete remote PROCESS_SERVER block, " 
-              << domain  << ":" << name << " needs a port";
-          ::Server::getInstance ()->logWriteln(msg.str().c_str(), MYSERVER_LOG_MSG_ERROR);
+          u_short portN = 0;
+
+          if(port.size ())
+            portN = atoi (port.c_str());
+
+          if (localBool)
+            runAndAddServer (domain.c_str(), name.c_str(), uid, gid, portN);
+          else
+            {
+              if (portN)
+                addRemoteServer (domain.c_str(), name.c_str(), host.c_str(), portN);
+              else
+                {
+                  ostringstream msg;
+                  msg << "Error: incomplete remote PROCESS_SERVER block, "
+                      << domain  << ":" << name << " needs a port";
+                  ::Server::getInstance ()->logWriteln (msg.str ().c_str (), MYSERVER_LOG_MSG_ERROR);
+                }
+            }
         }
-      }
-
+      else
+        {
+          const char *msg = "Error: incomplete PROCESS_SERVER block";
+          ::Server::getInstance ()->logWriteln (msg, MYSERVER_LOG_MSG_ERROR);
+        }
     }
-    else
-    {
-      const char *msg = "Error: incomplete PROCESS_SERVER block";
-      ::Server::getInstance ()->logWriteln(msg, MYSERVER_LOG_MSG_ERROR);
-    }
-
-  }
 
 }
 

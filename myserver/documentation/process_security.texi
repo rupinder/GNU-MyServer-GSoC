@@ -67,25 +67,22 @@ A @code{PROCESS_SERVER} entry makes it possible to access a specific
 FastCGI/SCGI configuration inside MIME types by its name.
 
 @example
-<PROCESS_SERVER>
-        <NAME>/opt/bin/fastcgi_server</NAME>
-        <DOMAIN>fastcgi</DOMAIN>
-        <HOST>localhost</HOST>
-        <PORT>2010</PORT>
-        <LOCAL>yes</LOCAL>
-        <UID>1000</UID>
-        <GID>1000</GID>
-</PROCESS_SERVER>
+<!-- Inside myserver.xml.  -->
+<DEFINE name="process_servers.list">
+  <DEFINE server="/opt/bin/fastcgi_server" domain="fastcgi"
+          host="localhost" port="2010" local="yes" uid="1000"
+          gid="1000"/>
+</DEFINE>
 @end example
 
 In the previous example the FastCGI server
 @code{/opt/bin/fastcgi_server} is created.  The @code{domain} must be
 "fastcgi" or "scgi", depending on the specific protocol to use.
-@code{LOCAL} specifies if the server is handled by myserver or it is
+@code{local} specifies if the server is handled by myserver or it is
 already running; in the former case, myserver will simply access and
 use it.
-If the server is not local then the @code{name} is a simple label that
-can be used by a MIME type trought @code{param} to access it.
+If the server is not local then the @code{server} is a simple label
+that can be used by a MIME type trought @code{param} to access it.
 
 It is possible to specify a different uid/gid for the local server
 process and don't maintain the original myserver process privileges.
@@ -96,14 +93,9 @@ The following code, declare an already running FastCGI server and
 registers it on the @code{fcgi} extension:
 
 @example
-<!-- Inside myserver.xml.  -->
-<PROCESS_SERVER>
-        <NAME>a_remote_server</NAME>
-        <DOMAIN>fastcgi</DOMAIN>
-        <HOST>foo</HOST>
-        <PORT>2010</PORT>
-        <LOCAL>NO</LOCAL>
-</PROCESS_SERVER>
+<DEFINE name="process_servers.list">
+  <DEFINE server="a_remote_server" domain="fastcgi" host="foo" port="2010" local="no"/>
+</DEFINE>
 
 <!-- Inside MIMEtypes.xml.  -->
 <MIME mime="text/html" handler="RUNFASTCGI" param="a_remote_server">
