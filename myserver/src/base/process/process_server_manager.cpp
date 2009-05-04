@@ -152,7 +152,7 @@ ProcessServerManager::getDomain(const char* name)
  *\param name The domain name.
  */
 ProcessServerManager::ServerDomain* 
-ProcessServerManager::createDomain(const char* name)
+ProcessServerManager::createDomain (const char* name)
 {
   ServerDomain* ret;
 
@@ -182,23 +182,31 @@ void ProcessServerManager::clear()
 
   it = domains.begin();
 
-  for(;it != domains.end(); it++)
-  {
-    ServerDomain *sd = *it;
-    HashMap<string, Server*>::Iterator server = sd->servers.begin();
-
-    for(;server != sd->servers.end(); server++)
+  for (;it != domains.end(); it++)
     {
-      if((*it)->clear)
-      {
-        (*it)->clear(*server);
-      }
-      if((*server)->isLocal)
-        nServers--;
-      (*server)->terminate();
-      delete (*server);
-    }
-    delete (*it);
+      ServerDomain *sd = *it;
+      HashMap<string, vector<Server*>*>::Iterator server = sd->servers.begin();
+
+      for (; server != sd->servers.end (); server++)
+        {
+          for (vector<Server*>::iterator it = (*server)->begin ();
+               it != (*server)->end ();
+               it++)
+            {
+              Server *s = *it;
+
+              if(s->isLocal)
+                nServers--;
+
+              if (sd->clear)
+                sd->clear(s);
+
+              s->terminate();
+              delete s;
+            }
+          delete (*server);
+        }
+      delete (*it);
   }
   domains.clear();
   mutex.unlock();
@@ -208,16 +216,22 @@ void ProcessServerManager::clear()
  *Get a server is running by its domain and name.
  *\param domain The domain name.
  *\param name The server name name.
+ *\param seed Random seed to use for choosing a server.
  */
 ProcessServerManager::Server* 
-ProcessServerManager::getServer(const char* domain, const char* name)
+ProcessServerManager::getServer(const char* domain, const char* name, int seed)
 {
   ServerDomain* sd;
   Server* s;
+
   mutex.lock();
   sd = domains.get(domain);
+
   if(sd)
-    s = sd->servers.get(name);
+    {
+      vector<Server*> *slist = sd->servers.get (name);
+      s = slist->at (seed % slist->size ());
+    }
   else
     s = 0;
   
@@ -251,19 +265,21 @@ ProcessServerManager::getServer(const char* domain, const char* name)
 void ProcessServerManager::addServer(ProcessServerManager::Server* server, 
                                      const char* domain, const char* name)
 {
-  ServerDomain* sd = createDomain(domain);
-  Server* old;
-  string str(name);
+  ServerDomain *sd = createDomain (domain);
+  Server *old;
+  string strName (name);
 
   mutex.lock();
+  vector<Server*>* slist = sd->servers.get (strName);
 
-  old = sd->servers.put(str, server);
+  if (slist == NULL)
+    {
+      slist = new vector<Server*> ();
+      sd->servers.put (strName, slist);
+    }
 
-  if(old)
-  {
-    old->terminate();
-    delete old;
-  }
+  slist->push_back (server);
+
   mutex.unlock();
 }
 
@@ -275,16 +291,16 @@ void ProcessServerManager::addServer(ProcessServerManager::Server* server,
  *\param port The port number to use for the connection.
  */
 ProcessServerManager::Server* 
-ProcessServerManager::addRemoteServer(const char* domain, const char* name, 
-                                      const char* host, u_short port)
+ProcessServerManager::addRemoteServer (const char* domain, const char* name,
+                                       const char* host, u_short port)
 {
   Server* server = new Server;
-  server->path.assign(name);
-  server->host.assign(host);
+  server->path.assign (name);
+  server->host.assign (host);
   server->port = port;
   server->isLocal = false;
 
-  addServer(server, domain, name);
+  addServer (server, domain, name);
   return server;
 }
 
@@ -292,62 +308,40 @@ ProcessServerManager::addRemoteServer(const char* domain, const char* name,
  *Remove a domain by its name.
  *\param domain The domain name.
  */
-void ProcessServerManager::removeDomain(const char* domain)
+void ProcessServerManager::removeDomain (const char* domain)
 {
   ServerDomain *sd;
   HashMap<string, Server*>::Iterator server;
 
   mutex.lock();
 
-  sd = getDomain(domain);
-  if(sd)
-  {
-    server = sd->servers.begin();
-    
-    for(;server != sd->servers.end(); server++)
-    {
-      if(sd->clear)
-      {
-        sd->clear(*server);
-      }
-      if((*server)->isLocal)
-        nServers--;
-      (*server)->terminate();
-      delete (*server);
-    }
-    delete sd;
-  }
+  sd = getDomain (domain);
 
-  mutex.unlock();
-}
-
-/*!
- *Remove a server by its domain and name.
- *\param domain The server domain.
- *\param name The server name.
- */
-void ProcessServerManager::removeServer(const char* domain, const char* name)
-{
-  ServerDomain* sd;
-  Server* server;
-  mutex.lock();
-  sd = domains.get(domain);
-  if(sd)
-    server = sd->servers.remove(name);
-  else
-    server = 0;
-  
-  if(server)
-  {
-    if(server->isLocal)
+  if (sd)
     {
-      if(sd->clear)
-        sd->clear(server);
-      server->terminate();
-      nServers--;
+      HashMap<string, vector<Server*>*>::Iterator server = sd->servers.begin ();
+
+      for (; server != sd->servers.end (); server++)
+        {
+          for (vector<Server*>::iterator it = (*server)->begin ();
+               it != (*server)->end ();
+               it++)
+            {
+              Server *s = *it;
+
+              if(s->isLocal)
+                nServers--;
+
+              if (sd->clear)
+                sd->clear(s);
+
+              s->terminate ();
+              delete s;
+            }
+          delete (*server);
+        }
+      delete sd;
     }
-    delete server;
-  }
 
   mutex.unlock();
 }

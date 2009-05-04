@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/hash_map/hash_map.h>
 #include <string>
 
+#include <vector>
 using namespace std;
 
 class ProcessServerManager
@@ -66,7 +67,7 @@ public:
 	struct ServerDomain
 	{
 		string domainName;
-		HashMap<string, Server*> servers;
+		HashMap<string, vector<Server*>* > servers;
 		void (*clear)(Server*);
 		ServerDomain()
 		{
@@ -77,13 +78,12 @@ public:
 	ServerDomain* createDomain(const char* name);
 	ServerDomain* getDomain(const char* name);
 	void clear();
-	Server* getServer(const char* domain, const char* name);
+	Server* getServer(const char* domain, const char* name, int seed = 0);
 	ProcessServerManager();
 	~ProcessServerManager();
 	int connect(Socket* sock, Server* server);
 	void setMaxServers(int max){maxServers = max;}
 	int getMaxServers(){return maxServers;}
-	void removeServer(const char* domain, const char* name);
 	void removeDomain(const char* domain);
 	int domainServers(const char* domain);
 	void load();

@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -538,8 +538,16 @@ ScgiServer* Scgi::connect(ScgiContext* con, const char* path)
 ScgiServer* Scgi::runScgiServer(ScgiContext* context, 
                                 const char* path)
 {
+  /* This method needs a better home (and maybe better code).
+   * Compute a simple hash from the IP address.  */
+  const char *ip = context->td->connection->getIpAddr();
+  int seed = 13;
+  for (const char *c = ip; c; c++)
+    seed = *c * 21 + seed;
+
   ScgiServer* server =  processServerManager->getServer(SERVERS_DOMAIN, 
-                                                        path);
+                                                        path,
+                                                        seed);
   if(server)
     return server;
 
