@@ -456,7 +456,7 @@ FastCgi::FastCgi()
 /*!
  *Initialize the FastCGI protocol implementation
  */
-int FastCgi::load(XmlParser* /*confFile*/)
+int FastCgi::load()
 {
   if(initialized)
     return 1;

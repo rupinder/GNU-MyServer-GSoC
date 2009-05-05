@@ -233,7 +233,7 @@ int MsCgi::sendHeader(MsCgiData* mcd)
  *Map the library in the application address space.
  *\param confFile The xml parser with configuration.
  */
-int MsCgi::load(XmlParser* confFile)
+int MsCgi::load()
 {
   return 1;
 }

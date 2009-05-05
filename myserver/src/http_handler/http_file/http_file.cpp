@@ -729,7 +729,7 @@ HttpFile::~HttpFile()
  *Load the static elements.
  *\param confFile Not used.
  */
-int HttpFile::load(XmlParser* confFile)
+int HttpFile::load ()
 {
   return 0;
 }

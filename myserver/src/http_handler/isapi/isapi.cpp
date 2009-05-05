@@ -1009,7 +1009,7 @@ Isapi::Isapi()
 /*!
 *Initialize the ISAPI engine under WIN32.
 */
-int Isapi::load(XmlParser*/* confFile*/)
+int Isapi::load ()
 {
 #ifdef WIN32
   u_long nThreads = Server::getInstance()->getMaxThreads()/2;

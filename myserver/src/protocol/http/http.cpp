@@ -1850,10 +1850,8 @@ int Http::sendAuth()
  */
 int Http::loadProtocolStatic(XmlParser* languageParser)
 {
-  char *data = 0;
-  XmlParser *configurationFileManager = Server::getInstance()->getConfiguration();
+  const char *data = NULL;
   string pluginsResource(Server::getInstance()->getExternalPath());
-  xmlDocPtr xmlDoc = configurationFileManager->getDoc();
 
   /*
    *Store defaults value.
@@ -1867,19 +1865,19 @@ int Http::loadProtocolStatic(XmlParser* languageParser)
   HttpErrors::load ();
 
   /* Initialize ISAPI.  */
-  Isapi::load (configurationFileManager);
+  Isapi::load ();
 
   /* Initialize FastCGI.  */
-  FastCgi::load (configurationFileManager);
+  FastCgi::load ();
 
   /* Initialize SCGI.  */
-  Scgi::load (configurationFileManager);
+  Scgi::load ();
 
   /* Load the MSCGI library.  */
-  MsCgi::load (configurationFileManager);
+  MsCgi::load ();
 
-  HttpFile::load (configurationFileManager);
-  HttpDir::load (configurationFileManager);
+  HttpFile::load ();
+  HttpDir::load ();
 
   staticHttp.dynManagerList.addHttpManager ("SEND", staticHttp.httpFile);
   staticHttp.dynManagerList.addHttpManager ("DIR", staticHttp.httpDir);
@@ -1890,7 +1888,7 @@ int Http::loadProtocolStatic(XmlParser* languageParser)
   staticHttp.dynManagerList.addHttpManager ("FASTCGI", staticHttp.fastcgi);
   staticHttp.dynManagerList.addHttpManager ("ISAPI", staticHttp.isapi);
 
-  data = configurationFileManager->getValue("vhost.allow_mime");
+  data = Server::getInstance ()->getHashedData ("vhost.allow_mime");
   if(data)
   {
 
@@ -1899,16 +1897,16 @@ int Http::loadProtocolStatic(XmlParser* languageParser)
     else
       staticHttp.allowVhostMime = 0;
   }
-  data = configurationFileManager->getValue("cgi.timeout");
+  data = Server::getInstance ()->getHashedData ("cgi.timeout");
   if(data)
   {
-    staticHttp.cgiTimeout = MYSERVER_SEC(atoi(data));
+    staticHttp.cgiTimeout = MYSERVER_SEC (atoi (data));
   }
 
-  Cgi::setTimeout(staticHttp.cgiTimeout);
-  Scgi::setTimeout(staticHttp.cgiTimeout);
-  WinCgi::setTimeout(staticHttp.cgiTimeout);
-  Isapi::setTimeout(staticHttp.cgiTimeout);
+  Cgi::setTimeout (staticHttp.cgiTimeout);
+  Scgi::setTimeout (staticHttp.cgiTimeout);
+  WinCgi::setTimeout (staticHttp.cgiTimeout);
+  Isapi::setTimeout (staticHttp.cgiTimeout);
 
   return 1;
 }

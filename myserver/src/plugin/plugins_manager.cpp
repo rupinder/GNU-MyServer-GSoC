@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/xml/xml_parser.h>
 #include <include/base/find_data/find_data.h>
 #include <include/server/server.h>
-
+#include <include/base/string/stringutils.h>
 #include <string>
 using namespace std;
 
@@ -58,65 +58,63 @@ Plugin* PluginsManager::getPlugin(string& name)
  *\param languageFile The language file to use to get errors and warnings 
  *messages.
  */
-int PluginsManager::loadOptions(Server *server, XmlParser* languageFile)
+int PluginsManager::loadOptions (Server *server, XmlParser* languageFile)
 {
-  xmlDocPtr xmlDoc;
   int ret = 0;
-  XmlParser* configuration;
-  
-  configuration = server->getConfiguration();
-  
-  xmlDoc = configuration->getDoc();
-  
+  string key ("plugins");
 
-  for(xmlNode *root = xmlDoc->children; root; root = root->next)
-    if(!xmlStrcmp(root->name, (const xmlChar *)"MYSERVER"))
-      for(xmlNode *node = root->children; node; node = node->next)
-        {
-          string namespaceName;
-          string pluginName;
+  NodeTree<string>* node = server->getNodeTree (key);
+
+  if (node == NULL)
+    return 0;
+
+  list<NodeTree<string>*> *children = node->getChildren ();
+
+  if (children == NULL)
+    return 0;
+
+  string namespaceKey ("namespace");
+  string pluginKey ("plugin");
+  string globalKey ("global");
+  string enabledKey ("enabled");
+
+  for(list<NodeTree<string>*>::iterator it = children->begin ();
+      it != children->end ();
+      it++)
+    {
+      NodeTree<string>* node = *it;
+
+      string plugin;
+      string namespaceName;
 		  bool global = false;
 		  bool enabled = false;
-          
-          if(!xmlStrcmp(node->name, (const xmlChar *)"PLUGIN"))
-          {
-            xmlAttrPtr properties = node->properties;
-            
-            while(properties)
-            {
-              if(!xmlStrcmp(properties->name, (const xmlChar *)"name"))
-              {
-                if(properties->children && properties->children->content)
-                  pluginName.assign((char*)properties->children->content);
-              }
-              properties = properties->next;
-            }
-            
-            for(xmlNode *internal = node->children; internal; internal = internal->next)  
-            {
-              if(!xmlStrcmp(internal->name, (const xmlChar *)"ENABLED"))
-                enabled = strcmpi("NO", (const char*)internal->children->content) ? true : false;
-              else if(!xmlStrcmp(internal->name, (const xmlChar *)"GLOBAL"))
-                global = strcmpi("YES", (const char*)internal->children->content) ? false : true;
-            }
 
-            if(!pluginName.length())
-            {
-              string error;
-              error.assign("PLUGINS MANAGER: Warning: invalid plugin name in PLUGIN block");
-              server->logWriteln(error.c_str(), MYSERVER_LOG_MSG_ERROR);
-              ret = -1;  
-            }
-            else
-            {
-                addPluginInfo(pluginName, new PluginInfo(pluginName,enabled,global));
-            }
+      if (node->getAttr (namespaceKey))
+        namespaceName.assign (*node->getAttr (namespaceKey));
 
-          }
+      if (node->getAttr (pluginKey))
+        plugin.assign (*node->getAttr (pluginKey));
+
+      if (node->getAttr (globalKey))
+        global = stringcmpi (*node->getAttr (globalKey), "YES") == 0;
+
+      if (node->getAttr (enabledKey))
+        enabled = stringcmpi (*node->getAttr (enabledKey), "YES") == 0;
+
+      if (!plugin.length ())
+        {
+          string error;
+          error.assign ("PLUGINS MANAGER: Warning: invalid plugin name in PLUGIN block");
+          server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_ERROR);
+          ret = -1;  
         }
+      else
+        {
+          addPluginInfo (plugin, new PluginInfo (plugin, enabled, global));
+        }
+    }
 
   return ret;
-  
 }
 
 

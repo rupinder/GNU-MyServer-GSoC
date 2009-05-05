@@ -93,7 +93,7 @@ HttpDir::~HttpDir()
 /*!
  *Load the static elements.
  */
-int HttpDir::load(XmlParser* /*confFile*/)
+int HttpDir::load ()
 {
   return 0;
 }
@@ -101,7 +101,7 @@ int HttpDir::load(XmlParser* /*confFile*/)
 /*!
  *Unload the static elements.
  */
-int HttpDir::unLoad()
+int HttpDir::unLoad ()
 {
   return 0;
 }

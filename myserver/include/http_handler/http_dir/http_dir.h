@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2005, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2005, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -37,8 +37,8 @@ public:
     off_t size;
   };
 
-  static int load(XmlParser*);
-  static int unLoad();
+  static int load ();
+  static int unLoad ();
   virtual int send(HttpThreadContext*, ConnectionPtr s, 
                    const char *filenamePath, const char* cgi,
                    int execute = 0, int OnlyHeader = 0); 

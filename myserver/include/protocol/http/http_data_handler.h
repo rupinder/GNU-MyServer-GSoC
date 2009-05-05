@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2005, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2005, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -18,10 +18,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef HTTP_DATA_HANDLER_H
 #define HTTP_DATA_HANDLER_H
+
 #include "stdafx.h"
 #include <include/protocol/protocol.h>
 #include "include/protocol/http/http_headers.h"
-#include <include/base/xml/xml_parser.h>
 #include <include/filter/filters_chain.h>
 
 /*!
@@ -30,8 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class HttpDataHandler
 {
 public:
-  static int load(XmlParser* );
-  static int unLoad();
+  static int load ();
+  static int unLoad ();
 
 	virtual int send(HttpThreadContext*, ConnectionPtr s,
                    const char* exec, const char* cmdLine = 0,

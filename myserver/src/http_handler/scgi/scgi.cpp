@@ -482,7 +482,7 @@ Scgi::Scgi()
 /*!
  *Initialize the SCGI protocol implementation
  */
-int Scgi::load(XmlParser* /*confFile*/)
+int Scgi::load ()
 {
   if(initialized)
     return 1;
