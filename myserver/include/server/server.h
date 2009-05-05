@@ -141,7 +141,6 @@ public:
   u_long getBuffersize2();
   u_long getThrottlingRate();
   int waitNewConnection(u_long tid, u_long timeout);
-  XmlParser *getConfiguration(){return &configurationFileManager;}
   ListenThreads *getListenThreads(){return &listenThreads;}
 
   void *getEnvString(){return envString;}
@@ -208,7 +207,6 @@ private:
   u_long gid;
   int currentThreadID;
   ProtocolsManager protocols;
-  XmlParser configurationFileManager;
   XmlParser languageParser;
 
   bool autoRebootEnabled;

@@ -938,8 +938,6 @@ int Server::terminate()
 
   filtersFactory.free();
 
-  configurationFileManager.close();
-
   getPluginsManager()->unLoad(this, &languageParser);
 
   delete connectionsMutex;
@@ -975,6 +973,8 @@ int Server::terminate()
 int Server::initialize ()
 {
   const char *data;
+  XmlParser configurationFileManager;
+
 #ifdef WIN32
   envString = GetEnvironmentStrings ();
 #endif
@@ -999,6 +999,9 @@ int Server::initialize ()
     return -1;
 
   readHashedData (xmlDocGetRootElement(configurationFileManager.getDoc ())->xmlChildrenNode);
+
+  configurationFileManager.close();
+
 
   /*
    * Process console colors information.
