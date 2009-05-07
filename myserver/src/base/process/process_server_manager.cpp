@@ -45,7 +45,7 @@ ProcessServerManager::~ProcessServerManager()
 void ProcessServerManager::load ()
 {
  
-  string key ("process_servers.list");
+  string key ("server.process_servers");
   NodeTree<string> *node = ::Server::getInstance()->getNodeTree (key);
 
   if (node == NULL)

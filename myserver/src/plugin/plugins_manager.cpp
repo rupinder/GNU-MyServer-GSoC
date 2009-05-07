@@ -61,7 +61,7 @@ Plugin* PluginsManager::getPlugin(string& name)
 int PluginsManager::loadOptions (Server *server, XmlParser* languageFile)
 {
   int ret = 0;
-  string key ("plugins");
+  string key ("server.plugins");
 
   NodeTree<string>* node = server->getNodeTree (key);
 

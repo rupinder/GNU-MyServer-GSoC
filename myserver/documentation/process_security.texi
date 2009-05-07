@@ -68,7 +68,7 @@ FastCGI/SCGI configuration inside MIME types by its name.
 
 @example
 <!-- Inside myserver.xml.  -->
-<DEFINE name="process_servers.list">
+<DEFINE name="server.process_servers">
   <DEFINE server="/opt/bin/fastcgi_server" domain="fastcgi"
           host="localhost" port="2010" local="yes" uid="1000"
           gid="1000"/>
