@@ -51,7 +51,7 @@ static char *currentPath = 0;
 
 /*!
  *Returns the version of the operating system.
- *Return 0 on fails.
+ *Return 0 if it is not recognized.
  */
 int getOSVersion()
 {

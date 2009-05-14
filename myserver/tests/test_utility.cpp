@@ -59,7 +59,7 @@ public:
 
   void testGetOsVersion()
   {
-    CPPUNIT_ASSERT(getOSVersion() > 0);
+    CPPUNIT_ASSERT(getOSVersion() >= 0);
   }
 
 
