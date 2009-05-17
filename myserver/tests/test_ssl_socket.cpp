@@ -35,8 +35,9 @@ extern "C"
 #include <errno.h>
 #include <arpa/inet.h>
 #endif
-#include <iostream>
 }
+
+#include <iostream>
 using namespace std;
 
 

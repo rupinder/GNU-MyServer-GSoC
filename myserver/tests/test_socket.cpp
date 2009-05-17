@@ -30,8 +30,8 @@ extern "C"
 #include <errno.h>
 #include <arpa/inet.h>
 #endif
-#include <iostream>
 }
+#include <iostream>
 
 using namespace std;
 
@@ -66,9 +66,15 @@ public:
   
   void testGethostname ( )
   { 
-    char host[] = "localhost";
-    int len = sizeof ( host ) / sizeof ( char );
-      
+    int len;
+#ifdef HOST_NAME_MAX
+    len = HOST_NAME_MAX;
+    char host[HOST_NAME_MAX];
+#else
+    len = 255;
+    char host[255];
+#endif
+
     int status = obj->gethostname ( host, len );
   
     CPPUNIT_ASSERT_EQUAL( status, 0 );
