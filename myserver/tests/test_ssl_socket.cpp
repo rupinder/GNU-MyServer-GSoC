@@ -101,7 +101,7 @@ public:
   
   void setUp ( )
   {
-    SSL_library_init ( );
+    initializeSSL ();
     u_long nbw;
     File f;
 

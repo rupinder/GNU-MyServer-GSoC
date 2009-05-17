@@ -23,11 +23,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 extern "C"
 {
 #if GCRY_CONTROL
-
 #include <errno.h>
 #include <gcrypt.h>
 GCRY_THREAD_OPTION_PTHREAD_IMPL;
-
 #endif
 
 #ifdef HAVE_PTHREAD
@@ -102,8 +100,8 @@ void initializeSSL ()
   {
 #if GCRY_CONTROL
     gcry_control (GCRYCTL_SET_THREAD_CBS, &gcry_threads_pthread);
-    gnutls_global_init ();
 #endif
+    gnutls_global_init ();
 
     initialized = true;
   }
