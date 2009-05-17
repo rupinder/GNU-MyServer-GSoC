@@ -30,7 +30,9 @@ GCRY_THREAD_OPTION_PTHREAD_IMPL;
 
 #endif
 
+#ifdef HAVE_PTHREAD
 #include <pthread.h>
+#endif
 }
 
 SslContext::SslContext()
