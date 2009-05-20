@@ -205,7 +205,6 @@ protected:
   void clean();
   void computeDigest(char*, char*);
   u_long checkDigest();
-  string protocolPrefix;
 };
 
 

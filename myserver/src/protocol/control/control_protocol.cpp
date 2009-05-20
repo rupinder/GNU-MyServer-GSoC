@@ -81,6 +81,7 @@ char* ControlProtocol::registerName(char* out,int len)
 ControlProtocol::ControlProtocol() 
 {
   protocolOptions = PROTOCOL_USES_SSL;
+  protocolPrefix.assign ("control://");
 }
 
 /*!

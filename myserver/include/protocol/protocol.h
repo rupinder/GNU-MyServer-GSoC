@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -33,15 +33,18 @@ class Protocol
 {
 public:
 	Protocol();
-  virtual ~Protocol();
-	virtual char* registerName(char*,int len);
-	virtual int controlConnection(ConnectionPtr a, char *b1, char *b2,
-                                int bs1, int bs2, u_long nbtr, u_long id);
-	virtual int loadProtocol(XmlParser*);
-	virtual int unLoadProtocol(XmlParser*);
+  virtual ~Protocol ();
+	virtual char* registerName (char*,int len);
+	virtual int controlConnection (ConnectionPtr a, char *b1, char *b2,
+                                 int bs1, int bs2, u_long nbtr, u_long id);
+	virtual int loadProtocol (XmlParser*);
+	virtual int unLoadProtocol (XmlParser*);
 
-  virtual int getProtocolOptions(){return protocolOptions;}
+  virtual int getProtocolOptions (){return protocolOptions;}
+
+  virtual string &getProtocolPrefix (){return protocolPrefix;}
 protected:
+  string protocolPrefix;
 	int protocolOptions;
 };
 #endif

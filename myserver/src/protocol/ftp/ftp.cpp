@@ -310,6 +310,7 @@ Ftp::Ftp()
 {
   m_nPassivePort = Ftp::FIRST_PASV_PORT;
   protocolOptions = PROTOCOL_FAST_CHECK | PROTOCOL_DENY_DELETE;
+  protocolPrefix.assign("ftp://");
 }
 
 Ftp::~Ftp()
