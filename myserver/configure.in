@@ -94,6 +94,8 @@ AC_CHECK_FUNCS(localtime_r, AC_DEFINE(LOCALTIME_R, 1, [Define if the localtime_r
 
 AC_CHECK_FUNCS(pipe, AC_DEFINE(PIPE, 1, [Define if the pipe function is present]) )
 
+AC_CHECK_FUNCS(posix_fallocate, AC_DEFINE(POSIX_FALLOCATE, 1, [Define if the posix_fallocate function is present]) )
+
 AC_CHECK_FUNCS(snprintf, AC_DEFINE(SNPRINTF, 1, [Define if the snprintf function is present]) )
 
 AC_CHECK_FUNCS(getpwnam, AC_DEFINE(GETPWNAM, 1, [Define if the getpwnam function is present]) )

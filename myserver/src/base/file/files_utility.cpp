@@ -193,6 +193,12 @@ int FilesUtility::copyFile (File& src, File& dest)
   u_long nbr, nbw;
   int ret;
 
+#ifdef HAVE_POSIX_FALLOCATE
+  if (posix_fallocate (dest.getHandle (), dest.getSeek (),
+                       src.getFileSize () - src.getSeek ()))
+    return -1;
+#endif
+
   for (;;) 
   {
     ret = src.read (buffer, 4096, &nbr);
