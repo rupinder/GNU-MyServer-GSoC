@@ -842,7 +842,7 @@ int ControlProtocol::getFile(ConnectionPtr a, char* fn, File* in,
     filename = fn;    
   }
   
-  ret = localfile.openFile(filename, File::MYSERVER_OPEN_READ | File::MYSERVER_OPEN_IFEXISTS);
+  ret = localfile.openFile(filename, File::READ | File::OPEN_IF_EXISTS);
 
   /* An internal server error happens.  */
   if(ret)
@@ -933,7 +933,7 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
     return CONTROL_INTERNAL;
   }
 
-  ret = localfile.openFile(filename, File::MYSERVER_OPEN_WRITE | File::MYSERVER_OPEN_ALWAYS);
+  ret = localfile.openFile(filename, File::WRITE | File::OPEN_ALWAYS);
 
   /* An internal server error happens.  */
   if(ret)

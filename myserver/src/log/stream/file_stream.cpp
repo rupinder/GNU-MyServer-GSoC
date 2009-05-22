@@ -1,6 +1,6 @@
 /*
   MyServer
-  Copyright (C) 2006, 2008 Free Software Foundation, Inc.
+  Copyright (C) 2006, 2008, 2009 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -18,11 +18,11 @@
 #include <include/log/stream/file_stream.h>
 
 int const FileStream::defaultFileMask = 
-  File::MYSERVER_OPEN_APPEND | 
-  File::MYSERVER_OPEN_ALWAYS |
-  File::MYSERVER_OPEN_WRITE | 
-  File::MYSERVER_OPEN_READ | 
-  File::MYSERVER_NO_INHERIT;
+  File::APPEND | 
+  File::OPEN_ALWAYS |
+  File::WRITE | 
+  File::READ | 
+  File::NO_INHERIT;
 
 FileStream::FileStream (FiltersFactory* ff, u_long cycle, Stream* out,
                         FiltersChain* fc) : 
@@ -62,9 +62,9 @@ FileStream::streamCycle ()
         }
      
       if (newFile.openFile (newFileName,
-                            File::MYSERVER_OPEN_WRITE |
-                            File::MYSERVER_NO_INHERIT |
-                            File::MYSERVER_CREATE_ALWAYS))
+                            File::WRITE |
+                            File::NO_INHERIT |
+                            File::CREATE_ALWAYS))
         {
           cerr << "could not open " << newFileName << endl;
           delete [] buffer;

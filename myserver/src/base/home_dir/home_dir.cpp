@@ -144,8 +144,8 @@ int HomeDir::loadImpl()
 
   clear();
 
-  if (usersFile.openFile("/etc/passwd", File::MYSERVER_OPEN_READ | 
-                         File::MYSERVER_OPEN_IFEXISTS))
+  if (usersFile.openFile("/etc/passwd", File::READ | 
+                         File::OPEN_IF_EXISTS))
     return 1;
   size = usersFile.getFileSize();
   timestamp = usersFile.getLastModTime();

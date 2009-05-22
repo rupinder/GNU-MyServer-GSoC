@@ -1159,9 +1159,9 @@ static DEFINE_THREAD(ReceiveAsciiFile, pParam)
   {
     u_long flags = 0;
     if ( pWt->m_bAppend )
-      flags = File::MYSERVER_OPEN_APPEND | File::MYSERVER_OPEN_WRITE;
+      flags = File::APPEND | File::WRITE;
     else
-      flags = File::MYSERVER_CREATE_ALWAYS | File::MYSERVER_OPEN_WRITE;
+      flags = File::CREATE_ALWAYS | File::WRITE;
     if ( file.openFile(pWt->m_sFilePath.c_str(), flags) )
     {
       ftp_reply(pConnection, 451);
@@ -1352,9 +1352,9 @@ static DEFINE_THREAD(ReceiveImageFile, pParam)
   {
     u_long flags = 0;
     if ( pWt->m_bAppend )
-      flags = File::MYSERVER_OPEN_APPEND | File::MYSERVER_OPEN_WRITE;
+      flags = File::APPEND | File::WRITE;
     else
-      flags = File::MYSERVER_CREATE_ALWAYS | File::MYSERVER_OPEN_WRITE;
+      flags = File::CREATE_ALWAYS | File::WRITE;
     if ( file.openFile(pWt->m_sFilePath.c_str(), flags) )
     {
       ftp_reply(pConnection, 451);

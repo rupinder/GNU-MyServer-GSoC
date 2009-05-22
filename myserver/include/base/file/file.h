@@ -31,15 +31,15 @@ using namespace std;
 class File : public Stream
 {
 public:
-  static const u_long MYSERVER_OPEN_READ;
-  static const u_long MYSERVER_OPEN_WRITE;
-  static const u_long MYSERVER_OPEN_TEMPORARY;
-  static const u_long MYSERVER_OPEN_HIDDEN;
-  static const u_long MYSERVER_OPEN_ALWAYS;
-  static const u_long MYSERVER_OPEN_IFEXISTS;
-  static const u_long MYSERVER_OPEN_APPEND;
-  static const u_long MYSERVER_CREATE_ALWAYS;
-  static const u_long MYSERVER_NO_INHERIT;
+  static const u_long READ;
+  static const u_long WRITE;
+  static const u_long TEMPORARY;
+  static const u_long HIDDEN;
+  static const u_long OPEN_ALWAYS;
+  static const u_long OPEN_IF_EXISTS;
+  static const u_long APPEND;
+  static const u_long CREATE_ALWAYS;
+  static const u_long NO_INHERIT;
 
   File();
   File(char *,int);

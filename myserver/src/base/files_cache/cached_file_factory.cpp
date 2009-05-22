@@ -173,8 +173,8 @@ File* CachedFileFactory::open(const char* filename)
       mutex.unlock();
       
       file = new File();
-      if(file->openFile(filename, File::MYSERVER_OPEN_IFEXISTS | 
-                        File::MYSERVER_OPEN_READ))
+      if(file->openFile(filename, File::OPEN_IF_EXISTS | 
+                        File::READ))
       {
         delete file;
         return 0;
@@ -187,8 +187,8 @@ File* CachedFileFactory::open(const char* filename)
   {
     u_long fileSize;
     File *file = new File();
-    if(file->openFile(filename, File::MYSERVER_OPEN_IFEXISTS | 
-                      File::MYSERVER_OPEN_READ))
+    if(file->openFile(filename, File::OPEN_IF_EXISTS | 
+                      File::READ))
     {
       mutex.unlock();
       delete file;

@@ -205,13 +205,13 @@ int Server::copyConfigurationFromDefault(const char *fileName)
   sSource.append ("default.xml");
 #endif
 
-  ret = inputF.openFile (sSource, File::MYSERVER_OPEN_READ
-                        | File::MYSERVER_OPEN_IFEXISTS);
+  ret = inputF.openFile (sSource, File::READ
+                        | File::OPEN_IF_EXISTS);
   if (ret)
     return -1;
 
-  ret = outputF.openFile (fileName, File::MYSERVER_OPEN_WRITE
-                         | File::MYSERVER_OPEN_ALWAYS);
+  ret = outputF.openFile (fileName, File::WRITE
+                         | File::OPEN_ALWAYS);
   if (ret)
     return -1;
 

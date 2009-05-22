@@ -164,10 +164,10 @@ int FilesUtility::copyFile (const char* src, const char* dest, int overwrite)
   char buffer[4096];
   size_t dim;
 
-  if (srcFile.openFile (src, File::MYSERVER_OPEN_READ))
+  if (srcFile.openFile (src, File::READ))
     return -1;
 
-  if (destFile.openFile (dest, File::MYSERVER_OPEN_WRITE | (overwrite ? File::MYSERVER_CREATE_ALWAYS : 0)))
+  if (destFile.openFile (dest, File::WRITE | (overwrite ? File::CREATE_ALWAYS : 0)))
     {
       srcFile.close ();
       return -1;

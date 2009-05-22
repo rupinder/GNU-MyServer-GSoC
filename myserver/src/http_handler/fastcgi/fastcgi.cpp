@@ -193,9 +193,9 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   }
 
   td->inputData.close();
-  if(td->inputData.openFile(td->inputDataPath, File::MYSERVER_OPEN_READ | 
-                            File::MYSERVER_OPEN_ALWAYS |
-                            File::MYSERVER_NO_INHERIT))
+  if(td->inputData.openFile(td->inputDataPath, File::READ | 
+                            File::OPEN_ALWAYS |
+                            File::NO_INHERIT))
   {
     td->buffer->setLength(0);
     if(Server::getInstance()->getVerbosity() > 2)

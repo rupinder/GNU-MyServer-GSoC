@@ -67,8 +67,8 @@ int HttpFile::putFile (HttpThreadContext* td,
     {
       /*! If the file exists update it. */
       File file;
-      if(file.openFile(td->filenamePath.c_str(), File::MYSERVER_OPEN_IFEXISTS |
-                       File::MYSERVER_OPEN_WRITE))
+      if(file.openFile(td->filenamePath.c_str(), File::OPEN_IF_EXISTS |
+                       File::WRITE))
       {
         /*! Return an internal server error. */
         return td->http->raiseHTTPError(500);
@@ -115,8 +115,8 @@ int HttpFile::putFile (HttpThreadContext* td,
        */
       File file;
       if(file.openFile(td->filenamePath.c_str(),
-                       File::MYSERVER_CREATE_ALWAYS |
-                       File::MYSERVER_OPEN_WRITE))
+                       File::CREATE_ALWAYS |
+                       File::WRITE))
       {
         /*! Internal server error. */
         return td->http->raiseHTTPError(500);

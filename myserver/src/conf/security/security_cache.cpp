@@ -199,7 +199,7 @@ XmlParser* SecurityCache::getParser (const string &dir,
       if (maxSize)
         {
           File parserFile;
-          if (parserFile.openFile (file.c_str (), File::MYSERVER_OPEN_READ))
+          if (parserFile.openFile (file.c_str (), File::READ))
             return NULL;
 
           if (parserFile.getFileSize () > maxSize)

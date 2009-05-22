@@ -54,15 +54,15 @@ extern "C" {
 
 using namespace std;
 
-const u_long File::MYSERVER_OPEN_READ = (1<<0);
-const u_long File::MYSERVER_OPEN_WRITE = (1<<1);
-const u_long File::MYSERVER_OPEN_TEMPORARY = (1<<2);
-const u_long File::MYSERVER_OPEN_HIDDEN = (1<<3);
-const u_long File::MYSERVER_OPEN_ALWAYS = (1<<4);
-const u_long File::MYSERVER_OPEN_IFEXISTS = (1<<5);
-const u_long File::MYSERVER_OPEN_APPEND = (1<<6);
-const u_long File::MYSERVER_CREATE_ALWAYS = (1<<7);
-const u_long File::MYSERVER_NO_INHERIT = (1<<8);
+const u_long File::READ = (1<<0);
+const u_long File::WRITE = (1<<1);
+const u_long File::TEMPORARY = (1<<2);
+const u_long File::HIDDEN = (1<<3);
+const u_long File::OPEN_ALWAYS = (1<<4);
+const u_long File::OPEN_IF_EXISTS = (1<<5);
+const u_long File::APPEND = (1<<6);
+const u_long File::CREATE_ALWAYS = (1<<7);
+const u_long File::NO_INHERIT = (1<<8);
 
 
 /*!
@@ -127,30 +127,30 @@ int File::openFile(const char* nfilename,u_long opt)
   u_long attributeFlag = 0;
   SECURITY_ATTRIBUTES sa = {0};
   sa.nLength = sizeof(sa);
-  if(opt & File::MYSERVER_NO_INHERIT)
+  if(opt & File::NO_INHERIT)
     sa.bInheritHandle = FALSE;
   else
     sa.bInheritHandle = TRUE;
   sa.lpSecurityDescriptor = NULL;
 
-  if(opt & File::MYSERVER_OPEN_ALWAYS)
+  if(opt & File::OPEN_ALWAYS)
     creationFlag|=OPEN_ALWAYS;
-  if(opt & File::MYSERVER_OPEN_IFEXISTS)
+  if(opt & File::OPEN_IF_EXISTS)
     creationFlag|=OPEN_EXISTING;
-  if(opt & File::MYSERVER_CREATE_ALWAYS)
+  if(opt & File::CREATE_ALWAYS)
     creationFlag|=CREATE_ALWAYS;
 
-  if(opt & File::MYSERVER_OPEN_READ)
+  if(opt & File::READ)
     openFlag|=GENERIC_READ;
-  if(opt & File::MYSERVER_OPEN_WRITE)
+  if(opt & File::WRITE)
     openFlag|=GENERIC_WRITE;
 
-  if(opt & File::MYSERVER_OPEN_TEMPORARY)
+  if(opt & File::TEMPORARY)
   {
     openFlag |= FILE_ATTRIBUTE_TEMPORARY; 
     attributeFlag |= FILE_FLAG_DELETE_ON_CLOSE;
   }
-  if(opt & File::MYSERVER_OPEN_HIDDEN)
+  if(opt & File::HIDDEN)
     openFlag|= FILE_ATTRIBUTE_HIDDEN;
 
   if(attributeFlag == 0)
@@ -168,7 +168,7 @@ int File::openFile(const char* nfilename,u_long opt)
   }
   else/*! Open the file. */
   {
-    if(opt & File::MYSERVER_OPEN_APPEND)
+    if(opt & File::APPEND)
       ret = seek (getFileSize ());
     else
       ret = seek (0);
@@ -182,15 +182,15 @@ int File::openFile(const char* nfilename,u_long opt)
 #else
   struct stat F_Stats;
   int F_Flags;
-  if(opt & File::MYSERVER_OPEN_READ && opt & File::MYSERVER_OPEN_WRITE)
+  if(opt & File::READ && opt & File::WRITE)
     F_Flags = O_RDWR;
-  else if(opt & File::MYSERVER_OPEN_READ)
+  else if(opt & File::READ)
     F_Flags = O_RDONLY;
-  else if(opt & File::MYSERVER_OPEN_WRITE)
+  else if(opt & File::WRITE)
     F_Flags = O_WRONLY;
     
     
-  if(opt & File::MYSERVER_OPEN_IFEXISTS)
+  if(opt & File::OPEN_IF_EXISTS)
   {
     ret = stat(filename.c_str(), &F_Stats);
     if(ret  < 0)
@@ -206,7 +206,7 @@ int File::openFile(const char* nfilename,u_long opt)
     }
     handle= (FileHandle)ret;
   }
-  else if(opt & File::MYSERVER_OPEN_APPEND)
+  else if(opt & File::APPEND)
   {
     ret = stat(filename.c_str(), &F_Stats);
     if(ret < 0)
@@ -221,7 +221,7 @@ int File::openFile(const char* nfilename,u_long opt)
     else
       handle = (FileHandle)ret;
   }
-  else if(opt & File::MYSERVER_CREATE_ALWAYS)
+  else if(opt & File::CREATE_ALWAYS)
   {
     stat(filename.c_str(), &F_Stats);
     if(ret)
@@ -236,7 +236,7 @@ int File::openFile(const char* nfilename,u_long opt)
     else
       handle=(FileHandle)ret;
   }
-  else if(opt & File::MYSERVER_OPEN_ALWAYS)
+  else if(opt & File::OPEN_ALWAYS)
   {
     ret = stat(filename.c_str(), &F_Stats);
 
@@ -254,7 +254,7 @@ int File::openFile(const char* nfilename,u_long opt)
        handle = (FileHandle)ret;
   }
   
-  if(opt & File::MYSERVER_OPEN_TEMPORARY)
+  if(opt & File::TEMPORARY)
     unlink(filename.c_str()); // Remove File on close
   
   if((long)handle < 0)
@@ -335,11 +335,11 @@ int File::createTemporaryFile(const char* filename)
   if(FilesUtility::fileExists(filename))
     FilesUtility::deleteFile(filename);
 
-  return openFile(filename, File::MYSERVER_OPEN_READ | 
-                  File::MYSERVER_OPEN_WRITE| 
-                  File::MYSERVER_CREATE_ALWAYS | 
-                  File::MYSERVER_OPEN_TEMPORARY |
-                  File::MYSERVER_NO_INHERIT);
+  return openFile(filename, File::READ | 
+                  File::WRITE| 
+                  File::CREATE_ALWAYS | 
+                  File::TEMPORARY |
+                  File::NO_INHERIT);
 }
 
 /*!

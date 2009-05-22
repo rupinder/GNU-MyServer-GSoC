@@ -56,8 +56,8 @@ CachedFileBuffer::CachedFileBuffer(const char* filename)
   refCounter = 0;
   this->filename.assign(filename);
 
-  file.openFile(filename, File::MYSERVER_OPEN_IFEXISTS | 
-                File::MYSERVER_OPEN_READ);
+  file.openFile(filename, File::OPEN_IF_EXISTS | 
+                File::READ);
 
   fileSize = file.getFileSize();
   buffer = new char[fileSize];
