@@ -154,54 +154,31 @@ int FilesUtility::renameFile(const char* before, const char* after)
  *\param dest The destination file name.
  *\param overwrite Overwrite the dest file if already exists?
  */
-int FilesUtility::copyFile(const char* src, const char* dest, int overwrite)
+int FilesUtility::copyFile (const char* src, const char* dest, int overwrite)
 {
 #ifdef WIN32
-  return CopyFile(src, dest, overwrite ? FALSE : TRUE) ? 0 : 1;
+  return CopyFile (src, dest, overwrite ? FALSE : TRUE) ? 0 : 1;
 #else
-  int srcFile = open(src, O_RDONLY);
-  int destFile;
+  File srcFile;
+  File destFile;
   char buffer[4096];
   size_t dim;
 
-  if(srcFile == -1)
+  if (srcFile.openFile (src, File::MYSERVER_OPEN_READ))
     return -1;
 
-  if(overwrite)
-    destFile = open(dest, O_WRONLY);
-  else
-    destFile = open(dest, O_WRONLY | O_CREAT);
-
-  if(destFile == -1)
-  {
-    close(srcFile);
-    return -1;
-  }
-
-  do
-  {
-    dim = read(srcFile, buffer, 4096);
-
-    if(dim == (size_t)-1)
+  if (destFile.openFile (dest, File::MYSERVER_OPEN_WRITE | (overwrite ? File::MYSERVER_CREATE_ALWAYS : 0)))
     {
-      close(srcFile);
-      close(destFile);
+      srcFile.close ();
       return -1;
     }
 
-    if(dim && (write(destFile, buffer, dim) != -1))
-    {
-      close(srcFile);
-      close(destFile);
-      return -1;
-    }
+  int ret = copyFile (srcFile, destFile);
 
-  }while(dim);
+  srcFile.close ();
+  destFile.close ();
 
-  close(srcFile);
-  close(destFile);
-
-  return 0;
+  return ret;
 #endif
 }
 
@@ -210,23 +187,22 @@ int FilesUtility::copyFile(const char* src, const char* dest, int overwrite)
  *\param src The source File.
  *\param dest The destination File.
  */
-int FilesUtility::copyFile(File src, File dest)
+int FilesUtility::copyFile (File& src, File& dest)
 {
   char buffer[4096];
   u_long nbr, nbw;
   int ret;
 
-
   for (;;) 
   {
-    ret = src.read(buffer, 4096, &nbr);
+    ret = src.read (buffer, 4096, &nbr);
     if (ret)
       return -1;
     
     if (!nbr)
       break;
     
-    ret = dest.writeToFile(buffer, nbr, &nbw);
+    ret = dest.writeToFile (buffer, nbr, &nbw);
     if (ret)
       return -1;
   }

@@ -77,7 +77,7 @@ public:
     {return renameFile(before.c_str(), after.c_str());}
 
   static int copyFile(const char*, const char*, int overwrite);
-  static int copyFile(File, File);
+  static int copyFile(File&, File&);
   static int copyFile(string const &src, string const &dest, int overwrite)
   {return copyFile(src.c_str(), dest.c_str(), overwrite);}
 
