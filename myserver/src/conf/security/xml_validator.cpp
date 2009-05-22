@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2008 Free Software Foundation, Inc.
+Copyright (C) 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -68,7 +68,9 @@ XmlParser* XmlValidator::getParser (SecurityToken* st)
   if (!cache)
     return NULL;
 
-  secName = st->getHashedData ("SECURITY_FILE_NAME", MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, ".security.xml");
+  secName = st->getHashedData ("security.filename", MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, ".security.xml");
+
+  u_long maxSize = atol (st->getHashedData ("security.max_size", MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, "0"));
 
   return cache->getParser (*(st->getDirectory ()), *(st->getSysDirectory ()), false, secName);
 }

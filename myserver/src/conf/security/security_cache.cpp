@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005, 2006, 2008 Free Software Foundation, Inc.
+Copyright (C) 2005, 2006, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -164,11 +164,13 @@ int SecurityCache::getMaxNodes()
  *\param sys The system directory.
  *\param useXpath Specify if XPath will be used on the file.
  *\param secFileName The security file name.
+ *\param maxSize The maximum file size allowed for the security file.
  */
 XmlParser* SecurityCache::getParser (const string &dir, 
                                      const string &sys, 
                                      bool useXpath,
-                                     const char* secFileName)
+                                     const char* secFileName,
+                                     u_long maxSize)
 {
   XmlParser* parser;
   string file;
@@ -186,10 +188,26 @@ XmlParser* SecurityCache::getParser (const string &dir,
     time_t fileModTime;
     /*! If the file was modified reload it. */
     fileModTime = FilesUtility::getLastModTime (file.c_str ());
+
     if ((fileModTime != static_cast<time_t>(-1))  && 
        (parser->getLastModTime () != fileModTime))
     {
       parser->close ();
+
+      /* FIXME:  Don't open the file twice, once to check
+       * and the second time to parse.  */
+      if (maxSize)
+        {
+          File parserFile;
+          if (parserFile.openFile (file.c_str (), File::MYSERVER_OPEN_READ))
+            return NULL;
+
+          if (parserFile.getFileSize () > maxSize)
+            return NULL;
+
+          parserFile.close ();
+        }
+
       if(parser->open (file.c_str (), useXpath) == -1)
       {
         dictionary.remove (file.c_str ());

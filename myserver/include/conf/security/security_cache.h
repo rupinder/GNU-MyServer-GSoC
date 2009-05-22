@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2005, 2006, 2008 Free Software Foundation, Inc.
+Copyright (C) 2005, 2006, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -40,7 +40,8 @@ public:
   void setMaxNodes (int);
   int getMaxNodes ();
 
-  XmlParser* getParser (const string &dir, const string &sys, bool useXpath = true, const char* secName = ".security.xml");
+  XmlParser* getParser (const string &dir, const string &sys, bool useXpath = true,
+                        const char* secName = ".security.xml", u_long maxSize = 0);
 	int getSecurityFile (const string &file, const string &sys, string &out, const char* secName = ".security.xml");
 
   /////////OLD NASTY AND DISGUSTING.  TEMPORARY SOLUTION TO DON'T BREAK APIs////////////////////////////////////

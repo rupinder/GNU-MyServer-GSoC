@@ -38,6 +38,14 @@ is.
 The anonymous user is matched inside MyServer with the ``Guest''
 username and an empty password.
 
+The name for the security file can be changed trought the
+@code{security.filename} variable.
+The maximum allowed size for a security file can be limited by the
+@code{security.max_size} variable, by default there is no limit.
+Both @code{security.filename} and @code{security.max_size} can be
+defined in the global configuration file or differently for every
+virtual host.
+
 @section Security file user authentication
 The information used for the first phase of logging is a simple list
 of USER elements.  Any permission is configured by an attribute, if
