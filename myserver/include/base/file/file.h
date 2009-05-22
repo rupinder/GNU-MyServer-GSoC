@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -31,40 +31,41 @@ using namespace std;
 class File : public Stream
 {
 public:
-	static const u_long MYSERVER_OPEN_READ;
-	static const u_long MYSERVER_OPEN_WRITE;
-	static const u_long MYSERVER_OPEN_TEMPORARY;
-	static const u_long MYSERVER_OPEN_HIDDEN;
-	static const u_long MYSERVER_OPEN_ALWAYS;
-	static const u_long MYSERVER_OPEN_IFEXISTS;
-	static const u_long MYSERVER_OPEN_APPEND;
-	static const u_long MYSERVER_CREATE_ALWAYS;
-	static const u_long MYSERVER_NO_INHERIT;
+  static const u_long MYSERVER_OPEN_READ;
+  static const u_long MYSERVER_OPEN_WRITE;
+  static const u_long MYSERVER_OPEN_TEMPORARY;
+  static const u_long MYSERVER_OPEN_HIDDEN;
+  static const u_long MYSERVER_OPEN_ALWAYS;
+  static const u_long MYSERVER_OPEN_IFEXISTS;
+  static const u_long MYSERVER_OPEN_APPEND;
+  static const u_long MYSERVER_CREATE_ALWAYS;
+  static const u_long MYSERVER_NO_INHERIT;
 
-	File();
+  File();
   File(char *,int);
-	virtual FileHandle getHandle();
-	virtual int setHandle(FileHandle);
-	virtual int writeToFile(const char* ,u_long ,u_long* );
-	virtual int createTemporaryFile(const char* );
+  virtual FileHandle getHandle();
+  virtual int setHandle(FileHandle);
+  virtual int writeToFile(const char* ,u_long ,u_long* );
+  virtual int createTemporaryFile(const char* );
 
-	virtual int openFile(const char*, u_long );
+  virtual int openFile(const char*, u_long );
   virtual int openFile(string const &file, u_long opt)
     {return openFile(file.c_str(), opt);}
 
-	virtual u_long getFileSize();
-	virtual int seek (u_long);
+  virtual u_long getFileSize();
+  virtual int seek (u_long);
+  virtual u_long getSeek ();
 
-	virtual time_t getLastModTime();
-	virtual time_t getCreationTime();
-	virtual time_t getLastAccTime();
-	virtual const char *getFilename();
-	virtual int setFilename(const char*);
+  virtual time_t getLastModTime();
+  virtual time_t getCreationTime();
+  virtual time_t getLastAccTime();
+  virtual const char *getFilename();
+  virtual int setFilename(const char*);
   virtual int setFilename(string const &name)
     {return setFilename(name.c_str());}
 
-	virtual int operator =(File);
-	virtual int close();
+  virtual int operator =(File);
+  virtual int close();
 
   /*! Inherithed from Stream. */
   virtual int read(char* buffer, u_long len, u_long *nbr);
@@ -73,7 +74,7 @@ public:
   virtual int fastCopyToSocket (Socket *dest, u_long offset, 
                                 MemBuf *buf, u_long *nbw);
 protected:
-	FileHandle handle;
-	string filename;
+  FileHandle handle;
+  string filename;
 };
 #endif

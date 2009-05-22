@@ -406,6 +406,20 @@ int File::seek (u_long initialByte)
 }
 
 /*!
+ * Get the current file pointer position.
+ *
+ *\return The current file pointer position.
+ */
+u_long File::getSeek ()
+{
+#ifdef WIN32
+  return SetFilePointer ((HANDLE)handle, 0, NULL, FILE_CURRENT);
+#else
+  return lseek (handle, 0, SEEK_CUR);
+#endif
+}
+
+/*!
  *Get the time of the last modifify did to the file.
  */
 time_t File::getLastModTime()
