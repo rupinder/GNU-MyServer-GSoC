@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/protocol.h>
 #include "include/protocol/http/http_headers.h"
 #include <include/filter/filters_chain.h>
+#include <include/filter/memory_stream.h>
+
 
 /*!
  *Base class to handle HTTP data.
@@ -41,10 +43,22 @@ public:
   virtual ~HttpDataHandler();
 
 	static void checkDataChunks(HttpThreadContext*, bool*, bool*);
+
+  static int appendDataToHTTPChannel (HttpThreadContext* td,
+                                      char* buffer,
+                                      u_long size,
+                                      File* appendFile,
+                                      FiltersChain* chain,
+                                      bool append,
+                                      bool useChunks,
+                                      u_long realBufferSize,
+                                      MemoryStream *tmpStream);
+
 	static int appendDataToHTTPChannel(HttpThreadContext* td, 
-                                     char* buffer, u_long size,
+                                     char* buffer,
+                                     u_long size,
                                      File* appendFile, 
-                                     Stream* chain,
+                                     FiltersChain* chain,
                                      bool append, 
                                      bool useChunks);
 

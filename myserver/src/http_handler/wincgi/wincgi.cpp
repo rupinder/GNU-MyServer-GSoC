@@ -375,9 +375,9 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,
      */
     HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
                                           &td->response);
-    if(chain.write((const char*)td->buffer->getBuffer(),
-                          (int)strlen((const char*)td->buffer->getBuffer()), 
-                   &nbw2))
+    if(chain.getStream ()->write((const char*)td->buffer->getBuffer(),
+                                 (int)strlen((const char*)td->buffer->getBuffer()), 
+                                 &nbw2))
     {
       OutFileHandle.close();
       FilesUtility::deleteFile(outFilePath);

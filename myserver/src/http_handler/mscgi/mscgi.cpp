@@ -154,7 +154,7 @@ int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
 
   if(!td->appendOutputs && data.useChunks && !data.error)
   {
-    if(chain.write("0\r\n\r\n", 5, &nbw))
+    if(chain.getStream ()->write("0\r\n\r\n", 5, &nbw))
       return 0;
   }
 
@@ -193,7 +193,7 @@ int MsCgi::write(const char* data, u_long len, MsCgiData* mcd)
                                               (char*) data,
                                               len,
                                               &(mcd->td->outputData), 
-                                              mcd->filtersChain->getStream(),
+                                              mcd->filtersChain,
                                               mcd->td->appendOutputs, 
                                               mcd->useChunks))
     return 1;

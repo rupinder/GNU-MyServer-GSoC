@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/filter/gzip/gzip.h>
 #include <include/server/server.h>
 #include <include/filter/filters_chain.h>
+#include <include/filter/memory_stream.h>
 
 #include <sstream>
 #include <algorithm>
@@ -394,10 +395,10 @@ int HttpFile::send(HttpThreadContext* td,
     if(td->mime)
     {
       if(td->mime && 
-         Server::getInstance()->getFiltersFactory()->chain(&chain, 
-                                                           td->mime->filters, 
-                                                           &memStream, 
-                                                           &nbw))
+         Server::getInstance()->getFiltersFactory()->chain (&chain,
+                                                            td->mime->filters,
+                                                            &memStream,
+                                                            &nbw))
       {
         file->close();
         delete file;
@@ -421,7 +422,7 @@ int HttpFile::send(HttpThreadContext* td,
         chain.clearAllFilters();
         return 0;
       }
-      if(chain.addFilter(gzipFilter, &nbw))
+      if(chain.addFilter (gzipFilter, &nbw))
       {
         delete gzipFilter;
         file->close();
@@ -567,7 +568,7 @@ int HttpFile::send(HttpThreadContext* td,
                                                     td->buffer->getBuffer(), 
                                                     nbr,
                                                     &(td->outputData), 
-                                                    chain.getStream(),
+                                                    &chain,
                                                     td->appendOutputs, 
                                                     useChunks))
         {
@@ -607,14 +608,14 @@ int HttpFile::send(HttpThreadContext* td,
         bytesToSend -= nbr;
 
 
-        ret = appendDataToHTTPChannel(td, td->buffer->getBuffer(),
-                                      nbr,
-                                      &(td->outputData), 
-                                      &chain,
-                                      td->appendOutputs, 
-                                      useChunks,
-                                      td->buffer->getRealLength(),
-                                      &memStream);
+        ret = appendDataToHTTPChannel (td, td->buffer->getBuffer (),
+                                       nbr,
+                                       &(td->outputData),
+                                       &chain,
+                                       td->appendOutputs,
+                                       useChunks,
+                                       td->buffer->getRealLength (),
+                                       &memStream);
         if(ret)
           break;     
           
@@ -660,7 +661,7 @@ int HttpFile::send(HttpThreadContext* td,
                                                          td->buffer->getBuffer(), 
                                                          nbr,
                                                          &(td->outputData), 
-                                                         chain.getStream(),
+                                                         &chain,
                                                          td->appendOutputs, 
                                                          useChunks);
           if(ret)
@@ -670,7 +671,7 @@ int HttpFile::send(HttpThreadContext* td,
                                                          0,
                                                          0,
                                                          &(td->outputData), 
-                                                         chain.getStream(),
+                                                         &chain,
                                                          td->appendOutputs, 
                                                          useChunks);
         
@@ -685,34 +686,34 @@ int HttpFile::send(HttpThreadContext* td,
     file->close();
     delete file;
   }
-  catch(bad_alloc &ba)
+  catch (bad_alloc &ba)
   {
-    file->close();
+    file->close ();
     delete file;
-    s->host->warningsLogWrite("HttpFile: Error allocating memory");
-    chain.clearAllFilters();
-    return td->http->raiseHTTPError(500);
+    s->host->warningsLogWrite ("HttpFile: Error allocating memory");
+    chain.clearAllFilters ();
+    return td->http->raiseHTTPError (500);
   }
-  catch(...)
+  catch (...)
   {
-    file->close();
+    file->close ();
     delete file;
-    s->host->warningsLogWrite("HttpFile: Internal error");
+    s->host->warningsLogWrite ("HttpFile: Internal error");
     chain.clearAllFilters();
-    return td->http->raiseHTTPError(500);
+    return td->http->raiseHTTPError (500);
   };
  
   /* For logging activity.  */
   td->sentData += dataSent;
 
-  chain.clearAllFilters();
+  chain.clearAllFilters ();
   return !ret;
 }
 
 /*!
  *Constructor for the class.
  */
-HttpFile::HttpFile()
+HttpFile::HttpFile ()
 {
 
 }
@@ -720,7 +721,7 @@ HttpFile::HttpFile()
 /*!
  *Destroy the object.
  */
-HttpFile::~HttpFile()
+HttpFile::~HttpFile ()
 {
 
 }
@@ -737,67 +738,7 @@ int HttpFile::load ()
 /*!
  *Unload the static elements.
  */
-int HttpFile::unLoad()
+int HttpFile::unLoad ()
 {
   return 0;
-}
-
-/*!
- *Custom version for the appendDataToHTTPChannel function, this is
- *slower that the HttpDataHandler one but the internal buffer is
- *needed by the filters chain.
- *\param td The HTTP thread context.
- *\param buffer Data to send.
- *\param size Size of the buffer.
- *\param appendFile The file where append if in append mode.
- *\param chain Where send data if not append.
- *\param append Append to the file?
- *\param useChunks Can we use HTTP chunks to send data?
- *\param realBufferSize The real dimension of the buffer that can be
- *used by this method.
- *\param tmpStream A support on memory read/write stream used
- *internally by the function.
- */
-int HttpFile::appendDataToHTTPChannel(HttpThreadContext* td, 
-                                      char* buffer, 
-                                      u_long size,
-                                      File* appendFile, 
-                                      FiltersChain* chain,
-                                      bool append, 
-                                      bool useChunks,
-                                      u_long realBufferSize,
-                                      MemoryStream *tmpStream)
-{
-  u_long nbr, nbw;
-  Stream *oldStream = chain->getStream();
-
-  /* 
-   *This function can't append directly to the chain because we can't
-   *know in advance the data chunk size.  Therefore we replace the
-   *final stream with a memory buffer and write there the final data
-   *chunk content, finally we read from it and send directly on the
-   *original stream.
-   */
-  chain->setStream(tmpStream);
-  
-  if(chain->write(buffer, size, &nbw))
-    return 1;
-
-  if(tmpStream->read(buffer, realBufferSize, &nbr))
-    return 1;
-  
-  chain->setStream(oldStream);
-  
-  /*
-   *Use of chain->getStream() is needed to write directly on the
-   *final stream.
-   */
-  return HttpDataHandler::appendDataToHTTPChannel(td, 
-                                                  buffer, 
-                                                  nbr, 
-                                                  appendFile, 
-                                                  chain->getStream(), 
-                                                  append, 
-                                                  useChunks);
-  
 }

@@ -311,7 +311,8 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
   bool sortReverse = false;
   string linkPrefix;
   const char *formatString = td->securityToken.getHashedData ("http.dir.format", 
-                                                              MYSERVER_SECURITY_CONF | MYSERVER_VHOST_CONF |
+                                                              MYSERVER_SECURITY_CONF |
+                                                              MYSERVER_VHOST_CONF |
                                                               MYSERVER_SERVER_CONF, "%f%t%s");
 
 
@@ -633,7 +634,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
 
   if(!td->appendOutputs && useChunks)
   {
-    if(chain.write("0\r\n\r\n", 5, &nbw))
+    if(chain.getStream ()->write ("0\r\n\r\n", 5, &nbw))
       return 1;
   }
 

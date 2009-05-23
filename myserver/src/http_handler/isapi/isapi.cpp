@@ -311,9 +311,9 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
         /*! With keep-alive connections use chunks.*/
         if(keepalive && (!ConnInfo->td->appendOutputs))
         {
-          sprintf(chunkSize,"%x\r\n",len);
-          if(ConnInfo->chain.write(chunkSize, 
-                                   (int)strlen(chunkSize), &nbw))      
+          sprintf(chunkSize, "%x\r\n", len);
+          if(ConnInfo->chain.getStream ()->write(chunkSize,
+                                                 (int)strlen(chunkSize), &nbw))
             return 0;
         }
         
@@ -326,16 +326,16 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
         }
         else
         {
-          if(ConnInfo->chain.write((char*)(buffer + headerSize), 
-                                   len, &nbw))
+          if(ConnInfo->chain.write ((char*)(buffer + headerSize),
+                                    len, &nbw))
             return 0;
           ConnInfo->dataSent += nbw;
         }
 
-        /*! Send the chunk tailer.*/
+        /*! Send the chunk footer.  */
         if(keepalive && (!ConnInfo->td->appendOutputs))
         {
-          if(ConnInfo->chain.write("\r\n", 2, &nbw))          
+          if (ConnInfo->chain.getStream ()->write ("\r\n", 2, &nbw))
             return 0;
         }
       }
@@ -349,13 +349,13 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
   {
     if(keepalive  && (!ConnInfo->td->appendOutputs))
     {
-      sprintf(chunkSize,"%x\r\n",*lpdwBytes);
-      nbw = ConnInfo->connection->socket->send(chunkSize, 
-                                               (int)strlen(chunkSize), 0);
+      sprintf (chunkSize, "%x\r\n", *lpdwBytes);
+      nbw = ConnInfo->connection->socket->send (chunkSize, 
+                                                (int)strlen(chunkSize), 0);
       if((nbw == (u_long)-1) || (!nbw))
         return 0;
     }
-    
+
     if(ConnInfo->td->appendOutputs)
     {
       if(ConnInfo->td->outputData.writeToFile((char*)Buffer,*lpdwBytes, &nbw))
@@ -371,7 +371,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 
     if(keepalive  && (!ConnInfo->td->appendOutputs))
     {
-      nbw = ConnInfo->connection->socket->send("\r\n",2, 0);
+      nbw = ConnInfo->connection->socket->send("\r\n", 2, 0);
       if((nbw == (u_long)-1) || (!nbw))
         return 0;
     }
@@ -946,7 +946,7 @@ in ISAPI application module");
   }
 
   Ret = HttpExtensionProc(&ExtCtrlBlk);
-  if (Ret == HSE_STATUS_PENDING) 
+  if (Ret == HSE_STATUS_PENDING)
   {
     WaitForSingleObject(connTable[connIndex].ISAPIDoneEvent, timeout);
   }
@@ -956,7 +956,7 @@ in ISAPI application module");
     HttpRequestHeader::Entry *connection = connTable[connIndex].td->request.other.get("Connection");
 
     if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
-      Ret = connTable[connIndex].chain.write("0\r\n\r\n", 5, &nbw);
+      Ret = connTable[connIndex].chain.getStream ()->write("0\r\n\r\n", 5, &nbw);
   }
   
   switch(Ret) 

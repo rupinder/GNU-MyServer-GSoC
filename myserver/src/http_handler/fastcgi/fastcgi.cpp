@@ -328,7 +328,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
   /* Send the last null chunk if needed.  */
   if(con.useChunks && 
      (td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL))
-    chain.write("0\r\n\r\n", 5, &nbw);
+    chain.getStream ()->write("0\r\n\r\n", 5, &nbw);
 
   chain.clearAllFilters();
   con.sock.close();

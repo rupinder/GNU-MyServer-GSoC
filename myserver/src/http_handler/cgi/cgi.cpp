@@ -420,7 +420,7 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
   
   
     /* Send the last null chunk if needed.  */
-    if(useChunks && chain.write("0\r\n\r\n", 5, &nbw2))
+    if(useChunks && chain.getStream ()->write("0\r\n\r\n", 5, &nbw2))
     {
       return 0;       
     }
@@ -555,8 +555,9 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
 
       td->buffer->setLength((u_int)strlen(td->buffer->getBuffer()));
 
-      if (chain.write(td->buffer->getBuffer(),
-                      static_cast<int>(td->buffer->getLength()), &nbw))
+      if (chain.getStream ()->write(td->buffer->getBuffer(),
+                                    static_cast<int> (td->buffer->getLength()),
+                                    &nbw))
       {
         *ret = 0;
         return 1;

@@ -338,7 +338,7 @@ int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
     
     if(!td->appendOutputs && useChunks)
     {
-      if(chain->write("0\r\n\r\n", 5, &nbw))
+      if(chain->getStream ()->write("0\r\n\r\n", 5, &nbw))
         return -1;
     }
   }
