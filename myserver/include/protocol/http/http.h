@@ -67,6 +67,7 @@ public:
   HttpDataHandler *scgi;
   HttpDataHandler *fastcgi;
   HttpDataHandler *httpFile;
+  HttpDataHandler *proxy;
   HttpDataHandler *httpDir;
 
 

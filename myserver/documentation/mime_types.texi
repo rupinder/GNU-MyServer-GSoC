@@ -12,13 +12,13 @@ In this example two MIME types are defined:
 
 @example
 <MIME mime="text/html" handler="SEND" param="">
-<EXTENSION value="html"/>
-<FILTER value="gzip"/>
+      <EXTENSION value="html"/>
+      <FILTER value="gzip"/>
 </MIME>
 
 <MIME mime="text/html" handler="CGI" param="/usr/bin/perl" selfExecuted="NO">
-<EXTENSION value="pl"/>
-<DEFINE name="http.error.file.404" value="404.html"/>
+      <EXTENSION value="pl"/>
+      <DEFINE name="http.error.file.404" value="404.html"/>
 </MIME>
 @end example
 
@@ -107,6 +107,10 @@ Free operating system.
 This protocol is obsoleted by ISAPI.  As CGI it needs a new process
 for every request and it uses files to communicate with the web
 server.  It is very inefficient.
+@item PROXY
+The HTTP request is forwarded to the HTTP server specified in the
+@code{param}.  This is not a real proxy, there is not caching and
+message is forwarded as it is without any change.
 @end enumerate
 
 It is possible to match the file name against a regular expression

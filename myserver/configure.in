@@ -350,6 +350,7 @@ AC_CONFIG_FILES([
     include/http_handler/mscgi/Makefile
     include/http_handler/fastcgi/Makefile
     include/http_handler/http_file/Makefile
+    include/http_handler/proxy/Makefile
     include/http_handler/scgi/Makefile
     include/http_handler/isapi/Makefile
     include/http_handler/http_dir/Makefile
@@ -402,6 +403,7 @@ AC_CONFIG_FILES([
     src/http_handler/fastcgi/Makefile
     src/http_handler/http_file/Makefile
     src/http_handler/scgi/Makefile
+    src/http_handler/proxy/Makefile
     src/http_handler/isapi/Makefile
     src/http_handler/http_dir/Makefile
     src/base/Makefile

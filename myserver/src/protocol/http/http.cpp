@@ -39,6 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/http_handler/mscgi/mscgi.h>
 #include <include/http_handler/isapi/isapi.h>
 #include <include/http_handler/http_file/http_file.h>
+#include <include/http_handler/proxy/proxy.h>
 #include <include/http_handler/http_dir/http_dir.h>
 #include <include/protocol/http/http_data_read.h>
 
@@ -82,10 +83,12 @@ HttpStaticData::HttpStaticData ()
   fastcgi = new FastCgi();
   httpFile = new HttpFile();
   httpDir = new HttpDir();
+  proxy = new Proxy ();
 }
 
 HttpStaticData::~HttpStaticData ()
 {
+  delete proxy;
   delete mscgi;
   delete wincgi;
   delete isapi;
@@ -1887,6 +1890,7 @@ int Http::loadProtocolStatic(XmlParser* languageParser)
   staticHttp.dynManagerList.addHttpManager ("WINCGI", staticHttp.wincgi);
   staticHttp.dynManagerList.addHttpManager ("FASTCGI", staticHttp.fastcgi);
   staticHttp.dynManagerList.addHttpManager ("ISAPI", staticHttp.isapi);
+  staticHttp.dynManagerList.addHttpManager ("PROXY", staticHttp.proxy);
 
   data = Server::getInstance ()->getHashedData ("vhost.allow_mime");
   if(data)
@@ -1907,6 +1911,7 @@ int Http::loadProtocolStatic(XmlParser* languageParser)
   Scgi::setTimeout (staticHttp.cgiTimeout);
   WinCgi::setTimeout (staticHttp.cgiTimeout);
   Isapi::setTimeout (staticHttp.cgiTimeout);
+  Proxy::setTimeout (staticHttp.cgiTimeout);
 
   return 1;
 }
