@@ -161,7 +161,18 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
 
   checkDataChunks (td, &keepalive, &useChunks);
 
-  td->response.setValue ("Via", Server::getInstance()->getServerName());
+  string *tmp = td->request.getValue ("Host", NULL);
+  const char *via = tmp ? tmp->c_str () : td->connection->getLocalIpAddr ();
+
+  tmp = td->response.getValue ("Via", NULL);
+  if (tmp)
+    {
+      tmp->append (", ");
+      tmp->append (via);
+      td->response.setValue ("Via", tmp->c_str ());
+    }
+  else
+    td->response.setValue ("Via", via);
 
   if (useChunks)
     td->response.setValue ("Transfer-Encoding", "chunked");
