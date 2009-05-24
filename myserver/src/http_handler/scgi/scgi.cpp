@@ -295,11 +295,10 @@ int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
                                                  &td->response, 
                                                  &(td->nBytesToRead));
     }
-    HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
-                                         &td->response);
+    u_long hdrLen = HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
+                                                         &td->response);
     
-    if(chain->write(td->buffer->getBuffer(), strlen(td->buffer->getBuffer()),
-                    &nbw))
+    if(chain->write(td->buffer->getBuffer(), hdrLen, &nbw))
       return -1;
   }
 

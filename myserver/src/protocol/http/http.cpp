@@ -1530,11 +1530,10 @@ int Http::raiseHTTPError(int ID)
         td->response.contentLength.assign(size.str());
       }
     }
-    HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
-                                         &td->response);
-    if(td->connection->socket->send(td->buffer->getBuffer(),
-                                   (u_long)strlen(td->buffer->getBuffer()), 0)
-       == -1)
+    u_long hdrLen = HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
+                                                         &td->response);
+
+    if(td->connection->socket->send(td->buffer->getBuffer(), hdrLen, 0) == -1)
       return 0;
 
     if(errorBodyLength && (td->connection->socket->send(errorBodyMessage.str().c_str(),

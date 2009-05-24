@@ -486,10 +486,11 @@ int HttpFile::send(HttpThreadContext* td,
       }
     }
  
-    HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), 
-                                         &td->response);
+    u_long hdrLen = HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), 
+                                                         &td->response);
 
-    td->buffer->setLength((u_long)strlen(td->buffer->getBuffer()));
+    td->buffer->setLength(hdrLen);
+
     if(!td->appendOutputs)
     {
       /* Send the HTTP header.  */

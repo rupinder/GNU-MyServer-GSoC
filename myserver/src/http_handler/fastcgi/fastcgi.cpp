@@ -800,11 +800,11 @@ int FastCgi::handleHeader (FcgiContext* con, FiltersChain* chain, bool* response
       return 0;
     }
 
-    HttpHeaders::buildHTTPResponseHeader(con->td->secondaryBuffer->getBuffer(),
-                                         &con->td->response);
+    u_long hdrLen = HttpHeaders::buildHTTPResponseHeader(con->td->secondaryBuffer->getBuffer(),
+                                                         &con->td->response);
 
     if(con->td->connection->socket->send(con->td->secondaryBuffer->getBuffer(),
-                                         static_cast<int>(strlen(con->td->secondaryBuffer->getBuffer())),
+                                         hdrLen,
                                          0) == SOCKET_ERROR )
     {
       *responseCompleted = true;

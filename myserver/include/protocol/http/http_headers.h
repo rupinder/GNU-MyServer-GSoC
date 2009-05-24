@@ -66,8 +66,8 @@ public:
 	static void buildDefaultHTTPResponseHeader (HttpResponseHeader*);
 	static void buildDefaultHTTPRequestHeader (HttpRequestHeader*);
 
-	static void buildHTTPResponseHeader (char *, HttpResponseHeader*);
-	static void buildHTTPRequestHeader (char *, HttpRequestHeader*);
+	static u_long buildHTTPResponseHeader (char*, HttpResponseHeader*);
+	static u_long buildHTTPRequestHeader (char*, HttpRequestHeader*);
 
 protected:
   static int readReqAuthLine (HttpRequestHeader *request, 

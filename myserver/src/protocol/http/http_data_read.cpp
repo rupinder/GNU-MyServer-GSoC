@@ -68,7 +68,6 @@ int HttpDataRead::readContiguousPrimitivePostData(const char* inBuffer,
                                                   u_long timeout)
 {
   int ret;
-  u_long nbtrSocket = 0;
   *nbr = 0;
   if(inBufferSize - *inBufferPos)
   {
@@ -83,12 +82,7 @@ int HttpDataRead::readContiguousPrimitivePostData(const char* inBuffer,
   if(outBufferSize == *nbr)
     return 0;
 
-  nbtrSocket = inSocket->bytesToRead();
-
-  if(!nbtrSocket)
-    return 0;
-
-  ret = inSocket->recv(outBuffer + *nbr,  min(nbtrSocket, outBufferSize - *nbr), 0, timeout);
+  ret = inSocket->recv(outBuffer + *nbr,  outBufferSize - *nbr, 0, timeout);
 
   if(ret == -1)
     return -1;
@@ -211,7 +205,10 @@ int HttpDataRead::readChunkedPostData(const char* inBuffer,
       if(nbw != nbr)
         return -1;
 
-      *outNbr += nbw;
+      if (out)
+        *outNbr += nbw;
+      else
+        *outNbr += nbr;
 
       /* Read final chunk \r\n.  */
       if(readContiguousPrimitivePostData(inBuffer,
@@ -243,7 +240,7 @@ int HttpDataRead::readChunkedPostData(const char* inBuffer,
  */
 int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
 {
-  int contentLength = -1;
+  int contentLength = 0;
 
   u_long nbw = 0;
   u_long bufferDataSize = 0;

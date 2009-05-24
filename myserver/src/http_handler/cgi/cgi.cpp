@@ -550,10 +550,10 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
         return 1;
       }
 
-      HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
-                                           &td->response);
+      u_long hdrLen = HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
+                                                           &td->response);
 
-      td->buffer->setLength((u_int)strlen(td->buffer->getBuffer()));
+      td->buffer->setLength(hdrLen);
 
       if (chain.getStream ()->write(td->buffer->getBuffer(),
                                     static_cast<int> (td->buffer->getLength()),

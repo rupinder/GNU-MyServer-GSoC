@@ -47,7 +47,8 @@ protected:
                    u_long initBufferSize,
                    int timeout,
                    bool useChunks = false,
-                   bool keepalive = false);
+                   bool keepalive = false,
+                   string *serverTransferEncoding = NULL);
 
   static int timeout;
 };

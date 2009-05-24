@@ -290,12 +290,11 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
         else
           ConnInfo->td->response.connection.assign("Close");
         
-        HttpHeaders::buildHTTPResponseHeader(
-                 (char*)ConnInfo->td->secondaryBuffer->getBuffer(),&(ConnInfo->td->response));
+        u_long hdrLen = HttpHeaders::buildHTTPResponseHeader ((char*)ConnInfo->td->secondaryBuffer->getBuffer(),
+                                                              &(ConnInfo->td->response));
   
         if(ConnInfo->connection->socket->send(
-                     (char*)ConnInfo->td->secondaryBuffer->getBuffer(),
-                     (int)strlen((char*)ConnInfo->td->secondaryBuffer->getBuffer()), 0)==-1)
+                     (char*)ConnInfo->td->secondaryBuffer->getBuffer(), hdrLen, 0)==-1)
           return 0;
       }
       /*! Save the headerSent status. */

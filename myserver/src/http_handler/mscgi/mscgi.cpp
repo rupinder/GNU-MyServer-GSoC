@@ -220,8 +220,8 @@ int MsCgi::sendHeader(MsCgiData* mcd)
     char *buffer = td->secondaryBuffer->getBuffer();
     ConnectionPtr s = td->connection;
 
-    HttpHeaders::buildHTTPResponseHeader(buffer, &(td->response));
-    if(s->socket->send(buffer, (int)strlen(buffer), 0) == SOCKET_ERROR)
+    u_long hdrLen = HttpHeaders::buildHTTPResponseHeader(buffer, &(td->response));
+    if(s->socket->send(buffer, hdrLen, 0) == SOCKET_ERROR)
       return 1;
   }
 

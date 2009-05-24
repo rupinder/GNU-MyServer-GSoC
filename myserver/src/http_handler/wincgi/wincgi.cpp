@@ -373,10 +373,10 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,
     /*!
      *Send the header if it is not appending.
      */
-    HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
-                                          &td->response);
+    u_long hdrLen = HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
+                                                         &td->response);
     if(chain.getStream ()->write((const char*)td->buffer->getBuffer(),
-                                 (int)strlen((const char*)td->buffer->getBuffer()), 
+                                 hdrLen,
                                  &nbw2))
     {
       OutFileHandle.close();
@@ -411,9 +411,10 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,
       chain.clearAllFilters();
       return 1;
     }
-    
+
     td->outputData.writeToFile((char*)(buffer + headerSize),
-                               nBytesRead - headerSize,&nbw2);
+                               nBytesRead - headerSize,
+                               &nbw2);
     nbw += nbw2;
   }
 

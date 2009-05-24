@@ -85,8 +85,8 @@ int Proxy::send (HttpThreadContext *td, ConnectionPtr s,
 
   req.setValue ("Host", host.str ().c_str ());
 
-	HttpHeaders::buildHTTPRequestHeader (td->secondaryBuffer->getBuffer (),
-                                       &req);
+	u_long hdrLen = HttpHeaders::buildHTTPRequestHeader (td->secondaryBuffer->getBuffer (),
+                                                       &req);
 
   if (sock.connect (destUrl.getHost ().c_str (), destUrl.getPort ()))
     return td->http->raiseHTTPError (500);
@@ -98,8 +98,7 @@ int Proxy::send (HttpThreadContext *td, ConnectionPtr s,
       return td->http->raiseHTTPError (500);
     }
 
-  if (sock.write (td->secondaryBuffer->getBuffer (),
-                  strlen (td->secondaryBuffer->getBuffer ()), &nbw))
+  if (sock.write (td->secondaryBuffer->getBuffer (), hdrLen, &nbw))
     {
       sock.close ();
       return td->http->raiseHTTPError (500);
@@ -174,15 +173,25 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
   else
     td->response.setValue ("Via", via);
 
+  string transferEncoding;
+  bool hasTransferEncoding = false;
+  tmp = td->response.getValue ("Transfer-Encoding", NULL);
+  if (tmp)
+    {
+      hasTransferEncoding = false;
+      transferEncoding.assign (*tmp);
+    }
+  
+
   if (useChunks)
     td->response.setValue ("Transfer-Encoding", "chunked");
 
 
-  HttpHeaders::buildHTTPResponseHeader (td->buffer->getBuffer (),
-                                        &td->response);
+  u_long hdrLen = HttpHeaders::buildHTTPResponseHeader (td->buffer->getBuffer (),
+                                                        &td->response);
 
   if (out.getStream ()->write (td->buffer->getBuffer (),
-                               strlen (td->buffer->getBuffer ()),
+                               hdrLen,
                                &nbw))
     return 0;
 
@@ -198,7 +207,8 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
                      read - headerLength,
                      timeout,
                      useChunks,
-                     keepalive);
+                     keepalive,
+                     hasTransferEncoding ? &transferEncoding : NULL);
 
   if (ret != -1)
     td->sentData += ret;
@@ -236,6 +246,8 @@ int Proxy::getTimeout()
  *\param useChunks Use chunked transfer encoding
  *with the client.
  *\param keepalive The connection is keep-alive.
+ *\param serverTransferEncoding Transfer-Encoding
+ *used by the server.
  *
  *\return -1 on error.
  *\return Otherwise the number of bytes transmitted.
@@ -248,18 +260,18 @@ int Proxy::readPayLoad (HttpThreadContext* td,
                         u_long initBufferSize,
                         int timeout,
                         bool useChunks,
-                        bool keepalive)
+                        bool keepalive,
+                        string *serverTransferEncoding)
 {
-  u_long contentLength = -1;
+  u_long contentLength = 0;
 
   u_long nbr = 0, nbw = 0, length = 0, inPos = 0;
   u_long bufferDataSize = 0;
   u_long written = 0;
 
-  HttpResponseHeader::Entry *encoding = res->other.get ("Transfer-Encoding");
 
   /* Only the chunked transfer encoding is supported.  */
-  if(encoding && !encoding->value->compare("chunked"))
+  if(serverTransferEncoding && serverTransferEncoding->compare("chunked"))
     return -1;
 
   if (res->contentLength.length ())
@@ -276,9 +288,9 @@ int Proxy::readPayLoad (HttpThreadContext* td,
                     : td->buffer->getRealLength() - 1 ) - td->nHeaderChars;
 
   /* If it is specified a transfer encoding read data using it.  */
-  if(encoding)
+  if(serverTransferEncoding)
   {
-    if(!encoding->value->compare("chunked"))
+    if(!serverTransferEncoding->compare("chunked"))
     {
       for (;;)
         {
@@ -294,7 +306,7 @@ int Proxy::readPayLoad (HttpThreadContext* td,
                                                  1))
             return -1;
 
-          if (nbr == 0)
+          if (!nbr)
             break;
 
           if (HttpDataHandler::appendDataToHTTPChannel (td,
@@ -314,24 +326,31 @@ int Proxy::readPayLoad (HttpThreadContext* td,
   else for(;;)
   {
 
+    u_long len = td->buffer->getRealLength() - 1;
+
+    if (contentLength && length < len)
+      len = length;
+
+    if (len == 0)
+      break;
+
     if(HttpDataRead::readContiguousPrimitivePostData (initBuffer,
                                                       &inPos,
                                                       initBufferSize,
                                                       client,
                                                       td->buffer->getBuffer(),
-                                                      td->buffer->getRealLength() - 1,
+                                                      len,
                                                       &nbr,
                                                       timeout))
     {
       return -1;
     }
 
-    if(nbr <= length)
+    if (contentLength == 0 && nbr == 0)
+      break;
+
+    if (length)
       length -= nbr;
-    else
-    {
-      return -1;
-    }
 
     if (nbr && HttpDataHandler::appendDataToHTTPChannel (td,
                                                          td->buffer->getBuffer (),
@@ -344,7 +363,7 @@ int Proxy::readPayLoad (HttpThreadContext* td,
 
     written += nbr;
 
-    if(!length)
+    if(contentLength && length == 0)
       break;
   }
 
