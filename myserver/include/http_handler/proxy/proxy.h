@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/http/http_data_handler.h>
 
 class FiltersChain;
+class Socket;
 
 class Proxy : public HttpDataHandler
 {
@@ -38,6 +39,16 @@ public:
 protected:
   int flushToClient (HttpThreadContext* td, Socket& client,
                      FiltersChain &out, int onlyHeader);
+  int readPayLoad (HttpThreadContext* td,
+                   HttpResponseHeader* res,
+                   FiltersChain *out,
+                   Socket *client,
+                   const char *initBuffer,
+                   u_long initBufferSize,
+                   int timeout,
+                   bool useChunks = false,
+                   bool keepalive = false);
+
   static int timeout;
 };
 #endif

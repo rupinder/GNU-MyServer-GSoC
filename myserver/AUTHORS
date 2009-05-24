@@ -1,7 +1,8 @@
 People who contributed significantly to GNU MyServer:
 ==================================================
+
 Georgy Berdyshev <codingmaster@gmail.com>
-Hacked everywhere in the code.
+Long term contributor.
 
 Russ Bohnhoff <rustypaint@gmail.com>
 Original port to POSIX.
@@ -10,6 +11,7 @@ Developed the first GUI control program.
 Alexandru Iancu <alexandru.iancu@gmail.com>
 Implemented the IPv6 protocol.
 Implemented the FTP protocol.
+Many improvements all around.
 
 Daniele Perrone <dperrone@it.gnu.org>
 Redesign of the plugins management system.

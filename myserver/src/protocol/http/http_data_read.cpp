@@ -58,7 +58,7 @@ extern "C"
  *\param timeout Timeout value to use on the socket.
  *\return Return 0 on success.
  */
-int HttpDataRead::readContiguousPrimitivePostData(char* inBuffer,
+int HttpDataRead::readContiguousPrimitivePostData(const char* inBuffer,
                                                   u_long *inBufferPos,
                                                   u_long inBufferSize,
                                                   Socket *inSocket,
@@ -111,12 +111,13 @@ int HttpDataRead::readContiguousPrimitivePostData(char* inBuffer,
  *\param outBufferSize outBuffer size.
  *\param outNbr Number of bytes read.
  *\param timeout Timeout value to use on the socket.
- *\param out Output file.
+ *\param out Output file, may be  a NULL pointer.
+ *\param maxChunks The maximum number of chunks to read.
  *\return Return 0 on success.
  *\return -1 on internal error.
  *\return Any other value is the HTTP error code.
  */
-int HttpDataRead::readChunkedPostData(char* inBuffer,
+int HttpDataRead::readChunkedPostData(const char* inBuffer,
                                       u_long *inBufferPos,
                                       u_long inBufferSize,
                                       Socket *inSocket,
@@ -124,12 +125,13 @@ int HttpDataRead::readChunkedPostData(char* inBuffer,
                                       u_long outBufferSize,
                                       u_long* outNbr,
                                       u_long timeout,
-                                      File* out)
+                                      Stream* out,
+                                      long maxChunks)
 {
   u_long nbr;
   *outNbr = 0;
 
-  for(;;)
+  for (int n = 0; maxChunks == 0 || n < maxChunks; n++)
   {
     u_long chunkNbr;
     u_long dataToRead;
@@ -203,10 +205,8 @@ int HttpDataRead::readChunkedPostData(char* inBuffer,
 
       chunkNbr += nbr;
 
-      if(out->writeToFile(outBuffer, nbr, &nbw))
-      {
+      if (out && out->write (outBuffer, nbr, &nbw))
         return -1;
-      }
 
       if(nbw != nbr)
         return -1;
@@ -337,7 +337,8 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
                                     td->secondaryBuffer->getRealLength() - 1,
                                     &nbr,
                                     timeout,
-                                    &(td->inputData));
+                                    &(td->inputData),
+                                    0);
 
       if(ret == -1)
       {

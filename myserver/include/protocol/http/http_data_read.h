@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002-2008 Free Software Foundation, Inc.
+Copyright (C) 2002-2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -43,7 +43,7 @@ class HttpDataRead
 public:
   static int readPostData(HttpThreadContext* td, int* ret);
 
-  static int readContiguousPrimitivePostData(char* inBuffer,
+  static int readContiguousPrimitivePostData(const char* inBuffer,
                                              u_long *inBufferPos,
                                              u_long inBufferSize,
                                              Socket *inSocket,
@@ -51,7 +51,7 @@ public:
                                              u_long outBufferSize,
                                              u_long* nbr,
                                              u_long timeout);
-  static int readChunkedPostData(char* inBuffer,
+  static int readChunkedPostData(const char* inBuffer,
                                  u_long *inBufferPos,
                                  u_long inBufferSize,
                                  Socket *inSocket,
@@ -59,7 +59,8 @@ public:
                                  u_long outBufferSize,
                                  u_long* nbr,
                                  u_long timeout,
-                                 File* out);
+                                 Stream* out,
+                                 long maxChunks);
   
 };
 
