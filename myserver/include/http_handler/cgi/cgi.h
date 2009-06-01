@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -30,8 +30,6 @@ class FiltersChain;
 class Cgi : public HttpDataHandler
 {
 public:
-  static void setTimeout (int);
-  static int getTimeout ();
 	virtual int send (HttpThreadContext*, ConnectionPtr s,
                    const char* scriptpath, const char* exec = 0,
                    int execute = 0, int onlyHeader = 0);
@@ -41,7 +39,5 @@ private:
   int sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain, 
                   Process& cgiProc, int onlyHeader, bool nph, u_long procStartTime, 
                   bool keepalive, bool useChunks, int *ret);
-
-  static int cgiTimeout;
 };
 #endif

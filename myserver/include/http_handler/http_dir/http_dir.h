@@ -37,8 +37,8 @@ public:
     off_t size;
   };
 
-  static int load ();
-  static int unLoad ();
+  virtual int load ();
+  virtual int unLoad ();
   virtual int send(HttpThreadContext*, ConnectionPtr s, 
                    const char *filenamePath, const char* cgi,
                    int execute = 0, int OnlyHeader = 0); 

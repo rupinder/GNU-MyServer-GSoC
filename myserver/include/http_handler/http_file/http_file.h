@@ -27,8 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class HttpFile  : public HttpDataHandler
 {
 public:
-  static int load ();
-  static int unLoad ();
+  virtual int load ();
+  virtual int unLoad ();
   virtual int send (HttpThreadContext*, ConnectionPtr s, 
                    const char *filenamePath, const char* cgi,
                    int execute = 0, int OnlyHeader = 0); 

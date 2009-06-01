@@ -52,17 +52,14 @@ struct ScgiContext
 class Scgi : public HttpDataHandler
 {
 public:
-  static int getTimeout();
-  static void setTimeout(int);
   Scgi();
-  static int load();
+  virtual int load();
+  virtual int unLoad();
   int send(HttpThreadContext* td, ConnectionPtr connection,
            const char* scriptpath, const char *cgipath = 0,
            int execute = 0, int onlyHeader = 0);
-  static int unLoad();
 private:
   static ProcessServerManager *processServerManager;
-  static int timeout;
   static int initialized;
   Socket getScgiConnection();
   int sendPostData(ScgiContext* ctx);

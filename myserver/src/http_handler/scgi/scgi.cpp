@@ -31,9 +31,6 @@ using namespace std;
 /*! Is the scgi initialized?  */
 int Scgi::initialized = 0;
 
-/*! Use a default timeout of 15 seconds.  */
-int Scgi::timeout = MYSERVER_SEC(15);
-
 /*! Process server manager.  */
 ProcessServerManager *Scgi::processServerManager = 0;
 
@@ -256,7 +253,7 @@ int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
   {
     while(!ctx->sock.bytesToRead())
     {
-      if((clock_t)(getTicks() - initialTicks) > timeout)
+      if((clock_t)(getTicks() - initialTicks) > td->http->getTimeout ())
         break;
       Thread::wait(1);
     }
@@ -266,7 +263,7 @@ int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
 
     nbr = ctx->sock.recv(td->secondaryBuffer->getBuffer() + read,
                         td->secondaryBuffer->getRealLength() - read,
-                        static_cast<u_long>(timeout));
+                         td->http->getTimeout ());
 
     read += nbr;
 
@@ -475,7 +472,7 @@ int Scgi::buildScgiEnvironmentString(HttpThreadContext* td, char* src,
  */
 Scgi::Scgi()
 {
-  initialized = 0;
+
 }
 
 /*!
@@ -569,21 +566,4 @@ ScgiServer* Scgi::runScgiServer(ScgiContext* context,
   }
 
   return processServerManager->runAndAddServer(SERVERS_DOMAIN, path);
-}
-
-
-/*!
- *Return the timeout value.
- */
-int Scgi::getTimeout()
-{
-  return timeout;
-}
-
-/*!
- *Set a new timeout.
- */
-void Scgi::setTimeout(int ntimeout)
-{
-  timeout = ntimeout;
 }

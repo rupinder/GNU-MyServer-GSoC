@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2005, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <include/protocol/http/dyn_http_manager_list.h>
 #include <include/protocol/http/dyn_http_manager.h>
+#include <include/protocol/http/http_data_handler.h>
 #include <include/server/server.h>
 
 #include <string>
@@ -55,5 +56,21 @@ HttpDataHandler* DynHttpManagerList::getHttpManager (string& name)
  */
 void DynHttpManagerList::addHttpManager (string& name, HttpDataHandler* httpManager)
 {
+  httpManager->load ();
   dynamicHttpManagers.put (name, httpManager);
+}
+
+/*!
+ *Free the used memory.
+ */
+void DynHttpManagerList::clear ()
+{
+  for (HashMap<string, HttpDataHandler*>::Iterator it = dynamicHttpManagers.begin ();
+       it != dynamicHttpManagers.end ();
+       it++)
+    {
+      delete *it;
+    }
+
+  dynamicHttpManagers.clear ();
 }

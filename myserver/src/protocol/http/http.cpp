@@ -75,28 +75,11 @@ HttpStaticData* Http::getStaticData ()
 
 HttpStaticData::HttpStaticData ()
 {
-  mscgi = new MsCgi();
-  wincgi = new WinCgi();
-  isapi = new Isapi();
-  cgi = new Cgi();
-  scgi = new Scgi();
-  fastcgi = new FastCgi();
-  httpFile = new HttpFile();
-  httpDir = new HttpDir();
-  proxy = new Proxy ();
+
 }
 
 HttpStaticData::~HttpStaticData ()
 {
-  delete proxy;
-  delete mscgi;
-  delete wincgi;
-  delete isapi;
-  delete cgi;
-  delete scgi;
-  delete fastcgi;
-  delete httpFile;
-  delete httpDir;
 }
 
 
@@ -231,9 +214,9 @@ bool Http::allowMethod(const char *method)
 /*!
  *Get the timeout for the cgi.
  */
-int Http::getCGItimeout()
+u_long Http::getTimeout ()
 {
-  return staticHttp.cgiTimeout;
+  return staticHttp.timeout;
 }
 
 /*!
@@ -1765,7 +1748,10 @@ int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
   HttpDataHandler *handler = staticHttp.dynManagerList.getHttpManager ("DIR");
 
   if (!handler)
-    return raiseHTTPError (500);
+    {
+      td->connection->host->warningsLogWrite("Http: cannot find a valid handler");
+      return raiseHTTPError (500);
+    }
 
   return handler->send (td, td->connection, td->filenamePath.c_str(),
                         0, onlyHeader);
@@ -1859,37 +1845,19 @@ int Http::loadProtocolStatic(XmlParser* languageParser)
    *Store defaults value.
    *By default use GZIP with files bigger than a MB.
    */
-  staticHttp.cgiTimeout = MYSERVER_SEC(15);
+  staticHttp.timeout = MYSERVER_SEC(15);
 
   Server::getInstance()->setGlobalData("http-static", getStaticData());
 
-  /* Load the HTTP errors.  */
-  HttpErrors::load ();
-
-  /* Initialize ISAPI.  */
-  Isapi::load ();
-
-  /* Initialize FastCGI.  */
-  FastCgi::load ();
-
-  /* Initialize SCGI.  */
-  Scgi::load ();
-
-  /* Load the MSCGI library.  */
-  MsCgi::load ();
-
-  HttpFile::load ();
-  HttpDir::load ();
-
-  staticHttp.dynManagerList.addHttpManager ("SEND", staticHttp.httpFile);
-  staticHttp.dynManagerList.addHttpManager ("DIR", staticHttp.httpDir);
-  staticHttp.dynManagerList.addHttpManager ("CGI", staticHttp.cgi);
-  staticHttp.dynManagerList.addHttpManager ("MSCGI", staticHttp.mscgi);
-  staticHttp.dynManagerList.addHttpManager ("SCGI", staticHttp.scgi);
-  staticHttp.dynManagerList.addHttpManager ("WINCGI", staticHttp.wincgi);
-  staticHttp.dynManagerList.addHttpManager ("FASTCGI", staticHttp.fastcgi);
-  staticHttp.dynManagerList.addHttpManager ("ISAPI", staticHttp.isapi);
-  staticHttp.dynManagerList.addHttpManager ("PROXY", staticHttp.proxy);
+  staticHttp.dynManagerList.addHttpManager ("SEND", new HttpFile ());
+  staticHttp.dynManagerList.addHttpManager ("DIR", new HttpDir ());
+  staticHttp.dynManagerList.addHttpManager ("CGI", new Cgi ());
+  staticHttp.dynManagerList.addHttpManager ("MSCGI", new MsCgi ());
+  staticHttp.dynManagerList.addHttpManager ("SCGI", new Scgi ());
+  staticHttp.dynManagerList.addHttpManager ("WINGI", new WinCgi ());
+  staticHttp.dynManagerList.addHttpManager ("FASTCGI", new FastCgi ());
+  staticHttp.dynManagerList.addHttpManager ("ISAPI", new Isapi ());
+  staticHttp.dynManagerList.addHttpManager ("PROXY", new Proxy ());
 
   data = Server::getInstance ()->getHashedData ("vhost.allow_mime");
   if(data)
@@ -1903,14 +1871,8 @@ int Http::loadProtocolStatic(XmlParser* languageParser)
   data = Server::getInstance ()->getHashedData ("cgi.timeout");
   if(data)
   {
-    staticHttp.cgiTimeout = MYSERVER_SEC (atoi (data));
+    staticHttp.timeout = MYSERVER_SEC (atoi (data));
   }
-
-  Cgi::setTimeout (staticHttp.cgiTimeout);
-  Scgi::setTimeout (staticHttp.cgiTimeout);
-  WinCgi::setTimeout (staticHttp.cgiTimeout);
-  Isapi::setTimeout (staticHttp.cgiTimeout);
-  Proxy::setTimeout (staticHttp.cgiTimeout);
 
   return 1;
 }
@@ -1922,22 +1884,6 @@ int Http::unLoadProtocolStatic(XmlParser* languageParser)
 {
   /* Unload the errors.  */
   HttpErrors::unLoad();
-
-  /* Clean ISAPI.  */
-  Isapi::unLoad();
-
-  /* Clean FastCGI.  */
-  FastCgi::unLoad();
-
-  /* Clean SCGI.  */
-  Scgi::unLoad();
-
-  /* Clean MSCGI.  */
-  MsCgi::unLoad();
-
-  HttpFile::unLoad();
-
-  HttpDir::unLoad();
 
   staticHttp.clear();
 

@@ -28,11 +28,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 using namespace std;
 
-/*!
- *Initialize the timeout value to 15 seconds.
- */
-u_long Isapi::timeout = MYSERVER_SEC(15);
-
 
 #ifdef WIN32
 
@@ -947,7 +942,7 @@ in ISAPI application module");
   Ret = HttpExtensionProc(&ExtCtrlBlk);
   if (Ret == HSE_STATUS_PENDING)
   {
-    WaitForSingleObject(connTable[connIndex].ISAPIDoneEvent, timeout);
+    WaitForSingleObject(connTable[connIndex].ISAPIDoneEvent, td->http->getTimeout ());
   }
   
   {
@@ -1055,20 +1050,4 @@ int Isapi::unLoad()
   initialized=0;
 #endif
   return 0;
-}
-
-/*!
- *Set a new timeout value used with the isapi modules.
- */
-void Isapi::setTimeout(u_long ntimeout)
-{
-  timeout = ntimeout;
-}
-
-/*!
- *Return the timeout value used with the isapi modules.
- */
-u_long Isapi::getTimeout()
-{
-  return timeout;
 }
