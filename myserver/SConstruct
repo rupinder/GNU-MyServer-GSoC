@@ -4,7 +4,7 @@
 # MyServer
 # http://www.gnu.org/software/myserver/
 #
-# Copyright (C) 2002-2008 Free Software Foundation, Inc.
+# Copyright (C) 2002-2009 Free Software Foundation, Inc.
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 3 of the License, or
@@ -30,7 +30,7 @@ f = open('version','r')
 MYSERVER_VERSION = "GNU MyServer " + f.readline()
 f.close()
 
-SVN_TRUNK = "svn://svn.savannah.gnu.org/myserver/trunk"
+GIT_LOCATION = "git clone git://git.savannah.gnu.org/myserver.git'
 HOMEPAGE = "http://www.gnu.org/software/myserver/"
 
 mode = ARGUMENTS.get('mode', "debug")
@@ -83,11 +83,11 @@ def get_cpp_files(dir):
 
 
 
-if command == "update_svn":
-    Execute("svn update")
+if command == "git_pull":
+    Execute("git pull")
 
-if command == "checkout_svn":
-    Execute("svn co " + SVN_TRUNK + "/myserver .")
+if command == "checkout_git":
+    Execute("git clone " + GIT_LOCATION)
 
 if mode == "release":
     env = Environment(ENV = {'PATH' : os.environ.get('PATH') or '.',
@@ -318,9 +318,9 @@ if command == "install" or command == "package":
 def get_plugin(name):
     print "getting plugin " + name
     if len(glob.glob("binaries/plugins/" + name)) == 0:
-        Execute("svn co " + SVN_TRUNK + "/plugins/" + name + " binaries/plugins/"+ name)
+        Execute("git clone " + GIT_LOCATION)
 
-    doc = xml.dom.minidom.parse("binaries/plugins/" + name + "/plugin.xml")
+    doc = xml.dom.minidom.parse("plugins/binaries/plugins/" + name + "/plugin.xml")
 
     deps = doc.getElementsByTagName("DEPENDS")
     
@@ -343,7 +343,7 @@ def build_plugin(name):
 
 
 
-# Retrieve the plugin via SVN and build it.
+# Retrieve the plugin and build it.
 if command == "get_plugin":
     get_plugin(plugin)
 
