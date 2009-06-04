@@ -61,7 +61,7 @@ public:
     Server* server;
     void reset(Socket* sock, u_short p, Server* ser){serverSocket = sock; port = p; server = ser;}
     ListenerArg(Socket* sock, u_short p, Server* server){reset(sock, p, server);}
-    ListenerArg(){reset(NULL, NULL, NULL);}
+    ListenerArg(){reset(NULL, 0, NULL);}
     ListenerArg(ListenerArg* l){serverSocket = l->serverSocket; port = l->port; server = l->server;}
   };
 
