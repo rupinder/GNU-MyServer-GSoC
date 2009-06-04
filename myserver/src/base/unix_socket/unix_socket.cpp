@@ -53,7 +53,7 @@ int UnixSocket::shutdown ()
 {
 #ifdef AF_UNIX
   Socket::shutdown (2);
-  unlink (addr.sun_path);
+  return unlink (addr.sun_path);
 #else
   return -1;
 #endif
@@ -67,7 +67,7 @@ int UnixSocket::shutdown ()
 int UnixSocket::close ()
 {
 #ifdef AF_UNIX
-  Socket::close ();
+  return Socket::close ();
 #else
   return -1;
 #endif
