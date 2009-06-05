@@ -55,21 +55,12 @@ public:
   void clear()
   {
     clearMulticastRegistry();
+    dynManagerList.clear ();
+    dynCmdManager.clear ();
   }
 
-  int cgiTimeout;
+  u_long timeout;
   int allowVhostMime;
-
-  HttpDataHandler *mscgi;
-  HttpDataHandler *wincgi;
-  HttpDataHandler *isapi;
-  HttpDataHandler *cgi;
-  HttpDataHandler *scgi;
-  HttpDataHandler *fastcgi;
-  HttpDataHandler *httpFile;
-  HttpDataHandler *proxy;
-  HttpDataHandler *httpDir;
-
 
   DynHttpCommandManager dynCmdManager;
   DynHttpManagerList dynManagerList;
@@ -186,7 +177,7 @@ public:
 
   static int unLoadProtocolStatic(XmlParser*);
 
-  int getCGItimeout();
+  u_long getTimeout ();
   int preprocessHttpRequest(string& filename, int yetmapped, 
                             int* permissions);
 

@@ -53,11 +53,8 @@ typedef int (*CGIMAIN)(const char*, MsCgiData*);
 class MsCgi : public HttpDataHandler
 {
 public:
-	/*!
-   *Functions to Load and free the MSCGI library.
-   */
-	static int load();
-	static int unLoad();
+	virtual int load();
+	virtual int unLoad();
 	/*!
 	*Use this to send a MSCGI file through the HTTP protocol.
 	*/

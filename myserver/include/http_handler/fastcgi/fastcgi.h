@@ -163,11 +163,11 @@ public:
   static int getTimeout ();
   static void setTimeout (int);
 	FastCgi ();
-	static int load ();
+	virtual int load ();
 	virtual int send (HttpThreadContext* td, ConnectionPtr connection,
                    const char* scriptpath, const char *cgipath, 
                    int execute = 0, int onlyHeader = 0);
-	static int unLoad ();
+	virtual int unLoad ();
 private:
 	static ProcessServerManager *processServerManager;
 	static int timeout;

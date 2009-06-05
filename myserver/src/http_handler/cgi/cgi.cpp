@@ -44,10 +44,6 @@ extern "C" {
 
 using namespace std;
 
-/*!
- *By default use a timeout of 15 seconds on new processes.
- */
-int Cgi::cgiTimeout = MYSERVER_SEC(15);
 
 /*!
  *Run the standard CGI and send the result to the client.
@@ -380,9 +376,9 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
       nBytesRead = 0;
       int aliveProcess = 0;
       u_long ticks = getTicks() - procStartTime;
-
-      if (ticks >= (u_long)cgiTimeout || 
-          stdOutFile.waitForData ((cgiTimeout - ticks) / 1000, (cgiTimeout - ticks) % 1000) == 0)
+      u_long timeout = td->http->getTimeout ();
+      if (ticks >= timeout ||
+          stdOutFile.waitForData ((timeout - ticks) / 1000, (timeout - ticks) % 1000) == 0)
       {
         ostringstream msg;
         msg << "Cgi: timeout for process " << cgiProc.getPid();
@@ -448,6 +444,7 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
   /* Parse initial chunks of data looking for the HTTP header.  */
   while(!headerCompleted && !nph)
   {
+    u_long timeout = td->http->getTimeout ();
     u_long ticks = getTicks() - procStartTime;
     bool term;
     nBytesRead = 0;
@@ -459,7 +456,7 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
     term = stdOutFile.pipeTerminated();
 
     if (!term && 
-        stdOutFile.waitForData ((cgiTimeout - ticks) / 1000, (cgiTimeout - ticks) % 1000) == 0)
+        stdOutFile.waitForData ((timeout - ticks) / 1000, (timeout - ticks) % 1000) == 0)
     {
       ostringstream msg;
       msg << "Cgi: timeout for process " << cgiProc.getPid ();
@@ -584,21 +581,4 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
 
 
   return 0;
-}
-
-/*!
- *Set the CGI timeout for the new processes.
- *\param nt The new timeout value.
- */
-void Cgi::setTimeout(int nt)
-{
-   cgiTimeout = nt;
-}
-
-/*!
- *Get the timeout value for CGI processes.
- */
-int Cgi::getTimeout()
-{
-  return cgiTimeout;
 }

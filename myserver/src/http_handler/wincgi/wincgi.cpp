@@ -40,18 +40,6 @@ extern "C"
 #include <sstream>
 using namespace std;
 
-/*!
- *Initialize the timeout value to 15 seconds.
- */
-u_long WinCgi::timeout = MYSERVER_SEC(15);
-
-/*!
- *Set a new timeout value to use for new processes.
- */
-void WinCgi::setTimeout(u_long ntimeout)
-{
-  timeout = ntimeout;
-}
 
 /*!
  *Constructor for the wincgi class.
@@ -67,14 +55,6 @@ WinCgi::WinCgi()
 WinCgi::~WinCgi()
 {
 
-}
-
-/*!
- *Get the timeout value for the new process. 
- */
-u_long WinCgi::getTimeout()
-{
-  return timeout;
 }
 
 /*!

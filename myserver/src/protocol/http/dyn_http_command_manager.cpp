@@ -56,3 +56,18 @@ void DynHttpCommandManager::addHttpCommand(string& name, DynamicHttpCommand* htt
 {
   dynamicHttpCommands.put(name,httpCommand);
 }
+
+/*!
+ *Free the used memory.
+ */
+void DynHttpCommandManager::clear ()
+{
+  for (HashMap<string, DynamicHttpCommand*>::Iterator it = dynamicHttpCommands.begin ();
+       it != dynamicHttpCommands.end ();
+       it++)
+    {
+      delete *it;
+    }
+
+  dynamicHttpCommands.clear ();
+}

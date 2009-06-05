@@ -32,8 +32,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class HttpDataHandler
 {
 public:
-  static int load ();
-  static int unLoad ();
+  virtual int load ();
+  virtual int unLoad ();
 
 	virtual int send(HttpThreadContext*, ConnectionPtr s,
                    const char* exec, const char* cmdLine = 0,

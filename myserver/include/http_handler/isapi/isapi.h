@@ -129,13 +129,6 @@ typedef DWORD (WINAPI * PFN_HTTPEXTENSIONPROC)(EXTENSION_CONTROL_BLOCK *pECB);
 
 class Isapi  : public HttpDataHandler
 {
-private:
-  static u_long timeout;
-#ifdef WIN32  
-  static int initialized;
-  static ConnTableRecord *connTable;
-  static  u_long maxConnections;
-#endif  
 public:  
 #ifdef WIN32
   static ConnTableRecord *HConnRecord(HCONN hConn);
@@ -149,13 +142,17 @@ public:
 #endif  
   Isapi();
   static Mutex *isapiMutex;
-  static int load ();
-  static int unLoad();
-  static void setTimeout(u_long);
-  static u_long getTimeout();
-  virtual int send(HttpThreadContext* td,ConnectionPtr connection, 
+  virtual int load ();
+  virtual int unLoad();
+  virtual int send(HttpThreadContext* td,ConnectionPtr connection,
                    const char* scriptpath, const char *cgipath = 0,
                    int execute = 0, int onlyHeader = 0);
+private:
+#ifdef WIN32
+  static int initialized;
+  static ConnTableRecord *connTable;
+  static  u_long maxConnections;
+#endif
 };
 
 #ifdef WIN32  

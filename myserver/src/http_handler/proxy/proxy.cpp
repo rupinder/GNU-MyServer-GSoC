@@ -31,8 +31,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <sstream>
 
-int Proxy::timeout = MYSERVER_SEC (10);
-
 /*
  *Forward the HTTP requesto to another server.
  *
@@ -145,7 +143,7 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
       ret = client.recv (td->secondaryBuffer->getBuffer () + read,
                          td->secondaryBuffer->getRealLength () - read,
                          0,
-                         timeout);
+                         td->http->getTimeout ());
 
       if (ret == 0)
         return td->http->raiseHTTPError (500);
@@ -205,7 +203,7 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
                      &client,
                      td->secondaryBuffer->getBuffer() + headerLength,
                      read - headerLength,
-                     timeout,
+                     td->http->getTimeout (),
                      useChunks,
                      keepalive,
                      hasTransferEncoding ? &transferEncoding : NULL);
@@ -215,24 +213,6 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
 
   return ret == -1 ? 0 : keepalive;
 }
-
-/*!
- *Set the CGI timeout for the new processes.
- *\param nt The new timeout value.
- */
-void Proxy::setTimeout(int nt)
-{
-   timeout = nt;
-}
-
-/*!
- *Get the timeout value for HTTP requests.
- */
-int Proxy::getTimeout()
-{
-  return timeout;
-}
-
 
 /*!
  *Forward the message payload to the client.
