@@ -260,13 +260,13 @@
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
 		yylloc->last_column += 4;
+    BEGIN(STRING);
 		return SIZE_FTP_COMMAND;
 	}
 <IPV4_ADDR>[,]	{
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
 		yylloc->last_column += yyleng;
-
 		if ( *yytext == ',' )
 			return ',';
 	}
@@ -291,7 +291,7 @@
 		yylloc->last_column += yyleng;
 		return SPACE_FTP_SEP;
 	}
-<INITIAL,STRING>[[:alnum:][:punct:]]+	{
+<STRING>[[:alnum:][:punct:]][[:alnum:][:punct:] ]*	{
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
 		yylloc->last_column += yyleng;
@@ -308,5 +308,23 @@
 			return STRING_FTP_ARG;
 		}
 	}
+<INITIAL,STRING>[[:alnum:][:punct:]]+	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += yyleng;
 
+    BEGIN(STRING);
+
+		if ( yyleng == 1 )//one char
+			return tolower(*yytext);
+		else
+		{
+			memset(yylval->m_szStr, 0, PARSER_STR_LEN);
+       			strncpy(yylval->m_szStr, yytext, yyleng);
+			yylloc->first_line = yylloc->last_line;
+			yylloc->first_column = yylloc->last_column;
+			yylloc->last_column += yyleng;
+			return STRING_FTP_ARG;
+		}
+	}
 %%
