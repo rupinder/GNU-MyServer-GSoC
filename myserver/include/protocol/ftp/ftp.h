@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <include/protocol/ftp/ftp_parser.h>
 #include <include/protocol/ftp/ftp_lexer.h>
 
+#include <include/conf/security/security_token.h>
 class Ftp;
 
 class FtpUserData : public ProtocolBuffer
@@ -95,6 +96,7 @@ struct FtpThreadContext
 	u_long m_nParseLength;
 	u_long nBytesToRead;
 	Ftp *pProtocolInterpreter;
+  SecurityToken st;
 };
 
 class Ftp : public Protocol

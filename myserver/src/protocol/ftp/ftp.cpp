@@ -28,8 +28,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <include/base/find_data/find_data.h>
 #include <include/base/string/stringutils.h>
 #include <include/base/mem_buff/mem_buff.h>
-#include <include/conf/security/auth_domain.h>
 #include <assert.h>
+
+#include <include/conf/security/auth_domain.h>
 
 #ifndef WIN32
 #include <netinet/in.h>
@@ -619,7 +620,10 @@ void Ftp::RetrStor(bool bRetr, bool bAppend, const std::string &sPath)
   FilesUtility::splitPath(sLocalPath, sLocalDir, sLocalFileName);
 
   /* The security file doesn't exist in any case.  */
-      if( !strcmpi(sLocalFileName.c_str(), "security") )
+  const char *secName = td.st.getHashedData ("security.filename",
+                                             MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF,
+                                             ".security.xml");
+  if( !strcmpi(sLocalFileName.c_str(), secName))
   {
     ftp_reply(550);
     //CloseDataConnection();
@@ -1724,9 +1728,12 @@ void Ftp::List(const std::string &sParam/*= ""*/)
       return;
     }
 
+    const char *secName = td.st.getHashedData ("security.filename",
+                                               MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF,
+                                               ".security.xml");
     do
     {
-      if(fd.name[0] == '.' || !strcmpi(fd.name, "security") )
+      if(fd.name[0] == '.' || !strcmpi(fd.name, secName) )
         continue;
 
       perm[10] = '\0';
@@ -1956,14 +1963,21 @@ void Ftp::Nlst(const std::string &sParam/* = ""*/)
 
   MemBuf &secondaryBuffer = *td.secondaryBuffer;
   secondaryBuffer.setLength(0);
+
+  const char *secName = td.st.getHashedData ("security.filename",
+                                             MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF,
+                                             ".security.xml");
   do
-  {
-    if(fd.name[0] == '.' || !strcmpi(fd.name, "security") )
-      continue;
-    if ( !sParam.empty() )
-      secondaryBuffer << sParam << "/";
-    secondaryBuffer << fd.name << "\r\n";
-  } while (!fd.findnext());
+    {
+      if(fd.name[0] == '.' || !strcmpi(fd.name, secName) )
+        continue;
+
+      if ( !sParam.empty() )
+        secondaryBuffer << sParam << "/";
+      secondaryBuffer << fd.name << "\r\n";
+    }
+  while (!fd.findnext());
+
   fd.findclose();
 
   if( pFtpUserData->m_pDataConnection->socket->send(td.secondaryBuffer->getBuffer(), 
@@ -2214,7 +2228,11 @@ void Ftp::Dele(const std::string &sPath)
   FilesUtility::splitPath(sLocalPath, sLocalDir, sLocalFileName);
 
   /* The security file doesn't exist in any case.  */
-      if( !strcmpi(sLocalFileName.c_str(), "security") )
+  const char *secName = td.st.getHashedData ("security.filename",
+                                             MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF,
+                                             ".security.xml");
+
+  if( !strcmpi(sLocalFileName.c_str(), secName) )
   {
     ftp_reply(550);
     CloseDataConnection();
@@ -2334,8 +2352,12 @@ void Ftp::Rnfr(const std::string &sPath)
   std::string sLocalDir, sLocalFileName;
   FilesUtility::splitPath(sLocalPath, sLocalDir, sLocalFileName);
 
+  const char *secName = td.st.getHashedData ("security.filename",
+                                             MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF,
+                                             ".security.xml");
+
   /* The security file doesn't exist in any case.  */
-      if( !strcmpi(sLocalFileName.c_str(), "security") )
+  if( !strcmpi(sLocalFileName.c_str(), secName) )
   {
     ftp_reply(550);
     return;
@@ -2373,8 +2395,12 @@ void Ftp::Rnto(const std::string &sPath)
     return;
   }
 
+  const char *secName = td.st.getHashedData ("security.filename",
+                                             MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF,
+                                             ".security.xml");
+
   /* The security file doesn't exist in any case.  */
-      if( !strcmpi(sLocalFileName.c_str(), "security") )
+  if( !strcmpi(sLocalFileName.c_str(), secName) )
   {
     ftp_reply(550);
     return;
@@ -2396,7 +2422,6 @@ int Ftp::CheckRights(const std::string &sUser, const std::string &sPass, const s
   else
     sDir = sPath;
 
-  SecurityToken st;
   string user;
   string password;
   if ( strcmpi(sUser.c_str(), "anonymous") == 0 )
@@ -2410,26 +2435,26 @@ int Ftp::CheckRights(const std::string &sUser, const std::string &sPass, const s
     password.assign (sPass);
   }
 
-  st.setUser (user);
-  st.setPassword (password);
+  td.st.setUser (user);
+  td.st.setPassword (password);
 
 
-  st.setDirectory (&sDir);
-  st.setSysDirectory ((string *)&(td.pConnection->host->getSystemRoot ()));
-  st.setResource (&sFileName);
+  td.st.setDirectory (&sDir);
+  td.st.setSysDirectory ((string *)&(td.pConnection->host->getSystemRoot ()));
+  td.st.setResource (&sFileName);
 
-  AuthDomain auth (&st);
-  string validator (st.getHashedData ("sec.validator", MYSERVER_VHOST_CONF |
+  AuthDomain auth (&td.st);
+  string validator (td.st.getHashedData ("sec.validator", MYSERVER_VHOST_CONF |
                                       MYSERVER_SERVER_CONF, "xml"));
-  string authMethod (st.getHashedData ("sec.auth_method", MYSERVER_VHOST_CONF |
+  string authMethod (td.st.getHashedData ("sec.auth_method", MYSERVER_VHOST_CONF |
                                        MYSERVER_SERVER_CONF, "xml"));
 
   SecurityDomain* domains[] = {&auth, NULL};
 
-  Server::getInstance()->getSecurityManager ()->getPermissionMask (&st, domains,
+  Server::getInstance()->getSecurityManager ()->getPermissionMask (&td.st, domains,
                                                                    validator, authMethod);
 
-  return (st.getMask () & mask);
+  return (td.st.getMask () & mask);
 }
 
 void Ftp::Size(const std::string &sPath)
@@ -2442,7 +2467,11 @@ void Ftp::Size(const std::string &sPath)
   FilesUtility::splitPath(sLocalPath, sLocalDir, sLocalFileName);
 
   /* The security file doesn't exist in any case.  */
-      if( !strcmpi(sLocalFileName.c_str(), "security") )
+  const char *secName = td.st.getHashedData ("security.filename",
+                                             MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF,
+                                             ".security.xml");
+
+  if( !strcmpi(sLocalFileName.c_str(), secName))
   {
     ftp_reply(550);
     CloseDataConnection();
