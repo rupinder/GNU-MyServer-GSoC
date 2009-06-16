@@ -638,7 +638,7 @@ void Ftp::RetrStor(bool bRetr, bool bAppend, const std::string &sPath)
 
   FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
   assert(pFtpUserData != NULL);
-  if ( CheckRights(pFtpUserData->m_sUserName, pFtpUserData->m_sPass, sLocalFileName, nMask) == 0 )
+  if ( CheckRights(pFtpUserData->m_sUserName, pFtpUserData->m_sPass, sLocalPath, nMask) == 0 )
   {
     ftp_reply(550);
     //CloseDataConnection();
