@@ -57,10 +57,10 @@ public:
   static int completePath(string &fileName);
 
   static int isDirectory(const char*);
-  static int isDirectory(string& dir){return isDirectory(dir.c_str());}
+  static int isDirectory(const string& dir){return isDirectory(dir.c_str());}
 
   static int isLink(const char*);
-  static int isLink(string& dir){return isLink(dir.c_str());}
+  static int isLink(const string& dir){return isLink(dir.c_str());}
 
   static int getShortFileName(char*,char*,int);
 
