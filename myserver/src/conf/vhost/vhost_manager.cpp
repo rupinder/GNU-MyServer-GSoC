@@ -184,20 +184,11 @@ list<Vhost*>* VhostManager::getVHostList()
  */
 void VhostManager::changeLocationsOwner ()
 {
-  if(Server::getInstance()->getUid() | Server::getInstance()->getGid())
+  if(Server::getInstance ()->getUid () ||
+     Server::getInstance ()->getGid ())
     {
-      int uid = Server::getInstance()->getUid();
-      int gid = Server::getInstance()->getGid();
-
-      /*
-       *Change the user and group identifier to -1
-       *if they are not specified.
-       */
-      if(!uid)
-        uid = -1;
-
-      if(!gid)
-        gid = -1;
+      string uid (Server::getInstance()->getUid ());
+      string gid (Server::getInstance()->getGid ());
 
       /*
        *Change the log files owner if a different user or group

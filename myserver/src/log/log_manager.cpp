@@ -1,6 +1,6 @@
 /*
   MyServer
-  Copyright (C) 2006, 2008 Free Software Foundation, Inc.
+  Copyright (C) 2006, 2008, 2009 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -364,9 +364,9 @@ LogManager::notify (void* owner, LogStreamEvent evt, void* message,
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::chown (void* owner, int uid, int gid)
+LogManager::chown (void* owner, string &uid, string &gid)
 {
-  int message[2];
+  string message[2];
   message[0] = uid;
   message[1] = gid;
   return notify (owner, MYSERVER_LOG_EVT_CHOWN, static_cast<void*>(message));
@@ -384,9 +384,9 @@ LogManager::chown (void* owner, int uid, int gid)
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::chown (void* owner, string type, int uid, int gid)
+LogManager::chown (void* owner, string type, string &uid, string &gid)
 {
-  int message[2];
+  string message[2];
   message[0] = uid;
   message[1] = gid;
   return notify (owner, MYSERVER_LOG_EVT_CHOWN, static_cast<void*>(message));
@@ -404,9 +404,9 @@ LogManager::chown (void* owner, string type, int uid, int gid)
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::chown (void* owner, string type, string location, int uid, int gid)
+LogManager::chown (void* owner, string type, string location, string &uid, string &gid)
 {
-  int message[2];
+  string message[2];
   message[0] = uid;
   message[1] = gid;
   return notify (owner, type, location, MYSERVER_LOG_EVT_CHOWN, static_cast<void*>(message));

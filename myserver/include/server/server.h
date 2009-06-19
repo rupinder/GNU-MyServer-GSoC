@@ -88,8 +88,8 @@ public:
 
   FiltersFactory* getFiltersFactory();
   int getMaxThreads();
-  u_long getUid();
-  u_long getGid();
+  const char *getUid();
+  const char *getGid();
   int countAvailableThreads();
   void checkThreadsNumber();
   int removeThread(u_long ID);
@@ -203,8 +203,8 @@ private:
 
   HashMap<string, void*> globalData;
   FiltersFactory filtersFactory;
-  u_long uid;
-  u_long gid;
+  string uid;
+  string gid;
   int currentThreadID;
   ProtocolsManager protocols;
   XmlParser languageParser;

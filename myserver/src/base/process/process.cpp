@@ -211,11 +211,11 @@ int Process::exec(StartProcInfo* spi, bool waitEnd)
       const char *envp[100];
       const char *args[100];
 
-      if (spi->gid)
-        Process::setgid (spi->gid);
+      if (spi->gid.length ())
+        Process::setgid (spi->gid.c_str ());
 
-      if (spi->uid)
-        Process::setuid (spi->uid);
+      if (spi->uid.length ())
+        Process::setuid (spi->uid.c_str ());
 
       if (generateArgList (args, spi->cmd.c_str (), spi->arg))
         exit (1);
@@ -415,10 +415,11 @@ int Process::terminateProcess ()
 /*!
  *Set the user identity for the process. Returns 0 on success.
  */
-int Process::setuid (u_long uid)
+int Process::setuid (const char *uid)
 {
 #ifndef WIN32
-  return ::setuid (uid);
+  if (uid && uid[0])
+    return ::setuid (atoi (uid));
 #endif
   return 0;
 }
@@ -426,10 +427,11 @@ int Process::setuid (u_long uid)
 /*!
  *Set the group identity for the process. Returns 0 on success.
  */
-int Process::setgid (u_long gid)
+int Process::setgid (const char *gid)
 {
 #ifndef WIN32
-  return ::setgid (gid);
+  if (gid && gid[0])
+    return ::setgid (atoi (gid));
 #endif
   return 0;
 }

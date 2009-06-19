@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
   MyServer
-  Copyright (C) 2006, 2008 Free Software Foundation, Inc.
+  Copyright (C) 2006, 2008, 2009 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -47,9 +47,9 @@ public:
   int close (void* owner);
   int close (void* owner, string type);
   int close (void* owner, string type, string location);
-  int chown (void* owner, int uid, int gid);
-  int chown (void* owner, string type, int uid, int gid);
-  int chown (void* owner, string type, string location, int uid, int gid);
+  int chown (void* owner, string &uid, string &gid);
+  int chown (void* owner, string type, string &uid, string &gid);
+  int chown (void* owner, string type, string location, string &uid, string &gid);
   int get (void* owner, list<string>* l);
   int get (void* owner, string type, list<string>* l);
   int get (void* owner, string type, string location, LogStream** ls);

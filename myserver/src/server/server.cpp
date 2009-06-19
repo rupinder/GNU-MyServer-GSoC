@@ -78,8 +78,6 @@ Server::Server() : connectionsScheduler (this),
   maxConnections = 0;
   serverReady = false;
   throttlingRate = 0;
-  uid = 0;
-  gid = 0;
   mimeManager = 0;
   mimeConfigurationFile = 0;
   mainConfigurationFile = 0;
@@ -334,14 +332,14 @@ void Server::start(string &mainConf, string &mimeConf, string &vhostConf, string
 
     setProcessPermissions();
 
-    if(getGid())
+    if (getGid ())
     {
       ostringstream out;
       out << "gid: " << gid;
       logWriteln(out.str().c_str());
     }
 
-    if(getUid())
+    if (getUid ())
     {
       ostringstream out;
       out << "uid: " << uid;
@@ -797,17 +795,17 @@ void Server::finalCleanup()
 /*!
  *Return the user identifier to use for the process.
  */
-u_long Server::getUid()
+const char *Server::getUid()
 {
-  return uid;
+  return uid.c_str ();
 }
 
 /*!
  *Return the group identifier to use for the process.
  */
-u_long Server::getGid()
+const char *Server::getGid()
 {
-  return gid;
+  return gid.c_str ();
 }
 
 /*!
@@ -1147,13 +1145,13 @@ int Server::initialize ()
   data = getHashedData ("server.uid");
   if(data)
   {
-    uid = atoi(data);
+    uid.assign (data);
   }
 
   data = getHashedData ("server.gid");
   if(data)
   {
-    gid = atoi(data);
+    gid.assign (data);
   }
 
   data = getHashedData ("server.max_servers");
@@ -1641,38 +1639,38 @@ void Server::setProcessPermissions()
      *If the configuration specify a group id, change the current group for
      *the process.
      */
-    if(gid)
-     {
-       ostringstream out;
+  if(gid.length ())
+    {
+      ostringstream out;
 
-       if(Process::setAdditionalGroups(0, 0))
-       {
-         out << languageParser.getValue("ERR_ERROR")
-             << ": setAdditionalGroups";
-         logWriteln(out.str().c_str(), MYSERVER_LOG_MSG_ERROR);
-       }
+      if (Process::setAdditionalGroups (0, 0))
+        {
+          out << languageParser.getValue("ERR_ERROR")
+              << ": setAdditionalGroups";
+          logWriteln(out.str().c_str(), MYSERVER_LOG_MSG_ERROR);
+        }
 
-       if(Process::setgid(gid))
-       {
-         out << languageParser.getValue("ERR_ERROR") << ": setgid " << gid;
-         logWriteln(out.str().c_str(), MYSERVER_LOG_MSG_ERROR);
-       }
-       autoRebootEnabled = false;
-     }
+      if (Process::setgid (gid.c_str ()))
+        {
+          out << languageParser.getValue("ERR_ERROR") << ": setgid " << gid;
+          logWriteln(out.str().c_str(), MYSERVER_LOG_MSG_ERROR);
+        }
+      autoRebootEnabled = false;
+    }
 
     /*
      *If the configuration file provides a user identifier, change the
      *current user for the process. Disable the reboot when this feature
      *is used.
      */
-    if(uid)
+  if(uid.length ())
     {
       ostringstream out;
-      if(Process::setuid(uid))
-      {
-        out << languageParser.getValue("ERR_ERROR") << ": setuid " << uid;
-        logWriteln(out.str().c_str(), MYSERVER_LOG_MSG_ERROR);
-      }
+      if (Process::setuid (uid.c_str ()))
+        {
+          out << languageParser.getValue("ERR_ERROR") << ": setuid " << uid;
+          logWriteln(out.str().c_str(), MYSERVER_LOG_MSG_ERROR);
+        }
       autoRebootEnabled = false;
     }
 }

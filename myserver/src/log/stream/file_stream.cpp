@@ -151,7 +151,7 @@ FileStream::makeNewFileName (string oldFileName)
 }
 
 int
-FileStream::chown (int uid, int gid)
+FileStream::chown (string &uid, string &gid)
 {
   mutex->lock ();
   File* f = dynamic_cast<File*>(out);

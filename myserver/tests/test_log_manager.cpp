@@ -603,8 +603,15 @@ public:
     list<string> filters;
 
     lm->add (this, "test", "file://foo", filters, 0);
+    ostringstream uidOss;
+    uidOss << ::getuid ();
+    string uid (uidOss.str ());
 
-    CPPUNIT_ASSERT (!lm->chown (this, "test", "file://foo", getuid (), getgid ()));
+    ostringstream gidOss;
+    gidOss << ::getuid ();
+    string gid (gidOss.str ());
+
+    CPPUNIT_ASSERT (!lm->chown (this, "test", "file://foo", uid, gid));
 #endif
   }
 
