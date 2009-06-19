@@ -97,6 +97,10 @@ AC_CHECK_FUNCS(posix_fallocate, AC_DEFINE(POSIX_FALLOCATE, 1, [Define if the pos
 
 AC_CHECK_FUNCS(snprintf, AC_DEFINE(SNPRINTF, 1, [Define if the snprintf function is present]) )
 
+AC_CHECK_FUNCS(openat, AC_DEFINE(OPENAT, 1, [Define if the openat function is present]) )
+
+AC_CHECK_FUNCS(fstatat, AC_DEFINE(FSTATAT, 1, [Define if the fstatat function is present]) )
+
 AC_CHECK_FUNCS(getpwnam, AC_DEFINE(GETPWNAM, 1, [Define if the getpwnam function is present]) )
 
 AC_CHECK_LIB(gcrypt, gcry_control, AC_DEFINE(GCRY_CONTROL, 1, [Define if the gcry_control function is present]))
