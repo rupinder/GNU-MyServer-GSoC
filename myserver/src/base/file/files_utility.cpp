@@ -377,7 +377,8 @@ time_t FilesUtility::getLastAccTime(const char *filename)
 int FilesUtility::chown(const char* filename, string &uid, string &gid)
 {
 #ifndef WIN32
-  return ::chown(filename, atoi (uid.c_str ()), atoi (gid.c_str ())) ? 1 : 0;
+  return ::chown(filename, Process::getUid (uid.c_str ()),
+                 Process::getGid (gid.c_str ())) ? 1 : 0;
 #endif
   return 0;
 }

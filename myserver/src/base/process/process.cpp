@@ -31,12 +31,32 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#ifdef GETPWNAM
+#include <pwd.h>
+#endif
+
 #ifdef GRP
 #include <grp.h>
 #endif
 
 #endif
 }
+
+#ifndef UID_T_MAX
+# define UID_T_MAX (1<<31)
+#endif
+
+#ifndef GID_T_MAX
+# define GID_T_MAX (1<<31)
+#endif
+
+/* MAXUID may come from limits.h or sys/params.h.  */
+#ifndef MAXUID
+# define MAXUID UID_T_MAX
+#endif
+#ifndef MAXGID
+# define MAXGID GID_T_MAX
+#endif
 
 #ifdef WIN32
 #include <direct.h>
@@ -286,6 +306,59 @@ int Process::exec(StartProcInfo* spi, bool waitEnd)
 }
 
 /*!
+ *Get an uid given a username.
+ *\param the user name to convert.
+ */
+uid_t Process::getUid (const char *user)
+{
+#ifndef WIN32
+
+  if (isdigit (user[0]))
+    {
+      uid_t uid = atol (user);
+
+      if (uid >= 0 && uid <= MAXUID)
+        return uid;
+    }
+
+#ifdef GETPWNAM
+  struct passwd *u = getpwnam (user);
+  if (u != NULL)
+    return u->pw_uid;
+#endif
+
+#endif
+
+  return (gid_t)-1;
+}
+
+/*!
+ *Get an uid given a username.
+ *\param the user name to convert.
+ */
+gid_t Process::getGid (const char *grp)
+{
+#ifndef WIN32
+  if (isdigit (grp[0]))
+    {
+      gid_t gid = atol (grp);
+
+      if (gid >= 0 && gid <= MAXGID)
+        return gid;
+    }
+
+#ifdef GRP
+  struct group *g = getgrnam (grp);
+  if (g != NULL)
+    return g->gr_gid;
+#endif
+
+#endif
+
+  return (gid_t)-1;
+}
+
+/*!
  *Return a nonzero value if the process is still alive. A return value of zero
  *means the process is a zombie.
  */
@@ -419,7 +492,7 @@ int Process::setuid (const char *uid)
 {
 #ifndef WIN32
   if (uid && uid[0])
-    return ::setuid (atoi (uid));
+    return ::setuid (getUid (uid));
 #endif
   return 0;
 }
@@ -431,7 +504,7 @@ int Process::setgid (const char *gid)
 {
 #ifndef WIN32
   if (gid && gid[0])
-    return ::setgid (atoi (gid));
+    return ::setgid (getGid (gid));
 #endif
   return 0;
 }

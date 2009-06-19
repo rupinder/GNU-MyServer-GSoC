@@ -83,7 +83,6 @@ AC_CHECK_HEADER([grp.h], AC_DEFINE(GRP, 1, [Define if grp.h is available]))
 
 AC_CHECK_HEADER([sys/sendfile.h], AC_DEFINE(SENDFILE, 1, [Define if the sendfile syscall is present]))
 
-
 AC_CHECK_FUNCS(regcomp, AC_DEFINE(REGEX, 1, [Define if the regex library is present]) )
 
 AC_CHECK_FUNCS(gettimeofday, AC_DEFINE(GETTIMEOFDAY, 1, [Define if the gettimeofday function is present]) )
@@ -308,6 +307,8 @@ AC_SUBST(CXFLAGS)
 AC_SUBST(LDFLAGS)
 AC_SUBST(CPPUNIT_LDFLAGS)
 
+AC_TYPE_UID_T
+AC_TYPE_GETGROUPS
 
 AM_CONDITIONAL(BUILD_TESTS, test "$MAKE_TESTS" = "yes")
 

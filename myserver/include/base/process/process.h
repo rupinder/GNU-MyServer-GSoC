@@ -93,6 +93,9 @@ public:
   /*! Change the process ID.  */
   void setPid (int pid){this->pid = pid;}
 
+  static uid_t getUid (const char *user);
+  static gid_t getGid (const char *group);
+
   static int generateEnvString (const char **envp, char *envString);
   static int generateArgList (const char **args, const char *proc, string &additionalArgs);
 

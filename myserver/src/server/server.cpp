@@ -332,14 +332,14 @@ void Server::start(string &mainConf, string &mimeConf, string &vhostConf, string
 
     setProcessPermissions();
 
-    if (getGid ())
+    if (getGid ()[0])
     {
       ostringstream out;
       out << "gid: " << gid;
       logWriteln(out.str().c_str());
     }
 
-    if (getUid ())
+    if (getUid ()[0])
     {
       ostringstream out;
       out << "uid: " << uid;
@@ -1144,15 +1144,15 @@ int Server::initialize ()
 
   data = getHashedData ("server.uid");
   if(data)
-  {
     uid.assign (data);
-  }
+  else
+    uid.assign ("");
 
   data = getHashedData ("server.gid");
   if(data)
-  {
     gid.assign (data);
-  }
+  else
+    gid.assign ("");
 
   data = getHashedData ("server.max_servers");
   if(data)
