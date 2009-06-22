@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+
+<!--MODIFY THE FILE ONLY IF YOU ARE SURE OF WHAT YOU ARE DOING-->
+<MYSERVER>
+
+	<!--CHOOSE THE LANGUAGE TO USE FOR THE SERVER-->
+	<DEFINE name="server.language" value="english.xml" />
+
+	<!--VERBOSITY ON LOG FILE-->
+	<DEFINE name="server.verbosity" value="2" />
+
+	<!--NUMBER OF SERVING THREADS ALWAYS ACTIVE-->
+  <DEFINE name="server.static_threads" value="5" />
+
+	<!--MAXIMUM NUMBER OF SERVING THREADS THAT THE SCHEDULER CAN
+			CREATE-->
+	<DEFINE name="server.max_threads" value="200" />
+
+	<!--DIMENSION OF EVERY BUFFER IN BYTES IF ON THE MACHINE THERE IS A
+			LOT OF RAM	THIS VALUES CAN BE INCREASED TO MAKE MYSERVER
+			FASTER. NORMALLY THE MEMORY USED BY BUFFERS IS EQUAL TO
+			BUFFER_SIZE * 2 * NUM_OF_THREADS-->
+	<DEFINE name="server.buffer_size" value="102400" />
+
+	<!--DEFAULT FILENAME TO SEND IN A DIRECTORY
+			IF THE FILE ISN'T IN THE PATH THEN THE DIRECTORY
+			CONTENT IS SENT	-->
+  <DEFINE name="http.default_file">
+    <DEFINE value="default.html"/>
+    <DEFINE value="default.htm"/>
+    <DEFINE value="index.html"/>
+    <DEFINE value="index.htm"/>
+  </DEFINE>
+
+	<!--TIMEOUT OF EVERY CLIENTS CONNECTED TO THE SERVER.
+			IF THE CLIENT DOESN'T REQUEST ANYTHING FOR N
+			SECONDS THE CONNECTION WITH THE CLIENT IS
+			CLOSED. SET THIS TO 0 IF YOU DON'T WANT USE
+			KEEP-ALIVE CONNECTIONS	-->
+	<DEFINE name="connection.timeout" value="180" />
+
+	<!--SET THIS TO YES FOR USE PERSONALIZED PAGES TO SEND MESSAGE,
+			PERSONALIZED PAGES ARE IN THE SYSTEM DIRECTORY	-->
+	<DEFINE name="http.use_error_file" value="YES" />
+
+	<!--DEFINE THE MAX NUMBER OF CONNECTIONS TO ALLOW TO THE SERVER. IF
+			0 THEN INFINITE CONNECTIONS ARE ALLOWED.-->
+	<DEFINE name="server.max_connections" value="0" />
+
+	<!--DEFINE THE MAX NUMBER OF CONNECTIONS TO ACCEPT.-->
+	<DEFINE name="server.max_accepted_connections" value="0" />
+
+  <!--TEXT AND BACKGROUND ATTRIBUTES FOR CONSOLE LOG MESSAGES. -->
+  <DEFINE name="log_color.info_fg" value="white" />
+  <DEFINE name="log_color.info_bg" value="black" />
+
+  <DEFINE name="log_color.warning_fg" value="yellow" />
+  <DEFINE name="log_color.warning_bg" value="black" />
+
+  <DEFINE name="log_color.error_fg" value="red" />
+  <DEFINE name="log_color.error_bg" value="black" />
+
+	<!--MAX SIZE OF THE LOG FILE IN BYTES	-->
+	<DEFINE name="server.max_log_size" value="1048576" />
+
+	<!--DEFINE THE FOLDER BROWSING STYLE-->
+	<DEFINE name="http.dir.css" value="/sys/css/browsestyle.css" />
+
+	<!--DEFINE THE ADMINISTRATOR E-MAIL-->
+	<DEFINE name="server.admin" value="administrator@localhost" />
+
+	<!--DEFINE THE GZIP COMPRESSION THRESHOLD VALUE-->
+	<DEFINE name="gzip.threshold" value="1048576" />
+
+	<!--DEFINE IF LINKS SHOULD BE FOLLOWED-->
+	<DEFINE name="symlinks.follow" value="YES" />
+
+	<!--MAX CACHE SIZE FOR STATIC FILES-->
+	<DEFINE name="server.max_files_cache" value="10485760" />
+
+	<!--MAX CACHE SIZE FOR SINGLE STATIC FILE-->
+	<DEFINE name="server.max_file_cache" value="1048576" />
+
+	<!--MIN CACHE SIZE FOR SINGLE STATIC FILE-->
+	<DEFINE name="server.min_file_cache" value="1048576" />
+
+	<!-- ENABLE HOME DIRECTORY PER USER -->
+	<DEFINE name="http.use_home_directory" value="NO" />
+
+	<!-- DEFINE NAME FOR HOME DIRECTORY BROWSING, BY DEFAULT THE SERVER
+			 USES public_html -->
+	<DEFINE name="http.home_directory" value="public_html" />
+
+  <!--SET THIS TO YES IF YOU WANT TO ENABLE THE CONTROL PROTOCOL-->
+	<DEFINE name="control.enabled" value="NO" />
+
+	<!--MAXIMUM NUMBER OF EXTERNAL SERVERS THAT CAN BE EXECUTED-->
+	<DEFINE name="server.max_servers" value="100" />
+
+  <!--SET HERE THE NAME FOR THE CONTROL ADMIN. WE SUGGEST YOU YO USE
+      SOMETHING DIFFERENT FROM ADMIN, ADMINISTRATOR OR ROOT-->
+  <DEFINE name="control.admin" value="ADMIN" />
+
+  <!--DEFINE HERE A GOOD STRONG PASSWORD FOR THE ADMIN-->
+  <DEFINE name="control.password" value="PLEASE_CHANGE_THIS_PASSWORD" />
+
+  <!--FTP GLOBAL CONFIGURATION-->
+  <!--ALLOW ANONYMOUS LOGIN-->
+  <DEFINE name="ftp.allow_anonymous" value="NO" />
+
+  <!--IF ANONYMOUS ALLOWED, TELLS IF NEEDS PASS-->
+  <DEFINE name="ftp.anonymous_need_pass" value="NO" />
+
+  <!--ALLOW ASYNCHRONOUS CMDS LIKE Abor, Quit, Stat-->
+  <DEFINE name="ftp.allow_asynchronous_cmds" value="YES" />
+
+  <!--ALLOW CLIENTS TO SEND MORE THAN ONE COMMAND TO SERVER INTO ONE REQUEST-->
+  <DEFINE name="ftp.allow_pipelining" value="NO" />
+
+  <!--ALLOW CLIENTS TO CHANGE SERVER FILES-->
+  <DEFINE name="ftp.allow_store" value="NO" />
+</MYSERVER>
