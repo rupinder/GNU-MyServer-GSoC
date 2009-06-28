@@ -23,14 +23,8 @@ import unittest
 class DefinitionTest(unittest.TestCase):
     def test_creation(self):
         definition = Definition()
-        self.assertEqual(None, definition.get_name())
-        self.assertEqual({}, definition.attributes)
         definition = Definition('no attributes')
-        self.assertEqual('no attributes', definition.get_name())
-        self.assertEqual({}, definition.attributes)
         definition = Definition('with attributes', {'a': 'b', 'c': 'd'})
-        self.assertEqual('with attributes', definition.get_name())
-        self.assertEqual({'a': 'b', 'c': 'd'}, definition.attributes)
 
     def test_name(self):
         definition = Definition('name1')
@@ -50,6 +44,11 @@ class DefinitionTest(unittest.TestCase):
         definition.remove_attribute('e')
         self.assertEqual(None, definition.get_attribute('e'))
         self.assertRaises(KeyError, definition.remove_attribute, 'e')
+
+    def test_value(self):
+        self.assertRaises(KeyError, Definition, 'name', {'value': 'x'})
+        definition = Definition('name')
+        self.assertRaises(KeyError, definition.set_attribute, 'value', 'x')
 
     def test_from_string(self):
         text = '<DEFINE name="http.error.file.404" value="404.html" />'
@@ -75,6 +74,14 @@ class DefinitionElementTest(unittest.TestCase):
         self.assertTrue(isinstance(definition, Definition))
         definition = DefinitionElement('name', {'value': 'value'})
         self.assertTrue(isinstance(definition, Definition))
+
+    def test_value(self):
+        definition = DefinitionElement('name', {'value': 'x'})
+        self.assertEqual('x', definition.get_attribute('value'))
+        definition.set_attribute('value', 'y')
+        self.assertEqual('y', definition.get_attribute('value'))
+        definition.remove_attribute('value')
+        self.assertEqual(None, definition.get_attribute('value'))
 
     def test_from_string(self):
         text = '<DEFINE name="http.error.file.404" value="404.html" />'
@@ -140,80 +147,89 @@ domain="fastcgi" host="localhost" port="2010" local="yes" uid="1000" gid="1000"
         self.assertEqual(definition, copy)
 
 class DefinitionTreeTest(unittest.TestCase):
-    element_1 = DefinitionElement('http.error.file.404', {'value': '404.html'})
-    element_2 = DefinitionElement(attributes = {'server': '/opt/bin/fastcgi_server',
-                                                'domain': 'fastcgi', 'host': 'localhost',
-                                                'port': '2010', 'local': 'yes',
-                                                'uid': '1000', 'gid': '1000'})
+    def setUp(self):
+        self.element_1 = DefinitionElement('http.error.file.404',
+                                           {'value': '404.html'})
+        self.element_2 = DefinitionElement(
+            attributes = {'server': '/opt/bin/fastcgi_server',
+                          'domain': 'fastcgi', 'host': 'localhost',
+                          'port': '2010', 'local': 'yes',
+                          'uid': '1000', 'gid': '1000'})
+
     def test_creation(self):
         definition = DefinitionTree()
         self.assertTrue(isinstance(definition, Definition))
         definition = DefinitionTree('name')
         self.assertTrue(isinstance(definition, Definition))
-        definition = DefinitionTree('name', [DefinitionTreeTest.element_1])
+        definition = DefinitionTree('name', [self.element_1])
         self.assertTrue(isinstance(definition, Definition))
-        definition = DefinitionTree('name', [DefinitionTreeTest.element_2], {'value': '1'})
+        definition = DefinitionTree('name', [self.element_2], {'key': 'value'})
         self.assertTrue(isinstance(definition, Definition))
+
+    def test_value(self):
+        self.assertRaises(KeyError, DefinitionTree, 'name', [], {'value': 'x'})
+        definition = Definition('name')
+        self.assertRaises(KeyError, definition.set_attribute, 'value', 'x')
 
     def test_values(self):
         definition = DefinitionTree()
         self.assertEqual(0, len(definition.get_values()))
-        definition.add_value(DefinitionTreeTest.element_1)
+        definition.add_value(self.element_1)
         self.assertEqual(1, len(definition.get_values()))
-        self.assertEqual(DefinitionTreeTest.element_1, definition.get_value(0))
-        definition.add_value(DefinitionTreeTest.element_2)
+        self.assertEqual(self.element_1, definition.get_value(0))
+        definition.add_value(self.element_2)
         self.assertEqual(2, len(definition.get_values()))
-        self.assertEqual(DefinitionTreeTest.element_1, definition.get_value(0))
-        self.assertEqual(DefinitionTreeTest.element_2, definition.get_value(1))
+        self.assertEqual(self.element_1, definition.get_value(0))
+        self.assertEqual(self.element_2, definition.get_value(1))
         definition.remove_value(0)
         self.assertEqual(1, len(definition.get_values()))
-        self.assertEqual(DefinitionTreeTest.element_2, definition.get_value(0))
-        definition.add_value(DefinitionTreeTest.element_1, 0)
+        self.assertEqual(self.element_2, definition.get_value(0))
+        definition.add_value(self.element_1, 0)
         self.assertEqual(2, len(definition.get_values()))
-        self.assertEqual(DefinitionTreeTest.element_1, definition.get_value(0))
-        self.assertEqual(DefinitionTreeTest.element_2, definition.get_value(1))
+        self.assertEqual(self.element_1, definition.get_value(0))
+        self.assertEqual(self.element_2, definition.get_value(1))
 
     def test_from_string(self):
         text = '<DEFINE name="test" key="value">{0}{1}</DEFINE>'.format(
-            DefinitionTreeTest.element_1, DefinitionTreeTest.element_2)
+            self.element_1, self.element_2)
         definition = DefinitionTree.from_string(text)
         self.assertEqual('test', definition.get_name())
         self.assertEqual('value', definition.get_attribute('key'))
         definitions = definition.get_values()
         self.assertEqual(2, len(definitions))
-        self.assertEqual(DefinitionTreeTest.element_1, definitions[0])
-        self.assertEqual(DefinitionTreeTest.element_2, definitions[1])
+        self.assertEqual(self.element_1, definitions[0])
+        self.assertEqual(self.element_2, definitions[1])
 
     def test_from_lxml(self):
         root = etree.Element('DEFINE')
         root.set('name', 'test')
         root.set('key', 'value')
-        root.append(DefinitionTreeTest.element_1.to_lxml_element())
-        root.append(DefinitionTreeTest.element_2.to_lxml_element())
+        root.append(self.element_1.to_lxml_element())
+        root.append(self.element_2.to_lxml_element())
         definition = DefinitionTree.from_lxml_element(root)
         self.assertEqual('test', definition.get_name())
         self.assertEqual('value', definition.get_attribute('key'))
         definitions = definition.get_values()
         self.assertEqual(2, len(definitions))
-        self.assertEqual(DefinitionTreeTest.element_1, definitions[0])
-        self.assertEqual(DefinitionTreeTest.element_2, definitions[1])
+        self.assertEqual(self.element_1, definitions[0])
+        self.assertEqual(self.element_2, definitions[1])
 
     def test_equality(self):
         text = '<DEFINE name="test" key="value">{0}{1}</DEFINE>'.format(
-            DefinitionTreeTest.element_1, DefinitionTreeTest.element_2)
+            self.element_1, self.element_2)
         self.assertEqual(DefinitionTree.from_string(text), DefinitionTree.from_string(text))
         self.assertNotEqual(DefinitionTree.from_string(text), DefinitionTree('test'))
 
     def test_to_string(self):
         text = '<DEFINE name="test" key="value">{0}{1}</DEFINE>'.format(
-            DefinitionTreeTest.element_1, DefinitionTreeTest.element_2)
+            self.element_1, self.element_2)
         definition = DefinitionTree.from_string(text)
         copy = DefinitionTree.from_string(str(definition))
         self.assertEqual(definition, copy)
 
     def test_to_lxml(self):
         text = '<DEFINE name="test" key="value">{0}{1}</DEFINE>'.format(
-            DefinitionTreeTest.element_1, DefinitionTreeTest.element_2)
+            self.element_1, self.element_2)
         definition = DefinitionTree.from_string(text)
         copy = DefinitionTree.from_lxml_element(definition.to_lxml_element())
         self.assertEqual(definition, copy)

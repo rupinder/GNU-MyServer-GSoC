@@ -24,6 +24,8 @@ class Definition():
 
     def __init__(self, name = None, attributes = {}):
         '''Creates new definition with given name and attributes.'''
+        if attributes.has_key('value'):
+            raise KeyError('value is not an allowed key')
         self.name = name
         self.attributes = attributes
 
@@ -44,6 +46,8 @@ class Definition():
 
     def set_attribute(self, key, value):
         '''Set attribute key to given value.'''
+        if key == 'value':
+            raise KeyError('value is not an allowd key')
         self.attributes[key] = value
 
     def remove_attribute(self, key):
@@ -69,10 +73,22 @@ class DefinitionElement(Definition):
 
     def __init__(self, name = None, attributes = {}):
         '''Creates new definition element with given name and attributes.'''
-        Definition.__init__(self, name, attributes)
+        if attributes.has_key('value'):
+            value = attributes.pop('value')
+            Definition.__init__(self, name, attributes)
+            self.attributes['value'] = value
+        else:
+            Definition.__init__(self, name, attributes)
 
     def __eq__(self, other):
         return Definition.__eq__(self, other)
+
+    def set_attribute(self, key, value):
+        '''Set attribute key to given value.'''
+        if key == 'value':
+            self.attributes['value'] = value
+        else:
+            Definition.set_attribute(self, key, value)
 
     def to_lxml_element(self):
         '''Convert definition element to etree.Element object.'''
