@@ -71,6 +71,9 @@ class DefinitionTest(unittest.TestCase):
         self.assertRaises(AttributeError, Definition.from_string, text)
         self.assertRaises(AttributeError, Definition.from_lxml_element,
                           etree.XML(text))
+
+    def test_equality(self):
+        self.assertNotEqual(Definition(), 'different type')
     
 class DefinitionElementTest(unittest.TestCase):
     def test_creation(self):
@@ -136,6 +139,7 @@ host="localhost" port="2010" local="yes" uid="1000" gid="1000" />'''
                             DefinitionElement('name2'))
         self.assertNotEqual(DefinitionElement('name', {'attribute': '1'}),
                             DefinitionElement('name', {'attribute': '2'}))
+        self.assertNotEqual(DefinitionElement(), 'different type')
 
     def test_to_string(self):
         text = '''<DEFINE server="/opt/bin/fastcgi_server" domain="fastcgi"
@@ -231,6 +235,7 @@ class DefinitionTreeTest(unittest.TestCase):
             self.element_1, self.element_2)
         self.assertEqual(DefinitionTree.from_string(text), DefinitionTree.from_string(text))
         self.assertNotEqual(DefinitionTree.from_string(text), DefinitionTree('test'))
+        self.assertNotEqual(DefinitionTree(), 'different type')
 
     def test_to_string(self):
         text = '<DEFINE name="test" key="value">{0}{1}</DEFINE>'.format(

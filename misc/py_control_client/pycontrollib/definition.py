@@ -30,7 +30,9 @@ class Definition():
         self.attributes = attributes
 
     def __eq__(self, other):
-        return self.name == other.name and self.attributes == other.attributes
+        return isinstance(other, Definition) and \
+            self.name == other.name and \
+            self.attributes == other.attributes
 
     def get_name(self):
         '''Definition name, None means no name.'''
@@ -83,7 +85,8 @@ class DefinitionElement(Definition):
             Definition.__init__(self, name, attributes)
 
     def __eq__(self, other):
-        return Definition.__eq__(self, other)
+        return isinstance(other, DefinitionElement) and \
+            Definition.__eq__(self, other)
 
     def set_attribute(self, key, value):
         '''Set attribute key to given value.'''
@@ -128,7 +131,9 @@ class DefinitionTree(Definition):
         self.values = values
 
     def __eq__(self, other):
-        return Definition.__eq__(self, other) and self.values == other.values
+        return isinstance(other, DefinitionTree) and \
+            Definition.__eq__(self, other) and \
+            self.values == other.values
 
     def get_values(self):
         '''Get all sub-definitions.'''
