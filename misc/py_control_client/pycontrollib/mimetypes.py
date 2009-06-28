@@ -16,23 +16,19 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+from definition import Definition
 from lxml import etree
 
 class MIMEType():
     valid_handlers = set(['SEND', 'CGI', 'FASTCGI', 'SCGI', 'MSCGI', 'ISAPI',
                           'WINCGI', 'PROxY'])
 
-    class WrongArguments(Exception):
-        '''Exception raised when MIMEType is constructed with invalid
-        arguments.'''
-        pass
-
-    def __init__(self, mime, handler, param, extension, path = None,
-                 filter = None, self_executed = None, definitions = None):
+    def __init__(self, mime, handler, param = None, extension = set(), path = None,
+                 filter = [], self_executed = None, definitions = []):
         '''Creates new MIMEType with specified attributes.'''
         self.mime = mime
         if handler not in MIMEType.valid_handlers:
-            raise MIMEType.WrongArguments(
+            raise AttributeError(
                 '{0} is not a valid handler'.format(handler))
         self.handler = handler
         self.param = param
@@ -41,7 +37,101 @@ class MIMEType():
         self.filter = filter
         self.self_executed = self_executed
         self.definitions = definitions
-        
+
+    def get_mime(self):
+        '''Get associated mime type.'''
+        return self.mime
+
+    def set_mime(self, mime):
+        '''Set associated mime type.'''
+        self.mime = mime
+
+    def get_handler(self):
+        '''Get associated handler.'''
+        return self.handler
+
+    def set_handler(self, handler):
+        '''Set associated handler.'''
+        if handler not in MIMEType.valid_handlers:
+            raise AttributeError(
+                '{0} is not a valid handler'.format(handler))
+        self.handler = handler
+
+    def get_param(self):
+        '''Get associated param.'''
+        return self.param
+
+    def set_param(self, param):
+        '''Set associated param. None means no param.'''
+        self.param = param
+
+    def get_extensions(self):
+        '''Get associated extensions.'''
+        return self.extension
+
+    def remove_extension(self, extension):
+        '''Remove extension from associated extensions.'''
+        self.extension.remove(extension)
+
+    def add_extension(self, extension):
+        '''Add extension to associated extensions.'''
+        self.extension.add(extension)
+
+    def get_path(self):
+        '''Get associated path.'''
+        return self.path
+
+    def set_path(self, path):
+        '''Set associated path. None means no path.'''
+        self.path = path
+
+    def get_filters(self):
+        '''Get associated filters.'''
+        return self.filter
+
+    def get_filter(self, index):
+        '''Get filter with given index.'''
+        return self.filter[index]
+
+    def remove_filter(self, index):
+        '''Remove filter with given index.'''
+        self.filter.pop(index)
+
+    def add_filter(self, filter, index = None):
+        '''Append filter after all other filters, or insert it at index.'''
+        if index is None:
+            self.filter.append(filter)
+        else:
+            self.filter.insert(index, filter)
+
+    def get_self_executed(self):
+        '''Get self_executed setting.'''
+        return self.self_executed
+
+    def set_self_executed(self, self_executed):
+        '''Set self_executed setting.'''
+        self.self_executed = self_executed
+
+    def get_definitions(self):
+        '''Get all definitions.'''
+        return self.definitions
+    
+    def get_definition(self, index):
+        '''Get definition with given index.'''
+        return self.definitions[index]
+
+    def add_definition(self, definition, index = None):
+        '''Append definition after all other definitions, or insert it at
+        index.'''
+        if index is None:
+            self.definitions.append(definition)
+        else:
+            self.definitions.insert(index, definition)
+
+    def remove_definition(self, index):
+        '''Remove definition with given index.'''
+        self.definitions.pop(index)
+
     def __eq__(self, other):
         return \
             self.mime == other.mime and \
@@ -60,42 +150,54 @@ class MIMEType():
             return element
         def make_extension_element(extension):
             return make_element('EXTENSION', 'value', extension)
+        def make_filter_element(filter):
+            return make_element('FILTER', 'value', filter)
         root = etree.Element('MIME')
         root.set('mime', self.mime)
         root.set('handler', self.handler)
-        root.set('param', self.param)
+        if self.param is not None:
+            root.set('param', self.param)
         if self.self_executed is not None:
             root.set('self', 'YES' if self.self_executed else 'NO')
-        for element in map(make_extension_element, self.extension):
-            root.append(element)
         if self.path is not None:
             root.append(make_element('PATH', 'regex', self.path))
-        if self.filter is not None:
-            root.append(make_element('FILTER', 'value', self.filter))
+        for element in map(make_extension_element, self.extension):
+            root.append(element)
+        for element in map(make_filter_element, self.filter):
+            root.append(element)
+        for definition in self.definitions:
+            root.append(definition.to_lxml_element())
         return root
 
-    def __str__(self): # TODO: definitions
+    def __str__(self):
         return etree.tostring(self.to_lxml_element(), pretty_print = True)
 
     @staticmethod
-    def from_lxml_element(root): # TODO: definitions
+    def from_lxml_element(root):
         '''Factory to produce MIMEType from etree.Element object.'''
+        if root.tag != 'MIME':
+            raise AttributeError('Expected MIME tag.')
         mime = root.get('mime', None)
         handler = root.get('handler', None)
         param = root.get('param', None)
         self_executed = root.get('self', None)
         if self_executed is not None:
-            self_executed = False if self_executed == 'NO' else True
-        extension = set(map(lambda element: element.get('value'),
-                            root.findall('EXTENSION')))
-        path = root.find('PATH')
-        if path is not None:
-            path = path.get('regex')
-        filter = root.find('FILTER')
-        if filter is not None:
-            filter = filter.get('value')
+            self_executed = self_executed == 'YES'
+        path = None
+        extension = set()
+        filter = []
+        definitions = []
+        for child in list(root):
+            if child.tag == 'PATH':
+                path = child.get('regex')
+            elif child.tag == 'FILTER':
+                filter.append(child.get('value'))
+            elif child.tag == 'EXTENSION':
+                extension.add(child.get('value'))
+            elif child.tag == 'DEFINE':
+                definitions.append(Definition.from_lxml_element(child))
         return MIMEType(mime, handler, param, extension, path, filter,
-                        self_executed, None)
+                        self_executed, definitions)
 
     @staticmethod
     def from_string(text):
@@ -121,7 +223,9 @@ class MIMETypes():
     @staticmethod
     def from_lxml_element(root):
         '''Factory to produce MIMETypes from etree.Element object.'''
-        return MIMETypes(map(MIMEType.from_lxml_element, root.findall('MIME')))
+        if root.tag != 'MIMES':
+            raise AttributeError('Expected MIMES tag.')
+        return MIMETypes(map(MIMEType.from_lxml_element, list(root)))
     
     @staticmethod
     def from_string(text):
