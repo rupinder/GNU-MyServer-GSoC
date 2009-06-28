@@ -66,6 +66,12 @@ class DefinitionTest(unittest.TestCase):
         definition = Definition.from_lxml_element(etree.XML(text))
         self.assertTrue(isinstance(definition, DefinitionTree))
 
+    def test_bad_root_tag(self):
+        text = '<ERROR name="http.error.file.404" value="404.html" />'
+        self.assertRaises(AttributeError, Definition.from_string, text)
+        self.assertRaises(AttributeError, Definition.from_lxml_element,
+                          etree.XML(text))
+    
 class DefinitionElementTest(unittest.TestCase):
     def test_creation(self):
         definition = DefinitionElement()
@@ -145,6 +151,12 @@ domain="fastcgi" host="localhost" port="2010" local="yes" uid="1000" gid="1000"
         definition = DefinitionElement.from_string(text)
         copy = DefinitionElement.from_lxml_element(definition.to_lxml_element())
         self.assertEqual(definition, copy)
+
+    def test_bad_root_tag(self):
+        text = '<ERROR name="http.error.file.404" value="404.html" />'
+        self.assertRaises(AttributeError, Definition.from_string, text)
+        self.assertRaises(AttributeError, Definition.from_lxml_element,
+                          etree.XML(text))
 
 class DefinitionTreeTest(unittest.TestCase):
     def setUp(self):
@@ -233,6 +245,13 @@ class DefinitionTreeTest(unittest.TestCase):
         definition = DefinitionTree.from_string(text)
         copy = DefinitionTree.from_lxml_element(definition.to_lxml_element())
         self.assertEqual(definition, copy)
+
+    def test_bad_root_tag(self):
+        text = '<ERROR name="test" key="value">{0}{1}</ERROR>'.format(
+            self.element_1, self.element_2)
+        self.assertRaises(AttributeError, Definition.from_string, text)
+        self.assertRaises(AttributeError, Definition.from_lxml_element,
+                          etree.XML(text))
 
 if __name__ == '__main__':
     unittest.main()

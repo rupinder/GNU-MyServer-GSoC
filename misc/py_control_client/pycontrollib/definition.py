@@ -58,6 +58,8 @@ class Definition():
     def from_lxml_element(root):
         '''Factory to produce definition element or tree from etree.Element
         object.'''
+        if root.tag != 'DEFINE':
+            raise AttributeError('Expected DEFINE tag.')
         if len(list(root)):
             return DefinitionTree.from_lxml_element(root)
         else:
@@ -105,6 +107,8 @@ class DefinitionElement(Definition):
     @staticmethod
     def from_lxml_element(root):
         '''Factory to produce definition element from etree.Element object.'''
+        if root.tag != 'DEFINE':
+            raise AttributeError('Expected DEFINE tag.')
         attributes = root.attrib
         name = attributes.pop('name', None)
         return DefinitionElement(name, attributes)
@@ -149,6 +153,8 @@ class DefinitionTree(Definition):
     @staticmethod
     def from_lxml_element(root):
         '''Factory to produce definition tree from etree.Element object.'''
+        if root.tag != 'DEFINE':
+            raise AttributeError('Expected DEFINE tag.')
         attributes = root.attrib
         name = attributes.pop('name', None)
         values = map(Definition.from_lxml_element, list(root))
