@@ -284,15 +284,14 @@ void HttpDir::generateElement (MemBuf &out,
 /*!
  *Browse a directory printing its contents in an HTML file.
  *\param td The current thread context.
- *\param s The current connection structure.
  *\param directory Directory to show.
  *\param cgi not used.
  *\param execute not used.
  *\param onlyHeader Specify if send only the HTTP header.
 */
-int HttpDir::send(HttpThreadContext* td, ConnectionPtr s, 
+int HttpDir::send(HttpThreadContext* td,
                   const char* directory, const char* cgi, 
-                  int execute, int onlyHeader)
+                  bool execute, bool onlyHeader)
 {
   u_long nbw;
   string filename;
@@ -347,7 +346,7 @@ int HttpDir::send(HttpThreadContext* td, ConnectionPtr s,
     HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(), 
                                          &(td->response));
 
-    if(s->socket->send(td->buffer->getBuffer(), 
+    if(td->connection->socket->send(td->buffer->getBuffer(), 
                        (u_long)strlen(td->buffer->getBuffer()), 0) 
        == SOCKET_ERROR)
     {

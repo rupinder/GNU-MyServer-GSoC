@@ -50,9 +50,14 @@ class MimeRecord;
  */
 struct HttpThreadContext
 {
-	int appendOutputs;/*! Used by SSI. */
-  int lastError;/*! Used by SSI and set by raiseHTTPError. */
-  int onlyHeader;/*! Is the client asking only for the header? */
+	int appendOutputs;
+  
+  /*! Used by SSI and set by raiseHTTPError.  */
+  int lastError;
+
+  /*! Is the client asking only for the header?  */
+  bool onlyHeader;
+
 	ConnectionPtr connection;
 	MemBuf *buffer;
 	MemBuf *secondaryBuffer;

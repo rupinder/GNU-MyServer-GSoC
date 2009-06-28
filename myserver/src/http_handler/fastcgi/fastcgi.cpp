@@ -57,9 +57,8 @@ struct FourChar
 /*!
  *Entry-Point to manage a FastCGI request.
  */
-int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
-                  const char* scriptpath, const char *cgipath,
-                  int execute, int onlyHeader)
+int FastCgi::send(HttpThreadContext* td, const char* scriptpath,
+                  const char *cgipath, bool execute, bool onlyHeader)
 {
   FcgiContext con;
   u_long nbr = 0;

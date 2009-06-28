@@ -199,18 +199,16 @@ int HttpFile::deleteFile (HttpThreadContext* td,
 /*!
  *Send a file to the client using the HTTP protocol.
  *\param td The current HTTP thread context.
- *\param s A pointer to the connection.
  *\param filenamePath The path of the static file to send.
  *\param exec Not used.
  *\param execute Not used.
  *\param onlyHeader Specify if send only the HTTP header.
   */
 int HttpFile::send(HttpThreadContext* td,
-                   ConnectionPtr s,
                    const char *filenamePath,
                    const char* exec,
-                   int execute,
-                   int onlyHeader)
+                   bool execute,
+                   bool onlyHeader)
 {
   /*
    *With this routine we send a file through the HTTP protocol.
@@ -494,7 +492,7 @@ int HttpFile::send(HttpThreadContext* td,
     if(!td->appendOutputs)
     {
       /* Send the HTTP header.  */
-      if(s->socket->send(td->buffer->getBuffer(), 
+      if(td->connection->socket->send(td->buffer->getBuffer(),
                          (u_long)td->buffer->getLength(), 0) == SOCKET_ERROR)
       {
         file->close();
@@ -525,7 +523,8 @@ int HttpFile::send(HttpThreadContext* td,
        !(td->http->getProtocolOptions() & PROTOCOL_USES_SSL))
     {
       u_long nbw = 0;
-      int ret = file->fastCopyToSocket (s->socket, firstByte, td->buffer, &nbw);
+      int ret = file->fastCopyToSocket (td->connection->socket, firstByte,
+                                        td->buffer, &nbw);
 
       file->close();
       delete file;
@@ -540,7 +539,7 @@ int HttpFile::send(HttpThreadContext* td,
     if(td->appendOutputs)
       chain.setStream(&(td->outputData));
     else
-      chain.setStream(s->socket);
+      chain.setStream(td->connection->socket);
 
     /*
      *Flush initial data.  This is data that filters could have added
@@ -691,7 +690,7 @@ int HttpFile::send(HttpThreadContext* td,
   {
     file->close ();
     delete file;
-    s->host->warningsLogWrite ("HttpFile: Error allocating memory");
+    td->connection->host->warningsLogWrite ("HttpFile: Error allocating memory");
     chain.clearAllFilters ();
     return td->http->raiseHTTPError (500);
   }
@@ -699,7 +698,7 @@ int HttpFile::send(HttpThreadContext* td,
   {
     file->close ();
     delete file;
-    s->host->warningsLogWrite ("HttpFile: Internal error");
+    td->connection->host->warningsLogWrite ("HttpFile: Internal error");
     chain.clearAllFilters();
     return td->http->raiseHTTPError (500);
   };

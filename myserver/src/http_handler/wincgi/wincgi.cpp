@@ -60,9 +60,8 @@ WinCgi::~WinCgi()
 /*!
  *Send the WinCGI data.
  */
-int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,
-                 const char* scriptpath, const char *cgipath,
-                 int /*execute*/, int onlyHeader)
+int WinCgi::send(HttpThreadContext* td, const char* scriptpath,
+                 const char *cgipath, bool /*execute*/, bool onlyHeader)
 {
 #ifdef WIN32
   FiltersChain chain;

@@ -732,9 +732,9 @@ BOOL Isapi::buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
 /*!
  *Main procedure to call an ISAPI module.
  */
-int Isapi::send(HttpThreadContext* td,ConnectionPtr connection, 
+int Isapi::send(HttpThreadContext* td,
                 const char* scriptpath, const char *cgipath, 
-                int execute, int onlyHeader)
+                bool execute, bool onlyHeader)
 {
 /*!
  *ISAPI works only on the windows architecture.
@@ -820,7 +820,7 @@ int Isapi::send(HttpThreadContext* td,ConnectionPtr connection,
       }
   }
 
-  connTable[connIndex].connection = connection;
+  connTable[connIndex].connection = td->connection;
   connTable[connIndex].td = td;
   connTable[connIndex].onlyHeader = onlyHeader;
   connTable[connIndex].headerSent = 0;

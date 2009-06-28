@@ -683,7 +683,6 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     if (td->mime && (manager = staticHttp.dynManagerList.getHttpManager (td->mime->cmdName)))
       {
         return manager->send (td,
-                              td->connection,
                               td->filenamePath.c_str(),
                               cgiManager,
                               td->mime->selfExecuted,
@@ -699,8 +698,7 @@ int Http::sendHTTPResource(string& uri, int systemrequest, int onlyHeader,
     if (!manager)
       return raiseHTTPError (500);
 
-    return manager->send (td, td->connection, td->filenamePath.c_str(),
-                          0, onlyHeader);
+    return manager->send (td, td->filenamePath.c_str(), 0, onlyHeader);
   }
   catch (...)
   {
@@ -1753,8 +1751,7 @@ int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
       return raiseHTTPError (500);
     }
 
-  return handler->send (td, td->connection, td->filenamePath.c_str(),
-                        0, onlyHeader);
+  return handler->send (td, td->filenamePath.c_str(), 0, onlyHeader);
 }
 
 /*!

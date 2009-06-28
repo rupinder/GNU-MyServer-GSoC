@@ -38,9 +38,8 @@ ProcessServerManager *Scgi::processServerManager = 0;
 /*!
  *Entry-Point to manage a SCGI request.
  */
-int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
-               const char* scriptpath, const char *cgipath,
-               int execute, int onlyHeader)
+int Scgi::send(HttpThreadContext* td, const char* scriptpath,
+               const char *cgipath, bool execute, bool onlyHeader)
 {
   ScgiContext con;
   FiltersChain chain;
@@ -89,7 +88,6 @@ int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
   td->buffer->setLength(0);
   td->secondaryBuffer->getAt(0) = '\0';
-
 
   {
     /*! Do not modify the text between " and ".  */

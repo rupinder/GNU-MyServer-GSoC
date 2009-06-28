@@ -35,17 +35,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *Forward the HTTP requesto to another server.
  *
  *\param td The HTTP thread context.
- *\param s A pointer to the connection structure.
  *\param scriptpath Not used.
  *\param exec The remote server Url.
  *\param execute Not used.
  *\param onlyHeader Specify if send only the HTTP header.
  */
-int Proxy::send (HttpThreadContext *td, ConnectionPtr s,
+int Proxy::send (HttpThreadContext *td,
                  const char* scriptpath,
                  const char* exec,
-                 int execute,
-                 int onlyHeader)
+                 bool execute,
+                 bool onlyHeader)
 {
   Url destUrl (exec, 80);
   Socket sock;
@@ -87,7 +86,7 @@ int Proxy::send (HttpThreadContext *td, ConnectionPtr s,
   td->request.getValue ("X-Forwarded-For", &xForwardedFor);
   if (xForwardedFor.size ())
     xForwardedFor.append (", ");
-  xForwardedFor.append (s->getIpAddr ());
+  xForwardedFor.append (td->connection->getIpAddr ());
   req.setValue ("X-Forwarded-For", xForwardedFor.c_str ());
 
 	u_long hdrLen = HttpHeaders::buildHTTPRequestHeader (td->secondaryBuffer->getBuffer (),

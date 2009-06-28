@@ -55,9 +55,9 @@ public:
   Scgi();
   virtual int load();
   virtual int unLoad();
-  int send(HttpThreadContext* td, ConnectionPtr connection,
-           const char* scriptpath, const char *cgipath = 0,
-           int execute = 0, int onlyHeader = 0);
+  int send(HttpThreadContext* td, const char* scriptpath,
+           const char *cgipath = 0, bool execute = false,
+           bool onlyHeader = false);
 private:
   static ProcessServerManager *processServerManager;
   static int initialized;

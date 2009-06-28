@@ -35,14 +35,13 @@ DynamicLibrary MsCgi::mscgiModule;
  *Sends the MyServer CGI; differently from standard CGI this doesn't 
  *need a new process to run making it faster.
  *\param td The HTTP thread context.
- *\param s A pointer to the connection structure.
  *\param exec The script path.
  *\param cmdLine The command line.
  *\param execute Specify if the script has to be executed.
  *\param onlyHeader Specify if send only the HTTP header.
  */
-int MsCgi::send(HttpThreadContext* td, ConnectionPtr s,const char* exec,
-                const char* cmdLine, int /*execute*/, int onlyHeader)
+int MsCgi::send(HttpThreadContext* td, const char* exec, const char* cmdLine,
+                bool /*execute*/, bool onlyHeader)
 
 {
   /*
@@ -221,7 +220,7 @@ int MsCgi::sendHeader(MsCgiData* mcd)
     ConnectionPtr s = td->connection;
 
     u_long hdrLen = HttpHeaders::buildHTTPResponseHeader(buffer, &(td->response));
-    if(s->socket->send(buffer, hdrLen, 0) == SOCKET_ERROR)
+    if(td->connection->socket->send(buffer, hdrLen, 0) == SOCKET_ERROR)
       return 1;
   }
 

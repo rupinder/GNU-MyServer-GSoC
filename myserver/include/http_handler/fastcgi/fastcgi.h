@@ -164,9 +164,10 @@ public:
   static void setTimeout (int);
 	FastCgi ();
 	virtual int load ();
-	virtual int send (HttpThreadContext* td, ConnectionPtr connection,
-                   const char* scriptpath, const char *cgipath, 
-                   int execute = 0, int onlyHeader = 0);
+	virtual int send (HttpThreadContext* td, const char* scriptpath,
+                    const char *cgipath, bool execute = false,
+                    bool onlyHeader = false);
+
 	virtual int unLoad ();
 private:
 	static ProcessServerManager *processServerManager;
