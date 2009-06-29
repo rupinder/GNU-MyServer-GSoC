@@ -32,17 +32,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-extern "C"
-{
-#ifdef WIN32
-#include <direct.h>
-#include <errno.h>
-#else
-#include <string.h>
-#include <errno.h>
-#endif
-}
-
 /*!
  *Read primitive post data as it is sent by the client without apply any filter
  *in a contiguous manner, first read from the memory buffer and after from the
