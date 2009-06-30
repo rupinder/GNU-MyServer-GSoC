@@ -75,9 +75,9 @@ public:
 
     BitVec vecTrue (200, true);
 
-    CPPUNIT_ASSERT_EQUAL (vecFalse.get (0), true);
-    CPPUNIT_ASSERT_EQUAL (vecFalse.get (10), true);
-    CPPUNIT_ASSERT_EQUAL (vecFalse.get (100), true);
+    CPPUNIT_ASSERT_EQUAL (vecTrue.get (0), true);
+    CPPUNIT_ASSERT_EQUAL (vecTrue.get (10), true);
+    CPPUNIT_ASSERT_EQUAL (vecTrue.get (100), true);
   }
 
 

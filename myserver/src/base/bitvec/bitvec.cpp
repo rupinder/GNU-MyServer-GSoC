@@ -20,7 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 
 
-#if 0
+#if !HAVE_FFSL
+/* FIXME: move somewhere else.  */
 int ffsl (long int i)
 {
   for (int j = 0; i < sizeof (i)*8; i++)

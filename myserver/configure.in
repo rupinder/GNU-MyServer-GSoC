@@ -103,6 +103,8 @@ AC_CHECK_FUNCS(fstatat, AC_DEFINE(FSTATAT, 1, [Define if the fstatat function is
 
 AC_CHECK_FUNCS(getpwnam, AC_DEFINE(GETPWNAM, 1, [Define if the getpwnam function is present]) )
 
+AC_CHECK_FUNCS(ffsl, AC_DEFINE(FFSL, 1, [Define if the ffsl function is present]) )
+
 AC_CHECK_LIB(gcrypt, gcry_control, AC_DEFINE(GCRY_CONTROL, 1, [Define if the gcry_control function is present]))
 
 case "${host}" in
@@ -360,6 +362,7 @@ AC_CONFIG_FILES([
     include/http_handler/isapi/Makefile
     include/http_handler/http_dir/Makefile
     include/base/Makefile
+    include/base/bitvec/Makefile
     include/base/find_data/Makefile
     include/base/file/Makefile
     include/base/pipe/Makefile
@@ -369,6 +372,7 @@ AC_CONFIG_FILES([
     include/base/multicast/Makefile
     include/base/sync/Makefile
     include/base/safetime/Makefile
+    include/base/slab/Makefile
     include/base/socket/Makefile
     include/base/socket_pair/Makefile
     include/base/hash_map/Makefile
@@ -412,6 +416,7 @@ AC_CONFIG_FILES([
     src/http_handler/isapi/Makefile
     src/http_handler/http_dir/Makefile
     src/base/Makefile
+    src/base/bitvec/Makefile
     src/base/find_data/Makefile
     src/base/file/Makefile
     src/base/pipe/Makefile
@@ -427,6 +432,7 @@ AC_CONFIG_FILES([
     src/base/dynamic_lib/Makefile
     src/base/process/Makefile
     src/base/md5/Makefile
+    src/base/slab/Makefile
     src/base/ssl/Makefile
     src/base/xml/Makefile
     src/base/files_cache/Makefile

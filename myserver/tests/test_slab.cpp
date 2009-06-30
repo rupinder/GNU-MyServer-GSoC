@@ -69,7 +69,7 @@ public:
       }
 
     /* No more free instances.  */
-    CPPUNIT_ASSERT_EQUAL (slabs.get (), NULL);
+    CPPUNIT_ASSERT_EQUAL (slabs.get (), (TestSlabRecord*)NULL);
 
     for (int j = 0; j < N; j++)
       slabs.put (recs[j]);

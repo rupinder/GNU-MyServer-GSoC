@@ -33,6 +33,11 @@ public:
     data = new T[capacity];
   }
 
+  int getCapacity ()
+  {
+    return capacity;
+  }
+
   T* forcedGet ()
   {
     T* ret = get ();
