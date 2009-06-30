@@ -74,16 +74,16 @@ class StreamTest(unittest.TestCase):
         self.assertEqual(['gzip'], log.get_filters())
 
     def test_from_string(self):
-        text = '''<STREAM location="path" cycle=123 cycle_gzip="NO">
+        text = '''<STREAM location="path" cycle="123" cycle_gzip="NO">
   <FILTER>gzip</FILTER>
   <FILTER>bzip2</FILTER>
 </STREAM>'''
         log = Stream.from_string(text)
         self.assertEqual('path', log.get_location())
-        self.assertEqual(123, log.get_cycle())
+        self.assertEqual('123', log.get_cycle())
         self.assertFalse(log.get_cycle_gzip())
         self.assertEqual(['gzip', 'bzip2'], log.get_filters())
-        text = '<STREAM location="path />'
+        text = '<STREAM location="path" />'
         log = Stream.from_string(text)
         self.assertEqual('path', log.get_location())
         self.assertEqual(None, log.get_cycle())
@@ -91,16 +91,16 @@ class StreamTest(unittest.TestCase):
         self.assertEqual([], log.get_filters())
 
     def test_from_lxml(self):
-        text = '''<STREAM location="path" cycle=123 cycle_gzip="NO">
+        text = '''<STREAM location="path" cycle="123" cycle_gzip="NO">
   <FILTER>gzip</FILTER>
   <FILTER>bzip2</FILTER>
 </STREAM>'''
         log = Stream.from_lxml_element(etree.XML(text))
         self.assertEqual('path', log.get_location())
-        self.assertEqual(123, log.get_cycle())
+        self.assertEqual('123', log.get_cycle())
         self.assertFalse(log.get_cycle_gzip())
         self.assertEqual(['gzip', 'bzip2'], log.get_filters())
-        text = '<STREAM location="path />'
+        text = '<STREAM location="path" />'
         log = Stream.from_lxml_element(etree.XML(text))
         self.assertEqual('path', log.get_location())
         self.assertEqual(None, log.get_cycle())
@@ -116,17 +116,18 @@ class StreamTest(unittest.TestCase):
     def test_equality(self):
         self.assertEqual(Stream('path', 123, False, ['gzip', 'bzip2']),
                          Stream('path', 123, False, ['gzip', 'bzip2']))
-        self.assertEqual(Stream('path1', 123, False, ['gzip', 'bzip2']),
-                         Stream('path2', 123, False, ['gzip', 'bzip2']))
-        self.assertEqual(Stream('path', 1234, False, ['gzip', 'bzip2']),
-                         Stream('path', 123, False, ['gzip', 'bzip2']))
-        self.assertEqual(Stream('path', 123, True, ['gzip', 'bzip2']),
-                         Stream('path', 123, False, ['gzip', 'bzip2']))
-        self.assertEqual(Stream('path', 123, True, ['bzip2']),
-                         Stream('path', 123, False, ['gzip', 'bzip2']))
+        self.assertNotEqual(Stream('path1', 123, False, ['gzip', 'bzip2']),
+                            Stream('path2', 123, False, ['gzip', 'bzip2']))
+        self.assertNotEqual(Stream('path', 1234, False, ['gzip', 'bzip2']),
+                            Stream('path', 123, False, ['gzip', 'bzip2']))
+        self.assertNotEqual(Stream('path', 123, True, ['gzip', 'bzip2']),
+                            Stream('path', 123, False, ['gzip', 'bzip2']))
+        self.assertNotEqual(Stream('path', 123, True, ['bzip2']),
+                            Stream('path', 123, False, ['gzip', 'bzip2']))
+        self.assertNotEqual([], Stream('path'))
 
     def test_to_string(self):
-        text = '''<STREAM location="path" cycle=123 cycle_gzip="NO">
+        text = '''<STREAM location="path" cycle="123" cycle_gzip="NO">
   <FILTER>gzip</FILTER>
   <FILTER>bzip2</FILTER>
 </STREAM>'''
@@ -135,10 +136,13 @@ class StreamTest(unittest.TestCase):
         self.assertEqual(log, copy)
 
     def test_to_lxml(self):
-        text = '''<STREAM location="path" cycle=123 cycle_gzip="NO">
+        text = '''<STREAM location="path" cycle="123" cycle_gzip="NO">
   <FILTER>gzip</FILTER>
   <FILTER>bzip2</FILTER>
 </STREAM>'''
         log = Stream.from_string(text)
         copy = Stream.from_lxml_element(log.to_lxml_element())
         self.assertEqual(log, copy)
+
+if __name__ == '__main__':
+    unittest.main()
