@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 import unittest
-from log import Stream
+from log import Stream, Log
 from lxml import etree
 
 class StreamTest(unittest.TestCase):
@@ -143,6 +143,93 @@ class StreamTest(unittest.TestCase):
         log = Stream.from_string(text)
         copy = Stream.from_lxml_element(log.to_lxml_element())
         self.assertEqual(log, copy)
+
+class LogTest(unittest.TestCase):
+    def setUp(self):
+        text_0 = '<STREAM location="file://logs/MyServerHTTP.log" />'
+        self.stream_0 = Stream.from_string(text_0)
+        text_1 = '<STREAM location="console://stdout" />'
+        self.stream_1 = Stream.from_string(text_1)
+
+    def test_creation(self):
+        log = Log('ACCESSLOG')
+        log = Log('WARNINGLOG')
+        log = Log('ACCESSLOG', [self.stream])
+        log = Log('ACCESSLOG', [self.stream], 'combined')
+
+    def test_log_type(self):
+        log = Log('ACCESSLOG')
+        self.assertEqual('ACCESSLOG', log.get_log_type())
+        log.set_log_type('WARNINGLOG')
+        self.assertEqual('WARNINGLOG', log.get_log_type())
+        self.assertRaises(AttributeError, log.set_log_type, None)
+
+    def test_type(self):
+        log = Log('ACCESSLOG')
+        self.assertEqual(None, log.get_type())
+        log.set_type('combined')
+        self.assertEqual('combined', log.get_type())
+        log.set_type(None)
+        self.assertEqual(None, log.get_type())
+        log = Log('ACCESSLOG', [], 'combined')
+        self.assertEqual('combined', log.get_type())
+
+    def test_stream(self):
+        log = Log('ACCESSLOG')
+        self.assertEqual([], log.get_streams())
+        log.add_stream(self.stream_0)
+        self.assertEqual([self.stream_0], log.get_streams())
+        log.add_stream(self.stream_1)
+        self.assertEqual([self.stream_0, self.stream_1], log.get_streams())
+        log.add_stream(self.stream_1, 0)
+        self.assertEqual([self.stream_1, self.stream_0, self.stream_1],
+                         log.get_streams())
+        self.assertEqual(self.stream_0, log.get_stream(1))
+        log.remove_stream(1)
+        self.assertEqual([self.stream_1, self.stream_1], log.get_streams())
+        log = Log('ACCESSLOG', [self.stream_0])
+        self.assertEqual([self.stream_0], log.get_streams())
+
+    def test_from_string(self):
+        text = '''<ACCESSLOG type="combined">{0}{1}</ACCESSLOG>'''.format( \
+            self.stream_0, self.stream_1)
+        log = Log.from_string(text)
+        self.assertEqual('ACCESSLOG', log.get_log_type())
+        self.assertEqual('combined', log.get_type())
+        self.assertEqual([self.stream_0, self.stream_1], log.get_streams())
+
+    def test_from_lxml(self):
+        text = '''<ACCESSLOG type="combined">{0}{1}</ACCESSLOG>'''.format( \
+            self.stream_0, self.stream_1)
+        log = Log.from_lxml_element(etree.XML(text))
+        self.assertEqual('ACCESSLOG', log.get_log_type())
+        self.assertEqual('combined', log.get_type())
+        self.assertEqual([self.stream_0, self.stream_1], log.get_streams())
+
+    def test_to_string(self):
+        text = '''<ACCESSLOG type="combined">{0}{1}</ACCESSLOG>'''.format( \
+            self.stream_0, self.stream_1)
+        log = Log.from_string(text)
+        copy = Stream.from_string(str(log))
+        self.assertEqual(log, copy)
+
+    def test_to_lxml(self):
+        text = '''<ACCESSLOG type="combined">{0}{1}</ACCESSLOG>'''.format( \
+            self.stream_0, self.stream_1)
+        log = Log.from_string(text)
+        copy = Stream.from_lxml_element(log.to_lxml_element())
+        self.assertEqual(log, copy)
+
+    def test_equality(self):
+        self.assertEqual(Log('ACCESSLOG', [self.stream_0, self.stream_1], 'combined'),
+                         Log('ACCESSLOG', [self.stream_0, self.stream_1], 'combined'))
+        self.assertNotEqual(Log('ACCESSLOG', [self.stream_0], 'combined'),
+                            Log('WARNINGLOG', [self.stream_0], 'combined'))
+        self.assertNotEqual(Log('ACCESSLOG', [self.stream_0], 'combined'),
+                            Log('ACCESSLOG', [self.stream_1], 'combined'))
+        self.assertNotEqual(Log('ACCESSLOG', [self.stream_0], 'combined'),
+                            Log('WARNINGLOG', [self.stream_0], None))
+        self.assertNotEqual([], Log('ACCESSLOG'))
 
 if __name__ == '__main__':
     unittest.main()
