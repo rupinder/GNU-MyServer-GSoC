@@ -20,6 +20,8 @@ from lxml import etree
 
 class Stream():
     def __init__(self, location, cycle = None, cycle_gzip = None, filter = []):
+        if location is None:
+            raise AttributeError('location is required and can\'t be None')
         self.location = location
         self.cycle = cycle
         self.cycle_gzip = cycle_gzip
@@ -112,4 +114,83 @@ class Stream():
             element = etree.Element('FILTER')
             element.text = filter
             root.append(element)
+        return root
+
+class Log():
+    def __init__(self, log_type, stream = [], type = None):
+        if log_type is None:
+            raise AttributeError('log_type is required and can\'t be None')
+        self.log_type = log_type
+        self.stream = stream
+        self.type = type
+
+    def __eq__(self, other):
+        return isinstance(other, Log) and \
+            self.log_type == other.log_type and \
+            self.stream == other.stream and \
+            self.type == other.type
+    
+    def get_type(self):
+        '''Get log's type attribute.'''
+        return self.type
+
+    def set_type(self, type):
+        '''Set log's type attribute, None means not set'''
+        self.type = type
+
+    def get_log_type(self):
+        '''Get log's type.'''
+        return self.log_type
+
+    def set_log_type(self, log_type):
+        '''Set log's type.'''
+        if log_type is None:
+            raise AttributeError('log_type is required and can\'t be None')
+        self.log_type = log_type
+
+    def get_streams(self):
+        '''Get streams associated with this log.'''
+        return self.stream
+
+    def add_stream(self, stream, index = None):
+        '''Append stream to current streams or if index is not None insert
+        stream ad index-th position.'''
+        if index is None:
+            self.stream.append(stream)
+        else:
+            self.stream.insert(index, stream)
+
+    def remove_stream(self, index):
+        '''Remove stream from index-th position.'''
+        self.stream.pop(index)
+    
+    def get_stream(self, index):
+        '''Get index-th stream.'''
+        return self.stream[index]
+
+    @staticmethod
+    def from_string(text):
+        '''Factory to produce log by parsing a string.'''
+        return Log.from_lxml_element(etree.XML(text))
+
+    @staticmethod
+    def from_lxml_element(root):
+        '''Factory to produce log from etree.Element object.'''
+        log_type = root.tag
+        type = root.get('type', None)
+        stream = []
+        for child in list(root):
+            if child.tag == 'STREAM':
+                stream.append(Stream.from_lxml_element(child))
+        return Log(log_type, stream, type)
+
+    def __str__(self):
+        return etree.tostring(self.to_lxml_element(), pretty_print = True)
+
+    def to_lxml_element(self):
+        root = etree.Element(self.log_type)
+        if self.type is not None:
+            root.set('type', self.type)
+        for stream in self.stream:
+            root.append(stream.to_lxml_element())
         return root

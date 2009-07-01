@@ -33,6 +33,7 @@ class StreamTest(unittest.TestCase):
         log.set_location('/logs/new.log')
         self.assertEqual('/logs/new.log', log.get_location())
         self.assertRaises(AttributeError, log.set_location, None)
+        self.assertRaises(AttributeError, Stream, None)
 
     def test_cycle(self):
         log = Stream('path')
@@ -154,8 +155,8 @@ class LogTest(unittest.TestCase):
     def test_creation(self):
         log = Log('ACCESSLOG')
         log = Log('WARNINGLOG')
-        log = Log('ACCESSLOG', [self.stream])
-        log = Log('ACCESSLOG', [self.stream], 'combined')
+        log = Log('ACCESSLOG', [self.stream_0])
+        log = Log('ACCESSLOG', [self.stream_0], 'combined')
 
     def test_log_type(self):
         log = Log('ACCESSLOG')
@@ -163,6 +164,7 @@ class LogTest(unittest.TestCase):
         log.set_log_type('WARNINGLOG')
         self.assertEqual('WARNINGLOG', log.get_log_type())
         self.assertRaises(AttributeError, log.set_log_type, None)
+        self.assertRaises(AttributeError, Log, None)
 
     def test_type(self):
         log = Log('ACCESSLOG')
@@ -210,14 +212,14 @@ class LogTest(unittest.TestCase):
         text = '''<ACCESSLOG type="combined">{0}{1}</ACCESSLOG>'''.format( \
             self.stream_0, self.stream_1)
         log = Log.from_string(text)
-        copy = Stream.from_string(str(log))
+        copy = Log.from_string(str(log))
         self.assertEqual(log, copy)
 
     def test_to_lxml(self):
         text = '''<ACCESSLOG type="combined">{0}{1}</ACCESSLOG>'''.format( \
             self.stream_0, self.stream_1)
         log = Log.from_string(text)
-        copy = Stream.from_lxml_element(log.to_lxml_element())
+        copy = Log.from_lxml_element(log.to_lxml_element())
         self.assertEqual(log, copy)
 
     def test_equality(self):
