@@ -35,8 +35,8 @@ int ffsl (long int i)
 BitVec::BitVec (int capacity, bool val)
 {
   this->capacity = capacity;
-  this->dataSize = capacity / (sizeof (long) * 8) + 1;
-  this->data = new long[dataSize];
+  this->dataSize = capacity / (sizeof (int) * 8) + 1;
+  this->data = new int[dataSize];
 
   for (int i = 0; i < dataSize; i++)
     this->data[i] = 0;
@@ -50,9 +50,9 @@ int BitVec::ffs ()
 {
   int p = 0;
   for (int i = 0; i < dataSize; i++)
-    if (p = ffsl (data[i]))
+    if (p = ffsl ((int)data[i]))
       {
-        return (i * sizeof (long) * 8) + p - 1;
+        return (i * sizeof (int) * 8) + p - 1;
       }
 
   return -1;

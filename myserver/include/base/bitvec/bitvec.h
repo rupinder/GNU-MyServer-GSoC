@@ -30,17 +30,17 @@ public:
 
   void set (int i)
   {
-    data[i / (sizeof (long) * 8)] |= 1 << i % (sizeof (long) * 8);
+    data[i / (sizeof (int) * 8)] |= 1 << i % (sizeof (int) * 8);
   }
 
   void unset (int i)
   {
-    data[i / (sizeof (long) * 8)] &= ~(1 << i % (sizeof (long) * 8));
+    data[i / (sizeof (int) * 8)] &= ~(1 << i % (sizeof (int) * 8));
   }
 
   bool get (int i)
   {
-    return data[i / (sizeof (long) * 8)] >> i % (sizeof (long) * 8);
+    return (data[i / (sizeof (int) * 8)] >> i % (sizeof (int) * 8)) & 1;
   }
 
   ~BitVec ()
@@ -50,7 +50,7 @@ public:
   
 
 private:
-  long *data;
+  int *data;
   int dataSize;
   int capacity;
 };
