@@ -213,7 +213,8 @@ class MIMETypes():
         self.MIME_types = MIME_types
         
     def __eq__(self, other):
-        return self.MIME_types == other.MIME_types
+        return isinstance(other, MIMETypes) and \
+            self.MIME_types == other.MIME_types
 
     def to_lxml_element(self):
         root = etree.Element('MIMES')

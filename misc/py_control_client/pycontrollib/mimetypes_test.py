@@ -233,6 +233,7 @@ class MIMETypesTest(unittest.TestCase):
         self.assertNotEqual(MIMETypes.from_string(self.text),
                             MIMETypes.from_string(
                 '<MIMES>{0}</MIMES>'.format(self.mime_0)))
+        self.assertNotEqual(MIMETypes.from_string(self.text), [])
 
     def test_bad_root_tag(self):
         text = '<ERROR>{0}{1}</ERROR>'.format(
