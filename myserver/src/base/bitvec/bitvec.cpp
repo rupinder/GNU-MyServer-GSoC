@@ -32,11 +32,16 @@ int ffsl (long int i)
 }
 #endif
 
+/*!
+ * Allocate a vector of bits.
+ *\param capacity Maximum number of bits to index.
+ *\param val The default value for the vector elements.
+ */
 BitVec::BitVec (int capacity, bool val)
 {
   this->capacity = capacity;
-  this->dataSize = capacity / (sizeof (int) * 8) + 1;
-  this->data = new int[dataSize];
+  this->dataSize = capacity / (sizeof (long int) * 8) + 1;
+  this->data = new long int[dataSize];
 
   for (int i = 0; i < dataSize; i++)
     this->data[i] = 0;
@@ -44,16 +49,50 @@ BitVec::BitVec (int capacity, bool val)
   if (val)
     for (int i = 0; i < capacity; i++)
       set (i);
+
+  lastFound = 0;
 }
 
+/*!
+ * Find the first bit set to '1'.
+ *
+ *\return the Index of the first bit.
+ *\return -1 If there are not free bits.
+ */
 int BitVec::ffs ()
 {
   int p = 0;
   for (int i = 0; i < dataSize; i++)
     if (p = ffsl ((int)data[i]))
       {
-        return (i * sizeof (int) * 8) + p - 1;
+        return (i * sizeof (long int) * 8) + p - 1;
       }
 
   return -1;
 }
+
+/*!
+ * Find a bit set to '1'.
+ *
+ * The cost of adding N elements sequentially and after unset them, after the
+ * index is found by ffs is O(n^2).
+ *
+ * Use the `find' function instead to have a O(n) cost.
+ *
+ *\return the Index of the first bit.
+ *\return -1 If there are not free bits.
+ */
+int BitVec::find ()
+{
+  int p = 0;
+
+  for (int i = lastFound; i < dataSize + lastFound; i++)
+    if (p = ffsl ((int)data[i % dataSize]))
+      {
+        lastFound = i;
+        return (i * sizeof (long int) * 8) + p - 1;
+      }
+
+  return -1;
+}
+

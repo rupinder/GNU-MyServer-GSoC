@@ -30,6 +30,8 @@ class TestBitVec : public CppUnit::TestFixture
   CPPUNIT_TEST ( testSet );
   CPPUNIT_TEST ( testFfs );
   CPPUNIT_TEST ( testGet );
+  CPPUNIT_TEST ( testFfs );
+  CPPUNIT_TEST ( testFind );
   CPPUNIT_TEST ( testRevert );
   
   CPPUNIT_TEST_SUITE_END ();
@@ -52,6 +54,10 @@ public:
     vec.set (10);
 
     CPPUNIT_ASSERT_EQUAL (vec.ffs (), 10);
+
+    vec.unset (10);
+
+    CPPUNIT_ASSERT_EQUAL (vec.ffs (), -1);
   }
 
 
@@ -93,6 +99,31 @@ public:
         vec.set (i);
         CPPUNIT_ASSERT_EQUAL (vec.get (i), true);
       }
+  }
+
+  void testFind ()
+  {
+    BitVec vec (200, false);
+
+    for (int i = 0; i < 10; i += 3)
+      {
+        CPPUNIT_ASSERT_EQUAL (vec.get (i), false);
+        vec.set (i);
+        CPPUNIT_ASSERT_EQUAL (vec.get (i), true);
+      }
+
+    for (int i = 0; i < 10; i += 3)
+      {
+        int j = vec.find ();
+
+        CPPUNIT_ASSERT (j >= 0);
+
+        CPPUNIT_ASSERT_EQUAL (vec.get (j), true);
+        vec.unset (j);
+        CPPUNIT_ASSERT_EQUAL (vec.get (j), false);
+      }
+
+    CPPUNIT_ASSERT_EQUAL (vec.find (), -1);
   }
 
 

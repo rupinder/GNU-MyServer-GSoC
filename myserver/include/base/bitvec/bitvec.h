@@ -28,19 +28,34 @@ public:
 
   int ffs ();
 
-  void set (int i)
+  int find ();
+
+  /*! 
+   * Set the value of a bit to 1.
+   * \param i index of the bit to set.
+   */
+  void set (u_long i)
   {
-    data[i / (sizeof (int) * 8)] |= 1 << i % (sizeof (int) * 8);
+    data[i / (sizeof (long int) * 8)] |= 1 << i % (sizeof (long int) * 8);
   }
 
-  void unset (int i)
+  /*! 
+   * Set the value of a bit to 1.
+   * \param i index of the bit to set.
+   */
+  void unset (u_long i)
   {
-    data[i / (sizeof (int) * 8)] &= ~(1 << i % (sizeof (int) * 8));
+    data[i / (sizeof (long int) * 8)] &= ~(1 << i % (sizeof (long int) * 8));
   }
 
+  /*! 
+   * Get the value of the specified bit.
+   * \param i index of the bit to get.
+   */
   bool get (int i)
   {
-    return (data[i / (sizeof (int) * 8)] >> i % (sizeof (int) * 8)) & 1;
+    return (data[i / (sizeof (long int) * 8)] >>
+            i % (sizeof (long int) * 8)) & 1;
   }
 
   ~BitVec ()
@@ -50,7 +65,10 @@ public:
   
 
 private:
-  int *data;
+  /* Used internally by find.  */
+  int lastFound;
+
+  long int *data;
   int dataSize;
   int capacity;
 };
