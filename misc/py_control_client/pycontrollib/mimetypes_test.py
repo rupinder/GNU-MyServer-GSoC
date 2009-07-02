@@ -44,7 +44,19 @@ class MIMETypeTest(unittest.TestCase):
   <PATH regex="^/cgi-bin/python/.*$" />
 </MIME>'''.format('\n'.join(map(lambda element: str(element),
                                 self.definitions)))
-    
+    def test_creation(self):
+        MIMEType('text/plain', 'CGI')
+        MIMEType('text/plain', 'CGI', '/usr/bin/python')
+        MIMEType('text/plain', 'CGI', '/usr/bin/python', set(['py']))
+        MIMEType('text/plain', 'CGI', '/usr/bin/python', set(['py']),
+                 '^/cgi-bin/.*$')
+        MIMEType('text/plain', 'CGI', '/usr/bin/python', set(['py']),
+                 '^/cgi-bin/.*$', ['gzip'])
+        MIMEType('text/plain', 'CGI', '/usr/bin/python', set(['py']),
+                 '^/cgi-bin/.*$', ['gzip'], False)
+        MIMEType('text/plain', 'CGI', '/usr/bin/python', set(['py']),
+                 '^/cgi-bin/.*$', ['gzip'], False, self.definitions)
+
     def test_from_string(self):
         mime = MIMEType.from_string(self.text)
         self.assertEqual(mime.get_mime(), 'application/xhtml+xml')
@@ -67,53 +79,96 @@ class MIMETypeTest(unittest.TestCase):
         self.assertEqual(mime.get_self_executed(), False)
         self.assertEqual(mime.get_definitions(), self.definitions)
 
+    def test_mime(self):
+        mime = MIMEType('text/plain', 'SEND')
+        self.assertEqual('text/plain', mime.get_mime())
+        mime.set_mime('application/xhtml+xml')
+        self.assertEqual('application/xhtml+xml', mime.get_mime())
+        self.assertRaises(AttributeError, mime.set_mime, None)
+        self.assertRaises(AttributeError, MIMEType, None, 'SEND')
+        
     def test_handler(self):
-        mime = MIMEType.from_string(self.text)
+        mime = MIMEType('text/plain', 'SEND')
         for handler in MIMEType.valid_handlers:
             mime.set_handler(handler)
+            self.assertEqual(handler, mime.get_handler())
         self.assertRaises(AttributeError, mime.set_handler, 'ERROR')
-        
-    def test_attributes(self):
-        mime = MIMEType.from_string(self.text)
-        mime.set_mime('plain/text')
-        self.assertEqual(mime.get_mime(), 'plain/text')
-        mime.set_handler('SEND')
-        self.assertEqual(mime.get_handler(), 'SEND')
-        mime.set_param('')
-        self.assertEqual(mime.get_param(), '')
+        self.assertRaises(AttributeError, MIMEType, 'text/plain', 'ERROR')
+
+    def test_param(self):
+        mime = MIMEType('text/plain', 'SEND')
+        self.assertEqual(None, mime.get_param())
+        mime.set_param('/usr/bin/python')
+        self.assertEqual('/usr/bin/python', mime.get_param())
+        mime.set_param(None)
+        self.assertEqual(None, mime.get_param())
+        mime = MIMEType('text/plain', 'SEND', param = '/usr/bin/python')
+        self.assertEqual('/usr/bin/python', mime.get_param())
+    
+    def test_extension(self):
+        mime = MIMEType('text/plain', 'SEND')
+        self.assertEqual(set(), mime.get_extensions())
+        mime.add_extension('py')
+        mime.add_extension('html')
+        self.assertEqual(set(['py', 'html']), mime.get_extensions())
         mime.remove_extension('py')
-        self.assertEqual(mime.get_extensions(), set(['xhtml', 'xml']))
-        mime.add_extension('pyc')
-        self.assertEqual(mime.get_extensions(), set(['xhtml', 'xml', 'pyc']))
-        mime.set_path('^/python/')
-        self.assertEqual(mime.get_path(), '^/python/')
-        mime.remove_filter(0)
-        self.assertEqual(mime.get_filters(), ['bzip2'])
+        self.assertEqual(set(['html']), mime.get_extensions())
+        mime = MIMEType('text/plain', 'SEND', extension = set(['py', 'html']))
+        self.assertEqual(set(['py', 'html']), mime.get_extensions())
+
+    def test_path(self):
+        mime = MIMEType('text/plain', 'SEND')
+        self.assertEqual(None, mime.get_path())
+        mime.set_path('^/www/.*$')
+        self.assertEqual('^/www/.*$', mime.get_path())
+        mime.set_path(None)
+        self.assertEqual(None, mime.get_path())
+        mime = MIMEType('text/plain', 'SEND', path = '^/www/.*$')
+        self.assertEqual('^/www/.*$', mime.get_path())
+
+    def test_filter(self):
+        mime = MIMEType('text/plain', 'SEND')
+        self.assertEqual([], mime.get_filters())
         mime.add_filter('gzip')
-        self.assertEqual(mime.get_filters(), ['bzip2', 'gzip'])
-        mime.add_filter('gzip', 0)
-        self.assertEqual(mime.get_filters(), ['gzip', 'bzip2', 'gzip'])
-        self.assertEqual(mime.get_filter(1), 'bzip2')
+        mime.add_filter('bzip2')
+        self.assertEqual(['gzip', 'bzip2'], mime.get_filters())
+        mime.add_filter('bzip2', 0)
+        self.assertEqual(['bzip2', 'gzip', 'bzip2'], mime.get_filters())
+        mime.remove_filter(2)
+        self.assertEqual(['bzip2', 'gzip'], mime.get_filters())
+        self.assertEqual('gzip', mime.get_filter(1))
+        mime = MIMEType('text/plain', 'SEND', filter = ['gzip', 'bzip2'])
+        self.assertEqual(['gzip', 'bzip2'], mime.get_filters())
+
+    def test_self_executed(self):
+        mime = MIMEType('text/plain', 'SEND')
+        self.assertEqual(None, mime.get_self_executed())
         mime.set_self_executed(True)
-        self.assertEqual(mime.get_self_executed(), True)
-        definition = Definition.from_string(
-            '<DEFINE name="http.error.file.404" value="404.html" />')
-        mime.add_definition(definition)
-        self.definitions.append(definition)
-        self.assertEqual(mime.get_definitions(), self.definitions)
-        mime.add_definition(definition, 0)
-        self.definitions.insert(0, definition)
-        self.assertEqual(mime.get_definitions(), self.definitions)
-        mime.remove_definition(1)
-        self.definitions.pop(1)
-        self.assertEqual(mime.get_definitions(), self.definitions)
-        self.assertEqual(mime.get_definition(1), self.definitions[1])
+        self.assertEqual(True, mime.get_self_executed())
+        mime.set_self_executed(None)
+        self.assertEqual(None, mime.get_self_executed())
+        mime = MIMEType('text/plain', 'SEND', self_executed = True)
+        self.assertEqual(True, mime.get_self_executed())
+        
+    def test_definitions(self):
+        mime = MIMEType('text/plain', 'SEND')
+        self.assertEqual([], mime.get_definitions())
+        for definition in self.definitions:
+            mime.add_definition(definition)
+        self.assertEqual(self.definitions, mime.get_definitions())
+        for i in xrange(len(self.definitions)):
+            self.assertEqual(self.definitions[i], mime.get_definition(i))
+        mime.remove_definition(0)
+        self.assertEqual(self.definitions[1:], mime.get_definitions())
+        mime = MIMEType('text/plain', 'SEND', definitions = self.definitions)
+        self.assertEqual(self.definitions, mime.get_definitions())
         
     def test_equality(self):
         self.assertEqual(MIMEType.from_string(self.text),
                          MIMEType.from_string(self.text))
         self.assertNotEqual(MIMEType.from_string(self.text),
                             MIMEType('text/plain', 'SEND'))
+        self.assertNotEqual(MIMEType.from_string(self.text), [])
         
     def test_to_string(self):
         mime = MIMEType.from_string(self.text)

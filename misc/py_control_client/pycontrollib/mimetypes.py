@@ -21,12 +21,14 @@ from lxml import etree
 
 class MIMEType():
     valid_handlers = set(['SEND', 'CGI', 'FASTCGI', 'SCGI', 'MSCGI', 'ISAPI',
-                          'WINCGI', 'PROxY'])
+                          'WINCGI', 'PROXY'])
 
     def __init__(self, mime, handler, param = None, extension = set(), path = None,
                  filter = [], self_executed = None, definitions = []):
         '''Creates new MIMEType with specified attributes.'''
         self.mime = mime
+        if mime is None:
+            raise AttributeError('mime is required and can\'t be None')
         if handler not in MIMEType.valid_handlers:
             raise AttributeError(
                 '{0} is not a valid handler'.format(handler))
@@ -44,6 +46,8 @@ class MIMEType():
 
     def set_mime(self, mime):
         '''Set associated mime type.'''
+        if mime is None:
+            raise AttributeError('mime is required and can\'t be None')
         self.mime = mime
 
     def get_handler(self):
@@ -133,7 +137,7 @@ class MIMEType():
         self.definitions.pop(index)
 
     def __eq__(self, other):
-        return \
+        return isinstance(other, MIMEType) and \
             self.mime == other.mime and \
             self.handler == other.handler and \
             self.param == other.param and \
