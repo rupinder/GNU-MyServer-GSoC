@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 PYTHON=/usr/bin/python
+PYTHONPATH:=$(shell dirname `pwd`):${PYTHONPATH}
 
 .PHONY: test test_log test_definition test_mimetypes test_vhost
 
