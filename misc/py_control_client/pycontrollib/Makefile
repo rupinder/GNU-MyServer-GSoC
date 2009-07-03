@@ -30,3 +30,7 @@ test_mimetypes:
 
 test_vhost:
 	-${PYTHON} vhost_test.py
+
+.PHONY: clean
+clean:
+	rm *.py[co]
