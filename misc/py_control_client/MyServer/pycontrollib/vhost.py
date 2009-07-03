@@ -98,7 +98,7 @@ class VHost():
         '''Set VHost port.'''
         if port is None:
             raise AttributeError('port is required and can\'t be None')
-        self.port = port
+        self.port = int(port)
 
     def get_access_log(self):
         '''Get VHost access log.'''
@@ -149,3 +149,72 @@ class VHost():
     def remove_host(self, host):
         '''Remove host from VHost host dict.'''
         self.host.pop(host)
+
+    def __str__(self):
+        return etree.tostring(self.to_lxml_element(), pretty_print = True)
+
+    def to_lxml_element(self):
+        def make_element(tag, text):
+            element = etree.Element(tag)
+            element.text = text
+            return element
+        root = etree.Element('VHOST')
+        root.append(make_element('NAME', self.name))
+        root.append(make_element('PORT', str(self.port)))
+        root.append(make_element('PROTOCOL', self.protocol))
+        root.append(make_element('DOCROOT', self.doc_root))
+        root.append(make_element('SYSFOLDER', self.sys_folder))
+        for ip_address in self.ip:
+            root.append(make_element('IP', ip_address))
+        for host, use_regex in self.host.iteritems():
+            element = make_element('HOST', host)
+            if use_regex is not None:
+                element.set('useRegex', 'YES' if use_regex else 'NO')
+            root.append(element)
+        root.append(self.access_log.to_lxml_element())
+        root.append(self.warning_log.to_lxml_element())
+        return root
+
+    @staticmethod
+    def from_lxml_element(root):
+        '''Factory to produce VHost from etree.Element object.'''
+        if root.tag != 'VHOST':
+            raise AttributeError('Expected VHOST tag.')
+        name = None
+        port = None
+        protocol = None
+        doc_root = None
+        sys_folder = None
+        ip = []
+        host = {}
+        access_log = None
+        warning_log = None
+        for child in list(root):
+            if child.tag == 'NAME':
+                name = child.text
+            elif child.tag == 'PORT':
+                port = child.text
+            elif child.tag == 'PROTOCOL':
+                protocol = child.text
+            elif child.tag == 'DOCROOT':
+                doc_root = child.text
+            elif child.tag == 'SYSFOLDER':
+                sys_folder = child.text
+            elif child.tag == 'IP':
+                ip.append(child.text)
+            elif child.tag == 'HOST':
+                use_regex = child.get('useRegex', None)
+                if use_regex is not None:
+                    use_regex = use_regex == 'YES'
+                host[child.text] = use_regex
+            elif child.tag == 'ACCESSLOG':
+                access_log = Log.from_lxml_element(child)
+            elif child.tag == 'WARNINGLOG':
+                warning_log = Log.from_lxml_element(child)
+        return VHost(name, port, protocol, doc_root, sys_folder, access_log,
+                     warning_log, ip, host)
+    
+    @staticmethod
+    def from_string(text):
+        '''Factory to produce VHost by parsing a string.'''
+        return VHost.from_lxml_element(etree.XML(text))
