@@ -57,9 +57,25 @@ class VhostTest(unittest.TestCase):
         vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
                       Log('ACCESSLOG'), Log('WARNINGLOG'))
         self.assertEqual('HTTP', vhost.get_protocol())
-        vhost.set_port('FTP')
+        vhost.set_protocol('FTP')
         self.assertEqual('FTP', vhost.get_protocol())
         self.assertRaises(AttributeError, vhost.set_protocol, None)
+
+    def test_docroot(self):
+        vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
+                      Log('ACCESSLOG'), Log('WARNINGLOG'))
+        self.assertEqual('/www', vhost.get_docroot())
+        vhost.set_docroot('/var/www')
+        self.assertEqual('/var/www', vhost.get_docroot())
+        self.assertRaises(AttributeError, vhost.set_docroot, None)
+
+    def test_sysfolder(self):
+        vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
+                      Log('ACCESSLOG'), Log('WARNINGLOG'))
+        self.assertEqual('/system', vhost.get_sysfolder())
+        vhost.set_sysfolder('/var/system')
+        self.assertEqual('/var/system', vhost.get_sysfolder())
+        self.assertRaises(AttributeError, vhost.set_sysfolder, None)
 
     def test_log(self):
         vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
@@ -91,7 +107,7 @@ class VhostTest(unittest.TestCase):
 
     def test_host(self):
         vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
-                      Log('ACCESSLOG'), Log('WARNINGLOG'))h
+                      Log('ACCESSLOG'), Log('WARNINGLOG'))
         self.assertEqual(set(), vhost.get_host())
         vhost.add_host('foo.bar.com')
         vhost.add_host('test.me.org')
@@ -106,7 +122,7 @@ class VhostTest(unittest.TestCase):
 
     def test_host_use_regex(self):
         vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
-                      Log('ACCESSLOG'), Log('WARNINGLOG'))h
+                      Log('ACCESSLOG'), Log('WARNINGLOG'))
         self.assertEqual(None, vhost.get_host_use_regex())
         vhost.set_host_use_regex(True)
         self.assertEqual(True, vhost.get_use_regex())
@@ -117,3 +133,6 @@ class VhostTest(unittest.TestCase):
                       set(['127.0.0.0/8', '192.168.0.0/16']),
                       set(['host.domain']), True)
         self.assertEqual(True, vhost.get_use_regex())
+
+if __name__ == '__main__':
+    unittest.main()
