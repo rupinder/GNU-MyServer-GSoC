@@ -17,20 +17,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from lxml import etree
+from log import Log
 
-class Vhost():
-    def __init__(self, name, port, protocol, docroot, sysfolder, access_log,
-                 warning_log, ip = set(), host = set(), host_use_regex = None):
-        self.name = name
-        self.port = port
-        self.protocol = protocol
-        self.docroot = docroot
-        self.sysfolder = sysfolder
-        self.access_log = access_log
-        self.warning_log = warning_log
-        self.ip = ip
-        self.host = host
-        self.host_use_regex = host_use_regex
+class VHost():
+    valid_protocols = set(['HTTP', 'FTP', 'HTTPS', 'ISAPI', 'CGI', 'SCGI',
+                           'FastCGI', 'WinCGI'])
+    
+    def __init__(self, name, port, protocol, doc_root, sys_folder, access_log,
+                 warning_log, ip = [], host = {}):
+        self.set_name(name)
+        self.set_port(port)
+        self.set_protocol(protocol)
+        self.set_doc_root(doc_root)
+        self.set_sys_folder(sys_folder)
+        self.set_access_log(access_log)
+        self.set_warning_log(warning_log)
+        self.ip = set()
+        for ip_address in ip:
+            self.add_ip(ip_address)
+        self.host = {}
+        for single_host in host.iteritems():
+            self.add_host(single_host[0], single_host[1])
+
+    def __eq__(self, other):
+        return isinstance(other, VHost) and self.name == other.name and \
+            self.port == other.port and self.protocol == other.protocol and \
+            self.doc_root == other.doc_root and \
+            self.sys_folder == other.sys_folder and \
+            self.access_log == other.access_log and \
+            self.warning_log == other.warning_log and self.ip == other.ip and \
+            self.host == other.host
 
     def get_name(self):
         '''Get VHost name.'''
@@ -42,15 +58,25 @@ class Vhost():
             raise AttributeError('name is required and can\'t be None')
         self.name = name
 
-    def get_sysfolder(self):
-        '''Get VHost sysfolder.'''
-        return self.sysfolder
+    def get_doc_root(self):
+        '''Get VHost doc root.'''
+        return self.doc_root
 
-    def set_sysfolder(self, sysfolder):
-        '''Set VHost sysfolder.'''
-        if sysfolder is None:
-            raise AttributeError('sysfolder is required and can\'t be None')
-        self.sysfolder = sysfolder
+    def set_doc_root(self, doc_root):
+        '''Set VHost doc root.'''
+        if doc_root is None:
+            raise AttributeError('doc_root is required and can\'t be None')
+        self.doc_root = doc_root
+
+    def get_sys_folder(self):
+        '''Get VHost sys folder.'''
+        return self.sys_folder
+
+    def set_sys_folder(self, sys_folder):
+        '''Set VHost sys folder.'''
+        if sys_folder is None:
+            raise AttributeError('sys_folder is required and can\'t be None')
+        self.sys_folder = sys_folder
 
     def get_protocol(self):
         '''Get VHost protocol.'''
@@ -58,6 +84,8 @@ class Vhost():
 
     def set_protocol(self, protocol):
         '''Set VHost protocol.'''
+        if protocol not in self.valid_protocols:
+            raise AttributeError('protocol is not valid')
         if protocol is None:
             raise AttributeError('protocol is required and can\'t be None')
         self.protocol = protocol
@@ -80,6 +108,9 @@ class Vhost():
         '''Set VHost access log.'''
         if access_log is None:
             raise AttributeError('access_log is required and can\'t be None')
+        if not isinstance(access_log, Log) or \
+                access_log.get_log_type() != 'ACCESSLOG':
+            raise AttributeError('given attribute is not an access log')
         self.access_log = access_log
 
     def get_warning_log(self):
@@ -90,6 +121,9 @@ class Vhost():
         '''Set VHost warning_log.'''
         if warning_log is None:
             raise AttributeError('warning_log is required and can\'t be None')
+        if not isinstance(warning_log, Log) or \
+                warning_log.get_log_type() != 'WARNINGLOG':
+            raise AttributeError('given attribute is not a warning log')
         self.warning_log = warning_log
 
     def get_ip(self):
@@ -103,3 +137,15 @@ class Vhost():
     def remove_ip(self, ip):
         '''Remove ip from VHost ip set.'''
         self.ip.remove(ip)
+
+    def get_host(self):
+        '''Get VHost host dict.'''
+        return self.host
+
+    def add_host(self, host, use_regex = None):
+        '''Add host to VHost dict.'''
+        self.host[host] = use_regex
+
+    def remove_host(self, host):
+        '''Remove host from VHost host dict.'''
+        self.host.pop(host)

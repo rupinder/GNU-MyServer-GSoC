@@ -17,68 +17,78 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 import unittest
-from vhost import Vhost
+from vhost import VHost
 from log import Log
 from lxml import etree
 
-class VhostTest(unittest.TestCase):
+class VHostTest(unittest.TestCase):
     def test_creation(self):
-        vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
                       Log('ACCESSLOG'), Log('WARNINGLOG'))
-        vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
                       Log('ACCESSLOG'), Log('WARNINGLOG'),
-                      set(['127.0.0.0/8', '192.168.0.0/16']))
-        vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
+                      ['127.0.0.0/8', '192.168.0.0/16'])
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
                       Log('ACCESSLOG'), Log('WARNINGLOG'),
-                      set(['127.0.0.0/8', '192.168.0.0/16']),
-                      set(['host.domain']))
-        vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
-                      Log('ACCESSLOG'), Log('WARNINGLOG'),
-                      set(['127.0.0.0/8', '192.168.0.0/16']),
-                      set(['host.domain']), True)
+                      ['127.0.0.0/8', '192.168.0.0/16'],
+                      {'host.domain': None})
 
     def test_name(self):
-        vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
                       Log('ACCESSLOG'), Log('WARNINGLOG'))
         self.assertEqual('test vhost', vhost.get_name())
         vhost.set_name('vhost')
         self.assertEqual('vhost', vhost.get_name())
         self.assertRaises(AttributeError, vhost.set_name, None)
+        self.assertRaises(AttributeError, VHost, None, 80, 'HTTP',
+                          '/www', '/system', Log('ACCESSLOG'), Log('WARNINGLOG'))
 
     def test_port(self):
-        vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
                       Log('ACCESSLOG'), Log('WARNINGLOG'))
         self.assertEqual(80, vhost.get_port())
         vhost.set_port(8080)
         self.assertEqual(8080, vhost.get_port())
         self.assertRaises(AttributeError, vhost.set_port, None)
+        self.assertRaises(AttributeError, VHost, 'test vhost', None, 'HTTP',
+                          '/www', '/system', Log('ACCESSLOG'), Log('WARNINGLOG'))
 
     def test_protocol(self):
-        vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
                       Log('ACCESSLOG'), Log('WARNINGLOG'))
         self.assertEqual('HTTP', vhost.get_protocol())
-        vhost.set_protocol('FTP')
-        self.assertEqual('FTP', vhost.get_protocol())
+        for protocol in VHost.valid_protocols:
+            vhost.set_protocol(protocol)
+            self.assertEqual(protocol, vhost.get_protocol())
         self.assertRaises(AttributeError, vhost.set_protocol, None)
+        self.assertRaises(AttributeError, vhost.set_protocol, 'ERROR')
+        self.assertRaises(AttributeError, VHost, 'test vhost', 80, None, '/www',
+                          '/system', Log('ACCESSLOG'), Log('WARNINGLOG'))
+        self.assertRaises(AttributeError, VHost, 'test vhost', 80, 'ERROR',
+                          '/www', '/system', Log('ACCESSLOG'), Log('WARNINGLOG'))
 
-    def test_docroot(self):
-        vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
+    def test_doc_root(self):
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
                       Log('ACCESSLOG'), Log('WARNINGLOG'))
-        self.assertEqual('/www', vhost.get_docroot())
-        vhost.set_docroot('/var/www')
-        self.assertEqual('/var/www', vhost.get_docroot())
-        self.assertRaises(AttributeError, vhost.set_docroot, None)
+        self.assertEqual('/www', vhost.get_doc_root())
+        vhost.set_doc_root('/var/www')
+        self.assertEqual('/var/www', vhost.get_doc_root())
+        self.assertRaises(AttributeError, vhost.set_doc_root, None)
+        self.assertRaises(AttributeError, VHost, 'test vhost', 80, 'HTTP',
+                          None, '/system', Log('ACCESSLOG'), Log('WARNINGLOG'))
 
-    def test_sysfolder(self):
-        vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
+    def test_sys_folder(self):
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
                       Log('ACCESSLOG'), Log('WARNINGLOG'))
-        self.assertEqual('/system', vhost.get_sysfolder())
-        vhost.set_sysfolder('/var/system')
-        self.assertEqual('/var/system', vhost.get_sysfolder())
-        self.assertRaises(AttributeError, vhost.set_sysfolder, None)
+        self.assertEqual('/system', vhost.get_sys_folder())
+        vhost.set_sys_folder('/var/system')
+        self.assertEqual('/var/system', vhost.get_sys_folder())
+        self.assertRaises(AttributeError, vhost.set_sys_folder, None)
+        self.assertRaises(AttributeError, VHost, 'test vhost', 80, 'HTTP',
+                          '/www', None, Log('ACCESSLOG'), Log('WARNINGLOG'))
 
     def test_log(self):
-        vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
                       Log('ACCESSLOG'), Log('WARNINGLOG'))
         self.assertEqual(Log('ACCESSLOG'), vhost.get_access_log())
         self.assertEqual(Log('WARNINGLOG'), vhost.get_warning_log())
@@ -90,9 +100,19 @@ class VhostTest(unittest.TestCase):
                          vhost.get_warning_log())
         self.assertRaises(AttributeError, vhost.set_access_log, None)
         self.assertRaises(AttributeError, vhost.set_warning_log, None)
+        self.assertRaises(AttributeError, vhost.set_access_log, Log('ERROR'))
+        self.assertRaises(AttributeError, vhost.set_warning_log, Log('ERROR'))
+        self.assertRaises(AttributeError, VHost, 'test vhost', 80, 'HTTP',
+                          '/www', '/system', None, Log('WARNINGLOG'))
+        self.assertRaises(AttributeError, VHost, 'test vhost', 80, 'HTTP',
+                          '/www', '/system', Log('ACCESSLOG'), None)
+        self.assertRaises(AttributeError, VHost, 'test vhost', 80, 'HTTP',
+                          '/www', '/system', Log('ERROR'), Log('WARNINGLOG'))
+        self.assertRaises(AttributeError, VHost, 'test vhost', 80, 'HTTP',
+                          '/www', '/system', Log('ACCESSLOG'), Log('ERROR'))
 
     def test_ip(self):
-        vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
                       Log('ACCESSLOG'), Log('WARNINGLOG'))
         self.assertEqual(set(), vhost.get_ip())
         vhost.add_ip('10.0.0.0/8')
@@ -100,39 +120,91 @@ class VhostTest(unittest.TestCase):
         self.assertEqual(set(['10.0.0.0/8', '192.168.0.0/16']), vhost.get_ip())
         vhost.remove_ip('10.0.0.0/8')
         self.assertEqual(set(['192.168.0.0/16']), vhost.get_ip())
-        vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
                       Log('ACCESSLOG'), Log('WARNINGLOG'),
-                      set(['127.0.0.0/8', '192.168.0.0/16']))
+                      ['127.0.0.0/8', '192.168.0.0/16'])
+        self.assertEqual(set(['127.0.0.0/8', '192.168.0.0/16']), vhost.get_ip())
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
+                      Log('ACCESSLOG'), Log('WARNINGLOG'),
+                      ip = ['127.0.0.0/8', '192.168.0.0/16'])
         self.assertEqual(set(['127.0.0.0/8', '192.168.0.0/16']), vhost.get_ip())
 
     def test_host(self):
-        vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
                       Log('ACCESSLOG'), Log('WARNINGLOG'))
-        self.assertEqual(set(), vhost.get_host())
-        vhost.add_host('foo.bar.com')
+        self.assertEqual({}, vhost.get_host())
+        vhost.add_host('foo.bar.com', False)
         vhost.add_host('test.me.org')
-        self.assertEqual(set(['foo.bar.com', 'test.me.org']), vhost.get_host())
+        self.assertEqual({'foo.bar.com': False, 'test.me.org': None},
+                         vhost.get_host())
         vhost.remove_host('foo.bar.com')
-        self.assertEqual(set(['test.me.org']), vhost.get_host())
-        vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
+        self.assertEqual({'test.me.org': None}, vhost.get_host())
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
                       Log('ACCESSLOG'), Log('WARNINGLOG'),
-                      set(['127.0.0.0/8', '192.168.0.0/16']),
-                      set(['test.me.org']))
-        self.assertEqual(set(['test.me.org']), vhost.get_host())
+                      ['127.0.0.0/8', '192.168.0.0/16'],
+                      {'test.me.org': None})
+        self.assertEqual({'test.me.org': None}, vhost.get_host())
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
+                      Log('ACCESSLOG'), Log('WARNINGLOG'),
+                      host = {'test.me.org': None})
+        self.assertEqual({'test.me.org': None}, vhost.get_host())
 
-    def test_host_use_regex(self):
-        vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
-                      Log('ACCESSLOG'), Log('WARNINGLOG'))
-        self.assertEqual(None, vhost.get_host_use_regex())
-        vhost.set_host_use_regex(True)
-        self.assertEqual(True, vhost.get_use_regex())
-        vhost.set_host_use_regex(None)
-        self.assertEqual(None, vhost.get_host_use_regex())
-        vhost = Vhost('test vhost', 80, 'HTTP', '/www', '/system',
-                      Log('ACCESSLOG'), Log('WARNINGLOG'),
-                      set(['127.0.0.0/8', '192.168.0.0/16']),
-                      set(['host.domain']), True)
-        self.assertEqual(True, vhost.get_use_regex())
+    def test_equality(self):
+        vhost_0 = VHost('test vhost', 80, 'HTTP', '/www', '/system',
+                        Log('ACCESSLOG'), Log('WARNINGLOG'),
+                        ['127.0.0.0/8', '192.168.0.0/16'],
+                        {'host.domain': None})
+        vhost_1 = VHost('test vhost', 80, 'HTTP', '/www', '/system',
+                        Log('ACCESSLOG'), Log('WARNINGLOG'),
+                        ['127.0.0.0/8', '192.168.0.0/16'],
+                        {'host.domain': None})
+        self.assertEqual(vhost_0, vhost_1)
+        vhost_1 = VHost('different', 80, 'HTTP', '/www', '/system',
+                        Log('ACCESSLOG'), Log('WARNINGLOG'),
+                        ['127.0.0.0/8', '192.168.0.0/16'],
+                        {'host.domain': None})
+        self.assertNotEqual(vhost_0, vhost_1)
+        vhost_1 = VHost('test vhost', 81, 'HTTP', '/www', '/system',
+                        Log('ACCESSLOG'), Log('WARNINGLOG'),
+                        ['127.0.0.0/8', '192.168.0.0/16'],
+                        {'host.domain': None})
+        self.assertNotEqual(vhost_0, vhost_1)
+        vhost_1 = VHost('test_vhost', 80, 'HTTPS', '/www', '/system',
+                        Log('ACCESSLOG'), Log('WARNINGLOG'),
+                        ['127.0.0.0/8', '192.168.0.0/16'],
+                        {'host.domain': None})
+        self.assertNotEqual(vhost_0, vhost_1)
+        vhost_1 = VHost('test vhost', 80, 'HTTP', '/var/www', '/system',
+                        Log('ACCESSLOG'), Log('WARNINGLOG'),
+                        ['127.0.0.0/8', '192.168.0.0/16'],
+                        {'host.domain': None})
+        self.assertNotEqual(vhost_0, vhost_1)
+        vhost_1 = VHost('test vhost', 80, 'HTTP', '/www', '/var/system',
+                        Log('ACCESSLOG'), Log('WARNINGLOG'),
+                        ['127.0.0.0/8', '192.168.0.0/16'],
+                        {'host.domain': None})
+        self.assertNotEqual(vhost_0, vhost_1)
+        vhost_1 = VHost('test vhost', 80, 'HTTP', '/www', '/system',
+                        Log('ACCESSLOG', type = 'combined'), Log('WARNINGLOG'),
+                        ['127.0.0.0/8', '192.168.0.0/16'],
+                        {'host.domain': None})
+        self.assertNotEqual(vhost_0, vhost_1)
+        vhost_1 = VHost('test vhost', 80, 'HTTP', '/www', '/system',
+                        Log('ACCESSLOG'), Log('WARNINGLOG', type = 'combined'),
+                        ['127.0.0.0/8', '192.168.0.0/16'],
+                        {'host.domain': None})
+        self.assertNotEqual(vhost_0, vhost_1)
+        vhost_1 = VHost('test vhost', 80, 'HTTP', '/www', '/system',
+                        Log('ACCESSLOG'), Log('WARNINGLOG'),
+                        ['127.0.0.0/24', '192.168.0.0/16'],
+                        {'host.domain': None})
+        self.assertNotEqual(vhost_0, vhost_1)
+        vhost_1 = VHost('test vhost', 80, 'HTTP', '/www', '/system',
+                        Log('ACCESSLOG'), Log('WARNINGLOG'),
+                        ['127.0.0.0/8', '192.168.0.0/16'],
+                        {'host.domain': True})
+        self.assertNotEqual(vhost_0, vhost_1)
+        self.assertNotEqual(vhost_0, [])
 
 if __name__ == '__main__':
     unittest.main()
