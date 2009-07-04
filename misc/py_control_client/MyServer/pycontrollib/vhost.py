@@ -218,3 +218,31 @@ class VHost():
     def from_string(text):
         '''Factory to produce VHost by parsing a string.'''
         return VHost.from_lxml_element(etree.XML(text))
+
+class VHosts():
+    def __init__(self, VHosts):
+        self.VHosts = VHosts
+
+    def __eq__(self, other):
+        return isinstance(other, VHosts) and self.VHosts == other.VHosts
+
+    def to_lxml_element(self):
+        root = etree.Element('VHOSTS')
+        for vhost in self.VHosts:
+            root.append(vhost.to_lxml_element())
+        return root
+
+    def __str__(self):
+        return etree.tostring(self.to_lxml_element(), pretty_print = True)
+
+    @staticmethod
+    def from_lxml_element(root):
+        '''Factory to produce VHosts from etree.Element object.'''
+        if root.tag != 'VHOSTS':
+            raise AttributeError('Expected VHOSTS tag.')
+        return VHosts(map(VHost.from_lxml_element, list(root)))
+
+    @staticmethod
+    def from_string(text):
+        '''Factory to produce VHosts from parsing a string.'''
+        return VHosts.from_lxml_element(etree.XML(text))

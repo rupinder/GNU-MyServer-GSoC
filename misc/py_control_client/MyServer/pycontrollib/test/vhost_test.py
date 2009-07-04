@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 import unittest
-from vhost import VHost
+from vhost import VHost, VHosts
 from log import Log
 from lxml import etree
 
@@ -295,6 +295,50 @@ class VHostTest(unittest.TestCase):
         self.assertRaises(AttributeError, VHost.from_string, text)
         self.assertRaises(AttributeError, VHost.from_lxml_element,
                           etree.XML(text))
+
+class VHostsTest(unittest.TestCase):
+    def setUp(self):
+        self.vhost_0 = VHost('vhost 0', 80, 'HTTP', '/www', '/system',
+                             Log('ACCESSLOG'), Log('WARNINGLOG'),
+                             ['127.0.0.0/8', '192.168.0.0/16'],
+                             {'host.domain': True, 'test.domain': None})
+        self.vhost_1 = VHost('vhost 1', 443, 'HTTPS', '/www', '/system',
+                             Log('ACCESSLOG'), Log('WARNINGLOG'))
+        self.text = '<VHOSTS>{0}{1}</VHOSTS>'.format(str(self.vhost_0),
+                                                     str(self.vhost_1))
+
+    def test_creation(self):
+        vhosts = VHosts([self.vhost_0, self.vhost_1])
+        self.assertEqual(vhosts.VHosts[0], self.vhost_0)
+        self.assertEqual(vhosts.VHosts[1], self.vhost_1)
+
+    def test_from_string(self):
+        vhosts = VHosts.from_string(self.text)
+        self.assertEqual(vhosts.VHosts[0], self.vhost_0)
+        self.assertEqual(vhosts.VHosts[1], self.vhost_1)
+
+    def test_from_string(self):
+        vhosts = VHosts.from_lxml_element(etree.XML(self.text))
+        self.assertEqual(vhosts.VHosts[0], self.vhost_0)
+        self.assertEqual(vhosts.VHosts[1], self.vhost_1)
+
+    def test_to_string(self):
+        vhosts = VHosts.from_string(self.text)
+        copy = VHosts.from_string(str(vhosts))
+        self.assertEqual(vhosts, copy)
+
+    def test_to_lxml(self):
+        vhosts = VHosts.from_string(self.text)
+        copy = VHosts.from_lxml_element(vhosts.to_lxml_element())
+        self.assertEqual(vhosts, copy)
+
+    def test_equality(self):
+        self.assertEqual(VHosts.from_string(self.text),
+                         VHosts.from_string(self.text))
+        self.assertNotEqual(VHosts.from_string(self.text),
+                            VHosts.from_string(
+                '<VHOSTS>{0}</VHOSTS>'.format(str(self.vhost_0))))
+        self.assertNotEqual(VHosts.from_string(self.text), [])
 
 if __name__ == '__main__':
     unittest.main()
