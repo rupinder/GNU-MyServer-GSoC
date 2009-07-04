@@ -207,6 +207,12 @@ class MIMETypesTest(unittest.TestCase):
 </MIME>'''
         self.text = '<MIMES>{0}{1}</MIMES>'.format(self.mime_0, self.mime_1)
     
+    def test_creation(self):
+        mimes = MIMETypes([MIMEType.from_string(self.mime_0),
+                           MIMEType.from_string(self.mime_1)])
+        self.assertEqual(mimes.MIME_types[0], MIMEType.from_string(self.mime_0))
+        self.assertEqual(mimes.MIME_types[1], MIMEType.from_string(self.mime_1))
+
     def test_from_string(self):
         mimes = MIMETypes.from_string(self.text)
         self.assertEqual(mimes.MIME_types[0], MIMEType.from_string(self.mime_0))
