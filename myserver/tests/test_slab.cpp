@@ -36,6 +36,7 @@ class TestSlab : public CppUnit::TestFixture
   CPPUNIT_TEST ( testGet );
   CPPUNIT_TEST ( testForcedGet );
   CPPUNIT_TEST ( testCapacity );
+  CPPUNIT_TEST ( testInit );
 
   CPPUNIT_TEST_SUITE_END ();
 
@@ -46,6 +47,19 @@ public:
   
   void tearDown ()
   {
+  }
+
+  void testInit ()
+  {
+    int N = 10;
+    Slab<TestSlabRecord> slabs (N);
+    CPPUNIT_ASSERT_EQUAL (slabs.getCapacity (), N);
+
+    for (int i = 1; i < 100; i += 10)
+      {
+        slabs.init (i);
+        CPPUNIT_ASSERT_EQUAL (slabs.getCapacity (), i);
+      }
   }
 
   void testCapacity ()

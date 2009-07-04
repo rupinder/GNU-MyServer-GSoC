@@ -39,8 +39,24 @@ int ffsl (long int i)
  */
 BitVec::BitVec (int capacity, bool val)
 {
+  this->data = NULL;
+  init (capacity, val);
+  lastFound = 0;
+}
+
+/*!
+ * Reinitialize the vector.
+ *\param capacity Maximum number of bits to index.
+ *\param val The default value for the vector elements.
+ */
+void BitVec::init (int capacity, bool val)
+{
   this->capacity = capacity;
   this->dataSize = capacity / (sizeof (long int) * 8) + 1;
+
+  if (this->data)
+    delete [] this->data;
+
   this->data = new long int[dataSize];
 
   for (int i = 0; i < dataSize; i++)
@@ -52,6 +68,7 @@ BitVec::BitVec (int capacity, bool val)
 
   lastFound = 0;
 }
+
 
 /*!
  * Find the first bit set to '1'.

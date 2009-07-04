@@ -33,6 +33,14 @@ public:
     data = new T[capacity];
   }
 
+  void init (int capacity)
+  {
+    mask.init (capacity, true);
+    this->capacity = capacity;
+    delete [] data;
+    data = new T[capacity];
+  }
+
   int getCapacity ()
   {
     return capacity;
@@ -50,7 +58,7 @@ public:
 
   T* get ()
   {
-    int i = mask.ffs ();
+    int i = mask.find ();
 
     if (i == -1)
       return NULL;

@@ -26,6 +26,8 @@ class BitVec
 public:
   BitVec (int capacity, bool val);
 
+  void init (int capacity, bool val);
+
   int ffs ();
 
   int find ();
@@ -63,6 +65,10 @@ public:
     delete [] data;
   }
   
+  int getCapacity ()
+  {
+    return capacity;
+  }
 
 private:
   /* Used internally by find.  */
