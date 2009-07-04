@@ -20,12 +20,13 @@ from lxml import etree
 
 class Stream():
     def __init__(self, location, cycle = None, cycle_gzip = None, filter = []):
-        if location is None:
-            raise AttributeError('location is required and can\'t be None')
-        self.location = location
-        self.cycle = cycle
-        self.cycle_gzip = cycle_gzip
-        self.filter = filter
+        '''Create new Stream instance. filter is expected to be iterable.'''
+        self.set_location(location)
+        self.set_cycle(cycle)
+        self.set_cycle_gzip(cycle_gzip)
+        self.filter = []
+        for single_filter in filter:
+            self.add_filter(single_filter)
 
     def __eq__(self, other):
         return isinstance(other, Stream) and \
@@ -86,7 +87,7 @@ class Stream():
 
     @staticmethod
     def from_lxml_element(root):
-        '''Factory to produce stream from etree.Element object.'''
+        '''Factory to produce stream from lxml.etree.Element object.'''
         if root.tag != 'STREAM':
             raise AttributeError('Expected STREAM tag.')
         location = root.get('location')
@@ -104,6 +105,7 @@ class Stream():
         return etree.tostring(self.to_lxml_element(), pretty_print = True)
 
     def to_lxml_element(self):
+        '''Convert to lxml.etree.Element.'''
         root = etree.Element('STREAM')
         root.set('location', self.location)
         if self.cycle is not None:
@@ -118,11 +120,12 @@ class Stream():
 
 class Log():
     def __init__(self, log_type, stream = [], type = None):
-        if log_type is None:
-            raise AttributeError('log_type is required and can\'t be None')
-        self.log_type = log_type
-        self.stream = stream
-        self.type = type
+        '''Create new Log instance. stream is expected to be iterable.'''
+        self.set_log_type(log_type)
+        self.set_type(type)
+        self.stream = []
+        for single_stream in stream:
+            self.add_stream(single_stream)
 
     def __eq__(self, other):
         return isinstance(other, Log) and \
@@ -175,7 +178,7 @@ class Log():
 
     @staticmethod
     def from_lxml_element(root):
-        '''Factory to produce log from etree.Element object.'''
+        '''Factory to produce log from lxml.etree.Element object.'''
         log_type = root.tag
         type = root.get('type', None)
         stream = []
@@ -188,6 +191,7 @@ class Log():
         return etree.tostring(self.to_lxml_element(), pretty_print = True)
 
     def to_lxml_element(self):
+        '''Convert to lxml.etree.Element.'''
         root = etree.Element(self.log_type)
         if self.type is not None:
             root.set('type', self.type)
