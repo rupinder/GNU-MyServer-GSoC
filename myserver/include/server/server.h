@@ -48,6 +48,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/conf/security/auth_method_factory.h>
 #include <include/conf/security/validator_factory.h>
 
+#include <include/base/slab/slab.h>
+
 #include <string>
 #include <list>
 
@@ -177,6 +179,9 @@ private:
    *stopped and the application stop its execution.
    */
   int mustEndServer;
+
+  Mutex connectionsPoolLock;
+  Slab<Connection> connectionsPool;
 
   /*! Singleton instance.  Call createInstance before use it.  */
   static Server* instance;

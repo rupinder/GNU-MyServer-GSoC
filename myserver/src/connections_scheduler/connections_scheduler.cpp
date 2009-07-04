@@ -543,7 +543,6 @@ void ConnectionsScheduler::removeConnection(ConnectionPtr connection)
   if(connection->socket)
     connections.remove((SocketHandle)connection->socket->getHandle());
   connectionsMutex.unlock();
-  delete connection;
 }
 
 /*!

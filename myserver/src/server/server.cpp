@@ -70,7 +70,8 @@ Server::Server() : connectionsScheduler (this),
                    listenThreads (&connectionsScheduler, this),
                    authMethodFactory (),
                    validatorFactory (),
-                   securityManager (&validatorFactory, &authMethodFactory)
+                   securityManager (&validatorFactory, &authMethodFactory),
+                   connectionsPool (100)
 {
   toReboot = false;
   autoRebootEnabled = true;
@@ -92,6 +93,7 @@ Server::Server() : connectionsScheduler (this),
   freeThreads = 0;
   logManager = new LogManager (&filtersFactory);
   initLogManager ();
+  connectionsPoolLock.init ();
 }
 
 void
@@ -286,6 +288,8 @@ Server::~Server()
   
   if (logManager)
     delete logManager;
+
+  connectionsPoolLock.destroy ();
 }
 
 /*!
@@ -1095,6 +1099,12 @@ int Server::initialize ()
     maxConnectionsToAccept = atoi(data);
   }
 
+  data = getHashedData ("server.connections_pool.size");
+  if(data)
+  {
+    connectionsPool.init (atoi (data));
+  }
+
   /* Get the default throttling rate to use on connections.  */
   data = getHashedData ("connection.throttling");
   if(data)
@@ -1348,13 +1358,17 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
   int doFastCheck = 0;
   Protocol* protocol;
   int opts = 0;
-  ConnectionPtr newConnection = new Connection();
+  ConnectionPtr newConnection;
   vector<Multicast<string, void*, int>*>* handlers;
 
+  connectionsPoolLock.lock ();
+  newConnection = connectionsPool.get ();
+  connectionsPoolLock.unlock ();
+
   if(!newConnection)
-  {
     return NULL;
-  }
+  else
+    newConnection->init ();
 
   newConnection->setPort(port);
   newConnection->setTimeout( getTicks() );
@@ -1368,7 +1382,9 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
   /* No vhost for the connection so bail.  */
   if(newConnection->host == 0)
   {
-    delete newConnection;
+    connectionsPoolLock.lock ();
+    connectionsPool.put (newConnection);
+    connectionsPoolLock.unlock ();
     return 0;
   }
 
@@ -1394,7 +1410,9 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
       for(size_t i = 0; i < handlers->size(); i++)
         if((*handlers)[i]->updateMulticast(this, msg, newConnection) == 1)
         {
-          delete newConnection;
+          connectionsPoolLock.lock ();
+          connectionsPool.put (newConnection);
+          connectionsPoolLock.unlock ();
           return 0;
         }
     }
@@ -1412,8 +1430,9 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
 
     if(ret < 0)
     {
-      /* Free the connection on errors. */
-      delete newConnection;
+      connectionsPoolLock.lock ();
+      connectionsPool.put (newConnection);
+      connectionsPoolLock.unlock ();
       delete sslSocket;
       return 0;
     }
@@ -1445,10 +1464,6 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
 
   connectionsScheduler.registerConnectionID(newConnection);
 
-
-  /*
-   *Signal the new connection to the waiting threads.
-   */
   return newConnection;
 }
 
@@ -1461,6 +1476,12 @@ int Server::deleteConnection(ConnectionPtr s)
 {
   notifyDeleteConnection(s);
   connectionsScheduler.removeConnection (s);
+
+  s->destroy ();
+
+  connectionsPoolLock.lock ();
+  connectionsPool.put (s);
+  connectionsPoolLock.unlock ();
 
   return 0;
 }
