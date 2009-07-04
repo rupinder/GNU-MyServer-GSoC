@@ -933,7 +933,7 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
     return CONTROL_INTERNAL;
   }
 
-  ret = localfile.openFile(filename, File::WRITE | File::OPEN_ALWAYS);
+  ret = localfile.openFile(filename, File::WRITE | File::FILE_OPEN_ALWAYS);
 
   /* An internal server error happens.  */
   if(ret)
