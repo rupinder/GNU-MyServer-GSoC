@@ -72,7 +72,7 @@ public:
     
     CPPUNIT_ASSERT_EQUAL (tfile->openFile( fname.c_str (), File::WRITE | 
                                            File::READ | 
-                                           File::CREATE_ALWAYS ), 0);
+                                           File::FILE_CREATE_ALWAYS ), 0);
     
     CPPUNIT_ASSERT_EQUAL (tfile->writeToFile ( buf, bufLen, &nbw ), 0);
     

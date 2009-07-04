@@ -167,7 +167,7 @@ int FilesUtility::copyFile (const char* src, const char* dest, int overwrite)
   if (srcFile.openFile (src, File::READ))
     return -1;
 
-  if (destFile.openFile (dest, File::WRITE | (overwrite ? File::CREATE_ALWAYS : 0)))
+  if (destFile.openFile (dest, File::WRITE | (overwrite ? File::FILE_CREATE_ALWAYS : 0)))
     {
       srcFile.close ();
       return -1;

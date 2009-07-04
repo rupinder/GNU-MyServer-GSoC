@@ -58,10 +58,10 @@ const u_long File::READ = (1<<0);
 const u_long File::WRITE = (1<<1);
 const u_long File::TEMPORARY = (1<<2);
 const u_long File::HIDDEN = (1<<3);
-const u_long File::OPEN_ALWAYS = (1<<4);
+const u_long File::FILE_OPEN_ALWAYS = (1<<4);
 const u_long File::OPEN_IF_EXISTS = (1<<5);
 const u_long File::APPEND = (1<<6);
-const u_long File::CREATE_ALWAYS = (1<<7);
+const u_long File::FILE_CREATE_ALWAYS = (1<<7);
 const u_long File::NO_INHERIT = (1<<8);
 
 
@@ -133,17 +133,17 @@ int File::openFile(const char* nfilename,u_long opt)
     sa.bInheritHandle = TRUE;
   sa.lpSecurityDescriptor = NULL;
 
-  if(opt & File::OPEN_ALWAYS)
-    creationFlag|=OPEN_ALWAYS;
+  if(opt & File::FILE_OPEN_ALWAYS)
+    creationFlag |= OPEN_ALWAYS;
   if(opt & File::OPEN_IF_EXISTS)
-    creationFlag|=OPEN_EXISTING;
-  if(opt & File::CREATE_ALWAYS)
-    creationFlag|=CREATE_ALWAYS;
+    creationFlag |= OPEN_EXISTING;
+  if(opt & File::FILE_CREATE_ALWAYS)
+    creationFlag |= CREATE_ALWAYS;
 
   if(opt & File::READ)
-    openFlag|=GENERIC_READ;
+    openFlag |= GENERIC_READ;
   if(opt & File::WRITE)
-    openFlag|=GENERIC_WRITE;
+    openFlag |= GENERIC_WRITE;
 
   if(opt & File::TEMPORARY)
   {
@@ -221,7 +221,7 @@ int File::openFile(const char* nfilename,u_long opt)
     else
       handle = (FileHandle)ret;
   }
-  else if(opt & File::CREATE_ALWAYS)
+  else if(opt & File::FILE_CREATE_ALWAYS)
   {
     stat(filename.c_str(), &F_Stats);
     if(ret)
@@ -236,7 +236,7 @@ int File::openFile(const char* nfilename,u_long opt)
     else
       handle=(FileHandle)ret;
   }
-  else if(opt & File::OPEN_ALWAYS)
+  else if(opt & File::FILE_OPEN_ALWAYS)
   {
     ret = stat(filename.c_str(), &F_Stats);
 
@@ -337,7 +337,7 @@ int File::createTemporaryFile(const char* filename)
 
   return openFile(filename, File::READ | 
                   File::WRITE| 
-                  File::CREATE_ALWAYS | 
+                  File::FILE_CREATE_ALWAYS |
                   File::TEMPORARY |
                   File::NO_INHERIT);
 }

@@ -116,7 +116,7 @@ int HttpFile::putFile (HttpThreadContext* td,
        */
       File file;
       if(file.openFile(td->filenamePath.c_str(),
-                       File::CREATE_ALWAYS |
+                       File::FILE_CREATE_ALWAYS |
                        File::WRITE))
       {
         /*! Internal server error. */

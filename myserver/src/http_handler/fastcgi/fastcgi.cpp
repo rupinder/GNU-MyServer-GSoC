@@ -193,7 +193,7 @@ int FastCgi::send(HttpThreadContext* td, const char* scriptpath,
 
   td->inputData.close();
   if(td->inputData.openFile(td->inputDataPath, File::READ | 
-                            File::OPEN_ALWAYS |
+                            File::FILE_OPEN_ALWAYS |
                             File::NO_INHERIT))
   {
     td->buffer->setLength(0);

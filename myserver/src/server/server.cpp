@@ -211,7 +211,7 @@ int Server::copyConfigurationFromDefault(const char *fileName)
     return -1;
 
   ret = outputF.openFile (fileName, File::WRITE
-                         | File::OPEN_ALWAYS);
+                         | File::FILE_OPEN_ALWAYS);
   if (ret)
     return -1;
 

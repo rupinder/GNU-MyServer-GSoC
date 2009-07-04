@@ -35,10 +35,10 @@ public:
   static const u_long WRITE;
   static const u_long TEMPORARY;
   static const u_long HIDDEN;
-  static const u_long OPEN_ALWAYS;
+  static const u_long FILE_OPEN_ALWAYS;
   static const u_long OPEN_IF_EXISTS;
   static const u_long APPEND;
-  static const u_long CREATE_ALWAYS;
+  static const u_long FILE_CREATE_ALWAYS;
   static const u_long NO_INHERIT;
 
   File();

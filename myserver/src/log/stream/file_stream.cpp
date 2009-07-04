@@ -19,7 +19,7 @@
 
 int const FileStream::defaultFileMask = 
   File::APPEND | 
-  File::OPEN_ALWAYS |
+  File::FILE_OPEN_ALWAYS |
   File::WRITE | 
   File::READ | 
   File::NO_INHERIT;
@@ -64,7 +64,7 @@ FileStream::streamCycle ()
       if (newFile.openFile (newFileName,
                             File::WRITE |
                             File::NO_INHERIT |
-                            File::CREATE_ALWAYS))
+                            File::FILE_CREATE_ALWAYS))
         {
           cerr << "could not open " << newFileName << endl;
           delete [] buffer;
