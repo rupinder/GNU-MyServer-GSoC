@@ -23,22 +23,24 @@ class MIMEType():
     valid_handlers = set(['SEND', 'CGI', 'FASTCGI', 'SCGI', 'MSCGI', 'ISAPI',
                           'WINCGI', 'PROXY'])
 
-    def __init__(self, mime, handler, param = None, extension = set(), path = None,
+    def __init__(self, mime, handler, param = None, extension = [], path = None,
                  filter = [], self_executed = None, definitions = []):
-        '''Creates new MIMEType with specified attributes.'''
-        self.mime = mime
-        if mime is None:
-            raise AttributeError('mime is required and can\'t be None')
-        if handler not in MIMEType.valid_handlers:
-            raise AttributeError(
-                '{0} is not a valid handler'.format(handler))
-        self.handler = handler
-        self.param = param
-        self.extension = extension
-        self.path = path
-        self.filter = filter
-        self.self_executed = self_executed
-        self.definitions = definitions
+        '''Creates new MIMEType with specified attributes. extension, filter and
+        definitions are expected to be iterable.'''
+        self.set_mime(mime)
+        self.set_handler(handler)
+        self.set_param(param)
+        self.extension = set()
+        for single_extension in extension:
+            self.add_extension(single_extension)
+        self.set_path(path)
+        self.filter = []
+        for single_filter in filter:
+            self.add_filter(single_filter)
+        self.set_self_executed(self_executed)
+        self.definitions = []
+        for definition in definitions:
+            self.add_definition(definition)
 
     def get_mime(self):
         '''Get associated mime type.'''
@@ -147,7 +149,8 @@ class MIMEType():
             self.self_executed == other.self_executed and \
             self.definitions == other.definitions
 
-    def to_lxml_element(self): 
+    def to_lxml_element(self):
+        '''Convert to lxml.etree.Element.'''
         def make_element(tag, attribute, value):
             element = etree.Element(tag)
             element.set(attribute, value)
@@ -178,7 +181,7 @@ class MIMEType():
 
     @staticmethod
     def from_lxml_element(root):
-        '''Factory to produce MIMEType from etree.Element object.'''
+        '''Factory to produce MIMEType from lxml.etree.Element object.'''
         if root.tag != 'MIME':
             raise AttributeError('Expected MIME tag.')
         mime = root.get('mime', None)
@@ -217,6 +220,7 @@ class MIMETypes():
             self.MIME_types == other.MIME_types
 
     def to_lxml_element(self):
+        '''Convert to lxml.etree.Element.'''
         root = etree.Element('MIMES')
         for mime in self.MIME_types:
             root.append(mime.to_lxml_element())
@@ -227,7 +231,7 @@ class MIMETypes():
         
     @staticmethod
     def from_lxml_element(root):
-        '''Factory to produce MIMETypes from etree.Element object.'''
+        '''Factory to produce MIMETypes from lxml.etree.Element object.'''
         if root.tag != 'MIMES':
             raise AttributeError('Expected MIMES tag.')
         return MIMETypes(map(MIMEType.from_lxml_element, list(root)))
