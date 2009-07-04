@@ -25,6 +25,10 @@ class VHost():
     
     def __init__(self, name, port, protocol, doc_root, sys_folder, access_log,
                  warning_log, ip = [], host = {}):
+        '''Create new instance of VHost. access_log and warning_log are expected
+        to be instances of MyServer.pycontrollib.log.Log class. ip is expected
+        to be a collection and host is expected to be a dict {name: useRegex}
+        where None means not set.'''
         self.set_name(name)
         self.set_port(port)
         self.set_protocol(protocol)
@@ -105,7 +109,8 @@ class VHost():
         return self.access_log
 
     def set_access_log(self, access_log):
-        '''Set VHost access log.'''
+        '''Set VHost access log. access_log is expected to be an instance of
+        MyServer.pycontrollib.log.Log class.'''
         if access_log is None:
             raise AttributeError('access_log is required and can\'t be None')
         if not isinstance(access_log, Log) or \
@@ -118,7 +123,8 @@ class VHost():
         return self.warning_log
 
     def set_warning_log(self, warning_log):
-        '''Set VHost warning_log.'''
+        '''Set VHost warning_log. warning_log is expected to be an instance of
+        MyServer.pycontrollib.log.Log class'''
         if warning_log is None:
             raise AttributeError('warning_log is required and can\'t be None')
         if not isinstance(warning_log, Log) or \
@@ -143,7 +149,7 @@ class VHost():
         return self.host
 
     def add_host(self, host, use_regex = None):
-        '''Add host to VHost dict.'''
+        '''Add host to VHost host dict.'''
         self.host[host] = use_regex
 
     def remove_host(self, host):
@@ -154,6 +160,7 @@ class VHost():
         return etree.tostring(self.to_lxml_element(), pretty_print = True)
 
     def to_lxml_element(self):
+        '''Convert to instance of lxml.etree.Element.'''
         def make_element(tag, text):
             element = etree.Element(tag)
             element.text = text
@@ -177,7 +184,7 @@ class VHost():
 
     @staticmethod
     def from_lxml_element(root):
-        '''Factory to produce VHost from etree.Element object.'''
+        '''Factory to produce VHost from lxml.etree.Element object.'''
         if root.tag != 'VHOST':
             raise AttributeError('Expected VHOST tag.')
         name = None
@@ -221,12 +228,15 @@ class VHost():
 
 class VHosts():
     def __init__(self, VHosts):
+        '''Create a new instance of VHosts. VHosts attribute is expected to be a
+        list.'''
         self.VHosts = VHosts
 
     def __eq__(self, other):
         return isinstance(other, VHosts) and self.VHosts == other.VHosts
 
     def to_lxml_element(self):
+        '''Convert to lxml.etree.Element.'''
         root = etree.Element('VHOSTS')
         for vhost in self.VHosts:
             root.append(vhost.to_lxml_element())
@@ -237,7 +247,7 @@ class VHosts():
 
     @staticmethod
     def from_lxml_element(root):
-        '''Factory to produce VHosts from etree.Element object.'''
+        '''Factory to produce VHosts from lxml.etree.Element object.'''
         if root.tag != 'VHOSTS':
             raise AttributeError('Expected VHOSTS tag.')
         return VHosts(map(VHost.from_lxml_element, list(root)))
