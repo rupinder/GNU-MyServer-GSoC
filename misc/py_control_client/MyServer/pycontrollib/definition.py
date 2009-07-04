@@ -24,10 +24,10 @@ class Definition():
 
     def __init__(self, name = None, attributes = {}):
         '''Creates new definition with given name and attributes.'''
-        if attributes.has_key('value'):
-            raise KeyError('value is not an allowed key')
-        self.name = name
-        self.attributes = attributes
+        self.set_name(name)
+        self.attributes = {}
+        for key, value in attributes.iteritems():
+            self.set_attribute(key, value)
 
     def __eq__(self, other):
         return isinstance(other, Definition) and \
@@ -49,7 +49,7 @@ class Definition():
     def set_attribute(self, key, value):
         '''Set attribute key to given value.'''
         if key == 'value':
-            raise KeyError('value is not an allowd key')
+            raise KeyError('value is not an allowed key')
         self.attributes[key] = value
 
     def remove_attribute(self, key):
@@ -58,7 +58,7 @@ class Definition():
 
     @staticmethod
     def from_lxml_element(root):
-        '''Factory to produce definition element or tree from etree.Element
+        '''Factory to produce definition element or tree from lxml.etree.Element
         object.'''
         if root.tag != 'DEFINE':
             raise AttributeError('Expected DEFINE tag.')
@@ -77,12 +77,9 @@ class DefinitionElement(Definition):
 
     def __init__(self, name = None, attributes = {}):
         '''Creates new definition element with given name and attributes.'''
-        if attributes.has_key('value'):
-            value = attributes.pop('value')
-            Definition.__init__(self, name, attributes)
-            self.attributes['value'] = value
-        else:
-            Definition.__init__(self, name, attributes)
+        Definition.__init__(self, name)
+        for key, value in attributes.iteritems():
+            self.set_attribute(key, value)
 
     def __eq__(self, other):
         return isinstance(other, DefinitionElement) and \
@@ -96,7 +93,7 @@ class DefinitionElement(Definition):
             Definition.set_attribute(self, key, value)
 
     def to_lxml_element(self):
-        '''Convert definition element to etree.Element object.'''
+        '''Convert definition element to lxml.etree.Element object.'''
         root = etree.Element('DEFINE')
         for key, value in self.attributes.iteritems():
             root.set(key, value)
@@ -109,7 +106,8 @@ class DefinitionElement(Definition):
 
     @staticmethod
     def from_lxml_element(root):
-        '''Factory to produce definition element from etree.Element object.'''
+        '''Factory to produce definition element from lxml.etree.Element
+        object.'''
         if root.tag != 'DEFINE':
             raise AttributeError('Expected DEFINE tag.')
         attributes = root.attrib
@@ -126,9 +124,11 @@ class DefinitionTree(Definition):
 
     def __init__(self, name = None, values = [], attributes = {}):
         '''Creates new definition tree with given name, sub-definitions and
-        attributes.'''
+        attributes. values is expected to be iterable.'''
         Definition.__init__(self, name, attributes)
-        self.values = values
+        self.values = []
+        for value in values:
+            self.add_value(value)
 
     def __eq__(self, other):
         return isinstance(other, DefinitionTree) and \
@@ -157,7 +157,7 @@ class DefinitionTree(Definition):
 
     @staticmethod
     def from_lxml_element(root):
-        '''Factory to produce definition tree from etree.Element object.'''
+        '''Factory to produce definition tree from lxml.etree.Element object.'''
         if root.tag != 'DEFINE':
             raise AttributeError('Expected DEFINE tag.')
         attributes = root.attrib
@@ -171,7 +171,7 @@ class DefinitionTree(Definition):
         return DefinitionTree.from_lxml_element(etree.XML(text))
 
     def to_lxml_element(self):
-        '''Convert definition tree to etree.Element object.'''
+        '''Convert definition tree to lxml.etree.Element object.'''
         root = etree.Element('DEFINE')
         for key, value in self.attributes.iteritems():
             root.set(key, value)
