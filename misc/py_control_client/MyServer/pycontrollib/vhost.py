@@ -21,7 +21,7 @@ from log import Log
 
 class VHost():
     valid_protocols = set(['HTTP', 'FTP', 'HTTPS', 'ISAPI', 'CGI', 'SCGI',
-                           'FastCGI', 'WinCGI'])
+                           'FastCGI', 'WinCGI', 'CONTROL'])
     
     def __init__(self, name, port, protocol, doc_root, sys_folder, access_log,
                  warning_log, ip = [], host = {}):
