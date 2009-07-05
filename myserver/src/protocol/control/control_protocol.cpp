@@ -587,15 +587,15 @@ int ControlProtocol::addToErrorLog(ConnectionPtr con, const char *b1, int bs1,
   /*
    *Check that the verbosity is at least 1.
    */
-  if(Server::getInstance()->getVerbosity() < 1)
+  if (Server::getInstance()->getVerbosity() < 1)
     return 0;
 
-  getRFC822GMTTime(time, 32);
+  getRFC822GMTTime (time, 32);
   
-  getRFC822GMTTime(time, 32);
+  getRFC822GMTTime (time, 32);
 
   out << con->getIpAddr() << " [" << time.c_str() << "] " << b1;
-  ((Vhost*)(con->host))->accessesLogWrite(out.str().c_str());
+  ((Vhost*)(con->host))->warningsLogWrite (out.str ().c_str ());
 
   return 0;
 }
@@ -603,8 +603,8 @@ int ControlProtocol::addToErrorLog(ConnectionPtr con, const char *b1, int bs1,
 /*!
  *Add the entry to the log file.
  */
-int ControlProtocol::addToLog(int retCode, ConnectionPtr con, char *b1, 
-                              int bs1, ControlHeader& header)
+int ControlProtocol::addToLog (int retCode, ConnectionPtr con, char *b1,
+                               int bs1, ControlHeader& header)
 {
   string time;
   getRFC822GMTTime(time, 32);
@@ -614,11 +614,11 @@ int ControlProtocol::addToLog(int retCode, ConnectionPtr con, char *b1,
 #else
   sprintf(b1,
 #endif
-          "%s [%s] %s:%s:%s - %s  - %i\r\n", con->getIpAddr(), time.c_str(), 
-          header.getCommand(),  header.getVersion(), header.getOptions(), 
-          header.getAuthLogin() , retCode);
+          "%s [%s] %s:%s:%s - %s  - %i\r\n", con->getIpAddr (), time.c_str (), 
+          header.getCommand (),  header.getVersion (), header.getOptions (), 
+          header.getAuthLogin () , retCode);
 
-           ((Vhost*)(con->host))->accessesLogWrite(b1);
+           ((Vhost*)(con->host))->accessesLogWrite (b1);
   return 0;
 }
 
@@ -632,14 +632,14 @@ int ControlProtocol::sendResponse(char *buffer, int buffersize,
 {
   u_long dataLength=0;
   int err;
-  err = addToLog(errID,conn,buffer, buffersize, header);
-  if(err)
+  err = addToLog (errID, conn, buffer, buffersize, header);
+  if (err)
   {
-    strcpy(buffer,"Control: Error registering the connection to the log");
-    addToErrorLog(conn,buffer, strlen(buffer), header);
+    strcpy (buffer,"Control: Error registering the connection to the log");
+    addToErrorLog (conn,buffer, strlen(buffer), header);
     return err;
   }
-  if(outFile)
+  if (outFile)
     dataLength = outFile->getFileSize();
   /* Build and send the first line.  */
 #ifdef HAVE_SNPRINTF
@@ -933,7 +933,7 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
     return CONTROL_INTERNAL;
   }
 
-  ret = localfile.openFile(filename, File::WRITE | File::FILE_OPEN_ALWAYS);
+  ret = localfile.openFile(filename, File::WRITE | File::OPEN_ALWAYS);
 
   /* An internal server error happens.  */
   if(ret)
