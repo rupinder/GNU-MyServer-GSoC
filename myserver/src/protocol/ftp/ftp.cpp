@@ -2476,7 +2476,38 @@ void Ftp::Size(const std::string &sPath)
   const char *secName = td.st.getHashedData ("security.filename",
                                              MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF,
                                              ".security.xml");
-  ftp_reply(502);
+  if( !strcmpi(sLocalFileName.c_str(), secName))
+  {
+    ftp_reply(550);
+    CloseDataConnection();
+    return;
+  }
+  FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
+
+  if ( sPath.empty() || !GetLocalPath(sPath, sLocalPath) )
+    {
+      ftp_reply(550);
+      return;
+    }
+
+  if (FilesUtility::isDirectory(sLocalPath.c_str ()))
+    {
+      ftp_reply(550);
+      return;
+    }
+
+  File f;
+  if (f.openFile (sLocalPath.c_str (), File::OPEN_IF_EXISTS | File::READ))
+    {
+      ftp_reply (550);
+      return;
+    }
+
+  char size [12];
+  sprintf (size, "%l", f.getFileSize ());
+  f.close ();
+
+  ftp_reply(213, size);
 }
 
 void Ftp::Allo(int nSize, int nRecordSize/* = -1*/)
