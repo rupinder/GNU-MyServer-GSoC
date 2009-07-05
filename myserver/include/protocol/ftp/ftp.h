@@ -113,6 +113,7 @@ public:
 	yyscan_t GetScanner() { return m_scanner; }
 	u_long ComputeParseLength(const YYLTYPE &location);
 
+  void logAccess (int nReplyCode, const std::string &sCustomText);
 	void ftp_reply(int nReplyCode, const std::string &sCustomText = "");
 	//int get_ftp_reply(int nReplyCode, std::string &sReply);
 	int PrintError(const char *msg);//TODO: change this fnc !!!
@@ -122,7 +123,7 @@ public:
 	static int FIRST_PASV_PORT;
 	static int LAST_PASV_PORT;
 
-	int CheckRights(const std::string &sUser, const std::string &sPass, const std::string &sPath, int mask);
+	int CheckRights(const std::string &sUser, const std::string &sPass,  const std::string &sPath, int mask);
 	void WaitDataConnection();
 	
 	int OpenDataConnection();
