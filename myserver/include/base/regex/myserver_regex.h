@@ -17,27 +17,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef MYSERVER_REGEX_H
-#define MYSERVER_REGEX_H
 
-#include "stdafx.h"
+# define MYSERVER_REGEX_H
 
-#ifndef _VC
+# include "stdafx.h"
+
 extern "C" 
 {
-#endif
+# include <stdio.h>
 
-#include <stdio.h>
-
-#ifdef REGEX
-#include <regex.h>
-#else
-	typedef void* regmatch_t;
-	typedef void* regex_t;
-#endif
-
-#ifndef _VC
+# ifdef TRE
+#  include <tre/regex.h>
+# elif REGEX
+#  include <regex.h>
+# else
+  typedef void* regmatch_t;
+  typedef void* regex_t;
+# endif
 }
-#endif
 
 #include <string>
 using namespace std;

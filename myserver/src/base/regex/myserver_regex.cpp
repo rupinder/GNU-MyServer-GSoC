@@ -18,11 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/regex/myserver_regex.h>
 
 /*!
- *Compile the regex pattern.
+ * Compile the regex pattern.
  */
 int Regex::compile(const char *p, int f)
 {
-#ifdef REGEX
+#ifdef REGEX | TRE
   int ret = regcomp(&compiledRegex, p, f);
   pattern.assign(p);
   flags = f;
@@ -34,12 +34,12 @@ int Regex::compile(const char *p, int f)
 }
 
 /*!
- *Match the pattern against strings.
+ * Match the pattern against strings.
  */
 int Regex::exec(const char *text, size_t nmatch, regmatch_t matchptr [], 
                 int eflags)
 {
-#ifdef REGEX
+#ifdef REGEX | TRE
   if(!compiled)
     return 1;
   int ret = regexec (&compiledRegex, text, nmatch, matchptr, eflags);
@@ -49,11 +49,11 @@ int Regex::exec(const char *text, size_t nmatch, regmatch_t matchptr [],
 }
 
 /*!
- *Free the used memory.
+ * Free the used memory.
  */
 void Regex::free()
 {
-#ifdef REGEX
+#ifdef REGEX | TRE
   if(compiled)
     regfree(&compiledRegex);
   compiled = 0;
@@ -61,26 +61,26 @@ void Regex::free()
 }
 
 /*!
- *Destructor for the class
+ * Destructor for the class
  */
 Regex::~Regex()
 {
-#ifdef REGEX
+#ifdef REGEX | TRE
   free();
 #endif
 }
 
 /*!
- *Constructor for the class.
+ * Constructor for the class.
  */
 Regex::Regex(const char *pattern, int flags)
 {
-#ifdef REGEX
+#ifdef REGEX | TRE
   compile(pattern, flags);
 #endif
 }
 /*!
- *Return a nonzero value if the regex was compiled.
+ * Return a nonzero value if the regex was compiled.
  */
 int Regex::isCompiled()
 {
@@ -88,7 +88,7 @@ int Regex::isCompiled()
 }
 
 /*!
- *Construct by copy.
+ * Construct by copy.
  */
 Regex::Regex(Regex& r)
 {
@@ -96,11 +96,11 @@ Regex::Regex(Regex& r)
 }
 
 /*!
- *Create a clone.
+ * Create a clone.
  */
 void Regex::clone(Regex& r)
 {
-#ifdef REGEX
+#ifdef REGEX | TRE
   compile(r.pattern.c_str(), r.flags);
 #endif
 }
