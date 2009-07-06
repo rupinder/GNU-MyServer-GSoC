@@ -812,8 +812,8 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 
   try
   {
-    td->buffer = a->getActiveThread()->getBuffer();
-    td->secondaryBuffer = a->getActiveThread()->getSecondaryBuffer();
+    td->buffer = a->getActiveThread ()->getBuffer ();
+    td->secondaryBuffer = a->getActiveThread ()->getSecondaryBuffer ();
     td->buffersize = bs1;
     td->secondaryBufferSize = bs2;
     td->nBytesToRead = nbtr;
@@ -823,15 +823,15 @@ int Http::controlConnection(ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     td->http = this;
     td->appendOutputs = 0;
     td->onlyHeader = 0;
-    td->inputData.setHandle((FileHandle)0);
-    td->outputData.setHandle((FileHandle)0);
-    td->filenamePath.assign("");
-    td->outputDataPath.assign("");
-    td->inputDataPath.assign("");
+    td->inputData.setHandle ((Handle)0);
+    td->outputData.setHandle ((Handle)0);
+    td->filenamePath.assign ("");
+    td->outputDataPath.assign ("");
+    td->inputDataPath.assign ("");
     td->mime = 0;
     td->sentData = 0;
-    td->vhostDir.assign("");
-    td->vhostSys.assign("");
+    td->vhostDir.assign ("");
+    td->vhostSys.assign ("");
     {
       HashMap<string,string*>::Iterator it = td->other.begin();
       while(it != td->other.end())

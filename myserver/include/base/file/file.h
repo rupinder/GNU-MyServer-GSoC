@@ -43,8 +43,8 @@ public:
 
   File();
   File(char *,int);
-  virtual FileHandle getHandle();
-  virtual int setHandle(FileHandle);
+  virtual Handle getHandle();
+  virtual int setHandle(Handle);
   virtual int writeToFile(const char* ,u_long ,u_long* );
   virtual int createTemporaryFile(const char* );
 

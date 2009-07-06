@@ -28,7 +28,6 @@ class TestBitVec : public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE ( TestBitVec );
   
   CPPUNIT_TEST ( testSet );
-  CPPUNIT_TEST ( testFfs );
   CPPUNIT_TEST ( testGet );
   CPPUNIT_TEST ( testFfs );
   CPPUNIT_TEST ( testFind );

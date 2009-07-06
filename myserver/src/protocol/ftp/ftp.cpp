@@ -621,7 +621,7 @@ void Ftp::Pasv()
     {
     asockInLen = sizeof(sockaddr_in);
     asock = pFtpUserData->m_pDataConnection->socket->accept(&asockIn, &asockInLen);
-    if ( asock.getHandle() == (FileHandle)INVALID_SOCKET )
+    if ( asock.getHandle() == (Handle)INVALID_SOCKET )
       return;
 
     pFtpUserData->m_pDataConnection->socket->shutdown(SD_BOTH);
@@ -1573,7 +1573,7 @@ int Ftp::OpenDataPassive()
 
   Socket *pSocket = new Socket();
   pSocket->socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if ( pSocket->getHandle() == (FileHandle)INVALID_SOCKET )
+  if ( pSocket->getHandle() == (Handle)INVALID_SOCKET )
     return 0;
   int nReuseAddr = 1;
   MYSERVER_SOCKADDR_STORAGE storage = { 0 };

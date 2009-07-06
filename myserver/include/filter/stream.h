@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "stdafx.h"
 
 #ifdef WIN32
-typedef void* Handle;
+typedef u_int Handle;
 #else
 typedef int Handle;
 #endif
@@ -30,7 +30,7 @@ typedef int Handle;
 #ifdef WIN32
 typedef HANDLE FileHandle;
 #else
-typedef int  FileHandle;
+typedef int FileHandle;
 #endif
 
 /*!

@@ -79,9 +79,9 @@ int CachedFile::openFile(const char* nfilename, u_long opt)
 /*!
  *Returns the base/file/file.handle.
  */
-FileHandle CachedFile::getHandle()
+Handle CachedFile::getHandle()
 {
-  return (FileHandle)-1;
+  return (Handle)-1;
 }
 
 /*!
@@ -89,7 +89,7 @@ FileHandle CachedFile::getHandle()
  *Return a non null-value on errors.
  *\param hl The new base/file/file.handle.
  */
-int CachedFile::setHandle(FileHandle hl)
+int CachedFile::setHandle(Handle hl)
 {
   return -1;
 }
@@ -100,7 +100,7 @@ int CachedFile::setHandle(FileHandle hl)
  */
 int CachedFile::operator =(CachedFile f)
 {
-  setHandle(f.getHandle());
+  setHandle (f.getHandle ());
   if(f.filename.length())
   {
     filename.assign(f.filename);

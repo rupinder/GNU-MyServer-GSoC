@@ -272,9 +272,9 @@ int File::openFile(const char* nfilename,u_long opt)
 /*!
  *Returns the base/file/file.handle.
  */
-FileHandle File::getHandle()
+Handle File::getHandle()
 {
-  return handle;
+  return (Handle) handle;
 }
 
 /*!
@@ -282,9 +282,9 @@ FileHandle File::getHandle()
  *Return a non null-value on errors.
  *\param hl The new base/file/file.handle.
  */
-int File::setHandle(FileHandle hl)
+int File::setHandle(Handle hl)
 {
-  handle = hl;
+  handle = (FileHandle) hl;
   return 0;
 }
 
@@ -349,13 +349,13 @@ int File::close()
 {
   int ret = 0;
   if(handle)
-  {
+    {
 #ifdef WIN32
-    ret = !FlushFileBuffers((HANDLE)handle);
-    ret |= CloseHandle((HANDLE)handle);
+      ret = !FlushFileBuffers ((HANDLE)handle);
+      ret |= !CloseHandle ((HANDLE)handle);
 #else
-    ret = fsync((long)handle);
-    ret |= ::close((long)handle);
+      ret = fsync ((long)handle);
+      ret |= ::close ((long)handle);
 #endif
   }
   filename.clear();

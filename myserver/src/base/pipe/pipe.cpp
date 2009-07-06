@@ -280,9 +280,11 @@ void Pipe::closeWrite()
  */
 int Pipe::waitForData (int sec, int usec)
 {
-#ifndef WIN32
-
-#if HAVE_PIPE
+#ifdef WIN32
+  /* FIXME: it seems to don't work properly.  */
+  return WaitForSingleObject (readHandle, sec * 1000 + usec / 1000)
+    == WAIT_OBJECT_0;
+#elif HAVE_PIPE
   struct timeval tv;
   fd_set readfds;
   int ret;
@@ -304,12 +306,7 @@ int Pipe::waitForData (int sec, int usec)
     return 1;
 
   return 0;
-#else
+#endif
+
   return 0;
-#endif
-
-#else
-  return WaitForSingleObject (readHandle, sec * 1000 + usec / 1000) == WAIT_OBJECT_0;
-#endif
-
 }

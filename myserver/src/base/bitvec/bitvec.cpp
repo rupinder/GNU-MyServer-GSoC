@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* FIXME: move somewhere else.  */
 int ffsl (long int i)
 {
-  for (int j = 0; i < sizeof (i)*8; i++)
+  for (int j = 0; j < sizeof (i)*8; j++)
     if ((i >> j) & 1)
       return j + 1;
 
