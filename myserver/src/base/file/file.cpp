@@ -112,19 +112,21 @@ File::File(char *nfilename, int opt)
 
 /*!
  * Truncate the file.
+ *\param size Specify the new file size.
  */
-int File::truncate ()
+int File::truncate (u_long size)
 {
 #ifdef WIN32
-  if (seek (0))
+  if (seek (size))
     return 1;
+
   return !SetEndOfFile (handle);
 #else
-  int err = ftruncate(handle, 0);
+  int err = ftruncate(handle, size);
   if (err)
     return err;
 
-  return seek (0);
+  return seek (size);
 #endif
 }
 

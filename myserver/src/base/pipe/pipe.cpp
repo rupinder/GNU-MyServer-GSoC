@@ -290,10 +290,10 @@ int Pipe::waitForData (int sec, int usec)
     {
       bytesRead = 0;
       if (PeekNamedPipe (readHandle, buffer, 1, &bytesRead, NULL, NULL) == 0)
-	return 0;
+        return 0;
 
       if (bytesRead)
-	return 1;
+        return 1;
 
       Thread::wait (1000);
     }

@@ -37,10 +37,11 @@ class TestFile : public CppUnit::TestFixture
   string fname;
   
   CPPUNIT_TEST_SUITE ( TestFile );
-  
+
   CPPUNIT_TEST ( testCreateTemporaryFile );
   CPPUNIT_TEST ( testOnFile );
-  
+  CPPUNIT_TEST ( testTruncate );
+
   CPPUNIT_TEST_SUITE_END ();
 
 public:
@@ -69,36 +70,63 @@ public:
     const int bufLen = sizeof (buf) / sizeof (char);
     u_long nbw;
     u_long nbr;
-    
-    CPPUNIT_ASSERT_EQUAL (tfile->openFile( fname.c_str (), File::WRITE | 
+
+    CPPUNIT_ASSERT_EQUAL (tfile->openFile (fname.c_str (), File::WRITE | 
                                            File::READ | 
-                                           File::FILE_CREATE_ALWAYS ), 0);
-    
-    CPPUNIT_ASSERT_EQUAL (tfile->writeToFile ( buf, bufLen, &nbw ), 0);
+                                           File::FILE_CREATE_ALWAYS), 0);
+
+    CPPUNIT_ASSERT_EQUAL (tfile->writeToFile (buf, bufLen, &nbw), 0);
     
     memset (buf, 0, bufLen);
-    
+
     CPPUNIT_ASSERT_EQUAL (tfile->seek (0), 0);
-    
+
     CPPUNIT_ASSERT_EQUAL (tfile->read (buf, bufLen, &nbr), 0);
-    
+
     CPPUNIT_ASSERT (nbr > 0);
-    
+
     CPPUNIT_ASSERT (tfile->getCreationTime () != -1);
-    
+
     CPPUNIT_ASSERT (tfile->getLastAccTime () != -1);
-    
+
     CPPUNIT_ASSERT (tfile->getLastModTime () != -1);
-    
+
     CPPUNIT_ASSERT (tfile->getFileSize () != -1);
 
     CPPUNIT_ASSERT_EQUAL (tfile->seek (1), 0);
 
     CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), 1ul);
 
-    
     CPPUNIT_ASSERT_EQUAL (tfile->close (), 0);
   }
+
+  void testTruncate ()
+  {
+    u_long nbw;
+
+    CPPUNIT_ASSERT_EQUAL (tfile->openFile (fname.c_str (), File::WRITE | 
+                                           File::READ | 
+                                           File::FILE_CREATE_ALWAYS), 0);
+
+    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), 0ul);
+
+    const char *data = "Hello World!"; /* Something very original.  */
+    const u_long dataLen = strlen (data);
+
+    CPPUNIT_ASSERT_EQUAL (tfile->writeToFile (data, dataLen, &nbw), 0);
+
+    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), dataLen);
+
+    CPPUNIT_ASSERT_EQUAL (tfile->truncate (dataLen / 2), 0);
+
+    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), dataLen / 2);
+
+    CPPUNIT_ASSERT_EQUAL (tfile->writeToFile (data, dataLen, &nbw), 0);
+
+    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), dataLen + dataLen / 2);
+
+  }
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION (TestFile);
