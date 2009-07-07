@@ -94,7 +94,7 @@ int File::writeToFile(const char* buffer, u_long buffersize, u_long* nbw)
   int ret = WriteFile (handle, buffer, buffersize, nbw, NULL);
   return (!ret);
 #else
-  *nbw =  ::write(handle, buffer, buffersize);
+  *nbw =  ::write (handle, buffer, buffersize);
   return (*nbw == buffersize) ? 0 : 1 ;
 #endif
 }
@@ -105,7 +105,7 @@ int File::writeToFile(const char* buffer, u_long buffersize, u_long* nbw)
  *\param opt Specify how open the file.
  */
 File::File (char *nfilename, int opt)
-  : handle (-1)
+  : handle (0)
 {
   openFile (nfilename, opt);
 }
@@ -424,7 +424,7 @@ int File::write (const char* buffer, u_long len, u_long *nbw)
  *\param buffersize The length of the buffer in bytes.
  *\param nbr How many bytes were read to the buffer.
  */
-int File::read (char* buffer,u_long buffersize,u_long* nbr)
+int File::read (char* buffer, u_long buffersize, u_long* nbr)
 {
 #ifdef WIN32
   int ret = ReadFile((HANDLE)handle, buffer, buffersize, nbr, NULL);
