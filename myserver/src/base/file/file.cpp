@@ -111,6 +111,24 @@ File::File(char *nfilename, int opt)
 }
 
 /*!
+ * Truncate the file.
+ */
+int File::truncate ()
+{
+#ifdef WIN32
+  if (seek (0))
+    return 1;
+  return !SetEndOfFile (handle);
+#else
+  int err = ftruncate(handle, 0);
+  if (err)
+    return err;
+
+  return seek (0);
+#endif
+}
+
+/*!
  *Open (or create if not exists) a file, but must explicitly use read and/or write flags and open flag.
  *\param nfilename Filename to open.
  *\param opt Specify how open the file.
@@ -236,7 +254,7 @@ int File::openFile(const char* nfilename,u_long opt)
     else
       handle=(FileHandle)ret;
   }
-  else if(opt & File::FILE_OPEN_ALWAYS)
+  else
   {
     ret = stat(filename.c_str(), &F_Stats);
 

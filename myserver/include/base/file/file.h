@@ -73,6 +73,8 @@ public:
 
   virtual int fastCopyToSocket (Socket *dest, u_long offset, 
                                 MemBuf *buf, u_long *nbw);
+
+  int truncate ();
 protected:
   FileHandle handle;
   string filename;

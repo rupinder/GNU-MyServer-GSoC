@@ -197,19 +197,20 @@ public:
     LogStream* ls;
     list<string> cs;
     list<string>::iterator it;
-    FilesUtility::deleteFile ("foo");
+    FilesUtility::deleteFile ("foobar");
 
-    lm->add (this, "test", "file://foo", filters, 10);
-    lm->log (this, "test", "file://foo", message);
-    lm->log (this, "test", "file://foo", message1);
-    lm->close (this, "test", "file://foo");
-    f.openFile ("foo", File::READ | File::OPEN_IF_EXISTS);
+    lm->add (this, "test", "file://foobar", filters, 10);
+    lm->log (this, "test", "file://foobar", message);
+    lm->log (this, "test", "file://foobar", message1);
+    lm->close (this, "test", "file://foobar");
+
+    f.openFile ("foobar", File::READ | File::OPEN_IF_EXISTS);
     f.read (buf, 64, &nbr);
     buf[nbr] = '\0';
     f.close ();
     gotMessage1.assign (buf);
 
-    lm->get (this, "test", "file://foo", &ls);
+    lm->get (this, "test", "file://foobar", &ls);
     cs = ls->getCycledStreams ();
     for (it = cs.begin (); it != cs.end (); it++)
       {
@@ -220,6 +221,9 @@ public:
         gotMessage.assign (buf);
         FilesUtility::deleteFile (*it);
       }
+
+    lm->close (this);
+    FilesUtility::deleteFile ("foobar");
 
     CPPUNIT_ASSERT (!message1.compare (gotMessage1));
     CPPUNIT_ASSERT (!message.compare (gotMessage));
@@ -264,6 +268,7 @@ public:
 
     lm->add (this, "test", "file://foo", filters, 0);
     lm->add (this, "test", "console://stdout", filters, 0);
+
     lm->clear ();
 
     CPPUNIT_ASSERT (lm->empty ());
@@ -278,19 +283,22 @@ public:
     char gzipChainDecomp[64];
     u_long nbr;
     GzipDecompress gzdc;
-    FilesUtility::deleteFile ("foo");
+
+    FilesUtility::deleteFile ("fooz");
 
     filters.push_back ("gzip");
-    lm->add (this, "test", "file://foo", filters, 0);
-    lm->log (this, "test", "file://foo", message);
-    lm->close (this, "test", "file://foo");
-    f.openFile ("foo", File::READ | File::OPEN_IF_EXISTS);
+    lm->add (this, "test", "file://fooz", filters, 0);
+    lm->log (this, "test", "file://fooz", message);
+    lm->close (this, "test", "file://fooz");
+    f.openFile ("fooz", File::READ | File::OPEN_IF_EXISTS);
     f.read (gzipChainComp, 64, &nbr);
     f.close ();
     gzdc.decompress (&gzipChainComp[gzdc.headerSize ()], 
                      nbr - gzdc.headerSize (),
                      gzipChainDecomp, 64);
     gzipChainDecomp[message.size ()] = '\0';
+
+    FilesUtility::deleteFile ("fooz");
 
     CPPUNIT_ASSERT (!message.compare (gzipChainDecomp));
   }
@@ -311,13 +319,13 @@ public:
     list<string> cs;
     list<string>::iterator it;
     LogStream* ls;
-    FilesUtility::deleteFile ("foo");
+    FilesUtility::deleteFile ("fooc");
     
     filters.push_back ("gzip");
-    lm->add (this, "test", "file://foo", filters, cycleLog);
-    lm->log (this, "test", "file://foo", message);
-    lm->log (this, "test", "file://foo", message1);
-    f.openFile ("foo", File::READ | File::OPEN_IF_EXISTS);
+    lm->add (this, "test", "file://fooc", filters, cycleLog);
+    lm->log (this, "test", "file://fooc", message);
+    lm->log (this, "test", "file://fooc", message1);
+    f.openFile ("fooc", File::READ | File::OPEN_IF_EXISTS);
     f.read (gzipComp, 128, &nbr);
     f.close ();
     gzdc.decompress (&gzipComp[gzdc.headerSize ()], 
@@ -325,7 +333,7 @@ public:
                      gzipDecomp, 128);
     gzipDecomp[message1.size ()] = '\0';
     gotMessage1.assign (gzipDecomp);
-    lm->get (this, "test", "file://foo", &ls);
+    lm->get (this, "test", "file://fooc", &ls);
     cs = ls->getCycledStreams ();
     for (it = cs.begin (); it != cs.end (); it++)
       {
@@ -339,6 +347,8 @@ public:
         gotMessage.assign (gzipDecomp);
         FilesUtility::deleteFile (*it);
       }
+    lm->close (this);
+    FilesUtility::deleteFile ("fooc");
 
     CPPUNIT_ASSERT (!message1.compare (gotMessage1));
     CPPUNIT_ASSERT (!message.compare (gotMessage));
@@ -457,22 +467,26 @@ public:
     char buf[128];
     u_long nbr;
     ostringstream oss;
-    FilesUtility::deleteFile ("foo");
+
+    FilesUtility::deleteFile ("fooa");
 
     oss << "message1" << endl;
     message1.assign (oss.str ());
     oss << "message2" << endl;
     message2.assign (oss.str ());
-    lm->add (this, "test", "file://foo", filters, 0);
-    lm->log (this, "test", "file://foo", message1);
+
+    lm->add (this, "test", "file://fooa", filters, 0);
+    lm->log (this, "test", "file://fooa", message1);
     lm->clear ();
-    lm->add (this, "test", "file://foo", filters, 0);
-    lm->log (this, "test", "file://foo", message2);
+    lm->add (this, "test", "file://fooa", filters, 0);
+    lm->log (this, "test", "file://fooa", message2);
     lm->clear ();
-    f.openFile ("foo", File::READ | File::OPEN_IF_EXISTS);
+    f.openFile ("fooa", File::READ | File::OPEN_IF_EXISTS);
     f.read (buf, 128, &nbr);
     f.close ();
     buf[nbr] = '\0';
+
+    FilesUtility::deleteFile ("fooa");
 
     CPPUNIT_ASSERT (!string (buf).compare (message1.append (message2)));
   }
@@ -642,6 +656,7 @@ public:
 
   void tearDown ()
   {
+    lm->close (this, "test", "file://foo");
     delete lm;
     delete ff;
     FilesUtility::deleteFile ("foo");

@@ -490,6 +490,8 @@ void ConnectionsScheduler::release()
 
   eventsMutex.lock();
 
+  event_del(&(dispatcherArg.loopEvent));
+
   list<ListenerArg*>::iterator it = listeners.begin();
 
   while(it != listeners.end())
@@ -498,8 +500,6 @@ void ConnectionsScheduler::release()
     delete (*it);
     it++;
   }
-
-  event_del(&(dispatcherArg.loopEvent));
 
   listeners.clear();
   

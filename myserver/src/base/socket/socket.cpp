@@ -46,14 +46,19 @@ bool Socket::denyBlockingOperations = false;
 int Socket::startupSocketLib()
 {
 #ifdef WIN32
-  /*!
+  /*
    *Under windows we need to initialize the socket library before use it.
    */
-  WSADATA wsaData;
-  return WSAStartup(MAKEWORD( 1, 1), &wsaData);
-#else
-  return 0;
+  static bool done = false;
+
+  if (!done)
+    {
+      WSADATA wsaData;
+      done = true;
+      return WSAStartup(MAKEWORD( 1, 1), &wsaData);
+    }
 #endif
+  return 0;
 }
 
 /*!

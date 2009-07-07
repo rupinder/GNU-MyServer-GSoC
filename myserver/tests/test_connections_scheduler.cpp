@@ -98,12 +98,11 @@ private:
 class TestConnectionsScheduler : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( TestConnectionsScheduler );
-  /*CPPUNIT_TEST( testAddNewConnection );
+  CPPUNIT_TEST( testAddNewConnection );
   CPPUNIT_TEST( testGetNumTotalConnections );
   CPPUNIT_TEST( testAddNewReadyConnection );
   CPPUNIT_TEST( testGetConnections );
   CPPUNIT_TEST( testVisitor );
- */
   CPPUNIT_TEST_SUITE_END();
 
   ConnectionsScheduler* scheduler;
@@ -111,6 +110,7 @@ public:
 
   void setUp()
   {
+    CPPUNIT_ASSERT_EQUAL( Socket::startupSocketLib ( ), 0 );
     scheduler = new ConnectionsScheduler ();
     scheduler->initialize();
   }

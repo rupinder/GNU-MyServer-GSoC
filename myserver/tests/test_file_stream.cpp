@@ -114,11 +114,15 @@ public:
     message2.assign ("message2\n");
 #endif
     ls->log (message1);
+    ls->close ();
     delete ls;
+
     ls = fsc->create (ff, "foo", filters, 0);
     CPPUNIT_ASSERT (ls);
     ls->log (message2);
+    ls->close ();
     delete ls;
+
     f.openFile ("foo", File::READ | File::OPEN_IF_EXISTS);
     f.read (buf, 128, &nbr);
     f.close ();
