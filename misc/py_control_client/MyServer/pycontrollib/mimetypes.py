@@ -20,9 +20,6 @@ from definition import Definition
 from lxml import etree
 
 class MIMEType():
-    valid_handlers = set(['SEND', 'CGI', 'FASTCGI', 'SCGI', 'MSCGI', 'ISAPI',
-                          'WINCGI', 'PROXY'])
-
     def __init__(self, mime, handler, param = None, extension = [], path = None,
                  filter = [], self_executed = None, definitions = []):
         '''Creates new MIMEType with specified attributes. extension, filter and
@@ -58,9 +55,8 @@ class MIMEType():
 
     def set_handler(self, handler):
         '''Set associated handler.'''
-        if handler not in MIMEType.valid_handlers:
-            raise AttributeError(
-                '{0} is not a valid handler'.format(handler))
+        if handler is None:
+            raise AttributeError('handler is required and can\'t be None')
         self.handler = handler
 
     def get_param(self):

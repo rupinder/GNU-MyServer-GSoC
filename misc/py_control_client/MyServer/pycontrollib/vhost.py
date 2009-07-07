@@ -20,9 +20,6 @@ from lxml import etree
 from log import Log
 
 class VHost():
-    valid_protocols = set(['HTTP', 'FTP', 'HTTPS', 'ISAPI', 'CGI', 'SCGI',
-                           'FastCGI', 'WinCGI', 'CONTROL'])
-    
     def __init__(self, name, port, protocol, doc_root, sys_folder, access_log,
                  warning_log, ip = [], host = {}):
         '''Create new instance of VHost. access_log and warning_log are expected
@@ -88,8 +85,6 @@ class VHost():
 
     def set_protocol(self, protocol):
         '''Set VHost protocol.'''
-        if protocol not in self.valid_protocols:
-            raise AttributeError('protocol is not valid')
         if protocol is None:
             raise AttributeError('protocol is required and can\'t be None')
         self.protocol = protocol

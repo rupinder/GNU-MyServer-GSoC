@@ -57,15 +57,13 @@ class VHostTest(unittest.TestCase):
         vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
                       Log('ACCESSLOG'), Log('WARNINGLOG'))
         self.assertEqual('HTTP', vhost.get_protocol())
-        for protocol in VHost.valid_protocols:
-            vhost.set_protocol(protocol)
-            self.assertEqual(protocol, vhost.get_protocol())
+        vhost.set_protocol('HTTPS')
+        self.assertEqual('HTTPS', vhost.get_protocol())
+        vhost.set_protocol('NEW PROTOCOL')
+        self.assertEqual('NEW PROTOCOL', vhost.get_protocol())
         self.assertRaises(AttributeError, vhost.set_protocol, None)
-        self.assertRaises(AttributeError, vhost.set_protocol, 'ERROR')
         self.assertRaises(AttributeError, VHost, 'test vhost', 80, None, '/www',
                           '/system', Log('ACCESSLOG'), Log('WARNINGLOG'))
-        self.assertRaises(AttributeError, VHost, 'test vhost', 80, 'ERROR',
-                          '/www', '/system', Log('ACCESSLOG'), Log('WARNINGLOG'))
 
     def test_doc_root(self):
         vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',

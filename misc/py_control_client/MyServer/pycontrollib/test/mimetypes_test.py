@@ -89,11 +89,11 @@ class MIMETypeTest(unittest.TestCase):
         
     def test_handler(self):
         mime = MIMEType('text/plain', 'SEND')
-        for handler in MIMEType.valid_handlers:
-            mime.set_handler(handler)
-            self.assertEqual(handler, mime.get_handler())
-        self.assertRaises(AttributeError, mime.set_handler, 'ERROR')
-        self.assertRaises(AttributeError, MIMEType, 'text/plain', 'ERROR')
+        self.assertEqual('SEND', mime.get_handler())
+        mime.set_handler('SOME HANDLER')
+        self.assertEqual('SOME HANDLER', mime.get_handler())
+        self.assertRaises(AttributeError, mime.set_handler, None)
+        self.assertRaises(AttributeError, MIMEType, 'text/plain', None)
 
     def test_param(self):
         mime = MIMEType('text/plain', 'SEND')
