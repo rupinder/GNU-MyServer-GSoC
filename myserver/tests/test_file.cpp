@@ -104,6 +104,8 @@ public:
   {
     u_long nbw;
 
+    CPPUNIT_ASSERT_EQUAL (FilesUtility::deleteFile (fname.c_str ()), 0);
+
     CPPUNIT_ASSERT_EQUAL (tfile->openFile (fname.c_str (), File::WRITE | 
                                            File::READ | 
                                            File::FILE_CREATE_ALWAYS), 0);

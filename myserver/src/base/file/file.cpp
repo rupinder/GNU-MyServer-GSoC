@@ -85,16 +85,16 @@ File::File()
  */
 int File::writeToFile(const char* buffer, u_long buffersize, u_long* nbw)
 {
-  if(buffersize == 0)
+  if (buffersize == 0)
   {
     *nbw = 0;
     return 1;
   }
 #ifdef WIN32
-  int ret = WriteFile((HANDLE)handle,buffer,buffersize,nbw,NULL);
+  int ret = WriteFile (handle, buffer, buffersize, nbw, NULL);
   return (!ret);
 #else
-  *nbw =  ::write((long)handle, buffer, buffersize);
+  *nbw =  ::write(handle, buffer, buffersize);
   return (*nbw == buffersize) ? 0 : 1 ;
 #endif
 }
@@ -104,10 +104,10 @@ int File::writeToFile(const char* buffer, u_long buffersize, u_long* nbw)
  *\param nfilename Filename to open.
  *\param opt Specify how open the file.
  */
-File::File(char *nfilename, int opt) 
-  : handle(0)
+File::File (char *nfilename, int opt)
+  : handle (-1)
 {
-  openFile(nfilename, opt);
+  openFile (nfilename, opt);
 }
 
 /*!
@@ -122,7 +122,7 @@ int File::truncate (u_long size)
 
   return !SetEndOfFile (handle);
 #else
-  int err = ftruncate(handle, size);
+  int err = ftruncate (handle, size);
   if (err)
     return err;
 
@@ -131,159 +131,109 @@ int File::truncate (u_long size)
 }
 
 /*!
- *Open (or create if not exists) a file, but must explicitly use read and/or write flags and open flag.
+ *Open (or create if not exists) a file, but must explicitly use read and/or
+ *write flags and open flag.
  *\param nfilename Filename to open.
  *\param opt Specify how open the file.
  *openFile returns 0 if the call was successful, any other value on errors.
  */
-int File::openFile(const char* nfilename,u_long opt)
+int File::openFile (const char* nfilename,u_long opt)
 {
   long ret = 0;
 
-  filename.assign(nfilename);
+  filename.assign (nfilename);
 #ifdef WIN32
   u_long creationFlag = 0;
   u_long openFlag = 0;
   u_long attributeFlag = 0;
   SECURITY_ATTRIBUTES sa = {0};
-  sa.nLength = sizeof(sa);
-  if(opt & File::NO_INHERIT)
+  sa.nLength = sizeof (sa);
+
+  if (opt & File::NO_INHERIT)
     sa.bInheritHandle = FALSE;
   else
     sa.bInheritHandle = TRUE;
+
   sa.lpSecurityDescriptor = NULL;
 
-  if(opt & File::FILE_OPEN_ALWAYS)
+  if (opt & File::FILE_OPEN_ALWAYS)
     creationFlag |= OPEN_ALWAYS;
-  if(opt & File::OPEN_IF_EXISTS)
+  if (opt & File::OPEN_IF_EXISTS)
     creationFlag |= OPEN_EXISTING;
-  if(opt & File::FILE_CREATE_ALWAYS)
+  if (opt & File::FILE_CREATE_ALWAYS)
     creationFlag |= CREATE_ALWAYS;
 
-  if(opt & File::READ)
+  if (opt & File::READ)
     openFlag |= GENERIC_READ;
-  if(opt & File::WRITE)
+  if (opt & File::WRITE)
     openFlag |= GENERIC_WRITE;
 
-  if(opt & File::TEMPORARY)
+  if (opt & File::TEMPORARY)
   {
     openFlag |= FILE_ATTRIBUTE_TEMPORARY; 
     attributeFlag |= FILE_FLAG_DELETE_ON_CLOSE;
   }
-  if(opt & File::HIDDEN)
+  if (opt & File::HIDDEN)
     openFlag|= FILE_ATTRIBUTE_HIDDEN;
 
-  if(attributeFlag == 0)
+  if (attributeFlag == 0)
     attributeFlag = FILE_ATTRIBUTE_NORMAL;
 
-  handle = (FileHandle)CreateFile(filename.c_str(), openFlag, 
-                                  FILE_SHARE_READ|FILE_SHARE_WRITE, 
-                                  &sa, creationFlag, attributeFlag, NULL);
+  handle = CreateFile(filename.c_str (), openFlag,
+                      FILE_SHARE_READ|FILE_SHARE_WRITE,
+                      &sa, creationFlag, attributeFlag, NULL);
 
-  /*! Return 1 if an error happens.  */
-  if(handle == INVALID_HANDLE_VALUE)
-  {
-    filename.clear();
-    return 1;
-  }
-  else/*! Open the file. */
-  {
-    if(opt & File::APPEND)
-      ret = seek (getFileSize ());
-    else
-      ret = seek (0);
-      if(ret)
-      {
-        close();
-        filename.clear();
-        return 1;
-      }
-  }
-#else
-  struct stat F_Stats;
-  int F_Flags;
-  if(opt & File::READ && opt & File::WRITE)
-    F_Flags = O_RDWR;
-  else if(opt & File::READ)
-    F_Flags = O_RDONLY;
-  else if(opt & File::WRITE)
-    F_Flags = O_WRONLY;
-    
-    
-  if(opt & File::OPEN_IF_EXISTS)
-  {
-    ret = stat(filename.c_str(), &F_Stats);
-    if(ret  < 0)
+  if (handle == INVALID_HANDLE_VALUE)
     {
       filename.clear();
       return 1;
     }
-    ret = open(filename.c_str(), F_Flags);
-    if(ret == -1)
-    {
-      filename.clear();
-      return 1;
-    }
-    handle= (FileHandle)ret;
-  }
-  else if(opt & File::APPEND)
-  {
-    ret = stat(filename.c_str(), &F_Stats);
-    if(ret < 0)
-      ret = open(filename.c_str(),O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
-    else
-      ret = open(filename.c_str(),O_APPEND | F_Flags);
-    if(ret == -1)
-     {
-      filename.c_str();
-      return 1;
-    }
-    else
-      handle = (FileHandle)ret;
-  }
-  else if(opt & File::FILE_CREATE_ALWAYS)
-  {
-    stat(filename.c_str(), &F_Stats);
-    if(ret)
-      remove(filename.c_str());
-
-    ret = open(filename.c_str(),O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
-    if(ret == -1)
-    {
-      filename.clear();
-      return 1;
-    }
-    else
-      handle=(FileHandle)ret;
-  }
   else
-  {
-    ret = stat(filename.c_str(), &F_Stats);
-
-    if(ret < 0)
-      ret = open(filename.c_str(), O_CREAT | F_Flags, S_IRUSR | S_IWUSR);
-    else
-      ret = open(filename.c_str(), F_Flags);
-
-    if(ret == -1)
     {
-      filename.clear();
-      return 1;
+      if (opt & File::APPEND)
+        ret = seek (getFileSize ());
+      else
+        ret = seek (0);
+
+      if (ret)
+        {
+          close();
+          filename.clear();
+          return 1;
+        }
     }
-    else
-       handle = (FileHandle)ret;
-  }
-  
-  if(opt & File::TEMPORARY)
-    unlink(filename.c_str()); // Remove File on close
-  
-  if((long)handle < 0)
-  {
-    handle = (FileHandle)0;
-    filename.clear();
-    
+#else
+  struct stat fStats;
+  int flags;
+
+  if ((opt & File::READ) && (opt & File::WRITE))
+    flags = O_RDWR;
+  else if (opt & File::READ)
+    flags = O_RDONLY;
+  else if (opt & File::WRITE)
+    flags = O_WRONLY;
+
+  /* FIXME: how avoid a stat?  */
+  bool exists = stat (filename.c_str (), &fStats) == 0;
+
+  if (opt & File::OPEN_IF_EXISTS && !exists)
     return 1;
-  }
+
+  if (exists && (opt & File::APPEND))
+    flags |= O_APPEND;
+
+  if (exists)
+    handle = open (filename.c_str (), O_APPEND | flags);
+  else
+    handle = open (filename.c_str (), O_CREAT | flags, S_IRUSR | S_IWUSR);
+
+  if (opt & File::FILE_CREATE_ALWAYS)
+    truncate ();
+
+  if (opt & File::TEMPORARY)
+    unlink (filename.c_str ()); /* It will be removed on close.  */
+
+  return handle < 0;
 #endif
   
   return 0;
@@ -314,16 +264,8 @@ int File::setHandle(Handle hl)
  */
 int File::operator =(File f)
 {
-  setHandle(f.getHandle());
-  if(f.filename.length())
-  {
-    filename.assign(f.filename);
-  }
-  else
-  {
-    filename.clear();
-    handle = 0;
-  }
+  setHandle (f.getHandle ());
+  filename.assign (f.filename);
   return 0;
 }
 
@@ -343,7 +285,7 @@ int File::setFilename(const char* nfilename)
  */
 const char *File::getFilename()
 {
-  return filename.c_str();
+  return filename.c_str ();
 }
 
 /*!
@@ -352,7 +294,7 @@ const char *File::getFilename()
  */
 int File::createTemporaryFile(const char* filename)
 { 
-  if(FilesUtility::fileExists(filename))
+  if (FilesUtility::fileExists(filename))
     FilesUtility::deleteFile(filename);
 
   return openFile(filename, File::READ | 
@@ -368,14 +310,14 @@ int File::createTemporaryFile(const char* filename)
 int File::close()
 {
   int ret = 0;
-  if(handle)
+  if (handle)
     {
 #ifdef WIN32
-      ret = !FlushFileBuffers ((HANDLE)handle);
-      ret |= !CloseHandle ((HANDLE)handle);
+      ret = !FlushFileBuffers (handle);
+      ret |= !CloseHandle (handle);
 #else
-      ret = fsync ((long)handle);
-      ret |= ::close ((long)handle);
+      ret = fsync (handle);
+      ret |= ::close (handle);
 #endif
   }
   filename.clear();
@@ -391,20 +333,21 @@ u_long File::getFileSize()
 {
   u_long ret;
 #ifdef WIN32
-  ret = GetFileSize((HANDLE)handle,NULL);
-  if(ret != INVALID_FILE_SIZE)
+  ret = GetFileSize(handle, NULL);
+  if (ret != INVALID_FILE_SIZE)
   {
     return ret;
   }
   else
     return (u_long)-1;
 #else
-  struct stat F_Stats;
-  ret = fstat((long)handle, &F_Stats);
-  if(ret)
+  struct stat fStats;
+  ret = fstat (handle, &fStats);
+
+  if (ret)
     return (u_long)(-1);
   else
-    return F_Stats.st_size;
+    return fStats.st_size;
 #endif
 }
 
@@ -416,11 +359,10 @@ int File::seek (u_long initialByte)
 {
   u_long ret;
 #ifdef WIN32
-  ret = SetFilePointer ((HANDLE)handle, initialByte, NULL, FILE_BEGIN);
-  /*! SetFilePointer returns INVALID_SET_FILE_POINTER on an error.  */
+  ret = SetFilePointer (handle, initialByte, NULL, FILE_BEGIN);
   return (ret == INVALID_SET_FILE_POINTER) ? 1 : 0;
 #else
-  ret = lseek ((long)handle, initialByte, SEEK_SET);
+  ret = lseek (handle, initialByte, SEEK_SET);
   return (ret != initialByte ) ? 1 : 0;
 #endif
 }
@@ -433,7 +375,7 @@ int File::seek (u_long initialByte)
 u_long File::getSeek ()
 {
 #ifdef WIN32
-  return SetFilePointer ((HANDLE)handle, 0, NULL, FILE_CURRENT);
+  return SetFilePointer (handle, 0, NULL, FILE_CURRENT);
 #else
   return lseek (handle, 0, SEEK_CUR);
 #endif
@@ -442,9 +384,9 @@ u_long File::getSeek ()
 /*!
  *Get the time of the last modifify did to the file.
  */
-time_t File::getLastModTime()
+time_t File::getLastModTime ()
 {
-  return FilesUtility::getLastModTime(filename);
+  return FilesUtility::getLastModTime (filename);
 }
 
 /*!
@@ -458,18 +400,18 @@ time_t File::getCreationTime()
 /*!
  *Returns the time of the last access to the file.
  */
-time_t File::getLastAccTime()
+time_t File::getLastAccTime ()
 {
-  return FilesUtility::getLastAccTime(filename);
+  return FilesUtility::getLastAccTime (filename);
 }
 
 /*!
  *Inherited from Stream.
  */
-int File::write(const char* buffer, u_long len, u_long *nbw)
+int File::write (const char* buffer, u_long len, u_long *nbw)
 {
-  int ret = writeToFile(buffer, len, nbw );
-  if(ret != 0)
+  int ret = writeToFile (buffer, len, nbw );
+  if (ret != 0)
     return -1;
   return 0;
 }
@@ -482,7 +424,7 @@ int File::write(const char* buffer, u_long len, u_long *nbw)
  *\param buffersize The length of the buffer in bytes.
  *\param nbr How many bytes were read to the buffer.
  */
-int File::read(char* buffer,u_long buffersize,u_long* nbr)
+int File::read (char* buffer,u_long buffersize,u_long* nbr)
 {
 #ifdef WIN32
   int ret = ReadFile((HANDLE)handle, buffer, buffersize, nbr, NULL);
