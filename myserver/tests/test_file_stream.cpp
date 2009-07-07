@@ -54,14 +54,14 @@ public:
     string message2;
     LogStream* ls;
     FilesUtility::deleteFile ("foo");
+    ostringstream oss;
 
-#ifdef WIN32
-    message.assign ("thisisaverylongmessage\r\n");
-    message2.assign ("thisisanothermessage\r\n");
-#else
-    message.assign ("thisisaverylongmessage\n");
-    message2.assign ("thisisanothermessage\n");
-#endif
+    oss << "thisisaverylongmessage" << endl;
+    message.assign (oss.str ());
+    oss.str ("thisisanothermessage");
+    oss << endl;
+    message2.assign (oss.str ());
+
     ls = fsc->create (ff, "foo", filters, 10);
     CPPUNIT_ASSERT (ls);
     CPPUNIT_ASSERT (!ls->log (message));
@@ -101,18 +101,17 @@ public:
     u_long nbr;
     string message1;
     string message2;
+    ostringstream oss;
+
+    oss << "message1" << endl;
+    message1.assign (oss.str ());
+    oss.str ("message2");
+    oss << endl;
+    message2.assign (oss.str ());
     
     FilesUtility::deleteFile ("foo");
     ls = fsc->create (ff, "foo", filters, 0);
     CPPUNIT_ASSERT (ls);
-#ifdef WIN32
-    message1.assign ("message1\r\n");
-    message2.assign ("message2\r\n");
-#endif
-#ifdef NOT_WIN
-    message1.assign ("message1\n");
-    message2.assign ("message2\n");
-#endif
     ls->log (message1);
     ls->close ();
     delete ls;
