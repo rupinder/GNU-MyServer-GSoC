@@ -44,7 +44,7 @@ class Definition():
 
     def get_attribute(self, key):
         '''Get value of attribute key.'''
-        return self.attributes.get(key)
+        return self.attributes[key]
 
     def set_attribute(self, key, value):
         '''Set attribute key to given value.'''
@@ -122,38 +122,38 @@ class DefinitionElement(Definition):
 class DefinitionTree(Definition):
     '''Definition element containing other definitions.'''
 
-    def __init__(self, name = None, values = [], attributes = {}):
+    def __init__(self, name = None, definitions = [], attributes = {}):
         '''Creates new definition tree with given name, sub-definitions and
         attributes. values is expected to be iterable.'''
         Definition.__init__(self, name, attributes)
-        self.values = []
-        for value in values:
-            self.add_value(value)
+        self.definitions = []
+        for definition in definitions:
+            self.add_definition(definition)
 
     def __eq__(self, other):
         return isinstance(other, DefinitionTree) and \
             Definition.__eq__(self, other) and \
-            self.values == other.values
+            self.definitions == other.definitions
 
-    def get_values(self):
+    def get_definitions(self):
         '''Get all sub-definitions.'''
-        return self.values
+        return self.definitions
 
-    def get_value(self, index):
+    def get_definition(self, index):
         '''Get sub-definition with given index.'''
-        return self.values[index]
+        return self.definitions[index]
 
-    def add_value(self, value, index = None):
+    def add_definition(self, value, index = None):
         '''Add value to sub-definitions, either at given position, or at the
         end.'''
         if index is None:
-            self.values.append(value)
+            self.definitions.append(value)
         else:
-            self.values.insert(index, value)
+            self.definitions.insert(index, value)
 
-    def remove_value(self, index):
+    def remove_definition(self, index):
         '''Remove sub-definition with given index.'''
-        self.values.pop(index)
+        self.definitions.pop(index)
 
     @staticmethod
     def from_lxml_element(root):
@@ -162,8 +162,8 @@ class DefinitionTree(Definition):
             raise AttributeError('Expected DEFINE tag.')
         attributes = root.attrib
         name = attributes.pop('name', None)
-        values = map(Definition.from_lxml_element, list(root))
-        return DefinitionTree(name, values, attributes)
+        definitions = map(Definition.from_lxml_element, list(root))
+        return DefinitionTree(name, definitions, attributes)
 
     @staticmethod
     def from_string(text):
@@ -177,8 +177,8 @@ class DefinitionTree(Definition):
             root.set(key, value)
         if self.name is not None:
             root.set('name', self.name)
-        for value in self.values:
-            root.append(value.to_lxml_element())
+        for definition in self.definitions:
+            root.append(definition.to_lxml_element())
         return root
 
     def __str__(self):
