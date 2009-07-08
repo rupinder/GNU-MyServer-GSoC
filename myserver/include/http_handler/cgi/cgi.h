@@ -30,9 +30,9 @@ class FiltersChain;
 class Cgi : public HttpDataHandler
 {
 public:
-	virtual int send (HttpThreadContext*, ConnectionPtr s,
-                   const char* scriptpath, const char* exec = 0,
-                   int execute = 0, int onlyHeader = 0);
+	virtual int send (HttpThreadContext*, const char* scriptpath,
+                    const char* exec = 0, bool execute = false,
+                    bool onlyHeader = false);
 private:
   int sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain, 
                 Process& cgiProc, int onlyHeader, bool nph);

@@ -48,15 +48,13 @@ using namespace std;
 /*!
  *Run the standard CGI and send the result to the client.
  *\param td The HTTP thread context.
- *\param s A pointer to the connection structure.
  *\param scriptpath The script path.
  *\param cgipath The CGI handler path as specified by the MIME type.
  *\param execute Specify if the script has to be executed.
  *\param onlyHeader Specify if send only the HTTP header.
  */
-int Cgi::send(HttpThreadContext* td, ConnectionPtr s, 
-              const char* scriptpath, const char *cgipath, 
-              int execute, int onlyHeader)
+int Cgi::send(HttpThreadContext* td, const char* scriptpath,
+              const char *cgipath, bool execute, bool onlyHeader)
 {
    /* 
    *Use this flag to check if the CGI executable is 
