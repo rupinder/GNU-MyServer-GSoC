@@ -21,11 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /*!
  *Send a file to the client using the HTTP protocol.
  */
-int HttpDataHandler::send(HttpThreadContext*/* td*/,
+int HttpDataHandler::send(HttpThreadContext* td,
                           const char* /*filenamePath*/, const char* /*exec*/,
                           bool /*execute*/, bool /*onlyHeader*/)
 {
-  return 0;
+  td->connection->host->warningsLogWrite ("HttpDataHandler: using the base interface!");
+  return td->http->raiseHTTPError (500);
 }
 
 /*!
