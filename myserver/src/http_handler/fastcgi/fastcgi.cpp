@@ -515,7 +515,7 @@ FastCgiServer* FastCgi::runFcgiServer(FcgiContext* context,
    * Compute a simple hash from the IP address.  */
   const char *ip = context->td->connection->getIpAddr();
   int seed = 13;
-  for (const char *c = ip; c; c++)
+  for (const char *c = ip; *c; c++)
     seed = *c * 21 + seed;
 
   FastCgiServer* server = processServerManager->getServer(SERVERS_DOMAIN,
