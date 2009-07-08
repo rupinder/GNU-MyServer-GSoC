@@ -19,21 +19,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from lxml import etree
 
 class Stream():
-    def __init__(self, location, cycle = None, cycle_gzip = None, filter = []):
+    def __init__(self, location = None, cycle = None, cycle_gzip = None, filters = []):
         '''Create new Stream instance. filter is expected to be iterable.'''
         self.set_location(location)
         self.set_cycle(cycle)
         self.set_cycle_gzip(cycle_gzip)
-        self.filter = []
-        for single_filter in filter:
-            self.add_filter(single_filter)
+        self.filters = []
+        for filter in filters:
+            self.add_filter(filter)
 
     def __eq__(self, other):
         return isinstance(other, Stream) and \
             self.location == other.location and \
             self.cycle == other.cycle and \
             self.cycle_gzip == other.cycle_gzip and \
-            self.filter == other.filter
+            self.filters == other.filters
 
     def get_location(self):
         '''Get stream location.'''
@@ -41,8 +41,6 @@ class Stream():
 
     def set_location(self, location):
         '''Set stream location.'''
-        if location is None:
-            raise AttributeError('location is required and can\'t be None')
         self.location = location
 
     def get_cycle(self):
@@ -51,7 +49,10 @@ class Stream():
 
     def set_cycle(self, cycle):
         '''Set cycle value, None means not set.'''
-        self.cycle = cycle
+        if cycle is not None:
+            self.cycle = int(cycle)
+        else:
+            self.cycle = cycle
 
     def get_cycle_gzip(self):
         '''Get stream cycle_gzip value.'''
@@ -63,22 +64,22 @@ class Stream():
 
     def get_filters(self):
         '''Get list of stream filters.'''
-        return self.filter
+        return self.filters
 
     def get_filter(self, index):
         '''Get index-th filter.'''
-        return self.filter[index]
+        return self.filters[index]
 
     def add_filter(self, filter, index = None):
         '''Append a new filter, or insert it at index position.'''
         if index is None:
-            self.filter.append(filter)
+            self.filters.append(filter)
         else:
-            self.filter.insert(index, filter)
+            self.filters.insert(index, filter)
 
     def remove_filter(self, index):
         '''Remove index-th filter.'''
-        self.filter.pop(index)
+        self.filters.pop(index)
 
     @staticmethod
     def from_string(text):
@@ -95,11 +96,11 @@ class Stream():
         cycle_gzip = root.get('cycle_gzip', None)
         if cycle_gzip is not None:
             cycle_gzip = True if cycle_gzip == 'YES' else False
-        filter = []
+        filters = []
         for child in list(root):
             if child.tag == 'FILTER':
-                filter.append(child.text)
-        return Stream(location, cycle, cycle_gzip, filter)
+                filters.append(child.text)
+        return Stream(location, cycle, cycle_gzip, filters)
 
     def __str__(self):
         return etree.tostring(self.to_lxml_element(), pretty_print = True)
@@ -107,30 +108,31 @@ class Stream():
     def to_lxml_element(self):
         '''Convert to lxml.etree.Element.'''
         root = etree.Element('STREAM')
-        root.set('location', self.location)
+        if self.location is not None:
+            root.set('location', self.location)
         if self.cycle is not None:
-            root.set('cycle', self.cycle)
+            root.set('cycle', str(self.cycle))
         if self.cycle_gzip is not None:
             root.set('cycle_gzip', 'YES' if self.cycle_gzip else 'NO')
-        for filter in self.filter:
+        for filter in self.filters:
             element = etree.Element('FILTER')
             element.text = filter
             root.append(element)
         return root
 
 class Log():
-    def __init__(self, log_type, stream = [], type = None):
+    def __init__(self, log_type, streams = [], type = None):
         '''Create new Log instance. stream is expected to be iterable.'''
         self.set_log_type(log_type)
         self.set_type(type)
-        self.stream = []
-        for single_stream in stream:
-            self.add_stream(single_stream)
+        self.streams = []
+        for stream in streams:
+            self.add_stream(stream)
 
     def __eq__(self, other):
         return isinstance(other, Log) and \
             self.log_type == other.log_type and \
-            self.stream == other.stream and \
+            self.streams == other.streams and \
             self.type == other.type
     
     def get_type(self):
@@ -153,23 +155,23 @@ class Log():
 
     def get_streams(self):
         '''Get streams associated with this log.'''
-        return self.stream
+        return self.streams
 
     def add_stream(self, stream, index = None):
         '''Append stream to current streams or if index is not None insert
         stream ad index-th position.'''
         if index is None:
-            self.stream.append(stream)
+            self.streams.append(stream)
         else:
-            self.stream.insert(index, stream)
+            self.streams.insert(index, stream)
 
     def remove_stream(self, index):
         '''Remove stream from index-th position.'''
-        self.stream.pop(index)
+        self.streams.pop(index)
     
     def get_stream(self, index):
         '''Get index-th stream.'''
-        return self.stream[index]
+        return self.streams[index]
 
     @staticmethod
     def from_string(text):
@@ -181,11 +183,11 @@ class Log():
         '''Factory to produce log from lxml.etree.Element object.'''
         log_type = root.tag
         type = root.get('type', None)
-        stream = []
+        streams = []
         for child in list(root):
             if child.tag == 'STREAM':
-                stream.append(Stream.from_lxml_element(child))
-        return Log(log_type, stream, type)
+                streams.append(Stream.from_lxml_element(child))
+        return Log(log_type, streams, type)
 
     def __str__(self):
         return etree.tostring(self.to_lxml_element(), pretty_print = True)
@@ -195,6 +197,6 @@ class Log():
         root = etree.Element(self.log_type)
         if self.type is not None:
             root.set('type', self.type)
-        for stream in self.stream:
+        for stream in self.streams:
             root.append(stream.to_lxml_element())
         return root
