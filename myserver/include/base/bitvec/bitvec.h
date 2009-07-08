@@ -38,7 +38,7 @@ public:
    */
   void set (u_long i)
   {
-    data[i / (sizeof (long int) * 8)] |= 1 << i % (sizeof (long int) * 8);
+    data[i / (sizeof (long int) * 8)] |= 1l << i % (sizeof (long int) * 8);
   }
 
   /*! 
@@ -47,17 +47,17 @@ public:
    */
   void unset (u_long i)
   {
-    data[i / (sizeof (long int) * 8)] &= ~(1 << i % (sizeof (long int) * 8));
+    data[i / (sizeof (long int) * 8)] &= ~(1l << i % (sizeof (long int) * 8));
   }
 
   /*! 
    * Get the value of the specified bit.
    * \param i index of the bit to get.
    */
-  bool get (int i)
+  bool get (u_long i)
   {
     return (data[i / (sizeof (long int) * 8)] >>
-            i % (sizeof (long int) * 8)) & 1;
+            i % (sizeof (long int) * 8)) & 1l ? true : false;
   }
 
   ~BitVec ()
