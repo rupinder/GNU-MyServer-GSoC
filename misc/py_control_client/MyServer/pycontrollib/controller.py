@@ -17,6 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from MyServer.pycontrol.pycontrol import PyMyServerControl, error_codes
+from mimetypes import MIMETypes
+from vhosts import VHosts
+from config import MyServerConfig
 
 class ServerError(Exception):
     '''Raised when MyServer return code doesn't mean success.'''
@@ -112,3 +115,15 @@ class BasicController():
         '''Put file to server.'''
         pass # not implemented
 
+class Controller(BasicController):
+    def get_MIME_type_configuration(self):
+        '''Get MIME types settings.'''
+        return MIMETypes.from_string(self.get_file('mimetypes.xml'))
+
+    def get_vhost_configuration(self):
+        '''Get VHosts settings.'''
+        return VHosts.from_string(self.get_file('virtualhosts.xml'))
+
+    def get_server_configuration(self):
+        '''Get server settings.'''
+        return MyServerConfig(self.get_file('myserver.xml'))
