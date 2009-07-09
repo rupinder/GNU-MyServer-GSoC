@@ -199,94 +199,266 @@ class VHostTest(unittest.TestCase):
         self.assertNotEqual(vhost_0, [])
 
     def test_from_string(self):
+        text = '<VHOST />'
+        vhost = VHost.from_string(text)
+        right = VHost()
+        self.assertEqual(vhost, right)
+
+    def test_from_string_name(self):
+        text = '<VHOST><NAME>test vhost</NAME></VHOST>'
+        vhost = VHost.from_string(text)
+        right = VHost('test vhost')
+        self.assertEqual(vhost, right)
+
+    def test_from_string_port(self):
+        text = '<VHOST><PORT>80</PORT></VHOST>'
+        vhost = VHost.from_string(text)
+        right = VHost(port = 80)
+        self.assertEqual(vhost, right)
+
+    def test_from_string_protocol(self):
+        text = '<VHOST><PROTOCOL>HTTP</PROTOCOL></VHOST>'
+        vhost = VHost.from_string(text)
+        right = VHost(protocol = 'HTTP')
+        self.assertEqual(vhost, right)
+
+    def test_from_string_doc_root(self):
+        text = '<VHOST><DOCROOT>/www</DOCROOT></VHOST>'
+        vhost = VHost.from_string(text)
+        right = VHost(doc_root = '/www')
+        self.assertEqual(vhost, right)
+
+    def test_from_string_sys_folder(self):
+        text = '<VHOST><SYSFOLDER>/system</SYSFOLDER></VHOST>'
+        vhost = VHost.from_string(text)
+        right = VHost(sys_folder = '/system')
+        self.assertEqual(vhost, right)
+
+    def test_from_string_logs(self):
+        text = '<VHOST><ACCESSLOG /><SOMELOG /></VHOST>'
+        vhost = VHost.from_string(text)
+        right = VHost(logs = [Log('ACCESSLOG'), Log('SOMELOG')])
+        self.assertEqual(vhost, right)
+
+    def test_from_string_ip(self):
+        text = '<VHOST><IP>127.0.0.0/8</IP></VHOST>'
+        vhost = VHost.from_string(text)
+        right = VHost(ip = ['127.0.0.0/8'])
+        self.assertEqual(vhost, right)
+
+    def test_from_string_host(self):
+        text = '<VHOST><HOST useRegex="YES">.*</HOST><HOST>a.org</HOST></VHOST>'
+        vhost = VHost.from_string(text)
+        right = VHost(host = {'.*': True, 'a.org': None})
+        self.assertEqual(vhost, right)
+
+    def test_from_string_full(self):
         text = '''<VHOST>
   <NAME>test vhost</NAME>
   <PORT>80</PORT>
-  <IP>127.0.0.0/8</IP>
-  <IP>192.168.0.0/16</IP>
   <PROTOCOL>HTTP</PROTOCOL>
   <DOCROOT>/www</DOCROOT>
   <SYSFOLDER>/system</SYSFOLDER>
-  <HOST useRegex="YES">host.domain</HOST>
-  <HOST>test.domain</HOST>
   <ACCESSLOG />
   <WARNINGLOG />
+  <IP>127.0.0.0/8</IP>
+  <IP>192.168.0.0/16</IP>
+  <HOST useRegex="YES">host.domain</HOST>
+  <HOST>test.domain</HOST>
 </VHOST>'''
         vhost = VHost.from_string(text)
-        self.assertEqual(vhost, VHost('test vhost', 80, 'HTTP', '/www', '/system',
-                                      [Log('ACCESSLOG'), Log('WARNINGLOG')],
-                                      ['127.0.0.0/8', '192.168.0.0/16'],
-                                      {'host.domain': True, 'test.domain': None}))
+        right = VHost('test vhost', 80, 'HTTP', '/www', '/system',
+                      [Log('ACCESSLOG'), Log('WARNINGLOG')],
+                      ['127.0.0.0/8', '192.168.0.0/16'],
+                      {'host.domain': True, 'test.domain': None})
+        self.assertEqual(vhost, right)
 
     def test_from_lxml(self):
+        text = '<VHOST />'
+        vhost = VHost.from_lxml_element(etree.XML(text))
+        right = VHost()
+        self.assertEqual(vhost, right)
+
+    def test_from_lxml_name(self):
+        text = '<VHOST><NAME>test vhost</NAME></VHOST>'
+        vhost = VHost.from_lxml_element(etree.XML(text))
+        right = VHost('test vhost')
+        self.assertEqual(vhost, right)
+
+    def test_from_lxml_port(self):
+        text = '<VHOST><PORT>80</PORT></VHOST>'
+        vhost = VHost.from_lxml_element(etree.XML(text))
+        right = VHost(port = 80)
+        self.assertEqual(vhost, right)
+
+    def test_from_lxml_protocol(self):
+        text = '<VHOST><PROTOCOL>HTTP</PROTOCOL></VHOST>'
+        vhost = VHost.from_lxml_element(etree.XML(text))
+        right = VHost(protocol = 'HTTP')
+        self.assertEqual(vhost, right)
+
+    def test_from_lxml_doc_root(self):
+        text = '<VHOST><DOCROOT>/www</DOCROOT></VHOST>'
+        vhost = VHost.from_lxml_element(etree.XML(text))
+        right = VHost(doc_root = '/www')
+        self.assertEqual(vhost, right)
+
+    def test_from_lxml_sys_folder(self):
+        text = '<VHOST><SYSFOLDER>/system</SYSFOLDER></VHOST>'
+        vhost = VHost.from_lxml_element(etree.XML(text))
+        right = VHost(sys_folder = '/system')
+        self.assertEqual(vhost, right)
+
+    def test_from_lxml_logs(self):
+        text = '<VHOST><ACCESSLOG /><SOMELOG /></VHOST>'
+        vhost = VHost.from_lxml_element(etree.XML(text))
+        right = VHost(logs = [Log('ACCESSLOG'), Log('SOMELOG')])
+        self.assertEqual(vhost, right)
+
+    def test_from_lxml_ip(self):
+        text = '<VHOST><IP>127.0.0.0/8</IP></VHOST>'
+        vhost = VHost.from_lxml_element(etree.XML(text))
+        right = VHost(ip = ['127.0.0.0/8'])
+        self.assertEqual(vhost, right)
+
+    def test_from_lxml_host(self):
+        text = '<VHOST><HOST useRegex="YES">.*</HOST><HOST>a.org</HOST></VHOST>'
+        vhost = VHost.from_lxml_element(etree.XML(text))
+        right = VHost(host = {'.*': True, 'a.org': None})
+        self.assertEqual(vhost, right)
+
+    def test_from_lxml_full(self):
         text = '''<VHOST>
   <NAME>test vhost</NAME>
   <PORT>80</PORT>
-  <IP>127.0.0.0/8</IP>
-  <IP>192.168.0.0/16</IP>
   <PROTOCOL>HTTP</PROTOCOL>
   <DOCROOT>/www</DOCROOT>
   <SYSFOLDER>/system</SYSFOLDER>
-  <HOST useRegex="YES">host.domain</HOST>
-  <HOST>test.domain</HOST>
   <ACCESSLOG />
   <WARNINGLOG />
+  <IP>127.0.0.0/8</IP>
+  <IP>192.168.0.0/16</IP>
+  <HOST useRegex="YES">host.domain</HOST>
+  <HOST>test.domain</HOST>
 </VHOST>'''
         vhost = VHost.from_lxml_element(etree.XML(text))
-        self.assertEqual(vhost, VHost('test vhost', 80, 'HTTP', '/www', '/system',
-                                 [Log('ACCESSLOG'), Log('WARNINGLOG')],
-                                 ['127.0.0.0/8', '192.168.0.0/16'],
-                                 {'host.domain': True, 'test.domain': None}))
+        right = VHost('test vhost', 80, 'HTTP', '/www', '/system',
+                      [Log('ACCESSLOG'), Log('WARNINGLOG')],
+                      ['127.0.0.0/8', '192.168.0.0/16'],
+                      {'host.domain': True, 'test.domain': None})
+        self.assertEqual(vhost, right)
+
+    def test_bad_root_tag(self):
+        text = '<ERROR />'
+        self.assertRaises(AttributeError, VHost.from_string, text)
+        self.assertRaises(AttributeError, VHost.from_lxml_element,
+                          etree.XML(text))
 
     def test_to_string(self):
-        text = '''<VHOST>
-  <NAME>test vhost</NAME>
-  <PORT>80</PORT>
-  <IP>127.0.0.0/8</IP>
-  <IP>192.168.0.0/16</IP>
-  <PROTOCOL>HTTP</PROTOCOL>
-  <DOCROOT>/www</DOCROOT>
-  <SYSFOLDER>/system</SYSFOLDER>
-  <HOST useRegex="YES">host.domain</HOST>
-  <HOST>test.domain</HOST>
-  <ACCESSLOG />
-  <WARNINGLOG />
-</VHOST>'''
-        vhost = VHost.from_string(text)
+        vhost = VHost()
+        copy = VHost.from_string(str(vhost))
+        self.assertEqual(vhost, copy)
+
+    def test_to_string_name(self):
+        vhost = VHost('test vhost')
+        copy = VHost.from_string(str(vhost))
+        self.assertEqual(vhost, copy)
+
+    def test_to_string_port(self):
+        vhost = VHost(port = 80)
+        copy = VHost.from_string(str(vhost))
+        self.assertEqual(vhost, copy)
+
+    def test_to_string_protocol(self):
+        vhost = VHost(protocol = 'HTTP')
+        copy = VHost.from_string(str(vhost))
+        self.assertEqual(vhost, copy)
+
+    def test_to_string_doc_root(self):
+        vhost = VHost(doc_root = '/www')
+        copy = VHost.from_string(str(vhost))
+        self.assertEqual(vhost, copy)
+
+    def test_to_string_sys_folder(self):
+        vhost = VHost(doc_root = '/system')
+        copy = VHost.from_string(str(vhost))
+        self.assertEqual(vhost, copy)
+
+    def test_to_string_logs(self):
+        vhost = VHost(logs = [Log('ACCESSLOG'), Log('SOMELOG')])
+        copy = VHost.from_string(str(vhost))
+        self.assertEqual(vhost, copy)
+
+    def test_to_string_ip(self):
+        vhost = VHost(ip = ['127.0.0.0/8'])
+        copy = VHost.from_string(str(vhost))
+        self.assertEqual(vhost, copy)
+
+    def test_to_string_host(self):
+        vhost = VHost(host = {'.*': True, 'a.org': None})
+        copy = VHost.from_string(str(vhost))
+        self.assertEqual(vhost, copy)
+
+    def test_to_string_full(self):
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
+                      [Log('ACCESSLOG'), Log('WARNINGLOG')],
+                      ['127.0.0.0/8', '192.168.0.0/16'],
+                      {'host.domain': True, 'test.domain': None})
         copy = VHost.from_string(str(vhost))
         self.assertEqual(vhost, copy)
 
     def test_to_lxml(self):
-        text = '''<VHOST>
-  <NAME>test vhost</NAME>
-  <PORT>80</PORT>
-  <IP>127.0.0.0/8</IP>
-  <IP>192.168.0.0/16</IP>
-  <PROTOCOL>HTTP</PROTOCOL>
-  <DOCROOT>/www</DOCROOT>
-  <SYSFOLDER>/system</SYSFOLDER>
-  <HOST useRegex="YES">host.domain</HOST>
-  <HOST>test.domain</HOST>
-  <ACCESSLOG />
-  <WARNINGLOG />
-</VHOST>'''
-        vhost = VHost.from_string(text)
+        vhost = VHost()
         copy = VHost.from_lxml_element(vhost.to_lxml_element())
         self.assertEqual(vhost, copy)
 
-    def test_bad_root_tag(self):
-        text = '''<ERROR>
-  <NAME>test vhost</NAME>
-  <PORT>80</PORT>
-  <PROTOCOL>HTTP</PROTOCOL>
-  <DOCROOT>/www</DOCROOT>
-  <SYSFOLDER>/system</SYSFOLDER>
-  <ACCESSLOG />
-  <WARNINGLOG />
-</ERROR>'''
-        self.assertRaises(AttributeError, VHost.from_string, text)
-        self.assertRaises(AttributeError, VHost.from_lxml_element,
-                          etree.XML(text))
+    def test_to_lxml_name(self):
+        vhost = VHost('test vhost')
+        copy = VHost.from_lxml_element(vhost.to_lxml_element())
+        self.assertEqual(vhost, copy)
+
+    def test_to_lxml_port(self):
+        vhost = VHost(port = 80)
+        copy = VHost.from_lxml_element(vhost.to_lxml_element())
+        self.assertEqual(vhost, copy)
+
+    def test_to_lxml_protocol(self):
+        vhost = VHost(protocol = 'HTTP')
+        copy = VHost.from_lxml_element(vhost.to_lxml_element())
+        self.assertEqual(vhost, copy)
+
+    def test_to_lxml_doc_root(self):
+        vhost = VHost(doc_root = '/www')
+        copy = VHost.from_lxml_element(vhost.to_lxml_element())
+        self.assertEqual(vhost, copy)
+
+    def test_to_lxml_sys_folder(self):
+        vhost = VHost(doc_root = '/system')
+        copy = VHost.from_lxml_element(vhost.to_lxml_element())
+        self.assertEqual(vhost, copy)
+
+    def test_to_lxml_logs(self):
+        vhost = VHost(logs = [Log('ACCESSLOG'), Log('SOMELOG')])
+        copy = VHost.from_lxml_element(vhost.to_lxml_element())
+        self.assertEqual(vhost, copy)
+
+    def test_to_lxml_ip(self):
+        vhost = VHost(ip = ['127.0.0.0/8'])
+        copy = VHost.from_lxml_element(vhost.to_lxml_element())
+        self.assertEqual(vhost, copy)
+
+    def test_to_lxml_host(self):
+        vhost = VHost(host = {'.*': True, 'a.org': None})
+        copy = VHost.from_lxml_element(vhost.to_lxml_element())
+        self.assertEqual(vhost, copy)
+
+    def test_to_lxml_full(self):
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
+                      [Log('ACCESSLOG'), Log('WARNINGLOG')],
+                      ['127.0.0.0/8', '192.168.0.0/16'],
+                      {'host.domain': True, 'test.domain': None})
+        copy = VHost.from_lxml_element(vhost.to_lxml_element())
+        self.assertEqual(vhost, copy)
 
 class VHostsTest(unittest.TestCase):
     def setUp(self):
