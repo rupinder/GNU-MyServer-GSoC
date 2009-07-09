@@ -20,19 +20,20 @@ from lxml import etree
 from log import Log
 
 class VHost():
-    def __init__(self, name, port, protocol, doc_root, sys_folder, access_log,
-                 warning_log, ip = [], host = {}):
-        '''Create new instance of VHost. access_log and warning_log are expected
-        to be instances of MyServer.pycontrollib.log.Log class. ip is expected
-        to be a collection and host is expected to be a dict {name: useRegex}
-        where None means not set.'''
+    def __init__(self, name = None, port = None, protocol = None,
+                 doc_root = None, sys_folder = None, logs = [],
+                 ip = [], host = {}):
+        '''Create new instance of VHost. logs and ip are expected to be a
+        collection and host is expected to be a dict {name: useRegex} where None
+        means not set.'''
         self.set_name(name)
         self.set_port(port)
         self.set_protocol(protocol)
         self.set_doc_root(doc_root)
         self.set_sys_folder(sys_folder)
-        self.set_access_log(access_log)
-        self.set_warning_log(warning_log)
+        self.logs = []
+        for log in logs:
+            self.add_log(log)
         self.ip = set()
         for ip_address in ip:
             self.add_ip(ip_address)
@@ -45,8 +46,7 @@ class VHost():
             self.port == other.port and self.protocol == other.protocol and \
             self.doc_root == other.doc_root and \
             self.sys_folder == other.sys_folder and \
-            self.access_log == other.access_log and \
-            self.warning_log == other.warning_log and self.ip == other.ip and \
+            self.logs == other.logs and self.ip == other.ip and \
             self.host == other.host
 
     def get_name(self):
@@ -55,8 +55,6 @@ class VHost():
 
     def set_name(self, name):
         '''Set VHost name.'''
-        if name is None:
-            raise AttributeError('name is required and can\'t be None')
         self.name = name
 
     def get_doc_root(self):
@@ -65,8 +63,6 @@ class VHost():
 
     def set_doc_root(self, doc_root):
         '''Set VHost doc root.'''
-        if doc_root is None:
-            raise AttributeError('doc_root is required and can\'t be None')
         self.doc_root = doc_root
 
     def get_sys_folder(self):
@@ -75,8 +71,6 @@ class VHost():
 
     def set_sys_folder(self, sys_folder):
         '''Set VHost sys folder.'''
-        if sys_folder is None:
-            raise AttributeError('sys_folder is required and can\'t be None')
         self.sys_folder = sys_folder
 
     def get_protocol(self):
@@ -85,8 +79,6 @@ class VHost():
 
     def set_protocol(self, protocol):
         '''Set VHost protocol.'''
-        if protocol is None:
-            raise AttributeError('protocol is required and can\'t be None')
         self.protocol = protocol
 
     def get_port(self):
@@ -96,36 +88,29 @@ class VHost():
     def set_port(self, port):
         '''Set VHost port.'''
         if port is None:
-            raise AttributeError('port is required and can\'t be None')
-        self.port = int(port)
+            self.port = None
+        else:
+            self.port = int(port)
 
-    def get_access_log(self):
-        '''Get VHost access log.'''
-        return self.access_log
+    def get_logs(self):
+        '''Get list of logs.'''
+        return self.logs
 
-    def set_access_log(self, access_log):
-        '''Set VHost access log. access_log is expected to be an instance of
-        MyServer.pycontrollib.log.Log class.'''
-        if access_log is None:
-            raise AttributeError('access_log is required and can\'t be None')
-        if not isinstance(access_log, Log) or \
-                access_log.get_log_type() != 'ACCESSLOG':
-            raise AttributeError('given attribute is not an access log')
-        self.access_log = access_log
+    def get_log(self, index):
+        '''Get index-th log.'''
+        return self.logs[index]
 
-    def get_warning_log(self):
-        '''Get VHost warning_log.'''
-        return self.warning_log
+    def remove_log(self, index):
+        '''Remove index-th log.'''
+        self.logs.pop(index)
 
-    def set_warning_log(self, warning_log):
-        '''Set VHost warning_log. warning_log is expected to be an instance of
-        MyServer.pycontrollib.log.Log class'''
-        if warning_log is None:
-            raise AttributeError('warning_log is required and can\'t be None')
-        if not isinstance(warning_log, Log) or \
-                warning_log.get_log_type() != 'WARNINGLOG':
-            raise AttributeError('given attribute is not a warning log')
-        self.warning_log = warning_log
+    def add_log(self, log, index = None):
+        '''Add log to VHost's logs, if index is None append it, otherwise insert
+        at index position.'''
+        if index is None:
+            self.logs.append(log)
+        else:
+            self.logs.insert(index, log)
 
     def get_ip(self):
         '''Get VHost ip set.'''
@@ -161,11 +146,16 @@ class VHost():
             element.text = text
             return element
         root = etree.Element('VHOST')
-        root.append(make_element('NAME', self.name))
-        root.append(make_element('PORT', str(self.port)))
-        root.append(make_element('PROTOCOL', self.protocol))
-        root.append(make_element('DOCROOT', self.doc_root))
-        root.append(make_element('SYSFOLDER', self.sys_folder))
+        if self.name is not None:
+            root.append(make_element('NAME', self.name))
+        if self.port is not None:
+            root.append(make_element('PORT', str(self.port)))
+        if self.protocol is not None:
+            root.append(make_element('PROTOCOL', self.protocol))
+        if self.doc_root is not None:
+            root.append(make_element('DOCROOT', self.doc_root))
+        if self.sys_folder is not None:
+            root.append(make_element('SYSFOLDER', self.sys_folder))
         for ip_address in self.ip:
             root.append(make_element('IP', ip_address))
         for host, use_regex in self.host.iteritems():
@@ -173,8 +163,8 @@ class VHost():
             if use_regex is not None:
                 element.set('useRegex', 'YES' if use_regex else 'NO')
             root.append(element)
-        root.append(self.access_log.to_lxml_element())
-        root.append(self.warning_log.to_lxml_element())
+        for log in self.logs:
+            root.append(log.to_lxml_element())
         return root
 
     @staticmethod
@@ -189,8 +179,7 @@ class VHost():
         sys_folder = None
         ip = []
         host = {}
-        access_log = None
-        warning_log = None
+        logs = []
         for child in list(root):
             if child.tag == 'NAME':
                 name = child.text
@@ -209,12 +198,9 @@ class VHost():
                 if use_regex is not None:
                     use_regex = use_regex == 'YES'
                 host[child.text] = use_regex
-            elif child.tag == 'ACCESSLOG':
-                access_log = Log.from_lxml_element(child)
-            elif child.tag == 'WARNINGLOG':
-                warning_log = Log.from_lxml_element(child)
-        return VHost(name, port, protocol, doc_root, sys_folder, access_log,
-                     warning_log, ip, host)
+            else:
+                logs.append(Log.from_lxml_element(child))
+        return VHost(name, port, protocol, doc_root, sys_folder, logs, ip, host)
     
     @staticmethod
     def from_string(text):
