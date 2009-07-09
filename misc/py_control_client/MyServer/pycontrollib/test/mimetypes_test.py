@@ -19,31 +19,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import unittest
 from lxml import etree
 from mimetypes import MIMEType, MIMETypes
-from definition import Definition
+from definition import DefinitionElement, DefinitionTree
 
 class MIMETypeTest(unittest.TestCase):
     def setUp(self):
         self.definitions = []
-        self.definitions.append(Definition.from_string(
-                '<DEFINE name="http.use_error_file" value="YES" />'))
-        self.definitions.append(Definition.from_string(
-                '<DEFINE name="http.error.file.404" value="404.html" />'))
-        self.definitions.append(Definition.from_string(
-                '''<DEFINE name="http.default_file">
-  <DEFINE value="index.html" />
-  <DEFINE value="index.htm" />
-</DEFINE>'''))
-        self.text = \
-            '''<MIME mime="application/xhtml+xml" handler="CGI" param="/usr/bin/python" self="NO" >
-  <EXTENSION value="xhtml" />
-  <EXTENSION value="xml" />
-  <EXTENSION value="py" />
-  <FILTER value="gzip" />
-  <FILTER value="bzip2" />
-  {0}
-  <PATH regex="^/cgi-bin/python/.*$" />
-</MIME>'''.format('\n'.join(map(lambda element: str(element),
-                                self.definitions)))
+        self.definitions.append(DefinitionElement('http.use_error_file',
+                                                  {'value': 'YES'}))
+        self.definitions.append(DefinitionElement('http.error.file.404',
+                                                  {'value': '404.html'}))
+        self.definitions.append(
+            DefinitionTree(
+                'http.default_file',
+                [DefinitionElement(attributes = {'value': 'index.html'}),
+                 DefinitionElement(attributes = {'value': 'index.htm'})]))
+#        self.text = \
+#             '''<MIME mime="application/xhtml+xml" handler="CGI" param="/usr/bin/python" self="NO" >
+#   <EXTENSION value="xhtml" />
+#   <EXTENSION value="xml" />
+#   <EXTENSION value="py" />
+#   <FILTER value="gzip" />
+#   <FILTER value="bzip2" />
+#   {0}
+#   <PATH regex="^/cgi-bin/python/.*$" />
+# </MIME>'''.format('\n'.join(map(lambda element: str(element),
+#                                 self.definitions)))
     def test_creation(self):
         MIMEType('text/plain', 'CGI')
         MIMEType('text/plain', 'CGI', '/usr/bin/python')
@@ -56,28 +56,6 @@ class MIMETypeTest(unittest.TestCase):
                  '^/cgi-bin/.*$', ['gzip'], False)
         MIMEType('text/plain', 'CGI', '/usr/bin/python', set(['py']),
                  '^/cgi-bin/.*$', ['gzip'], False, self.definitions)
-
-    def test_from_string(self):
-        mime = MIMEType.from_string(self.text)
-        self.assertEqual(mime.get_mime(), 'application/xhtml+xml')
-        self.assertEqual(mime.get_handler(), 'CGI')
-        self.assertEqual(mime.get_param(), '/usr/bin/python')
-        self.assertEqual(mime.get_extensions(), set(['xhtml', 'xml', 'py']))
-        self.assertEqual(mime.get_path(), '^/cgi-bin/python/.*$')
-        self.assertEqual(mime.get_filters(), ['gzip', 'bzip2'])
-        self.assertEqual(mime.get_self_executed(), False)
-        self.assertEqual(mime.get_definitions(), self.definitions)
-
-    def test_from_lxml(self):
-        mime = MIMEType.from_lxml_element(etree.XML(self.text))
-        self.assertEqual(mime.get_mime(), 'application/xhtml+xml')
-        self.assertEqual(mime.get_handler(), 'CGI')
-        self.assertEqual(mime.get_param(), '/usr/bin/python')
-        self.assertEqual(mime.get_extensions(), set(['xhtml', 'xml', 'py']))
-        self.assertEqual(mime.get_path(), '^/cgi-bin/python/.*$')
-        self.assertEqual(mime.get_filters(), ['gzip', 'bzip2'])
-        self.assertEqual(mime.get_self_executed(), False)
-        self.assertEqual(mime.get_definitions(), self.definitions)
 
     def test_mime(self):
         mime = MIMEType('text/plain', 'SEND')
@@ -113,7 +91,7 @@ class MIMETypeTest(unittest.TestCase):
         self.assertEqual(set(['py', 'html']), mime.get_extensions())
         mime.remove_extension('py')
         self.assertEqual(set(['html']), mime.get_extensions())
-        mime = MIMEType('text/plain', 'SEND', extension = set(['py', 'html']))
+        mime = MIMEType('text/plain', 'SEND', extensions = set(['py', 'html']))
         self.assertEqual(set(['py', 'html']), mime.get_extensions())
 
     def test_path(self):
@@ -126,7 +104,7 @@ class MIMETypeTest(unittest.TestCase):
         mime = MIMEType('text/plain', 'SEND', path = '^/www/.*$')
         self.assertEqual('^/www/.*$', mime.get_path())
 
-    def test_filter(self):
+    def test_filters(self):
         mime = MIMEType('text/plain', 'SEND')
         self.assertEqual([], mime.get_filters())
         mime.add_filter('gzip')
@@ -137,7 +115,7 @@ class MIMETypeTest(unittest.TestCase):
         mime.remove_filter(2)
         self.assertEqual(['bzip2', 'gzip'], mime.get_filters())
         self.assertEqual('gzip', mime.get_filter(1))
-        mime = MIMEType('text/plain', 'SEND', filter = ['gzip', 'bzip2'])
+        mime = MIMEType('text/plain', 'SEND', filters = ['gzip', 'bzip2'])
         self.assertEqual(['gzip', 'bzip2'], mime.get_filters())
 
     def test_self_executed(self):
@@ -164,64 +142,290 @@ class MIMETypeTest(unittest.TestCase):
         self.assertEqual(self.definitions, mime.get_definitions())
         
     def test_equality(self):
-        self.assertEqual(MIMEType.from_string(self.text),
-                         MIMEType.from_string(self.text))
-        self.assertNotEqual(MIMEType.from_string(self.text),
-                            MIMEType('text/plain', 'SEND'))
-        self.assertNotEqual(MIMEType.from_string(self.text), [])
+        self.assertEqual(MIMEType('text/plain', 'CGI', '/usr/bin/python',
+                                  set(['py']), '^/.*$', ['gzip'], False,
+                                  self.definitions),
+                         MIMEType('text/plain', 'CGI', '/usr/bin/python',
+                                  set(['py']), '^/.*$', ['gzip'], False,
+                                  self.definitions))
+        self.assertNotEqual(MIMEType('text/plain', 'CGI', '/usr/bin/python',
+                                  set(['py']), '^/.*$', ['gzip'], False,
+                                  self.definitions),
+                            MIMEType('other', 'CGI', '/usr/bin/python',
+                                  set(['py']), '^/.*$', ['gzip'], False,
+                                     self.definitions))
+        self.assertNotEqual(MIMEType('text/plain', 'CGI', '/usr/bin/python',
+                                     set(['py']), '^/.*$', ['gzip'], False,
+                                     self.definitions),
+                            MIMEType('text/plain', 'SEND', '/usr/bin/python',
+                                     set(['py']), '^/.*$', ['gzip'], False,
+                                     self.definitions))
+        self.assertNotEqual(MIMEType('text/plain', 'CGI', '/usr/bin/python',
+                                     set(['py']), '^/.*$', ['gzip'], False,
+                                     self.definitions),
+                            MIMEType('text/plain', 'CGI', '/usr/bin/python26',
+                                     set(['py']), '^/.*$', ['gzip'], False,
+                                     self.definitions))
+        self.assertNotEqual(MIMEType('text/plain', 'CGI', '/usr/bin/python',
+                                     set(['py']), '^/.*$', ['gzip'], False,
+                                     self.definitions),
+                            MIMEType('text/plain', 'CGI', '/usr/bin/python',
+                                     set(['pyc']), '^/.*$', ['gzip'], False,
+                                     self.definitions))
+        self.assertNotEqual(MIMEType('text/plain', 'CGI', '/usr/bin/python',
+                                     set(['py']), '^/.*$', ['gzip'], False,
+                                     self.definitions),
+                            MIMEType('text/plain', 'CGI', '/usr/bin/python',
+                                     set(['py']), '^/other/.*$', ['gzip'], False,
+                                     self.definitions))
+        self.assertNotEqual(MIMEType('text/plain', 'CGI', '/usr/bin/python',
+                                     set(['py']), '^/.*$', ['gzip'], False,
+                                     self.definitions),
+                            MIMEType('text/plain', 'CGI', '/usr/bin/python',
+                                     set(['py']), '^/.*$', ['bzip2'], False,
+                                     self.definitions))
+        self.assertNotEqual(MIMEType('text/plain', 'CGI', '/usr/bin/python',
+                                     set(['py']), '^/.*$', ['gzip'], False,
+                                     self.definitions),
+                            MIMEType('text/plain', 'CGI', '/usr/bin/python',
+                                     set(['py']), '^/.*$', ['gzip'], True,
+                                     self.definitions))
+        self.assertNotEqual(MIMEType('text/plain', 'CGI', '/usr/bin/python',
+                                     set(['py']), '^/.*$', ['gzip'], False,
+                                     self.definitions),
+                            MIMEType('text/plain', 'CGI', '/usr/bin/python',
+                                     set(['py']), '^/.*$', ['gzip'], False,
+                                     []))
+        self.assertNotEqual(MIMEType('text/plain', 'SEND'), 'other type')
+
+    def test_from_string(self):
+        text = '<MIME mime="text/plain" handler="SEND" />'
+        mime = MIMEType.from_string(text)
+        right = MIMEType('text/plain', 'SEND')
+        self.assertEqual(mime, right)
+
+    def test_from_string_param(self):
+        text = '<MIME mime="text/plain" handler="SEND" param="/usr/bin/python" />'
+        mime = MIMEType.from_string(text)
+        right = MIMEType('text/plain', 'SEND', '/usr/bin/python')
+        self.assertEqual(mime, right)
+
+    def test_from_string_extension(self):
+        text = '<MIME mime="text/plain" handler="SEND"><EXTENSION value="py" /></MIME>'
+        mime = MIMEType.from_string(text)
+        right = MIMEType('text/plain', 'SEND', extensions = ['py'])
+        self.assertEqual(mime, right)
+
+    def test_from_string_path(self):
+        text = '<MIME mime="text/plain" handler="SEND"><PATH regex="^/.*$" /></MIME>'
+        mime = MIMEType.from_string(text)
+        right = MIMEType('text/plain', 'SEND', path = '^/.*$')
+        self.assertEqual(mime, right)
+
+    def test_from_string_filter(self):
+        text = '''<MIME mime="text/plain" handler="SEND">
+  <FILTER value="gzip" />
+  <FILTER value="bzip2" />
+</MIME>'''
+        mime = MIMEType.from_string(text)
+        right = MIMEType('text/plain', 'SEND', filters = ['gzip', 'bzip2'])
+        self.assertEqual(mime, right)
+
+    def test_from_string_self_executed(self):
+        text = '<MIME mime="text/plain" handler="SEND" self="YES" />'
+        mime = MIMEType.from_string(text)
+        right = MIMEType('text/plain', 'SEND', self_executed = True)
+        self.assertEqual(mime, right)
+
+    def test_from_string_definitions(self):
+        text = '<MIME mime="text/plain" handler="SEND">{0}</MIME>'.format(
+            '\n'.join(map(str, self.definitions)))
+        mime = MIMEType.from_string(text)
+        right = MIMEType('text/plain', 'SEND', definitions = self.definitions)
+        self.assertEqual(mime, right)
         
-    def test_to_string(self):
-        mime = MIMEType.from_string(self.text)
-        copy = MIMEType.from_string(str(mime))
-        self.assertEqual(mime, copy)
-        
-    def test_to_lxml(self):
-        mime = MIMEType.from_string(self.text)
-        copy = MIMEType.from_lxml_element(mime.to_lxml_element())
-        self.assertEqual(mime, copy)
-        
+    def test_from_string_full(self):
+        text = '''<MIME mime="text/plain" handler="SEND" self="YES" param="python">
+  <EXTENSION value="py" />
+  <FILTER value="gzip" />
+  <FILTER value="bzip2" />
+  <PATH regex="^/.*$" />
+  {0}
+</MIME>'''.format('\n'.join(map(str, self.definitions)))
+        mime = MIMEType.from_string(text)
+        right = MIMEType('text/plain', 'SEND', 'python', ['py'], '^/.*$',
+                         ['gzip', 'bzip2'], True, self.definitions)
+        self.assertEqual(mime, right)
+
+    def test_from_lxml(self):
+        text = '<MIME mime="text/plain" handler="SEND" />'
+        mime = MIMEType.from_lxml_element(etree.XML(text))
+        right = MIMEType('text/plain', 'SEND')
+        self.assertEqual(mime, right)
+
+    def test_from_lxml_param(self):
+        text = '<MIME mime="text/plain" handler="SEND" param="/usr/bin/python" />'
+        mime = MIMEType.from_lxml_element(etree.XML(text))
+        right = MIMEType('text/plain', 'SEND', '/usr/bin/python')
+        self.assertEqual(mime, right)
+
+    def test_from_lxml_extension(self):
+        text = '<MIME mime="text/plain" handler="SEND"><EXTENSION value="py" /></MIME>'
+        mime = MIMEType.from_lxml_element(etree.XML(text))
+        right = MIMEType('text/plain', 'SEND', extensions = ['py'])
+        self.assertEqual(mime, right)
+
+    def test_from_lxml_path(self):
+        text = '<MIME mime="text/plain" handler="SEND"><PATH regex="^/.*$" /></MIME>'
+        mime = MIMEType.from_lxml_element(etree.XML(text))
+        right = MIMEType('text/plain', 'SEND', path = '^/.*$')
+        self.assertEqual(mime, right)
+
+    def test_from_lxml_filter(self):
+        text = '''<MIME mime="text/plain" handler="SEND">
+  <FILTER value="gzip" />
+  <FILTER value="bzip2" />
+</MIME>'''
+        mime = MIMEType.from_lxml_element(etree.XML(text))
+        right = MIMEType('text/plain', 'SEND', filters = ['gzip', 'bzip2'])
+        self.assertEqual(mime, right)
+
+    def test_from_lxml_self_executed(self):
+        text = '<MIME mime="text/plain" handler="SEND" self="YES" />'
+        mime = MIMEType.from_lxml_element(etree.XML(text))
+        right = MIMEType('text/plain', 'SEND', self_executed = True)
+        self.assertEqual(mime, right)
+
+    def test_from_lxml_definitions(self):
+        text = '<MIME mime="text/plain" handler="SEND">{0}</MIME>'.format(
+            '\n'.join(map(str, self.definitions)))
+        mime = MIMEType.from_lxml_element(etree.XML(text))
+        right = MIMEType('text/plain', 'SEND', definitions = self.definitions)
+        self.assertEqual(mime, right)
+
+    def test_from_lxml_full(self):
+        text = '''<MIME mime="text/plain" handler="SEND" self="YES" param="python">
+  <EXTENSION value="py" />
+  <FILTER value="gzip" />
+  <FILTER value="bzip2" />
+  <PATH regex="^/.*$" />
+  {0}
+</MIME>'''.format('\n'.join(map(str, self.definitions)))
+        mime = MIMEType.from_lxml_element(etree.XML(text))
+        right = MIMEType('text/plain', 'SEND', 'python', ['py'], '^/.*$',
+                         ['gzip', 'bzip2'], True, self.definitions)
+        self.assertEqual(mime, right)
 
     def test_bad_root_tag(self):
-        text = '''<ERROR mime="application/xhtml+xml" handler="CGI" param="/usr/bin/python" self="NO" >
-  <EXTENSION value="xhtml" />
-</ERROR>'''
+        text = '<ERROR mime="application/xhtml+xml" handler="CGI" />'
         self.assertRaises(AttributeError, MIMEType.from_string, text)
         self.assertRaises(AttributeError, MIMEType.from_lxml_element,
                           etree.XML(text))
         
+    def test_to_string(self):
+        mime = MIMEType('text/plain', 'SEND')
+        copy = MIMEType.from_string(str(mime))
+        self.assertEqual(mime, copy)
+
+    def test_to_string_param(self):
+        mime = MIMEType('text/plain', 'SEND', '/usr/bin/python')
+        copy = MIMEType.from_string(str(mime))
+        self.assertEqual(mime, copy)
+
+    def test_to_string_extension(self):
+        mime = MIMEType('text/plain', 'SEND', extensions = ['py'])
+        copy = MIMEType.from_string(str(mime))
+        self.assertEqual(mime, copy)
+
+    def test_to_string_path(self):
+        mime = MIMEType('text/plain', 'SEND', path = '^/.*$')
+        copy = MIMEType.from_string(str(mime))
+        self.assertEqual(mime, copy)
+
+    def test_to_string_filter(self):
+        mime = MIMEType('text/plain', 'SEND', filters = ['gzip', 'bzip2'])
+        copy = MIMEType.from_string(str(mime))
+        self.assertEqual(mime, copy)
+
+    def test_to_string_self_executed(self):
+        mime = MIMEType('text/plain', 'SEND', self_executed = True)
+        copy = MIMEType.from_string(str(mime))
+        self.assertEqual(mime, copy)
+
+    def test_to_string_definitions(self):
+        mime = MIMEType('text/plain', 'SEND', definitions = self.definitions)
+        copy = MIMEType.from_string(str(mime))
+        self.assertEqual(mime, copy)
+        
+    def test_to_string_full(self):
+        mime = MIMEType('text/plain', 'SEND', 'python', ['py'], '^/.*$',
+                        ['gzip', 'bzip2'], True, self.definitions)
+        copy = MIMEType.from_string(str(mime))
+        self.assertEqual(mime, copy)
+
+    def test_to_lxml(self):
+        mime = MIMEType('text/plain', 'SEND')
+        copy = MIMEType.from_lxml_element(mime.to_lxml_element())
+        self.assertEqual(mime, copy)
+
+    def test_to_lxml_param(self):
+        mime = MIMEType('text/plain', 'SEND', '/usr/bin/python')
+        copy = MIMEType.from_lxml_element(mime.to_lxml_element())
+        self.assertEqual(mime, copy)
+
+    def test_to_lxml_extension(self):
+        mime = MIMEType('text/plain', 'SEND', extensions = ['py'])
+        copy = MIMEType.from_lxml_element(mime.to_lxml_element())
+        self.assertEqual(mime, copy)
+
+    def test_to_lxml_path(self):
+        mime = MIMEType('text/plain', 'SEND', path = '^/.*$')
+        copy = MIMEType.from_lxml_element(mime.to_lxml_element())
+        self.assertEqual(mime, copy)
+
+    def test_to_lxml_filter(self):
+        mime = MIMEType('text/plain', 'SEND', filters = ['gzip', 'bzip2'])
+        copy = MIMEType.from_lxml_element(mime.to_lxml_element())
+        self.assertEqual(mime, copy)
+
+    def test_to_lxml_self_executed(self):
+        mime = MIMEType('text/plain', 'SEND', self_executed = True)
+        copy = MIMEType.from_lxml_element(mime.to_lxml_element())
+        self.assertEqual(mime, copy)
+
+    def test_to_lxml_definitions(self):
+        mime = MIMEType('text/plain', 'SEND', definitions = self.definitions)
+        copy = MIMEType.from_lxml_element(mime.to_lxml_element())
+        self.assertEqual(mime, copy)
+        
+    def test_to_lxml_full(self):
+        mime = MIMEType('text/plain', 'SEND', 'python', ['py'], '^/.*$',
+                        ['gzip', 'bzip2'], True, self.definitions)
+        copy = MIMEType.from_lxml_element(mime.to_lxml_element())
+        self.assertEqual(mime, copy)
+
 class MIMETypesTest(unittest.TestCase):
     def setUp(self):
-        self.mime_0 = '''<MIME mime="text/html" handler="FASTCGI" self="YES" param="">
-  <EXTENSION value="fcgi"/>
-</MIME>'''
-        self.mime_1 = '''<MIME mime="text/plain" handler="SEND" param="">
-  <EXTENSION value="asc"/>
-  <EXTENSION value="c"/>
-  <EXTENSION value="cc"/>
-  <EXTENSION value="f"/>
-  <EXTENSION value="f90"/>
-  <EXTENSION value="h"/>
-  <EXTENSION value="hh"/>
-  <EXTENSION value="m"/>
-  <EXTENSION value="txt"/>
-</MIME>'''
+        self.mime_0 = MIMEType('text/html', 'FASTCGI', '', self_executed = True,
+                               extensions = ['fcgi'])
+        self.mime_1 = MIMEType('text/plain', 'SEND', '',
+                               extensions = ['asc', 'c', 'cc', 'f', 'f90', 'h', 'hh'])
         self.text = '<MIMES>{0}{1}</MIMES>'.format(self.mime_0, self.mime_1)
     
     def test_creation(self):
-        mimes = MIMETypes([MIMEType.from_string(self.mime_0),
-                           MIMEType.from_string(self.mime_1)])
-        self.assertEqual(mimes.MIME_types[0], MIMEType.from_string(self.mime_0))
-        self.assertEqual(mimes.MIME_types[1], MIMEType.from_string(self.mime_1))
+        mimes = MIMETypes([self.mime_0, self.mime_1])
+        self.assertEqual(mimes.MIME_types[0], self.mime_0)
+        self.assertEqual(mimes.MIME_types[1], self.mime_1)
 
     def test_from_string(self):
         mimes = MIMETypes.from_string(self.text)
-        self.assertEqual(mimes.MIME_types[0], MIMEType.from_string(self.mime_0))
-        self.assertEqual(mimes.MIME_types[1], MIMEType.from_string(self.mime_1))
+        self.assertEqual(mimes.MIME_types[0], self.mime_0)
+        self.assertEqual(mimes.MIME_types[1], self.mime_1)
 
     def test_from_lxml(self):
         mimes = MIMETypes.from_lxml_element(etree.XML(self.text))
-        self.assertEqual(mimes.MIME_types[0], MIMEType.from_string(self.mime_0))
-        self.assertEqual(mimes.MIME_types[1], MIMEType.from_string(self.mime_1))
+        self.assertEqual(mimes.MIME_types[0], self.mime_0)
+        self.assertEqual(mimes.MIME_types[1], self.mime_1)
         
     def test_to_string(self):
         mimes = MIMETypes.from_string(self.text)

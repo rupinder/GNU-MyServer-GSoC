@@ -20,20 +20,20 @@ from definition import Definition
 from lxml import etree
 
 class MIMEType():
-    def __init__(self, mime, handler, param = None, extension = [], path = None,
-                 filter = [], self_executed = None, definitions = []):
+    def __init__(self, mime, handler, param = None, extensions = [], path = None,
+                 filters = [], self_executed = None, definitions = []):
         '''Creates new MIMEType with specified attributes. extension, filter and
         definitions are expected to be iterable.'''
         self.set_mime(mime)
         self.set_handler(handler)
         self.set_param(param)
-        self.extension = set()
-        for single_extension in extension:
-            self.add_extension(single_extension)
+        self.extensions = set()
+        for extension in extensions:
+            self.add_extension(extension)
         self.set_path(path)
-        self.filter = []
-        for single_filter in filter:
-            self.add_filter(single_filter)
+        self.filters = []
+        for filter in filters:
+            self.add_filter(filter)
         self.set_self_executed(self_executed)
         self.definitions = []
         for definition in definitions:
@@ -69,15 +69,15 @@ class MIMEType():
 
     def get_extensions(self):
         '''Get associated extensions.'''
-        return self.extension
+        return self.extensions
 
     def remove_extension(self, extension):
         '''Remove extension from associated extensions.'''
-        self.extension.remove(extension)
+        self.extensions.remove(extension)
 
     def add_extension(self, extension):
         '''Add extension to associated extensions.'''
-        self.extension.add(extension)
+        self.extensions.add(extension)
 
     def get_path(self):
         '''Get associated path.'''
@@ -89,22 +89,22 @@ class MIMEType():
 
     def get_filters(self):
         '''Get associated filters.'''
-        return self.filter
+        return self.filters
 
     def get_filter(self, index):
         '''Get filter with given index.'''
-        return self.filter[index]
+        return self.filters[index]
 
     def remove_filter(self, index):
         '''Remove filter with given index.'''
-        self.filter.pop(index)
+        self.filters.pop(index)
 
     def add_filter(self, filter, index = None):
         '''Append filter after all other filters, or insert it at index.'''
         if index is None:
-            self.filter.append(filter)
+            self.filters.append(filter)
         else:
-            self.filter.insert(index, filter)
+            self.filters.insert(index, filter)
 
     def get_self_executed(self):
         '''Get self_executed setting.'''
@@ -139,9 +139,9 @@ class MIMEType():
             self.mime == other.mime and \
             self.handler == other.handler and \
             self.param == other.param and \
-            self.extension == other.extension and \
+            self.extensions == other.extensions and \
             self.path == other.path and \
-            self.filter == other.filter and \
+            self.filters == other.filters and \
             self.self_executed == other.self_executed and \
             self.definitions == other.definitions
 
@@ -164,9 +164,9 @@ class MIMEType():
             root.set('self', 'YES' if self.self_executed else 'NO')
         if self.path is not None:
             root.append(make_element('PATH', 'regex', self.path))
-        for element in map(make_extension_element, self.extension):
+        for element in map(make_extension_element, self.extensions):
             root.append(element)
-        for element in map(make_filter_element, self.filter):
+        for element in map(make_filter_element, self.filters):
             root.append(element)
         for definition in self.definitions:
             root.append(definition.to_lxml_element())
@@ -188,18 +188,18 @@ class MIMEType():
             self_executed = self_executed == 'YES'
         path = None
         extension = set()
-        filter = []
+        filters = []
         definitions = []
         for child in list(root):
             if child.tag == 'PATH':
                 path = child.get('regex')
             elif child.tag == 'FILTER':
-                filter.append(child.get('value'))
+                filters.append(child.get('value'))
             elif child.tag == 'EXTENSION':
                 extension.add(child.get('value'))
             elif child.tag == 'DEFINE':
                 definitions.append(Definition.from_lxml_element(child))
-        return MIMEType(mime, handler, param, extension, path, filter,
+        return MIMEType(mime, handler, param, extension, path, filters,
                         self_executed, definitions)
 
     @staticmethod
@@ -208,7 +208,7 @@ class MIMEType():
         return MIMEType.from_lxml_element(etree.XML(text))
 
 class MIMETypes():
-    def __init__(self, MIME_types):
+    def __init__(self, MIME_types = []):
         self.MIME_types = MIME_types
         
     def __eq__(self, other):
