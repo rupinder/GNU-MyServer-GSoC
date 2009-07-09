@@ -1,0 +1,114 @@
+# -*- coding: utf-8 -*-
+'''
+MyServer
+Copyright (C) 2009 Free Software Foundation, Inc.
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+'''
+
+from MyServer.pycontrol.pycontrol import PyMyServerControl, error_codes
+
+class ServerError(Exception):
+    '''Raised when MyServer return code doesn't mean success.'''
+    pass
+
+class BasicController():
+    def __init__(self, host, port, username, password):
+        self.connection = None
+        self.host = host
+        self.port = port
+        self.username = username
+        self.password = password
+
+    def __check_return_code__(self):
+        return_code = self.connection.response_code
+        if error_codes.get(return_code, '') != 'CONTROL_OK':
+            raise ServerError('MyServer returned {0}: {1}'.format(
+                    return_code, error_codes.get(return_code, '')))
+
+    def connect(self):
+        '''Connect to server.'''
+        self.disconnect()
+        self.connection = PyMyServerControl(self.host, self.port,
+                                            self.username, self.password)
+
+    def disconnect(self):
+        '''Disconnect from server.'''
+        if self.connection is not None:
+            self.connection.close()
+            self.connection = None
+
+    def reboot(self):
+        '''Reboot server.'''
+        if self.connection:
+            self.connection.send_header('REBOOT', 0)
+            self.connection.read_header()
+            self.__check_return_code__()
+
+    def version(self):
+        '''Get version string.'''
+        if self.connection:
+            self.connection.send_header('VERSION', 0)
+            self.connection.read_header()
+            self.__check_return_code__()
+            return self.connection.read()
+
+    def enable_reboot(self):
+        '''Enable server auto-reboot.'''
+        if self.connection:
+            self.connection.send_header('ENABLEREBOOT', 0)
+            self.connection.read_header()
+            self.__check_return_code__()
+
+    def disable_reboot(self):
+        '''Disable server auto-reboot.'''
+        if self.connection:
+            self.connection.send_header('DISABLEREBOOT', 0)
+            self.connection.read_header()
+            self.__check_return_code__()
+
+    def show_connections(self):
+        '''List active server connections.'''
+        if self.connection:
+            self.connection.send_header('SHOWCONNECTIONS', 0)
+            self.connection.read_header()
+            self.__check_return_code__()
+            return self.connection.read()
+
+    def kill_connection(self, num):
+        '''Kill connection to server.'''
+        if self.connection:
+            self.connection.send_header('KILLCONNECTION', 0, str(num))
+            self.connection.read_header()
+            self.__check_return_code__()
+
+    def show_language_files(self):
+        '''List available language files.'''
+        if self.connection:
+            self.connection.send_header('SHOWLANGUAGEFILES', 0)
+            self.connection.read_header()
+            self.__check_return_code__()
+            return self.connection.read()
+
+    def get_file(self, path):
+        '''Get file from server.'''
+        if self.connection:
+            self.connection.send_header('GETFILE', 0, path)
+            self.connection.read_header()
+            self.__check_return_code__()
+            return self.connection.read()
+
+    def put_file(self, local_path, remote_path):
+        '''Put file to server.'''
+        pass # not implemented
+
