@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from definition import Definition
+from definition import Definition, DefinitionList
 from lxml import etree
 
 class MIMEType():
@@ -35,9 +35,7 @@ class MIMEType():
         for filter in filters:
             self.add_filter(filter)
         self.set_self_executed(self_executed)
-        self.definitions = []
-        for definition in definitions:
-            self.add_definition(definition)
+        self.definitions = DefinitionList(definitions)
 
     def get_mime(self):
         '''Get associated mime type.'''
@@ -116,23 +114,20 @@ class MIMEType():
 
     def get_definitions(self):
         '''Get all definitions.'''
-        return self.definitions
+        return self.definitions.get_definitions()
     
     def get_definition(self, index):
         '''Get definition with given index.'''
-        return self.definitions[index]
+        return self.definitions.get_definition(index)
 
     def add_definition(self, definition, index = None):
         '''Append definition after all other definitions, or insert it at
         index.'''
-        if index is None:
-            self.definitions.append(definition)
-        else:
-            self.definitions.insert(index, definition)
+        self.definitions.add_definition(definition, index)
 
     def remove_definition(self, index):
         '''Remove definition with given index.'''
-        self.definitions.pop(index)
+        self.definitions.remove_definition(index)
 
     def __eq__(self, other):
         return isinstance(other, MIMEType) and \
@@ -168,7 +163,7 @@ class MIMEType():
             root.append(element)
         for element in map(make_filter_element, self.filters):
             root.append(element)
-        for definition in self.definitions:
+        for definition in self.definitions.get_definitions():
             root.append(definition.to_lxml_element())
         return root
 
