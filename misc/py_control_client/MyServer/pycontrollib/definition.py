@@ -184,3 +184,36 @@ class DefinitionTree(Definition):
     def __str__(self):
         return etree.tostring(self.to_lxml_element(), pretty_print = True)
 
+class DefinitionList():
+    def __init__(self, definitions = []):
+        '''Construct new DefinitionList object with given definitions.'''
+        self.definitions = []
+        for definition in definitions:
+            self.add_definition(definition)
+
+    def add_definition(self, definition, index = None):
+        '''Append definition to current list of definitions, if index is not
+        None insert at index-th position.'''
+        if index is None:
+            self.definitions.append(definition)
+        else:
+            self.definitions.insert(index, definition)
+
+    def get_definitions(self):
+        '''Get current list of definitions.'''
+        return self.definitions
+
+    def get_definition(self, index):
+        '''Get index-th definition.'''
+        return self.definitions[index]
+
+    def remove_definition(self, index):
+        '''Remove index-th definition.'''
+        self.definitions.pop(index)
+
+    def __eq__(self, other):
+        return isinstance(other, DefinitionList) and \
+            self.definitions == other.definitions
+
+    def __str__(self):
+        return '\n'.join(map(str, self.definitions))

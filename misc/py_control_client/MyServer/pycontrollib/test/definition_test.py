@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from definition import Definition, DefinitionElement, DefinitionTree
+from definition import Definition, DefinitionElement, DefinitionTree, DefinitionList
 from lxml import etree
 import unittest
 
@@ -81,7 +81,7 @@ class DefinitionTest(unittest.TestCase):
 
     def test_equality(self):
         self.assertNotEqual(Definition(), 'different type')
-    
+
 class DefinitionElementTest(unittest.TestCase):
     def test_creation(self):
         definition = DefinitionElement()
@@ -126,7 +126,7 @@ class DefinitionElementTest(unittest.TestCase):
         definition = DefinitionElement.from_string(text)
         right = DefinitionElement('test', {'value': 'x', 'a': 'b'})
         self.assertEqual(definition, right)
-        
+
     def test_from_lxml(self):
         text = '<DEFINE />'
         definition = DefinitionElement.from_lxml_element(etree.XML(text))
@@ -164,7 +164,7 @@ class DefinitionElementTest(unittest.TestCase):
         definition = DefinitionElement()
         copy = DefinitionElement.from_string(str(definition))
         self.assertEqual(definition, copy)
-    
+
     def test_to_string_name(self):
         definition = DefinitionElement(name = 'test')
         copy = DefinitionElement.from_string(str(definition))
@@ -184,7 +184,7 @@ class DefinitionElementTest(unittest.TestCase):
         definition = DefinitionElement()
         copy = DefinitionElement.from_lxml_element(definition.to_lxml_element())
         self.assertEqual(definition, copy)
-    
+
     def test_to_lxml_name(self):
         definition = DefinitionElement(name = 'test')
         copy = DefinitionElement.from_lxml_element(definition.to_lxml_element())
@@ -199,7 +199,7 @@ class DefinitionElementTest(unittest.TestCase):
         definition = DefinitionElement('test', {'value': 'x', 'a': 'b'})
         copy = DefinitionElement.from_lxml_element(definition.to_lxml_element())
         self.assertEqual(definition, copy)
-    
+
     def test_bad_root_tag(self):
         text = '<ERROR name="http.error.file.404" value="404.html" />'
         self.assertRaises(AttributeError, Definition.from_string, text)
@@ -344,7 +344,7 @@ class DefinitionTreeTest(unittest.TestCase):
         definition = DefinitionTree('test', [self.element_0, self.element_1], {'a': 'b'})
         copy = DefinitionTree.from_string(str(definition))
         self.assertEqual(definition, copy)
-        
+
     def test_to_lxml(self):
         definition = DefinitionTree()
         copy = DefinitionTree.from_lxml_element(definition.to_lxml_element())
@@ -376,6 +376,52 @@ class DefinitionTreeTest(unittest.TestCase):
         self.assertRaises(AttributeError, Definition.from_string, text)
         self.assertRaises(AttributeError, Definition.from_lxml_element,
                           etree.XML(text))
+
+class DefinitionListTest(unittest.TestCase):
+    def setUp(self):
+        self.definitions = []
+        self.definitions.append(DefinitionElement('a'))
+        self.definitions.append(DefinitionElement('b'))
+        self.definitions.append(DefinitionElement('c'))
+
+    def test_creation(self):
+        def_list = DefinitionList()
+        def_list = DefinitionList(self.definitions)
+
+    def test_definitions(self):
+        def_list = DefinitionList()
+        self.assertEqual([], def_list.get_definitions())
+        counter = 0
+        for definition in self.definitions:
+            def_list.add_definition(definition)
+            counter += 1
+            self.assertEqual(self.definitions[:counter],
+                             def_list.get_definitions())
+        for counter in xrange(len(self.definitions)):
+            self.assertEqual(self.definitions[counter],
+                             def_list.get_definition(counter))
+        def_list.add_definition(DefinitionElement('test'), 1)
+        self.assertEqual(DefinitionElement('test'), def_list.get_definition(1))
+        def_list.remove_definition(1)
+        self.assertEqual(self.definitions, def_list.get_definitions())
+        for counter in xrange(len(self.definitions)):
+            def_list.remove_definition(0)
+            self.assertEqual(self.definitions[counter + 1:],
+                             def_list.get_definitions())
+
+    def test_equality(self):
+        self.assertEqual(DefinitionList(self.definitions),
+                         DefinitionList(self.definitions))
+        self.assertNotEqual(DefinitionList(), DefinitionList(self.definitions))
+        self.assertNotEqual(DefinitionList(), 'other type')
+
+    def test_to_string(self):
+        def_list = DefinitionList(self.definitions)
+        text = '<wrap>{0}</wrap>'.format(def_list)
+        copy = DefinitionList()
+        for lxml_definition in list(etree.XML(text)):
+            copy.add_definition(Definition.from_lxml_element(lxml_definition))
+        self.assertEqual(def_list, copy)
 
 if __name__ == '__main__':
     unittest.main()
