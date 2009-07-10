@@ -17,6 +17,51 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from lxml import etree
+from definition import Definition, DefinitionList
 
 class MyServerConfig():
-    pass
+    def __init__(self, definitions = []):
+        self.definitions = DefinitionList(definitions)
+
+    def __eq__(self, other):
+        return isinstance(other, MyServerConfig) and \
+            self.definitions == other.definitions
+
+    def get_definitions(self):
+        '''Get current definitions.'''
+        return self.definitions.get_definitions()
+    
+    def add_definition(self, definition, index = None):
+        '''Append definition, if index is not None insert it at index-th
+        position.'''
+        self.definitions.add_definition(definition, index)
+
+    def get_definition(self, index):
+        '''Get index-th definition.'''
+        return self.definitions.get_definition(index)
+
+    def remove_definition(self, index):
+        '''Remove index-th definition.'''
+        self.definitions.remove_definition(index)
+
+    @staticmethod
+    def from_string(text):
+        '''Factory to produce MyServerConfig by parsing a string.'''
+        return MyServerConfig.from_lxml_element(etree.XML(text))
+
+    @staticmethod
+    def from_lxml_element(root):
+        '''Factory to produce MyServerConfig from lxml.etree.Element object.'''
+        if root.tag != 'MYSERVER':
+            raise AttributeError('Expected MYSERVER tag.')
+        return MyServerConfig(map(Definition.from_lxml_element, list(root)))
+
+    def __str__(self):
+        return etree.tostring(self.to_lxml_element(), pretty_print = True)
+
+    def to_lxml_element(self):
+        '''Convert MyServerConfig to lxml.etree.Element object.'''
+        root = etree.Element('MYSERVER')
+        for definition in self.definitions.get_definitions():
+            root.append(definition.to_lxml_element())
+        return root

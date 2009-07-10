@@ -16,9 +16,9 @@
 PYTHON=/usr/bin/python
 PYTHONPATH:=$(shell dirname `pwd`):${PYTHONPATH}
 
-.PHONY: test log_test definition_test mimetypes_test vhost_test
+.PHONY: test log_test definition_test mimetypes_test vhost_test config_test
 
-test: log_test definition_test mimetypes_test vhost_test
+test: log_test definition_test mimetypes_test vhost_test config_test
 
 log_test:
 	-${PYTHON} log_test.py
@@ -31,6 +31,9 @@ mimetypes_test:
 
 vhost_test:
 	-${PYTHON} vhost_test.py
+
+config_test:
+	-${PYTHON} config_test.py
 
 .PHONY: clean
 clean:
