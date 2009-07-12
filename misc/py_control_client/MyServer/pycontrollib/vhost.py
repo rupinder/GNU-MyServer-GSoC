@@ -22,7 +22,7 @@ from log import Log
 class VHost():
     def __init__(self, name = None, port = None, protocol = None,
                  doc_root = None, sys_folder = None, logs = [],
-                 ip = [], host = {}):
+                 ip = [], host = {}, private_key = None, certificate = None):
         '''Create new instance of VHost. logs and ip are expected to be a
         collection and host is expected to be a dict {name: useRegex} where None
         means not set.'''
@@ -40,6 +40,8 @@ class VHost():
         self.host = {}
         for single_host in host.iteritems():
             self.add_host(single_host[0], single_host[1])
+        self.set_private_key(private_key)
+        self.set_certificate(certificate)
 
     def __eq__(self, other):
         return isinstance(other, VHost) and self.name == other.name and \
@@ -47,7 +49,9 @@ class VHost():
             self.doc_root == other.doc_root and \
             self.sys_folder == other.sys_folder and \
             self.logs == other.logs and self.ip == other.ip and \
-            self.host == other.host
+            self.host == other.host and \
+            self.private_key == other.private_key and \
+            self.certificate == other.certificate
 
     def get_name(self):
         '''Get VHost name.'''
@@ -136,6 +140,22 @@ class VHost():
         '''Remove host from VHost host dict.'''
         self.host.pop(host)
 
+    def get_private_key(self):
+        '''Get vhost private ssl key.'''
+        return self.private_key
+    
+    def set_private_key(self, private_key):
+        '''Set vhost private ssl key.'''
+        self.private_key = private_key
+
+    def get_certificate(self):
+        '''Get vhost ssl certificate.'''
+        return self.certificate
+
+    def set_certificate(self, certificate):
+        '''Set vhost ssl certificate.'''
+        self.certificate = certificate
+
     def __str__(self):
         return etree.tostring(self.to_lxml_element(), pretty_print = True)
 
@@ -156,6 +176,10 @@ class VHost():
             root.append(make_element('DOCROOT', self.doc_root))
         if self.sys_folder is not None:
             root.append(make_element('SYSFOLDER', self.sys_folder))
+        if self.private_key is not None:
+            root.append(make_element('SSL_PRIVATEKEY', self.private_key))
+        if self.certificate is not None:
+            root.append(make_element('SSL_CERTIFICATE', self.certificate))
         for ip_address in self.ip:
             root.append(make_element('IP', ip_address))
         for host, use_regex in self.host.iteritems():
@@ -177,6 +201,8 @@ class VHost():
         protocol = None
         doc_root = None
         sys_folder = None
+        private_key = None
+        certificate = None
         ip = []
         host = {}
         logs = []
@@ -198,9 +224,14 @@ class VHost():
                 if use_regex is not None:
                     use_regex = use_regex == 'YES'
                 host[child.text] = use_regex
+            elif child.tag == 'SSL_PRIVATEKEY':
+                private_key = child.text
+            elif child.tag == 'SSL_CERTIFICATE':
+                certificate = child.text
             else:
                 logs.append(Log.from_lxml_element(child))
-        return VHost(name, port, protocol, doc_root, sys_folder, logs, ip, host)
+        return VHost(name, port, protocol, doc_root, sys_folder, logs, ip, host,
+                     private_key, certificate)
     
     @staticmethod
     def from_string(text):

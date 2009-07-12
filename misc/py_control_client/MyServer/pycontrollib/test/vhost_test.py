@@ -38,6 +38,14 @@ class VHostTest(unittest.TestCase):
                       [Log('ACCESSLOG'), Log('WARNINGLOG')],
                       ['127.0.0.0/8', '192.168.0.0/16'],
                       {'host.domain': None})
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
+                      [Log('ACCESSLOG'), Log('WARNINGLOG')],
+                      ['127.0.0.0/8', '192.168.0.0/16'],
+                      {'host.domain': None}, 'private_key')
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
+                      [Log('ACCESSLOG'), Log('WARNINGLOG')],
+                      ['127.0.0.0/8', '192.168.0.0/16'],
+                      {'host.domain': None}, 'private_key', 'certificate')
 
     def test_name(self):
         vhost = VHost('test vhost')
@@ -141,60 +149,75 @@ class VHostTest(unittest.TestCase):
                       host = {'test.me.org': None})
         self.assertEqual({'test.me.org': None}, vhost.get_host())
 
+    def test_private_key(self):
+        vhost = VHost()
+        self.assertEqual(None, vhost.get_private_key())
+        vhost.set_private_key('path')
+        self.assertEqual('path', vhost.get_private_key())
+        vhost.set_private_key(None)
+        self.assertEqual(None, vhost.get_private_key())
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
+                      [Log('ACCESSLOG'), Log('WARNINGLOG')],
+                      ['127.0.0.0/8', '192.168.0.0/16'],
+                      {'host.domain': None}, 'path')
+        self.assertEqual('path', vhost.get_private_key())
+        vhost = VHost(private_key = 'path')
+        self.assertEqual('path', vhost.get_private_key())
+
+    def test_certificate(self):
+        vhost = VHost()
+        self.assertEqual(None, vhost.get_certificate())
+        vhost.set_certificate('path')
+        self.assertEqual('path', vhost.get_certificate())
+        vhost.set_certificate(None)
+        self.assertEqual(None, vhost.get_certificate())
+        vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
+                      [Log('ACCESSLOG'), Log('WARNINGLOG')],
+                      ['127.0.0.0/8', '192.168.0.0/16'],
+                      {'host.domain': None}, 'key', 'path')
+        self.assertEqual('path', vhost.get_certificate())
+        vhost = VHost(certificate = 'path')
+        self.assertEqual('path', vhost.get_certificate())
+
     def test_equality(self):
         vhost_0 = VHost('test vhost', 80, 'HTTP', '/www', '/system',
                         [Log('ACCESSLOG'), Log('WARNINGLOG')],
                         ['127.0.0.0/8', '192.168.0.0/16'],
-                        {'host.domain': None})
+                        {'host.domain': None}, 'private_key', 'certificate')
         vhost_1 = VHost('test vhost', 80, 'HTTP', '/www', '/system',
                         [Log('ACCESSLOG'), Log('WARNINGLOG')],
                         ['127.0.0.0/8', '192.168.0.0/16'],
-                        {'host.domain': None})
+                        {'host.domain': None}, 'private_key', 'certificate')
         self.assertEqual(vhost_0, vhost_1)
-        vhost_1 = VHost('different', 80, 'HTTP', '/www', '/system',
-                        [Log('ACCESSLOG'), Log('WARNINGLOG')],
-                        ['127.0.0.0/8', '192.168.0.0/16'],
-                        {'host.domain': None})
+        vhost_1 = VHost.from_string(str(vhost_0))
+        vhost_1.set_name('different')
         self.assertNotEqual(vhost_0, vhost_1)
-        vhost_1 = VHost('test vhost', 81, 'HTTP', '/www', '/system',
-                        [Log('ACCESSLOG'), Log('WARNINGLOG')],
-                        ['127.0.0.0/8', '192.168.0.0/16'],
-                        {'host.domain': None})
+        vhost_1 = VHost.from_string(str(vhost_0))
+        vhost_1.set_port(81)
         self.assertNotEqual(vhost_0, vhost_1)
-        vhost_1 = VHost('test_vhost', 80, 'HTTPS', '/www', '/system',
-                        [Log('ACCESSLOG'), Log('WARNINGLOG')],
-                        ['127.0.0.0/8', '192.168.0.0/16'],
-                        {'host.domain': None})
+        vhost_1 = VHost.from_string(str(vhost_0))
+        vhost_1.set_protocol('HTTPS')
         self.assertNotEqual(vhost_0, vhost_1)
-        vhost_1 = VHost('test vhost', 80, 'HTTP', '/var/www', '/system',
-                        [Log('ACCESSLOG'), Log('WARNINGLOG')],
-                        ['127.0.0.0/8', '192.168.0.0/16'],
-                        {'host.domain': None})
+        vhost_1 = VHost.from_string(str(vhost_0))
+        vhost_1.set_doc_root('/var/www')
         self.assertNotEqual(vhost_0, vhost_1)
-        vhost_1 = VHost('test vhost', 80, 'HTTP', '/www', '/var/system',
-                        [Log('ACCESSLOG'), Log('WARNINGLOG')],
-                        ['127.0.0.0/8', '192.168.0.0/16'],
-                        {'host.domain': None})
+        vhost_1 = VHost.from_string(str(vhost_0))
+        vhost_1.set_sys_folder('/var/system')
         self.assertNotEqual(vhost_0, vhost_1)
-        vhost_1 = VHost('test vhost', 80, 'HTTP', '/www', '/system',
-                        [Log('ACCESSLOG', type = 'combined'), Log('WARNINGLOG')],
-                        ['127.0.0.0/8', '192.168.0.0/16'],
-                        {'host.domain': None})
+        vhost_1 = VHost.from_string(str(vhost_0))
+        vhost_1.add_log(Log('NEWLOG'))
         self.assertNotEqual(vhost_0, vhost_1)
-        vhost_1 = VHost('test vhost', 80, 'HTTP', '/www', '/system',
-                        [Log('ACCESSLOG'), Log('WARNINGLOG', type = 'combined')],
-                        ['127.0.0.0/8', '192.168.0.0/16'],
-                        {'host.domain': None})
+        vhost_1 = VHost.from_string(str(vhost_0))
+        vhost_1.add_ip('10.0.0.0/8')
         self.assertNotEqual(vhost_0, vhost_1)
-        vhost_1 = VHost('test vhost', 80, 'HTTP', '/www', '/system',
-                        [Log('ACCESSLOG'), Log('WARNINGLOG')],
-                        ['127.0.0.0/24', '192.168.0.0/16'],
-                        {'host.domain': None})
+        vhost_1 = VHost.from_string(str(vhost_0))
+        vhost_1.add_host('newhost', None)
         self.assertNotEqual(vhost_0, vhost_1)
-        vhost_1 = VHost('test vhost', 80, 'HTTP', '/www', '/system',
-                        [Log('ACCESSLOG'), Log('WARNINGLOG')],
-                        ['127.0.0.0/8', '192.168.0.0/16'],
-                        {'host.domain': True})
+        vhost_1 = VHost.from_string(str(vhost_0))
+        vhost_1.set_private_key('new_key')
+        self.assertNotEqual(vhost_0, vhost_1)
+        vhost_1 = VHost.from_string(str(vhost_0))
+        vhost_1.set_certificate('new certificate')
         self.assertNotEqual(vhost_0, vhost_1)
         self.assertNotEqual(vhost_0, [])
 
@@ -252,6 +275,18 @@ class VHostTest(unittest.TestCase):
         right = VHost(host = {'.*': True, 'a.org': None})
         self.assertEqual(vhost, right)
 
+    def test_from_string_private_key(self):
+        text = '<VHOST><SSL_PRIVATEKEY>private_key</SSL_PRIVATEKEY></VHOST>'
+        vhost = VHost.from_string(text)
+        right = VHost(private_key = 'private_key')
+        self.assertEqual(vhost, right)
+
+    def test_from_string_certificate(self):
+        text = '<VHOST><SSL_CERTIFICATE>certificate</SSL_CERTIFICATE></VHOST>'
+        vhost = VHost.from_string(text)
+        right = VHost(certificate = 'certificate')
+        self.assertEqual(vhost, right)
+
     def test_from_string_full(self):
         text = '''<VHOST>
   <NAME>test vhost</NAME>
@@ -265,12 +300,15 @@ class VHostTest(unittest.TestCase):
   <IP>192.168.0.0/16</IP>
   <HOST useRegex="YES">host.domain</HOST>
   <HOST>test.domain</HOST>
+  <SSL_PRIVATEKEY>private_key</SSL_PRIVATEKEY>
+  <SSL_CERTIFICATE>certificate</SSL_CERTIFICATE>
 </VHOST>'''
         vhost = VHost.from_string(text)
         right = VHost('test vhost', 80, 'HTTP', '/www', '/system',
                       [Log('ACCESSLOG'), Log('WARNINGLOG')],
                       ['127.0.0.0/8', '192.168.0.0/16'],
-                      {'host.domain': True, 'test.domain': None})
+                      {'host.domain': True, 'test.domain': None},
+                      'private_key', 'certificate')
         self.assertEqual(vhost, right)
 
     def test_from_lxml(self):
@@ -327,6 +365,18 @@ class VHostTest(unittest.TestCase):
         right = VHost(host = {'.*': True, 'a.org': None})
         self.assertEqual(vhost, right)
 
+    def test_from_lxml_private_key(self):
+        text = '<VHOST><SSL_PRIVATEKEY>private_key</SSL_PRIVATEKEY></VHOST>'
+        vhost = VHost.from_lxml_element(etree.XML(text))
+        right = VHost(private_key = 'private_key')
+        self.assertEqual(vhost, right)
+
+    def test_from_lxml_certificate(self):
+        text = '<VHOST><SSL_CERTIFICATE>certificate</SSL_CERTIFICATE></VHOST>'
+        vhost = VHost.from_lxml_element(etree.XML(text))
+        right = VHost(certificate = 'certificate')
+        self.assertEqual(vhost, right)
+
     def test_from_lxml_full(self):
         text = '''<VHOST>
   <NAME>test vhost</NAME>
@@ -340,12 +390,15 @@ class VHostTest(unittest.TestCase):
   <IP>192.168.0.0/16</IP>
   <HOST useRegex="YES">host.domain</HOST>
   <HOST>test.domain</HOST>
+  <SSL_PRIVATEKEY>private_key</SSL_PRIVATEKEY>
+  <SSL_CERTIFICATE>certificate</SSL_CERTIFICATE>
 </VHOST>'''
         vhost = VHost.from_lxml_element(etree.XML(text))
         right = VHost('test vhost', 80, 'HTTP', '/www', '/system',
                       [Log('ACCESSLOG'), Log('WARNINGLOG')],
                       ['127.0.0.0/8', '192.168.0.0/16'],
-                      {'host.domain': True, 'test.domain': None})
+                      {'host.domain': True, 'test.domain': None},
+                      'private_key', 'certificate')
         self.assertEqual(vhost, right)
 
     def test_bad_root_tag(self):
@@ -399,11 +452,22 @@ class VHostTest(unittest.TestCase):
         copy = VHost.from_string(str(vhost))
         self.assertEqual(vhost, copy)
 
+    def test_to_string_private_key(self):
+        vhost = VHost(private_key = 'private_key')
+        copy = VHost.from_string(str(vhost))
+        self.assertEqual(vhost, copy)
+
+    def test_to_string_certificate(self):
+        vhost = VHost(certificate = 'certificate')
+        copy = VHost.from_string(str(vhost))
+        self.assertEqual(vhost, copy)
+
     def test_to_string_full(self):
         vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
                       [Log('ACCESSLOG'), Log('WARNINGLOG')],
                       ['127.0.0.0/8', '192.168.0.0/16'],
-                      {'host.domain': True, 'test.domain': None})
+                      {'host.domain': True, 'test.domain': None},
+                      'private_key', 'certificate')
         copy = VHost.from_string(str(vhost))
         self.assertEqual(vhost, copy)
 
@@ -451,12 +515,23 @@ class VHostTest(unittest.TestCase):
         vhost = VHost(host = {'.*': True, 'a.org': None})
         copy = VHost.from_lxml_element(vhost.to_lxml_element())
         self.assertEqual(vhost, copy)
+        
+    def test_to_lxml_private_key(self):
+        vhost = VHost(private_key = 'private_key')
+        copy = VHost.from_lxml_element(vhost.to_lxml_element())
+        self.assertEqual(vhost, copy)
+
+    def test_to_lxml_certificate(self):
+        vhost = VHost(certificate = 'certificate')
+        copy = VHost.from_lxml_element(vhost.to_lxml_element())
+        self.assertEqual(vhost, copy)
 
     def test_to_lxml_full(self):
         vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system',
                       [Log('ACCESSLOG'), Log('WARNINGLOG')],
                       ['127.0.0.0/8', '192.168.0.0/16'],
-                      {'host.domain': True, 'test.domain': None})
+                      {'host.domain': True, 'test.domain': None},
+                      'private_key', 'certificate')
         copy = VHost.from_lxml_element(vhost.to_lxml_element())
         self.assertEqual(vhost, copy)
 
