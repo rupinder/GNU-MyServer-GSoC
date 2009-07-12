@@ -29,8 +29,9 @@ error_codes = {'100': 'CONTROL_OK',
                '208': 'CONTROL_FILE_NOT_FOUND'}
 
 class PyMyServerControl(object):
-    #Initialize a connection to server:port using login:password as credentials.
     def __init__(self, host, port, login, password):
+        '''Initialize a connection to server:port using login:password as
+        credentials.'''
 
         self.connectionType = "Keep-Alive"
 
@@ -43,8 +44,8 @@ class PyMyServerControl(object):
         self.password = password
         self.sock = socket.ssl(self.s)
 
-    #Build the CONTROL header and send it.
     def send_header(self, command, len, args = ""):
+        '''Build the CONTROL header and send it.'''
         self.buffer = ""
         self.response_values = {}
         self.response_code = None
@@ -55,13 +56,13 @@ class PyMyServerControl(object):
 
         self.sock.write(req_header)
 
-    #Send additional data after the header.
     def send(self, data):
+        '''Send additional data after the header.'''
         self.sock.write(data)
 
 
-    #Read a line from the socket.
     def __readline(self):
+        '''Read a line from the socket.'''
         while True:
             self.buffer = self.buffer + self.sock.read(1024)
             ind = self.buffer.find("\r\n")
@@ -71,12 +72,12 @@ class PyMyServerControl(object):
                 self.buffer = self.buffer[ind+2:len(self.buffer)]
                 return ret
 
-    #Returns the number of bytes to be read
     def available_data(self):
+        '''Returns the number of bytes to be read.'''
         return int(self.response_values['LEN']) - self.__bytes_read
 
-    #Read data that follows the the response header.
     def read(self):
+        '''Read data that follows the the response header.'''
         if len(self.buffer) > 0:
             self.__bytes_read = self.__bytes_read + len(self.buffer)
             return self.buffer
@@ -86,8 +87,8 @@ class PyMyServerControl(object):
 
         return data
 
-    #Read the response header.
     def read_header(self):
+        '''Read the response header.'''
         self.response_code = self.__readline()[1:4]
         self.__bytes_read = 0
 
@@ -106,7 +107,7 @@ class PyMyServerControl(object):
             self.response_values[header_name] = value
 
 
-    #Close the socket.
     def close(self):
+        '''Close the socket.'''
         del self.sock
         self.s.close()
