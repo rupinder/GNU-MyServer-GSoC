@@ -206,6 +206,11 @@ class DefinitionElementTest(unittest.TestCase):
         self.assertRaises(AttributeError, Definition.from_lxml_element,
                           etree.XML(text))
 
+    def test_search_by_name(self):
+        definition = DefinitionElement('a')
+        self.assertEqual(None, definition.search_by_name('b'))
+        self.assertEqual(definition, definition.search_by_name('a'))
+
 class DefinitionTreeTest(unittest.TestCase):
     def setUp(self):
         self.element_0 = DefinitionElement('test', {'value': 'x'})
@@ -377,6 +382,18 @@ class DefinitionTreeTest(unittest.TestCase):
         self.assertRaises(AttributeError, Definition.from_lxml_element,
                           etree.XML(text))
 
+    def test_search_by_name(self):
+        element_0 = DefinitionElement('a')
+        element_1 = DefinitionElement('b')
+        element_2 = DefinitionElement('a')
+        tree = DefinitionTree('x', definitions = [element_0, element_1, element_2])
+        self.assertEqual(element_1, tree.search_by_name('b'))
+        self.assertEqual(element_2, tree.search_by_name('a'))
+        self.assertEqual(None, tree.search_by_name('c'))
+        self.assertEqual(tree, tree.search_by_name('x'))
+        tree = DefinitionTree('b', definitions = [element_0, element_1, element_2])
+        self.assertEqual(element_1, tree.search_by_name('b'))
+
 class DefinitionListTest(unittest.TestCase):
     def setUp(self):
         self.definitions = []
@@ -414,6 +431,21 @@ class DefinitionListTest(unittest.TestCase):
                          DefinitionList(self.definitions))
         self.assertNotEqual(DefinitionList(), DefinitionList(self.definitions))
         self.assertNotEqual(DefinitionList(), 'other type')
+
+    def test_search_by_name(self):
+        def_list = DefinitionList()
+        self.assertEqual(None, def_list.search_by_name('x'))
+        element_0 = DefinitionElement('x')
+        def_list.add_definition(element_0)
+        self.assertEqual(element_0, def_list.search_by_name('x'))
+        element_1 = DefinitionElement('x')
+        def_list.add_definition(element_1)
+        self.assertEqual(element_1, def_list.search_by_name('x'))
+        element_2 = DefinitionElement('x')
+        tree_1 = DefinitionTree('t', definitions = [element_2])
+        self.assertEqual(element_2, def_list.search_by_name('x'))
+        def_list.add_definition(element_1)
+        self.assertEqual(element_1, def_list.search_by_name('x'))
 
     def test_to_string(self):
         def_list = DefinitionList(self.definitions)

@@ -118,6 +118,9 @@ class DefinitionElement(Definition):
     def from_string(text):
         '''Factory to produce definition element by parsing a string.'''
         return DefinitionElement.from_lxml_element(etree.XML(text))
+    
+    def search_by_name(self, name):
+        return None if name != self.name else self
 
 class DefinitionTree(Definition):
     '''Definition element containing other definitions.'''
@@ -183,6 +186,13 @@ class DefinitionTree(Definition):
 
     def __str__(self):
         return etree.tostring(self.to_lxml_element(), pretty_print = True)
+    
+    def search_by_name(self, name):
+        for definition in reversed(self.definitions):
+            ret = definition.search_by_name(name)
+            if ret != None:
+                return ret
+        return None if name != self.name else self
 
 class DefinitionList():
     def __init__(self, definitions = []):
@@ -217,3 +227,10 @@ class DefinitionList():
 
     def __str__(self):
         return '\n'.join(map(str, self.definitions))
+
+    def search_by_name(self, name):
+        for definition in reversed(self.definitions):
+            ret = definition.search_by_name(name)
+            if ret != None:
+                return ret
+        return None
