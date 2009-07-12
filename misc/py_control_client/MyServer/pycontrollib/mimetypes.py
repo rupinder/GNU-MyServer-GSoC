@@ -200,7 +200,8 @@ class MIMEType():
     @staticmethod
     def from_string(text):
         '''Factory to produce MIMEType by parsing a string.'''
-        return MIMEType.from_lxml_element(etree.XML(text))
+        return MIMEType.from_lxml_element(etree.XML(
+                text, parser = etree.XMLParser(remove_comments = True)))
 
 class MIMETypes():
     def __init__(self, MIME_types = []):
@@ -230,4 +231,5 @@ class MIMETypes():
     @staticmethod
     def from_string(text):
         '''Factory to produce MIMETypes from parsing a string.'''
-        return MIMETypes.from_lxml_element(etree.XML(text))
+        return MIMETypes.from_lxml_element(etree.XML(
+                text, parser = etree.XMLParser(remove_comments = True)))

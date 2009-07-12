@@ -47,7 +47,8 @@ class MyServerConfig():
     @staticmethod
     def from_string(text):
         '''Factory to produce MyServerConfig by parsing a string.'''
-        return MyServerConfig.from_lxml_element(etree.XML(text))
+        return MyServerConfig.from_lxml_element(etree.XML(
+                text, parser = etree.XMLParser(remove_comments = True)))
 
     @staticmethod
     def from_lxml_element(root):

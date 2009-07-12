@@ -236,7 +236,8 @@ class VHost():
     @staticmethod
     def from_string(text):
         '''Factory to produce VHost by parsing a string.'''
-        return VHost.from_lxml_element(etree.XML(text))
+        return VHost.from_lxml_element(etree.XML(
+                text, parser = etree.XMLParser(remove_comments = True)))
 
 class VHosts():
     def __init__(self, VHosts):
@@ -267,4 +268,5 @@ class VHosts():
     @staticmethod
     def from_string(text):
         '''Factory to produce VHosts from parsing a string.'''
-        return VHosts.from_lxml_element(etree.XML(text))
+        return VHosts.from_lxml_element(etree.XML(
+                text, parser = etree.XMLParser(remove_comments = True)))

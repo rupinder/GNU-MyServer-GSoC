@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from MyServer.pycontrol.pycontrol import PyMyServerControl, error_codes
 from mimetypes import MIMETypes
-from vhosts import VHosts
+from vhost import VHosts
 from config import MyServerConfig
 
 class ServerError(Exception):
@@ -126,4 +126,4 @@ class Controller(BasicController):
 
     def get_server_configuration(self):
         '''Get server settings.'''
-        return MyServerConfig(self.get_file('myserver.xml'))
+        return MyServerConfig.from_string(self.get_file('myserver.xml'))

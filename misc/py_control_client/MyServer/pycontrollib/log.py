@@ -84,7 +84,8 @@ class Stream():
     @staticmethod
     def from_string(text):
         '''Factory to produce stream by parsing a string.'''
-        return Stream.from_lxml_element(etree.XML(text))
+        return Stream.from_lxml_element(etree.XML(
+                text, parser = etree.XMLParser(remove_comments = True)))
 
     @staticmethod
     def from_lxml_element(root):
@@ -176,7 +177,8 @@ class Log():
     @staticmethod
     def from_string(text):
         '''Factory to produce log by parsing a string.'''
-        return Log.from_lxml_element(etree.XML(text))
+        return Log.from_lxml_element(etree.XML(
+                text, parser = etree.XMLParser(remove_comments = True)))
 
     @staticmethod
     def from_lxml_element(root):
