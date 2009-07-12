@@ -33,7 +33,7 @@ class BasicController():
         self.username = username
         self.password = password
 
-    def __check_return_code__(self):
+    def __check_return_code(self):
         return_code = self.connection.response_code
         if error_codes.get(return_code, '') != 'CONTROL_OK':
             raise ServerError('MyServer returned {0}: {1}'.format(
@@ -56,14 +56,14 @@ class BasicController():
         if self.connection:
             self.connection.send_header('REBOOT', 0)
             self.connection.read_header()
-            self.__check_return_code__()
+            self.__check_return_code()
 
     def version(self):
         '''Get version string.'''
         if self.connection:
             self.connection.send_header('VERSION', 0)
             self.connection.read_header()
-            self.__check_return_code__()
+            self.__check_return_code()
             return self.connection.read()
 
     def enable_reboot(self):
@@ -71,21 +71,21 @@ class BasicController():
         if self.connection:
             self.connection.send_header('ENABLEREBOOT', 0)
             self.connection.read_header()
-            self.__check_return_code__()
+            self.__check_return_code()
 
     def disable_reboot(self):
         '''Disable server auto-reboot.'''
         if self.connection:
             self.connection.send_header('DISABLEREBOOT', 0)
             self.connection.read_header()
-            self.__check_return_code__()
+            self.__check_return_code()
 
     def show_connections(self):
         '''List active server connections.'''
         if self.connection:
             self.connection.send_header('SHOWCONNECTIONS', 0)
             self.connection.read_header()
-            self.__check_return_code__()
+            self.__check_return_code()
             return self.connection.read()
 
     def kill_connection(self, num):
@@ -93,14 +93,14 @@ class BasicController():
         if self.connection:
             self.connection.send_header('KILLCONNECTION', 0, str(num))
             self.connection.read_header()
-            self.__check_return_code__()
+            self.__check_return_code()
 
     def show_language_files(self):
         '''List available language files.'''
         if self.connection:
             self.connection.send_header('SHOWLANGUAGEFILES', 0)
             self.connection.read_header()
-            self.__check_return_code__()
+            self.__check_return_code()
             return self.connection.read()
 
     def get_file(self, path):
@@ -108,7 +108,7 @@ class BasicController():
         if self.connection:
             self.connection.send_header('GETFILE', 0, path)
             self.connection.read_header()
-            self.__check_return_code__()
+            self.__check_return_code()
             return self.connection.read()
 
     def put_file(self, local_path, remote_path):
