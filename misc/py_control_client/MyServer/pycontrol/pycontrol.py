@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 import socket
+import ssl
 import time
 
 error_codes = {'100': 'CONTROL_OK',
@@ -42,7 +43,7 @@ class PyMyServerControl(object):
         self.port = port
         self.login = login
         self.password = password
-        self.sock = socket.ssl(self.s)
+        self.sock = ssl.wrap_socket(self.s)
 
     def send_header(self, command, len, args = ""):
         '''Build the CONTROL header and send it.'''
