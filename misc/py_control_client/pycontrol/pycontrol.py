@@ -1,6 +1,6 @@
 '''
 MyServer
-Copyright (C) 2008 The MyServer Team
+Copyright (C) 2008, 2009 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -44,12 +44,13 @@ class PyMyServerControl(object):
         self.sock = socket.ssl(self.s)
 
     #Build the CONTROL header and send it.
-    def send_header(self, command, len, args = ""):
+    def send_header(self, command, length, args = ""):
         self.buffer = ""
         self.response_values = {}
         self.response_code = None
         req_header = "/" + command + " CONTROL/1.0 " +args + "\r\n"
         req_header = req_header + "/AUTH " + self.login +":" + self.password + "\r\n"
+        req_header = req_header + "/LEN " + str (length) + "\r\n"
         req_header = req_header + "/CONNECTION " + self.connectionType + "\r\n"
         req_header = req_header + "\r\n"
 
