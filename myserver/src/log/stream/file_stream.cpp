@@ -19,7 +19,7 @@
 
 int const FileStream::defaultFileMask = 
   File::APPEND | 
-  File::OPEN_ALWAYS |
+  File::FILE_OPEN_ALWAYS |
   File::WRITE | 
   File::READ | 
   File::NO_INHERIT;
@@ -39,87 +39,18 @@ FileStream::streamSize ()
 int
 FileStream::streamCycle ()
 {
-  char *buffer = 0;
-  char *secondaryBuffer = 0;
-  const u_long bufferSize = MYSERVER_KB (64);
-  try
-    {
-      File newFile;
-      File *currentFile = dynamic_cast<File*>(out);
-      string filepath (currentFile->getFilename ());
-      string newFileName (makeNewFileName (currentFile->getFilename ()));
-      cycledStreams.push_back (newFileName);
-      buffer = new char[bufferSize];
-      if (buffer == 0)
-        {
-          return 1;
-        }
-      secondaryBuffer = new char[bufferSize];
-      if (buffer == 0)
-        {
-          delete [] buffer;
-          return 1;
-        }
-     
-      if (newFile.openFile (newFileName,
-                            File::WRITE |
-                            File::NO_INHERIT |
-                            File::CREATE_ALWAYS))
-        {
-          cerr << "could not open " << newFileName << endl;
-          delete [] buffer;
-          delete [] secondaryBuffer;
-          return 1;
-        }
-      if (currentFile->seek (0))
-        {
-          delete [] buffer;
-          delete [] secondaryBuffer;
-          newFile.close ();
-          return 1;
-        }
-      for (;;)
-        {
-          u_long nbr;
-          u_long nbw;
-          if(currentFile->read (buffer, bufferSize, &nbr))
-            {
-              delete [] buffer;
-              delete [] secondaryBuffer;
-              newFile.close ();
-              return 1;
-            }
-          if (nbr == 0)
-            break;
-          if (newFile.writeToFile (buffer, nbr, &nbw))
-            {
-              delete [] buffer;
-              delete [] secondaryBuffer;
-              newFile.close ();
-              return 1;
-            }
-        }
-      newFile.close ();
-      currentFile->close ();
-      FilesUtility::deleteFile (filepath.c_str ());
-      if (currentFile->openFile (filepath.c_str(), defaultFileMask))
-        {
-          delete [] buffer;
-          delete [] secondaryBuffer;
-          return 1;
-        }
-      delete [] buffer;
-      delete [] secondaryBuffer;
-      return 0;
-    }
-  catch (...)
-    {
-      if (buffer)
-        delete [] buffer;
-      if (secondaryBuffer)
-        delete [] secondaryBuffer;
-      throw;
-    };
+  File *currentFile = dynamic_cast<File*>(out);
+  string filepath (currentFile->getFilename ());
+  string newFileName (makeNewFileName (currentFile->getFilename ()));
+
+  if (FilesUtility::copyFile (currentFile->getFilename (), newFileName.c_str (), 1))
+    return 1;
+
+  cycledStreams.push_back (newFileName);
+
+  currentFile->truncate ();
+
+  return 0;
 }
 
 string
@@ -134,7 +65,7 @@ FileStream::makeNewFileName (string oldFileName)
   FilesUtility::completePath (oldFileName);
   FilesUtility::splitPath (oldFileName, filedir, filename);
   FilesUtility::getFileExt (ext, filename);
-      
+
   getRFC822LocalTime (time, 32);
   time = trim (time.substr (5, 32));
     
@@ -151,7 +82,7 @@ FileStream::makeNewFileName (string oldFileName)
 }
 
 int
-FileStream::chown (int uid, int gid)
+FileStream::chown (string &uid, string &gid)
 {
   mutex->lock ();
   File* f = dynamic_cast<File*>(out);

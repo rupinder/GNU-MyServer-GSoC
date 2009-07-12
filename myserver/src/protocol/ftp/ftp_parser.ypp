@@ -34,6 +34,7 @@
 %token SPACE_FTP_SEP
 %token PUNCT_FTP_SEP
 %type <m_nInt> mode_code
+%type <m_nInt> type_code
 %type <m_nInt> structure_code
 %type <m_nInt> format_control_code
 
@@ -117,7 +118,17 @@ cmd		: USER_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		}
 		| TYPE_FTP_COMMAND SPACE_FTP_SEP type_code CRLF_FTP_SEP
 		{
-			;
+      if ($3 == -1)
+        pContext->ftp_reply(504);
+      else
+        pContext->Type($3);
+		}
+		| TYPE_FTP_COMMAND SPACE_FTP_SEP type_code SPACE_FTP_SEP format_control_code CRLF_FTP_SEP
+		{
+      if ($3 == -1 || $5 == -1)
+        pContext->ftp_reply(504);
+      else
+        pContext->Type($3, $5);
 		}
 		| STRU_FTP_COMMAND SPACE_FTP_SEP structure_code CRLF_FTP_SEP
 		{
@@ -258,6 +269,7 @@ cmd		: USER_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 			pContext->Size($3);
 		}
 		;
+
 	/* ftp command arguments */
 host_port	: host_number ',' port_number
 		{
@@ -269,6 +281,7 @@ host_port	: host_number ',' port_number
 		  $$.p2 = $3.p2;
 		}
 		;
+
 host_number	: NUMBER_FTP_ARG ',' NUMBER_FTP_ARG ',' NUMBER_FTP_ARG ',' NUMBER_FTP_ARG
 		{
 		  $$.h1 = $1;
@@ -277,12 +290,14 @@ host_number	: NUMBER_FTP_ARG ',' NUMBER_FTP_ARG ',' NUMBER_FTP_ARG ',' NUMBER_FT
 		  $$.h4 = $7;
 		}
 		;
+
 port_number	: NUMBER_FTP_ARG ',' NUMBER_FTP_ARG
 		{
 		  $$.p1 = $1;
 		  $$.p2 = $3;
 		}
 		;
+
 mode_code	: 's'
 		{
 		  $$ = FtpUserData::MODE_STREAM;
@@ -296,6 +311,7 @@ mode_code	: 's'
 		  $$ = -1;
 		}
 		;
+
 structure_code	: 'f'
 		{
 			$$ = FtpUserData::STRU_FILE;
@@ -309,42 +325,36 @@ structure_code	: 'f'
 		  $$ = -1;
 		}
 		;
+
 type_code	: 'a'
 		{
-		  pContext->Type(FtpUserData::REPR_ASCII);
-		}
-		| 'a' SPACE_FTP_SEP format_control_code
-		{
-		  pContext->Type(FtpUserData::REPR_ASCII, $3);
+		  $$ = FtpUserData::REPR_ASCII;
 		}
 		| 'i'
 		{
-		  pContext->Type(FtpUserData::REPR_IMAGE);
+		  $$ = FtpUserData::REPR_IMAGE;
 		}
 		| 'e'
 		{
-		  pContext->ftp_reply(504);
-		}
-		| 'e' SPACE_FTP_SEP format_control_code
-		{
-		  pContext->ftp_reply(504);
+      $$ = -1;
 		}
 		| 'l'
 		{
-		  pContext->ftp_reply(504);
+      $$ = -1;
 		}
 		;
+
 format_control_code : 'n'
 		{
 		  $$ = FtpUserData::NON_PRINT;
 		}
 		| 't'
 		{
-		  pContext->ftp_reply(504);
+		  $$ = -1;
 		}
 		| 'c'
 		{
-		  pContext->ftp_reply(504);
+      $$ = -1;
 		}
 		;
 %%

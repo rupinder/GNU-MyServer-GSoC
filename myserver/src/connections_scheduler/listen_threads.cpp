@@ -94,7 +94,7 @@ int ListenThreads::createServerAndListener(u_short port)
     {
       server->logWriteln(languageParser->getValue("MSG_SSOCKCREATE"));
       serverSocketIPv4->socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-      if (serverSocketIPv4->getHandle() == (FileHandle)INVALID_SOCKET)
+      if (serverSocketIPv4->getHandle() == (Handle)INVALID_SOCKET)
       {
         server->logWriteln(languageParser->getValue("ERR_OPENP"), MYSERVER_LOG_MSG_ERROR);
         delete serverSocketIPv4;

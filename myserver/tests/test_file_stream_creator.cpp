@@ -1,6 +1,6 @@
 /*
  MyServer
- Copyright (C) 2008 Free Software Foundation, Inc.
+ Copyright (C) 2008, 2009 Free Software Foundation, Inc.
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
@@ -44,14 +44,17 @@ public:
   {
     list<string> filters;
     LogStream* ls = fsc->create (ff, "foo", filters, 0);
+
     CPPUNIT_ASSERT (ls);
+
+    delete ls;
+    FilesUtility::deleteFile ("foo");
   }
   
   void tearDown ()
   {
     delete fsc;
     delete ff;
-    FilesUtility::deleteFile ("foo");
   }
 private:
   FileStreamCreator* fsc;

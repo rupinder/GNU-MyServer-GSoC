@@ -57,9 +57,8 @@ struct FourChar
 /*!
  *Entry-Point to manage a FastCGI request.
  */
-int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
-                  const char* scriptpath, const char *cgipath,
-                  int execute, int onlyHeader)
+int FastCgi::send(HttpThreadContext* td, const char* scriptpath,
+                  const char *cgipath, bool execute, bool onlyHeader)
 {
   FcgiContext con;
   u_long nbr = 0;
@@ -194,7 +193,7 @@ int FastCgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
   td->inputData.close();
   if(td->inputData.openFile(td->inputDataPath, File::READ | 
-                            File::OPEN_ALWAYS |
+                            File::FILE_OPEN_ALWAYS |
                             File::NO_INHERIT))
   {
     td->buffer->setLength(0);
@@ -516,7 +515,7 @@ FastCgiServer* FastCgi::runFcgiServer(FcgiContext* context,
    * Compute a simple hash from the IP address.  */
   const char *ip = context->td->connection->getIpAddr();
   int seed = 13;
-  for (const char *c = ip; c; c++)
+  for (const char *c = ip; *c; c++)
     seed = *c * 21 + seed;
 
   FastCgiServer* server = processServerManager->getServer(SERVERS_DOMAIN,

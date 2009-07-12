@@ -181,7 +181,7 @@ value found previously.
 
 @subsubsection RETURN element
 The @code{RETURN} element allows to exit immediately from the XML flow
-without consider any other other command specified in the file.
+without consider any other command specified in the file.
 
 It has an additional attribute @code{value} that must be set to the
 value @code{ALLOW} to keep the previous found attribute mask.
@@ -196,7 +196,7 @@ do:
 Differently, to return from the flow keeping the found permission mask
 there is need to do like:
 @example
-<RETURN value="DENY" />
+<RETURN value="ALLOW" />
 @end example
 
 Pay attention, if at the same time you want to change the permissions

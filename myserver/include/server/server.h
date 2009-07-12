@@ -48,6 +48,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/conf/security/auth_method_factory.h>
 #include <include/conf/security/validator_factory.h>
 
+#include <include/base/slab/slab.h>
+
 #include <string>
 #include <list>
 
@@ -88,8 +90,8 @@ public:
 
   FiltersFactory* getFiltersFactory();
   int getMaxThreads();
-  u_long getUid();
-  u_long getGid();
+  const char *getUid();
+  const char *getGid();
   int countAvailableThreads();
   void checkThreadsNumber();
   int removeThread(u_long ID);
@@ -178,6 +180,9 @@ private:
    */
   int mustEndServer;
 
+  Mutex connectionsPoolLock;
+  Slab<Connection> connectionsPool;
+
   /*! Singleton instance.  Call createInstance before use it.  */
   static Server* instance;
 
@@ -203,8 +208,8 @@ private:
 
   HashMap<string, void*> globalData;
   FiltersFactory filtersFactory;
-  u_long uid;
-  u_long gid;
+  string uid;
+  string gid;
   int currentThreadID;
   ProtocolsManager protocols;
   XmlParser languageParser;

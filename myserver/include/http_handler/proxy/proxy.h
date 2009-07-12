@@ -33,9 +33,9 @@ public:
   static void setTimeout (int);
   static int getTimeout ();
 
-	virtual int send (HttpThreadContext*, ConnectionPtr s,
-                   const char* scriptpath, const char* exec = 0,
-                   int execute = 0, int onlyHeader = 0);
+	virtual int send (HttpThreadContext*, const char* scriptpath,
+                    const char* exec = 0, bool execute = false,
+                    bool onlyHeader = false);
 protected:
   int flushToClient (HttpThreadContext* td, Socket& client,
                      FiltersChain &out, int onlyHeader);

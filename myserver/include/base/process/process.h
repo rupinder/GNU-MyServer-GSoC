@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -35,7 +35,6 @@ struct StartProcInfo
 {
   StartProcInfo ()
   {
-    gid = uid = 0;
     envString = NULL;
     handlesToClose = NULL;
   }
@@ -57,10 +56,10 @@ struct StartProcInfo
 	string arg;
 
   /*! Group id for the new process.  */
-  int gid;
+  string gid;
 
   /*! User id for the new process.  */
-  int uid;
+  string uid;
 
 	void *envString;
 
@@ -82,8 +81,8 @@ public:
   int exec (StartProcInfo *spi, bool waitEnd = false);
   int terminateProcess();
   int isProcessAlive();
-  static int setuid(u_long);
-  static int setgid(u_long);
+  static int setuid(const char*);
+  static int setgid(const char*);
 	static int setAdditionalGroups(u_long len, u_long *groups);
   Process();
   ~Process();
@@ -93,6 +92,9 @@ public:
 
   /*! Change the process ID.  */
   void setPid (int pid){this->pid = pid;}
+
+  static uid_t getUid (const char *user);
+  static gid_t getGid (const char *group);
 
   static int generateEnvString (const char **envp, char *envString);
   static int generateArgList (const char **args, const char *proc, string &additionalArgs);

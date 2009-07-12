@@ -53,25 +53,27 @@ public:
     string message;
     string message2;
     LogStream* ls;
+    FilesUtility::deleteFile ("foo");
+    ostringstream oss;
 
-#ifdef WIN32
-    message.assign ("thisisaverylongmessage\r\n");
-    message2.assign ("thisisanothermessage\r\n");
-#else
-    message.assign ("thisisaverylongmessage\n");
-    message2.assign ("thisisanothermessage\n");
-#endif
+    oss << "thisisaverylongmessage" << endl;
+    message.assign (oss.str ());
+    oss.str ("thisisanothermessage");
+    oss << endl;
+    message2.assign (oss.str ());
+
     ls = fsc->create (ff, "foo", filters, 10);
     CPPUNIT_ASSERT (ls);
     CPPUNIT_ASSERT (!ls->log (message));
     CPPUNIT_ASSERT (!ls->log (message2));
     ls->close ();
     File f;
-    f.openFile ("foo", FileStream::defaultFileMask);
+    f.openFile ("foo", File::READ | File::OPEN_IF_EXISTS);
     char buf[64];
     u_long nbr;
     f.read (buf, 64, &nbr);
     buf[nbr] = '\0';
+    CPPUNIT_ASSERT_EQUAL (nbr, (u_long) message2.length ());
     CPPUNIT_ASSERT (!message2.compare (buf));
     f.close ();
     list<string> cs = ls->getCycledStreams ();
@@ -79,9 +81,10 @@ public:
     list<string>::iterator it;
     for (it = cs.begin (); it != cs.end (); it++)
       {
-        f.openFile (*it, FileStream::defaultFileMask);
+        f.openFile (*it, File::READ | File::OPEN_IF_EXISTS);
         f.read (buf, 64, &nbr);
         buf[nbr] = '\0';
+        CPPUNIT_ASSERT_EQUAL (nbr, (u_long) message.length ());
         CPPUNIT_ASSERT (!message.compare (buf));
         f.close ();
         CPPUNIT_ASSERT (!FilesUtility::deleteFile (*it));
@@ -98,27 +101,32 @@ public:
     u_long nbr;
     string message1;
     string message2;
+    ostringstream oss;
+
+    oss << "message1" << endl;
+    message1.assign (oss.str ());
+    oss.str ("message2");
+    oss << endl;
+    message2.assign (oss.str ());
     
+    FilesUtility::deleteFile ("foo");
     ls = fsc->create (ff, "foo", filters, 0);
     CPPUNIT_ASSERT (ls);
-#ifdef WIN32
-    message1.assign ("message1\r\n");
-    message2.assign ("message2\r\n");
-#endif
-#ifdef NOT_WIN
-    message1.assign ("message1\n");
-    message2.assign ("message2\n");
-#endif
     ls->log (message1);
+    ls->close ();
     delete ls;
+
     ls = fsc->create (ff, "foo", filters, 0);
     CPPUNIT_ASSERT (ls);
     ls->log (message2);
+    ls->close ();
     delete ls;
-    f.openFile ("foo", FileStream::defaultFileMask);
+
+    f.openFile ("foo", File::READ | File::OPEN_IF_EXISTS);
     f.read (buf, 128, &nbr);
     f.close ();
     buf[nbr] = '\0';
+    CPPUNIT_ASSERT_EQUAL (nbr, (u_long)(message1.length () + message2.length ()));
     CPPUNIT_ASSERT (!string (buf).compare (message1.append (message2)));
   }
   

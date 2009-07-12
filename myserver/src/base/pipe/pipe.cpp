@@ -280,9 +280,28 @@ void Pipe::closeWrite()
  */
 int Pipe::waitForData (int sec, int usec)
 {
-#ifndef WIN32
+#ifdef WIN32
+  /*FIXME: avoid polling.  */
+  u_long limit = getTicks () + sec * 1000 + usec/1000;
+  char buffer[1];
+  DWORD bytesRead;
 
-#if HAVE_PIPE
+  do
+    {
+      bytesRead = 0;
+      if (PeekNamedPipe (readHandle, buffer, 1, &bytesRead, NULL, NULL) == 0)
+        return 0;
+
+      if (bytesRead)
+        return 1;
+
+      Thread::wait (1000);
+    }
+  while (getTicks () < limit);
+
+  return 0;
+
+#elif HAVE_PIPE
   struct timeval tv;
   fd_set readfds;
   int ret;
@@ -304,12 +323,7 @@ int Pipe::waitForData (int sec, int usec)
     return 1;
 
   return 0;
-#else
+#endif
+
   return 0;
-#endif
-
-#else
-  return WaitForSingleObject (readHandle, sec * 1000 + usec / 1000) == WAIT_OBJECT_0;
-#endif
-
 }

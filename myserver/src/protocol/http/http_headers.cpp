@@ -27,13 +27,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/http/http_errors.h>
 #include <include/conf/vhost/vhost.h>
 
-extern "C" {
+extern "C"
+{
 #ifdef WIN32
-#include <direct.h>
-#include <errno.h>
+# include <direct.h>
+# include <errno.h>
 #else
-#include <string.h>
-#include <errno.h>
+# include <string.h>
+# include <errno.h>
 #endif
 }
 
@@ -202,7 +203,7 @@ u_long HttpHeaders::buildHTTPResponseHeader (char *str,
   /*
    *The HTTP header ends with a \r\n sequence.
    */
-  pos += myserver_strlcpy (pos, "\r\n\0\0\0", MAX-(long)(pos-str));
+  pos += myserver_strlcpy (pos, "\r\n", MAX-(long)(pos-str));
 
   return (pos - str);
 }
@@ -293,7 +294,7 @@ u_long HttpHeaders::buildHTTPRequestHeader (char * str,HttpRequestHeader* reques
       }
     }
   }
-  pos += myserver_strlcpy (pos, "\r\n\0\0\0", MAX-(long)(pos-str));
+  pos += myserver_strlcpy (pos, "\r\n", MAX-(long)(pos-str));
   return (pos - str);
 }
 

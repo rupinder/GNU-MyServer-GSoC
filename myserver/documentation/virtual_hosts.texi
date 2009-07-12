@@ -100,6 +100,14 @@ KByte/second:
     <DEFINE name="connection.throttling" value="1024"/>
 @end example
 
+@subsection Connections data pool
+To improve performances, the server can use a cache of connections,
+this value can be configured trough the server global variable
+@code{server.connections_pool.size}.  If it is not specified, a
+default value of 100 is used.  Increase this value if more connections
+can be active at the same time.  Another effect of using a connections
+cache is a less defragmented memory.
+
 @subsection HTTP specific configuration
 
 @subsubsection The LOCATION element

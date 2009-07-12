@@ -38,9 +38,8 @@ ProcessServerManager *Scgi::processServerManager = 0;
 /*!
  *Entry-Point to manage a SCGI request.
  */
-int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
-               const char* scriptpath, const char *cgipath,
-               int execute, int onlyHeader)
+int Scgi::send(HttpThreadContext* td, const char* scriptpath,
+               const char *cgipath, bool execute, bool onlyHeader)
 {
   ScgiContext con;
   FiltersChain chain;
@@ -89,7 +88,6 @@ int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
 
   td->buffer->setLength(0);
   td->secondaryBuffer->getAt(0) = '\0';
-
 
   {
     /*! Do not modify the text between " and ".  */
@@ -182,7 +180,7 @@ int Scgi::send(HttpThreadContext* td, ConnectionPtr connection,
   }
   td->inputData.close();
   if(td->inputData.openFile(td->inputDataPath, File::READ | 
-                            File::OPEN_ALWAYS |
+                            File::FILE_OPEN_ALWAYS |
                             File::NO_INHERIT))
   {
     td->buffer->setLength(0);
@@ -538,7 +536,7 @@ ScgiServer* Scgi::runScgiServer(ScgiContext* context,
    * Compute a simple hash from the IP address.  */
   const char *ip = context->td->connection->getIpAddr();
   int seed = 13;
-  for (const char *c = ip; c; c++)
+  for (const char *c = ip; *c; c++)
     seed = *c * 21 + seed;
 
   ScgiServer* server =  processServerManager->getServer(SERVERS_DOMAIN, 

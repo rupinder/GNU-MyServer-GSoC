@@ -35,9 +35,9 @@ public:
   virtual int load ();
   virtual int unLoad ();
 
-	virtual int send(HttpThreadContext*, ConnectionPtr s,
-                   const char* exec, const char* cmdLine = 0,
-                   int execute = 0, int onlyHeader = 0);
+	virtual int send(HttpThreadContext*, const char* exec,
+                   const char* cmdLine = 0, bool execute = false,
+                   bool onlyHeader = false);
 
   HttpDataHandler();
   virtual ~HttpDataHandler();

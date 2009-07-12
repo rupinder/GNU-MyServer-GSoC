@@ -32,17 +32,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-extern "C"
-{
-#ifdef WIN32
-#include <direct.h>
-#include <errno.h>
-#else
-#include <string.h>
-#include <errno.h>
-#endif
-}
-
 /*!
  *Read primitive post data as it is sent by the client without apply any filter
  *in a contiguous manner, first read from the memory buffer and after from the
@@ -307,7 +296,7 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
    *Create the file that contains the posted data.
    *This data is the stdin file in the CGI.
    */
-  if(td->inputData.openFile(td->inputDataPath, File::CREATE_ALWAYS |
+  if(td->inputData.openFile(td->inputDataPath, File::FILE_CREATE_ALWAYS |
                             File::READ |
                             File::WRITE))
   {

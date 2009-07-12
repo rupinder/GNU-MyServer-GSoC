@@ -35,16 +35,16 @@ public:
   static const u_long WRITE;
   static const u_long TEMPORARY;
   static const u_long HIDDEN;
-  static const u_long OPEN_ALWAYS;
+  static const u_long FILE_OPEN_ALWAYS;
   static const u_long OPEN_IF_EXISTS;
   static const u_long APPEND;
-  static const u_long CREATE_ALWAYS;
+  static const u_long FILE_CREATE_ALWAYS;
   static const u_long NO_INHERIT;
 
   File();
   File(char *,int);
-  virtual FileHandle getHandle();
-  virtual int setHandle(FileHandle);
+  virtual Handle getHandle();
+  virtual int setHandle(Handle);
   virtual int writeToFile(const char* ,u_long ,u_long* );
   virtual int createTemporaryFile(const char* );
 
@@ -73,6 +73,8 @@ public:
 
   virtual int fastCopyToSocket (Socket *dest, u_long offset, 
                                 MemBuf *buf, u_long *nbw);
+
+  int truncate (u_long size = 0);
 protected:
   FileHandle handle;
   string filename;

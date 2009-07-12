@@ -167,7 +167,7 @@ int FilesUtility::copyFile (const char* src, const char* dest, int overwrite)
   if (srcFile.openFile (src, File::READ))
     return -1;
 
-  if (destFile.openFile (dest, File::WRITE | (overwrite ? File::CREATE_ALWAYS : 0)))
+  if (destFile.openFile (dest, File::WRITE | (overwrite ? File::FILE_CREATE_ALWAYS : 0)))
     {
       srcFile.close ();
       return -1;
@@ -220,15 +220,18 @@ int FilesUtility::copyFile (File& src, File& dest)
  *Return a non-null value on errors.
  *\param filename The file to delete.
  */
-int FilesUtility::deleteFile(const char *filename)
+int FilesUtility::deleteFile (const char *filename)
 {
   int ret;
 #ifdef WIN32
-  ret = DeleteFile(filename);
-  if(ret)
+  ret = DeleteFile (filename);
+  if (ret)
     return 0;
 #else
-  ret = remove(filename);
+  ret = remove (filename);
+
+  if (ret && errno == ENOENT)
+    ret = 0;
 #endif
   return ret;
 }
@@ -374,10 +377,11 @@ time_t FilesUtility::getLastAccTime(const char *filename)
  *\param uid The user id.
  *\param gid the group id.
  */
-int FilesUtility::chown(const char* filename, int uid, int gid)
+int FilesUtility::chown(const char* filename, string &uid, string &gid)
 {
 #ifndef WIN32
-  return ::chown(filename, uid, gid) ? 1 : 0;
+  return ::chown(filename, Process::getUid (uid.c_str ()),
+                 Process::getGid (gid.c_str ())) ? 1 : 0;
 #endif
   return 0;
 }

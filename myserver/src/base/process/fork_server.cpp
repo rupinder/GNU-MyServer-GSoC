@@ -122,7 +122,7 @@ int ForkServer::handleRequest (Socket *sock)
 {
 #ifndef WIN32
   int ret, flags, stdIn = -1, stdOut = -1, stdErr = -1;
-  int gid, uid;
+  char *gid, *uid;
   int stdInPort = 0;
   char *exec;
   char *cwd;
@@ -140,8 +140,8 @@ int ForkServer::handleRequest (Socket *sock)
   if (flags & FLAG_USE_ERR)
     readFileHandle (sock->getHandle (), &stdErr);
   
-  readInt (sock, &gid);
-  readInt (sock, &uid);
+  readString (sock, &gid);
+  readString (sock, &uid);
 
   readString (sock, &exec);
   readString (sock, &cwd);
@@ -181,8 +181,8 @@ int ForkServer::handleRequest (Socket *sock)
   spi.stdOut = stdOut;
   spi.stdError = stdErr;
 
-  spi.uid = uid;
-  spi.gid = gid;
+  spi.uid.assign (uid);
+  spi.gid.assign (gid);
 
   spi.cmd.assign (exec);
   spi.arg.assign (arg);
@@ -310,8 +310,8 @@ int ForkServer::executeProcess (StartProcInfo *spi,
       if (flags & FLAG_USE_ERR)
         writeFileHandle (sock.getHandle (), spi->stdError);
       
-      writeInt (&sock, spi->gid);
-      writeInt (&sock, spi->uid);
+      writeString (&sock, spi->gid.c_str (), spi->gid.length ());
+      writeString (&sock, spi->uid.c_str (), spi->uid.length ());
       
       writeString (&sock, spi->cmd.c_str (), spi->cmd.length ());
       writeString (&sock, spi->cwd.c_str (), spi->cwd.length ());
@@ -400,7 +400,7 @@ int ForkServer::generateListenerSocket (Socket &socket, u_short *port)
 
   socket.socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-  if (socket.getHandle() == (FileHandle)INVALID_SOCKET)
+  if (socket.getHandle() == (Handle)INVALID_SOCKET)
     return -1;
 
   MYSERVER_SOCKADDR_STORAGE sockaddr = { 0 };

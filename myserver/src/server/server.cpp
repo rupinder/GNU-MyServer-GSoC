@@ -70,7 +70,8 @@ Server::Server() : connectionsScheduler (this),
                    listenThreads (&connectionsScheduler, this),
                    authMethodFactory (),
                    validatorFactory (),
-                   securityManager (&validatorFactory, &authMethodFactory)
+                   securityManager (&validatorFactory, &authMethodFactory),
+                   connectionsPool (100)
 {
   toReboot = false;
   autoRebootEnabled = true;
@@ -78,8 +79,6 @@ Server::Server() : connectionsScheduler (this),
   maxConnections = 0;
   serverReady = false;
   throttlingRate = 0;
-  uid = 0;
-  gid = 0;
   mimeManager = 0;
   mimeConfigurationFile = 0;
   mainConfigurationFile = 0;
@@ -94,6 +93,7 @@ Server::Server() : connectionsScheduler (this),
   freeThreads = 0;
   logManager = new LogManager (&filtersFactory);
   initLogManager ();
+  connectionsPoolLock.init ();
 }
 
 void
@@ -211,7 +211,7 @@ int Server::copyConfigurationFromDefault(const char *fileName)
     return -1;
 
   ret = outputF.openFile (fileName, File::WRITE
-                         | File::OPEN_ALWAYS);
+                         | File::FILE_OPEN_ALWAYS);
   if (ret)
     return -1;
 
@@ -288,6 +288,8 @@ Server::~Server()
   
   if (logManager)
     delete logManager;
+
+  connectionsPoolLock.destroy ();
 }
 
 /*!
@@ -334,14 +336,14 @@ void Server::start(string &mainConf, string &mimeConf, string &vhostConf, string
 
     setProcessPermissions();
 
-    if(getGid())
+    if (getGid ()[0])
     {
       ostringstream out;
       out << "gid: " << gid;
       logWriteln(out.str().c_str());
     }
 
-    if(getUid())
+    if (getUid ()[0])
     {
       ostringstream out;
       out << "uid: " << uid;
@@ -797,17 +799,17 @@ void Server::finalCleanup()
 /*!
  *Return the user identifier to use for the process.
  */
-u_long Server::getUid()
+const char *Server::getUid()
 {
-  return uid;
+  return uid.c_str ();
 }
 
 /*!
  *Return the group identifier to use for the process.
  */
-u_long Server::getGid()
+const char *Server::getGid()
 {
-  return gid;
+  return gid.c_str ();
 }
 
 /*!
@@ -1097,6 +1099,12 @@ int Server::initialize ()
     maxConnectionsToAccept = atoi(data);
   }
 
+  data = getHashedData ("server.connections_pool.size");
+  if(data)
+  {
+    connectionsPool.init (atoi (data));
+  }
+
   /* Get the default throttling rate to use on connections.  */
   data = getHashedData ("connection.throttling");
   if(data)
@@ -1146,15 +1154,15 @@ int Server::initialize ()
 
   data = getHashedData ("server.uid");
   if(data)
-  {
-    uid = atoi(data);
-  }
+    uid.assign (data);
+  else
+    uid.assign ("");
 
   data = getHashedData ("server.gid");
   if(data)
-  {
-    gid = atoi(data);
-  }
+    gid.assign (data);
+  else
+    gid.assign ("");
 
   data = getHashedData ("server.max_servers");
   if(data)
@@ -1350,13 +1358,17 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
   int doFastCheck = 0;
   Protocol* protocol;
   int opts = 0;
-  ConnectionPtr newConnection = new Connection();
+  ConnectionPtr newConnection;
   vector<Multicast<string, void*, int>*>* handlers;
 
+  connectionsPoolLock.lock ();
+  newConnection = connectionsPool.get ();
+  connectionsPoolLock.unlock ();
+
   if(!newConnection)
-  {
     return NULL;
-  }
+  else
+    newConnection->init ();
 
   newConnection->setPort(port);
   newConnection->setTimeout( getTicks() );
@@ -1370,7 +1382,9 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
   /* No vhost for the connection so bail.  */
   if(newConnection->host == 0)
   {
-    delete newConnection;
+    connectionsPoolLock.lock ();
+    connectionsPool.put (newConnection);
+    connectionsPoolLock.unlock ();
     return 0;
   }
 
@@ -1396,7 +1410,9 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
       for(size_t i = 0; i < handlers->size(); i++)
         if((*handlers)[i]->updateMulticast(this, msg, newConnection) == 1)
         {
-          delete newConnection;
+          connectionsPoolLock.lock ();
+          connectionsPool.put (newConnection);
+          connectionsPoolLock.unlock ();
           return 0;
         }
     }
@@ -1414,8 +1430,9 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
 
     if(ret < 0)
     {
-      /* Free the connection on errors. */
-      delete newConnection;
+      connectionsPoolLock.lock ();
+      connectionsPool.put (newConnection);
+      connectionsPoolLock.unlock ();
       delete sslSocket;
       return 0;
     }
@@ -1447,10 +1464,6 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
 
   connectionsScheduler.registerConnectionID(newConnection);
 
-
-  /*
-   *Signal the new connection to the waiting threads.
-   */
   return newConnection;
 }
 
@@ -1463,6 +1476,12 @@ int Server::deleteConnection(ConnectionPtr s)
 {
   notifyDeleteConnection(s);
   connectionsScheduler.removeConnection (s);
+
+  s->destroy ();
+
+  connectionsPoolLock.lock ();
+  connectionsPool.put (s);
+  connectionsPoolLock.unlock ();
 
   return 0;
 }
@@ -1641,38 +1660,38 @@ void Server::setProcessPermissions()
      *If the configuration specify a group id, change the current group for
      *the process.
      */
-    if(gid)
-     {
-       ostringstream out;
+  if(gid.length ())
+    {
+      ostringstream out;
 
-       if(Process::setAdditionalGroups(0, 0))
-       {
-         out << languageParser.getValue("ERR_ERROR")
-             << ": setAdditionalGroups";
-         logWriteln(out.str().c_str(), MYSERVER_LOG_MSG_ERROR);
-       }
+      if (Process::setAdditionalGroups (0, 0))
+        {
+          out << languageParser.getValue("ERR_ERROR")
+              << ": setAdditionalGroups";
+          logWriteln(out.str().c_str(), MYSERVER_LOG_MSG_ERROR);
+        }
 
-       if(Process::setgid(gid))
-       {
-         out << languageParser.getValue("ERR_ERROR") << ": setgid " << gid;
-         logWriteln(out.str().c_str(), MYSERVER_LOG_MSG_ERROR);
-       }
-       autoRebootEnabled = false;
-     }
+      if (Process::setgid (gid.c_str ()))
+        {
+          out << languageParser.getValue("ERR_ERROR") << ": setgid " << gid;
+          logWriteln(out.str().c_str(), MYSERVER_LOG_MSG_ERROR);
+        }
+      autoRebootEnabled = false;
+    }
 
     /*
      *If the configuration file provides a user identifier, change the
      *current user for the process. Disable the reboot when this feature
      *is used.
      */
-    if(uid)
+  if(uid.length ())
     {
       ostringstream out;
-      if(Process::setuid(uid))
-      {
-        out << languageParser.getValue("ERR_ERROR") << ": setuid " << uid;
-        logWriteln(out.str().c_str(), MYSERVER_LOG_MSG_ERROR);
-      }
+      if (Process::setuid (uid.c_str ()))
+        {
+          out << languageParser.getValue("ERR_ERROR") << ": setuid " << uid;
+          logWriteln(out.str().c_str(), MYSERVER_LOG_MSG_ERROR);
+        }
       autoRebootEnabled = false;
     }
 }

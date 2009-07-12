@@ -35,17 +35,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *Forward the HTTP requesto to another server.
  *
  *\param td The HTTP thread context.
- *\param s A pointer to the connection structure.
  *\param scriptpath Not used.
  *\param exec The remote server Url.
  *\param execute Not used.
  *\param onlyHeader Specify if send only the HTTP header.
  */
-int Proxy::send (HttpThreadContext *td, ConnectionPtr s,
+int Proxy::send (HttpThreadContext *td,
                  const char* scriptpath,
                  const char* exec,
-                 int execute,
-                 int onlyHeader)
+                 bool execute,
+                 bool onlyHeader)
 {
   Url destUrl (exec, 80);
   Socket sock;
@@ -83,20 +82,27 @@ int Proxy::send (HttpThreadContext *td, ConnectionPtr s,
 
   req.setValue ("Host", host.str ().c_str ());
 
+  string xForwardedFor;
+  td->request.getValue ("X-Forwarded-For", &xForwardedFor);
+  if (xForwardedFor.size ())
+    xForwardedFor.append (", ");
+  xForwardedFor.append (td->connection->getIpAddr ());
+  req.setValue ("X-Forwarded-For", xForwardedFor.c_str ());
+
 	u_long hdrLen = HttpHeaders::buildHTTPRequestHeader (td->secondaryBuffer->getBuffer (),
                                                        &req);
 
   if (sock.connect (destUrl.getHost ().c_str (), destUrl.getPort ()))
     return td->http->raiseHTTPError (500);
 
-  if (td->request.uriOptsPtr &&
-      td->inputData.fastCopyToSocket (&sock, 0, td->secondaryBuffer, &nbw))
+  if (sock.write (td->secondaryBuffer->getBuffer (), hdrLen, &nbw))
     {
       sock.close ();
       return td->http->raiseHTTPError (500);
     }
 
-  if (sock.write (td->secondaryBuffer->getBuffer (), hdrLen, &nbw))
+ if (td->request.uriOptsPtr &&
+      td->inputData.fastCopyToSocket (&sock, 0, td->secondaryBuffer, &nbw))
     {
       sock.close ();
       return td->http->raiseHTTPError (500);

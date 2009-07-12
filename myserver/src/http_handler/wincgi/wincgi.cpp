@@ -60,9 +60,8 @@ WinCgi::~WinCgi()
 /*!
  *Send the WinCGI data.
  */
-int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,
-                 const char* scriptpath, const char *cgipath,
-                 int /*execute*/, int onlyHeader)
+int WinCgi::send(HttpThreadContext* td, const char* scriptpath,
+                 const char *cgipath, bool /*execute*/, bool onlyHeader)
 {
 #ifdef WIN32
   FiltersChain chain;
@@ -123,7 +122,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,
    *The WinCGI protocol uses a .ini file to send data to the new process.
    */
   ret=DataFileHandle.openFile(dataFilePath,
-                     File::CREATE_ALWAYS|File::WRITE);
+                     File::FILE_CREATE_ALWAYS|File::WRITE);
   if ( ret ) 
   {
     td->connection->host->warningsLogWrite("WinCGI: Error creating .ini");
@@ -267,7 +266,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,
    */
   if(!FilesUtility::fileExists(outFilePath))
   {
-    ret = OutFileHandle.openFile(outFilePath, File::CREATE_ALWAYS);
+    ret = OutFileHandle.openFile(outFilePath, File::FILE_CREATE_ALWAYS);
     if (ret)
     {
       td->connection->host->warningsLogWrite(
@@ -298,7 +297,7 @@ int WinCgi::send(HttpThreadContext* td,ConnectionPtr s,
     return td->http->raiseHTTPError(500);
   }
 
-  ret=OutFileHandle.openFile(outFilePath, File::OPEN_ALWAYS|
+  ret=OutFileHandle.openFile(outFilePath, File::FILE_OPEN_ALWAYS|
                              File::READ);
   if (ret)
   {

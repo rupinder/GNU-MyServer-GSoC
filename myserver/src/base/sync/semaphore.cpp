@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -25,15 +25,17 @@ extern "C" {
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
-#ifndef WIN32
-#include <errno.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <signal.h>
-#ifdef HAVE_PTHREAD
-#include <pthread.h>
-#endif
-#include <sys/wait.h>
+#ifdef WIN32
+# include <limits.h>
+#else
+# include <errno.h>
+# include <netdb.h>
+# include <unistd.h>
+# include <signal.h>
+# ifdef HAVE_PTHREAD
+#  include <pthread.h>
+# endif
+# include <sys/wait.h>
 #endif
 }
 

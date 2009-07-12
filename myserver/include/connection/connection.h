@@ -54,6 +54,9 @@ typedef int (*continuationPROC)(ConnectionPtr a, char *b1, char *b2,
 class Connection
 {
 public:
+  void init ();
+  void destroy ();
+
 	int getPriority();
 	void setPriority(int);
 
@@ -113,8 +116,15 @@ public:
 	/*! Get the thread that is using the connection.  */
 	ClientsThread* getActiveThread(){return thread;}
 
-  Connection();
-  virtual ~Connection();
+  Connection()
+  {
+    init ();
+  }
+
+  virtual ~Connection()
+  {
+    destroy ();
+  }
 
   /*! Get the continuation function.  */
   continuationPROC getContinuation(){return continuation;}

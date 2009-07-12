@@ -49,18 +49,18 @@ public:
   static time_t getLastAccTime(string const &filename)
     {return getLastAccTime(filename.c_str());}
 
-  static int chown(const char* filename, int uid, int gid);
-  static int chown(string const &filename, int uid, int gid)
+  static int chown(const char* filename, string &uid, string &gid);
+  static int chown(string const &filename, string &uid, string &gid)
     {return chown(filename.c_str(), uid, gid);}
 
   static int completePath(char**, int *size, int dontRealloc=0);
   static int completePath(string &fileName);
 
   static int isDirectory(const char*);
-  static int isDirectory(string& dir){return isDirectory(dir.c_str());}
+  static int isDirectory(const string& dir){return isDirectory(dir.c_str());}
 
   static int isLink(const char*);
-  static int isLink(string& dir){return isLink(dir.c_str());}
+  static int isLink(const string& dir){return isLink(dir.c_str());}
 
   static int getShortFileName(char*,char*,int);
 

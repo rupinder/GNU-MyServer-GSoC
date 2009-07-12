@@ -17,74 +17,75 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef FIND_DATA_H
-#define FIND_DATA_H
+# define FIND_DATA_H
 
-#include "stdafx.h"
+# include "stdafx.h"
 
 extern "C" 
 {
-#ifdef WIN32
-#include <io.h>
-#endif
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <stdio.h>
-#ifndef WIN32
-#include <dirent.h>
-#endif
-#include <limits.h>
+# ifdef WIN32
+#  include <io.h>
+# endif
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <stdlib.h>
+# include <fcntl.h>
+# include <stdio.h>
+# ifndef WIN32
+#  include <dirent.h>
+# endif
+# include <limits.h>
 }
 
-#include <string>
+# include <string>
 
 using namespace std;
 
-#ifndef EACCES
-#define EACCES 1
-#endif
-#define MAX_NAME NAME_MAX
+# ifndef EACCES
+#  define EACCES 1
+# endif
 
-#ifndef FILE_ATTRIBUTE_DIRECTORY
-#define FILE_ATTRIBUTE_DIRECTORY 1
-#endif
+# define MAX_NAME NAME_MAX
 
-#ifndef intptr_t
-#define intptr_t int
-#endif
+# ifndef FILE_ATTRIBUTE_DIRECTORY
+#  define FILE_ATTRIBUTE_DIRECTORY 1
+# endif
+
+# ifndef intptr_t
+#  define intptr_t int
+# endif
 
 class FindData 
 { 
- public:
-   char * name;
-   int attrib;
-   time_t time_write;
-   off_t size;
-   int findfirst(const char filename[]);
-   int findfirst(string &filename){return findfirst(filename.c_str());};
-   int findnext();
-   int findclose();
-   FindData();
-   ~FindData();
-  struct stat* getStatStruct()
+public:
+  char * name;
+  int attrib;
+  time_t time_write;
+  off_t size;
+  int findfirst (const char *filename);
+  int findfirst (string &filename){return findfirst (filename.c_str ());};
+  int findnext ();
+  int findclose ();
+  FindData ();
+  ~FindData ();
+  struct stat* getStatStruct ()
   {
-#ifndef WIN32
+# ifndef WIN32
     return &stats;
-#else
+# else
     return NULL;
-#endif
+# endif
   }
 
- private:
-#ifdef WIN32
+private:
+# ifdef WIN32
 	_finddata_t fd;
-   intptr_t  ff;
-#else
-   string DirName;
-   DIR *dh;
-   struct stat stats;
-#endif
+  intptr_t  ff;
+# else
+  string dirName;
+  DIR *dh;
+  struct stat stats;
+# endif
 };
 
 #endif

@@ -20,6 +20,10 @@ extern "C"
 {
 #include <stdio.h>
 #include <string.h>
+
+#ifdef HAVE_OPENAT
+# include <fcntl.h>
+#endif
 }
 
 using namespace std;
@@ -32,7 +36,7 @@ FindData::FindData()
 #ifdef WIN32
   ff = 0;
 #else
-  DirName.empty();
+  dirName.empty();
   dh = 0;
 #endif
 }
@@ -49,15 +53,15 @@ FindData::~FindData()
  *find the first file using its name.
  *Return -1 or errors.
  */
-int FindData::findfirst(const char filename[])
+int FindData::findfirst(const char *filename)
 {
 #ifdef WIN32
   string filenameStar;
-  filenameStar.assign(filename);
+  filenameStar.assign (filename);
   // trim ending '/' or '\'
-  string::size_type slashBackSlash = filenameStar.find_last_not_of("/\\"); 
-  filenameStar.erase(slashBackSlash+1);
-  filenameStar.append("\\*");
+  string::size_type slashBackSlash = filenameStar.find_last_not_of ("/\\");
+  filenameStar.erase (slashBackSlash + 1);
+  filenameStar.append ("\\*");
 
   ff = _findfirst(filenameStar.c_str(), &fd );
   if(ff!=-1)
@@ -70,31 +74,43 @@ int FindData::findfirst(const char filename[])
   }
   else
       return ff;
+
 #else
    struct dirent * dirInfo;
-   string TempName;
 
+   dirName.assign (filename);
+   if (dirName[dirName.length() - 1] == '/')
+     dirName.erase (dirName.length() - 1);
 
-   DirName.assign(filename);
-   
-   if(DirName[DirName.length() - 1] == '/')
-     DirName.erase(DirName.length() - 1);
-     
-   dh = opendir(DirName.c_str());
-   if(dh == NULL)
+   dh = opendir (dirName.c_str ());
+
+   if (dh == NULL)
      return -1;
-   
-   dirInfo = readdir(dh);
 
-   TempName.assign(DirName);
-   TempName.append("/");
-   TempName.append(dirInfo->d_name);
-   
+   dirInfo = readdir (dh);
+
+   if (dirInfo == NULL)
+     return -1;
+
    name = dirInfo->d_name;
 
-   stat(TempName.c_str(), &stats);
-   if(S_ISDIR(stats.st_mode))
+# ifdef HAVE_FSTATAT
+   if (fstatat (dirfd (dh), dirInfo->d_name, &stats, 0))
+     return -1;
+# else
+   string tempName = filename;
+
+   tempName.assign (dirName);
+   tempName.append ("/");
+   tempName.append (dirInfo->d_name);
+
+   if (stat (tempName.c_str (), &stats))
+     return -1;
+# endif
+
+   if (S_ISDIR (stats.st_mode))
      attrib = FILE_ATTRIBUTE_DIRECTORY;
+
    time_write = stats.st_mtime;
    size = stats.st_size;
    return 0;
@@ -104,13 +120,13 @@ int FindData::findfirst(const char filename[])
 /*!
  *find the next file in the directory.
  */
-int FindData::findnext()
+int FindData::findnext ()
 {
 #ifdef WIN32
-  if(!ff)
+  if (!ff)
     return -1;
-  int ret = _findnext(ff, &fd)? -1 : 0 ;
-  if(ret!=-1)
+  int ret = _findnext (ff, &fd)? -1 : 0 ;
+  if (ret!=-1)
   {
     name = fd.name;
     attrib = fd.attrib;
@@ -120,20 +136,28 @@ int FindData::findnext()
   return ret;
 #else
    struct dirent * dirInfo;
-   string TempName;
+   string tempName;
       
-   dirInfo = readdir(dh);
+   dirInfo = readdir (dh);
    
-   if(dirInfo == NULL)
+   if (dirInfo == NULL)
      return -1;
-   TempName.assign(DirName);
-   TempName.append("/");
-   TempName.append(dirInfo->d_name);
-   
+
    name = dirInfo->d_name;
 
-   stat(TempName.c_str(), &stats);
-   if(S_ISDIR(stats.st_mode))
+# ifdef HAVE_FSTATAT
+   if (fstatat (dirfd (dh), dirInfo->d_name, &stats, 0))
+     return -1;
+# else
+   tempName.assign (dirName);
+   tempName.append ("/");
+   tempName.append (dirInfo->d_name);
+
+   if (stat (tempName.c_str (), &stats))
+     return -1;
+# endif
+
+   if (S_ISDIR (stats.st_mode))
      attrib = FILE_ATTRIBUTE_DIRECTORY;
    else
      attrib = 0;
@@ -158,7 +182,7 @@ int FindData::findclose()
 #else
   if(dh)
     closedir(dh);
-   DirName.empty();
+   dirName.empty();
    return 0;
 #endif
 }

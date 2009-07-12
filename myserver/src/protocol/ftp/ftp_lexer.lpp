@@ -12,6 +12,7 @@
 %option case-insensitive
 %option bison-locations
 
+%s SHORT_STRING
 %s STRING
 %s IPV4_ADDR
 
@@ -56,13 +57,14 @@
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
 		yylloc->last_column += 4;
+    BEGIN(SHORT_STRING);
 		return MODE_FTP_COMMAND;
 	}
 <INITIAL>TYPE	{
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
 		yylloc->last_column += 4;
-		BEGIN(STRING);
+		BEGIN(SHORT_STRING);
 		return TYPE_FTP_COMMAND;
 	}
 <INITIAL>STRU	{
@@ -291,7 +293,8 @@
 		yylloc->last_column += yyleng;
 		return SPACE_FTP_SEP;
 	}
-<STRING>[[:alnum:][:punct:]][[:alnum:][:punct:] ]*	{
+
+<SHORT_STRING>[[:alnum:][:punct:]][[:alnum:][:punct:] ]*	{
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
 		yylloc->last_column += yyleng;
@@ -301,13 +304,26 @@
 		else
 		{
 			memset(yylval->m_szStr, 0, PARSER_STR_LEN);
-       			strncpy(yylval->m_szStr, yytext, yyleng);
+             strncpy(yylval->m_szStr, yytext, yyleng);
 			yylloc->first_line = yylloc->last_line;
 			yylloc->first_column = yylloc->last_column;
 			yylloc->last_column += yyleng;
 			return STRING_FTP_ARG;
 		}
 	}
+
+<STRING>[[:alnum:][:punct:]][[:alnum:][:punct:] ]*	{
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += yyleng;
+		memset(yylval->m_szStr, 0, PARSER_STR_LEN);
+           strncpy(yylval->m_szStr, yytext, yyleng);
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += yyleng;
+		return STRING_FTP_ARG;
+	}
+
 <INITIAL,STRING>[[:alnum:][:punct:]]+	{
 		yylloc->first_line = yylloc->last_line;
 		yylloc->first_column = yylloc->last_column;
@@ -315,16 +331,11 @@
 
     BEGIN(STRING);
 
-		if ( yyleng == 1 )//one char
-			return tolower(*yytext);
-		else
-		{
-			memset(yylval->m_szStr, 0, PARSER_STR_LEN);
-       			strncpy(yylval->m_szStr, yytext, yyleng);
-			yylloc->first_line = yylloc->last_line;
-			yylloc->first_column = yylloc->last_column;
-			yylloc->last_column += yyleng;
-			return STRING_FTP_ARG;
-		}
+		memset(yylval->m_szStr, 0, PARSER_STR_LEN);
+      strncpy(yylval->m_szStr, yytext, yyleng);
+		yylloc->first_line = yylloc->last_line;
+		yylloc->first_column = yylloc->last_column;
+		yylloc->last_column += yyleng;
+		return STRING_FTP_ARG;
 	}
 %%

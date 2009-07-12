@@ -50,11 +50,13 @@ public:
   void testGetTicks()
   {
 
-    u_long ticks = getTicks();
+    u_long ticks = getTicks ();
 
-    Thread::wait(1500);
+    Thread::wait(25000);
 
-    CPPUNIT_ASSERT(getTicks() > ticks);
+    u_long ticks2 = getTicks ();
+
+    CPPUNIT_ASSERT(ticks2 > ticks);
   }
 
   void testGetOsVersion()

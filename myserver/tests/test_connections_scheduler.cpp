@@ -1,6 +1,6 @@
 /*
  MyServer
- Copyright (C) 2008 Free Software Foundation, Inc.
+ Copyright (C) 2008, 2009 Free Software Foundation, Inc.
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
@@ -64,9 +64,9 @@ public:
     return 0;
   }
 
-	virtual FileHandle getHandle()
+	virtual Handle getHandle()
   {
-    return (FileHandle) handle;
+    return (Handle) handle;
   }
 
 };
@@ -103,7 +103,6 @@ class TestConnectionsScheduler : public CppUnit::TestFixture
   CPPUNIT_TEST( testAddNewReadyConnection );
   CPPUNIT_TEST( testGetConnections );
   CPPUNIT_TEST( testVisitor );
- 
   CPPUNIT_TEST_SUITE_END();
 
   ConnectionsScheduler* scheduler;
@@ -111,6 +110,7 @@ public:
 
   void setUp()
   {
+    CPPUNIT_ASSERT_EQUAL( Socket::startupSocketLib ( ), 0 );
     scheduler = new ConnectionsScheduler ();
     scheduler->initialize();
   }

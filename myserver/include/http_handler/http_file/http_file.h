@@ -29,9 +29,9 @@ class HttpFile  : public HttpDataHandler
 public:
   virtual int load ();
   virtual int unLoad ();
-  virtual int send (HttpThreadContext*, ConnectionPtr s, 
+  virtual int send (HttpThreadContext* td,
                    const char *filenamePath, const char* cgi,
-                   int execute = 0, int OnlyHeader = 0); 
+                   bool execute = false, bool OnlyHeader = false);
   HttpFile();
   virtual ~HttpFile();
 

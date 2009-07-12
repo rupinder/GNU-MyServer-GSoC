@@ -222,7 +222,7 @@ ProcessServerManager::Server*
 ProcessServerManager::getServer(const char* domain, const char* name, int seed)
 {
   ServerDomain* sd;
-  Server* s;
+  Server* s = NULL;
 
   mutex.lock();
   sd = domains.get(domain);
@@ -230,10 +230,9 @@ ProcessServerManager::getServer(const char* domain, const char* name, int seed)
   if(sd)
     {
       vector<Server*> *slist = sd->servers.get (name);
-      s = slist->at (seed % slist->size ());
+      if (slist)
+        s = slist->at (seed % slist->size ());
     }
-  else
-    s = 0;
   
   if(s && s->isLocal && !s->process.isProcessAlive())
   {
@@ -473,7 +472,7 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
 
   server->socket.socket (AF_INET, SOCK_STREAM, 0);
 
-  if(server->socket.getHandle () == (FileHandle)INVALID_SOCKET)
+  if(server->socket.getHandle () == (Handle)INVALID_SOCKET)
     return 1;
 
   ((sockaddr_in *)(&serverSockAddrIn))->sin_family = AF_INET;
