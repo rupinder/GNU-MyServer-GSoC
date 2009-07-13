@@ -889,8 +889,8 @@ int ControlProtocol::getFile(ConnectionPtr a, char* fn, File* in,
 /*!
  *Save the file on the local FS.
  */
-int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in, 
-                             File* out, char *b1,int bs1, ControlHeader& header)
+int ControlProtocol::putFile (ConnectionPtr a, char* fn, File* in,
+                              File* out, char *b1,int bs1, ControlHeader& header)
 {
   const char *filename = 0;
   File localfile;
@@ -901,22 +901,15 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
   /*! # of bytes written.  */
   u_long nbw = 0;
   Server::getInstance()->disableAutoReboot();
+
   if(!strcmpi(fn, "myserver.xml"))
-  {
     filename = Server::getInstance()->getMainConfFile();
-  }
   else if(!strcmpi(fn, "MIMEtypes.xml"))
-  {
     filename = Server::getInstance()->getMIMEConfFile();
-  }
   else if(!strcmpi(fn, "virtualhosts.xml"))
-  {
     filename = Server::getInstance()->getVhostConfFile();
-  }
   else
-  {
     filename = fn;    
-  }  
 
   /* Remove the file before create it.  */
   ret = FilesUtility::deleteFile(filename);
@@ -926,10 +919,6 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
   {
     strcpy(b1,"Control: Error deleting the file");
     addToErrorLog(a, b1, strlen(b1), header);
-
-    if(isAutoRebootToEnable)
-      Server::getInstance()->enableAutoReboot();
-
     return CONTROL_INTERNAL;
   }
 
@@ -942,11 +931,18 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
     msg.assign("Control: Error while opening the file ");
     msg.append(filename);
     addToErrorLog(a, msg, header);
-
-    if(isAutoRebootToEnable)
-      Server::getInstance()->enableAutoReboot();
     return CONTROL_INTERNAL;
   }
+
+  if (in == NULL)
+  {
+    string msg;
+    msg.assign ("Control: invalid input file ");
+    msg.append (filename);
+    addToErrorLog (a, msg, header);
+    return CONTROL_INTERNAL;
+  }
+
   for(;;)
   {
     ret = in->read(b1, bs1, &nbr);
@@ -956,9 +952,6 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
       msg.assign("Control: Error while reading to file ");
       msg.append(filename);
       addToErrorLog(a, msg, header);
-
-      if(isAutoRebootToEnable)
-        Server::getInstance()->enableAutoReboot();
       return CONTROL_INTERNAL;
     }
 
@@ -974,16 +967,10 @@ int ControlProtocol::putFile(ConnectionPtr a, char* fn, File* in,
       msg.assign("Control: Error while writing to file ");
       msg.append(filename);
       addToErrorLog(a, msg, header);
-
-      if(isAutoRebootToEnable)
-        Server::getInstance()->enableAutoReboot();
       return CONTROL_INTERNAL;
     }
   }
   localfile.close();
-  
-  if(isAutoRebootToEnable)
-    Server::getInstance()->enableAutoReboot();
 
   return 0;
 }
