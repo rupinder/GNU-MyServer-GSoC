@@ -111,9 +111,13 @@ class BasicController():
             self.__check_return_code()
             return self.connection.read()
 
-    def put_file(self, local_path, remote_path):
+    def put_file(self, text, path):
         '''Put file to server.'''
-        pass # not implemented
+        if self.connection:
+            self.connection.send_header('PUTFILE', len(text), path)
+            self.connection.send(text)
+            self.connection.read_header()
+            self.__check_return_code()
 
 class Controller(BasicController):
     def get_MIME_type_configuration(self):
