@@ -24,7 +24,7 @@ using namespace std;
 /*!
  *Read [len] characters from the stream. Returns -1 on errors.
  */
-int Stream::read(char* buffer,u_long len, u_long *nbr)
+int Stream::read (char* buffer,u_long len, u_long *nbr)
 {
   *nbr = 0;
   return 0;
@@ -34,7 +34,7 @@ int Stream::read(char* buffer,u_long len, u_long *nbr)
  *Close the stream.
  *\return -1 on errors.
  */
-int Stream::close()
+int Stream::close ()
 {
   return 0;
 }
@@ -42,7 +42,7 @@ int Stream::close()
 /*!
  *Write [len] characters to the stream. Returns -1 on errors.
  */
-int Stream::write(const char* buffer, u_long len, u_long *nbw)
+int Stream::write (const char* buffer, u_long len, u_long *nbw)
 {
   *nbw = 0;
   return 0;
@@ -51,18 +51,18 @@ int Stream::write(const char* buffer, u_long len, u_long *nbw)
 /*! 
  *Write remaining data to the stream. 
  */
-int Stream::flush(u_long* nbw)
+int Stream::flush (u_long* nbw)
 {
   *nbw = 0;
   return 0;
 }
 
-Stream::Stream()
+Stream::Stream ()
 {
 
 }
 
-Stream::~Stream()
+Stream::~Stream ()
 {
 
 }
@@ -70,7 +70,7 @@ Stream::~Stream()
 /*! 
  *Get the file handle.
  */
-Handle Stream::getHandle()
+Handle Stream::getHandle ()
 {
-  return 0;
+  return (Handle)-1;
 }
