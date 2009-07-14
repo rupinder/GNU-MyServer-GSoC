@@ -72,8 +72,7 @@ Http::getStaticData ()
   return &staticHttp;
 }
 
-HttpStaticData::HttpStaticData () {
- }
+HttpStaticData::HttpStaticData () { }
 
 HttpStaticData::~HttpStaticData () { }
 
@@ -638,8 +637,7 @@ HttpUserData::HttpUserData ()
 /*!
  *Destroy the buffer.
  */
-HttpUserData::~HttpUserData () {
- }
+HttpUserData::~HttpUserData () { }
 
 /*!
  *Reset the structure.
@@ -708,14 +706,10 @@ Http::sendHTTPResource (string& uri, int systemrequest, int onlyHeader,
         }
 
 
+
       if (td->mime && (manager = staticHttp.dynManagerList.getHttpManager (td->mime->cmdName)))
-        {
-          return manager->send (td,
-                                td->filenamePath.c_str (),
-                                cgiManager,
-                                td->mime->selfExecuted,
-                                onlyHeader);
-        }
+        return manager->send (td, td->filenamePath.c_str (), cgiManager,
+                              td->mime->selfExecuted, onlyHeader);
 
 
       if (!(td->permissions & MYSERVER_PERMISSION_READ))

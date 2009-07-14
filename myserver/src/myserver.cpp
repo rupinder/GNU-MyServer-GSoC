@@ -567,7 +567,10 @@ int main (int argn, char **argv)
 
 #ifdef ARGP
   if (input.useForkServer)
-    Process::getForkServer ()->startForkServer ();
+    {
+      FilesUtility::resetTmpPath ();
+      Process::getForkServer ()->startForkServer ();
+    }
 #endif
 
   /*

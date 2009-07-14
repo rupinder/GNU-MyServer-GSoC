@@ -220,15 +220,18 @@ int FilesUtility::copyFile (File& src, File& dest)
  *Return a non-null value on errors.
  *\param filename The file to delete.
  */
-int FilesUtility::deleteFile(const char *filename)
+int FilesUtility::deleteFile (const char *filename)
 {
   int ret;
 #ifdef WIN32
-  ret = DeleteFile(filename);
-  if(ret)
+  ret = DeleteFile (filename);
+  if (ret)
     return 0;
 #else
-  ret = remove(filename);
+  ret = remove (filename);
+
+  if (ret && errno == ENOENT)
+    ret = 0;
 #endif
   return ret;
 }

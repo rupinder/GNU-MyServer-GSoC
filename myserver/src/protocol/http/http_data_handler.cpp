@@ -26,7 +26,8 @@ HttpDataHandler::send (HttpThreadContext*/* td*/,
                        const char* /*filenamePath*/, const char* /*exec*/,
                        bool /*execute*/, bool /*onlyHeader*/)
 {
-  return 0;
+  td->connection->host->warningsLogWrite ("HttpDataHandler: using the base interface!");
+  return td->http->raiseHTTPError (500);
 }
 
 /*!
