@@ -531,8 +531,8 @@ void Server::loadPlugins()
 
 
   
-  getPluginsManager()->preLoad(this, &languageParser, *externalPath);
-  getPluginsManager()->load(this, &languageParser, *externalPath);
+  getPluginsManager()->preLoad(this, *externalPath);
+  getPluginsManager()->load(this);
   getPluginsManager()->postLoad(this, &languageParser);
 }
 
@@ -940,7 +940,7 @@ int Server::terminate()
 
   filtersFactory.free();
 
-  getPluginsManager()->unLoad(this, &languageParser);
+  getPluginsManager()->unLoad();
 
   delete connectionsMutex;
 

@@ -14,7 +14,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #ifndef PLUGINS_MANAGER_H
 #define PLUGINS_MANAGER_H
@@ -33,34 +33,43 @@ class XmlParser;
 class PluginsManager
 {
 public:
-	HashMap<string, PluginInfo*>::Iterator begin(){return pluginsInfos.begin();}
-	HashMap<string, PluginInfo*>::Iterator end(){return pluginsInfos.end();}
-	
-	Plugin* getPlugin(string& name);
-	
-	int preLoad(Server *server, XmlParser* languageFile, string& resource);
-	int load(Server *server, XmlParser* languageFile, string& resource);
-	int postLoad(Server *server, XmlParser* languageFile);
-	int unLoad(Server *server, XmlParser* languageFile);
 
-	virtual void removePlugin(string& name);
+  HashMap<string, PluginInfo*>::Iterator
+  begin ()
+  {
+    return pluginsInfos.begin ();
+  }
 
-	virtual int addPluginInfo(string&, PluginInfo*);
-	virtual PluginInfo* getPluginInfo(string&);
-	
-	virtual Plugin* createPluginObject();
-	
-	PluginsManager();
-	~PluginsManager();
-	
+  HashMap<string, PluginInfo*>::Iterator
+  end ()
+  {
+    return pluginsInfos.end ();
+  }
+
+  Plugin* getPlugin (string& name);
+
+  int preLoad (Server *server, string& resource);
+  int load (Server *server);
+  int postLoad (Server *server, XmlParser* languageFile);
+  int unLoad ();
+
+  virtual void removePlugin (string& name);
+
+  virtual int addPluginInfo (string&, PluginInfo*);
+  virtual PluginInfo* getPluginInfo (string&);
+
+  virtual Plugin* createPluginObject ();
+
+  PluginsManager ();
+  ~PluginsManager ();
+
 private:
-	HashMap<string, PluginInfo*> pluginsInfos;
-	int loadOptions(Server *server, XmlParser* languageFile);
-	void recursiveDependencesFallDown(Server* server, string name, HashMap<string,bool> remove,  HashMap<string,list<string>*> dependsOn);
-	Plugin* preLoadPlugin(string& file, Server* server, 
-                XmlParser* languageFile, bool global);
-                
-    PluginInfo* loadInfo(Server* server, string& name, string& path);
+  HashMap<string, PluginInfo*> pluginsInfos;
+  int loadOptions (Server *server);
+  void recursiveDependencesFallDown (Server* server, string name, HashMap<string, bool> remove, HashMap<string, list<string>*> dependsOn);
+  Plugin* preLoadPlugin (string& file, Server* server, bool global);
+
+  PluginInfo* loadInfo (Server* server, string& name, string& path);
 };
 
 #endif
