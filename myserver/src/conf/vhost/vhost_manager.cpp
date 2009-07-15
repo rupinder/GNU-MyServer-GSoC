@@ -455,9 +455,8 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
                     lastChar++;
 
                   if (*lastChar == '\\' || *lastChar == '/')
-                    {
-                      *lastChar = '\0';
-                    }
+                    *lastChar = '\0';
+
                   vh->setDocumentRoot ((const char*)lcur->children->content);
                 }
               else
@@ -468,13 +467,13 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
               if (lcur->children && lcur->children->content)
                 {
                   char* lastChar = (char*)lcur->children->content;
+
                   while(*(lastChar+1) != '\0')
                     lastChar++;
 
                   if(*lastChar == '\\' || *lastChar == '/')
-                    {
-                      *lastChar = '\0';
-                    }
+                    *lastChar = '\0';
+
                   vh->setSystemRoot ((const char*)lcur->children->content);
                 }
               else
@@ -488,14 +487,14 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
             {
               loadXMLlogData ("WARNINGLOG", vh, lcur);
             }
-          else if(!xmlStrcmp(lcur->name, (const xmlChar *)"MIME_FILE"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"MIME_FILE"))
             {
-              if(lcur->children)
-                vh->getMIME()->loadXML((char*)lcur->children->content);
+              if (lcur->children)
+                vh->getMIME()->loadXML ((char*)lcur->children->content);
             }
-          else if(!xmlStrcmp(lcur->name, (const xmlChar *)"THROTTLING_RATE"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"THROTTLING_RATE"))
             {
-              vh->setThrottlingRate ((u_long)atoi((char*)lcur->children->content));
+              vh->setThrottlingRate ((u_long)atoi ((char*)lcur->children->content));
             }
 
           lcur = lcur->next;
@@ -510,27 +509,31 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
           continue;
         }
 
-      if (vh->initializeSSL() < 0)
+      if (vh->initializeSSL () < 0)
         {
-          errMsg.assign ("Error: initializing vhost ");
+          errMsg.assign ("Error: initializing vhost \"");
           errMsg.append (vh->getName ());
-          errMsg.assign (" : cannot initialize SSL. ");
-          Server::getInstance()->logWriteln(errMsg.c_str(), MYSERVER_LOG_MSG_ERROR);
+          errMsg.append ("\"");
+          Server::getInstance ()->logWriteln (errMsg.c_str (),
+                                              MYSERVER_LOG_MSG_ERROR);
           delete vh;
           vh = 0;
           continue;
         }
 
-      if(addVHost(vh))
+      if (addVHost (vh))
         {
-          errMsg.assign("Error: adding vhost");
-          Server::getInstance()->logWriteln(errMsg.c_str(), MYSERVER_LOG_MSG_ERROR);
+          errMsg.assign ("Error: adding vhost \"");
+          errMsg.append (vh->getName ());
+          errMsg.append ("\"");
+          Server::getInstance ()->logWriteln (errMsg.c_str (),
+                                              MYSERVER_LOG_MSG_ERROR);
           delete vh;
           vh = 0;
           continue;
         }
     }
-  parser.close();
+  parser.close ();
 
   changeLocationsOwner ();
 
