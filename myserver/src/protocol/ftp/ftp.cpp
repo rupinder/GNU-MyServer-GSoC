@@ -495,39 +495,20 @@ int Ftp::PrintError(const char *msg)
 
 void Ftp::User(const std::string &sParam)
 {
-  WaitDataConnection();
-
   FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 
-  switch ( pFtpUserData->m_nFtpState )
+  if (!m_bAllowAnonymous && strcmpi (pFtpUserData->m_sUserName.c_str (), "anonymous") == 0)
   {
-    case FtpUserData::CONTROL_CONNECTION_UP:
-    case FtpUserData::USER_LOGGED_IN:
-      pFtpUserData->m_sUserName = sParam;
-      if ( strcmpi(sParam.c_str(), "anonymous") == 0 && !m_bAnonymousNeedPass )
-      {
-        pFtpUserData->m_nFtpState = FtpUserData::USER_LOGGED_IN;
-        ftp_reply(230);
-      }
-      else
-      {
-        pFtpUserData->m_nFtpState = FtpUserData::CONTROL_CONNECTION_UP;
-        ftp_reply(331);
-      }
-      break;
-    case FtpUserData::UNAVAILABLE:
-      ftp_reply(421);
-    default://error
-      {
-        ftp_reply(530);
-      }
+    ftp_reply (530);
+    return;
   }
+
+  pFtpUserData->m_sUserName = sParam;
+  ftp_reply(331);
 }
 
 void Ftp::Password(const std::string &sParam)
 {
-  WaitDataConnection();
-
   FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 
   if ( !m_bAllowAnonymous && strcmpi(pFtpUserData->m_sUserName.c_str(), "anonymous") == 0 )
@@ -536,26 +517,9 @@ void Ftp::Password(const std::string &sParam)
     return;
   }
 
-  switch ( pFtpUserData->m_nFtpState )
-  {
-    case FtpUserData::CONTROL_CONNECTION_UP:
-      if ( CheckRights( pFtpUserData->m_sUserName, sParam, pFtpUserData->m_cwd, 
-        MYSERVER_PERMISSION_BROWSE) != 0 )
-      {
-        pFtpUserData->m_sPass = sParam;
-        pFtpUserData->m_nFtpState = FtpUserData::USER_LOGGED_IN;
-        ftp_reply(230);
-      }
-      else
-        ftp_reply(530);
-      break;
-    case FtpUserData::USER_LOGGED_IN:
-      //if ( m_bAnonymousNeedPass )
-        ftp_reply(503);
-      //else
-      //  ftp_reply(230);
-      break;
-  }
+  pFtpUserData->m_sPass = sParam;
+  pFtpUserData->m_nFtpState = FtpUserData::USER_LOGGED_IN;
+  ftp_reply(230);
 }
 
 void Ftp::Port(const FtpHost &host)
@@ -669,16 +633,16 @@ void Ftp::RetrStor(bool bRetr, bool bAppend, const std::string &sPath)
 
   FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 
-  if ( CheckRights(pFtpUserData->m_sUserName, pFtpUserData->m_sPass, sLocalPath, nMask) == 0 )
+  if (CheckRights (pFtpUserData->m_sUserName, pFtpUserData->m_sPass, sLocalPath, nMask) == 0)
   {
-    ftp_reply(550);
+    ftp_reply(530);
     //CloseDataConnection();
     return;
   }
 
-  if (FilesUtility::isDirectory(sLocalPath.c_str ()))
+  if (FilesUtility::isDirectory (sLocalPath.c_str ()))
     {
-      ftp_reply(550);
+      ftp_reply (550);
       return;
     }
 
@@ -1706,11 +1670,19 @@ void Ftp::List(const std::string &sParam/*= ""*/)
   const char *username = pFtpUserData->m_sUserName.c_str();
   const char *password = pFtpUserData->m_sPass.c_str();
 
+  if (CheckRights (username, password, sLocalPath,
+		   MYSERVER_PERMISSION_BROWSE) == 0)
+    {
+      ftp_reply (530);
+      return;
+    }
+
   time_t now;
   time(&now);
 
   MemBuf &secondaryBuffer = *td.secondaryBuffer;
   secondaryBuffer.setLength(0);
+
   char perm[11];
   if ( FilesUtility::isDirectory(sPath) )
   {
@@ -1735,7 +1707,7 @@ void Ftp::List(const std::string &sParam/*= ""*/)
       perm[0] = fd.attrib == FILE_ATTRIBUTE_DIRECTORY ? 'd' : '-';
       string completeFileName(sPath);
       completeFileName.append(fd.name);
-      int guestMask = CheckRights("guest", "", completeFileName, -1);
+      int guestMask = CheckRights("Guest", "", completeFileName, -1);
       int pMask = CheckRights(username, password, completeFileName, -1);
 
       //Owner and group permissions are the same.
