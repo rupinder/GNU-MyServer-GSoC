@@ -32,215 +32,220 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <include/conf/security/security_token.h>
 class Ftp;
 
-class FtpUserData : public ProtocolBuffer
+class FtpuserData:public ProtocolBuffer
 {
 public:
-	FtpUserData();
-	~FtpUserData();
-	void reset();
-	int CloseDataConnection();
-  virtual bool allowDelete(bool);
+  FtpuserData ();
+  ~FtpuserData ();
+  void reset ();
+  int closeDataConnection ();
+  virtual bool allowdelete (bool);
 
-	enum FtpState
-	{
-		NO_CONTROL_CONNECTION,
-		BUISY,
-		UNAVAILABLE,
-		CONTROL_CONNECTION_UP,
-		USER_LOGGED_IN,
-		DATA_CONNECTION_UP
-	} m_nFtpState;
+  enum Ftpstate
+  {
+    NO_CONTROL_CONNECTION,
+    BUISY,
+    UNAVAILABLE,
+    CONTROL_CONNECTION_UP,
+    USER_LOGGED_IN,
+    DATA_CONNECTION_UP
+  } m_nFtpstate;
 
-	std::string m_sUserName, m_sPass;
-	enum FtpRepresentation
-	{
-		REPR_ASCII,
-		REPR_IMAGE
-	} m_nFtpRepresentation;
-	enum FtpFormatControl
-	{
-		NON_PRINT
-	} m_nFtpFormatControl;
-	enum FtpFileStructure
-	{
-		STRU_FILE
-	} m_nFtpFileStructure;
-	enum FtpTransferMode
-	{
-		MODE_STREAM
-	} m_nTransferMode;
-	ConnectionPtr m_pDataConnection;
-	Mutex m_DataConnBusy;
-	FtpHost m_cdh;
-	std::string m_cwd;
-	int m_nLocalDataPort;
-	bool m_bBreakDataConnection;
-	ThreadID m_dataThreadId;
-	bool m_bPassiveSrv;
-	u_long m_nRestartOffset;
-	std::string m_sRenameFrom;
+    std::string m_suserName, m_sPass;
+  enum FtpRepresentation
+  {
+    REPR_ASCII,
+    REPR_IMAGE
+  } m_nFtpRepresentation;
+  enum FtpFormatControl
+  {
+    NON_PRINT
+  } m_nFtpFormatControl;
+  enum FtpFilestructure
+  {
+    STRU_FILE
+  } m_nFtpFilestructure;
+  enum FtpTransfermode
+  {
+    MODE_STREAM
+  } m_nTransfermode;
+  ConnectionPtr m_pDataConnection;
+  Mutex m_DataConnBusy;
+  FtpHost m_cdh;
+    std::string m_cwd;
+  int m_nLocalDataport;
+  bool m_bBreakDataConnection;
+  ThreadID m_dataThreadId;
+  bool m_bPassiveSrv;
+  u_long m_nrestartOffset;
+    std::string m_sRenameFrom;
 
-	// STAT data
-	std::string m_sCurrentFileName;
-	u_long m_nFileSize, m_nBytesSent;
+  // STAT data
+    std::string m_sCurrentFileName;
+  u_long m_nFileSize, m_nBytesSent;
 };
 
 struct FtpThreadContext
 {
-	FtpThreadContext();
-	ConnectionPtr pConnection;
-	MemBuf *buffer;
-	MemBuf *secondaryBuffer;
-	u_long buffersize;
-	u_long secondaryBufferSize;
-	u_long m_nParseLength;
-	u_long nBytesToRead;
-	Ftp *pProtocolInterpreter;
+  FtpThreadContext ();
+  ConnectionPtr pConnection;
+  MemBuf *buffer;
+  MemBuf *secondaryBuffer;
+  u_long buffersize;
+  u_long secondaryBufferSize;
+  u_long m_nParseLength;
+  u_long nBytesToRead;
+  Ftp *pProtocolInterpreter;
   SecurityToken st;
 };
 
-class Ftp : public Protocol
+class Ftp:public Protocol
 {
 public:
-	Ftp();
-	virtual ~Ftp();
-	virtual int controlConnection(ConnectionPtr pConnection, char *b1, char *b2,
-			int bs1, int bs2, u_long nbtr, u_long id);
-	static int loadProtocolStatic(XmlParser*);
-	static int unLoadProtocolStatic(XmlParser*);
-// Ftp helpers
-	int ParseControlConnection();
-	yyscan_t GetScanner() { return m_scanner; }
-	u_long ComputeParseLength(const YYLTYPE &location);
+  Ftp ();
+  virtual ~ Ftp ();
+  virtual int controlConnection (ConnectionPtr pConnection, char *b1,
+				 char *b2, int bs1, int bs2, u_long nbtr,
+				 u_long id);
+  static int loadProtocolstatic (XmlParser *);
+  static int unLoadProtocolstatic (XmlParser *);
 
-  void logAccess (int nReplyCode, const std::string &sCustomText);
-	void ftp_reply(int nReplyCode, const std::string &sCustomText = "");
-	//int get_ftp_reply(int nReplyCode, std::string &sReply);
-	int PrintError(const char *msg);//TODO: change this fnc !!!
-	FtpThreadContext td;
-	int CloseDataConnection();
+  int parseControlConnection ();
+  yyscan_t getScanner ()
+  {
+    return m_scanner;
+  }
+  u_long computeParseLength (const YYLTYPE & location);
 
-	static int FIRST_PASV_PORT;
-	static int LAST_PASV_PORT;
+  void logAccess (int nReplyCode, const std::string & sCustomText);
+  void ftpReply (int nReplyCode, const std::string & sCustomText = "");
 
-	int CheckRights(const std::string &sUser, const std::string &sPass,  const std::string &sPath, int mask);
-	void WaitDataConnection();
-	
-	int OpenDataConnection();
-	int OpenDataPassive();
-	int OpenDataActive();
+  int printError (const char *msg);
+  FtpThreadContext td;
+  int closeDataConnection ();
 
-  virtual char* registerName(char* out, int len);
-  static char* registerNameImpl(char* out, int len);
+  static int FIRST_PASV_PORT;
+  static int LAST_PASV_PORT;
+
+  int checkRights (const std::string & suser, const std::string & sPass,
+		   const std::string & sPath, int mask);
+  void waitDataConnection ();
+
+  int OpenDataConnection ();
+  int openDataPassive ();
+  int openDataActive ();
+
+  virtual char *registerName (char *out, int len);
+  static char *registerNameImpl (char *out, int len);
+
+  void escapeTelnet (MemBuf & In, MemBuf & Out);
+  void user (const std::string & sParam);
+  void password (const std::string & sParam);
+  void port (const FtpHost & host);
+  void pasv ();
+  int type (int ntypeCode, int nFormatControlCode = -1);
+  void retr (const std::string & sPath);
+  void quit ();
+  void help (const std::string & sCmd = "");
+  void noop ();
+  void stru (int nstructure);
+  void mode (int nmode);
+  void list (const std::string & sParam = "");
+  void nlst (const std::string & sParam = "");
+  void abor ();
+  void cwd (const std::string & sPath);
+  void pwd ();
+  void rest (const std::string & srestPoint);
+  void syst ();
+  void stat (const std::string & sParam = "");
+  void allo (int nSize, int nRecordSize = -1);
+
+  void stor (const std::string & sPath);
+  void stou (const std::string & sPath);
+  void dele (const std::string & sPath);
+  void appe (const std::string & sPath);
+  void mkd (const std::string & sPath);
+  void rmd (const std::string & sPath);
+  void rnfr (const std::string & sPath);
+  void Rnto (const std::string & sPath);
+
+  /* RFC 3659 commands */
+  void size (const std::string & sPath);
+
 
 protected:
-	yyscan_t	m_scanner;
-	bool UserLoggedIn();
-	bool BuildLocalPath(const std::string &sPath, std::string &sOutPath);
-	bool GetLocalPath(const std::string &sPath, std::string &sOutPath);
-	void RetrStor(bool bRetr, bool bAppend, const std::string &sPath);
-	void RemovePipelinedCmds(MemBuf &In, MemBuf &Out);
+  yyscan_t m_scanner;
+  bool userLoggedIn ();
+  bool buildLocalPath (const std::string & sPath, std::string & sOutPath);
+  bool getLocalPath (const std::string & sPath, std::string & sOutPath);
+  void retrstor (bool bretr, bool bappend, const std::string & sPath);
+  void removePipelinedCmds (MemBuf & In, MemBuf & Out);
 
-public:
-	void EscapeTelnet(MemBuf &In, MemBuf &Out);
+  static bool m_ballowAnonymous, m_bAnonymousNeedPass,
+    m_ballowAsynchronousCmds, m_bEnablePipelining, m_bEnablestoreCmds;
 
-// Ftp commands Handlers
-public:
-	void User(const std::string &sParam);
-	void Password(const std::string &sParam);
-	void Port(const FtpHost &host);
-	void Pasv();
-	int Type(int nTypeCode, int nFormatControlCode = -1);
-	void Retr(const std::string &sPath);
-	void Quit();
-	void Help(const std::string &sCmd = "");
-	void Noop();
-	void Stru(int nStructure);
-	void Mode(int nMode);
-	void List(const std::string &sParam = "");
-	void Nlst(const std::string &sParam = "");
-	void Abor();
-	void Cwd(const std::string &sPath);
-	void Pwd();
-	void Rest(const std::string &sRestPoint);
-	void Syst();
-	void Stat(const std::string &sParam = "");
-	void Allo(int nSize, int nRecordSize = -1);
-
-	void Stor(const std::string &sPath);
-	void Stou(const std::string &sPath);
-	void Dele(const std::string &sPath);
-	void Appe(const std::string &sPath);
-	void Mkd(const std::string &sPath);
-	void Rmd(const std::string &sPath);
-	void Rnfr(const std::string &sPath);
-	void Rnto(const std::string &sPath);
-
-	/* RFC 3659 commands*/
-	void Size(const std::string &sPath);
-
-	static bool m_bAllowAnonymous, m_bAnonymousNeedPass, m_bAllowAsynchronousCmds, m_bEnablePipelining, m_bEnableStoreCmds;
-	int m_nLocalControlPort;
-	int m_nPassivePort;
+  int m_nLocalControlport;
+  int m_nPassiveport;
 };
 
 class DataConnectionWorkerThreadData
 {
 public:
-	DataConnectionWorkerThreadData();
-	~DataConnectionWorkerThreadData();
-	ConnectionPtr m_pConnection;
-	std::string m_sFilePath;
-	bool m_bAppend;
-	Ftp *m_pFtp;
+  DataConnectionWorkerThreadData ();
+  ~DataConnectionWorkerThreadData ();
+  ConnectionPtr m_pConnection;
+    std::string m_sFilePath;
+  bool m_bappend;
+  Ftp *m_pFtp;
 };
 
-int get_ftp_reply(int nReplyCode, std::string &sReply);
-void ftp_reply(ConnectionPtr pConnection, int nReplyCode, const std::string &sCustomText = "");
-void yyerror(YYLTYPE *pLoc, Ftp *pContext, const char *msg);
+int getFtpReply (int nReplyCode, std::string & sReply);
+void ftpReply (ConnectionPtr pConnection, int nReplyCode,
+		const std::string & sCustomText = "");
+void yyerror (YYLTYPE * pLoc, Ftp * pContext, const char *msg);
 
 
 
 /*!
  *Adapter class to make Ftp reentrant.
  */
-class FtpProtocol : public Protocol
+class FtpProtocol:public Protocol
 {
 public:
-	FtpProtocol()
+  FtpProtocol ()
   {
     protocolOptions = PROTOCOL_FAST_CHECK;
   }
 
-  virtual ~FtpProtocol()
+  virtual ~ FtpProtocol ()
   {
 
   }
 
-  virtual char* registerName(char* out, int len)
+  virtual char *registerName (char *out, int len)
   {
-    return Ftp::registerNameImpl(out, len);
+    return Ftp::registerNameImpl (out, len);
   }
 
-	virtual int controlConnection(ConnectionPtr a, char *b1, char *b2,
-                                int bs1, int bs2, u_long nbtr, u_long id)
+  virtual int controlConnection (ConnectionPtr a, char *b1, char *b2,
+				 int bs1, int bs2, u_long nbtr, u_long id)
   {
     Ftp ftp;
-    return ftp.controlConnection(a, b1, b2, bs1, bs2, nbtr, id);
+    return ftp.controlConnection (a, b1, b2, bs1, bs2, nbtr, id);
   }
 
-  virtual int loadProtocol(XmlParser* parser)
+  virtual int loadProtocol (XmlParser * parser)
   {
-    return Ftp::loadProtocolStatic(parser);
+    return Ftp::loadProtocolstatic (parser);
   }
-  
-	virtual int unLoadProtocol(XmlParser* parser)
+
+  virtual int unLoadProtocol (XmlParser * parser)
   {
-    return Ftp::unLoadProtocolStatic(parser);
+    return Ftp::unLoadProtocolstatic (parser);
 
   }
 
-  int getProtocolOptions()
+  int getProtocolOptions ()
   {
     return protocolOptions;
   }
