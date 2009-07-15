@@ -462,7 +462,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
               else
                 vh->setDocumentRoot ("");
             }
-          else if (!xmlStrcmp(lcur->name, (const xmlChar *)"SYSFOLDER"))
+          else if (!xmlStrcmp(lcur->name, (const xmlChar *)"SYSROOT"))
             {
               if (lcur->children && lcur->children->content)
                 {

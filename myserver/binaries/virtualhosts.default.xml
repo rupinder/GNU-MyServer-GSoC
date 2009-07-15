@@ -9,7 +9,7 @@
 		<PROTOCOL>HTTP</PROTOCOL>
 		
 		<DOCROOT>web</DOCROOT>
-		<SYSFOLDER>system</SYSFOLDER>
+		<SYSROOT>system</SYSROOT>
 
 		<ACCESSLOG>
                   <STREAM location="file://logs/MyServerHTTP.log" cycle="1048576"/>
@@ -27,7 +27,7 @@
 		<PROTOCOL>FTP</PROTOCOL>
 		
 		<DOCROOT>web</DOCROOT>
-		<SYSFOLDER>system</SYSFOLDER>
+		<SYSROOT>system</SYSROOT>
 		
 		<ACCESSLOG>
                   <STREAM location="file://logs/MyServerFTP.log" cycle="1048576"/>

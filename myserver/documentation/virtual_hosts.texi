@@ -15,7 +15,7 @@ A sample virtual hosts configuration file looks like:
     <IP>192.168.0.0/24</IP>
     <PROTOCOL>HTTP</PROTOCOL>
     <DOCROOT>web</DOCROOT>
-    <SYSFOLDER>system</SYSFOLDER>
+    <SYSROOT>system</SYSROOT>
     <HOST>foo.bar.com</HOST>
     <ACCESSLOG>logs/myServer.log</ACCESSLOG>
     <WARNINGLOG>logs/myServer.err</WARNINGLOG>
@@ -39,7 +39,7 @@ host.
 it is the protocol used by the host.
 @item <DOCROOT>
 it is the directory where the files are found.
-@item <SYSFOLDER>
+@item <SYSROOT>
 it is the system directory.
 @item <HOST>
 it is your virtual host's name. The optional useRegex="YES"
@@ -74,7 +74,7 @@ Here is an example of a FTP virtual host:
     <IP>127.0.0.1/32</IP>
     <PROTOCOL>FTP</PROTOCOL>
     <DOCROOT>web</DOCROOT>
-    <SYSFOLDER>system</SYSFOLDER>
+    <SYSROOT>system</SYSROOT>
     <HOST>ftp.foo.bar.com</HOST>
     <ACCESSLOG>logs/myServer.log</ACCESSLOG>
     <WARNINGLOG>logs/myServer.err</WARNINGLOG>
