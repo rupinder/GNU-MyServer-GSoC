@@ -164,10 +164,14 @@ public:
 
   map<string, string>& getConsoleColors () { return consoleColors; }
 
-  LogManager* getLogManager () { return logManager; }
+  LogManager *getLogManager () { return logManager; }
 
+  XmlParser *getXmlConfiguration ();
 private:
   friend class ClientsThread;
+
+  XmlParser configurationFileManager;
+
 #ifdef WIN32
   friend int __stdcall control_handler(u_long control_type);
 #endif

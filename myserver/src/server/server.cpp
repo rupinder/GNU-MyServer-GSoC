@@ -114,7 +114,9 @@ Server::initLogManager ()
  *Reinitialize the configuration paths, setting them to the specified ones.
  *Returns false on error.
  */
-bool Server::resetConfigurationPaths(string &mainConf, string &mimeConf, string &vhostConf, string &externPath, string &langPath)
+bool Server::resetConfigurationPaths(string &mainConf, string &mimeConf,
+				     string &vhostConf, string &externPath,
+				     string &langPath)
 {
   if (!mainConfigurationFile)
     mainConfigurationFile = new string(mainConf);
@@ -295,7 +297,8 @@ Server::~Server()
 /*!
  *Start the server.
  */
-void Server::start(string &mainConf, string &mimeConf, string &vhostConf, string &externPath, string &langPath)
+void Server::start(string &mainConf, string &mimeConf, string &vhostConf,
+		   string &externPath, string &langPath)
 {
   int err = 0;
 #ifdef WIN32
@@ -492,6 +495,9 @@ int Server::postLoad()
     logWriteln(languageParser.getValue("MSG_THREADR"));
   }
 
+
+  configurationFileManager.close();
+
   return 0;
 }
 
@@ -604,7 +610,7 @@ void Server::mainLoop()
               logManager->log (this, "MAINLOG", logLocation, string (beep));
             }
           logWriteln("Reloading MIMEtypes.xml");
-          
+
           getMimeManager()->loadXML(getMIMEConfFile());
 
           logWriteln("Reloaded");
@@ -967,6 +973,17 @@ int Server::terminate()
   return 0;
 }
 
+
+/*!
+ * Get a pointer to the configuration file.  It is
+ * valid only at startup!
+ */
+XmlParser *Server::getXmlConfiguration ()
+{
+  return &configurationFileManager;
+}
+
+
 /*!
  *Here is loaded the configuration of the server.
  *The configuration file is a XML file.
@@ -975,7 +992,6 @@ int Server::terminate()
 int Server::initialize ()
 {
   const char *data;
-  XmlParser configurationFileManager;
 
 #ifdef WIN32
   envString = GetEnvironmentStrings ();
@@ -1001,9 +1017,6 @@ int Server::initialize ()
     return -1;
 
   readHashedData (xmlDocGetRootElement(configurationFileManager.getDoc ())->xmlChildrenNode);
-
-  configurationFileManager.close();
-
 
   /*
    * Process console colors information.
