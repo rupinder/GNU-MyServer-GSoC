@@ -33,17 +33,17 @@ GCRY_THREAD_OPTION_PTHREAD_IMPL;
 #endif
 }
 
-SslContext::SslContext()
+SslContext::SslContext ()
 {
   context = 0;
   method = 0;
 
-  certificateFile.assign("");
-  privateKeyFile.assign("");
+  certificateFile.assign ("");
+  privateKeyFile.assign ("");
 }
 
 /*!
- *Initialize SSL on the virtual host.
+ * Initialize SSL on the virtual host.
  */
 int SslContext::initialize ()
 {
@@ -55,16 +55,17 @@ int SslContext::initialize ()
   if (!context)
     return -1;
   /*
-   *The specified file doesn't exist.
+   * The specified file doesn't exist.
    */
-  if (FilesUtility::fileExists(certificateFile.c_str()) == 0)
+  if (FilesUtility::fileExists (certificateFile.c_str ()) == 0)
     return -1;
-  
-  if (SSL_CTX_use_certificate_file (context, certificateFile.c_str (),SSL_FILETYPE_PEM) != 1)
+
+  if (SSL_CTX_use_certificate_file (context, certificateFile.c_str (),
+                                    SSL_FILETYPE_PEM) != 1)
     return -1;
 
   /*
-   *The specified file doesn't exist.
+   * The specified file doesn't exist.
    */
   if (FilesUtility::fileExists(privateKeyFile) == 0)
     return -1;
@@ -80,11 +81,11 @@ int SslContext::free ()
 {
   int ret = 0;
   if (context)
-  {
-    SSL_CTX_free (context);
-    ret = 1;
-    context = 0;
-  }
+    {
+      SSL_CTX_free (context);
+      ret = 1;
+      context = 0;
+    }
   else 
     ret = 0;
   certificateFile.assign ("");

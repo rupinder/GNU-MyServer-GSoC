@@ -325,15 +325,16 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
     }
   doc = parser.getDoc();
   node = doc->children->children;
-  for(;node;node = node->next )
+
+  for (;node;node = node->next )
     {
       xmlNodePtr lcur;
       Vhost *vh;
-      if(xmlStrcmp(node->name, (const xmlChar *)"VHOST"))
+      if (xmlStrcmp (node->name, (const xmlChar *)"VHOST"))
         continue;
-      lcur=node->children;
-      vh=new Vhost(logManager);
-      if(vh == 0)
+      lcur = node->children;
+      vh = new Vhost (logManager);
+      if (vh == 0)
         {
           parser.close();
           clean();
@@ -341,118 +342,130 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
           Server::getInstance()->logWriteln(errMsg.c_str(), MYSERVER_LOG_MSG_ERROR);
           return -1;
         }
-    
-      SslContext* sslContext = vh->getVhostSSLContext();
-    
-      while(lcur)
+
+      SslContext* sslContext = vh->getVhostSSLContext ();
+
+      while (lcur)
         {
           XmlConf::build (lcur,
                           &vh->hashedDataTrees,
                           &vh->hashedData);
 
-          if(!xmlStrcmp(lcur->name, (const xmlChar *)"HOST"))
+          if (!xmlStrcmp (lcur->name, (const xmlChar *)"HOST"))
             {
               int useRegex = 0;
               for (xmlAttr *attrs = lcur->properties; attrs; attrs = attrs->next)
                 {
-                  if(!xmlStrcmp(attrs->name, (const xmlChar *)"isRegex"))
-                    {
-                      if(attrs->children && attrs->children->content && 
-                         (!xmlStrcmp(attrs->children->content, 
+                  if (!xmlStrcmp (attrs->name, (const xmlChar *)"isRegex")
+                      && attrs->children && attrs->children->content
+                      && (!xmlStrcmp(attrs->children->content,
                                      (const xmlChar *)"YES")))
-                        {
-                          useRegex = 1;
-                        }
-                    }
+                        useRegex = 1;
                 }
 
-              vh->addHost((const char*)lcur->children->content, useRegex);
+              vh->addHost ((const char*)lcur->children->content, useRegex);
             }
-          else if(!xmlStrcmp(lcur->name, (const xmlChar *)"NAME"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"NAME"))
             {
-              vh->setName((char*)lcur->children->content);
+              vh->setName ((char*)lcur->children->content);
             }
-          else if(!xmlStrcmp(lcur->name, (const xmlChar *)"LOCATION"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"LOCATION"))
             {
               string loc (vh->getDocumentRoot());
               loc.append ("/");
               for (xmlAttr *attrs = lcur->properties; attrs; attrs = attrs->next)
                 {
-                  if(!xmlStrcmp (attrs->name, (const xmlChar *)"path"))
+                  if (!xmlStrcmp (attrs->name, (const xmlChar *)"path"))
                     loc.append ((const char*) attrs->children->content);
                 }
               MimeRecord *rc = MimeManager::readRecord (lcur);
               vh->locationsMime.put (loc, rc);
             }
-          else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PRIVATEKEY"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"SSL_PRIVATEKEY"))
             {
-              string pk((char*)lcur->children->content);
-              sslContext->setPrivateKeyFile(pk);
+              string pk ((char*)lcur->children->content);
+              sslContext->setPrivateKeyFile (pk);
             }
-          else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_CERTIFICATE"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"SSL_CERTIFICATE"))
             {
               string certificate((char*)lcur->children->content);
               sslContext->setCertificateFile(certificate);
             }
-          else if(!xmlStrcmp(lcur->name, (const xmlChar *)"CONNECTIONS_PRIORITY"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"CONNECTIONS_PRIORITY"))
             {
-              vh->setDefaultPriority(atoi((const char*)lcur->children->content));
+              vh->setDefaultPriority (atoi ((const char*)lcur->children->content));
 
             }
-          else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SSL_PASSWORD"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"SSL_PASSWORD"))
             {
               string pw;
-              if(lcur->children)
-                pw.assign((char*)lcur->children->content);
+              if (lcur->children)
+                pw.assign ((char*)lcur->children->content);
               else
-                pw.assign("");
+                pw.assign ("");
 
-              sslContext->setPassword(pw);
-
+              sslContext->setPassword (pw);
             }
-          else if(!xmlStrcmp(lcur->name, (const xmlChar *)"IP"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"IP"))
             {
               int useRegex = 0;
-              xmlAttr *attrs =  lcur->properties;
-              while(attrs)
+              xmlAttr *attrs = lcur->properties;
+
+              while (attrs)
                 {
-                  if(!xmlStrcmp(attrs->name, (const xmlChar *)"isRegex"))
+                  if (!xmlStrcmp(attrs->name, (const xmlChar *)"isRegex"))
                     {
-                      if(attrs->children && attrs->children->content && 
-                         (!xmlStrcmp(attrs->children->content, 
-                                     (const xmlChar *)"YES")))
-                        {
-                          useRegex = 1;
-                        }
+                      if (attrs->children && attrs->children->content && 
+                          (!xmlStrcmp(attrs->children->content, 
+                                      (const xmlChar *)"YES")))
+                        useRegex = 1;
                     }
                   attrs = attrs->next;
                 }
-              vh->addIP((char*)lcur->children->content, useRegex);
+              vh->addIP ((char*)lcur->children->content, useRegex);
             }
-          else if(!xmlStrcmp(lcur->name, (const xmlChar *)"PORT"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"PORT"))
             {
-              int val = atoi((char*)lcur->children->content);
-              if(val > (1 << 16) || strlen((const char*)lcur->children->content) > 6)
+              int val = atoi ((char*)lcur->children->content);
+              if (val > (1 << 16) || strlen ((const char*)lcur->children->content) > 6)
                 {
-                  errMsg.assign("Error: specified port greater than 65536 or invalid: ");
-                  errMsg.append((char*)lcur->children->content);
-                  Server::getInstance()->logWriteln(errMsg.c_str(), MYSERVER_LOG_MSG_ERROR);
+                  errMsg.assign ("Error: specified port greater than 65536 or invalid: ");
+                  errMsg.append ((char*)lcur->children->content);
+                  Server::getInstance()->logWriteln (errMsg.c_str(),
+                                                     MYSERVER_LOG_MSG_ERROR);
                 }
-              vh->setPort((u_short)val);
+              vh->setPort ((u_short)val);
             }
-          else if(!xmlStrcmp(lcur->name, (const xmlChar *)"PROTOCOL"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"PROTOCOL"))
             {
               char* lastChar = (char*)lcur->children->content;
-              while(*lastChar != '\0')
+              while (*lastChar != '\0')
                 {
                   *lastChar = tolower (*lastChar);
                   lastChar++;
                 }
-              vh->setProtocolName((char*)lcur->children->content);
+              vh->setProtocolName ((char*)lcur->children->content);
             }
-          else if(!xmlStrcmp(lcur->name, (const xmlChar *)"DOCROOT"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"DOCROOT"))
             {
-              if(lcur->children && lcur->children->content)
+              if (lcur->children && lcur->children->content)
+                {
+                  char* lastChar = (char*)lcur->children->content;
+                  while (*(lastChar+1) != '\0')
+                    lastChar++;
+
+                  if (*lastChar == '\\' || *lastChar == '/')
+                    {
+                      *lastChar = '\0';
+                    }
+                  vh->setDocumentRoot ((const char*)lcur->children->content);
+                }
+              else
+                vh->setDocumentRoot ("");
+            }
+          else if (!xmlStrcmp(lcur->name, (const xmlChar *)"SYSFOLDER"))
+            {
+              if (lcur->children && lcur->children->content)
                 {
                   char* lastChar = (char*)lcur->children->content;
                   while(*(lastChar+1) != '\0')
@@ -462,37 +475,16 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
                     {
                       *lastChar = '\0';
                     }
-                  vh->setDocumentRoot((const char*)lcur->children->content);
+                  vh->setSystemRoot ((const char*)lcur->children->content);
                 }
               else
-                {
-                  vh->setDocumentRoot("");
-                }
+                vh->setSystemRoot ("");
             }
-          else if(!xmlStrcmp(lcur->name, (const xmlChar *)"SYSFOLDER"))
-            {
-              if(lcur->children && lcur->children->content)
-                {
-                  char* lastChar = (char*)lcur->children->content;
-                  while(*(lastChar+1) != '\0')
-                    lastChar++;
-
-                  if(*lastChar == '\\' || *lastChar == '/')
-                    {
-                      *lastChar = '\0';
-                    }
-                  vh->setSystemRoot((const char*)lcur->children->content);
-                }
-              else
-                {
-                  vh->setSystemRoot("");
-                }
-            }
-          else if(!xmlStrcmp(lcur->name, (const xmlChar *)"ACCESSLOG"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"ACCESSLOG"))
             {
               loadXMLlogData ("ACCESSLOG", vh, lcur);
             }
-          else if(!xmlStrcmp(lcur->name, (const xmlChar *)"WARNINGLOG"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"WARNINGLOG"))
             {
               loadXMLlogData ("WARNINGLOG", vh, lcur);
             }
@@ -503,11 +495,11 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
             }
           else if(!xmlStrcmp(lcur->name, (const xmlChar *)"THROTTLING_RATE"))
             {
-              vh->setThrottlingRate((u_long)atoi((char*)lcur->children->content));
+              vh->setThrottlingRate ((u_long)atoi((char*)lcur->children->content));
             }
 
           lcur = lcur->next;
-        }//while(lcur)
+        }// while(lcur)
       
       if (vh->openLogFiles ())
         {
@@ -518,9 +510,11 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
           continue;
         }
 
-      if ( vh->initializeSSL() < 0 )
+      if (vh->initializeSSL() < 0)
         {
-          errMsg.assign("Error: initializing vhost");
+          errMsg.assign ("Error: initializing vhost ");
+          errMsg.append (vh->getName ());
+          errMsg.assign (" : cannot initialize SSL. ");
           Server::getInstance()->logWriteln(errMsg.c_str(), MYSERVER_LOG_MSG_ERROR);
           delete vh;
           vh = 0;
