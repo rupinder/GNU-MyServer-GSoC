@@ -21,7 +21,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/find_data/find_data.h>
 #include <include/server/server.h>
 #include <include/base/string/stringutils.h>
+#include <list>
 #include <string>
+
 using namespace std;
 
 /*!
@@ -99,7 +101,7 @@ PluginsManager::loadOptions (Server *server)
       if (!plugin.length ())
         {
           string error;
-          error.assign ("PLUGINS MANAGER<Warning>: invalid plugin name in PLUGIN block.");
+          error.assign ("Invalid plugin name in PLUGIN block.");
           server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_WARNING);
           ret = -1;
         }
@@ -126,7 +128,7 @@ PluginsManager::preLoad (Server* server,
   string filename;
   string completeFileName;
   int ret;
-
+  HashMap<string, bool> alreadyCkeched;
   loadOptions (server);
 
   filename.assign (resource);
@@ -137,7 +139,7 @@ PluginsManager::preLoad (Server* server,
 
   if (ret == -1)
     {
-      server->logWriteln ("PLUGINS MANAGER<Error>: Invalid plugins source.", MYSERVER_LOG_MSG_ERROR);
+      server->logWriteln ("Invalid plugins source.", MYSERVER_LOG_MSG_ERROR);
       return ret;
     }
 
@@ -178,7 +180,12 @@ PluginsManager::preLoad (Server* server,
           completeFileName.append (flib.name);
 
           string pname (fdir.name);
+
+          if (alreadyCkeched.get (pname))
+            continue;
+
           PluginInfo* pinfo = loadInfo (server, pname, completeFileName);
+          alreadyCkeched.put (pname,true);
           if (!pinfo)
             {
               ret |= 1;
@@ -201,7 +208,7 @@ PluginsManager::preLoad (Server* server,
                 {
                   ret |= 1;
                   string error;
-                  error.append ("PLUGINS MANAGER<Error>: Unable to enable plugin ");
+                  error.append ("Unable to enable plugin ");
                   error.append (name);
                   error.append (".");
                   server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_ERROR);
@@ -237,26 +244,21 @@ PluginInfo*
 PluginsManager::loadInfo (Server* server, string& name, string& path)
 {
   PluginInfo* pinfo;
-
   pinfo = getPluginInfo (name);
   if (!pinfo)
     pinfo = new PluginInfo (name);
   else
     if (pinfo->getVersion () != 0)
     {
-      string error;
-      error.append ("PLUGINS MANAGER<Error>: a version of plugin ");
-      error.append (name);
-      error.append (" is already loading.");
-      server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_ERROR);
       return NULL;
     }
   XmlParser xml;
 
+
   if (xml.open (path, true))
     {
       string error;
-      error.append ("PLUGINS MANAGER<Error>: unable to load plugin ");
+      error.append ("Unable to load plugin ");
       error.append (name);
       error.append (" info.");
       server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_ERROR);
@@ -273,9 +275,9 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
   if (size != 1)
     {
       string error;
-      error.append ("PLUGINS MANAGER<Error>: unable to load plugin ");
+      error.append ("Unable to load plugin ");
       error.append (name);
-      error.append (" info, bad plugin.xml format.");
+      error.append (", bad plugin.xml format.");
       server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_ERROR);
       return NULL;
     }
@@ -289,9 +291,9 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
   else
     {
       string error;
-      error.append ("PLUGINS MANAGER<Error>: unable to load plugin ");
+      error.append ("Unable to load plugin ");
       error.append (name);
-      error.append (" info, bad plugin.xml format.");
+      error.append (", bad plugin.xml format.");
       server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_ERROR);
       return NULL;
     }
@@ -307,9 +309,9 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
   else
     {
       string error;
-      error.append ("PLUGINS MANAGER<Error>: unable to load plugin ");
+      error.append ("Unable to load plugin ");
       error.append (name);
-      error.append (" info, bad plugin.xml format.");
+      error.append (", bad plugin.xml format.");
       server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_ERROR);
       return NULL;
     }
@@ -324,9 +326,9 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
   if (size != 1)
     {
       string error;
-      error.append ("PLUGINS MANAGER<Error>: unable to load plugin ");
+      error.append ("Unable to load plugin ");
       error.append (name);
-      error.append (" info, bad plugin.xml format.");
+      error.append (", bad plugin.xml format.");
       server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_ERROR);
       return NULL;
     }
@@ -348,21 +350,26 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
   if (size != 1)
     {
       string error;
-      error.append ("PLUGINS MANAGER<Error>: unable to load plugin ");
+      error.append ("Unable to load plugin ");
       error.append (name);
-      error.append (" info, bad plugin.xml format.");
+      error.append (", bad plugin.xml format.");
       server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_ERROR);
       return NULL;
     }
 
 
-
-  const char* version = (const char*) nodes->nodeTab[0]->content;
-
-
-
-  pinfo->setVersion (PluginInfo::convertVersion (new string (version)));
-
+  int version = PluginInfo::convertVersion (new string ((char*) nodes->nodeTab[0]->content));
+  if (version!=-1)
+    pinfo->setVersion (version);
+  else
+    {
+      string error;
+      error.append ("Unable to load plugin ");
+      error.append (name);
+      error.append (", bad plugin.xml format.");
+      server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_ERROR);
+      return NULL;
+    }
 
   delete xpathRes;
 
@@ -380,18 +387,28 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
       if (!xmlHasProp (nodes->nodeTab[i], (const xmlChar*) "min-version") || !xmlHasProp (nodes->nodeTab[i], (const xmlChar*) "max-version"))
         {
           string error;
-          error.append ("PLUGINS MANAGER<Error>: unable to load plugin ");
+          error.append ("Unable to load plugin ");
           error.append (name);
-          error.append (" info, bad plugin.xml format.");
+          error.append (", bad plugin.xml format.");
           server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_ERROR);
           return NULL;
         }
 
-      const char* minVersion = (const char*) xmlGetProp (nodes->nodeTab[i], (const xmlChar*) "min-version");
+      int minVersion = PluginInfo::convertVersion (new string ((char*) xmlGetProp (nodes->nodeTab[i], (const xmlChar*) "min-version")));
 
-      const char* maxVersion = (const char*) xmlGetProp (nodes->nodeTab[i], (const xmlChar*) "max-version");
+      int maxVersion = PluginInfo::convertVersion (new string ((char*) xmlGetProp (nodes->nodeTab[i], (const xmlChar*) "max-version")));
 
-      pinfo->addDependence (nameDep, PluginInfo::convertVersion (new string (minVersion)), PluginInfo::convertVersion (new string (maxVersion)));
+      if (minVersion == -1 || maxVersion == -1)
+                {
+          string error;
+          error.append ("Unable to load plugin ");
+          error.append (name);
+          error.append (", bad plugin.xml format.");
+          server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_ERROR);
+          return NULL;
+        }
+
+      pinfo->addDependence (nameDep, minVersion, maxVersion);
     }
 
   xmlFree (xpathRes);
@@ -418,7 +435,7 @@ PluginsManager::preLoadPlugin (string& file, Server* server, bool global)
   if (plugin->preLoad (file, global))
     {
       string error;
-      error.append ("PLUGINS MANAGER<Error>: unable to pre-load plugin ");
+      error.append ("Unable to pre-load plugin ");
       error.append (name);
       error.append (".");
       server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_ERROR);
@@ -432,7 +449,7 @@ PluginsManager::preLoadPlugin (string& file, Server* server, bool global)
   else
     {
       string error;
-      error.append ("PLUGINS MANAGER<Error>: unable to pre-load plugin ");
+      error.append ("Unable to pre-load plugin ");
       error.append (name);
       error.append (".");
       server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_ERROR);
@@ -444,7 +461,7 @@ PluginsManager::preLoadPlugin (string& file, Server* server, bool global)
 }
 
 void
-PluginsManager::recursiveDependencesFallDown (Server* server, string name, HashMap<string, bool> remove, HashMap<string, list<string>*> dependsOn)
+PluginsManager::recursiveDependencesFallDown (Server* server, string &name, HashMap<string, bool> &remove, HashMap<string, list<string>*> &dependsOn)
 {
   remove.put (name, true);
   list<string>* dependsList = dependsOn.get (name);
@@ -457,7 +474,7 @@ PluginsManager::recursiveDependencesFallDown (Server* server, string name, HashM
     {
 
       string logBuf;
-      logBuf.append ("PLUGINS MANAGER<DependencesCheck>: missing dependence: ");
+      logBuf.append ("Missing plugin dependence: ");
       logBuf.append (*lit);
       logBuf.append (" --> ");
       logBuf.append (name);
@@ -501,7 +518,7 @@ PluginsManager::load (Server *server)
       if (msVersion < pinfo->getMyServerMinVersion () || msVersion > pinfo->getMyServerMaxVersion ())
         {
           string logBuf;
-          logBuf.append ("PLUGINS MANAGER<VersionsCheck>: ");
+          logBuf.append ("Plugin ");
           logBuf.append (name);
           logBuf.append (" not compatible with this myserver version! ");
           server->logWriteln (logBuf.c_str (), MYSERVER_LOG_MSG_WARNING);
@@ -565,7 +582,7 @@ PluginsManager::load (Server *server)
           PluginInfo* dep = getPluginInfo (depN);
           if (!dep || remove.get (depN))
             {
-              logBuf.append ("PLUGINS MANAGER<DependencesCheck>: missing dependence: ");
+              logBuf.append ("Missing plugin dependence: ");
               logBuf.append (dname);
               logBuf.append (" --> ");
               logBuf.append (depN);
@@ -578,7 +595,7 @@ PluginsManager::load (Server *server)
           pair<int, int>* pdep = *lit;
           if (dep->getVersion () < pdep->first || dep->getVersion () > pdep->second)
             {
-              logBuf.append ("PLUGINS MANAGER<VersionsCheck>: plugin version not compatible: ");
+              logBuf.append ("Plugin version not compatible: ");
               logBuf.append (dname);
               logBuf.append (" --> ");
               logBuf.append (depN);
@@ -618,7 +635,7 @@ PluginsManager::postLoad (Server *server, XmlParser* languageFile)
         {
           plugin->postLoad (server, languageFile);
           string logBuf;
-          logBuf.append ("PLUGINS MANAGER: plugin ");
+          logBuf.append ("Plugin ");
           logBuf.append ((*it)->getName ());
           logBuf.append (" loaded! ");
           server->logWriteln (logBuf.c_str (), MYSERVER_LOG_MSG_INFO);

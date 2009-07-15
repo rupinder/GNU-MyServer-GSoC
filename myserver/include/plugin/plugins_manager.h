@@ -66,7 +66,7 @@ public:
 private:
   HashMap<string, PluginInfo*> pluginsInfos;
   int loadOptions (Server *server);
-  void recursiveDependencesFallDown (Server* server, string name, HashMap<string, bool> remove, HashMap<string, list<string>*> dependsOn);
+  void recursiveDependencesFallDown (Server* server, string &name, HashMap<string, bool> &remove, HashMap<string, list<string>*> &dependsOn);
   Plugin* preLoadPlugin (string& file, Server* server, bool global);
 
   PluginInfo* loadInfo (Server* server, string& name, string& path);
