@@ -2454,7 +2454,6 @@ void Ftp::Size(const std::string &sPath)
     CloseDataConnection();
     return;
   }
-  FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
 
   if ( sPath.empty() || !GetLocalPath(sPath, sLocalPath) )
     {
