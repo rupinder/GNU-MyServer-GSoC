@@ -72,6 +72,12 @@ class PyGTKControl():
                     field = gtk.combo_box_new_text()
                 elif GUIConfig.options[option][1] == 'list':
                     tree  = gtk.TreeView(gtk.ListStore(gobject.TYPE_STRING))
+                    tree.set_headers_visible(False)
+                    tree_column = gtk.TreeViewColumn()
+                    tree_renderer = gtk.CellRendererText()
+                    tree_column.pack_start(tree_renderer)
+                    tree_column.add_attribute(tree_renderer, 'text', 0)
+                    tree.append_column(tree_column)
                     new_name = gtk.Entry()
                     add_button = gtk.Button('add')
                     remove_button = gtk.Button('remove')
@@ -80,6 +86,15 @@ class PyGTKControl():
                     field.attach(add_button, 0, 1, 1, 2)
                     field.attach(remove_button, 1, 2, 1, 2)
                     field.attach(tree, 0, 2, 2, 3)
+                    def add_to_list(button):
+                        tree.get_model().append((new_name.get_text(), ))
+                        new_name.set_text('')
+                    add_button.connect('clicked', add_to_list)
+                    def remove_from_list(button):
+                        selected = tree.get_selection().get_selected()
+                        if selected[1] is not None:
+                            selected[0].remove(selected[1])
+                    remove_button.connect('clicked', remove_from_list)
                 tabs[tab].attach(check, 0, 1, i, i + 1, gtk.FILL, gtk.FILL)
                 tabs[tab].attach(label, 1, 2, i, i + 1, yoptions = gtk.FILL)
                 tabs[tab].attach(field, 2, 3, i, i + 1, yoptions = gtk.FILL)
