@@ -20,6 +20,8 @@ import gtk
 import gobject
 import gtk.glade
 import GUIConfig
+from MyServer.pycontrollib.config import MyServerConfig
+from MyServer.pycontrollib.definition import DefinitionElement, DefinitionTree
 
 class About():
     def __init__(self):
@@ -36,6 +38,7 @@ class PyGTKControl():
         self.widgets = gtk.glade.XML(self.gladefile, 'window')
         self.widgets.signal_autoconnect(self)
         self.construct_options()
+        self.chooser = None
 
     def on_window_destroy(self, widget):
         gtk.main_quit()
@@ -46,7 +49,24 @@ class PyGTKControl():
     def on_about_menu_item_activate(self, widget):
         About()
 
-    def on_new_menu_item_activate(self, widget):
+    def on_open_menu_item_activate(self, widget):
+        if self.chooser is not None:
+            self.chooser.destroy()
+        self.chooser = gtk.FileChooserDialog(
+            'Open configuration file.',
+            buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                       gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+        def handle_response(widget, response):
+            if response == gtk.RESPONSE_OK:
+                path = self.chooser.get_filename()
+                with open(path) as f:
+                    conf = MyServerConfig.from_string(f.read())
+                self.set_up(conf.get_definitions())
+            self.chooser.destroy()
+        self.chooser.connect('response', handle_response)
+        self.chooser.show()
+
+    def on_new_menu_item_activate(self, widget = None):
         for check, field, var in self.options.itervalues():
             check.set_active(False)
             if var == 'string':
@@ -59,6 +79,32 @@ class PyGTKControl():
                 field.get_model().clear()
             elif var == 'combobox':
                 field.get_model().clear()
+
+    def set_up(self, definitions):
+        self.on_new_menu_item_activate()
+        for definition in definitions:
+            name = definition.get_name()
+            if name not in self.options:
+                pass # goes to unknown
+            check, field, var = self.options[name]
+            check.set_active(True)
+            if var == 'string':
+                field.set_text(definition.get_attribute('value'))
+            elif var == 'integer':
+                field.set_value(int(definition.get_attribute('value')))
+            elif var == 'bool':
+                if definition.get_attribute('value').upper() != 'YES':
+                    field.set_active(1)
+            elif var == 'list':
+                if isinstance(definition, DefinitionElement):
+                    field.get_model().append(
+                        (definition.get_attribute('value'), ))
+                else:
+                    for definition in definition.get_definitions():
+                        field.get_model().append(
+                            (definition.get_attribute('value'), ))
+            elif var == 'combobox':
+                pass # TODO
 
     def construct_options(self):
         def make_tab_name(text):
