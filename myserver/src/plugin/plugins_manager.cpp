@@ -24,6 +24,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <list>
 #include <string>
 
+extern "C"
+{
+#include <libxml/xmlmemory.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+#include <libxml/xpath.h>
+#include <libxml/xpathInternals.h>
+}
+
 using namespace std;
 
 /*!
@@ -98,16 +107,14 @@ PluginsManager::loadOptions (Server *server)
       if (node->getAttr (enabledKey))
         enabled = stringcmpi (*node->getAttr (enabledKey), "YES") == 0;
 
-      if (!plugin.length ())
+      if (plugin.length ())
+        addPluginInfo (plugin, new PluginInfo (plugin, enabled, global));
+      else
         {
           string error;
           error.assign ("Invalid plugin name in PLUGIN block.");
           server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_WARNING);
           ret = -1;
-        }
-      else
-        {
-          addPluginInfo (plugin, new PluginInfo (plugin, enabled, global));
         }
     }
 
@@ -284,9 +291,12 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
 
   if (xmlHasProp (nodes->nodeTab[0], (const xmlChar*) "min-version"))
     {
-      char* mSMinVersion = (char*) xmlGetProp (nodes->nodeTab[0], (const xmlChar*) "min-version");
-      pinfo->setMyServerMinVersion (PluginInfo::convertVersion (new string (mSMinVersion)));
-      xmlFree (mSMinVersion);
+      xmlChar *minVersion = xmlGetProp (nodes->nodeTab[0],
+                                        (const xmlChar*) "min-version");
+
+      string sMinVer ((char*)minVersion);
+      pinfo->setMyServerMinVersion (PluginInfo::convertVersion (&sMinVer));
+      xmlMemFree ((void*)minVersion);
     }
   else
     {
@@ -302,9 +312,12 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
 
   if (xmlHasProp (nodes->nodeTab[0], (const xmlChar*) "max-version"))
     {
-      char* mSMaxVersion = (char*) xmlGetProp (nodes->nodeTab[0], (const xmlChar*) "max-version");
-      pinfo->setMyServerMaxVersion (PluginInfo::convertVersion (new string (mSMaxVersion)));
-      xmlFree (mSMaxVersion);
+      xmlChar* maxVersion = xmlGetProp (nodes->nodeTab[0],
+                                        (const xmlChar*) "max-version");
+
+      string sMaxVer ((char*)maxVersion);
+      pinfo->setMyServerMaxVersion (PluginInfo::convertVersion (&sMaxVer));
+      xmlMemFree ((void*)maxVersion);
     }
   else
     {
@@ -313,15 +326,15 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
       error.append (name);
       error.append (", bad plugin.xml format.");
       server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_ERROR);
+      delete xpathRes;
       return NULL;
     }
 
-  xmlFree (xpathRes);
+  delete xpathRes;
 
   xpathRes = xml.evaluateXpath ("/PLUGIN/NAME/text()");
   nodes = xpathRes->getNodeSet ();
   size = (nodes) ? nodes->nodeNr : 0;
-
 
   if (size != 1)
     {
@@ -330,6 +343,7 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
       error.append (name);
       error.append (", bad plugin.xml format.");
       server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_ERROR);
+      delete xpathRes;
       return NULL;
     }
 
@@ -337,15 +351,16 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
 
 
   if (strcmp (name.c_str (), cname))
-    return NULL;
+    {
+      delete xpathRes;
+      return NULL;
+    }
 
-  xmlFree (xpathRes);
+  delete xpathRes;
 
   xpathRes = xml.evaluateXpath ("/PLUGIN/VERSION/text()");
   nodes = xpathRes->getNodeSet ();
   size = (nodes) ? nodes->nodeNr : 0;
-
-
 
   if (size != 1)
     {
@@ -354,11 +369,13 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
       error.append (name);
       error.append (", bad plugin.xml format.");
       server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_ERROR);
+      delete xpathRes;
       return NULL;
     }
 
 
   int version = PluginInfo::convertVersion (new string ((char*) nodes->nodeTab[0]->content));
+
   if (version!=-1)
     pinfo->setVersion (version);
   else
@@ -368,6 +385,7 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
       error.append (name);
       error.append (", bad plugin.xml format.");
       server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_ERROR);
+      delete xpathRes;
       return NULL;
     }
 
@@ -384,7 +402,8 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
 
       string nameDep (depends);
 
-      if (!xmlHasProp (nodes->nodeTab[i], (const xmlChar*) "min-version") || !xmlHasProp (nodes->nodeTab[i], (const xmlChar*) "max-version"))
+      if (!xmlHasProp (nodes->nodeTab[i], (const xmlChar*) "min-version") ||
+          !xmlHasProp (nodes->nodeTab[i], (const xmlChar*) "max-version"))
         {
           string error;
           error.append ("Unable to load plugin ");
@@ -394,24 +413,27 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
           return NULL;
         }
 
-      int minVersion = PluginInfo::convertVersion (new string ((char*) xmlGetProp (nodes->nodeTab[i], (const xmlChar*) "min-version")));
+      int minVersion = PluginInfo::convertVersion (new string ((char*) xmlGetProp (nodes->nodeTab[i],
+                                                                                   (const xmlChar*) "min-version")));
 
-      int maxVersion = PluginInfo::convertVersion (new string ((char*) xmlGetProp (nodes->nodeTab[i], (const xmlChar*) "max-version")));
+      int maxVersion = PluginInfo::convertVersion (new string ((char*) xmlGetProp (nodes->nodeTab[i],
+                                                                                   (const xmlChar*) "max-version")));
 
       if (minVersion == -1 || maxVersion == -1)
-                {
+        {
           string error;
           error.append ("Unable to load plugin ");
           error.append (name);
           error.append (", bad plugin.xml format.");
           server->logWriteln (error.c_str (), MYSERVER_LOG_MSG_ERROR);
+          delete xpathRes;
           return NULL;
         }
 
       pinfo->addDependence (nameDep, minVersion, maxVersion);
     }
 
-  xmlFree (xpathRes);
+  delete xpathRes;
 
   return pinfo;
 }
