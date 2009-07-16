@@ -180,7 +180,7 @@ class MIMEType():
         param = root.get('param', None)
         self_executed = root.get('self', None)
         if self_executed is not None:
-            self_executed = self_executed == 'YES'
+            self_executed = self_executed.upper() == 'YES'
         path = None
         extension = set()
         filters = []

@@ -222,7 +222,7 @@ class VHost():
             elif child.tag == 'HOST':
                 use_regex = child.get('useRegex', None)
                 if use_regex is not None:
-                    use_regex = use_regex == 'YES'
+                    use_regex = use_regex.upper() == 'YES'
                 host[child.text] = use_regex
             elif child.tag == 'SSL_PRIVATEKEY':
                 private_key = child.text

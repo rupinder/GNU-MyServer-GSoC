@@ -96,7 +96,7 @@ class Stream():
         cycle = root.get('cycle', None)
         cycle_gzip = root.get('cycle_gzip', None)
         if cycle_gzip is not None:
-            cycle_gzip = True if cycle_gzip == 'YES' else False
+            cycle_gzip = cycle_gzip.upper() == 'YES'
         filters = []
         for child in list(root):
             if child.tag == 'FILTER':
