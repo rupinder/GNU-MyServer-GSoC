@@ -38,7 +38,7 @@ options['http.home_directory'] = ('Define name for home directory browsing.', 's
 options['http.default_file'] = ('Default filename to send in a directory if the file isn\'t in the path then the directory content is sent.', 'list', )
 
 # Server
-options['server.language'] = ('Choose the language to use for the server.', 'combobox', )
+options['server.language'] = ('Choose the language to use for the server.', 'string', )
 options['server.verbosity'] = ('Verbosity on log file.', 'integer', )
 options['server.static_threads'] = ('Number of serving threads always active.', 'integer', )
 options['server.max_threads'] = ('Maximum number of serving threads that the scheduler can create.', 'integer', )

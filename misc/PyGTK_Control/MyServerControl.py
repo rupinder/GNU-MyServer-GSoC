@@ -77,8 +77,6 @@ class PyGTKControl():
                 field.set_active(0)
             elif var == 'list':
                 field.get_model().clear()
-            elif var == 'combobox':
-                field.get_model().clear()
 
     def set_up(self, definitions):
         self.on_new_menu_item_activate()
@@ -103,8 +101,6 @@ class PyGTKControl():
                     for definition in definition.get_definitions():
                         field.get_model().append(
                             (definition.get_attribute('value'), ))
-            elif var == 'combobox':
-                pass # TODO
 
     def construct_options(self):
         def make_tab_name(text):
@@ -148,9 +144,6 @@ class PyGTKControl():
                     field.append_text('no')
                     field.set_active(0)
                     self.options[option] = (check, field, 'bool', )
-                elif GUIConfig.options[option][1] == 'combobox':
-                    field = gtk.combo_box_new_text()
-                    self.options[option] = (check, field, 'combobox', )
                 elif GUIConfig.options[option][1] == 'list':
                     tree  = gtk.TreeView(gtk.ListStore(gobject.TYPE_STRING))
                     tree.set_headers_visible(False)
