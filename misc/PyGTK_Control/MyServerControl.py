@@ -39,6 +39,7 @@ class PyGTKControl():
         self.widgets.signal_autoconnect(self)
         self.construct_options()
         self.chooser = None
+        self.path = None
 
     def on_window_destroy(self, widget):
         gtk.main_quit()
@@ -58,15 +59,69 @@ class PyGTKControl():
                        gtk.STOCK_OPEN, gtk.RESPONSE_OK))
         def handle_response(widget, response):
             if response == gtk.RESPONSE_OK:
-                path = self.chooser.get_filename()
-                with open(path) as f:
+                self.path = self.chooser.get_filename()
+                with open(self.path) as f:
                     conf = MyServerConfig.from_string(f.read())
                 self.set_up(conf.get_definitions())
             self.chooser.destroy()
         self.chooser.connect('response', handle_response)
         self.chooser.show()
 
+    def on_save_as_menu_item_activate(self, widget):
+        if self.chooser is not None:
+            self.chooser.destroy()
+        self.chooser = gtk.FileChooserDialog(
+            'Save configuration file.',
+            action = gtk.FILE_CHOOSER_ACTION_SAVE,
+            buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                       gtk.STOCK_SAVE_AS, gtk.RESPONSE_OK))
+        def handle_response(widget, response):
+            if response == gtk.RESPONSE_OK:
+                self.path = self.chooser.get_filename()
+                self.on_save_menu_item_activate(widget)
+            self.chooser.destroy()
+        self.chooser.connect('response', handle_response)
+        self.chooser.show()
+
+    def on_save_menu_item_activate(self, widget):
+        if self.path is None:
+            self.on_save_as_menu_item_activate(widget)
+        else:
+            definitions = []
+            for option in self.options:
+                check, field, var = self.options[option]
+                if not check.get_active():
+                    continue
+                if var == 'string':
+                    definitions.append(
+                        DefinitionElement(option, {'value': field.get_text()}))
+                elif var == 'integer':
+                    value = str(int(field.get_value()))
+                    definitions.append(
+                        DefinitionElement(option, {'value': value}))
+                elif var == 'bool':
+                    value = 'YES' if field.get_active() else 'NO'
+                    definitions.append(
+                        DefinitionElement(option, {'value': value}))
+                elif var == 'list':
+                    values = []
+                    model = field.get_model()
+                    i = model.iter_children(None)
+                    while i is not None:
+                        values.append(model.get_value(i, 0))
+                        i = model.iter_next(i)
+                    values = map(
+                        lambda v: DefinitionElement(attributes = {'value': v}),
+                        values)
+                    definitions.append(
+                        DefinitionTree(option, values))
+            config = MyServerConfig(definitions)
+            with open(self.path, 'w') as f:
+                f.write(str(config))
+
     def on_new_menu_item_activate(self, widget = None):
+        if widget is not None:
+            self.path = None
         for check, field, var in self.options.itervalues():
             check.set_active(False)
             if var == 'string':
