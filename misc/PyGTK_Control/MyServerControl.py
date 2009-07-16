@@ -46,6 +46,20 @@ class PyGTKControl():
     def on_about_menu_item_activate(self, widget):
         About()
 
+    def on_new_menu_item_activate(self, widget):
+        for check, field, var in self.options.itervalues():
+            check.set_active(False)
+            if var == 'string':
+                field.set_text('')
+            elif var == 'integer':
+                field.set_value(0)
+            elif var == 'bool':
+                field.set_active(0)
+            elif var == 'list':
+                field.get_model().clear()
+            elif var == 'combobox':
+                field.get_model().clear()
+
     def construct_options(self):
         def make_tab_name(text):
             return text.capitalize().replace('.', ' ').replace('_', ' ')
@@ -66,6 +80,7 @@ class PyGTKControl():
             segregated_options[tab].append(option)
                 
         tabs = {}
+        self.options = {}
         for tab in GUIConfig.tabs + ['other', 'unknown']:
             options = segregated_options.get(tab, [])
             tabs[tab] = gtk.Table(max(1, len(options)), 3)
@@ -76,15 +91,20 @@ class PyGTKControl():
                 check = gtk.CheckButton()
                 if GUIConfig.options[option][1] == 'string':
                     field = gtk.Entry()
+                    self.options[option] = (check, field, 'string', )
                 elif GUIConfig.options[option][1] == 'integer':
-                    field = gtk.SpinButton()
+                    field = gtk.SpinButton(gtk.Adjustment(
+                            0, 0, 2147483647, 1))
+                    self.options[option] = (check, field, 'integer', )
                 elif GUIConfig.options[option][1] == 'bool':
                     field = gtk.combo_box_new_text()
                     field.append_text('yes')
                     field.append_text('no')
                     field.set_active(0)
+                    self.options[option] = (check, field, 'bool', )
                 elif GUIConfig.options[option][1] == 'combobox':
                     field = gtk.combo_box_new_text()
+                    self.options[option] = (check, field, 'combobox', )
                 elif GUIConfig.options[option][1] == 'list':
                     tree  = gtk.TreeView(gtk.ListStore(gobject.TYPE_STRING))
                     tree.set_headers_visible(False)
@@ -110,6 +130,7 @@ class PyGTKControl():
                         if selected[1] is not None:
                             selected[0].remove(selected[1])
                     remove_button.connect('clicked', remove_from_list)
+                    self.options[option] = (check, tree, 'list', )
                 tabs[tab].attach(check, 0, 1, i, i + 1, gtk.FILL, gtk.FILL)
                 tabs[tab].attach(label, 1, 2, i, i + 1, yoptions = gtk.FILL)
                 tabs[tab].attach(field, 2, 3, i, i + 1, yoptions = gtk.FILL)
