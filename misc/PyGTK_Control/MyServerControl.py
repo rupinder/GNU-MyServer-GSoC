@@ -21,6 +21,15 @@ import gobject
 import gtk.glade
 import GUIConfig
 
+class About():
+    def __init__(self):
+        self.gladefile = 'PyGTKControl.glade'
+        self.widgets = gtk.glade.XML(self.gladefile, 'aboutdialog')
+        self.widgets.signal_autoconnect(self)
+
+    def on_aboutdialog_response(self, widget, response):
+        widget.destroy()
+
 class PyGTKControl():
     def __init__(self):
         self.gladefile = 'PyGTKControl.glade'
@@ -30,6 +39,12 @@ class PyGTKControl():
 
     def on_window_destroy(self, widget):
         gtk.main_quit()
+        
+    def on_quit_menu_item_activate(self, widget):
+        gtk.main_quit()
+
+    def on_about_menu_item_activate(self, widget):
+        About()
 
     def construct_options(self):
         def make_tab_name(text):
