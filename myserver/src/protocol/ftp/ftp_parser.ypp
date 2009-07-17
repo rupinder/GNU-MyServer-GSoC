@@ -20,7 +20,7 @@
 }
 
 %{
-#define yyscanner pContext->GetScanner()
+#define yyscanner pContext->getScanner()
 %}
 
 /* general tokens */
@@ -92,127 +92,127 @@
 cmd_list	:/* empty */
 		| cmd_list cmd
 		{
-			pContext->ComputeParseLength(@$);
+			pContext->computeParseLength(@$);
 		}
 		;
 	/* Minimal FTP implementation */
 cmd		: USER_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
-			pContext->User($3);
+			pContext->user($3);
 		}
 		| PASS_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
-			pContext->Password($3);
+			pContext->password($3);
 		}
 		| PORT_FTP_COMMAND SPACE_FTP_SEP host_port CRLF_FTP_SEP
 		{
-		  pContext->Port($3);
+		  pContext->port($3);
 		}
 		| PASV_FTP_COMMAND CRLF_FTP_SEP
 		{
-		  pContext->Pasv();
+		  pContext->pasv();
 		}
 		| MODE_FTP_COMMAND SPACE_FTP_SEP mode_code CRLF_FTP_SEP
 		{
-		  pContext->Mode($3);
+		  pContext->mode($3);
 		}
 		| TYPE_FTP_COMMAND SPACE_FTP_SEP type_code CRLF_FTP_SEP
 		{
       if ($3 == -1)
-        pContext->ftp_reply(504);
+        pContext->ftpReply(504);
       else
-        pContext->Type($3);
+        pContext->type($3);
 		}
 		| TYPE_FTP_COMMAND SPACE_FTP_SEP type_code SPACE_FTP_SEP format_control_code CRLF_FTP_SEP
 		{
       if ($3 == -1 || $5 == -1)
-        pContext->ftp_reply(504);
+        pContext->ftpReply(504);
       else
-        pContext->Type($3, $5);
+        pContext->type($3, $5);
 		}
 		| STRU_FTP_COMMAND SPACE_FTP_SEP structure_code CRLF_FTP_SEP
 		{
-		  pContext->Stru($3);
+		  pContext->stru($3);
 		}
 		| REST_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
-		  pContext->Rest($3);
+		  pContext->rest($3);
 		}
 		| ALLO_FTP_COMMAND SPACE_FTP_SEP NUMBER_FTP_ARG CRLF_FTP_SEP
 		{
-		  pContext->Allo($3);
+		  pContext->allo($3);
 		}
 		| ALLO_FTP_COMMAND SPACE_FTP_SEP NUMBER_FTP_ARG SPACE_FTP_SEP 'r' SPACE_FTP_SEP NUMBER_FTP_ARG CRLF_FTP_SEP
 		{
-		  pContext->Allo($3, $7);
+		  pContext->allo($3, $7);
 		}
 		| RETR_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
-		  pContext->Retr($3);
+		  pContext->retr($3);
 		}
 		| ABOR_FTP_COMMAND CRLF_FTP_SEP
 		{
-			pContext->Abor();
+			pContext->abor();
 		}
 		| LIST_FTP_COMMAND CRLF_FTP_SEP
 		{
-		  pContext->List();
+		  pContext->list();
 		}
 		| LIST_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
-		  pContext->List($3);
+		  pContext->list($3);
 		}
 		| NLST_FTP_COMMAND CRLF_FTP_SEP
 		{
-		  pContext->Nlst();
+		  pContext->nlst();
 		}
 		| NLST_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
-		  pContext->Nlst($3);
+		  pContext->nlst($3);
 		}
 		| CWD_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
-			pContext->Cwd($3);
+			pContext->cwd($3);
 		}
 		| CDUP_FTP_COMMAND CRLF_FTP_SEP
 		{
-			pContext->Cwd("..");
+			pContext->cwd("..");
 		}
 		| PWD_FTP_COMMAND CRLF_FTP_SEP
 		{
-			pContext->Pwd();
+			pContext->pwd();
 		}
 		| HELP_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
-			pContext->Help($3);
+			pContext->help($3);
 		}
 		| HELP_FTP_COMMAND CRLF_FTP_SEP
 		{
-			pContext->Help();
+			pContext->help();
 		}
 		| SYST_FTP_COMMAND CRLF_FTP_SEP
 		{
-			pContext->Syst();
+			pContext->syst();
 		}
 		| STAT_FTP_COMMAND CRLF_FTP_SEP
 		{
-			pContext->Stat();
+			pContext->stat();
 		}
 		| QUIT_FTP_COMMAND CRLF_FTP_SEP
 		{
-			pContext->Quit();
+			pContext->quit();
 		}
 		| NOOP_FTP_COMMAND CRLF_FTP_SEP
 		{
-			pContext->Noop();
+			pContext->noop();
 		}
 		| STRING_FTP_ARG SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
-			pContext->ftp_reply(502);//any new commands
+			pContext->ftpReply(502);//any new commands
 		}
 		| STRING_FTP_ARG CRLF_FTP_SEP
 		{
-			pContext->ftp_reply(502);//any new commands
+			pContext->ftpReply(502);//any new commands
 		}
 		| CRLF_FTP_SEP
 		{
@@ -220,31 +220,31 @@ cmd		: USER_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		}
 		| STOR_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
-		  pContext->Stor($3);
+		  pContext->stor($3);
 		}
 		| STOU_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
-		  pContext->Stou($3);
+		  pContext->stou($3);
 		}
 		| DELE_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
-		  pContext->Dele($3);
+		  pContext->dele($3);
 		}
 		| APPE_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
-		  pContext->Appe($3);
+		  pContext->appe($3);
 		}
 		| MKD_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
-		  pContext->Mkd($3);
+		  pContext->mkd($3);
 		}
 		| RMD_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
-		  pContext->Rmd($3);
+		  pContext->rmd($3);
 		}
 		| RNFR_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
-		  pContext->Rnfr($3);
+		  pContext->rnfr($3);
 		}
 		| RNTO_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
@@ -256,17 +256,17 @@ cmd		: USER_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		| CHMOD_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
 			//pContext->Chmod($3, $5);
-			pContext->ftp_reply(502);
+			pContext->ftpReply(502);
 		}
 		| UTIME_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
 			//pContext->Utime($3, $5);
-			pContext->ftp_reply(502);
+			pContext->ftpReply(502);
 		}
 		/* RFC 3659 commands*/
 		| SIZE_FTP_COMMAND SPACE_FTP_SEP STRING_FTP_ARG CRLF_FTP_SEP
 		{
-			pContext->Size($3);
+			pContext->size($3);
 		}
 		;
 
@@ -300,7 +300,7 @@ port_number	: NUMBER_FTP_ARG ',' NUMBER_FTP_ARG
 
 mode_code	: 's'
 		{
-		  $$ = FtpUserData::MODE_STREAM;
+		  $$ = FtpuserData::MODE_STREAM;
 		}
 		| 'b'
 		{
@@ -314,7 +314,7 @@ mode_code	: 's'
 
 structure_code	: 'f'
 		{
-			$$ = FtpUserData::STRU_FILE;
+			$$ = FtpuserData::STRU_FILE;
 		}
 		| 'r'
 		{
@@ -328,11 +328,11 @@ structure_code	: 'f'
 
 type_code	: 'a'
 		{
-		  $$ = FtpUserData::REPR_ASCII;
+		  $$ = FtpuserData::REPR_ASCII;
 		}
 		| 'i'
 		{
-		  $$ = FtpUserData::REPR_IMAGE;
+		  $$ = FtpuserData::REPR_IMAGE;
 		}
 		| 'e'
 		{
@@ -346,7 +346,7 @@ type_code	: 'a'
 
 format_control_code : 'n'
 		{
-		  $$ = FtpUserData::NON_PRINT;
+		  $$ = FtpuserData::NON_PRINT;
 		}
 		| 't'
 		{
@@ -359,27 +359,27 @@ format_control_code : 'n'
 		;
 %%
 
-int Ftp::ParseControlConnection()
+int Ftp::parseControlConnection()
 {
 	if ( td.buffer == NULL || td.buffer->getBuffer() == NULL )
 		return ClientsThread::DELETE_CONNECTION;
-	FtpUserData *pFtpUserData = static_cast<FtpUserData *>(td.pConnection->protocolBuffer);
-	if ( pFtpUserData == NULL )
+	FtpuserData *pFtpuserData = static_cast<FtpuserData *>(td.pConnection->protocolBuffer);
+	if ( pFtpuserData == NULL )
 		return ClientsThread::DELETE_CONNECTION;
 
 	// awaiting commands reply
-	if ( pFtpUserData->m_nFtpState <= FtpUserData::NO_CONTROL_CONNECTION )
+	if ( pFtpuserData->m_nFtpstate <= FtpuserData::NO_CONTROL_CONNECTION )
 	{
-		ftp_reply(220);
-		pFtpUserData->m_nFtpState = FtpUserData::CONTROL_CONNECTION_UP;
+		ftpReply(220);
+		pFtpuserData->m_nFtpstate = FtpuserData::CONTROL_CONNECTION_UP;
 	}
 
 	MemBuf out;
-	EscapeTelnet(*td.buffer, out);
+	escapeTelnet(*td.buffer, out);
 	if ( !m_bEnablePipelining )
 	{
 		MemBuf tmpBuff(out);
-		RemovePipelinedCmds(tmpBuff, out);
+		removePipelinedCmds(tmpBuff, out);
 	}
 	char *pBuffToParse = out.getBuffer();
 
@@ -389,14 +389,14 @@ int Ftp::ParseControlConnection()
 		pBuffToParse += td.m_nParseLength;
 
 	yylex_init(&m_scanner);
-	yy_buffer_state *bufState = yy_scan_string (pBuffToParse, m_scanner);
+	yy_buffer_state *bufstate = yy_scan_string (pBuffToParse, m_scanner);
 	int nParserRet = yyparse(this);
-	yy_delete_buffer(bufState, m_scanner);
+	yy_delete_buffer(bufstate, m_scanner);
 	yylex_destroy(m_scanner);
 	switch ( nParserRet )
 	{
 		case 0:
-			if ( pFtpUserData->m_nFtpState == FtpUserData::NO_CONTROL_CONNECTION )
+			if ( pFtpuserData->m_nFtpstate == FtpuserData::NO_CONTROL_CONNECTION )
 				return ClientsThread::DELETE_CONNECTION;
 			else
 				return ClientsThread::KEEP_CONNECTION;
@@ -410,7 +410,7 @@ int Ftp::ParseControlConnection()
 	return ClientsThread::DELETE_CONNECTION;
 }
 
-u_long Ftp::ComputeParseLength(const YYLTYPE &location)
+u_long Ftp::computeParseLength(const YYLTYPE &location)
 {
 	if ( td.buffer == NULL )
 		return 1;
@@ -441,5 +441,5 @@ void yyerror(YYLTYPE *pLoc, Ftp *pContext, const char *msg)
 {
 	if ( pContext == NULL )
 		return;
-	pContext->PrintError(msg);
+	pContext->printError(msg);
 }

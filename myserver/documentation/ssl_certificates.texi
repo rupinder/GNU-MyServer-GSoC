@@ -49,7 +49,7 @@ the following lines in the @file{virtualhosts.xml} file:
   <SSL_CERTIFICATE>certificates/cert.pem</SSL_CERTIFICATE>
   <PROTOCOL>HTTPS</PROTOCOL>
   <DOCROOT>web</DOCROOT>
-  <SYSFOLDER>system</SYSFOLDER>
+  <SYSROOT>system</SYSROOT>
   <ACCESSLOG>logs/myServer.log</ACCESSLOG>
   <WARNINGLOG>logs/myServer.err</WARNINGLOG>
 </VHOST>

@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2008 Free Software Foundation, Inc.
+Copyright (C) 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
@@ -30,11 +30,11 @@ struct FtpHost
 	int p1, p2;
 };
 
-void SetFtpHost(FtpHost &out, const FtpHost &in);
-void SetFtpHost(FtpHost &out, const char *szIn);
-void GetIpAddr(const FtpHost &host, char *pOut, const int &nBuffSize);
-int GetPortNo(const FtpHost &host);
-std::string GetPortNo(unsigned int nPort);
-std::string GetHost(const FtpHost &host);
-void RemovePathsDots(std::string &sPath);
+void setFtpHost(FtpHost &out, const FtpHost &in);
+void setFtpHost(FtpHost &out, const char *szIn);
+void getIpAddr(const FtpHost &host, char *pOut, const int &nBuffSize);
+int getPortNo(const FtpHost &host);
+std::string getPortNo(unsigned int nport);
+std::string getHost(const FtpHost &host);
+
 #endif //__FTP_COMMON_H__ 

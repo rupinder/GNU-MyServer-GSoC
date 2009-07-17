@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 #include <include/protocol/http/http_headers.h>
 #include <include/protocol/http/http.h>
 #include <include/protocol/http/http_data_handler.h>
@@ -21,9 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /*!
  *Send a file to the client using the HTTP protocol.
  */
-int HttpDataHandler::send(HttpThreadContext* td,
-                          const char* /*filenamePath*/, const char* /*exec*/,
-                          bool /*execute*/, bool /*onlyHeader*/)
+int
+HttpDataHandler::send (HttpThreadContext* td,
+                       const char* /*filenamePath*/, const char* /*exec*/,
+                       bool /*execute*/, bool /*onlyHeader*/)
 {
   td->connection->host->warningsLogWrite ("HttpDataHandler: using the base interface!");
   return td->http->raiseHTTPError (500);
@@ -32,23 +33,18 @@ int HttpDataHandler::send(HttpThreadContext* td,
 /*!
  *Constructor for the class.
  */
-HttpDataHandler::HttpDataHandler()
-{
-
-}
+HttpDataHandler::HttpDataHandler () { }
 
 /*!
  *Destroy the object.
  */
-HttpDataHandler::~HttpDataHandler()
-{
-
-}
+HttpDataHandler::~HttpDataHandler () { }
 
 /*!
  *Load the static elements.
  */
-int HttpDataHandler::load ()
+int
+HttpDataHandler::load ()
 {
   return 0;
 }
@@ -56,7 +52,8 @@ int HttpDataHandler::load ()
 /*!
  *Unload the static elements.
  */
-int HttpDataHandler::unLoad()
+int
+HttpDataHandler::unLoad ()
 {
   return 0;
 }
@@ -76,15 +73,16 @@ int HttpDataHandler::unLoad()
  *\param tmpStream A support on memory read/write stream used
  *internally by the function.
  */
-int HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td,
-                                              char* buffer,
-                                              u_long size,
-                                              File* appendFile,
-                                              FiltersChain* chain,
-                                              bool append,
-                                              bool useChunks,
-                                              u_long realBufferSize,
-                                              MemoryStream *tmpStream)
+int
+HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td,
+                                          char* buffer,
+                                          u_long size,
+                                          File* appendFile,
+                                          FiltersChain* chain,
+                                          bool append,
+                                          bool useChunks,
+                                          u_long realBufferSize,
+                                          MemoryStream *tmpStream)
 {
   u_long nbr, nbw;
   Stream *oldStream = chain->getStream ();
@@ -108,10 +106,17 @@ int HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td,
   chain->setStream (tmpStream);
 
   if (chain->write (buffer, size, &nbw))
-    return 1;
+    {
+      td->connection->host->warningsLogWrite ("HTTP<DATA HANDLER ERROR>: unable to write data in the buffer.");
+      return 1;
+    }
+
 
   if (tmpStream->read (buffer, realBufferSize, &nbr))
-    return 1;
+    {
+      td->connection->host->warningsLogWrite ("HTTP<DATA HANDLER ERROR>: unable to read data from the buffer.");
+      return 1;
+    }
 
   chain->setStream (oldStream);
 
@@ -139,42 +144,58 @@ int HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td,
  *\param append Append to the file?
  *\param useChunks Can we use HTTP chunks to send data?
  */
-int HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td,
-                                              char* buffer,
-                                              u_long size,
-                                              File* appendFile,
-                                              FiltersChain* chain,
-                                              bool append,
-                                              bool useChunks)
+int
+HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td,
+                                          char* buffer,
+                                          u_long size,
+                                          File* appendFile,
+                                          FiltersChain* chain,
+                                          bool append,
+                                          bool useChunks)
 {
   u_long nbw;
 
   if (chain->hasModifiersFilters ())
-    return 1;
+    {
+      td->connection->host->warningsLogWrite ("HTTP<DATA HANDLER ERROR>: Filter chain has modifiers filters.");
+      return 1;
+    }
 
-  if(append)
-    return appendFile->writeToFile(buffer, size, &nbw);
+  if (append)
+    return appendFile->writeToFile (buffer, size, &nbw);
   else
     {
-      if(useChunks)
+      if (useChunks)
         {
           ostringstream chunkHeader;
           u_long flushNbw = 0;
           chunkHeader << hex << size << "\r\n";
 
-          if(chain->flush(&flushNbw))
-            return 1;
+          if (chain->flush (&flushNbw))
+            {
+              td->connection->host->warningsLogWrite ("HTTP<DATA HANDLER ERROR>: unable to flush data.");
+              return 1;
+            }
 
-          if(chain->getStream ()->write(chunkHeader.str().c_str(),
-                                        chunkHeader.str().length(), &nbw))
-            return 1;
+          if (chain->getStream ()->write (chunkHeader.str ().c_str (),
+                                          chunkHeader.str ().length (), &nbw))
+            {
+              td->connection->host->warningsLogWrite ("HTTP<DATA HANDLER ERROR>: unable to write data in the filters chain.");
+              return 1;
+            }
         }
 
-      if(size && chain->write(buffer, size, &nbw))
-        return 1;
+      if (size && chain->write (buffer, size, &nbw))
+        {
+          td->connection->host->warningsLogWrite ("HTTP<DATA HANDLER ERROR>: unable to write data in the filters chain.");
+          return 1;
+        }
 
-      if(useChunks && chain->getStream ()->write("\r\n", 2, &nbw))
-        return 1;
+      if (useChunks && chain->getStream ()->write ("\r\n", 2, &nbw))
+        {
+          td->connection->host->warningsLogWrite ("HTTP<DATA HANDLER ERROR>: unable to write data in the filters chain.");
+          return 1;
+        }
 
       return 0;
     }
@@ -185,26 +206,27 @@ int HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td,
  *Check if the server can use the chunked transfer encoding and if the client
  *supports keep-alive connections.
  */
-void HttpDataHandler::checkDataChunks(HttpThreadContext* td, bool* keepalive, 
-                                      bool* useChunks)
+void
+HttpDataHandler::checkDataChunks (HttpThreadContext* td, bool* keepalive,
+                                  bool* useChunks)
 {
-  *keepalive = td->request.isKeepAlive();
+  *keepalive = td->request.isKeepAlive ();
   *useChunks = false;
 
   /* Do not use chunked transfer with old HTTP/1.0 clients.  */
-  if(*keepalive)
-  {
-    HttpResponseHeader::Entry *e;
-    e = td->response.other.get("Transfer-Encoding");
-    if(e)
-      e->value->assign("chunked");
-    else
+  if (*keepalive)
     {
-      e = new HttpResponseHeader::Entry();
-      e->name->assign("Transfer-Encoding");
-      e->value->assign("chunked");
-      td->response.other.put(*(e->name), e);
+      HttpResponseHeader::Entry *e;
+      e = td->response.other.get ("Transfer-Encoding");
+      if (e)
+        e->value->assign ("chunked");
+      else
+        {
+          e = new HttpResponseHeader::Entry ();
+          e->name->assign ("Transfer-Encoding");
+          e->value->assign ("chunked");
+          td->response.other.put (*(e->name), e);
+        }
+      *useChunks = true;
     }
-    *useChunks = true;
-  }
 }

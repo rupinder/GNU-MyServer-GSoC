@@ -50,7 +50,7 @@ Plugin::~Plugin()
  *\param languageFile The language file to use to retrieve warnings/errors 
  *messages.
  */
-int Plugin::load(string& file, Server* server, XmlParser* languageFile)
+int Plugin::load(Server* server, XmlParser* languageFile)
 {
   loadPROC proc = (loadPROC)hinstLib.getProc("load"); 
   if(proc)
@@ -61,13 +61,11 @@ int Plugin::load(string& file, Server* server, XmlParser* languageFile)
 /*!
  *Preload the plugin.  This function doesn't ensure all other
  *plugins are yet loaded.
- *\param file The filename to load.
- *\param server The server instance to use.
- *\param languageFile The language file to use to retrieve warnings/errors 
+ *\param file The filename to load. 
  *messages.
  *\param global Load the shared library globally.
  */
-int Plugin::preLoad(string& file, Server* server, XmlParser* languageFile, 
+int Plugin::preLoad(string& file, 
                     bool global)
 {
   
@@ -97,7 +95,7 @@ int Plugin::postLoad(Server* server, XmlParser* languageFile)
  *\param languageFile The language file to use to retrieve warnings/errors 
  *messages.
  */
-int Plugin::unLoad(XmlParser* languageFile)
+int Plugin::unLoad()
 {
   if(hinstLib.validHandle())
   {

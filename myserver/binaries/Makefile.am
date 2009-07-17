@@ -1,7 +1,7 @@
 SUBDIRS = languages logs system web certificates plugins
 
-EXTRA_DIST = myserver-daemon myserver.ico license.txt MIMEtypes.xml.unix.default \
-myserver.xml.unix.default readme.txt virtualhosts.xml.unix.default
+EXTRA_DIST = myserver-daemon MIMEtypes.default.xml myserver.default.xml \
+						 virtualhosts.default.xml
 
 configdir = $(root_prefix)/etc/myserver
 

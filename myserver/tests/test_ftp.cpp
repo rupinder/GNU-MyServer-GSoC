@@ -1,6 +1,6 @@
 /*
  MyServer
- Copyright (C) 2008 Free Software Foundation, Inc.
+ Copyright (C) 2008, 2009 Free Software Foundation, Inc.
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
@@ -24,28 +24,28 @@
 
 class TestFtp : public CppUnit::TestFixture
 {
-	CPPUNIT_TEST_SUITE( TestFtp );
-	CPPUNIT_TEST( testEscapeTelnet );
-	CPPUNIT_TEST_SUITE_END();
+	CPPUNIT_TEST_SUITE (TestFtp);
+	CPPUNIT_TEST (testEscapeTelnet);
+	CPPUNIT_TEST_SUITE_END ();
 
 public:
-	void setUp() {}
-	void tearDown() {}
-	void testEscapeTelnet()
+	void setUp () {}
+	void tearDown () {}
+	void testEscapeTelnet ()
 	{
 		MemBuf inBuf, outBuf;
 		inBuf << "\377\366RE\377\374TTR abc\377\377def\015\377\376\012\012";
 
 		Ftp ftp;
-		ftp.EscapeTelnet(inBuf, outBuf);
+		ftp.escapeTelnet (inBuf, outBuf);
 		char szOut[128], szExpected[128];
-		memset(szOut, 0, 128);
-		strncpy(szOut, outBuf.getBuffer(), outBuf.getLength());
-		memset(szExpected, 0, 128);
-		strcpy(szExpected, "RETR abc\377def\015\012");
+		memset (szOut, 0, 128);
+		strncpy (szOut, outBuf.getBuffer (), outBuf.getLength ());
+		memset (szExpected, 0, 128);
+		strcpy (szExpected, "RETR abc\377def\015\012");
 
-		CPPUNIT_ASSERT( strcmp(szOut, szExpected) == 0);
+		CPPUNIT_ASSERT (strcmp (szOut, szExpected) == 0);
 	}
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestFtp );
+CPPUNIT_TEST_SUITE_REGISTRATION (TestFtp);

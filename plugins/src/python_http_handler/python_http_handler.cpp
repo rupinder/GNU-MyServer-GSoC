@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007, 2008 The Free Software Foundation Inc.
+Copyright (C) 2007, 2008, 2009 The Free Software Foundation Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -434,41 +434,41 @@ EXPORTABLE(int) load(void* server,void* parser)
 		serverInstance->logWriteln("PythonHttpHandler: Cannot find method initModule in executors::python");
 		return -1;
 	}
-	configuration = serverInstance->getConfiguration();
+	configuration = serverInstance->getXmlConfiguration();
 	xmlDoc = configuration->getDoc();
 
 	for(xmlNodePtr ptr = xmlDoc->children->next->children; ptr; ptr = ptr->next)
-	{
-		if(!xmlStrcmp(ptr->name, (const xmlChar *)"PYTHON_HTTP_HANDLER"))
-		{
-			bool file = false;
-			xmlAttrPtr properties = ptr->properties;
-			char* data = 0;
-			while(properties)
-			{
-				if(!xmlStrcmp(properties->name, (const xmlChar *)"file"))
-				{
-					if(properties->children && properties->children->content)
-						data = (char*)properties->children->content;
+	  {
+	    if(!xmlStrcmp(ptr->name, (const xmlChar *)"PYTHON_HTTP_HANDLER"))
+	      {
+		bool file = false;
+		xmlAttrPtr properties = ptr->properties;
+		char* data = 0;
+		while(properties)
+		  {
+		    if(!xmlStrcmp(properties->name, (const xmlChar *)"file"))
+		      {
+			if(properties->children && properties->children->content)
+			  data = (char*)properties->children->content;
 
-					file = true;
-				}
-				properties = properties->next;
-			}
+			file = true;
+		      }
+		    properties = properties->next;
+		  }
 
-			if(!file && ptr->children && ptr->children->next && ptr->children->next->content)
-				data = (char*)ptr->children->next->content;
+		if(!file && ptr->children && ptr->children->next && ptr->children->next->content)
+		  data = (char*)ptr->children->next->content;
 
-			if(!data)
-			{
-				serverInstance->logWriteln("PythonHttpHandler: Invalid rule");
-				return -1;
-			}
+		if(!data)
+		  {
+		    serverInstance->logWriteln("PythonHttpHandler: Invalid rule");
+		    return -1;
+		  }
 
-			observer.addRule(data, file);
-		}
+		observer.addRule(data, file);
+	      }
 
-	}
+	  }
 
 	mutex.init();
 
@@ -476,10 +476,10 @@ EXPORTABLE(int) load(void* server,void* parser)
 }
 EXPORTABLE(int) postLoad(void* server,void* parser)
 {
-	return 0;
+  return 0;
 }
 EXPORTABLE(int) unLoad(void* parser)
 {
-	mutex.destroy();
-	return 0;
+  mutex.destroy();
+  return 0;
 }
