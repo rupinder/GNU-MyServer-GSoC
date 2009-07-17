@@ -87,15 +87,15 @@ class VHostTest(unittest.TestCase):
         vhost = VHost(doc_root = '/www')
         self.assertEqual('/www', vhost.get_doc_root())
 
-    def test_sys_folder(self):
+    def test_sys_root(self):
         vhost = VHost('test vhost', 80, 'HTTP', '/www', '/system')
-        self.assertEqual('/system', vhost.get_sys_folder())
-        vhost.set_sys_folder('/var/system')
-        self.assertEqual('/var/system', vhost.get_sys_folder())
-        vhost.set_sys_folder(None)
-        self.assertEqual(None, vhost.get_sys_folder())
-        vhost = VHost(sys_folder = '/system')
-        self.assertEqual('/system', vhost.get_sys_folder())
+        self.assertEqual('/system', vhost.get_sys_root())
+        vhost.set_sys_root('/var/system')
+        self.assertEqual('/var/system', vhost.get_sys_root())
+        vhost.set_sys_root(None)
+        self.assertEqual(None, vhost.get_sys_root())
+        vhost = VHost(sys_root = '/system')
+        self.assertEqual('/system', vhost.get_sys_root())
 
     def test_logs(self):
         a_log = Log('ACCESSLOG')
@@ -202,7 +202,7 @@ class VHostTest(unittest.TestCase):
         vhost_1.set_doc_root('/var/www')
         self.assertNotEqual(vhost_0, vhost_1)
         vhost_1 = VHost.from_string(str(vhost_0))
-        vhost_1.set_sys_folder('/var/system')
+        vhost_1.set_sys_root('/var/system')
         self.assertNotEqual(vhost_0, vhost_1)
         vhost_1 = VHost.from_string(str(vhost_0))
         vhost_1.add_log(Log('NEWLOG'))
@@ -251,10 +251,10 @@ class VHostTest(unittest.TestCase):
         right = VHost(doc_root = '/www')
         self.assertEqual(vhost, right)
 
-    def test_from_string_sys_folder(self):
-        text = '<VHOST><SYSFOLDER>/system</SYSFOLDER></VHOST>'
+    def test_from_string_sys_root(self):
+        text = '<VHOST><SYSROOT>/system</SYSROOT></VHOST>'
         vhost = VHost.from_string(text)
-        right = VHost(sys_folder = '/system')
+        right = VHost(sys_root = '/system')
         self.assertEqual(vhost, right)
 
     def test_from_string_logs(self):
@@ -293,7 +293,7 @@ class VHostTest(unittest.TestCase):
   <PORT>80</PORT>
   <PROTOCOL>HTTP</PROTOCOL>
   <DOCROOT>/www</DOCROOT>
-  <SYSFOLDER>/system</SYSFOLDER>
+  <SYSROOT>/system</SYSROOT>
   <ACCESSLOG />
   <WARNINGLOG />
   <IP>127.0.0.0/8</IP>
@@ -342,9 +342,9 @@ class VHostTest(unittest.TestCase):
         self.assertEqual(vhost, right)
 
     def test_from_lxml_sys_folder(self):
-        text = '<VHOST><SYSFOLDER>/system</SYSFOLDER></VHOST>'
+        text = '<VHOST><SYSROOT>/system</SYSROOT></VHOST>'
         vhost = VHost.from_lxml_element(etree.XML(text))
-        right = VHost(sys_folder = '/system')
+        right = VHost(sys_root = '/system')
         self.assertEqual(vhost, right)
 
     def test_from_lxml_logs(self):
@@ -383,7 +383,7 @@ class VHostTest(unittest.TestCase):
   <PORT>80</PORT>
   <PROTOCOL>HTTP</PROTOCOL>
   <DOCROOT>/www</DOCROOT>
-  <SYSFOLDER>/system</SYSFOLDER>
+  <SYSROOT>/system</SYSROOT>
   <ACCESSLOG />
   <WARNINGLOG />
   <IP>127.0.0.0/8</IP>
@@ -432,8 +432,8 @@ class VHostTest(unittest.TestCase):
         copy = VHost.from_string(str(vhost))
         self.assertEqual(vhost, copy)
 
-    def test_to_string_sys_folder(self):
-        vhost = VHost(doc_root = '/system')
+    def test_to_string_sys_root(self):
+        vhost = VHost(sys_root = '/system')
         copy = VHost.from_string(str(vhost))
         self.assertEqual(vhost, copy)
 
@@ -496,8 +496,8 @@ class VHostTest(unittest.TestCase):
         copy = VHost.from_lxml_element(vhost.to_lxml_element())
         self.assertEqual(vhost, copy)
 
-    def test_to_lxml_sys_folder(self):
-        vhost = VHost(doc_root = '/system')
+    def test_to_lxml_sys_root(self):
+        vhost = VHost(sys_root = '/system')
         copy = VHost.from_lxml_element(vhost.to_lxml_element())
         self.assertEqual(vhost, copy)
 

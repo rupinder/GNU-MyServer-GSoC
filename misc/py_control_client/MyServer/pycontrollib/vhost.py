@@ -21,7 +21,7 @@ from log import Log
 
 class VHost():
     def __init__(self, name = None, port = None, protocol = None,
-                 doc_root = None, sys_folder = None, logs = [],
+                 doc_root = None, sys_root = None, logs = [],
                  ip = [], host = {}, private_key = None, certificate = None):
         '''Create new instance of VHost. logs and ip are expected to be a
         collection and host is expected to be a dict {name: useRegex} where None
@@ -30,7 +30,7 @@ class VHost():
         self.set_port(port)
         self.set_protocol(protocol)
         self.set_doc_root(doc_root)
-        self.set_sys_folder(sys_folder)
+        self.set_sys_root(sys_root)
         self.logs = []
         for log in logs:
             self.add_log(log)
@@ -47,7 +47,7 @@ class VHost():
         return isinstance(other, VHost) and self.name == other.name and \
             self.port == other.port and self.protocol == other.protocol and \
             self.doc_root == other.doc_root and \
-            self.sys_folder == other.sys_folder and \
+            self.sys_root == other.sys_root and \
             self.logs == other.logs and self.ip == other.ip and \
             self.host == other.host and \
             self.private_key == other.private_key and \
@@ -69,13 +69,13 @@ class VHost():
         '''Set VHost doc root.'''
         self.doc_root = doc_root
 
-    def get_sys_folder(self):
-        '''Get VHost sys folder.'''
-        return self.sys_folder
+    def get_sys_root(self):
+        '''Get VHost sys root.'''
+        return self.sys_root
 
-    def set_sys_folder(self, sys_folder):
-        '''Set VHost sys folder.'''
-        self.sys_folder = sys_folder
+    def set_sys_root(self, sys_root):
+        '''Set VHost sys root.'''
+        self.sys_root = sys_root
 
     def get_protocol(self):
         '''Get VHost protocol.'''
@@ -174,8 +174,8 @@ class VHost():
             root.append(make_element('PROTOCOL', self.protocol))
         if self.doc_root is not None:
             root.append(make_element('DOCROOT', self.doc_root))
-        if self.sys_folder is not None:
-            root.append(make_element('SYSFOLDER', self.sys_folder))
+        if self.sys_root is not None:
+            root.append(make_element('SYSROOT', self.sys_root))
         if self.private_key is not None:
             root.append(make_element('SSL_PRIVATEKEY', self.private_key))
         if self.certificate is not None:
@@ -200,7 +200,7 @@ class VHost():
         port = None
         protocol = None
         doc_root = None
-        sys_folder = None
+        sys_root = None
         private_key = None
         certificate = None
         ip = []
@@ -215,8 +215,8 @@ class VHost():
                 protocol = child.text
             elif child.tag == 'DOCROOT':
                 doc_root = child.text
-            elif child.tag == 'SYSFOLDER':
-                sys_folder = child.text
+            elif child.tag == 'SYSROOT':
+                sys_root = child.text
             elif child.tag == 'IP':
                 ip.append(child.text)
             elif child.tag == 'HOST':
@@ -230,7 +230,7 @@ class VHost():
                 certificate = child.text
             else:
                 logs.append(Log.from_lxml_element(child))
-        return VHost(name, port, protocol, doc_root, sys_folder, logs, ip, host,
+        return VHost(name, port, protocol, doc_root, sys_root, logs, ip, host,
                      private_key, certificate)
     
     @staticmethod
