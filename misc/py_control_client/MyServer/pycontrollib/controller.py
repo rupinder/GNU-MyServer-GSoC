@@ -29,7 +29,7 @@ class BasicController():
     def __init__(self, host, port, username, password):
         self.connection = None
         self.host = host
-        self.port = port
+        self.port = int(port)
         self.username = username
         self.password = password
 
