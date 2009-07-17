@@ -131,3 +131,15 @@ class Controller(BasicController):
     def get_server_configuration(self):
         '''Get server settings.'''
         return MyServerConfig.from_string(self.get_file('myserver.xml'))
+
+    def put_MIME_type_configuration(self, config):
+        '''Put MIME types settings.'''
+        self.put_file(str(config), 'mimetypes.xml')
+
+    def put_vhost_configuration(self, config):
+        '''Put VHost settings.'''
+        self.put_file(str(config), 'virtualhosts.xml')
+
+    def put_server_configuration(self, config):
+        '''Put server settings.'''
+        self.put_file(str(config), 'myserver.xml')
