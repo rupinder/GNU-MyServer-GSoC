@@ -21,9 +21,12 @@ import gobject
 import gtk.glade
 import GUIConfig
 from MyServer.pycontrollib.config import MyServerConfig
+from MyServer.pycontrollib.controller import Controller
 from MyServer.pycontrollib.definition import DefinitionElement, DefinitionTree
 
 class About():
+    '''GNU MyServer Control about window.'''
+
     def __init__(self):
         self.gladefile = 'PyGTKControl.glade'
         self.widgets = gtk.glade.XML(self.gladefile, 'aboutdialog')
@@ -32,23 +35,74 @@ class About():
     def on_aboutdialog_response(self, widget, response):
         widget.destroy()
 
+class Connection():
+    def __init__(self):
+        self.gladefile = 'PyGTKControl.glade'
+        self.widgets = gtk.glade.XML(self.gladefile, 'connectiondialog')
+        self.widgets.signal_autoconnect(self)
+
+    def destroy(self):
+        self.widgets.get_widget('connectiondialog').destroy()
+        
+    def on_cancel_button_clicked(self, widget):
+        self.destroy()
+    
+    def get_host(self):
+        return self.widgets.get_widget('host_entry').get_text()
+
+    def get_port(self):
+        return self.widgets.get_widget('port_entry').get_text()
+
+    def get_username(self):
+        return self.widgets.get_widget('username_entry').get_text()
+
+    def get_password(self):
+        return self.widgets.get_widget('password_entry').get_text()
+
 class PyGTKControl():
+    '''GNU MyServer Control main window.'''
+
     def __init__(self):
         self.gladefile = 'PyGTKControl.glade'
         self.widgets = gtk.glade.XML(self.gladefile, 'window')
         self.widgets.signal_autoconnect(self)
         self.construct_options()
-        self.chooser = None
-        self.path = None
+        self.chooser = None # Active file chooser
+        self.path = None # path of currently edited file
+        self.controller = None
 
     def on_window_destroy(self, widget):
         gtk.main_quit()
-        
+
     def on_quit_menu_item_activate(self, widget):
         gtk.main_quit()
 
     def on_about_menu_item_activate(self, widget):
         About()
+
+    def on_connect_menu_item_activate(self, widget):
+        dialog = Connection()
+        def connect(widget):
+            self.controller = Controller(
+                dialog.get_host(), dialog.get_port(),
+                dialog.get_username(), dialog.get_password())
+            self.controller.connect()
+            dialog.destroy()
+        dialog.widgets.get_widget('ok_button').connect('clicked', connect)
+        dialog.widgets.get_widget('connectiondialog').show()
+
+    def on_disconnect_menu_item_activate(self, widget):
+        if self.controller is not None:
+            self.controller.disconnect()
+        self.controller = None
+
+    def on_get_config_menu_item_activate(self, widget):
+        if self.controller is not None:
+            self.set_up(self.controller.get_server_configuration())
+
+    def on_put_config_menu_item_activate(self, widget):
+        if self.controller is not None:
+            self.controller.put_server_configuration(self.get_current_config())
 
     def on_open_menu_item_activate(self, widget):
         if self.chooser is not None:
@@ -62,7 +116,7 @@ class PyGTKControl():
                 self.path = self.chooser.get_filename()
                 with open(self.path) as f:
                     conf = MyServerConfig.from_string(f.read())
-                self.set_up(conf.get_definitions())
+                self.set_up(conf)
             self.chooser.destroy()
         self.chooser.connect('response', handle_response)
         self.chooser.show()
@@ -87,37 +141,40 @@ class PyGTKControl():
         if self.path is None:
             self.on_save_as_menu_item_activate(widget)
         else:
-            definitions = []
-            for option in self.options:
-                check, field, var = self.options[option]
-                if not check.get_active():
-                    continue
-                if var == 'string':
-                    definitions.append(
-                        DefinitionElement(option, {'value': field.get_text()}))
-                elif var == 'integer':
-                    value = str(int(field.get_value()))
-                    definitions.append(
-                        DefinitionElement(option, {'value': value}))
-                elif var == 'bool':
-                    value = 'YES' if field.get_active() else 'NO'
-                    definitions.append(
-                        DefinitionElement(option, {'value': value}))
-                elif var == 'list':
-                    values = []
-                    model = field.get_model()
-                    i = model.iter_children(None)
-                    while i is not None:
-                        values.append(model.get_value(i, 0))
-                        i = model.iter_next(i)
-                    values = map(
-                        lambda v: DefinitionElement(attributes = {'value': v}),
-                        values)
-                    definitions.append(
-                        DefinitionTree(option, values))
-            config = MyServerConfig(definitions)
+            config = self.get_current_config()
             with open(self.path, 'w') as f:
                 f.write(str(config))
+    
+    def get_current_config(self):
+        definitions = []
+        for option in self.options:
+            check, field, var = self.options[option]
+            if not check.get_active():
+                continue
+            if var == 'string':
+                definitions.append(
+                    DefinitionElement(option, {'value': field.get_text()}))
+            elif var == 'integer':
+                value = str(int(field.get_value()))
+                definitions.append(
+                    DefinitionElement(option, {'value': value}))
+            elif var == 'bool':
+                value = 'YES' if field.get_active() else 'NO'
+                definitions.append(
+                    DefinitionElement(option, {'value': value}))
+            elif var == 'list':
+                values = []
+                model = field.get_model()
+                i = model.iter_children(None)
+                while i is not None:
+                    values.append(model.get_value(i, 0))
+                    i = model.iter_next(i)
+                values = map(
+                    lambda v: DefinitionElement(attributes = {'value': v}),
+                    values)
+                definitions.append(
+                    DefinitionTree(option, values))
+        return MyServerConfig(definitions)
 
     def on_new_menu_item_activate(self, widget = None):
         if widget is not None:
@@ -133,9 +190,9 @@ class PyGTKControl():
             elif var == 'list':
                 field.get_model().clear()
 
-    def set_up(self, definitions):
+    def set_up(self, config):
         self.on_new_menu_item_activate()
-        for definition in definitions:
+        for definition in config.get_definitions():
             name = definition.get_name()
             if name not in self.options:
                 pass # goes to unknown
@@ -165,6 +222,7 @@ class PyGTKControl():
                 return text
             return text[len(tab):].replace('.', ' ').replace('_', ' ').strip()
 
+        # segregate options by tab
         segregated_options = {}
         for option in GUIConfig.options:
             tab = 'other'
@@ -175,7 +233,7 @@ class PyGTKControl():
             if not segregated_options.has_key(tab):
                 segregated_options[tab] = []
             segregated_options[tab].append(option)
-                
+
         tabs = {}
         self.options = {}
         for tab in GUIConfig.tabs + ['other', 'unknown']:
