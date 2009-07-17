@@ -151,17 +151,14 @@ class PyGTKControl():
             check, field, var = self.options[option]
             if not check.get_active():
                 continue
+            definition = self.definitions.get(option)
             if var == 'string':
-                definitions.append(
-                    DefinitionElement(option, {'value': field.get_text()}))
+                definition.set_attribute('value', field.get_text())
             elif var == 'integer':
-                value = str(int(field.get_value()))
-                definitions.append(
-                    DefinitionElement(option, {'value': value}))
+                definition.set_attribute('value', str(int(field.get_value())))
             elif var == 'bool':
-                value = 'YES' if field.get_active() else 'NO'
-                definitions.append(
-                    DefinitionElement(option, {'value': value}))
+                value = 'NO' if field.get_active() else 'YES'
+                definition.set_attribute('value', value)
             elif var == 'list':
                 values = []
                 model = field.get_model()
@@ -172,14 +169,22 @@ class PyGTKControl():
                 values = map(
                     lambda v: DefinitionElement(attributes = {'value': v}),
                     values)
-                definitions.append(
-                    DefinitionTree(option, values))
+                for i in xrange(len(definition.get_definitions())):
+                    definition.remove_definition(0)
+                for value in values:
+                    definition.add_definition(value)
+            definitions.append(definition)
         return MyServerConfig(definitions)
 
     def on_new_menu_item_activate(self, widget = None):
         if widget is not None:
             self.path = None
-        for check, field, var in self.options.itervalues():
+        for option in self.options:
+            check, field, var = self.options.get(option)
+            if var != 'list':
+                self.definitions[option] = DefinitionElement(option)
+            else:
+                self.definitions[option] = DefinitionTree(option)
             check.set_active(False)
             if var == 'string':
                 field.set_text('')
@@ -191,12 +196,20 @@ class PyGTKControl():
                 field.get_model().clear()
 
     def set_up(self, config):
+        def put_to_unknown(definition):
+            pass # TODO
         self.on_new_menu_item_activate()
         for definition in config.get_definitions():
             name = definition.get_name()
             if name not in self.options:
-                pass # goes to unknown
+                put_to_unknown(definition)
+                continue
             check, field, var = self.options[name]
+            if (isinstance(definition, DefinitionElement) and var == 'list') or \
+                    (isinstance(definition, DefinitionTree) and var != 'list'):
+                put_to_unknown(definition)
+                continue
+            self.definitions[name] = definition
             check.set_active(True)
             if var == 'string':
                 field.set_text(definition.get_attribute('value'))
@@ -206,13 +219,9 @@ class PyGTKControl():
                 if definition.get_attribute('value').upper() != 'YES':
                     field.set_active(1)
             elif var == 'list':
-                if isinstance(definition, DefinitionElement):
+                for definition in definition.get_definitions():
                     field.get_model().append(
                         (definition.get_attribute('value'), ))
-                else:
-                    for definition in definition.get_definitions():
-                        field.get_model().append(
-                            (definition.get_attribute('value'), ))
 
     def construct_options(self):
         def make_tab_name(text):
@@ -235,29 +244,30 @@ class PyGTKControl():
             segregated_options[tab].append(option)
 
         tabs = {}
-        self.options = {}
+        self.options = {} # option name => (CheckButton, field, type, )
         for tab in GUIConfig.tabs + ['other', 'unknown']:
             options = segregated_options.get(tab, [])
             tabs[tab] = gtk.Table(max(1, len(options)), 3)
             for i in xrange(len(options)):
                 option = options[i]
+                text, var = GUIConfig.options[option]
                 label = gtk.Label(make_name(option, tab))
-                label.set_tooltip_text(GUIConfig.options[option][0])
+                label.set_tooltip_text(text)
                 check = gtk.CheckButton()
-                if GUIConfig.options[option][1] == 'string':
+                if var == 'string':
                     field = gtk.Entry()
                     self.options[option] = (check, field, 'string', )
-                elif GUIConfig.options[option][1] == 'integer':
+                elif var == 'integer':
                     field = gtk.SpinButton(gtk.Adjustment(
                             0, 0, 2147483647, 1))
                     self.options[option] = (check, field, 'integer', )
-                elif GUIConfig.options[option][1] == 'bool':
+                elif var == 'bool':
                     field = gtk.combo_box_new_text()
                     field.append_text('yes')
                     field.append_text('no')
                     field.set_active(0)
                     self.options[option] = (check, field, 'bool', )
-                elif GUIConfig.options[option][1] == 'list':
+                elif var == 'list':
                     tree  = gtk.TreeView(gtk.ListStore(gobject.TYPE_STRING))
                     tree.set_headers_visible(False)
                     tree_column = gtk.TreeViewColumn()
@@ -278,9 +288,9 @@ class PyGTKControl():
                         new_name.set_text('')
                     add_button.connect('clicked', add_to_list)
                     def remove_from_list(button):
-                        selected = tree.get_selection().get_selected()
-                        if selected[1] is not None:
-                            selected[0].remove(selected[1])
+                        model, selected = tree.get_selection().get_selected()
+                        if selected is not None:
+                            model.remove(selected)
                     remove_button.connect('clicked', remove_from_list)
                     self.options[option] = (check, tree, 'list', )
                 tabs[tab].attach(check, 0, 1, i, i + 1, gtk.FILL, gtk.FILL)
@@ -289,6 +299,8 @@ class PyGTKControl():
             self.widgets.get_widget('notebook').append_page(
                 tabs[tab], gtk.Label(make_tab_name(tab)))
 
+        self.definitions = {} # option name => corresponding Definition
+        self.on_new_menu_item_activate()
         self.widgets.get_widget('notebook').show_all()
 
 PyGTKControl()
