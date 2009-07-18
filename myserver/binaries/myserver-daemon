@@ -39,23 +39,25 @@ test -x $DAEMON || exit 0
 
 d_start()
 {
-	start-stop-daemon --start --pidfile $PIDFILE \
-	--exec $DAEMON -- -rSERVICE --log="file://$LOGFILE" --pidfile=$PIDFILE
+	start-stop-daemon --start --exec $DAEMON -- -rSERVICE \
+  --log="file://$LOGFILE" --pidfile=$PIDFILE
 }
 
 
 d_stop()
 {
-	start-stop-daemon --stop --pidfile $PIDFILE \
-	--exec $DAEMON -- -rSERVICE --log="file://$LOGFILE" --pidfile=$PIDFILE
-
+  if test -e $PIDFILE; then
+	  start-stop-daemon --stop --exec $DAEMON -- -rSERVICE \
+  --log="file://$LOGFILE" --pidfile=$PIDFILE;
+    rm -f $PIDFILE;
+  fi
 }
 
 
 d_reload()
 {
-	start-stop-daemon --stop  --signal 1  --pidfile $PIDFILE \
-	--exec $DAEMON -- -rSERVICE --log="file://$LOGFILE" --pidfile=$PIDFILE
+	start-stop-daemon --stop  --signal 1  --exec $DAEMON -- -rSERVICE \
+  --log="file://$LOGFILE" --pidfile=$PIDFILE
 }
 
 d_restart()
