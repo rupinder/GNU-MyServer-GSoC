@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+from __future__ import print_function
 import gtk
 import gobject
 import gtk.glade
@@ -42,6 +43,7 @@ class Connection():
         self.widgets.signal_autoconnect(self)
 
     def destroy(self):
+        '''Destroys this widget.'''
         self.widgets.get_widget('connectiondialog').destroy()
         
     def on_cancel_button_clicked(self, widget):
@@ -72,15 +74,19 @@ class PyGTKControl():
         self.controller = None
 
     def on_window_destroy(self, widget):
+        '''Exits program.'''
         gtk.main_quit()
 
     def on_quit_menu_item_activate(self, widget):
+        '''Exits program.'''
         gtk.main_quit()
 
     def on_about_menu_item_activate(self, widget):
+        '''Shows about window.'''
         About()
 
     def on_connect_menu_item_activate(self, widget):
+        '''Show connection dialog.'''
         dialog = Connection()
         def connect(widget):
             self.controller = Controller(
@@ -92,19 +98,23 @@ class PyGTKControl():
         dialog.widgets.get_widget('connectiondialog').show()
 
     def on_disconnect_menu_item_activate(self, widget):
+        '''Disconnect from server.'''
         if self.controller is not None:
             self.controller.disconnect()
         self.controller = None
 
     def on_get_config_menu_item_activate(self, widget):
+        '''Get config from remote server.'''
         if self.controller is not None:
             self.set_up(self.controller.get_server_configuration())
 
     def on_put_config_menu_item_activate(self, widget):
+        '''Put config on remote server.'''
         if self.controller is not None:
             self.controller.put_server_configuration(self.get_current_config())
 
     def on_open_menu_item_activate(self, widget):
+        '''Open local configuration file.'''
         if self.chooser is not None:
             self.chooser.destroy()
         self.chooser = gtk.FileChooserDialog(
@@ -122,6 +132,7 @@ class PyGTKControl():
         self.chooser.show()
 
     def on_save_as_menu_item_activate(self, widget):
+        '''Save configuration as local file.'''
         if self.chooser is not None:
             self.chooser.destroy()
         self.chooser = gtk.FileChooserDialog(
@@ -138,6 +149,7 @@ class PyGTKControl():
         self.chooser.show()
 
     def on_save_menu_item_activate(self, widget):
+        '''Save configuration to file.'''
         if self.path is None:
             self.on_save_as_menu_item_activate(widget)
         else:
@@ -146,6 +158,7 @@ class PyGTKControl():
                 f.write(str(config))
     
     def get_current_config(self):
+        '''Returns current configuration as list of definitions.'''
         definitions = []
         for option in self.options:
             check, field, var = self.options[option]
@@ -174,11 +187,14 @@ class PyGTKControl():
                 for value in values:
                     definition.add_definition(value)
             definitions.append(definition)
-        return MyServerConfig(definitions)
+        return MyServerConfig(definitions + self.unknown)
 
     def on_new_menu_item_activate(self, widget = None):
+        '''Clears configuration.'''
         if widget is not None:
             self.path = None
+        self.definitions = {} # option name => corresponding Definition
+        self.unknown = [] # list of unknown definitions
         for option in self.options:
             check, field, var = self.options.get(option)
             if var != 'list':
@@ -196,8 +212,10 @@ class PyGTKControl():
                 field.get_model().clear()
 
     def set_up(self, config):
+        '''Reads configuration from given config instance.'''
         def put_to_unknown(definition):
-            pass # TODO
+            self.unknown.append(definition)
+            print('Unknown option:', definition, sep = '\n')
         self.on_new_menu_item_activate()
         for definition in config.get_definitions():
             name = definition.get_name()
@@ -224,6 +242,7 @@ class PyGTKControl():
                         (definition.get_attribute('value'), ))
 
     def construct_options(self):
+        '''Reads known options from file and prepares GUI.'''
         def make_tab_name(text):
             return text.capitalize().replace('.', ' ').replace('_', ' ')
         def make_name(text, tab):
@@ -299,7 +318,6 @@ class PyGTKControl():
             self.widgets.get_widget('notebook').append_page(
                 tabs[tab], gtk.Label(make_tab_name(tab)))
 
-        self.definitions = {} # option name => corresponding Definition
         self.on_new_menu_item_activate()
         self.widgets.get_widget('notebook').show_all()
 
