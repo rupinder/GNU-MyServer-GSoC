@@ -61,6 +61,109 @@ class Connection():
     def get_password(self):
         return self.widgets.get_widget('password_entry').get_text()
 
+class EditionTable(gtk.Table):
+    def __init__(self, tree, definitions):
+        gtk.Table.__init__(self, 8, 3)
+        
+        tree.connect('cursor-changed', self.cursor_changed)
+        self.definitions = definitions
+        self.last_selected = None
+
+        name_label = gtk.Label('name:')
+        self.name_field = name_entry = gtk.Entry()
+        self.attach(name_label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
+        self.attach(name_entry, 1, 3, 0, 1, gtk.FILL, gtk.FILL)
+
+        value_label = gtk.Label('value:')
+        self.value_field = value_entry = gtk.Entry()
+        self.value_check_field = value_checkbutton = gtk.CheckButton()
+        value_checkbutton.set_tooltip_text('If active value will be used.')
+        value_checkbutton.set_active(True)
+        value_checkbutton.connect(
+            'toggled',
+            lambda button: value_entry.set_editable(button.get_active()))
+        self.attach(value_label, 0, 1, 1, 2, yoptions = gtk.FILL)
+        self.attach(value_entry, 1, 2, 1, 2, yoptions = gtk.FILL)
+        self.attach(value_checkbutton, 2, 3, 1, 2, gtk.FILL, gtk.FILL)
+
+        add_definition_button = gtk.Button('add sub-definition')
+        self.attach(add_definition_button, 0, 3, 2, 3, yoptions = gtk.FILL)
+        
+        remove_definition_button = gtk.Button('remove this definition')
+        self.attach(remove_definition_button, 0, 3, 3, 4, yoptions = gtk.FILL)
+
+        add_attribute_button = gtk.Button('add attribute')
+        remove_attribute_button = gtk.Button('remove attribute')
+        add_attribute_button.connect(
+            'clicked',
+            lambda button: attributes_model.append(('', '', )))
+        def remove_attribute(button):
+            model, selected = attributes_list.get_selection().get_selected()
+            if selected is not None:
+                model.remove(selected)
+        remove_attribute_button.connect('clicked', remove_attribute)
+        self.attach(add_attribute_button, 0, 3, 4, 5, yoptions = gtk.FILL)
+        self.attach(remove_attribute_button, 0, 3, 5, 6, yoptions = gtk.FILL)
+
+        attributes_label = gtk.Label('attributes:')
+        attributes_list = gtk.TreeView(gtk.ListStore(gobject.TYPE_STRING,
+                                                     gobject.TYPE_STRING))
+        self.attributes_field = attributes_model = attributes_list.get_model()
+
+        def edited_handler(cell, path, text, data):
+            model, col = data
+            model[path][col] = text
+        variable_column = gtk.TreeViewColumn('variable')
+        variable_renderer = gtk.CellRendererText()
+        variable_renderer.set_property('editable', True)
+        variable_renderer.connect('edited', edited_handler,
+                                  (attributes_model, 0, ))
+        variable_column.pack_start(variable_renderer)
+        variable_column.add_attribute(variable_renderer, 'text', 0)
+        
+        value_column = gtk.TreeViewColumn('value')
+        value_renderer = gtk.CellRendererText()
+        value_renderer.set_property('editable', True)
+        value_renderer.connect('edited', edited_handler,
+                                  (attributes_model, 1, ))
+        value_column.pack_start(value_renderer)
+        value_column.add_attribute(value_renderer, 'text', 1)
+        
+        attributes_list.append_column(variable_column)
+        attributes_list.append_column(value_column)
+        self.attach(attributes_label, 0, 3, 6, 7, yoptions = gtk.FILL)
+        self.attach(attributes_list, 0, 3, 7, 8, yoptions = gtk.FILL)
+
+    def clear(self):
+        self.name_field.set_text('')
+        self.value_field.set_text('')
+        self.value_check_field.set_active(False)
+        self.attributes_field.clear()
+
+    def cursor_changed(self, tree):
+        if self.last_selected is not None:
+            self.definitions[self.last_selected] = (
+                self.value_field.get_text(),
+                self.value_check_field.get_active(),
+                {}, ) # add attributes
+            
+        self.clear()
+        
+        self.last_selected = current = self.get_selected(tree)
+        value, value_check, attributes = self.definitions[current]
+        self.value_field.set_text(value)
+        self.value_check_field.set_active(value_check)
+        # add attributes
+
+    def get_selected(self, tree):
+        model, selected = tree.get_selection().get_selected()
+        current = None
+        for it in self.definitions:
+            if model[it].path == model[selected].path:
+                current = it
+                break
+        return current
+    
 class PyGTKControl():
     '''GNU MyServer Control main window.'''
 
@@ -243,12 +346,6 @@ class PyGTKControl():
 
     def construct_options(self):
         '''Reads known options from file and prepares GUI.'''
-        def make_tab_name(text):
-            return text.capitalize().replace('.', ' ').replace('_', ' ')
-        def make_name(text, tab):
-            if tab == 'other':
-                return text
-            return text[len(tab):].replace('.', ' ').replace('_', ' ').strip()
 
         # segregate options by tab
         segregated_options = {}
@@ -262,63 +359,37 @@ class PyGTKControl():
                 segregated_options[tab] = []
             segregated_options[tab].append(option)
 
-        tabs = {}
-        self.options = {} # option name => (CheckButton, field, type, )
+        tabs = {} # tab => definitions
         for tab in GUIConfig.tabs + ['other', 'unknown']:
+            definitions = {} # TreeIterator => (value, value_check, attributes, )
+            tabs[tab] = definitions
             options = segregated_options.get(tab, [])
-            tabs[tab] = gtk.Table(max(1, len(options)), 3)
-            for i in xrange(len(options)):
-                option = options[i]
-                text, var = GUIConfig.options[option]
-                label = gtk.Label(make_name(option, tab))
-                label.set_tooltip_text(text)
-                check = gtk.CheckButton()
-                if var == 'string':
-                    field = gtk.Entry()
-                    self.options[option] = (check, field, 'string', )
-                elif var == 'integer':
-                    field = gtk.SpinButton(gtk.Adjustment(
-                            0, 0, 2147483647, 1))
-                    self.options[option] = (check, field, 'integer', )
-                elif var == 'bool':
-                    field = gtk.combo_box_new_text()
-                    field.append_text('yes')
-                    field.append_text('no')
-                    field.set_active(0)
-                    self.options[option] = (check, field, 'bool', )
-                elif var == 'list':
-                    tree  = gtk.TreeView(gtk.ListStore(gobject.TYPE_STRING))
-                    tree.set_headers_visible(False)
-                    tree_column = gtk.TreeViewColumn()
-                    tree_renderer = gtk.CellRendererText()
-                    tree_column.pack_start(tree_renderer)
-                    tree_column.add_attribute(tree_renderer, 'text', 0)
-                    tree.append_column(tree_column)
-                    new_name = gtk.Entry()
-                    add_button = gtk.Button('add')
-                    remove_button = gtk.Button('remove')
-                    field = gtk.Table(3, 2)
-                    field.attach(new_name, 0, 2, 0, 1)
-                    field.attach(add_button, 0, 1, 1, 2)
-                    field.attach(remove_button, 1, 2, 1, 2)
-                    field.attach(tree, 0, 2, 2, 3)
-                    def add_to_list(button):
-                        tree.get_model().append((new_name.get_text(), ))
-                        new_name.set_text('')
-                    add_button.connect('clicked', add_to_list)
-                    def remove_from_list(button):
-                        model, selected = tree.get_selection().get_selected()
-                        if selected is not None:
-                            model.remove(selected)
-                    remove_button.connect('clicked', remove_from_list)
-                    self.options[option] = (check, tree, 'list', )
-                tabs[tab].attach(check, 0, 1, i, i + 1, gtk.FILL, gtk.FILL)
-                tabs[tab].attach(label, 1, 2, i, i + 1, yoptions = gtk.FILL)
-                tabs[tab].attach(field, 2, 3, i, i + 1, yoptions = gtk.FILL)
+            panels = gtk.HBox()
+            
+            tree = gtk.TreeView(gtk.TreeStore(gobject.TYPE_STRING))
+            tree_model = tree.get_model()
+            tree.set_headers_visible(False)
+            tree_column = gtk.TreeViewColumn()
+            tree_renderer = gtk.CellRendererText()
+            tree_column.pack_start(tree_renderer)
+            tree_column.add_attribute(tree_renderer, 'text', 0)
+            tree.append_column(tree_column)
+            
+            panels.pack_start(tree, expand = False)
+            panels.pack_start(EditionTable(tree, definitions))
+            
+            for option in options:
+                tooltip_text, var = GUIConfig.options[option]
+                tooltip = gtk.Tooltip()
+                tooltip.set_text(tooltip_text)
+                it = tree_model.append(None, (option, ))
+                definitions[it] = ('', False, {})
+                tree.set_tooltip_row(tooltip, tree_model[it].path) # not working
+             
             self.widgets.get_widget('notebook').append_page(
-                tabs[tab], gtk.Label(make_tab_name(tab)))
+                panels, gtk.Label(tab))
 
-        self.on_new_menu_item_activate()
+        # self.on_new_menu_item_activate()
         self.widgets.get_widget('notebook').show_all()
 
 PyGTKControl()
