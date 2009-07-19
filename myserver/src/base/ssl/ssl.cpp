@@ -23,13 +23,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 extern "C"
 {
 #if GCRY_CONTROL
-#include <errno.h>
-#include <gcrypt.h>
+
+# include <errno.h>
+
+# ifdef WIN32
+#  undef socklen_t
+# endif
+
+# include <gcrypt.h>
+
+# ifdef HAVE_PTHREAD
 GCRY_THREAD_OPTION_PTHREAD_IMPL;
+# endif
+
 #endif
 
 #ifdef HAVE_PTHREAD
-#include <pthread.h>
+# include <pthread.h>
 #endif
 }
 
@@ -99,7 +109,7 @@ void initializeSSL ()
 
   if (!initialized)
   {
-#if GCRY_CONTROL
+#if GCRY_CONTROL && HAVE_PTHREAD
     gcry_control (GCRYCTL_SET_THREAD_CBS, &gcry_threads_pthread);
 #endif
     gnutls_global_init ();
