@@ -100,7 +100,8 @@ AC_CHECK_LIB(gcrypt, gcry_control, AC_DEFINE(GCRY_CONTROL, 1, [Define if the gcr
 
 case "${host}" in
     *-*-mingw32*)
-     LDFLAGS="$LDFLAGS -lwsock32 -lgdi32 -lole32  -luuid -luserenv"
+     LDFLAGS="-lwsock32 -lgdi32 -lole32  -luuid -luserenv $LDFLAGS"
+     MAKE_MSCGI=yes
      ;;
   *)
      dnl Looking for pthreads
@@ -124,7 +125,6 @@ case "${host}" in
                 *** MSCGI support will not function
                     ])
          DL_LIB=""
-         MAKE_MSCGI=no
    fi
 
 
@@ -309,6 +309,10 @@ AC_TYPE_GETGROUPS
 AM_CONDITIONAL(BUILD_TESTS, test "$MAKE_TESTS" = "yes")
 AM_CONDITIONAL(BUILD_MSCGI, test "$MAKE_MSCGI" = "yes")
 AM_CONDITIONAL(BUILD_DOC, test "$MAKE_DOC" = "yes")
+
+AC_SUBST(BUILD_TESTS)
+AC_SUBST(BUILD_DOC)
+AC_SUBST(BUILD_MSCGI)
 
 dnl AC_CONFIG_SUBDIRS()
 AC_CONFIG_FILES([
