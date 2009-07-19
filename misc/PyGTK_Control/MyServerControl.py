@@ -142,10 +142,16 @@ class EditionTable(gtk.Table):
 
     def cursor_changed(self, tree):
         if self.last_selected is not None:
+            attributes = {}
+            i = self.attributes_field.iter_children(None)
+            while i is not None:
+                attributes[self.attributes_field.get_value(i, 0)] = \
+                    self.attributes_field.get_value(i, 1)
+                i = self.attributes_field.iter_next(i)
             self.definitions[self.last_selected] = (
                 self.value_field.get_text(),
                 self.value_check_field.get_active(),
-                {}, ) # add attributes
+                attributes, )
             
         self.clear()
         
@@ -153,7 +159,8 @@ class EditionTable(gtk.Table):
         value, value_check, attributes = self.definitions[current]
         self.value_field.set_text(value)
         self.value_check_field.set_active(value_check)
-        # add attributes
+        for attribute in attributes:
+            self.attributes_field.append((attribute, attributes[attribute], ))
 
     def get_selected(self, tree):
         model, selected = tree.get_selection().get_selected()
