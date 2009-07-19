@@ -72,7 +72,7 @@ class EditionTable(gtk.Table):
         name_label = gtk.Label('name:')
         self.name_field = name_entry = gtk.Entry()
         self.attach(name_label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
-        self.attach(name_entry, 1, 3, 0, 1, gtk.FILL, gtk.FILL)
+        self.attach(name_entry, 1, 3, 0, 1, yoptions = gtk.FILL)
 
         value_label = gtk.Label('value:')
         self.value_field = value_entry = gtk.Entry()
@@ -82,7 +82,7 @@ class EditionTable(gtk.Table):
         value_checkbutton.connect(
             'toggled',
             lambda button: value_entry.set_editable(button.get_active()))
-        self.attach(value_label, 0, 1, 1, 2, yoptions = gtk.FILL)
+        self.attach(value_label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
         self.attach(value_entry, 1, 2, 1, 2, yoptions = gtk.FILL)
         self.attach(value_checkbutton, 2, 3, 1, 2, gtk.FILL, gtk.FILL)
 
@@ -108,6 +108,11 @@ class EditionTable(gtk.Table):
         attributes_label = gtk.Label('attributes:')
         attributes_list = gtk.TreeView(gtk.ListStore(gobject.TYPE_STRING,
                                                      gobject.TYPE_STRING))
+        attributes_scroll = gtk.ScrolledWindow()
+        attributes_scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        attributes_scroll.set_shadow_type(gtk.SHADOW_OUT)
+        attributes_scroll.set_border_width(5)
+        attributes_scroll.add(attributes_list)
         self.attributes_field = attributes_model = attributes_list.get_model()
 
         def edited_handler(cell, path, text, data):
@@ -132,7 +137,7 @@ class EditionTable(gtk.Table):
         attributes_list.append_column(variable_column)
         attributes_list.append_column(value_column)
         self.attach(attributes_label, 0, 3, 6, 7, yoptions = gtk.FILL)
-        self.attach(attributes_list, 0, 3, 7, 8, yoptions = gtk.FILL)
+        self.attach(attributes_scroll, 0, 3, 7, 8)
 
     def clear(self):
         self.name_field.set_text('')
@@ -140,7 +145,7 @@ class EditionTable(gtk.Table):
         self.value_check_field.set_active(False)
         self.attributes_field.clear()
 
-    def cursor_changed(self, tree):
+    def save_changed(self, tree):
         if self.last_selected is not None:
             attributes = {}
             i = self.attributes_field.iter_children(None)
@@ -152,6 +157,9 @@ class EditionTable(gtk.Table):
                 self.value_field.get_text(),
                 self.value_check_field.get_active(),
                 attributes, )
+            
+    def cursor_changed(self, tree):
+        self.save_changed(tree)
             
         self.clear()
         
@@ -382,7 +390,12 @@ class PyGTKControl():
             tree_column.add_attribute(tree_renderer, 'text', 0)
             tree.append_column(tree_column)
             
-            panels.pack_start(tree, expand = False)
+            tree_scroll = gtk.ScrolledWindow()
+            tree_scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+            tree_scroll.set_shadow_type(gtk.SHADOW_OUT)
+            tree_scroll.set_border_width(5)
+            tree_scroll.add(tree)
+            panels.pack_start(tree_scroll)
             panels.pack_start(EditionTable(tree, definitions))
             
             for option in options:
