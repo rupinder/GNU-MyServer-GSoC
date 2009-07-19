@@ -3,3 +3,5 @@ libhttp_handler_a_SOURCES =
 SUBDIRS = cgi fastcgi http_dir http_file isapi mscgi proxy scgi wincgi
 INCLUDES = $(all_includes)
 
+install:
+# Do not do anything.

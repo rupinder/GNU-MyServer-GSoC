@@ -3,7 +3,7 @@ SUBDIRS = languages logs system web certificates plugins
 EXTRA_DIST = myserver-daemon MIMEtypes.default.xml myserver.default.xml \
 						 virtualhosts.default.xml
 
-configdir = $(root_prefix)/etc/myserver
+configdir = $(DESTDIR)/etc/myserver
 
 install: install-recursive
 	$(install_sh_DATA) MIMEtypes.default.xml $(configdir)/MIMEtypes.xml

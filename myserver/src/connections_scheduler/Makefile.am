@@ -3,3 +3,5 @@ libconnections_scheduler_a_SOURCES = connections_scheduler.cpp listen_threads.cp
 SUBDIRS =
 INCLUDES = $(all_includes)
 
+install:
+# Do not do anything.
