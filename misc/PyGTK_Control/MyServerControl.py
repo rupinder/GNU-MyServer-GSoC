@@ -321,18 +321,20 @@ class PyGTKControl():
                 row[3] = ''
                 row[4] = False
                 row[5] = {}
+                child = model.iter_children(i)
+                if child is not None: # remove node children
+                    while model.remove(child):
+                        pass
                 i = model.iter_next(i)
 
     def set_up(self, config):
         '''Reads configuration from given config instance.'''
+        
         def put_to_unknown(definition):
             print('Unknown option:', definition, sep = '\n')
-        self.on_new_menu_item_activate()
-        for definition in config.get_definitions():
+            
+        def get_value_and_attributes(definition):
             name = definition.get_name()
-            if name not in self.options:
-                put_to_unknown(definition)
-                continue
             enabled = True
             try:
                 value = definition.get_attribute('value')
@@ -342,6 +344,27 @@ class PyGTKControl():
                 value_check = False
             attributes = definition.get_attributes()
             attributes.pop('value', None)
+            return (name, enabled, value, value_check, attributes, )
+
+        def add_children(parent, definition, model):
+            if isinstance(definition, DefinitionTree):
+                for d in definition.get_definitions():
+                    name, enabled, value, value_check, attributes = \
+                        get_value_and_attributes(d)
+                    i = model.append(
+                        parent,
+                        (name, '', enabled, value, value_check, attributes, ))
+                    add_children(i, d, model)
+        
+        self.on_new_menu_item_activate()
+        for definition in config.get_definitions():
+            name, enabled, value, value_check, attributes = \
+                get_value_and_attributes(definition)
+            
+            if name not in self.options:
+                put_to_unknown(definition)
+                continue
+            
             tree = self.tabs[self.options[name]][1]
             model = tree.get_model()
             i = model.iter_children(None)
@@ -352,6 +375,7 @@ class PyGTKControl():
             row[3] = value
             row[4] = value_check
             row[5] = attributes
+            add_children(i, definition, model)
 
     def construct_options(self):
         '''Reads known options from file and prepares GUI.'''
