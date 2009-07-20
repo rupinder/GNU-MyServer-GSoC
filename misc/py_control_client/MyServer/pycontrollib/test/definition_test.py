@@ -40,6 +40,7 @@ class DefinitionTest(unittest.TestCase):
         definition = Definition('with attributes', {'a': 'b', 'c': 'd'})
         self.assertEqual('b', definition.get_attribute('a'))
         self.assertEqual('d', definition.get_attribute('c'))
+        self.assertEqual({'a': 'b', 'c': 'd'}, definition.get_attributes())
         self.assertRaises(KeyError, definition.get_attribute, 'e')
         definition.set_attribute('e', 'f')
         self.assertEqual('f', definition.get_attribute('e'))

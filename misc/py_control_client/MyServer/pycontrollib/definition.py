@@ -42,6 +42,10 @@ class Definition():
         '''Set definition name, None means no name.'''
         self.name = name
 
+    def get_attributes(self):
+        '''Get dict of all attributes.'''
+        return self.attributes
+
     def get_attribute(self, key):
         '''Get value of attribute key.'''
         return self.attributes[key]
