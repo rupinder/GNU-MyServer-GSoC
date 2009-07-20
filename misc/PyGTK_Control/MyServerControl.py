@@ -342,13 +342,23 @@ class PyGTKControl():
                 value_check = False
             attributes = definition.get_attributes()
             attributes.pop('value', None)
-            self.options[name] = (enabled, value, value_check, attributes, )
+            tree = self.tabs[self.options[name]][1]
+            model = tree.get_model()
+            i = model.iter_children(None)
+            while model[i][0] != name:
+                i = model.iter_next(i)
+            row = model[i]
+            row[2] = enabled
+            row[3] = value
+            row[4] = value_check
+            row[5] = attributes
 
     def construct_options(self):
         '''Reads known options from file and prepares GUI.'''
 
         # segregate options by tab
         segregated_options = {} # tab name => option names
+        self.options = {} # option name => tab name
         for option in GUIConfig.options:
             tab = 'other'
             for prefix in GUIConfig.tabs:
@@ -358,6 +368,7 @@ class PyGTKControl():
             if not segregated_options.has_key(tab):
                 segregated_options[tab] = []
             segregated_options[tab].append(option)
+            self.options[option] = tab
 
         self.tabs = {} # tab name => (table, tree, )
         for tab in GUIConfig.tabs + ['other', 'unknown']:
