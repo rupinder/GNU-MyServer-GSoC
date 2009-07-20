@@ -320,7 +320,6 @@ class PyGTKControl():
     def set_up(self, config):
         '''Reads configuration from given config instance.'''
         def put_to_unknown(definition):
-            self.unknown.append(definition)
             print('Unknown option:', definition, sep = '\n')
         self.on_new_menu_item_activate()
         for definition in config.get_definitions():
@@ -328,24 +327,16 @@ class PyGTKControl():
             if name not in self.options:
                 put_to_unknown(definition)
                 continue
-            check, field, var = self.options[name]
-            if (isinstance(definition, DefinitionElement) and var == 'list') or \
-                    (isinstance(definition, DefinitionTree) and var != 'list'):
-                put_to_unknown(definition)
-                continue
-            self.definitions[name] = definition
-            check.set_active(True)
-            if var == 'string':
-                field.set_text(definition.get_attribute('value'))
-            elif var == 'integer':
-                field.set_value(int(definition.get_attribute('value')))
-            elif var == 'bool':
-                if definition.get_attribute('value').upper() != 'YES':
-                    field.set_active(1)
-            elif var == 'list':
-                for definition in definition.get_definitions():
-                    field.get_model().append(
-                        (definition.get_attribute('value'), ))
+            enabled = True
+            try:
+                value = definition.get_attribute('value')
+                value_check = True
+            except KeyError:
+                value = ''
+                value_check = False
+            attributes = definition.get_attributes()
+            attributes.pop('value', None)
+            self.options[name] = (enabled, value, value_check, attributes, )
 
     def construct_options(self):
         '''Reads known options from file and prepares GUI.'''
