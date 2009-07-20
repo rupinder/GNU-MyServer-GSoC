@@ -4,3 +4,5 @@ libfilter_a_SOURCES = filter.cpp filters_chain.cpp filters_factory.cpp memory_st
 SUBDIRS = gzip
 INCLUDES = $(all_includes)
 
+install:
+# Do not do anything.

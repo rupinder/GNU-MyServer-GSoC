@@ -3,3 +3,5 @@ libprotocol_a_SOURCES = protocol_buffer.cpp protocol.cpp protocols_manager.cpp u
 SUBDIRS = control ftp http https
 INCLUDES = $(all_includes)
 
+install:
+# Do not do anything.

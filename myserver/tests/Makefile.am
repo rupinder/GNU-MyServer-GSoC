@@ -13,3 +13,6 @@ test_socket.cpp test_socket_pair.cpp test_socket_stream_creator.cpp test_ssl_soc
 test_url.cpp test_utility.cpp test_validator.cpp test_validator_factory.cpp test_xml.cpp test_xml_validator.cpp test_nodetree.cpp
 
 tests_suite_LDADD = ../src/libmyserver.a $(CPPUNIT_LDFLAGS) $(PTHREAD_LIB) $(IDN_LIB) $(XNET_LIB) $(EVENT_LIB) $(DL_LIB) $(SSL_LIB) $(ZLIB_LIB) $(XML_LIBS) $(LDFLAGS)
+
+
+install:
