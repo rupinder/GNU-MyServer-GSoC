@@ -144,6 +144,7 @@ class EditionTable(gtk.Table):
         self.value_field.set_text('')
         self.value_check_field.set_active(False)
         self.attributes_field.clear()
+        self.last_selected = None
 
     def save_changed(self, tree):
         if self.last_selected is not None:
@@ -311,23 +312,12 @@ class PyGTKControl():
         '''Clears configuration.'''
         if widget is not None:
             self.path = None
-        self.definitions = {} # option name => corresponding Definition
-        self.unknown = [] # list of unknown definitions
-        for option in self.options:
-            check, field, var = self.options.get(option)
-            if var != 'list':
-                self.definitions[option] = DefinitionElement(option)
-            else:
-                self.definitions[option] = DefinitionTree(option)
-            check.set_active(False)
-            if var == 'string':
-                field.set_text('')
-            elif var == 'integer':
-                field.set_value(0)
-            elif var == 'bool':
-                field.set_active(0)
-            elif var == 'list':
-                field.get_model().clear()
+        for tab in self.tabs:
+            definitions, table, tree = self.tabs[tab]
+            for it in definitions:
+                definitions[it] = ('', True, {}, )
+            table.clear()
+            tree.get_selection().unselect_all()
 
     def set_up(self, config):
         '''Reads configuration from given config instance.'''
@@ -374,10 +364,9 @@ class PyGTKControl():
                 segregated_options[tab] = []
             segregated_options[tab].append(option)
 
-        tabs = {} # tab => definitions
+        self.tabs = {} # tab => definitions
         for tab in GUIConfig.tabs + ['other', 'unknown']:
             definitions = {} # TreeIterator => (value, value_check, attributes, )
-            tabs[tab] = definitions
             options = segregated_options.get(tab, [])
             panels = gtk.HBox()
             
@@ -396,20 +385,23 @@ class PyGTKControl():
             tree_scroll.set_border_width(5)
             tree_scroll.add(tree)
             panels.pack_start(tree_scroll)
-            panels.pack_start(EditionTable(tree, definitions))
+            table = EditionTable(tree, definitions)
+            panels.pack_start(table)
+
+            self.tabs[tab] = (definitions, table, tree, )
             
             for option in options:
                 tooltip_text, var = GUIConfig.options[option]
                 tooltip = gtk.Tooltip()
                 tooltip.set_text(tooltip_text)
                 it = tree_model.append(None, (option, ))
-                definitions[it] = ('', False, {})
+                definitions[it] = ('', True, {})
                 tree.set_tooltip_row(tooltip, tree_model[it].path) # not working
              
             self.widgets.get_widget('notebook').append_page(
                 panels, gtk.Label(tab))
 
-        # self.on_new_menu_item_activate()
+        self.on_new_menu_item_activate()
         self.widgets.get_widget('notebook').show_all()
 
 PyGTKControl()
