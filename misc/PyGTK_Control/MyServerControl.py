@@ -62,11 +62,11 @@ class Connection():
         return self.widgets.get_widget('password_entry').get_text()
 
 class EditionTable(gtk.Table):
-    def __init__(self, tree, definitions):
+    def __init__(self, tree, options):
         gtk.Table.__init__(self, 8, 3)
         
         tree.connect('cursor-changed', self.cursor_changed)
-        self.definitions = definitions
+        self.options = options
         self.last_selected = None
 
         enabled_label = gtk.Label('enabled:')
@@ -151,11 +151,11 @@ class EditionTable(gtk.Table):
         if self.last_selected is not None:
             attributes = {}
             i = self.attributes_field.iter_children(None)
-            while i is not None:
+            while i is not None: # iterate over attributes
                 attributes[self.attributes_field.get_value(i, 0)] = \
                     self.attributes_field.get_value(i, 1)
                 i = self.attributes_field.iter_next(i)
-            self.definitions[self.last_selected] = (
+            self.options[self.last_selected] = (
                 self.enabled_field.get_active(),
                 self.value_field.get_text(),
                 self.value_check_field.get_active(),
@@ -167,7 +167,7 @@ class EditionTable(gtk.Table):
         self.clear()
         
         self.last_selected = current = self.get_selected(tree)
-        enabled, value, value_check, attributes = self.definitions[current]
+        enabled, value, value_check, attributes = self.options[current]
         self.enabled_field.set_active(enabled)
         self.value_field.set_text(value)
         self.value_check_field.set_active(value_check)
@@ -176,12 +176,7 @@ class EditionTable(gtk.Table):
 
     def get_selected(self, tree):
         model, selected = tree.get_selection().get_selected()
-        current = None
-        for it in self.definitions:
-            if model[it].path == model[selected].path:
-                current = it
-                break
-        return current
+        return model[selected][0]
     
 class PyGTKControl():
     '''GNU MyServer Control main window.'''
@@ -315,10 +310,10 @@ class PyGTKControl():
         '''Clears configuration.'''
         if widget is not None:
             self.path = None
+        for option in self.options:
+            self.options[option] = (False, '', True, {}, )
         for tab in self.tabs:
-            definitions, table, tree = self.tabs[tab]
-            for it in definitions:
-                definitions[it] = (False, '', True, {}, )
+            table, tree = self.tabs[tab]
             table.clear()
             tree.get_selection().unselect_all()
 
@@ -368,9 +363,9 @@ class PyGTKControl():
             segregated_options[tab].append(option)
 
         self.tabs = {} # tab => definitions
+        # option name => (enabled, value, value_check, attributes, )
+        self.options = {}
         for tab in GUIConfig.tabs + ['other', 'unknown']:
-            # TreeIterator => (enabled, value, value_check, attributes, )
-            definitions = {}
             options = segregated_options.get(tab, [])
             panels = gtk.HBox()
             
@@ -389,17 +384,17 @@ class PyGTKControl():
             tree_scroll.set_border_width(5)
             tree_scroll.add(tree)
             panels.pack_start(tree_scroll)
-            table = EditionTable(tree, definitions)
+            table = EditionTable(tree, self.options)
             panels.pack_start(table)
 
-            self.tabs[tab] = (definitions, table, tree, )
+            self.tabs[tab] = (table, tree, )
             
             for option in options:
                 tooltip_text, var = GUIConfig.options[option]
                 tooltip = gtk.Tooltip()
                 tooltip.set_text(tooltip_text)
                 it = tree_model.append(None, (option, ))
-                definitions[it] = (False, '', True, {})
+                self.options[option] = None # anything, will be set up later
                 tree.set_tooltip_row(tooltip, tree_model[it].path) # not working
              
             self.widgets.get_widget('notebook').append_page(
