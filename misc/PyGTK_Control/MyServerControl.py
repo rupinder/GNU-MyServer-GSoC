@@ -69,10 +69,11 @@ class EditionTable(gtk.Table):
         self.definitions = definitions
         self.last_selected = None
 
-        name_label = gtk.Label('name:')
-        self.name_field = name_entry = gtk.Entry()
-        self.attach(name_label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
-        self.attach(name_entry, 1, 3, 0, 1, yoptions = gtk.FILL)
+        enabled_label = gtk.Label('enabled:')
+        self.enabled_field = enabled_checkbutton = gtk.CheckButton()
+        enabled_checkbutton.set_tooltip_text('If not active, definition won\'t be included in saved configuration.')
+        self.attach(enabled_label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
+        self.attach(enabled_checkbutton, 1, 3, 0, 1, yoptions = gtk.FILL)
 
         value_label = gtk.Label('value:')
         self.value_field = value_entry = gtk.Entry()
@@ -140,7 +141,7 @@ class EditionTable(gtk.Table):
         self.attach(attributes_scroll, 0, 3, 7, 8)
 
     def clear(self):
-        self.name_field.set_text('')
+        self.enabled_field.set_active(False)
         self.value_field.set_text('')
         self.value_check_field.set_active(False)
         self.attributes_field.clear()
@@ -155,6 +156,7 @@ class EditionTable(gtk.Table):
                     self.attributes_field.get_value(i, 1)
                 i = self.attributes_field.iter_next(i)
             self.definitions[self.last_selected] = (
+                self.enabled_field.get_active(),
                 self.value_field.get_text(),
                 self.value_check_field.get_active(),
                 attributes, )
@@ -165,7 +167,8 @@ class EditionTable(gtk.Table):
         self.clear()
         
         self.last_selected = current = self.get_selected(tree)
-        value, value_check, attributes = self.definitions[current]
+        enabled, value, value_check, attributes = self.definitions[current]
+        self.enabled_field.set_active(enabled)
         self.value_field.set_text(value)
         self.value_check_field.set_active(value_check)
         for attribute in attributes:
@@ -315,7 +318,7 @@ class PyGTKControl():
         for tab in self.tabs:
             definitions, table, tree = self.tabs[tab]
             for it in definitions:
-                definitions[it] = ('', True, {}, )
+                definitions[it] = (False, '', True, {}, )
             table.clear()
             tree.get_selection().unselect_all()
 
@@ -366,7 +369,8 @@ class PyGTKControl():
 
         self.tabs = {} # tab => definitions
         for tab in GUIConfig.tabs + ['other', 'unknown']:
-            definitions = {} # TreeIterator => (value, value_check, attributes, )
+            # TreeIterator => (enabled, value, value_check, attributes, )
+            definitions = {}
             options = segregated_options.get(tab, [])
             panels = gtk.HBox()
             
@@ -395,7 +399,7 @@ class PyGTKControl():
                 tooltip = gtk.Tooltip()
                 tooltip.set_text(tooltip_text)
                 it = tree_model.append(None, (option, ))
-                definitions[it] = ('', True, {})
+                definitions[it] = (False, '', True, {})
                 tree.set_tooltip_row(tooltip, tree_model[it].path) # not working
              
             self.widgets.get_widget('notebook').append_page(
