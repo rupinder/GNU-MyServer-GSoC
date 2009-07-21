@@ -87,9 +87,20 @@ class EditionTable(gtk.Table):
         self.attach(value_checkbutton, 2, 3, 1, 2, gtk.FILL, gtk.FILL)
 
         add_definition_button = gtk.Button('add sub-definition')
+        def add_sub_definition(button):
+            model, selected = tree.get_selection().get_selected()
+            if selected is not None:
+                model.append(selected, ('', '', False, True, '', False, {}, ))
+        add_definition_button.connect('clicked', add_sub_definition)
         self.attach(add_definition_button, 0, 3, 2, 3, yoptions = gtk.FILL)
 
         remove_definition_button = gtk.Button('remove this definition')
+        def remove_definition(button):
+            model, selected = tree.get_selection().get_selected()
+            if selected is not None and not model[selected][2]:
+                model.remove(selected)
+                self.clear()
+        remove_definition_button.connect('clicked', remove_definition)
         self.attach(remove_definition_button, 0, 3, 3, 4, yoptions = gtk.FILL)
 
         add_attribute_button = gtk.Button('add attribute')
@@ -155,10 +166,10 @@ class EditionTable(gtk.Table):
                     self.attributes_field.get_value(i, 1)
                 i = self.attributes_field.iter_next(i)
             row = tree.get_model()[self.last_selected]
-            row[2] = self.enabled_field.get_active()
-            row[3] = self.value_field.get_text()
-            row[4] = self.value_check_field.get_active()
-            row[5] = attributes
+            row[3] = self.enabled_field.get_active()
+            row[4] = self.value_field.get_text()
+            row[5] = self.value_check_field.get_active()
+            row[6] = attributes
 
     def cursor_changed(self, tree):
         self.save_changed(tree)
@@ -167,10 +178,10 @@ class EditionTable(gtk.Table):
 
         self.last_selected = current = self.get_selected(tree)
         row = tree.get_model()[current]
-        self.enabled_field.set_active(row[2])
-        self.value_field.set_text(row[3])
-        self.value_check_field.set_active(row[4])
-        for attribute in row[5]:
+        self.enabled_field.set_active(row[3])
+        self.value_field.set_text(row[4])
+        self.value_check_field.set_active(row[5])
+        for attribute in row[6]:
             self.attributes_field.append((attribute, row[5][attribute], ))
 
     def get_selected(self, tree):
@@ -279,10 +290,10 @@ class PyGTKControl():
         def make_def(current, model):
             row = model[current]
             name = row[0]
-            enabled = row[2]
-            value = row[3]
-            value_check = row[4]
-            attributes = row[5]
+            enabled = row[3]
+            value = row[4]
+            value_check = row[5]
+            attributes = row[6]
             if value_check:
                 attributes['value'] = value
             if not enabled:
@@ -316,6 +327,8 @@ class PyGTKControl():
         '''Clears configuration.'''
         if widget is not None:
             self.path = None
+        table, tree = self.tabs['unknown']
+        tree.get_model().clear()
         for tab in self.tabs:
             table, tree = self.tabs[tab]
             model = tree.get_model()
@@ -324,10 +337,10 @@ class PyGTKControl():
             i = model.iter_children(None)
             while i is not None: # iterate over options
                 row = model[i]
-                row[2] = False
-                row[3] = ''
-                row[4] = False
-                row[5] = {}
+                row[3] = False
+                row[4] = ''
+                row[5] = False
+                row[6] = {}
                 child = model.iter_children(i)
                 if child is not None: # remove node children
                     while model.remove(child):
@@ -357,7 +370,8 @@ class PyGTKControl():
                         get_value_and_attributes(d)
                     i = model.append(
                         parent,
-                        (name, '', enabled, value, value_check, attributes, ))
+                        (name, '', False, enabled, value, value_check,
+                         attributes, ))
                     add_children(i, d, model)
 
         self.on_new_menu_item_activate()
@@ -377,12 +391,13 @@ class PyGTKControl():
                 while model[i][0] != name:
                     i = model.iter_next(i)
             else:
-                i = model.append(None, (name, '', False, '', False, {}, ))
+                i = model.append(None,
+                                 (name, '', False, False, '', False, {}, ))
             row = model[i]
-            row[2] = enabled
-            row[3] = value
-            row[4] = value_check
-            row[5] = attributes
+            row[3] = enabled
+            row[4] = value
+            row[5] = value_check
+            row[6] = attributes
             add_children(i, definition, model)
 
     def construct_options(self):
@@ -410,6 +425,7 @@ class PyGTKControl():
             tree = gtk.TreeView(gtk.TreeStore(
                     gobject.TYPE_STRING, # option name
                     gobject.TYPE_STRING, # option tooltip
+                    gobject.TYPE_BOOLEAN, # True if option is known
                     gobject.TYPE_BOOLEAN, # enabled
                     gobject.TYPE_STRING, # value
                     gobject.TYPE_BOOLEAN, # value_check
@@ -446,9 +462,9 @@ class PyGTKControl():
 
             for option in options:
                 tooltip_text, var = GUIConfig.options[option]
-                # all but first two columns will be set to defaults later by
+                # all but first three columns will be set to defaults later by
                 # on_new_menu_item_activate
-                tree_model.append(None, (option, tooltip_text, False, '',
+                tree_model.append(None, (option, tooltip_text, True, False, '',
                                          False, {}, ))
 
             self.widgets.get_widget('notebook').append_page(
