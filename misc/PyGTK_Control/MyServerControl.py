@@ -274,36 +274,43 @@ class PyGTKControl():
                 f.write(str(config))
     
     def get_current_config(self):
-        '''Returns current configuration as list of definitions.'''
-        definitions = []
-        for option in self.options:
-            check, field, var = self.options[option]
-            if not check.get_active():
-                continue
-            definition = self.definitions.get(option)
-            if var == 'string':
-                definition.set_attribute('value', field.get_text())
-            elif var == 'integer':
-                definition.set_attribute('value', str(int(field.get_value())))
-            elif var == 'bool':
-                value = 'NO' if field.get_active() else 'YES'
-                definition.set_attribute('value', value)
-            elif var == 'list':
-                values = []
-                model = field.get_model()
-                i = model.iter_children(None)
-                while i is not None:
-                    values.append(model.get_value(i, 0))
+        '''Returns current configuration as MyServerConfig instance.'''
+
+        def make_def(current, model):
+            row = model[current]
+            name = row[0]
+            enabled = row[2]
+            value = row[3]
+            value_check = row[4]
+            attributes = row[5]
+            if value_check:
+                attributes['value'] = value
+            if not enabled:
+                return None
+            i = model.iter_children(current)
+            if i is None:
+                return DefinitionElement(name, attributes)
+            else:
+                definitions = []
+                while i is not None: # iterate over children
+                    definition = make_def(i, model)
+                    if definition is not None:
+                        definitions.append(definition)
                     i = model.iter_next(i)
-                values = map(
-                    lambda v: DefinitionElement(attributes = {'value': v}),
-                    values)
-                for i in xrange(len(definition.get_definitions())):
-                    definition.remove_definition(0)
-                for value in values:
-                    definition.add_definition(value)
-            definitions.append(definition)
-        return MyServerConfig(definitions + self.unknown)
+                return DefinitionTree(name, definitions, attributes)
+            
+        definitions = []
+        for tab in self.tabs:
+            table, tree = self.tabs[tab]
+            model = tree.get_model()
+            table.save_changed(tree)
+            i = model.iter_children(None)
+            while i is not None: # iterate over options
+                definition = make_def(i, model)
+                if definition is not None:
+                    definitions.append(definition)
+                i = model.iter_next(i)
+        return MyServerConfig(definitions)
 
     def on_new_menu_item_activate(self, widget = None):
         '''Clears configuration.'''
