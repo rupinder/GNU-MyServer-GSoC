@@ -405,7 +405,7 @@ class PyGTKControl():
         self.tabs = {} # tab name => (table, tree, )
         for tab in GUIConfig.tabs + ['other', 'unknown']:
             options = segregated_options.get(tab, [])
-            panels = gtk.HBox()
+            panels = gtk.HPaned()
             
             tree = gtk.TreeView(gtk.TreeStore(
                     gobject.TYPE_STRING, # option name
@@ -427,9 +427,9 @@ class PyGTKControl():
             tree_scroll.set_shadow_type(gtk.SHADOW_OUT)
             tree_scroll.set_border_width(5)
             tree_scroll.add(tree)
-            panels.pack_start(tree_scroll)
+            panels.pack1(tree_scroll, True, False)
             table = EditionTable(tree)
-            panels.pack_start(table)
+            panels.pack2(table, False, False)
 
             self.tabs[tab] = (table, tree, )
             
