@@ -45,10 +45,10 @@ class Connection():
     def destroy(self):
         '''Destroys this widget.'''
         self.widgets.get_widget('connectiondialog').destroy()
-        
+
     def on_cancel_button_clicked(self, widget):
         self.destroy()
-    
+
     def get_host(self):
         return self.widgets.get_widget('host_entry').get_text()
 
@@ -60,6 +60,122 @@ class Connection():
 
     def get_password(self):
         return self.widgets.get_widget('password_entry').get_text()
+
+class EditionTable(gtk.Table):
+    def __init__(self, tree):
+        gtk.Table.__init__(self, 8, 3)
+
+        tree.connect('cursor-changed', self.cursor_changed)
+        self.last_selected = None
+
+        enabled_label = gtk.Label('enabled:')
+        self.enabled_field = enabled_checkbutton = gtk.CheckButton()
+        enabled_checkbutton.set_tooltip_text('If not active, definition won\'t be included in saved configuration.')
+        self.attach(enabled_label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
+        self.attach(enabled_checkbutton, 1, 3, 0, 1, yoptions = gtk.FILL)
+
+        value_label = gtk.Label('value:')
+        self.value_field = value_entry = gtk.Entry()
+        self.value_check_field = value_checkbutton = gtk.CheckButton()
+        value_checkbutton.set_tooltip_text('If active value will be used.')
+        value_checkbutton.set_active(True)
+        value_checkbutton.connect(
+            'toggled',
+            lambda button: value_entry.set_editable(button.get_active()))
+        self.attach(value_label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
+        self.attach(value_entry, 1, 2, 1, 2, yoptions = gtk.FILL)
+        self.attach(value_checkbutton, 2, 3, 1, 2, gtk.FILL, gtk.FILL)
+
+        add_definition_button = gtk.Button('add sub-definition')
+        self.attach(add_definition_button, 0, 3, 2, 3, yoptions = gtk.FILL)
+
+        remove_definition_button = gtk.Button('remove this definition')
+        self.attach(remove_definition_button, 0, 3, 3, 4, yoptions = gtk.FILL)
+
+        add_attribute_button = gtk.Button('add attribute')
+        remove_attribute_button = gtk.Button('remove attribute')
+        add_attribute_button.connect(
+            'clicked',
+            lambda button: attributes_model.append(('', '', )))
+        def remove_attribute(button):
+            model, selected = attributes_list.get_selection().get_selected()
+            if selected is not None:
+                model.remove(selected)
+        remove_attribute_button.connect('clicked', remove_attribute)
+        self.attach(add_attribute_button, 0, 3, 4, 5, yoptions = gtk.FILL)
+        self.attach(remove_attribute_button, 0, 3, 5, 6, yoptions = gtk.FILL)
+
+        attributes_label = gtk.Label('attributes:')
+        attributes_list = gtk.TreeView(gtk.ListStore(gobject.TYPE_STRING,
+                                                     gobject.TYPE_STRING))
+        attributes_scroll = gtk.ScrolledWindow()
+        attributes_scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        attributes_scroll.set_shadow_type(gtk.SHADOW_OUT)
+        attributes_scroll.set_border_width(5)
+        attributes_scroll.add(attributes_list)
+        self.attributes_field = attributes_model = attributes_list.get_model()
+
+        def edited_handler(cell, path, text, data):
+            model, col = data
+            model[path][col] = text
+        variable_column = gtk.TreeViewColumn('variable')
+        variable_renderer = gtk.CellRendererText()
+        variable_renderer.set_property('editable', True)
+        variable_renderer.connect('edited', edited_handler,
+                                  (attributes_model, 0, ))
+        variable_column.pack_start(variable_renderer)
+        variable_column.add_attribute(variable_renderer, 'text', 0)
+
+        value_column = gtk.TreeViewColumn('value')
+        value_renderer = gtk.CellRendererText()
+        value_renderer.set_property('editable', True)
+        value_renderer.connect('edited', edited_handler,
+                                  (attributes_model, 1, ))
+        value_column.pack_start(value_renderer)
+        value_column.add_attribute(value_renderer, 'text', 1)
+
+        attributes_list.append_column(variable_column)
+        attributes_list.append_column(value_column)
+        self.attach(attributes_label, 0, 3, 6, 7, yoptions = gtk.FILL)
+        self.attach(attributes_scroll, 0, 3, 7, 8)
+
+    def clear(self):
+        self.enabled_field.set_active(False)
+        self.value_field.set_text('')
+        self.value_check_field.set_active(False)
+        self.attributes_field.clear()
+        self.last_selected = None
+
+    def save_changed(self, tree):
+        if self.last_selected is not None:
+            attributes = {}
+            i = self.attributes_field.iter_children(None)
+            while i is not None: # iterate over attributes
+                attributes[self.attributes_field.get_value(i, 0)] = \
+                    self.attributes_field.get_value(i, 1)
+                i = self.attributes_field.iter_next(i)
+            row = tree.get_model()[self.last_selected]
+            row[2] = self.enabled_field.get_active()
+            row[3] = self.value_field.get_text()
+            row[4] = self.value_check_field.get_active()
+            row[5] = attributes
+
+    def cursor_changed(self, tree):
+        self.save_changed(tree)
+
+        self.clear()
+
+        self.last_selected = current = self.get_selected(tree)
+        row = tree.get_model()[current]
+        self.enabled_field.set_active(row[2])
+        self.value_field.set_text(row[3])
+        self.value_check_field.set_active(row[4])
+        for attribute in row[5]:
+            self.attributes_field.append((attribute, row[5][attribute], ))
+
+    def get_selected(self, tree):
+        model, selected = tree.get_selection().get_selected()
+        return selected
 
 class PyGTKControl():
     '''GNU MyServer Control main window.'''
@@ -156,102 +272,125 @@ class PyGTKControl():
             config = self.get_current_config()
             with open(self.path, 'w') as f:
                 f.write(str(config))
-    
+
     def get_current_config(self):
-        '''Returns current configuration as list of definitions.'''
-        definitions = []
-        for option in self.options:
-            check, field, var = self.options[option]
-            if not check.get_active():
-                continue
-            definition = self.definitions.get(option)
-            if var == 'string':
-                definition.set_attribute('value', field.get_text())
-            elif var == 'integer':
-                definition.set_attribute('value', str(int(field.get_value())))
-            elif var == 'bool':
-                value = 'NO' if field.get_active() else 'YES'
-                definition.set_attribute('value', value)
-            elif var == 'list':
-                values = []
-                model = field.get_model()
-                i = model.iter_children(None)
-                while i is not None:
-                    values.append(model.get_value(i, 0))
+        '''Returns current configuration as MyServerConfig instance.'''
+
+        def make_def(current, model):
+            row = model[current]
+            name = row[0]
+            enabled = row[2]
+            value = row[3]
+            value_check = row[4]
+            attributes = row[5]
+            if value_check:
+                attributes['value'] = value
+            if not enabled:
+                return None
+            i = model.iter_children(current)
+            if i is None:
+                return DefinitionElement(name, attributes)
+            else:
+                definitions = []
+                while i is not None: # iterate over children
+                    definition = make_def(i, model)
+                    if definition is not None:
+                        definitions.append(definition)
                     i = model.iter_next(i)
-                values = map(
-                    lambda v: DefinitionElement(attributes = {'value': v}),
-                    values)
-                for i in xrange(len(definition.get_definitions())):
-                    definition.remove_definition(0)
-                for value in values:
-                    definition.add_definition(value)
-            definitions.append(definition)
-        return MyServerConfig(definitions + self.unknown)
+                return DefinitionTree(name, definitions, attributes)
+
+        definitions = []
+        for tab in self.tabs:
+            table, tree = self.tabs[tab]
+            model = tree.get_model()
+            table.save_changed(tree)
+            i = model.iter_children(None)
+            while i is not None: # iterate over options
+                definition = make_def(i, model)
+                if definition is not None:
+                    definitions.append(definition)
+                i = model.iter_next(i)
+        return MyServerConfig(definitions)
 
     def on_new_menu_item_activate(self, widget = None):
         '''Clears configuration.'''
         if widget is not None:
             self.path = None
-        self.definitions = {} # option name => corresponding Definition
-        self.unknown = [] # list of unknown definitions
-        for option in self.options:
-            check, field, var = self.options.get(option)
-            if var != 'list':
-                self.definitions[option] = DefinitionElement(option)
-            else:
-                self.definitions[option] = DefinitionTree(option)
-            check.set_active(False)
-            if var == 'string':
-                field.set_text('')
-            elif var == 'integer':
-                field.set_value(0)
-            elif var == 'bool':
-                field.set_active(0)
-            elif var == 'list':
-                field.get_model().clear()
+        for tab in self.tabs:
+            table, tree = self.tabs[tab]
+            model = tree.get_model()
+            table.clear()
+            tree.get_selection().unselect_all()
+            i = model.iter_children(None)
+            while i is not None: # iterate over options
+                row = model[i]
+                row[2] = False
+                row[3] = ''
+                row[4] = False
+                row[5] = {}
+                child = model.iter_children(i)
+                if child is not None: # remove node children
+                    while model.remove(child):
+                        pass
+                i = model.iter_next(i)
 
     def set_up(self, config):
         '''Reads configuration from given config instance.'''
-        def put_to_unknown(definition):
-            self.unknown.append(definition)
-            print('Unknown option:', definition, sep = '\n')
+
+        def get_value_and_attributes(definition):
+            name = definition.get_name()
+            enabled = True
+            try:
+                value = definition.get_attribute('value')
+                value_check = True
+            except KeyError:
+                value = ''
+                value_check = False
+            attributes = definition.get_attributes()
+            attributes.pop('value', None)
+            return (name, enabled, value, value_check, attributes, )
+
+        def add_children(parent, definition, model):
+            if isinstance(definition, DefinitionTree):
+                for d in definition.get_definitions():
+                    name, enabled, value, value_check, attributes = \
+                        get_value_and_attributes(d)
+                    i = model.append(
+                        parent,
+                        (name, '', enabled, value, value_check, attributes, ))
+                    add_children(i, d, model)
+
         self.on_new_menu_item_activate()
         for definition in config.get_definitions():
-            name = definition.get_name()
+            name, enabled, value, value_check, attributes = \
+                get_value_and_attributes(definition)
+
             if name not in self.options:
-                put_to_unknown(definition)
-                continue
-            check, field, var = self.options[name]
-            if (isinstance(definition, DefinitionElement) and var == 'list') or \
-                    (isinstance(definition, DefinitionTree) and var != 'list'):
-                put_to_unknown(definition)
-                continue
-            self.definitions[name] = definition
-            check.set_active(True)
-            if var == 'string':
-                field.set_text(definition.get_attribute('value'))
-            elif var == 'integer':
-                field.set_value(int(definition.get_attribute('value')))
-            elif var == 'bool':
-                if definition.get_attribute('value').upper() != 'YES':
-                    field.set_active(1)
-            elif var == 'list':
-                for definition in definition.get_definitions():
-                    field.get_model().append(
-                        (definition.get_attribute('value'), ))
+                tab_name = 'unknown'
+            else:
+                tab_name = self.options[name]
+
+            tree = self.tabs[tab_name][1]
+            model = tree.get_model()
+            if tab_name != 'unknown':
+                i = model.iter_children(None) # find this option
+                while model[i][0] != name:
+                    i = model.iter_next(i)
+            else:
+                i = model.append(None, (name, '', False, '', False, {}, ))
+            row = model[i]
+            row[2] = enabled
+            row[3] = value
+            row[4] = value_check
+            row[5] = attributes
+            add_children(i, definition, model)
 
     def construct_options(self):
         '''Reads known options from file and prepares GUI.'''
-        def make_tab_name(text):
-            return text.capitalize().replace('.', ' ').replace('_', ' ')
-        def make_name(text, tab):
-            if tab == 'other':
-                return text
-            return text[len(tab):].replace('.', ' ').replace('_', ' ').strip()
 
         # segregate options by tab
-        segregated_options = {}
+        segregated_options = {} # tab name => option names
+        self.options = {} # option name => tab name
         for option in GUIConfig.options:
             tab = 'other'
             for prefix in GUIConfig.tabs:
@@ -261,62 +400,59 @@ class PyGTKControl():
             if not segregated_options.has_key(tab):
                 segregated_options[tab] = []
             segregated_options[tab].append(option)
+            self.options[option] = tab
 
-        tabs = {}
-        self.options = {} # option name => (CheckButton, field, type, )
+        self.tabs = {} # tab name => (table, tree, )
         for tab in GUIConfig.tabs + ['other', 'unknown']:
             options = segregated_options.get(tab, [])
-            tabs[tab] = gtk.Table(max(1, len(options)), 3)
-            for i in xrange(len(options)):
-                option = options[i]
-                text, var = GUIConfig.options[option]
-                label = gtk.Label(make_name(option, tab))
-                label.set_tooltip_text(text)
-                check = gtk.CheckButton()
-                if var == 'string':
-                    field = gtk.Entry()
-                    self.options[option] = (check, field, 'string', )
-                elif var == 'integer':
-                    field = gtk.SpinButton(gtk.Adjustment(
-                            0, 0, 2147483647, 1))
-                    self.options[option] = (check, field, 'integer', )
-                elif var == 'bool':
-                    field = gtk.combo_box_new_text()
-                    field.append_text('yes')
-                    field.append_text('no')
-                    field.set_active(0)
-                    self.options[option] = (check, field, 'bool', )
-                elif var == 'list':
-                    tree  = gtk.TreeView(gtk.ListStore(gobject.TYPE_STRING))
-                    tree.set_headers_visible(False)
-                    tree_column = gtk.TreeViewColumn()
-                    tree_renderer = gtk.CellRendererText()
-                    tree_column.pack_start(tree_renderer)
-                    tree_column.add_attribute(tree_renderer, 'text', 0)
-                    tree.append_column(tree_column)
-                    new_name = gtk.Entry()
-                    add_button = gtk.Button('add')
-                    remove_button = gtk.Button('remove')
-                    field = gtk.Table(3, 2)
-                    field.attach(new_name, 0, 2, 0, 1)
-                    field.attach(add_button, 0, 1, 1, 2)
-                    field.attach(remove_button, 1, 2, 1, 2)
-                    field.attach(tree, 0, 2, 2, 3)
-                    def add_to_list(button):
-                        tree.get_model().append((new_name.get_text(), ))
-                        new_name.set_text('')
-                    add_button.connect('clicked', add_to_list)
-                    def remove_from_list(button):
-                        model, selected = tree.get_selection().get_selected()
-                        if selected is not None:
-                            model.remove(selected)
-                    remove_button.connect('clicked', remove_from_list)
-                    self.options[option] = (check, tree, 'list', )
-                tabs[tab].attach(check, 0, 1, i, i + 1, gtk.FILL, gtk.FILL)
-                tabs[tab].attach(label, 1, 2, i, i + 1, yoptions = gtk.FILL)
-                tabs[tab].attach(field, 2, 3, i, i + 1, yoptions = gtk.FILL)
+            panels = gtk.HPaned()
+
+            tree = gtk.TreeView(gtk.TreeStore(
+                    gobject.TYPE_STRING, # option name
+                    gobject.TYPE_STRING, # option tooltip
+                    gobject.TYPE_BOOLEAN, # enabled
+                    gobject.TYPE_STRING, # value
+                    gobject.TYPE_BOOLEAN, # value_check
+                    gobject.TYPE_PYOBJECT)) # attributes dict
+            tree_model = tree.get_model()
+            tree.set_headers_visible(False)
+            tree_column = gtk.TreeViewColumn()
+            tree_renderer = gtk.CellRendererText()
+            tree_column.pack_start(tree_renderer)
+            tree_column.add_attribute(tree_renderer, 'text', 0)
+            tree.append_column(tree_column)
+
+            tree_scroll = gtk.ScrolledWindow()
+            tree_scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+            tree_scroll.set_shadow_type(gtk.SHADOW_OUT)
+            tree_scroll.set_border_width(5)
+            tree_scroll.add(tree)
+            panels.pack1(tree_scroll, True, False)
+            table = EditionTable(tree)
+            panels.pack2(table, False, False)
+
+            self.tabs[tab] = (table, tree, )
+
+            def show_tooltip(widget, x, y, keyboard_tip, tooltip):
+                if not widget.get_tooltip_context(x, y, keyboard_tip):
+                    return False
+                else:
+                    model, path, it = widget.get_tooltip_context(x, y, keyboard_tip)
+                    tooltip.set_text(model[it][1])
+                    widget.set_tooltip_row(tooltip, path)
+                    return True
+            tree.props.has_tooltip = True
+            tree.connect("query-tooltip", show_tooltip)
+
+            for option in options:
+                tooltip_text, var = GUIConfig.options[option]
+                # all but first two columns will be set to defaults later by
+                # on_new_menu_item_activate
+                tree_model.append(None, (option, tooltip_text, False, '',
+                                         False, {}, ))
+
             self.widgets.get_widget('notebook').append_page(
-                tabs[tab], gtk.Label(make_tab_name(tab)))
+                panels, gtk.Label(tab))
 
         self.on_new_menu_item_activate()
         self.widgets.get_widget('notebook').show_all()
