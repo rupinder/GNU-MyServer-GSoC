@@ -45,10 +45,10 @@ class Connection():
     def destroy(self):
         '''Destroys this widget.'''
         self.widgets.get_widget('connectiondialog').destroy()
-        
+
     def on_cancel_button_clicked(self, widget):
         self.destroy()
-    
+
     def get_host(self):
         return self.widgets.get_widget('host_entry').get_text()
 
@@ -64,7 +64,7 @@ class Connection():
 class EditionTable(gtk.Table):
     def __init__(self, tree):
         gtk.Table.__init__(self, 8, 3)
-        
+
         tree.connect('cursor-changed', self.cursor_changed)
         self.last_selected = None
 
@@ -88,7 +88,7 @@ class EditionTable(gtk.Table):
 
         add_definition_button = gtk.Button('add sub-definition')
         self.attach(add_definition_button, 0, 3, 2, 3, yoptions = gtk.FILL)
-        
+
         remove_definition_button = gtk.Button('remove this definition')
         self.attach(remove_definition_button, 0, 3, 3, 4, yoptions = gtk.FILL)
 
@@ -125,7 +125,7 @@ class EditionTable(gtk.Table):
                                   (attributes_model, 0, ))
         variable_column.pack_start(variable_renderer)
         variable_column.add_attribute(variable_renderer, 'text', 0)
-        
+
         value_column = gtk.TreeViewColumn('value')
         value_renderer = gtk.CellRendererText()
         value_renderer.set_property('editable', True)
@@ -133,7 +133,7 @@ class EditionTable(gtk.Table):
                                   (attributes_model, 1, ))
         value_column.pack_start(value_renderer)
         value_column.add_attribute(value_renderer, 'text', 1)
-        
+
         attributes_list.append_column(variable_column)
         attributes_list.append_column(value_column)
         self.attach(attributes_label, 0, 3, 6, 7, yoptions = gtk.FILL)
@@ -159,12 +159,12 @@ class EditionTable(gtk.Table):
             row[3] = self.value_field.get_text()
             row[4] = self.value_check_field.get_active()
             row[5] = attributes
-            
+
     def cursor_changed(self, tree):
         self.save_changed(tree)
-            
+
         self.clear()
-        
+
         self.last_selected = current = self.get_selected(tree)
         row = tree.get_model()[current]
         self.enabled_field.set_active(row[2])
@@ -176,7 +176,7 @@ class EditionTable(gtk.Table):
     def get_selected(self, tree):
         model, selected = tree.get_selection().get_selected()
         return selected
-    
+
 class PyGTKControl():
     '''GNU MyServer Control main window.'''
 
@@ -272,7 +272,7 @@ class PyGTKControl():
             config = self.get_current_config()
             with open(self.path, 'w') as f:
                 f.write(str(config))
-    
+
     def get_current_config(self):
         '''Returns current configuration as MyServerConfig instance.'''
 
@@ -298,7 +298,7 @@ class PyGTKControl():
                         definitions.append(definition)
                     i = model.iter_next(i)
                 return DefinitionTree(name, definitions, attributes)
-            
+
         definitions = []
         for tab in self.tabs:
             table, tree = self.tabs[tab]
@@ -336,7 +336,7 @@ class PyGTKControl():
 
     def set_up(self, config):
         '''Reads configuration from given config instance.'''
-        
+
         def get_value_and_attributes(definition):
             name = definition.get_name()
             enabled = True
@@ -359,17 +359,17 @@ class PyGTKControl():
                         parent,
                         (name, '', enabled, value, value_check, attributes, ))
                     add_children(i, d, model)
-        
+
         self.on_new_menu_item_activate()
         for definition in config.get_definitions():
             name, enabled, value, value_check, attributes = \
                 get_value_and_attributes(definition)
-            
+
             if name not in self.options:
                 tab_name = 'unknown'
             else:
                 tab_name = self.options[name]
-            
+
             tree = self.tabs[tab_name][1]
             model = tree.get_model()
             if tab_name != 'unknown':
@@ -406,7 +406,7 @@ class PyGTKControl():
         for tab in GUIConfig.tabs + ['other', 'unknown']:
             options = segregated_options.get(tab, [])
             panels = gtk.HPaned()
-            
+
             tree = gtk.TreeView(gtk.TreeStore(
                     gobject.TYPE_STRING, # option name
                     gobject.TYPE_STRING, # option tooltip
@@ -421,7 +421,7 @@ class PyGTKControl():
             tree_column.pack_start(tree_renderer)
             tree_column.add_attribute(tree_renderer, 'text', 0)
             tree.append_column(tree_column)
-            
+
             tree_scroll = gtk.ScrolledWindow()
             tree_scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
             tree_scroll.set_shadow_type(gtk.SHADOW_OUT)
@@ -432,14 +432,25 @@ class PyGTKControl():
             panels.pack2(table, False, False)
 
             self.tabs[tab] = (table, tree, )
-            
+
+            def show_tooltip(widget, x, y, keyboard_tip, tooltip):
+                if not widget.get_tooltip_context(x, y, keyboard_tip):
+                    return False
+                else:
+                    model, path, it = widget.get_tooltip_context(x, y, keyboard_tip)
+                    tooltip.set_text(model[it][1])
+                    widget.set_tooltip_row(tooltip, path)
+                    return True
+            tree.props.has_tooltip = True
+            tree.connect("query-tooltip", show_tooltip)
+
             for option in options:
                 tooltip_text, var = GUIConfig.options[option]
                 # all but first two columns will be set to defaults later by
                 # on_new_menu_item_activate
                 tree_model.append(None, (option, tooltip_text, False, '',
                                          False, {}, ))
-             
+
             self.widgets.get_widget('notebook').append_page(
                 panels, gtk.Label(tab))
 
