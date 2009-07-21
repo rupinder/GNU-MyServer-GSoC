@@ -337,9 +337,6 @@ class PyGTKControl():
     def set_up(self, config):
         '''Reads configuration from given config instance.'''
         
-        def put_to_unknown(definition):
-            print('Unknown option:', definition, sep = '\n')
-            
         def get_value_and_attributes(definition):
             name = definition.get_name()
             enabled = True
@@ -369,14 +366,18 @@ class PyGTKControl():
                 get_value_and_attributes(definition)
             
             if name not in self.options:
-                put_to_unknown(definition)
-                continue
+                tab_name = 'unknown'
+            else:
+                tab_name = self.options[name]
             
-            tree = self.tabs[self.options[name]][1]
+            tree = self.tabs[tab_name][1]
             model = tree.get_model()
-            i = model.iter_children(None)
-            while model[i][0] != name:
-                i = model.iter_next(i)
+            if tab_name != 'unknown':
+                i = model.iter_children(None) # find this option
+                while model[i][0] != name:
+                    i = model.iter_next(i)
+            else:
+                i = model.append(None, (name, '', False, '', False, {}, ))
             row = model[i]
             row[2] = enabled
             row[3] = value
