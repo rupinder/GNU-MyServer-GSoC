@@ -431,14 +431,23 @@ class PyGTKControl():
                     gobject.TYPE_BOOLEAN, # value_check
                     gobject.TYPE_PYOBJECT)) # attributes dict
             tree_model = tree.get_model()
-            tree_renderer = gtk.CellRendererText()
+            def tree_name_edited_handler(cell, path, text, data):
+                model = data
+                row = model[path]
+                if not row[2]: # don't edit names of known options
+                    row[0] = text
+            tree_name_renderer = gtk.CellRendererText()
+            tree_name_renderer.set_property('editable', True)
+            tree_name_renderer.connect('edited', tree_name_edited_handler,
+                                       tree_model)
             tree_name_column = gtk.TreeViewColumn('name')
-            tree_name_column.pack_start(tree_renderer)
-            tree_name_column.add_attribute(tree_renderer, 'text', 0)
+            tree_name_column.pack_start(tree_name_renderer)
+            tree_name_column.add_attribute(tree_name_renderer, 'text', 0)
             tree.append_column(tree_name_column)
+            tree_value_renderer = gtk.CellRendererText()
             tree_value_column = gtk.TreeViewColumn('value')
-            tree_value_column.pack_start(tree_renderer)
-            tree_value_column.add_attribute(tree_renderer, 'text', 4)
+            tree_value_column.pack_start(tree_value_renderer)
+            tree_value_column.add_attribute(tree_value_renderer, 'text', 4)
             tree.append_column(tree_value_column)
 
             tree_scroll = gtk.ScrolledWindow()
