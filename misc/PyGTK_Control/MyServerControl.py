@@ -431,12 +431,15 @@ class PyGTKControl():
                     gobject.TYPE_BOOLEAN, # value_check
                     gobject.TYPE_PYOBJECT)) # attributes dict
             tree_model = tree.get_model()
-            tree.set_headers_visible(False)
-            tree_column = gtk.TreeViewColumn()
             tree_renderer = gtk.CellRendererText()
-            tree_column.pack_start(tree_renderer)
-            tree_column.add_attribute(tree_renderer, 'text', 0)
-            tree.append_column(tree_column)
+            tree_name_column = gtk.TreeViewColumn('name')
+            tree_name_column.pack_start(tree_renderer)
+            tree_name_column.add_attribute(tree_renderer, 'text', 0)
+            tree.append_column(tree_name_column)
+            tree_value_column = gtk.TreeViewColumn('value')
+            tree_value_column.pack_start(tree_renderer)
+            tree_value_column.add_attribute(tree_renderer, 'text', 4)
+            tree.append_column(tree_value_column)
 
             tree_scroll = gtk.ScrolledWindow()
             tree_scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
