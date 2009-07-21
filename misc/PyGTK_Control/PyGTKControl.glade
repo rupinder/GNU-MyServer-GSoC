@@ -138,6 +138,32 @@
               </widget>
             </child>
             <child>
+              <widget class="GtkMenuItem" id="definitions_menu_item">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">_Definitions</property>
+                <property name="use_underline">True</property>
+                <child>
+                  <widget class="GtkMenu" id="definitions_menu">
+                    <property name="visible">True</property>
+                    <child>
+                      <widget class="GtkImageMenuItem" id="add_unknown_definition_menu_item">
+                        <property name="label">Add unknown definition</property>
+                        <property name="visible">True</property>
+                        <property name="use_stock">False</property>
+                        <signal name="activate" handler="on_add_unknown_definition_menu_item_activate"/>
+                        <child internal-child="image">
+                          <widget class="GtkImage" id="add_unknown_definition_image">
+                            <property name="visible">True</property>
+                            <property name="stock">gtk-add</property>
+                          </widget>
+                        </child>
+                      </widget>
+                    </child>
+                  </widget>
+                </child>
+              </widget>
+            </child>
+            <child>
               <widget class="GtkMenuItem" id="help_menu_item">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">_Help</property>

@@ -323,6 +323,11 @@ class PyGTKControl():
                 i = model.iter_next(i)
         return MyServerConfig(definitions)
 
+    def on_add_unknown_definition_menu_item_activate(self, widget):
+        '''Adds a new definition to unknown tab.'''
+        table, tree = self.tabs['unknown']
+        tree.get_model().append(None, ('', '', False,True, '', False, {}, ))
+
     def on_new_menu_item_activate(self, widget = None):
         '''Clears configuration.'''
         if widget is not None:
