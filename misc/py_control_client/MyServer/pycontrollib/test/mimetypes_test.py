@@ -33,17 +33,7 @@ class MIMETypeTest(unittest.TestCase):
                 'http.default_file',
                 [DefinitionElement(attributes = {'value': 'index.html'}),
                  DefinitionElement(attributes = {'value': 'index.htm'})]))
-#        self.text = \
-#             '''<MIME mime="application/xhtml+xml" handler="CGI" param="/usr/bin/python" self="NO" >
-#   <EXTENSION value="xhtml" />
-#   <EXTENSION value="xml" />
-#   <EXTENSION value="py" />
-#   <FILTER value="gzip" />
-#   <FILTER value="bzip2" />
-#   {0}
-#   <PATH regex="^/cgi-bin/python/.*$" />
-# </MIME>'''.format('\n'.join(map(lambda element: str(element),
-#                                 self.definitions)))
+
     def test_creation(self):
         MIMEType('text/plain', 'CGI')
         MIMEType('text/plain', 'CGI', '/usr/bin/python')
