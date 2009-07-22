@@ -67,3 +67,8 @@ options['symlinks.follow'] = ('Define if links should be followed.', 'bool', )
 
 # don't put 'other' or 'unknown' here
 tabs = ['server', 'control', 'ftp', 'http', 'log_color']
+
+# MIME types
+mime_name = 'mime'
+mime_attributes = ['handler', 'self_executed', 'param', 'path']
+mime_lists = ['extensions', 'filters']

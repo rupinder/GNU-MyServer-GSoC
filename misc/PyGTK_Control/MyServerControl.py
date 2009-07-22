@@ -204,6 +204,7 @@ class PyGTKControl():
         self.widgets = gtk.glade.XML(self.gladefile, 'window')
         self.widgets.signal_autoconnect(self)
         self.construct_options()
+        self.construct_mime()
         self.chooser = None # Active file chooser
         self.path = None # path of currently edited file
         self.controller = None
@@ -496,6 +497,88 @@ class PyGTKControl():
                 panels, gtk.Label(tab))
 
         self.on_new_menu_item_activate()
+        self.widgets.get_widget('notebook').show_all()
+
+    def construct_mime(self):
+        '''Reads mime options from file and prepares GUI.'''
+        panels = gtk.HPaned()
+        
+        tree = gtk.TreeView(gtk.TreeStore(
+                gobject.TYPE_STRING, # mime name
+                gobject.TYPE_PYOBJECT, # mime single attributes
+                gobject.TYPE_PYOBJECT)) # mime attribute lists
+        tree_model = tree.get_model()
+        def tree_mime_edited_handler(cell, path, text, data):
+            model = data
+            model[path][0] = text
+        tree_mime_renderer = gtk.CellRendererText()
+        tree_mime_renderer.set_property('editable', True)
+        tree_mime_renderer.connect('edited', tree_mime_edited_handler,
+                                   tree_model)
+        tree_mime_column = gtk.TreeViewColumn('MIME Type')
+        tree_mime_column.pack_start(tree_mime_renderer)
+        tree_mime_column.add_attribute(tree_mime_renderer, 'text', 0)
+        tree.append_column(tree_mime_column)
+
+        tree_scroll = gtk.ScrolledWindow()
+        tree_scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        tree_scroll.set_shadow_type(gtk.SHADOW_OUT)
+        tree_scroll.set_border_width(5)
+        tree_scroll.add(tree)
+
+        panels.pack1(tree_scroll, True, False)
+
+        grid = gtk.Table(len(GUIConfig.mime_attributes) +
+                         3 * len(GUIConfig.mime_lists), 4)
+        i = 0
+        for attribute in GUIConfig.mime_attributes:
+            label = gtk.Label(attribute)
+            entry = gtk.Entry()
+            check = gtk.CheckButton()
+            grid.attach(label, 0, 1, i, i + 1, yoptions = gtk.FILL)
+            grid.attach(entry, 1, 3, i, i + 1, yoptions = gtk.FILL)
+            grid.attach(check, 3, 4, i, i + 1, gtk.FILL, gtk.FILL)
+            i += 1
+        for mime_list in GUIConfig.mime_lists:
+            tree = gtk.TreeView(gtk.ListStore(gobject.TYPE_STRING))
+            tree_model = tree.get_model()
+            def tree_edited_handler(cell, path, text, data):
+                model = data
+                model[path][0] = text
+            tree_renderer = gtk.CellRendererText()
+            tree_renderer.set_property('editable', True)
+            tree_renderer.connect('edited', tree_edited_handler, tree_model)
+            tree_column = gtk.TreeViewColumn(mime_list)
+            tree_column.pack_start(tree_renderer)
+            tree_column.add_attribute(tree_renderer, 'text', 0)
+            tree.append_column(tree_column)
+            tree_scroll = gtk.ScrolledWindow()
+            tree_scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+            tree_scroll.set_shadow_type(gtk.SHADOW_OUT)
+            tree_scroll.set_border_width(5)
+            tree_scroll.add(tree)
+
+            def add_to_tree(button, model):
+                model.append(('', ))
+            add_button = gtk.Button('Add')
+            add_button.connect('clicked', add_to_tree, tree_model)
+            def remove_from_tree(button, tree):
+                model, selected = tree.get_selection().get_selected()
+                if selected is not None:
+                    model.remove(selected)
+            remove_button = gtk.Button('Remove')
+            remove_button.connect('clicked', remove_from_tree, tree)
+            grid.attach(tree_scroll, 0, 2, i, i + 3)
+            grid.attach(add_button, 2, 3, i, i + 1, yoptions = gtk.FILL)
+            grid.attach(remove_button, 2, 3, i + 1, i + 2, yoptions = gtk.FILL)
+            grid.attach(gtk.Label(), 2, 3, i + 2, i + 3)
+            i += 3
+
+        panels.pack2(grid, False, False)
+
+        self.widgets.get_widget('notebook').append_page(
+            panels, gtk.Label('MIME Type'))
+
         self.widgets.get_widget('notebook').show_all()
 
 PyGTKControl()
