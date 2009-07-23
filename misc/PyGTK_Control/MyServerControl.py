@@ -244,7 +244,7 @@ class DefinitionTreeView(gtk.TreeView):
 
 class MimeTreeView(gtk.TreeView):
     def __init__(self):
-        gtk.TreeView.__init__(self, gtk.TreeStore(
+        gtk.TreeView.__init__(self, gtk.ListStore(
                 gobject.TYPE_STRING, # mime name
                 gobject.TYPE_PYOBJECT, # mime single attributes
                 gobject.TYPE_PYOBJECT)) # mime attribute lists
@@ -267,18 +267,25 @@ class MimeTreeView(gtk.TreeView):
         self.scroll.add(self)
 
 class MimeTable(gtk.Table):
-    def __init__(self):
+    def __init__(self, tree):
         gtk.Table.__init__(self, len(GUIConfig.mime_attributes) +
                            3 * len(GUIConfig.mime_lists), 4)
+
+        tree.connect('cursor-changed', self.cursor_changed)
+        self.last_selected = None
+
+        self.attributes = {}
         i = 0
         for attribute in GUIConfig.mime_attributes:
             label = gtk.Label(attribute)
             entry = gtk.Entry()
             check = gtk.CheckButton()
+            self.attributes[attribute] = (entry, check, )
             self.attach(label, 0, 1, i, i + 1, yoptions = gtk.FILL)
             self.attach(entry, 1, 3, i, i + 1, yoptions = gtk.FILL)
             self.attach(check, 3, 4, i, i + 1, gtk.FILL, gtk.FILL)
             i += 1
+        self.mime_lists = {}
         for mime_list in GUIConfig.mime_lists:
             tree = gtk.TreeView(gtk.ListStore(gobject.TYPE_STRING))
             tree_model = tree.get_model()
@@ -308,12 +315,55 @@ class MimeTable(gtk.Table):
                     model.remove(selected)
             remove_button = gtk.Button('Remove')
             remove_button.connect('clicked', remove_from_tree, tree)
-            
+
+            self.mime_lists[mime_list] = tree_model
             self.attach(tree_scroll, 0, 2, i, i + 3)
             self.attach(add_button, 2, 3, i, i + 1, yoptions = gtk.FILL)
             self.attach(remove_button, 2, 3, i + 1, i + 2, yoptions = gtk.FILL)
             self.attach(gtk.Label(), 2, 3, i + 2, i + 3)
             i += 3
+            
+    def clear(self):
+        for entry, check in self.attributes.itervalues():
+            entry.set_text('')
+            check.set_active(False)
+        for model in self.mime_lists.itervalues():
+            model.clear()
+
+    def save_changed(self, tree):
+        if self.last_selected is not None:
+            attributes = {}
+            for attribute in self.attributes:
+                entry, check = self.attributes[attribute]
+                attributes[attribute] = (entry.get_text(), check.get_active(), )
+            mime_lists = {}
+            for mime_list in GUIConfig.mime_lists:
+                container = mime_lists[mime_list] = []
+                model = self.mime_lists[mime_list]
+                i = model.iter_children(None)
+                while i is not None: # iterate over list elements
+                    container.append(model.get_value(i, 0))
+                    i = model.iter_next(i)
+            row = tree.get_model()[self.last_selected]
+            row[1] = attributes
+            row[2] = mime_lists
+
+    def cursor_changed(self, tree):
+        self.save_changed(tree)
+
+        self.clear()
+
+        self.last_selected = current = tree.get_selection().get_selected()[1]
+        row = tree.get_model()[current]
+        for attribute in row[1]:
+            entry, check = self.attributes[attribute]
+            entry.set_text(row[1][attribute][0])
+            check.set_active(row[1][attribute][1])
+        for mime_list in row[2]:
+            model = self.mime_lists[mime_list]
+            for element in row[2][mime_list]:
+                model.append((element, ))
+
 
 class PyGTKControl():
     '''GNU MyServer Control main window.'''
@@ -456,6 +506,14 @@ class PyGTKControl():
         table, tree = self.tabs['unknown']
         tree.get_model().append(None, ('', '', False,True, '', False, {}, ))
 
+    def on_add_mime_type_menu_item_activate(self, widget):
+        '''Adds a new MIME type.'''
+        table, tree = self.tabs['MIME'][0]
+        mime_lists = {}
+        for mime_list in GUIConfig.mime_lists:
+            mime_lists[mime_list] = []
+        tree.get_model().append(('', {}, mime_lists, ))
+
     def on_new_menu_item_activate(self, widget = None):
         '''Clears configuration.'''
         if widget is not None:
@@ -583,8 +641,9 @@ class PyGTKControl():
         panels = gtk.HPaned()
         tree = MimeTreeView()
         panels.pack1(tree.scroll, True, False)
-        grid = MimeTable()
-        panels.pack2(grid, False, False)
+        table = MimeTable(tree)
+        panels.pack2(table, False, False)
+        self.tabs['MIME'] = (table, tree, )
 
         vpanels.pack1(panels)
 
@@ -593,6 +652,7 @@ class PyGTKControl():
         panels.pack1(tree.scroll, True, False)
         table = EditionTable(tree)
         panels.pack2(table, False, False)
+        self.tabs['MIME'] = (self.tabs['MIME'], (table, tree, ))
 
         vpanels.pack2(panels)
         

@@ -164,6 +164,32 @@
               </widget>
             </child>
             <child>
+              <widget class="GtkMenuItem" id="mime_types_menu_item">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">_MIME Types</property>
+                <property name="use_underline">True</property>
+                <child>
+                  <widget class="GtkMenu" id="mime_types_menu">
+                    <property name="visible">True</property>
+                    <child>
+                      <widget class="GtkImageMenuItem" id="add_mime_type_menu_item">
+                        <property name="label">Add MIME type</property>
+                        <property name="visible">True</property>
+                        <property name="use_stock">False</property>
+                        <signal name="activate" handler="on_add_mime_type_menu_item_activate"/>
+                        <child internal-child="image">
+                          <widget class="GtkImage" id="add_mime_type_image">
+                            <property name="visible">True</property>
+                            <property name="stock">gtk-add</property>
+                          </widget>
+                        </child>
+                      </widget>
+                    </child>
+                  </widget>
+                </child>
+              </widget>
+            </child>
+            <child>
               <widget class="GtkMenuItem" id="help_menu_item">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">_Help</property>
