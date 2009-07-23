@@ -196,6 +196,125 @@ class EditionTable(gtk.Table):
         model, selected = tree.get_selection().get_selected()
         return selected
 
+class DefinitionTreeView(gtk.TreeView):
+    def __init__(self):
+        gtk.TreeView.__init__(self, gtk.TreeStore(
+                gobject.TYPE_STRING, # option name
+                gobject.TYPE_STRING, # option tooltip
+                gobject.TYPE_BOOLEAN, # True if option is known
+                gobject.TYPE_BOOLEAN, # enabled
+                gobject.TYPE_STRING, # value
+                gobject.TYPE_BOOLEAN, # value_check
+                gobject.TYPE_PYOBJECT)) # attributes dict
+        model = self.get_model()
+        def name_edited_handler(cell, path, text, data):
+            model = data
+            row = model[path]
+            if not row[2]: # don't edit names of known options
+                row[0] = text
+        name_renderer = gtk.CellRendererText()
+        name_renderer.set_property('editable', True)
+        name_renderer.connect('edited', name_edited_handler, model)
+        name_column = gtk.TreeViewColumn('name')
+        name_column.pack_start(name_renderer)
+        name_column.add_attribute(name_renderer, 'text', 0)
+        self.append_column(name_column)
+        value_renderer = gtk.CellRendererText()
+        value_column = gtk.TreeViewColumn('value')
+        value_column.pack_start(value_renderer)
+        value_column.add_attribute(value_renderer, 'text', 4)
+        self.append_column(value_column)
+
+        self.scroll = gtk.ScrolledWindow()
+        self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.scroll.set_shadow_type(gtk.SHADOW_OUT)
+        self.scroll.set_border_width(5)
+        self.scroll.add(self)
+
+        def show_tooltip(widget, x, y, keyboard_tip, tooltip):
+            if not widget.get_tooltip_context(x, y, keyboard_tip):
+                return False
+            else:
+                model, path, it = widget.get_tooltip_context(x, y, keyboard_tip)
+                tooltip.set_text(model[it][1])
+                widget.set_tooltip_row(tooltip, path)
+                return True
+        self.props.has_tooltip = True
+        self.connect("query-tooltip", show_tooltip)
+
+class MimeTreeView(gtk.TreeView):
+    def __init__(self):
+        gtk.TreeView.__init__(self, gtk.TreeStore(
+                gobject.TYPE_STRING, # mime name
+                gobject.TYPE_PYOBJECT, # mime single attributes
+                gobject.TYPE_PYOBJECT)) # mime attribute lists
+        model = self.get_model()
+        def mime_edited_handler(cell, path, text, data):
+            model = data
+            model[path][0] = text
+        mime_renderer = gtk.CellRendererText()
+        mime_renderer.set_property('editable', True)
+        mime_renderer.connect('edited', mime_edited_handler, model)
+        mime_column = gtk.TreeViewColumn('MIME Type')
+        mime_column.pack_start(mime_renderer)
+        mime_column.add_attribute(mime_renderer, 'text', 0)
+        self.append_column(mime_column)
+
+        self.scroll = gtk.ScrolledWindow()
+        self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.scroll.set_shadow_type(gtk.SHADOW_OUT)
+        self.scroll.set_border_width(5)
+        self.scroll.add(self)
+
+class MimeTable(gtk.Table):
+    def __init__(self):
+        gtk.Table.__init__(self, len(GUIConfig.mime_attributes) +
+                           3 * len(GUIConfig.mime_lists), 4)
+        i = 0
+        for attribute in GUIConfig.mime_attributes:
+            label = gtk.Label(attribute)
+            entry = gtk.Entry()
+            check = gtk.CheckButton()
+            self.attach(label, 0, 1, i, i + 1, yoptions = gtk.FILL)
+            self.attach(entry, 1, 3, i, i + 1, yoptions = gtk.FILL)
+            self.attach(check, 3, 4, i, i + 1, gtk.FILL, gtk.FILL)
+            i += 1
+        for mime_list in GUIConfig.mime_lists:
+            tree = gtk.TreeView(gtk.ListStore(gobject.TYPE_STRING))
+            tree_model = tree.get_model()
+            def tree_edited_handler(cell, path, text, data):
+                model = data
+                model[path][0] = text
+            tree_renderer = gtk.CellRendererText()
+            tree_renderer.set_property('editable', True)
+            tree_renderer.connect('edited', tree_edited_handler, tree_model)
+            tree_column = gtk.TreeViewColumn(mime_list)
+            tree_column.pack_start(tree_renderer)
+            tree_column.add_attribute(tree_renderer, 'text', 0)
+            tree.append_column(tree_column)
+            tree_scroll = gtk.ScrolledWindow()
+            tree_scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+            tree_scroll.set_shadow_type(gtk.SHADOW_OUT)
+            tree_scroll.set_border_width(5)
+            tree_scroll.add(tree)
+
+            def add_to_tree(button, model):
+                model.append(('', ))
+            add_button = gtk.Button('Add')
+            add_button.connect('clicked', add_to_tree, tree_model)
+            def remove_from_tree(button, tree):
+                model, selected = tree.get_selection().get_selected()
+                if selected is not None:
+                    model.remove(selected)
+            remove_button = gtk.Button('Remove')
+            remove_button.connect('clicked', remove_from_tree, tree)
+            
+            self.attach(tree_scroll, 0, 2, i, i + 3)
+            self.attach(add_button, 2, 3, i, i + 1, yoptions = gtk.FILL)
+            self.attach(remove_button, 2, 3, i + 1, i + 2, yoptions = gtk.FILL)
+            self.attach(gtk.Label(), 2, 3, i + 2, i + 3)
+            i += 3
+
 class PyGTKControl():
     '''GNU MyServer Control main window.'''
 
@@ -436,55 +555,13 @@ class PyGTKControl():
             options = segregated_options.get(tab, [])
             panels = gtk.HPaned()
 
-            tree = gtk.TreeView(gtk.TreeStore(
-                    gobject.TYPE_STRING, # option name
-                    gobject.TYPE_STRING, # option tooltip
-                    gobject.TYPE_BOOLEAN, # True if option is known
-                    gobject.TYPE_BOOLEAN, # enabled
-                    gobject.TYPE_STRING, # value
-                    gobject.TYPE_BOOLEAN, # value_check
-                    gobject.TYPE_PYOBJECT)) # attributes dict
+            tree = DefinitionTreeView()
             tree_model = tree.get_model()
-            def tree_name_edited_handler(cell, path, text, data):
-                model = data
-                row = model[path]
-                if not row[2]: # don't edit names of known options
-                    row[0] = text
-            tree_name_renderer = gtk.CellRendererText()
-            tree_name_renderer.set_property('editable', True)
-            tree_name_renderer.connect('edited', tree_name_edited_handler,
-                                       tree_model)
-            tree_name_column = gtk.TreeViewColumn('name')
-            tree_name_column.pack_start(tree_name_renderer)
-            tree_name_column.add_attribute(tree_name_renderer, 'text', 0)
-            tree.append_column(tree_name_column)
-            tree_value_renderer = gtk.CellRendererText()
-            tree_value_column = gtk.TreeViewColumn('value')
-            tree_value_column.pack_start(tree_value_renderer)
-            tree_value_column.add_attribute(tree_value_renderer, 'text', 4)
-            tree.append_column(tree_value_column)
-
-            tree_scroll = gtk.ScrolledWindow()
-            tree_scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-            tree_scroll.set_shadow_type(gtk.SHADOW_OUT)
-            tree_scroll.set_border_width(5)
-            tree_scroll.add(tree)
-            panels.pack1(tree_scroll, True, False)
+            panels.pack1(tree.scroll, True, False)
             table = EditionTable(tree)
             panels.pack2(table, False, False)
 
             self.tabs[tab] = (table, tree, )
-
-            def show_tooltip(widget, x, y, keyboard_tip, tooltip):
-                if not widget.get_tooltip_context(x, y, keyboard_tip):
-                    return False
-                else:
-                    model, path, it = widget.get_tooltip_context(x, y, keyboard_tip)
-                    tooltip.set_text(model[it][1])
-                    widget.set_tooltip_row(tooltip, path)
-                    return True
-            tree.props.has_tooltip = True
-            tree.connect("query-tooltip", show_tooltip)
 
             for option in options:
                 tooltip_text, var = GUIConfig.options[option]
@@ -501,83 +578,26 @@ class PyGTKControl():
 
     def construct_mime(self):
         '''Reads mime options from file and prepares GUI.'''
-        panels = gtk.HPaned()
+        vpanels = gtk.VPaned()
         
-        tree = gtk.TreeView(gtk.TreeStore(
-                gobject.TYPE_STRING, # mime name
-                gobject.TYPE_PYOBJECT, # mime single attributes
-                gobject.TYPE_PYOBJECT)) # mime attribute lists
-        tree_model = tree.get_model()
-        def tree_mime_edited_handler(cell, path, text, data):
-            model = data
-            model[path][0] = text
-        tree_mime_renderer = gtk.CellRendererText()
-        tree_mime_renderer.set_property('editable', True)
-        tree_mime_renderer.connect('edited', tree_mime_edited_handler,
-                                   tree_model)
-        tree_mime_column = gtk.TreeViewColumn('MIME Type')
-        tree_mime_column.pack_start(tree_mime_renderer)
-        tree_mime_column.add_attribute(tree_mime_renderer, 'text', 0)
-        tree.append_column(tree_mime_column)
-
-        tree_scroll = gtk.ScrolledWindow()
-        tree_scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        tree_scroll.set_shadow_type(gtk.SHADOW_OUT)
-        tree_scroll.set_border_width(5)
-        tree_scroll.add(tree)
-
-        panels.pack1(tree_scroll, True, False)
-
-        grid = gtk.Table(len(GUIConfig.mime_attributes) +
-                         3 * len(GUIConfig.mime_lists), 4)
-        i = 0
-        for attribute in GUIConfig.mime_attributes:
-            label = gtk.Label(attribute)
-            entry = gtk.Entry()
-            check = gtk.CheckButton()
-            grid.attach(label, 0, 1, i, i + 1, yoptions = gtk.FILL)
-            grid.attach(entry, 1, 3, i, i + 1, yoptions = gtk.FILL)
-            grid.attach(check, 3, 4, i, i + 1, gtk.FILL, gtk.FILL)
-            i += 1
-        for mime_list in GUIConfig.mime_lists:
-            tree = gtk.TreeView(gtk.ListStore(gobject.TYPE_STRING))
-            tree_model = tree.get_model()
-            def tree_edited_handler(cell, path, text, data):
-                model = data
-                model[path][0] = text
-            tree_renderer = gtk.CellRendererText()
-            tree_renderer.set_property('editable', True)
-            tree_renderer.connect('edited', tree_edited_handler, tree_model)
-            tree_column = gtk.TreeViewColumn(mime_list)
-            tree_column.pack_start(tree_renderer)
-            tree_column.add_attribute(tree_renderer, 'text', 0)
-            tree.append_column(tree_column)
-            tree_scroll = gtk.ScrolledWindow()
-            tree_scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-            tree_scroll.set_shadow_type(gtk.SHADOW_OUT)
-            tree_scroll.set_border_width(5)
-            tree_scroll.add(tree)
-
-            def add_to_tree(button, model):
-                model.append(('', ))
-            add_button = gtk.Button('Add')
-            add_button.connect('clicked', add_to_tree, tree_model)
-            def remove_from_tree(button, tree):
-                model, selected = tree.get_selection().get_selected()
-                if selected is not None:
-                    model.remove(selected)
-            remove_button = gtk.Button('Remove')
-            remove_button.connect('clicked', remove_from_tree, tree)
-            grid.attach(tree_scroll, 0, 2, i, i + 3)
-            grid.attach(add_button, 2, 3, i, i + 1, yoptions = gtk.FILL)
-            grid.attach(remove_button, 2, 3, i + 1, i + 2, yoptions = gtk.FILL)
-            grid.attach(gtk.Label(), 2, 3, i + 2, i + 3)
-            i += 3
-
+        panels = gtk.HPaned()
+        tree = MimeTreeView()
+        panels.pack1(tree.scroll, True, False)
+        grid = MimeTable()
         panels.pack2(grid, False, False)
 
+        vpanels.pack1(panels)
+
+        panels = gtk.HPaned()
+        tree = DefinitionTreeView()
+        panels.pack1(tree.scroll, True, False)
+        table = EditionTable(tree)
+        panels.pack2(table, False, False)
+
+        vpanels.pack2(panels)
+        
         self.widgets.get_widget('notebook').append_page(
-            panels, gtk.Label('MIME Type'))
+            vpanels, gtk.Label('MIME Type'))
 
         self.widgets.get_widget('notebook').show_all()
 
