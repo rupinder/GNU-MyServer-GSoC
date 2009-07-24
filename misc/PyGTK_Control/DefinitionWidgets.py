@@ -217,7 +217,7 @@ class DefinitionTreeView(gtk.TreeView):
                 return True
         self.props.has_tooltip = True
         self.connect("query-tooltip", show_tooltip)
-        
+
     def make_def(self, current):
         '''Return row pointed by current exported as definition.'''
         model = self.get_model()
@@ -264,7 +264,7 @@ class DefinitionTreeView(gtk.TreeView):
         '''Sets up model reading from given config instance. If search in True
         will substitute alreaty present model data, if it is false will append
         all the definitions.'''
-        
+
         def get_value_and_attributes(definition):
             '''Get column values from definition instance.'''
             name = definition.get_name()

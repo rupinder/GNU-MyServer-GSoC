@@ -136,7 +136,7 @@ class PyGTKControl():
     def on_add_unknown_definition_menu_item_activate(self, widget):
         '''Adds a new definition to unknown tab.'''
         table, tree = self.tabs['unknown']
-        tree.get_model().append(None, ('', '', False,True, '', False, {}, ))
+        tree.get_model().append(None, ('', '', False, True, '', False, {}, ))
 
     def on_add_mime_type_menu_item_activate(self, widget):
         '''Adds a new MIME type.'''
@@ -144,7 +144,12 @@ class PyGTKControl():
         mime_lists = {}
         for mime_list in GUIConfig.mime_lists:
             mime_lists[mime_list] = []
-        tree.get_model().append(('', {}, mime_lists, ))
+        tree.get_model().append(('', {}, mime_lists, [], ))
+
+    def on_add_definition_to_mime_menu_item_activate(self, widget):
+        '''Adds a definition to currently selected MIME type.'''
+        table, tree = self.mime_tab[1]
+        tree.get_model().append(None, ('', '', False, True, '', False, {}, ))
 
     def on_new_menu_item_activate(self, widget = None):
         '''Clears configuration.'''
@@ -167,7 +172,7 @@ class PyGTKControl():
             name = definition.get_name()
             tab_name = self.options[name] if name in self.options else 'unknown'
             tabs[tab_name].append(definition)
-            
+
         for tab in tabs:
             tree = self.tabs[tab][1]
             tree.set_up(tabs[tab], tab != 'unknown')
@@ -218,25 +223,24 @@ class PyGTKControl():
     def construct_mime(self):
         '''Reads mime options from file and prepares GUI.'''
         vpanels = gtk.VPaned()
-        
+
+        panels = gtk.HPaned()
+        def_tree = DefinitionTreeView()
+        panels.pack1(def_tree.scroll, True, False)
+        def_table = DefinitionTable(def_tree)
+        panels.pack2(def_table, False, False)
+
+        vpanels.pack2(panels)
+
         panels = gtk.HPaned()
         tree = MimeTreeView()
         panels.pack1(tree.scroll, True, False)
-        table = MimeTable(tree)
+        table = MimeTable(tree, def_tree, def_table)
         panels.pack2(table, False, False)
-        self.mime_tab = (table, tree, )
 
         vpanels.pack1(panels)
-
-        panels = gtk.HPaned()
-        tree = DefinitionTreeView()
-        panels.pack1(tree.scroll, True, False)
-        table = DefinitionTable(tree)
-        panels.pack2(table, False, False)
-        self.mime_tab = (self.mime_tab, (table, tree, ))
-
-        vpanels.pack2(panels)
         
+        self.mime_tab = ((table, tree, ), (def_table, def_tree), )
         self.widgets.get_widget('notebook').append_page(
             vpanels, gtk.Label('MIME Type'))
 

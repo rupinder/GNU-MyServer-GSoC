@@ -185,6 +185,20 @@
                         </child>
                       </widget>
                     </child>
+                    <child>
+                      <widget class="GtkImageMenuItem" id="add_definition_to_mime_menu_item">
+                        <property name="label">Add definition to MIME type</property>
+                        <property name="visible">True</property>
+                        <property name="use_stock">False</property>
+                        <signal name="activate" handler="on_add_definition_to_mime_menu_item_activate"/>
+                        <child internal-child="image">
+                          <widget class="GtkImage" id="add_definition_to_mime_image">
+                            <property name="visible">True</property>
+                            <property name="stock">gtk-add</property>
+                          </widget>
+                        </child>
+                      </widget>
+                    </child>
                   </widget>
                 </child>
               </widget>

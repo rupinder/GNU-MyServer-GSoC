@@ -25,7 +25,8 @@ class MimeTreeView(gtk.TreeView):
         gtk.TreeView.__init__(self, gtk.ListStore(
                 gobject.TYPE_STRING, # mime name
                 gobject.TYPE_PYOBJECT, # mime single attributes
-                gobject.TYPE_PYOBJECT)) # mime attribute lists
+                gobject.TYPE_PYOBJECT, # mime attribute lists
+                gobject.TYPE_PYOBJECT)) # mime definitions
         model = self.get_model()
         def mime_edited_handler(cell, path, text, data):
             model = data
@@ -45,12 +46,14 @@ class MimeTreeView(gtk.TreeView):
         self.scroll.add(self)
 
 class MimeTable(gtk.Table):
-    def __init__(self, tree):
+    def __init__(self, tree, def_tree, def_table):
         gtk.Table.__init__(self, len(GUIConfig.mime_attributes) +
                            3 * len(GUIConfig.mime_lists), 4)
 
         tree.connect('cursor-changed', self.cursor_changed)
         self.last_selected = None
+        self.def_tree = def_tree
+        self.def_table = def_table
 
         self.attributes = {}
         i = 0
@@ -102,13 +105,17 @@ class MimeTable(gtk.Table):
             i += 3
             
     def clear(self):
+        '''Clear input widgets (including connected definition widgets).'''
         for entry, check in self.attributes.itervalues():
             entry.set_text('')
             check.set_active(False)
         for model in self.mime_lists.itervalues():
             model.clear()
+        self.def_table.clear()
+        self.def_tree.get_model().clear()
 
     def save_changed(self, tree):
+        '''Save data from input widgets to model.'''
         if self.last_selected is not None:
             attributes = {}
             for attribute in self.attributes:
@@ -125,6 +132,7 @@ class MimeTable(gtk.Table):
             row = tree.get_model()[self.last_selected]
             row[1] = attributes
             row[2] = mime_lists
+            row[3] = self.def_table.make_def(self.def_tree)
 
     def cursor_changed(self, tree):
         self.save_changed(tree)
@@ -141,3 +149,4 @@ class MimeTable(gtk.Table):
             model = self.mime_lists[mime_list]
             for element in row[2][mime_list]:
                 model.append((element, ))
+        self.def_tree.set_up(row[3], False)
