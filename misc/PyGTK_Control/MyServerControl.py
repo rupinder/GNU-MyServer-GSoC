@@ -23,7 +23,6 @@ import gobject
 import GUIConfig
 from MyServer.pycontrollib.config import MyServerConfig
 from MyServer.pycontrollib.controller import Controller
-from MyServer.pycontrollib.definition import DefinitionElement, DefinitionTree
 from AboutWindow import About
 from ConnectionWindow import Connection
 from DefinitionWidgets import DefinitionTable, DefinitionTreeView
@@ -128,41 +127,10 @@ class PyGTKControl():
 
     def get_current_config(self):
         '''Returns current configuration as MyServerConfig instance.'''
-
-        def make_def(current, model):
-            row = model[current]
-            name = row[0]
-            enabled = row[3]
-            value = row[4]
-            value_check = row[5]
-            attributes = row[6]
-            if value_check:
-                attributes['value'] = value
-            if not enabled:
-                return None
-            i = model.iter_children(current)
-            if i is None:
-                return DefinitionElement(name, attributes)
-            else:
-                definitions = []
-                while i is not None: # iterate over children
-                    definition = make_def(i, model)
-                    if definition is not None:
-                        definitions.append(definition)
-                    i = model.iter_next(i)
-                return DefinitionTree(name, definitions, attributes)
-
         definitions = []
         for tab in self.tabs:
             table, tree = self.tabs[tab]
-            model = tree.get_model()
-            table.save_changed(tree)
-            i = model.iter_children(None)
-            while i is not None: # iterate over options
-                definition = make_def(i, model)
-                if definition is not None:
-                    definitions.append(definition)
-                i = model.iter_next(i)
+            definitions += table.make_def(tree)
         return MyServerConfig(definitions)
 
     def on_add_unknown_definition_menu_item_activate(self, widget):
@@ -172,7 +140,7 @@ class PyGTKControl():
 
     def on_add_mime_type_menu_item_activate(self, widget):
         '''Adds a new MIME type.'''
-        table, tree = self.tabs['MIME'][0]
+        table, tree = self.mime_tab[0]
         mime_lists = {}
         for mime_list in GUIConfig.mime_lists:
             mime_lists[mime_list] = []
@@ -307,7 +275,7 @@ class PyGTKControl():
         panels.pack1(tree.scroll, True, False)
         table = MimeTable(tree)
         panels.pack2(table, False, False)
-        self.tabs['MIME'] = (table, tree, )
+        self.mime_tab = (table, tree, )
 
         vpanels.pack1(panels)
 
@@ -316,7 +284,7 @@ class PyGTKControl():
         panels.pack1(tree.scroll, True, False)
         table = DefinitionTable(tree)
         panels.pack2(table, False, False)
-        self.tabs['MIME'] = (self.tabs['MIME'], (table, tree, ))
+        self.mime_tab = (self.mime_tab, (table, tree, ))
 
         vpanels.pack2(panels)
         

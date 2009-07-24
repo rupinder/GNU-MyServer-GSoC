@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import gtk
 import gobject
+from MyServer.pycontrollib.definition import DefinitionElement, DefinitionTree
 
 class DefinitionTable(gtk.Table):
     def __init__(self, tree):
@@ -117,6 +118,7 @@ class DefinitionTable(gtk.Table):
         self.attach(attributes_scroll, 0, 3, 7, 8)
 
     def clear(self):
+        '''Clear input widgets.'''
         self.enabled_field.set_active(False)
         self.value_field.set_text('')
         self.value_check_field.set_active(False)
@@ -124,6 +126,7 @@ class DefinitionTable(gtk.Table):
         self.last_selected = None
 
     def save_changed(self, tree):
+        '''Save data from input widgets to tree.'''
         if self.last_selected is not None:
             attributes = {}
             i = self.attributes_field.iter_children(None)
@@ -138,6 +141,7 @@ class DefinitionTable(gtk.Table):
             row[6] = attributes
 
     def cursor_changed(self, tree):
+        '''Save data, and display data of current selected row.'''
         self.save_changed(tree)
 
         self.clear()
@@ -151,8 +155,22 @@ class DefinitionTable(gtk.Table):
             self.attributes_field.append((attribute, row[5][attribute], ))
 
     def get_selected(self, tree):
+        '''Get iterator of currently selected row.'''
         model, selected = tree.get_selection().get_selected()
         return selected
+
+    def make_def(self, tree):
+        '''Export all data as list of definitions.'''
+        self.save_changed(tree)
+        model = tree.get_model()
+        definitions = []
+        i = model.iter_children(None)
+        while i is not None: # iterate over options
+            definition = tree.make_def(i)
+            if definition is not None:
+                definitions.append(definition)
+            i = model.iter_next(i)
+        return definitions
 
 class DefinitionTreeView(gtk.TreeView):
     def __init__(self):
@@ -199,3 +217,28 @@ class DefinitionTreeView(gtk.TreeView):
                 return True
         self.props.has_tooltip = True
         self.connect("query-tooltip", show_tooltip)
+        
+    def make_def(self, current):
+        '''Return row pointed by current exported as definition.'''
+        model = self.get_model()
+        row = model[current]
+        name = row[0]
+        enabled = row[3]
+        value = row[4]
+        value_check = row[5]
+        attributes = row[6]
+        if value_check:
+            attributes['value'] = value
+        if not enabled:
+            return None
+        i = model.iter_children(current)
+        if i is None:
+            return DefinitionElement(name, attributes)
+        else:
+            definitions = []
+            while i is not None: # iterate over children
+                definition = self.make_def(i)
+                if definition is not None:
+                    definitions.append(definition)
+                i = model.iter_next(i)
+            return DefinitionTree(name, definitions, attributes)
