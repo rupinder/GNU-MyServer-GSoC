@@ -154,74 +154,23 @@ class PyGTKControl():
         tree.get_model().clear()
         for tab in self.tabs:
             table, tree = self.tabs[tab]
-            model = tree.get_model()
             table.clear()
-            tree.get_selection().unselect_all()
-            i = model.iter_children(None)
-            while i is not None: # iterate over options
-                row = model[i]
-                row[3] = False
-                row[4] = ''
-                row[5] = False
-                row[6] = {}
-                child = model.iter_children(i)
-                if child is not None: # remove node children
-                    while model.remove(child):
-                        pass
-                i = model.iter_next(i)
+            tree.make_clear()
 
     def set_up(self, config):
         '''Reads configuration from given config instance.'''
-
-        def get_value_and_attributes(definition):
-            name = definition.get_name()
-            enabled = True
-            try:
-                value = definition.get_attribute('value')
-                value_check = True
-            except KeyError:
-                value = ''
-                value_check = False
-            attributes = definition.get_attributes()
-            attributes.pop('value', None)
-            return (name, enabled, value, value_check, attributes, )
-
-        def add_children(parent, definition, model):
-            if isinstance(definition, DefinitionTree):
-                for d in definition.get_definitions():
-                    name, enabled, value, value_check, attributes = \
-                        get_value_and_attributes(d)
-                    i = model.append(
-                        parent,
-                        (name, '', False, enabled, value, value_check,
-                         attributes, ))
-                    add_children(i, d, model)
-
         self.on_new_menu_item_activate()
+        tabs = {}
+        for tab in self.tabs:
+            tabs[tab] = []
         for definition in config.get_definitions():
-            name, enabled, value, value_check, attributes = \
-                get_value_and_attributes(definition)
-
-            if name not in self.options:
-                tab_name = 'unknown'
-            else:
-                tab_name = self.options[name]
-
-            tree = self.tabs[tab_name][1]
-            model = tree.get_model()
-            if tab_name != 'unknown':
-                i = model.iter_children(None) # find this option
-                while model[i][0] != name:
-                    i = model.iter_next(i)
-            else:
-                i = model.append(None,
-                                 (name, '', False, False, '', False, {}, ))
-            row = model[i]
-            row[3] = enabled
-            row[4] = value
-            row[5] = value_check
-            row[6] = attributes
-            add_children(i, definition, model)
+            name = definition.get_name()
+            tab_name = self.options[name] if name in self.options else 'unknown'
+            tabs[tab_name].append(definition)
+            
+        for tab in tabs:
+            tree = self.tabs[tab][1]
+            tree.set_up(tabs[tab], tab != 'unknown')
 
     def construct_options(self):
         '''Reads known options from file and prepares GUI.'''
