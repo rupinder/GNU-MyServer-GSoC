@@ -156,7 +156,7 @@ class MIMEType():
         if self.param is not None:
             root.set('param', self.param)
         if self.self_executed is not None:
-            root.set('self', 'YES' if self.self_executed else 'NO')
+            root.set('self', self.self_executed)
         if self.path is not None:
             root.append(make_element('PATH', 'regex', self.path))
         for element in map(make_extension_element, self.extensions):
@@ -179,8 +179,6 @@ class MIMEType():
         handler = root.get('handler', None)
         param = root.get('param', None)
         self_executed = root.get('self', None)
-        if self_executed is not None:
-            self_executed = self_executed.upper() == 'YES'
         path = None
         extension = set()
         filters = []

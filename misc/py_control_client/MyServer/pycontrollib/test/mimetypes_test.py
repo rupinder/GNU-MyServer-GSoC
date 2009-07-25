@@ -44,9 +44,9 @@ class MIMETypeTest(unittest.TestCase):
         MIMEType('text/plain', 'CGI', '/usr/bin/python', set(['py']),
                  '^/cgi-bin/.*$', ['gzip'])
         MIMEType('text/plain', 'CGI', '/usr/bin/python', set(['py']),
-                 '^/cgi-bin/.*$', ['gzip'], False)
+                 '^/cgi-bin/.*$', ['gzip'], 'NO')
         MIMEType('text/plain', 'CGI', '/usr/bin/python', set(['py']),
-                 '^/cgi-bin/.*$', ['gzip'], False, self.definitions)
+                 '^/cgi-bin/.*$', ['gzip'], 'NO', self.definitions)
 
     def test_mime(self):
         mime = MIMEType('text/plain', 'SEND')
@@ -116,12 +116,12 @@ class MIMETypeTest(unittest.TestCase):
     def test_self_executed(self):
         mime = MIMEType('text/plain', 'SEND')
         self.assertEqual(None, mime.get_self_executed())
-        mime.set_self_executed(True)
-        self.assertEqual(True, mime.get_self_executed())
+        mime.set_self_executed('YES')
+        self.assertEqual('YES', mime.get_self_executed())
         mime.set_self_executed(None)
         self.assertEqual(None, mime.get_self_executed())
-        mime = MIMEType('text/plain', 'SEND', self_executed = True)
-        self.assertEqual(True, mime.get_self_executed())
+        mime = MIMEType('text/plain', 'SEND', self_executed = 'YES')
+        self.assertEqual('YES', mime.get_self_executed())
         
     def test_definitions(self):
         mime = MIMEType('text/plain', 'SEND')
@@ -138,58 +138,58 @@ class MIMETypeTest(unittest.TestCase):
         
     def test_equality(self):
         self.assertEqual(MIMEType('text/plain', 'CGI', '/usr/bin/python',
-                                  set(['py']), '^/.*$', ['gzip'], False,
+                                  set(['py']), '^/.*$', ['gzip'], 'NO',
                                   self.definitions),
                          MIMEType('text/plain', 'CGI', '/usr/bin/python',
-                                  set(['py']), '^/.*$', ['gzip'], False,
+                                  set(['py']), '^/.*$', ['gzip'], 'NO',
                                   self.definitions))
         self.assertNotEqual(MIMEType('text/plain', 'CGI', '/usr/bin/python',
-                                  set(['py']), '^/.*$', ['gzip'], False,
+                                  set(['py']), '^/.*$', ['gzip'], 'NO',
                                   self.definitions),
                             MIMEType('other', 'CGI', '/usr/bin/python',
-                                  set(['py']), '^/.*$', ['gzip'], False,
+                                  set(['py']), '^/.*$', ['gzip'], 'NO',
                                      self.definitions))
         self.assertNotEqual(MIMEType('text/plain', 'CGI', '/usr/bin/python',
-                                     set(['py']), '^/.*$', ['gzip'], False,
+                                     set(['py']), '^/.*$', ['gzip'], 'NO',
                                      self.definitions),
                             MIMEType('text/plain', 'SEND', '/usr/bin/python',
-                                     set(['py']), '^/.*$', ['gzip'], False,
+                                     set(['py']), '^/.*$', ['gzip'], 'NO',
                                      self.definitions))
         self.assertNotEqual(MIMEType('text/plain', 'CGI', '/usr/bin/python',
-                                     set(['py']), '^/.*$', ['gzip'], False,
+                                     set(['py']), '^/.*$', ['gzip'], 'NO',
                                      self.definitions),
                             MIMEType('text/plain', 'CGI', '/usr/bin/python26',
-                                     set(['py']), '^/.*$', ['gzip'], False,
+                                     set(['py']), '^/.*$', ['gzip'], 'NO',
                                      self.definitions))
         self.assertNotEqual(MIMEType('text/plain', 'CGI', '/usr/bin/python',
-                                     set(['py']), '^/.*$', ['gzip'], False,
+                                     set(['py']), '^/.*$', ['gzip'], 'NO',
                                      self.definitions),
                             MIMEType('text/plain', 'CGI', '/usr/bin/python',
-                                     set(['pyc']), '^/.*$', ['gzip'], False,
+                                     set(['pyc']), '^/.*$', ['gzip'], 'NO',
                                      self.definitions))
         self.assertNotEqual(MIMEType('text/plain', 'CGI', '/usr/bin/python',
-                                     set(['py']), '^/.*$', ['gzip'], False,
+                                     set(['py']), '^/.*$', ['gzip'], 'NO',
                                      self.definitions),
                             MIMEType('text/plain', 'CGI', '/usr/bin/python',
-                                     set(['py']), '^/other/.*$', ['gzip'], False,
+                                     set(['py']), '^/other/.*$', ['gzip'], 'NO',
                                      self.definitions))
         self.assertNotEqual(MIMEType('text/plain', 'CGI', '/usr/bin/python',
-                                     set(['py']), '^/.*$', ['gzip'], False,
+                                     set(['py']), '^/.*$', ['gzip'], 'NO',
                                      self.definitions),
                             MIMEType('text/plain', 'CGI', '/usr/bin/python',
-                                     set(['py']), '^/.*$', ['bzip2'], False,
+                                     set(['py']), '^/.*$', ['bzip2'], 'NO',
                                      self.definitions))
         self.assertNotEqual(MIMEType('text/plain', 'CGI', '/usr/bin/python',
-                                     set(['py']), '^/.*$', ['gzip'], False,
+                                     set(['py']), '^/.*$', ['gzip'], 'NO',
                                      self.definitions),
                             MIMEType('text/plain', 'CGI', '/usr/bin/python',
-                                     set(['py']), '^/.*$', ['gzip'], True,
+                                     set(['py']), '^/.*$', ['gzip'], 'YES',
                                      self.definitions))
         self.assertNotEqual(MIMEType('text/plain', 'CGI', '/usr/bin/python',
-                                     set(['py']), '^/.*$', ['gzip'], False,
+                                     set(['py']), '^/.*$', ['gzip'], 'NO',
                                      self.definitions),
                             MIMEType('text/plain', 'CGI', '/usr/bin/python',
-                                     set(['py']), '^/.*$', ['gzip'], False,
+                                     set(['py']), '^/.*$', ['gzip'], 'NO',
                                      []))
         self.assertNotEqual(MIMEType('text/plain', 'SEND'), 'other type')
 
@@ -229,7 +229,7 @@ class MIMETypeTest(unittest.TestCase):
     def test_from_string_self_executed(self):
         text = '<MIME mime="text/plain" handler="SEND" self="YES" />'
         mime = MIMEType.from_string(text)
-        right = MIMEType('text/plain', 'SEND', self_executed = True)
+        right = MIMEType('text/plain', 'SEND', self_executed = 'YES')
         self.assertEqual(mime, right)
 
     def test_from_string_definitions(self):
@@ -249,7 +249,7 @@ class MIMETypeTest(unittest.TestCase):
 </MIME>'''.format('\n'.join(map(str, self.definitions)))
         mime = MIMEType.from_string(text)
         right = MIMEType('text/plain', 'SEND', 'python', ['py'], '^/.*$',
-                         ['gzip', 'bzip2'], True, self.definitions)
+                         ['gzip', 'bzip2'], 'YES', self.definitions)
         self.assertEqual(mime, right)
 
     def test_from_lxml(self):
@@ -288,7 +288,7 @@ class MIMETypeTest(unittest.TestCase):
     def test_from_lxml_self_executed(self):
         text = '<MIME mime="text/plain" handler="SEND" self="YES" />'
         mime = MIMEType.from_lxml_element(etree.XML(text))
-        right = MIMEType('text/plain', 'SEND', self_executed = True)
+        right = MIMEType('text/plain', 'SEND', self_executed = 'YES')
         self.assertEqual(mime, right)
 
     def test_from_lxml_definitions(self):
@@ -308,7 +308,7 @@ class MIMETypeTest(unittest.TestCase):
 </MIME>'''.format('\n'.join(map(str, self.definitions)))
         mime = MIMEType.from_lxml_element(etree.XML(text))
         right = MIMEType('text/plain', 'SEND', 'python', ['py'], '^/.*$',
-                         ['gzip', 'bzip2'], True, self.definitions)
+                         ['gzip', 'bzip2'], 'YES', self.definitions)
         self.assertEqual(mime, right)
 
     def test_bad_root_tag(self):
@@ -343,7 +343,7 @@ class MIMETypeTest(unittest.TestCase):
         self.assertEqual(mime, copy)
 
     def test_to_string_self_executed(self):
-        mime = MIMEType('text/plain', 'SEND', self_executed = True)
+        mime = MIMEType('text/plain', 'SEND', self_executed = 'YES')
         copy = MIMEType.from_string(str(mime))
         self.assertEqual(mime, copy)
 
@@ -354,7 +354,7 @@ class MIMETypeTest(unittest.TestCase):
         
     def test_to_string_full(self):
         mime = MIMEType('text/plain', 'SEND', 'python', ['py'], '^/.*$',
-                        ['gzip', 'bzip2'], True, self.definitions)
+                        ['gzip', 'bzip2'], 'YES', self.definitions)
         copy = MIMEType.from_string(str(mime))
         self.assertEqual(mime, copy)
 
@@ -384,7 +384,7 @@ class MIMETypeTest(unittest.TestCase):
         self.assertEqual(mime, copy)
 
     def test_to_lxml_self_executed(self):
-        mime = MIMEType('text/plain', 'SEND', self_executed = True)
+        mime = MIMEType('text/plain', 'SEND', self_executed = 'YES')
         copy = MIMEType.from_lxml_element(mime.to_lxml_element())
         self.assertEqual(mime, copy)
 
@@ -395,13 +395,13 @@ class MIMETypeTest(unittest.TestCase):
         
     def test_to_lxml_full(self):
         mime = MIMEType('text/plain', 'SEND', 'python', ['py'], '^/.*$',
-                        ['gzip', 'bzip2'], True, self.definitions)
+                        ['gzip', 'bzip2'], 'YES', self.definitions)
         copy = MIMEType.from_lxml_element(mime.to_lxml_element())
         self.assertEqual(mime, copy)
 
 class MIMETypesTest(unittest.TestCase):
     def setUp(self):
-        self.mime_0 = MIMEType('text/html', 'FASTCGI', '', self_executed = True,
+        self.mime_0 = MIMEType('text/html', 'FASTCGI', '', self_executed = 'YES',
                                extensions = ['fcgi'])
         self.mime_1 = MIMEType('text/plain', 'SEND', '',
                                extensions = ['asc', 'c', 'cc', 'f', 'f90', 'h', 'hh'])
