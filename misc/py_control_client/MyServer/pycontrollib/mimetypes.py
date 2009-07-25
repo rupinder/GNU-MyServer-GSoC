@@ -20,8 +20,9 @@ from definition import Definition, DefinitionList
 from lxml import etree
 
 class MIMEType():
-    def __init__(self, mime, handler, param = None, extensions = [], path = None,
-                 filters = [], self_executed = None, definitions = []):
+    def __init__(self, mime, handler = None, param = None, extensions = [],
+                 path = None, filters = [], self_executed = None,
+                 definitions = []):
         '''Creates new MIMEType with specified attributes. extension, filter and
         definitions are expected to be iterable.'''
         self.set_mime(mime)
@@ -53,8 +54,6 @@ class MIMEType():
 
     def set_handler(self, handler):
         '''Set associated handler.'''
-        if handler is None:
-            raise AttributeError('handler is required and can\'t be None')
         self.handler = handler
 
     def get_param(self):
@@ -152,7 +151,8 @@ class MIMEType():
             return make_element('FILTER', 'value', filter)
         root = etree.Element('MIME')
         root.set('mime', self.mime)
-        root.set('handler', self.handler)
+        if self.handler is not None:
+            root.set('handler', self.handler)
         if self.param is not None:
             root.set('param', self.param)
         if self.self_executed is not None:

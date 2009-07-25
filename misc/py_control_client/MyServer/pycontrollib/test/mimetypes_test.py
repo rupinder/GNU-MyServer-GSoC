@@ -35,6 +35,7 @@ class MIMETypeTest(unittest.TestCase):
                  DefinitionElement(attributes = {'value': 'index.htm'})]))
 
     def test_creation(self):
+        MIMEType('text/plain')
         MIMEType('text/plain', 'CGI')
         MIMEType('text/plain', 'CGI', '/usr/bin/python')
         MIMEType('text/plain', 'CGI', '/usr/bin/python', set(['py']))
@@ -56,12 +57,16 @@ class MIMETypeTest(unittest.TestCase):
         self.assertRaises(AttributeError, MIMEType, None, 'SEND')
         
     def test_handler(self):
+        mime = MIMEType('text/plain',)
+        self.assertEqual(None, mime.get_handler())
+        mime.set_handler('SEND')
+        self.assertEqual('SEND', mime.get_handler())
+        mime.set_handler(None)
+        self.assertEqual(None, mime.get_handler())
         mime = MIMEType('text/plain', 'SEND')
         self.assertEqual('SEND', mime.get_handler())
-        mime.set_handler('SOME HANDLER')
-        self.assertEqual('SOME HANDLER', mime.get_handler())
-        self.assertRaises(AttributeError, mime.set_handler, None)
-        self.assertRaises(AttributeError, MIMEType, 'text/plain', None)
+        mime = MIMEType('text/plain', handler = 'SEND')
+        self.assertEqual('SEND', mime.get_handler())
 
     def test_param(self):
         mime = MIMEType('text/plain', 'SEND')
