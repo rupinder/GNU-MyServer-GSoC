@@ -38,7 +38,7 @@ class PyGTKControl():
         self.construct_options()
         self.construct_mime()
         self.chooser = None # Active file chooser
-        self.path = None # path of currently edited file
+        self.config_path = None # path of currently edited file
         self.controller = None
 
     def on_window_destroy(self, widget):
@@ -81,7 +81,18 @@ class PyGTKControl():
         if self.controller is not None:
             self.controller.put_server_configuration(self.get_current_config())
 
-    def on_open_menu_item_activate(self, widget):
+    def on_new_config_menu_item_activate(self, widget = None):
+        '''Clears configuration.'''
+        if widget is not None:
+            self.config_path = None
+        table, tree = self.tabs['unknown']
+        tree.get_model().clear()
+        for tab in self.tabs:
+            table, tree = self.tabs[tab]
+            table.clear()
+            tree.make_clear()
+
+    def on_open_config_menu_item_activate(self, widget):
         '''Open local configuration file.'''
         if self.chooser is not None:
             self.chooser.destroy()
@@ -91,15 +102,15 @@ class PyGTKControl():
                        gtk.STOCK_OPEN, gtk.RESPONSE_OK))
         def handle_response(widget, response):
             if response == gtk.RESPONSE_OK:
-                self.path = self.chooser.get_filename()
-                with open(self.path) as f:
+                self.config_path = self.chooser.get_filename()
+                with open(self.config_path) as f:
                     conf = MyServerConfig.from_string(f.read())
                 self.set_up(conf)
             self.chooser.destroy()
         self.chooser.connect('response', handle_response)
         self.chooser.show()
 
-    def on_save_as_menu_item_activate(self, widget):
+    def on_save_as_config_menu_item_activate(self, widget):
         '''Save configuration as local file.'''
         if self.chooser is not None:
             self.chooser.destroy()
@@ -110,19 +121,19 @@ class PyGTKControl():
                        gtk.STOCK_SAVE_AS, gtk.RESPONSE_OK))
         def handle_response(widget, response):
             if response == gtk.RESPONSE_OK:
-                self.path = self.chooser.get_filename()
-                self.on_save_menu_item_activate(widget)
+                self.config_path = self.chooser.get_filename()
+                self.on_save_config_menu_item_activate(widget)
             self.chooser.destroy()
         self.chooser.connect('response', handle_response)
         self.chooser.show()
 
-    def on_save_menu_item_activate(self, widget):
+    def on_save_config_menu_item_activate(self, widget):
         '''Save configuration to file.'''
-        if self.path is None:
-            self.on_save_as_menu_item_activate(widget)
+        if self.config_path is None:
+            self.on_save_as_config_menu_item_activate(widget)
         else:
             config = self.get_current_config()
-            with open(self.path, 'w') as f:
+            with open(self.config_path, 'w') as f:
                 f.write(str(config))
 
     def get_current_config(self):
@@ -151,20 +162,9 @@ class PyGTKControl():
         table, tree = self.mime_tab[1]
         tree.get_model().append(None, ('', '', False, True, '', False, {}, ))
 
-    def on_new_menu_item_activate(self, widget = None):
-        '''Clears configuration.'''
-        if widget is not None:
-            self.path = None
-        table, tree = self.tabs['unknown']
-        tree.get_model().clear()
-        for tab in self.tabs:
-            table, tree = self.tabs[tab]
-            table.clear()
-            tree.make_clear()
-
     def set_up(self, config):
         '''Reads configuration from given config instance.'''
-        self.on_new_menu_item_activate()
+        self.on_new_config_menu_item_activate()
         tabs = {}
         for tab in self.tabs:
             tabs[tab] = []
@@ -217,7 +217,7 @@ class PyGTKControl():
             self.widgets.get_widget('notebook').append_page(
                 panels, gtk.Label(tab))
 
-        self.on_new_menu_item_activate()
+        self.on_new_config_menu_item_activate()
         self.widgets.get_widget('notebook').show_all()
 
     def construct_mime(self):
