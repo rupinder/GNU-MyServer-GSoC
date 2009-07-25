@@ -22,38 +22,174 @@
                     <property name="visible">True</property>
                     <child>
                       <widget class="GtkImageMenuItem" id="new_menu_item">
-                        <property name="label">gtk-new</property>
+                        <property name="label">New</property>
                         <property name="visible">True</property>
-                        <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
-                        <signal name="activate" handler="on_new_menu_item_activate"/>
+                        <property name="use_stock">False</property>
+                        <child>
+                          <widget class="GtkMenu" id="new_menu">
+                            <property name="visible">True</property>
+                            <child>
+                              <widget class="GtkMenuItem" id="new_config_menu_item">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">New server configuration</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_new_config_menu_item_activate"/>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkMenuItem" id="new_mime_menu_item">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">New MIME configuration</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_new_mime_menu_item_activate"/>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkMenuItem" id="new_vhost_menu_item">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">New VHost configuration</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_new_vhost_menu_item_activate"/>
+                              </widget>
+                            </child>
+                          </widget>
+                        </child>
+                        <child internal-child="image">
+                          <widget class="GtkImage" id="new_image">
+                            <property name="visible">True</property>
+                            <property name="stock">gtk-new</property>
+                            <property name="icon-size">1</property>
+                          </widget>
+                        </child>
                       </widget>
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="open_menu_item">
-                        <property name="label">gtk-open</property>
+                        <property name="label">Open</property>
                         <property name="visible">True</property>
-                        <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
-                        <signal name="activate" handler="on_open_menu_item_activate"/>
+                        <property name="use_stock">False</property>
+                        <child>
+                          <widget class="GtkMenu" id="open_menu">
+                            <property name="visible">True</property>
+                            <child>
+                              <widget class="GtkMenuItem" id="open_config_menu_item">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Open server configuration</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_open_config_menu_item_activate"/>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkMenuItem" id="open_mime_menu_item">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Open MIME configuration</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_open_mime_menu_item_activate"/>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkMenuItem" id="open_vhost_menu_item">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Open VHost configuration</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_open_vhost_menu_item_activate"/>
+                              </widget>
+                            </child>
+                          </widget>
+                        </child>
+                        <child internal-child="image">
+                          <widget class="GtkImage" id="open_image">
+                            <property name="visible">True</property>
+                            <property name="stock">gtk-open</property>
+                            <property name="icon-size">1</property>
+                          </widget>
+                        </child>
                       </widget>
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="save_menu_item">
-                        <property name="label">gtk-save</property>
+                        <property name="label">Save</property>
                         <property name="visible">True</property>
-                        <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
-                        <signal name="activate" handler="on_save_menu_item_activate"/>
+                        <property name="use_stock">False</property>
+                        <child>
+                          <widget class="GtkMenu" id="save_menu">
+                            <property name="visible">True</property>
+                            <child>
+                              <widget class="GtkMenuItem" id="save_config_menu_item">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Save server configuration</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_save_config_menu_item_activate"/>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkMenuItem" id="save_mime_menu_item">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Save MIME configuration</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_save_mime_menu_item_activate"/>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkMenuItem" id="save_vhost_menu_item">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Save VHost configuration</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_save_vhost_menu_item_activate"/>
+                              </widget>
+                            </child>
+                          </widget>
+                        </child>
+                        <child internal-child="image">
+                          <widget class="GtkImage" id="save_image">
+                            <property name="visible">True</property>
+                            <property name="stock">gtk-save</property>
+                            <property name="icon-size">1</property>
+                          </widget>
+                        </child>
                       </widget>
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="save_as_menu_item">
-                        <property name="label">gtk-save-as</property>
+                        <property name="label">Save as</property>
                         <property name="visible">True</property>
-                        <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
-                        <signal name="activate" handler="on_save_as_menu_item_activate"/>
+                        <property name="use_stock">False</property>
+                        <child>
+                          <widget class="GtkMenu" id="save_as_menu">
+                            <property name="visible">True</property>
+                            <child>
+                              <widget class="GtkMenuItem" id="save_as_config_menu_item">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Save server configuration</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_save_as_config_menu_item_activate"/>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkMenuItem" id="save_as_mime_menu_item">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Save MIME configuration</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_save_as_mime_menu_item_activate"/>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkMenuItem" id="save_as_vhost_menu_item">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Save VHost configuration</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_save_as_vhost_menu_item_activate"/>
+                              </widget>
+                            </child>
+                          </widget>
+                        </child>
+                        <child internal-child="image">
+                          <widget class="GtkImage" id="save_as_image">
+                            <property name="visible">True</property>
+                            <property name="stock">gtk-save-as</property>
+                            <property name="icon-size">1</property>
+                          </widget>
+                        </child>
                       </widget>
                     </child>
                     <child>
