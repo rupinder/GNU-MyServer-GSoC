@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import gtk
 import gobject
 import GUIConfig
+from MyServer.pycontrollib.mimetypes import MIMEType
 
 class MimeTreeView(gtk.TreeView):
     def __init__(self):
@@ -44,6 +45,23 @@ class MimeTreeView(gtk.TreeView):
         self.scroll.set_shadow_type(gtk.SHADOW_OUT)
         self.scroll.set_border_width(5)
         self.scroll.add(self)
+
+    def set_up(self, MIME_types):
+        '''Fill model with data provided as list of MIME types.'''
+        model = self.get_model()
+        for mime in MIME_types:
+            attributes = {}
+            for attribute in GUIConfig.mime_attributes:
+                a = getattr(mime, 'get_' + attribute)()
+                if a is not None:
+                    attributes[attribute] = (a, True, )
+            mime_lists = {}
+            for mime_list in GUIConfig.mime_lists:
+                mime_lists[mime_list] = getattr(mime, 'get_' + mime_list)()
+            model.append((getattr(mime, 'get_' + GUIConfig.mime_name)(),
+                          attributes,
+                          mime_lists,
+                          mime.get_definitions(), ))
 
 class MimeTable(gtk.Table):
     def __init__(self, tree, def_tree, def_table):
@@ -113,6 +131,7 @@ class MimeTable(gtk.Table):
             model.clear()
         self.def_table.clear()
         self.def_tree.get_model().clear()
+        self.last_selected = None
 
     def save_changed(self, tree):
         '''Save data from input widgets to model.'''
@@ -150,3 +169,23 @@ class MimeTable(gtk.Table):
             for element in row[2][mime_list]:
                 model.append((element, ))
         self.def_tree.set_up(row[3], False)
+
+    def make_def(self, tree):
+        '''Export all data as list of MIME types.'''
+        self.save_changed(tree)
+        model = tree.get_model()
+        mimes = []
+        i = model.iter_children(None)
+        while i is not None: # iterate over MIME types
+            row = model[i]
+            mime = MIMEType(row[0], definitions = row[3])
+            for attribute in row[1]:
+                text, enabled = row[1][attribute]
+                if enabled:
+                    getattr(mime, 'set_' + attribute)(text)
+            for mime_list in row[2]:
+                for entry in row[2][mime_list]:
+                    getattr(mime, 'add_' + mime_list[:-1])(entry)
+            mimes.append(mime)
+            i = model.iter_next(i)
+        return mimes

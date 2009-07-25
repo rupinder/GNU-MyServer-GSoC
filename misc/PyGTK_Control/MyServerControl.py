@@ -22,6 +22,7 @@ import gtk.glade
 import gobject
 import GUIConfig
 from MyServer.pycontrollib.config import MyServerConfig
+from MyServer.pycontrollib.mimetypes import MIMETypes
 from MyServer.pycontrollib.controller import Controller
 from AboutWindow import About
 from ConnectionWindow import Connection
@@ -38,7 +39,8 @@ class PyGTKControl():
         self.construct_options()
         self.construct_mime()
         self.chooser = None # Active file chooser
-        self.config_path = None # path of currently edited file
+        # path of currently edited files
+        self.config_path = self.mime_path = self.vhost_path = None
         self.controller = None
 
     def on_window_destroy(self, widget):
@@ -82,7 +84,7 @@ class PyGTKControl():
             self.controller.put_server_configuration(self.get_current_config())
 
     def on_new_config_menu_item_activate(self, widget = None):
-        '''Clears configuration.'''
+        '''Clears server configuration.'''
         if widget is not None:
             self.config_path = None
         table, tree = self.tabs['unknown']
@@ -92,12 +94,20 @@ class PyGTKControl():
             table.clear()
             tree.make_clear()
 
+    def on_new_mime_menu_item_activate(self, widget = None):
+        '''Clears MIME configuration.'''
+        if widget is not None:
+            self.mime_path = None
+        table, tree = self.mime_tab[0]
+        table.clear()
+        tree.get_model().clear()
+
     def on_open_config_menu_item_activate(self, widget):
-        '''Open local configuration file.'''
+        '''Open local server configuration file.'''
         if self.chooser is not None:
             self.chooser.destroy()
         self.chooser = gtk.FileChooserDialog(
-            'Open configuration file.',
+            'Open server configuration file.',
             buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
                        gtk.STOCK_OPEN, gtk.RESPONSE_OK))
         def handle_response(widget, response):
@@ -105,17 +115,35 @@ class PyGTKControl():
                 self.config_path = self.chooser.get_filename()
                 with open(self.config_path) as f:
                     conf = MyServerConfig.from_string(f.read())
-                self.set_up(conf)
+                self.set_up_config(conf)
+            self.chooser.destroy()
+        self.chooser.connect('response', handle_response)
+        self.chooser.show()
+
+    def on_open_mime_menu_item_activate(self, widget):
+        '''Open local MIME configuration file.'''
+        if self.chooser is not None:
+            self.chooser.destroy()
+        self.chooser = gtk.FileChooserDialog(
+            'Open MIME configuration file.',
+            buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                       gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+        def handle_response(widget, response):
+            if response == gtk.RESPONSE_OK:
+                self.mime_path = self.chooser.get_filename()
+                with open(self.mime_path) as f:
+                    conf = MIMETypes.from_string(f.read())
+                self.set_up_mime(conf)
             self.chooser.destroy()
         self.chooser.connect('response', handle_response)
         self.chooser.show()
 
     def on_save_as_config_menu_item_activate(self, widget):
-        '''Save configuration as local file.'''
+        '''Save server configuration as local file.'''
         if self.chooser is not None:
             self.chooser.destroy()
         self.chooser = gtk.FileChooserDialog(
-            'Save configuration file.',
+            'Save server configuration file.',
             action = gtk.FILE_CHOOSER_ACTION_SAVE,
             buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
                        gtk.STOCK_SAVE_AS, gtk.RESPONSE_OK))
@@ -127,8 +155,25 @@ class PyGTKControl():
         self.chooser.connect('response', handle_response)
         self.chooser.show()
 
+    def on_save_as_mime_config_menu_item_activate(self, widget):
+        '''Save MIME configuration as local file.'''
+        if self.chooser is not None:
+            self.chooser.destroy()
+        self.chooser = gtk.FileChooserDialog(
+            'Save MIME configuration file.',
+            action = gtk.FILE_CHOOSER_ACTION_SAVE,
+            buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                       gtk.STOCK_SAVE_AS, gtk.RESPONSE_OK))
+        def handle_response(widget, response):
+            if response == gtk.RESPONSE_OK:
+                self.mime_path = self.chooser.get_filename()
+                self.on_save_mime_menu_item_activate(widget)
+            self.chooser.destroy()
+        self.chooser.connect('response', handle_response)
+        self.chooser.show()
+
     def on_save_config_menu_item_activate(self, widget):
-        '''Save configuration to file.'''
+        '''Save server configuration to file.'''
         if self.config_path is None:
             self.on_save_as_config_menu_item_activate(widget)
         else:
@@ -136,13 +181,28 @@ class PyGTKControl():
             with open(self.config_path, 'w') as f:
                 f.write(str(config))
 
+    def on_save_mime_menu_item_activate(self, widget):
+        '''Save MIME configuration to file.'''
+        if self.mime_path is None:
+            self.on_save_as_mime_config_menu_item_activate(widget)
+        else:
+            config = self.get_current_mime()
+            with open(self.mime_path, 'w') as f:
+                f.write(str(config))
+
     def get_current_config(self):
-        '''Returns current configuration as MyServerConfig instance.'''
+        '''Returns current server configuration as MyServerConfig instance.'''
         definitions = []
         for tab in self.tabs:
             table, tree = self.tabs[tab]
             definitions += table.make_def(tree)
         return MyServerConfig(definitions)
+
+    def get_current_mime(self):
+        '''Returns current mime configuration as MIMETypes instance.'''
+        table, tree = self.mime_tab[0]
+        mimes = table.make_def(tree)
+        return MIMETypes(mimes)
 
     def on_add_unknown_definition_menu_item_activate(self, widget):
         '''Adds a new definition to unknown tab.'''
@@ -162,8 +222,8 @@ class PyGTKControl():
         table, tree = self.mime_tab[1]
         tree.get_model().append(None, ('', '', False, True, '', False, {}, ))
 
-    def set_up(self, config):
-        '''Reads configuration from given config instance.'''
+    def set_up_config(self, config):
+        '''Reads server configuration from given config instance.'''
         self.on_new_config_menu_item_activate()
         tabs = {}
         for tab in self.tabs:
@@ -176,6 +236,12 @@ class PyGTKControl():
         for tab in tabs:
             tree = self.tabs[tab][1]
             tree.set_up(tabs[tab], tab != 'unknown')
+
+    def set_up_mime(self, config):
+        '''Reads MIME configuration from given config instance.'''
+        self.on_new_mime_menu_item_activate()
+        tree = self.mime_tab[0][1]
+        tree.set_up(config.MIME_types)
 
     def construct_options(self):
         '''Reads known options from file and prepares GUI.'''

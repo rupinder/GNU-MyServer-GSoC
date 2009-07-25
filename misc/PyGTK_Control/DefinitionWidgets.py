@@ -152,7 +152,7 @@ class DefinitionTable(gtk.Table):
         self.value_field.set_text(row[4])
         self.value_check_field.set_active(row[5])
         for attribute in row[6]:
-            self.attributes_field.append((attribute, row[5][attribute], ))
+            self.attributes_field.append((attribute, row[6][attribute], ))
 
     def get_selected(self, tree):
         '''Get iterator of currently selected row.'''
@@ -261,7 +261,7 @@ class DefinitionTreeView(gtk.TreeView):
             i = model.iter_next(i)
 
     def set_up(self, definitions, search):
-        '''Sets up model reading from given config instance. If search in True
+        '''Sets up model reading from given definition list. If search in True
         will substitute alreaty present model data, if it is false will append
         all the definitions.'''
 
