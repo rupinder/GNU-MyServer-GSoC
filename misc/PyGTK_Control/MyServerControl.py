@@ -28,6 +28,7 @@ from AboutWindow import About
 from ConnectionWindow import Connection
 from DefinitionWidgets import DefinitionTable, DefinitionTreeView
 from MIMEWidgets import MimeTable, MimeTreeView
+from VHostWidgets import VHostTable, VHostTreeView
 
 class PyGTKControl():
     '''GNU MyServer Control main window.'''
@@ -38,6 +39,7 @@ class PyGTKControl():
         self.widgets.signal_autoconnect(self)
         self.construct_options()
         self.construct_mime()
+        self.construct_vhosts()
         self.chooser = None # Active file chooser
         # path of currently edited files
         self.config_path = self.mime_path = self.vhost_path = None
@@ -217,10 +219,23 @@ class PyGTKControl():
             mime_lists[mime_list] = []
         tree.get_model().append(('', {}, mime_lists, [], ))
 
+    def on_add_vhost_menu_item_activate(self, widget):
+        '''Adds a new VHost.'''
+        table, tree = self.vhost_tab
+        vhost_lists = {}
+        for vhost_list in GUIConfig.vhost_lists:
+            vhost_lists[vhost_list[0]] = []
+        tree.get_model().append(('', {}, vhost_lists, [], ))
+
     def on_add_definition_to_mime_menu_item_activate(self, widget):
         '''Adds a definition to currently selected MIME type.'''
         table, tree = self.mime_tab[1]
         tree.get_model().append(None, ('', '', False, True, '', False, {}, ))
+
+    def on_add_log_to_vhost_menu_item_activate(self, widget):
+        '''Adds a log to currently selected VHost.'''
+        table, tree = self.vhost_tab
+        table.add_log()
 
     def set_up_config(self, config):
         '''Reads server configuration from given config instance.'''
@@ -309,6 +324,20 @@ class PyGTKControl():
         self.mime_tab = ((table, tree, ), (def_table, def_tree), )
         self.widgets.get_widget('notebook').append_page(
             vpanels, gtk.Label('MIME Type'))
+
+        self.widgets.get_widget('notebook').show_all()
+
+    def construct_vhosts(self):
+        '''Reads vhost options from file and prepares GUI.'''
+        panels = gtk.HPaned()
+        tree = VHostTreeView()
+        panels.pack1(tree.scroll, True, False)
+        table = VHostTable(tree)
+        panels.pack2(table, False, False)
+
+        self.vhost_tab = (table, tree, )
+        self.widgets.get_widget('notebook').append_page(
+            panels, gtk.Label('VHosts'))
 
         self.widgets.get_widget('notebook').show_all()
 

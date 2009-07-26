@@ -340,6 +340,46 @@
               </widget>
             </child>
             <child>
+              <widget class="GtkMenuItem" id="vhost_menu_item">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">_VHosts</property>
+                <property name="use_underline">True</property>
+                <child>
+                  <widget class="GtkMenu" id="vhost_menu">
+                    <property name="visible">True</property>
+                    <child>
+                      <widget class="GtkImageMenuItem" id="add_vhost_menu_item">
+                        <property name="label">Add VHost</property>
+                        <property name="visible">True</property>
+                        <property name="use_stock">False</property>
+                        <signal name="activate" handler="on_add_vhost_menu_item_activate"/>
+                        <child internal-child="image">
+                          <widget class="GtkImage" id="add_vhost_image">
+                            <property name="visible">True</property>
+                            <property name="stock">gtk-add</property>
+                          </widget>
+                        </child>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkImageMenuItem" id="add_log_to_vhost_menu_item">
+                        <property name="label">Add log to VHost</property>
+                        <property name="visible">True</property>
+                        <property name="use_stock">False</property>
+                        <signal name="activate" handler="on_add_log_to_vhost_menu_item_activate"/>
+                        <child internal-child="image">
+                          <widget class="GtkImage" id="add_log_to_vhost_image">
+                            <property name="visible">True</property>
+                            <property name="stock">gtk-add</property>
+                          </widget>
+                        </child>
+                      </widget>
+                    </child>
+                  </widget>
+                </child>
+              </widget>
+            </child>
+            <child>
               <widget class="GtkMenuItem" id="help_menu_item">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">_Help</property>

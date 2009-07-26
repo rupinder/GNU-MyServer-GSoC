@@ -16,6 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+from gobject import TYPE_STRING, TYPE_BOOLEAN
+
 options = {}
 
 # Control
@@ -72,3 +74,18 @@ tabs = ['server', 'control', 'ftp', 'http', 'log_color']
 mime_name = 'mime'
 mime_attributes = ['handler', 'self_executed', 'param', 'path']
 mime_lists = ['extensions', 'filters']
+
+# VHosts
+vhost_name = 'name'
+vhost_attributes = ['port', 'protocol', 'doc_root', 'sys_root', 'private_key', 'certificate']
+vhost_lists = [
+    ('ip', (
+            ('ip', TYPE_STRING, '', ),
+            ),
+     ),
+     ('host', (
+            ('host name', TYPE_STRING, '', ),
+            ('use regexp', TYPE_BOOLEAN, False, ),
+            ),
+      ),
+    ]

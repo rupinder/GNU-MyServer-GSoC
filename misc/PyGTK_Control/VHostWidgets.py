@@ -1,0 +1,313 @@
+# -*- coding: utf-8 -*-
+'''
+MyServer
+Copyright (C) 2009 Free Software Foundation, Inc.
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+'''
+
+import gtk
+import gobject
+import GUIConfig
+
+class LogTreeView(gtk.TreeView):
+    def __init__(self):
+        gtk.TreeView.__init__(self, gtk.ListStore(
+                gobject.TYPE_STRING, # log name
+                gobject.TYPE_PYOBJECT)) # list of streams
+        model = self.get_model()
+        self.last_selected = None
+        def edited_handler(cell, path, text, model):
+            model[path][0] = text
+        renderer = gtk.CellRendererText()
+        renderer.set_property('editable', True)
+        renderer.connect('edited', edited_handler, model)
+        column = gtk.TreeViewColumn('Log')
+        column.pack_start(renderer)
+        column.add_attribute(renderer, 'text', 0)
+        self.append_column(column)
+        self.scroll = gtk.ScrolledWindow()
+        self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.scroll.set_shadow_type(gtk.SHADOW_OUT)
+        self.scroll.set_border_width(5)
+        self.scroll.add(self)
+
+        self.stream_tree = stream_tree = gtk.TreeView(
+            gtk.ListStore(gobject.TYPE_STRING))
+        self.stream_model = stream_model = stream_tree.get_model()
+        def stream_edited_handler(cell, path, text, model):
+            model[path][0] = text
+        renderer = gtk.CellRendererText()
+        renderer.set_property('editable', True)
+        renderer.connect('edited', stream_edited_handler, stream_model)
+        column = gtk.TreeViewColumn('Stream')
+        column.pack_start(renderer)
+        column.add_attribute(renderer, 'text', 0)
+        stream_tree.append_column(column)
+        self.stream_scroll = gtk.ScrolledWindow()
+        self.stream_scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.stream_scroll.set_shadow_type(gtk.SHADOW_OUT)
+        self.stream_scroll.set_border_width(5)
+        self.stream_scroll.add(stream_tree)
+
+        self.connect('cursor-changed', self.cursor_changed)
+
+    def save_changed(self, tree):
+        model = self.stream_model
+        if self.last_selected is not None:
+            streams = []
+            i = model.iter_children(None)
+            while i is not None: # iterate over streams
+                streams.append(model[i][0])
+                i = model.iter_next(i)
+            row = tree.get_model()[self.last_selected]
+            row[1] = streams
+
+    def cursor_changed(self, tree):
+        self.save_changed(tree)
+
+        model = self.stream_model
+        model.clear()
+
+        self.last_selected = current = \
+            tree.get_selection().get_selected()[1]
+        row = tree.get_model()[current]
+        for stream in row[1]:
+            model.append((stream, ))
+
+    def get_logs(self):
+        self.save_changed(self)
+        model = self.get_model()
+        logs = {}
+        i = model.iter_children(None)
+        while i is not None: # iterate over logs
+            row = model[i]
+            logs[row[0]] = row[1]
+            i = model.iter_next(i)
+        return logs
+
+    def set_logs(self, logs):
+        self.stream_model.clear()
+        self.stream_tree.get_selection().unselect_all()
+        self.last_selected = None
+        model = self.get_model()
+        model.clear()
+        for log in logs:
+            model.append((log, logs[log], ))
+
+class VHostTreeView(gtk.TreeView):
+    def __init__(self):
+        gtk.TreeView.__init__(self, gtk.ListStore(
+                gobject.TYPE_STRING, # vhost name
+                gobject.TYPE_PYOBJECT, # vhost single attributes
+                gobject.TYPE_PYOBJECT, # vhost attribute lists
+                gobject.TYPE_PYOBJECT)) # vhost logs
+        model = self.get_model()
+        def vhost_edited_handler(cell, path, text, data):
+            model = data
+            model[path][0] = text
+        vhost_renderer = gtk.CellRendererText()
+        vhost_renderer.set_property('editable', True)
+        vhost_renderer.connect('edited', vhost_edited_handler, model)
+        vhost_column = gtk.TreeViewColumn('VHost')
+        vhost_column.pack_start(vhost_renderer)
+        vhost_column.add_attribute(vhost_renderer, 'text', 0)
+        self.append_column(vhost_column)
+
+        self.scroll = gtk.ScrolledWindow()
+        self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.scroll.set_shadow_type(gtk.SHADOW_OUT)
+        self.scroll.set_border_width(5)
+        self.scroll.add(self)
+
+    # def set_up(self, MIME_types):
+    #     '''Fill model with data provided as list of MIME types.'''
+    #     model = self.get_model()
+    #     for mime in MIME_types:
+    #         attributes = {}
+    #         for attribute in GUIConfig.mime_attributes:
+    #             a = getattr(mime, 'get_' + attribute)()
+    #             if a is not None:
+    #                 attributes[attribute] = (a, True, )
+    #         mime_lists = {}
+    #         for mime_list in GUIConfig.mime_lists:
+    #             mime_lists[mime_list] = getattr(mime, 'get_' + mime_list)()
+    #         model.append((getattr(mime, 'get_' + GUIConfig.mime_name)(),
+    #                       attributes,
+    #                       mime_lists,
+    #                       mime.get_definitions(), ))
+
+class VHostTable(gtk.Table):
+    def __init__(self, tree):
+        gtk.Table.__init__(self, len(GUIConfig.vhost_attributes) +
+                           3 * len(GUIConfig.vhost_lists) + 3, 4)
+
+        tree.connect('cursor-changed', self.cursor_changed)
+        self.last_selected = None
+
+        self.attributes = {}
+        i = 0
+        for attribute in GUIConfig.vhost_attributes: # Add single attributes
+            label = gtk.Label(attribute)
+            entry = gtk.Entry()
+            check = gtk.CheckButton()
+            self.attributes[attribute] = (entry, check, )
+            self.attach(label, 0, 1, i, i + 1, yoptions = gtk.FILL)
+            self.attach(entry, 1, 3, i, i + 1, yoptions = gtk.FILL)
+            self.attach(check, 3, 4, i, i + 1, gtk.FILL, gtk.FILL)
+            i += 1
+            
+        self.vhost_lists = {}
+        for vhost_list in GUIConfig.vhost_lists: # Add attribute lists
+            name = vhost_list[0]
+            column_names = []
+            columns = []
+            defaults = []
+            for element in vhost_list[1]:
+                column_names.append(element[0])
+                columns.append(element[1])
+                defaults.append(element[2])
+            tree = gtk.TreeView(gtk.ListStore(*(columns)))
+            tree_model = tree.get_model()
+            def tree_edited_handler(cell, path, text, data):
+                model, col_index = data
+                model[path][col_index] = text
+            col_index = 0
+            for column in column_names:
+                tree_renderer = gtk.CellRendererText()
+                tree_renderer.set_property('editable', True)
+                tree_renderer.connect('edited', tree_edited_handler,
+                                      (tree_model, col_index, ))
+                tree_column = gtk.TreeViewColumn(column)
+                tree_column.pack_start(tree_renderer)
+                tree_column.add_attribute(tree_renderer, 'text', col_index)
+                tree.append_column(tree_column)
+                col_index += 1
+            tree_scroll = gtk.ScrolledWindow()
+            tree_scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+            tree_scroll.set_shadow_type(gtk.SHADOW_OUT)
+            tree_scroll.set_border_width(5)
+            tree_scroll.add(tree)
+
+            def add_to_tree(button, data):
+                model, defaults = data
+                model.append(defaults)
+            add_button = gtk.Button('Add')
+            add_button.connect('clicked', add_to_tree, (tree_model, defaults, ))
+            def remove_from_tree(button, tree):
+                model, selected = tree.get_selection().get_selected()
+                if selected is not None:
+                    model.remove(selected)
+            remove_button = gtk.Button('Remove')
+            remove_button.connect('clicked', remove_from_tree, tree)
+
+            self.vhost_lists[name] = tree_model
+            self.attach(tree_scroll, 0, 2, i, i + 3)
+            self.attach(add_button, 2, 3, i, i + 1, yoptions = gtk.FILL)
+            self.attach(remove_button, 2, 3, i + 1, i + 2, yoptions = gtk.FILL)
+            self.attach(gtk.Label(), 2, 3, i + 2, i + 3)
+            i += 3
+
+        # Add logs
+        self.log_tree = log_tree = LogTreeView()
+        self.log_model = log_tree.get_model()
+
+        def add_stream(button, model):
+            model.append(('', ))
+        add_button = gtk.Button('Add')
+        add_button.connect('clicked', add_stream, log_tree.stream_model)
+
+        def remove_stream(button, tree):
+            model, selected = tree.get_selection().get_selected()
+            if selected is not None:
+                model.remove(selected)
+        remove_button = gtk.Button('Remove')
+        remove_button.connect('clicked', remove_stream, log_tree.stream_tree)
+
+        self.attach(log_tree.scroll, 0, 2, i, i + 3)
+        self.attach(add_button, 2, 3, i, i + 1, yoptions = gtk.FILL)
+        self.attach(remove_button, 2, 3, i + 1, i + 2, yoptions = gtk.FILL)
+        self.attach(log_tree.stream_scroll, 2, 3, i + 2, i + 3)
+
+    def add_log(self):
+        '''Add a log to currently selected VHost.'''
+        self.log_model.append(('', [], ))
+            
+    def clear(self):
+        '''Clear input widgets.'''
+        for entry, check in self.attributes.itervalues():
+            entry.set_text('')
+            check.set_active(False)
+        for model in self.vhost_lists.itervalues():
+            model.clear()
+        self.last_selected = None
+
+    def save_changed(self, tree):
+        '''Save data from input widgets to model.'''
+        if self.last_selected is not None:
+            attributes = {}
+            for attribute in self.attributes:
+                entry, check = self.attributes[attribute]
+                attributes[attribute] = (entry.get_text(), check.get_active(), )
+            vhost_lists = {}
+            for vhost_list in GUIConfig.vhost_lists:
+                container = vhost_lists[vhost_list[0]] = []
+                model = self.vhost_lists[vhost_list[0]]
+                i = model.iter_children(None)
+                while i is not None: # iterate over list elements
+                    row = []
+                    for counter in xrange(len(vhost_list[1])):
+                        row.append(model[i][counter])
+                    container.append(tuple(row))
+                    i = model.iter_next(i)
+            row = tree.get_model()[self.last_selected]
+            row[1] = attributes
+            row[2] = vhost_lists
+            row[3] = self.log_tree.get_logs()
+
+    def cursor_changed(self, tree):
+        self.save_changed(tree)
+
+        self.clear()
+
+        self.last_selected = current = tree.get_selection().get_selected()[1]
+        row = tree.get_model()[current]
+        for attribute in row[1]:
+            entry, check = self.attributes[attribute]
+            entry.set_text(row[1][attribute][0])
+            check.set_active(row[1][attribute][1])
+        for vhost_list in row[2]:
+            model = self.vhost_lists[vhost_list]
+            for element in row[2][vhost_list]:
+                model.append(element)
+        self.log_tree.set_logs(row[3])
+
+    # def make_def(self, tree):
+    #     '''Export all data as list of MIME types.'''
+    #     self.save_changed(tree)
+    #     model = tree.get_model()
+    #     mimes = []
+    #     i = model.iter_children(None)
+    #     while i is not None: # iterate over MIME types
+    #         row = model[i]
+    #         mime = MIMEType(row[0], definitions = row[3])
+    #         for attribute in row[1]:
+    #             text, enabled = row[1][attribute]
+    #             if enabled:
+    #                 getattr(mime, 'set_' + attribute)(text)
+    #         for mime_list in row[2]:
+    #             for entry in row[2][mime_list]:
+    #                 getattr(mime, 'add_' + mime_list[:-1])(entry)
+    #         mimes.append(mime)
+    #         i = model.iter_next(i)
+    #     return mimes

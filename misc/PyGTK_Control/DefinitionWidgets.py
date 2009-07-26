@@ -38,15 +38,7 @@ class DefinitionTable(gtk.Table):
         self.value_check_field = value_checkbutton = gtk.CheckButton()
         value_checkbutton.set_tooltip_text('If active value will be used.')
         value_checkbutton.set_active(True)
-        def toggle_value(button, tree):
-            # don't allow value for definition with children
-            model, selected = tree.get_selection().get_selected()
-            if selected is not None and model.iter_children(selected) is not None:
-                button.set_active(False)
-                return
-            active = button.get_active()
-            self.value_field.set_editable(active)
-        value_checkbutton.connect('toggled', toggle_value, tree)
+
         self.attach(value_label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
         self.attach(value_entry, 1, 2, 1, 2, yoptions = gtk.FILL)
         self.attach(value_checkbutton, 2, 3, 1, 2, gtk.FILL, gtk.FILL)
@@ -57,7 +49,6 @@ class DefinitionTable(gtk.Table):
             if selected is not None:
                 model.append(selected, ('', '', False, True, '', False, {}, ))
                 self.value_check_field.set_active(False) # auto disable value
-                self.value_field.set_editable(False)
         add_definition_button.connect('clicked', add_sub_definition)
         self.attach(add_definition_button, 0, 3, 2, 3, yoptions = gtk.FILL)
 
