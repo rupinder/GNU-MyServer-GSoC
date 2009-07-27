@@ -20,13 +20,85 @@ import gtk
 import gobject
 import GUIConfig
 
-class LogTreeView(gtk.TreeView):
+class FilterTreeView(gtk.TreeView):
     def __init__(self):
+        gtk.TreeView.__init__(self, gtk.ListStore(
+                gobject.TYPE_STRING))
+        model = self.get_model()
+        def edited_handler(cell, path, text, model):
+            model[path][0] = text
+        renderer = gtk.CellRendererText()
+        renderer.set_property('editable', True)
+        renderer.connect('edited', edited_handler, model)
+        column = gtk.TreeViewColumn('Filter')
+        column.pack_start(renderer)
+        column.add_attribute(renderer, 'text', 0)
+        self.append_column(column)
+        self.scroll = gtk.ScrolledWindow()
+        self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.scroll.set_shadow_type(gtk.SHADOW_OUT)
+        self.scroll.set_border_width(5)
+        self.scroll.add(self)
+
+class StreamTreeView(gtk.TreeView):
+    def __init__(self, filter_tree):
+        gtk.TreeView.__init__(self, gtk.ListStore(
+                gobject.TYPE_STRING, # stream location
+                gobject.TYPE_PYOBJECT)) # list of filters
+        self.filter_model = filter_tree.get_model()
+        model = self.get_model()
+        def edited_handler(cell, path, text, model):
+            model[path][0] = text
+        renderer = gtk.CellRendererText()
+        renderer.set_property('editable', True)
+        renderer.connect('edited', edited_handler, model)
+        column = gtk.TreeViewColumn('Stream')
+        column.pack_start(renderer)
+        column.add_attribute(renderer, 'text', 0)
+        self.append_column(column)
+        self.scroll = gtk.ScrolledWindow()
+        self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.scroll.set_shadow_type(gtk.SHADOW_OUT)
+        self.scroll.set_border_width(5)
+        self.scroll.add(self)
+
+        self.last_selected = None
+        self.connect('cursor-changed', self.cursor_changed)
+
+    def clear(self):
+        self.filter_model.clear()
+        self.last_selected = None
+
+    def save_changed(self):
+        model = self.filter_model
+        if self.last_selected is not None:
+            filters = []
+            i = model.iter_children(None)
+            while i is not None: # iterate over filters
+                filters.append(model[i][0])
+                i = model.iter_next(i)
+            row = self.get_model()[self.last_selected]
+            row[1] = filters
+
+    def cursor_changed(self, tree):
+        self.save_changed()
+
+        self.clear()
+        model = self.filter_model
+
+        self.last_selected = current = \
+            tree.get_selection().get_selected()[1]
+        row = tree.get_model()[current]
+        for element in row[1]: # add all filters
+            model.append((element, ))
+
+class LogTreeView(gtk.TreeView):
+    def __init__(self, stream_tree):
         gtk.TreeView.__init__(self, gtk.ListStore(
                 gobject.TYPE_STRING, # log name
                 gobject.TYPE_PYOBJECT)) # list of streams
+        self.stream_tree = stream_tree
         model = self.get_model()
-        self.last_selected = None
         def edited_handler(cell, path, text, model):
             model[path][0] = text
         renderer = gtk.CellRendererText()
@@ -41,52 +113,42 @@ class LogTreeView(gtk.TreeView):
         self.scroll.set_shadow_type(gtk.SHADOW_OUT)
         self.scroll.set_border_width(5)
         self.scroll.add(self)
-
-        self.stream_tree = stream_tree = gtk.TreeView(
-            gtk.ListStore(gobject.TYPE_STRING))
-        self.stream_model = stream_model = stream_tree.get_model()
-        def stream_edited_handler(cell, path, text, model):
-            model[path][0] = text
-        renderer = gtk.CellRendererText()
-        renderer.set_property('editable', True)
-        renderer.connect('edited', stream_edited_handler, stream_model)
-        column = gtk.TreeViewColumn('Stream')
-        column.pack_start(renderer)
-        column.add_attribute(renderer, 'text', 0)
-        stream_tree.append_column(column)
-        self.stream_scroll = gtk.ScrolledWindow()
-        self.stream_scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.stream_scroll.set_shadow_type(gtk.SHADOW_OUT)
-        self.stream_scroll.set_border_width(5)
-        self.stream_scroll.add(stream_tree)
-
+        
+        self.last_selected = None
         self.connect('cursor-changed', self.cursor_changed)
 
-    def save_changed(self, tree):
-        model = self.stream_model
+    def clear(self):
+        self.stream_tree.clear()
+        self.last_selected = None
+        self.stream_tree.get_model().clear()
+        
+    def save_changed(self):
+        self.stream_tree.save_changed()
+        model = self.stream_tree.get_model()
         if self.last_selected is not None:
             streams = []
             i = model.iter_children(None)
             while i is not None: # iterate over streams
-                streams.append(model[i][0])
+                row = model[i]
+                streams.append((row[0], row[1], ))
                 i = model.iter_next(i)
-            row = tree.get_model()[self.last_selected]
+            row = self.get_model()[self.last_selected]
             row[1] = streams
 
     def cursor_changed(self, tree):
-        self.save_changed(tree)
+        self.save_changed()
 
-        model = self.stream_model
-        model.clear()
+        self.clear()
+        model = self.stream_tree.get_model()
 
         self.last_selected = current = \
             tree.get_selection().get_selected()[1]
         row = tree.get_model()[current]
         for stream in row[1]:
-            model.append((stream, ))
+            model.append(stream)
 
     def get_logs(self):
-        self.save_changed(self)
+        self.save_changed()
         model = self.get_model()
         logs = {}
         i = model.iter_children(None)
@@ -97,8 +159,7 @@ class LogTreeView(gtk.TreeView):
         return logs
 
     def set_logs(self, logs):
-        self.stream_model.clear()
-        self.stream_tree.get_selection().unselect_all()
+        self.clear()
         self.last_selected = None
         model = self.get_model()
         model.clear()
@@ -219,25 +280,41 @@ class VHostTable(gtk.Table):
             i += 3
 
         # Add logs
-        self.log_tree = log_tree = LogTreeView()
-        self.log_model = log_tree.get_model()
+        filter_tree = FilterTreeView()
+        stream_tree = StreamTreeView(filter_tree)
+        self.log_tree = LogTreeView(stream_tree)
+        self.log_model = self.log_tree.get_model()
 
         def add_stream(button, model):
+            model.append(('', [], ))
+        add_stream_button = gtk.Button('Add stream')
+        add_stream_button.connect(
+            'clicked', add_stream, stream_tree.get_model())
+        def add_filter(button, model):
             model.append(('', ))
-        add_button = gtk.Button('Add')
-        add_button.connect('clicked', add_stream, log_tree.stream_model)
+        add_filter_button = gtk.Button('Add filter')
+        add_filter_button.connect(
+            'clicked', add_filter, filter_tree.get_model())
 
-        def remove_stream(button, tree):
+        def remove_selected(button, tree):
             model, selected = tree.get_selection().get_selected()
             if selected is not None:
                 model.remove(selected)
-        remove_button = gtk.Button('Remove')
-        remove_button.connect('clicked', remove_stream, log_tree.stream_tree)
+        remove_stream_button = gtk.Button('Remove stream')
+        remove_stream_button.connect('clicked', remove_selected, stream_tree)
+        remove_filter_button = gtk.Button('Remove filter')
+        remove_filter_button.connect('clicked', remove_selected, filter_tree)
 
-        self.attach(log_tree.scroll, 0, 2, i, i + 3)
-        self.attach(add_button, 2, 3, i, i + 1, yoptions = gtk.FILL)
-        self.attach(remove_button, 2, 3, i + 1, i + 2, yoptions = gtk.FILL)
-        self.attach(log_tree.stream_scroll, 2, 3, i + 2, i + 3)
+        button_grid = gtk.Table(2, 2)
+        button_grid.attach(add_stream_button, 0, 1, 0, 1)
+        button_grid.attach(add_filter_button, 1, 2, 0, 1)
+        button_grid.attach(remove_stream_button, 0, 1, 1, 2)
+        button_grid.attach(remove_filter_button, 1, 2, 1, 2)
+
+        self.attach(self.log_tree.scroll, 0, 2, i, i + 3)
+        self.attach(button_grid, 2, 3, i, i + 1, yoptions = gtk.FILL)
+        self.attach(stream_tree.scroll, 2, 3, i + 1, i + 2)
+        self.attach(filter_tree.scroll, 2, 3, i + 2, i + 3)
 
     def add_log(self):
         '''Add a log to currently selected VHost.'''
