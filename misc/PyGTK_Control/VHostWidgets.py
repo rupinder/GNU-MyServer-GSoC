@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import gtk
 import gobject
 import GUIConfig
+from MyServer.pycontrollib.log import Log, Stream
+from MyServer.pycontrollib.vhost import VHost
 
 class FilterTreeView(gtk.TreeView):
     def __init__(self):
@@ -150,11 +152,11 @@ class LogTreeView(gtk.TreeView):
     def get_logs(self):
         self.save_changed()
         model = self.get_model()
-        logs = {}
+        logs = []
         i = model.iter_children(None)
         while i is not None: # iterate over logs
             row = model[i]
-            logs[row[0]] = row[1]
+            logs.append((row[0], row[1], ))
             i = model.iter_next(i)
         return logs
 
@@ -164,7 +166,7 @@ class LogTreeView(gtk.TreeView):
         model = self.get_model()
         model.clear()
         for log in logs:
-            model.append((log, logs[log], ))
+            model.append((log[0], log[1], ))
 
 class VHostTreeView(gtk.TreeView):
     def __init__(self):
@@ -191,22 +193,37 @@ class VHostTreeView(gtk.TreeView):
         self.scroll.set_border_width(5)
         self.scroll.add(self)
 
-    # def set_up(self, MIME_types):
-    #     '''Fill model with data provided as list of MIME types.'''
-    #     model = self.get_model()
-    #     for mime in MIME_types:
-    #         attributes = {}
-    #         for attribute in GUIConfig.mime_attributes:
-    #             a = getattr(mime, 'get_' + attribute)()
-    #             if a is not None:
-    #                 attributes[attribute] = (a, True, )
-    #         mime_lists = {}
-    #         for mime_list in GUIConfig.mime_lists:
-    #             mime_lists[mime_list] = getattr(mime, 'get_' + mime_list)()
-    #         model.append((getattr(mime, 'get_' + GUIConfig.mime_name)(),
-    #                       attributes,
-    #                       mime_lists,
-    #                       mime.get_definitions(), ))
+    def set_up(self, vhosts):
+        '''Fill model with data provided as list of Vhosts.'''
+        model = self.get_model()
+        for vhost in vhosts:
+            attributes = {}
+            for attribute in GUIConfig.vhost_attributes:
+                a = getattr(vhost, 'get_' + attribute)()
+                if a is not None:
+                    attributes[attribute] = (str(a), True, )
+            vhost_lists = {}
+            for vhost_list in GUIConfig.vhost_lists:
+                vhost_list = vhost_list[0]
+                l = getattr(vhost, 'get_' + vhost_list)()
+                m = []
+                for element in l:
+                    if isinstance(l, dict):
+                        m.append((element, l[element], ))
+                    else:
+                        m.append((element, ))
+                vhost_lists[vhost_list] = m
+            logs = []
+            for log in vhost.get_logs():
+                streams = []
+                for stream in log.get_streams():
+                    filters = stream.get_filters()
+                    streams.append((stream.get_location(), filters, ))
+                logs.append((log.get_log_type(), streams, ))
+            model.append((getattr(vhost, 'get_' + GUIConfig.vhost_name)(),
+                          attributes,
+                          vhost_lists,
+                          logs, ))
 
 class VHostTable(gtk.Table):
     def __init__(self, tree):
@@ -327,6 +344,8 @@ class VHostTable(gtk.Table):
             check.set_active(False)
         for model in self.vhost_lists.itervalues():
             model.clear()
+        self.log_tree.clear()
+        self.log_tree.get_model().clear()
         self.last_selected = None
 
     def save_changed(self, tree):
@@ -369,22 +388,28 @@ class VHostTable(gtk.Table):
                 model.append(element)
         self.log_tree.set_logs(row[3])
 
-    # def make_def(self, tree):
-    #     '''Export all data as list of MIME types.'''
-    #     self.save_changed(tree)
-    #     model = tree.get_model()
-    #     mimes = []
-    #     i = model.iter_children(None)
-    #     while i is not None: # iterate over MIME types
-    #         row = model[i]
-    #         mime = MIMEType(row[0], definitions = row[3])
-    #         for attribute in row[1]:
-    #             text, enabled = row[1][attribute]
-    #             if enabled:
-    #                 getattr(mime, 'set_' + attribute)(text)
-    #         for mime_list in row[2]:
-    #             for entry in row[2][mime_list]:
-    #                 getattr(mime, 'add_' + mime_list[:-1])(entry)
-    #         mimes.append(mime)
-    #         i = model.iter_next(i)
-    #     return mimes
+    def make_def(self, tree):
+        '''Export all data as list of VHosts.'''
+        self.save_changed(tree)
+        model = tree.get_model()
+        vhosts = []
+        i = model.iter_children(None)
+        while i is not None: # iterate over VHosts
+            row = model[i]
+            logs = []
+            for log in row[3]:
+                streams = []
+                for stream in log[1]:
+                    streams.append(Stream(stream[0], filters = stream[1]))
+                logs.append(Log(log[0], streams = streams))
+            vhost = VHost(row[0], logs = logs)
+            for attribute in row[1]:
+                text, enabled = row[1][attribute]
+                if enabled:
+                    getattr(vhost, 'set_' + attribute)(text)
+            for vhost_list in row[2]:
+                for entry in row[2][vhost_list]:
+                    getattr(vhost, 'add_' + vhost_list)(*entry)
+            vhosts.append(vhost)
+            i = model.iter_next(i)
+        return vhosts
