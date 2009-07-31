@@ -242,29 +242,87 @@
                       </widget>
                     </child>
                     <child>
-                      <widget class="GtkImageMenuItem" id="get_config_menu_item">
-                        <property name="label">Get configuration</property>
+                      <widget class="GtkImageMenuItem" id="get_menu_item">
+                        <property name="label">Get</property>
                         <property name="visible">True</property>
                         <property name="use_stock">False</property>
-                        <signal name="activate" handler="on_get_config_menu_item_activate"/>
+                        <child>
+                          <widget class="GtkMenu" id="get_menu">
+                            <property name="visible">True</property>
+                            <child>
+                              <widget class="GtkMenuItem" id="get_config_menu_item">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Get server configuration</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_get_config_menu_item_activate"/>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkMenuItem" id="get_mime_menu_item">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Get MIME configuration</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_get_mime_menu_item_activate"/>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkMenuItem" id="get_vhost_menu_item">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Get VHost configuration</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_get_vhost_menu_item_activate"/>
+                              </widget>
+                            </child>
+                          </widget>
+                        </child>
                         <child internal-child="image">
-                          <widget class="GtkImage" id="get_config_image">
+                          <widget class="GtkImage" id="get_image">
                             <property name="visible">True</property>
                             <property name="stock">gtk-go-down</property>
+                            <property name="icon-size">1</property>
                           </widget>
                         </child>
                       </widget>
                     </child>
                     <child>
-                      <widget class="GtkImageMenuItem" id="put_config_menu_item">
-                        <property name="label">Put configuration</property>
+                      <widget class="GtkImageMenuItem" id="put_menu_item">
+                        <property name="label">Put</property>
                         <property name="visible">True</property>
                         <property name="use_stock">False</property>
-                        <signal name="activate" handler="on_put_config_menu_item_activate"/>
+                        <child>
+                          <widget class="GtkMenu" id="put_menu">
+                            <property name="visible">True</property>
+                            <child>
+                              <widget class="GtkMenuItem" id="put_config_menu_item">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Put server configuration</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_put_config_menu_item_activate"/>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkMenuItem" id="put_mime_menu_item">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Put MIME configuration</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_put_mime_menu_item_activate"/>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkMenuItem" id="put_vhost_menu_item">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Put VHost configuration</property>
+                                <property name="use_underline">True</property>
+                                <signal name="activate" handler="on_put_vhost_menu_item_activate"/>
+                              </widget>
+                            </child>
+                          </widget>
+                        </child>
                         <child internal-child="image">
-                          <widget class="GtkImage" id="put_config_image">
+                          <widget class="GtkImage" id="put_image">
                             <property name="visible">True</property>
                             <property name="stock">gtk-redo</property>
+                            <property name="icon-size">1</property>
                           </widget>
                         </child>
                       </widget>
@@ -291,6 +349,7 @@
                           <widget class="GtkImage" id="add_unknown_definition_image">
                             <property name="visible">True</property>
                             <property name="stock">gtk-add</property>
+                            <property name="icon-size">1</property>
                           </widget>
                         </child>
                       </widget>
@@ -317,6 +376,7 @@
                           <widget class="GtkImage" id="add_mime_type_image">
                             <property name="visible">True</property>
                             <property name="stock">gtk-add</property>
+                            <property name="icon-size">1</property>
                           </widget>
                         </child>
                       </widget>
@@ -331,6 +391,7 @@
                           <widget class="GtkImage" id="add_definition_to_mime_image">
                             <property name="visible">True</property>
                             <property name="stock">gtk-add</property>
+                            <property name="icon-size">1</property>
                           </widget>
                         </child>
                       </widget>
@@ -357,6 +418,7 @@
                           <widget class="GtkImage" id="add_vhost_image">
                             <property name="visible">True</property>
                             <property name="stock">gtk-add</property>
+                            <property name="icon-size">1</property>
                           </widget>
                         </child>
                       </widget>
@@ -371,6 +433,7 @@
                           <widget class="GtkImage" id="add_log_to_vhost_image">
                             <property name="visible">True</property>
                             <property name="stock">gtk-add</property>
+                            <property name="icon-size">1</property>
                           </widget>
                         </child>
                       </widget>
