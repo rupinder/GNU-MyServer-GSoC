@@ -118,17 +118,24 @@ int MsCgi::send(HttpThreadContext* td, const char* exec, const char* cmdLine,
 
   ret = hinstLib.loadLibrary(exec, 0);
 
-  if (!ret) 
-  { 
-    td->secondaryBuffer->getAt(0) = '\0';
+  if (ret)
+  {
+    string msg;
+    msg.assign ("MSCGI: cannot load ");
+    msg.append (exec);
+    td->connection->host->warningsLogWrite (msg.c_str ());
+    chain.clearAllFilters ();
 
-    ProcMain = (CGIMAIN) hinstLib.getProc( "myserver_main"); 
+    /* Internal server error.  */
+    return td->http->raiseHTTPError(500);
+  }
 
-    if(ProcMain)
-    {
-      (ProcMain)(td->request.uriOpts.c_str (), &data);
-    }
-    else
+  td->secondaryBuffer->getAt(0) = '\0';
+
+  ProcMain = (CGIMAIN) hinstLib.getProc( "myserver_main");
+  if(ProcMain)
+    (ProcMain)(td->request.uriOpts.c_str (), &data);
+  else
     {
       string msg;
       msg.assign("MSCGI: error accessing entrypoint for ");
@@ -136,15 +143,9 @@ int MsCgi::send(HttpThreadContext* td, const char* exec, const char* cmdLine,
       td->connection->host->warningsLogWrite(msg.c_str());
       return td->http->raiseHTTPError(500);
     }
-    hinstLib.close();
-  } 
-  else
-  {
-    chain.clearAllFilters(); 
+  hinstLib.close();
 
-    /* Internal server error.  */
-    return td->http->raiseHTTPError(500);
-  }
+
   if(data.errorPage)
   {
     chain.clearAllFilters(); 
