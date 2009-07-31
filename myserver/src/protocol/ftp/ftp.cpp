@@ -213,7 +213,7 @@ struct reply
     std::string sText;
 };
 
-struct reply reply_table[] = {
+static struct reply reply_table[] = {
   {120, "Service ready in %s minutes."},
   {125, "Data connection already open; transfer starting."},
   {150, "File status okay; about to open data connection."},

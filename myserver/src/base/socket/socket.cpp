@@ -627,10 +627,7 @@ int Socket::recv(char* buffer,int len,int flags)
   int err = 0;
 
 #ifdef WIN32
-  do
-  {
-    err = ::recv(socketHandle, buffer, len, flags);
-  }while((err == SOCKET_ERROR) && (GetLastError() == WSAEWOULDBLOCK));
+  err = ::recv(socketHandle, buffer, len, flags);
 
   if ( err == SOCKET_ERROR && GetLastError() == WSAEWOULDBLOCK && isNonBlocking)
     return 0;
