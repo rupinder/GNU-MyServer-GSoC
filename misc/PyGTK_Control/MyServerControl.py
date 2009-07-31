@@ -380,9 +380,9 @@ class PyGTKControl():
 
         panels = gtk.HPaned()
         tree = MimeTreeView()
-        panels.pack1(tree.scroll, True, False)
+        panels.pack1(tree.scroll, False, False)
         table = MimeTable(tree, def_tree, def_table)
-        panels.pack2(table, False, False)
+        panels.pack2(table, True, False)
 
         vpanels.pack1(panels)
         
@@ -396,9 +396,9 @@ class PyGTKControl():
         '''Reads vhost options from file and prepares GUI.'''
         panels = gtk.HPaned()
         tree = VHostTreeView()
-        panels.pack1(tree.scroll, True, False)
+        panels.pack1(tree.scroll, False, False)
         table = VHostTable(tree)
-        panels.pack2(table, False, False)
+        panels.pack2(table.scroll, True, False)
 
         self.vhost_tab = (table, tree, )
         self.widgets.get_widget('notebook').append_page(

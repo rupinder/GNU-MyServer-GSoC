@@ -43,10 +43,14 @@ class FilterTreeView(gtk.TreeView):
         self.scroll.add(self)
 
 class StreamTreeView(gtk.TreeView):
-    def __init__(self, filter_tree):
+    def __init__(self, filter_tree, cycle, cycle_gzip):
         gtk.TreeView.__init__(self, gtk.ListStore(
                 gobject.TYPE_STRING, # stream location
-                gobject.TYPE_PYOBJECT)) # list of filters
+                gobject.TYPE_PYOBJECT, # list of filters
+                gobject.TYPE_PYOBJECT, # (cycle, cycle active, )
+                gobject.TYPE_BOOLEAN)) # cycle_gzip
+        self.cycle = cycle
+        self.cycle_gzip = cycle_gzip
         self.filter_model = filter_tree.get_model()
         model = self.get_model()
         def edited_handler(cell, path, text, model):
@@ -58,6 +62,7 @@ class StreamTreeView(gtk.TreeView):
         column.pack_start(renderer)
         column.add_attribute(renderer, 'text', 0)
         self.append_column(column)
+
         self.scroll = gtk.ScrolledWindow()
         self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         self.scroll.set_shadow_type(gtk.SHADOW_OUT)
@@ -70,6 +75,10 @@ class StreamTreeView(gtk.TreeView):
     def clear(self):
         self.filter_model.clear()
         self.last_selected = None
+        entry, check = self.cycle
+        entry.set_value(0)
+        check.set_active(False)
+        self.cycle_gzip.set_active(False)
 
     def save_changed(self):
         model = self.filter_model
@@ -81,6 +90,9 @@ class StreamTreeView(gtk.TreeView):
                 i = model.iter_next(i)
             row = self.get_model()[self.last_selected]
             row[1] = filters
+            entry, check = self.cycle
+            row[2] = (entry.get_value(), check.get_active(), )
+            row[3] = self.cycle_gzip.get_active()
 
     def cursor_changed(self, tree):
         self.save_changed()
@@ -93,13 +105,19 @@ class StreamTreeView(gtk.TreeView):
         row = tree.get_model()[current]
         for element in row[1]: # add all filters
             model.append((element, ))
+        entry, check = self.cycle
+        entry.set_value(row[2][0])
+        check.set_active(row[2][1])
+        self.cycle_gzip.set_active(row[3])
 
 class LogTreeView(gtk.TreeView):
-    def __init__(self, stream_tree):
+    def __init__(self, stream_tree, log_type):
         gtk.TreeView.__init__(self, gtk.ListStore(
                 gobject.TYPE_STRING, # log name
-                gobject.TYPE_PYOBJECT)) # list of streams
+                gobject.TYPE_PYOBJECT, # list of streams
+                gobject.TYPE_PYOBJECT)) # (log_type, log_type enabled, )
         self.stream_tree = stream_tree
+        self.log_type = log_type
         model = self.get_model()
         def edited_handler(cell, path, text, model):
             model[path][0] = text
@@ -123,6 +141,9 @@ class LogTreeView(gtk.TreeView):
         self.stream_tree.clear()
         self.last_selected = None
         self.stream_tree.get_model().clear()
+        entry, check = self.log_type
+        entry.set_text('')
+        check.set_active(False)
         
     def save_changed(self):
         self.stream_tree.save_changed()
@@ -132,10 +153,12 @@ class LogTreeView(gtk.TreeView):
             i = model.iter_children(None)
             while i is not None: # iterate over streams
                 row = model[i]
-                streams.append((row[0], row[1], ))
+                streams.append((row[0], row[1], row[2], row[3], ))
                 i = model.iter_next(i)
             row = self.get_model()[self.last_selected]
             row[1] = streams
+            entry, check = self.log_type
+            row[2] = (entry.get_text(), check.get_active(), )
 
     def cursor_changed(self, tree):
         self.save_changed()
@@ -148,6 +171,9 @@ class LogTreeView(gtk.TreeView):
         row = tree.get_model()[current]
         for stream in row[1]:
             model.append(stream)
+        entry, check = self.log_type
+        entry.set_text(row[2][0])
+        check.set_active(row[2][1])
 
     def get_logs(self):
         self.save_changed()
@@ -156,7 +182,7 @@ class LogTreeView(gtk.TreeView):
         i = model.iter_children(None)
         while i is not None: # iterate over logs
             row = model[i]
-            logs.append((row[0], row[1], ))
+            logs.append((row[0], row[1], row[2], ))
             i = model.iter_next(i)
         return logs
 
@@ -166,7 +192,7 @@ class LogTreeView(gtk.TreeView):
         model = self.get_model()
         model.clear()
         for log in logs:
-            model.append((log[0], log[1], ))
+            model.append((log[0], log[1], log[2], ))
 
 class VHostTreeView(gtk.TreeView):
     def __init__(self):
@@ -218,8 +244,19 @@ class VHostTreeView(gtk.TreeView):
                 streams = []
                 for stream in log.get_streams():
                     filters = stream.get_filters()
-                    streams.append((stream.get_location(), filters, ))
-                logs.append((log.get_log_type(), streams, ))
+                    cycle = stream.get_cycle()
+                    cycle_active = cycle is not None
+                    if cycle is None:
+                        cycle = ''
+                    cycle_gzip = stream.get_cycle_gzip()
+                    streams.append((stream.get_location(), filters,
+                                    (cycle, cycle_active, ), cycle_gzip, ))
+                log_type = log.get_type()
+                log_type_enabled = log_type is not None
+                if log_type is None:
+                    log_type = ''
+                logs.append((log.get_log_type(), streams,
+                             (log_type, log_type_enabled, ), ))
             model.append((getattr(vhost, 'get_' + GUIConfig.vhost_name)(),
                           attributes,
                           vhost_lists,
@@ -228,7 +265,7 @@ class VHostTreeView(gtk.TreeView):
 class VHostTable(gtk.Table):
     def __init__(self, tree):
         gtk.Table.__init__(self, len(GUIConfig.vhost_attributes) +
-                           3 * len(GUIConfig.vhost_lists) + 3, 4)
+                           3 * len(GUIConfig.vhost_lists) + 6, 3)
 
         tree.connect('cursor-changed', self.cursor_changed)
         self.last_selected = None
@@ -241,8 +278,8 @@ class VHostTable(gtk.Table):
             check = gtk.CheckButton()
             self.attributes[attribute] = (entry, check, )
             self.attach(label, 0, 1, i, i + 1, yoptions = gtk.FILL)
-            self.attach(entry, 1, 3, i, i + 1, yoptions = gtk.FILL)
-            self.attach(check, 3, 4, i, i + 1, gtk.FILL, gtk.FILL)
+            self.attach(entry, 1, 2, i, i + 1, yoptions = gtk.FILL)
+            self.attach(check, 2, 3, i, i + 1, gtk.FILL, gtk.FILL)
             i += 1
             
         self.vhost_lists = {}
@@ -290,20 +327,42 @@ class VHostTable(gtk.Table):
             remove_button.connect('clicked', remove_from_tree, tree)
 
             self.vhost_lists[name] = tree_model
-            self.attach(tree_scroll, 0, 2, i, i + 3)
-            self.attach(add_button, 2, 3, i, i + 1, yoptions = gtk.FILL)
-            self.attach(remove_button, 2, 3, i + 1, i + 2, yoptions = gtk.FILL)
-            self.attach(gtk.Label(), 2, 3, i + 2, i + 3)
+            self.attach(tree_scroll, 1, 2, i, i + 3)
+            self.attach(add_button, 0, 1, i, i + 1, yoptions = gtk.FILL)
+            self.attach(remove_button, 0, 1, i + 1, i + 2, yoptions = gtk.FILL)
+            self.attach(gtk.Label(), 0, 1, i + 2, i + 3)
             i += 3
 
         # Add logs
+        log_type_label = gtk.Label('log type')
+        log_type_entry = gtk.Entry()
+        log_type_check = gtk.CheckButton()
+        self.attach(log_type_label, 0, 1, i + 3, i + 4, yoptions = gtk.FILL)
+        self.attach(log_type_entry, 1, 2, i + 3, i + 4, yoptions = gtk.FILL)
+        self.attach(log_type_check, 2, 3, i + 3, i + 4, gtk.FILL, gtk.FILL)
+
+        cycle_label = gtk.Label('cycle')
+        cycle_entry = gtk.SpinButton(gtk.Adjustment(upper = 2 ** 32,
+                                                    step_incr = 1))
+        cycle_check = gtk.CheckButton()
+        cycle_gzip_label = gtk.Label('cycle gzip')
+        cycle_gzip_check = gtk.CheckButton()
+        self.attach(cycle_label, 0, 1, i + 4, i + 5, yoptions = gtk.FILL)
+        self.attach(cycle_entry, 1, 2, i + 4, i + 5, yoptions = gtk.FILL)
+        self.attach(cycle_check, 2, 3, i + 4, i + 5, gtk.FILL, gtk.FILL)
+        self.attach(cycle_gzip_label, 0, 1, i + 5, i + 6, yoptions = gtk.FILL)
+        self.attach(cycle_gzip_check, 2, 3, i + 5, i + 6, gtk.FILL, gtk.FILL)
+        
         filter_tree = FilterTreeView()
-        stream_tree = StreamTreeView(filter_tree)
-        self.log_tree = LogTreeView(stream_tree)
+        stream_tree = StreamTreeView(filter_tree,
+                                     (cycle_entry, cycle_check, ),
+                                     cycle_gzip_check)
+        self.log_tree = LogTreeView(stream_tree, (log_type_entry,
+                                                  log_type_check, ))
         self.log_model = self.log_tree.get_model()
 
         def add_stream(button, model):
-            model.append(('', [], ))
+            model.append(('', [], (0, False, ), False, ))
         add_stream_button = gtk.Button('Add stream')
         add_stream_button.connect(
             'clicked', add_stream, stream_tree.get_model())
@@ -328,14 +387,18 @@ class VHostTable(gtk.Table):
         button_grid.attach(remove_stream_button, 0, 1, 1, 2)
         button_grid.attach(remove_filter_button, 1, 2, 1, 2)
 
-        self.attach(self.log_tree.scroll, 0, 2, i, i + 3)
-        self.attach(button_grid, 2, 3, i, i + 1, yoptions = gtk.FILL)
-        self.attach(stream_tree.scroll, 2, 3, i + 1, i + 2)
-        self.attach(filter_tree.scroll, 2, 3, i + 2, i + 3)
+        self.attach(self.log_tree.scroll, 0, 1, i, i + 3)
+        self.attach(button_grid, 1, 2, i, i + 1, yoptions = gtk.FILL)
+        self.attach(stream_tree.scroll, 1, 2, i + 1, i + 2)
+        self.attach(filter_tree.scroll, 1, 2, i + 2, i + 3)
+
+        self.scroll = gtk.ScrolledWindow()
+        self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.scroll.add_with_viewport(self)
 
     def add_log(self):
         '''Add a log to currently selected VHost.'''
-        self.log_model.append(('', [], ))
+        self.log_model.append(('', [], ('', False, )))
             
     def clear(self):
         '''Clear input widgets.'''
@@ -400,8 +463,15 @@ class VHostTable(gtk.Table):
             for log in row[3]:
                 streams = []
                 for stream in log[1]:
-                    streams.append(Stream(stream[0], filters = stream[1]))
-                logs.append(Log(log[0], streams = streams))
+                    cycle, enabled = stream[2]
+                    if not enabled:
+                        cycle = None
+                    cycle_gzip = stream[3]
+                    streams.append(Stream(stream[0], cycle, cycle_gzip, stream[1]))
+                log_type, enabled = log[2]
+                if not enabled:
+                    log_type = None
+                logs.append(Log(log[0], streams, log_type))
             vhost = VHost(row[0], logs = logs)
             for attribute in row[1]:
                 text, enabled = row[1][attribute]

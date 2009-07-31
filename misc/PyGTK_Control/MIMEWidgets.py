@@ -66,7 +66,7 @@ class MimeTreeView(gtk.TreeView):
 class MimeTable(gtk.Table):
     def __init__(self, tree, def_tree, def_table):
         gtk.Table.__init__(self, len(GUIConfig.mime_attributes) +
-                           3 * len(GUIConfig.mime_lists), 4)
+                           3 * len(GUIConfig.mime_lists), 3)
 
         tree.connect('cursor-changed', self.cursor_changed)
         self.last_selected = None
@@ -81,8 +81,8 @@ class MimeTable(gtk.Table):
             check = gtk.CheckButton()
             self.attributes[attribute] = (entry, check, )
             self.attach(label, 0, 1, i, i + 1, yoptions = gtk.FILL)
-            self.attach(entry, 1, 3, i, i + 1, yoptions = gtk.FILL)
-            self.attach(check, 3, 4, i, i + 1, gtk.FILL, gtk.FILL)
+            self.attach(entry, 1, 2, i, i + 1, yoptions = gtk.FILL)
+            self.attach(check, 2, 3, i, i + 1, gtk.FILL, gtk.FILL)
             i += 1
         self.mime_lists = {}
         for mime_list in GUIConfig.mime_lists:
@@ -116,10 +116,10 @@ class MimeTable(gtk.Table):
             remove_button.connect('clicked', remove_from_tree, tree)
 
             self.mime_lists[mime_list] = tree_model
-            self.attach(tree_scroll, 0, 2, i, i + 3)
-            self.attach(add_button, 2, 3, i, i + 1, yoptions = gtk.FILL)
-            self.attach(remove_button, 2, 3, i + 1, i + 2, yoptions = gtk.FILL)
-            self.attach(gtk.Label(), 2, 3, i + 2, i + 3)
+            self.attach(tree_scroll, 1, 2, i, i + 3)
+            self.attach(add_button, 0, 1, i, i + 1, yoptions = gtk.FILL)
+            self.attach(remove_button, 0, 1, i + 1, i + 2, yoptions = gtk.FILL)
+            self.attach(gtk.Label(), 0, 1, i + 2, i + 3)
             i += 3
             
     def clear(self):
