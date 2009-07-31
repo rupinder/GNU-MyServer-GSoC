@@ -230,7 +230,7 @@ int HttpDataRead::readChunkedPostData(const char* inBuffer,
 int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
 {
   int contentLength = 0;
-
+  bool contentLengthSpecified = false;
   u_long nbw = 0;
   u_long bufferDataSize = 0;
 
@@ -265,7 +265,7 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
   if(td->request.contentLength.length())
   {
     contentLength = atoi(td->request.contentLength.c_str());
-
+    contentLengthSpecified = true;
     if(contentLength < 0)
     {
       *httpRetCode = 400;
@@ -279,7 +279,7 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
    *If a CONTENT-ENCODING is specified the CONTENT-LENGTH is not
    *always needed.
    */
-  if(!contentLength && td->request.isKeepAlive())
+  if(!contentLengthSpecified && td->request.isKeepAlive ())
   {
     HttpRequestHeader::Entry *content =
       td->request.other.get("Content-Encoding");
@@ -315,16 +315,16 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
   {
     if(!encoding->value->compare("chunked"))
     {
-      int ret = readChunkedPostData(td->request.uriOptsPtr,
-                                    &inPos,
-                                    bufferDataSize,
-                                    td->connection->socket,
-                                    td->secondaryBuffer->getBuffer(),
-                                    td->secondaryBuffer->getRealLength() - 1,
-                                    &nbr,
-                                    timeout,
-                                    &(td->inputData),
-                                    0);
+      int ret = readChunkedPostData (td->request.uriOptsPtr,
+                                     &inPos,
+                                     bufferDataSize,
+                                     td->connection->socket,
+                                     td->secondaryBuffer->getBuffer(),
+                                     td->secondaryBuffer->getRealLength() - 1,
+                                     &nbr,
+                                     timeout,
+                                     &(td->inputData),
+                                     0);
 
       if(ret == -1)
       {
@@ -346,48 +346,62 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
       return 1;
     }
   }
-  /* If it is not specified an encoding, read the data as it is.  */
-  else for(;;)
-  {
-
-    if(readContiguousPrimitivePostData(td->request.uriOptsPtr,
-                                       &inPos,
-                                       bufferDataSize,
-                                       td->connection->socket,
-                                       td->secondaryBuffer->getBuffer(),
-                                       td->secondaryBuffer->getRealLength() - 1,
-                                       &nbr,
-                                       timeout))
+  else
     {
-      td->inputData.close();
-      FilesUtility::deleteFile(td->inputDataPath);
-      *httpRetCode = 400;
-      return 1;
+      /* If it is not specified an encoding, read the data as it is.  */
+      if (!contentLengthSpecified)
+        {
+          *httpRetCode = 400;
+          return 1;
+        }
+
+      for (;;)
+        {
+
+          /* Do not try to read more than what we expect.  */
+          u_long dimBuffer = std::min (td->secondaryBuffer->getRealLength() - 1l,
+                                       length);
+
+          if (readContiguousPrimitivePostData (td->request.uriOptsPtr,
+                                               &inPos,
+                                               bufferDataSize,
+                                               td->connection->socket,
+                                               td->secondaryBuffer->getBuffer (),
+                                               dimBuffer,
+                                               &nbr,
+                                               timeout))
+            {
+              td->inputData.close ();
+              FilesUtility::deleteFile (td->inputDataPath);
+              *httpRetCode = 400;
+              return 1;
+            }
+
+          if (nbr <= length)
+            length -= nbr;
+          else
+            {
+              td->inputData.close ();
+              FilesUtility::deleteFile (td->inputDataPath);
+              *httpRetCode = 400;
+              return 1;
+            }
+
+          td->secondaryBuffer->getBuffer ()[nbr] = '\0';
+
+          if (nbr && td->inputData.writeToFile (td->secondaryBuffer->getBuffer (),
+                                                nbr, &nbw))
+            {
+              td->inputDataPath.assign ("");
+              td->outputDataPath.assign ("");
+              td->inputData.close ();
+              return -1;
+            }
+
+          if (!length)
+            break;
+        }
     }
-
-    if(nbr <= length)
-      length -= nbr;
-    else
-    {
-      td->inputData.close();
-      FilesUtility::deleteFile(td->inputDataPath);
-      *httpRetCode = 400;
-      return 1;
-    }
-
-    td->secondaryBuffer->getBuffer()[nbr] = '\0';
-
-    if(nbr && td->inputData.writeToFile(td->secondaryBuffer->getBuffer(), nbr, &nbw))
-    {
-      td->inputDataPath.assign("");
-      td->outputDataPath.assign("");
-      td->inputData.close();
-      return -1;
-    }
-
-    if(!length)
-      break;
-  }
 
   td->inputData.seek (0);
   return 0;
