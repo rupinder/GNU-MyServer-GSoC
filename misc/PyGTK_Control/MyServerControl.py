@@ -77,14 +77,34 @@ class PyGTKControl():
         self.controller = None
 
     def on_get_config_menu_item_activate(self, widget):
-        '''Get config from remote server.'''
+        '''Get server config from remote server.'''
         if self.controller is not None:
-            self.set_up(self.controller.get_server_configuration())
+            self.set_up_config(self.controller.get_server_configuration())
 
+    def on_get_mime_menu_item_activate(self, widget):
+        '''Get MIME config from remote server.'''
+        if self.controller is not None:
+            self.set_up_mime(self.controller.get_MIME_type_configuration())
+            
+    def on_get_vhost_menu_item_activate(self, widget):
+        '''Get VHost config from remote server.'''
+        if self.controller is not None:
+            self.set_up_vhost(self.controller.get_vhost_configuration())
+            
     def on_put_config_menu_item_activate(self, widget):
-        '''Put config on remote server.'''
+        '''Put server config on remote server.'''
         if self.controller is not None:
             self.controller.put_server_configuration(self.get_current_config())
+            
+    def on_put_mime_menu_item_activate(self, widget):
+        '''Put MIME config on remote server.'''
+        if self.controller is not None:
+            self.controller.put_MIME_type_configuration(self.get_current_mime())
+            
+    def on_put_vhost_menu_item_activate(self, widget):
+        '''Put VHost config on remote server.'''
+        if self.controller is not None:
+            self.controller.put_vhost_configuration(self.get_vhost_config())
 
     def on_new_config_menu_item_activate(self, widget = None):
         '''Clears server configuration.'''
