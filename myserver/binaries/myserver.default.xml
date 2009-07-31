@@ -106,7 +106,7 @@
 
   <!--FTP GLOBAL CONFIGURATION-->
   <!--ALLOW ANONYMOUS LOGIN-->
-  <DEFINE name="ftp.allow_anonymous" value="NO" />
+  <DEFINE name="ftp.allow_anonymous" value="YES" />
 
   <!--IF ANONYMOUS ALLOWED, TELLS IF NEEDS PASS-->
   <DEFINE name="ftp.anonymous_need_pass" value="NO" />
