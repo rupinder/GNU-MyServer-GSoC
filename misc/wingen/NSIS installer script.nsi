@@ -18,7 +18,7 @@ VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion"         "0.9.0.1"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion"      "0.9.0.1"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "InternalName"        ""
 ;VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalTrademarks"    ""
-VIAddVersionKey /LANG=${LANG_ENGLISH} "OriginalFilename"    "MyServer-win32-0.9-rc1.exe"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "OriginalFilename"    "MyServer-win32-0.9.exe"
 ;VIAddVersionKey /LANG=${LANG_ENGLISH} "PrivateBuild"       "1"
 ;VIAddVersionKey /LANG=${LANG_ENGLISH} "SpecialBuild"       "1"
 
@@ -196,6 +196,8 @@ Section "MyServer core" SecCore
   File "virtualhosts.xml"
   File "README"
   File "COPYING"
+
+  CreateDirectory "$INSTDIR\plugins"
   CreateDirectory "$INSTDIR\logs"
   SetOutPath $INSTDIR\web
   File "web\*.html"
