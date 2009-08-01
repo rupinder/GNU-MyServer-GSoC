@@ -822,7 +822,7 @@ void registerService()
   char path [MAX_PATH];
   GetCurrentDirectory(MAX_PATH,path);
   strcat(path,"\\");
-  strcat(path,"myserver.exe SERVICE");
+  strcat(path,"myserver.exe");
 
   manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
   if (manager)
@@ -877,7 +877,7 @@ void RunAsService()
   manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
   if (manager)
     {
-      service = OpenService (manager, "MyServer", SERVICE_ALL_ACCESS);
+      service = OpenService (manager, "GNU MyServer", SERVICE_ALL_ACCESS);
       if (service)
         {
           StartService(service,0,NULL);
