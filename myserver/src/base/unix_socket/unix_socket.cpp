@@ -113,7 +113,7 @@ Socket UnixSocket::accept ()
 
 #ifdef AF_UNIX
   sockaddr_un addr;
-  int len = sizeof (addr);
+  socklen_t len = sizeof (addr);
   return Socket::accept ((MYSERVER_SOCKADDR*)&addr, &len);
 #else
   Socket s;

@@ -89,7 +89,7 @@ public:
   Socket(Socket*);
   Socket(SocketHandle);
 
-  Socket accept(MYSERVER_SOCKADDR*, int*);
+  Socket accept(MYSERVER_SOCKADDR*, socklen_t*);
   int setsockopt(int,int, const char*,int);
 
   virtual int connect(MYSERVER_SOCKADDR*, int);

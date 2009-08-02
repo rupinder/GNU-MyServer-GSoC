@@ -135,25 +135,21 @@ static void listenerHandler (int fd, short event, void *arg)
   ConnectionsScheduler::ListenerArg* s = (ConnectionsScheduler::ListenerArg*)arg;
 
   if (event == EV_TIMEOUT)
-  {
     event_add (&(s->ev), &tv);
-  }
   else if (event == EV_READ)
-  {
-    MYSERVER_SOCKADDRIN asockIn;
-    int asockInLen = 0;
-    Socket asock;
-
-    asockInLen = sizeof (asockIn);
-    asock = s->serverSocket->accept (&asockIn, &asockInLen);
-
-    if (s->server && (SocketHandle)asock.getHandle() != INVALID_SOCKET)
     {
-      s->server->addConnection (asock, &asockIn);
-    }
+      MYSERVER_SOCKADDRIN asockIn;
+      socklen_t asockInLen = 0;
+      Socket clientSock;
 
-    event_add (&(s->ev), &tv);
-  }
+      asockInLen = sizeof (asockIn);
+      clientSock = s->serverSocket->accept (&asockIn, &asockInLen);
+
+      if (s->server && (SocketHandle)clientSock.getHandle () != INVALID_SOCKET)
+        s->server->addConnection (clientSock, &asockIn);
+
+      event_add (&(s->ev), &tv);
+    }
 }
 
 /*!

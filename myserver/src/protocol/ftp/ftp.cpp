@@ -582,15 +582,14 @@ void Ftp::pasv ()
   timeoutvalue = 5;
 #endif
   MYSERVER_SOCKADDRIN asockIn;
-  int asockInLen = 0;
+  socklen_t asockInLen = 0;
   Socket asock;
   if (pFtpuserData->m_pDataConnection->socket->dataOnRead (timeoutvalue, 0)
       == 1)
     {
       asockInLen = sizeof (sockaddr_in);
-      asock =
-        pFtpuserData->m_pDataConnection->socket->accept (&asockIn,
-                                                         &asockInLen);
+      asock =pFtpuserData->m_pDataConnection->socket->accept (&asockIn,
+                                                           &asockInLen);
       if (asock.getHandle () == (Handle) INVALID_SOCKET)
         return;
 
