@@ -30,11 +30,11 @@ extern "C"
 # include <errno.h>
 # include <netdb.h>
 # include <unistd.h>
-#include <signal.h>
-#ifdef HAVE_PTHREAD
-# include <pthread.h>
-#endif
-#include <sys/wait.h>
+# include <signal.h>
+# ifdef HAVE_PTHREAD
+#  include <pthread.h>
+# endif
+# include <sys/wait.h>
 #endif
 }
 

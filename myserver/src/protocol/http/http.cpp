@@ -1169,9 +1169,11 @@ Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 
                   if (remainingData)
                     {
+                      const char *data = (td->buffer->getBuffer ()
+                                          + td->nHeaderChars);
                       u_long toCopy = nbtr - td->nHeaderChars;
-                      a->connectionBuffer.setBuffer ((td->buffer->getBuffer () + td->nHeaderChars),
-                                                     toCopy);
+
+                      a->getConnectionBuffer()->setBuffer (data, toCopy);
                       retvalue = ClientsThread::INCOMPLETE_REQUEST_NO_WAIT;
                     }
                   else

@@ -305,7 +305,7 @@ int ClientsThread::controlConnections()
     return 1;
 
   busy = 1;
-  dataRead = c->connectionBuffer.getLength();
+  dataRead = c->getConnectionBuffer ()->getLength ();
 
   err = c->socket->recv(&((char*)(buffer.getBuffer()))[dataRead],
                         MYSERVER_KB(8) - dataRead - 1, 0);
@@ -337,69 +337,65 @@ int ClientsThread::controlConnections()
 
   if(dataRead)
   {
-    memcpy((char*)buffer.getBuffer(), c->connectionBuffer, dataRead);
+    memcpy((char*)buffer.getBuffer(), c->getConnectionBuffer ()->getBuffer (), dataRead);
   }
 
   c->setActiveThread(this);
   try
   {
-    if (c->hasContinuation())
-    {
-      retcode = c->getContinuation()(c, 
-                                     (char*)buffer.getBuffer(), 
-                                     (char*)secondaryBuffer.getBuffer(), 
-                                     buffer.getRealLength(), 
-                                     secondaryBuffer.getRealLength(), 
-                                     nBytesToRead, 
-                                     id);
-      c->setContinuation(NULL);
-    }
-    else
-    {
-      protocol = server->getProtocol(c->host->getProtocolName());
-      if(protocol)
+    if (c->hasContinuation ())
       {
-        retcode = protocol->controlConnection(c, 
-                                              (char*)buffer.getBuffer(), 
-                                              (char*)secondaryBuffer.getBuffer(), 
-                                              buffer.getRealLength(), 
-                                              secondaryBuffer.getRealLength(), 
-                                              nBytesToRead, 
-                                              id);
+        retcode = c->getContinuation ()(c, (char*)buffer.getBuffer(), 
+                                   (char*)secondaryBuffer.getBuffer(), 
+                                   buffer.getRealLength(), 
+                                   secondaryBuffer.getRealLength(), 
+                                   nBytesToRead, id);
+        c->setContinuation (NULL);
       }
-      else
-        retcode = DELETE_CONNECTION;
-    }
+    else
+      {
+        protocol = server->getProtocol (c->host->getProtocolName ());
+        if (protocol)
+          {
+            retcode = protocol->controlConnection(c, (char*)buffer.getBuffer(),
+                                             (char*)secondaryBuffer.getBuffer(), 
+                                              buffer.getRealLength(), 
+                                             secondaryBuffer.getRealLength(), 
+                                             nBytesToRead, id);
+          }
+        else
+          retcode = DELETE_CONNECTION;
+      }
   }
-  catch(...)
-  {
-    retcode = DELETE_CONNECTION;
-  };
+  catch (...)
+    {
+      retcode = DELETE_CONNECTION;
+    };
 
-  c->setTimeout( getTicks() );
+  c->setTimeout (getTicks ());
 
-  /*! Delete the connection.  */
-  if(retcode == DELETE_CONNECTION)
+  /* Delete the connection.  */
+  if (retcode == DELETE_CONNECTION)
   {
-    server->deleteConnection(c);
+    server->deleteConnection (c);
     return 0;
   }
-  /*! Keep the connection.  */
-  else if(retcode == KEEP_CONNECTION)
+  /* Keep the connection.  */
+  else if (retcode == KEEP_CONNECTION)
   {
-    c->connectionBuffer.setLength(0);
-    server->getConnectionsScheduler()->addWaitingConnection(c);
+    c->getConnectionBuffer ()->setLength (0);
+    server->getConnectionsScheduler ()->addWaitingConnection (c);
   }
-  /*! Incomplete request to buffer.  */
-  else if(retcode == INCOMPLETE_REQUEST)
+  /* Incomplete request to buffer.  */
+  else if (retcode == INCOMPLETE_REQUEST)
   {
     /*
      *If the header is incomplete save the current received
      *data in the connection buffer.
      *Save the header in the connection buffer.
      */
-    c->connectionBuffer.setBuffer(buffer.getBuffer(), nBytesToRead);
-    server->getConnectionsScheduler()->addWaitingConnection(c);
+    c->getConnectionBuffer ()->setBuffer (buffer.getBuffer (), nBytesToRead);
+    server->getConnectionsScheduler ()->addWaitingConnection (c);
   }
   /* Incomplete request to check before new data is available.  */
   else if(retcode == INCOMPLETE_REQUEST_NO_WAIT)

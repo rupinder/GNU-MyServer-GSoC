@@ -25,11 +25,11 @@ void Connection::init ()
 {
   thread = 0;
   scheduled = 0;
-  login.assign("");
-  password.assign("");
+  login = new string ();
+  password = new string ();
+  ipAddr = new string ();
+  localIpAddr = new string ();
   nTries = 0;
-  ipAddr[0] = '\0';
-  localIpAddr[0] = '\0';
   port = 0;
   localPort = 0;
   timeout = 0;
@@ -40,6 +40,7 @@ void Connection::init ()
   socket = 0;
   priority = -1;
   continuation = NULL;
+	connectionBuffer = new MemBuf ();
 }
 
 /*!
@@ -47,33 +48,54 @@ void Connection::init ()
  */
 void Connection::destroy ()
 {
-  if(socket)
+  if (socket)
   {
-    socket->shutdown(SD_BOTH);
+    socket->shutdown (SD_BOTH);
     char buffer[256];
     int buffersize = 256;
     int err;
-    do
-    {
-      err = socket->recv(buffer, buffersize, 0);
-    }while((err != -1) && err);
 
-    socket->close();
+    socket->close ();
     delete socket;
+    socket = NULL;
   }
+
+  if (login)
+    delete login;
+
+  if (password)
+    delete password;
+
+  if(ipAddr)
+    delete ipAddr;
+
+  if (localIpAddr)
+    delete localIpAddr;
+
+  if (connectionBuffer)
+    delete connectionBuffer;
 
   if(protocolBuffer)
     delete protocolBuffer;
 
   /*! Remove the reference for the vhost. */
-  if(host)
-    ((Vhost*)host)->removeRef();
+  if (host)
+    ((Vhost*)host)->removeRef ();
+
+  login = NULL;
+  password = NULL;
+  ipAddr = NULL;
+  localIpAddr = NULL;
+  protocolBuffer = NULL;
+  connectionBuffer = NULL;
+
+  host = NULL;
 }
 
 /*!
  *Return the IDentifier for the connection.
  */
-u_long Connection::getID()
+u_long Connection::getID ()
 {
   return ID;
 }
@@ -82,7 +104,7 @@ u_long Connection::getID()
  *Set the IDentifier for the connection.
  *\param nID The new ID. 
  */
-void Connection::setID(u_long nID)
+void Connection::setID (u_long nID)
 {
   ID = nID;
 }
@@ -91,7 +113,7 @@ void Connection::setID(u_long nID)
  *Set if the connection is scheduled by the server.
  *\param np The new scheduled state.
  */
-void Connection::setScheduled(int np)
+void Connection::setScheduled (int np)
 {
   scheduled = np;
 }
@@ -99,7 +121,7 @@ void Connection::setScheduled(int np)
 /*!
  *Return if the connection is scheduled.
  */
-int Connection::isScheduled()
+int Connection::isScheduled ()
 {
   return scheduled;
 }
@@ -107,21 +129,21 @@ int Connection::isScheduled()
 /*!
  *Return if the connection may be deleted by the server.
  */
-int Connection::allowDelete(bool bWait/*= false*/)
+int Connection::allowDelete (bool bWait/*= false*/)
 {
-  if ( isScheduled () )
+  if (isScheduled ())
      return 0;
 
-  if ( protocolBuffer != NULL )
-    return protocolBuffer->allowDelete(bWait);
-  
+  if (protocolBuffer != NULL)
+    return protocolBuffer->allowDelete (bWait);
+
   return 1;
 }
 
 /*!
  *Get the port used by the connection.
  */
-u_short Connection::getPort()
+u_short Connection::getPort ()
 {
   return port;
 }
@@ -130,7 +152,7 @@ u_short Connection::getPort()
  *Set the port used by the connection.
  *\param newPort The new port.
  */
-void Connection::setPort(u_short newPort)
+void Connection::setPort (u_short newPort)
 {
   port = newPort;
 }
@@ -138,25 +160,25 @@ void Connection::setPort(u_short newPort)
 /*!
  *Get the login name used by the connection user.
  */
-const char* Connection::getLogin()
+const char* Connection::getLogin ()
 {
-  return login.c_str();
+  return login->c_str();
 }
 
 /*!
  *Set the login name for the connection user.
  *\param loginName The login name. 
  */
-void Connection::setLogin(const char* loginName)
+void Connection::setLogin (const char* loginName)
 {
-  login.assign(loginName);
+  login->assign (loginName);
 }
 
 /*!
  *Set the # of attempts to authenticate the user.
  *\arg n The new number of tries.
  */
-void Connection::setnTries(char n)
+void Connection::setnTries (char n)
 {
   nTries = n;
 }
@@ -164,14 +186,14 @@ void Connection::setnTries(char n)
 /*!
  *Get the attempts number to authenticate the user.
  */
-char Connection::getnTries()
+char Connection::getnTries ()
 {
   return nTries;
 }
 /*!
  *Increment by 1 the # of attempts to authenticate the user.
  */
-void Connection::incnTries()
+void Connection::incnTries ()
 {
   nTries++;
 }
@@ -179,41 +201,41 @@ void Connection::incnTries()
 /*!
  *Get the IP address of the client.
  */
-const char* Connection::getIpAddr()
+const char* Connection::getIpAddr ()
 {
-  return ipAddr.c_str();
+  return ipAddr->c_str();
 }
 
 /*!
  *Set the IP address of the client.
  *\param na The new IP address.
  */
-void Connection::setIpAddr(const char* na)
+void Connection::setIpAddr (const char* na)
 {
-  ipAddr.assign(na);
+  ipAddr->assign (na);
 }
 
 /*!
  *Get the IP address of the local interface used to connect to.
  */
-const char* Connection::getLocalIpAddr()
+const char* Connection::getLocalIpAddr ()
 {
-  return localIpAddr.c_str();
+  return localIpAddr->c_str ();
 }
 
 /*!
  *Set the IP address of the local interface used to connect to.
  *\param na The new local IP address.
  */
-void Connection::setLocalIpAddr(const char* na)
+void Connection::setLocalIpAddr (const char* na)
 {
-  localIpAddr.assign(na);
+  localIpAddr->assign (na);
 }
 
 /*!
  *Get the local port used to connect to.
  */
-u_short Connection::getLocalPort()
+u_short Connection::getLocalPort ()
 {
   return localPort;
 }
@@ -222,7 +244,7 @@ u_short Connection::getLocalPort()
  *Set the local port used to connect to.
  *\param np The new local port. 
  */
-void Connection::setLocalPort(u_short np)
+void Connection::setLocalPort (u_short np)
 {
   localPort = np;
 }
@@ -230,7 +252,7 @@ void Connection::setLocalPort(u_short np)
 /*!
  *Get the timeout to use with the connection.
  */
-u_long Connection::getTimeout()
+u_long Connection::getTimeout ()
 {
   return timeout;
 }
@@ -239,7 +261,7 @@ u_long Connection::getTimeout()
  *Set the timeout to use with the connection.
  *\param nTimeout The new timeout value. 
  */
-void Connection::setTimeout(u_long nTimeout)
+void Connection::setTimeout (u_long nTimeout)
 {
   timeout = nTimeout;
 }
@@ -247,7 +269,7 @@ void Connection::setTimeout(u_long nTimeout)
 /*!
  *Return if the connection must be removed and why.
  */
-int Connection::getToRemove()
+int Connection::getToRemove ()
 {
   return toRemove;
 }
@@ -256,7 +278,7 @@ int Connection::getToRemove()
  *Set the reason to remove the connection.
  *\param r Set if the connection/connection.has to be removed. 
  */
-void Connection::setToRemove(int r)
+void Connection::setToRemove (int r)
 {
   toRemove = r;
 }
@@ -264,7 +286,7 @@ void Connection::setToRemove(int r)
 /*!
  *Get if the connection is forced to be parsed.
  */
-int Connection::isForceControl()
+int Connection::isForceControl ()
 {
   return forceControl;
 }
@@ -272,7 +294,7 @@ int Connection::isForceControl()
  *Force the control of this connection on next server loop.
  *\param fp The new force control value even if there is new data. 
  */
-void Connection::setForceControl(int fp)
+void Connection::setForceControl (int fp)
 {
   forceControl = fp;
 }
@@ -280,24 +302,24 @@ void Connection::setForceControl(int fp)
 /*!
  *Return the password submitted by the user.
  */
-const char* Connection::getPassword()
+const char* Connection::getPassword ()
 {
-  return password.c_str();
+  return password->c_str();
 }
 
 /*!
  *Set the password for the user.
  *\param p The new password.
  */
-void Connection::setPassword(const char* p)
+void Connection::setPassword (const char* p)
 {
-  password.assign(p);
+  password->assign(p);
 }
 
 /*!
  *Get the connection priority.
  */
-int Connection::getPriority()
+int Connection::getPriority ()
 {
   return priority;
 }
@@ -306,7 +328,7 @@ int Connection::getPriority()
  *Set the connection priority.
  *\param p The new priority.
  */
-void Connection::setPriority(int p)
+void Connection::setPriority (int p)
 {
   priority = p;
 }
