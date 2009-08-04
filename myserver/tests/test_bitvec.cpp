@@ -47,11 +47,11 @@ public:
 
   void testInit ()
   {
-    int N = 100;
+    size_t N = 100;
     BitVec vec (N, false);
     CPPUNIT_ASSERT_EQUAL (vec.getCapacity (), N);
 
-    for (int i = 1; i < 100; i += 10)
+    for (size_t i = 1; i < 100; i += 10)
       {
         vec.init (i, false);
         CPPUNIT_ASSERT_EQUAL (vec.getCapacity (), i);
@@ -107,7 +107,7 @@ public:
   void testRevert ()
   {
     BitVec vec (200, true);
-    for (int i = 18; i < 120; i += 2)
+    for (size_t i = 18; i < 120; i += 2)
       {
         CPPUNIT_ASSERT_EQUAL (vec.get (i), true);
         vec.unset (i);
@@ -121,14 +121,14 @@ public:
   {
     BitVec vec (200, false);
 
-    for (int i = 0; i < 80; i += 3)
+    for (size_t i = 0; i < 80; i += 3)
       {
         CPPUNIT_ASSERT_EQUAL (vec.get (i), false);
         vec.set (i);
         CPPUNIT_ASSERT_EQUAL (vec.get (i), true);
       }
 
-    for (int i = 0; i < 80; i += 3)
+    for (size_t i = 0; i < 80; i += 3)
       {
         int j = vec.find ();
 
