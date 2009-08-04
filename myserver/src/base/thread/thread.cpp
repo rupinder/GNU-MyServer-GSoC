@@ -20,18 +20,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/utility.h>
 #include <include/base/thread/thread.h>
 
-extern "C" {
+extern "C"
+{
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
 #ifndef WIN32
-#include <errno.h>
-#include <netdb.h>
-#include <unistd.h>
+# include <errno.h>
+# include <netdb.h>
+# include <unistd.h>
 #include <signal.h>
 #ifdef HAVE_PTHREAD
-#include <pthread.h>
+# include <pthread.h>
 #endif
 #include <sys/wait.h>
 #endif
@@ -46,12 +47,12 @@ extern "C" {
 /*!
  *Sleep the caller thread for [TIME] microseconds.
  */
-void Thread::wait(u_long time)
+void Thread::wait (u_long time)
 {
 #ifdef WIN32
-  Sleep(time/1000);
+  Sleep (time / 1000);
 #else
-  usleep(time);
+  usleep (time);
 #endif
 
 }
@@ -63,60 +64,60 @@ void Thread::wait(u_long time)
  *\param arg Argument to pass to the new created thread.
  */
 #ifdef WIN32
-int Thread::create(ThreadID*  ID, 
-                   unsigned int  (_stdcall *startRoutine)(void *), 
-                   void * arg)
+int Thread::create (ThreadID*  ID,
+                    unsigned int  (_stdcall *startRoutine)(void *),
+                    void * arg)
 #endif
 #ifdef HAVE_PTHREAD
-int Thread::create(ThreadID*  ID, void * (*startRoutine)(void *), 
-                   void * arg)
+int Thread::create (ThreadID*  ID, void * (*startRoutine)(void *),
+                    void * arg)
 #endif
 {
 #ifdef WIN32
-  *ID = _beginthreadex(NULL, 0, startRoutine, arg, 0, NULL);
+  *ID = _beginthreadex (NULL, 0, startRoutine, arg, 0, NULL);
 
   return !(*ID);
 #endif
 #ifdef HAVE_PTHREAD
-  return pthread_create((pthread_t*)ID, NULL, startRoutine, (void *)(arg));
+  return pthread_create ((pthread_t*)ID, NULL, startRoutine, (void *)(arg));
 #endif
 }
 
 /*!
  *Get the calling thread ID.
  */
-ThreadID Thread::threadID()
+ThreadID Thread::threadID ()
 {
 #ifdef WIN32
-  return GetCurrentThreadId();
+  return GetCurrentThreadId ();
 #endif
 #ifdef HAVE_PTHREAD
-  return pthread_self();
+  return pthread_self ();
 #endif
 }
 
 /*!
  *Terminate the caller thread.
  */
-void Thread::terminate()
+void Thread::terminate ()
 {
 #ifdef WIN32
-  _endthread();
+  _endthread ();
 #endif
 #ifdef HAVE_PTHREAD
-  pthread_exit(0);
+  pthread_exit (0);
 #endif
 }
 
 /*!
  *Sleep until the thread identified by tid complete its execution.
  */
-int Thread::join(ThreadID tid)
+int Thread::join (ThreadID tid)
 {
 #ifdef WIN32
-  return WaitForSingleObject((void*)tid, INFINITE) != WAIT_OBJECT_0;
+  return WaitForSingleObject ((void*)tid, INFINITE) != WAIT_OBJECT_0;
 #endif
 #ifdef HAVE_PTHREAD
-  return pthread_join(tid, NULL);
+  return pthread_join (tid, NULL);
 #endif
 }
