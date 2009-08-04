@@ -762,15 +762,16 @@ int Server::purgeThreads()
     /*
      *Shutdown all threads that can be destroyed.
      */
-    if(thread->isToDestroy())
+    if (thread->isToDestroy ())
     {
-      if(destroyed < purgeThreadsThreshold)
+      if (destroyed < purgeThreadsThreshold)
       {
         list<ClientsThread*>::iterator next = it;
         next++;
 
-        thread->stop();
-        threads.erase(it);
+        thread->stop ();
+        thread->join ();
+        threads.erase (it);
         destroyed++;
 
         it = next;
@@ -780,10 +781,10 @@ int Server::purgeThreads()
     }
     else
     {
+      if (!thread->isStatic ())
+        if (ticks - thread->getTimeout () > MYSERVER_SEC (15))
+          thread->setToDestroy (1);
 
-      if(!thread->isStatic())
-        if(ticks - thread->getTimeout() > MYSERVER_SEC(15))
-          thread->setToDestroy(1);
       it++;
     }
   }
