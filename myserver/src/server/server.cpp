@@ -1375,7 +1375,7 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
   vector<Multicast<string, void*, int>*>* handlers;
 
   connectionsPoolLock.lock ();
-  newConnection = connectionsPool.get ();
+  newConnection = connectionsPool.forcedGet ();
   connectionsPoolLock.unlock ();
 
   if(!newConnection)
