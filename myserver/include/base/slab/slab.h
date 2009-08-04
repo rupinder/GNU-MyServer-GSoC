@@ -27,13 +27,13 @@ template<class T>
 class Slab
 {
 public:
-  Slab<T> (int capacity) : mask (capacity, true)
+  Slab<T> (size_t capacity) : mask (capacity, true)
   {
     this->capacity = capacity;
     data = new T[capacity];
   }
 
-  void init (int capacity)
+  void init (size_t capacity)
   {
     mask.init (capacity, true);
     this->capacity = capacity;
@@ -41,7 +41,7 @@ public:
     data = new T[capacity];
   }
 
-  int getCapacity ()
+  size_t getCapacity ()
   {
     return capacity;
   }
@@ -60,7 +60,7 @@ public:
   {
     int i = mask.find ();
 
-    if (i == -1)
+    if (i == -1 || i >= capacity)
       return NULL;
 
     mask.unset (i);
@@ -70,9 +70,9 @@ public:
 
   void put (T* t)
   {
-    int i = t - data;
+    size_t i = t - data;
 
-    if (i >= 0 && i < capacity)
+    if (i < capacity)
       mask.set (i);
     else
       delete t;
@@ -85,7 +85,7 @@ public:
 
 private:
   BitVec mask;
-  int capacity;
+  size_t capacity;
   T *data;
 };
 
