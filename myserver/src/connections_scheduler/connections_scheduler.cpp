@@ -69,7 +69,12 @@ static void newDataHandler(int fd, short event, void *param)
 
 void ConnectionsScheduler::newData(short event, SocketHandle handle)
 {
-  ConnectionPtr connection = connections.get (handle);
+  ConnectionPtr connection = NULL;
+
+  connectionsMutex.lock();
+  connection = connections.get (handle);
+  connectionsMutex.unlock();
+
 
   if(connection == NULL || server == NULL)
     return;
