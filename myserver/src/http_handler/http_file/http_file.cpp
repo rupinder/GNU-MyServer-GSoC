@@ -408,7 +408,7 @@ int HttpFile::send (HttpThreadContext* td,
 
     useModifiers = chain.hasModifiersFilters ();
  
-    if (keepalive && !useModifiers)
+    if (!useModifiers)
       {
         ostringstream buffer;
         buffer << (u_int)bytesToSend;
@@ -424,10 +424,11 @@ int HttpFile::send (HttpThreadContext* td,
       {
         string s;
         HttpResponseHeader::Entry *e;
-        chain.getName(s);
+        chain.getName (s);
         e = td->response.other.get ("Content-Encoding");
+
         if (e)
-        e->value->assign (s);
+          e->value->assign (s);
         else
           {
             e = new HttpResponseHeader::Entry ();
@@ -436,21 +437,21 @@ int HttpFile::send (HttpThreadContext* td,
             td->response.other.put (*(e->name), e);
           }
         /* Do not use chunked transfer with old HTTP/1.0 clients.  */
-      if (keepalive)
-        {
-          HttpResponseHeader::Entry *e;
-          e = td->response.other.get ("Transfer-Encoding");
-          if(e)
-            e->value->assign ("chunked");
-          else
-            {
-              e = new HttpResponseHeader::Entry ();
-              e->name->assign ("Transfer-Encoding");
+        if (keepalive)
+          {
+            HttpResponseHeader::Entry *e;
+            e = td->response.other.get ("Transfer-Encoding");
+            if(e)
               e->value->assign ("chunked");
-              td->response.other.put (*(e->name), e);
-            }
-          useChunks = true;
-        }
+            else
+              {
+                e = new HttpResponseHeader::Entry ();
+                e->name->assign ("Transfer-Encoding");
+                e->value->assign ("chunked");
+                td->response.other.put (*(e->name), e);
+              }
+            useChunks = true;
+          }
       }
  
     u_long hdrLen = HttpHeaders::buildHTTPResponseHeader (td->buffer->getBuffer(),
@@ -461,15 +462,15 @@ int HttpFile::send (HttpThreadContext* td,
     if (!td->appendOutputs)
       {
         /* Send the HTTP header.  */
-      if (td->connection->socket->send(td->buffer->getBuffer(),
-                                       (u_long)td->buffer->getLength(),
-                                       0) == SOCKET_ERROR)
-        {
-          file->close ();
-          delete file;
-        chain.clearAllFilters ();
-        return 1;
-        }
+        if (td->connection->socket->send (td->buffer->getBuffer (),
+                                          (u_long) td->buffer->getLength (),
+                                          0) == SOCKET_ERROR)
+          {
+            file->close ();
+            delete file;
+            chain.clearAllFilters ();
+            return 1;
+          }
       }
 
     /*
