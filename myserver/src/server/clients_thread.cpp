@@ -169,52 +169,47 @@ DEFINE_THREAD(clients_thread, pParam)
    *This function when is alive only call the controlConnections(...) function
    *of the ClientsThread class instance used for control the thread.
    */
-  while(ct->threadIsRunning) 
-  {
-    int ret;
-    try
+  while (ct->threadIsRunning)
     {
-      /*
-       *If the thread can be destroyed don't use it.
-       */
-      if((!ct->isStatic()) && ct->isToDestroy())
-      {
-        Thread::wait(1000);
-        continue;
-      }
+      int ret;
+      try
+        {
+          /*
+           *If the thread can be destroyed don't use it.
+           */
+          if ((!ct->isStatic ()) && ct->isToDestroy ())
+            {
+              Thread::wait (1000);
+              break;
+            }
 
-      ret = ct->controlConnections();
-      ct->server->increaseFreeThread();
-      ct->busy = 0;
+          ret = ct->controlConnections ();
+          ct->server->increaseFreeThread ();
+          ct->busy = 0;
 
-      /*
-       *The thread served the connection, so update the timeout value.
-       */
-      if(ret != 1)
-      {
-        ct->setTimeout(getTicks());
-      }
-    }
-    catch( bad_alloc &ba)
-    {
-      ostringstream s;
-      s << "Bad alloc: " << ba.what();
-      
-      ct->server->logWriteln(s.str().c_str(), MYSERVER_LOG_MSG_ERROR);
-    }
-    catch( exception &e)
-    {
-      ostringstream s;
-      s << "Error: " << e.what();
+          /*
+           *The thread served the connection, so update the timeout value.
+           */
+          if (ret != 1)
+            ct->setTimeout (getTicks ());
+        }
+      catch (bad_alloc &ba)
+        {
+          ostringstream s;
+          s << "Bad alloc: " << ba.what();
 
-      ct->server->logWriteln(s.str().c_str(), MYSERVER_LOG_MSG_ERROR);
-    };
-    
+          ct->server->logWriteln (s.str ().c_str (), MYSERVER_LOG_MSG_ERROR);
+        }
+      catch (exception &e)
+        {
+          ostringstream s;
+          s << "Error: " << e.what ();
+          ct->server->logWriteln (s.str ().c_str (), MYSERVER_LOG_MSG_ERROR);
+        };
   }
 
-  ct->server->decreaseFreeThread();
-
-  delete ct;
+  ct->server->decreaseFreeThread ();
+  ct->threadIsStopped = 1;
 
   Thread::terminate();
   return 0;
