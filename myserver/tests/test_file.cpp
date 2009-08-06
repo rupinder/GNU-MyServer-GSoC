@@ -98,6 +98,8 @@ public:
     CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), 1ul);
 
     CPPUNIT_ASSERT_EQUAL (tfile->close (), 0);
+
+    FilesUtility::deleteFile (fname.c_str ());
   }
 
   void testTruncate ()
@@ -127,6 +129,7 @@ public:
 
     CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), dataLen + dataLen / 2);
 
+    FilesUtility::deleteFile (fname.c_str ());
   }
 
 };

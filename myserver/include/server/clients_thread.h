@@ -59,38 +59,38 @@ public:
     */
     INCOMPLETE_REQUEST_NO_WAIT = 3
   };
-  MemBuf *getBuffer();
-  MemBuf *getSecondaryBuffer();
-  ClientsThread(Server* server);
-  ~ClientsThread();
-  void stop();
-  int getTimeout();
-  void setTimeout(int);
-  int isToDestroy();
-  void setToDestroy(int);
-  int isStatic();
-  int isBusy();
-  void setStatic(int);
-  int run();
-  ThreadID getThreadId(){return tid;}
-  int join();
+  MemBuf *getBuffer ();
+  MemBuf *getSecondaryBuffer ();
+  ClientsThread (Server* server);
+  ~ClientsThread ();
+  void stop ();
+  int getTimeout ();
+  void setTimeout (int);
+  bool isToDestroy ();
+  void setToDestroy (bool);
+  bool isStatic();
+  bool isBusy();
+  void setStatic (bool);
+  int run ();
+  ThreadID getThreadId (){return tid;}
+  int join ();
 
 
 private:
   Server* server;
   ThreadID tid;
-  int toDestroy;
+  bool toDestroy;
   int timeout;
-  int initialized;
+  bool initialized;
   int staticThread;
   u_long id;
-  int busy;
-  int threadIsStopped;
-  int threadIsRunning;
+  bool busy;
+  bool threadIsStopped;
+  bool threadIsRunning;
   u_long buffersize;
   u_long secondaryBufferSize;
-  int isRunning();
-  int isStopped();
+  bool isRunning();
+  bool isStopped();
   FtpProtocol *ftpParser;
   HttpProtocol* httpParser;
   HttpsProtocol* httpsParser;

@@ -82,7 +82,9 @@ int BitVec::ffs ()
   for (int i = 0; i < dataSize; i++)
     if (p = ffsl (data[i]))
       {
-        return (i * sizeof (long int) * 8) + p - 1;
+        int r = (i * sizeof (long int) * 8) + p - 1;
+        if (r < capacity)
+          return r;
       }
 
   return -1;
@@ -106,8 +108,12 @@ int BitVec::find ()
   for (int i = lastFound; i < dataSize + lastFound; i++)
     if (p = ffsl (data[i % dataSize]))
       {
-        lastFound = i;
-        return (i * sizeof (long int) * 8) + p - 1;
+        int r = (i * sizeof (long int) * 8) + p - 1;
+        if (r < capacity)
+          {
+            lastFound = i;
+            return r;
+          }
       }
 
   return -1;

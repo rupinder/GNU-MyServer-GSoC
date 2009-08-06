@@ -93,7 +93,7 @@ public:
     ((sockaddr_in*) (&sockIn))->sin_addr.s_addr = inet_addr ( "127.0.0.1" );
     ((sockaddr_in*) (&sockIn))->sin_port = htons ( port );
     
-    int sockInLen = sizeof ( sockaddr_in );
+    socklen_t sockInLen = sizeof ( sockaddr_in );
     
     CPPUNIT_ASSERT( obj->socket ( AF_INET, SOCK_STREAM, 0 ) != -1 );
     

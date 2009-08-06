@@ -197,7 +197,7 @@ int Socket::listen(int max)
 /*!
  *Accept a new connection.
  */
-Socket Socket::accept(MYSERVER_SOCKADDR* sa, int* sockaddrlen)
+Socket Socket::accept(MYSERVER_SOCKADDR* sa, socklen_t* sockaddrlen)
 {
   Socket s;
 

@@ -57,40 +57,40 @@ public:
   void init ();
   void destroy ();
 
-	int getPriority();
-	void setPriority(int);
+	int getPriority ();
+	void setPriority (int);
 
-  u_long getID();
-  void setID(u_long);
+  u_long getID ();
+  void setID (u_long);
 
-  void setScheduled(int);
-  int isScheduled();
-  int allowDelete(bool bWait = false);
+  void setScheduled (int);
+  int isScheduled ();
+  int allowDelete (bool bWait = false);
 
-  u_short getPort();
-  void setPort(u_short);
+  u_short getPort ();
+  void setPort (u_short);
 	
-  u_short getLocalPort();
-  void setLocalPort(u_short);
+  u_short getLocalPort ();
+  void setLocalPort (u_short);
 
-  const char* getLogin();
-  void setLogin(const char*);
+  const char* getLogin ();
+  void setLogin (const char*);
 
-  const char* getPassword();
-  void setPassword(const char*);
+  const char* getPassword ();
+  void setPassword (const char*);
 
 	void setnTries(char);
-	char getnTries();
-	void incnTries();
+	char getnTries ();
+	void incnTries ();
 
-  const char* getIpAddr();
-  void setIpAddr(const char*);
+  const char* getIpAddr ();
+  void setIpAddr (const char*);
 
-  const char* getLocalIpAddr();
-  void setLocalIpAddr(const char*);
+  const char* getLocalIpAddr ();
+  void setLocalIpAddr (const char*);
 
-	u_long getTimeout();
-  void setTimeout(u_long);
+	u_long getTimeout ();
+  void setTimeout (u_long);
 
 	/*! Connection socket.  */
 	Socket *socket;
@@ -98,43 +98,46 @@ public:
 	/*! Pointer to an host structure.  */
 	Vhost *host;
 	
-  int getToRemove();
-  void setToRemove(int);
+  int getToRemove ();
+  void setToRemove (int);
 
-  int isForceControl();
-  void setForceControl(int);	
-	
-	/*! This buffer must be used only by the ClientsTHREAD class.  */
-	MemBuf connectionBuffer;
-	
+  int isForceControl ();
+  void setForceControl (int);	
+
 	/*! Buffer for the connection struct. Used by protocols.  */
 	ProtocolBuffer *protocolBuffer;
 
 	/*! Set the thread that is currently using the connection.  */
-	void setActiveThread(ClientsThread* t){thread = t;}
+	void setActiveThread (ClientsThread* t){thread = t;}
 
 	/*! Get the thread that is using the connection.  */
-	ClientsThread* getActiveThread(){return thread;}
+	ClientsThread* getActiveThread (){return thread;}
 
-  Connection()
+  Connection ()
   {
     init ();
   }
 
-  virtual ~Connection()
+  virtual ~Connection ()
   {
     destroy ();
   }
 
   /*! Get the continuation function.  */
-  continuationPROC getContinuation(){return continuation;}
+  continuationPROC getContinuation (){return continuation;}
 
   /*! Set a new continuation function.  */
-  void setContinuation(continuationPROC newContinuation){continuation = newContinuation;}
+  void setContinuation (continuationPROC newContinuation){continuation = newContinuation;}
 
   /*! Check if the connection/connection.has a continuation.  */
-  bool hasContinuation(){return continuation ? true : false;}
+  bool hasContinuation (){return continuation ? true : false;}
+
+  MemBuf *getConnectionBuffer (){return connectionBuffer;}
 protected:
+	
+	/*! This buffer must be used only by the ClientsTHREAD class.  */
+	MemBuf *connectionBuffer;
+
 	ClientsThread *thread;
 
   /*! Continuation function.  */
@@ -150,19 +153,19 @@ protected:
 	u_short port;
 
 	/*! Login name.  */
-	string login;
+	string *login;
 	
 	/*! Password used to log in.  */
-	string password;
+	string *password;
 
 	/*! # of tries for an authorized login.  */
 	char nTries;
 
 	/*! Remote IP address.  */
-	string ipAddr;
+	string *ipAddr;
 	
 	/*! Local IP used to connect to.  */
-	string localIpAddr;
+	string *localIpAddr;
 
 	/*! Local port used to connect to.  */
 	u_short localPort;

@@ -32,12 +32,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <include/conf/security/auth_domain.h>
 
 #ifndef WIN32
-#include <netinet/in.h>
-#ifdef SENDFILE
-#include <sys/sendfile.h>
-#endif
-#include <sys/socket.h>
-#include <arpa/inet.h>
+# include <netinet/in.h>
+# ifdef SENDFILE
+#  include <sys/sendfile.h>
+# endif
+# include <sys/socket.h>
+# include <arpa/inet.h>
 #endif
 
 static DEFINE_THREAD (SendAsciiFile, pParam);
@@ -174,8 +174,6 @@ int FtpuserData::closeDataConnection ()
       m_pDataConnection->socket = NULL;
       m_pDataConnection->setScheduled (0);
     }
-
-  //m_DataConnBusy.unlock();
   m_nFtpstate = USER_LOGGED_IN;
   return 1;
 }
@@ -293,6 +291,7 @@ void ftpReply (ConnectionPtr pConnection, int nReplyCode,
       else
         buffer << nReplyCode << "-" << sReplyText << "\r\n";
     }
+
   pConnection->socket->send (buffer.str ().c_str (),
 			     strlen (buffer.str ().c_str ()), 0);
 }
@@ -574,7 +573,7 @@ void Ftp::pasv ()
 #endif //WIN32
   ftpReply (227, sTempText);
 
-  //wait for incoming connection
+  // wait for incoming connection
   int timeoutvalue = 3;
 #ifdef __linux__
   timeoutvalue = 1;
@@ -583,23 +582,23 @@ void Ftp::pasv ()
   timeoutvalue = 5;
 #endif
   MYSERVER_SOCKADDRIN asockIn;
-  int asockInLen = 0;
+  socklen_t asockInLen = 0;
   Socket asock;
-  if (pFtpuserData->m_pDataConnection->socket->dataOnRead (timeoutvalue, 0) ==
-      1)
+  if (pFtpuserData->m_pDataConnection->socket->dataOnRead (timeoutvalue, 0)
+      == 1)
     {
       asockInLen = sizeof (sockaddr_in);
-      asock =
-	pFtpuserData->m_pDataConnection->socket->accept (&asockIn,
-							 &asockInLen);
+      asock =pFtpuserData->m_pDataConnection->socket->accept (&asockIn,
+                                                           &asockInLen);
       if (asock.getHandle () == (Handle) INVALID_SOCKET)
-	return;
+        return;
 
       pFtpuserData->m_pDataConnection->socket->shutdown (SD_BOTH);
       pFtpuserData->m_pDataConnection->socket->close ();
       delete pFtpuserData->m_pDataConnection->socket;
       pFtpuserData->m_pDataConnection->socket = new Socket (asock);
     }
+
   pFtpuserData->m_bPassiveSrv = false;
 }
 
@@ -607,29 +606,23 @@ void Ftp::retrstor (bool bretr, bool bappend, const std::string & sPath)
 {
   std::string sLocalPath;
   if (!userLoggedIn ())
-    {
-      //closeDataConnection();
-      return;
-    }
+    return;
+
   if ((bretr && !getLocalPath (sPath, sLocalPath)) ||
       (!bretr && !buildLocalPath (sPath, sLocalPath)))
-    {
-      //closeDataConnection();
-      return;
-    }
+    return;
 
   std::string sLocalDir, sLocalFileName;
   FilesUtility::splitPath (sLocalPath, sLocalDir, sLocalFileName);
 
   /* The security file doesn't exist in any case.  */
   const char *secName = td.st.getHashedData ("security.filename",
-					     MYSERVER_VHOST_CONF |
-					     MYSERVER_SERVER_CONF,
-					     ".security.xml");
+                                             MYSERVER_VHOST_CONF |
+                                             MYSERVER_SERVER_CONF,
+                                             ".security.xml");
   if (!strcmpi (sLocalFileName.c_str (), secName))
     {
       ftpReply (550);
-      //closeDataConnection();
       return;
     }
 
@@ -642,12 +635,10 @@ void Ftp::retrstor (bool bretr, bool bappend, const std::string & sPath)
   FtpuserData *pFtpuserData =
     static_cast < FtpuserData * >(td.pConnection->protocolBuffer);
 
-  if (checkRights
-      (pFtpuserData->m_suserName, pFtpuserData->m_sPass, sLocalPath,
-       nMask) == 0)
+  if (checkRights (pFtpuserData->m_suserName, pFtpuserData->m_sPass,
+                   sLocalPath, nMask) == 0)
     {
       ftpReply (530);
-      //closeDataConnection();
       return;
     }
 
@@ -1015,22 +1006,22 @@ DEFINE_THREAD (SendImageFile, pParam)
 						       c_str ());
     if (file == NULL)
       {
-	ftpReply (pConnection, 451);
-	pFtpuserData->closeDataConnection ();
-	pFtpuserData->m_DataConnBusy.unlock ();
-	delete pWt;
+        ftpReply (pConnection, 451);
+        pFtpuserData->closeDataConnection ();
+        pFtpuserData->m_DataConnBusy.unlock ();
+        delete pWt;
 #ifdef WIN32
-	return 0;
+        return 0;
 #elif HAVE_PTHREAD
-	return (void *) 0;
+        return (void *) 0;
 #endif
       }
     u_long filesize = file->getFileSize ();
     u_long nbr, nBufferSize = 0;
     if (pWt->m_bappend && pFtpuserData->m_nrestartOffset < filesize)
       {
-	file->seek (pFtpuserData->m_nrestartOffset);
-	filesize -= pFtpuserData->m_nrestartOffset;
+        file->seek (pFtpuserData->m_nrestartOffset);
+        filesize -= pFtpuserData->m_nrestartOffset;
       }
 
     pFtpuserData->m_sCurrentFileName = pWt->m_sFilePath;
@@ -1040,47 +1031,45 @@ DEFINE_THREAD (SendImageFile, pParam)
     secondaryBuffer.setLength (1024);
     while (filesize != 0)
       {
-	nBufferSize =
-	  std::min (static_cast < u_long > (filesize),
-		    static_cast < u_long >
-		    (secondaryBuffer.getRealLength () / 2));
-	if (file->read (secondaryBuffer.getBuffer (), nBufferSize, &nbr)
-	    || pFtpuserData->m_pDataConnection->socket->send (secondaryBuffer.
-							      getBuffer (),
-							      (u_long)
-							      nBufferSize,
-							      0) ==
-	    SOCKET_ERROR)
-	  {
-	    ftpReply (pConnection, 451);
-	    file->close ();
-	    delete file;
-	    pFtpuserData->closeDataConnection ();
-	    pFtpuserData->m_DataConnBusy.unlock ();
-	    delete pWt;
+        nBufferSize =
+          std::min (static_cast < u_long > (filesize),
+                    static_cast < u_long >
+                    (secondaryBuffer.getRealLength () / 2));
+
+        if (file->read (secondaryBuffer.getBuffer (), nBufferSize, &nbr)
+            || pFtpuserData->m_pDataConnection->socket->send (secondaryBuffer.getBuffer (),
+                                                              (u_long)nBufferSize, 0)
+            == SOCKET_ERROR)
+          {
+            ftpReply (pConnection, 451);
+            file->close ();
+            delete file;
+            pFtpuserData->closeDataConnection ();
+            pFtpuserData->m_DataConnBusy.unlock ();
+            delete pWt;
 #ifdef WIN32
-	    return 0;
+            return 0;
 #elif HAVE_PTHREAD
-	    return (void *) 0;
+            return (void *) 0;
 #endif
-	  }
-	filesize -= nbr;
-	pFtpuserData->m_nBytesSent += nbr;
-	pFtpuserData->m_nrestartOffset += nbr;
-	if (pFtpuserData->m_bBreakDataConnection)
-	  {
-	    pFtpuserData->m_bBreakDataConnection = false;
-	    file->close ();
-	    delete file;
-	    pFtpuserData->closeDataConnection ();
-	    pFtpuserData->m_DataConnBusy.unlock ();
-	    delete pWt;
+          }
+        filesize -= nbr;
+        pFtpuserData->m_nBytesSent += nbr;
+        pFtpuserData->m_nrestartOffset += nbr;
+        if (pFtpuserData->m_bBreakDataConnection)
+          {
+            pFtpuserData->m_bBreakDataConnection = false;
+            file->close ();
+            delete file;
+            pFtpuserData->closeDataConnection ();
+            pFtpuserData->m_DataConnBusy.unlock ();
+            delete pWt;
 #ifdef WIN32
-	    return 1;
+            return 1;
 #elif HAVE_PTHREAD
-	    return (void *) 1;
+            return (void *) 1;
 #endif
-	  }
+          }
       }
     file->close ();
     delete file;
@@ -1090,7 +1079,6 @@ DEFINE_THREAD (SendImageFile, pParam)
     if (file != NULL)
       file->close ();
     delete file;
-    //report error
   }
 
   pFtpuserData->m_sCurrentFileName = "";
@@ -1168,17 +1156,17 @@ DEFINE_THREAD (ReceiveAsciiFile, pParam)
     {
       ftpReply (pConnection, 150);
       if (pWt->m_pFtp->OpenDataConnection () == 0)
-	{
-	  ftpReply (pConnection, 425);
-	  pFtpuserData->closeDataConnection ();
-	  pFtpuserData->m_DataConnBusy.unlock ();
-	  delete pWt;
+        {
+          ftpReply (pConnection, 425);
+          pFtpuserData->closeDataConnection ();
+          pFtpuserData->m_DataConnBusy.unlock ();
+          delete pWt;
 #ifdef WIN32
-	  return 0;
+          return 0;
 #elif HAVE_PTHREAD
-	  return (void *) 0;
+          return (void *) 0;
 #endif
-	}
+        }
     }
 
   if (pFtpuserData->m_pDataConnection == NULL ||
@@ -1197,106 +1185,102 @@ DEFINE_THREAD (ReceiveAsciiFile, pParam)
 
   File file;
   try
-  {
-    u_long flags = 0;
-    if (pWt->m_bappend)
-      flags = File::APPEND | File::WRITE;
-    else
-      flags = File::FILE_CREATE_ALWAYS | File::WRITE;
-    if (file.openFile (pWt->m_sFilePath.c_str (), flags))
-      {
-	ftpReply (pConnection, 451);
-	pFtpuserData->closeDataConnection ();
-	pFtpuserData->m_DataConnBusy.unlock ();
-	delete pWt;
+    {
+      u_long flags = 0;
+      if (pWt->m_bappend)
+        flags = File::APPEND | File::WRITE;
+      else
+        flags = File::FILE_CREATE_ALWAYS | File::WRITE;
+      if (file.openFile (pWt->m_sFilePath.c_str (), flags))
+        {
+          ftpReply (pConnection, 451);
+          pFtpuserData->closeDataConnection ();
+          pFtpuserData->m_DataConnBusy.unlock ();
+          delete pWt;
 #ifdef WIN32
-	return 0;
+          return 0;
 #elif HAVE_PTHREAD
-	return (void *) 0;
+          return (void *) 0;
 #endif
-      }
+        }
 
-    MemBuf buffer, secondaryBuffer;
-    buffer.setLength (1024);
-    memset (buffer.getBuffer (), 0, buffer.getRealLength ());
-    char *pLine = NULL;
-    int nLineLength = 0;
-    std::string sLine;
-    u_long nbr;
-    while (pFtpuserData->m_pDataConnection->socket->read (buffer.getBuffer (),
-							  (u_long) buffer.
-							  getRealLength () -
-							  1,
-							  &nbr) !=
-	   SOCKET_ERROR && nbr != 0)
-      {
-	memset (secondaryBuffer.getBuffer (), 0,
-		secondaryBuffer.getRealLength ());
-	secondaryBuffer.setLength (0);
-	pLine = buffer.getBuffer ();
-	if (pLine == NULL)
-	  {
-	    ftpReply (pConnection, 451);
-	    file.close ();
-	    pFtpuserData->closeDataConnection ();
-	    pFtpuserData->m_DataConnBusy.unlock ();
-	    delete pWt;
+      MemBuf buffer, secondaryBuffer;
+      buffer.setLength (1024);
+      memset (buffer.getBuffer (), 0, buffer.getRealLength ());
+      char *pLine = NULL;
+      int nLineLength = 0;
+      std::string sLine;
+      u_long nbr;
+      while (pFtpuserData->m_pDataConnection->socket->read (buffer.getBuffer (),
+                                (u_long) buffer.getRealLength () - 1, &nbr)
+            != SOCKET_ERROR && nbr != 0)
+        {
+          memset (secondaryBuffer.getBuffer (), 0,
+                  secondaryBuffer.getRealLength ());
+          secondaryBuffer.setLength (0);
+          pLine = buffer.getBuffer ();
+          if (pLine == NULL)
+            {
+              ftpReply (pConnection, 451);
+              file.close ();
+              pFtpuserData->closeDataConnection ();
+              pFtpuserData->m_DataConnBusy.unlock ();
+              delete pWt;
 #ifdef WIN32
-	    return 0;
+              return 0;
 #elif HAVE_PTHREAD
-	    return (void *) 0;
+              return (void *) 0;
 #endif
-	  }
-	while (*pLine != 0)
-	  {
-	    nLineLength = getEndLine (pLine, 0);
-	    if (nLineLength < 0)	//last line
-	      {
-		sLine.assign (pLine, strlen (pLine));
-		if (!sLine.empty ())
-		  secondaryBuffer << sLine;
-		pLine += strlen (pLine);
-	      }
-	    else
-	      {
-		sLine.assign (pLine, nLineLength);
+            }
+        while (*pLine != 0)
+          {
+            nLineLength = getEndLine (pLine, 0);
+            if (nLineLength < 0)	//last line
+              {
+                sLine.assign (pLine, strlen (pLine));
+                if (!sLine.empty ())
+                  secondaryBuffer << sLine;
+                pLine += strlen (pLine);
+              }
+            else
+              {
+                sLine.assign (pLine, nLineLength);
 #ifdef WIN32
-		secondaryBuffer << sLine << "\r\n";
+                secondaryBuffer << sLine << "\r\n";
 #else
-		secondaryBuffer << sLine << "\n";
+                secondaryBuffer << sLine << "\n";
 #endif
-		if (*(pLine + nLineLength) == '\r')
-		  nLineLength++;
-		if (*(pLine + nLineLength) == '\n')
-		  nLineLength++;
-		pLine += nLineLength;
-	      }
-	  }
-	file.write (secondaryBuffer.getBuffer (),
-		    (u_long) secondaryBuffer.getLength (), &nbr);
+                if (*(pLine + nLineLength) == '\r')
+                  nLineLength++;
+                if (*(pLine + nLineLength) == '\n')
+                  nLineLength++;
+                pLine += nLineLength;
+              }
+          }
+        file.write (secondaryBuffer.getBuffer (),
+                    (u_long) secondaryBuffer.getLength (), &nbr);
 
-	if (pFtpuserData->m_bBreakDataConnection)
-	  {
-	    pFtpuserData->m_bBreakDataConnection = false;
-	    file.close ();
-	    pFtpuserData->closeDataConnection ();
-	    pFtpuserData->m_DataConnBusy.unlock ();
-	    delete pWt;
+        if (pFtpuserData->m_bBreakDataConnection)
+          {
+            pFtpuserData->m_bBreakDataConnection = false;
+            file.close ();
+            pFtpuserData->closeDataConnection ();
+            pFtpuserData->m_DataConnBusy.unlock ();
+            delete pWt;
 #ifdef WIN32
-	    return 1;
+            return 1;
 #elif HAVE_PTHREAD
-	    return (void *) 1;
+            return (void *) 1;
 #endif
-	  }
-	memset (buffer.getBuffer (), 0, buffer.getRealLength ());
+          }
+        memset (buffer.getBuffer (), 0, buffer.getRealLength ());
       }
-    file.close ();
-  }
+      file.close ();
+    }
   catch (bad_alloc & ba)
-  {
-    file.close ();
-    //report error
-  }
+    {
+      file.close ();
+    }
 
   ftpReply (pConnection, 226);
   pFtpuserData->closeDataConnection ();
@@ -1369,19 +1353,19 @@ DEFINE_THREAD (ReceiveImageFile, pParam)
     {
       ftpReply (pConnection, 150);
       if (pWt->m_pFtp->OpenDataConnection () == 0)
-	{
-	  ftpReply (pConnection, 425);
-	  pFtpuserData->closeDataConnection ();
-	  pFtpuserData->m_DataConnBusy.unlock ();
-	  delete pWt;
+        {
+          ftpReply (pConnection, 425);
+          pFtpuserData->closeDataConnection ();
+          pFtpuserData->m_DataConnBusy.unlock ();
+          delete pWt;
 #ifdef WIN32
-	  return 0;
+          return 0;
 #elif HAVE_PTHREAD
-	  return (void *) 0;
+          return (void *) 0;
 #endif
-	}
+        }
     }
-
+  
   if (pFtpuserData->m_pDataConnection == NULL ||
       pFtpuserData->m_pDataConnection->socket == NULL)
     {
@@ -1398,57 +1382,56 @@ DEFINE_THREAD (ReceiveImageFile, pParam)
 
   File file;
   try
-  {
-    u_long flags = 0;
-    if (pWt->m_bappend)
-      flags = File::APPEND | File::WRITE;
-    else
-      flags = File::FILE_CREATE_ALWAYS | File::WRITE;
-    if (file.openFile (pWt->m_sFilePath.c_str (), flags))
-      {
-	ftpReply (pConnection, 451);
-	pFtpuserData->closeDataConnection ();
-	pFtpuserData->m_DataConnBusy.unlock ();
-	delete pWt;
+    {
+      u_long flags = 0;
+      if (pWt->m_bappend)
+        flags = File::APPEND | File::WRITE;
+      else
+        flags = File::FILE_CREATE_ALWAYS | File::WRITE;
+      if (file.openFile (pWt->m_sFilePath.c_str (), flags))
+        {
+          ftpReply (pConnection, 451);
+          pFtpuserData->closeDataConnection ();
+          pFtpuserData->m_DataConnBusy.unlock ();
+          delete pWt;
 #ifdef WIN32
-	return 0;
+          return 0;
 #elif HAVE_PTHREAD
-	return (void *) 0;
+          return (void *) 0;
 #endif
-      }
-    u_long nbr;
-    MemBuf buffer;
-    buffer.setLength (1024);
-    memset (buffer.getBuffer (), 0, buffer.getRealLength ());
-    while (pFtpuserData->m_pDataConnection->socket->read (buffer.getBuffer (),
-							  (u_long) buffer.
-							  getRealLength () -
-							  1,
-							  &nbr) !=
-	   SOCKET_ERROR && nbr != 0)
-      {
-	file.write (buffer.getBuffer (), nbr, &nbr);
-	if (pFtpuserData->m_bBreakDataConnection)
-	  {
-	    pFtpuserData->m_bBreakDataConnection = false;
-	    file.close ();
-	    pFtpuserData->closeDataConnection ();
-	    pFtpuserData->m_DataConnBusy.unlock ();
-	    delete pWt;
+        }
+      u_long nbr;
+      MemBuf buffer;
+      buffer.setLength (1024);
+      memset (buffer.getBuffer (), 0, buffer.getRealLength ());
+      while (pFtpuserData->m_pDataConnection->socket->read (buffer.getBuffer (),
+                                                            (u_long) buffer.
+                                                            getRealLength () -
+                                                            1,
+                                                            &nbr) !=
+             SOCKET_ERROR && nbr != 0)
+        {
+          file.write (buffer.getBuffer (), nbr, &nbr);
+          if (pFtpuserData->m_bBreakDataConnection)
+            {
+              pFtpuserData->m_bBreakDataConnection = false;
+              file.close ();
+              pFtpuserData->closeDataConnection ();
+              pFtpuserData->m_DataConnBusy.unlock ();
+              delete pWt;
 #ifdef WIN32
-	    return 1;
+              return 1;
 #elif HAVE_PTHREAD
-	    return (void *) 1;
+              return (void *) 1;
 #endif
-	  }
-      }
-    file.close ();
-  }
+            }
+        }
+      file.close ();
+    }
   catch (bad_alloc & ba)
-  {
-    //report error
-    file.close ();
-  }
+    {
+      file.close ();
+    }
 
   ftpReply (pConnection, 226);
   pFtpuserData->closeDataConnection ();
@@ -1536,7 +1519,6 @@ bool Ftp::getLocalPath (const std::string & sPath, std::string & sOutPath)
       ftpReply (550);
       return false;
     }
-
   return true;
 }
 
@@ -1580,9 +1562,8 @@ Ftp::OpenDataConnection ()
   if (pFtpuserData->m_nFtpstate == FtpuserData::DATA_CONNECTION_UP)
     return 1;
 
-  //pFtpuserData->m_DataConnBusy.lock();
-  int nRet =
-    pFtpuserData->m_bPassiveSrv ? openDataPassive () : openDataActive ();
+  int nRet = pFtpuserData->m_bPassiveSrv ? openDataPassive () 
+                                         : openDataActive ();
   if (nRet != 0)
     pFtpuserData->m_nFtpstate = FtpuserData::DATA_CONNECTION_UP;
   return nRet;
@@ -1617,8 +1598,9 @@ Ftp::openDataPassive ()
     htons (getPortNo (pFtpuserData->m_cdh));
   if (pSocket->
       setsockopt (SOL_SOCKET, SO_REUSEADDR, (const char *) &nReuseAddr,
-		  sizeof (nReuseAddr)) < 0)
+                  sizeof (nReuseAddr)) < 0)
     return 0;
+
   if (pSocket->bind (&storage, sizeof (sockaddr_in)) != 0
       || pSocket->listen (SOMAXCONN) != 0)
     return 0;
@@ -1674,17 +1656,18 @@ Ftp::type (int ntypeCode, int nFormatControlCode /* = -1 */ )
     {
     case FtpuserData::NON_PRINT:
       if (ntypeCode == FtpuserData::REPR_ASCII)
-	pFtpuserData->m_nFtpFormatControl =
-	  (FtpuserData::FtpFormatControl) nFormatControlCode;
+        pFtpuserData->m_nFtpFormatControl =
+          (FtpuserData::FtpFormatControl) nFormatControlCode;
       else
-	{
-	  ftpReply (501);
-	  return 0;
-	}
+        {
+          ftpReply (501);
+          return 0;
+        }
       break;
+
     case FtpuserData::REPR_IMAGE:
       pFtpuserData->m_nFtpFormatControl =
-	(FtpuserData::FtpFormatControl) nFormatControlCode;
+        (FtpuserData::FtpFormatControl) nFormatControlCode;
       break;
     }
 
@@ -1771,96 +1754,96 @@ Ftp::list (const std::string & sParam /*= ""*/ )
       FindData fd;
       //dir MUST ends with '/'
       if (fd.findfirst (sPath))
-	{
-	  ftpReply (450);
-	  closeDataConnection ();
-	  return;
-	}
+        {
+          ftpReply (450);
+          closeDataConnection ();
+          return;
+        }
 
       const char *secName = td.st.getHashedData ("security.filename",
-						 MYSERVER_VHOST_CONF |
-						 MYSERVER_SERVER_CONF,
-						 ".security.xml");
+                                                 MYSERVER_VHOST_CONF |
+                                                 MYSERVER_SERVER_CONF,
+                                                 ".security.xml");
       do
-	{
-	  if (fd.name[0] == '.' || !strcmpi (fd.name, secName))
-	    continue;
+        {
+          if (fd.name[0] == '.' || !strcmpi (fd.name, secName))
+            continue;
 
-	  perm[10] = '\0';
-	  perm[0] = fd.attrib == FILE_ATTRIBUTE_DIRECTORY ? 'd' : '-';
-	  string completeFileName (sPath);
-	  completeFileName.append (fd.name);
-	  int guestMask = checkRights ("Guest", "", completeFileName, -1);
-	  int pMask = checkRights (username, password, completeFileName, -1);
+          perm[10] = '\0';
+          perm[0] = fd.attrib == FILE_ATTRIBUTE_DIRECTORY ? 'd' : '-';
+          string completeFileName (sPath);
+          completeFileName.append (fd.name);
+          int guestMask = checkRights ("Guest", "", completeFileName, -1);
+          int pMask = checkRights (username, password, completeFileName, -1);
 
-	  //Owner and group permissions are the same.
-	  perm[1] = perm[4] = pMask & MYSERVER_PERMISSION_READ ? 'r' : '-';
-	  perm[2] = perm[5] = pMask & MYSERVER_PERMISSION_WRITE ? 'w' : '-';
-	  perm[3] = perm[6] = pMask & MYSERVER_PERMISSION_EXECUTE ? 'x' : '-';
+          //Owner and group permissions are the same.
+          perm[1] = perm[4] = pMask & MYSERVER_PERMISSION_READ ? 'r' : '-';
+          perm[2] = perm[5] = pMask & MYSERVER_PERMISSION_WRITE ? 'w' : '-';
+          perm[3] = perm[6] = pMask & MYSERVER_PERMISSION_EXECUTE ? 'x' : '-';
 
-	  //Permission for All are the permission for Guest
-	  perm[7] = guestMask & MYSERVER_PERMISSION_READ ? 'r' : '-';
-	  perm[8] = guestMask & MYSERVER_PERMISSION_WRITE ? 'w' : '-';
-	  perm[9] = guestMask & MYSERVER_PERMISSION_EXECUTE ? 'x' : '-';
+          //Permission for All are the permission for Guest
+          perm[7] = guestMask & MYSERVER_PERMISSION_READ ? 'r' : '-';
+          perm[8] = guestMask & MYSERVER_PERMISSION_WRITE ? 'w' : '-';
+          perm[9] = guestMask & MYSERVER_PERMISSION_EXECUTE ? 'x' : '-';
 
-	  string date;
-	  const char *datePtr = getRFC822LocalTime (fd.time_write, date, 32);
+          string date;
+          const char *datePtr = getRFC822LocalTime (fd.time_write, date, 32);
 
-	  char dateFtpFormat[13];
+          char dateFtpFormat[13];
 
-	  dateFtpFormat[3] = ' ';
-	  dateFtpFormat[6] = ' ';
-	  dateFtpFormat[7] = ' ';
-	  dateFtpFormat[12] = '\0';
+          dateFtpFormat[3] = ' ';
+          dateFtpFormat[6] = ' ';
+          dateFtpFormat[7] = ' ';
+          dateFtpFormat[12] = '\0';
 
-	  int offset = datePtr[6] == ' ' ? 0 : 1;
+          int offset = datePtr[6] == ' ' ? 0 : 1;
 
-	  //Day
-	  dateFtpFormat[4] = datePtr[5];
-	  dateFtpFormat[5] = datePtr[6];
+          //Day
+          dateFtpFormat[4] = datePtr[5];
+          dateFtpFormat[5] = datePtr[6];
 
-	  //Month
-	  dateFtpFormat[0] = datePtr[7 + offset];
-	  dateFtpFormat[1] = datePtr[8 + offset];
-	  dateFtpFormat[2] = datePtr[9 + offset];
+          //Month
+          dateFtpFormat[0] = datePtr[7 + offset];
+          dateFtpFormat[1] = datePtr[8 + offset];
+          dateFtpFormat[2] = datePtr[9 + offset];
 
-	  //If the file was modified in the last 6 months
-	  //show the hour instead of the year
-	  if (now - fd.time_write < 60 * 60 * 183 && now > fd.time_write)
-	    {
-	      //Hour
-	      dateFtpFormat[7] = datePtr[16 + offset];
-	      dateFtpFormat[8] = datePtr[17 + offset];
-	      dateFtpFormat[9] = ':';
-	      dateFtpFormat[10] = datePtr[19 + offset];
-	      dateFtpFormat[11] = datePtr[20 + offset];
-	    }
-	  else
-	    {
-	      //Year
-	      dateFtpFormat[8] = datePtr[11 + offset];
-	      dateFtpFormat[9] = datePtr[12 + offset];
-	      dateFtpFormat[10] = datePtr[13 + offset];
-	      dateFtpFormat[11] = datePtr[14 + offset];
-	    }
+          //If the file was modified in the last 6 months
+          //show the hour instead of the year
+          if (now - fd.time_write < 60 * 60 * 183 && now > fd.time_write)
+            {
+              //Hour
+              dateFtpFormat[7] = datePtr[16 + offset];
+              dateFtpFormat[8] = datePtr[17 + offset];
+              dateFtpFormat[9] = ':';
+              dateFtpFormat[10] = datePtr[19 + offset];
+              dateFtpFormat[11] = datePtr[20 + offset];
+            }
+          else
+            {
+              //Year
+              dateFtpFormat[8] = datePtr[11 + offset];
+              dateFtpFormat[9] = datePtr[12 + offset];
+              dateFtpFormat[10] = datePtr[13 + offset];
+              dateFtpFormat[11] = datePtr[14 + offset];
+            }
 
-	  char nlinkStr[12];
-	  memset (nlinkStr, 0, sizeof (char) * 12);
+          char nlinkStr[12];
+          memset (nlinkStr, 0, sizeof (char) * 12);
 #ifndef WIN32
-	  nlink_t nlink = 1;
-	  nlink = fd.getStatStruct ()->st_nlink;
-	  sprintf (nlinkStr, "%lu", (u_long) nlink);
+          nlink_t nlink = 1;
+          nlink = fd.getStatStruct ()->st_nlink;
+          sprintf (nlinkStr, "%lu", (u_long) nlink);
 #endif
 
-	  char fdSizeStr[12];
-	  sprintf (fdSizeStr, "%li", fd.size);
+          char fdSizeStr[12];
+          sprintf (fdSizeStr, "%li", fd.size);
 
-	  secondaryBuffer << (const char *) perm << " " << nlinkStr << " "
-	    << username << " " << username << " " << fdSizeStr
-	    << " " << (const char *) dateFtpFormat << " "
-	    << fd.name << "\r\n";
+          secondaryBuffer << (const char *) perm << " " << nlinkStr << " "
+                          << username << " " << username << " " << fdSizeStr
+                          << " " << (const char *) dateFtpFormat << " "
+                          << fd.name << "\r\n";
 
-	}
+        }
       while (!fd.findnext ());
       fd.findclose ();
     }
@@ -1871,97 +1854,98 @@ Ftp::list (const std::string & sParam /*= ""*/ )
       FilesUtility::splitPath (sLocalPath, sDir, sFileName);
       FindData fd;
       if (fd.findfirst (sDir))
-	{
-	  ftpReply (450);
-	  closeDataConnection ();
-	  return;
-	}
+        {
+          ftpReply (450);
+          closeDataConnection ();
+          return;
+        }
       do
-	{
-	  if (strcmp (fd.name, sFileName.c_str ()) != 0)
-	    continue;
+        {
+          if (strcmp (fd.name, sFileName.c_str ()) != 0)
+            continue;
 
-	  perm[10] = '\0';
-	  perm[0] = fd.attrib == FILE_ATTRIBUTE_DIRECTORY ? 'd' : '-';
+          perm[10] = '\0';
+          perm[0] = fd.attrib == FILE_ATTRIBUTE_DIRECTORY ? 'd' : '-';
 
-	  string completeFileName (sDir);
-	  completeFileName.append (fd.name);
+          string completeFileName (sDir);
+          completeFileName.append (fd.name);
 
-	  int guestMask = checkRights ("guest", "", completeFileName, -1);
-	  int pMask = checkRights (username, password, completeFileName, -1);
-	  //Owner and group permissions are the same.
-	  perm[1] = perm[4] = pMask & MYSERVER_PERMISSION_READ ? 'r' : '-';
-	  perm[2] = perm[5] = pMask & MYSERVER_PERMISSION_WRITE ? 'w' : '-';
-	  perm[3] = perm[6] = pMask & MYSERVER_PERMISSION_EXECUTE ? 'x' : '-';
+          int guestMask = checkRights ("guest", "", completeFileName, -1);
+          int pMask = checkRights (username, password, completeFileName, -1);
+          //Owner and group permissions are the same.
+          perm[1] = perm[4] = pMask & MYSERVER_PERMISSION_READ ? 'r' : '-';
+          perm[2] = perm[5] = pMask & MYSERVER_PERMISSION_WRITE ? 'w' : '-';
+          perm[3] = perm[6] = pMask & MYSERVER_PERMISSION_EXECUTE ? 'x' : '-';
 
-	  //Permission for All are the permission for Guest
-	  perm[7] = guestMask & MYSERVER_PERMISSION_READ ? 'r' : '-';
-	  perm[8] = guestMask & MYSERVER_PERMISSION_WRITE ? 'w' : '-';
-	  perm[9] = guestMask & MYSERVER_PERMISSION_EXECUTE ? 'x' : '-';
+          //Permission for All are the permission for Guest
+          perm[7] = guestMask & MYSERVER_PERMISSION_READ ? 'r' : '-';
+          perm[8] = guestMask & MYSERVER_PERMISSION_WRITE ? 'w' : '-';
+          perm[9] = guestMask & MYSERVER_PERMISSION_EXECUTE ? 'x' : '-';
 
-	  string date;
-	  const char *datePtr = getRFC822LocalTime (fd.time_write, date, 32);
+          string date;
+          const char *datePtr = getRFC822LocalTime (fd.time_write, date, 32);
 
-	  char dateFtpFormat[13];
+          char dateFtpFormat[13];
 
-	  dateFtpFormat[3] = ' ';
-	  dateFtpFormat[6] = ' ';
-	  dateFtpFormat[7] = ' ';
-	  dateFtpFormat[12] = '\0';
+          dateFtpFormat[3] = ' ';
+          dateFtpFormat[6] = ' ';
+          dateFtpFormat[7] = ' ';
+          dateFtpFormat[12] = '\0';
 
-	  int offset = datePtr[6] == ' ' ? 0 : 1;
+          int offset = datePtr[6] == ' ' ? 0 : 1;
 
-	  //Day
-	  dateFtpFormat[4] = datePtr[5];
-	  dateFtpFormat[5] = datePtr[6];
+          //Day
+          dateFtpFormat[4] = datePtr[5];
+          dateFtpFormat[5] = datePtr[6];
 
-	  //Month
-	  dateFtpFormat[0] = datePtr[7 + offset];
-	  dateFtpFormat[1] = datePtr[8 + offset];
-	  dateFtpFormat[2] = datePtr[9 + offset];
+          //Month
+          dateFtpFormat[0] = datePtr[7 + offset];
+          dateFtpFormat[1] = datePtr[8 + offset];
+          dateFtpFormat[2] = datePtr[9 + offset];
 
-	  //If the file was modified in the last 6 months
-	  //show the hour instead of the year
-	  if (now - fd.time_write < 60 * 60 * 183 && now > fd.time_write)
-	    {
-	      //Hour
-	      dateFtpFormat[7] = datePtr[16 + offset];
-	      dateFtpFormat[8] = datePtr[17 + offset];
-	      dateFtpFormat[9] = ':';
-	      dateFtpFormat[10] = datePtr[19 + offset];
-	      dateFtpFormat[11] = datePtr[20 + offset];
-	    }
-	  else
-	    {
-	      //Year
-	      dateFtpFormat[8] = datePtr[11 + offset];
-	      dateFtpFormat[9] = datePtr[12 + offset];
-	      dateFtpFormat[10] = datePtr[13 + offset];
-	      dateFtpFormat[11] = datePtr[14 + offset];
-	    }
+          //If the file was modified in the last 6 months
+          //show the hour instead of the year
+          if (now - fd.time_write < 60 * 60 * 183 && now > fd.time_write)
+            {
+              //Hour
+              dateFtpFormat[7] = datePtr[16 + offset];
+              dateFtpFormat[8] = datePtr[17 + offset];
+              dateFtpFormat[9] = ':';
+              dateFtpFormat[10] = datePtr[19 + offset];
+              dateFtpFormat[11] = datePtr[20 + offset];
+            }
+          else
+            {
+              //Year
+              dateFtpFormat[8] = datePtr[11 + offset];
+              dateFtpFormat[9] = datePtr[12 + offset];
+              dateFtpFormat[10] = datePtr[13 + offset];
+              dateFtpFormat[11] = datePtr[14 + offset];
+            }
 
-	  char nlinkStr[12];
-	  memset (nlinkStr, 0, sizeof (char) * 12);
+          char nlinkStr[12];
+          memset (nlinkStr, 0, sizeof (char) * 12);
 #ifndef WIN32
-	  nlink_t nlink = 1;
-	  nlink = fd.getStatStruct ()->st_nlink;
-	  sprintf (nlinkStr, "%lu", (u_long) nlink);
+          nlink_t nlink = 1;
+          nlink = fd.getStatStruct ()->st_nlink;
+          sprintf (nlinkStr, "%lu", (u_long) nlink);
 #endif
 
-	  char fdSizeStr[12];
-	  sprintf (fdSizeStr, "%li", fd.size);
+          char fdSizeStr[12];
+          sprintf (fdSizeStr, "%li", fd.size);
 
-	  secondaryBuffer << (const char *) perm << " " << nlinkStr << " "
-	    << username << " " << username << " " << fdSizeStr
-	    << " " << (const char *) dateFtpFormat << " "
-	    << fd.name << "\r\n";
-	}
+          secondaryBuffer << (const char *) perm << " " << nlinkStr << " "
+                          << username << " " << username << " " << fdSizeStr
+                          << " " << (const char *) dateFtpFormat << " "
+                          << fd.name << "\r\n";
+        }
       while (!fd.findnext ());
       fd.findclose ();
     }
+
   if (pFtpuserData->m_pDataConnection->socket->
       send (td.secondaryBuffer->getBuffer (),
-	    (u_long) td.secondaryBuffer->getLength (), 0) == SOCKET_ERROR)
+            (u_long) td.secondaryBuffer->getLength (), 0) == SOCKET_ERROR)
     {
       ftpReply (451);
     }
@@ -2021,19 +2005,18 @@ Ftp::nlst (const std::string & sParam /* = "" */ )
   do
     {
       if (fd.name[0] == '.' || !strcmpi (fd.name, secName))
-	continue;
+        continue;
 
       if (!sParam.empty ())
-	secondaryBuffer << sParam << "/";
+        secondaryBuffer << sParam << "/";
       secondaryBuffer << fd.name << "\r\n";
     }
   while (!fd.findnext ());
-
   fd.findclose ();
 
   if (pFtpuserData->m_pDataConnection->socket->
       send (td.secondaryBuffer->getBuffer (),
-	    (u_long) td.secondaryBuffer->getLength (), 0) == SOCKET_ERROR)
+            (u_long) td.secondaryBuffer->getLength (), 0) == SOCKET_ERROR)
     {
       ftpReply (451);
     }
@@ -2066,35 +2049,34 @@ Ftp::escapeTelnet (MemBuf & In, MemBuf & Out)
   while ((u_int) (pIn - In.getBuffer ()) < In.getLength ())
     {
       if (*pIn == '\377')
-	{
-	  szReply[0] = *pIn++;
-	  if (*pIn == '\0')
-	    break;
-	  switch (*pIn)
-	    {
-	    case '\375':	//DO
-	    case '\376':	//DONT
-	      szReply[1] = '\374';
-	      pIn++;
-	      break;
-	    case '\373':	//WILL
-	    case '\374':	//WONT
-	      szReply[1] = '\376';
-	      pIn++;
-	      break;
-	    case '\377':
-	      szReply[1] = '\0';
-	      Out << *pIn;
-	      break;
-
-	    default:
-	      pIn++;
-	      continue;
-	    }
-	  szReply[2] = *pIn++;
-	  ftpReply (-1, szReply);
-	  continue;
-	}
+        {
+          szReply[0] = *pIn++;
+          if (*pIn == '\0')
+            break;
+          switch (*pIn)
+            {
+            case '\375':	//DO
+            case '\376':	//DONT
+              szReply[1] = '\374';
+            pIn++;
+            break;
+            case '\373':	//WILL
+            case '\374':	//WONT
+              szReply[1] = '\376';
+            pIn++;
+            break;
+            case '\377':
+              szReply[1] = '\0';
+              Out << *pIn;
+              break;
+            default:
+              pIn++;
+              continue;
+            }
+          szReply[2] = *pIn++;
+          ftpReply (-1, szReply);
+          continue;
+        }
       Out << *pIn++;
     }
   Out << '\0';
@@ -2115,7 +2097,7 @@ void Ftp::removePipelinedCmds (MemBuf & In, MemBuf & Out)
     {
       Out << c;
       if (c == '\n')
-	break;
+        break;
     }
   Out << '\0';
 }
@@ -2183,8 +2165,8 @@ void Ftp::cwd (const std::string & sPath)
   else if (sPath.size () != 1 || sPath[0] != '.')
     {
       if (pFtpuserData->m_cwd.size () &&
-	  pFtpuserData->m_cwd[pFtpuserData->m_cwd.size () - 1] != '/')
-	pFtpuserData->m_cwd += "/";
+          pFtpuserData->m_cwd[pFtpuserData->m_cwd.size () - 1] != '/')
+        pFtpuserData->m_cwd += "/";
       pFtpuserData->m_cwd += sPath;
     }
 
@@ -2215,7 +2197,7 @@ void Ftp::syst ()
 #ifdef WIN32
     sTempText.replace (n, 2, "WIN32");
 #else
-    sTempText.replace (n, 2, "UNIX type: L8");
+  sTempText.replace (n, 2, "UNIX type: L8");
 #endif //WIN32
   ftpReply (215, sTempText);
 }
@@ -2237,8 +2219,8 @@ void Ftp::stat (const std::string & sParam /* = "" */ )
       std::ostringstream sstat;
       sstat << "Transferring file: " << pFtpuserData->m_sCurrentFileName;
       sstat << " " << pFtpuserData->
-	m_nBytesSent << " bytes transferred from " << pFtpuserData->
-	m_nFileSize;
+        m_nBytesSent << " bytes transferred from " << pFtpuserData->
+        m_nFileSize;
       ftpReply (213, sstat.str ());
     }
   else
@@ -2275,13 +2257,13 @@ void Ftp::stou (const std::string & sPath)
   do
     {
       if (nCount >= 0)
-	{
-	  std::ostringstream sRename;
-	  sRename << nCount;
-	  sTempPath = sPath + sRename.str ();
-	}
+        {
+          std::ostringstream sRename;
+          sRename << nCount;
+          sTempPath = sPath + sRename.str ();
+        }
       if (!buildLocalPath (sTempPath, sOutPath))
-	return;
+        return;
       nCount++;
     }
   while (FilesUtility::fileExists (sOutPath));
@@ -2304,10 +2286,9 @@ void Ftp::dele (const std::string & sPath)
 
   /* The security file doesn't exist in any case.  */
   const char *secName = td.st.getHashedData ("security.filename",
-					     MYSERVER_VHOST_CONF |
-					     MYSERVER_SERVER_CONF,
-					     ".security.xml");
-
+                                             MYSERVER_VHOST_CONF |
+                                             MYSERVER_SERVER_CONF,
+                                             ".security.xml");
   if (!strcmpi (sLocalFileName.c_str (), secName))
     {
       ftpReply (550);
@@ -2320,21 +2301,22 @@ void Ftp::dele (const std::string & sPath)
   if (strcmpi (pFtpuserData->m_suserName.c_str (), "anonymous") == 0)
     {
       if (checkRights ("Guest", "", sLocalFileName, MYSERVER_PERMISSION_WRITE)
-	  == 0)
-	{
-	  ftpReply (550);
-	  return;
-	}
+          == 0)
+        {
+          ftpReply (550);
+          return;
+        }
     }
   else
     {
       if (checkRights (pFtpuserData->m_suserName, pFtpuserData->m_sPass,
-		       sLocalFileName, MYSERVER_PERMISSION_WRITE) == 0)
-	{
-	  ftpReply (550);
-	  return;
-	}
+                       sLocalFileName, MYSERVER_PERMISSION_WRITE) == 0)
+        {
+          ftpReply (550);
+          return;
+        }
     }
+
   if (FilesUtility::deleteFile (sLocalPath) != 0)
     ftpReply (450);
   ftpReply (250);
@@ -2434,8 +2416,7 @@ void Ftp::rnfr (const std::string & sPath)
   FilesUtility::splitPath (sLocalPath, sLocalDir, sLocalFileName);
 
   const char *secName = td.st.getHashedData ("security.filename",
-					     MYSERVER_VHOST_CONF |
-					     MYSERVER_SERVER_CONF,
+					     MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF,
 					     ".security.xml");
 
   /* The security file doesn't exist in any case.  */
