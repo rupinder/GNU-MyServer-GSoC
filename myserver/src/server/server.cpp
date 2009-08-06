@@ -747,14 +747,16 @@ void Server::displayBoot()
  *Removed threads that can be destroyed.
  *The function returns the number of threads that were destroyed.
  */
-int Server::purgeThreads()
+int Server::purgeThreads ()
 {
-  u_long ticks = getTicks();
+  u_long ticks = getTicks ();
   u_long destroyed = 0;
 
-  purgeThreadsThreshold = std::min(purgeThreadsThreshold << 1, nMaxThreads);
-  threadsMutex->lock();
-  for(list<ClientsThread*>::iterator it = threads.begin(); it != threads.end();)
+  purgeThreadsThreshold = std::min (purgeThreadsThreshold << 1,
+                                    nMaxThreads);
+  threadsMutex->lock ();
+  for (list<ClientsThread*>::iterator it = threads.begin ();
+       it != threads.end ();)
   {
     ClientsThread* thread = *it;
 
@@ -775,7 +777,7 @@ int Server::purgeThreads()
         destroyed++;
         it = next;
       }
-    if (thread->isToDestroy ())
+    else if (thread->isToDestroy ())
       {
         if (destroyed < purgeThreadsThreshold)
           thread->stop ();
@@ -791,9 +793,9 @@ int Server::purgeThreads()
         it++;
       }
   }
-  threadsMutex->unlock();
+  threadsMutex->unlock ();
 
-  return threads.size();
+  return threads.size ();
 }
 
 /*!
