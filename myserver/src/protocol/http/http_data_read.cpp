@@ -359,7 +359,7 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
         {
 
           /* Do not try to read more than what we expect.  */
-          u_long dimBuffer = std::min (td->secondaryBuffer->getRealLength() - 1l,
+          u_long dimBuffer = std::min (td->secondaryBuffer->getRealLength() - 1ul,
                                        length);
 
           if (readContiguousPrimitivePostData (td->request.uriOptsPtr,
