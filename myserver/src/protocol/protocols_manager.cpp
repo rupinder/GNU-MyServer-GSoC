@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -17,50 +17,44 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <include/protocol/protocols_manager.h>
-#include <include/base/xml/xml_parser.h>
-#include <include/server/server.h>
 #include <string>
 #include <algorithm>
 #include <cctype> 
 
-
-
 /*!
- *Class constructor.
+ * Class constructor.
  */
-ProtocolsManager::ProtocolsManager() 
+ProtocolsManager::ProtocolsManager ()
 {
 
 }
 
 /*!
- *Class destructor.
+ * Class destructor.
  */
-ProtocolsManager::~ProtocolsManager()
+ProtocolsManager::~ProtocolsManager ()
 {
 
 }
 
 /*!
- *Return a protocol by its name.
+ * Return a protocol by its name.
  */
-Protocol* ProtocolsManager::getProtocol(string& name)
+Protocol* ProtocolsManager::getProtocol (string& name)
 {
-  return staticProtocols.get(name);
+  return staticProtocols.get (name);
 }
 
 /*!
- *Add a static protocol to the list.
+ * Add a static protocol to the list.
  */
-void ProtocolsManager::addProtocol(string& name, Protocol* protocol)
+void ProtocolsManager::addProtocol (string& name, Protocol* protocol)
 {
-  std::transform(name.begin(),
-                 name.end(),
-                 name.begin(),
-                 static_cast < int(*)(int) > (tolower) );
+  std::transform (name.begin (), name.end (), name.begin (),
+                  static_cast < int(*)(int) > (tolower));
 
-  staticProtocols.put(name, protocol);
-  staticProtocolsList.push_back(protocol);
+  staticProtocols.put (name, protocol);
+  staticProtocolsList.push_back (protocol);
 }
 
 

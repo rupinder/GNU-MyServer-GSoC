@@ -31,11 +31,11 @@ using namespace std;
 extern "C" 
 {
 #ifdef WIN32
-#include <direct.h>
-#include <errno.h>
+# include <direct.h>
+# include <errno.h>
 #else
-#include <string.h>
-#include <errno.h>
+# include <string.h>
+# include <errno.h>
 #endif
 }
 
@@ -369,10 +369,10 @@ int HttpFile::send (HttpThreadContext* td,
     if (td->mime)
       {
         if (td->mime &&
-            Server::getInstance()->getFiltersFactory()->chain (&chain,
-                                                               td->mime->filters,
-                                                               &memStream,
-                                                               &nbw))
+            Server::getInstance ()->getFiltersFactory ()->chain (&chain,
+                                                                 td->mime->filters,
+                                                                 &memStream,
+                                                                 &nbw))
           {
             file->close ();
             delete file;
