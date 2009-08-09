@@ -309,7 +309,7 @@ int HttpFile::send (HttpThreadContext* td,
 
     keepalive = td->request.isKeepAlive ();
 
-#ifndef DO_NOT_USEGZIP
+#ifdef HAVE_ZLIB
     /*
      * Be sure that the client accept GZIP compressed data.
      */

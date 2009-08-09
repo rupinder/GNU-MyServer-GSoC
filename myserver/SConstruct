@@ -125,11 +125,11 @@ if  not env.GetOption('clean'):
         Exit(1)
 
     if not conf.CheckLib("ssl"):
-        conf.Define('DO_NOT_USE_SSL', 1)
+        print "gnutls is required by MyServer"
+        Exit(1)
 
-
-    if not conf.CheckLib("z"):
-        conf.Define('DO_NOT_USE_GZIP', 1)
+    if conf.CheckLib("z"):
+        conf.Define('HAVE_ZLIB', 1)
 
     conf.CheckLib("event")
         
