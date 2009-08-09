@@ -877,13 +877,13 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
         return 400;
       do
         {
-          StrTrim (digestToken, (char*)" ");
+          trim (digestToken, (char*)" ");
           if (!strcmpi (digestToken, (char*)"nonce"))
             {
               digestToken = strtok (NULL, (char*)"," );
               if (digestToken)
                 {
-                  StrTrim (digestToken, (char*)"\" ");
+                  trim (digestToken, (char*)"\" ");
                   myserver_strlcpy (request->digestNonce,digestToken,48 + 1);
                 }
             }
@@ -892,7 +892,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
               digestToken = strtok (NULL, (char*)"," );
               if (digestToken)
                 {
-                  StrTrim (digestToken, (char*)"\" ");
+                  trim (digestToken, (char*)"\" ");
                   myserver_strlcpy (request->digestOpaque,digestToken,48 + 1);
                 }
             }
@@ -901,7 +901,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
               digestToken = strtok (NULL, (char*)"\r\n," );
               if (digestToken)
                 {
-                  StrTrim (digestToken, (char*)"\" ");
+                  trim (digestToken, (char*)"\" ");
                   myserver_strlcpy (request->digestUri,digestToken,1024 + 1);
                 }
             }
@@ -910,7 +910,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
               digestToken = strtok (NULL, (char*)"\r\n," );
               if (digestToken)
                 {
-                  StrTrim (digestToken, (char*)"\" ");
+                  trim (digestToken, (char*)"\" ");
                   myserver_strlcpy (request->digestMethod,digestToken,16 + 1);
                 }
             }
@@ -919,7 +919,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
               digestToken = strtok (NULL, (char*)"\r\n," );
               if (digestToken)
                 {
-                  StrTrim (digestToken,(char*)"\" ");
+                  trim (digestToken,(char*)"\" ");
                   myserver_strlcpy (request->digestQop,digestToken,16 + 1);
                 }
             }
@@ -928,7 +928,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
               digestToken = strtok (NULL, (char*)"\r\n," );
               if (digestToken)
                 {
-                  StrTrim (digestToken, (char*)"\" ");
+                  trim (digestToken, (char*)"\" ");
                   myserver_strlcpy (request->digestRealm,digestToken,48 + 1);
                 }
             }
@@ -937,7 +937,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
               digestToken = strtok (NULL, (char*)"\r\n," );
               if (digestToken)
                 {
-                  StrTrim (digestToken, (char*)" \"");
+                  trim (digestToken, (char*)" \"");
                   myserver_strlcpy (request->digestCnonce, digestToken, 48 + 1);
                 }
             }
@@ -946,7 +946,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
               digestToken = strtok (NULL, (char*)"\r\n," );
               if (digestToken)
                 {
-                  StrTrim (digestToken, (char*)"\" ");
+                  trim (digestToken, (char*)"\" ");
                   myserver_strlcpy (request->digestUsername, digestToken, 48 + 1);
                   connection->setLogin (digestToken);
                 }
@@ -956,7 +956,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
               digestToken = strtok (NULL, "\r\n," );
               if (digestToken)
                 {
-                  StrTrim (digestToken, (char*)"\" ");
+                  trim (digestToken, (char*)"\" ");
                   myserver_strlcpy (request->digestResponse,digestToken,48 + 1);
                 }
             }
@@ -965,7 +965,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
               digestToken = strtok (NULL, (char*)"\r\n," );
               if (digestToken)
                 {
-                  StrTrim (digestToken, (char*)"\" ");
+                  trim (digestToken, (char*)"\" ");
                   myserver_strlcpy (request->digestNc, digestToken, 10 + 1);
                 }
             }
