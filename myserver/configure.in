@@ -331,7 +331,6 @@ AC_CONFIG_FILES([
     binaries/languages/Makefile
     binaries/languages/configure/Makefile
     binaries/web/Makefile
-    binaries/web/downloads/Makefile
     binaries/web/cgi-bin/Makefile
     binaries/web/cgi-src/Makefile
     binaries/web/cgi-src/post/Makefile

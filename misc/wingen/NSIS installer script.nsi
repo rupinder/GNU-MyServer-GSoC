@@ -251,10 +251,6 @@ Section "Web examples" SecWebEx
 ;  File "web\cgi-src\math_sum\*.*"
 ;  SetOutPath "$INSTDIR\web\cgi-src\post"
 ;  File "web\cgi-src\post\*.*"
-  SetOutPath "$INSTDIR\web\downloads"
-  File /nonfatal "web\downloads\*.php"
-  File /nonfatal "web\downloads\*.txt"
-  File /nonfatal "web\downloads\*.sh"
 SectionEnd
 
 Section "Documentation" SecDocumentation
@@ -341,14 +337,12 @@ Section "Uninstall"
 ;  Delete "$INSTDIR\web\cgi-src\math_sum\*.*"
 ;  Delete "$INSTDIR\web\cgi-src\post\*.*"
 ;  Delete "$INSTDIR\web\cgi-src\*.*"
-;  Delete "$INSTDIR\web\downloads\*.*"
 ;  Delete "$INSTDIR\system\*.*"
 ;  RMDir "$INSTDIR\web\"  
 ;  RMDir "$INSTDIR\system"
 ;  RMDir "$INSTDIR\web\cgi-bin"
 ;  RMDir "$INSTDIR\web\cgi-src\post"
 ;  RMDir "$INSTDIR\web\cgi-src\math_sum"
-;  RMDir "$INSTDIR\web\downloads"
 ;  RMDir "$INSTDIR\web\cgi-src"
  
   RMDir "$INSTDIR\languages"
