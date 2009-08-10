@@ -31,11 +31,11 @@ using namespace std;
 extern "C" 
 {
 #ifdef WIN32
-#include <direct.h>
-#include <errno.h>
+# include <direct.h>
+# include <errno.h>
 #else
-#include <string.h>
-#include <errno.h>
+# include <string.h>
+# include <errno.h>
 #endif
 }
 
@@ -285,9 +285,9 @@ int HttpFile::send (HttpThreadContext* td,
     ret = file->seek (firstByte);
     if (ret)
       {
-        file->close();
+        file->close ();
         delete file;
-        return td->http->raiseHTTPError(500);
+        return td->http->raiseHTTPError (500);
       }
 
     /*
@@ -309,14 +309,14 @@ int HttpFile::send (HttpThreadContext* td,
 
     keepalive = td->request.isKeepAlive ();
 
-#ifndef DO_NOT_USEGZIP
+#ifdef HAVE_ZLIB
     /*
      * Be sure that the client accept GZIP compressed data.
      */
     if (useGzip)
       {
-        HttpRequestHeader::Entry* e = td->request.other.get("Accept-Encoding");
-        if(e)
+        HttpRequestHeader::Entry* e = td->request.other.get ("Accept-Encoding");
+        if (e)
           useGzip &= (e->value->find("gzip") != string::npos);
         else
           useGzip = false;
@@ -337,7 +337,7 @@ int HttpFile::send (HttpThreadContext* td,
         ostringstream buffer;
         td->response.httpStatus = 206;
         buffer << "bytes "<< (u_long)firstByte << "-"
-               << (u_long)lastByte << "/" << (u_long)filesize ;
+               << (u_long) (lastByte - 1) << "/" << (u_long)filesize;
 
         e = td->response.other.get ("Content-Range");
         if (e)
@@ -369,10 +369,10 @@ int HttpFile::send (HttpThreadContext* td,
     if (td->mime)
       {
         if (td->mime &&
-            Server::getInstance()->getFiltersFactory()->chain (&chain,
-                                                               td->mime->filters,
-                                                               &memStream,
-                                                               &nbw))
+            Server::getInstance ()->getFiltersFactory ()->chain (&chain,
+                                                                 td->mime->filters,
+                                                                 &memStream,
+                                                                 &nbw))
           {
             file->close ();
             delete file;

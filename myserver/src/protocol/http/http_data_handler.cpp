@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/http/http_data_handler.h>
 
 /*!
- *Send a file to the client using the HTTP protocol.
+ * Send a file to the client using the HTTP protocol.
  */
 int
 HttpDataHandler::send (HttpThreadContext* td,
@@ -31,77 +31,69 @@ HttpDataHandler::send (HttpThreadContext* td,
 }
 
 /*!
- *Constructor for the class.
+ * Constructor for the class.
  */
 HttpDataHandler::HttpDataHandler () { }
 
 /*!
- *Destroy the object.
+ * Destroy the object.
  */
 HttpDataHandler::~HttpDataHandler () { }
 
 /*!
- *Load the static elements.
+ * Load the static elements.
  */
-int
-HttpDataHandler::load ()
+int HttpDataHandler::load ()
 {
   return 0;
 }
 
 /*!
- *Unload the static elements.
+ * Unload the static elements.
  */
-int
-HttpDataHandler::unLoad ()
+int HttpDataHandler::unLoad ()
 {
   return 0;
 }
 
 /*!
- *Send data over the HTTP channel.  This method considers modifier filters.
- *in the filters chain.
- *\param td The HTTP thread context.
- *\param buffer Data to send.
- *\param size Size of the buffer.
- *\param appendFile The file where append if in append mode.
- *\param chain Where send data if not append.
- *\param append Append to the file?
- *\param useChunks Can we use HTTP chunks to send data?
- *\param realBufferSize The real dimension of the buffer that can be
- *used by this method.
- *\param tmpStream A support on memory read/write stream used
- *internally by the function.
+ * Send data over the HTTP channel.  This method considers modifier filters.
+ * in the filters chain.
+ * \param td The HTTP thread context.
+ * \param buffer Data to send.
+ * \param size Size of the buffer.
+ * \param appendFile The file where append if in append mode.
+ * \param chain Where send data if not append.
+ * \param append Append to the file?
+ * \param useChunks Can we use HTTP chunks to send data?
+ * \param realBufferSize The real dimension of the buffer that can be
+ * used by this method.
+ * \param tmpStream A support on memory read/write stream used
+ * internally by the function.
  */
-int
-HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td,
-                                          char* buffer,
-                                          u_long size,
-                                          File* appendFile,
-                                          FiltersChain* chain,
-                                          bool append,
-                                          bool useChunks,
-                                          u_long realBufferSize,
-                                          MemoryStream *tmpStream)
+int HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td,
+                                              char* buffer,
+                                              u_long size,
+                                              File* appendFile,
+                                              FiltersChain* chain,
+                                              bool append,
+                                              bool useChunks,
+                                              u_long realBufferSize,
+                                              MemoryStream *tmpStream)
 {
   u_long nbr, nbw;
   Stream *oldStream = chain->getStream ();
 
   if (!chain->hasModifiersFilters ())
-    return appendDataToHTTPChannel (td,
-                                    buffer,
-                                    size,
-                                    appendFile,
-                                    chain,
-                                    append,
+    return appendDataToHTTPChannel (td, buffer, size, appendFile, chain, append,
                                     useChunks);
 
   /*
-   *This function can't append directly to the chain because we can't
-   *know in advance the data chunk size.  Therefore we replace the
-   *final stream with a memory buffer and write there the final data
-   *chunk content, finally we read from it and send directly to the
-   *original stream.
+   * This function can't append directly to the chain because we can't
+   * know in advance the data chunk size.  Therefore we replace the
+   * final stream with a memory buffer and write there the final data
+   * chunk content, finally we read from it and send directly to the
+   * original stream.
    */
   chain->setStream (tmpStream);
 
@@ -124,25 +116,20 @@ HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td,
    *Use of chain->getStream() is needed to write directly on the
    *final stream.
    */
-  return appendDataToHTTPChannel (td,
-                                  buffer,
-                                  nbr,
-                                  appendFile,
-                                  chain,
-                                  append,
+  return appendDataToHTTPChannel (td, buffer, nbr, appendFile, chain, append,
                                   useChunks);
 }
 
 /*!
- *Send raw data over the HTTP channel.  It doesn't consider modifier filters.
- *Return zero on success.
- *\param td The HTTP thread context.
- *\param buffer Data to send.
- *\param size Size of the buffer.
- *\param appendFile The file where append if in append mode.
- *\param chain Where send data if not append.
- *\param append Append to the file?
- *\param useChunks Can we use HTTP chunks to send data?
+ * Send raw data over the HTTP channel.  It doesn't consider modifier filters.
+ * Return zero on success.
+ * \param td The HTTP thread context.
+ * \param buffer Data to send.
+ * \param size Size of the buffer.
+ * \param appendFile The file where append if in append mode.
+ * \param chain Where send data if not append.
+ * \param append Append to the file?
+ * \param useChunks Can we use HTTP chunks to send data?
  */
 int
 HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td,
@@ -203,8 +190,8 @@ HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td,
 }
 
 /*!
- *Check if the server can use the chunked transfer encoding and if the client
- *supports keep-alive connections.
+ * Check if the server can use the chunked transfer encoding and if the client
+ * supports keep-alive connections.
  */
 void
 HttpDataHandler::checkDataChunks (HttpThreadContext* td, bool* keepalive,

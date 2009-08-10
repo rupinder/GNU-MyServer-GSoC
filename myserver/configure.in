@@ -225,16 +225,9 @@ fi
 
 dnl Looking for zlib
 AC_CHECK_LIB(z, uncompress, have_libz=yes)
-if test x$have_libz != xyes; then
-    AC_MSG_WARN([
-*** Cannot find Zlib (http://www.gzip.org/zlib/)
-*** gzip file transfer will not be enabled
-])
-    AC_DEFINE(DO_NOT_USE_GZIP, 1, [Zlib compression, define to 1 to disable])
-    ZLIB_LIB=""
-else
+if test x$have_libz = xyes; then
+   AC_DEFINE(HAVE_ZLIB, 1, [Define if the ZLIB library is present])
     ZLIB_LIB="-lz"
-
 
     dnl Be sure that it is a good vr
     AC_CHECK_LIB(z, compressBound, have_libz=yes)
@@ -244,8 +237,14 @@ else
 *** compressBound checking will not be enabled
 ])
     else
-        AC_DEFINE(GZIP_CHECK_BOUNDS, 1, [Memory checking for Zlib, not defined in older vrs])
+        AC_DEFINE(GZIP_COMPRESS_BOUNDS, 1, [Memory checking for Zlib, not defined in older vrs])
     fi
+else
+    AC_MSG_WARN([
+*** Cannot find Zlib (http://www.gzip.org/zlib/)
+*** gzip file transfer will not be enabled
+])
+    ZLIB_LIB=""
 fi
 
 AC_SUBST(ZLIB_LIB)
@@ -332,7 +331,6 @@ AC_CONFIG_FILES([
     binaries/languages/Makefile
     binaries/languages/configure/Makefile
     binaries/web/Makefile
-    binaries/web/downloads/Makefile
     binaries/web/cgi-bin/Makefile
     binaries/web/cgi-src/Makefile
     binaries/web/cgi-src/post/Makefile

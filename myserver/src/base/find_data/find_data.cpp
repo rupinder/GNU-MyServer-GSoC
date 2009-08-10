@@ -29,31 +29,31 @@ extern "C"
 using namespace std;
 
 /*!
- *Initialize class members.
+ * Initialize class members.
  */
-FindData::FindData()
+FindData::FindData ()
 {
 #ifdef WIN32
   ff = 0;
 #else
-  dirName.empty();
+  dirName.empty ();
   dh = 0;
 #endif
 }
 
 /*!
- *free class members.
+ * D'ctor.
  */
-FindData::~FindData()
+FindData::~FindData ()
 {
 
 }
 
 /*!
- *find the first file using its name.
- *Return -1 or errors.
+ * Find the first file using its name.
+ * Return -1 or errors.
  */
-int FindData::findfirst(const char *filename)
+int FindData::findfirst (const char *filename)
 {
 #ifdef WIN32
   string filenameStar;
@@ -63,17 +63,17 @@ int FindData::findfirst(const char *filename)
   filenameStar.erase (slashBackSlash + 1);
   filenameStar.append ("\\*");
 
-  ff = _findfirst(filenameStar.c_str(), &fd );
+  ff = _findfirst (filenameStar.c_str (), &fd );
   if(ff!=-1)
-  {
-    name = fd.name;
-    attrib = fd.attrib;
-    time_write = fd.time_write;
-    size = fd.size ;
-    return 0;
-  }
+    {
+      name = fd.name;
+      attrib = fd.attrib;
+      time_write = fd.time_write;
+      size = fd.size ;
+      return 0;
+    }
   else
-      return ff;
+    return ff;
 
 #else
    struct dirent * dirInfo;
@@ -118,15 +118,15 @@ int FindData::findfirst(const char *filename)
 }
 
 /*!
- *find the next file in the directory.
+ * Find the next file in the directory.
  */
 int FindData::findnext ()
 {
 #ifdef WIN32
   if (!ff)
     return -1;
-  int ret = _findnext (ff, &fd)? -1 : 0 ;
-  if (ret!=-1)
+  int ret = _findnext (ff, &fd) ? -1 : 0 ;
+  if (ret != -1)
   {
     name = fd.name;
     attrib = fd.attrib;
@@ -168,21 +168,21 @@ int FindData::findnext ()
 }
 
 /*!
- *free the used resources.
+ * Free the used resources.
  */
-int FindData::findclose()
+int FindData::findclose ()
 {
 #ifdef WIN32
   int ret;
-  if(!ff)
+  if (!ff)
     return -1;
-  ret = _findclose(ff);
+  ret = _findclose (ff);
   ff = 0;
   return ret;
 #else
-  if(dh)
-    closedir(dh);
-   dirName.empty();
-   return 0;
+  if (dh)
+    closedir (dh);
+  dirName.empty ();
+  return 0;
 #endif
 }

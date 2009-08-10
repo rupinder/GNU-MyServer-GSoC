@@ -437,28 +437,44 @@ int File::read (char* buffer, u_long buffersize, u_long* nbr)
 }
 
 /*!
- *Copy the file directly to the socket.
- *\param dest Destination socket.
- *\param firstByte File offset.
- *\param buf Temporary buffer that can be used by this function.
- *\param nbw Number of bytes sent.
+ * Copy the file directly to the socket.
+ * Return 0 on success.
+ *
+ * \param dest Destination socket.
+ * \param firstByte File offset.
+ * \param buf Temporary buffer that can be used by this function.
+ * \param nbw Number of bytes sent.
  */
 int File::fastCopyToSocket (Socket *dest, u_long firstByte, MemBuf *buf, u_long *nbw)
 {
+  *nbw = 0;
 #ifdef SENDFILE
   off_t offset = firstByte;
-  int ret = sendfile (dest->getHandle(), 
-                      getHandle(), &offset, getFileSize () - firstByte);
+  size_t fileSize = getFileSize ();
+  while (1)
+    {
+      int ret = sendfile (dest->getHandle (), getHandle (), &offset,
+                          fileSize - offset);
 
-  if (ret < 0)
-    return ret;
+      if (ret < 0)
+        {
+          /* Rollback to read/write on EINVAL or ENOSYS.  */
+          if (errno == EINVAL || errno == ENOSYS)
+            break;
 
-  *nbw = ret;
-  return 0;
+          return -1;
+        }
+
+      *nbw += ret;
+
+      if (fileSize == offset)
+        return 0;
+    }
+
+  firstByte = offset;
 #else
   char *buffer = buf->getBuffer ();
   u_long size = buf->getRealLength ();
-  *nbw = 0;
 
 	if (seek (firstByte))
     return 0;
@@ -479,7 +495,7 @@ int File::fastCopyToSocket (Socket *dest, u_long firstByte, MemBuf *buf, u_long 
 
     *nbw += tmpNbw;
   }
- 
+
   return 0;
 #endif
 }

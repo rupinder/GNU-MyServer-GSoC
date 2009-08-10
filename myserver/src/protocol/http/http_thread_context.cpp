@@ -35,7 +35,7 @@ const char* HttpThreadContext::getHashedData (const char *name)
   if (ret)
     return ret->c_str ();
   else
-    return vh ? vh->getHashedData (name) : 0;
+    return vh ? vh->getHashedData (name) : NULL;
 }
 
 /*!
@@ -43,11 +43,11 @@ const char* HttpThreadContext::getHashedData (const char *name)
  */
 const char *HttpThreadContext::getVhostDir ()
 {
-  if(vhostDir.length() > 1)
-    return vhostDir.c_str();
+  if (vhostDir.length () > 1)
+    return vhostDir.c_str ();
 
-  if(connection && connection->host)
-    return connection->host->getDocumentRoot().c_str();
+  if (connection && connection->host)
+    return connection->host->getDocumentRoot ().c_str ();
 
   return "";
 }
@@ -55,13 +55,13 @@ const char *HttpThreadContext::getVhostDir ()
 /*!
  *Get the current vhost sys directory for the environvment.
  */
-const char *HttpThreadContext::getVhostSys()
+const char *HttpThreadContext::getVhostSys ()
 {
-  if(vhostSys.length() > 1)
-    return vhostSys.c_str();
+  if (vhostSys.length() > 1)
+    return vhostSys.c_str ();
 
-  if(connection && connection->host)
-    return connection->host->getSystemRoot().c_str();
+  if (connection && connection->host)
+    return connection->host->getSystemRoot ().c_str ();
 
   return "";
 }

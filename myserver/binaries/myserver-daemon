@@ -19,8 +19,6 @@
 #
 # This file should be placed in /etc/init.d
 #
-# please do a chmod +x on the file
-#
 set -e
 
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin

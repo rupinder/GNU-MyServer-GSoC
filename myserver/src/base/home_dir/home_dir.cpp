@@ -24,59 +24,62 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #ifdef WIN32
-#include <userenv.h>
+# include <userenv.h>
 #endif
-extern "C" {
+
+extern "C"
+{
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
 
 #ifdef GETPWNAM
-#include <pwd.h>
+# include <pwd.h>
 #endif
 
 #ifndef WIN32
-#include <errno.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <signal.h>
+# include <errno.h>
+# include <netdb.h>
+# include <unistd.h>
+# include <signal.h>
 #ifdef HAVE_PTHREAD
-#include <pthread.h>
+# include <pthread.h>
 #endif
+
 #include <sys/wait.h>
 #endif
 }
 
-#include <sys/types.h>
-
 #ifdef WIN32
-#include <direct.h>
+# include <direct.h>
 #endif
 
+#include <sys/types.h>
+
 /*!
- *Class constructor.
+ * Class constructor.
  */
-HomeDir::HomeDir()
+HomeDir::HomeDir ()
 {
 #ifdef WIN32
-  data.assign("");
+  data.assign ("");
 #elif !GETPWNAM
-  data.clear();
+  data.clear ();
 #endif
   timestamp = 0;
   loaded = 0;
 
-  loadMutex.init();
+  loadMutex.init ();
 }
 
 /*!
- *Destroy th object.
+ * D'tor.
  */
-HomeDir::~HomeDir()
+HomeDir::~HomeDir ()
 {
-  clear();
-  loadMutex.destroy();
+  clear ();
+  loadMutex.destroy ();
 }
 
 /*!
@@ -85,16 +88,16 @@ HomeDir::~HomeDir()
 void HomeDir::clear()
 {
 #ifdef WIN32
-  data.assign("");
+  data.assign ("");
 #elif !GETPWNAM
-  HashMap<string, string*>::Iterator i = data.begin();
-  for( ; i != data.end(); i++)
-  {
-    string* val = *i;
-    if(val)
-      delete val;
-  }
-  data.clear();
+  HashMap<string, string*>::Iterator i = data.begin ();
+  for (; i != data.end (); i++)
+    {
+      string* val = *i;
+      if (val)
+        delete val;
+    }
+  data.clear ();
   timestamp = 0;
 #endif
   loaded = 0;
@@ -103,38 +106,38 @@ void HomeDir::clear()
 /*!
  *Public wrapper to loadImpl.
  */
-int HomeDir::load()
+int HomeDir::load ()
 {
   int ret;
-  loadMutex.lock();
+  loadMutex.lock ();
   
-  ret = loadImpl();
+  ret = loadImpl ();
 
-  loadMutex.unlock();
+  loadMutex.unlock ();
   return ret;
 }
 
 /*!
- *Load the internal buffer.
+ * Load the internal buffer.
  */
-int HomeDir::loadImpl()
+int HomeDir::loadImpl ()
 {
 #ifdef WIN32
   DWORD len = 64;
   char *buf;
   buf = new char[len];
 
-  if(GetProfilesDirectory(buf, &len) == FALSE)
-  {
-    delete [] buf;
-    buf = new char[len];
-    if(GetProfilesDirectory(buf, &len) == FALSE)
+  if (GetProfilesDirectory(buf, &len) == FALSE)
     {
-      delete [] buf; 
-      return 1;                               
+      delete [] buf;
+      buf = new char[len];
+      if (GetProfilesDirectory(buf, &len) == FALSE)
+        {
+          delete [] buf;
+          return 1;
+        }
     }
-  }
-  data.assign(buf);
+  data.assign (buf);
 #elif !GETPWNAM
   File usersFile;
   u_long size;
@@ -142,74 +145,74 @@ int HomeDir::loadImpl()
   u_long read;
   u_long counter;
 
-  clear();
+  clear ();
 
-  if (usersFile.openFile("/etc/passwd", File::READ | 
-                         File::OPEN_IF_EXISTS))
+  if (usersFile.openFile ("/etc/passwd", File::READ |
+                          File::OPEN_IF_EXISTS))
     return 1;
-  size = usersFile.getFileSize();
-  timestamp = usersFile.getLastModTime();
+  size = usersFile.getFileSize ();
+  timestamp = usersFile.getLastModTime ();
   if (size == (u_long) -1)
-  {
-    usersFile.close();
-    return 1;
-  }
+    {
+      usersFile.close ();
+      return 1;
+    }
 
   buffer = new char[size+1]; 
 
   usersFile.read (buffer, size, &read);
   buffer[read] = '\0';
 
- for (counter = 0; counter < read; counter++)
-   if (buffer[counter] == ':')
-     buffer[counter] = '\0';
+  for (counter = 0; counter < read; counter++)
+    if (buffer[counter] == ':')
+      buffer[counter] = '\0';
 
   for (counter = 0; counter < size;)
-  {
-    char *username = 0;
-    char *home = 0;
-    string sUsername;
-    string *sHome;
-    string *old;
-
-    if (buffer[counter] == '#')
     {
+      char *username = 0;
+      char *home = 0;
+      string sUsername;
+      string *sHome;
+      string *old;
+
+      if (buffer[counter] == '#')
+        {
+          while (buffer[counter++] != '\n');
+          continue;
+        }
+
+      /* Username.  */
+      username = &buffer[counter];
+
+      while (buffer[counter++] != '\0');
+      /* Password.  */
+
+      while (buffer[counter++] != '\0');
+      /* User ID.  */
+
+      while (buffer[counter++] != '\0');
+      /* Group ID.  */
+
+      while (buffer[counter++] != '\0');
+      /* Info.  */
+
+      while (buffer[counter++] != '\0');
+      /* Home.  */
+
+      home = &buffer[counter++];
+      sUsername = string (username);
+      sHome = new string (home);
+
+      old = data.put (sUsername, sHome);
+
+      if (old)
+        delete old;
+
+      while (buffer[counter++] != '\0');
+      /* Shell.  */
+
       while (buffer[counter++] != '\n');
-      continue;
-    }
-
-     /* Username.  */
-    username = &buffer[counter];
-
-    while (buffer[counter++] != '\0');
-    /* Password.  */
-
-    while (buffer[counter++] != '\0');
-    /* User ID.  */
-
-    while (buffer[counter++] != '\0');
-    /* Group ID.  */
-
-    while (buffer[counter++] != '\0');
-    /* Info.  */
-
-    while (buffer[counter++] != '\0');
-    /* Home.  */
-
-    home = &buffer[counter++];
-    sUsername = string (username);
-    sHome = new string (home);
-
-    old = data.put (sUsername, sHome);
-
-    if (old)
-      delete old;
-
-    while (buffer[counter++] != '\0');
-    /* Shell.  */
-
-    while (buffer[counter++] != '\n');
-    /* Next tuple.  */
+      /* Next tuple.  */
   }
   delete [] buffer;
   usersFile.close ();
@@ -220,13 +223,13 @@ int HomeDir::loadImpl()
 }
 
 /*!
- *Get the home directory for a specified user and write
- *it directly to the supplied buffer.
- *\param userName The user name.
- *\param out The buffer where write.
- *\return 0 on success.
+ * Get the home directory for a specified user and write
+ * it directly to the supplied buffer.
+ * \param userName The user name.
+ * \param out The buffer where write.
+ * \return 0 on success.
  */
-int HomeDir::getHomeDir(string& userName, string& out)
+int HomeDir::getHomeDir (string& userName, string& out)
 {
 #ifdef WIN32
   out.assign (data);
@@ -255,19 +258,16 @@ int HomeDir::getHomeDir(string& userName, string& out)
     return 1;
 
   if (getTicks () - lastCheckTime > MYSERVER_SEC (1))
-  {
-    if(FilesUtility::getLastModTime ("/etc/passwd") != timestamp)
-      load ();
-    lastCheckTime = getTicks ();
-  }
+    {
+      if (FilesUtility::getLastModTime ("/etc/passwd") != timestamp)
+        load ();
+      lastCheckTime = getTicks ();
+    }
   res = data.get (userName);
   if (res)
-  {
-    out.assign (*res);
-  }
+      out.assign (*res);
   else
     out.assign ("");
 #endif
-
   return 0;
 }
