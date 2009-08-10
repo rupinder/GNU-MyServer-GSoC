@@ -5,7 +5,7 @@
 SetCompressor /SOLID lzma
 
 Name "MyServer"
-OutFile "MyServer-win32-0.9.0.exe"
+OutFile "MyServer-win32-0.9.exe"
 
 ; Versioning Information
 VIProductVersion "0.9.0.3"
