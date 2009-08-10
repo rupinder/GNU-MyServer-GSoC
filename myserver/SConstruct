@@ -30,7 +30,7 @@ f = open('version','r')
 MYSERVER_VERSION = "GNU MyServer " + f.readline()
 f.close()
 
-GIT_LOCATION = "git clone git://git.savannah.gnu.org/myserver.git'
+GIT_LOCATION = "git clone git://git.savannah.gnu.org/myserver.git"
 HOMEPAGE = "http://www.gnu.org/software/myserver/"
 
 mode = ARGUMENTS.get('mode', "debug")
@@ -125,11 +125,11 @@ if  not env.GetOption('clean'):
         Exit(1)
 
     if not conf.CheckLib("ssl"):
-        conf.Define('DO_NOT_USE_SSL', 1)
+        print "gnutls is required by MyServer"
+        Exit(1)
 
-
-    if not conf.CheckLib("z"):
-        conf.Define('DO_NOT_USE_GZIP', 1)
+    if conf.CheckLib("z"):
+        conf.Define('HAVE_ZLIB', 1)
 
     conf.CheckLib("event")
         
@@ -299,9 +299,6 @@ if command == "install" or command == "package":
     env.Install(destdir + "/web/cgi-bin", glob.glob("binaries/web/cgi-bin/*.readme"))
     env.Install(destdir + "/web/cgi-bin", glob.glob("binaries/web/cgi-bin/*.mscgi"))
     env.Install(destdir + "/web/logs", glob.glob("binaries/web/cgi-bin/.keepme"))
-    env.Install(destdir + "/web/downloads", glob.glob("binaries/web/downloads/*.txt"))
-    env.Install(destdir + "/web/downloads", glob.glob("binaries/web/downloads/*.php"))
-    env.Install(destdir + "/web/downloads", glob.glob("binaries/web/downloads/*.sh"))
     env.Install(destdir + "/documentation/english", glob.glob("documentation/english/index.htm"))
     env.Install(destdir + "/documentation/english/texts", glob.glob("documentation/english/texts/*.htm"))
     env.Install(destdir + "/documentation/english/style", glob.glob("documentation/english/style/*.css"))

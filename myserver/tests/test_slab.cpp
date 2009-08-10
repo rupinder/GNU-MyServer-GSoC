@@ -51,11 +51,11 @@ public:
 
   void testInit ()
   {
-    int N = 10;
+    size_t N = 10;
     Slab<TestSlabRecord> slabs (N);
     CPPUNIT_ASSERT_EQUAL (slabs.getCapacity (), N);
 
-    for (int i = 1; i < 100; i += 10)
+    for (size_t i = 1; i < 100; i += 10)
       {
         slabs.init (i);
         CPPUNIT_ASSERT_EQUAL (slabs.getCapacity (), i);
@@ -64,7 +64,7 @@ public:
 
   void testCapacity ()
   {
-    int N = 100;
+    size_t N = 100;
     Slab<TestSlabRecord> slabs (N);
 
     CPPUNIT_ASSERT_EQUAL (slabs.getCapacity (), N);
@@ -72,7 +72,7 @@ public:
 
   void testGet ()
   {
-    int N = 100;
+    size_t N = 100;
     Slab<TestSlabRecord> slabs (N);
     TestSlabRecord *recs[N];
 
@@ -94,7 +94,7 @@ public:
 
   void testForcedGet ()
   {
-    int N = 100;
+    size_t N = 100;
     Slab<TestSlabRecord> slabs (N);
     TestSlabRecord *recs[N * 2];
 

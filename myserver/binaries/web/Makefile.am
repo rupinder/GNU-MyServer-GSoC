@@ -1,8 +1,8 @@
 if BUILD_MSCGI
-	CGI_SRC = cgi-src
+CGI_SRC = cgi-src
 endif
 
-SUBDIRS = cgi-bin $(CGI_SRC) downloads
+SUBDIRS = cgi-bin $(CGI_SRC)
 
 myserverdatadir = $(DESTDIR)/var/web
 

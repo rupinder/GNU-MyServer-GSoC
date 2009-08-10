@@ -65,7 +65,7 @@ public:
     delete [] data;
   }
   
-  int getCapacity ()
+  size_t getCapacity ()
   {
     return capacity;
   }
@@ -75,8 +75,8 @@ private:
   int lastFound;
 
   long int *data;
-  int dataSize;
-  int capacity;
+  size_t dataSize;
+  size_t capacity;
 };
 
 #endif

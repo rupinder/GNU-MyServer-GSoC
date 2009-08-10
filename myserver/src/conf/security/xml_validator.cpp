@@ -189,7 +189,7 @@ int XmlValidator::getPermissionMaskImpl (SecurityToken* st,
 {
   XmlParser* xmlFile = getParser (st);
 
-  if (!xmlFile)
+  if (!xmlFile || !xmlFile->getDoc ())
     return 0;
 
   for (xmlNodePtr cur = xmlFile->getDoc ()->children; cur; cur = cur->next)

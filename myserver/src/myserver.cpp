@@ -40,19 +40,19 @@ extern "C" {
 #define MYSERVER_RUNAS_CONSOLE 1
 #define MYSERVER_RUNAS_SERVICE 2
 
-void consoleService(string &, string &, string &, string &, string &);
+void consoleService (string &, string &, string &, string &, string &);
 
 #ifdef WIN32
-void __stdcall myServerCtrlHandler(u_long fdwControl);
-void __stdcall myServerMain (u_long , LPTSTR *argv);
-static BOOL SignalHandler(DWORD type) ;
+void __stdcall myServerCtrlHandler (u_long fdwControl);
+void __stdcall myServerMainNT (u_long , LPTSTR *argv);
+static BOOL SignalHandler (DWORD type) ;
 #else
-int  writePidfile(const char* file = NULL);
+int  writePidfile (const char* file = NULL);
 #endif
-void runService();
-void registerService();
-void removeService();
-void RunAsService();
+void runService ();
+void registerService ();
+void removeService ();
+void runAsService ();
 
 int argn;
 char **argv;
@@ -527,35 +527,36 @@ int main (int argn, char **argv)
 #else
   if(argn > 1)
     {
-      if(!strcmpi(argv[1], "VERSION"))
+      if (!strcmpi (argv[1], "VERSION"))
         {
           cout << MYSERVER_VERSION << endl;
           return 0;
         }
-      if(!strcmpi(argv[1], "CONSOLE"))
+      if (!strcmpi (argv[1], "CONSOLE"))
         {
           runas = MYSERVER_RUNAS_CONSOLE;
         }
-      if(!strcmpi(argv[1], "REGISTER"))
+      if (!strcmpi (argv[1], "REGISTER"))
         {
-          registerService();
+          registerService ();
 #ifndef ARGP
-          RunAsService();
+          runAsService ();
 #endif
           runas = MYSERVER_RUNAS_SERVICE;
           return 0;
         }
-      if(!strcmpi(argv[1], "RUNSERVICE"))
+      if (!strcmpi (argv[1], "RUNSERVICE"))
         {
-          RunAsService();
+          runAsService ();
           return 0;
         }
-      if(!strcmpi(argv[1], "UNREGISTER"))
+      if (!strcmpi (argv[1], "UNREGISTER"))
         {
-          removeService();
+          removeService ();
           runas = MYSERVER_RUNAS_SERVICE;
+          return 0;
         }
-      if(!strcmpi(argv[1], "SERVICE"))
+      if (!strcmpi (argv[1], "SERVICE"))
         {
           /*
            *Set the log file to use when in service mode.
@@ -578,24 +579,24 @@ int main (int argn, char **argv)
    */
   try
     {
-      setcwdBuffer();
-      loadConfFilesLocation(mainConf, mimeConf, vhostConf, externPath, langPath);
+      setcwdBuffer ();
+      loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath, langPath);
 
       switch(runas)
         {
         case MYSERVER_RUNAS_CONSOLE:
-          consoleService(mainConf, mimeConf, vhostConf, externPath, langPath);
+          consoleService (mainConf, mimeConf, vhostConf, externPath, langPath);
           break;
         case MYSERVER_RUNAS_SERVICE:
 #ifdef WIN32
-          runService();
+          runService ();
 #else
           /*
            *Run the daemon.
            *pid is the process ID for the forked process.
            *Fork the process.
            */
-          pid = fork();
+          pid = fork ();
 
           /*
            *An error happened, return with errors.
@@ -612,20 +613,18 @@ int main (int argn, char **argv)
                */
 #ifdef ARGP
               if(input.pidFileName)
-                writePidfile(input.pidFileName);
+                writePidfile (input.pidFileName);
               else
-                {
-                  writePidfile();
-                }
+                writePidfile();
 #else
-              writePidfile();
+              writePidfile ();
 #endif
               return 0;
             }
           /*
            *Create a SID for the new process.
            */
-          sid = setsid();
+          sid = setsid ();
    
           /*
            *Error in setting a new sid, return the error.
@@ -637,7 +636,7 @@ int main (int argn, char **argv)
           /*
            *Finally run the server from the forked process.
            */
-          consoleService(mainConf, mimeConf, vhostConf, externPath, langPath);
+          consoleService (mainConf, mimeConf, vhostConf, externPath, langPath);
 #endif
           break;
         }
@@ -709,8 +708,10 @@ SERVICE_STATUS_HANDLE   MyServiceStatusHandle;
 /*!
  *Entry-point for the NT service.
  */
-void  __stdcall myServerMain (u_long, LPTSTR*)
+void  __stdcall myServerMainNT (u_long, LPTSTR*)
 {
+  string mainConf, mimeConf, vhostConf, externPath, langPath;
+
   MyServiceStatus.dwServiceType = SERVICE_WIN32;
   MyServiceStatus.dwCurrentState = SERVICE_STOPPED;
   MyServiceStatus.dwControlsAccepted = 0;
@@ -721,7 +722,8 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
 
   try
     {
-      Server::createInstance();
+      Server::createInstance ();
+
     }
   catch(...)
     {
@@ -730,7 +732,7 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
     };
 
 
-  MyServiceStatusHandle = RegisterServiceCtrlHandler( "MyServer",
+  MyServiceStatusHandle = RegisterServiceCtrlHandler( "GNU MyServer",
                                                       myServerCtrlHandler );
   if(MyServiceStatusHandle)
     {
@@ -742,8 +744,9 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
       MyServiceStatus.dwCurrentState = SERVICE_RUNNING;
       SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
 
-      string null ("");
-      Server::getInstance()->start(null, null, null, null, null);
+
+      loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath, langPath);
+      Server::getInstance()->start (mainConf, mimeConf, vhostConf, externPath, langPath);
 
       MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
       SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
@@ -753,6 +756,7 @@ void  __stdcall myServerMain (u_long, LPTSTR*)
       MyServiceStatus.dwCurrentState = SERVICE_STOPPED;
       SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
     }
+
 }
 
 /*!
@@ -790,24 +794,24 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
 /*!
  *Run MyServer service.
  */
-void runService()
+void runService ()
 {
-  Server::getInstance()->logWriteln("Running service...");
+  Server::getInstance()->logWriteln ("Running service...");
 #ifdef WIN32
   SERVICE_TABLE_ENTRY serviceTable[] =
     {
-      { (CHAR*) "MyServer", myServerMain },
+      { (CHAR*) "GNU MyServer", myServerMainNT },
       { 0, 0 }
     };
 
-  if(!StartServiceCtrlDispatcher( serviceTable ))
+  if (!StartServiceCtrlDispatcher (serviceTable))
     {
-      if(GetLastError() == ERROR_INVALID_DATA)
-          Server::getInstance()->logWriteln("Invalid data");
-      else if(GetLastError() == ERROR_SERVICE_ALREADY_RUNNING)
-          Server::getInstance()->logWriteln("Already running");
+      if (GetLastError () == ERROR_INVALID_DATA)
+          Server::getInstance ()->logWriteln("Invalid data");
+      else if (GetLastError () == ERROR_SERVICE_ALREADY_RUNNING)
+          Server::getInstance ()->logWriteln("Already running");
       else
-          Server::getInstance()->logWriteln("Error running service");
+          Server::getInstance ()->logWriteln("Error running service");
     }
 #endif
 }
@@ -815,22 +819,22 @@ void runService()
 /*!
  *Register the service.
  */
-void registerService()
+void registerService ()
 {
 #ifdef WIN32
-  SC_HANDLE service,manager;
+  SC_HANDLE service, manager;
   char path [MAX_PATH];
-  GetCurrentDirectory(MAX_PATH,path);
-  strcat(path,"\\");
-  strcat(path,"myserver.exe SERVICE");
+  GetCurrentDirectory (MAX_PATH, path);
+  strcat (path, "\\");
+  strcat (path, "myserver.exe SERVICE");
 
-  manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
+  manager = OpenSCManager (NULL, NULL, SC_MANAGER_ALL_ACCESS);
   if (manager)
     {
-      service = CreateService(manager,"GNU MyServer","GNU MyServer",
-                              SERVICE_ALL_ACCESS,SERVICE_WIN32_OWN_PROCESS,
-                              SERVICE_AUTO_START, SERVICE_ERROR_IGNORE, path,
-                              0, 0, 0, 0, 0);
+      service = CreateService (manager, "GNU MyServer", "GNU MyServer",
+                               SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS,
+                               SERVICE_AUTO_START, SERVICE_ERROR_IGNORE, path,
+                               0, 0, 0, 0, 0);
       if (service)
         {
           CloseServiceHandle (service);
@@ -869,18 +873,18 @@ void removeService()
 /*!
  *Start the service.
  */
-void RunAsService()
+void runAsService ()
 {
 #ifdef WIN32
-  SC_HANDLE service,manager;
+  SC_HANDLE service, manager;
 
-  manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
+  manager = OpenSCManager (NULL,NULL,SC_MANAGER_ALL_ACCESS);
   if (manager)
     {
-      service = OpenService (manager, "MyServer", SERVICE_ALL_ACCESS);
+      service = OpenService (manager, "GNU MyServer", SERVICE_ALL_ACCESS);
       if (service)
         {
-          StartService(service,0,NULL);
+          StartService (service, 0, NULL);
 
           while (QueryServiceStatus (service, &MyServiceStatus))
             {

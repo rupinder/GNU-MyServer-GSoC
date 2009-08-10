@@ -747,14 +747,16 @@ void Server::displayBoot()
  *Removed threads that can be destroyed.
  *The function returns the number of threads that were destroyed.
  */
-int Server::purgeThreads()
+int Server::purgeThreads ()
 {
-  u_long ticks = getTicks();
+  u_long ticks = getTicks ();
   u_long destroyed = 0;
 
-  purgeThreadsThreshold = std::min(purgeThreadsThreshold << 1, nMaxThreads);
-  threadsMutex->lock();
-  for(list<ClientsThread*>::iterator it = threads.begin(); it != threads.end();)
+  purgeThreadsThreshold = std::min (purgeThreadsThreshold << 1,
+                                    nMaxThreads);
+  threadsMutex->lock ();
+  for (list<ClientsThread*>::iterator it = threads.begin ();
+       it != threads.end ();)
   {
     ClientsThread* thread = *it;
 
@@ -762,50 +764,54 @@ int Server::purgeThreads()
     /*
      *Shutdown all threads that can be destroyed.
      */
-    if(thread->isToDestroy())
-    {
-      if(destroyed < purgeThreadsThreshold)
+    if (thread->isStopped ())
       {
+        ClientsThread* thread = *it;
         list<ClientsThread*>::iterator next = it;
         next++;
 
-        thread->stop();
-        threads.erase(it);
-        destroyed++;
+        thread->join ();
+        threads.erase (it);
+        delete thread;
 
+        destroyed++;
         it = next;
       }
-      else
+    else if (thread->isToDestroy ())
+      {
+        if (destroyed < purgeThreadsThreshold)
+          thread->stop ();
+
         it++;
-    }
+      }
     else
-    {
+      {
+        if (!thread->isStatic ())
+          if (ticks - thread->getTimeout () > MYSERVER_SEC (15))
+            thread->setToDestroy (1);
 
-      if(!thread->isStatic())
-        if(ticks - thread->getTimeout() > MYSERVER_SEC(15))
-          thread->setToDestroy(1);
-      it++;
-    }
+        it++;
+      }
   }
-  threadsMutex->unlock();
+  threadsMutex->unlock ();
 
-  return threads.size();
+  return threads.size ();
 }
 
 /*!
  *Do the final cleanup.  Called once when the process is terminated.
  */
-void Server::finalCleanup()
+void Server::finalCleanup ()
 {
-  XmlParser::cleanXML();
-  freecwdBuffer();
-  myserver_safetime_destroy();
+  XmlParser::cleanXML ();
+  freecwdBuffer ();
+  myserver_safetime_destroy ();
 }
 
 /*!
  *Return the user identifier to use for the process.
  */
-const char *Server::getUid()
+const char *Server::getUid ()
 {
   return uid.c_str ();
 }
@@ -813,7 +819,7 @@ const char *Server::getUid()
 /*!
  *Return the group identifier to use for the process.
  */
-const char *Server::getGid()
+const char *Server::getGid ()
 {
   return gid.c_str ();
 }
@@ -821,7 +827,7 @@ const char *Server::getGid()
 /*!
  *Get a pointer to the language parser.
  */
-XmlParser* Server::getLanguageParser()
+XmlParser* Server::getLanguageParser ()
 {
   return &languageParser;
 }
@@ -829,7 +835,7 @@ XmlParser* Server::getLanguageParser()
 /*!
  *Returns the numbers of active connections the list.
  */
-u_long Server::getNumConnections()
+u_long Server::getNumConnections ()
 {
   return connectionsScheduler.getConnectionsNumber();
 }
@@ -837,15 +843,15 @@ u_long Server::getNumConnections()
 /*!
  *Returns the numbers of all the connections to the server.
  */
-u_long Server::getNumTotalConnections()
+u_long Server::getNumTotalConnections ()
 {
-  return connectionsScheduler.getNumTotalConnections();
+  return connectionsScheduler.getNumTotalConnections ();
 }
 
 /*!
  *Get the verbosity value.
  */
-u_long Server::getVerbosity()
+u_long Server::getVerbosity ()
 {
   return verbosity;
 }
@@ -853,7 +859,7 @@ u_long Server::getVerbosity()
 /*!
  *Set the verbosity value.
  */
-void  Server::setVerbosity(u_long nv)
+void  Server::setVerbosity (u_long nv)
 {
   verbosity=nv;
 }
@@ -861,7 +867,7 @@ void  Server::setVerbosity(u_long nv)
 /*!
  *Return a home directory object.
  */
-HomeDir* Server::getHomeDir()
+HomeDir* Server::getHomeDir ()
 {
   return &homeDir;
 }
@@ -869,7 +875,7 @@ HomeDir* Server::getHomeDir()
 /*!
  *Stop the execution of the server.
  */
-void Server::stop()
+void Server::stop ()
 {
   endServer = true;
 }
@@ -878,95 +884,89 @@ void Server::stop()
  *Unload the server.
  *Return nonzero on errors.
  */
-int Server::terminate()
+int Server::terminate ()
 {
-  list<ThreadID> threadsIds;
+  if (verbosity > 1)
+    logWriteln(languageParser.getValue ("MSG_STOPT"));
 
-  if(verbosity > 1)
-    logWriteln(languageParser.getValue("MSG_STOPT"));
+  listenThreads.terminate ();
 
-  listenThreads.terminate();
+  threadsMutex->lock ();
 
-  threadsMutex->lock();
+  for (list<ClientsThread*>::iterator it = threads.begin ();
+       it != threads.end (); it++)
+    (*it)->stop ();
 
-  for(list<ClientsThread*>::iterator it = threads.begin(); it != threads.end(); it++)
-  {
-    threadsIds.push_back((*it)->getThreadId());
-    (*it)->stop();
-  }
+  threadsMutex->unlock ();
+  Socket::stopBlockingOperations (true);
 
-  threadsMutex->unlock();
-  Socket::stopBlockingOperations(true);
+  connectionsScheduler.release ();
 
-  connectionsScheduler.release();
+  for (list<ClientsThread*>::iterator it = threads.begin ();
+       it != threads.end (); it++)
+    {
+      Thread::join ((*it)->getThreadId ());
+      delete *it;
+    }
 
-  for(list<ThreadID>::iterator it = threadsIds.begin(); it != threadsIds.end(); it++)
-  {
-    Thread::join(*it);
-  }
-
-  clearAllConnections();
+  clearAllConnections ();
 
   /* Clear the home directories data.  */
-  homeDir.clear();
+  homeDir.clear ();
 
-  if(verbosity > 1)
-    logWriteln(languageParser.getValue("MSG_TSTOPPED"));
+  if (verbosity > 1)
+    logWriteln (languageParser.getValue ("MSG_TSTOPPED"));
 
 
-  if(verbosity > 1)
-  {
-    logWriteln(languageParser.getValue("MSG_MEMCLEAN"));
-  }
+  if (verbosity > 1)
+    logWriteln (languageParser.getValue ("MSG_MEMCLEAN"));
 
-  freeHashedData();
+  freeHashedData ();
 
   /* Restore the blocking status in case of a reboot.  */
-  Socket::stopBlockingOperations(false);
+  Socket::stopBlockingOperations (false);
 
   ipAddresses = 0;
   vhostList = 0;
-  languageParser.close();
+  languageParser.close ();
 
-  if(mimeManager)
-  {
-    mimeManager->clean();
-    delete mimeManager;
-    mimeManager = 0;
-  }
+  if (mimeManager)
+    {
+      mimeManager->clean ();
+      delete mimeManager;
+      mimeManager = 0;
+    }
 
 #ifdef WIN32
   /*
    *Under WIN32 cleanup environment strings.
    */
-  FreeEnvironmentStrings((LPTSTR)envString);
+  FreeEnvironmentStrings ((LPTSTR)envString);
 #endif
 
-  getProcessServerManager()->clear();
+  getProcessServerManager ()->clear ();
 
-  filtersFactory.free();
+  filtersFactory.free ();
 
-  getPluginsManager()->unLoad();
+  getPluginsManager ()->unLoad ();
 
   delete connectionsMutex;
 
-  clearMulticastRegistry();
+  clearMulticastRegistry ();
 
-  globalData.clear();
+  globalData.clear ();
 
   /*
    *Free all the threads.
    */
-  threadsMutex->lock();
-  threads.clear();
-  threadsMutex->unlock();
+  threadsMutex->lock ();
+  threads.clear ();
+  threadsMutex->unlock ();
   delete threadsMutex;
 
   nStaticThreads = 0;
-  if(verbosity > 1)
-  {
-    logWriteln("MyServer is stopped");
-  }
+  if (verbosity > 1)
+    logWriteln ("MyServer is stopped");
   
   logManager->clear ();
   
@@ -1375,7 +1375,7 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
   vector<Multicast<string, void*, int>*>* handlers;
 
   connectionsPoolLock.lock ();
-  newConnection = connectionsPool.get ();
+  newConnection = connectionsPool.forcedGet ();
   connectionsPoolLock.unlock ();
 
   if(!newConnection)

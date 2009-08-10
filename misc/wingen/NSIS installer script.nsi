@@ -5,7 +5,7 @@
 SetCompressor /SOLID lzma
 
 Name "MyServer"
-OutFile "MyServer-win32-0.9.0.exe"
+OutFile "MyServer-win32-0.9.exe"
 
 ; Versioning Information
 VIProductVersion "0.9.0.3"
@@ -18,7 +18,7 @@ VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion"         "0.9.0.1"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion"      "0.9.0.1"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "InternalName"        ""
 ;VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalTrademarks"    ""
-VIAddVersionKey /LANG=${LANG_ENGLISH} "OriginalFilename"    "MyServer-win32-0.9-rc1.exe"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "OriginalFilename"    "MyServer-win32-0.9.exe"
 ;VIAddVersionKey /LANG=${LANG_ENGLISH} "PrivateBuild"       "1"
 ;VIAddVersionKey /LANG=${LANG_ENGLISH} "SpecialBuild"       "1"
 
@@ -196,6 +196,8 @@ Section "MyServer core" SecCore
   File "virtualhosts.xml"
   File "README"
   File "COPYING"
+
+  CreateDirectory "$INSTDIR\plugins"
   CreateDirectory "$INSTDIR\logs"
   SetOutPath $INSTDIR\web
   File "web\*.html"
@@ -249,10 +251,6 @@ Section "Web examples" SecWebEx
 ;  File "web\cgi-src\math_sum\*.*"
 ;  SetOutPath "$INSTDIR\web\cgi-src\post"
 ;  File "web\cgi-src\post\*.*"
-  SetOutPath "$INSTDIR\web\downloads"
-  File /nonfatal "web\downloads\*.php"
-  File /nonfatal "web\downloads\*.txt"
-  File /nonfatal "web\downloads\*.sh"
 SectionEnd
 
 Section "Documentation" SecDocumentation
@@ -339,14 +337,12 @@ Section "Uninstall"
 ;  Delete "$INSTDIR\web\cgi-src\math_sum\*.*"
 ;  Delete "$INSTDIR\web\cgi-src\post\*.*"
 ;  Delete "$INSTDIR\web\cgi-src\*.*"
-;  Delete "$INSTDIR\web\downloads\*.*"
 ;  Delete "$INSTDIR\system\*.*"
 ;  RMDir "$INSTDIR\web\"  
 ;  RMDir "$INSTDIR\system"
 ;  RMDir "$INSTDIR\web\cgi-bin"
 ;  RMDir "$INSTDIR\web\cgi-src\post"
 ;  RMDir "$INSTDIR\web\cgi-src\math_sum"
-;  RMDir "$INSTDIR\web\downloads"
 ;  RMDir "$INSTDIR\web\cgi-src"
  
   RMDir "$INSTDIR\languages"
