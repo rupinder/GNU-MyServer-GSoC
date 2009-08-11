@@ -42,6 +42,8 @@ class VHost():
             self.add_host(single_host[0], single_host[1])
         self.set_private_key(private_key)
         self.set_certificate(certificate)
+        self.custom = []
+        self.custom_attrib = {}
 
     def __eq__(self, other):
         return isinstance(other, VHost) and self.name == other.name and \
@@ -189,6 +191,12 @@ class VHost():
             root.append(element)
         for log in self.logs:
             root.append(log.to_lxml_element())
+
+        for element in self.custom:
+            root.append(element)
+        for key, value in self.custom_attrib.iteritems():
+            root.set(key, value)
+            
         return root
 
     @staticmethod
@@ -196,6 +204,7 @@ class VHost():
         '''Factory to produce VHost from lxml.etree.Element object.'''
         if root.tag != 'VHOST':
             raise AttributeError('Expected VHOST tag.')
+        custom_attrib = root.attrib
         name = None
         port = None
         protocol = None
@@ -206,6 +215,7 @@ class VHost():
         ip = []
         host = {}
         logs = []
+        custom = []
         for child in list(root):
             if child.tag == 'NAME':
                 name = child.text
@@ -229,9 +239,15 @@ class VHost():
             elif child.tag == 'SSL_CERTIFICATE':
                 certificate = child.text
             else:
-                logs.append(Log.from_lxml_element(child))
-        return VHost(name, port, protocol, doc_root, sys_root, logs, ip, host,
-                     private_key, certificate)
+                try:
+                    logs.append(Log.from_lxml_element(child))
+                except AttributeError:
+                    custom.append(child)
+        vhost = VHost(name, port, protocol, doc_root, sys_root, logs, ip, host,
+                      private_key, certificate)
+        vhost.custom = custom
+        vhost.custom_attrib = custom_attrib
+        return vhost
     
     @staticmethod
     def from_string(text):
@@ -244,6 +260,8 @@ class VHosts():
         '''Create a new instance of VHosts. VHosts attribute is expected to be a
         list.'''
         self.VHosts = VHosts
+        self.custom = []
+        self.custom_attrib = {}
 
     def __eq__(self, other):
         return isinstance(other, VHosts) and self.VHosts == other.VHosts
@@ -253,6 +271,12 @@ class VHosts():
         root = etree.Element('VHOSTS')
         for vhost in self.VHosts:
             root.append(vhost.to_lxml_element())
+
+        for element in self.custom:
+            root.append(element)
+        for key, value in self.custom_attrib.iteritems():
+            root.set(key, value)
+            
         return root
 
     def __str__(self):
@@ -263,7 +287,17 @@ class VHosts():
         '''Factory to produce VHosts from lxml.etree.Element object.'''
         if root.tag != 'VHOSTS':
             raise AttributeError('Expected VHOSTS tag.')
-        return VHosts(map(VHost.from_lxml_element, list(root)))
+        vhosts = []
+        custom = []
+        for element in list(root):
+            try:
+                vhosts.append(VHost.from_lxml_element(element))
+            except AttributeError:
+                custom.append(element)
+        vhosts = VHosts(vhosts)
+        vhosts.custom = custom
+        vhosts.custom_attrib = root.attrib
+        return vhosts
 
     @staticmethod
     def from_string(text):

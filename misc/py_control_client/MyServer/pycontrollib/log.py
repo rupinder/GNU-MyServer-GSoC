@@ -185,10 +185,7 @@ class Log():
         '''Factory to produce log from lxml.etree.Element object.'''
         log_type = root.tag
         type = root.get('type', None)
-        streams = []
-        for child in list(root):
-            if child.tag == 'STREAM':
-                streams.append(Stream.from_lxml_element(child))
+        streams = map(Stream.from_lxml_element, list(root))
         return Log(log_type, streams, type)
 
     def __str__(self):

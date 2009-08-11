@@ -579,5 +579,45 @@ class VHostsTest(unittest.TestCase):
                 '<VHOSTS>{0}</VHOSTS>'.format(str(self.vhost_0))))
         self.assertNotEqual(VHosts.from_string(self.text), [])
 
+class BadMarkupTest(unittest.TestCase):
+    def test_vhost(self):
+        text = '''
+<VHOST custom="unknown">
+  <PORT>123</PORT>
+  <UNKNOWN>
+    <CUSTOM />
+  </UNKNOWN>
+</VHOST>'''
+        vhost = VHost.from_string(text)
+        tree = vhost.to_lxml_element()
+        self.assertEqual('unknown', tree.get('custom'))
+        unknown = tree.findall('UNKNOWN')
+        self.assertEqual(1, len(unknown))
+        unknown = unknown[0]
+        custom = list(unknown)
+        self.assertEqual(1, len(custom))
+        custom = custom[0]
+        self.assertEqual('CUSTOM', custom.tag)
+
+    def test_vhosts(self):
+        text = '''
+<VHOSTS custom="unknown">
+  <VHOST />
+  <UNKNOWN>
+    <CUSTOM />
+  </UNKNOWN>
+</VHOSTS>'''
+        vhosts = VHosts.from_string(text)
+        tree = vhosts.to_lxml_element()
+        self.assertEqual('unknown', tree.get('custom'))
+        self.assertEqual(1, len(tree.findall('VHOST')))
+        unknown = tree.findall('UNKNOWN')
+        self.assertEqual(1, len(unknown))
+        unknown = unknown[0]
+        custom = list(unknown)
+        self.assertEqual(1, len(custom))
+        custom = custom[0]
+        self.assertEqual('CUSTOM', custom.tag)
+
 if __name__ == '__main__':
     unittest.main()
