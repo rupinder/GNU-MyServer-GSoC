@@ -17,6 +17,7 @@
 
 #include <include/log/log_manager.h>
 #include <include/server/server.h>
+#include <cstdarg>
 
 /*!
  * The constructor.
@@ -428,9 +429,9 @@ int
 LogManager::log (void* owner, string message, bool appendNL,
                  LoggingLevel level)
 {
-  int failure = 1;
+  int failure = 0;
   if (level < this->level)
-    return failure;
+    return 1;
 
   mutex->lock ();
   try
@@ -474,9 +475,9 @@ int
 LogManager::log (void* owner, string type, string message, bool appendNL,
                  LoggingLevel level)
 {
-  int failure = 1;
+  int failure = 0;
   if (level < this->level)
-    return failure;
+    return 1;
 
   mutex->lock ();
   try
@@ -524,9 +525,9 @@ int
 LogManager::log (void* owner, string type, string location, string message,
                  bool appendNL, LoggingLevel level)
 {
-  int failure = 1;
+  int failure = 0;
   if (level < this->level)
-    return failure;
+    return 1;
 
   mutex->lock ();
 
@@ -554,6 +555,104 @@ LogManager::log (void* owner, string type, string location, string message,
   mutex->unlock ();
   return failure;
 }
+
+
+/*!
+ * Write a message on a single LogStream specifying a formatting string.
+ *
+ * \param owner The object that owns the LogStream.
+ * \param type The log category where we want to write.
+ * \param location The target LogStream.
+ * \param message The message we want to write.
+ * \param level The level of logging of this message. If it is less than
+ * the LogManager's level of logging, the message will be discarded.
+ * \param appendNL a flag that, if set, tells the LogManager to append
+ * a new line sequence to the message, according to the host operating system
+ * convention.
+ * \param fmt Specify the message to log, accepting an additional parameters
+ * list, codes accepted are:
+ * %s An const char* string.
+ * %S A string*
+ * %% A '%'.
+ * %i An integer.
+ *
+ * \return 0 on success, 1 on error.
+ */
+int
+LogManager::log (void* owner, string type, string location, LoggingLevel level,
+                 bool appendNL, const char *fmt, ...)
+{
+  int failure = 0;
+
+  if (level < this->level)
+    return 1;
+
+  mutex->lock ();
+
+  ostringstream oss;
+  va_list argptr;
+
+  va_start (argptr, fmt);
+
+  try
+    {
+      while (*fmt)
+        {
+          if (*fmt != '%')
+            oss << *fmt;
+          else
+            {
+              fmt++;
+              switch (*fmt)
+                {
+                case 's':
+                  oss << static_cast<const char*> (va_arg (argptr, const char*));
+                  break;
+
+                case 'S':
+                  oss << static_cast<string*> (va_arg (argptr, string*));
+                  break;
+
+                case '%':
+                  oss << '%';
+                  break;
+
+                case 'i':
+                  oss << static_cast<int> (va_arg (argptr, int));
+                  break;
+
+                default:
+                  mutex->unlock ();
+                  return 1;
+                }
+
+            }
+
+          fmt++;
+        }
+
+      string message = oss.str ();
+
+      failure = notify (owner, type, location, MYSERVER_LOG_EVT_SET_MODE,
+                        static_cast<void*>(&level))
+        || notify (owner, type, location, MYSERVER_LOG_EVT_LOG,
+                   static_cast<void*>(&message));
+
+      if (appendNL)
+        failure |= notify (owner, MYSERVER_LOG_EVT_LOG,
+                           static_cast<void*>(&newline));
+    }
+  catch (...)
+    {
+      mutex->unlock ();
+    }
+
+  va_end (argptr);
+
+  mutex->unlock ();
+  return failure;
+}
+
 
 /*!
  * Close all the LogStream objects owned by `owner'.

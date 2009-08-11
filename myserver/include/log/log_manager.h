@@ -35,15 +35,18 @@ class LogManager
 public:
   LogManager (FiltersFactory* ff, LoggingLevel level = MYSERVER_LOG_MSG_INFO);
   ~LogManager ();
-  int add (void* owner, string type, string location, 
+  int add (void* owner, string type, string location,
            list<string>& filters, u_long cycle);
   int remove (void* owner);
   int log (void* owner, string message, bool appendNL = false,
            LoggingLevel level = MYSERVER_LOG_MSG_INFO);
   int log (void* owner, string type, string message, bool appendNL = false,
            LoggingLevel level = MYSERVER_LOG_MSG_INFO);
-  int log (void* owner, string type, string location, string message, 
+  int log (void* owner, string type, string location, string message,
            bool appendNL = false, LoggingLevel level = MYSERVER_LOG_MSG_INFO);
+  int log (void* owner, string type, string location, LoggingLevel level,
+           bool appendNL, const char *fmt, ...);
+
   int close (void* owner);
   int close (void* owner, string type);
   int close (void* owner, string type, string location);
@@ -75,9 +78,9 @@ public:
   list<string> getLoggingLevelsByNames ();
   map<LoggingLevel, string>& getLoggingLevels () { return loggingLevels; }
 private:
-  int notify (void* owner, string type, string location, LogStreamEvent evt, 
+  int notify (void* owner, string type, string location, LogStreamEvent evt,
               void* msg = 0, void* reply = 0);
-  int notify (void* owner, string type, LogStreamEvent evt, void* msg = 0, 
+  int notify (void* owner, string type, LogStreamEvent evt, void* msg = 0,
               void* reply = 0);
   int notify (void* owner, LogStreamEvent evt, void* msg = 0, void* reply = 0);
   int add (void* owner);
@@ -98,7 +101,7 @@ private:
    * anyway it is possible to share the same LogStream between more owners.
    */
   map<string, LogStream*> logStreams;
-  
+
   /*!
    * For each LogStream, store the list of objects that use it.
    */
@@ -113,7 +116,7 @@ private:
    * Store the newline string for the host operating system.
    */
   string newline;
-  
+
   /*!
    * Associate each LoggingLevel with its string representation.
    */
