@@ -26,6 +26,7 @@ class Definition():
         '''Creates new definition with given name and attributes.'''
         self.set_name(name)
         self.attributes = {}
+        self.custom = [] # list of children not being definitions
         for key, value in attributes.iteritems():
             self.set_attribute(key, value)
 
@@ -64,8 +65,8 @@ class Definition():
     def from_lxml_element(root):
         '''Factory to produce definition element or tree from lxml.etree.Element
         object.'''
-        if root.tag != 'DEFINE':
-            raise AttributeError('Expected DEFINE tag.')
+        if root.tag != 'DEFINE': # don't touch unknown things
+            return root
         if len(list(root)):
             return DefinitionTree.from_lxml_element(root)
         else:
@@ -153,10 +154,13 @@ class DefinitionTree(Definition):
     def add_definition(self, value, index = None):
         '''Add value to sub-definitions, either at given position, or at the
         end.'''
-        if index is None:
-            self.definitions.append(value)
+        if not isinstance(value, Definition):
+            self.custom.append(value)
         else:
-            self.definitions.insert(index, value)
+            if index is None:
+                self.definitions.append(value)
+            else:
+                self.definitions.insert(index, value)
 
     def remove_definition(self, index):
         '''Remove sub-definition with given index.'''
@@ -186,6 +190,8 @@ class DefinitionTree(Definition):
             root.set('name', self.name)
         for definition in self.definitions:
             root.append(definition.to_lxml_element())
+        for element in self.custom:
+            root.append(element)
         return root
 
     def __str__(self):

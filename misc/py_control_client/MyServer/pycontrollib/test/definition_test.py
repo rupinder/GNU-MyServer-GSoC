@@ -76,9 +76,9 @@ class DefinitionTest(unittest.TestCase):
 
     def test_bad_root_tag(self):
         text = '<ERROR name="http.error.file.404" value="404.html" />'
-        self.assertRaises(AttributeError, Definition.from_string, text)
-        self.assertRaises(AttributeError, Definition.from_lxml_element,
-                          etree.XML(text))
+        self.assertEqual('ERROR', Definition.from_string(text).tag)
+        self.assertEqual('ERROR', Definition.from_lxml_element(
+                etree.XML(text)).tag)
 
     def test_equality(self):
         self.assertNotEqual(Definition(), 'different type')
@@ -203,8 +203,8 @@ class DefinitionElementTest(unittest.TestCase):
 
     def test_bad_root_tag(self):
         text = '<ERROR name="http.error.file.404" value="404.html" />'
-        self.assertRaises(AttributeError, Definition.from_string, text)
-        self.assertRaises(AttributeError, Definition.from_lxml_element,
+        self.assertRaises(AttributeError, DefinitionElement.from_string, text)
+        self.assertRaises(AttributeError, DefinitionElement.from_lxml_element,
                           etree.XML(text))
 
     def test_search_by_name(self):
@@ -379,8 +379,8 @@ class DefinitionTreeTest(unittest.TestCase):
     def test_bad_root_tag(self):
         text = '<ERROR name="test" key="value">{0}{1}</ERROR>'.format(
             self.element_0, self.element_1)
-        self.assertRaises(AttributeError, Definition.from_string, text)
-        self.assertRaises(AttributeError, Definition.from_lxml_element,
+        self.assertRaises(AttributeError, DefinitionTree.from_string, text)
+        self.assertRaises(AttributeError, DefinitionTree.from_lxml_element,
                           etree.XML(text))
 
     def test_search_by_name(self):
@@ -455,6 +455,27 @@ class DefinitionListTest(unittest.TestCase):
         for lxml_definition in list(etree.XML(text)):
             copy.add_definition(Definition.from_lxml_element(lxml_definition))
         self.assertEqual(def_list, copy)
+
+class BadMarkupTest(unittest.TestCase):
+    def test_definition_tree(self):
+        text = '''
+<DEFINE>
+  <DEFINE value="x" />
+  <DEFINE vlaue="y" />
+  <UNKNOWN>
+    <CUSTOM />
+  </UNKNOWN>
+</DEFINE>'''
+        definition = Definition.from_string(text)
+        def_tree = definition.to_lxml_element()
+        self.assertEqual(2, len(def_tree.findall('DEFINE')))
+        unknown = def_tree.findall('UNKNOWN')
+        self.assertEqual(1, len(unknown))
+        unknown = unknown[0]
+        custom = list(unknown)
+        self.assertEqual(1, len(custom))
+        custom = custom[0]
+        self.assertEqual('CUSTOM', custom.tag)
 
 if __name__ == '__main__':
     unittest.main()
