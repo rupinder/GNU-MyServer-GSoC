@@ -232,21 +232,20 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *b1, char *b2,
 
   /* Is the specified command a know one? */
   int knownCommand;
-  if (a->getToRemove())
+  if (a->getToRemove ())
   {
-    switch(a->getToRemove())
+    switch (a->getToRemove ())
     {
       /* Remove the connection from the list. */
-      case CONNECTION_REMOVE_OVERLOAD:
-        sendResponse(b2, bs2, a, CONTROL_SERVER_BUSY, header, 0);
-        return 0;
-      default:
-        return 0;
+    case Connection::REMOVE_OVERLOAD:
+      sendResponse (b2, bs2, a, CONTROL_SERVER_BUSY, header, 0);
+      return 0;
+    default:
+      return 0;
     }
   }
 
-
-  ret = header.parse_header(b1, nbtr, &realHeaderLength);
+  ret = header.parse_header (b1, nbtr, &realHeaderLength);
 
   /*
    *On errors remove the connection from the connections list.
@@ -792,7 +791,7 @@ int ControlProtocol::visitConnection (ConnectionPtr con, void* argP)
     if (con->getID () == arg->id)
     {
       /* Define why the connection is killed.  */
-      con->setToRemove (CONNECTION_USER_KILL);
+      con->setToRemove (Connection::USER_KILL);
       return 1;
     }
   }
@@ -805,8 +804,8 @@ int ControlProtocol::visitConnection (ConnectionPtr con, void* argP)
 /*!
  *Return the requested file to the client.
  */
-int ControlProtocol::getFile (ConnectionPtr a, char* fn, File* in,
-                             File* out, char *b1,int bs1, ControlHeader& header )
+int ControlProtocol::getFile (ConnectionPtr a, char* fn, File* in, File* out,
+                              char *b1,int bs1, ControlHeader& header)
 {
   const char *filename = 0;
   File localfile;

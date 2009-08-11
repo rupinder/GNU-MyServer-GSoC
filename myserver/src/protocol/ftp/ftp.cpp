@@ -336,7 +336,7 @@ int Ftp::controlConnection (ConnectionPtr pConnection, char *b1, char *b2,
     return ClientsThread::DELETE_CONNECTION;
 
   // check if ftp is busy(return 120) or unavailable(return 421)
-  if (pConnection->getToRemove () == CONNECTION_REMOVE_OVERLOAD)
+  if (pConnection->getToRemove () == Connection::REMOVE_OVERLOAD)
     {
       pFtpuserData->m_nFtpstate = FtpuserData::BUISY;
       // TODO: really compute busy time interval

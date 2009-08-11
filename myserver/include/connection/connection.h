@@ -36,15 +36,10 @@ class ClientsThread;
 
 using namespace std;
 
-/*! Remove the connection due a high server load.  */
-#define CONNECTION_REMOVE_OVERLOAD 1
-
-/*! Remove the connection if the administrator decided this.  */
-#define CONNECTION_USER_KILL        2
 
 
 class Connection;
-                                   
+
 typedef  Connection* ConnectionPtr;
 
 typedef int (*continuationPROC)(ConnectionPtr a, char *b1, char *b2,
@@ -54,6 +49,11 @@ typedef int (*continuationPROC)(ConnectionPtr a, char *b1, char *b2,
 class Connection
 {
 public:
+  enum
+    {
+      REMOVE_OVERLOAD = 1,
+      USER_KILL
+    };
   void init ();
   void destroy ();
 
@@ -69,7 +69,7 @@ public:
 
   u_short getPort ();
   void setPort (u_short);
-	
+
   u_short getLocalPort ();
   void setLocalPort (u_short);
 
@@ -94,15 +94,15 @@ public:
 
 	/*! Connection socket.  */
 	Socket *socket;
-	
+
 	/*! Pointer to an host structure.  */
 	Vhost *host;
-	
+
   int getToRemove ();
   void setToRemove (int);
 
   int isForceControl ();
-  void setForceControl (int);	
+  void setForceControl (int);
 
 	/*! Buffer for the connection struct. Used by protocols.  */
 	ProtocolBuffer *protocolBuffer;
@@ -134,7 +134,7 @@ public:
 
   MemBuf *getConnectionBuffer (){return connectionBuffer;}
 protected:
-	
+
 	/*! This buffer must be used only by the ClientsTHREAD class.  */
 	MemBuf *connectionBuffer;
 
@@ -154,7 +154,7 @@ protected:
 
 	/*! Login name.  */
 	string *login;
-	
+
 	/*! Password used to log in.  */
 	string *password;
 
@@ -163,7 +163,7 @@ protected:
 
 	/*! Remote IP address.  */
 	string *ipAddr;
-	
+
 	/*! Local IP used to connect to.  */
 	string *localIpAddr;
 
@@ -176,11 +176,11 @@ protected:
 	/*
    *!If nonzero the server is saying to the protocol to remove the connection.
    *Protocols can not consider this but is a good idea do it to avoid server
-   *overloads. 
-   *Reasons to remove the connection are defined at the begin of this file.  
+   *overloads.
+   *Reasons to remove the connection are defined at the begin of this file.
    */
 	int toRemove;
-	
+
 	/*! Force the connection to be parsed.  */
 	int forceControl;
 

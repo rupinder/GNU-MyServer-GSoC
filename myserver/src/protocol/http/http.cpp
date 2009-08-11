@@ -860,7 +860,7 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           switch (td->connection->getToRemove ())
             {
               /* Remove the connection from the list.  */
-            case CONNECTION_REMOVE_OVERLOAD:
+            case Connection::REMOVE_OVERLOAD:
               retvalue = raiseHTTPError (503);
               logHTTPaccess ();
               return ClientsThread::DELETE_CONNECTION;

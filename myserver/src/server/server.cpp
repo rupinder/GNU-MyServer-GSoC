@@ -287,7 +287,7 @@ Server::~Server()
 
   if(ipAddresses)
     delete ipAddresses;
-  
+
   if (logManager)
     delete logManager;
 
@@ -400,12 +400,12 @@ int Server::postLoad()
    */
   memset(serverName, 0, HOST_NAME_MAX+1);
   Socket::gethostname(serverName, HOST_NAME_MAX);
-  
+
   buffer.assign(languageParser.getValue("MSG_GETNAME"));
   buffer.append(" ");
   buffer.append(serverName);
   logWriteln(buffer.c_str());
-  
+
   /*
    *Find the IP addresses of the local machine.
    */
@@ -415,7 +415,7 @@ int Server::postLoad()
   buffer.assign("Host: ");
   buffer.append(serverName);
   logWriteln(buffer.c_str() );
-  
+
   if(Socket::getLocalIPsList(*ipAddresses))
   {
     string msg;
@@ -439,7 +439,7 @@ int Server::postLoad()
     delete mimeManager;
 
   mimeManager = new MimeManager();
-  
+
   if(int nMIMEtypes = mimeManager->loadXML(mimeConfigurationFile->c_str()))
   {
     ostringstream stream;
@@ -452,26 +452,26 @@ int Server::postLoad()
   }
 
   nCPU << (u_int)getCPUCount();
-  
+
   strCPU.assign(languageParser.getValue("MSG_NUM_CPU"));
   strCPU.append(" ");
   strCPU.append(nCPU.str());
   logWriteln(strCPU.c_str());
-  
+
   connectionsScheduler.restart();
-  
+
   listenThreads.initialize(&languageParser);
-  
+
   if(vhostList)
     delete vhostList;
-  
+
   vhostList = new VhostManager(&listenThreads, logManager);
-  
+
   if(vhostList == NULL)
     return -1;
 
   getProcessServerManager()->load();
-    
+
   /* Load the home directories configuration.  */
   homeDir.load();
 
@@ -482,7 +482,7 @@ int Server::postLoad()
 
   if(path == 0)
     path = new string();
-  
+
   if(getdefaultwd(*path))
     return -1;
 
@@ -506,10 +506,10 @@ int Server::postLoad()
  */
 void Server::loadPlugins()
 {
-  string xml("xml"); 
+  string xml("xml");
   //FIXME: xmlV is never freed.
   XmlValidator *xmlV = new XmlValidator ();
-    
+
   validatorFactory.addValidator (xml, xmlV);
   authMethodFactory.addAuthMethod (xml, (AuthMethod*) xmlV);
 
@@ -536,7 +536,7 @@ void Server::loadPlugins()
   }
 
 
-  
+
   getPluginsManager()->preLoad(this, *externalPath);
   getPluginsManager()->load(this);
   getPluginsManager()->postLoad(this, &languageParser);
@@ -584,7 +584,7 @@ void Server::mainLoop()
         FilesUtility::getLastModTime(vhostConfigurationFile->c_str());
       time_t mimeConfNow =
         FilesUtility::getLastModTime(mimeConfigurationFile->c_str());
-      
+
       /* If a configuration file was modified reboot the server. */
       if(((mainConfTimeNow != -1) && (hostsConfTimeNow != -1)  &&
           (mimeConfNow != -1)) || toReboot)
@@ -646,7 +646,7 @@ void Server::mainLoop()
 
           connectionsScheduler.restart();
           listenThreads.initialize(&languageParser);
-            
+
           vhostList = new VhostManager(&listenThreads, logManager);
 
           if(vhostList == 0)
@@ -967,9 +967,9 @@ int Server::terminate ()
   nStaticThreads = 0;
   if (verbosity > 1)
     logWriteln ("MyServer is stopped");
-  
+
   logManager->clear ();
-  
+
   return 0;
 }
 
@@ -1471,11 +1471,11 @@ ConnectionPtr Server::addConnectionToList(Socket* s,
    *is bigger than it say to the protocol that will parse the connection
    *to remove it from the active connections list.
    */
-  if(maxConnections &&
-     ((u_long)connectionsScheduler.getConnectionsNumber() > maxConnections))
-    newConnection->setToRemove(CONNECTION_REMOVE_OVERLOAD);
+  if(maxConnections && ((u_long)connectionsScheduler.getConnectionsNumber ()
+                        > maxConnections))
+    newConnection->setToRemove (Connection::REMOVE_OVERLOAD);
 
-  connectionsScheduler.registerConnectionID(newConnection);
+  connectionsScheduler.registerConnectionID (newConnection);
 
   return newConnection;
 }
@@ -2028,7 +2028,7 @@ int Server::logWriteln(char const* str, LoggingLevel level)
 {
   if(!str)
     return 0;
-  
+
   /*
    *If the log receiver is not the console output a timestamp.
    */
