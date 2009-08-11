@@ -21,19 +21,19 @@ PYTHONPATH:=$(shell dirname `pwd`):${PYTHONPATH}
 test: log_test definition_test mimetypes_test vhost_test config_test
 
 log_test:
-	-${PYTHON} log_test.py
+	-PYTHONPATH=${PYTHONPATH} ${PYTHON} log_test.py
 
 definition_test:
-	-${PYTHON} definition_test.py
+	-PYTHONPATH=${PYTHONPATH} ${PYTHON} definition_test.py
 
 mimetypes_test:
-	-${PYTHON} mimetypes_test.py
+	-PYTHONPATH=${PYTHONPATH} ${PYTHON} mimetypes_test.py
 
 vhost_test:
-	-${PYTHON} vhost_test.py
+	-PYTHONPATH=${PYTHONPATH} ${PYTHON} vhost_test.py
 
 config_test:
-	-${PYTHON} config_test.py
+	-PYTHONPATH=${PYTHONPATH} ${PYTHON} config_test.py
 
 .PHONY: clean
 clean:
