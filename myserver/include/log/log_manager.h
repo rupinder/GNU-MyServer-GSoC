@@ -27,6 +27,8 @@
 #include <include/filter/filters_factory.h>
 #include <include/log/stream/log_stream.h>
 #include <include/log/stream/log_stream_factory.h>
+#include <cstdarg>
+
 
 using namespace std;
 
@@ -46,6 +48,8 @@ public:
            bool appendNL = false, LoggingLevel level = MYSERVER_LOG_MSG_INFO);
   int log (void* owner, string type, string location, LoggingLevel level,
            bool appendNL, const char *fmt, ...);
+  int log (void* owner, string type, string location, LoggingLevel level,
+           bool appendNL, const char *fmt, va_list args);
 
   int close (void* owner);
   int close (void* owner, string type);

@@ -17,7 +17,6 @@
 
 #include <include/log/log_manager.h>
 #include <include/server/server.h>
-#include <cstdarg>
 
 /*!
  * The constructor.
@@ -560,6 +559,32 @@ LogManager::log (void* owner, string type, string location, string message,
 /*!
  * Write a message on a single LogStream specifying a formatting string.
  *
+ * \see LogManager#log (void*, string, string, LoggingLeve, bool, va_list)
+ * \return 0 on success, 1 on error.
+ */
+int
+LogManager::log (void* owner, string type, string location, LoggingLevel level,
+                 bool appendNL, const char *fmt, ...)
+{
+  int failure = 0;
+
+  if (level < this->level)
+    return 1;
+
+  va_list argptr;
+
+  va_start (argptr, fmt);
+
+  failure = log (owner, type, location, level, appendNL, fmt, argptr);
+
+  va_end (argptr);
+
+  return failure;
+}
+
+/*!
+ * Write a message on a single LogStream specifying a formatting string.
+ *
  * \param owner The object that owns the LogStream.
  * \param type The log category where we want to write.
  * \param location The target LogStream.
@@ -575,12 +600,13 @@ LogManager::log (void* owner, string type, string location, string message,
  * %S A string*
  * %% A '%'.
  * %i An integer.
+ *\param args Additional args used by fmt.
  *
  * \return 0 on success, 1 on error.
  */
 int
 LogManager::log (void* owner, string type, string location, LoggingLevel level,
-                 bool appendNL, const char *fmt, ...)
+                 bool appendNL, const char *fmt, va_list args)
 {
   int failure = 0;
 
@@ -590,9 +616,6 @@ LogManager::log (void* owner, string type, string location, LoggingLevel level,
   mutex->lock ();
 
   ostringstream oss;
-  va_list argptr;
-
-  va_start (argptr, fmt);
 
   try
     {
@@ -606,11 +629,11 @@ LogManager::log (void* owner, string type, string location, LoggingLevel level,
               switch (*fmt)
                 {
                 case 's':
-                  oss << static_cast<const char*> (va_arg (argptr, const char*));
+                  oss << static_cast<const char*> (va_arg (args, const char*));
                   break;
 
                 case 'S':
-                  oss << static_cast<string*> (va_arg (argptr, string*));
+                  oss << static_cast<string*> (va_arg (args, string*));
                   break;
 
                 case '%':
@@ -618,16 +641,14 @@ LogManager::log (void* owner, string type, string location, LoggingLevel level,
                   break;
 
                 case 'i':
-                  oss << static_cast<int> (va_arg (argptr, int));
+                  oss << static_cast<int> (va_arg (args, int));
                   break;
 
                 default:
                   mutex->unlock ();
                   return 1;
                 }
-
             }
-
           fmt++;
         }
 
@@ -647,12 +668,10 @@ LogManager::log (void* owner, string type, string location, LoggingLevel level,
       mutex->unlock ();
     }
 
-  va_end (argptr);
-
   mutex->unlock ();
   return failure;
-}
 
+}
 
 /*!
  * Close all the LogStream objects owned by `owner'.
