@@ -145,7 +145,7 @@ class VHost():
     def get_private_key(self):
         '''Get vhost private ssl key.'''
         return self.private_key
-    
+
     def set_private_key(self, private_key):
         '''Set vhost private ssl key.'''
         self.private_key = private_key
@@ -196,7 +196,7 @@ class VHost():
             root.append(element)
         for key, value in self.custom_attrib.iteritems():
             root.set(key, value)
-            
+
         return root
 
     @staticmethod
@@ -248,7 +248,7 @@ class VHost():
         vhost.custom = custom
         vhost.custom_attrib = custom_attrib
         return vhost
-    
+
     @staticmethod
     def from_string(text):
         '''Factory to produce VHost by parsing a string.'''
@@ -276,7 +276,7 @@ class VHosts():
             root.append(element)
         for key, value in self.custom_attrib.iteritems():
             root.set(key, value)
-            
+
         return root
 
     def __str__(self):

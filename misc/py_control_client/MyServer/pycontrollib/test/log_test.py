@@ -382,5 +382,44 @@ class LogTest(unittest.TestCase):
         copy = Log.from_lxml_element(log.to_lxml_element())
         self.assertEqual(log, copy)
 
+class BadMarkupTest(unittest.TestCase):
+    def test_stream(self):
+        text = '''
+<STREAM custom="unknown">
+  abc
+  <UNKNOWN>
+    <CUSTOM />
+  </UNKNOWN>
+</STREAM>'''
+        stream = Stream.from_string(text)
+        tree = stream.to_lxml_element()
+        self.assertEqual('unknown', tree.get('custom'))
+        unknown = tree.findall('UNKNOWN')
+        self.assertEqual(1, len(unknown))
+        unknown = unknown[0]
+        custom = list(unknown)
+        self.assertEqual(1, len(custom))
+        custom = custom[0]
+        self.assertEqual('CUSTOM', custom.tag)
+
+    def test_log(self):
+        text = '''
+<SOMELOG custom="unknown">
+  <STREAM>abc</STREAM>
+  <UNKNOWN>
+    <CUSTOM />
+  </UNKNOWN>
+</SOMELOG>'''
+        log = Log.from_string(text)
+        tree = log.to_lxml_element()
+        self.assertEqual('unknown', tree.get('custom'))
+        unknown = tree.findall('UNKNOWN')
+        self.assertEqual(1, len(unknown))
+        unknown = unknown[0]
+        custom = list(unknown)
+        self.assertEqual(1, len(custom))
+        custom = custom[0]
+        self.assertEqual('CUSTOM', custom.tag)
+
 if __name__ == '__main__':
     unittest.main()

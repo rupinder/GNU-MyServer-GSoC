@@ -27,6 +27,8 @@ class Stream():
         self.filters = []
         for filter in filters:
             self.add_filter(filter)
+        self.custom = []
+        self.custom_attrib = {}
 
     def __eq__(self, other):
         return isinstance(other, Stream) and \
@@ -92,16 +94,27 @@ class Stream():
         '''Factory to produce stream from lxml.etree.Element object.'''
         if root.tag != 'STREAM':
             raise AttributeError('Expected STREAM tag.')
+        known_attrib = set(['location', 'cycle', 'cycle_gzip'])
+        custom_attrib = {}
+        for key, value in root.attrib.iteritems():
+            if key not in known_attrib:
+                custom_attrib[key] = value
         location = root.get('location')
         cycle = root.get('cycle', None)
         cycle_gzip = root.get('cycle_gzip', None)
         if cycle_gzip is not None:
             cycle_gzip = cycle_gzip.upper() == 'YES'
         filters = []
+        custom = []
         for child in list(root):
             if child.tag == 'FILTER':
                 filters.append(child.text)
-        return Stream(location, cycle, cycle_gzip, filters)
+            else:
+                custom.append(child)
+        stream = Stream(location, cycle, cycle_gzip, filters)
+        stream.custom = custom
+        stream.custom_attrib = custom_attrib
+        return stream
 
     def __str__(self):
         return etree.tostring(self.to_lxml_element(), pretty_print = True)
@@ -119,6 +132,12 @@ class Stream():
             element = etree.Element('FILTER')
             element.text = filter
             root.append(element)
+
+        for element in self.custom:
+            root.append(element)
+        for key, value in self.custom_attrib.iteritems():
+            root.set(key, value)
+
         return root
 
 class Log():
@@ -129,13 +148,15 @@ class Log():
         self.streams = []
         for stream in streams:
             self.add_stream(stream)
+        self.custom = []
+        self.custom_attrib = {}
 
     def __eq__(self, other):
         return isinstance(other, Log) and \
             self.log_type == other.log_type and \
             self.streams == other.streams and \
             self.type == other.type
-    
+
     def get_type(self):
         '''Get log's type attribute.'''
         return self.type
@@ -169,7 +190,7 @@ class Log():
     def remove_stream(self, index):
         '''Remove stream from index-th position.'''
         self.streams.pop(index)
-    
+
     def get_stream(self, index):
         '''Get index-th stream.'''
         return self.streams[index]
@@ -184,9 +205,23 @@ class Log():
     def from_lxml_element(root):
         '''Factory to produce log from lxml.etree.Element object.'''
         log_type = root.tag
+        custom_attrib = {}
+        known_attrib = set(['type'])
+        for key, value in root.attrib.iteritems():
+            if key not in known_attrib:
+                custom_attrib[key] = value
         type = root.get('type', None)
-        streams = map(Stream.from_lxml_element, list(root))
-        return Log(log_type, streams, type)
+        streams = []
+        custom = []
+        for element in list(root):
+            try:
+                streams.append(Stream.from_lxml_element(element))
+            except AttributeError:
+                custom.append(element)
+        log = Log(log_type, streams, type)
+        log.custom = custom
+        log.custom_attrib = custom_attrib
+        return log
 
     def __str__(self):
         return etree.tostring(self.to_lxml_element(), pretty_print = True)
@@ -198,4 +233,10 @@ class Log():
             root.set('type', self.type)
         for stream in self.streams:
             root.append(stream.to_lxml_element())
+
+        for element in self.custom:
+            root.append(element)
+        for key, value in self.custom_attrib.iteritems():
+            root.set(key, value)
+
         return root
