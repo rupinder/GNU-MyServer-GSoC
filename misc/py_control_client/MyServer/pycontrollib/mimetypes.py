@@ -37,6 +37,8 @@ class MIMEType():
             self.add_filter(filter)
         self.set_self_executed(self_executed)
         self.definitions = DefinitionList(definitions)
+        self.custom = []
+        self.custom_attrib = {}
 
     def get_mime(self):
         '''Get associated mime type.'''
@@ -114,7 +116,7 @@ class MIMEType():
     def get_definitions(self):
         '''Get all definitions.'''
         return self.definitions.get_definitions()
-    
+
     def get_definition(self, index):
         '''Get definition with given index.'''
         return self.definitions.get_definition(index)
@@ -165,6 +167,12 @@ class MIMEType():
             root.append(element)
         for definition in self.definitions.get_definitions():
             root.append(definition.to_lxml_element())
+
+        for element in self.custom:
+            root.append(element)
+        for key, value in self.custom_attrib.iteritems():
+            root.set(key, value)
+
         return root
 
     def __str__(self):
@@ -179,10 +187,16 @@ class MIMEType():
         handler = root.get('handler', None)
         param = root.get('param', None)
         self_executed = root.get('self', None)
+        known_attrib = set(['mime', 'handler', 'param', 'self'])
+        custom_attrib = {}
+        for key, value in root.attrib.iteritems():
+            if key not in known_attrib:
+                custom_attrib[key] = value
         path = None
         extension = set()
         filters = []
         definitions = []
+        custom = []
         for child in list(root):
             if child.tag == 'PATH':
                 path = child.get('regex')
@@ -192,8 +206,13 @@ class MIMEType():
                 extension.add(child.get('value'))
             elif child.tag == 'DEFINE':
                 definitions.append(Definition.from_lxml_element(child))
-        return MIMEType(mime, handler, param, extension, path, filters,
+            else:
+                custom.append(child)
+        mime = MIMEType(mime, handler, param, extension, path, filters,
                         self_executed, definitions)
+        mime.custom = custom
+        mime.custom_attrib = custom_attrib
+        return mime
 
     @staticmethod
     def from_string(text):
@@ -204,7 +223,9 @@ class MIMEType():
 class MIMETypes():
     def __init__(self, MIME_types = []):
         self.MIME_types = MIME_types
-        
+        self.custom = []
+        self.custom_attrib = {}
+
     def __eq__(self, other):
         return isinstance(other, MIMETypes) and \
             self.MIME_types == other.MIME_types
@@ -214,18 +235,34 @@ class MIMETypes():
         root = etree.Element('MIMES')
         for mime in self.MIME_types:
             root.append(mime.to_lxml_element())
+
+        for element in self.custom:
+            root.append(element)
+        for key, value in self.custom_attrib.iteritems():
+            root.set(key, value)
+
         return root
 
     def __str__(self):
         return etree.tostring(self.to_lxml_element(), pretty_print = True)
-        
+
     @staticmethod
     def from_lxml_element(root):
         '''Factory to produce MIMETypes from lxml.etree.Element object.'''
         if root.tag != 'MIMES':
             raise AttributeError('Expected MIMES tag.')
-        return MIMETypes(map(MIMEType.from_lxml_element, list(root)))
-    
+        types = []
+        custom = []
+        for element in list(root):
+            try:
+                types.append(MIMEType.from_lxml_element(element))
+            except AttributeError:
+                custom.append(element)
+        mimes = MIMETypes(types)
+        mimes.custom = custom
+        mimes.custom_attrib = root.attrib
+        return mimes
+
     @staticmethod
     def from_string(text):
         '''Factory to produce MIMETypes from parsing a string.'''

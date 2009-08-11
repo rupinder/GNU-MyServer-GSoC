@@ -446,6 +446,39 @@ class MIMETypesTest(unittest.TestCase):
         self.assertRaises(AttributeError, MIMETypes.from_string, text)
         self.assertRaises(AttributeError, MIMETypes.from_lxml_element,
                           etree.XML(text))
+
+class BadMarkupTest(unittest.TestCase):
+    def test_mime_types(self):
+        text = '''
+<MIMES custom="unknown">
+  <MIME mime="text/plain" />
+  <MIME mime="text/html" />
+  <UNKNOWN>
+    <CUSTOM />
+  </UNKNOWN>
+</MIMES>'''
+        mimes = MIMETypes.from_string(text)
+        tree = mimes.to_lxml_element()
+        self.assertEqual('unknown', tree.get('custom'))
+        self.assertEqual(2, len(tree.findall('MIME')))
+        unknown = tree.findall('UNKNOWN')
+        self.assertEqual(1, len(unknown))
+        unknown = unknown[0]
+        custom = list(unknown)
+        self.assertEqual(1, len(custom))
+        custom = custom[0]
+        self.assertEqual('CUSTOM', custom.tag)
+
+    def test_mime_type(self):
+        text = '''
+<MIME mime="text/plain" custom="unknown">
+  <CUSTOM />
+</MIME>'''
+        mime = MIMEType.from_string(text)
+        tree = mime.to_lxml_element()
+        self.assertEqual('unknown', tree.get('custom'))
+        custom = tree.findall('CUSTOM')
+        self.assertEqual(1, len(custom))
         
 if __name__ == '__main__':
     unittest.main()
