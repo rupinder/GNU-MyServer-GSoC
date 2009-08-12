@@ -46,6 +46,10 @@ class PyGTKControl():
         self.config_path = self.mime_path = self.vhost_path = None
         # remembered unhandled parts of configs
         self.config_custom = []
+        self.mime_custom = []
+        self.vhost_custom = []
+        self.mime_custom_attrib = {}
+        self.vhost_custom_attrib = {}
         self.controller = None
 
     def on_window_destroy(self, widget):
@@ -124,6 +128,8 @@ class PyGTKControl():
         '''Clears MIME configuration.'''
         if widget is not None:
             self.mime_path = None
+        self.mime_custom = []
+        self.mime_custom_attrib = {}
         table, tree = self.mime_tab[0]
         table.clear()
         tree.get_model().clear()
@@ -132,11 +138,13 @@ class PyGTKControl():
         '''Clears VHost configuration.'''
         if widget is not None:
             self.vhost_path = None
+        self.vhost_custom = []
+        self.vhost_custom_attrib = {}
         table, tree = self.vhost_tab
         table.clear()
         tree.get_model().clear()
 
-    def generic_open(self, dialog, config_type, set_up_method):
+    def generic_open(self, dialog, path, config_type, set_up_method):
         '''Open configuration file.'''
         if self.chooser is not None:
             self.chooser.destroy()
@@ -146,8 +154,8 @@ class PyGTKControl():
                        gtk.STOCK_OPEN, gtk.RESPONSE_OK))
         def handle_response(widget, response):
             if response == gtk.RESPONSE_OK:
-                self.config_path = self.chooser.get_filename()
-                with open(self.config_path) as f:
+                setattr(self, path, self.chooser.get_filename())
+                with open(getattr(self, path)) as f:
                     conf = config_type.from_string(f.read())
                 set_up_method(conf)
             self.chooser.destroy()
@@ -157,19 +165,19 @@ class PyGTKControl():
     def on_open_config_menu_item_activate(self, widget):
         '''Open local server configuration file.'''
         self.generic_open(
-            'Open server configuration file.',
+            'Open server configuration file.', 'config_path',
             MyServerConfig, self.set_up_config)
 
     def on_open_mime_menu_item_activate(self, widget):
         '''Open local MIME configuration file.'''
         self.generic_open(
-            'Open MIME configuration file.',
+            'Open MIME configuration file.', 'mime_path',
             MIMETypes, self.set_up_mime)
 
     def on_open_vhost_menu_item_activate(self, widget):
         '''Open local VHost configuration file.'''
         self.generic_open(
-            'Open VHost configuration file.',
+            'Open VHost configuration file.', 'vhost_path',
             VHosts, self.set_up_vhost)
 
     def generic_save_as(self, dialog, widget, path, save_method):
@@ -254,13 +262,19 @@ class PyGTKControl():
         '''Returns current MIME configuration as MIMETypes instance.'''
         table, tree = self.mime_tab[0]
         mimes = table.make_def(tree)
-        return MIMETypes(mimes)
+        config = MIMETypes(mimes)
+        config.custom = self.mime_custom
+        config.custom_attrib = self.mime_custom_attrib
+        return config
 
     def get_current_vhost(self):
         '''Returns current VHost configuration as VHosts instance.'''
         table, tree = self.vhost_tab
-        mimes = table.make_def(tree)
-        return VHosts(mimes)
+        vhosts = table.make_def(tree)
+        config = VHosts(vhosts)
+        config.custom = self.vhost_custom
+        config.custom_attrib = self.vhost_custom_attrib
+        return config
 
     def on_add_unknown_definition_menu_item_activate(self, widget):
         '''Adds a new definition to unknown tab.'''
@@ -273,7 +287,7 @@ class PyGTKControl():
         mime_lists = {}
         for mime_list in GUIConfig.mime_lists:
             mime_lists[mime_list] = []
-        tree.get_model().append(('', {}, mime_lists, [], ))
+        tree.get_model().append(('', {}, mime_lists, [], [], {}, ))
 
     def on_add_vhost_menu_item_activate(self, widget):
         '''Adds a new VHost.'''
@@ -281,7 +295,7 @@ class PyGTKControl():
         vhost_lists = {}
         for vhost_list in GUIConfig.vhost_lists:
             vhost_lists[vhost_list[0]] = []
-        tree.get_model().append(('', {}, vhost_lists, [], ))
+        tree.get_model().append(('', {}, vhost_lists, [], [], {}, ))
 
     def on_add_definition_to_mime_menu_item_activate(self, widget):
         '''Adds a definition to currently selected MIME type.'''
@@ -312,12 +326,16 @@ class PyGTKControl():
     def set_up_mime(self, config):
         '''Reads MIME configuration from given config instance.'''
         self.on_new_mime_menu_item_activate()
+        self.mime_custom = config.custom
+        self.mime_custom_attrib = config.custom_attrib
         tree = self.mime_tab[0][1]
         tree.set_up(config.MIME_types)
 
     def set_up_vhost(self, config):
         '''Reads VHost configuration from given config instance.'''
         self.on_new_vhost_menu_item_activate()
+        self.vhost_custom = config.custom
+        self.vhost_custom_attrib = config.custom_attrib
         tree = self.vhost_tab[1]
         tree.set_up(config.VHosts)
 

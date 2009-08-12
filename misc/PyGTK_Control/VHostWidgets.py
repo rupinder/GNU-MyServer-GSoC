@@ -48,7 +48,9 @@ class StreamTreeView(gtk.TreeView):
                 gobject.TYPE_STRING, # stream location
                 gobject.TYPE_PYOBJECT, # list of filters
                 gobject.TYPE_PYOBJECT, # (cycle, cycle active, )
-                gobject.TYPE_BOOLEAN)) # cycle_gzip
+                gobject.TYPE_BOOLEAN, # cycle_gzip
+                gobject.TYPE_PYOBJECT, # stream custom
+                gobject.TYPE_PYOBJECT)) # stream custom attrib
         self.cycle = cycle
         self.cycle_gzip = cycle_gzip
         self.filter_model = filter_tree.get_model()
@@ -115,7 +117,9 @@ class LogTreeView(gtk.TreeView):
         gtk.TreeView.__init__(self, gtk.ListStore(
                 gobject.TYPE_STRING, # log name
                 gobject.TYPE_PYOBJECT, # list of streams
-                gobject.TYPE_PYOBJECT)) # (log_type, log_type enabled, )
+                gobject.TYPE_PYOBJECT, # (log_type, log_type enabled, )
+                gobject.TYPE_PYOBJECT, # log custom
+                gobject.TYPE_PYOBJECT)) # log custom attrib
         self.stream_tree = stream_tree
         self.log_type = log_type
         model = self.get_model()
@@ -153,7 +157,7 @@ class LogTreeView(gtk.TreeView):
             i = model.iter_children(None)
             while i is not None: # iterate over streams
                 row = model[i]
-                streams.append((row[0], row[1], row[2], row[3], ))
+                streams.append((row[0], row[1], row[2], row[3], row[4], row[5], ))
                 i = model.iter_next(i)
             row = self.get_model()[self.last_selected]
             row[1] = streams
@@ -182,7 +186,7 @@ class LogTreeView(gtk.TreeView):
         i = model.iter_children(None)
         while i is not None: # iterate over logs
             row = model[i]
-            logs.append((row[0], row[1], row[2], ))
+            logs.append((row[0], row[1], row[2], row[3], row[4], ))
             i = model.iter_next(i)
         return logs
 
@@ -192,7 +196,7 @@ class LogTreeView(gtk.TreeView):
         model = self.get_model()
         model.clear()
         for log in logs:
-            model.append((log[0], log[1], log[2], ))
+            model.append((log[0], log[1], log[2], log[3], log[4], ))
 
 class VHostTreeView(gtk.TreeView):
     def __init__(self):
@@ -200,7 +204,9 @@ class VHostTreeView(gtk.TreeView):
                 gobject.TYPE_STRING, # vhost name
                 gobject.TYPE_PYOBJECT, # vhost single attributes
                 gobject.TYPE_PYOBJECT, # vhost attribute lists
-                gobject.TYPE_PYOBJECT)) # vhost logs
+                gobject.TYPE_PYOBJECT, # vhost logs
+                gobject.TYPE_PYOBJECT, # vhost custom
+                gobject.TYPE_PYOBJECT)) # vhost custom attrib
         model = self.get_model()
         def vhost_edited_handler(cell, path, text, data):
             model = data
@@ -250,17 +256,21 @@ class VHostTreeView(gtk.TreeView):
                         cycle = ''
                     cycle_gzip = stream.get_cycle_gzip()
                     streams.append((stream.get_location(), filters,
-                                    (cycle, cycle_active, ), cycle_gzip, ))
+                                    (cycle, cycle_active, ), cycle_gzip,
+                                    stream.custom, stream.custom_attrib, ))
                 log_type = log.get_type()
                 log_type_enabled = log_type is not None
                 if log_type is None:
                     log_type = ''
                 logs.append((log.get_log_type(), streams,
-                             (log_type, log_type_enabled, ), ))
+                             (log_type, log_type_enabled, ), log.custom,
+                             log.custom_attrib, ))
             model.append((getattr(vhost, 'get_' + GUIConfig.vhost_name)(),
                           attributes,
                           vhost_lists,
-                          logs, ))
+                          logs,
+                          vhost.custom,
+                          vhost.custom_attrib, ))
 
 class VHostTable(gtk.Table):
     def __init__(self, tree):
@@ -362,7 +372,7 @@ class VHostTable(gtk.Table):
         self.log_model = self.log_tree.get_model()
 
         def add_stream(button, model):
-            model.append(('', [], (0, False, ), False, ))
+            model.append(('', [], (0, False, ), False, [], {}, ))
         add_stream_button = gtk.Button('Add stream')
         add_stream_button.connect(
             'clicked', add_stream, stream_tree.get_model())
@@ -468,10 +478,14 @@ class VHostTable(gtk.Table):
                         cycle = None
                     cycle_gzip = stream[3]
                     streams.append(Stream(stream[0], cycle, cycle_gzip, stream[1]))
+                    streams[-1].custom = stream[4]
+                    streams[-1].custom_attrib = stream[5]
                 log_type, enabled = log[2]
                 if not enabled:
                     log_type = None
                 logs.append(Log(log[0], streams, log_type))
+                logs[-1].custom = log[3]
+                logs[-1].custom_attrib = log[4]
             vhost = VHost(row[0], logs = logs)
             for attribute in row[1]:
                 text, enabled = row[1][attribute]
@@ -480,6 +494,8 @@ class VHostTable(gtk.Table):
             for vhost_list in row[2]:
                 for entry in row[2][vhost_list]:
                     getattr(vhost, 'add_' + vhost_list)(*entry)
+            vhost.custom = row[4]
+            vhost.custom_attrib = row[5]
             vhosts.append(vhost)
             i = model.iter_next(i)
         return vhosts

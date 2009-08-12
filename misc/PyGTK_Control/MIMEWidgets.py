@@ -27,7 +27,9 @@ class MimeTreeView(gtk.TreeView):
                 gobject.TYPE_STRING, # mime name
                 gobject.TYPE_PYOBJECT, # mime single attributes
                 gobject.TYPE_PYOBJECT, # mime attribute lists
-                gobject.TYPE_PYOBJECT)) # mime definitions
+                gobject.TYPE_PYOBJECT, # mime definitions
+                gobject.TYPE_PYOBJECT, # mime custom
+                gobject.TYPE_PYOBJECT)) # mime custom attrib
         model = self.get_model()
         def mime_edited_handler(cell, path, text, data):
             model = data
@@ -61,7 +63,9 @@ class MimeTreeView(gtk.TreeView):
             model.append((getattr(mime, 'get_' + GUIConfig.mime_name)(),
                           attributes,
                           mime_lists,
-                          mime.get_definitions(), ))
+                          mime.get_definitions(),
+                          mime.custom,
+                          mime.custom_attrib, ))
 
 class MimeTable(gtk.Table):
     def __init__(self, tree, def_tree, def_table):
@@ -179,6 +183,8 @@ class MimeTable(gtk.Table):
         while i is not None: # iterate over MIME types
             row = model[i]
             mime = MIMEType(row[0], definitions = row[3])
+            mime.custom = row[4]
+            mime.custom_attrib = row[5]
             for attribute in row[1]:
                 text, enabled = row[1][attribute]
                 if enabled:
