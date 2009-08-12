@@ -20,28 +20,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define STDAFX_H
 
 #ifndef WIN32
-#include "config.h"
+# include "config.h"
 #endif
 
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+# include <config.h>
 #endif
 
 #ifdef HAVE_PTHREAD
-#include <pthread.h>
+# include <pthread.h>
 #endif
 
 #ifdef WIN32
 extern "C"
 {
-#include <winsock2.h>
-#include <tchar.h>
-#include <process.h>
+# include <winsock2.h>
+# include <tchar.h>
+# include <process.h>
 }
 #endif
 
 
-extern "C" {
+extern "C"
+{
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -49,22 +50,22 @@ extern "C" {
 #include <time.h>
 
 #ifndef WIN32
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <limits.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <limits.h>
 #endif
 }
 
 #ifndef MAX_PATH
-#ifdef PATH_MAX
-#define MAX_PATH PATH_MAX
-#else
-#define MAX_PATH 255
-#endif
+# ifdef PATH_MAX
+#  define MAX_PATH PATH_MAX
+# else
+#  define MAX_PATH 255
+# endif
 #endif
 
 #ifndef HOST_NAME_MAX
-#define HOST_NAME_MAX 255
+# define HOST_NAME_MAX 255
 #endif
 
 #define USE_NEW
@@ -78,11 +79,14 @@ typedef unsigned char u_char;
 typedef void* HANDLE;
 
 #ifndef SOCKET_ERROR
-#define SOCKET_ERROR -1
+# define SOCKET_ERROR -1
 #endif
 
 #ifndef INVALID_SOCKET
-#define INVALID_SOCKET -1
+# define INVALID_SOCKET -1
 #endif
 
 #endif
+
+
+#define _(X) X

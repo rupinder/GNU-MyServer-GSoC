@@ -135,6 +135,7 @@ public:
   void stop();
   void finalCleanup();
   int terminate();
+  int logWriteln (LoggingLevel level, const char *fmt, ...);
   int logWriteln(char const*, LoggingLevel level = MYSERVER_LOG_MSG_INFO);
   int logWriteln(string const &str)
     {return logWriteln(str.c_str());};
