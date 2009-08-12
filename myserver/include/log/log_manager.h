@@ -49,9 +49,10 @@ public:
            string & message, bool appendNL = false,
            LoggingLevel level = MYSERVER_LOG_MSG_INFO);
   int log (const void* owner, const string & type, const string & location,
-           LoggingLevel level, bool appendNL, const char *fmt, ...);
+           LoggingLevel level, bool ts, bool appendNL, const char *fmt, ...);
   int log (const void* owner, const string & type, const string & location,
-           LoggingLevel level, bool appendNL, const char *fmt, va_list args);
+           LoggingLevel level, bool ts, bool appendNL, const char *fmt,
+           va_list args);
 
   int close (const void *owner);
   int close (const void *owner, string type);

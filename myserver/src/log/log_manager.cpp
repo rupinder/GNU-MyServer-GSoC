@@ -18,6 +18,8 @@
 #include <include/log/log_manager.h>
 #include <include/server/server.h>
 
+#include <cstdarg>
+
 /*!
  * The constructor.
  *
@@ -556,12 +558,14 @@ LogManager::log (const void* owner, const string & type, const string & location
 /*!
  * Write a message on a single LogStream specifying a formatting string.
  *
- * \see LogManager#log (void*, string, string, LoggingLeve, bool, va_list)
+ * \see LogManager#log (void*, string, string, LoggingLevel, bool, bool,
+ * va_list)
  * \return 0 on success, 1 on error.
  */
 int
 LogManager::log (const void* owner, const string & type, const string & location,
-                 LoggingLevel level, bool appendNL, const char *fmt, ...)
+                 LoggingLevel level, bool ts, bool appendNL, const char *fmt,
+                 ...)
 {
   int failure = 0;
 
@@ -572,7 +576,7 @@ LogManager::log (const void* owner, const string & type, const string & location
 
   va_start (argptr, fmt);
 
-  failure = log (owner, type, location, level, appendNL, fmt, argptr);
+  failure = log (owner, type, location, level, ts, appendNL, fmt, argptr);
 
   va_end (argptr);
 
@@ -588,6 +592,7 @@ LogManager::log (const void* owner, const string & type, const string & location
  * \param message The message we want to write.
  * \param level The level of logging of this message. If it is less than
  * the LogManager's level of logging, the message will be discarded.
+ * \param ts Specify if a timestamp should be added before the message.
  * \param appendNL a flag that, if set, tells the LogManager to append
  * a new line sequence to the message, according to the host operating system
  * convention.
@@ -603,8 +608,8 @@ LogManager::log (const void* owner, const string & type, const string & location
  */
 int
 LogManager::log (const void* owner, const string & type, const string &
-                 location, LoggingLevel level, bool appendNL, const char *fmt,
-                 va_list args)
+                 location, LoggingLevel level, bool ts, bool appendNL,
+                 const char *fmt, va_list args)
 {
   int failure = 0;
 
@@ -617,6 +622,23 @@ LogManager::log (const void* owner, const string & type, const string &
 
   try
     {
+      if (ts)
+        {
+          char time[38];
+          int len;
+          time[0] = '[';
+          getRFC822GMTTime(&time[1], 32);
+          len = strlen(time);
+          time[len + 0] = ']';
+          time[len + 1] = ' ';
+          time[len + 2] = '-';
+          time[len + 3] = '-';
+          time[len + 4] = ' ';
+          time[len + 5] = '\0';
+          string timestr (time);
+          failure |= notify (owner, MYSERVER_LOG_EVT_LOG, &timestr);
+        }
+
       while (*fmt)
         {
           if (*fmt != '%')
