@@ -19,4 +19,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from distutils.core import setup
 setup(name = 'MyServer', version = '0.0',
       py_modules = ['MyServer.__init__'],
-      packages = ['MyServer/pycontrol', 'MyServer/pycontrollib'])
+      packages = ['MyServer/pycontrol', 'MyServer/pycontrollib', 'MyServer.GUI'])
