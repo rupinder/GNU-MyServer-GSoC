@@ -20,16 +20,16 @@ from __future__ import print_function
 import gtk
 import gtk.glade
 import gobject
-import GUIConfig
 from MyServer.pycontrollib.config import MyServerConfig
 from MyServer.pycontrollib.mimetypes import MIMETypes
 from MyServer.pycontrollib.controller import Controller
 from MyServer.pycontrollib.vhost import VHosts
-from AboutWindow import About
-from ConnectionWindow import Connection
-from DefinitionWidgets import DefinitionTable, DefinitionTreeView
-from MIMEWidgets import MimeTable, MimeTreeView
-from VHostWidgets import VHostTable, VHostTreeView
+from MyServer.GUI import GUIConfig
+from MyServer.GUI.AboutWindow import About
+from MyServer.GUI.ConnectionWindow import Connection
+from MyServer.GUI.DefinitionWidgets import DefinitionTable, DefinitionTreeView
+from MyServer.GUI.MIMEWidgets import MimeTable, MimeTreeView
+from MyServer.GUI.VHostWidgets import VHostTable, VHostTreeView
 
 class PyGTKControl():
     '''GNU MyServer Control main window.'''
