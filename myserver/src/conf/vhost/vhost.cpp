@@ -32,6 +32,10 @@
 #endif
 
 
+const string Vhost::accessLogType ("ACCESSLOG");
+const string Vhost::warningLogType ("WARNINGLOG");
+
+
 /*!
  *vhost costructor
  */
@@ -162,36 +166,25 @@ void Vhost::clearIPList()
       it++;
     }
   ipListDeny.clear();
-
-  /*
-  list<StringRegex*>::iterator i = ipList.begin();
-  while(i != ipList.end())
-    {
-      StringRegex* sr = *i;
-      delete sr;
-      i++;
-    }
-  hostList.clear();
-  */
 }
 
 int
 Vhost::openAccessLog (string location, list<string>& filters, u_long cycle)
 {
-  return logManager->add (this, "ACCESSLOG", location, filters, cycle);
+  return logManager->add (this, accessLogType, location, filters, cycle);
 }
 
 int
 Vhost::openWarningLog (string location, list<string>& filters, u_long cycle)
 {
-  return logManager->add (this, "WARNINGLOG", location, filters, cycle);
+  return logManager->add (this, warningLogType, location, filters, cycle);
 }
 
 int
 Vhost::openLogFiles ()
 { 
-  return logManager->count (this, "ACCESSLOG") == 0 ||
-    logManager->count (this, "WARNINGLOG") == 0;
+  return logManager->count (this, accessLogType) == 0 ||
+    logManager->count (this, warningLogType) == 0;
 }
 
 /*!
@@ -199,12 +192,12 @@ Vhost::openLogFiles ()
  *\param ip The ip to add.
  *\param isRegex Specify if the ip is specified as a regex.
  */
-void Vhost::addIP(const char *ip, int isRegex)
+void Vhost::addIP (const char *ip, int isRegex)
 {
-  std::string sTempIp(ip);
-  IpRange *pNewRange = IpRange::RangeFactory(sTempIp);
+  std::string sTempIp (ip);
+  IpRange *pNewRange = IpRange::RangeFactory (sTempIp);
   if ( pNewRange != NULL )
-    ipListAllow.push_back(pNewRange);
+    ipListAllow.push_back (pNewRange);
 }
 
 /*!
@@ -430,7 +423,8 @@ void Vhost::addHost(const char *host, int isRegex)
 int 
 Vhost::accessesLogWrite (const char* str)
 {
-  return logManager->log (this, "ACCESSLOG", string (str));
+  string msg (str);
+  return logManager->log (this, accessLogType, msg);
 }
 
 /*!
@@ -444,7 +438,7 @@ Vhost::warningsLogWrite (const char* str)
   getLocalLogFormatDate (msg, 100);
   msg.append (" -- ");
   msg.append (str);
-  return logManager->log (this, "WARNINGLOG", msg, true);
+  return logManager->log (this, warningLogType, msg, true);
 }
 
 /*!

@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
   MyServer
-  Copyright (C) 2006, 2008 Free Software Foundation, Inc.
+  Copyright (C) 2006, 2008, 2009 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -68,7 +68,7 @@ public:
   int setCycle (u_long cycle);
   int needToCycle ();
   list<string>& getCycledStreams ();
-  virtual int log (string message);
+  virtual int log (const string & message);
   virtual u_long streamSize ();
   virtual int chown (int uid, int gid);
   virtual int setMode (LoggingLevel level);

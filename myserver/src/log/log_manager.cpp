@@ -24,8 +24,7 @@
  * \param ff The FiltersFactory object.
  * \param level The default level of logging.
  */
-LogManager::LogManager (FiltersFactory* ff,
-                        LoggingLevel level) : level (level)
+LogManager::LogManager (FiltersFactory* ff,LoggingLevel level) : level (level)
 {
   this->ff = ff;
   lsf = new LogStreamFactory ();
@@ -100,7 +99,7 @@ LogManager::clear ()
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::add (void* owner, string type, string location,
+LogManager::add (const void *owner, string type, string location,
                  list<string>& filters, u_long cycle)
 {
   mutex->lock ();
@@ -121,7 +120,7 @@ LogManager::add (void* owner, string type, string location,
       ostringstream oss;
 
       oldSize = logStreamOwners[location].size ();
-      if (!contains (owner))
+      if (!containsOwner (owner))
         {
           failure = add (owner) || add (owner, type) ||
             add (owner, type, location, logStreams[location]);
@@ -151,12 +150,12 @@ LogManager::add (void* owner, string type, string location,
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::add (void* owner)
+LogManager::add (const void *owner)
 {
   int failure = 1;
   if (owner)
     {
-      if (!contains (owner))
+      if (!containsOwner (owner))
         {
           map<string, map<string, LogStream*> > type;
           owners[owner] = type;
@@ -175,7 +174,7 @@ LogManager::add (void* owner)
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::add (void* owner, string type)
+LogManager::add (const void *owner, string type)
 {
   int failure = 1;
   if (type.size ())
@@ -202,25 +201,21 @@ LogManager::add (void* owner, string type)
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::add (void* owner, string type, string location, LogStream* ls)
+LogManager::add (const void *owner, string type, string location, LogStream* ls)
 {
   if (!contains (location))
-    {
-      logStreams[location] = ls;
-    }
+    logStreams[location] = ls;
+
   if (!contains (owner, type, location))
-    {
-      owners[owner][type][location] = ls;
-    }
-  list<void*>* l = &logStreamOwners[location];
+    owners[owner][type][location] = ls;
+
+  list<const void*>* l = &logStreamOwners[location];
   if (find (l->begin (), l->end (), owner) == l->end ())
-    {
-      l->push_back (owner);
-    }
+    l->push_back (owner);
+
   if (contains (location) && contains (owner, type, location))
-    {
-      return 0;
-    }
+    return 0;
+
   return 1;
 }
 
@@ -236,34 +231,41 @@ LogManager::add (void* owner, string type, string location, LogStream* ls)
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::remove (void* owner)
+LogManager::remove (const void *owner)
 {
-  mutex->lock ();
   int failure = 1;
-  if (contains (owner))
+
+
+  mutex->lock ();
+
+  if (!containsOwner (owner))
     {
-      map<string, map<string, LogStream*> >* m = &owners[owner];
-      map<string, map<string, LogStream*> >::iterator it_1;
-      for (it_1 = m->begin (); it_1 != m->end (); it_1++)
-        {
-          map<string, LogStream*> *t = &it_1->second;
-          map<string, LogStream*>::iterator it_2;
-          for (it_2 = t->begin (); it_2 != t->end (); it_2++)
-            {
-              logStreamOwners[it_2->first].remove (owner);
-              if (!logStreamOwners[it_2->first].size ())
-                {
-                  delete it_2->second;
-                  logStreams.erase (it_2->first);
-                  logStreamOwners.erase (it_2->first);
-                }
-            }
-          t->clear ();
-        }
-      m->clear ();
-      owners.erase (owner);
-      failure = 0;
+      mutex->unlock ();
+      return 1;
     }
+
+  map<string, map<string, LogStream*> >* m = &owners[owner];
+  map<string, map<string, LogStream*> >::iterator it_1;
+  for (it_1 = m->begin (); it_1 != m->end (); it_1++)
+    {
+      map<string, LogStream*> *t = &it_1->second;
+      map<string, LogStream*>::iterator it_2;
+      for (it_2 = t->begin (); it_2 != t->end (); it_2++)
+        {
+          logStreamOwners[it_2->first].remove (owner);
+          if (!logStreamOwners[it_2->first].size ())
+            {
+              delete it_2->second;
+              logStreams.erase (it_2->first);
+              logStreamOwners.erase (it_2->first);
+            }
+        }
+      t->clear ();
+    }
+  m->clear ();
+  owners.erase (owner);
+  failure = 0;
+
   mutex->unlock ();
   return failure;
 }
@@ -283,14 +285,14 @@ LogManager::remove (void* owner)
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::notify (void* owner, string type, string location,
-                    LogStreamEvent evt, void* message, void* reply)
+LogManager::notify (const void* owner, const string & type, const string &
+                    location, LogStreamEvent evt, void* message, void* reply)
 {
   int failure = 1;
+
   if (contains (owner, type, location))
-    {
-      failure = owners[owner][type][location]->update (evt, message, reply);
-    }
+    failure = owners[owner][type][location]->update (evt, message, reply);
+
   return failure;
 }
 
@@ -308,7 +310,7 @@ LogManager::notify (void* owner, string type, string location,
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::notify (void* owner, string type, LogStreamEvent evt,
+LogManager::notify (const void* owner, const string & type, LogStreamEvent evt,
                     void* message, void* reply)
 {
   int failure = 1;
@@ -318,9 +320,7 @@ LogManager::notify (void* owner, string type, LogStreamEvent evt,
       map<string, LogStream*> m = owners[owner][type];
       map<string, LogStream*>::iterator it;
       for (it = m.begin (); it != m.end (); it++)
-        {
-          failure |= notify (owner, type, it->first, evt, message, reply);
-        }
+        failure |= notify (owner, type, it->first, evt, message, reply);
     }
   return failure;
 }
@@ -337,19 +337,17 @@ LogManager::notify (void* owner, string type, LogStreamEvent evt,
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::notify (void* owner, LogStreamEvent evt, void* message,
+LogManager::notify (const void* owner, LogStreamEvent evt, void* message,
                     void* reply)
 {
   int failure = 1;
-  if (contains (owner))
+  if (containsOwner (owner))
     {
       failure = 0;
       map<string, map<string, LogStream*> > m = owners[owner];
       map<string, map<string, LogStream*> >::iterator it;
       for (it = m.begin (); it != m.end (); it++)
-        {
-          failure |= notify (owner, it->first, evt, message, reply);
-        }
+        failure |= notify (owner, it->first, evt, message, reply);
     }
   return failure;
 }
@@ -364,7 +362,7 @@ LogManager::notify (void* owner, LogStreamEvent evt, void* message,
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::chown (void* owner, string &uid, string &gid)
+LogManager::chown (const void *owner, string &uid, string &gid)
 {
   string message[2];
   message[0] = uid;
@@ -384,7 +382,7 @@ LogManager::chown (void* owner, string &uid, string &gid)
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::chown (void* owner, string type, string &uid, string &gid)
+LogManager::chown (const void *owner, string type, string &uid, string &gid)
 {
   string message[2];
   message[0] = uid;
@@ -404,7 +402,7 @@ LogManager::chown (void* owner, string type, string &uid, string &gid)
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::chown (void* owner, string type, string location, string &uid, string &gid)
+LogManager::chown (const void *owner, string type, string location, string &uid, string &gid)
 {
   string message[2];
   message[0] = uid;
@@ -425,7 +423,7 @@ LogManager::chown (void* owner, string type, string location, string &uid, strin
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::log (void* owner, string message, bool appendNL,
+LogManager::log (const void* owner, string & message, bool appendNL,
                  LoggingLevel level)
 {
   int failure = 0;
@@ -437,7 +435,7 @@ LogManager::log (void* owner, string message, bool appendNL,
     {
       failure = notify (owner, MYSERVER_LOG_EVT_SET_MODE,
                         static_cast<void*>(&level))
-        || notify (owner,MYSERVER_LOG_EVT_LOG, static_cast<void*>(&message));
+        || notify (owner,MYSERVER_LOG_EVT_LOG, &message);
       if (appendNL)
         {
           LoggingLevel l = MYSERVER_LOG_MSG_PLAIN;
@@ -471,8 +469,8 @@ LogManager::log (void* owner, string message, bool appendNL,
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::log (void* owner, string type, string message, bool appendNL,
-                 LoggingLevel level)
+LogManager::log (const void* owner, const string & type, string & message,
+                 bool appendNL, LoggingLevel level)
 {
   int failure = 0;
   if (level < this->level)
@@ -521,8 +519,8 @@ LogManager::log (void* owner, string type, string message, bool appendNL,
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::log (void* owner, string type, string location, string message,
-                 bool appendNL, LoggingLevel level)
+LogManager::log (const void* owner, const string & type, const string & location,
+                 string & message, bool appendNL, LoggingLevel level)
 {
   int failure = 0;
   if (level < this->level)
@@ -533,9 +531,8 @@ LogManager::log (void* owner, string type, string location, string message,
   try
     {
       failure = notify (owner, type, location, MYSERVER_LOG_EVT_SET_MODE,
-                        static_cast<void*>(&level))
-        || notify (owner, type, location, MYSERVER_LOG_EVT_LOG,
-                   static_cast<void*>(&message));
+                        &level) || notify (owner, type, location,
+                                           MYSERVER_LOG_EVT_LOG, &message);
 
       if (appendNL)
         {
@@ -563,8 +560,8 @@ LogManager::log (void* owner, string type, string location, string message,
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::log (void* owner, string type, string location, LoggingLevel level,
-                 bool appendNL, const char *fmt, ...)
+LogManager::log (const void* owner, const string & type, const string & location,
+                 LoggingLevel level, bool appendNL, const char *fmt, ...)
 {
   int failure = 0;
 
@@ -605,8 +602,9 @@ LogManager::log (void* owner, string type, string location, LoggingLevel level,
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::log (void* owner, string type, string location, LoggingLevel level,
-                 bool appendNL, const char *fmt, va_list args)
+LogManager::log (const void* owner, const string & type, const string &
+                 location, LoggingLevel level, bool appendNL, const char *fmt,
+                 va_list args)
 {
   int failure = 0;
 
@@ -655,13 +653,11 @@ LogManager::log (void* owner, string type, string location, LoggingLevel level,
       string message = oss.str ();
 
       failure = notify (owner, type, location, MYSERVER_LOG_EVT_SET_MODE,
-                        static_cast<void*>(&level))
-        || notify (owner, type, location, MYSERVER_LOG_EVT_LOG,
-                   static_cast<void*>(&message));
+                        static_cast<void*>(&level)) || notify (owner, type,
+                                 location, MYSERVER_LOG_EVT_LOG, &message);
 
       if (appendNL)
-        failure |= notify (owner, MYSERVER_LOG_EVT_LOG,
-                           static_cast<void*>(&newline));
+        failure |= notify (owner, MYSERVER_LOG_EVT_LOG, &newline);
     }
   catch (...)
     {
@@ -682,7 +678,7 @@ LogManager::log (void* owner, string type, string location, LoggingLevel level,
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::close (void* owner)
+LogManager::close (const void *owner)
 {
   return notify (owner, MYSERVER_LOG_EVT_CLOSE);
 }
@@ -697,7 +693,7 @@ LogManager::close (void* owner)
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::close (void* owner, string type)
+LogManager::close (const void *owner, string type)
 {
   return notify (owner, type, MYSERVER_LOG_EVT_CLOSE);
 }
@@ -712,7 +708,7 @@ LogManager::close (void* owner, string type)
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::close (void* owner, string type, string location)
+LogManager::close (const void *owner, string type, string location)
 {
   return notify (owner, type, location, MYSERVER_LOG_EVT_CLOSE);
 }
@@ -727,7 +723,7 @@ LogManager::close (void* owner, string type, string location)
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::setCycle (void* owner, u_long cycle)
+LogManager::setCycle (const void *owner, u_long cycle)
 {
   return notify (owner, MYSERVER_LOG_EVT_SET_CYCLE, static_cast<void*>(&cycle));
 }
@@ -743,7 +739,7 @@ LogManager::setCycle (void* owner, u_long cycle)
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::setCycle (void* owner, string type, u_long cycle)
+LogManager::setCycle (const void *owner, string type, u_long cycle)
 {
   return notify (owner, type, MYSERVER_LOG_EVT_SET_CYCLE, static_cast<void*>(&cycle));
 }
@@ -760,7 +756,7 @@ LogManager::setCycle (void* owner, string type, u_long cycle)
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::setCycle (void* owner, string type, string location, u_long cycle)
+LogManager::setCycle (const void *owner, string type, string location, u_long cycle)
 {
   return notify (owner, type, location, MYSERVER_LOG_EVT_SET_CYCLE,
                  static_cast<void*>(&cycle));
@@ -798,9 +794,9 @@ LogManager::getCycle (string location, u_long* cycle)
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::get (void* owner, list<string>* l)
+LogManager::get (const void *owner, list<string>* l)
 {
-  if (contains (owner))
+  if (containsOwner (owner))
     {
       l->clear ();
       map<string, map<string, LogStream*> > m = owners[owner];
@@ -830,7 +826,7 @@ LogManager::get (void* owner, list<string>* l)
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::get (void* owner, string type, list<string>* l)
+LogManager::get (const void *owner, string type, list<string>* l)
 {
   if (contains (owner, type))
     {
@@ -860,7 +856,7 @@ LogManager::get (void* owner, string type, list<string>* l)
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::get (void* owner, string type, string location, LogStream** ls)
+LogManager::get (const void *owner, string type, string location, LogStream** ls)
 {
   if (contains (owner, type, location))
     {
@@ -970,10 +966,10 @@ LogManager::empty ()
  * \return true if `location' is already present within the LogManager.
  */
 bool
-LogManager::contains (string location)
+LogManager::contains (const string & location)
 {
-  return logStreams.count (location) > 0 &&
-    logStreamOwners[location].size ();
+  return logStreams.count (location) > 0
+    && logStreamOwners[location].size ();
 }
 
 /*!
@@ -986,7 +982,7 @@ LogManager::contains (string location)
  * \return true if `owner' is actually present within the LogManager.
  */
 bool
-LogManager::contains (void* owner)
+LogManager::containsOwner (const void* owner)
 {
   return owners.count (owner) > 0;
 }
@@ -1001,7 +997,7 @@ LogManager::contains (void* owner)
  * \return true if the tupe <owner, type> exists.
  */
 bool
-LogManager::contains (void* owner, string type)
+LogManager::contains (const void* owner, const string & type)
 {
   return owners[owner].count (type) > 0;
 }
@@ -1017,7 +1013,8 @@ LogManager::contains (void* owner, string type)
  * \return true if the unique <owner, type, location> tuple exists.
  */
 bool
-LogManager::contains (void* owner, string type, string location)
+LogManager::contains (const void* owner, const string & type, const string &
+                      location)
 {
   return owners[owner][type].count (location) > 0 &&
     (find (logStreamOwners[location].begin (), logStreamOwners[location].end (), owner) !=
@@ -1034,7 +1031,7 @@ LogManager::contains (void* owner, string type, string location)
  * its log categories.
  */
 int
-LogManager::count (void* owner)
+LogManager::count (const void* owner)
 {
   int size = 0;
   map<string, map<string, LogStream*> > m = owners[owner];
@@ -1056,7 +1053,7 @@ LogManager::count (void* owner)
  * \return The number of LogStream objects that belong to `type'.
  */
 int
-LogManager::count (void* owner, string type)
+LogManager::count (const void* owner, const string & type)
 {
   return owners[owner][type].size ();
 }
@@ -1073,7 +1070,8 @@ LogManager::count (void* owner, string type)
  * be greater than 1, since the tuple <owner, type, location> is a key.
  */
 int
-LogManager::count (void* owner, string type, string location)
+LogManager::count (const void* owner, const string & type, const string &
+                   location)
 {
   return owners[owner][type].count (location);
 }
@@ -1087,7 +1085,7 @@ LogManager::count (void* owner, string type, string location)
  * \return 0 if location is owned at least by an object, 1 else.
  */
 int
-LogManager::getOwnersList (string location, list<void*>* l)
+LogManager::getOwnersList (string location, list<const void*>* l)
 {
   if (contains (location))
     {
@@ -1106,12 +1104,11 @@ LogManager::getOwnersList (string location, list<void*>* l)
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::logWriteln (string msg, LoggingLevel l)
+LogManager::logWriteln (const string & msg, LoggingLevel l)
 {
   if (Server::getInstance ())
-    {
-      return Server::getInstance ()->logWriteln (msg.c_str (), l);
-    }
+    return Server::getInstance ()->logWriteln (msg.c_str (), l);
+
   return 1;
 }
 

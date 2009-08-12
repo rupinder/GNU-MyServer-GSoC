@@ -206,7 +206,11 @@ public:
   void setProtocolData(VhostProtocolData* data){protocolData = data;}
 
   MimeRecord* getLocationMime (string& loc){return locationsMime.get (loc);}
+
 private:
+  const static string accessLogType;
+  const static string warningLogType;
+
   VhostProtocolData*  protocolData;
 
   list<NodeTree<string>*> hashedDataTrees;

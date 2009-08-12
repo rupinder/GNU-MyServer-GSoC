@@ -100,10 +100,9 @@ void
 Server::initLogManager ()
 {
   if (!logLocation.size ())
-    {
-      logLocation.assign ("console://stdout");
-    }
-  if (!logManager->contains (this))
+    logLocation.assign ("console://stdout");
+
+  if (!logManager->containsOwner (this))
     {
       list<string> filters;
       logManager->add (this, "MAINLOG", logLocation, filters, 0);
@@ -607,7 +606,8 @@ void Server::mainLoop()
           if (logLocation.find ("console://") != string::npos)
             {
               char beep[] = { static_cast<char>(0x7), '\0' };
-              logManager->log (this, "MAINLOG", logLocation, string (beep));
+              string beepStr (beep);
+              logManager->log (this, "MAINLOG", logLocation, beepStr);
             }
           logWriteln("Reloading MIMEtypes.xml");
 
@@ -627,7 +627,8 @@ void Server::mainLoop()
           if (logLocation.find ("console://") != string::npos)
             {
               char beep[] = { static_cast<char>(0x7), '\0' };
-              logManager->log (this, "MAINLOG", logLocation, string (beep));
+              string beepStr (beep);
+              logManager->log (this, "MAINLOG", logLocation, beepStr);
             }
 
           logWriteln("Rebooting...");
@@ -677,7 +678,9 @@ void Server::logWriteNTimes(string str, unsigned n)
 {
   while (n--)
     logManager->log (this, "MAINLOG", logLocation, str);
-  logManager->log(this, "MAINLOG", logLocation, string (""), true);
+
+  string msg("");
+  logManager->log (this, "MAINLOG", logLocation, msg, true);
 }
 
 /*!
@@ -732,7 +735,8 @@ void Server::displayBoot()
     {
       ostringstream err;
       err << "Error: " << e.what();
-      logManager->log (this, "MAINLOG", logLocation, err.str (), true);
+      string str = err.str ();
+      logManager->log (this, "MAINLOG", logLocation, str, true);
       return;
     }
     catch(...)
@@ -1741,7 +1745,8 @@ int Server::reboot()
   if (logLocation.find ("console://") != string::npos)
   {
     char beep[] = { static_cast<char>(0x7), '\0' };
-    logManager->log (this, "MAINLOG", logLocation, string (beep));
+    string beepStr (beep);
+    logManager->log (this, "MAINLOG", logLocation, beepStr);
   }
 
   logWriteln("Rebooting...");
@@ -2045,10 +2050,12 @@ int Server::logWriteln(char const* str, LoggingLevel level)
     time[len + 3] = '-';
     time[len + 4] = ' ';
     time[len + 5] = '\0';
-    if (logManager->log (this, "MAINLOG", logLocation, string (time), false, level))
+    string timestr (time);
+    if (logManager->log (this, "MAINLOG", logLocation, timestr, false, level))
       return 1;
   }
-  return logManager->log (this, "MAINLOG", logLocation, string (str), true, level);
+  string msg (str);
+  return logManager->log (this, "MAINLOG", logLocation, msg, true, level);
 }
 
 /*!
