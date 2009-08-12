@@ -125,7 +125,7 @@ class MimeTable(gtk.Table):
             self.attach(remove_button, 0, 1, i + 1, i + 2, yoptions = gtk.FILL)
             self.attach(gtk.Label(), 0, 1, i + 2, i + 3)
             i += 3
-            
+
     def clear(self):
         '''Clear input widgets (including connected definition widgets).'''
         for entry, check in self.attributes.itervalues():

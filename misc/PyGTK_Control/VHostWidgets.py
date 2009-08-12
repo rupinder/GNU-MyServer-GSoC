@@ -137,7 +137,7 @@ class LogTreeView(gtk.TreeView):
         self.scroll.set_shadow_type(gtk.SHADOW_OUT)
         self.scroll.set_border_width(5)
         self.scroll.add(self)
-        
+
         self.last_selected = None
         self.connect('cursor-changed', self.cursor_changed)
 
@@ -148,7 +148,7 @@ class LogTreeView(gtk.TreeView):
         entry, check = self.log_type
         entry.set_text('')
         check.set_active(False)
-        
+
     def save_changed(self):
         self.stream_tree.save_changed()
         model = self.stream_tree.get_model()
@@ -291,7 +291,7 @@ class VHostTable(gtk.Table):
             self.attach(entry, 1, 2, i, i + 1, yoptions = gtk.FILL)
             self.attach(check, 2, 3, i, i + 1, gtk.FILL, gtk.FILL)
             i += 1
-            
+
         self.vhost_lists = {}
         for vhost_list in GUIConfig.vhost_lists: # Add attribute lists
             name = vhost_list[0]
@@ -362,7 +362,7 @@ class VHostTable(gtk.Table):
         self.attach(cycle_check, 2, 3, i + 4, i + 5, gtk.FILL, gtk.FILL)
         self.attach(cycle_gzip_label, 0, 1, i + 5, i + 6, yoptions = gtk.FILL)
         self.attach(cycle_gzip_check, 2, 3, i + 5, i + 6, gtk.FILL, gtk.FILL)
-        
+
         filter_tree = FilterTreeView()
         stream_tree = StreamTreeView(filter_tree,
                                      (cycle_entry, cycle_check, ),
@@ -409,7 +409,7 @@ class VHostTable(gtk.Table):
     def add_log(self):
         '''Add a log to currently selected VHost.'''
         self.log_model.append(('', [], ('', False, )))
-            
+
     def clear(self):
         '''Clear input widgets.'''
         for entry, check in self.attributes.itervalues():

@@ -91,22 +91,22 @@ class PyGTKControl():
         '''Get MIME config from remote server.'''
         if self.controller is not None:
             self.set_up_mime(self.controller.get_MIME_type_configuration())
-            
+
     def on_get_vhost_menu_item_activate(self, widget):
         '''Get VHost config from remote server.'''
         if self.controller is not None:
             self.set_up_vhost(self.controller.get_vhost_configuration())
-            
+
     def on_put_config_menu_item_activate(self, widget):
         '''Put server config on remote server.'''
         if self.controller is not None:
             self.controller.put_server_configuration(self.get_current_config())
-            
+
     def on_put_mime_menu_item_activate(self, widget):
         '''Put MIME config on remote server.'''
         if self.controller is not None:
             self.controller.put_MIME_type_configuration(self.get_current_mime())
-            
+
     def on_put_vhost_menu_item_activate(self, widget):
         '''Put VHost config on remote server.'''
         if self.controller is not None:
@@ -226,7 +226,7 @@ class PyGTKControl():
             config = config_method()
             with open(getattr(self, path), 'w') as f:
                 f.write(str(config))
-        
+
     def on_save_config_menu_item_activate(self, widget):
         '''Save server configuration to file.'''
         self.generic_save(
@@ -396,12 +396,12 @@ class PyGTKControl():
 
         panels = gtk.HPaned()
         tree = MimeTreeView()
-        panels.pack1(tree.scroll, False, False)
+        panels.pack1(tree.scroll, True, False)
         table = MimeTable(tree, def_tree, def_table)
-        panels.pack2(table, True, False)
+        panels.pack2(table, False, False)
 
         vpanels.pack1(panels)
-        
+
         self.mime_tab = ((table, tree, ), (def_table, def_tree), )
         self.widgets.get_widget('notebook').append_page(
             vpanels, gtk.Label('MIME Type'))
