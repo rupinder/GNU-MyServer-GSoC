@@ -136,137 +136,109 @@ class PyGTKControl():
         table.clear()
         tree.get_model().clear()
 
-    def on_open_config_menu_item_activate(self, widget):
-        '''Open local server configuration file.'''
+    def generic_open(self, dialog, config_type, set_up_method):
+        '''Open configuration file.'''
         if self.chooser is not None:
             self.chooser.destroy()
         self.chooser = gtk.FileChooserDialog(
-            'Open server configuration file.',
+            dialog,
             buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
                        gtk.STOCK_OPEN, gtk.RESPONSE_OK))
         def handle_response(widget, response):
             if response == gtk.RESPONSE_OK:
                 self.config_path = self.chooser.get_filename()
                 with open(self.config_path) as f:
-                    conf = MyServerConfig.from_string(f.read())
-                self.set_up_config(conf)
+                    conf = config_type.from_string(f.read())
+                set_up_method(conf)
             self.chooser.destroy()
         self.chooser.connect('response', handle_response)
         self.chooser.show()
+
+    def on_open_config_menu_item_activate(self, widget):
+        '''Open local server configuration file.'''
+        self.generic_open(
+            'Open server configuration file.',
+            MyServerConfig, self.set_up_config)
 
     def on_open_mime_menu_item_activate(self, widget):
         '''Open local MIME configuration file.'''
-        if self.chooser is not None:
-            self.chooser.destroy()
-        self.chooser = gtk.FileChooserDialog(
+        self.generic_open(
             'Open MIME configuration file.',
-            buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                       gtk.STOCK_OPEN, gtk.RESPONSE_OK))
-        def handle_response(widget, response):
-            if response == gtk.RESPONSE_OK:
-                self.mime_path = self.chooser.get_filename()
-                with open(self.mime_path) as f:
-                    conf = MIMETypes.from_string(f.read())
-                self.set_up_mime(conf)
-            self.chooser.destroy()
-        self.chooser.connect('response', handle_response)
-        self.chooser.show()
+            MIMETypes, self.set_up_mime)
 
     def on_open_vhost_menu_item_activate(self, widget):
         '''Open local VHost configuration file.'''
+        self.generic_open(
+            'Open VHost configuration file.',
+            VHosts, self.set_up_vhost)
+
+    def generic_save_as(self, dialog, widget, path, save_method):
+        '''Save configuration as file.'''
         if self.chooser is not None:
             self.chooser.destroy()
         self.chooser = gtk.FileChooserDialog(
-            'Open VHost configuration file.',
+            dialog,
+            action = gtk.FILE_CHOOSER_ACTION_SAVE,
             buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                       gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+                       gtk.STOCK_SAVE_AS, gtk.RESPONSE_OK))
         def handle_response(widget, response):
             if response == gtk.RESPONSE_OK:
-                self.vhost_path = self.chooser.get_filename()
-                with open(self.vhost_path) as f:
-                    conf = VHosts.from_string(f.read())
-                self.set_up_vhost(conf)
+                setattr(self, path, self.chooser.get_filename())
+                save_method(widget)
             self.chooser.destroy()
         self.chooser.connect('response', handle_response)
         self.chooser.show()
 
     def on_save_as_config_menu_item_activate(self, widget):
         '''Save server configuration as local file.'''
-        if self.chooser is not None:
-            self.chooser.destroy()
-        self.chooser = gtk.FileChooserDialog(
+        self.generic_save_as(
             'Save server configuration file.',
-            action = gtk.FILE_CHOOSER_ACTION_SAVE,
-            buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                       gtk.STOCK_SAVE_AS, gtk.RESPONSE_OK))
-        def handle_response(widget, response):
-            if response == gtk.RESPONSE_OK:
-                self.config_path = self.chooser.get_filename()
-                self.on_save_config_menu_item_activate(widget)
-            self.chooser.destroy()
-        self.chooser.connect('response', handle_response)
-        self.chooser.show()
+            widget, 'config_path',
+            self.on_save_config_menu_item_activate)
 
     def on_save_as_mime_menu_item_activate(self, widget):
         '''Save MIME configuration as local file.'''
-        if self.chooser is not None:
-            self.chooser.destroy()
-        self.chooser = gtk.FileChooserDialog(
+        self.generic_save_as(
             'Save MIME configuration file.',
-            action = gtk.FILE_CHOOSER_ACTION_SAVE,
-            buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                       gtk.STOCK_SAVE_AS, gtk.RESPONSE_OK))
-        def handle_response(widget, response):
-            if response == gtk.RESPONSE_OK:
-                self.mime_path = self.chooser.get_filename()
-                self.on_save_mime_menu_item_activate(widget)
-            self.chooser.destroy()
-        self.chooser.connect('response', handle_response)
-        self.chooser.show()
+            widget, 'mime_path',
+            self.on_save_mime_menu_item_activate)
 
     def on_save_as_vhost_menu_item_activate(self, widget):
         '''Save VHost configuration as local file.'''
-        if self.chooser is not None:
-            self.chooser.destroy()
-        self.chooser = gtk.FileChooserDialog(
+        self.generic_save_as(
             'Save VHost configuration file.',
-            action = gtk.FILE_CHOOSER_ACTION_SAVE,
-            buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                       gtk.STOCK_SAVE_AS, gtk.RESPONSE_OK))
-        def handle_response(widget, response):
-            if response == gtk.RESPONSE_OK:
-                self.vhost_path = self.chooser.get_filename()
-                self.on_save_vhost_menu_item_activate(widget)
-            self.chooser.destroy()
-        self.chooser.connect('response', handle_response)
-        self.chooser.show()
+            widget, 'vhost_path',
+            self.on_save_vhost_menu_item_activate)
 
+    def generic_save(self, widget, path, save_as_method, config_method):
+        '''Save configuration file.'''
+        if getattr(self, path) is None:
+            save_as_method(widget)
+        else:
+            config = config_method()
+            with open(getattr(self, path), 'w') as f:
+                f.write(str(config))
+        
     def on_save_config_menu_item_activate(self, widget):
         '''Save server configuration to file.'''
-        if self.config_path is None:
-            self.on_save_as_config_menu_item_activate(widget)
-        else:
-            config = self.get_current_config()
-            with open(self.config_path, 'w') as f:
-                f.write(str(config))
+        self.generic_save(
+            widget, 'config_path',
+            self.on_save_as_config_menu_item_activate,
+            self.get_current_config)
 
     def on_save_mime_menu_item_activate(self, widget):
         '''Save MIME configuration to file.'''
-        if self.mime_path is None:
-            self.on_save_as_mime_config_menu_item_activate(widget)
-        else:
-            config = self.get_current_mime()
-            with open(self.mime_path, 'w') as f:
-                f.write(str(config))
+        self.generic_save(
+            widget, 'mime_path',
+            self.on_save_as_mime_menu_item_activate,
+            self.get_current_mime)
 
     def on_save_vhost_menu_item_activate(self, widget):
         '''Save VHost configuration to file.'''
-        if self.vhost_path is None:
-            self.on_save_as_vhost_config_menu_item_activate(widget)
-        else:
-            config = self.get_current_vhost()
-            with open(self.vhost_path, 'w') as f:
-                f.write(str(config))
+        self.generic_save(
+            widget, 'vhost_path',
+            self.on_save_as_vhost_menu_item_activate,
+            self.get_current_vhost)
 
     def get_current_config(self):
         '''Returns current server configuration as MyServerConfig instance.'''
