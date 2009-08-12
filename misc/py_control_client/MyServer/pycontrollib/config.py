@@ -65,4 +65,6 @@ class MyServerConfig():
         root = etree.Element('MYSERVER')
         for definition in self.definitions.get_definitions():
             root.append(definition.to_lxml_element())
+        for element in self.definitions.custom:
+            root.append(element)
         return root

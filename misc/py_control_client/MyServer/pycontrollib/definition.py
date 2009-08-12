@@ -26,7 +26,6 @@ class Definition():
         '''Creates new definition with given name and attributes.'''
         self.set_name(name)
         self.attributes = {}
-        self.custom = [] # list of children not being definitions
         for key, value in attributes.iteritems():
             self.set_attribute(key, value)
 
@@ -137,6 +136,7 @@ class DefinitionTree(Definition):
         self.definitions = []
         for definition in definitions:
             self.add_definition(definition)
+        self.custom = [] # list of children not being definitions
 
     def __eq__(self, other):
         return isinstance(other, DefinitionTree) and \
@@ -208,16 +208,20 @@ class DefinitionList():
     def __init__(self, definitions = []):
         '''Construct new DefinitionList object with given definitions.'''
         self.definitions = []
+        self.custom = []
         for definition in definitions:
             self.add_definition(definition)
 
     def add_definition(self, definition, index = None):
         '''Append definition to current list of definitions, if index is not
         None insert at index-th position.'''
-        if index is None:
-            self.definitions.append(definition)
+        if not isinstance(definition, Definition):
+            self.custom.append(definition)
         else:
-            self.definitions.insert(index, definition)
+            if index is None:
+                self.definitions.append(definition)
+            else:
+                self.definitions.insert(index, definition)
 
     def get_definitions(self):
         '''Get current list of definitions.'''

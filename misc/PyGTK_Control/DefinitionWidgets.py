@@ -22,7 +22,7 @@ from MyServer.pycontrollib.definition import DefinitionElement, DefinitionTree
 
 class DefinitionTable(gtk.Table):
     def __init__(self, tree):
-        gtk.Table.__init__(self, 8, 3)
+        gtk.Table.__init__(self, 7, 3)
 
         tree.connect('cursor-changed', self.cursor_changed)
         self.last_selected = None
@@ -36,7 +36,7 @@ class DefinitionTable(gtk.Table):
         value_label = gtk.Label('value:')
         self.value_field = value_entry = gtk.Entry()
         self.value_check_field = value_checkbutton = gtk.CheckButton()
-        value_checkbutton.set_tooltip_text('If active value will be used.')
+        value_checkbutton.set_tooltip_text('If not active value won\'t be saved in configuration.')
         value_checkbutton.set_active(True)
 
         self.attach(value_label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
@@ -63,6 +63,7 @@ class DefinitionTable(gtk.Table):
 
         add_attribute_button = gtk.Button('add attribute')
         remove_attribute_button = gtk.Button('remove attribute')
+        button_table = gtk.Table(1, 2)
         add_attribute_button.connect(
             'clicked',
             lambda button: attributes_model.append(('', '', )))
@@ -71,8 +72,9 @@ class DefinitionTable(gtk.Table):
             if selected is not None:
                 model.remove(selected)
         remove_attribute_button.connect('clicked', remove_attribute)
-        self.attach(add_attribute_button, 0, 3, 4, 5, yoptions = gtk.FILL)
-        self.attach(remove_attribute_button, 0, 3, 5, 6, yoptions = gtk.FILL)
+        button_table.attach(add_attribute_button, 0, 1, 0, 1)
+        button_table.attach(remove_attribute_button, 1, 2, 0, 1)
+        self.attach(button_table, 0, 3, 4, 5, yoptions = gtk.FILL)
 
         attributes_label = gtk.Label('attributes:')
         attributes_list = gtk.TreeView(gtk.ListStore(gobject.TYPE_STRING,
@@ -105,8 +107,8 @@ class DefinitionTable(gtk.Table):
 
         attributes_list.append_column(variable_column)
         attributes_list.append_column(value_column)
-        self.attach(attributes_label, 0, 3, 6, 7, yoptions = gtk.FILL)
-        self.attach(attributes_scroll, 0, 3, 7, 8)
+        self.attach(attributes_label, 0, 3, 5, 6, yoptions = gtk.FILL)
+        self.attach(attributes_scroll, 0, 3, 6, 7)
 
     def clear(self):
         '''Clear input widgets.'''
@@ -252,7 +254,7 @@ class DefinitionTreeView(gtk.TreeView):
             i = model.iter_next(i)
 
     def set_up(self, definitions, search):
-        '''Sets up model reading from given definition list. If search in True
+        '''Sets up model reading from given definition list. If search is True
         will substitute alreaty present model data, if it is false will append
         all the definitions.'''
 

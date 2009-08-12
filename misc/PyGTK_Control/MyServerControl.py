@@ -44,6 +44,8 @@ class PyGTKControl():
         self.chooser = None # Active file chooser
         # path of currently edited files
         self.config_path = self.mime_path = self.vhost_path = None
+        # remembered unhandled parts of configs
+        self.config_custom = []
         self.controller = None
 
     def on_window_destroy(self, widget):
@@ -110,6 +112,7 @@ class PyGTKControl():
         '''Clears server configuration.'''
         if widget is not None:
             self.config_path = None
+        self.config_custom = []
         table, tree = self.tabs['unknown']
         tree.get_model().clear()
         for tab in self.tabs:
@@ -271,7 +274,9 @@ class PyGTKControl():
         for tab in self.tabs:
             table, tree = self.tabs[tab]
             definitions += table.make_def(tree)
-        return MyServerConfig(definitions)
+        config = MyServerConfig(definitions)
+        config.definitions.custom = self.config_custom
+        return config
 
     def get_current_mime(self):
         '''Returns current MIME configuration as MIMETypes instance.'''
@@ -319,6 +324,7 @@ class PyGTKControl():
     def set_up_config(self, config):
         '''Reads server configuration from given config instance.'''
         self.on_new_config_menu_item_activate()
+        self.config_custom = config.definitions.custom
         tabs = {}
         for tab in self.tabs:
             tabs[tab] = []
