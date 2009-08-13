@@ -409,7 +409,20 @@ class VHostTable(gtk.Table):
 
     def add_log(self):
         '''Add a log to currently selected VHost.'''
-        self.log_model.append(('', [], ('', False, )))
+        self.log_model.append(('', [], ('', False, ), [], {}, ))
+
+    def remove_log(self):
+        '''Remove currently selected log.'''
+        if self.log_tree.last_selected is not None:
+            self.log_model.remove(self.log_tree.last_selected)
+            self.log_tree.clear()
+
+    def remove_current(self, tree):
+        '''Remove currently selected VHost.'''
+        if self.last_selected is not None:
+            model = tree.get_model()
+            model.remove(self.last_selected)
+            self.clear()
 
     def clear(self):
         '''Clear input widgets.'''

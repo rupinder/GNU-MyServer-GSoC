@@ -289,6 +289,11 @@ class PyGTKControl():
             mime_lists[mime_list] = []
         tree.get_model().append(('', {}, mime_lists, [], [], {}, ))
 
+    def on_remove_mime_type_menu_item_activate(self, widget):
+        '''Removes selected MIME type.'''
+        table, tree = self.mime_tab[0]
+        table.remove_current(tree)
+
     def on_add_vhost_menu_item_activate(self, widget):
         '''Adds a new VHost.'''
         table, tree = self.vhost_tab
@@ -296,6 +301,11 @@ class PyGTKControl():
         for vhost_list in GUIConfig.vhost_lists:
             vhost_lists[vhost_list[0]] = []
         tree.get_model().append(('', {}, vhost_lists, [], [], {}, ))
+
+    def on_remove_vhost_menu_item_activate(self, widget):
+        '''Removes selected VHost.'''
+        table, tree = self.vhost_tab
+        table.remove_current(tree)
 
     def on_add_definition_to_mime_menu_item_activate(self, widget):
         '''Adds a definition to currently selected MIME type.'''
@@ -306,6 +316,11 @@ class PyGTKControl():
         '''Adds a log to currently selected VHost.'''
         table, tree = self.vhost_tab
         table.add_log()
+
+    def on_remove_log_from_vhost_menu_item_activate(self, widget):
+        '''Removes selected log from currently selected VHost.'''
+        table, tree = self.vhost_tab
+        table.remove_log()
 
     def set_up_config(self, config):
         '''Reads server configuration from given config instance.'''
@@ -412,7 +427,7 @@ class PyGTKControl():
         '''Reads vhost options from file and prepares GUI.'''
         panels = gtk.HPaned()
         tree = VHostTreeView()
-        panels.pack1(tree.scroll, False, False)
+        panels.pack1(tree.scroll, True, False)
         table = VHostTable(tree)
         panels.pack2(table.scroll, True, False)
 

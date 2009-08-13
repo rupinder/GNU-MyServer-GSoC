@@ -382,6 +382,21 @@
                       </widget>
                     </child>
                     <child>
+                      <widget class="GtkImageMenuItem" id="remove_mime_type_menu_item">
+                        <property name="label">Remove MIME type</property>
+                        <property name="visible">True</property>
+                        <property name="use_stock">False</property>
+                        <signal name="activate" handler="on_remove_mime_type_menu_item_activate"/>
+                        <child internal-child="image">
+                          <widget class="GtkImage" id="remove_mime_type_image">
+                            <property name="visible">True</property>
+                            <property name="stock">gtk-remove</property>
+                            <property name="icon-size">1</property>
+                          </widget>
+                        </child>
+                      </widget>
+                    </child>
+                    <child>
                       <widget class="GtkImageMenuItem" id="add_definition_to_mime_menu_item">
                         <property name="label">Add definition to MIME type</property>
                         <property name="visible">True</property>
@@ -424,6 +439,21 @@
                       </widget>
                     </child>
                     <child>
+                      <widget class="GtkImageMenuItem" id="remove_vhost_menu_item">
+                        <property name="label">Remove VHost</property>
+                        <property name="visible">True</property>
+                        <property name="use_stock">False</property>
+                        <signal name="activate" handler="on_remove_vhost_menu_item_activate"/>
+                        <child internal-child="image">
+                          <widget class="GtkImage" id="remove_vhost_image">
+                            <property name="visible">True</property>
+                            <property name="stock">gtk-remove</property>
+                            <property name="icon-size">1</property>
+                          </widget>
+                        </child>
+                      </widget>
+                    </child>
+                    <child>
                       <widget class="GtkImageMenuItem" id="add_log_to_vhost_menu_item">
                         <property name="label">Add log to VHost</property>
                         <property name="visible">True</property>
@@ -433,6 +463,21 @@
                           <widget class="GtkImage" id="add_log_to_vhost_image">
                             <property name="visible">True</property>
                             <property name="stock">gtk-add</property>
+                            <property name="icon-size">1</property>
+                          </widget>
+                        </child>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkImageMenuItem" id="remove_log_from_vhost_menu_item">
+                        <property name="label">Remove log from VHost</property>
+                        <property name="visible">True</property>
+                        <property name="use_stock">False</property>
+                        <signal name="activate" handler="on_remove_log_from_vhost_menu_item_activate"/>
+                        <child internal-child="image">
+                          <widget class="GtkImage" id="remove_log_from_vhost_image">
+                            <property name="visible">True</property>
+                            <property name="stock">gtk-remove</property>
                             <property name="icon-size">1</property>
                           </widget>
                         </child>
