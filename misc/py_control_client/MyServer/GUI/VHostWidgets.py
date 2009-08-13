@@ -386,6 +386,7 @@ class VHostTable(gtk.Table):
             model, selected = tree.get_selection().get_selected()
             if selected is not None:
                 model.remove(selected)
+                tree.last_selected = None
         remove_stream_button = gtk.Button('Remove stream')
         remove_stream_button.connect('clicked', remove_selected, stream_tree)
         remove_filter_button = gtk.Button('Remove filter')
