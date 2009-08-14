@@ -1930,8 +1930,7 @@ int Server::logWriteln (LoggingLevel level, const char *fmt, ...)
 
   bool ts = (logLocation.find ("console://") == string::npos);
 
-  failure = logManager->log (this, "MAINLOG", logLocation, level, ts, true, fmt,
-                             argptr);
+  failure = logManager->log (this, "MAINLOG", level, ts, true, fmt, argptr);
 
   va_end (argptr);
 

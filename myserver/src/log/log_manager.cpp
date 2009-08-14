@@ -532,9 +532,8 @@ LogManager::log (const void* owner, const string & type, const string & location
 
   try
     {
-      failure = notify (owner, type, location, MYSERVER_LOG_EVT_SET_MODE,
-                        &level) || notify (owner, type, location,
-                                           MYSERVER_LOG_EVT_LOG, &message);
+      failure = notify (owner, type, MYSERVER_LOG_EVT_SET_MODE, &level)
+        || notify (owner, type, MYSERVER_LOG_EVT_LOG, &message);
 
       if (appendNL)
         {
@@ -558,14 +557,12 @@ LogManager::log (const void* owner, const string & type, const string & location
 /*!
  * Write a message on a single LogStream specifying a formatting string.
  *
- * \see LogManager#log (void*, string, string, LoggingLevel, bool, bool,
- * va_list)
+ * \see LogManager#log (void*, string, LoggingLevel, bool, bool, va_list)
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::log (const void* owner, const string & type, const string & location,
-                 LoggingLevel level, bool ts, bool appendNL, const char *fmt,
-                 ...)
+LogManager::log (const void* owner, const string & type, LoggingLevel level,
+                 bool ts, bool appendNL, const char *fmt, ...)
 {
   int failure = 0;
 
@@ -576,7 +573,7 @@ LogManager::log (const void* owner, const string & type, const string & location
 
   va_start (argptr, fmt);
 
-  failure = log (owner, type, location, level, ts, appendNL, fmt, argptr);
+  failure = log (owner, type, level, ts, appendNL, fmt, argptr);
 
   va_end (argptr);
 
@@ -588,7 +585,6 @@ LogManager::log (const void* owner, const string & type, const string & location
  *
  * \param owner The object that owns the LogStream.
  * \param type The log category where we want to write.
- * \param location The target LogStream.
  * \param message The message we want to write.
  * \param level The level of logging of this message. If it is less than
  * the LogManager's level of logging, the message will be discarded.
@@ -607,9 +603,8 @@ LogManager::log (const void* owner, const string & type, const string & location
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::log (const void* owner, const string & type, const string &
-                 location, LoggingLevel level, bool ts, bool appendNL,
-                 const char *fmt, va_list args)
+LogManager::log (const void* owner, const string & type, LoggingLevel level,
+                 bool ts, bool appendNL, const char *fmt, va_list args)
 {
   int failure = 0;
 
@@ -627,7 +622,7 @@ LogManager::log (const void* owner, const string & type, const string &
           char time[38];
           int len;
           time[0] = '[';
-          getRFC822GMTTime(&time[1], 32);
+          getRFC822GMTTime (&time[1], 32);
           len = strlen(time);
           time[len + 0] = ']';
           time[len + 1] = ' ';
@@ -674,9 +669,9 @@ LogManager::log (const void* owner, const string & type, const string &
 
       string message = oss.str ();
 
-      failure = notify (owner, type, location, MYSERVER_LOG_EVT_SET_MODE,
-                        static_cast<void*>(&level)) || notify (owner, type,
-                                 location, MYSERVER_LOG_EVT_LOG, &message);
+      failure = notify (owner, type, MYSERVER_LOG_EVT_SET_MODE,
+                        static_cast<void*>(&level))
+             || notify (owner, type, MYSERVER_LOG_EVT_LOG, &message);
 
       if (appendNL)
         failure |= notify (owner, MYSERVER_LOG_EVT_LOG, &newline);
