@@ -30,6 +30,7 @@ from MyServer.GUI.ConnectionWindow import Connection
 from MyServer.GUI.DefinitionWidgets import DefinitionTable, DefinitionTreeView
 from MyServer.GUI.MIMEWidgets import MimeTable, MimeTreeView
 from MyServer.GUI.VHostWidgets import VHostTable, VHostTreeView
+from MyServer.GUI.BrowserWidgets import BrowserTable
 
 class PyGTKControl():
     '''GNU MyServer Control main window.'''
@@ -41,6 +42,7 @@ class PyGTKControl():
         self.construct_options()
         self.construct_mime()
         self.construct_vhosts()
+        self.construct_browser()
         self.chooser = None # Active file chooser
         # path of currently edited files
         self.config_path = self.mime_path = self.vhost_path = None
@@ -434,6 +436,15 @@ class PyGTKControl():
         self.vhost_tab = (table, tree, )
         self.widgets.get_widget('notebook').append_page(
             panels, gtk.Label('VHosts'))
+
+        self.widgets.get_widget('notebook').show_all()
+
+    def construct_browser(self):
+        '''Constructs file browser.'''
+        table = BrowserTable()
+        
+        self.widgets.get_widget('notebook').append_page(
+            table, gtk.Label('File browser'))
 
         self.widgets.get_widget('notebook').show_all()
 
