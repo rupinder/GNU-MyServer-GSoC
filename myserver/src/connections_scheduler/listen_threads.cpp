@@ -86,7 +86,7 @@ int ListenThreads::createServerAndListener(u_short port)
    */
   try
     {
-      if ( serverSocketIPv4 != NULL )
+      if (serverSocketIPv4 != NULL)
         {
           serverSocketIPv4->socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
           if (serverSocketIPv4->getHandle() == (Handle)INVALID_SOCKET)
@@ -143,7 +143,7 @@ int ListenThreads::createServerAndListener(u_short port)
       if (serverSocketIPv6 != NULL)
         {
           serverSocketIPv6->socket (AF_INET6, SOCK_STREAM, IPPROTO_TCP);
-          if ( serverSocketIPv6->getHandle () == (FileHandle)INVALID_SOCKET)
+          if (serverSocketIPv6->getHandle () == (FileHandle)INVALID_SOCKET)
             {
               server->logWriteln (MYSERVER_LOG_MSG_ERROR,
                                  _("Error while creating the server socket"));
@@ -221,7 +221,7 @@ int ListenThreads::createServerAndListener(u_short port)
           serverSocketIPv6 = NULL;
         }
 
-      if ( serverSocketIPv4 == NULL && serverSocketIPv6 == NULL )
+      if (serverSocketIPv4 == NULL && serverSocketIPv6 == NULL)
         {
           delete si;
           return 1;
@@ -239,12 +239,12 @@ int ListenThreads::createServerAndListener(u_short port)
 
       return 0;
     }
-  catch( bad_alloc &ba)
+  catch(bad_alloc &ba)
     {
       server->logWriteln (MYSERVER_LOG_MSG_ERROR, _("Bad alloc: %s"),
                           ba.what ());
     }
-  catch( exception &e)
+  catch(exception &e)
     {
       server->logWriteln (MYSERVER_LOG_MSG_ERROR, _("Error: %s"),
                           e.what ());

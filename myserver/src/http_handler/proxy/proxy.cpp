@@ -62,9 +62,7 @@ int Proxy::send (HttpThreadContext *td,
 
   if (destUrl.getProtocol ().compare ("http") && destUrl.getProtocol ().compare ("HTTP"))
     {
-      ostringstream msg;
-      msg << "Proxy: " << destUrl.getProtocol () << " is not a known protocol.";
-      td->connection->host->warningsLogWrite (msg.str ().c_str ());
+      td->connection->host->warningsLogWrite ("Proxy: %s is not a known protocol", destUrl.getProtocol ());
       return 0;
     }
 

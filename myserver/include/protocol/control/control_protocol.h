@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2004, 2005, 2008 Free Software Foundation, Inc.
+Copyright (C) 2004, 2005, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -55,12 +55,7 @@ protected:
   int putFile(ConnectionPtr,char*, File* in, File* out, 
               char *b1,int bs1, ControlHeader&);
   int getVersion(ConnectionPtr,File* out, char *b1,int bs1, ControlHeader&);
-  int addToErrorLog(ConnectionPtr con, const char *b1, int bs1, ControlHeader&);
   int addToLog(int retCode, ConnectionPtr con, char *b1, int bs1, ControlHeader&);
-  int addToErrorLog(ConnectionPtr con, string& m, ControlHeader& header)
-  {
-    return addToErrorLog(con, m.c_str(), m.size(), header);
-  }
 };
 
 #endif

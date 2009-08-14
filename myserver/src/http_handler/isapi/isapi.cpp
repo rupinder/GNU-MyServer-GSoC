@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
- 
+
 #include <include/http_handler/isapi/isapi.h>
 #include <include/protocol/http/http.h>
 #include <include/server/server.h>
@@ -39,25 +39,25 @@ ConnTableRecord *Isapi::connTable = 0;
 
 
 BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
-                                              LPVOID lpvBuffer, LPDWORD lpdwSize, 
-                                              LPDWORD lpdwDataType) 
+                                              LPVOID lpvBuffer, LPDWORD lpdwSize,
+                                              LPDWORD lpdwDataType)
 {
   string tmp;
   ConnTableRecord *ConnInfo;
   int ret;
-  char *buffer = 0;  
-  char uri[MAX_PATH];/*! Under windows use MAX_PATH. */  
+  char *buffer = 0;
+  char uri[MAX_PATH];/*! Under windows use MAX_PATH. */
   Isapi::isapiMutex->lock();
   ConnInfo = Isapi::HConnRecord(hConn);
   Isapi::isapiMutex->unlock();
-  if (ConnInfo == NULL) 
-  {
-    Server::getInstance()->logWriteln("isapi::ServerSupportFunctionExport: invalid hConn");
-    return 0;
-  }
+  if (ConnInfo == NULL)
+    {
+      Server::getInstance()->logWriteln("isapi::ServerSupportFunctionExport: invalid hConn");
+      return 0;
+    }
 
-  switch (dwHSERRequest) 
-  {
+  switch (dwHSERRequest)
+    {
     case HSE_REQ_MAP_URL_TO_PATH_EX:
       HSE_URL_MAPEX_INFO  *mapInfo;
       mapInfo=(HSE_URL_MAPEX_INFO*)lpdwDataType;
@@ -66,20 +66,20 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
       ret=ConnInfo->td->http->getPath(tmp,(char*)lpvBuffer, 0);
       if(ret != 200)
         return 1;
-      
+
       mapInfo->cchMatchingURL=(DWORD)strlen((char*)lpvBuffer);
       mapInfo->cchMatchingPath=(DWORD)strlen(mapInfo->lpszPath);
       delete [] mapInfo->lpszPath;
       mapInfo->lpszPath = new char[tmp.length() + 1];
       if(mapInfo->lpszPath == 0)
         if(buffer==0)
-        {
-          SetLastError(ERROR_INSUFFICIENT_BUFFER);
-          return 0;            
-        }
+          {
+            SetLastError(ERROR_INSUFFICIENT_BUFFER);
+            return 0;
+          }
       strcpy(mapInfo->lpszPath, tmp.c_str());
-      mapInfo->dwFlags = HSE_URL_FLAGS_WRITE | HSE_URL_FLAGS_SCRIPT 
-                                             | HSE_URL_FLAGS_EXECUTE;
+      mapInfo->dwFlags = HSE_URL_FLAGS_WRITE | HSE_URL_FLAGS_SCRIPT
+        | HSE_URL_FLAGS_EXECUTE;
       break;
     case HSE_REQ_MAP_URL_TO_PATH:
       if(((char*)lpvBuffer)[0])
@@ -89,78 +89,76 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
                  (int)ConnInfo->td->request.uri.length()-ConnInfo->td->pathInfo.length() +1);
       ret = ConnInfo->td->http->getPath(tmp ,uri,0);
       if(ret!=200)
-      {
-        if(buffer)
-          delete [] buffer;
-        return 1;
-      }
-      
+        {
+          if(buffer)
+            delete [] buffer;
+          return 1;
+        }
+
       if(tmp.length() >= *lpdwSize)
-      {
-        SetLastError(ERROR_INSUFFICIENT_BUFFER);
-        return 0;
-      }    
+        {
+          SetLastError(ERROR_INSUFFICIENT_BUFFER);
+          return 0;
+        }
       strcpy((char*)lpvBuffer, tmp.c_str());
       if(FilesUtility::completePath((char**)&lpvBuffer,(int*)lpdwSize,  1))
-      {
-        SetLastError(ERROR_INSUFFICIENT_BUFFER);
-        return 0;
-      }
+        {
+          SetLastError(ERROR_INSUFFICIENT_BUFFER);
+          return 0;
+        }
       *lpdwSize=(DWORD)strlen((char*)lpvBuffer);
       break;
-  case HSE_REQ_SEND_URL_REDIRECT_RESP:
-    return ((Isapi*)ConnInfo->isapi)->Redirect(ConnInfo->td,
-                              ConnInfo->connection,(char *)lpvBuffer);
-    break;
-  case HSE_REQ_SEND_URL:
-    return ((Isapi*)ConnInfo->isapi)->Senduri(ConnInfo->td,
-                                           ConnInfo->connection,(char *)lpvBuffer);
-    break;
-  case HSE_REQ_SEND_RESPONSE_HEADER:
-    return ((Isapi*)ConnInfo->isapi)->SendHeader(ConnInfo->td,
-                                           ConnInfo->connection,(char *)lpvBuffer);
-    break;
-  case HSE_REQ_DONE_WITH_SESSION:
-    ConnInfo->td->response.httpStatus=*(DWORD*)lpvBuffer;
-    SetEvent(ConnInfo->ISAPIDoneEvent);
-    break;
-  case HSE_REQ_IS_KEEP_CONN:
-    if(ConnInfo->td->request.isKeepAlive())
-      *((BOOL*)lpvBuffer)=1;
-    else
-      *((BOOL*)lpvBuffer)=0;
-    break;
-  default:
-    return 0;
-  }
+    case HSE_REQ_SEND_URL_REDIRECT_RESP:
+      return ((Isapi*)ConnInfo->isapi)->Redirect(ConnInfo->td,
+                                                 ConnInfo->connection,(char *)lpvBuffer);
+      break;
+    case HSE_REQ_SEND_URL:
+      return ((Isapi*)ConnInfo->isapi)->Senduri(ConnInfo->td,
+                                                ConnInfo->connection,(char *)lpvBuffer);
+      break;
+    case HSE_REQ_SEND_RESPONSE_HEADER:
+      return ((Isapi*)ConnInfo->isapi)->SendHeader(ConnInfo->td,
+                                                   ConnInfo->connection,(char *)lpvBuffer);
+      break;
+    case HSE_REQ_DONE_WITH_SESSION:
+      ConnInfo->td->response.httpStatus=*(DWORD*)lpvBuffer;
+      SetEvent(ConnInfo->ISAPIDoneEvent);
+      break;
+    case HSE_REQ_IS_KEEP_CONN:
+      if(ConnInfo->td->request.isKeepAlive())
+        *((BOOL*)lpvBuffer)=1;
+      else
+        *((BOOL*)lpvBuffer)=0;
+      break;
+    default:
+      return 0;
+    }
   return 1;
 }
 
 /*!
- *Add a connection to the table.
+ * Add a connection to the table.
  */
-ConnTableRecord *Isapi::HConnRecord(HCONN hConn) 
+ConnTableRecord *Isapi::HConnRecord (HCONN hConn)
 {
   u_long connIndex;
 
   connIndex =((u_long) hConn) - 1;
   ConnTableRecord *ConnInfo;
-  if ((connIndex < 0) || (connIndex >= maxConnections)) 
-  {
+  if ((connIndex < 0) || (connIndex >= maxConnections))
     return NULL;
-  }
+
   ConnInfo = &(connTable[connIndex]);
-  if (ConnInfo->Allocated == 0) 
-  {
+  if (ConnInfo->Allocated == 0)
     return NULL;
-  }
+
   return ConnInfo;
 }
 
 /*!
  *Send an HTTP redirect.
  */
-int Isapi::Redirect(HttpThreadContext* td, ConnectionPtr a, char *URL) 
+int Isapi::Redirect(HttpThreadContext* td, ConnectionPtr a, char *URL)
 {
   return td->http->sendHTTPRedirect(URL);
 }
@@ -181,7 +179,7 @@ int Isapi::Senduri(HttpThreadContext* td, ConnectionPtr a, char *URL)
 int Isapi::SendHeader(HttpThreadContext* td,ConnectionPtr a,char *data)
 {
   HttpHeaders::buildHTTPResponseHeaderStruct(data,
-                                             &td->response, 
+                                             &td->response,
                                              &(td->nBytesToRead));
   return 1;
 }
@@ -189,7 +187,7 @@ int Isapi::SendHeader(HttpThreadContext* td,ConnectionPtr a,char *data)
 /*!
  *Write directly to the output.
  */
-BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, 
+BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes,
                                     DWORD /*!dwReserved*/)
 {
   int keepalive;
@@ -200,20 +198,19 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 
   if(*lpdwBytes == 0)
     return 1;
-  
+
   Isapi::isapiMutex->lock();
   ConnInfo = Isapi::HConnRecord(hConn);
   Isapi::isapiMutex->unlock();
-  
+
   if(ConnInfo == NULL)
     return 1;
   buffer=(char*)ConnInfo->td->buffer->getBuffer();
   HttpRequestHeader::Entry *connection = ConnInfo->td->request.other.get("Connection");
 
-  if (ConnInfo == NULL) 
+  if (ConnInfo == NULL)
   {
-    ((Vhost*)(ConnInfo->td->connection->host))->warningsLogWrite(
-                                        "ISAPI: WriteClientExport: invalid hConn");
+    ((Vhost*)(ConnInfo->td->connection->host))->warningsLogWrite(_("ISAPI: internal error"));
     return 0;
   }
   keepalive =connection && (!stringcmpi(connection->value->c_str(), "keep-alive")) ;
@@ -253,7 +250,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
           }
         }
       }
-    } 
+    }
     /*!
      *Handle the HTTP header if exists.
      */
@@ -262,7 +259,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
       int len = ConnInfo->headerSize-headerSize;
 
       HttpHeaders::buildHTTPResponseHeaderStruct(ConnInfo->td->buffer->getBuffer(),
-                                                 &ConnInfo->td->response, 
+                                                 &ConnInfo->td->response,
                                                  &(ConnInfo->td->nBytesToRead));
 
 
@@ -284,17 +281,17 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
         }
         else
           ConnInfo->td->response.connection.assign("Close");
-        
+
         u_long hdrLen = HttpHeaders::buildHTTPResponseHeader ((char*)ConnInfo->td->secondaryBuffer->getBuffer(),
                                                               &(ConnInfo->td->response));
-  
+
         if(ConnInfo->connection->socket->send(
                      (char*)ConnInfo->td->secondaryBuffer->getBuffer(), hdrLen, 0)==-1)
           return 0;
       }
       /*! Save the headerSent status. */
       ConnInfo->headerSent=1;
-      
+
       /*! If only the header was requested return. */
       if(ConnInfo->headerSent && ConnInfo->onlyHeader || ConnInfo->td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL)
         return 0;
@@ -310,7 +307,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
                                                  (int)strlen(chunkSize), &nbw))
             return 0;
         }
-        
+
         if(ConnInfo->td->appendOutputs)
         {
           if(ConnInfo->td->outputData.writeToFile((char*)(buffer + headerSize),
@@ -344,7 +341,7 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
     if(keepalive  && (!ConnInfo->td->appendOutputs))
     {
       sprintf (chunkSize, "%x\r\n", *lpdwBytes);
-      nbw = ConnInfo->connection->socket->send (chunkSize, 
+      nbw = ConnInfo->connection->socket->send (chunkSize,
                                                 (int)strlen(chunkSize), 0);
       if((nbw == (u_long)-1) || (!nbw))
         return 0;
@@ -381,30 +378,29 @@ BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwByte
 /*!
  *Read directly from the client.
  */
-BOOL WINAPI ISAPI_ReadClientExport(HCONN hConn, LPVOID lpvBuffer, 
-                                   LPDWORD lpdwSize ) 
+BOOL WINAPI ISAPI_ReadClientExport(HCONN hConn, LPVOID lpvBuffer,
+                                   LPDWORD lpdwSize )
 {
   ConnTableRecord *ConnInfo;
   u_long NumRead;
-  
+
   Isapi::isapiMutex->lock();
   ConnInfo = Isapi::HConnRecord(hConn);
   Isapi::isapiMutex->unlock();
-  if (ConnInfo == NULL) 
+  if (ConnInfo == NULL)
   {
-    ((Vhost*)(ConnInfo->td->connection->host))->warningsLogWrite(
-                                    "ISAPI: ReadClientExport: invalid hConn");
+    ((Vhost*)(ConnInfo->td->connection->host))->warningsLogWrite(_("ISAPI: internal error"));
     return 0;
   }
 
   ConnInfo->td->inputData.read((char*)lpvBuffer, *lpdwSize, &NumRead);
 
-  if (NumRead == -1) 
+  if (NumRead == -1)
   {
     *lpdwSize = 0;
     return 0;
   }
-  else 
+  else
   {
     *lpdwSize = (DWORD)NumRead;
     return 1;
@@ -414,36 +410,36 @@ BOOL WINAPI ISAPI_ReadClientExport(HCONN hConn, LPVOID lpvBuffer,
 /*!
  *Get server environment variable.
  */
-BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn, 
-                                          LPSTR lpszVariableName, 
-                                          LPVOID lpvBuffer, 
-                                          LPDWORD lpdwSize) 
+BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn,
+                                          LPSTR lpszVariableName,
+                                          LPVOID lpvBuffer,
+                                          LPDWORD lpdwSize)
 {
   ConnTableRecord *ConnInfo;
   BOOL ret =1;
   Isapi::isapiMutex->lock();
   ConnInfo = Isapi::HConnRecord(hConn);
   Isapi::isapiMutex->unlock();
-  if (ConnInfo == NULL) 
+  if (ConnInfo == NULL)
   {
     Server::getInstance()->logWriteln(
                        "Isapi::GetServerVariableExport: invalid hConn");
     return 0;
   }
 
-  if (!strcmp(lpszVariableName, "ALL_HTTP")) 
+  if (!strcmp(lpszVariableName, "ALL_HTTP"))
   {
 
         if(Isapi::buildAllHttpHeaders(ConnInfo->td,ConnInfo->connection, lpvBuffer, lpdwSize))
       ret=1;
-    
+
         else
     {
       SetLastError(ERROR_INSUFFICIENT_BUFFER);
       ret=0;
     }
-      
-  }else if(!strcmp(lpszVariableName, "ALL_RAW")) 
+
+  }else if(!strcmp(lpszVariableName, "ALL_RAW"))
   {
     if(Isapi::buildAllRawHeaders(ConnInfo->td,ConnInfo->connection,
                                  lpvBuffer, lpdwSize))
@@ -453,12 +449,12 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn,
       SetLastError(ERROR_INSUFFICIENT_BUFFER);
       ret = 0;
     }
-      
+
   }
   else
   {
     /*!
-     *find in ConnInfo->envString the value lpszVariableName 
+     *find in ConnInfo->envString the value lpszVariableName
      *and copy next string in lpvBuffer.
      */
     char *localEnv;
@@ -471,7 +467,7 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn,
       if(((localEnv[i + variableNameLen]) == '=') &&
          (!strncmp(&localEnv[i], lpszVariableName, variableNameLen)))
       {
-        strncpy((char*)lpvBuffer, &localEnv[i + variableNameLen + 1], 
+        strncpy((char*)lpvBuffer, &localEnv[i + variableNameLen + 1],
                 *lpdwSize);
         break;
       }
@@ -500,16 +496,16 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td, ConnectionPtr /*!a*/,
   if(accept && accept->value->length() && (valLen+30<maxLen))
     valLen += sprintf(&ValStr[valLen],"HTTP_ACCEPT:%s\n",
                     accept->value->c_str());
-  else if(valLen + 30 < maxLen) 
+  else if(valLen + 30 < maxLen)
     return 0;
 
   if(cache && cache->value->length() && (valLen+30<maxLen))
-    valLen += sprintf(&ValStr[valLen], "HTTP_CACHE_CONTROL:%s\n", 
+    valLen += sprintf(&ValStr[valLen], "HTTP_CACHE_CONTROL:%s\n",
                     cache->value->c_str());
-  else if(valLen + 30 < maxLen) 
+  else if(valLen + 30 < maxLen)
     return 0;
 
-  if((td->request.rangeByteBegin || td->request.rangeByteEnd) && 
+  if((td->request.rangeByteBegin || td->request.rangeByteEnd) &&
      (valLen + 30 < maxLen))
   {
     ostringstream rangeBuffer;
@@ -522,7 +518,7 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td, ConnectionPtr /*!a*/,
     if(td->request.rangeByteEnd)
     {
       rangeBuffer << td->request.rangeByteEnd;
-     }   
+     }
     valLen += sprintf(&ValStr[valLen], "%s\n", rangeBuffer.str().c_str());
   }
 
@@ -531,7 +527,7 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td, ConnectionPtr /*!a*/,
     if(e && (valLen + 30 < maxLen))
       valLen += sprintf(&ValStr[valLen], "HTTP_ACCEPT_ENCODING:%s\n",
                         e->value->c_str());
-    else if(valLen + 30 < maxLen) 
+    else if(valLen + 30 < maxLen)
       return 0;
   }
 
@@ -541,7 +537,7 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td, ConnectionPtr /*!a*/,
     if(e && (valLen + 30 < maxLen))
       valLen += sprintf(&ValStr[valLen],"HTTP_ACCEPT_LANGUAGE:%s\n",
                       e->value->c_str());
-    else if(valLen + 30 < maxLen) 
+    else if(valLen + 30 < maxLen)
       return 0;
   }
 
@@ -551,7 +547,7 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td, ConnectionPtr /*!a*/,
     if(e && (valLen + 30 < maxLen))
       valLen += sprintf(&ValStr[valLen],"HTTP_ACCEPT_CHARSET:%s\n",
                       e->value->c_str());
-    else if(valLen + 30 < maxLen) 
+    else if(valLen + 30 < maxLen)
       return 0;
   }
 
@@ -560,7 +556,7 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td, ConnectionPtr /*!a*/,
     if(e && (valLen + 30 < maxLen))
       valLen += sprintf(&ValStr[valLen],"HTTP_PRAGMA:%s\n",
                       e->value->c_str());
-    else if(valLen + 30 < maxLen) 
+    else if(valLen + 30 < maxLen)
       return 0;
   }
 
@@ -569,7 +565,7 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td, ConnectionPtr /*!a*/,
     if(e && (valLen + 30< maxLen))
       valLen += sprintf(&ValStr[valLen],"HTTP_CONNECTION:%s\n",
                       e->value->c_str());
-    else if(valLen + 30 < maxLen) 
+    else if(valLen + 30 < maxLen)
       return 0;
   }
 
@@ -578,7 +574,7 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td, ConnectionPtr /*!a*/,
     if(e && (valLen + 30 < maxLen))
       valLen += sprintf(&ValStr[valLen],"HTTP_COOKIE:%s\n",
                       e->value->c_str());
-    else if(valLen + 30 < maxLen) 
+    else if(valLen + 30 < maxLen)
       return 0;
   }
 
@@ -587,7 +583,7 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td, ConnectionPtr /*!a*/,
     if(e && (valLen + 30 < maxLen))
       valLen += sprintf(&ValStr[valLen],"HTTP_HOST:%s\n",
                       e->value->c_str());
-    else if(valLen + 30 < maxLen) 
+    else if(valLen + 30 < maxLen)
       return 0;
   }
 
@@ -596,7 +592,7 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td, ConnectionPtr /*!a*/,
     if(e && (valLen + 30 < maxLen))
       valLen += sprintf(&ValStr[valLen],"HTTP_DATE:%s\n",
                       e->value->c_str());
-    else if(valLen + 30 < maxLen) 
+    else if(valLen + 30 < maxLen)
       return 0;
   }
 
@@ -605,7 +601,7 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td, ConnectionPtr /*!a*/,
     if(e && (valLen + 30 < maxLen))
       valLen += sprintf(&ValStr[valLen],"HTTP_IF_MODIFIED_SINCE:%s\n",
                       e->value->c_str());
-    else if(valLen + 30 < maxLen) 
+    else if(valLen + 30 < maxLen)
       return 0;
   }
 
@@ -614,7 +610,7 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td, ConnectionPtr /*!a*/,
     if(e && (valLen + 30 < maxLen))
       valLen += sprintf(&ValStr[valLen],"HTTP_REFERER:%s\n",
                       e->value->c_str());
-    else if(valLen + 30 < maxLen) 
+    else if(valLen + 30 < maxLen)
       return 0;
   }
 
@@ -623,7 +619,7 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td, ConnectionPtr /*!a*/,
     if(e && (valLen + 30 < maxLen))
       valLen += sprintf(&ValStr[valLen],"HTTP_USER_AGENT:%s\n",
                       e->value->c_str());
-    else if(valLen + 30 < maxLen) 
+    else if(valLen + 30 < maxLen)
       return 0;
   }
 
@@ -632,7 +628,7 @@ BOOL Isapi::buildAllHttpHeaders(HttpThreadContext* td, ConnectionPtr /*!a*/,
     if(e && (valLen + 30 < maxLen))
       valLen += sprintf(&ValStr[valLen],"HTTP_FROM:%s\n",
                       e->value->c_str());
-    else if(valLen + 30 < maxLen) 
+    else if(valLen + 30 < maxLen)
       return 0;
   }
 
@@ -655,63 +651,63 @@ BOOL Isapi::buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
   if(td->pathInfo.length() && (valLen + 30 < maxLen))
     valLen += sprintf(&ValStr[valLen], "PATH_INFO:%s\n",
                       td->pathInfo.c_str());
-  else if(valLen + 30 < maxLen) 
+  else if(valLen + 30 < maxLen)
     return 0;
-  
+
   if(td->pathTranslated.length() && (valLen + 30 < maxLen))
     valLen += sprintf(&ValStr[valLen], "PATH_INFO:%s\n",
                       td->pathTranslated.c_str());
-  else if(valLen + 30 < maxLen) 
+  else if(valLen + 30 < maxLen)
     return 0;
 
   if(td->request.uriOpts[0] && (valLen + 30 < maxLen))
     valLen += sprintf(&ValStr[valLen], "QUERY_STRING:%s\n",
                       td->request.uriOpts[0]);
-  else if(valLen + 30 < maxLen) 
+  else if(valLen + 30 < maxLen)
     return 0;
 
   if(td->request.cmd[0] && (valLen + 30 < maxLen))
     valLen += sprintf(&ValStr[valLen], "REQUEST_METHOD:%s\n",
                       td->request.cmd[0]);
-  else if(valLen + 30 < maxLen) 
+  else if(valLen + 30 < maxLen)
     return 0;
 
   if(td->filenamePath.length() && (valLen + 30 < maxLen))
-    valLen += sprintf(&ValStr[valLen], "SCRIPT_FILENAME:%s\n", 
+    valLen += sprintf(&ValStr[valLen], "SCRIPT_FILENAME:%s\n",
                       td->filenamePath[0]);
-  else if(valLen + 30 < maxLen) 
+  else if(valLen + 30 < maxLen)
     return 0;
 
   if(valLen + 30 < maxLen)
-    valLen += sprintf(&ValStr[valLen], "SERVER_PORT:%u\n", 
+    valLen += sprintf(&ValStr[valLen], "SERVER_PORT:%u\n",
                       td->connection->getLocalPort());
-  else if(valLen + 30 < maxLen) 
+  else if(valLen + 30 < maxLen)
     return 0;
 
   if(valLen + 30 < maxLen)
-    valLen += sprintf(&ValStr[valLen], 
+    valLen += sprintf(&ValStr[valLen],
                       "SERVER_SIGNATURE:<address>%s</address>\n",
                       MYSERVER_VERSION);
-  else if(valLen + 30 < maxLen) 
+  else if(valLen + 30 < maxLen)
     return 0;
 
   if(td->connection->getIpAddr()[0] && valLen + 30 < maxLen)
     valLen += sprintf(&ValStr[valLen], "REMOTE_ADDR:\n",
                       td->connection->getIpAddr());
-  else if(valLen + 30 < maxLen) 
+  else if(valLen + 30 < maxLen)
     return 0;
 
   if(td->connection->getPort() && valLen + 30 < maxLen)
     valLen += sprintf(&ValStr[valLen], "REMOTE_PORT:%u\n",
                       td->connection->getPort());
-  else if(valLen + 30 < maxLen) 
+  else if(valLen + 30 < maxLen)
     return 0;
 
   if(valLen + 30 < maxLen)
-    valLen += sprintf(&ValStr[valLen], "SERVER_ADMIN:%s\n", 
+    valLen += sprintf(&ValStr[valLen], "SERVER_ADMIN:%s\n",
                       td->securityToken.getHashedData ("server.admin", MYSERVER_VHOST_CONF |
                                                        MYSERVER_SERVER_CONF, ""));
-  else if(valLen + 30 < maxLen) 
+  else if(valLen + 30 < maxLen)
     return 0;
 
   if(valLen + MAX_PATH < maxLen)
@@ -722,7 +718,7 @@ BOOL Isapi::buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
     valLen += (DWORD)td->request.uri.length()-td->pathInfo.length() + 1;
     valLen += (DWORD)sprintf(&ValStr[valLen],"\n");
   }
-  else if(valLen + 30 < maxLen) 
+  else if(valLen + 30 < maxLen)
     return 0;
   return 1;
 }
@@ -733,7 +729,7 @@ BOOL Isapi::buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
  *Main procedure to call an ISAPI module.
  */
 int Isapi::send(HttpThreadContext* td,
-                const char* scriptpath, const char *cgipath, 
+                const char* scriptpath, const char *cgipath,
                 bool execute, bool onlyHeader)
 {
 /*!
@@ -750,18 +746,18 @@ int Isapi::send(HttpThreadContext* td,
   const char *loadLib;
   int retvalue = 0;
   /*! Under windows there is MAX_PATH then we can use it. */
-  char fullpath[MAX_PATH * 2];
+  char fullpath[MAX_PATH * 2 + 5];
 
-  if(!execute)
+  if (!execute)
   {
-    if(cgipath && strlen(cgipath))
-      sprintf(fullpath, "%s \"%s\"", cgipath, td->filenamePath.c_str());
+    if (cgipath && strlen(cgipath))
+      sprintf (fullpath, "%s \"%s\"", cgipath, td->filenamePath.c_str());
     else
-      sprintf(fullpath, "%s", td->filenamePath.c_str());
+      sprintf (fullpath, "%s", td->filenamePath.c_str());
   }
   else
   {
-    sprintf(fullpath, "%s", cgipath);
+    sprintf (fullpath, "%s", cgipath);
   }
 
   if (!(td->permissions & MYSERVER_PERMISSION_EXECUTE))
@@ -772,19 +768,18 @@ int Isapi::send(HttpThreadContext* td,
   EnterCriticalSection(&GetTableEntryCritSec);
   connIndex = 0;
   Isapi::isapiMutex->lock();
-  while ((connTable[connIndex].Allocated != 0) && 
-         (connIndex < maxConnections)) 
+  while ((connTable[connIndex].Allocated != 0) &&
+         (connIndex < maxConnections))
   {
     connIndex++;
   }
   Isapi::isapiMutex->unlock();
   LeaveCriticalSection(&GetTableEntryCritSec);
 
-  if (connIndex == maxConnections) 
+  if (connIndex == maxConnections)
   {
-    td->connection->host->warningsLogWrite(
-                                            "ISAPI: Error max connections");
-    return td->http->raiseHTTPError(503);
+    td->connection->host->warningsLogWrite (_("ISAPI: max connections"));
+    return td->http->raiseHTTPError (503);
   }
   if(execute)
     loadLib = scriptpath;
@@ -794,13 +789,10 @@ int Isapi::send(HttpThreadContext* td,
   Ret = appHnd.loadLibrary(loadLib);
 
   if(Ret)
-  {
-    string msg;
-    msg.assign("ISAPI: Cannot load library ");
-    msg.append(loadLib);
-    td->connection->host->warningsLogWrite(msg.c_str());
-    return td->http->raiseHTTPError(500);
-  }
+    {
+      td->connection->host->warningsLogWrite (_("ISAPI: cannot load %s"), loadLib);
+      return td->http->raiseHTTPError(500);
+    }
 
   connTable[connIndex].chain.setProtocol(td->http);
   connTable[connIndex].chain.setProtocolData(td);
@@ -808,14 +800,14 @@ int Isapi::send(HttpThreadContext* td,
   if(td->mime)
   {
     u_long nbw;
-    if(td->mime && Server::getInstance()->getFiltersFactory()->chain(
+    if(td->mime && Server::getInstance()->getFiltersFactory()->chain (
                                           &(connTable[connIndex].chain),
-                                          td->mime->filters, 
-                                          td->connection->socket, 
+                                          td->mime->filters,
+                                          td->connection->socket,
                                           &nbw, 1))
       {
-        td->connection->host->warningsLogWrite("Error loading filters");
-        connTable[connIndex].chain.clearAllFilters(); 
+        td->connection->host->warningsLogWrite (_("ISAPI: internal error"));
+        connTable[connIndex].chain.clearAllFilters();
         return td->http->raiseHTTPError(500);
       }
   }
@@ -828,76 +820,51 @@ int Isapi::send(HttpThreadContext* td,
   connTable[connIndex].dataSent = 0;
   connTable[connIndex].Allocated = 1;
   connTable[connIndex].isapi = this;
-  connTable[connIndex].ISAPIDoneEvent = CreateEvent(NULL, 1, 0, NULL);
-  
-  GetExtensionVersion = (PFN_GETEXTENSIONVERSION)appHnd.getProc("GetExtensionVersion");
+  connTable[connIndex].ISAPIDoneEvent = CreateEvent (NULL, 1, 0, NULL);
 
-  if (GetExtensionVersion == NULL) 
+  GetExtensionVersion = (PFN_GETEXTENSIONVERSION)appHnd.getProc ("GetExtensionVersion");
+
+  if (GetExtensionVersion == NULL)
   {
-    td->connection->host->warningsLogWrite(
-           "ISAPI: Failed to get pointer to GetExtensionVersion() in ISAPI application");
-    if(!appHnd.close())
-    {
-      string msg;
-      msg.assign("ISAPI: Failed to freeLibrary in ISAPI module: ");
-      msg.append(cgipath);
-      msg.append("\r\n");
-      td->connection->host->warningsLogWrite(msg.c_str());
-    }
-    connTable[connIndex].chain.clearAllFilters(); 
+    td->connection->host->warningsLogWrite (_("ISAPI: internal error"));
+    appHnd.close ();
+    connTable[connIndex].chain.clearAllFilters ();
+    return td->http->raiseHTTPError (500);
+  }
+  if (!GetExtensionVersion (&Ver))
+  {
+    td->connection->host->warningsLogWrite (_("ISAPI: internal error"));
+    appHnd.close ();
+    connTable[connIndex].chain.clearAllFilters ();
     return td->http->raiseHTTPError(500);
   }
-  if(!GetExtensionVersion(&Ver)) 
+  if (Ver.dwExtensionVersion > MAKELONG(HSE_VERSION_MINOR,
+                                        HSE_VERSION_MAJOR))
   {
-    td->connection->host->warningsLogWrite(
-                             "ISAPI: GetExtensionVersion() returned FALSE");
-
-    if(!appHnd.close())
-    {
-      string msg;
-      msg.assign("ISAPI: Failed to freeLibrary in ISAPI module: ");
-      msg.append(cgipath);
-      td->connection->host->warningsLogWrite(msg.c_str());
-    }
-    connTable[connIndex].chain.clearAllFilters(); 
-    return td->http->raiseHTTPError(500);
-  }
-  if (Ver.dwExtensionVersion > MAKELONG(HSE_VERSION_MINOR, 
-                                        HSE_VERSION_MAJOR)) 
-  {
-    td->connection->host->warningsLogWrite(
-                                       "ISAPI: version not supported");
-
-    if(!appHnd.close())
-    {
-      string msg;
-      msg.assign("ISAPI: Failed to freeLibrary in ISAPI module: ");
-      msg.append(cgipath);
-      td->connection->host->warningsLogWrite(msg.c_str());
-    }
-    connTable[connIndex].chain.clearAllFilters(); 
-    return td->http->raiseHTTPError(500);
+    td->connection->host->warningsLogWrite (_("ISAPI: version not supported"));
+    appHnd.close ();
+    connTable[connIndex].chain.clearAllFilters ();
+    return td->http->raiseHTTPError (500);
   }
   /*!
    *Store the environment string in the secondaryBuffer.
    */
   connTable[connIndex].envString=td->secondaryBuffer->getBuffer();
-  
+
   /*!
    *Build the environment string.
    */
   td->scriptPath.assign(scriptpath);
 
-  {
-    string tmp;
-    tmp.assign(cgipath);
-    FilesUtility::splitPath(tmp, td->cgiRoot, td->cgiFile);
-    tmp.assign(scriptpath);
-    FilesUtility::splitPath(tmp, td->scriptDir, td->scriptFile);
-  }
+  string tmp;
+  tmp.assign (cgipath);
+  FilesUtility::splitPath (tmp, td->cgiRoot, td->cgiFile);
+  tmp.assign (scriptpath);
+  FilesUtility::splitPath (tmp, td->scriptDir, td->scriptFile);
+
   connTable[connIndex].envString[0]='\0';
   Env::buildEnvironmentString(td,connTable[connIndex].envString);
-  
+
   ZeroMemory(&ExtCtrlBlk, sizeof(ExtCtrlBlk));
   ExtCtrlBlk.cbSize = sizeof(ExtCtrlBlk);
   ExtCtrlBlk.dwVersion = MAKELONG(HSE_VERSION_MINOR, HSE_VERSION_MAJOR);
@@ -919,23 +886,20 @@ int Isapi::send(HttpThreadContext* td,
   ExtCtrlBlk.cbAvailable = 0;
   ExtCtrlBlk.lpbData = 0;
   {
-    HttpRequestHeader::Entry *content = 
+    HttpRequestHeader::Entry *content =
       td->request.other.get("Content-Type");
-    ExtCtrlBlk.lpszContentType = content ? (char*)content->value->c_str() 
+    ExtCtrlBlk.lpszContentType = content ? (char*)content->value->c_str()
                                          : 0;
   }
 
   connTable[connIndex].td->buffer->setLength(0);
   connTable[connIndex].td->buffer->getAt(0)='\0';
   HttpExtensionProc = (PFN_HTTPEXTENSIONPROC)appHnd.getProc("HttpExtensionProc");
-  if (HttpExtensionProc == NULL) 
+  if (HttpExtensionProc == NULL)
   {
-    td->connection->host->warningsLogWrite(
-                     "ISAPI: Failed to get pointer to HttpExtensionProc() \
-in ISAPI application module");
-
+    td->connection->host->warningsLogWrite(_("ISAPI: internal error"));
     appHnd.close();
-    connTable[connIndex].chain.clearAllFilters(); 
+    connTable[connIndex].chain.clearAllFilters();
     return td->http->raiseHTTPError(500);
   }
 
@@ -944,7 +908,7 @@ in ISAPI application module");
   {
     WaitForSingleObject(connTable[connIndex].ISAPIDoneEvent, td->http->getTimeout ());
   }
-  
+
   {
     u_long nbw = 0;
     HttpRequestHeader::Entry *connection = connTable[connIndex].td->request.other.get("Connection");
@@ -952,8 +916,8 @@ in ISAPI application module");
     if(connection && !stringcmpi(connection->value->c_str(), "keep-alive"))
       Ret = connTable[connIndex].chain.getStream ()->write("0\r\n\r\n", 5, &nbw);
   }
-  
-  switch(Ret) 
+
+  switch(Ret)
   {
     case HSE_STATUS_SUCCESS_AND_KEEP_CONN:
       retvalue = 1;
@@ -966,43 +930,34 @@ in ISAPI application module");
       break;
   }
 
-  if(!appHnd.close())
-  {
-    string msg;
-    msg.assign("ISAPI: Failed to unLoad module "); 
-    msg.append(cgipath);
-    td->connection->host->warningsLogWrite(msg.c_str());
-  }
+  appHnd.close();
 
-  {
-    ostringstream tmp;
-    tmp <<  connTable[connIndex].dataSent;
-    connTable[connIndex].td->response.contentLength.assign(tmp.str()); 
-  }                                      
-  connTable[connIndex].chain.clearAllFilters(); 
+  ostringstream tmp;
+  tmp <<  connTable[connIndex].dataSent;
+  connTable[connIndex].td->response.contentLength.assign (tmp.str ());
+  connTable[connIndex].chain.clearAllFilters();
   connTable[connIndex].Allocated = 0;
   return retvalue;
 #else
-  /*!
-   *On other archs returns a non implemented error. 
+  /*
+   * On other archs returns a non implemented error.
    */
-  td->connection->host->warningsLogWrite(
-                                   "ISAPI: Not implemented");
+  td->connection->host->warningsLogWrite (_("ISAPI: Not implemented"));
   return td->http->raiseHTTPError(501);
-#endif  
+#endif
 }
 
 /*!
-*Constructor for the ISAPI class.
-*/
+ * Constructor for the ISAPI class.
+ */
 Isapi::Isapi()
 {
 
 }
 
 /*!
-*Initialize the ISAPI engine under WIN32.
-*/
+ * Initialize the ISAPI engine under WIN32.
+ */
 int Isapi::load ()
 {
 #ifdef WIN32
@@ -1012,10 +967,10 @@ int Isapi::load ()
 
   isapiMutex = new Mutex;
   maxConnections = nThreads ? nThreads : 20 ;
-  
+
   if(connTable)
     free(connTable);
-    
+
   connTable = new ConnTableRecord[maxConnections];
   for(int i=0;i<maxConnections; i++)
   {
@@ -1028,16 +983,16 @@ int Isapi::load ()
     connTable[i].envString=0;
     connTable[i].connection=0;
     connTable[i].ISAPIDoneEvent=0;
-    connTable[i].isapi=0;         
+    connTable[i].isapi=0;
   }
-  InitializeCriticalSection(&GetTableEntryCritSec);  
+  InitializeCriticalSection(&GetTableEntryCritSec);
   initialized=1;
 #endif
   return 0;
 }
 
 /*!
- *Cleanup the memory used by ISAPI.
+ * Cleanup the memory used by ISAPI.
  */
 int Isapi::unLoad()
 {

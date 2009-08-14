@@ -622,22 +622,14 @@ int HttpFile::send (HttpThreadContext* td,
     file->close ();
     delete file;
   }
-  catch (bad_alloc &ba)
-    {
-      file->close ();
-      delete file;
-      td->connection->host->warningsLogWrite ("HttpFile: Error allocating memory");
-      chain.clearAllFilters ();
-      return td->http->raiseHTTPError (500);
-    }
   catch (...)
     {
       file->close ();
       delete file;
-      td->connection->host->warningsLogWrite ("HttpFile: Internal error");
+      td->connection->host->warningsLogWrite (_("HttpFile: internal error"));
       chain.clearAllFilters ();
       return td->http->raiseHTTPError (500);
-    };
+    }
 
   /* For logging activity.  */
   td->sentData += dataSent;

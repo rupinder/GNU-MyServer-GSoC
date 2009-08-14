@@ -462,7 +462,7 @@ void Ftp::logAccess (int nReplyCode, const std::string & sCustomText)
 #endif
 
   if (td.pConnection->host)
-    td.pConnection->host->accessesLogWrite (td.secondaryBuffer->getBuffer ());
+    td.pConnection->host->accessesLogWrite ("%s", td.secondaryBuffer->getBuffer ());
 }
 
 int Ftp::closeDataConnection ()
@@ -475,17 +475,7 @@ int Ftp::closeDataConnection ()
 
 int Ftp::printError (const char *msg)
 {
-  /* Log the reply.  */
-  string time;
-  getLocalLogFormatDate (time, 32);
-
-  td.secondaryBuffer->setLength (0);
-  *td.secondaryBuffer << td.pConnection->getIpAddr ();
-  *td.secondaryBuffer << " " << time << " " << msg;
-
-  if (td.pConnection->host)
-    td.pConnection->host->warningsLogWrite (td.secondaryBuffer->getBuffer ());
-
+  td.pConnection->host->warningsLogWrite ("%s", msg);
   return 1;
 }
 
@@ -1365,7 +1355,7 @@ DEFINE_THREAD (ReceiveImageFile, pParam)
 #endif
         }
     }
-  
+
   if (pFtpuserData->m_pDataConnection == NULL ||
       pFtpuserData->m_pDataConnection->socket == NULL)
     {
@@ -1562,7 +1552,7 @@ Ftp::OpenDataConnection ()
   if (pFtpuserData->m_nFtpstate == FtpuserData::DATA_CONNECTION_UP)
     return 1;
 
-  int nRet = pFtpuserData->m_bPassiveSrv ? openDataPassive () 
+  int nRet = pFtpuserData->m_bPassiveSrv ? openDataPassive ()
                                          : openDataActive ();
   if (nRet != 0)
     pFtpuserData->m_nFtpstate = FtpuserData::DATA_CONNECTION_UP;

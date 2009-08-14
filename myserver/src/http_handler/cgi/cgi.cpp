@@ -35,9 +35,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <sstream>
 
-extern "C" {
+extern "C"
+{
 #ifdef WIN32
-#include <direct.h>
+# include <direct.h>
 #endif
 #include <string.h>
 }
@@ -177,18 +178,11 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
       if (!FilesUtility::fileExists (tmpCgiPath.c_str ()))
         {
           if (tmpCgiPath.length() > 0)
-            {
-              string msg;
-              msg.assign ("Cgi: Cannot find the ");
-              msg.append (tmpCgiPath);
-              msg.append (" executable");
-              td->connection->host->warningsLogWrite (msg.c_str ());
-            }
+            td->connection->host->warningsLogWrite (_("Cgi: cannot find the %s file")),
+              tmpCgiPath.c_str ();
           else
-            {
-              td->connection->host->warningsLogWrite(
-                             "Cgi: Executable file not specified");
-            }
+            td->connection->host->warningsLogWrite (_("Cgi: Executable file not specified"));
+
           td->scriptPath.assign ("");
           td->scriptFile.assign ("");
           td->scriptDir.assign ("");
@@ -220,8 +214,7 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
    */
   if (stdOutFile.create())
     {
-      td->connection->host->warningsLogWrite
-        ("Cgi: Cannot create CGI stdout file");
+      td->connection->host->warningsLogWrite (_("Cgi: internal error"));
       chain.clearAllFilters ();
       return td->http->raiseHTTPError (500);
     }
@@ -230,7 +223,7 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
   if (stdInFile.openFile(td->inputDataPath,
                          File::READ | File::FILE_OPEN_ALWAYS))
     {
-      td->connection->host->warningsLogWrite ("Cgi: Cannot open CGI stdin file.");
+      td->connection->host->warningsLogWrite (_("Cgi: internal error"));
       stdOutFile.close ();
       chain.clearAllFilters ();
       return td->http->raiseHTTPError (500);
@@ -263,12 +256,12 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
   if (spi.stdError == (FileHandle) -1 ||
       spi.stdIn == (FileHandle) -1 ||
       spi.stdOut == (FileHandle) -1)
-  {
-    td->connection->host->warningsLogWrite ("Cgi: Invalid file handler.");
-    stdOutFile.close ();
-    chain.clearAllFilters ();
-    return td->http->raiseHTTPError (500);
-  }
+    {
+      td->connection->host->warningsLogWrite (_("Cgi: internal error"));
+      stdOutFile.close ();
+      chain.clearAllFilters ();
+      return td->http->raiseHTTPError (500);
+    }
 
   /* Execute the CGI process. */
   {
@@ -293,8 +286,7 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
     {
       stdInFile.close();
       stdOutFile.close();
-      td->connection->host->warningsLogWrite
-                                       ("Cgi: Error in the CGI execution");
+      td->connection->host->warningsLogWrite (_("Cgi: internal error"));
       chain.clearAllFilters ();
       return td->http->raiseHTTPError (500);
       }
@@ -353,7 +345,7 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
                                                                     &nbw,
                                                                     1))
     {
-      td->connection->host->warningsLogWrite("Cgi: Error loading filters");
+      td->connection->host->warningsLogWrite (_("Cgi: internal error"));
       return td->http->raiseHTTPError(500);
     }
 
@@ -369,9 +361,7 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
       if (ticks >= timeout ||
           stdOutFile.waitForData ((timeout - ticks) / 1000, (timeout - ticks) % 1000) == 0)
         {
-          ostringstream msg;
-          msg << "Cgi: timeout for process " << cgiProc.getPid();
-          td->connection->host->warningsLogWrite (msg.str ().c_str ());
+          td->connection->host->warningsLogWrite (_("Cgi: process %i timeout"), cgiProc.getPid ());
           break;
         }
 
@@ -440,9 +430,7 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
     if (!term && 
         stdOutFile.waitForData ((timeout - ticks) / 1000, (timeout - ticks) % 1000) == 0)
     {
-      ostringstream msg;
-      msg << "Cgi: timeout for process " << cgiProc.getPid ();
-      td->connection->host->warningsLogWrite (msg.str ().c_str ());    
+      td->connection->host->warningsLogWrite (_("Cgi: process %i timeout"), cgiProc.getPid ());
       break;
     }
 

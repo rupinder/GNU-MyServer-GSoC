@@ -38,74 +38,74 @@
 #include <include/conf/nodetree.h>
 
 using namespace std;
-typedef int (*NULL_REFERENCECB)(class Vhost*); 
+typedef int (*NULL_REFERENCECB)(class Vhost*);
 
 class VhostProtocolData
 {
 public:
-  VhostProtocolData(){}
-  virtual ~VhostProtocolData(){}
+  VhostProtocolData (){}
+  virtual ~VhostProtocolData (){}
 };
 
 class Vhost
 {
 public:
   friend class VhostManager;
-  
+
   struct StringRegex
   {
     string name;
     Regex regex;
-    StringRegex() : regex()
+    StringRegex () : regex ()
     {}
-    ~StringRegex()
+    ~StringRegex ()
     {}
   };
-	
+
   /*! Get the host name. */
-  const char* getName()
-  {return name.c_str();}
-  
+  const char* getName ()
+  {return name.c_str ();}
+
   /*! Set the host name. */
-  void setName(const char* c)
-  {name.assign(c);}
-  
+  void setName (const char* c)
+  {name.assign (c);}
+
   /*! Get the system root. */
-  const string& getSystemRoot()
+  const string& getSystemRoot ()
   {return systemRoot;}
 
   /*! Set the system root. */
-  void setSystemRoot(const char* n)
+  void setSystemRoot (const char* n)
   {systemRoot.assign(n);}
 
   /*! Get the document root. */
-  const string& getDocumentRoot()
+  const string& getDocumentRoot ()
   {return documentRoot;}
 
   /*! Set the document root. */
-  void setDocumentRoot(const char* n)
-  {documentRoot.assign(n);}
+  void setDocumentRoot (const char* n)
+  {documentRoot.assign (n);}
 
   /*! Get a pointer to the vhost SSL context. */
-  SslContext *getVhostSSLContext()
+  SslContext *getVhostSSLContext ()
   {return &sslContext;}
 
   /*! Initialize SSL things. */
-  int initializeSSL();
-	
+  int initializeSSL ();
+
   /*! Clear SSL things. */
-  int freeSSL();
+  int freeSSL ();
 
   /*! Clear the data dictionary. */
   int freeHashedData();
-	
+
   /*! Generate the RSA key for the SSL context. */
-  void generateRsaKey();
+  void generateRsaKey ();
 
   SSL_CTX* getSSLContext();
 
   /*! Get the list of hosts allowed.*/
-  list<StringRegex*>* getHostList()
+  list<StringRegex*>* getHostList ()
   {return &hostList;}
 
   //TODO: remove
@@ -114,63 +114,61 @@ public:
   //{return &ipList;}
 
   /*! Return the port used by the host. */
-  u_short getPort()
+  u_short getPort ()
   {return port;}
 
   /*! Set the port used by the host. */
-  void setPort(u_short p)
+  void setPort (u_short p)
   {port = p;}
 
   /*! Get the protocol name for the virtual host. */
-  const char* getProtocolName()
-  {return protocolName.c_str();}
+  const char* getProtocolName ()
+  {return protocolName.c_str ();}
 
   /*! Set the protocol name for the virtual host. */
-  void setProtocolName(const char *name)
-  {protocolName.assign(name);}
+  void setProtocolName (const char *name)
+  {protocolName.assign (name);}
 
   /*! Get the throttling rate for the virtual host. */
-  u_long getThrottlingRate()
+  u_long getThrottlingRate ()
   {return throttlingRate;}
 
   /*! Set the throttling rate for the virtual host. */
-  void setThrottlingRate(u_long tr)
+  void setThrottlingRate (u_long tr)
   {throttlingRate = tr;}
 
   Vhost(LogManager* lm);
   ~Vhost();
 
-  const char* getHashedData(const char* name);
+  const char* getHashedData (const char* name);
 
   NodeTree<string>* getNodeTree (string& key)
   {
     return hashedData.get (key);
   }
 
-  void addHost(const char *, int);
-  void removeHost(const char *);
-  int areAllHostAllowed();
-  void addRef();
-  void removeRef();
-  int getRef();
-  void setRef(int);
-  void clearHostList();
-  int isHostAllowed(const char*);
-  int isMIME();
-  int getDefaultPriority(){return defaultPriority;}
-  void setDefaultPriority(int priority){defaultPriority = priority;}
-  void setNullRefCB(NULL_REFERENCECB);
-  NULL_REFERENCECB getNullRefCB();
+  void addHost (const char *, int);
+  void removeHost (const char *);
+  int areAllHostAllowed ();
+  void addRef ();
+  void removeRef ();
+  int getRef ();
+  void setRef (int);
+  void clearHostList ();
+  int isHostAllowed (const char*);
+  int isMIME ();
+  int getDefaultPriority (){return defaultPriority;}
+  void setDefaultPriority (int priority){defaultPriority = priority;}
+  void setNullRefCB (NULL_REFERENCECB);
+  NULL_REFERENCECB getNullRefCB ();
 
-  ////////////////////
-  //IP related members
-  void addIP(const char *, int);
-  void removeIP(const char *);
-  void clearIPList();
-  int areAllIPAllowed();
-  int isIPAllowed(const char*);//used
+  void addIP (const char *, int);
+  void removeIP (const char *);
+  void clearIPList ();
+  int areAllIPAllowed ();
+  int isIPAllowed (const char*);
 
-  MimeManager* getMIME();
+  MimeManager* getMIME ();
 
   /*!
    * \return 0 if the LogManager contains at least one valid entry where
@@ -183,7 +181,7 @@ public:
 
   /*! Set the access log options. */
   void setAccessLogOpt (const char* c) { accessLogOpt.assign (c); }
-  
+
   /*! Set the warnings log options. */
   void setWarningLogOpt (const char* c)  { warningLogOpt.assign (c); }
 
@@ -194,16 +192,16 @@ public:
   const char* getWarningLogOpt () { return warningLogOpt.c_str (); }
 
   /*! Write a message on the accesses log. */
-  int accessesLogWrite (const char*);
-  
+  int accessesLogWrite (const char* fmt, ...);
+
   /*! Write a message on the warnings log. */
-  int warningsLogWrite (const char*);
+  int warningsLogWrite (const char* fmt, ...);
 
   /*! Get the protocol data. */
-  VhostProtocolData* getProtocolData(){return protocolData;}
+  VhostProtocolData* getProtocolData (){return protocolData;}
 
   /*! Set the protocol data. */
-  void setProtocolData(VhostProtocolData* data){protocolData = data;}
+  void setProtocolData (VhostProtocolData* data){protocolData = data;}
 
   MimeRecord* getLocationMime (string& loc){return locationsMime.get (loc);}
 
@@ -253,10 +251,10 @@ private:
 
   /*! Path to the document root. */
   string documentRoot;
-	
+
   /*! Path to the system root. */
   string systemRoot;
-	
+
   /*! Description or name of the virtual host. */
   string name;
 

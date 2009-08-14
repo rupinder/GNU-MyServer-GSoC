@@ -117,18 +117,14 @@ int Http::optionsHTTPRESOURCE (string& filename, int yetmapped)
                                           (u_long) td->secondaryBuffer->getLength (), 0);
       if (ret == SOCKET_ERROR)
         {
-          string error;
-          error.assign ("HTTP<SOCKET ERROR>: unable to send ");
-          error.append (filename);
-          error.append (".");
-          td->connection->host->warningsLogWrite (error.c_str ());
+          td->connection->host->warningsLogWrite (_("HTTP: socket error"));
           return 0;
         }
       return 1;
     }
   catch (...)
     {
-      td->connection->host->warningsLogWrite ("HTTP<ERROR>: unable to build a response for an OPTION request.");
+      td->connection->host->warningsLogWrite (_("HTTP: internal error"));
       return raiseHTTPError (500);
     };
 }
@@ -172,11 +168,7 @@ int Http::traceHTTPRESOURCE (string& filename, int yetmapped)
                                           (u_long) td->secondaryBuffer->getLength (), 0);
       if (ret == SOCKET_ERROR)
         {
-          string error;
-          error.assign ("HTTP<SOCKET ERROR>: unable to send ");
-          error.append (filename);
-          error.append (".");
-          td->connection->host->warningsLogWrite (error.c_str ());
+          td->connection->host->warningsLogWrite (_("HTTP: socket error"));
           return 0;
         }
 
@@ -185,18 +177,14 @@ int Http::traceHTTPRESOURCE (string& filename, int yetmapped)
                                           contentLength, 0);
       if (ret == SOCKET_ERROR)
         {
-          string error;
-          error.assign ("HTTP<SOCKET ERROR>: unable to send ");
-          error.append (filename);
-          error.append (".");
-          td->connection->host->warningsLogWrite (error.c_str ());
+          td->connection->host->warningsLogWrite (_("HTTP: socket error"));
           return 0;
         }
       return 1;
     }
   catch (...)
     {
-      td->connection->host->warningsLogWrite ("HTTP<ERROR>: Unable to handle the HTTP TRACE command.");
+      td->connection->host->warningsLogWrite (_("HTTP: internal error"));
       return raiseHTTPError (500);
     };
 }
@@ -309,7 +297,7 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
           td->connection->protocolBuffer = new HttpUserData;
           if (!td->connection->protocolBuffer)
             {
-              td->connection->host->warningsLogWrite ("HTTP<ERROR>: Unable to access protocol buffer.");
+              td->connection->host->warningsLogWrite (_("HTTP: internal error"));
               return 500;
             }
           ((HttpUserData*) (td->connection->protocolBuffer))->reset ();
@@ -332,7 +320,7 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
       if (*permissions == -1)
         {
           td->connection->host->warningsLogWrite (
-                                   "HTTP<ERROR>: Error reading security file.");
+                                 _("HTTP: error accessing the security file"));
           return 500;
         }
 
@@ -383,11 +371,9 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
     }
   catch (...)
     {
-      string error;
-      error.assign ("HTTP<ERROR>: unable to get file permission: ");
-      error.append (filename);
-      error.append (".");
-      td->connection->host->warningsLogWrite (error.c_str ());
+      td->connection->host->warningsLogWrite (
+                                 _("HTTP: cannot get permissions for %s"),
+                                 filename.c_str ());
       return 500;
     }
 
@@ -429,7 +415,6 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped, int* permissio
 
       ret = getFilePermissions (filename, directory, file,
                                 td->filenamePath, yetmapped, permissions);
-
       if (ret != 200)
         return ret;
 
@@ -513,11 +498,7 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped, int* permissio
     }
   catch (...)
     {
-      string error;
-      error.assign ("HTTP<ERROR>: unable to preprocess HTTP request on file:  ");
-      error.append (filename);
-      error.append (".");
-      td->connection->host->warningsLogWrite (error.c_str ());
+      td->connection->host->warningsLogWrite (_("HTTP: internal error"));
       return 500;
     }
 
@@ -688,24 +669,14 @@ Http::sendHTTPResource (string& uri, int systemrequest, int onlyHeader,
 
       if (!manager)
         {
-          string error;
-          error.assign ("HTTP<ERROR>: unable to get SEND Http Manager on sending ");
-          error.append (uri);
-          error.append (".");
-          td->connection->host->warningsLogWrite (error.c_str ());
+          td->connection->host->warningsLogWrite (_("HTTP: internal error"));
           return raiseHTTPError (500);
         }
-
-
       return manager->send (td, td->filenamePath.c_str (), 0, onlyHeader);
     }
   catch (...)
     {
-      string error;
-      error.assign ("HTTP<ERROR>: unable to send ");
-      error.append (uri);
-      error.append (".");
-      td->connection->host->warningsLogWrite (error.c_str ());
+      td->connection->host->warningsLogWrite (_("HTTP: internal error"));
       return raiseHTTPError (500);
     };
 
@@ -788,9 +759,8 @@ int Http::logHTTPaccess ()
        * Request the access to the log file then append the message.
        */
       if (td->connection->host)
-        {
-          td->connection->host->accessesLogWrite (td->secondaryBuffer->getBuffer ());
-        }
+        td->connection->host->accessesLogWrite ("%s", td->secondaryBuffer->getBuffer ());
+
       td->secondaryBuffer->setLength (0);
     }
   catch (...)
@@ -1252,7 +1222,7 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
   catch (...)
     {
 
-      td->connection->host->warningsLogWrite ("HTTP<ERROR>: unable to handle the HTTP Request.");
+      td->connection->host->warningsLogWrite (_("HTTP: internal error"));
       return raiseHTTPError (500);
       logHTTPaccess ();
       return ClientsThread::DELETE_CONNECTION;
@@ -1365,7 +1335,7 @@ int Http::requestAuthorization ()
   if (td->connection->socket->send (td->secondaryBuffer->getBuffer (),
                                     td->secondaryBuffer->getLength (), 0) == -1)
     {
-      td->connection->host->warningsLogWrite ("HTTP<SOCKET ERROR>: unable to send the authorization request.");
+      td->connection->host->warningsLogWrite (_("HTTP: socket error"));
       return 0;
     }
   return 1;
@@ -1401,7 +1371,7 @@ int Http::raiseHTTPError (int ID)
 
       if (td->lastError)
         {
-          td->connection->host->warningsLogWrite ("HTTP<ERROR>: recursive error.");
+          td->connection->host->warningsLogWrite (_("HTTP: recursive error"));
           return sendHTTPhardError500 ();
         }
 
@@ -1472,10 +1442,9 @@ int Http::raiseHTTPError (int ID)
               return sendHTTPResource (errorFileStr, 1, td->onlyHeader);
             }
           else
-            {
-              string error = "HTTP<ERROR>: The specified error page " + errorFile.str () + " does not exist";
-              td->connection->host->warningsLogWrite (error.c_str ());
-            }
+            td->connection->host->warningsLogWrite (_("HTTP: The specified error page: %s does not exist"),
+                                                    errorFile.str ().c_str ());
+
         }
 
       HttpErrors::getErrorMessage (ID, errorMessage);
@@ -1510,23 +1479,18 @@ int Http::raiseHTTPError (int ID)
                                                             errorBodyLength, 0)
                               == -1))
         {
-          td->connection->host->warningsLogWrite ("HTTP<ERROR>: unable to raise HTTP Error.");
+          td->connection->host->warningsLogWrite (_("HTTP: socket error"));
           return 0;
         }
 
 
       return 1;
     }
-  catch (bad_alloc &ba)
-    {
-      td->connection->host->warningsLogWrite ("HTTP<ERROR>: unable to raise HTTP Error.");
-      return 0;
-    }
   catch (...)
     {
-      td->connection->host->warningsLogWrite ("HTTP<ERROR>: unable to raise HTTP Error.");
+      td->connection->host->warningsLogWrite (_("HTTP: internal error"));
       return 0;
-    };
+    }
 }
 
 /*!
@@ -1731,7 +1695,7 @@ int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
 
   if (!handler)
     {
-      td->connection->host->warningsLogWrite ("HTTP<ERROR>: cannot find a valid handler.");
+      td->connection->host->warningsLogWrite (_("HTTP: internal error"));
       return raiseHTTPError (500);
     }
 
@@ -1766,7 +1730,7 @@ int Http::sendHTTPRedirect (const char *newURL)
   if (td->connection->socket->send (td->secondaryBuffer->getBuffer (),
                                     (int) td->secondaryBuffer->getLength (), 0) == -1)
     {
-      td->connection->host->warningsLogWrite ("HTTP<SOCKET ERROR>: unable to send a redirect message.");
+      td->connection->host->warningsLogWrite (_("HTTP: socket error"));
       return 0;
     }
 
@@ -1799,7 +1763,7 @@ int Http::sendHTTPNonModified ()
   if (td->connection->socket->send (td->secondaryBuffer->getBuffer (),
                                     (int) td->secondaryBuffer->getLength (), 0) == -1)
     {
-      td->connection->host->warningsLogWrite ("HTTP<SOCKET ERROR>: unable to send a non-modified message.");
+      td->connection->host->warningsLogWrite (_("HTTP: socket error"));
       return 0;
     }
   return 1;
