@@ -134,9 +134,9 @@ class DefinitionTree(Definition):
         attributes. values is expected to be iterable.'''
         Definition.__init__(self, name, attributes)
         self.definitions = []
+        self.custom = [] # list of children not being definitions
         for definition in definitions:
             self.add_definition(definition)
-        self.custom = [] # list of children not being definitions
 
     def __eq__(self, other):
         return isinstance(other, DefinitionTree) and \

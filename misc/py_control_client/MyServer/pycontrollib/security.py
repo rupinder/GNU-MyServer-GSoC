@@ -22,6 +22,8 @@ from definition import Definition
 class SecurityElement():
     @staticmethod
     def from_lxml_element(root):
+        if root.tag == 'USER':
+            return User.from_lxml_element(root)
         if root.tag == 'CONDITION':
             return Condition.from_lxml_element(root)
         elif root.tag == 'PERMISSION':
@@ -49,11 +51,17 @@ class Condition(SecurityElement):
         self.set_value(value)
         self.set_reverse(reverse)
         self.set_regex(regex)
-        self.custom_attributes = {}
+        self.custom_attrib = {}
         self.custom = []
         self.sub_elements = []
         for element in sub_elements:
             self.add_sub_element(element)
+
+    def __eq__(self, other):
+        return isinstance(other, Condition) and self.name == other.name and \
+            self.value == other.value and self.reverse == other.reverse and \
+            self.regex == other.regex and \
+            self.sub_elements == other.sub_elements
 
     def set_name(self, name):
         self.name = name
@@ -61,7 +69,7 @@ class Condition(SecurityElement):
     def get_name(self):
         return self.name
 
-    def set_value(value):
+    def set_value(self, value):
         self.value = value
 
     def get_value(self):
@@ -73,16 +81,19 @@ class Condition(SecurityElement):
     def get_reverse(self):
         return self.reverse
 
-    def set_regex(self):
+    def set_regex(self, regex):
         self.regex = regex
 
     def get_regex(self):
         return self.regex
 
-    def add_sub_element(self, element):
+    def add_sub_element(self, element, index = None):
         if isinstance(element, Definition) or \
                 isinstance(element, SecurityElement):
-            self.sub_elements.append(element)
+            if index is None:
+                self.sub_elements.append(element)
+            else:
+                self.sub_elements.insert(index, element)
         else:
             self.custom.append(element)
 
@@ -91,6 +102,9 @@ class Condition(SecurityElement):
 
     def get_sub_element(self, index):
         return self.sub_elements[index]
+
+    def remove_sub_element(self, index):
+        self.sub_elements.pop(index)
 
     def to_lxml_element(self):
         root = etree.Element('CONDITION')
@@ -101,7 +115,7 @@ class Condition(SecurityElement):
         if self.reverse is not None:
             root.set('not', 'yes' if self.reverse else 'no')
         if self.regex is not None:
-            root.set('regex', 'yes' if self.reverse else 'no')
+            root.set('regex', 'yes' if self.regex else 'no')
         for key, value in self.custom_attrib.iteritems():
             root.set(key, value)
         for element in self.sub_elements:
@@ -118,7 +132,11 @@ class Condition(SecurityElement):
         name = custom_attrib.pop('name', None)
         value = custom_attrib.pop('value', None)
         reverse = custom_attrib.pop('not', None)
+        if reverse is not None:
+            reverse = reverse.upper() == 'YES'
         regex = custom_attrib.pop('regex', None)
+        if regex is not None:
+            regex = regex.upper() == 'YES'
         custom = []
         sub_elements = []
         for child in list(root):
@@ -144,8 +162,13 @@ class Permission(SecurityElement):
         self.set_browse(browse)
         self.set_delete(delete)
         self.set_write(write)
-        self.custom_attributes = {}
+        self.custom_attrib = {}
         self.custom = []
+
+    def __eq__(self, other):
+        return isinstance(other, Permission) and self.read == other.read and \
+            self.execute == other.execute and self.browse == other.browse and \
+            self.delete == other.delete and self.write == other.write
 
     def set_read(self, read):
         self.read = read
@@ -306,11 +329,11 @@ class User(SecurityElement):
         delete = custom_attrib.pop('DELETE', None)
         write = custom_attrib.pop('WRITE', None)
         custom = list(root)
-        permission = Permission(name, password, read, execute, browse,
-                                delete, write)
-        permission.custom_attrib = custom_attrib
-        permission.custom = custom
-        return permission
+        user = User(name, password, read, execute, browse,
+                    delete, write)
+        user.custom_attrib = custom_attrib
+        user.custom = custom
+        return user
 
     @staticmethod
     def from_string(text):
@@ -320,8 +343,11 @@ class User(SecurityElement):
 class Return(SecurityElement):
     def __init__(self, value = None):
         self.set_value(value)
-        self.custom_attributes = {}
+        self.custom_attrib = {}
         self.custom = []
+
+    def __eq__(self, other):
+        return isinstance(other, Return) and self.value == other.value
 
     def set_value(self, value):
         self.value = value
@@ -384,7 +410,7 @@ class SecurityList():
         for element in list(root):
             try:
                 elements.append(SecurityElement.from_lxml_element(element))
-            else:
+            except:
                 custom.append(element)
         security_list = SecurityList(elements)
         security_list.custom = custom
