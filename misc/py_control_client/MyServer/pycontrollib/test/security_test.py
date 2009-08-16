@@ -309,6 +309,248 @@ class ConditionTest(unittest.TestCase):
         self.assertRaises(AttributeError, Condition.from_lxml_element,
                           etree.XML(text))
 
+class PermissionTest(unittest.TestCase):
+    def test_creation(self):
+        permission = Permission()
+        permission = Permission(True)
+        permission = Permission(True, True)
+        permission = Permission(True, True, True)
+        permission = Permission(True, True, True, True)
+        permission = Permission(True, True, True, True, True)
+
+    def test_read(self):
+        permission = Permission(True)
+        self.assertTrue(permission.get_read())
+        permission.set_read(False)
+        self.assertFalse(permission.get_read())
+        permission.set_read(None)
+        self.assertEqual(None, permission.get_read())
+        permission = Permission(read = True)
+        self.assertTrue(permission.get_read())
+
+    def test_execute(self):
+        permission = Permission(True, True)
+        self.assertTrue(permission.get_execute())
+        permission.set_execute(False)
+        self.assertFalse(permission.get_execute())
+        permission.set_execute(None)
+        self.assertEqual(None, permission.get_execute())
+        permission = Permission(execute = True)
+        self.assertTrue(permission.get_execute())
+
+    def test_browse(self):
+        permission = Permission(True, True, False)
+        self.assertFalse(permission.get_browse())
+        permission.set_browse(True)
+        self.assertTrue(permission.get_browse())
+        permission.set_browse(None)
+        self.assertEqual(None, permission.get_browse())
+        permission = Permission(browse = True)
+        self.assertTrue(permission.get_browse())
+
+    def test_delete(self):
+        permission = Permission(True, True, False, False)
+        self.assertFalse(permission.get_delete())
+        permission.set_delete(True)
+        self.assertTrue(permission.get_delete())
+        permission.set_delete(None)
+        self.assertEqual(None, permission.get_delete())
+        permission = Permission(delete = True)
+        self.assertTrue(permission.get_delete())
+
+    def test_write(self):
+        permission = Permission(True, True, False, False, False)
+        self.assertFalse(permission.get_write())
+        permission.set_write(True)
+        self.assertTrue(permission.get_write())
+        permission.set_write(None)
+        self.assertEqual(None, permission.get_write())
+        permission = Permission(write = True)
+        self.assertTrue(permission.get_write())
+
+    def test_equality(self):
+        self.assertEqual(
+            Permission(False, False, False, False, False),
+            Permission(False, False, False, False, False))
+        self.assertNotEqual(
+            Permission(False, False, False, False, False),
+            Permission(True, False, False, False, False))
+        self.assertNotEqual(
+            Permission(False, False, False, False, False),
+            Permission(False, True, False, False, False))
+        self.assertNotEqual(
+            Permission(False, False, False, False, False),
+            Permission(False, False, True, False, False))
+        self.assertNotEqual(
+            Permission(False, False, False, False, False),
+            Permission(False, False, False, True, False))
+        self.assertNotEqual(
+            Permission(False, False, False, False, False),
+            Permission(False, False, False, False, True))
+        self.assertNotEqual(Permission(), 'another type')
+
+    def test_from_string(self):
+        text = '<PERMISSION />'
+        permission = Permission.from_string(text)
+        right = Permission()
+        self.assertEqual(permission, right)
+
+    def test_from_string_read(self):
+        text = '<PERMISSION READ="NO" />'
+        permission = Permission.from_string(text)
+        right = Permission(read = False)
+        self.assertEqual(permission, right)
+
+    def test_from_string_execute(self):
+        text = '<PERMISSION EXECUTE="NO" />'
+        permission = Permission.from_string(text)
+        right = Permission(execute = False)
+        self.assertEqual(permission, right)
+
+    def test_from_string_browse(self):
+        text = '<PERMISSION BROWSE="NO" />'
+        permission = Permission.from_string(text)
+        right = Permission(browse = False)
+        self.assertEqual(permission, right)
+
+    def test_from_string_delete(self):
+        text = '<PERMISSION DELETE="NO" />'
+        permission = Permission.from_string(text)
+        right = Permission(delete = False)
+        self.assertEqual(permission, right)
+
+    def test_from_string_write(self):
+        text = '<PERMISSION WRITE="NO" />'
+        permission = Permission.from_string(text)
+        right = Permission(write = False)
+        self.assertEqual(permission, right)
+
+    def test_from_string_full(self):
+        text = '''
+<PERMISSION READ="NO" EXECUTE="YES" BROWSE="NO" DELETE="YES" WRITE="NO" />'''
+        permission = Permission.from_string(text)
+        right = Permission(False, True, False, True, False)
+        self.assertEqual(permission, right)
+
+    def test_from_lxml(self):
+        text = '<PERMISSION />'
+        permission = Permission.from_lxml_element(etree.XML(text))
+        right = Permission()
+        self.assertEqual(permission, right)
+
+    def test_from_lxml_read(self):
+        text = '<PERMISSION READ="NO" />'
+        permission = Permission.from_lxml_element(etree.XML(text))
+        right = Permission(read = False)
+        self.assertEqual(permission, right)
+
+    def test_from_lxml_execute(self):
+        text = '<PERMISSION EXECUTE="NO" />'
+        permission = Permission.from_lxml_element(etree.XML(text))
+        right = Permission(execute = False)
+        self.assertEqual(permission, right)
+
+    def test_from_lxml_browse(self):
+        text = '<PERMISSION BROWSE="NO" />'
+        permission = Permission.from_lxml_element(etree.XML(text))
+        right = Permission(browse = False)
+        self.assertEqual(permission, right)
+
+    def test_from_lxml_delete(self):
+        text = '<PERMISSION DELETE="NO" />'
+        permission = Permission.from_lxml_element(etree.XML(text))
+        right = Permission(delete = False)
+        self.assertEqual(permission, right)
+
+    def test_from_lxml_write(self):
+        text = '<PERMISSION WRITE="NO" />'
+        permission = Permission.from_lxml_element(etree.XML(text))
+        right = Permission(write = False)
+        self.assertEqual(permission, right)
+
+    def test_from_lxml_full(self):
+        text = '''
+<PERMISSION READ="NO" EXECUTE="YES" BROWSE="NO" DELETE="YES" WRITE="NO" />'''
+        permission = Permission.from_lxml_element(etree.XML(text))
+        right = Permission(False, True, False, True, False)
+        self.assertEqual(permission, right)
+
+    def test_to_string(self):
+        permission = Permission()
+        copy = Permission.from_string(str(permission))
+        self.assertEqual(permission, copy)
+
+    def test_to_string_read(self):
+        permission = Permission(read = True)
+        copy = Permission.from_string(str(permission))
+        self.assertEqual(permission, copy)
+
+    def test_to_string_execute(self):
+        permission = Permission(execute = True)
+        copy = Permission.from_string(str(permission))
+        self.assertEqual(permission, copy)
+
+    def test_to_string_browse(self):
+        permission = Permission(browse = True)
+        copy = Permission.from_string(str(permission))
+        self.assertEqual(permission, copy)
+
+    def test_to_string_delete(self):
+        permission = Permission(delete = True)
+        copy = Permission.from_string(str(permission))
+        self.assertEqual(permission, copy)
+
+    def test_to_string_write(self):
+        permission = Permission(write = True)
+        copy = Permission.from_string(str(permission))
+        self.assertEqual(permission, copy)
+
+    def test_to_string_full(self):
+        permission = Permission(True, False, True, False, True)
+        copy = Permission.from_string(str(permission))
+        self.assertEqual(permission, copy)
+
+    def test_to_lxml(self):
+        permission = Permission()
+        copy = Permission.from_lxml_element(permission.to_lxml_element())
+        self.assertEqual(permission, copy)
+
+    def test_to_lxml_read(self):
+        permission = Permission(read = True)
+        copy = Permission.from_lxml_element(permission.to_lxml_element())
+        self.assertEqual(permission, copy)
+
+    def test_to_lxml_execute(self):
+        permission = Permission(execute = True)
+        copy = Permission.from_lxml_element(permission.to_lxml_element())
+        self.assertEqual(permission, copy)
+
+    def test_to_lxml_browse(self):
+        permission = Permission(browse = True)
+        copy = Permission.from_lxml_element(permission.to_lxml_element())
+        self.assertEqual(permission, copy)
+
+    def test_to_lxml_delete(self):
+        permission = Permission(delete = True)
+        copy = Permission.from_lxml_element(permission.to_lxml_element())
+        self.assertEqual(permission, copy)
+
+    def test_to_lxml_write(self):
+        permission = Permission(write = True)
+        copy = Permission.from_lxml_element(permission.to_lxml_element())
+        self.assertEqual(permission, copy)
+
+    def test_to_lxml_full(self):
+        permission = Permission(True, False, True, False, True)
+        copy = Permission.from_lxml_element(permission.to_lxml_element())
+        self.assertEqual(permission, copy)
+
+    def test_bad_root_tag(self):
+        text = '<ERROR />'
+        self.assertRaises(AttributeError, Permission.from_string, text)
+        self.assertRaises(AttributeError, Permission.from_lxml_element,
+                          etree.XML(text))
+
 class BadMarkupTest(unittest.TestCase):
     def condition_test(self):
         text = '''
@@ -320,6 +562,24 @@ class BadMarkupTest(unittest.TestCase):
 </CONDITION>'''
         condition = Condition.from_string(text)
         tree = condition.to_lxml_element()
+        self.assertEqual('unknown', tree.get('custom'))
+        unknown = tree.findall('UNKNOWN')
+        self.assertEqual(1, len(unknown))
+        unknown = unknown[0]
+        custom = list(unknown)
+        self.assertEqual(1, len(custom))
+        custom = custom[0]
+        self.assertEqual('CUSTOM', custom.tag)
+
+    def permission_test(self):
+        text = '''
+<PERMISSION custom="unknown">
+  <UNKNOWN>
+    <CUSTOM />
+  </UNKNOWN>
+</CONDITION>'''
+        permission = Permission.from_string(text)
+        tree = permission.to_lxml_element()
         self.assertEqual('unknown', tree.get('custom'))
         unknown = tree.findall('UNKNOWN')
         self.assertEqual(1, len(unknown))

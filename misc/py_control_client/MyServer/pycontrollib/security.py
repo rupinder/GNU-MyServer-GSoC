@@ -203,15 +203,15 @@ class Permission(SecurityElement):
     def to_lxml_element(self):
         root = etree.Element('PERMISSION')
         if self.read is not None:
-            root.set('READ', self.read)
+            root.set('READ', 'YES' if self.read else 'NO')
         if self.execute is not None:
-            root.set('EXECUTE', self.execute)
+            root.set('EXECUTE', 'YES' if self.execute else 'NO')
         if self.browse is not None:
-            root.set('BROWSE', self.browse)
+            root.set('BROWSE', 'YES' if self.browse else 'NO')
         if self.delete is not None:
-            root.set('DELETE', self.delete)
+            root.set('DELETE', 'YES' if self.delete else 'NO')
         if self.write is not None:
-            root.set('WRITE', self.write)
+            root.set('WRITE', 'YES' if self.write else 'NO')
         for key, value in self.custom_attrib.iteritems():
             root.set(key, value)
         for element in self.custom:
@@ -224,10 +224,20 @@ class Permission(SecurityElement):
             raise AttributeError('Expected PERMISSION tag.')
         custom_attrib = root.attrib
         read = custom_attrib.pop('READ', None)
+        if read is not None:
+            read = read.upper() == 'YES'
         execute = custom_attrib.pop('EXECUTE', None)
+        if execute is not None:
+            execute = execute.upper() == 'YES'
         browse = custom_attrib.pop('BROWSE', None)
+        if browse is not None:
+            browse = browse.upper() == 'YES'
         delete = custom_attrib.pop('DELETE', None)
+        if delete is not None:
+            delete = delete.upper() == 'YES'
         write = custom_attrib.pop('WRITE', None)
+        if write is not None:
+            write = write.upper() == 'YES'
         custom = list(root)
         permission = Permission(read, execute, browse, delete, write)
         permission.custom_attrib = custom_attrib
