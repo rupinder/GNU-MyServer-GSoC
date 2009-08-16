@@ -410,13 +410,21 @@ class Return(SecurityElement):
 
 class SecurityList():
     def __init__(self, elements = []):
-        for elements in elements:
+        self.elements = []
+        for element in elements:
             self.add_element(element)
         self.custom = []
         self.custom_attrib = {}
 
+    def __eq__(self, other):
+        return isinstance(other, SecurityList) and \
+            self.elements == other.elements
+
     def get_elements(self):
         return self.elements
+
+    def get_element(self, index):
+        return self.elements[index]
 
     def add_element(self, element, index = None):
         if index is None:

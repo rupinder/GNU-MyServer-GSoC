@@ -867,6 +867,163 @@ class UserTest(unittest.TestCase):
         self.assertRaises(AttributeError, User.from_lxml_element,
                           etree.XML(text))
 
+class ReturnTest(unittest.TestCase):
+    def test_creation(self):
+        ret = Return()
+        ret = Return('ALLOW')
+
+    def test_value(self):
+        ret = Return('ALLOW')
+        self.assertEqual('ALLOW', ret.get_value())
+        ret.set_value('DENY')
+        self.assertEqual('DENY', ret.get_value())
+        ret.set_value(None)
+        self.assertEqual(None, ret.get_value())
+        ret = Return(value = 'ALLOW')
+        self.assertEqual('ALLOW', ret.get_value())
+
+    def test_equality(self):
+        self.assertEqual(Return('ALLOW'), Return('ALLOW'))
+        self.assertNotEqual(Return('ALLOW'), Return('DENY'))
+        self.assertNotEqual(Return(), 'another type')
+
+    def test_from_string(self):
+        text = '<RETURN />'
+        ret = Return.from_string(text)
+        right = Return()
+        self.assertEqual(ret, right)
+
+    def test_from_string_value(self):
+        text = '<RETURN value="ALLOW" />'
+        ret = Return.from_string(text)
+        right = Return(value = 'ALLOW')
+        self.assertEqual(ret, right)
+
+    def test_from_lxml(self):
+        text = '<RETURN />'
+        ret = Return.from_lxml_element(etree.XML(text))
+        right = Return()
+        self.assertEqual(ret, right)
+
+    def test_from_lxml_value(self):
+        text = '<RETURN value="ALLOW" />'
+        ret = Return.from_lxml_element(etree.XML(text))
+        right = Return(value = 'ALLOW')
+        self.assertEqual(ret, right)
+
+    def test_to_string(self):
+        ret = Return()
+        copy = Return.from_string(str(ret))
+        self.assertEqual(ret, copy)
+
+    def test_to_string_value(self):
+        ret = Return(value = 'ALLOW')
+        copy = Return.from_string(str(ret))
+        self.assertEqual(ret, copy)
+
+    def test_to_lxml(self):
+        ret = Return()
+        copy = Return.from_lxml_element(ret.to_lxml_element())
+        self.assertEqual(ret, copy)
+
+    def test_to_lxml_value(self):
+        ret = Return(value = 'ALLOW')
+        copy = Return.from_lxml_element(ret.to_lxml_element())
+        self.assertEqual(ret, copy)
+
+    def test_bad_root_tag(self):
+        text = '<ERROR />'
+        self.assertRaises(AttributeError, Return.from_string, text)
+        self.assertRaises(AttributeError, Return.from_lxml_element,
+                          etree.XML(text))
+
+class SecurityListTest(unittest.TestCase):
+    def test_creation(self):
+        slist = SecurityList()
+        slist = SecurityList([Permission(), Return()])
+
+    def test_elements(self):
+        element_0 = Condition()
+        element_1 = Return()
+        slist = SecurityList()
+        self.assertEqual(0, len(slist.get_elements()))
+        slist.add_element(element_0)
+        self.assertEqual(1, len(slist.get_elements()))
+        self.assertEqual(element_0, slist.get_element(0))
+        slist.add_element(element_1)
+        self.assertEqual(2, len(slist.get_elements()))
+        self.assertEqual(element_0, slist.get_element(0))
+        self.assertEqual(element_1, slist.get_element(1))
+        slist.remove_element(0)
+        self.assertEqual(1, len(slist.get_elements()))
+        self.assertEqual(element_1, slist.get_element(0))
+        slist.add_element(element_0, 0)
+        self.assertEqual(2, len(slist.get_elements()))
+        self.assertEqual(element_0, slist.get_element(0))
+        self.assertEqual(element_1, slist.get_element(1))
+        self.assertRaises(IndexError, slist.get_element, 2)
+        slist = SecurityList(elements = [element_0, element_1])
+        self.assertEqual(2, len(slist.get_elements()))
+        self.assertEqual(element_0, slist.get_element(0))
+        self.assertEqual(element_1, slist.get_element(1))
+
+    def test_equality(self):
+        self.assertEqual(SecurityList([Condition()]),
+                         SecurityList([Condition()]))
+        self.assertNotEqual(SecurityList([Condition()]),
+                            SecurityList([]))
+        self.assertNotEqual(SecurityList(), 'another type')
+
+    def test_from_string(self):
+        text = '<SECURITY />'
+        slist = SecurityList.from_string(text)
+        right = SecurityList()
+        self.assertEqual(slist, right)
+
+    def test_from_string_elements(self):
+        text = '<SECURITY><CONDITION /><RETURN /></SECURITY>'
+        slist = SecurityList.from_string(text)
+        right = SecurityList([Condition(), Return()])
+        self.assertEqual(slist, right)
+
+    def test_from_lxml(self):
+        text = '<SECURITY />'
+        slist = SecurityList.from_lxml_element(etree.XML(text))
+        right = SecurityList()
+        self.assertEqual(slist, right)
+
+    def test_from_lxml_elements(self):
+        text = '<SECURITY><CONDITION /><RETURN /></SECURITY>'
+        slist = SecurityList.from_lxml_element(etree.XML(text))
+        right = SecurityList([Condition(), Return()])
+        self.assertEqual(slist, right)
+
+    def test_to_string(self):
+        slist = SecurityList()
+        copy = SecurityList.from_string(str(slist))
+        self.assertEqual(slist, copy)
+
+    def test_to_string_elements(self):
+        slist = SecurityList([Condition(), Return()])
+        copy = SecurityList.from_string(str(slist))
+        self.assertEqual(slist, copy)
+
+    def test_to_lxml(self):
+        slist = SecurityList()
+        copy = SecurityList.from_lxml_element(slist.to_lxml_element())
+        self.assertEqual(slist, copy)
+
+    def test_to_string_elements(self):
+        slist = SecurityList([Condition(), Return()])
+        copy = SecurityList.from_lxml_element(slist.to_lxml_element())
+        self.assertEqual(slist, copy)
+
+    def test_bad_root_tag(self):
+        text = '<ERROR />'
+        self.assertRaises(AttributeError, SecurityList.from_string, text)
+        self.assertRaises(AttributeError, SecurityList.from_lxml_element,
+                          etree.XML(text))
+
 class BadMarkupTest(unittest.TestCase):
     def condition_test(self):
         text = '''
@@ -914,6 +1071,44 @@ class BadMarkupTest(unittest.TestCase):
 </USER>'''
         user = User.from_string(text)
         tree = user.to_lxml_element()
+        self.assertEqual('unknown', tree.get('custom'))
+        unknown = tree.findall('UNKNOWN')
+        self.assertEqual(1, len(unknown))
+        unknown = unknown[0]
+        custom = list(unknown)
+        self.assertEqual(1, len(custom))
+        custom = custom[0]
+        self.assertEqual('CUSTOM', custom.tag)
+
+    def return_test(self):
+        text = '''
+<RETURN custom="unknown">
+  <UNKNOWN>
+    <CUSTOM />
+  </UNKNOWN>
+</RETURN>'''
+        ret = Return.from_string(text)
+        tree = ret.to_lxml_element()
+        self.assertEqual('unknown', tree.get('custom'))
+        unknown = tree.findall('UNKNOWN')
+        self.assertEqual(1, len(unknown))
+        unknown = unknown[0]
+        custom = list(unknown)
+        self.assertEqual(1, len(custom))
+        custom = custom[0]
+        self.assertEqual('CUSTOM', custom.tag)
+
+    def security_list_test(self):
+        text = '''
+<SECURITY custom="unknown">
+  <CONDITION />
+  <RETURN />
+  <UNKNOWN>
+    <CUSTOM />
+  </UNKNOWN>
+</SECURITY>'''
+        slist = SecurityList.from_string(text)
+        tree = slist.to_lxml_element()
         self.assertEqual('unknown', tree.get('custom'))
         unknown = tree.findall('UNKNOWN')
         self.assertEqual(1, len(unknown))
