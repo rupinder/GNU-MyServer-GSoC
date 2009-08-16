@@ -551,6 +551,322 @@ class PermissionTest(unittest.TestCase):
         self.assertRaises(AttributeError, Permission.from_lxml_element,
                           etree.XML(text))
 
+class UserTest(unittest.TestCase):
+    def test_creation(self):
+        user = User()
+        user = User('name')
+        user = User('name', 'password')
+        user = User('name', 'password', True)
+        user = User('name', 'password', True, True)
+        user = User('name', 'password', True, True, True)
+        user = User('name', 'password', True, True, True, True)
+        user = User('name', 'password', True, True, True, True, True)
+
+    def test_name(self):
+        user = User('name')
+        self.assertEqual('name', user.get_name())
+        user.set_name('other')
+        self.assertEqual('other', user.get_name())
+        user.set_name(None)
+        self.assertEqual(None, user.get_name())
+        user = User(name = 'name')
+        self.assertEqual('name', user.get_name())
+
+    def test_password(self):
+        user = User('name', 'password')
+        self.assertEqual('password', user.get_password())
+        user.set_password('other')
+        self.assertEqual('other', user.get_password())
+        user.set_password(None)
+        self.assertEqual(None, user.get_password())
+        user = User(password = 'password')
+        self.assertEqual('password', user.get_password())
+
+    def test_read(self):
+        user = User('name', 'password', True)
+        self.assertTrue(user.get_read())
+        user.set_read(False)
+        self.assertFalse(user.get_read())
+        user.set_read(None)
+        self.assertEqual(None, user.get_read())
+        user = User(read = True)
+        self.assertTrue(user.get_read())
+
+    def test_execute(self):
+        user = User('name', 'password', True, True)
+        self.assertTrue(user.get_execute())
+        user.set_execute(False)
+        self.assertFalse(user.get_execute())
+        user.set_execute(None)
+        self.assertEqual(None, user.get_execute())
+        user = User(execute = True)
+        self.assertTrue(user.get_execute())
+
+    def test_browse(self):
+        user = User('name', 'password', True, True, False)
+        self.assertFalse(user.get_browse())
+        user.set_browse(True)
+        self.assertTrue(user.get_browse())
+        user.set_browse(None)
+        self.assertEqual(None, user.get_browse())
+        user = User(browse = True)
+        self.assertTrue(user.get_browse())
+
+    def test_delete(self):
+        user = User('name', 'password', True, True, False, False)
+        self.assertFalse(user.get_delete())
+        user.set_delete(True)
+        self.assertTrue(user.get_delete())
+        user.set_delete(None)
+        self.assertEqual(None, user.get_delete())
+        user = User(delete = True)
+        self.assertTrue(user.get_delete())
+
+    def test_write(self):
+        user = User('name', 'password', True, True, False, False, False)
+        self.assertFalse(user.get_write())
+        user.set_write(True)
+        self.assertTrue(user.get_write())
+        user.set_write(None)
+        self.assertEqual(None, user.get_write())
+        user = User(write = True)
+        self.assertTrue(user.get_write())
+
+    def test_equality(self):
+        self.assertEqual(
+            User('name', 'password', False, False, False, False, False),
+            User('name', 'password', False, False, False, False, False))
+        self.assertNotEqual(
+            User('name', 'password', False, False, False, False, False),
+            User('other', 'password', False, False, False, False, False))
+        self.assertNotEqual(
+            User('name', 'password', False, False, False, False, False),
+            User('name', 'other', False, False, False, False, False))
+        self.assertNotEqual(
+            User('name', 'password', False, False, False, False, False),
+            User('name', 'password', True, False, False, False, False))
+        self.assertNotEqual(
+            User('name', 'password', False, False, False, False, False),
+            User('name', 'password', False, True, False, False, False))
+        self.assertNotEqual(
+            User('name', 'password', False, False, False, False, False),
+            User('name', 'password', False, False, True, False, False))
+        self.assertNotEqual(
+            User('name', 'password', False, False, False, False, False),
+            User('name', 'password', False, False, False, True, False))
+        self.assertNotEqual(
+            User('name', 'password', False, False, False, False, False),
+            User('name', 'password', False, False, False, False, True))
+        self.assertNotEqual(User(), 'another type')
+
+    def test_from_string(self):
+        text = '<USER />'
+        user = User.from_string(text)
+        right = User()
+        self.assertEqual(user, right)
+
+    def test_from_string_name(self):
+        text = '<USER name="name" />'
+        user = User.from_string(text)
+        right = User(name = 'name')
+        self.assertEqual(user, right)
+
+    def test_from_string_password(self):
+        text = '<USER password="pass" />'
+        user = User.from_string(text)
+        right = User(password = 'pass')
+        self.assertEqual(user, right)
+
+    def test_from_string_read(self):
+        text = '<USER READ="NO" />'
+        user = User.from_string(text)
+        right = User(read = False)
+        self.assertEqual(user, right)
+
+    def test_from_string_execute(self):
+        text = '<USER EXECUTE="NO" />'
+        user = User.from_string(text)
+        right = User(execute = False)
+        self.assertEqual(user, right)
+
+    def test_from_string_browse(self):
+        text = '<USER BROWSE="NO" />'
+        user = User.from_string(text)
+        right = User(browse = False)
+        self.assertEqual(user, right)
+
+    def test_from_string_delete(self):
+        text = '<USER DELETE="NO" />'
+        user = User.from_string(text)
+        right = User(delete = False)
+        self.assertEqual(user, right)
+
+    def test_from_string_write(self):
+        text = '<USER WRITE="NO" />'
+        user = User.from_string(text)
+        right = User(write = False)
+        self.assertEqual(user, right)
+
+    def test_from_string_full(self):
+        text = '''
+<USER name="name" password="pass" READ="NO" EXECUTE="YES" BROWSE="NO"
+      DELETE="YES" WRITE="NO" />'''
+        user = User.from_string(text)
+        right = User('name', 'pass', False, True, False, True, False)
+        self.assertEqual(user, right)
+
+    def test_from_lxml(self):
+        text = '<USER />'
+        user = User.from_lxml_element(etree.XML(text))
+        right = User()
+        self.assertEqual(user, right)
+
+    def test_from_lxml_name(self):
+        text = '<USER name="name" />'
+        user = User.from_lxml_element(etree.XML(text))
+        right = User(name = 'name')
+        self.assertEqual(user, right)
+
+    def test_from_lxml_password(self):
+        text = '<USER password="pass" />'
+        user = User.from_lxml_element(etree.XML(text))
+        right = User(password = 'pass')
+        self.assertEqual(user, right)
+
+    def test_from_lxml_read(self):
+        text = '<USER READ="NO" />'
+        user = User.from_lxml_element(etree.XML(text))
+        right = User(read = False)
+        self.assertEqual(user, right)
+
+    def test_from_lxml_execute(self):
+        text = '<USER EXECUTE="NO" />'
+        user = User.from_lxml_element(etree.XML(text))
+        right = User(execute = False)
+        self.assertEqual(user, right)
+
+    def test_from_lxml_browse(self):
+        text = '<USER BROWSE="NO" />'
+        user = User.from_lxml_element(etree.XML(text))
+        right = User(browse = False)
+        self.assertEqual(user, right)
+
+    def test_from_lxml_delete(self):
+        text = '<USER DELETE="NO" />'
+        user = User.from_lxml_element(etree.XML(text))
+        right = User(delete = False)
+        self.assertEqual(user, right)
+
+    def test_from_lxml_write(self):
+        text = '<USER WRITE="NO" />'
+        user = User.from_lxml_element(etree.XML(text))
+        right = User(write = False)
+        self.assertEqual(user, right)
+
+    def test_from_lxml_full(self):
+        text = '''
+<USER name="name" password="pass" READ="NO" EXECUTE="YES" BROWSE="NO"
+      DELETE="YES" WRITE="NO" />'''
+        user = User.from_lxml_element(etree.XML(text))
+        right = User('name', 'pass', False, True, False, True, False)
+        self.assertEqual(user, right)
+
+    def test_to_string(self):
+        user = User()
+        copy = User.from_string(str(user))
+        self.assertEqual(user, copy)
+
+    def test_to_string_name(self):
+        user = User(name = 'name')
+        copy = User.from_string(str(user))
+        self.assertEqual(user, copy)
+
+    def test_to_string_password(self):
+        user = User(password = 'pass')
+        copy = User.from_string(str(user))
+        self.assertEqual(user, copy)
+
+    def test_to_string_read(self):
+        user = User(read = True)
+        copy = User.from_string(str(user))
+        self.assertEqual(user, copy)
+
+    def test_to_string_execute(self):
+        user = User(execute = True)
+        copy = User.from_string(str(user))
+        self.assertEqual(user, copy)
+
+    def test_to_string_browse(self):
+        user = User(browse = True)
+        copy = User.from_string(str(user))
+        self.assertEqual(user, copy)
+
+    def test_to_string_delete(self):
+        user = User(delete = True)
+        copy = User.from_string(str(user))
+        self.assertEqual(user, copy)
+
+    def test_to_string_write(self):
+        user = User(write = True)
+        copy = User.from_string(str(user))
+        self.assertEqual(user, copy)
+
+    def test_to_string_full(self):
+        user = User('name', 'pass', True, False, True, False, True)
+        copy = User.from_string(str(user))
+        self.assertEqual(user, copy)
+
+    def test_to_lxml(self):
+        user = User()
+        copy = User.from_lxml_element(user.to_lxml_element())
+        self.assertEqual(user, copy)
+
+    def test_to_lxml_name(self):
+        user = User(name = 'name')
+        copy = User.from_lxml_element(user.to_lxml_element())
+        self.assertEqual(user, copy)
+
+    def test_to_lxml_password(self):
+        user = User(password = 'pass')
+        copy = User.from_lxml_element(user.to_lxml_element())
+        self.assertEqual(user, copy)
+
+    def test_to_lxml_read(self):
+        user = User(read = True)
+        copy = User.from_lxml_element(user.to_lxml_element())
+        self.assertEqual(user, copy)
+
+    def test_to_lxml_execute(self):
+        user = User(execute = True)
+        copy = User.from_lxml_element(user.to_lxml_element())
+        self.assertEqual(user, copy)
+
+    def test_to_lxml_browse(self):
+        user = User(browse = True)
+        copy = User.from_lxml_element(user.to_lxml_element())
+        self.assertEqual(user, copy)
+
+    def test_to_lxml_delete(self):
+        user = User(delete = True)
+        copy = User.from_lxml_element(user.to_lxml_element())
+        self.assertEqual(user, copy)
+
+    def test_to_lxml_write(self):
+        user = User(write = True)
+        copy = User.from_lxml_element(user.to_lxml_element())
+        self.assertEqual(user, copy)
+
+    def test_to_lxml_full(self):
+        user = User('name', 'pass', True, False, True, False, True)
+        copy = User.from_lxml_element(user.to_lxml_element())
+        self.assertEqual(user, copy)
+
+    def test_bad_root_tag(self):
+        text = '<ERROR />'
+        self.assertRaises(AttributeError, User.from_string, text)
+        self.assertRaises(AttributeError, User.from_lxml_element,
+                          etree.XML(text))
+
 class BadMarkupTest(unittest.TestCase):
     def condition_test(self):
         text = '''
@@ -580,6 +896,24 @@ class BadMarkupTest(unittest.TestCase):
 </CONDITION>'''
         permission = Permission.from_string(text)
         tree = permission.to_lxml_element()
+        self.assertEqual('unknown', tree.get('custom'))
+        unknown = tree.findall('UNKNOWN')
+        self.assertEqual(1, len(unknown))
+        unknown = unknown[0]
+        custom = list(unknown)
+        self.assertEqual(1, len(custom))
+        custom = custom[0]
+        self.assertEqual('CUSTOM', custom.tag)
+
+    def user_test(self):
+        text = '''
+<USER custom="unknown">
+  <UNKNOWN>
+    <CUSTOM />
+  </UNKNOWN>
+</USER>'''
+        user = User.from_string(text)
+        tree = user.to_lxml_element()
         self.assertEqual('unknown', tree.get('custom'))
         unknown = tree.findall('UNKNOWN')
         self.assertEqual(1, len(unknown))

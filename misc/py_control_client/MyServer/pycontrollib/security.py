@@ -259,8 +259,14 @@ class User(SecurityElement):
         self.set_browse(browse)
         self.set_delete(delete)
         self.set_write(write)
-        self.custom_attributes = {}
+        self.custom_attrib = {}
         self.custom = []
+
+    def __eq__(self, other):
+        return isinstance(other, User) and self.name == other.name and \
+            self.password == other.password and self.read == other.read and \
+            self.execute == other.execute and self.browse == other.browse and \
+            self.delete == other.delete and self.write == other.write
 
     def set_name(self, name):
         self.name = name
@@ -305,21 +311,21 @@ class User(SecurityElement):
         return self.write
 
     def to_lxml_element(self):
-        root = etree.Element('PERMISSION')
+        root = etree.Element('USER')
         if self.name is not None:
             root.set('name', self.name)
         if self.password is not None:
             root.set('password', self.password)
         if self.read is not None:
-            root.set('READ', self.read)
+            root.set('READ', 'YES' if self.read else 'NO')
         if self.execute is not None:
-            root.set('EXECUTE', self.execute)
+            root.set('EXECUTE', 'YES' if self.execute else 'NO')
         if self.browse is not None:
-            root.set('BROWSE', self.browse)
+            root.set('BROWSE', 'YES' if self.browse else 'NO')
         if self.delete is not None:
-            root.set('DELETE', self.delete)
+            root.set('DELETE', 'YES' if self.delete else 'NO')
         if self.write is not None:
-            root.set('WRITE', self.write)
+            root.set('WRITE', 'YES' if self.write else 'NO')
         for key, value in self.custom_attrib.iteritems():
             root.set(key, value)
         for element in self.custom:
@@ -334,10 +340,20 @@ class User(SecurityElement):
         name = custom_attrib.pop('name', None)
         password = custom_attrib.pop('password', None)
         read = custom_attrib.pop('READ', None)
+        if read is not None:
+            read = read.upper() == 'YES'
         execute = custom_attrib.pop('EXECUTE', None)
+        if execute is not None:
+            execute = execute.upper() == 'YES'
         browse = custom_attrib.pop('BROWSE', None)
+        if browse is not None:
+            browse = browse.upper() == 'YES'
         delete = custom_attrib.pop('DELETE', None)
+        if delete is not None:
+            delete = delete.upper() == 'YES'
         write = custom_attrib.pop('WRITE', None)
+        if write is not None:
+            write = write.upper() == 'YES'
         custom = list(root)
         user = User(name, password, read, execute, browse,
                     delete, write)
@@ -348,7 +364,7 @@ class User(SecurityElement):
     @staticmethod
     def from_string(text):
         '''Factory to produce user element by parsing a string.'''
-        return Permission.from_lxml_element(etree.XML(text))
+        return User.from_lxml_element(etree.XML(text))
 
 class Return(SecurityElement):
     def __init__(self, value = None):
