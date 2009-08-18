@@ -18,6 +18,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import gtk
 import gobject
+from MyServer.pycontrollib.security import SecurityElement, User, Return, \
+    Condition, Permission
+from MyServer.pycontrollib.definition import DefinitionElement
 
 class SecurityTree(gtk.TreeView):
     def __init__(self, security_table):
@@ -32,6 +35,7 @@ class SecurityTree(gtk.TreeView):
 
         self.security_table = security_table
 
+        self.last_selected = None
         self.connect('cursor-changed', self.cursor_changed)
 
         self.scroll = gtk.ScrolledWindow()
@@ -40,19 +44,177 @@ class SecurityTree(gtk.TreeView):
         self.scroll.set_border_width(5)
         self.scroll.add(self)
 
-        x = self.get_model().append(None, ('SECURITY', '', ))
-        self.get_model().append(x, ('USER', '', ))
-        self.get_model().append(x, ('RETURN', '', ))
-        self.get_model().append(x, ('CONDITION', '', ))
+        x = self.get_model().append(None, ('SECURITY', SecurityElement(), ))
+        self.get_model().append(x, ('USER', User(), ))
+        self.get_model().append(x, ('USER', User(), ))
+        self.get_model().append(x, ('RETURN', Return(), ))
+        self.get_model().append(x, ('CONDITION', Condition(), ))
+
+    def save(self):
+        if self.last_selected is None:
+            return
+        model = self.get_model()
+        row = model[self.last_selected]
+        tag = row[0]
+        data = row[1]
+        if tag == 'USER':
+            table = self.security_table.user_table
+            if table.name_check.get_active():
+                data.set_name(table.name_entry.get_text())
+            else:
+                data.set_name(None)
+            if table.password_check.get_active():
+                data.set_password(table.password_entry.get_text())
+            else:
+                data.set_password(None)
+            combo = table.read_combo
+            value = combo.get_model()[combo.get_active()][0]
+            data.set_read(value == 'Yes' if value != 'empty' else None)
+            combo = table.execute_combo
+            value = combo.get_model()[combo.get_active()][0]
+            data.set_execute(value == 'Yes' if value != 'empty' else None)
+            combo = table.browse_combo
+            value = combo.get_model()[combo.get_active()][0]
+            data.set_browse(value == 'Yes'if value != 'empty' else None)
+            combo = table.delete_combo
+            value = combo.get_model()[combo.get_active()][0]
+            data.set_delete(value == 'Yes' if value != 'empty' else None)
+            combo = table.write_combo
+            value = combo.get_model()[combo.get_active()][0]
+            data.set_write(value == 'Yes' if value != 'empty' else None)
+        elif tag == 'CONDITION':
+            table = self.security_table.condition_table
+            if table.name_check.get_active():
+                data.set_name(table.name_entry.get_text())
+            else:
+                data.set_name(None)
+            if table.value_check.get_active():
+                data.set_value(table.value_entry.get_text())
+            else:
+                data.set_value(None)
+            combo = table.regex_combo
+            value = combo.get_model()[combo.get_active()][0]
+            data.set_regex(value == 'Yes' if value != 'empty' else None)
+            combo = table.reverse_combo
+            value = combo.get_model()[combo.get_active()][0]
+            data.set_reverse(value == 'Yes' if value != 'empty' else None)
+        elif tag == 'PERMISSION':
+            table = self.security_table.permission_table
+            combo = table.read_combo
+            value = combo.get_model()[combo.get_active()][0]
+            data.set_read(value == 'Yes' if value != 'empty' else None)
+            combo = table.execute_combo
+            value = combo.get_model()[combo.get_active()][0]
+            data.set_execute(value == 'Yes' if value != 'empty' else None)
+            combo = table.browse_combo
+            value = combo.get_model()[combo.get_active()][0]
+            data.set_browse(value == 'Yes'if value != 'empty' else None)
+            combo = table.delete_combo
+            value = combo.get_model()[combo.get_active()][0]
+            data.set_delete(value == 'Yes' if value != 'empty' else None)
+            combo = table.write_combo
+            value = combo.get_model()[combo.get_active()][0]
+            data.set_write(value == 'Yes' if value != 'empty' else None)
+        elif tag == 'RETURN':
+            table = self.security_table.return_table
+            combo = table.value_combo
+            value = combo.get_model()[combo.get_active()][0]
+            data.set_value(value if value != 'empty' else None)
+
+    def update_gui(self, tag, data):
+        if tag == 'USER':
+            table = self.security_table.user_table
+            if data.get_name() is None:
+                table.name_check.set_active(False)
+                table.name_entry.set_text('')
+            else:
+                table.name_check.set_active(True)
+                table.name_entry.set_text(data.get_name())
+            if data.get_password() is None:
+                table.password_check.set_active(False)
+                table.password_entry.set_text('')
+            else:
+                table.password_check.set_active(True)
+                table.password_entry.set_text(data.get_password())
+            combo = table.read_combo
+            value =  2 if data.get_read() is None else int(not data.get_read())
+            combo.set_active(value)
+            combo = table.execute_combo
+            value =  2 if data.get_execute() is None else int(not data.get_execute())
+            combo.set_active(value)
+            combo = table.browse_combo
+            value =  2 if data.get_browse() is None else int(not data.get_browse())
+            combo.set_active(value)
+            combo = table.delete_combo
+            value =  2 if data.get_delete() is None else int(not data.get_delete())
+            combo.set_active(value)
+            combo = table.write_combo
+            value =  2 if data.get_write() is None else int(not data.get_write())
+            combo.set_active(value)
+        elif tag == 'CONDITION':
+            table = self.security_table.condition_table
+            if data.get_name() is None:
+                table.name_check.set_active(False)
+                table.name_entry.set_text('')
+            else:
+                table.name_check.set_active(True)
+                table.name_entry.set_text(data.get_name())
+            if data.get_value() is None:
+                table.value_check.set_active(False)
+                table.value_entry.set_text('')
+            else:
+                table.value_check.set_active(True)
+                table.value_entry.set_text(data.get_value())
+            combo = table.regex_combo
+            value =  2 if data.get_regex() is None else int(not data.get_regex())
+            combo.set_active(value)
+            combo = table.reverse_combo
+            value =  2 if data.get_reverse() is None else int(not data.get_reverse())
+            combo.set_active(value)
+        elif tag == 'PERMISSION':
+            table = self.security_table.permission_table
+            combo = table.read_combo
+            value =  2 if data.get_read() is None else int(not data.get_read())
+            combo.set_active(value)
+            combo = table.execute_combo
+            value =  2 if data.get_execute() is None else int(not data.get_execute())
+            combo.set_active(value)
+            combo = table.browse_combo
+            value =  2 if data.get_browse() is None else int(not data.get_browse())
+            combo.set_active(value)
+            combo = table.delete_combo
+            value =  2 if data.get_delete() is None else int(not data.get_delete())
+            combo.set_active(value)
+            combo = table.write_combo
+            value =  2 if data.get_write() is None else int(not data.get_write())
+            combo.set_active(value)
+        elif tag == 'RETURN':
+            table = self.security_table.return_table
+            combo = table.value_combo
+            value =  2 if data.get_value() is None else int(data.get_value() == 'DENY')
+            combo.set_active(value)
 
     def cursor_changed(self, tree):
+        self.save()
+
         model, selected = tree.get_selection().get_selected()
+        self.last_selected = selected
         row = model[selected]
         self.security_table.switch_table(row[0])
 
+        self.update_gui(row[0], row[1])
+
     def add_sub_element(self, tag):
         model, selected = self.get_selection().get_selected()
-        model.append(selected, (tag, '', ))
+        if tag == 'USER':
+            add = User()
+        elif tag == 'RETURN':
+            add = Return()
+        elif tag == 'CONDITION':
+            add = Condition()
+        elif tag == 'PERMISSION':
+            add = Permission()
+        model.append(selected, (tag, add, ))
 
 class UserTable(gtk.Table):
     def __init__(self):
@@ -71,8 +233,8 @@ class UserTable(gtk.Table):
         self.attach(self.password_check, 2, 3, 1, 2, gtk.FILL, gtk.FILL)
 
         def add_options(combo):
-            combo.append_text('YES')
-            combo.append_text('NO')
+            combo.append_text('Yes')
+            combo.append_text('No')
             combo.append_text('empty')
 
         self.attach(gtk.Label('READ'), 0, 1, 2, 3, gtk.FILL, gtk.FILL)
@@ -117,8 +279,8 @@ class ConditionTable(gtk.Table):
         self.attach(self.value_check, 2, 3, 0, 1, gtk.FILL, gtk.FILL)
 
         def add_options(combo):
-            combo.append_text('yes')
-            combo.append_text('no')
+            combo.append_text('Yes')
+            combo.append_text('No')
             combo.append_text('empty')
 
         self.attach(gtk.Label('regex'), 0, 1, 2, 3, gtk.FILL, gtk.FILL)
@@ -153,8 +315,8 @@ class PermissionTable(gtk.Table):
         gtk.Table.__init__(self, 5, 2)
 
         def add_options(combo):
-            combo.append_text('YES')
-            combo.append_text('NO')
+            combo.append_text('Yes')
+            combo.append_text('No')
             combo.append_text('empty')
 
         self.attach(gtk.Label('READ'), 0, 1, 0, 1, gtk.FILL, gtk.FILL)
