@@ -31,6 +31,7 @@ from MyServer.GUI.DefinitionWidgets import DefinitionTable, DefinitionTreeView
 from MyServer.GUI.MIMEWidgets import MimeTable, MimeTreeView
 from MyServer.GUI.VHostWidgets import VHostTable, VHostTreeView
 from MyServer.GUI.BrowserWidgets import BrowserTable
+from MyServer.GUI.SecurityWidgets import SecurityTable
 
 class PyGTKControl():
     '''GNU MyServer Control main window.'''
@@ -441,10 +442,14 @@ class PyGTKControl():
 
     def construct_browser(self):
         '''Constructs file browser.'''
-        table = BrowserTable()
+        panels = gtk.HPaned()
+        browser_table = BrowserTable()
+        panels.pack1(browser_table, True, False)
+        security_table = SecurityTable()
+        panels.pack2(security_table, True, False)
         
         self.widgets.get_widget('notebook').append_page(
-            table, gtk.Label('File browser'))
+            panels, gtk.Label('File browser'))
 
         self.widgets.get_widget('notebook').show_all()
 
