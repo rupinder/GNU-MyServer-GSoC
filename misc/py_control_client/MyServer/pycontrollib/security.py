@@ -47,6 +47,7 @@ class SecurityElement():
 class Condition(SecurityElement):
     def __init__(self, name = None, value = None, reverse = None, regex = None,
                  sub_elements = []):
+        self.tag = 'CONDITION'
         self.set_name(name)
         self.set_value(value)
         self.set_reverse(reverse)
@@ -157,6 +158,7 @@ class Condition(SecurityElement):
 class Permission(SecurityElement):
     def __init__(self, read = None, execute = None, browse = None,
                  delete = None, write = None):
+        self.tag = 'PERMISSION'
         self.set_read(read)
         self.set_execute(execute)
         self.set_browse(browse)
@@ -252,6 +254,7 @@ class Permission(SecurityElement):
 class User(SecurityElement):
     def __init__(self, name = None, password = None, read = None,
                  execute = None, browse = None, delete = None, write = None):
+        self.tag = 'USER'
         self.set_name(name)
         self.set_password(password)
         self.set_read(read)
@@ -368,6 +371,7 @@ class User(SecurityElement):
 
 class Return(SecurityElement):
     def __init__(self, value = None):
+        self.tag = 'RETURN'
         self.set_value(value)
         self.custom_attrib = {}
         self.custom = []

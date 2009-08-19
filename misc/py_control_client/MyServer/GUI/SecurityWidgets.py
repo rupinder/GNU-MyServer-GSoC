@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import gtk
 import gobject
-from MyServer.pycontrollib.security import SecurityElement, User, Return, \
+from MyServer.pycontrollib.security import SecurityList, User, Return, \
     Condition, Permission
 from MyServer.pycontrollib.definition import DefinitionElement
 
@@ -44,11 +44,25 @@ class SecurityTree(gtk.TreeView):
         self.scroll.set_border_width(5)
         self.scroll.add(self)
 
-        x = self.get_model().append(None, ('SECURITY', SecurityElement(), ))
-        self.get_model().append(x, ('USER', User(), ))
-        self.get_model().append(x, ('USER', User(), ))
-        self.get_model().append(x, ('RETURN', Return(), ))
-        self.get_model().append(x, ('CONDITION', Condition(), ))
+        self.clear()
+
+    def clear(self):
+        self.get_model().clear()
+        self.get_model().append(None, ('SECURITY', SecurityList(), ))
+
+    def set_up(self, security_list):
+        def add_from_condition(parent, model, condition):
+            for element in condition.get_sub_elements():
+                x = model.append(parent, (element.tag, element, ))
+                if element.tag == 'CONDITION':
+                    add_from_condition(x, model, element)
+        model = self.get_model()
+        model.clear()
+        parent = model.append(None, ('SECURITY', security_list))
+        for element in security_list.get_elements():
+            x = model.append(parent, (element.tag, element, ))
+            if element.tag == 'CONDITION':
+                add_from_condition(x, model, element)
 
     def save(self):
         if self.last_selected is None:
@@ -388,18 +402,28 @@ class SecurityTable(gtk.Table):
     def __init__(self):
         gtk.Table.__init__(self, 1, 2)
 
-        security_tree = SecurityTree(self)
+        self.security_tree = SecurityTree(self)
 
         self.user_table = UserTable()
-        self.condition_table = ConditionTable(security_tree)
+        self.condition_table = ConditionTable(self.security_tree)
         self.permission_table = PermissionTable()
         self.return_table = ReturnTable()
         self.definition_table = DefinitionTable()
-        self.empty_table = EmptyTable(security_tree)
+        self.empty_table = EmptyTable(self.security_tree)
         self.current_table = self.empty_table
 
-        self.attach(security_tree.scroll, 0, 1, 0, 1)
+        self.attach(self.security_tree.scroll, 0, 1, 0, 1)
         self.attach(self.current_table, 1, 2, 0, 1, gtk.FILL)
+
+    def read_from_file(self, file_name):
+        self.switch_table('SECURITY')
+        try:
+            f = open(file_name)
+            security = SecurityList.from_string(f.read())
+            self.security_tree.set_up(security)
+            f.close()
+        except IOError:
+            self.security_tree.clear()
 
     def switch_table(self, tag): # switch doesn't work
         self.remove(self.current_table)
