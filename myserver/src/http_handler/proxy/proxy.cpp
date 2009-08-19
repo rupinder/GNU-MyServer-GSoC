@@ -62,8 +62,9 @@ int Proxy::send (HttpThreadContext *td,
 
   if (destUrl.getProtocol ().compare ("http") && destUrl.getProtocol ().compare ("HTTP"))
     {
-      td->connection->host->warningsLogWrite ("Proxy: %s is not a known protocol", destUrl.getProtocol ());
-      return 0;
+      td->connection->host->warningsLogWrite ("Proxy: %s is not a known protocol",
+                                              destUrl.getProtocol ().c_str ());
+      return td->http->raiseHTTPError (500);
     }
 
   req.ver.assign ("HTTP/1.1");

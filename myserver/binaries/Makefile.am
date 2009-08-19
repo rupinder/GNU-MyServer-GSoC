@@ -1,4 +1,4 @@
-SUBDIRS = languages logs system web certificates plugins
+SUBDIRS = logs system web certificates plugins
 
 EXTRA_DIST = myserver-daemon MIMEtypes.default.xml myserver.default.xml \
 						 virtualhosts.default.xml

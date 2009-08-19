@@ -391,7 +391,7 @@ char * Ftp::registerNameImpl (char *out, int len)
 }
 
 
-int Ftp::loadProtocolstatic (XmlParser *)
+int Ftp::loadProtocolstatic ()
 {
   // load custom messages from cfg here
   Server *server = Server::getInstance ();
@@ -424,12 +424,9 @@ int Ftp::loadProtocolstatic (XmlParser *)
   return 1;
 }
 
-int Ftp::unLoadProtocolstatic (XmlParser *)
+int Ftp::unLoadProtocolstatic ()
 {
-  if (true /*everything is ok */ )
-    return 1;
-  else
-    return 0;
+  return 1;
 }
 
 void Ftp::ftpReply (int nReplyCode, const std::string & sCustomText /*= ""*/ )

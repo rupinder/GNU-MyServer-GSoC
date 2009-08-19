@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2007 Free Software Foundation, Inc.
+Copyright (C) 2007, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -27,17 +27,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class ListenThreads
 {
 public:
-	void addListeningThread(u_short port);
-	int initialize(XmlParser* parser);
-	int terminate();
+	void addListeningThread (u_short port);
+	int initialize ();
+	int terminate ();
 	/*! Initialize the shutdown phase.  */
-	void shutdown(){shutdownStatus = true;}
+	void shutdown (){shutdownStatus = true;}
 	/*! Is it shutdown phase?  */
-	bool isShutdown(){return shutdownStatus;}
-	void commitFastReboot();
-	void beginFastReboot();
-	void rollbackFastReboot();
-	ListenThreads(ConnectionsScheduler*, Server*);
+	bool isShutdown (){return shutdownStatus;}
+	void commitFastReboot ();
+	void beginFastReboot ();
+	void rollbackFastReboot ();
+	ListenThreads (ConnectionsScheduler*, Server*);
 
 private:
 	struct SocketInformation
@@ -56,12 +56,11 @@ private:
 
 	bool shutdownStatus;
 	HashMap<u_short, SocketInformation*> usedPorts;
-	XmlParser *languageParser;
-	int createServerAndListener(u_short port);
-	void registerListener(SocketInformation*);
-  
-  Server* server;
-  ConnectionsScheduler* scheduler;
+	int createServerAndListener (u_short port);
+	void registerListener (SocketInformation*);
+
+  Server *server;
+  ConnectionsScheduler *scheduler;
 };
 
 #endif

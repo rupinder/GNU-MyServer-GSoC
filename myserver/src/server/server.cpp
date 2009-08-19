@@ -85,8 +85,6 @@ Server::Server () : connectionsScheduler (this),
   mimeConfigurationFile = 0;
   mainConfigurationFile = 0;
   vhostConfigurationFile = 0;
-  languagesPath = 0;
-  languageFile = 0;
   externalPath = 0;
   path = 0;
   ipAddresses = 0;
@@ -116,8 +114,7 @@ Server::initLogManager ()
  *Returns false on error.
  */
 bool Server::resetConfigurationPaths (string &mainConf, string &mimeConf,
-				     string &vhostConf, string &externPath,
-				     string &langPath)
+				     string &vhostConf, string &externPath)
 {
   if (!mainConfigurationFile)
     mainConfigurationFile = new string (mainConf);
@@ -138,11 +135,6 @@ bool Server::resetConfigurationPaths (string &mainConf, string &mimeConf,
     externalPath = new string (externPath);
   else
     externalPath->assign (externPath);
-
-  if (!languagesPath)
-    languagesPath = new string (langPath);
-  else
-    languagesPath->assign (langPath);
 
   return true;
 }
@@ -250,17 +242,10 @@ int Server::loadLibraries ()
 
 
 /*!
- *Destroy the object.
+ * Destroy the object.
  */
 Server::~Server ()
 {
-  if (languagesPath)
-    delete languagesPath;
-  languagesPath = 0;
-
-  if (languageFile)
-    delete languageFile;
-  languageFile = 0;
   if (vhostList)
     delete vhostList;
 
@@ -294,7 +279,7 @@ Server::~Server ()
  *Start the server.
  */
 void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
-		   string &externPath, string &langPath)
+                    string &externPath)
 {
   int err = 0;
 #ifdef WIN32
@@ -314,7 +299,7 @@ void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
      */
     logWriteln (MYSERVER_LOG_MSG_INFO, _("Initializing server configuration..."));
 
-    if (!resetConfigurationPaths (mainConf, mimeConf, vhostConf, externPath, langPath))
+    if (!resetConfigurationPaths (mainConf, mimeConf, vhostConf, externPath))
       return;
 
     err = checkConfigurationPaths ();
@@ -412,7 +397,7 @@ int Server::postLoad ()
 
   connectionsScheduler.restart ();
 
-  listenThreads.initialize (&languageParser);
+  listenThreads.initialize ();
 
   if (vhostList)
     delete vhostList;
@@ -482,14 +467,14 @@ void Server::loadPlugins ()
     {
       char protocolName[32];
       Protocol *protocol = protocolsSet[j];
-      protocol->loadProtocol (&languageParser);
+      protocol->loadProtocol ();
       protocol->registerName (protocolName, 32);
       getProtocolsManager ()->addProtocol (protocolName, protocol);
     }
 
   getPluginsManager ()->preLoad (this, *externalPath);
   getPluginsManager ()->load (this);
-  getPluginsManager ()->postLoad (this, &languageParser);
+  getPluginsManager ()->postLoad (this);
 }
 
 /*!
@@ -595,7 +580,7 @@ void Server::mainLoop()
                   Socket::stopBlockingOperations (false);
 
                   connectionsScheduler.restart ();
-                  listenThreads.initialize (&languageParser);
+                  listenThreads.initialize ();
 
                   vhostList = new VhostManager (&listenThreads, logManager);
 
@@ -765,14 +750,6 @@ const char *Server::getGid ()
 }
 
 /*!
- *Get a pointer to the language parser.
- */
-XmlParser* Server::getLanguageParser ()
-{
-  return &languageParser;
-}
-
-/*!
  *Returns the numbers of active connections the list.
  */
 u_long Server::getNumConnections ()
@@ -864,7 +841,6 @@ int Server::terminate ()
 
   ipAddresses = 0;
   vhostList = 0;
-  languageParser.close ();
 
   if (mimeManager)
     {
@@ -975,29 +951,6 @@ int Server::initialize ()
     }
 
   initLogManager ();
-
-  data = getHashedData ("server.language");
-  if (languageFile)
-    delete languageFile;
-  languageFile = new string ();
-  if (data)
-    {
-      languageFile->assign (*languagesPath);
-      languageFile->append ("/");
-      languageFile->append (data);
-    }
-  else
-    languageFile->assign ("languages/english.xml");
-
-
-  /* XXX: IT IS NOT USED, AT LEAST IN THIS CLASS.  */
-  if (languageParser.open (languageFile->c_str ()))
-    {
-      logWriteln (MYSERVER_LOG_MSG_ERROR, _("Error loading language file"));
-      return -1;
-    }
-  logWriteln (MYSERVER_LOG_MSG_INFO, _("Using %s"),
-              languageParser.getValue ("MSG_LANGUAGE"));
 
   data = getHashedData ("server.verbosity");
   if (data)
@@ -1746,22 +1699,6 @@ void Server::enableAutoReboot ()
 ProtocolsManager *Server::getProtocolsManager ()
 {
   return &protocols;
-}
-
-/*!
- * Get the path to the directory containing all the language files.
- */
-const char *Server::getLanguagesPath ()
-{
-  return languagesPath ? languagesPath->c_str () : "";
-}
-
-/*!
- * Get the current language file.
- */
-const char *Server::getLanguageFile ()
-{
-  return languageFile ? languageFile->c_str () : "";
 }
 
 /*!

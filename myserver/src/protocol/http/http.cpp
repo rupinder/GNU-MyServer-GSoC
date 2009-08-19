@@ -1788,7 +1788,7 @@ int Http::sendAuth ()
 /*!
  * Load the HTTP protocol.
  */
-int Http::loadProtocolStatic (XmlParser* languageParser)
+int Http::loadProtocolStatic ()
 {
   const char *data = NULL;
   string pluginsResource (Server::getInstance ()->getExternalPath ());
@@ -1832,7 +1832,7 @@ int Http::loadProtocolStatic (XmlParser* languageParser)
 /*!
  * Unload the HTTP protocol.
  */
-int Http::unLoadProtocolStatic (XmlParser* languageParser)
+int Http::unLoadProtocolStatic ()
 {
   /* Unload the errors.  */
   HttpErrors::unLoad ();

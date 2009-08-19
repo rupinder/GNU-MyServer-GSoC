@@ -422,7 +422,6 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
  * Add a plugin.
  * \param file The plugin file name.
  * \param server The server object to use.
- * \param languageFile The language file to use to retrieve warnings/errors
  * messages.
  * \param global Specify if the library should be loaded globally.
  */
@@ -606,11 +605,9 @@ PluginsManager::load (Server *server)
 /*!
  * PostLoad functions, called once all the plugins are loaded.
  * \param server The server object to use.
- * \param languageFile The language file to use to get errors and warnings
- * messages.
  */
 int
-PluginsManager::postLoad (Server *server, XmlParser* languageFile)
+PluginsManager::postLoad (Server *server)
 {
   HashMap<string, PluginInfo*>::Iterator it = pluginsInfos.begin ();
   while (it != pluginsInfos.end ())
@@ -618,7 +615,7 @@ PluginsManager::postLoad (Server *server, XmlParser* languageFile)
       Plugin* plugin = (*it)->getPlugin ();
       if (plugin)
         {
-          plugin->postLoad (server, languageFile);
+          plugin->postLoad (server);
           server->logWriteln (MYSERVER_LOG_MSG_INFO,
                               _("Plugin %s loaded"),
                               (*it)->getName ().c_str ());

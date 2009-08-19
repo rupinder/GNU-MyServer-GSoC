@@ -286,9 +286,8 @@ void ListenThreads::addListeningThread (u_short port)
  * Initialize the listen threads manager.
  * \param parser Xml data to use for error messages.
  */
-int ListenThreads::initialize (XmlParser* parser)
+int ListenThreads::initialize ()
 {
-  languageParser = parser;
   shutdownStatus = false;
   return 0;
 }

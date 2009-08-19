@@ -88,5 +88,9 @@ typedef void* HANDLE;
 
 #endif
 
-
-#define _(X) X
+#ifdef HAVE_GETTEXT
+# include <libintl.h>
+# define _(X) gettext (X)
+#else
+# define _(X) X
+#endif

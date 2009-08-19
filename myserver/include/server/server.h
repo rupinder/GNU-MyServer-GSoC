@@ -105,10 +105,7 @@ public:
   const char* getMainConfFile();
   const char* getVhostConfFile();
   const char* getMIMEConfFile();
-  const char* getLanguagesPath();
-  const char* getLanguageFile();
   const char* getExternalPath();
-  XmlParser* getLanguageParser();
   ~Server();
   Protocol* getProtocol(const char *protocolName);
   int addConnection(Socket,MYSERVER_SOCKADDRIN*);
@@ -131,7 +128,7 @@ public:
   int getMaxLogFileSize();
   int mustUseLogonOption();
   void setVerbosity(u_long);
-  void start(string &, string &, string &, string &, string &);
+  void start(string &, string &, string &, string &);
   void stop();
   void finalCleanup();
   int terminate();
@@ -217,7 +214,6 @@ private:
   string gid;
   int currentThreadID;
   ProtocolsManager protocols;
-  XmlParser languageParser;
 
   bool autoRebootEnabled;
   bool toReboot;
@@ -249,7 +245,7 @@ private:
   int copyConfigurationFromDefault(const char *);
   void logWriteNTimes(string, unsigned);
   int checkConfigurationPaths();
-  bool resetConfigurationPaths(string &, string &, string &, string &, string &);
+  bool resetConfigurationPaths(string &, string &, string &, string &);
   Mutex* connectionsMutex;
   u_long nStaticThreads;
   u_long nMaxThreads;
@@ -262,8 +258,6 @@ private:
 
   int purgeThreads();
   int reboot();
-  string* languageFile;
-  string* languagesPath;
   string* mainConfigurationFile;
   string* vhostConfigurationFile;
   string* mimeConfigurationFile;

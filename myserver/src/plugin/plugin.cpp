@@ -19,109 +19,104 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-
-typedef int (*loadPROC)(Server*, XmlParser*);
-typedef int (*postLoadPROC)(Server*, XmlParser*);
+typedef int (*loadPROC)(Server*);
+typedef int (*postLoadPROC)(Server*);
 typedef int (*unLoadPROC)();
 typedef int (*versionPROC)();
 typedef const char* (*getNamePROC)(char*, u_long);
 
 /*!
- *Construct a plugin object.
+ * Construct a plugin object.
  */
-Plugin::Plugin()
+Plugin::Plugin ()
 {
-	
+
 }
 
 /*!
- *Destroy the object.
-*/
-Plugin::~Plugin()
+ * Destroy the object.
+ */
+Plugin::~Plugin ()
 {
-  if(hinstLib.validHandle())
-    hinstLib.close();
+  if (hinstLib.validHandle ())
+    hinstLib.close ();
 }
 
 /*!
- *Load the plugin.
- *\param file The filename to load.
- *\param server The server instance to use.
- *\param languageFile The language file to use to retrieve warnings/errors 
- *messages.
+ * Load the plugin.
+ * \param file The filename to load.
+ * \param server The server instance to use.
+ * \param languageFile The language file to use to retrieve warnings/errors
+ * messages.
  */
-int Plugin::load(Server* server, XmlParser* languageFile)
+int Plugin::load (Server* server)
 {
-  loadPROC proc = (loadPROC)hinstLib.getProc("load"); 
-  if(proc)
-    return proc(server, languageFile);
+  loadPROC proc = (loadPROC)hinstLib.getProc ("load");
+  if (proc)
+    return proc (server);
   return 0;
 }
 
 /*!
- *Preload the plugin.  This function doesn't ensure all other
- *plugins are yet loaded.
- *\param file The filename to load. 
- *messages.
- *\param global Load the shared library globally.
+ * Preload the plugin.  This function doesn't ensure all other
+ * plugins are yet loaded.
+ * \param file The filename to load.
+ * messages.
+ * \param global Load the shared library globally.
  */
-int Plugin::preLoad(string& file, 
-                    bool global)
+int Plugin::preLoad (string& file, bool global)
 {
-  
-  return hinstLib.loadLibrary(file.c_str(), global ? 1 : 0);
+
+  return hinstLib.loadLibrary (file.c_str (), global ? 1 : 0);
 }
 
 /*!
- *Post load initialization.  This is called once all the plugins are loaded.
- *\param server The server instance to use.
- *\param languageFile The language file to use to retrieve warnings/errors 
- *messages.
+ * Post load initialization.  This is called once all the plugins are loaded.
+ * \param server The server instance to use.
+ * \param languageFile The language file to use to retrieve warnings/errors
+ * messages.
  */
-int Plugin::postLoad(Server* server, XmlParser* languageFile)
+int Plugin::postLoad(Server* server)
 {
-  if(hinstLib.validHandle())
-  {
-    postLoadPROC proc = (postLoadPROC)hinstLib.getProc("postLoad"); 
-    if(proc)
-      return proc(server, languageFile);
-  }
+  if (hinstLib.validHandle ())
+    {
+      postLoadPROC proc = (postLoadPROC)hinstLib.getProc("postLoad");
+      if (proc)
+        return proc (server);
+    }
   return 0;
 
 }
 
 /*!
- *Unload the plugin.
- *\param languageFile The language file to use to retrieve warnings/errors 
- *messages.
+ * Unload the plugin.
+ * \param languageFile The language file to use to retrieve warnings/errors
+ * messages.
  */
-int Plugin::unLoad()
+int Plugin::unLoad ()
 {
-  if(hinstLib.validHandle())
-  {
-    unLoadPROC proc = (unLoadPROC)hinstLib.getProc("unLoad"); 
-    if(proc)
-      return proc();
-  }
+  if (hinstLib.validHandle ())
+    {
+      unLoadPROC proc = (unLoadPROC)hinstLib.getProc ("unLoad");
+      if (proc)
+        return proc ();
+    }
   return 0;
 }
 
-
-
-
 /*!
- *Get the plugin name.
- *\param buffer The buffer where write the plugin name.
- *\param len The buffer length in bytes.
+ * Get the plugin name.
+ * \param buffer The buffer where write the plugin name.
+ * \param len The buffer length in bytes.
  */
-const char* Plugin::getName(char* buffer, u_long len)
+const char* Plugin::getName (char* buffer, u_long len)
 {
   getNamePROC proc;
-  if(!hinstLib.validHandle())
+  if (!hinstLib.validHandle ())
     return 0;
-  proc = (getNamePROC)hinstLib.getProc("name");
-  if(proc)
-    return proc(buffer, len);
+  proc = (getNamePROC)hinstLib.getProc ("name");
+  if (proc)
+    return proc (buffer, len);
 
   return 0;
 }
@@ -130,9 +125,9 @@ const char* Plugin::getName(char* buffer, u_long len)
  *Get directly access to a method.
  *\param name The method name.
  */
-void* Plugin::getDirectMethod(char* name)
+void* Plugin::getDirectMethod (char* name)
 {
-  if(!hinstLib.validHandle())
+  if (!hinstLib.validHandle ())
     return 0;
-  return hinstLib.getProc(name);
+  return hinstLib.getProc (name);
 }

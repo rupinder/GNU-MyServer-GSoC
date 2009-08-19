@@ -48,6 +48,8 @@ AM_PROG_LEX
 AC_PROG_YACC
 AC_C_BIGENDIAN
 
+AM_GNU_GETTEXT([external])
+
 AC_CHECK_PROG(make_info, makeinfo, yes, no)
 if test x$make_info = xno ; then
    AC_MSG_WARN([ Cannot find makeinfo: info file will not be created])
@@ -323,7 +325,7 @@ AC_SUBST(BUILD_DOC)
 AC_SUBST(BUILD_MSCGI)
 
 dnl AC_CONFIG_SUBDIRS()
-AC_CONFIG_FILES([
+AC_CONFIG_FILES([ po/Makefile.in
     Makefile
     binaries/Makefile
     binaries/certificates/Makefile

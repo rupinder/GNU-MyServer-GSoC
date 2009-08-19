@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /*!
  * Load the protocol. Called once at runtime.
  */
-int Protocol::loadProtocol (XmlParser* /*languageParser*/)
+int Protocol::loadProtocol ()
 {
   return 1;
 }
@@ -28,7 +28,7 @@ int Protocol::loadProtocol (XmlParser* /*languageParser*/)
 /*!
  * Unload the protocol. Called once.
  */
-int Protocol::unLoadProtocol (XmlParser* /*languageParser*/)
+int Protocol::unLoadProtocol ()
 {
   return 1;
 }

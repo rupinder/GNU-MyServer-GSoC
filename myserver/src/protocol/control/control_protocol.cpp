@@ -74,7 +74,7 @@ char* ControlProtocol::registerName (char* out,int len)
 }
 
 /*!
- *Class constructor.
+ * Class constructor.
  */
 ControlProtocol::ControlProtocol ()
 {
@@ -83,7 +83,7 @@ ControlProtocol::ControlProtocol ()
 }
 
 /*!
- *Destructor for the class.
+ * Destructor for the class.
  */
 ControlProtocol::~ControlProtocol ()
 {
@@ -91,9 +91,9 @@ ControlProtocol::~ControlProtocol ()
 }
 
 /*!
- *Load the control protocol.
+ * Load the control protocol.
  */
-int ControlProtocol::loadProtocol (XmlParser* languageParser)
+int ControlProtocol::loadProtocol ()
 {
   char tmpName[64];
   char tmpPassword[64];
@@ -111,44 +111,30 @@ int ControlProtocol::loadProtocol (XmlParser* languageParser)
 
   data = Server::getInstance ()->getHashedData ("control.enabled");
   if (data && (!strcmpi (data, "YES")))
-  {
     controlEnabled = 1;
-  }
   else
-  {
     controlEnabled = 0;
-  }
 
   data = Server::getInstance ()->getHashedData ("control.admin");
   if (data)
-  {
     strncpy (tmpName, data, 64);
-  }
 
   data = Server::getInstance ()->getHashedData ("control.password");
   if (data)
-  {
     strncpy (tmpPassword, data, 64);
-  }
 
   data = Server::getInstance ()->getHashedData ("control.admin.md5");
   if (data)
-  {
     if (strcmpi (data, "YES") == 0)
       adminNameMD5ized = 1;
-  }
 
   data = Server::getInstance ()->getHashedData ("control.password.md5");
   if (data)
-  {
     if (strcmpi (data, "YES") == 0)
       adminPasswordMD5ized = 1;
-  }
 
   if (adminNameMD5ized)
-  {
     strncpy (adminLogin, tmpName, 64);
-  }
   else
   {
     md5.init ();
@@ -157,9 +143,7 @@ int ControlProtocol::loadProtocol (XmlParser* languageParser)
   }
 
   if (adminPasswordMD5ized)
-  {
     strncpy (adminPassword, tmpPassword, 64);
-  }
   else
   {
     md5.init ();
@@ -477,11 +461,6 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *b1, char *b2,
       Server::getInstance ()->enableAutoReboot();
       knownCommand = 1;
 
-    }
-  else if (!strcmp(command, "SHOWLANGUAGEFILES"))
-    {
-      knownCommand = 1;
-      ret = showLanguageFiles(a, outFile, b1, bs1, header);
     }
   else if (!strcmp(command, "VERSION"))
     {
@@ -872,61 +851,6 @@ int ControlProtocol::putFile (ConnectionPtr a, char* fn, File* in,
     }
   localfile.close ();
 
-  return 0;
-}
-
-/*!
- * Show all the language files that the server can use.
- */
-int ControlProtocol::showLanguageFiles (ConnectionPtr a, File* out,
-                                        char *b1,int bs1, ControlHeader& header)
-{
-  string searchPath;
-  const char *path = Server::getInstance ()->getLanguagesPath ();
-  FindData fd;
-  int ret = 0;
-  if (path == 0)
-    {
-      a->host->warningsLogWrite (_("Control: internal error"));
-      return CONTROL_INTERNAL;
-    }
-  searchPath.assign (path);
-
-#ifdef WIN32
-  searchPath.append ("*.xml");
-#endif
-  ret=fd.findfirst (searchPath.c_str ());
-  if (ret == -1)
-    {
-      a->host->warningsLogWrite (_("Control: internal error"));
-      return CONTROL_INTERNAL;
-    }
-  do
-    {
-      string filename;
-      string ext;
-      u_long nbw = 0;
-      /* Do not show files starting with a dot.  */
-      if (fd.name[0]=='.')
-        continue;
-
-      filename.assign (fd.name);
-      FilesUtility::getFileExt (ext, filename);
-      if (stringcmpi (ext, "xml") == 0)
-        {
-          ret = out->writeToFile (filename.c_str(), filename.length(), &nbw);
-          if (ret == 0)
-            ret = out->writeToFile ("\r\n", 2, &nbw);
-        }
-
-      if (ret)
-        {
-          a->host->warningsLogWrite (_("Control: internal error"));
-          return CONTROL_INTERNAL;
-        }
-    }
-  while (!fd.findnext ());
-  fd.findclose ();
   return 0;
 }
 

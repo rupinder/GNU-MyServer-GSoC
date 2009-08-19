@@ -173,9 +173,8 @@ public:
                         u_long nbtr, 
                         u_long id);
 
-  static int loadProtocolStatic(XmlParser*);
-
-  static int unLoadProtocolStatic(XmlParser*);
+  static int loadProtocolStatic();
+  static int unLoadProtocolStatic();
 
   u_long getTimeout ();
   int preprocessHttpRequest(string& filename, int yetmapped, 
@@ -232,14 +231,14 @@ public:
     return ret;
   }
 
-	virtual int loadProtocol(XmlParser* parser)
+	virtual int loadProtocol()
   {
-    return Http::loadProtocolStatic(parser);
+    return Http::loadProtocolStatic ();
   }
   
-  virtual int unLoadProtocol(XmlParser* parser)
+  virtual int unLoadProtocol ()
   {
-    return Http::unLoadProtocolStatic(parser);
+    return Http::unLoadProtocolStatic ();
 
   }
 
