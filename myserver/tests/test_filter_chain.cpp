@@ -1,6 +1,6 @@
 /*
  MyServer
- Copyright (C) 2008 Free Software Foundation, Inc.
+ Copyright (C) 2008, 2009 Free Software Foundation, Inc.
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
@@ -74,12 +74,12 @@ public:
 
     char *pBuff = szExpected;
     int i = nLength;
-    while ( !fc->read(szTemp, 64, &nbw) && i > 0 )
-    {
-      strncpy(pBuff, szTemp, (int)nbw > i ? i : nbw);
-      pBuff += nbw;
-      i -= nbw;
-    }
+    while ( !fc->read(szTemp, 64, &nbw) && nbw > 0 && i > 0 )
+      {
+        strncpy (pBuff, szTemp, (int)nbw > i ? i : nbw);
+        pBuff += nbw;
+        i -= nbw;
+      }
     szExpected[nLength] = '\0';
     fc->clearAllFilters();
 
