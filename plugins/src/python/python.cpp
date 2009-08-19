@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007, 2008 The MyServer Team
+Copyright (C) 2007, 2008, 2009 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -53,7 +53,7 @@ void PythonData::clear ()
 
 
 
-int load (void* server, void* parser)
+int load (void* server)
 {
 	serverInstance = (Server*)server;
 	const char* pathData = serverInstance->getHashedData("PYTHON_PATH");

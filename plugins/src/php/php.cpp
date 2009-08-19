@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007 The Free Software Foundation Inc.
+Copyright (C) 2007, 2009 The Free Software Foundation Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -25,9 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <main/php.h>
 #include <main/SAPI.h>
 
-
 #ifdef ZTS
-#include <TSRM.h>
+# include <TSRM.h>
 #endif
 
 static Server* server;
@@ -290,7 +289,7 @@ static sapi_module_struct myphp_module =
 	STANDARD_SAPI_MODULE_PROPERTIES
 };
 
-int load(void* server,void* parser)
+int load(void* server)
 {
 	::server = (Server*)server;
 	const char *data;
@@ -315,7 +314,7 @@ int load(void* server,void* parser)
 
 /*! Postload phase for the plugin.  */
 extern "C"
-int postLoad(void* server,void* parser)
+int postLoad(void* server)
 {
 	const char *data;
 	data = ::server->getHashedData("PHP_NO_REBOOT");
@@ -361,7 +360,7 @@ int unLoad(void* p)
 /*!
  *Default constructor.
  */
-PhpManager::PhpManager() 
+PhpManager::PhpManager()
 {
 
 }

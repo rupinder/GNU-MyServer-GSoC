@@ -85,7 +85,7 @@ private:
 static RulesCheckerObserver observer;
 
 
-EXPORTABLE(char*) name(char* name, u_long len)
+EXPORTABLE(char*) name (char* name, u_long len)
 {
   char* str = (char*)"rules_checker";
   if(name)
@@ -93,7 +93,7 @@ EXPORTABLE(char*) name(char* name, u_long len)
   return str;
 }
 
-EXPORTABLE(int) load(void* server,void* parser)
+EXPORTABLE(int) load (void* server)
 {
   Server* serverInstance = (Server*)server;
   HttpStaticData* staticData =(HttpStaticData*) serverInstance->getGlobalData("http-static");
@@ -135,11 +135,12 @@ EXPORTABLE(int) load(void* server,void* parser)
   return 0;
 }
 
-EXPORTABLE(int) postLoad(void* server,void* parser)
+EXPORTABLE(int) postLoad (void* server)
 {
   return 0;
 }
-EXPORTABLE(int) unLoad(void* parser)
+
+EXPORTABLE(int) unLoad ()
 {
   return 0;
 }

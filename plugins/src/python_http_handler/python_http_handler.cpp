@@ -26,9 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 static Server* serverInstance;
 
-
-
-
 #ifdef WIN32
 #define EXPORTABLE(x) x _declspec(dllexport)
 #else
@@ -346,7 +343,7 @@ class HttpObserver : public Multicast<string, void*, int>
 	};
 public:
 
-	virtual int updateMulticast(MulticastRegistry<string, void*, int>* reg, string& msg, void* arg)
+	virtual int updateMulticast (MulticastRegistry<string, void*, int>* reg, string& msg, void* arg)
 	{
 		HttpThreadContext *td = (HttpThreadContext*)arg;
 		ThreadID tid = Thread::threadID();
@@ -376,7 +373,7 @@ public:
 		return threadData.getRet();
 	}
 
-	void addRule(const char* rule, bool file)
+	void addRule (const char* rule, bool file)
 	{
 		Item it;
 		it.data.assign(rule);
@@ -384,7 +381,7 @@ public:
 		rules.push_back(it);
 	}
 
-	void setPythonExecutor(Plugin* python){this->python = python;}
+	void setPythonExecutor (Plugin* python){this->python = python;}
 
 private:
 	list<Item> rules;
@@ -394,7 +391,7 @@ private:
 static HttpObserver observer;
 
 
-EXPORTABLE(char*) name(char* name, u_long len)
+EXPORTABLE(char*) name (char* name, u_long len)
 {
 	char* str = (char*)"python_http_handler";
 	if(name)
@@ -402,7 +399,7 @@ EXPORTABLE(char*) name(char* name, u_long len)
 	return str;
 }
 
-EXPORTABLE(int) load(void* server,void* parser)
+EXPORTABLE(int) load (void* server)
 {
 	serverInstance = (Server*)server;
 	HttpStaticData* staticData =(HttpStaticData*) serverInstance->getGlobalData("http-static");
@@ -474,12 +471,14 @@ EXPORTABLE(int) load(void* server,void* parser)
 
 	return 0;
 }
-EXPORTABLE(int) postLoad(void* server,void* parser)
+
+EXPORTABLE(int) postLoad (void* server)
 {
   return 0;
 }
-EXPORTABLE(int) unLoad(void* parser)
+
+EXPORTABLE(int) unLoad ()
 {
-  mutex.destroy();
+  mutex.destroy ();
   return 0;
 }
