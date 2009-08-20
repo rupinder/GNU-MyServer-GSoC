@@ -1554,12 +1554,14 @@ Internal Server Error\n\
  */
 MimeRecord* Http::getMIME (string &filename)
 {
-  if (staticHttp.allowVhostMime && td->connection->host->isMIME ())
-    {
-      return td->connection->host->getMIME ()->getMIME (filename);
-    }
+  /*TODO: document the "mime.handler" option.  */
+  const char *handler = td->securityToken.getHashedData ("mime.handler",
+                      MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, NULL);
 
-  return Server::getInstance ()->getMimeManager ()->getMIME (filename);
+  if (staticHttp.allowVhostMime && td->connection->host->isMIME ())
+    return td->connection->host->getMIME ()->getMIME (filename);
+
+  return Server::getInstance ()->getMimeManager ()->getMIME (filename, handler);
 }
 
 /*!
