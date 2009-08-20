@@ -66,7 +66,9 @@ public:
         /* FIXME: is this line reentrant and can be moved outside of the
          * critical section?  */
         const char *type = magic_file (cookie, file);
-        if (type)
+
+        /* Do not handle directories.  */
+        if (type && strcmp (type, "application/x-directory"))
           {
             rec = records.get (type);
             if (!rec)
