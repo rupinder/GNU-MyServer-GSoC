@@ -6,7 +6,7 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful, 
+This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 using namespace std;
 
-extern "C" 
+extern "C"
 {
 #ifdef WIN32
 # include <direct.h>
@@ -185,6 +185,25 @@ int HttpFile::deleteFile (HttpThreadContext* td,
 }
 
 /*!
+ * Generate the E-Tag header given the resource atime and size.
+ *
+ * \param etag output the etag to this string.
+ * \param atime Resource last modified time.
+ * \param size Resource size.
+ */
+void HttpFile::generateEtag (string & etag, u_long mtime, u_long fsize)
+{
+#define ROL(x, y) ((x << y) | (x >> (32 - y)))
+  /* Do a bit rotation to have less significative bits in the middle.  */
+  u_long x = ROL(mtime, 16) | fsize;
+
+  char buf[16];
+  sprintf (buf, "%u", x);
+  etag.assign (buf);
+}
+
+
+/*!
  * Send a file to the client using the HTTP protocol.
  * \param td The current HTTP thread context.
  * \param filenamePath The path of the static file to send.
@@ -192,11 +211,8 @@ int HttpFile::deleteFile (HttpThreadContext* td,
  * \param execute Not used.
  * \param onlyHeader Specify if send only the HTTP header.
   */
-int HttpFile::send (HttpThreadContext* td,
-                    const char *filenamePath,
-                    const char* exec,
-                    bool execute,
-                    bool onlyHeader)
+int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
+                    const char* exec, bool execute, bool onlyHeader)
 {
   /*
    * With this routine we send a file through the HTTP protocol.
@@ -204,14 +220,14 @@ int HttpFile::send (HttpThreadContext* td,
    */
   int ret;
 
-  /* 
+  /*
    * Will we use GZIP compression to send data?
    */
   bool useGzip = false;
   u_long filesize = 0;
   File *file = 0;
   u_long bytesToSend;
-  u_long firstByte = td->request.rangeByteBegin; 
+  u_long firstByte = td->request.rangeByteBegin;
   u_long lastByte = td->request.rangeByteEnd;
   bool keepalive = false;
   bool useChunks = false;
@@ -247,40 +263,61 @@ int HttpFile::send (HttpThreadContext* td,
     getRFC822GMTTime (lastMT, tmpTime, HTTP_RESPONSE_LAST_MODIFIED_DIM);
     td->response.lastModified.assign (tmpTime);
 
-    HttpRequestHeader::Entry *ifModifiedSince = 
+    HttpRequestHeader::Entry *ifModifiedSince =
       td->request.other.get ("Last-Modified");
 
-    if (ifModifiedSince && ifModifiedSince->value->length () && 
+    if (ifModifiedSince && ifModifiedSince->value->length () &&
        !ifModifiedSince->value->compare(td->response.lastModified.c_str ()))
-          return td->http->sendHTTPNonModified ();
+      return td->http->sendHTTPNonModified ();
 
     file = Server::getInstance ()->getCachedFiles ()->open (filenamePath);
     if (file == 0)
       return td->http->raiseHTTPError (500);
 
     /*
-     * Check how many bytes are ready to be send.  
+     * Check how many bytes are ready to be send.
      */
     filesize = file->getFileSize ();
+
+    string etag;
+    generateEtag (etag, lastMT, filesize);
+
+    HttpRequestHeader::Entry *etagHeader = td->request.other.get ("ETag");
+    if (etagHeader &&  !etagHeader->value->compare (etag))
+      return td->http->sendHTTPNonModified ();
+    else
+      {
+      HttpResponseHeader::Entry *e = td->response.other.get ("Etag");
+      if (e)
+        e->value->assign (etag);
+      else
+        {
+          e = new HttpResponseHeader::Entry ();
+          e->name->assign ("Etag");
+          e->value->assign (etag);
+          td->response.other.put (*(e->name), e);
+        }
+      }
+
     bytesToSend = filesize;
     if (lastByte == 0)
       lastByte = bytesToSend;
     else
       {
-        /* 
-         * If the client use ranges set the right value 
-         * for the last byte number.  
+        /*
+         * If the client use ranges set the right value
+         * for the last byte number.
          */
         lastByte = std::min (lastByte + 1, bytesToSend);
       }
 
     /*
-     * bytesToSend is the interval between the first and the last byte.  
+     * bytesToSend is the interval between the first and the last byte.
      */
     bytesToSend = lastByte - firstByte;
-    
+
     /*
-     * If fail to set the file pointer returns an internal server error.  
+     * If fail to set the file pointer returns an internal server error.
      */
     ret = file->seek (firstByte);
     if (ret)
@@ -324,7 +361,7 @@ int HttpFile::send (HttpThreadContext* td,
 #else
     /* If compiled without GZIP support force the server to don't use it.  */
     useGzip = false;
-#endif  
+#endif
     if (td->appendOutputs)
       useGzip = false;
 
@@ -382,7 +419,7 @@ int HttpFile::send (HttpThreadContext* td,
       memStream.refresh();
       dataSent += nbw;
     }
-    
+
     if (useGzip && !chain.isFilterPresent ("gzip"))
       {
         Filter* gzipFilter =
@@ -407,7 +444,7 @@ int HttpFile::send (HttpThreadContext* td,
       }
 
     useModifiers = chain.hasModifiersFilters ();
- 
+
     if (!useModifiers)
       {
         ostringstream buffer;
@@ -453,7 +490,7 @@ int HttpFile::send (HttpThreadContext* td,
             useChunks = true;
           }
       }
- 
+
     u_long hdrLen = HttpHeaders::buildHTTPResponseHeader (td->buffer->getBuffer(),
                                                           &td->response);
 
@@ -486,7 +523,7 @@ int HttpFile::send (HttpThreadContext* td,
       }
 
     /*
-     * Check if there are all the conditions to use a direct copy from the 
+     * Check if there are all the conditions to use a direct copy from the
      * file to the socket.
      */
     if (!useChunks && chain.isEmpty () && !td->appendOutputs

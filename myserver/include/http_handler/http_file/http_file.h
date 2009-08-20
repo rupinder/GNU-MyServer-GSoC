@@ -40,6 +40,8 @@ protected:
                string& filename);
   int deleteFile (HttpThreadContext* td,
                   string& filename);
+private:
+  static void generateEtag (string & etag, u_long mtime, u_long size);
 };
 
 
