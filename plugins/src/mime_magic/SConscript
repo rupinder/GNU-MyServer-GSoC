@@ -1,0 +1,29 @@
+#-*- mode: python -*-
+Import('dest_dir','listinc')
+
+local_listinc=[
+      GetLaunchDir(),
+      '../../../',
+      '/usr/local/include',
+      '/usr/include/',
+      '/usr/include/python2.5',
+      '/usr/local/include/python2.5',
+      '/usr/local/include/libxml2',
+      '/usr/include/libxml2',
+      '.'
+      ]
+
+local_listinc.extend(listinc)
+
+env = Environment(CPPPATH=local_listinc)
+
+conf = Configure(env, config_h="config.h")
+
+if conf.CheckHeader("magic.h"):
+    conf.Define('PYTHON', 1)
+
+env = conf.Finish()
+
+env.SharedLibrary(GetLaunchDir() + "/" + dest_dir + "/mime_magic.cpp", ["mime_magic.cpp" ], SHLIBPREFIX="")
+
+Command(GetLaunchDir() + "/" + dest_dir + "/README","README", Copy("$TARGET", "$SOURCE"))

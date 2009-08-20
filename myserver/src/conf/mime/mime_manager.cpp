@@ -402,7 +402,7 @@ void MimeManager::clearRecords ()
  */
 MimeRecord *MimeManager::getMIME (string const &filename, const char *handler)
 {
-  return getMIME (filename.c_str ());
+  return getMIME (filename.c_str (), handler);
 }
 
 /*!
@@ -415,7 +415,6 @@ MimeRecord *MimeManager::getMIME (const char *filename, const char *handler)
 {
   string ext;
   u_long pos = 0;
-
 
   for (list<PathRegex*>::iterator it = pathRegex.begin ();
        it != pathRegex.end ();
