@@ -27,16 +27,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #ifdef WIN32
-#include <windows.h>
+# include <windows.h>
 #endif
-extern "C" {
+
+extern "C"
+{
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
 #ifdef WIN32
-#include <tchar.h>
-#include <io.h>
+# include <tchar.h>
+# include <io.h>
 #endif
 }
 
@@ -72,6 +75,15 @@ struct MimeRecord
   const char* getHashedData(string &name);
 };
 
+
+class MimeManagerHandler
+{
+public:
+	virtual MimeRecord* getMIME (const char *file){return NULL;}
+  virtual MimeRecord* getMIME (string const &file)
+  {return getMIME (file.c_str ());}
+};
+
 class MimeManager
 {
 public:
@@ -81,11 +93,10 @@ public:
 
   u_long loadXML (XmlParser* parser);
 	u_long loadXML (const char *filename);
-	u_long loadXML (string &filename)
-    {return loadXML (filename.c_str ());}
+	u_long loadXML (string &filename) {return loadXML (filename.c_str ());}
 
-	MimeRecord* getMIME (const char *ext);
-  MimeRecord* getMIME (string const &ext);
+	MimeRecord* getMIME (const char *file, const char *handler = NULL);
+  MimeRecord* getMIME (string const &file, const char *handler = NULL);
 
   bool isLoaded ();
 	void clean ();
@@ -93,10 +104,14 @@ public:
 
   static MimeRecord *readRecord (xmlNodePtr node);
 
+  void registerHandler (string &name, MimeManagerHandler *handler);
+
 protected:
 	const char *getFilename ();
 	void clearRecords ();
+
 private:
+  HashMap<string, MimeManagerHandler*> handlers;
   bool loaded;
   HashMap<string, int> extIndex;
   vector<MimeRecord*> records;
@@ -106,4 +121,4 @@ private:
 	string filename;
 };
 
-#endif 
+#endif
