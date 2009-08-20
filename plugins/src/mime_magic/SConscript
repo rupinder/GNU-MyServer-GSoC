@@ -6,8 +6,6 @@ local_listinc=[
       '../../../',
       '/usr/local/include',
       '/usr/include/',
-      '/usr/include/python2.5',
-      '/usr/local/include/python2.5',
       '/usr/local/include/libxml2',
       '/usr/include/libxml2',
       '.'
@@ -19,11 +17,16 @@ env = Environment(CPPPATH=local_listinc)
 
 conf = Configure(env, config_h="config.h")
 
-if conf.CheckHeader("magic.h"):
-    conf.Define('PYTHON', 1)
+
+if conf.CheckLib("magic") and conf.CheckHeader("magic.h"):
+    conf.Define('MAGIC', 1)
+else:
+    print "Cannot find the library magic"
+    raise
+
 
 env = conf.Finish()
 
-env.SharedLibrary(GetLaunchDir() + "/" + dest_dir + "/mime_magic.cpp", ["mime_magic.cpp" ], SHLIBPREFIX="")
+env.SharedLibrary(GetLaunchDir() + "/" + dest_dir + "/mime_magic", ["mime_magic.cpp" ], SHLIBPREFIX="")
 
 Command(GetLaunchDir() + "/" + dest_dir + "/README","README", Copy("$TARGET", "$SOURCE"))

@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 
-<PLUGIN>
-<NAME>mime_magic</NAME>
-<VERSION>0.1</VERSION>
-<AUTHOR>The Free Software Foundation Inc.</AUTHOR>
-<MAINTAINER>The Free Software Foundation Inc.</MAINTAINER>
-<DESCRIPTION>This plugin permits to check MIME types using the libmagic library</DESCRIPTION>
+<PLUGIN min-version="0.9" max-version="0.9">
+	<NAME>mime_magic</NAME>
+	<VERSION>0.1</VERSION>
+	<AUTHOR>The Free Software Foundation Inc.</AUTHOR>
+	<MAINTAINER>The Free Software Foundation Inc.</MAINTAINER>
+	<DESCRIPTION>This plugin permits to check MIME types using the libmagic library</DESCRIPTION>
 </PLUGIN>

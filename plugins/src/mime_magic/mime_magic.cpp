@@ -14,6 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include <stdafx.h>
 #include <string.h>
 #include <include/server/server.h>
@@ -38,7 +39,13 @@ class MagicHandler : public MimeManagerHandler
 public:
   MagicHandler ()
   {
-    cookie = magic_open (MAGIC_SYMLINK); 
+
+  }
+
+  int load ()
+  {
+    cookie = magic_open (MAGIC_SYMLINK | MAGIC_MIME_TYPE);
+    return magic_load (cookie, NULL);
   }
 
   virtual ~MagicHandler ()
@@ -50,23 +57,25 @@ public:
     magic_close (cookie);
   }
 
-	virtual MimeRecord* getMIME (const char *file)
+	virtual MimeRecord *getMIME (const char *file)
   {
     MimeRecord *rec = NULL;
     lock.lock ();
     try
       {
-        /* FIXME: is reentrant and can be moved outside of the critical
-         * section?  */
+        /* FIXME: is this line reentrant and can be moved outside of the
+         * critical section?  */
         const char *type = magic_file (cookie, file);
-        rec = records.get (type);
-        if (!rec)
+        if (type)
           {
-            rec = new MimeRecord;
-            rec->mimeType.assign (type);
-            records.put (type, rec);
+            rec = records.get (type);
+            if (!rec)
+              {
+                rec = new MimeRecord;
+                rec->mimeType.assign (type);
+                records.put (rec->mimeType, rec);
+              }
           }
-
       }
     catch (...)
       {
@@ -87,7 +96,7 @@ private:
 
 EXPORTABLE(char*) name (char* name, u_long len)
 {
-	char* str = (char*)"mime_magic";
+	char* str = (char*) "mime_magic";
 	if (name)
 		strncpy (name, str, len);
 	return str;
@@ -95,23 +104,29 @@ EXPORTABLE(char*) name (char* name, u_long len)
 
 EXPORTABLE(int) load (void* server)
 {
-  string name ("magic");
+	return 0;
+}
+
+EXPORTABLE(int) postLoad(void* server)
+{
+  string name ("mime_magic");
 	Server* serverInstance = (Server*)server;
   MimeManager *mimeManager = serverInstance->getMimeManager ();
 
-  MagicHandler handler = new MagicHandler;
+  MagicHandler *handler = new MagicHandler;
+  if (handler->load ())
+    {
+      serverInstance->logWriteln (MYSERVER_LOG_MSG_ERROR,
+                                  _("cannot load mime magic configuration"));
+      return 1;
+    }
 
   mimeManager->registerHandler (name, handler);
 
 	return 0;
 }
 
-EXPORTABLE(int) postLoad(void* server,void* parser)
-{
-	return 0;
-}
-
-EXPORTABLE(int) unLoad(void* parser)
+EXPORTABLE(int) unLoad()
 {
 	return 0;
 }
