@@ -66,7 +66,6 @@ int Plugin::load (Server* server)
  */
 int Plugin::preLoad (string& file, bool global)
 {
-
   return hinstLib.loadLibrary (file.c_str (), global ? 1 : 0);
 }
 

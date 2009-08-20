@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2005, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2005, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -18,35 +18,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/dynamic_lib/dynamiclib.h>
 
 /*!
- *Initialize class internal data.
+ * Initialize class internal data.
  */
-DynamicLibrary::DynamicLibrary()
+DynamicLibrary::DynamicLibrary ()
 {
   handle = 0;
 }
 
 /*!
- *Destroy the object.
+ * Destroy the object.
  */
-DynamicLibrary::~DynamicLibrary()
+DynamicLibrary::~DynamicLibrary ()
 {
-  close();
+  close ();
 }
 
 /*!
- *Load the specified dynamic library. It returns 0 on success.
- *\param filename Name of the file to load.
- *\param globally Set if the library is loaded globally.
+ * Load the specified dynamic library. It returns 0 on success.
+ * \param filename Name of the file to load.
+ * \param globally Set if the library is loaded globally.
  */
-int DynamicLibrary::loadLibrary(const char* filename, int globally)
+int DynamicLibrary::loadLibrary (const char* filename, int globally)
 {
-  fileName.assign(filename);
+  fileName.assign (filename);
 #ifdef WIN32
-  handle = LoadLibrary(filename);
+  handle = LoadLibrary (filename);
 #endif
+
 #ifdef HAVE_DL
   int flag = 0;
-  if(globally)
+  if (globally)
     flag = RTLD_NOW | RTLD_GLOBAL;
   else
     flag = RTLD_LOCAL | RTLD_LAZY;
@@ -55,51 +56,51 @@ int DynamicLibrary::loadLibrary(const char* filename, int globally)
   flag |= RTLD_DEEPBIND;
 #endif
 
-  handle = dlopen(filename, flag);
+  handle = dlopen (filename, flag);
 #endif
   return handle ? 0 : 1;
 }
 
 /*!
- *Get a pointer to the specified function. Returns 0 on errors or 
- *the function address. 
+ *Get a pointer to the specified function. Returns 0 on errors or
+ *the function address.
  *\param fnName Function name to find.
  */
-void* DynamicLibrary::getProc(const char* fnName)
+void* DynamicLibrary::getProc (const char* fnName)
 {
-  if(!handle)
+  if (!handle)
     return 0;
 #ifdef WIN32
-    return (void*) GetProcAddress((HMODULE)handle, fnName); 
+    return (void*) GetProcAddress ((HMODULE)handle, fnName);
 #endif
 #ifdef HAVE_DL
-    return (void*) dlsym(handle, fnName);
+    return (void*) dlsym (handle, fnName);
 #endif
 }
 
 /*!
  *Close the library. Returns 0 on success.
  */
-int DynamicLibrary::close()
+int DynamicLibrary::close ()
 {
   int ret = 1;
-  if(!handle)
+  if (!handle)
     return 1;
 #ifdef WIN32
-    ret = FreeLibrary((HMODULE)handle) ? 0 : 1; 
+    ret = FreeLibrary ((HMODULE)handle) ? 0 : 1;
 #endif
 #ifdef HAVE_DL
-    ret = dlclose(handle);
+    ret = dlclose (handle);
 #endif
     handle = 0;
-    fileName.assign("");
+    fileName.assign ("");
     return ret;
 }
 
 /*!
- *Return if the object has a valid handle.
+ * Return if the object has a valid handle.
  */
-int DynamicLibrary::validHandle()
+int DynamicLibrary::validHandle ()
 {
   return handle ? 1 : 0;
 }

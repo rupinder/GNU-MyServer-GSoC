@@ -214,7 +214,7 @@ PluginsManager::preLoad (Server* server, string& resource)
                 {
                   ret |= 1;
                   server->logWriteln (MYSERVER_LOG_MSG_ERROR,
-                                   _("Error loading plugin %s"), name.c_str ());
+                               _("Error loading plugin %s"), libname.c_str ());
                 }
               else
                 pinfo->setPlugin (plugin);
@@ -257,7 +257,6 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
     }
   XmlParser xml;
 
-
   if (xml.open (path, true))
     {
       server->logWriteln (MYSERVER_LOG_MSG_ERROR,
@@ -287,7 +286,6 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
 
       string sMinVer ((char*)minVersion);
       pinfo->setMyServerMinVersion (PluginInfo::convertVersion (&sMinVer));
-      xmlMemFree ((void*)minVersion);
     }
   else
     {
@@ -297,8 +295,6 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
       return NULL;
     }
 
-
-
   if (xmlHasProp (nodes->nodeTab[0], (const xmlChar*) "max-version"))
     {
       xmlChar* maxVersion = xmlGetProp (nodes->nodeTab[0],
@@ -306,7 +302,6 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
 
       string sMaxVer ((char*)maxVersion);
       pinfo->setMyServerMaxVersion (PluginInfo::convertVersion (&sMaxVer));
-      xmlMemFree ((void*)maxVersion);
     }
   else
     {
@@ -436,8 +431,8 @@ PluginsManager::preLoadPlugin (string& file, Server* server, bool global)
   if (plugin->preLoad (file, global))
     {
       server->logWriteln (MYSERVER_LOG_MSG_ERROR,
-                          _("Error pre-loading plugin %s, invalid plugin.xml"),
-                          name.c_str ());
+                          _("Error pre-loading plugin %s"),
+                          file.c_str ());
       delete plugin;
       return NULL;
     }
@@ -448,8 +443,8 @@ PluginsManager::preLoadPlugin (string& file, Server* server, bool global)
   else
     {
       server->logWriteln (MYSERVER_LOG_MSG_ERROR,
-                          _("Error pre-loading plugin %s, invalid plugin.xml"),
-                          name.c_str ());
+                          _("Error pre-loading plugin %s"),
+                          file.c_str ());
       delete plugin;
       return NULL;
     }
