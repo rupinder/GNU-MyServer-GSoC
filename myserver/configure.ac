@@ -17,7 +17,7 @@ dnl You should have received a copy of the GNU General Public License
 dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_INIT([GNU MyServer], m4_esyscmd([cat version]), [bug-myserver@gnu.org])
-AC_PREREQ([2.50])
+AC_PREREQ([2.61])
 AM_CONFIG_HEADER(config.h)
 CFLAGS="${CFLAGS=}"
 CXXFLAGS="${CXXFLAGS=}"
@@ -25,7 +25,26 @@ LDFLAGS="${LDFLAGS=}"
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([gnu])
+
+AC_CONFIG_MACRO_DIR([m4])
+
+AC_PROG_INSTALL
+AC_PROG_CC
+AC_PROG_CXX
+
+AC_AIX
+AC_ISC_POSIX
+AC_MINIX
+AC_HEADER_STDC
+AM_PROG_LEX
+AC_PROG_YACC
+AC_C_BIGENDIAN
+AC_PROG_RANLIB
+AC_PROG_LIBTOOL
+
+AC_CANONICAL_HOST
+AC_LIBTOOL_WIN32_DLL
 
 PACKAGE_STRING="m4_esyscmd([cat version])"
 MYSERVER_VERSION="${PACKAGE_STRING}"
@@ -33,20 +52,6 @@ MYSERVER_VERSION="${PACKAGE_STRING}"
 AC_SUBST(MYSERVER_VERSION)
 
 AC_DEFINE_UNQUOTED([MYSERVER_VERSION], ["${MYSERVER_VERSION}"], [The software version])
-
-AC_PROG_CC
-AC_PROG_CPP
-AC_AIX
-AC_ISC_POSIX
-AC_MINIX
-AC_HEADER_STDC
-AC_PROG_CXX
-AC_PROG_CXXCPP
-AC_PROG_RANLIB
-AC_PROG_LIBTOOL
-AM_PROG_LEX
-AC_PROG_YACC
-AC_C_BIGENDIAN
 
 AM_GNU_GETTEXT([external])
 
@@ -57,10 +62,6 @@ if test x$make_info = xno ; then
 else
    MAKE_DOC=yes
 fi
-
-CFLAGS="$CFLAGS $_LT_AC_TAGVAR(lt_prog_compiler_pic, CXX)"
-CXXFLAGS="$CXXFLAGS $_LT_AC_TAGVAR(lt_prog_compiler_pic, CXX)"
-LDFLAGS="$LDFLAGS $_LT_AC_TAGVAR(lt_prog_compiler_pic, CXX)"
 
 AC_ARG_ENABLE([ipv6], [--enable-ipv6 Build with IPv6 support], enable_ipv6="yes", enable_ipv6="")
 
@@ -110,13 +111,24 @@ case "${host}" in
      ;;
   *)
      dnl Looking for pthreads
-     GNOME_PTHREAD_CHECK
+        PTHREAD_LIB="" 
+        AC_CHECK_LIB(pthread, pthread_create, PTHREAD_LIB="-lpthread",
+                [AC_CHECK_LIB(pthreads, pthread_create, PTHREAD_LIB="-lpthreads",
+                    [AC_CHECK_LIB(c_r, pthread_create, PTHREAD_LIB="-lc_r",
+                        [AC_CHECK_FUNC(pthread_create)]
+                    )]
+                )]
+        )
      if test x$PTHREAD_LIB = x; then
              AC_MSG_ERROR([
              *** This system appears to have no posix threads
              *** Threads are required for MyServer
              ])
     fi
+
+
+
+        AC_SUBST(PTHREAD_LIB)
 
     dnl Looking for dl
     AC_SEARCH_LIBS([dlopen], [dl c], have_dl=yes)

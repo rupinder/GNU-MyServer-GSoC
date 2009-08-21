@@ -1,2 +1,2 @@
 install :
-	$(INSTALL) -d $(DESTDIR)/var/log/myserver
+	$(INSTALL) -d $(DESTDIR)$(prefix)/var/log/myserver

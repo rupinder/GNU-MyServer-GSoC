@@ -1,4 +1,4 @@
 lib_LIBRARIES = libbitvec.a
 libbitvec_a_SOURCES = bitvec.cpp
 SUBDIRS =
-INCLUDES = $(all_includes)
+AM_CPPFLAGS = $(all_includes)
