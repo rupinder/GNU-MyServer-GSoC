@@ -19,6 +19,5 @@
 
 
 echo "Creating configuration files for MyServer. Please wait..."
-echo;
 
 autoreconf -fis
