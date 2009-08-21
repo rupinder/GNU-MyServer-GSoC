@@ -25,18 +25,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/files_cache/cached_file_factory.h>
 
 #ifndef WIN32
-extern "C" {
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <time.h>
+extern "C"
+{
+# include <fcntl.h>
+# include <unistd.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <errno.h>
+# include <stdio.h>
+# include <fcntl.h>
+# include <stdlib.h>
+# include <string.h>
+# include <math.h>
+# include <time.h>
 }
 #endif
 
@@ -44,84 +45,82 @@ extern "C" {
 #include <sstream>
 
 /*!
- *Load a file in the buffer.
- *\param filename The name of the file.
+ * Load a file in the buffer.
+ * \param filename The name of the file.
  */
-CachedFileBuffer::CachedFileBuffer(const char* filename)
+CachedFileBuffer::CachedFileBuffer (const char* filename)
 {
   File file;
   u_long nbw;
-  mutex.init();
+  mutex.init ();
   factoryToNotify = 0;
   refCounter = 0;
-  this->filename.assign(filename);
+  this->filename.assign (filename);
 
-  file.openFile(filename, File::OPEN_IF_EXISTS | 
-                File::READ);
+  file.openFile (filename, File::OPEN_IF_EXISTS | File::READ);
 
   fileSize = file.getFileSize();
   buffer = new char[fileSize];
 
-  file.read(buffer, fileSize, &nbw);
+  file.read (buffer, fileSize, &nbw);
 
-  file.close();
+  file.close ();
 }
 
 /*!
- *Increment the reference counter for this buffer.
+ * Increment the reference counter for this buffer.
  */
-void CachedFileBuffer::addRef()
+void CachedFileBuffer::addRef ()
 {
-  mutex.lock();
+  mutex.lock ();
   refCounter++;
-  mutex.unlock();
+  mutex.unlock ();
 }
 
 /*!
- *Set the factory object to be notified when the object will have a reference
- *counter null.
+ * Set the factory object to be notified when the object will have a reference
+ * counter null.
  */
-void CachedFileBuffer::setFactoryToNotify(CachedFileFactory *cff)
+void CachedFileBuffer::setFactoryToNotify (CachedFileFactory *cff)
 {
   factoryToNotify = cff;
 }
 
 /*!
- *Decrement the reference counter for this buffer.
+ * Decrement the reference counter for this buffer.
  */
-void CachedFileBuffer::decRef()
+void CachedFileBuffer::decRef ()
 {
   bool isZero = false;
-  mutex.lock();
+  mutex.lock ();
   refCounter--;
-  if(refCounter == 0)
+  if (refCounter == 0)
     isZero = true;
 
-  mutex.unlock();
+  mutex.unlock ();
 
-  if(isZero && factoryToNotify)
-    factoryToNotify->nullReferences(this);
+  if (isZero && factoryToNotify)
+    factoryToNotify->nullReferences (this);
 }
 
 /*!
  *Get the number of references to this object.
  */
-u_long CachedFileBuffer::getReferenceCounter()
+u_long CachedFileBuffer::getReferenceCounter ()
 {
   u_long ret;
-  mutex.lock();
+  mutex.lock ();
   ret = refCounter;
-  mutex.unlock();
-
+  mutex.unlock ();
   return ret;
 }
 
 /*!
- *Load a file in the buffer from a memory location.
- *\param buffer The buffer to copy.
- *\param size The memory buffer size.
+ * Load a file in the buffer from a memory location.
+ * \param buffer The buffer to copy.
+ * \param size The memory buffer size.
  */
-CachedFileBuffer::CachedFileBuffer(const char* buffer, u_long size)
+CachedFileBuffer::CachedFileBuffer (const char* buffer, u_long size)
 {
   factoryToNotify = 0;
   refCounter = 0;
@@ -133,10 +132,10 @@ CachedFileBuffer::CachedFileBuffer(const char* buffer, u_long size)
 }
 
 /*!
- *Load a file in the buffer.
- *\param file The file object.
+ * Load a file in the buffer.
+ * \param file The file object.
  */
-CachedFileBuffer::CachedFileBuffer(File* file)
+CachedFileBuffer::CachedFileBuffer (File* file)
 {
   u_long nbr;
   factoryToNotify = 0;
@@ -149,10 +148,10 @@ CachedFileBuffer::CachedFileBuffer(File* file)
 }
 
 /*!
- *Destroy the object.
+ * Destroy the object.
  */
-CachedFileBuffer::~CachedFileBuffer()
+CachedFileBuffer::~CachedFileBuffer ()
 {
-  mutex.destroy();
+  mutex.destroy ();
   delete [] buffer;
 }

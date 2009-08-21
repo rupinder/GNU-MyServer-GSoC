@@ -23,18 +23,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/files_cache/cached_file.h>
 
 #ifndef WIN32
-extern "C" {
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <time.h>
+extern "C"
+{
+# include <fcntl.h>
+# include <unistd.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <errno.h>
+# include <stdio.h>
+# include <fcntl.h>
+# include <stdlib.h>
+# include <string.h>
+# include <math.h>
+# include <time.h>
 }
 #endif
 
@@ -44,20 +45,20 @@ extern "C" {
 using namespace std;
 
 /*!
- *Costructor of the class.
+ * Costructor of the class.
  */
-CachedFile::CachedFile(CachedFileBuffer* cfb)
+CachedFile::CachedFile (CachedFileBuffer* cfb)
 {
-  File::File();
+  File::File ();
   buffer = cfb;
   fseek = 0;
-  cfb->addRef();
+  cfb->addRef ();
 }
 
 /*!
- *Write data to a file is not supported by a CachedFile, return immediately -1.
- *Inherithed by File.
- *\see File#writeToFile.
+ * Write data to a file is not supported by a CachedFile, return immediately -1.
+ * Inherithed by File.
+ * \see File#writeToFile.
  */
 int CachedFile::writeToFile(const char* buffer, u_long buffersize, u_long* nbw)
 {
@@ -65,71 +66,69 @@ int CachedFile::writeToFile(const char* buffer, u_long buffersize, u_long* nbw)
 }
 
 /*!
- *A CachedFile can't be opened directly, use a factory instead.
- *If the function have success the return value is nonzero.
- *\param nfilename Filename to open.
- *\param opt Specify how open the file.
- *\return 0 if the call was successfull, any other value on errors.
+ * A CachedFile can't be opened directly, use a factory instead.
+ * If the function have success the return value is nonzero.
+ * \param nfilename Filename to open.
+ * \param opt Specify how open the file.
+ * \return 0 if the call was successfull, any other value on errors.
  */
-int CachedFile::openFile(const char* nfilename, u_long opt)
+int CachedFile::openFile (const char* nfilename, u_long opt)
 {
   return -1;
 }
 
 /*!
- *Returns the base/file/file.handle.
+ * Returns the base/file/file.handle.
  */
-Handle CachedFile::getHandle()
+Handle CachedFile::getHandle ()
 {
   return (Handle)-1;
 }
 
 /*!
- *Set the base/file/file.handle.
- *Return a non null-value on errors.
- *\param hl The new base/file/file.handle.
+ * Set the base/file/file.handle.
+ * Return a non null-value on errors.
+ * \param hl The new base/file/file.handle.
  */
-int CachedFile::setHandle(Handle hl)
+int CachedFile::setHandle (Handle hl)
 {
   return -1;
 }
 
 /*!
- *define the operator =.
- *\param f The file to copy.
+ * define the operator =.
+ * \param f The file to copy.
  */
 int CachedFile::operator =(CachedFile f)
 {
   setHandle (f.getHandle ());
-  if(f.filename.length())
-  {
-    filename.assign(f.filename);
-  }
+  if (f.filename.length ())
+    filename.assign (f.filename);
   else
-  {
-    filename.clear();
-    handle = 0;
-  }
+    {
+      filename.clear ();
+      handle = 0;
+    }
   fseek = f.fseek;
   return 0;
 }
 
 /*!
- *Read data from a file to a buffer.
- *Return 1 on errors.
- *Return 0 on success.
- *\param buffer The buffer where write.
- *\param buffersize The length of the buffer in bytes.
- *\param nbr How many bytes were read to the buffer.
+ * Read data from a file to a buffer.
+ * Return 1 on errors.
+ * Return 0 on success.
+ * \param buffer The buffer where write.
+ * \param buffersize The length of the buffer in bytes.
+ * \param nbr How many bytes were read to the buffer.
  */
-int CachedFile::read(char* buffer, u_long buffersize, u_long* nbr)
+int CachedFile::read (char* buffer, u_long buffersize, u_long* nbr)
 {
-  u_long toRead = std::min(buffersize, this->buffer->getFileSize() - fseek);
+  u_long toRead = std::min (buffersize, this->buffer->getFileSize () - fseek);
   const char* src = &(this->buffer->getBuffer()[fseek]);
-  if(nbr)
+  if (nbr)
     *nbr = toRead;
 
-  memcpy(buffer, src, toRead);
+  memcpy (buffer, src, toRead);
 
   fseek += toRead;
 
@@ -141,7 +140,7 @@ int CachedFile::read(char* buffer, u_long buffersize, u_long* nbr)
  *Create a temporary file.
  *\param filename The new temporary file name.
  */
-int CachedFile::createTemporaryFile(const char* filename)
+int CachedFile::createTemporaryFile (const char* filename)
 { 
   return -1;
 }
@@ -149,9 +148,9 @@ int CachedFile::createTemporaryFile(const char* filename)
 /*!
  *Close an open base/file/file.handle.
  */
-int CachedFile::close()
+int CachedFile::close ()
 {
-  buffer->decRef();
+  buffer->decRef ();
   return 0;
 }
 
@@ -170,12 +169,10 @@ u_long CachedFile::getFileSize ()
  */
 int CachedFile::seek (u_long initialByte)
 {
-  if(initialByte <= buffer->getFileSize())
+  if (initialByte <= buffer->getFileSize())
     fseek = initialByte;
   else
     return -1;
-
-  return 0;
 }
 
 /*!
