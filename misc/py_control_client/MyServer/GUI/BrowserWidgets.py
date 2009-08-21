@@ -22,10 +22,11 @@ import gobject
 from MyServer.pycontrollib.browser import LocalFileBrowser
 
 class BrowserTreeView(gtk.TreeView):
-    def __init__(self):
+    def __init__(self, callback):
         gtk.TreeView.__init__(self, gtk.ListStore(
                 gdk.Pixbuf,
                 gobject.TYPE_STRING))
+        self.callback = callback
         self.model = self.get_model()
         renderer = gtk.CellRendererPixbuf()
         column = gtk.TreeViewColumn()
@@ -44,6 +45,7 @@ class BrowserTreeView(gtk.TreeView):
         self.dir_icon = icon_theme.load_icon('gtk-directory', 16, 0)
         self.update()
         self.connect('row-activated', self.change_dir)
+        callback(self.browser)
 
         self.scroll = gtk.ScrolledWindow()
         self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
@@ -60,12 +62,13 @@ class BrowserTreeView(gtk.TreeView):
     def change_dir(self, widget, path, view_column):
         self.browser.change_dir(self.model[path][1])
         self.update()
+        self.callback(self.browser)
 
 class BrowserTable(gtk.Table):
-    def __init__(self):
+    def __init__(self, callback):
         gtk.Table.__init__(self, 2, 1)
 
-        self.browser_tree = BrowserTreeView()
+        self.browser_tree = BrowserTreeView(callback)
 
         def set_show_hidden(button):
             self.browser_tree.browser.show_hidden(button.get_active())

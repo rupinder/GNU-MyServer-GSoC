@@ -443,10 +443,10 @@ class PyGTKControl():
     def construct_browser(self):
         '''Constructs file browser.'''
         panels = gtk.HPaned()
-        browser_table = BrowserTable()
-        panels.pack1(browser_table, True, False)
         security_table = SecurityTable()
         panels.pack2(security_table, True, False)
+        browser_table = BrowserTable(security_table.read_from_file)
+        panels.pack1(browser_table, True, False)
         
         self.widgets.get_widget('notebook').append_page(
             panels, gtk.Label('File browser'))

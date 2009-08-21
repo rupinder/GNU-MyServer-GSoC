@@ -82,6 +82,7 @@ class DefinitionElement(Definition):
     def __init__(self, name = None, attributes = {}):
         '''Creates new definition element with given name and attributes.'''
         Definition.__init__(self, name)
+        self.tag = 'DEFINE element'
         for key, value in attributes.iteritems():
             self.set_attribute(key, value)
 
@@ -122,7 +123,7 @@ class DefinitionElement(Definition):
     def from_string(text):
         '''Factory to produce definition element by parsing a string.'''
         return DefinitionElement.from_lxml_element(etree.XML(text))
-    
+
     def search_by_name(self, name):
         return None if name != self.name else self
 
@@ -133,6 +134,7 @@ class DefinitionTree(Definition):
         '''Creates new definition tree with given name, sub-definitions and
         attributes. values is expected to be iterable.'''
         Definition.__init__(self, name, attributes)
+        self.tag = 'DEFINE tree'
         self.definitions = []
         self.custom = [] # list of children not being definitions
         for definition in definitions:
@@ -196,7 +198,7 @@ class DefinitionTree(Definition):
 
     def __str__(self):
         return etree.tostring(self.to_lxml_element(), pretty_print = True)
-    
+
     def search_by_name(self, name):
         for definition in reversed(self.definitions):
             ret = definition.search_by_name(name)
