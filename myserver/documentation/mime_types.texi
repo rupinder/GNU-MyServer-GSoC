@@ -139,3 +139,15 @@ line in the @file{myserver.xml} file.
 @end example
 
 By default MyServer doesn't follow symbolic links.
+
+@section Different MIME type handlers
+It is possible to use different handlers to determine the file MIME
+type.  Additional handlers can be supported by external plugins.
+
+The definition of external handlers can be done per vhost or globally
+in the main configuration file changing the value of the variable
+@code{mime.handler}.
+
+@example
+	<DEFINE name="mime.handler" value="mime_magic" />
+@end example

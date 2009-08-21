@@ -1554,7 +1554,6 @@ Internal Server Error\n\
  */
 MimeRecord* Http::getMIME (string &filename)
 {
-  /*TODO: document the "mime.handler" option.  */
   const char *handler = td->securityToken.getHashedData ("mime.handler",
                       MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, NULL);
 
