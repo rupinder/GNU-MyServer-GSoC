@@ -288,6 +288,49 @@ class SecurityTree(gtk.TreeView):
             add = DefinitionTree()
         model.append(selected, (tag, add, ))
 
+    def export(self):
+        def add_definition_tree(parent, i, model):
+            while len(parent.get_definitions()): # remove all children
+                parent.remove_definition(0)
+            i = model.iter_children(i)
+            while i is not None:
+                tag = model.get_value(i, 0)
+                data = model.get_value(i, 1)
+                parent.add_definition(data)
+                if tag == 'DEFINE tree':
+                    add_definition_tree(data, i, model)
+                i = model.iter_next(i)
+        def add_condition(parent, i, model):
+            while len(parent.get_sub_elements()): # remove all children
+                parent.remove_sub_element(0)
+            i = model.iter_children(i)
+            while i is not None:
+                tag = model.get_value(i, 0)
+                data = model.get_value(i, 1)
+                parent.add_sub_element(data)
+                if tag == 'DEFINE tree':
+                    add_definition_tree(data, i, model)
+                elif tag == 'CONDITION':
+                    add_condition(data, i, model)
+                i = model.iter_next(i)
+        self.save()
+        model = self.get_model()
+        i = model.iter_children(None)
+        security = model.get_value(i, 1)
+        while len(security.get_elements()): # remove all children
+            security.remove_element(0)
+        i = model.iter_children(i)
+        while i is not None:
+            tag = model.get_value(i, 0)
+            data = model.get_value(i, 1)
+            security.add_element(data)
+            if tag == 'DEFINE tree':
+                add_definition_tree(data, i, model)
+            elif tag == 'CONDITION':
+                add_condition(data, i, model)
+            i = model.iter_next(i)
+        return security
+
 class UserTable(gtk.Table):
     def __init__(self):
         gtk.Table.__init__(self, 7, 3)
@@ -431,7 +474,7 @@ class ReturnTable(gtk.Table):
 class DefinitionTable(gtk.Table):
     def __init__(self, security_tree):
         gtk.Table.__init__(self, 6, 3)
-        
+
         def add_sub_element(button, combo, tree):
             tag = combo.get_model()[combo.get_active()][0]
             tree.add_sub_element(tag)
@@ -522,7 +565,7 @@ class EmptyTable(gtk.Table):
         self.attach(gtk.Label('Use security file'), 0, 1, 0, 1, gtk.FILL, gtk.FILL)
         self.security_check = gtk.CheckButton()
         self.attach(self.security_check, 1, 2, 0, 1, yoptions = gtk.FILL)
-        
+
         def add_sub_element(button, combo, tree):
             tag = combo.get_model()[combo.get_active()][0]
             tree.add_sub_element(tag)
@@ -546,7 +589,7 @@ class SecurityTable(gtk.Table):
         gtk.Table.__init__(self, 1, 2)
 
         self.security_tree = SecurityTree(self)
-        
+
         self.empty_table = EmptyTable(self.security_tree)
         self.user_table = UserTable()
         self.condition_table = ConditionTable(self.security_tree)
@@ -574,6 +617,16 @@ class SecurityTable(gtk.Table):
             self.security_tree.set_up(security)
         except IOError:
             self.security_tree.clear()
+
+    def write_to_file(self, browser):
+        if self.empty_table.security_check.get_active():
+            security = self.security_tree.export()
+            browser.put_file('security.xml', str(security))
+        else:
+            try:
+                browser.remove_file('security.xml')
+            except OSError: # file does not exist
+                pass
 
     def switch_table(self, tag):
         if tag == 'SECURITY':

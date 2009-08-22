@@ -31,6 +31,9 @@ class FileBrowser():
     
     def put_file(self, path, text):
         raise NotImplementedError()
+
+    def remove_file(self, path):
+        raise NotImplementedError()
     
     def get_path(self):
         raise NotImplementedError()
@@ -65,7 +68,10 @@ class LocalFileBrowser(FileBrowser):
 
     def put_file(self, path, text):
         with open(os.path.join(self.path, path), 'w') as f:
-            f.write(text) 
+            f.write(text)
+
+    def remove_file(self, path):
+        os.remove(os.path.join(self.path, path))
 
     def get_path(self):
         return self.path
