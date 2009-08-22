@@ -288,6 +288,12 @@ class SecurityTree(gtk.TreeView):
             add = DefinitionTree()
         model.append(selected, (tag, add, ))
 
+    def remove_element(self):
+        model, selected = self.get_selection().get_selected()
+        model.remove(selected)
+        self.last_selected = None
+        self.security_table.switch_table('SECURITY')
+
     def export(self):
         def add_definition_tree(parent, i, model):
             while len(parent.get_definitions()): # remove all children
@@ -332,87 +338,99 @@ class SecurityTree(gtk.TreeView):
         return security
 
 class UserTable(gtk.Table):
-    def __init__(self):
-        gtk.Table.__init__(self, 7, 3)
+    def __init__(self, security_tree):
+        gtk.Table.__init__(self, 8, 3)
 
-        self.attach(gtk.Label('name'), 0, 1, 0, 1, gtk.FILL, gtk.FILL)
+        def remove_element(button, tree):
+            tree.remove_element()
+        button = gtk.Button('Remove this element')
+        button.connect('clicked', remove_element, security_tree)
+        self.attach(button, 0, 2, 0, 1, yoptions = gtk.FILL)
+
+        self.attach(gtk.Label('name'), 0, 1, 1, 2, gtk.FILL, gtk.FILL)
         self.name_entry = gtk.Entry()
-        self.attach(self.name_entry, 1, 2, 0, 1, yoptions = gtk.FILL)
+        self.attach(self.name_entry, 1, 2, 1, 2, yoptions = gtk.FILL)
         self.name_check = gtk.CheckButton()
-        self.attach(self.name_check, 2, 3, 0, 1, gtk.FILL, gtk.FILL)
+        self.attach(self.name_check, 2, 3, 1, 2, gtk.FILL, gtk.FILL)
 
-        self.attach(gtk.Label('password'), 0, 1, 1, 2, gtk.FILL, gtk.FILL)
+        self.attach(gtk.Label('password'), 0, 1, 2, 3, gtk.FILL, gtk.FILL)
         self.password_entry = gtk.Entry()
-        self.attach(self.password_entry, 1, 2, 1, 2, yoptions = gtk.FILL)
+        self.attach(self.password_entry, 1, 2, 2, 3, yoptions = gtk.FILL)
         self.password_check = gtk.CheckButton()
-        self.attach(self.password_check, 2, 3, 1, 2, gtk.FILL, gtk.FILL)
+        self.attach(self.password_check, 2, 3, 2, 3, gtk.FILL, gtk.FILL)
 
         def add_options(combo):
             combo.append_text('Yes')
             combo.append_text('No')
             combo.append_text('empty')
 
-        self.attach(gtk.Label('READ'), 0, 1, 2, 3, gtk.FILL, gtk.FILL)
+        self.attach(gtk.Label('READ'), 0, 1, 3, 4, gtk.FILL, gtk.FILL)
         self.read_combo = gtk.combo_box_new_text()
         add_options(self.read_combo)
-        self.attach(self.read_combo, 1, 2, 2, 3, yoptions = gtk.FILL)
+        self.attach(self.read_combo, 1, 2, 3, 4, yoptions = gtk.FILL)
 
-        self.attach(gtk.Label('EXECUTE'), 0, 1, 3, 4, gtk.FILL, gtk.FILL)
+        self.attach(gtk.Label('EXECUTE'), 0, 1, 4, 5, gtk.FILL, gtk.FILL)
         self.execute_combo = gtk.combo_box_new_text()
         add_options(self.execute_combo)
-        self.attach(self.execute_combo, 1, 2, 3, 4, yoptions = gtk.FILL)
+        self.attach(self.execute_combo, 1, 2, 4, 5, yoptions = gtk.FILL)
 
-        self.attach(gtk.Label('BROWSE'), 0, 1, 4, 5, gtk.FILL, gtk.FILL)
+        self.attach(gtk.Label('BROWSE'), 0, 1, 5, 6, gtk.FILL, gtk.FILL)
         self.browse_combo = gtk.combo_box_new_text()
         add_options(self.browse_combo)
-        self.attach(self.browse_combo, 1, 2, 4, 5, yoptions = gtk.FILL)
+        self.attach(self.browse_combo, 1, 2, 5, 6, yoptions = gtk.FILL)
 
-        self.attach(gtk.Label('DELETE'), 0, 1, 5, 6, gtk.FILL, gtk.FILL)
+        self.attach(gtk.Label('DELETE'), 0, 1, 6, 7, gtk.FILL, gtk.FILL)
         self.delete_combo = gtk.combo_box_new_text()
         add_options(self.delete_combo)
-        self.attach(self.delete_combo, 1, 2, 5, 6, yoptions = gtk.FILL)
+        self.attach(self.delete_combo, 1, 2, 6, 7, yoptions = gtk.FILL)
 
-        self.attach(gtk.Label('WRITE'), 0, 1, 6, 7, gtk.FILL, gtk.FILL)
+        self.attach(gtk.Label('WRITE'), 0, 1, 7, 8, gtk.FILL, gtk.FILL)
         self.write_combo = gtk.combo_box_new_text()
         add_options(self.write_combo)
-        self.attach(self.write_combo, 1, 2, 6, 7, yoptions = gtk.FILL)
+        self.attach(self.write_combo, 1, 2, 7, 8, yoptions = gtk.FILL)
 
 class ConditionTable(gtk.Table):
     def __init__(self, security_tree):
-        gtk.Table.__init__(self, 5, 3)
+        gtk.Table.__init__(self, 6, 3)
 
-        self.attach(gtk.Label('name'), 0, 1, 0, 1, gtk.FILL, gtk.FILL)
+        def remove_element(button, tree):
+            tree.remove_element()
+        button = gtk.Button('Remove this element')
+        button.connect('clicked', remove_element, security_tree)
+        self.attach(button, 0, 2, 0, 1, yoptions = gtk.FILL)
+
+        self.attach(gtk.Label('name'), 0, 1, 1, 2, gtk.FILL, gtk.FILL)
         self.name_entry = gtk.Entry()
-        self.attach(self.name_entry, 1, 2, 0, 1, yoptions = gtk.FILL)
+        self.attach(self.name_entry, 1, 2, 1, 2, yoptions = gtk.FILL)
         self.name_check = gtk.CheckButton()
-        self.attach(self.name_check, 2, 3, 0, 1, gtk.FILL, gtk.FILL)
+        self.attach(self.name_check, 2, 3, 1, 2, gtk.FILL, gtk.FILL)
 
-        self.attach(gtk.Label('value'), 0, 1, 1, 2, gtk.FILL, gtk.FILL)
+        self.attach(gtk.Label('value'), 0, 1, 2, 3, gtk.FILL, gtk.FILL)
         self.value_entry = gtk.Entry()
-        self.attach(self.value_entry, 1, 2, 1, 2, yoptions = gtk.FILL)
+        self.attach(self.value_entry, 1, 2, 2, 3, yoptions = gtk.FILL)
         self.value_check = gtk.CheckButton()
-        self.attach(self.value_check, 2, 3, 1, 2, gtk.FILL, gtk.FILL)
+        self.attach(self.value_check, 2, 3, 2, 3, gtk.FILL, gtk.FILL)
 
         def add_options(combo):
             combo.append_text('Yes')
             combo.append_text('No')
             combo.append_text('empty')
 
-        self.attach(gtk.Label('regex'), 0, 1, 2, 3, gtk.FILL, gtk.FILL)
+        self.attach(gtk.Label('regex'), 0, 1, 3, 4, gtk.FILL, gtk.FILL)
         self.regex_combo = gtk.combo_box_new_text()
         add_options(self.regex_combo)
-        self.attach(self.regex_combo, 1, 2, 2, 3, yoptions = gtk.FILL)
+        self.attach(self.regex_combo, 1, 2, 3, 4, yoptions = gtk.FILL)
 
-        self.attach(gtk.Label('reverse'), 0, 1, 3, 4, gtk.FILL, gtk.FILL)
+        self.attach(gtk.Label('reverse'), 0, 1, 4, 5, gtk.FILL, gtk.FILL)
         self.reverse_combo = gtk.combo_box_new_text()
         add_options(self.reverse_combo)
-        self.attach(self.reverse_combo, 1, 2, 3, 4, yoptions = gtk.FILL)
+        self.attach(self.reverse_combo, 1, 2, 4, 5, yoptions = gtk.FILL)
 
         def add_sub_element(button, combo, tree):
             tag = combo.get_model()[combo.get_active()][0]
             tree.add_sub_element(tag)
         self.add_sub_element_button = gtk.Button('Add sub-element')
-        self.attach(self.add_sub_element_button, 0, 1, 4, 5, gtk.FILL, gtk.FILL)
+        self.attach(self.add_sub_element_button, 0, 1, 5, 6, gtk.FILL, gtk.FILL)
         self.add_sub_element_combo = gtk.combo_box_new_text()
         self.add_sub_element_combo.append_text('USER')
         self.add_sub_element_combo.append_text('CONDITION')
@@ -421,86 +439,104 @@ class ConditionTable(gtk.Table):
         self.add_sub_element_combo.append_text('DEFINE element')
         self.add_sub_element_combo.append_text('DEFINE tree')
         self.add_sub_element_combo.set_active(0)
-        self.attach(self.add_sub_element_combo, 1, 2, 4, 5, gtk.FILL, gtk.FILL)
+        self.attach(self.add_sub_element_combo, 1, 2, 5, 6, gtk.FILL, gtk.FILL)
         self.add_sub_element_button.connect('clicked', add_sub_element,
                                             self.add_sub_element_combo,
                                             security_tree)
 
 class PermissionTable(gtk.Table):
-    def __init__(self):
-        gtk.Table.__init__(self, 5, 2)
+    def __init__(self, security_tree):
+        gtk.Table.__init__(self, 6, 2)
+
+        def remove_element(button, tree):
+            tree.remove_element()
+        button = gtk.Button('Remove this element')
+        button.connect('clicked', remove_element, security_tree)
+        self.attach(button, 0, 2, 0, 1, yoptions = gtk.FILL)
 
         def add_options(combo):
             combo.append_text('Yes')
             combo.append_text('No')
             combo.append_text('empty')
 
-        self.attach(gtk.Label('READ'), 0, 1, 0, 1, gtk.FILL, gtk.FILL)
+        self.attach(gtk.Label('READ'), 0, 1, 1, 2, gtk.FILL, gtk.FILL)
         self.read_combo = gtk.combo_box_new_text()
         add_options(self.read_combo)
-        self.attach(self.read_combo, 1, 2, 0, 1, yoptions = gtk.FILL)
+        self.attach(self.read_combo, 1, 2, 1, 2, yoptions = gtk.FILL)
 
-        self.attach(gtk.Label('EXECUTE'), 0, 1, 1, 2, gtk.FILL, gtk.FILL)
+        self.attach(gtk.Label('EXECUTE'), 0, 1, 2, 3, gtk.FILL, gtk.FILL)
         self.execute_combo = gtk.combo_box_new_text()
         add_options(self.execute_combo)
-        self.attach(self.execute_combo, 1, 2, 1, 2, yoptions = gtk.FILL)
+        self.attach(self.execute_combo, 1, 2, 2, 3, yoptions = gtk.FILL)
 
-        self.attach(gtk.Label('BROWSE'), 0, 1, 2, 3, gtk.FILL, gtk.FILL)
+        self.attach(gtk.Label('BROWSE'), 0, 1, 3, 4, gtk.FILL, gtk.FILL)
         self.browse_combo = gtk.combo_box_new_text()
         add_options(self.browse_combo)
-        self.attach(self.browse_combo, 1, 2, 2, 3, yoptions = gtk.FILL)
+        self.attach(self.browse_combo, 1, 2, 3, 4, yoptions = gtk.FILL)
 
-        self.attach(gtk.Label('DELETE'), 0, 1, 3, 4, gtk.FILL, gtk.FILL)
+        self.attach(gtk.Label('DELETE'), 0, 1, 4, 5, gtk.FILL, gtk.FILL)
         self.delete_combo = gtk.combo_box_new_text()
         add_options(self.delete_combo)
-        self.attach(self.delete_combo, 1, 2, 3, 4, yoptions = gtk.FILL)
+        self.attach(self.delete_combo, 1, 2, 4, 5, yoptions = gtk.FILL)
 
-        self.attach(gtk.Label('WRITE'), 0, 1, 4, 5, gtk.FILL, gtk.FILL)
+        self.attach(gtk.Label('WRITE'), 0, 1, 5, 6, gtk.FILL, gtk.FILL)
         self.write_combo = gtk.combo_box_new_text()
         add_options(self.write_combo)
-        self.attach(self.write_combo, 1, 2, 4, 5, yoptions = gtk.FILL)
+        self.attach(self.write_combo, 1, 2, 5, 6, yoptions = gtk.FILL)
 
 class ReturnTable(gtk.Table):
-    def __init__(self):
-        gtk.Table.__init__(self, 1, 2)
+    def __init__(self, security_tree):
+        gtk.Table.__init__(self, 2, 2)
 
-        self.attach(gtk.Label('value'), 0, 1, 0, 1, gtk.FILL, gtk.FILL)
+        def remove_element(button, tree):
+            tree.remove_element()
+        button = gtk.Button('Remove this element')
+        button.connect('clicked', remove_element, security_tree)
+        self.attach(button, 0, 2, 0, 1, yoptions = gtk.FILL)
+
+        self.attach(gtk.Label('value'), 0, 1, 1, 2, gtk.FILL, gtk.FILL)
         self.value_combo = gtk.combo_box_new_text()
         self.value_combo.append_text('ALLOW')
         self.value_combo.append_text('DENY')
         self.value_combo.append_text('empty')
-        self.attach(self.value_combo, 1, 2, 0, 1, yoptions = gtk.FILL)
+        self.attach(self.value_combo, 1, 2, 1, 2, yoptions = gtk.FILL)
 
 class DefinitionTable(gtk.Table):
     def __init__(self, security_tree):
-        gtk.Table.__init__(self, 6, 3)
+        gtk.Table.__init__(self, 7, 3)
+
+        def remove_element(button, tree):
+            tree.remove_element()
+        button = gtk.Button('Remove this element')
+        button.connect('clicked', remove_element, security_tree)
+        self.attach(button, 0, 2, 0, 1, yoptions = gtk.FILL)
 
         def add_sub_element(button, combo, tree):
             tag = combo.get_model()[combo.get_active()][0]
             tree.add_sub_element(tag)
         self.add_sub_element_button = gtk.Button('Add sub-element')
-        self.attach(self.add_sub_element_button, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
+        self.attach(self.add_sub_element_button, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
         self.add_sub_element_combo = gtk.combo_box_new_text()
         self.add_sub_element_combo.append_text('DEFINE element')
         self.add_sub_element_combo.append_text('DEFINE tree')
         self.add_sub_element_combo.set_active(0)
-        self.attach(self.add_sub_element_combo, 1, 2, 0, 1, gtk.FILL, gtk.FILL)
+        self.attach(self.add_sub_element_combo, 1, 2, 1, 2, gtk.FILL, gtk.FILL)
         self.add_sub_element_button.connect('clicked', add_sub_element,
                                             self.add_sub_element_combo,
                                             security_tree)
 
-        self.attach(gtk.Label('name'), 0, 1, 1, 2, gtk.FILL, gtk.FILL)
+        self.attach(gtk.Label('name'), 0, 1, 2, 3, gtk.FILL, gtk.FILL)
         self.name_entry = gtk.Entry()
-        self.attach(self.name_entry, 1, 2, 1, 2, yoptions = gtk.FILL)
+        self.attach(self.name_entry, 1, 2, 2, 3, yoptions = gtk.FILL)
         self.name_check = gtk.CheckButton()
-        self.attach(self.name_check, 2, 3, 1, 2, gtk.FILL, gtk.FILL)
+        self.attach(self.name_check, 2, 3, 2, 3, gtk.FILL, gtk.FILL)
 
         self.value_label = gtk.Label('value')
-        self.attach(self.value_label, 0, 1, 2, 3, gtk.FILL, gtk.FILL)
+        self.attach(self.value_label, 0, 1, 3, 4, gtk.FILL, gtk.FILL)
         self.value_entry = gtk.Entry()
-        self.attach(self.value_entry, 1, 2, 2, 3, yoptions = gtk.FILL)
+        self.attach(self.value_entry, 1, 2, 3, 4, yoptions = gtk.FILL)
         self.value_check = gtk.CheckButton()
-        self.attach(self.value_check, 2, 3, 2, 3, gtk.FILL, gtk.FILL)
+        self.attach(self.value_check, 2, 3, 3, 4, gtk.FILL, gtk.FILL)
 
         self.attribute_tree = gtk.TreeView(gtk.ListStore(
                 gobject.TYPE_STRING, # variable
@@ -528,13 +564,13 @@ class DefinitionTable(gtk.Table):
         scroll.set_shadow_type(gtk.SHADOW_OUT)
         scroll.set_border_width(5)
         scroll.add(self.attribute_tree)
-        self.attach(scroll, 0, 2, 5, 6)
+        self.attach(scroll, 0, 2, 6, 7)
 
         def add_attribute(button, model):
             model.append(('', '', ))
         add_button = gtk.Button('add')
         add_button.connect('clicked', add_attribute, model)
-        self.attach(add_button, 0, 2, 3, 4, gtk.FILL, gtk.FILL)
+        self.attach(add_button, 0, 2, 4, 5, gtk.FILL, gtk.FILL)
 
         def remove_attribute(button, tree):
             model, selected = tree.get_selection().get_selected()
@@ -542,7 +578,7 @@ class DefinitionTable(gtk.Table):
                 model.remove(selected)
         remove_button = gtk.Button('remove')
         remove_button.connect('clicked', remove_attribute, self.attribute_tree)
-        self.attach(remove_button, 0, 2, 4, 5, gtk.FILL, gtk.FILL)
+        self.attach(remove_button, 0, 2, 5, 6, gtk.FILL, gtk.FILL)
 
     def set_tree(self, tree):
         if tree:
@@ -591,10 +627,10 @@ class SecurityTable(gtk.Table):
         self.security_tree = SecurityTree(self)
 
         self.empty_table = EmptyTable(self.security_tree)
-        self.user_table = UserTable()
+        self.user_table = UserTable(self.security_tree)
         self.condition_table = ConditionTable(self.security_tree)
-        self.permission_table = PermissionTable()
-        self.return_table = ReturnTable()
+        self.permission_table = PermissionTable(self.security_tree)
+        self.return_table = ReturnTable(self.security_tree)
         self.definition_table = DefinitionTable(self.security_tree)
         self.table_notebook = gtk.Notebook()
         self.table_notebook.append_page(self.empty_table)
