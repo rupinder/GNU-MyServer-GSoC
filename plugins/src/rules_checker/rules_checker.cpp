@@ -102,7 +102,7 @@ EXPORTABLE(int) load (void* server)
   xmlDocPtr xmlDoc;
   if(!staticData)
     {
-      serverInstance->logWriteln("RulesChecker: Invalid HTTP static data");
+      serverInstance->log("RulesChecker: Invalid HTTP static data");
       return -1;
     }
 
@@ -123,7 +123,7 @@ EXPORTABLE(int) load (void* server)
 
 	  if(!data)
 	    {
-	      serverInstance->logWriteln("RulesChecker: Invalid rule");
+	      serverInstance->log("RulesChecker: Invalid rule");
 	      return -1;
 	    }
 

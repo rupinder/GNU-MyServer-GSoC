@@ -118,7 +118,7 @@ EXPORTABLE(int) postLoad(void* server)
   MagicHandler *handler = new MagicHandler;
   if (handler->load ())
     {
-      serverInstance->logWriteln (MYSERVER_LOG_MSG_ERROR,
+      serverInstance->log (MYSERVER_LOG_MSG_ERROR,
                                   _("cannot load mime magic configuration"));
       return 1;
     }

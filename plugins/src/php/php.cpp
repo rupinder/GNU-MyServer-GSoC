@@ -293,11 +293,11 @@ int load(void* server)
 {
 	::server = (Server*)server;
 	const char *data;
-	data = ::server->getHashedData("PHP_NO_REBOOT");
+	data = ::server->getData("PHP_NO_REBOOT");
 
 	if(!(::server->isRebooting() && !(data && !strcmpi(data, "YES"))))
 	{
-		data = ::server->getHashedData("PHP_SAFE_MODE");
+		data = ::server->getData("PHP_SAFE_MODE");
 
 		if(data && !strcmpi(data, "YES"))
 			singleRequest = 1;
@@ -317,7 +317,7 @@ extern "C"
 int postLoad(void* server)
 {
 	const char *data;
-	data = ::server->getHashedData("PHP_NO_REBOOT");
+	data = ::server->getData("PHP_NO_REBOOT");
 
 	if(!(::server->isRebooting() && !(data && !strcmpi(data, "YES"))))
 	{
@@ -336,7 +336,7 @@ extern "C"
 int unLoad(void* p)
 {
 	const char *data;
-	data = ::server->getHashedData("PHP_NO_REBOOT");
+	data = ::server->getData("PHP_NO_REBOOT");
 
 	if(!(::server->isRebooting() && !(data && !strcmpi(data, "YES"))))
 	{

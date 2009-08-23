@@ -161,7 +161,7 @@ static PyObject *log_server_error(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, (char*)"s", &msg))
 		return NULL;
 
-  serverInstance->logWriteln(msg);
+  serverInstance->log(MYSERVER_LOG_MSG_ERROR, "%s", msg);
 
 	return NULL;
 }
@@ -357,7 +357,7 @@ public:
 
 		for(it = rules.begin(); it != rules.end(); it++)
 		{
-			if((*it).file) 
+			if((*it).file)
 			{
 				executeFromFilePROC execute = ((executeFromFilePROC)python->getDirectMethod((char*)"executeFromFile"));
 				if (execute)
@@ -365,7 +365,7 @@ public:
 			}else
 			{
 				executePROC execute = ((executePROC)python->getDirectMethod((char*)"execute"));
-				
+
 				if (execute)
 				  execute((char*)(*it).data.c_str(), (*it).data.length());
 			}
@@ -409,17 +409,17 @@ EXPORTABLE(int) load (void* server)
 	XmlParser* configuration;
 	xmlDocPtr xmlDoc;
 	if(!staticData)
-	{
-		serverInstance->logWriteln("PythonHttpHandler: Invalid HTTP static data");
-		return -1;
-	}
-	python = serverInstance->getPluginsManager()->getPlugin(pythonName);
+    {
+      serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("PythonHttpHandler: Invalid HTTP static data"));
+      return -1;
+    }
+	python = serverInstance->getPluginsManager ()->getPlugin (pythonName);
 
 	if(!python)
-	{
-		serverInstance->logWriteln("PythonHttpHandler: Cannot find executors::python");
-		return -1;
-	}
+    {
+      serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("PythonHttpHandler: Cannot find executors::python"));
+      return -1;
+    }
 	observer.setPythonExecutor(python);
 
 	staticData->addMulticast(msg, &observer);
@@ -427,10 +427,10 @@ EXPORTABLE(int) load (void* server)
 	init = (INIT_MODULE) python->getDirectMethod((char*)"initModule");
 
 	if(!init)
-	{
-		serverInstance->logWriteln("PythonHttpHandler: Cannot find method initModule in executors::python");
-		return -1;
-	}
+    {
+      serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("PythonHttpHandler: Cannot find method initModule in executors::python"));
+      return -1;
+    }
 	configuration = serverInstance->getXmlConfiguration();
 	xmlDoc = configuration->getDoc();
 
@@ -438,31 +438,31 @@ EXPORTABLE(int) load (void* server)
 	  {
 	    if(!xmlStrcmp(ptr->name, (const xmlChar *)"PYTHON_HTTP_HANDLER"))
 	      {
-		bool file = false;
-		xmlAttrPtr properties = ptr->properties;
-		char* data = 0;
-		while(properties)
-		  {
-		    if(!xmlStrcmp(properties->name, (const xmlChar *)"file"))
-		      {
-			if(properties->children && properties->children->content)
-			  data = (char*)properties->children->content;
+          bool file = false;
+          xmlAttrPtr properties = ptr->properties;
+          char* data = 0;
+          while(properties)
+            {
+              if(!xmlStrcmp(properties->name, (const xmlChar *)"file"))
+                {
+                  if(properties->children && properties->children->content)
+                    data = (char*)properties->children->content;
 
-			file = true;
-		      }
-		    properties = properties->next;
-		  }
+                  file = true;
+                }
+              properties = properties->next;
+            }
 
-		if(!file && ptr->children && ptr->children->next && ptr->children->next->content)
-		  data = (char*)ptr->children->next->content;
+          if(!file && ptr->children && ptr->children->next && ptr->children->next->content)
+            data = (char*)ptr->children->next->content;
 
-		if(!data)
-		  {
-		    serverInstance->logWriteln("PythonHttpHandler: Invalid rule");
-		    return -1;
-		  }
+          if(!data)
+            {
+              serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("PythonHttpHandler: Invalid rule"));
+              return -1;
+            }
 
-		observer.addRule(data, file);
+          observer.addRule (data, file);
 	      }
 
 	  }
