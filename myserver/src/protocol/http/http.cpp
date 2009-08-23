@@ -280,7 +280,7 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
 
       if (FilesUtility::isLink (td->filenamePath.c_str ()))
         {
-          const char *perm = td->securityToken.getHashedData ("symlinks.follow", 
+          const char *perm = td->securityToken.getHashedData ("symlinks.follow",
                               MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, "NO");
 
           if (!perm || strcmpi (perm, "YES"))

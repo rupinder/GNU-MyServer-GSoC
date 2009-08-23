@@ -292,23 +292,23 @@ int Socket::getLocalIPsList(string &out)
   addrinfo aiHints = { 0 }, *pHostInfo = NULL, *pCrtHostInfo = NULL;
   /* only interested in socket types the that server will listen to.  */
   aiHints.ai_socktype = SOCK_STREAM;
-  if ( getaddrinfo(serverName, NULL, &aiHints, &pHostInfo) == 0 && 
+  if ( getaddrinfo(serverName, NULL, &aiHints, &pHostInfo) == 0 &&
        pHostInfo != NULL )
   {
     sockaddr_storage *pCurrentSockAddr = NULL;
     char straddr[NI_MAXHOST] = "";
     memset(straddr, 0, NI_MAXHOST);
     ostringstream stream;
-    for ( pCrtHostInfo = pHostInfo; pCrtHostInfo != NULL; 
+    for ( pCrtHostInfo = pHostInfo; pCrtHostInfo != NULL;
           pCrtHostInfo = pCrtHostInfo->ai_next )
     {
-      pCurrentSockAddr = 
+      pCurrentSockAddr =
         reinterpret_cast<sockaddr_storage *>(pCrtHostInfo->ai_addr);
       if ( pCurrentSockAddr == NULL )
         continue;
 
-            if ( !getnameinfo(reinterpret_cast<sockaddr *>(pCurrentSockAddr), 
-                              sizeof(sockaddr_storage), straddr, NI_MAXHOST, 
+            if ( !getnameinfo(reinterpret_cast<sockaddr *>(pCurrentSockAddr),
+                              sizeof(sockaddr_storage), straddr, NI_MAXHOST,
                               NULL, 0, NI_NUMERICHOST) )
             {
               stream << ( !stream.str().empty() ? ", " : "" ) << straddr;
@@ -411,14 +411,14 @@ int Socket::send(const char* buffer, int len, int flags)
       /*! When we can send data again?  */
       u_long time = getTicks() + (1000 * 1024 / throttlingRate) ;
       /*! If a throttling rate is specified, send chunks of 1024 bytes.  */
-      ret = rawSend(buffer + (len - toSend), toSend < 1024 ? 
+      ret = rawSend(buffer + (len - toSend), toSend < 1024 ?
                     toSend : 1024, flags);
       /*! On errors returns directly -1.  */
       if(ret < 0)
         return -1;
       toSend -= (u_long)ret;
-      /*! 
-       *If there are other bytes to send wait before cycle again. 
+      /*!
+       *If there are other bytes to send wait before cycle again.
        */
       if(toSend)
       {
@@ -456,7 +456,7 @@ int Socket::connect(const char* host, u_short port)
 {
   if ( host == NULL )
     return -1;
-    
+
 #if ( HAVE_IPV6 )
   MYSERVER_SOCKADDRIN thisSock = { 0 };
   int nLength = sizeof(MYSERVER_SOCKADDRIN);
@@ -470,11 +470,11 @@ int Socket::connect(const char* host, u_short port)
   addrinfo aiHints = { 0 };
 
   /*
-   *If the socket is not created, wait to see what address families 
-   *have this host, than create socket. 
+   *If the socket is not created, wait to see what address families
+   *have this host, than create socket.
    */
-  
-  //getsockname(&thisSock, &nLength); 
+
+  //getsockname(&thisSock, &nLength);
   if ( getsockname(&thisSock, &nLength) == 0 )
   {
     aiHints.ai_family = thisSock.ss_family;
@@ -491,19 +491,19 @@ int Socket::connect(const char* host, u_short port)
   if (nGetaddrinfoRet != 0 || pHostInfo == NULL )
     return -1;
 
-  for ( pCrtHostInfo = pHostInfo; pCrtHostInfo != NULL; 
+  for ( pCrtHostInfo = pHostInfo; pCrtHostInfo != NULL;
         pCrtHostInfo = pCrtHostInfo->ai_next )
   {
     pCurrentSockAddr = reinterpret_cast<sockaddr_storage *>
       (pCrtHostInfo->ai_addr);
-    if ( pCurrentSockAddr == NULL || 
-        (thisSock.ss_family != 0 && 
+    if ( pCurrentSockAddr == NULL ||
+        (thisSock.ss_family != 0 &&
          pCurrentSockAddr->ss_family != thisSock.ss_family) )
       continue;
 
     if ( thisSock.ss_family == 0 )// socket not created yet
     {
-      //so try to create one now based on 'pCurrentSockAddr' 
+      //so try to create one now based on 'pCurrentSockAddr'
       if ( pCurrentSockAddr->ss_family == AF_INET )
       {
         if(Socket::socket(AF_INET, SOCK_STREAM, 0) == -1)
@@ -520,15 +520,15 @@ int Socket::connect(const char* host, u_short port)
 
     memset(&connectionSockAddrIn, 0, sizeof(connectionSockAddrIn));
     connectionSockAddrIn.ss_family = pCurrentSockAddr->ss_family;
-  
-     if ( connectionSockAddrIn.ss_family != AF_INET && 
+
+     if ( connectionSockAddrIn.ss_family != AF_INET &&
          connectionSockAddrIn.ss_family != AF_INET6 )
          continue;
-         
+
     if ( connectionSockAddrIn.ss_family == AF_INET )
     {
       nSockLen = sizeof(sockaddr_in);
-      memcpy((sockaddr_in *)&connectionSockAddrIn, 
+      memcpy((sockaddr_in *)&connectionSockAddrIn,
              (sockaddr_in *)pCurrentSockAddr, nSockLen);
       ((sockaddr_in *)(&connectionSockAddrIn))->sin_port = htons(port);
 
@@ -536,12 +536,12 @@ int Socket::connect(const char* host, u_short port)
     else// if ( connectionSockAddrIn.ss_family == AF_INET6 )
     {
       nSockLen = sizeof(sockaddr_in6);
-      memcpy((sockaddr_in6 *)&connectionSockAddrIn, 
+      memcpy((sockaddr_in6 *)&connectionSockAddrIn,
              (sockaddr_in6 *)pCurrentSockAddr, nSockLen);
       ((sockaddr_in6 *)&connectionSockAddrIn)->sin6_port = htons(port);
     }
 
-    if(Socket::connect((MYSERVER_SOCKADDR*)(&connectionSockAddrIn), 
+    if(Socket::connect((MYSERVER_SOCKADDR*)(&connectionSockAddrIn),
                        nSockLen) == -1)
     {
       Socket::close();
@@ -568,7 +568,7 @@ int Socket::connect(const char* host, u_short port)
     if(Socket::socket(AF_INET, SOCK_STREAM, 0) == -1)
     {
       return -1;
-    }                  
+    }
   }
   sockLen = sizeof(sockAddr);
   memset(&sockAddr, 0, sizeof(sockAddr));
@@ -593,13 +593,13 @@ int Socket::connect (MYSERVER_SOCKADDR* sa, int na)
   if ( sa == NULL )
     return -1;
 
-  if ( (sa->ss_family == AF_INET && na != sizeof(sockaddr_in)) 
+  if ( (sa->ss_family == AF_INET && na != sizeof(sockaddr_in))
 #if HAVE_IPV6
     || (sa->ss_family == AF_INET6 && na != sizeof(sockaddr_in6))
 #endif
  )
     return -1;
-  
+
 #ifdef WIN32
   return ::connect((SOCKET)socketHandle,(const sockaddr *)sa, na);
 #else

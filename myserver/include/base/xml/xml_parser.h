@@ -22,11 +22,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "stdafx.h"
 #include <include/base/file/file.h>
 #include <include/base/mem_buff/mem_buff.h>
-extern "C" 
+extern "C"
 {
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
-#include <libxml/tree.h> 
+#include <libxml/tree.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 }
@@ -89,10 +89,10 @@ public:
   {
     setAttr(name.c_str(), value.c_str());
   };
-    
+
   void addLineFeed();
   time_t getLastModTime();
-  
+
   XmlXPathResult* evaluateXpath(string & path){return evaluateXpath(path.c_str());}
   XmlXPathResult* evaluateXpath(const char*);
   bool isXpathEnabled(){return useXpath;}

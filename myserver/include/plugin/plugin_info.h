@@ -37,46 +37,46 @@ class PluginInfo
 public:
 
     PluginInfo(string& name, bool enabled = 1, bool global = 0);
-	
+
 	~PluginInfo();
-	
+
 	bool isEnabled();
 	bool isGlobal();
-	
+
 	void addDependence(string, int minVersion, int maxVersion);
-	
+
 	int getVersion();
-	
+
 	void setVersion(int v);
-	
+
 	string getName();
-	
+
 	int getMyServerMinVersion();
-	
+
 	int getMyServerMaxVersion();
-	
+
 	int setMyServerMinVersion(int v);
-	
+
 	int setMyServerMaxVersion(int v);
-	
+
 	HashMap<string, pair<int,int>* >::Iterator begin(){return dependences.begin();}
 	HashMap<string, pair<int,int>* >::Iterator end(){return dependences.end();}
-	
+
 	void setPlugin(Plugin* plugin);
 	Plugin* getPlugin();
 	Plugin* removePlugin();
-	
+
 	void setEnabled(bool enabled);
-	
+
 	pair<int,int>* getDependence(string name);
-	
+
 	static int convertVersion(string* s);
-	
-	
-	
-  
-	
-private:	
+
+
+
+
+
+private:
 	string name;
 	bool enabled;
     bool global;

@@ -47,24 +47,24 @@ public:
 
 private:
   XmlParser* getParser(SecurityToken* st);
-  bool doCondition (xmlNodePtr node, 
+  bool doCondition (xmlNodePtr node,
                     HashMap<string, SecurityDomain*> *hashedDomains);
 
-  void doReturn (xmlNodePtr node, 
-                 int *cmd, 
+  void doReturn (xmlNodePtr node,
+                 int *cmd,
                  HashMap<string, SecurityDomain*> *hashedDomains);
 
   void doDefine (xmlNodePtr node,
-                 SecurityToken *st, 
+                 SecurityToken *st,
                  HashMap<string, SecurityDomain*> *hashedDomains);
 
   void doPermission (xmlNodePtr node,
-                     SecurityToken *st, 
+                     SecurityToken *st,
                      HashMap<string, SecurityDomain*> *hashedDomains);
 
-  int computeXmlNode (xmlNodePtr node, 
-                      SecurityToken *st, 
-                      int *cmd, 
+  int computeXmlNode (xmlNodePtr node,
+                      SecurityToken *st,
+                      int *cmd,
                       HashMap<string, SecurityDomain*> *hashedDomains);
 
   int getPermissions (xmlAttr* attrs, xmlChar** user = NULL, xmlChar** password = NULL);

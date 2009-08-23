@@ -18,7 +18,7 @@
 #include <include/log/stream/console_stream_creator.h>
 
 LogStream*
-ConsoleStreamCreator::create (FiltersFactory* ff, string location, 
+ConsoleStreamCreator::create (FiltersFactory* ff, string location,
                               list<string>& filters, u_long cycle)
 {
   Console* out = new Console ();

@@ -104,7 +104,7 @@ public:
 	u_int m_nSizeLimit; // The maximun size that the buffer can reached ; 0 if none
 	u_int m_nBlockLength; // Minimun size of new allocated blocks during addings
 						 // We assume that m_nBlockLength < m_nSizeLimit
- 
+
 	void hashMD5(const void* pAdr, u_int nSize);
 	void hashCRC(const void* pAdr, u_int nSize);
 	void hex(const void* pAdr, u_int nSize);
@@ -118,7 +118,7 @@ public:
 	void hashMD5(MemBuf& membuf);
 	void hashCRC(MemBuf& membuf);
 	void uintToStr(u_int i, char* pBufToUse, u_int nBufSize) ;
-	void xIntToStr(u_int i, int bNegative, char* pBufToUse, u_int nBufSize);	
+	void xIntToStr(u_int i, int bNegative, char* pBufToUse, u_int nBufSize);
 	void intToStr(int i, char* pBufToUse, u_int nBufSize);
 
 protected:

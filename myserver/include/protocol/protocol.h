@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /*!
  *This is the base class to derive other protocols implementations for the server.
  */
-class Protocol 
+class Protocol
 {
 public:
 	Protocol();

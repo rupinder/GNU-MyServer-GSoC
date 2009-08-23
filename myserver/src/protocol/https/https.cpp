@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/protocol.h>
 #include <include/protocol/https/https.h>
 
-extern "C" 
+extern "C"
 {
 #ifdef WIN32
 #include <direct.h>
@@ -32,7 +32,7 @@ extern "C"
 
 
 /*!
- *Returns the name of the protocol. If an out buffer is defined 
+ *Returns the name of the protocol. If an out buffer is defined
  *fullfill it with the name too.
  */
 char* Https::registerNameImpl(char* out, int len)
@@ -52,7 +52,7 @@ char* Https::registerName(char* out, int len)
 /*!
  *Https class constructor.
  */
-Https::Https() 
+Https::Https()
 {
   protocolPrefix.assign("https://");
   protocolOptions = PROTOCOL_USES_SSL;

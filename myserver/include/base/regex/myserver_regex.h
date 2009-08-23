@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # include "stdafx.h"
 
-extern "C" 
+extern "C"
 {
 # include <stdio.h>
 
@@ -52,14 +52,14 @@ public:
   ~Regex();
   int isCompiled();
   int compile(const char *pattern, int flags);
-  int exec(const char *string, size_t nmatch, regmatch_t matchptr [], 
+  int exec(const char *string, size_t nmatch, regmatch_t matchptr [],
 					 int eflags);
   void free();
 
   Regex(string const &pattern, int flags){Regex(pattern.c_str(), flags);}
   int compile(string const &str, int flags){
 		return compile(str.c_str(), flags );}
-  int exec(string const &str, size_t nmatch, regmatch_t matchptr [], 
+  int exec(string const &str, size_t nmatch, regmatch_t matchptr [],
 					 int eflags)
     {return exec(str.c_str(), nmatch, matchptr, eflags);}
 private:

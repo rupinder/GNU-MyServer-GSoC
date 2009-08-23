@@ -67,7 +67,7 @@ public:
 
   struct DispatcherArg
   {
-    bool terminated; 
+    bool terminated;
     bool terminate;
     Mutex* mutex;
     event loopEvent;
@@ -123,6 +123,6 @@ private:
   DispatcherArg dispatcherArg;
   bool releasing;
 };
-                                   
+
 
 #endif

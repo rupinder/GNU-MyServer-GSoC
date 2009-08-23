@@ -122,7 +122,7 @@ int SslSocket::connect(MYSERVER_SOCKADDR* sa, int na)
   sslContext = SSL_CTX_new(sslMethod);
   if(sslContext == 0)
     return -1;
-  
+
   /*! Do the TCP connection. */
   if(::connect((int)socketHandle,(const sockaddr *)sa, na))
   {
@@ -214,7 +214,7 @@ int SslSocket::sslAccept()
     close();
     return -1;
   }
-  
+
   do
   {
     sslAccept = SSL_accept (sslConnection);
@@ -254,7 +254,7 @@ int SslSocket::recv(char* buffer, int len, int flags)
         break;
 
       sslError = SSL_get_error (sslConnection, err);
-      
+
       if ((sslError != SSL_ERROR_WANT_READ) &&
           (sslError != SSL_ERROR_WANT_WRITE))
         break;

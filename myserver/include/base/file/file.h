@@ -71,7 +71,7 @@ public:
   virtual int read(char* buffer, u_long len, u_long *nbr);
   virtual int write(const char* buffer, u_long len, u_long *nbw);
 
-  virtual int fastCopyToSocket (Socket *dest, u_long offset, 
+  virtual int fastCopyToSocket (Socket *dest, u_long offset,
                                 MemBuf *buf, u_long *nbw);
 
   int truncate (u_long size = 0);

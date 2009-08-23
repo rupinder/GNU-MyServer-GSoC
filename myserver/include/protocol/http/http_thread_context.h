@@ -51,7 +51,7 @@ class MimeRecord;
 struct HttpThreadContext
 {
 	int appendOutputs;
-  
+
   /*! Used by SSI and set by raiseHTTPError.  */
   int lastError;
 

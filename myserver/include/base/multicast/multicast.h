@@ -26,10 +26,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 using namespace std;
 
-template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE> 
+template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
 class MulticastRegistry;
 
-template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE> 
+template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
 class Multicast
 {
 public:
@@ -37,7 +37,7 @@ public:
 	virtual ~Multicast(){}
 };
 
-template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE> 
+template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
 class MulticastRegistry
 {
 public:

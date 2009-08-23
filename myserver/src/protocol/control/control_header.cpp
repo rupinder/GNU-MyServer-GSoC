@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/control/control_header.h>
 #include <include/base/xml/xml_parser.h>
 #include <include/protocol/control/control_errors.h>
-extern "C" 
+extern "C"
 {
 #ifdef WIN32
 #include <direct.h>
@@ -175,20 +175,20 @@ int ControlHeader::parse_header(char *buffer, int bufferlen, int *len)
 
       /*! Get the length of the field name. */
       fieldLen = getCharInString(field, " ", 32);
-      
+
       /*! Return nonzero on errors. */
       if(fieldLen == -1)
         return CONTROL_MALFORMED;
 
-      /*! 
-       *For first line field name is the command itself. 
+      /*!
+       *For first line field name is the command itself.
        *Do not copy initial /.
        */
       myserver_strlcpy(command, field, std::min(fieldLen + 1 , 32) );
-      
+
       /*! Update the offset. */
       offset += fieldLen + 1;
-      
+
       int versionLen = getCharInString(offset, " \r", 32);
       if(versionLen == -1)
         return CONTROL_MALFORMED;
@@ -255,18 +255,18 @@ int ControlHeader::parse_header(char *buffer, int bufferlen, int *len)
         myserver_strlcpy(tmp_buff, offset, std::min(len + 1 , 12));
         length = atoi(tmp_buff);
         offset += len + 2;
-      }   
+      }
       else
       {
         int len = getCharInString(offset, "\r", 32);
         if(len == -1)
           return CONTROL_MALFORMED;
         offset += len + 2;
-      }   
+      }
     }
     /*! Increment the nLine value for the next line parsing. */
     nLine++;
-    
+
     /*! Do we need more than 20 lines? */
     if(nLine > 20)
       return CONTROL_MALFORMED;

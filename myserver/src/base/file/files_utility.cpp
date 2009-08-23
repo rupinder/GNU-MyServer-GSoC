@@ -199,15 +199,15 @@ int FilesUtility::copyFile (File& src, File& dest)
     return -1;
 #endif
 
-  for (;;) 
+  for (;;)
   {
     ret = src.read (buffer, 4096, &nbr);
     if (ret)
       return -1;
-    
+
     if (!nbr)
       break;
-    
+
     ret = dest.writeToFile (buffer, nbr, &nbw);
     if (ret)
       return -1;

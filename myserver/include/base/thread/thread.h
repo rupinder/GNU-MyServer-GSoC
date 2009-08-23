@@ -38,14 +38,14 @@ public:
   static void wait(u_long);
 	static ThreadID threadID();
 #ifdef WIN32
-	static int create(ThreadID*  thread, 
+	static int create(ThreadID*  thread,
              unsigned int (_stdcall *start_routine)(void *), void * arg);
 #endif
 #ifdef HAVE_PTHREAD
-	static int create(ThreadID*  thread, void * (*start_routine)(void *), 
+	static int create(ThreadID*  thread, void * (*start_routine)(void *),
                     void * arg);
 #endif
-	static void terminate();  
+	static void terminate();
 	static int join(ThreadID);
 };
 #endif

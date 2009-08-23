@@ -36,7 +36,7 @@ int Regex::compile(const char *p, int f)
 /*!
  * Match the pattern against strings.
  */
-int Regex::exec(const char *text, size_t nmatch, regmatch_t matchptr [], 
+int Regex::exec(const char *text, size_t nmatch, regmatch_t matchptr [],
                 int eflags)
 {
 #ifdef REGEX | TRE

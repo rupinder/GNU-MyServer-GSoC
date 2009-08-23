@@ -104,8 +104,8 @@ public:
   int requestAuthorization();
 
   int sendHTTPResource(string& filename,
-                       int systemrequest = 0, 
-                       int onlyHeader = 0, 
+                       int systemrequest = 0,
+                       int onlyHeader = 0,
                        int yetMapped = 0);
 
   int putHTTPRESOURCE(string &filename,
@@ -150,7 +150,7 @@ public:
                      int systemrequest)
   {return getPath(td, filenamePath, filename.c_str(), systemrequest);}
 
-  static int getPath(HttpThreadContext* td, 
+  static int getPath(HttpThreadContext* td,
                      string& filenamePath,
                      const char *filename,
                      int systemrequest);
@@ -165,23 +165,23 @@ public:
   virtual char* registerName(char* out,int len){return registerNameImpl(out, len);}
 
   static char* registerNameImpl(char*, int len);
-  int controlConnection(ConnectionPtr a, 
-                        char *b1, 
-                        char *b2, 
-                        int bs1, 
-                        int bs2, 
-                        u_long nbtr, 
+  int controlConnection(ConnectionPtr a,
+                        char *b1,
+                        char *b2,
+                        int bs1,
+                        int bs2,
+                        u_long nbtr,
                         u_long id);
 
   static int loadProtocolStatic();
   static int unLoadProtocolStatic();
 
   u_long getTimeout ();
-  int preprocessHttpRequest(string& filename, int yetmapped, 
+  int preprocessHttpRequest(string& filename, int yetmapped,
                             int* permissions);
 
-  int getFilePermissions(string& filename, string& directory, 
-                         string& file, string &filenamePath, 
+  int getFilePermissions(string& filename, string& directory,
+                         string& file, string &filenamePath,
                          int yetmapped, int* permissions);
 
   static HttpStaticData* getStaticData();
@@ -235,7 +235,7 @@ public:
   {
     return Http::loadProtocolStatic ();
   }
-  
+
   virtual int unLoadProtocol ()
   {
     return Http::unLoadProtocolStatic ();

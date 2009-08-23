@@ -34,7 +34,7 @@ Validator::~Validator ()
  *Get the permission mask for the requested resource.
  *Delegate the problem to getPermissionMaskInt.
  */
-int Validator::getPermissionMask (SecurityToken* st, 
+int Validator::getPermissionMask (SecurityToken* st,
                                   list<SecurityDomain*> *domains,
                                   AuthMethod* authMethod)
 {
@@ -45,7 +45,7 @@ int Validator::getPermissionMask (SecurityToken* st,
 
   if (domains)
   {
-    for (list<SecurityDomain*>::iterator it = domains->begin (); 
+    for (list<SecurityDomain*>::iterator it = domains->begin ();
          it != domains->end (); it++)
     {
       addDomain (&hashedDomains, *it);
@@ -59,7 +59,7 @@ int Validator::getPermissionMask (SecurityToken* st,
  *Get the permission mask for the requested resource.
  *Delegate the problem to getPermissionMaskInt.
  */
-int Validator::getPermissionMask (SecurityToken* st, 
+int Validator::getPermissionMask (SecurityToken* st,
                                   SecurityDomain **domains,
                                   AuthMethod* authMethod)
 {
@@ -85,7 +85,7 @@ int Validator::getPermissionMask (SecurityToken* st,
  *Get the permission mask for the requested resource.
  *Decorate getPermissionMaskImpl.
  */
-int Validator::getPermissionMaskInt (SecurityToken* st, 
+int Validator::getPermissionMaskInt (SecurityToken* st,
                                      HashMap<string, SecurityDomain*> *hashedDomains,
                                      AuthMethod* authMethod)
 {
@@ -93,10 +93,10 @@ int Validator::getPermissionMaskInt (SecurityToken* st,
 
   if (authMethod)
     ret = authMethod->getPermissionMask (st);
-  
+
   if (!getPermissionMaskImpl (st, hashedDomains, authMethod))
     ret = 0;
-  
+
   st->setDone (true);
 
   return ret;
@@ -141,6 +141,6 @@ string *Validator::getValue (HashMap<string, SecurityDomain*> *hashedDomains, st
 
   if (securityDomain)
     return securityDomain->getValue (var);
-  
+
   return NULL;
 }

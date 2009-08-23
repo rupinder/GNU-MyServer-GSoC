@@ -32,7 +32,7 @@ using namespace std;
 enum LoggingLevel
   {
     /* The MYSERVER_LOG_MSG_PLAIN is only used within the
-     * LogManager class to print new lines with normal text 
+     * LogManager class to print new lines with normal text
      * attributes over the ConsoleStream.
      */
     MYSERVER_LOG_MSG_PLAIN,

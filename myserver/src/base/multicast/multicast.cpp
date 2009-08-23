@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /*!
  *Register the handler for the specified message type.
  */
-template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE> 
+template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
 void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::addMulticast(MSG_TYPE msg, Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>* handler)
 {
   vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.get(msg);
@@ -37,7 +37,7 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::addMulticast(MSG_TYPE msg,
 /*!
  *Remove the handler from the vector for a message type.
  */
-template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE> 
+template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
 void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticast(MSG_TYPE msg, Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>* handler)
 {
   vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.get(msg);
@@ -46,7 +46,7 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticast(MSG_TYPE m
   {
     return;
   }
-  
+
   for(it = msgHandlers->begin(); it != msgHandlers->end(); it++)
     if(*it == handler)
     {
@@ -58,7 +58,7 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticast(MSG_TYPE m
 /*!
  *Remove all the handlers for a specified message.
  */
-template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE> 
+template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
 void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticasts(MSG_TYPE msg)
 {
   vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.remove(msg);
@@ -71,7 +71,7 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticasts(MSG_TYPE 
 /*!
  *Notify the message to all the registered handlers passing an argument.
  */
-template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE> 
+template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
 void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::notifyMulticast(MSG_TYPE& msg, ARG_TYPE arg)
 {
   vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.get(msg);
@@ -90,7 +90,7 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::notifyMulticast(MSG_TYPE& 
 /*!
  *Get the vector of handlers for a specified message.
  */
-template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE> 
+template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
 vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>* MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::getHandlers(MSG_TYPE& msg)
 {
   return handlers.get(msg);

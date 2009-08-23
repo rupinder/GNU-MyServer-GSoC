@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -35,7 +35,7 @@ public:
   void testLoadClear()
   {
     CPPUNIT_ASSERT(!homeDir->isLoaded());
-    
+
     homeDir->load();
 
     CPPUNIT_ASSERT(homeDir->isLoaded());
@@ -53,7 +53,7 @@ public:
     /* Try to get home dir for Administrator under Windows.  */
     username.assign("Administrator");
 #else
-    /* Under systems different than Windows, "root" should be present, 
+    /* Under systems different than Windows, "root" should be present,
      * if it doesn't handle this differently.  */
     username.assign("root");
 #endif

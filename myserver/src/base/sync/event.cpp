@@ -83,7 +83,7 @@ int Event::init(bool broadcast)
 /*!
  *Wait for the event.
  *\param id The calling thread id.
- *\param timeout Timeout value in milliseconds. 
+ *\param timeout Timeout value in milliseconds.
  */
 int Event::wait(u_long id, u_long timeout)
 {
@@ -124,13 +124,13 @@ int Event::wait(u_long id, u_long timeout)
 
   return -1;
 #endif
-  
+
 }
 
 /*!
  *Signal the event.
  *The behaviour of this message is influenced by the broadcast flag, if this
- *is a broadcast event then the event will be signaled to all the waiting 
+ *is a broadcast event then the event will be signaled to all the waiting
  *threads otherwise only one thread will be signaled.
  *\param id The calling thread id.
  */
@@ -157,7 +157,7 @@ int Event::signal(u_long id)
 
   /* Reset the event for later reusability.  */
   ResetEvent(event);
-  
+
 #endif
   return 0;
 }

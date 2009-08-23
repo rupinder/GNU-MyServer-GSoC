@@ -28,7 +28,7 @@
 class SocketStream : public LogStream
 {
 public:
-  SocketStream (FiltersFactory* filtersFactory, 
+  SocketStream (FiltersFactory* filtersFactory,
                 u_long cycleLog,
                 Stream* outStream,
                 FiltersChain* filtersChain);

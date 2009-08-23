@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # include "stdafx.h"
 
-extern "C" 
+extern "C"
 {
 # ifdef WIN32
 #  include <io.h>
@@ -55,8 +55,8 @@ using namespace std;
 #  define intptr_t int
 # endif
 
-class FindData 
-{ 
+class FindData
+{
 public:
   char * name;
   int attrib;

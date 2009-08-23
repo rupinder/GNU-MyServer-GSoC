@@ -20,7 +20,7 @@ class TestXmlValidator : public CppUnit::TestFixture
   CPPUNIT_TEST( testGetPermissionMaskImpl );
   CPPUNIT_TEST( testGetValue );
   CPPUNIT_TEST_SUITE_END();
-  
+
   XmlValidator* xmlValidator;
 public:
   void setUp()
@@ -39,9 +39,9 @@ public:
     HashMap<string, SecurityDomain*> hashedDomains;
 
     CPPUNIT_ASSERT_EQUAL(xmlValidator->getValue(&hashedDomains, val), (string*)NULL);
- 
+
   }
- 
+
   void testGetPermissionMaskImpl()
   {
     string val("value");
@@ -51,7 +51,7 @@ public:
     secToken.setDirectory (&val);
     secToken.setSysDirectory (&val);
     CPPUNIT_ASSERT_EQUAL(xmlValidator->getPermissionMaskImpl(&secToken, NULL, NULL), 0);
- 
+
   }
 
   void testGetPermissionMask()

@@ -591,20 +591,20 @@ MemBuf::~MemBuf()
   if(m_buffer != NULL && m_bCanDelete)
     mem_free(m_buffer);
 }
-  
-void MemBuf::addBuffer(MemBuf *nmb) 
+
+void MemBuf::addBuffer(MemBuf *nmb)
 {
   addBuffer(nmb->m_buffer, nmb->m_nSize);
 }
 
 /*! free used memory */
-int MemBuf::free() 
+int MemBuf::free()
 {
-  if(m_buffer != NULL && m_bCanDelete) 
+  if(m_buffer != NULL && m_bCanDelete)
   {
-    mem_free(m_buffer); 
-    m_buffer = NULL; 
-    m_nSize = m_nRealSize = 0; 
+    mem_free(m_buffer);
+    m_buffer = NULL;
+    m_nSize = m_nRealSize = 0;
     return 0;
   }
   return 1;
@@ -617,19 +617,19 @@ u_int MemBuf::getRealLength()
   return m_nRealSize;
 }
 
-u_int MemBuf::find(MemBuf *smb, u_int start) 
+u_int MemBuf::find(MemBuf *smb, u_int start)
 {
   return find(smb->m_buffer, smb->m_nSize, start);
 }
-char& MemBuf::getAt(u_int nIndex) 
+char& MemBuf::getAt(u_int nIndex)
 {
 #ifdef ASSERT
-  ASSERT(m_buffer != NULL); 
-  ASSERT(nIndex <= m_nSize); 
+  ASSERT(m_buffer != NULL);
+  ASSERT(nIndex <= m_nSize);
 #endif
   return *(m_buffer + nIndex);
 }
-char& MemBuf::operator[](u_int nIndex) 
+char& MemBuf::operator[](u_int nIndex)
 {
   return getAt(nIndex);
 }
@@ -639,12 +639,12 @@ u_int MemBuf::getLength()
   return m_nSize;
 }
 
-int MemBuf::isValid() 
+int MemBuf::isValid()
 {
   return ((m_nSize != 0) || (m_buffer != NULL))?1:0;
 }
 
-char* MemBuf::getBuffer() 
+char* MemBuf::getBuffer()
 {
   return ( char*) m_buffer;
 }
@@ -653,71 +653,71 @@ MemBuf::operator const void*()
 {
   return (const void*) m_buffer;
 }
-MemBuf MemBuf::operator+ (MemBuf& src) 
-{  
-  MemBuf temp(*this); 
-  temp.addBuffer(&src); 
+MemBuf MemBuf::operator+ (MemBuf& src)
+{
+  MemBuf temp(*this);
+  temp.addBuffer(&src);
   return temp;
 }
-MemBuf MemBuf::operator+ (const char* src) 
+MemBuf MemBuf::operator+ (const char* src)
 {
-  MemBuf temp(*this); 
-  temp.addBuffer((const void*) src, (u_int)strlen(src)); 
+  MemBuf temp(*this);
+  temp.addBuffer((const void*) src, (u_int)strlen(src));
   return temp;
 }
-const MemBuf& MemBuf::operator+= (MemBuf& add) 
+const MemBuf& MemBuf::operator+= (MemBuf& add)
 {
-  addBuffer(&add); 
+  addBuffer(&add);
   return *this;
 }
-const MemBuf& MemBuf::operator+= (const char* pStr) 
+const MemBuf& MemBuf::operator+= (const char* pStr)
 {
-  addBuffer(pStr, (u_int)strlen(pStr)); 
+  addBuffer(pStr, (u_int)strlen(pStr));
   return *this;
 }
-const MemBuf& MemBuf::operator+= (char c) 
+const MemBuf& MemBuf::operator+= (char c)
 {
-  addBuffer(&c, 1); 
+  addBuffer(&c, 1);
   return *this;
 }
-MemBuf& MemBuf::operator<< (const char* pSrc) 
+MemBuf& MemBuf::operator<< (const char* pSrc)
 {
-  addBuffer(pSrc, (u_int)strlen(pSrc)); 
+  addBuffer(pSrc, (u_int)strlen(pSrc));
   return *this;
 }
-MemBuf& MemBuf::operator<< (int i) 
+MemBuf& MemBuf::operator<< (int i)
 {
-  addBuffer(&i, 4); 
+  addBuffer(&i, 4);
   return *this;
 }
-MemBuf& MemBuf::operator<< (unsigned int i) 
+MemBuf& MemBuf::operator<< (unsigned int i)
 {
-  addBuffer(&i, 4); 
+  addBuffer(&i, 4);
   return *this;
 }
-MemBuf& MemBuf::operator<< (long i) 
+MemBuf& MemBuf::operator<< (long i)
 {
-  addBuffer(&i, 4); 
+  addBuffer(&i, 4);
   return *this;
 }
-MemBuf& MemBuf::operator<< (unsigned long i) 
+MemBuf& MemBuf::operator<< (unsigned long i)
 {
-  addBuffer(&i, 4); 
+  addBuffer(&i, 4);
   return *this;
 }
-MemBuf& MemBuf::operator<< (char c) 
+MemBuf& MemBuf::operator<< (char c)
 {
-  addBuffer(&c, 1); 
+  addBuffer(&c, 1);
   return *this;
 }
-MemBuf& MemBuf::operator<< (unsigned char c) 
+MemBuf& MemBuf::operator<< (unsigned char c)
 {
-  addBuffer(&c, 1); 
+  addBuffer(&c, 1);
   return *this;
 }
-MemBuf& MemBuf::operator<< (const  MemBuf &src) 
+MemBuf& MemBuf::operator<< (const  MemBuf &src)
 {
-  addBuffer(src.m_buffer, src.m_nSize); 
+  addBuffer(src.m_buffer, src.m_nSize);
   return *this;
 }
 MemBuf& MemBuf::operator<< (const string &src)
@@ -727,38 +727,38 @@ MemBuf& MemBuf::operator<< (const string &src)
 }
 MemBuf& MemBuf::operator=(const MemBuf& src)
 {
-  setBuffer(src.m_buffer, src.m_nRealSize); 
+  setBuffer(src.m_buffer, src.m_nRealSize);
   return *this;
 }
-MemBuf& MemBuf::operator=(const char* src) 
+MemBuf& MemBuf::operator=(const char* src)
 {
-  setBuffer((const void*) src, (u_int)strlen(src) + 1); 
+  setBuffer((const void*) src, (u_int)strlen(src) + 1);
   return* this;
 }
-  
-void MemBuf::uintToStr(u_int i) 
+
+void MemBuf::uintToStr(u_int i)
 {
   xIntToStr(i, 0);
 }
 
-void MemBuf::uintToStr(u_int i, char* pBufToUse, u_int nBufSize) 
+void MemBuf::uintToStr(u_int i, char* pBufToUse, u_int nBufSize)
 {
   xIntToStr(i, 0, pBufToUse, nBufSize);
 }
 
 void MemBuf::intToStr(int i)
 {
-  if (i < 0) 
-    xIntToStr( (u_int)(-i), 1); 
-  else 
+  if (i < 0)
+    xIntToStr( (u_int)(-i), 1);
+  else
     xIntToStr( (u_int) i, 0);
 }
 
-void MemBuf::intToStr(int i, char* pBufToUse, u_int nBufSize) 
+void MemBuf::intToStr(int i, char* pBufToUse, u_int nBufSize)
 {
-  if (i < 0) 
-    xIntToStr((u_int)(-i), 1, pBufToUse, nBufSize); 
-  else 
+  if (i < 0)
+    xIntToStr((u_int)(-i), 1, pBufToUse, nBufSize);
+  else
     xIntToStr((u_int) i, 0, pBufToUse, nBufSize);
 }
 
@@ -766,11 +766,11 @@ void MemBuf::hex(MemBuf& membuf)
 {
   hex(membuf.m_buffer, membuf.m_nSize);
 }
-void MemBuf::hashMD5(MemBuf& membuf) 
+void MemBuf::hashMD5(MemBuf& membuf)
 {
   hashMD5(membuf.m_buffer, membuf.m_nSize);
 }
-void MemBuf::hashCRC(MemBuf& membuf) 
+void MemBuf::hashCRC(MemBuf& membuf)
 {
   hashCRC(membuf.m_buffer, membuf.m_nSize);
 }
@@ -780,7 +780,7 @@ void MemBuf::allocBuffer(u_int size)
   if(size > m_nRealSize || m_buffer == NULL)
   {
     free();
-    m_buffer = mem_alloc(size); 
+    m_buffer = mem_alloc(size);
     m_nRealSize = size;
   }
 }

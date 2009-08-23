@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/string/stringutils.h>
 #include <include/base/string/securestr.h>
 
-extern "C" 
+extern "C"
 {
 #include <stdio.h>
 #include <stdlib.h>
@@ -103,7 +103,7 @@ const char base64map[] =
 
 
 
-const char hexmap[] = 
+const char hexmap[] =
 {
   SKIP,   SKIP,   SKIP,   SKIP,   SKIP,   SKIP,   SKIP,   SKIP,
   SKIP,   SKIP,   SKIP,   SKIP,   SKIP,   SKIP,   SKIP,   SKIP,
@@ -141,7 +141,7 @@ const char hexmap[] =
 
 
 
-const char QpEncodeMap[] = 
+const char QpEncodeMap[] =
 {
     SKIP,   SKIP,   SKIP,   SKIP,   SKIP,   SKIP,   SKIP,   SKIP,
   SKIP,   SKIP,   NOSKIP,   SKIP,   SKIP,   NOSKIP,   SKIP,   SKIP,
@@ -239,7 +239,7 @@ char* CBase64Utils::mimeDecodeMailHeaderField(char *s)
       int sLen;
       int pos = static_cast<int>(strupos(s1, (char*) "?B?"));
       s1 += pos;
-      if (strlen(s1) < 4) return s; 
+      if (strlen(s1) < 4) return s;
       s1 += 3;
       sLen = static_cast<int>(strlen(s1));
       decodedText = bu.decode(s1, &sLen);
@@ -280,7 +280,7 @@ CBase64Utils::~CBase64Utils()
 char* CBase64Utils::encode(const char *input, int bufsize)
 {
   int alsize = ((bufsize * 4) / 3);
-  char *finalresult = (char*)calloc(alsize + ((alsize / 76) * 2) + 
+  char *finalresult = (char*)calloc(alsize + ((alsize / 76) * 2) +
                                     (10 * sizeof(char)), sizeof(char));
   int count = 0;
   int LineLen = 0;
@@ -470,12 +470,12 @@ CQPUtils::~CQPUtils()
 char* CQPUtils::decode(char *input)
 {
   char *s = input;
-  char *finalresult = (char*)calloc(strlen(input) + sizeof(char), 
+  char *finalresult = (char*)calloc(strlen(input) + sizeof(char),
                                     sizeof(char));
   char *result = finalresult;
   while (*s != '\0')
   {
-    if (*s == '=') 
+    if (*s == '=')
     {
       int i;
       for (i = 0; i < 3; i++)
@@ -529,7 +529,7 @@ char* CQPUtils::decode(char *input)
 
 
 
-char* CQPUtils::expandBuffer(char *buffer, int UsedSize, int *BufSize, 
+char* CQPUtils::expandBuffer(char *buffer, int UsedSize, int *BufSize,
                              int Singlechar)
 {
   int AddVal;
@@ -548,7 +548,7 @@ char* CQPUtils::encode(char *input)
 {
   int BufSize = static_cast<int>(strlen(input) + BufAdd);
   int UsedSize = 0;
-  int LineLen = 0; 
+  int LineLen = 0;
   char *finalresult = (char*)calloc(BufSize, sizeof(char));
   char *fresult = finalresult;
   char *s = input;

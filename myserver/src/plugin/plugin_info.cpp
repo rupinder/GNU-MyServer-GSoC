@@ -26,12 +26,12 @@ Regex* PluginInfo::regex = new Regex("^[1-2]?[1-9]?[0-9](\\.[1-2]?[0-9]?[0-9](\\
 /*!
  *Construct a plugin info object.
  *\param name plugin name.
- *\param enabled is true if the plugin has to be enabled. 
+ *\param enabled is true if the plugin has to be enabled.
  *\param global is true if the plugin's symbols have to be loaded globally.
  */
 PluginInfo::PluginInfo(string& name, bool enabled, bool global)
 {
-  this->name = name;	
+  this->name = name;
   this->enabled = enabled;
   this->global = global;
   this->version = 0;
@@ -45,7 +45,7 @@ PluginInfo::PluginInfo(string& name, bool enabled, bool global)
 
 /*!
  *Destroy the object.
-*/	
+*/
 PluginInfo::~PluginInfo()
 {
   if (this->plugin)
@@ -54,10 +54,10 @@ PluginInfo::~PluginInfo()
 
 /*!
  *Returns true if the plugin is enabled.
-*/		
+*/
 bool PluginInfo::isEnabled()
 {
-  return this->enabled;	
+  return this->enabled;
 }
 
 /*!
@@ -65,9 +65,9 @@ bool PluginInfo::isEnabled()
 */
 bool PluginInfo::isGlobal()
 {
-  return this->global;	
+  return this->global;
 }
-	
+
 /*!
  * Adds a dependence to the plugin.
  *\param name plugin name
@@ -75,10 +75,10 @@ bool PluginInfo::isGlobal()
  *\param maxVersion max version for the dependence.
 */
 void PluginInfo::addDependence(string name, int minVersion, int maxVersion)
-{	
+{
   dependences.put(name, new pair<int,int>(minVersion,maxVersion));
 }
-	
+
 /*!
  * Returns the plugin version.
 */
@@ -102,7 +102,7 @@ int PluginInfo::getMyServerMinVersion()
 {
   return this->msMinVersion;
 }
-	
+
 
 /*!
  * Returns the maximum MyServer version plugin is compatible.
@@ -121,7 +121,7 @@ int PluginInfo::setMyServerMinVersion(int v)
   this->msMinVersion = v;
   return this->msMinVersion;
 }
-	
+
 /*!
  * Sets the maximum MyServer version plugin is compatible.
 */
@@ -152,14 +152,14 @@ Plugin* PluginInfo::getPlugin()
 */
 void PluginInfo::setEnabled(bool enabled)
 {
-  this->enabled = enabled;	
+  this->enabled = enabled;
 }
 
 /*!
  * Returns the depandence, if any exists, with a plugin with the specified name.
 */
 pair<int,int>* PluginInfo::getDependence(string name)
-{   
+{
 	if(dependences.empty())
 	  return NULL;
 	if (!this->dependences.containsKey(name))
@@ -195,29 +195,29 @@ Plugin* PluginInfo::removePlugin()
 */
 int PluginInfo::convertVersion(string* s)
 {
-	
+
   int ret = regex->exec(s->c_str(),0,NULL,0);
 
   if (ret!=0)
-    return -1;	
-  	
+    return -1;
+
   string::size_type pos = s->find(".",0);
   if (pos == string::npos)
     return atoi(s->c_str()) << 24;
-    
+
   int n1 = 0;
   int n2 = 0;
   int n3 = 0;
   int n4 = 0;
-  
+
   string sa = s->substr(0,pos);
   n1 = atoi(sa.c_str());
   if (n1>255)
     return -1;
 
   string::size_type oldpos = pos;
-  
-  
+
+
   if (oldpos!=string::npos)
   {
   	pos = s->find(".",oldpos+1);
@@ -226,8 +226,8 @@ int PluginInfo::convertVersion(string* s)
     if (n2>255)
       return -1;
   }
-  
-  
+
+
   oldpos = pos;
   if (oldpos!=string::npos)
   {
@@ -237,8 +237,8 @@ int PluginInfo::convertVersion(string* s)
     if (n3>255)
       return -1;
   }
-  
-  
+
+
   oldpos = pos;
   if (oldpos!=string::npos)
   {

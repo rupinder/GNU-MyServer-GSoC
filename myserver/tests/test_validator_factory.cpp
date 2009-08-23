@@ -22,7 +22,7 @@ class TestValidatorFactory : public CppUnit::TestFixture
   CPPUNIT_TEST( testAddValidator );
   CPPUNIT_TEST( testIsValidatorPresent );
   CPPUNIT_TEST_SUITE_END();
-  
+
   ValidatorFactory* factory;
 public:
   void setUp()
@@ -39,14 +39,14 @@ public:
   {
     string val("foo");
     CPPUNIT_ASSERT_EQUAL(factory->getValidator(val), (Validator*)NULL);
- 
+
   }
- 
+
   void testAddValidator()
   {
     string val("bar");
     Validator *validator = new Validator;
-   
+
     Validator* old = factory->addValidator(val, validator);
 
     CPPUNIT_ASSERT_EQUAL(old, (Validator*)NULL);
@@ -58,11 +58,11 @@ public:
     string val("bar");
     Validator *validator = new Validator;
 
- 
+
     CPPUNIT_ASSERT_EQUAL(factory->isValidatorPresent(val), false);
-   
+
     factory->addValidator(val, validator);
- 
+
     CPPUNIT_ASSERT_EQUAL(factory->isValidatorPresent(val), true);
   }
 };

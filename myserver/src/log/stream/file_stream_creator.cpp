@@ -18,7 +18,7 @@
 #include <include/log/stream/file_stream_creator.h>
 
 LogStream*
-FileStreamCreator::create (FiltersFactory* ff, string location, 
+FileStreamCreator::create (FiltersFactory* ff, string location,
                            list<string>& filters, u_long cycle)
 {
   File* out = new File ();

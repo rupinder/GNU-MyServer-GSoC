@@ -67,23 +67,23 @@ typedef LPVOID HCONN;
 
 
 
-typedef struct _HSE_VERSION_INFO 
+typedef struct _HSE_VERSION_INFO
 {
   DWORD dwExtensionVersion;
   CHAR lpszExtensionDesc[HSE_MAX_EXT_DLL_NAME_LEN];
 } HSE_VERSION_INFO, *LPHSE_VERSION_INFO;
 
-typedef struct _HSE_URL_MAPEX_INFO  
+typedef struct _HSE_URL_MAPEX_INFO
 {
-  CHAR   *lpszPath; 
+  CHAR   *lpszPath;
   DWORD  dwFlags;
-  DWORD  cchMatchingPath; 
-  DWORD  cchMatchingURL;  
+  DWORD  cchMatchingPath;
+  DWORD  cchMatchingURL;
   DWORD  dwReserved1;
   DWORD  dwReserved2;
 } HSE_URL_MAPEX_INFO, * LPHSE_URL_MAPEX_INFO;
 
-typedef struct _EXTENSION_CONTROL_BLOCK 
+typedef struct _EXTENSION_CONTROL_BLOCK
 {
   DWORD cbSize;
   DWORD dwVersion;
@@ -100,11 +100,11 @@ typedef struct _EXTENSION_CONTROL_BLOCK
   LPSTR lpszContentType;
   BOOL (WINAPI * GetServerVariable)(HCONN hConn, LPSTR lpszVariableName,
                                     LPVOID lpvBuffer, LPDWORD lpdwSize);
-  BOOL (WINAPI * WriteClient)(HCONN ConnID, LPVOID Buffer, LPDWORD lpdwBytes, 
+  BOOL (WINAPI * WriteClient)(HCONN ConnID, LPVOID Buffer, LPDWORD lpdwBytes,
                               DWORD dwReserved);
   BOOL (WINAPI * ReadClient)(HCONN ConnID, LPVOID lpvBuffer, LPDWORD lpdwSize);
-  BOOL (WINAPI * ServerSupportFunction)(HCONN hConn, DWORD dwHSERRequest, 
-                                        LPVOID lpvBuffer, LPDWORD lpdwSize, 
+  BOOL (WINAPI * ServerSupportFunction)(HCONN hConn, DWORD dwHSERRequest,
+                                        LPVOID lpvBuffer, LPDWORD lpdwSize,
                                         LPDWORD lpdwDataType);
 } EXTENSION_CONTROL_BLOCK, *LPEXTENSION_CONTROL_BLOCK;
 
@@ -129,7 +129,7 @@ typedef DWORD (WINAPI * PFN_HTTPEXTENSIONPROC)(EXTENSION_CONTROL_BLOCK *pECB);
 
 class Isapi  : public HttpDataHandler
 {
-public:  
+public:
 #ifdef WIN32
   static ConnTableRecord *HConnRecord(HCONN hConn);
   int Redirect(HttpThreadContext* td,ConnectionPtr a,char *URL);
@@ -139,7 +139,7 @@ public:
                                   LPVOID output, LPDWORD maxLen);
   static BOOL buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
                                  LPVOID output, LPDWORD maxLen);
-#endif  
+#endif
   Isapi();
   static Mutex *isapiMutex;
   virtual int load ();
@@ -155,12 +155,12 @@ private:
 #endif
 };
 
-#ifdef WIN32  
+#ifdef WIN32
 BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
-                                              LPVOID lpvBuffer, LPDWORD lpdwSize, 
+                                              LPVOID lpvBuffer, LPDWORD lpdwSize,
                                               LPDWORD lpdwDataType);
 BOOL WINAPI ISAPI_ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize ) ;
-BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes, 
+BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes,
                                     DWORD dwReserved);
 BOOL WINAPI ISAPI_GetServerVariableExport(HCONN, LPSTR, LPVOID, LPDWORD);
 #endif

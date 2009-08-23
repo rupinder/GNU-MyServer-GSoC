@@ -170,7 +170,7 @@ int File::openFile (const char* nfilename,u_long opt)
 
   if (opt & File::TEMPORARY)
   {
-    openFlag |= FILE_ATTRIBUTE_TEMPORARY; 
+    openFlag |= FILE_ATTRIBUTE_TEMPORARY;
     attributeFlag |= FILE_FLAG_DELETE_ON_CLOSE;
   }
   if (opt & File::HIDDEN)
@@ -235,7 +235,7 @@ int File::openFile (const char* nfilename,u_long opt)
 
   return handle < 0;
 #endif
-  
+
   return 0;
 }
 
@@ -293,12 +293,12 @@ const char *File::getFilename()
  *\param filename The new temporary file name.
  */
 int File::createTemporaryFile(const char* filename)
-{ 
+{
   if (FilesUtility::fileExists(filename))
     FilesUtility::deleteFile(filename);
 
-  return openFile(filename, File::READ | 
-                  File::WRITE| 
+  return openFile(filename, File::READ |
+                  File::WRITE|
                   File::FILE_CREATE_ALWAYS |
                   File::TEMPORARY |
                   File::NO_INHERIT);

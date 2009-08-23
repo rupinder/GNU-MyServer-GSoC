@@ -76,7 +76,7 @@ public:
   {
     return Https::loadProtocolStatic(parser);
   }
-  
+
 	virtual int unLoadProtocol(XmlParser* parser)
   {
     return Https::unLoadProtocolStatic(parser);

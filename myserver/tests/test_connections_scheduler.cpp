@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -134,7 +134,7 @@ public:
       conn->socket = new MockSocket((FileHandle) i);
       scheduler->addWaitingConnection(conn);
     }
-    
+
     scheduler->accept(&visitor, arg);
 
     CPPUNIT_ASSERT_EQUAL(arg, visitor.getArg());
@@ -145,7 +145,7 @@ public:
   {
     ConnectionPtr conn = new Connection;
     conn->socket = new MockSocket((FileHandle) 1);
-    
+
     list<ConnectionPtr> out;
 
     scheduler->getConnections(out);
@@ -154,7 +154,7 @@ public:
 
     conn = new Connection;
     conn->socket = new MockSocket((FileHandle) 2);
-    
+
     scheduler->addWaitingConnection(conn);
 
     scheduler->getConnections(out);
@@ -216,7 +216,7 @@ public:
     scheduler->addWaitingConnection(conn);
 
     CPPUNIT_ASSERT_EQUAL(scheduler->getConnectionsNumber(), 1ul);
- 
+
     scheduler->removeConnection(conn);
 
     CPPUNIT_ASSERT_EQUAL(scheduler->getNumTotalConnections(), 0ul);

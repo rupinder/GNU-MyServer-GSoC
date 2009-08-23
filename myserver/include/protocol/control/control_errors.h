@@ -24,16 +24,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
   /*! The request was accepted and served. */
-#define CONTROL_OK            100    
-  
+#define CONTROL_OK            100
+
   /*! A generic error was encountered. */
-#define CONTROL_ERROR         200    
+#define CONTROL_ERROR         200
 
   /*! An internal server error happened. */
-#define CONTROL_INTERNAL      201  
+#define CONTROL_INTERNAL      201
 
   /*! The Authorization was not accepted. */
-#define CONTROL_AUTH          202    
+#define CONTROL_AUTH          202
 
   /*! A malformed request was sent. */
 #define CONTROL_MALFORMED     203

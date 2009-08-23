@@ -44,7 +44,7 @@ int Protocol::controlConnection (ConnectionPtr /*a*/,char* /*b1*/,
 }
 
 /*!
- * Returns the name of the protocol. If an out buffer is 
+ * Returns the name of the protocol. If an out buffer is
  * defined fullfill it with the name too.
  */
 char* Protocol::registerName (char* /*out*/,int /*len*/)

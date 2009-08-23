@@ -46,7 +46,7 @@ HttpResponseHeader::~HttpResponseHeader()
  */
 void HttpResponseHeader::free()
 {
-  ver.clear();  
+  ver.clear();
   serverName.clear();
   contentType.clear();
   connection.clear();
@@ -55,7 +55,7 @@ void HttpResponseHeader::free()
   contentLength.clear();
   errorType.clear();
   location.clear();
-  date.clear();    
+  date.clear();
   auth.clear();
   dateExp.clear();
   {
@@ -78,89 +78,89 @@ string* HttpResponseHeader::getValue(const char* name, string* out)
     if(out)
       out->assign(ver.c_str());
     return &ver;
-  }  
+  }
 
   if(!strcmpi(name, "Server"))
-  { 
+  {
     if(out)
-      out->assign(serverName.c_str()); 
+      out->assign(serverName.c_str());
     return &ver;
   }
 
   if(!strcmpi(name, "Content-Type"))
-  { 
+  {
     if(out)
-      out->assign(contentType.c_str()); 
+      out->assign(contentType.c_str());
     return &contentType;
   }
 
   if(!strcmpi(name, "Connection"))
-  { 
+  {
     if(out)
-      out->assign(connection.c_str()); 
+      out->assign(connection.c_str());
     return &connection;
   }
 
   if(!strcmpi(name, "Content-Type"))
-  { 
+  {
     if(out)
-      out->assign(contentType.c_str()); 
+      out->assign(contentType.c_str());
     return &contentType;
   }
 
   if(!strcmpi(name, "MIME-Version"))
-  { 
+  {
     if(out)
-      out->assign(mimeVer.c_str()); 
+      out->assign(mimeVer.c_str());
     return &mimeVer;
   }
 
   if(!strcmpi(name, "Cookie"))
-  { 
+  {
     if(out)
-      out->assign(cookie.c_str()); 
+      out->assign(cookie.c_str());
     return &cookie;
   }
 
   if(!strcmpi(name, "Content-Length"))
-  { 
+  {
     if(out)
-      out->assign(contentLength.c_str()); 
+      out->assign(contentLength.c_str());
     return &contentLength;
   }
 
   if(!strcmpi(name, "Last-Modified"))
-  { 
+  {
     if(out)
-      out->assign(lastModified.c_str()); 
+      out->assign(lastModified.c_str());
     return &lastModified;
   }
 
   if(!strcmpi(name, "Location"))
-  { 
+  {
     if(out)
-      out->assign(location.c_str()); 
+      out->assign(location.c_str());
     return &location;
   }
 
   if(!strcmpi(name, "Date"))
-  { 
+  {
     if(out)
-      out->assign(date.c_str()); 
+      out->assign(date.c_str());
     return &date;
   }
 
   if(!strcmpi(name, "Date-Expires"))
-  { 
+  {
     if(out)
-      out->assign(dateExp.c_str()); 
+      out->assign(dateExp.c_str());
     return &dateExp;
   }
 
   if(!strcmpi(name, "WWW-Authenticate"))
-  { 
+  {
     if(out)
-      out->assign(auth.c_str()); 
+      out->assign(auth.c_str());
     return &auth;
   }
 
@@ -174,7 +174,7 @@ string* HttpResponseHeader::getValue(const char* name, string* out)
     }
     return 0;
   }
-} 
+}
 
 
 /*!
@@ -186,76 +186,76 @@ string* HttpResponseHeader::setValue(const char* name, const char* in)
   {
     ver.assign(in);
     return &ver;
-  }  
+  }
 
   if(!strcmpi(name, "Server"))
-  { 
+  {
     serverName.assign(in);
     return &ver;
   }
 
   if(!strcmpi(name, "Content-Type"))
-  { 
+  {
     contentType.assign(in);
     return &contentType;
   }
 
   if(!strcmpi(name, "Connection"))
-  { 
+  {
     connection.assign(in);
     return &connection;
   }
 
   if(!strcmpi(name, "Content-Type"))
-  { 
+  {
     contentType.assign(in);
     return &contentType;
   }
 
   if(!strcmpi(name, "MIME-Version"))
-  { 
+  {
     mimeVer.assign(in);
     return &mimeVer;
   }
 
   if(!strcmpi(name, "Cookie"))
-  { 
+  {
     cookie.assign(in);
     return &cookie;
   }
 
   if(!strcmpi(name, "Content-Length"))
-  { 
+  {
     contentLength.assign(in);
     return &contentLength;
   }
 
   if(!strcmpi(name, "Last-Modified"))
-  { 
+  {
     lastModified.assign(in);
     return &lastModified;
   }
 
   if(!strcmpi(name, "Location"))
-  { 
+  {
     location.assign(in);
     return &location;
   }
 
   if(!strcmpi(name, "Date"))
-  { 
+  {
     date.assign(in);
     return &date;
   }
 
   if(!strcmpi(name, "Date-Expires"))
-  { 
+  {
     dateExp.assign(in);
     return &dateExp;
   }
 
   if(!strcmpi(name, "WWW-Authenticate"))
-  { 
+  {
     auth.assign(in);
     return &auth;
   }
@@ -277,7 +277,7 @@ string* HttpResponseHeader::setValue(const char* name, const char* in)
 
     return 0;
   }
-} 
+}
 
 /*!
  *Get the kind of HTTP status code specified by the httpStatus variable.
@@ -290,12 +290,12 @@ int HttpResponseHeader::getStatusType()
 
   if (httpStatus < 300)
     return HttpResponseHeader::SUCCESSFUL;
-  
+
   if (httpStatus < 400)
     return HttpResponseHeader::REDIRECTION;
 
   if (httpStatus < 500)
     return HttpResponseHeader::CLIENT_ERROR;
-  
+
   return HttpResponseHeader::SERVER_ERROR;
 }

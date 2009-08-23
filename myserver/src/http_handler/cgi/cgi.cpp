@@ -6,7 +6,7 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful, 
+This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
@@ -57,9 +57,9 @@ using namespace std;
 int Cgi::send (HttpThreadContext* td, const char* scriptpath,
                const char *cgipath, bool execute, bool onlyHeader)
 {
-   /* 
-   *Use this flag to check if the CGI executable is 
-   *nph (Non Parsed Header).  
+   /*
+   *Use this flag to check if the CGI executable is
+   *nph (Non Parsed Header).
    */
   bool nph = false;
   ostringstream cmdLine;
@@ -73,7 +73,7 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
   string tmpScriptPath;
 
   /*!
-   *Standard CGI uses STDOUT to output the result and the STDIN 
+   *Standard CGI uses STDOUT to output the result and the STDIN
    *to get other params like in a POST request.
    */
   Pipe stdOutFile;
@@ -88,7 +88,7 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
 
   if (!FilesUtility::fileExists (scriptpath))
     return td->http->raiseHTTPError(404);
-  
+
   int subString = cgipath[0] == '"';
   /* Do not modify the text between " and ".  */
   for (i = 1; i < len; i++)
@@ -101,8 +101,8 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
 
   /*
    *Save the cgi path and the possible arguments.
-   *the (x < len) case is when additional arguments are specified. 
-   *If the cgipath is enclosed between " and " do not consider them 
+   *the (x < len) case is when additional arguments are specified.
+   *If the cgipath is enclosed between " and " do not consider them
    *when splitting directory and file name.
    */
   if (i < len)
@@ -121,14 +121,14 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
       moreArg.assign ("");
     }
   FilesUtility::splitPath (tmpCgiPath, td->cgiRoot, td->cgiFile);
-    
+
   tmpScriptPath.assign (scriptpath);
   FilesUtility::splitPath (tmpScriptPath, td->scriptDir, td->scriptFile);
 
   chain.setProtocol (td->http);
   chain.setProtocolData (td);
   chain.setStream (td->connection->socket);
-  
+
   if (execute)
     {
       const char *args = 0;
@@ -192,17 +192,17 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
 
       spi.arg.assign (moreArg);
       spi.arg.append (" ");
-      spi.arg.append (td->scriptFile);    
-    
+      spi.arg.append (td->scriptFile);
+
     cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" "
             << moreArg << " " << td->scriptFile;
-  
+
     spi.cmd.assign (td->cgiRoot);
     spi.cmd.append ("/");
     spi.cmd.append (td->cgiFile);
 
-    if (td->cgiFile.length() > 4 && td->cgiFile[0] == 'n'  
-        && td->cgiFile[1] == 'p' && td->cgiFile[2] == 'h' 
+    if (td->cgiFile.length() > 4 && td->cgiFile[0] == 'n'
+        && td->cgiFile[1] == 'p' && td->cgiFile[2] == 'h'
         && td->cgiFile[3] == '-' )
       nph = true;
     else
@@ -210,7 +210,7 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
     }
 
   /*
-   *Open the stdout file for the new CGI process. 
+   *Open the stdout file for the new CGI process.
    */
   if (stdOutFile.create())
     {
@@ -228,14 +228,14 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
       chain.clearAllFilters ();
       return td->http->raiseHTTPError (500);
     }
-  
+
   /*
    *Build the environment string used by the CGI process.
    *Use the td->secondaryBuffer to build the environment string.
    */
   (td->secondaryBuffer->getBuffer ())[0] = '\0';
   Env::buildEnvironmentString (td, td->secondaryBuffer->getBuffer ());
-  
+
   spi.cmdLine = cmdLine.str ();
   spi.cwd.assign (td->scriptDir);
 
@@ -271,11 +271,11 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
         int pid;
         int port;
 
-        ret = Process::getForkServer ()->executeProcess (&spi, 
-                                                         ForkServer::FLAG_USE_IN | 
-                                                         ForkServer::FLAG_USE_OUT | 
-                                                         ForkServer::FLAG_USE_ERR, 
-                                                         &pid, 
+        ret = Process::getForkServer ()->executeProcess (&spi,
+                                                         ForkServer::FLAG_USE_IN |
+                                                         ForkServer::FLAG_USE_OUT |
+                                                         ForkServer::FLAG_USE_ERR,
+                                                         &pid,
                                                          &port);
         cgiProc.setPid (pid);
       }
@@ -313,7 +313,7 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
 /*
  *Read data from the CGI process and send it back to the client.
  */
-int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain, 
+int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
                    Process &cgiProc, int onlyHeader, bool nph)
 {
   u_long nbw = 0;
@@ -376,35 +376,35 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
       if (!aliveProcess && !nBytesRead)
         break;
 
-      if (nBytesRead && 
-          HttpDataHandler::appendDataToHTTPChannel (td, 
+      if (nBytesRead &&
+          HttpDataHandler::appendDataToHTTPChannel (td,
                                                     td->secondaryBuffer->getBuffer(),
                                                     nBytesRead,
                                                     &(td->outputData),
                                                     &chain,
-                                                    td->appendOutputs, 
+                                                    td->appendOutputs,
                                                     useChunks))
-        return 0;       
-      
+        return 0;
+
       nbw += nBytesRead;
     }
 
     /* Send the last null chunk if needed.  */
     if(useChunks && chain.getStream ()->write ("0\r\n\r\n", 5, &nbw2))
-      return 0;       
+      return 0;
   }
 
   /* Update the Content-Length field for logging activity.  */
   td->sentData += nbw;
-  return 1;  
+  return 1;
 }
 
 /*!
  *Send the HTTP header.
  *\return nonzero if the reply is already complete.
  */
-int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain, 
-                     Process& cgiProc, int onlyHeader, bool nph, u_long procStartTime, 
+int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
+                     Process& cgiProc, int onlyHeader, bool nph, u_long procStartTime,
                      bool keepalive, bool useChunks, int *ret)
 {
   u_long headerSize = 0;
@@ -424,10 +424,10 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
        bad influence on the performances.  */
     if (td->secondaryBuffer->getRealLength() - headerOffset - 1 < 512)
       break;
-    
+
     term = stdOutFile.pipeTerminated ();
 
-    if (!term && 
+    if (!term &&
         stdOutFile.waitForData ((timeout - ticks) / 1000, (timeout - ticks) % 1000) == 0)
     {
       td->connection->host->warningsLogWrite (_("Cgi: process %i timeout"), cgiProc.getPid ());

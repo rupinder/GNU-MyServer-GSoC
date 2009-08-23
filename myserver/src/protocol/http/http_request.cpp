@@ -102,57 +102,57 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
     if(out)
       out->assign(cmd.c_str());
     return &cmd;
-  }  
+  }
 
   if(!strcmpi(name, "ver"))
-  { 
+  {
     if(out)
-      out->assign(ver.c_str()); 
+      out->assign(ver.c_str());
     return &ver;
   }
- 
+
   if(!strcmpi(name, "uri"))
-  { 
+  {
     if(out)
-      out->assign(uri.c_str()); 
+      out->assign(uri.c_str());
     return &uri;
-  } 
- 
+  }
+
   if(!strcmpi(name, "uriOpts"))
-  { 
+  {
     if(out)
       out->assign(uriOpts.c_str());
     return &uriOpts;
-  } 
+  }
 
  if(!strcmpi(name, "Authorization"))
- { 
+ {
    if(out)
-     out->assign(auth.c_str()); 
+     out->assign(auth.c_str());
    return &auth;
  }
- 
+
  if(!strcmpi(name, "Content-Length"))
- { 
+ {
    if(out)
-     out->assign(contentLength.c_str()); 
+     out->assign(contentLength.c_str());
    return &contentLength;
- } 
+ }
 
  if(!strcmpi(name, "rangeType"))
- { 
+ {
    if(out)
-     out->assign(rangeType.c_str()); 
+     out->assign(rangeType.c_str());
    return &rangeType;
- } 
- 
+ }
+
  if(!strcmpi(name, "rangeByteBegin"))
  {
    ostringstream s;
    s << rangeByteBegin;
    if(out)
      out->assign(s.str());
-   return 0; 
+   return 0;
  }
 
  if(!strcmpi(name, "rangeByteEnd"))
@@ -161,7 +161,7 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
    s << rangeByteEnd;
    if(out)
      out->assign(s.str());
-   return 0; 
+   return 0;
  }
 
  {
@@ -169,7 +169,7 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
    if(e)
    {
      if(out)
-       out->assign(*(e->value));      
+       out->assign(*(e->value));
      return (e->value);
    }
    return 0;
@@ -188,54 +188,54 @@ string* HttpRequestHeader::setValue(const char* name, const char* in)
   {
     cmd.assign(in);
     return &cmd;
-  }  
+  }
 
   if(!strcmpi(name, "ver"))
-  { 
+  {
     ver.assign(in);
     return &ver;
   }
- 
+
   if(!strcmpi(name, "uri"))
-  { 
+  {
     uri.assign(in);
     return &uri;
-  } 
- 
+  }
+
   if(!strcmpi(name, "uriOpts"))
-  { 
+  {
     uriOpts.assign(in);
     return &uriOpts;
-  } 
+  }
 
  if(!strcmpi(name, "Authorization"))
- { 
+ {
    auth.assign(in);
    return &auth;
  }
- 
+
  if(!strcmpi(name, "Content-Length"))
- { 
+ {
    contentLength.assign(in);
    return &contentLength;
- } 
+ }
 
  if(!strcmpi(name, "rangeType"))
- { 
+ {
    rangeType.assign(in);
    return &rangeType;
- } 
- 
+ }
+
  if(!strcmpi(name, "rangeByteBegin"))
  {
    rangeByteBegin = atoi(in);
-   return 0; 
+   return 0;
  }
 
  if(!strcmpi(name, "rangeByteEnd"))
  {
    rangeByteEnd = atoi(in);
-   return 0; 
+   return 0;
  }
 
  {

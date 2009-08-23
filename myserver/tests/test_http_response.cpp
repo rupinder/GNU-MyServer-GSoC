@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -78,7 +78,7 @@ public:
 
     CPPUNIT_ASSERT(ret != 0);
   }
-  
+
 
   void testInvalidResponse()
   {
@@ -108,7 +108,7 @@ public:
 
     HttpHeaders::resetHTTPResponse(&header);
 
-    CPPUNIT_ASSERT(header.ver.length() == 0);  
+    CPPUNIT_ASSERT(header.ver.length() == 0);
     CPPUNIT_ASSERT(header.serverName.length() == 0);
     CPPUNIT_ASSERT(header.contentType.length() == 0);
     CPPUNIT_ASSERT(header.connection.length() == 0);
@@ -117,7 +117,7 @@ public:
     CPPUNIT_ASSERT(header.contentLength.length() == 0);
     CPPUNIT_ASSERT(header.errorType.length() == 0);
     CPPUNIT_ASSERT(header.location.length() == 0);
-    CPPUNIT_ASSERT(header.date.length() == 0);    
+    CPPUNIT_ASSERT(header.date.length() == 0);
     CPPUNIT_ASSERT(header.auth.length() == 0);
     CPPUNIT_ASSERT(header.dateExp.length() == 0);
  }
@@ -129,7 +129,7 @@ public:
 
     header.httpStatus = 100;
     CPPUNIT_ASSERT_EQUAL(header.getStatusType(), HttpResponseHeader::INFORMATIONAL);
-    
+
     header.httpStatus = 200;
     CPPUNIT_ASSERT_EQUAL(header.getStatusType(), HttpResponseHeader::SUCCESSFUL);
 
@@ -142,8 +142,8 @@ public:
     header.httpStatus = 500;
     CPPUNIT_ASSERT_EQUAL(header.getStatusType(), HttpResponseHeader::SERVER_ERROR);
   }
-  
-  
+
+
 };
 
 

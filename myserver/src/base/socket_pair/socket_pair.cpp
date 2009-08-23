@@ -83,7 +83,7 @@ int SocketPair::create ()
   int e;
   int addrlen = sizeof(addr);
   DWORD flags = 0;
-  
+
   if (handles == 0)
     return -1;
 
@@ -104,14 +104,14 @@ int SocketPair::create ()
       closesocket (listener);
       return -1;
     }
-  
+
   e = ::getsockname(listener, (struct sockaddr*) &addr, &addrlen);
   if (e == SOCKET_ERROR)
     {
       closesocket (listener);
       return -1;
     }
-  
+
   do
     {
       if (::listen (listener, 1) == SOCKET_ERROR)
@@ -122,17 +122,17 @@ int SocketPair::create ()
         break;
       if ((handles[1] = ::accept (listener, NULL, NULL)) == INVALID_SOCKET)
         break;
-    
+
       socketHandle = handles[0];
 
       closesocket (listener);
       return 0;
     } while (0);
-  
+
   closesocket (listener);
   closesocket (handles[0]);
   closesocket (handles[1]);
-  
+
   return -1;
 #endif
 

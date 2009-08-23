@@ -61,7 +61,7 @@ public:
                                  u_long timeout,
                                  Stream* out,
                                  long maxChunks);
-  
+
 };
 
 #endif

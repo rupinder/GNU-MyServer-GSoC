@@ -184,7 +184,7 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
       hasTransferEncoding = false;
       transferEncoding.assign (*tmp);
     }
-  
+
 
   if (useChunks)
     td->response.setValue ("Transfer-Encoding", "chunked");

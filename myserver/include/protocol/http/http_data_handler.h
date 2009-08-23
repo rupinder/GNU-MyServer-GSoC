@@ -54,12 +54,12 @@ public:
                                       u_long realBufferSize,
                                       MemoryStream *tmpStream);
 
-	static int appendDataToHTTPChannel(HttpThreadContext* td, 
+	static int appendDataToHTTPChannel(HttpThreadContext* td,
                                      char* buffer,
                                      u_long size,
-                                     File* appendFile, 
+                                     File* appendFile,
                                      FiltersChain* chain,
-                                     bool append, 
+                                     bool append,
                                      bool useChunks);
 
 };

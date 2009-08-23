@@ -19,11 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/server/server.h>
 #include <include/server/clients_thread.h>
 #include <include/base/safetime/safetime.h>
-
-/*! Include headers for built-in protocols.  */
-#include <include/protocol/http/http.h>  /*Include the HTTP protocol.  */
-#include <include/protocol/https/https.h> /*Include the HTTPS protocol.  */
-#include <include/protocol/control/control_protocol.h> /*Include the control protocol.  */
+#include <include/protocol/http/http.h>
+#include <include/protocol/https/https.h>
+#include <include/protocol/control/control_protocol.h>
 #include <include/protocol/ftp/ftp.h>
 #include <include/base/string/stringutils.h>
 #include <include/base/socket/socket.h>
@@ -140,9 +138,9 @@ bool Server::resetConfigurationPaths (string &mainConf, string &mimeConf,
 }
 
 /*!
- *Check that the configuration paths are not empty, otherwise fall back to
- *the default ones.
- *Returns nonzero on error.
+  *Check that the configuration paths are not empty, otherwise fall back to
+ * the default ones.
+ * Returns nonzero on error.
  */
 int Server::checkConfigurationPaths ()
 {
@@ -183,8 +181,8 @@ int Server::checkConfigurationPaths ()
 }
 
 /*!
- *Copy a configuration file from the default one.
- *Return nonzero on errors.
+ * Copy a configuration file from the default one.
+ * Return nonzero on errors.
  */
 int Server::copyConfigurationFromDefault (const char *fileName)
 {
@@ -220,22 +218,20 @@ int Server::copyConfigurationFromDefault (const char *fileName)
 
 
 /*!
- *Load here all the libraries.
+ * Load here all the libraries.
  */
 int Server::loadLibraries ()
 {
   Process::initialize ();
-
-  XmlParser::startXML();
+  XmlParser::startXML ();
   myserver_safetime_init ();
 
   gnutls_global_init ();
-
   if (Socket::startupSocketLib () != 0)
-  {
-    logWriteln (MYSERVER_LOG_MSG_ERROR, _("Error loading the socket library"));
-    return 1;
-  }
+    {
+      logWriteln (MYSERVER_LOG_MSG_ERROR, _("Error loading the socket library"));
+      return 1;
+    }
 
   return 0;
 }
@@ -294,9 +290,6 @@ void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
     if (loadLibraries ())
       return;
 
-    /*
-     * Setup the server configuration.
-     */
     logWriteln (MYSERVER_LOG_MSG_INFO, _("Initializing server configuration..."));
 
     if (!resetConfigurationPaths (mainConf, mimeConf, vhostConf, externPath))
@@ -443,7 +436,7 @@ int Server::postLoad ()
 }
 
 /*!
- *Load the plugins.
+ * Load the plugins.
  */
 void Server::loadPlugins ()
 {
@@ -614,7 +607,7 @@ void Server::logWriteNTimes (string str, unsigned n)
 }
 
 /*!
- *Display the MyServer boot.
+ * Display the MyServer boot.
  */
 void Server::displayBoot ()
 {
@@ -635,7 +628,7 @@ void Server::displayBoot ()
 #endif /* CLEAR_BOOT_SCREEN.  */
 
   /*
-   *Print the MyServer signature only if the log writes to the console.
+   * Print the MyServer signature only if the log writes to the console.
    */
   if (logLocation.find ("console://") != string::npos)
     {
@@ -669,8 +662,8 @@ void Server::displayBoot ()
 }
 
 /*!
- *Removed threads that can be destroyed.
- *The function returns the number of threads that were destroyed.
+ * Removed threads that can be destroyed.
+ * The function returns the number of threads that were destroyed.
  */
 int Server::purgeThreads ()
 {
@@ -724,7 +717,7 @@ int Server::purgeThreads ()
 }
 
 /*!
- *Do the final cleanup.  Called once when the process is terminated.
+ * Do the final cleanup.  Called once when the process is terminated.
  */
 void Server::finalCleanup ()
 {
@@ -734,7 +727,7 @@ void Server::finalCleanup ()
 }
 
 /*!
- *Return the user identifier to use for the process.
+ * Return the user identifier to use for the process.
  */
 const char *Server::getUid ()
 {
@@ -742,7 +735,7 @@ const char *Server::getUid ()
 }
 
 /*!
- *Return the group identifier to use for the process.
+ * Return the group identifier to use for the process.
  */
 const char *Server::getGid ()
 {
@@ -750,7 +743,7 @@ const char *Server::getGid ()
 }
 
 /*!
- *Returns the numbers of active connections the list.
+ * Returns the numbers of active connections the list.
  */
 u_long Server::getNumConnections ()
 {
@@ -758,7 +751,7 @@ u_long Server::getNumConnections ()
 }
 
 /*!
- *Returns the numbers of all the connections to the server.
+ * Returns the numbers of all the connections to the server.
  */
 u_long Server::getNumTotalConnections ()
 {
@@ -766,7 +759,7 @@ u_long Server::getNumTotalConnections ()
 }
 
 /*!
- *Get the verbosity value.
+ * Get the verbosity value.
  */
 u_long Server::getVerbosity ()
 {
@@ -774,7 +767,7 @@ u_long Server::getVerbosity ()
 }
 
 /*!
- *Set the verbosity value.
+ * Set the verbosity value.
  */
 void  Server::setVerbosity (u_long nv)
 {
@@ -782,7 +775,7 @@ void  Server::setVerbosity (u_long nv)
 }
 
 /*!
- *Return a home directory object.
+ * Return a home directory object.
  */
 HomeDir* Server::getHomeDir ()
 {
@@ -790,7 +783,7 @@ HomeDir* Server::getHomeDir ()
 }
 
 /*!
- *Stop the execution of the server.
+ * Stop the execution of the server.
  */
 void Server::stop ()
 {
@@ -798,8 +791,8 @@ void Server::stop ()
 }
 
 /*!
- *Unload the server.
- *Return nonzero on errors.
+ * Unload the server.
+ * Return nonzero on errors.
  */
 int Server::terminate ()
 {
@@ -851,7 +844,7 @@ int Server::terminate ()
 
 #ifdef WIN32
   /*
-   *Under WIN32 cleanup environment strings.
+   * Under WIN32 cleanup environment strings.
    */
   FreeEnvironmentStrings ((LPTSTR)envString);
 #endif
@@ -869,7 +862,7 @@ int Server::terminate ()
   globalData.clear ();
 
   /*
-   *Free all the threads.
+   * Free all the threads.
    */
   threadsMutex->lock ();
   threads.clear ();
@@ -897,9 +890,9 @@ XmlParser *Server::getXmlConfiguration ()
 
 
 /*!
- *Here is loaded the configuration of the server.
- *The configuration file is a XML file.
- *Return nonzero on errors.
+ * Here is loaded the configuration of the server.
+ * The configuration file is a XML file.
+ * Return nonzero on errors.
  */
 int Server::initialize ()
 {
@@ -1051,7 +1044,7 @@ int Server::initialize ()
 }
 
 /*!
- *Read the values defined in the global configuration file.
+ * Read the values defined in the global configuration file.
  */
 void Server::readHashedData (xmlNodePtr lcur)
 {
@@ -1062,8 +1055,8 @@ void Server::readHashedData (xmlNodePtr lcur)
 
 
 /*!
- *Check if there are free threads to handle a new request.  If there
- *are not enough threads create a new one.
+ * Check if there are free threads to handle a new request.  If there
+ * are not enough threads create a new one.
  */
 void Server::checkThreadsNumber ()
 {
@@ -1080,7 +1073,7 @@ void Server::checkThreadsNumber ()
 }
 
 /*!
- *Get the default throttling rate to use with connections to the server.
+ * Get the default throttling rate to use with connections to the server.
  */
 u_long Server::getThrottlingRate ()
 {
@@ -1088,8 +1081,8 @@ u_long Server::getThrottlingRate ()
 }
 
 /*!
- *This function returns the max size of the logs file as defined in the
- *configuration file.
+ * This function returns the max size of the logs file as defined in the
+ * configuration file.
  */
 int Server::getMaxLogFileSize ()
 {
@@ -1097,7 +1090,7 @@ int Server::getMaxLogFileSize ()
 }
 
 /*!
- *Returns the connection timeout.
+ * Returns the connection timeout.
  */
 u_long Server::getTimeout ()
 {
@@ -1105,7 +1098,7 @@ u_long Server::getTimeout ()
 }
 
 /*!
- *This function add a new connection to the list.
+ * This function add a new connection to the list.
  */
 int Server::addConnection (Socket s, MYSERVER_SOCKADDRIN *asockIn)
 {
@@ -1119,13 +1112,13 @@ int Server::addConnection (Socket s, MYSERVER_SOCKADDRIN *asockIn)
   int dim;
 
   /*
-   *We can use MAX_IP_STRING_LEN only because we use NI_NUMERICHOST
-   *in getnameinfo call; Otherwise we should have used NI_MAXHOST.
-   *ip is the string containing the address of the remote host connecting
-   *to the server.
-   *localIp is the local address used by the connection.
-   *port is the remote port used by the client to open the connection.
-   *myPort is the port used by the server to listen.
+   * We can use MAX_IP_STRING_LEN only because we use NI_NUMERICHOST
+   * in getnameinfo call; Otherwise we should have used NI_MAXHOST.
+   * ip is the string containing the address of the remote host connecting
+   * to the server.
+   * localIp is the local address used by the connection.
+   * port is the remote port used by the client to open the connection.
+   * myPort is the port used by the server to listen.
    */
   if ( asockIn == NULL ||
        (asockIn->ss_family != AF_INET && asockIn->ss_family != AF_INET6))
@@ -1138,11 +1131,12 @@ int Server::addConnection (Socket s, MYSERVER_SOCKADDRIN *asockIn)
     return 0;
 
   /*
-   *Do not accept this connection if a MAX_CONNECTIONS_TO_ACCEPT limit is
-   *defined.
+   * Do not accept this connection if a MAX_CONNECTIONS_TO_ACCEPT limit is
+   * defined.
    */
-  if (maxConnectionsToAccept &&
-      ((u_long)connectionsScheduler.getConnectionsNumber () >= maxConnectionsToAccept))
+  if (maxConnectionsToAccept
+      && ((u_long)connectionsScheduler.getConnectionsNumber ()
+          >= maxConnectionsToAccept))
     return 0;
 
 #if ( HAVE_IPV6 )
@@ -1213,7 +1207,7 @@ int Server::addConnection (Socket s, MYSERVER_SOCKADDRIN *asockIn)
 }
 
 /*!
- *Return the max number of threads that the server can start.
+ * Return the max number of threads that the server can start.
  */
 int Server::getMaxThreads ()
 {
@@ -1221,7 +1215,7 @@ int Server::getMaxThreads ()
 }
 
 /*!
- *Add a new connection.
+ * Add a new connection.
  *A connection is defined using a connection struct.
  */
 ConnectionPtr Server::addConnectionToList (Socket* s,
@@ -1776,8 +1770,8 @@ int Server::addThread (bool staticThread)
 }
 
 /*!
- *Remove a thread.
- *Return zero if a thread was removed.
+ * Remove a thread.
+ * Return zero if a thread was removed.
  */
 int Server::removeThread (u_long ID)
 {
@@ -1814,9 +1808,9 @@ int Server::removeThread (u_long ID)
 }
 
 /*!
- *Create the class instance.  Call this before use
- *the Server class.  The instance is not created in
- *getInstance to have a faster inline function.
+ * Create the class instance.  Call this before use
+ * the Server class.  The instance is not created in
+ * getInstance to have a faster inline function.
  */
 void Server::createInstance ()
 {
@@ -1825,7 +1819,7 @@ void Server::createInstance ()
 }
 
 /*!
- *Get a pointer to a filters factory object.
+ * Get a pointer to a filters factory object.
  */
 FiltersFactory* Server::getFiltersFactory ()
 {
@@ -1833,7 +1827,7 @@ FiltersFactory* Server::getFiltersFactory ()
 }
 
 /*!
- *Check how many threads are not working.
+ * Check how many threads are not working.
  */
 int Server::countAvailableThreads ()
 {
@@ -1899,7 +1893,7 @@ Server::setLogLocation (string location)
 }
 
 /*!
- *Get the size for the first buffer.
+ * Get the size for the first buffer.
  */
 u_long Server::getBuffersize ()
 {
@@ -1915,7 +1909,7 @@ u_long Server::getBuffersize2 ()
 }
 
 /*!
- *Set a global descriptor.
+ * Set a global descriptor.
  */
 void Server::setGlobalData (const char* name, void* data)
 {
@@ -1924,7 +1918,7 @@ void Server::setGlobalData (const char* name, void* data)
 }
 
 /*!
- *Get a global descriptor.
+ * Get a global descriptor.
  */
 void* Server::getGlobalData (const char* name)
 {

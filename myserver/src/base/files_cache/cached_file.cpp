@@ -141,7 +141,7 @@ int CachedFile::read (char* buffer, u_long buffersize, u_long* nbr)
  *\param filename The new temporary file name.
  */
 int CachedFile::createTemporaryFile (const char* filename)
-{ 
+{
   return -1;
 }
 
@@ -190,9 +190,9 @@ int CachedFile::write (const char* buffer, u_long len, u_long *nbw)
  *\param buf Temporary buffer that can be used by this function.
  *\param nbw Number of bytes sent.
  */
-int CachedFile::fastCopyToSocket (Socket *dest, u_long firstByte, 
+int CachedFile::fastCopyToSocket (Socket *dest, u_long firstByte,
                                   MemBuf *buf, u_long *nbw)
 {
-  return dest->write (&(this->buffer->getBuffer()[firstByte]), 
+  return dest->write (&(this->buffer->getBuffer()[firstByte]),
                       buffer->getFileSize() - firstByte, nbw);
 }

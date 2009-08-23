@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,7 +27,7 @@
 class TestPipe : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( TestPipe );
-  CPPUNIT_TEST( testCreateClose ); 
+  CPPUNIT_TEST( testCreateClose );
   CPPUNIT_TEST( testWriteRead );
   CPPUNIT_TEST( testInverted );
   CPPUNIT_TEST( testWaitForData );
@@ -50,7 +50,7 @@ public:
   void testCreateClose()
   {
     int ret = pipe->create();
-    
+
     CPPUNIT_ASSERT_EQUAL(pipe->pipeTerminated(), false);
 
     CPPUNIT_ASSERT_EQUAL(ret, 0);
@@ -118,7 +118,7 @@ public:
 
     CPPUNIT_ASSERT_EQUAL(pipeInv.getReadHandle(), pipe->getWriteHandle());
     CPPUNIT_ASSERT_EQUAL(pipe->getReadHandle(), pipeInv.getWriteHandle());
-    
+
     pipe->close();
 
   }

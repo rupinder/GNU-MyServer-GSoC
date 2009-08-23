@@ -137,9 +137,9 @@ int FindData::findnext ()
 #else
    struct dirent * dirInfo;
    string tempName;
-      
+
    dirInfo = readdir (dh);
-   
+
    if (dirInfo == NULL)
      return -1;
 

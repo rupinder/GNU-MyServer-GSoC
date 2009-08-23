@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
- 
+
 #include "stdafx.h"
 #include <include/filter/filters_factory.h>
 
@@ -64,7 +64,7 @@ int FiltersFactory::insert(const char* name, FILTERCREATE fnc)
 }
 
 /*!
- *Get a new filter by its name. 
+ *Get a new filter by its name.
  *The object have to be freed after its use to avoid memory leaks.
  *Returns the new created object on success.
  *Returns 0 on errors.
@@ -77,7 +77,7 @@ Filter *FiltersFactory::getFilter(const char* name)
   if(staticFactory)
     return staticFactory(name);
 
- 
+
   dynamicFactory = dynamicFilters.get(name);
 
   if(dynamicFactory)
@@ -87,13 +87,13 @@ Filter *FiltersFactory::getFilter(const char* name)
 }
 
 /*!
- *Create a FiltersChain starting from a list of strings. 
+ *Create a FiltersChain starting from a list of strings.
  *On success returns the new object.
  *If specified [onlyNotModifiers] the method wil check that all the filters
  *will not modify the data.
  *On errors returns 0.
  */
-FiltersChain* FiltersFactory::chain(list<string> &l, Stream* out, u_long *nbw, 
+FiltersChain* FiltersFactory::chain(list<string> &l, Stream* out, u_long *nbw,
                                     int onlyNotModifiers)
 {
   FiltersChain *ret = new FiltersChain();
@@ -114,7 +114,7 @@ FiltersChain* FiltersFactory::chain(list<string> &l, Stream* out, u_long *nbw,
  *will not modify the data.
  *On errors returns nonzero.
  */
-int FiltersFactory::chain(FiltersChain* c, list<string> &l, Stream* out, 
+int FiltersFactory::chain(FiltersChain* c, list<string> &l, Stream* out,
                           u_long *nbw, int onlyNotModifiers)
 {
 

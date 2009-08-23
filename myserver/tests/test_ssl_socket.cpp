@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -92,13 +92,13 @@ static DEFINE_THREAD(testSslRecvClient, pParam);
 class TestSslSocket : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( TestSslSocket );
-  
+
   CPPUNIT_TEST( testRecv );
-  
+
   CPPUNIT_TEST_SUITE_END( );
-  
+
 public:
-  
+
   void setUp ( )
   {
     initializeSSL ();
@@ -113,38 +113,38 @@ public:
     f.writeToFile (serverPem, strlen (serverPem), &nbw);
     f.close ();
   }
-  
+
   void tearDown ( )
   {
     FilesUtility::deleteFile (TESTSERVERPEM);
     FilesUtility::deleteFile (TESTSERVERKEY);
   }
-  
+
   void testRecv ( )
   {
     Socket *obj = new Socket;
     SslSocket *sslObj = NULL;
     SSL_CTX *ctx = NULL;;
     ThreadID tid;
-    
+
     int optvalReuseAddr = 1;
     char host[] = "localhost";
     int port = 6543;
     MYSERVER_SOCKADDRIN sockIn = { 0 };
     int status;
-    
+
     ((sockaddr_in*) (&sockIn))->sin_family = AF_INET;
     ((sockaddr_in*) (&sockIn))->sin_addr.s_addr = inet_addr ( "127.0.0.1" );
     ((sockaddr_in*) (&sockIn))->sin_port = htons ( port );
-    
+
     socklen_t sockInLen = sizeof ( sockaddr_in );
-    
+
     CPPUNIT_ASSERT( obj->socket ( AF_INET, SOCK_STREAM, 0 ) != -1 );
-    
+
     CPPUNIT_ASSERT( obj->setsockopt ( SOL_SOCKET, SO_REUSEADDR,
                                       (const char*) &optvalReuseAddr,
                                       sizeof(optvalReuseAddr) ) != -1 );
-    
+
     ctx = SSL_CTX_new ( SSLv23_server_method() );
 
     if ( SSL_CTX_use_certificate_file ( ctx, TESTSERVERPEM, SSL_FILETYPE_PEM ) != 1 )
@@ -186,9 +186,9 @@ public:
       SSL_CTX_free ( ctx );
       CPPUNIT_ASSERT (false);
     }
-    
+
     char buf[32] = {0};
-    
+
     ret = sslObj->recv ( buf, sizeof(buf), 0 );
 
     sslObj->send ( "a", 1, 0);

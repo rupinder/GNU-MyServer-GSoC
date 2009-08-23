@@ -113,7 +113,7 @@ int Mutex::lock(u_long /*id*/)
   }
 #endif
 
-#else  
+#else
   WaitForSingleObject(mutex, INFINITE);
 #endif
   locked = true;
@@ -121,7 +121,7 @@ int Mutex::lock(u_long /*id*/)
 }
 
 /*!
- *Check if the mutex is already locked. 
+ *Check if the mutex is already locked.
  *
  *\return Return true if the mutex is currently locked.
  */
@@ -138,7 +138,7 @@ int Mutex::unlock(u_long/*! id*/)
 #ifdef HAVE_PTHREAD
   int err;
   err = pthread_mutex_unlock(&mutex);
-#else  
+#else
   ReleaseMutex(mutex);
 #endif
   locked = false;

@@ -19,7 +19,7 @@
 #include <include/server/server.h>
 
 ConsoleStream::ConsoleStream (FiltersFactory* ff, u_long cycle, Stream* out,
-                              FiltersChain* fc) :  
+                              FiltersChain* fc) :
   LogStream (ff, cycle, out, fc)
 {
 }

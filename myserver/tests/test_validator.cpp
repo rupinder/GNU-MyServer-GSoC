@@ -20,7 +20,7 @@ class TestValidator : public CppUnit::TestFixture
   CPPUNIT_TEST( testGetPermissionMaskImpl );
   CPPUNIT_TEST( testGetValue );
   CPPUNIT_TEST_SUITE_END();
-  
+
   Validator* validator;
 public:
   void setUp()
@@ -39,13 +39,13 @@ public:
     HashMap<string, SecurityDomain*> hashedDomains;
     CPPUNIT_ASSERT_EQUAL (validator->getValue (&hashedDomains, val), (string*)NULL);
   }
- 
+
   void testGetPermissionMaskImpl ()
   {
     string val ("value");
     SecurityToken secToken;
     CPPUNIT_ASSERT_EQUAL (validator->getPermissionMaskImpl (&secToken, NULL, NULL), 0);
- 
+
   }
 
   void testGetPermissionMask ()

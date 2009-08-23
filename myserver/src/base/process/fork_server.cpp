@@ -75,7 +75,7 @@ int ForkServer::writeInt (Socket *socket, int num)
 int ForkServer::readInt (Socket *sock, int *dest)
 {
   u_long nbr;
-  
+
   if (sock->read ((char*)dest, 4, &nbr) || nbr < 4)
     {
       return -1;
@@ -97,7 +97,7 @@ int ForkServer::readString (Socket *sock, char **out)
 {
   int len;
   u_long nbr;
-  
+
   if (sock->read ((char*)&len, 4, &nbr) || nbr < 4)
     {
       return -1;
@@ -109,7 +109,7 @@ int ForkServer::readString (Socket *sock, char **out)
   if (len && (sock->read (*out, len, &nbr) || nbr < len))
     {
       delete [] *out;
-      return -1;      
+      return -1;
     }
 
   return 0;
@@ -136,10 +136,10 @@ int ForkServer::handleRequest (Socket *sock)
 
   if (flags & FLAG_USE_OUT)
     readFileHandle (sock->getHandle (), &stdOut);
-  
+
   if (flags & FLAG_USE_ERR)
     readFileHandle (sock->getHandle (), &stdErr);
-  
+
   readString (sock, &gid);
   readString (sock, &uid);
 
@@ -147,7 +147,7 @@ int ForkServer::handleRequest (Socket *sock)
   readString (sock, &cwd);
 
   readString (sock, &arg);
- 
+
   string argS (arg);
 
   readString (sock, &env);
@@ -207,7 +207,7 @@ int ForkServer::handleRequest (Socket *sock)
 
   if (flags & FLAG_USE_OUT)
     close (stdOut);
-  
+
   if (flags & FLAG_USE_ERR)
     close (stdErr);
 
@@ -231,10 +231,10 @@ int ForkServer::forkServerLoop (UnixSocket *serverSocket)
       try
         {
           Socket socket = serverSocket->accept ();
- 
+
           char command;
           u_long nbr;
-          
+
           if (socket.read (&command, 1, &nbr))
             {
               socket.close ();
@@ -256,7 +256,7 @@ int ForkServer::forkServerLoop (UnixSocket *serverSocket)
                 }
             }
         }
-      /* Don't let the fork server come back from this function 
+      /* Don't let the fork server come back from this function
          in _any_ case.  */
       catch(...)
         {
@@ -279,9 +279,9 @@ int ForkServer::forkServerLoop (UnixSocket *serverSocket)
  *\param waitEnd If true `executeProcess' will wait until
  *the process terminates.
  */
-int ForkServer::executeProcess (StartProcInfo *spi, 
-                                int flags, 
-                                int *pid, 
+int ForkServer::executeProcess (StartProcInfo *spi,
+                                int flags,
+                                int *pid,
                                 int *port,
                                 bool waitEnd)
 {
@@ -298,30 +298,30 @@ int ForkServer::executeProcess (StartProcInfo *spi,
       sock.socket ();
       sock.connect (socketPath.c_str ());
       sock.write ("r", 1, &nbw);
-      
+
       writeInt (&sock, flags);
-      
+
       if (flags & FLAG_USE_IN)
         writeFileHandle (sock.getHandle (), spi->stdIn);
-      
+
       if (flags & FLAG_USE_OUT)
         writeFileHandle (sock.getHandle (), spi->stdOut);
-      
+
       if (flags & FLAG_USE_ERR)
         writeFileHandle (sock.getHandle (), spi->stdError);
-      
+
       writeString (&sock, spi->gid.c_str (), spi->gid.length ());
       writeString (&sock, spi->uid.c_str (), spi->uid.length ());
-      
+
       writeString (&sock, spi->cmd.c_str (), spi->cmd.length ());
       writeString (&sock, spi->cwd.c_str (), spi->cwd.length ());
       writeString (&sock, spi->arg.c_str (), spi->arg.length ());
-      
+
       if (env)
         for (len = 0; env[len] != '\0' || env[len + 1] != '\0' ; len++);
-      
+
       writeString (&sock, env, len);
-      
+
       readInt (&sock, pid);
       readInt (&sock, port);
     }
@@ -334,7 +334,7 @@ int ForkServer::executeProcess (StartProcInfo *spi,
     {
       return waitpid (*pid, NULL, 0);
     }
-  
+
   return 0;
 #endif
 
@@ -352,7 +352,7 @@ void ForkServer::killServer ()
   s.write ("e", 1, &nbw);
   s.close ();
 }
-                  
+
 /*!
  *Initialize the fork server.
  *
@@ -382,7 +382,7 @@ int ForkServer::startForkServer ()
       socket.close ();
       initialized = true;
       break;
-    }  
+    }
 #endif
   return 0;
 }
