@@ -44,7 +44,7 @@ ProcessServerManager::~ProcessServerManager()
  */
 void ProcessServerManager::load ()
 {
- 
+
   string key ("server.process_servers");
   NodeTree<string> *node = ::Server::getInstance()->getNodeTree (key);
 
@@ -120,14 +120,14 @@ void ProcessServerManager::load ()
                   ostringstream msg;
                   msg << "Error: incomplete remote PROCESS_SERVER block, "
                       << domain  << ":" << name << " needs a port";
-                  ::Server::getInstance ()->logWriteln (msg.str ().c_str (), MYSERVER_LOG_MSG_ERROR);
+                  ::Server::getInstance ()->log (msg.str ().c_str (), MYSERVER_LOG_MSG_ERROR);
                 }
             }
         }
       else
         {
           const char *msg = "Error: incomplete PROCESS_SERVER block";
-          ::Server::getInstance ()->logWriteln (msg, MYSERVER_LOG_MSG_ERROR);
+          ::Server::getInstance ()->log (msg, MYSERVER_LOG_MSG_ERROR);
         }
     }
 
@@ -137,7 +137,7 @@ void ProcessServerManager::load ()
  *Get a servers process domain by its name.
  *\param name The domain name.
  */
-ProcessServerManager::ServerDomain* 
+ProcessServerManager::ServerDomain*
 ProcessServerManager::getDomain(const char* name)
 {
   ServerDomain* ret;
@@ -151,7 +151,7 @@ ProcessServerManager::getDomain(const char* name)
  *Create a new servers process domain by its name and return it.
  *\param name The domain name.
  */
-ProcessServerManager::ServerDomain* 
+ProcessServerManager::ServerDomain*
 ProcessServerManager::createDomain (const char* name)
 {
   ServerDomain* ret;
@@ -218,7 +218,7 @@ void ProcessServerManager::clear()
  *\param name The server name name.
  *\param seed Random seed to use for choosing a server.
  */
-ProcessServerManager::Server* 
+ProcessServerManager::Server*
 ProcessServerManager::getServer(const char* domain, const char* name, int seed)
 {
   ServerDomain* sd;
@@ -233,7 +233,7 @@ ProcessServerManager::getServer(const char* domain, const char* name, int seed)
       if (slist)
         s = slist->at (seed % slist->size ());
     }
-  
+
   if(s && s->isLocal && !s->process.isProcessAlive())
   {
     s->socket.close();
@@ -242,7 +242,7 @@ ProcessServerManager::getServer(const char* domain, const char* name, int seed)
       s->path.assign(name);
 
     s->port = 0;
-    
+
     if(runServer(s, s->path.c_str(), s->port))
     {
       sd->servers.remove(name);
@@ -261,7 +261,7 @@ ProcessServerManager::getServer(const char* domain, const char* name, int seed)
  *\param domain The server's domain.
  *\param name The server's name.
  */
-void ProcessServerManager::addServer(ProcessServerManager::Server* server, 
+void ProcessServerManager::addServer(ProcessServerManager::Server* server,
                                      const char* domain, const char* name)
 {
   ServerDomain *sd = createDomain (domain);
@@ -289,7 +289,7 @@ void ProcessServerManager::addServer(ProcessServerManager::Server* server,
  *\param host The host name to connect to.
  *\param port The port number to use for the connection.
  */
-ProcessServerManager::Server* 
+ProcessServerManager::Server*
 ProcessServerManager::addRemoteServer (const char* domain, const char* name,
                                        const char* host, u_short port)
 {
@@ -363,7 +363,7 @@ int ProcessServerManager::domainServers(const char* domain)
  *\param gid Group id to use for the new process.
  *\param port Port to use for the server.
  */
-ProcessServerManager::Server* 
+ProcessServerManager::Server*
 ProcessServerManager::runAndAddServer(const char* domain,  const char* path,
                                       int uid, int gid, u_short port)
 {
@@ -385,8 +385,8 @@ ProcessServerManager::runAndAddServer(const char* domain,  const char* path,
  *\param gid Group id to use for the new process.
  *\param port The listening port.
  */
-int ProcessServerManager::runServer(ProcessServerManager::Server* server, 
-                                    const char* path, int uid, int gid, 
+int ProcessServerManager::runServer(ProcessServerManager::Server* server,
+                                    const char* path, int uid, int gid,
                                     u_short port)
 {
   StartProcInfo spi;
@@ -399,9 +399,9 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
   if(nServers >= maxServers)
   {
     ostringstream stream;
-    stream << "Cannot run process " << path 
+    stream << "Cannot run process " << path
            << ": Reached max number of servers";
-    ::Server::getInstance()->logWriteln(stream.str().c_str(), MYSERVER_LOG_MSG_ERROR);
+    ::Server::getInstance()->log(stream.str().c_str(), MYSERVER_LOG_MSG_ERROR);
     return 1;
   }
 
@@ -424,14 +424,14 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
       if(path[i] == '"' && path[i - 1] != '\\')
         subString = !subString;
     }
-  
+
   if(i < len)
     {
       string tmpString(path);
       int begin = tmpString[0] == '"' ? 1 : 0;
       int end   = tmpString[i] == '"' ? i + 1 : i ;
       tmpCgiPath.assign(tmpString.substr(begin, end));
-      moreArg.assign(tmpString.substr(i, len));  
+      moreArg.assign(tmpString.substr(i, len));
     }
   else
     {
@@ -440,10 +440,10 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
       tmpCgiPath.assign(&path[begin], end-begin);
       moreArg.assign("");
     }
-  
+
   spi.envString = 0;
   spi.stdOut = spi.stdError = (FileHandle) -1;
-  
+
   spi.cmd.assign(tmpCgiPath);
   spi.arg.assign(moreArg);
   spi.cmdLine.assign(path);
@@ -455,8 +455,8 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
   if (Process::getForkServer ()->isInitialized ())
     {
       int ret, port, pid;
-      ret = Process::getForkServer ()->executeProcess (&spi, 
-                                                       ForkServer::FLAG_STDIN_SOCKET, 
+      ret = Process::getForkServer ()->executeProcess (&spi,
+                                                       ForkServer::FLAG_STDIN_SOCKET,
                                                        &pid,
                                                        &port);
 
@@ -477,9 +477,9 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
 
   ((sockaddr_in *)(&serverSockAddrIn))->sin_family = AF_INET;
 
-  ((sockaddr_in *)(&serverSockAddrIn))->sin_addr.s_addr = 
+  ((sockaddr_in *)(&serverSockAddrIn))->sin_addr.s_addr =
     htonl(INADDR_LOOPBACK);
-  ((sockaddr_in *)(&serverSockAddrIn))->sin_port = 
+  ((sockaddr_in *)(&serverSockAddrIn))->sin_port =
     htons(server->port);
 
   if ( server->socket.bind (&serverSockAddrIn,
@@ -514,7 +514,7 @@ int ProcessServerManager::connect(Socket* sock,
 {
   MYSERVER_SOCKADDRIN serverSock = { 0 };
   socklen_t nLength = sizeof(MYSERVER_SOCKADDRIN);
-  
+
   if (server->socket.getHandle())
     server->socket.getsockname ((MYSERVER_SOCKADDR*)&serverSock, (int*)&nLength);
 
@@ -523,7 +523,7 @@ int ProcessServerManager::connect(Socket* sock,
     /*! Try to create the socket.  */
     if(sock->socket(AF_INET, SOCK_STREAM, 0) == -1)
       return -1;
-    
+
     /*! If the socket was created try to connect.  */
     if(sock->connect(server->host.c_str(), server->port) == -1)
     {

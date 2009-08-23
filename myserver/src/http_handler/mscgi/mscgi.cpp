@@ -101,7 +101,7 @@ int MsCgi::send (HttpThreadContext* td, const char* exec, const char* cmdLine,
                                                                       &nbw,
                                                                       1))
     {
-      td->connection->host->warningsLogWrite ("MSCGI: Error loading filters");
+      td->connection->host->warningsLogWrite (_("MSCGI: internal error"));
       chain.clearAllFilters ();
       return td->http->raiseHTTPError (500);
     }
@@ -112,12 +112,8 @@ int MsCgi::send (HttpThreadContext* td, const char* exec, const char* cmdLine,
 
   if (ret)
     {
-      string msg;
-      msg.assign ("MSCGI: cannot load ");
-      msg.append (exec);
-      td->connection->host->warningsLogWrite (msg.c_str ());
+      td->connection->host->warningsLogWrite (_("MSCGI: cannot load %s"), exec);
       chain.clearAllFilters ();
-
       /* Internal server error.  */
       return td->http->raiseHTTPError (500);
     }
@@ -129,10 +125,7 @@ int MsCgi::send (HttpThreadContext* td, const char* exec, const char* cmdLine,
     (ProcMain)(td->request.uriOpts.c_str (), &data);
   else
     {
-      string msg;
-      msg.assign ("MSCGI: error accessing entrypoint for ");
-      msg.append (exec);
-      td->connection->host->warningsLogWrite (msg.c_str ());
+      td->connection->host->warningsLogWrite (_("MSCGI: cannot find entry-point for %s"), exec);
       return td->http->raiseHTTPError (500);
     }
   hinstLib.close ();

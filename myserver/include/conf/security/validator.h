@@ -36,11 +36,11 @@ public:
   Validator ();
   virtual ~Validator ();
 
-  int getPermissionMask (SecurityToken* st, 
+  int getPermissionMask (SecurityToken* st,
                          SecurityDomain **domains,
                          AuthMethod* authMethod);
 
-  int getPermissionMask (SecurityToken* st, 
+  int getPermissionMask (SecurityToken* st,
                          list<SecurityDomain*> *domains,
                          AuthMethod* authMethod);
 
@@ -59,7 +59,7 @@ protected:
                           hashedDomains->put (name, domain);
                         }
 
-  int getPermissionMaskInt (SecurityToken* st, 
+  int getPermissionMaskInt (SecurityToken* st,
                             HashMap<string, SecurityDomain*> *hashedDomains,
                             AuthMethod* authMethod);
 };

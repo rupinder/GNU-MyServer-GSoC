@@ -223,7 +223,7 @@ int HttpDataRead::readChunkedPostData(const char* inBuffer,
  *\param td The Active thread context.
  *\param httpRetCode The HTTP error to report to the client.
  *\return Return 0 on success.
- *\return Return -1 on irreversible error and 
+ *\return Return -1 on irreversible error and
  *        the connection should be removed immediately.
  *\return Any other value is a protocol error specified in HTTPRETCODE.
  */

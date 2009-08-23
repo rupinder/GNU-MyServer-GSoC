@@ -52,7 +52,7 @@ AuthMethod* AuthMethodFactory::getAuthMethod(string &name)
 AuthMethod* AuthMethodFactory::addAuthMethod(string &name, AuthMethod* authMethod)
 {
   return authMethods.put (name, authMethod);
-  
+
 }
 
 /*!

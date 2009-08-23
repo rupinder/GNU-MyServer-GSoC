@@ -23,13 +23,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/connection/connection.h>
 #include <include/base/mem_buff/mem_buff.h>
 
-
-class  FtpProtocol;
-class  HttpProtocol;
-class  HttpsProtocol;
-class  ControlProtocol;
+class FtpProtocol;
+class HttpProtocol;
+class HttpsProtocol;
+class ControlProtocol;
 class Server;
-
 
 class  ClientsThread
 {
@@ -41,16 +39,16 @@ public:
   enum RETURN_CODE
   {
     /*!
-     *Delete the current connection from the connections pool.  
+     *Delete the current connection from the connections pool.
      */
     DELETE_CONNECTION = 0,
     /*!
-     *Keep the connection in the connections pool waiting for new data.  
+     *Keep the connection in the connections pool waiting for new data.
      */
     KEEP_CONNECTION = 1,
     /*!
      *The request present in the connection buffer is not complete, keep
-     *data in the buffer and append to it.  
+     *data in the buffer and append to it.
      */
     INCOMPLETE_REQUEST = 2,
     /*!
@@ -101,12 +99,6 @@ private:
   u_long nBytesToRead;
 };
 
-#ifdef WIN32
-unsigned int __stdcall clients_thread(void* pParam); 
-#endif
-
-#ifdef HAVE_PTHREAD
-void* clients_thread(void* pParam);
-#endif
+DEFINE_THREAD(clients_thread, pParam);
 
 #endif

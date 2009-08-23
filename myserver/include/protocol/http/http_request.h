@@ -51,7 +51,7 @@ struct HttpRequestHeader : public HttpHeader
 			name = new string();
 			value = new string();
 		}
-		
+
 		Entry(string& n, string& v)
 		{
 			name = new string();
@@ -65,29 +65,29 @@ struct HttpRequestHeader : public HttpHeader
 		{
 			delete name;
 			delete value;
-			
+
 		}
 
   };
-	string cmd;		
-	string ver;		
+	string cmd;
+	string ver;
 	string auth;
 	string contentLength;
 	string uri;
-	string uriOpts;		
-	char *uriOptsPtr;		
-	string rangeType;	
+	string uriOpts;
+	char *uriOptsPtr;
+	string rangeType;
 	u_long rangeByteBegin;
 	u_long rangeByteEnd;
 	int uriEndsWithSlash;
-	
+
 	/*! Digest authorization scheme stuff.  */
 	char digestRealm[48+1];
 	char digestOpaque[48+1];
 	char digestNonce[48+1];
 	char digestCnonce[48+1];
 	char digestUri[1024+1];
-	char digestMethod[16+1];		
+	char digestMethod[16+1];
 	char digestUsername[48+1];
 	char digestResponse[48+1];
 	char digestQop[16+1];
@@ -108,7 +108,7 @@ struct HttpRequestHeader : public HttpHeader
   HttpRequestHeader();
   ~HttpRequestHeader();
   void free();
- 
+
 };
 
 #endif

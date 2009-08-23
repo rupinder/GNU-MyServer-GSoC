@@ -1,16 +1,16 @@
 /*
  MyServer
- Copyright (C) 2008 Free Software Foundation, Inc.
+ Copyright (C) 2008, 2009 Free Software Foundation, Inc.
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -45,7 +45,7 @@ class TestFilterChain : public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE_END();
 
   FiltersChain *fc;
-  
+
 public:
   void setUp()
   {
@@ -74,12 +74,12 @@ public:
 
     char *pBuff = szExpected;
     int i = nLength;
-    while ( !fc->read(szTemp, 64, &nbw) && i > 0 )
-    {
-      strncpy(pBuff, szTemp, (int)nbw > i ? i : nbw);
-      pBuff += nbw;
-      i -= nbw;
-    }
+    while ( !fc->read(szTemp, 64, &nbw) && nbw > 0 && i > 0 )
+      {
+        strncpy (pBuff, szTemp, (int)nbw > i ? i : nbw);
+        pBuff += nbw;
+        i -= nbw;
+      }
     szExpected[nLength] = '\0';
     fc->clearAllFilters();
 
@@ -140,7 +140,7 @@ public:
 
     CPPUNIT_ASSERT(fc->isEmpty() != 0);
   }
-  
+
   void testIsFilterPresent()
   {
     u_long nbw;

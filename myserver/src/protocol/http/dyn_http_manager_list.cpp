@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /*!
  *Initialize the object.
  */
-DynHttpManagerList::DynHttpManagerList () 
+DynHttpManagerList::DynHttpManagerList ()
 {
 
 }

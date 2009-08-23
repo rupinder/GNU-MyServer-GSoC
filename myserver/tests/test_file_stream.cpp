@@ -5,12 +5,12 @@
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
   (at your option) any later version.
- 
-  This program is distributed in the hope that it will be useful, 
+
+  This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
- 
+
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -108,7 +108,7 @@ public:
     oss.str ("message2");
     oss << endl;
     message2.assign (oss.str ());
-    
+
     FilesUtility::deleteFile ("foo");
     ls = fsc->create (ff, "foo", filters, 0);
     CPPUNIT_ASSERT (ls);
@@ -129,7 +129,7 @@ public:
     CPPUNIT_ASSERT_EQUAL (nbr, (u_long)(message1.length () + message2.length ()));
     CPPUNIT_ASSERT (!string (buf).compare (message1.append (message2)));
   }
-  
+
   void tearDown ()
   {
     delete ff;

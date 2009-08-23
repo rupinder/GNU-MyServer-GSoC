@@ -18,7 +18,7 @@
 #include <include/log/stream/socket_stream_creator.h>
 
 LogStream*
-SocketStreamCreator::create (FiltersFactory* ff, string location, 
+SocketStreamCreator::create (FiltersFactory* ff, string location,
                              list<string>& filters, u_long cycle)
 {
   Socket* out = new Socket ();

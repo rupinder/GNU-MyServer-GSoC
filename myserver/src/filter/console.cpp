@@ -66,13 +66,13 @@ Console::Console () : Stream ()
 
 Console::~Console ()
 {
-  if (fd) 
+  if (fd)
     {
       reset ();
     }
 }
 
-int 
+int
 Console::flush (u_long* nbw)
 {
   if (fd)

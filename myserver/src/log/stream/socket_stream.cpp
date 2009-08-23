@@ -20,7 +20,7 @@
 SocketStream::SocketStream (FiltersFactory* filtersFactory,
                             u_long cycleLog,
                             Stream* outStream,
-                            FiltersChain* filtersChain) : 
+                            FiltersChain* filtersChain) :
   LogStream (filtersFactory,
              cycleLog,
              outStream,

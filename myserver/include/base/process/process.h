@@ -40,17 +40,17 @@ struct StartProcInfo
   }
 
 	/*! STDIN file for new process.  */
-	FileHandle stdIn;	
-	
+	FileHandle stdIn;
+
 	/*! STDOUT file for new process.  */
 	FileHandle stdOut;
-	
+
 	/*! STDERR file for new process.  */
 	FileHandle stdError;
-	
+
 	string cmdLine;
 	string cwd;
-	
+
 	/*! added for unix support.  */
 	string cmd;
 	string arg;
@@ -63,9 +63,9 @@ struct StartProcInfo
 
 	void *envString;
 
-  /*! Pointer to a NULL terminated array of 
+  /*! Pointer to a NULL terminated array of
    *  file pointers to close.  */
-  FileHandle *handlesToClose; 
+  FileHandle *handlesToClose;
 };
 
 class Process
@@ -96,8 +96,10 @@ public:
   static uid_t getUid (const char *user);
   static gid_t getGid (const char *group);
 
-  static int generateEnvString (const char **envp, char *envString);
-  static int generateArgList (const char **args, const char *proc, string &additionalArgs);
+  static int generateEnvString (const char **envp, size_t size,
+                                char *envString);
+  static int generateArgList (const char **args, size_t size, const char *proc,
+                              string &additionalArgs);
 
   static ForkServer *getForkServer (){return &forkServer;}
 private:

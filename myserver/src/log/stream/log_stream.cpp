@@ -1,6 +1,6 @@
 /*
   MyServer
-  Copyright (C) 2006, 2008 Free Software Foundation, Inc.
+  Copyright (C) 2006, 2008, 2009 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -46,7 +46,7 @@ LogStream::resetFilters ()
 }
 
 int
-LogStream::log (string message)
+LogStream::log (const string & message)
 {
   mutex->lock ();
   int success = 0;
@@ -127,38 +127,29 @@ LogStream::update (LogStreamEvent evt, void* message, void* reply)
   switch (evt)
     {
     case MYSERVER_LOG_EVT_SET_CYCLE:
-      {
-        return !isOpened || setCycle (*static_cast<u_long*>(message));
-      }
-      break;
+      return !isOpened || setCycle (*static_cast<u_long*>(message));
+
     case MYSERVER_LOG_EVT_LOG:
-      {
-        return !isOpened || log (*static_cast<string*>(message));
-      }
-      break;
+      return !isOpened || log (*static_cast<string*>(message));
+
     case MYSERVER_LOG_EVT_CLOSE:
-      {
-        return !isOpened || close ();
-      }
-      break;
+      return !isOpened || close ();
+
     case MYSERVER_LOG_EVT_ADD_FILTER:
-      {
-        return !isOpened || addFilter (static_cast<Filter*>(message));
-      }
-      break;
+      return !isOpened
+        || addFilter (static_cast<Filter*>(message));
+
     case MYSERVER_LOG_EVT_CHOWN:
-      {
-        return !isOpened || chown (static_cast<int*>(message)[0], 
+        return !isOpened || chown (static_cast<int*>(message)[0],
                                    static_cast<int*>(message)[1]);
-      }
-      break;
+
     case MYSERVER_LOG_EVT_SET_MODE:
-      {
-        return !isOpened || setMode (*static_cast<LoggingLevel*>(message));
-      }
-    default:
-      return 1;
+        return !isOpened
+          || setMode (*static_cast<LoggingLevel*>(message));
+
     }
+
+  return 1;
 }
 
 int

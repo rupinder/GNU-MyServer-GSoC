@@ -44,6 +44,6 @@ public:
 	char* decode(char*in);
 	CQPUtils();
 	~CQPUtils();
-}; 
+};
 
 #endif

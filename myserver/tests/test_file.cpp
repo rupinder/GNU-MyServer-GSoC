@@ -5,16 +5,16 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
@@ -35,7 +35,7 @@ class TestFile : public CppUnit::TestFixture
 {
   File *tfile;
   string fname;
-  
+
   CPPUNIT_TEST_SUITE ( TestFile );
 
   CPPUNIT_TEST ( testCreateTemporaryFile );
@@ -51,19 +51,19 @@ public:
     FilesUtility::temporaryFileName (0, fname);
     tfile = new File;
   }
-  
+
   void tearDown ()
   {
     delete tfile;
   }
-  
+
   void testCreateTemporaryFile ()
   {
     CPPUNIT_ASSERT_EQUAL (tfile->createTemporaryFile (fname.c_str()), 0);
-    
+
     CPPUNIT_ASSERT_EQUAL (tfile->close (), 0);
   }
-  
+
   void testOnFile ()
   {
     char buf[] = { 'H', 'e', 'l', 'l', 'o', ',', ' ', 'm', 'y', 'W', 'o', 'r', 'l', 'd', 0 };
@@ -71,12 +71,12 @@ public:
     u_long nbw;
     u_long nbr;
 
-    CPPUNIT_ASSERT_EQUAL (tfile->openFile (fname.c_str (), File::WRITE | 
-                                           File::READ | 
+    CPPUNIT_ASSERT_EQUAL (tfile->openFile (fname.c_str (), File::WRITE |
+                                           File::READ |
                                            File::FILE_CREATE_ALWAYS), 0);
 
     CPPUNIT_ASSERT_EQUAL (tfile->writeToFile (buf, bufLen, &nbw), 0);
-    
+
     memset (buf, 0, bufLen);
 
     CPPUNIT_ASSERT_EQUAL (tfile->seek (0), 0);
@@ -108,8 +108,8 @@ public:
 
     CPPUNIT_ASSERT_EQUAL (FilesUtility::deleteFile (fname.c_str ()), 0);
 
-    CPPUNIT_ASSERT_EQUAL (tfile->openFile (fname.c_str (), File::WRITE | 
-                                           File::READ | 
+    CPPUNIT_ASSERT_EQUAL (tfile->openFile (fname.c_str (), File::WRITE |
+                                           File::READ |
                                            File::FILE_CREATE_ALWAYS), 0);
 
     CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), 0ul);

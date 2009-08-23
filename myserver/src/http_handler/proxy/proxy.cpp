@@ -62,10 +62,9 @@ int Proxy::send (HttpThreadContext *td,
 
   if (destUrl.getProtocol ().compare ("http") && destUrl.getProtocol ().compare ("HTTP"))
     {
-      ostringstream msg;
-      msg << "Proxy: " << destUrl.getProtocol () << " is not a known protocol.";
-      td->connection->host->warningsLogWrite (msg.str ().c_str ());
-      return 0;
+      td->connection->host->warningsLogWrite ("Proxy: %s is not a known protocol",
+                                              destUrl.getProtocol ().c_str ());
+      return td->http->raiseHTTPError (500);
     }
 
   req.ver.assign ("HTTP/1.1");
@@ -185,7 +184,7 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
       hasTransferEncoding = false;
       transferEncoding.assign (*tmp);
     }
-  
+
 
   if (useChunks)
     td->response.setValue ("Transfer-Encoding", "chunked");

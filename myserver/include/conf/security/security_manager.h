@@ -71,13 +71,13 @@ public:
   SecurityManager(ValidatorFactory*, AuthMethodFactory*);
   ~SecurityManager();
 
-  int getPermissionMask (SecurityToken* st, 
-                         SecurityDomain **domains, 
+  int getPermissionMask (SecurityToken* st,
+                         SecurityDomain **domains,
                          string& validator,
                          string& authMethod);
 
-  int getPermissionMask (SecurityToken* st, 
-                         list<SecurityDomain*> *domains, 
+  int getPermissionMask (SecurityToken* st,
+                         list<SecurityDomain*> *domains,
                          string& validator,
                          string& authMethod);
 

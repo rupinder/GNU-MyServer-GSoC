@@ -64,11 +64,11 @@ struct HttpResponseHeader : public HttpHeader
 			value = new string();
 		}
 
-		Entry(string& n, string& v) 
+		Entry(string& n, string& v)
 		{
 			name = new string();
 			value = new string();
-			
+
 			name->assign(n);
 			value->assign(v);
 		}
@@ -76,11 +76,11 @@ struct HttpResponseHeader : public HttpHeader
 		{
 			delete name;
 			delete value;
-			
+
 		}
   };
 	int httpStatus;
-	string ver;	
+	string ver;
 	string serverName;
 	string contentType;
 	string connection;
@@ -90,10 +90,10 @@ struct HttpResponseHeader : public HttpHeader
 	string errorType;
 	string lastModified;
 	string location;
-	string date;		
-	string dateExp;	
+	string date;
+	string dateExp;
 	string auth;
-	HashMap<string,HttpResponseHeader::Entry*> other;	
+	HashMap<string,HttpResponseHeader::Entry*> other;
   HttpResponseHeader();
   ~HttpResponseHeader();
 

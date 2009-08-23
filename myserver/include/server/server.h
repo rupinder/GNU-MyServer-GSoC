@@ -83,7 +83,7 @@ public:
   int loadLibraries();
 
   CachedFileFactory* getCachedFiles();
-  const char* getHashedData(const char* name);
+  const char* getData(const char* name);
 
   void setGlobalData(const char* name, void* data);
   void* getGlobalData(const char* name);
@@ -105,10 +105,7 @@ public:
   const char* getMainConfFile();
   const char* getVhostConfFile();
   const char* getMIMEConfFile();
-  const char* getLanguagesPath();
-  const char* getLanguageFile();
   const char* getExternalPath();
-  XmlParser* getLanguageParser();
   ~Server();
   Protocol* getProtocol(const char *protocolName);
   int addConnection(Socket,MYSERVER_SOCKADDRIN*);
@@ -127,36 +124,35 @@ public:
   }
 
   const char *getServerName();
-  u_long getVerbosity();
   int getMaxLogFileSize();
   int mustUseLogonOption();
-  void setVerbosity(u_long);
-  void start(string &, string &, string &, string &, string &);
+  void start(string &, string &, string &, string &);
   void stop();
   void finalCleanup();
   int terminate();
-  int logWriteln(char const*, LoggingLevel level = MYSERVER_LOG_MSG_INFO);
-  int logWriteln(string const &str)
-    {return logWriteln(str.c_str());};
-  int setLogLocation(string);
-  u_long getBuffersize();
-  u_long getBuffersize2();
-  u_long getThrottlingRate();
-  int waitNewConnection(u_long tid, u_long timeout);
-  ListenThreads *getListenThreads(){return &listenThreads;}
+  int log (LoggingLevel level, const char *fmt, ...);
+  int log (char const*, LoggingLevel level = MYSERVER_LOG_MSG_INFO);
+  int log (string const &str)
+  {return log (str.c_str());};
+  int setLogLocation (string);
+  u_long getBuffersize ();
+  u_long getBuffersize2 ();
+  u_long getThrottlingRate ();
+  int waitNewConnection (u_long tid, u_long timeout);
+  ListenThreads *getListenThreads (){return &listenThreads;}
 
-  void *getEnvString(){return envString;}
-  VhostManager *getVhosts(){return vhostList;}
-  MimeManager *getMimeManager(){return mimeManager;}
+  void *getEnvString (){return envString;}
+  VhostManager *getVhosts (){return vhostList;}
+  MimeManager *getMimeManager (){return mimeManager;}
 
-  void setProcessPermissions();
-  ConnectionsScheduler* getConnectionsScheduler(){return &connectionsScheduler;}
-  int deleteConnection(ConnectionPtr);
+  void setProcessPermissions ();
+  ConnectionsScheduler* getConnectionsScheduler (){return &connectionsScheduler;}
+  int deleteConnection (ConnectionPtr);
 
-  int notifyDeleteConnection(ConnectionPtr);
+  int notifyDeleteConnection (ConnectionPtr);
 
-  void increaseFreeThread();
-  void decreaseFreeThread();
+  void increaseFreeThread ();
+  void decreaseFreeThread ();
 
   SecurityManager *getSecurityManager (){return &securityManager;}
   AuthMethodFactory *getAuthMethodFactory () {return &authMethodFactory;}
@@ -216,7 +212,6 @@ private:
   string gid;
   int currentThreadID;
   ProtocolsManager protocols;
-  XmlParser languageParser;
 
   bool autoRebootEnabled;
   bool toReboot;
@@ -224,7 +219,6 @@ private:
 
   LogManager* logManager;
   bool serverReady;
-  u_long verbosity;
   u_long throttlingRate;
   u_long buffersize;
   u_long secondaryBufferSize;
@@ -248,7 +242,7 @@ private:
   int copyConfigurationFromDefault(const char *);
   void logWriteNTimes(string, unsigned);
   int checkConfigurationPaths();
-  bool resetConfigurationPaths(string &, string &, string &, string &, string &);
+  bool resetConfigurationPaths(string &, string &, string &, string &);
   Mutex* connectionsMutex;
   u_long nStaticThreads;
   u_long nMaxThreads;
@@ -261,8 +255,6 @@ private:
 
   int purgeThreads();
   int reboot();
-  string* languageFile;
-  string* languagesPath;
   string* mainConfigurationFile;
   string* vhostConfigurationFile;
   string* mimeConfigurationFile;

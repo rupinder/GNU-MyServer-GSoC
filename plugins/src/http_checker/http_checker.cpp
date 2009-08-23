@@ -239,7 +239,7 @@ EXPORTABLE(int) load(void* server,void* parser)
 
   if(!staticData)
     {
-      serverInstance->logWriteln("HttpChecker: Invalid HTTP static data");
+      serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("HttpChecker: invalid HTTP static data"));
       return -1;
     }
 
@@ -247,7 +247,7 @@ EXPORTABLE(int) load(void* server,void* parser)
 
   if(!python)
     {
-      serverInstance->logWriteln("HttpChecker: Cannot find executors::python");
+      serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("HttpChecker: cannot find executors::python"));
       return -1;
     }
   observer.setPythonExecutor(python);
@@ -258,7 +258,7 @@ EXPORTABLE(int) load(void* server,void* parser)
 
   if(!init)
     {
-      serverInstance->logWriteln("HttpChecker: Cannot find method initModule in executors::python");
+      serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("HttpChecker: cannot find method initModule in executors::python"));
       return -1;
     }
 
@@ -289,7 +289,7 @@ EXPORTABLE(int) load(void* server,void* parser)
 
 	  if(!data)
 	    {
-	      serverInstance->logWriteln("HttpChecker: Invalid rule");
+        serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("HttpChecker: invalid rule"));
 	      return -1;
 	    }
 

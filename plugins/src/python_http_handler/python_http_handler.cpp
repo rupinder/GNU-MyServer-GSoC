@@ -26,9 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 static Server* serverInstance;
 
-
-
-
 #ifdef WIN32
 #define EXPORTABLE(x) x _declspec(dllexport)
 #else
@@ -164,7 +161,7 @@ static PyObject *log_server_error(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, (char*)"s", &msg))
 		return NULL;
 
-  serverInstance->logWriteln(msg);
+  serverInstance->log(MYSERVER_LOG_MSG_ERROR, "%s", msg);
 
 	return NULL;
 }
@@ -346,7 +343,7 @@ class HttpObserver : public Multicast<string, void*, int>
 	};
 public:
 
-	virtual int updateMulticast(MulticastRegistry<string, void*, int>* reg, string& msg, void* arg)
+	virtual int updateMulticast (MulticastRegistry<string, void*, int>* reg, string& msg, void* arg)
 	{
 		HttpThreadContext *td = (HttpThreadContext*)arg;
 		ThreadID tid = Thread::threadID();
@@ -360,7 +357,7 @@ public:
 
 		for(it = rules.begin(); it != rules.end(); it++)
 		{
-			if((*it).file) 
+			if((*it).file)
 			{
 				executeFromFilePROC execute = ((executeFromFilePROC)python->getDirectMethod((char*)"executeFromFile"));
 				if (execute)
@@ -368,7 +365,7 @@ public:
 			}else
 			{
 				executePROC execute = ((executePROC)python->getDirectMethod((char*)"execute"));
-				
+
 				if (execute)
 				  execute((char*)(*it).data.c_str(), (*it).data.length());
 			}
@@ -376,7 +373,7 @@ public:
 		return threadData.getRet();
 	}
 
-	void addRule(const char* rule, bool file)
+	void addRule (const char* rule, bool file)
 	{
 		Item it;
 		it.data.assign(rule);
@@ -384,7 +381,7 @@ public:
 		rules.push_back(it);
 	}
 
-	void setPythonExecutor(Plugin* python){this->python = python;}
+	void setPythonExecutor (Plugin* python){this->python = python;}
 
 private:
 	list<Item> rules;
@@ -394,7 +391,7 @@ private:
 static HttpObserver observer;
 
 
-EXPORTABLE(char*) name(char* name, u_long len)
+EXPORTABLE(char*) name (char* name, u_long len)
 {
 	char* str = (char*)"python_http_handler";
 	if(name)
@@ -402,7 +399,7 @@ EXPORTABLE(char*) name(char* name, u_long len)
 	return str;
 }
 
-EXPORTABLE(int) load(void* server,void* parser)
+EXPORTABLE(int) load (void* server)
 {
 	serverInstance = (Server*)server;
 	HttpStaticData* staticData =(HttpStaticData*) serverInstance->getGlobalData("http-static");
@@ -412,17 +409,17 @@ EXPORTABLE(int) load(void* server,void* parser)
 	XmlParser* configuration;
 	xmlDocPtr xmlDoc;
 	if(!staticData)
-	{
-		serverInstance->logWriteln("PythonHttpHandler: Invalid HTTP static data");
-		return -1;
-	}
-	python = serverInstance->getPluginsManager()->getPlugin(pythonName);
+    {
+      serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("PythonHttpHandler: Invalid HTTP static data"));
+      return -1;
+    }
+	python = serverInstance->getPluginsManager ()->getPlugin (pythonName);
 
 	if(!python)
-	{
-		serverInstance->logWriteln("PythonHttpHandler: Cannot find executors::python");
-		return -1;
-	}
+    {
+      serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("PythonHttpHandler: Cannot find executors::python"));
+      return -1;
+    }
 	observer.setPythonExecutor(python);
 
 	staticData->addMulticast(msg, &observer);
@@ -430,10 +427,10 @@ EXPORTABLE(int) load(void* server,void* parser)
 	init = (INIT_MODULE) python->getDirectMethod((char*)"initModule");
 
 	if(!init)
-	{
-		serverInstance->logWriteln("PythonHttpHandler: Cannot find method initModule in executors::python");
-		return -1;
-	}
+    {
+      serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("PythonHttpHandler: Cannot find method initModule in executors::python"));
+      return -1;
+    }
 	configuration = serverInstance->getXmlConfiguration();
 	xmlDoc = configuration->getDoc();
 
@@ -441,31 +438,31 @@ EXPORTABLE(int) load(void* server,void* parser)
 	  {
 	    if(!xmlStrcmp(ptr->name, (const xmlChar *)"PYTHON_HTTP_HANDLER"))
 	      {
-		bool file = false;
-		xmlAttrPtr properties = ptr->properties;
-		char* data = 0;
-		while(properties)
-		  {
-		    if(!xmlStrcmp(properties->name, (const xmlChar *)"file"))
-		      {
-			if(properties->children && properties->children->content)
-			  data = (char*)properties->children->content;
+          bool file = false;
+          xmlAttrPtr properties = ptr->properties;
+          char* data = 0;
+          while(properties)
+            {
+              if(!xmlStrcmp(properties->name, (const xmlChar *)"file"))
+                {
+                  if(properties->children && properties->children->content)
+                    data = (char*)properties->children->content;
 
-			file = true;
-		      }
-		    properties = properties->next;
-		  }
+                  file = true;
+                }
+              properties = properties->next;
+            }
 
-		if(!file && ptr->children && ptr->children->next && ptr->children->next->content)
-		  data = (char*)ptr->children->next->content;
+          if(!file && ptr->children && ptr->children->next && ptr->children->next->content)
+            data = (char*)ptr->children->next->content;
 
-		if(!data)
-		  {
-		    serverInstance->logWriteln("PythonHttpHandler: Invalid rule");
-		    return -1;
-		  }
+          if(!data)
+            {
+              serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("PythonHttpHandler: Invalid rule"));
+              return -1;
+            }
 
-		observer.addRule(data, file);
+          observer.addRule (data, file);
 	      }
 
 	  }
@@ -474,12 +471,14 @@ EXPORTABLE(int) load(void* server,void* parser)
 
 	return 0;
 }
-EXPORTABLE(int) postLoad(void* server,void* parser)
+
+EXPORTABLE(int) postLoad (void* server)
 {
   return 0;
 }
-EXPORTABLE(int) unLoad(void* parser)
+
+EXPORTABLE(int) unLoad ()
 {
-  mutex.destroy();
+  mutex.destroy ();
   return 0;
 }

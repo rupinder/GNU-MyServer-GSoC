@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -85,7 +85,7 @@ void Md5::update(unsigned char const *buf, unsigned long len)
     bytes[1]++;  /* Carry from low to high */
 
   t = 64 - (t & 0x3f);  /* Space available in in (at least 1) */
-  if (t > len) 
+  if (t > len)
   {
     memcpy((unsigned char *)in + 64 - t, buf, len);
     return;
@@ -98,7 +98,7 @@ void Md5::update(unsigned char const *buf, unsigned long len)
   len -= t;
 
   /* Process data in 64-byte chunks */
-  while (len >= 64) 
+  while (len >= 64)
   {
     memcpy(in, buf, 64);
     byteSwap(in, 16);
@@ -112,7 +112,7 @@ void Md5::update(unsigned char const *buf, unsigned long len)
 }
 
 /*!
- *Final wrapup - pad to 64-byte boundary with the bit pattern 
+ *Final wrapup - pad to 64-byte boundary with the bit pattern
  *1 0* (64-bit count of bits processed, MSB-first)
  */
 void Md5::final(unsigned char digest[16])
@@ -151,7 +151,7 @@ void Md5::final(unsigned char digest[16])
   for(i = 0; i < 2; i++)
     bytes[i] = 0;
 
-  for(i = 0; i < 16; i++) 
+  for(i = 0; i < 16; i++)
     in[i] = 0;
 
 }
@@ -280,11 +280,11 @@ char* Md5::end(char *buf)
   long i;
   unsigned char digest[16];
   static const char hex[]="0123456789abcdef";
-  
+
   if (!buf)
     return 0;
   final(digest);
-  for ( i = 0; i < 16; i++) 
+  for ( i = 0; i < 16; i++)
   {
     buf[(i << 1)] = hex[digest[i] >> 4];
     buf[(i << 1) + 1] = hex[digest[i] & 0x0f];

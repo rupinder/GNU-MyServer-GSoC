@@ -117,18 +117,14 @@ int Http::optionsHTTPRESOURCE (string& filename, int yetmapped)
                                           (u_long) td->secondaryBuffer->getLength (), 0);
       if (ret == SOCKET_ERROR)
         {
-          string error;
-          error.assign ("HTTP<SOCKET ERROR>: unable to send ");
-          error.append (filename);
-          error.append (".");
-          td->connection->host->warningsLogWrite (error.c_str ());
+          td->connection->host->warningsLogWrite (_("HTTP: socket error"));
           return 0;
         }
       return 1;
     }
   catch (...)
     {
-      td->connection->host->warningsLogWrite ("HTTP<ERROR>: unable to build a response for an OPTION request.");
+      td->connection->host->warningsLogWrite (_("HTTP: internal error"));
       return raiseHTTPError (500);
     };
 }
@@ -172,11 +168,7 @@ int Http::traceHTTPRESOURCE (string& filename, int yetmapped)
                                           (u_long) td->secondaryBuffer->getLength (), 0);
       if (ret == SOCKET_ERROR)
         {
-          string error;
-          error.assign ("HTTP<SOCKET ERROR>: unable to send ");
-          error.append (filename);
-          error.append (".");
-          td->connection->host->warningsLogWrite (error.c_str ());
+          td->connection->host->warningsLogWrite (_("HTTP: socket error"));
           return 0;
         }
 
@@ -185,18 +177,14 @@ int Http::traceHTTPRESOURCE (string& filename, int yetmapped)
                                           contentLength, 0);
       if (ret == SOCKET_ERROR)
         {
-          string error;
-          error.assign ("HTTP<SOCKET ERROR>: unable to send ");
-          error.append (filename);
-          error.append (".");
-          td->connection->host->warningsLogWrite (error.c_str ());
+          td->connection->host->warningsLogWrite (_("HTTP: socket error"));
           return 0;
         }
       return 1;
     }
   catch (...)
     {
-      td->connection->host->warningsLogWrite ("HTTP<ERROR>: Unable to handle the HTTP TRACE command.");
+      td->connection->host->warningsLogWrite (_("HTTP: internal error"));
       return raiseHTTPError (500);
     };
 }
@@ -210,7 +198,7 @@ bool Http::allowMethod (const char *method)
 {
   char name[64];
   sprintf (name, "http.%s.allow", method);
-  const char *allow = td->securityToken.getHashedData (name,
+  const char *allow = td->securityToken.getData (name,
                                                        MYSERVER_VHOST_CONF |
                                                        MYSERVER_SERVER_CONF, "YES");
 
@@ -292,7 +280,7 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
 
       if (FilesUtility::isLink (td->filenamePath.c_str ()))
         {
-          const char *perm = td->securityToken.getHashedData ("symlinks.follow", 
+          const char *perm = td->securityToken.getData ("symlinks.follow",
                               MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, "NO");
 
           if (!perm || strcmpi (perm, "YES"))
@@ -309,7 +297,7 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
           td->connection->protocolBuffer = new HttpUserData;
           if (!td->connection->protocolBuffer)
             {
-              td->connection->host->warningsLogWrite ("HTTP<ERROR>: Unable to access protocol buffer.");
+              td->connection->host->warningsLogWrite (_("HTTP: internal error"));
               return 500;
             }
           ((HttpUserData*) (td->connection->protocolBuffer))->reset ();
@@ -332,7 +320,7 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
       if (*permissions == -1)
         {
           td->connection->host->warningsLogWrite (
-                                   "HTTP<ERROR>: Error reading security file.");
+                                 _("HTTP: error accessing the security file"));
           return 500;
         }
 
@@ -342,9 +330,9 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
       AuthDomain auth (&(td->securityToken));
       HttpReqSecurityDomain httpReqSecDom (&(td->request));
 
-      string validator (td->securityToken.getHashedData ("sec.validator", MYSERVER_VHOST_CONF |
+      string validator (td->securityToken.getData ("sec.validator", MYSERVER_VHOST_CONF |
                                                          MYSERVER_SERVER_CONF, "xml"));
-      string authMethod (td->securityToken.getHashedData ("sec.auth_method", MYSERVER_VHOST_CONF |
+      string authMethod (td->securityToken.getData ("sec.auth_method", MYSERVER_VHOST_CONF |
                                                           MYSERVER_SERVER_CONF, "xml"));
 
 
@@ -353,7 +341,7 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
       Server::getInstance ()->getSecurityManager ()->getPermissionMask (&(td->securityToken),
                                                          domains, validator, authMethod);
 
-      const char *authType = td->securityToken.getHashedData ("http.auth",
+      const char *authType = td->securityToken.getData ("http.auth",
            MYSERVER_SECURITY_CONF | MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF);
       *permissions = td->securityToken.getMask ();
 
@@ -383,15 +371,13 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
     }
   catch (...)
     {
-      string error;
-      error.assign ("HTTP<ERROR>: unable to get file permission: ");
-      error.append (filename);
-      error.append (".");
-      td->connection->host->warningsLogWrite (error.c_str ());
+      td->connection->host->warningsLogWrite (
+                                 _("HTTP: cannot get permissions for %s"),
+                                 filename.c_str ());
       return 500;
     }
 
-  const char *tr = td->securityToken.getHashedData ("connection.throttling",
+  const char *tr = td->securityToken.getData ("connection.throttling",
                                                     MYSERVER_SECURITY_CONF |
                                                     MYSERVER_VHOST_CONF |
                                                     MYSERVER_SERVER_CONF);
@@ -429,7 +415,6 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped, int* permissio
 
       ret = getFilePermissions (filename, directory, file,
                                 td->filenamePath, yetmapped, permissions);
-
       if (ret != 200)
         return ret;
 
@@ -513,11 +498,7 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped, int* permissio
     }
   catch (...)
     {
-      string error;
-      error.assign ("HTTP<ERROR>: unable to preprocess HTTP request on file:  ");
-      error.append (filename);
-      error.append (".");
-      td->connection->host->warningsLogWrite (error.c_str ());
+      td->connection->host->warningsLogWrite (_("HTTP: internal error"));
       return 500;
     }
 
@@ -688,24 +669,14 @@ Http::sendHTTPResource (string& uri, int systemrequest, int onlyHeader,
 
       if (!manager)
         {
-          string error;
-          error.assign ("HTTP<ERROR>: unable to get SEND Http Manager on sending ");
-          error.append (uri);
-          error.append (".");
-          td->connection->host->warningsLogWrite (error.c_str ());
+          td->connection->host->warningsLogWrite (_("HTTP: internal error"));
           return raiseHTTPError (500);
         }
-
-
       return manager->send (td, td->filenamePath.c_str (), 0, onlyHeader);
     }
   catch (...)
     {
-      string error;
-      error.assign ("HTTP<ERROR>: unable to send ");
-      error.append (uri);
-      error.append (".");
-      td->connection->host->warningsLogWrite (error.c_str ());
+      td->connection->host->warningsLogWrite (_("HTTP: internal error"));
       return raiseHTTPError (500);
     };
 
@@ -788,9 +759,8 @@ int Http::logHTTPaccess ()
        * Request the access to the log file then append the message.
        */
       if (td->connection->host)
-        {
-          td->connection->host->accessesLogWrite (td->secondaryBuffer->getBuffer ());
-        }
+        td->connection->host->accessesLogWrite ("%s", td->secondaryBuffer->getBuffer ());
+
       td->secondaryBuffer->setLength (0);
     }
   catch (...)
@@ -860,7 +830,7 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           switch (td->connection->getToRemove ())
             {
               /* Remove the connection from the list.  */
-            case CONNECTION_REMOVE_OVERLOAD:
+            case Connection::REMOVE_OVERLOAD:
               retvalue = raiseHTTPError (503);
               logHTTPaccess ();
               return ClientsThread::DELETE_CONNECTION;
@@ -1017,7 +987,7 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
                   errMsg.assign ("Invalid virtual host requested from ");
                   errMsg.append (a->getIpAddr ());
 
-                  Server::getInstance ()->logWriteln (errMsg.c_str (), MYSERVER_LOG_MSG_ERROR);
+                  Server::getInstance ()->log (errMsg.c_str (), MYSERVER_LOG_MSG_ERROR);
 
                   raiseHTTPError (400);
                   /*
@@ -1054,11 +1024,11 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 
               if (documentRoot.length ())
                 {
-                  const char *useHomeDir = td->securityToken.getHashedData ("http.use_home_directory",
+                  const char *useHomeDir = td->securityToken.getData ("http.use_home_directory",
                                                    MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, "YES");
 
 
-                  const char *homeDir = td->securityToken.getHashedData ("http.home_directory",
+                  const char *homeDir = td->securityToken.getData ("http.home_directory",
                                                    MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF,
                                                                          "public_html");
 
@@ -1088,7 +1058,7 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
            *virtual host A value of zero means no limit.
            */
           {
-            const char* val = td->securityToken.getHashedData ("MAX_CONNECTIONS",
+            const char* val = td->securityToken.getData ("MAX_CONNECTIONS",
                                                                MYSERVER_VHOST_CONF |
                                                                MYSERVER_SERVER_CONF, NULL);
 
@@ -1252,7 +1222,7 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
   catch (...)
     {
 
-      td->connection->host->warningsLogWrite ("HTTP<ERROR>: unable to handle the HTTP Request.");
+      td->connection->host->warningsLogWrite (_("HTTP: internal error"));
       return raiseHTTPError (500);
       logHTTPaccess ();
       return ClientsThread::DELETE_CONNECTION;
@@ -1365,7 +1335,7 @@ int Http::requestAuthorization ()
   if (td->connection->socket->send (td->secondaryBuffer->getBuffer (),
                                     td->secondaryBuffer->getLength (), 0) == -1)
     {
-      td->connection->host->warningsLogWrite ("HTTP<SOCKET ERROR>: unable to send the authorization request.");
+      td->connection->host->warningsLogWrite (_("HTTP: socket error"));
       return 0;
     }
   return 1;
@@ -1387,7 +1357,7 @@ int Http::raiseHTTPError (int ID)
       int useMessagesFiles = 1;
       HttpRequestHeader::Entry *host = td->request.other.get ("Host");
       HttpRequestHeader::Entry *connection = td->request.other.get ("Connection");
-      const char *useMessagesVal = td->securityToken.getHashedData ("http.use_error_file",
+      const char *useMessagesVal = td->securityToken.getData ("http.use_error_file",
                                                                     MYSERVER_VHOST_CONF |
                                                                     MYSERVER_SERVER_CONF, NULL);
 
@@ -1401,7 +1371,7 @@ int Http::raiseHTTPError (int ID)
 
       if (td->lastError)
         {
-          td->connection->host->warningsLogWrite ("HTTP<ERROR>: recursive error.");
+          td->connection->host->warningsLogWrite (_("HTTP: recursive error"));
           return sendHTTPhardError500 ();
         }
 
@@ -1419,7 +1389,7 @@ int Http::raiseHTTPError (int ID)
       char errorName [32];
       sprintf (errorName, "http.error.file.%i", ID);
 
-      const char *defErrorFile = td->securityToken.getHashedData (errorName,
+      const char *defErrorFile = td->securityToken.getData (errorName,
                                                                   MYSERVER_SECURITY_CONF |
                                                                   MYSERVER_VHOST_CONF |
                                                                   MYSERVER_SERVER_CONF);
@@ -1472,17 +1442,16 @@ int Http::raiseHTTPError (int ID)
               return sendHTTPResource (errorFileStr, 1, td->onlyHeader);
             }
           else
-            {
-              string error = "HTTP<ERROR>: The specified error page " + errorFile.str () + " does not exist";
-              td->connection->host->warningsLogWrite (error.c_str ());
-            }
+            td->connection->host->warningsLogWrite (_("HTTP: The specified error page: %s does not exist"),
+                                                    errorFile.str ().c_str ());
+
         }
 
       HttpErrors::getErrorMessage (ID, errorMessage);
 
       /* Send only the header (and the body if specified).  */
       {
-        const char* value = td->securityToken.getHashedData ("http.error_body",
+        const char* value = td->securityToken.getData ("http.error_body",
                                                              MYSERVER_VHOST_CONF |
                                                              MYSERVER_SERVER_CONF, NULL);
 
@@ -1510,23 +1479,18 @@ int Http::raiseHTTPError (int ID)
                                                             errorBodyLength, 0)
                               == -1))
         {
-          td->connection->host->warningsLogWrite ("HTTP<ERROR>: unable to raise HTTP Error.");
+          td->connection->host->warningsLogWrite (_("HTTP: socket error"));
           return 0;
         }
 
 
       return 1;
     }
-  catch (bad_alloc &ba)
-    {
-      td->connection->host->warningsLogWrite ("HTTP<ERROR>: unable to raise HTTP Error.");
-      return 0;
-    }
   catch (...)
     {
-      td->connection->host->warningsLogWrite ("HTTP<ERROR>: unable to raise HTTP Error.");
+      td->connection->host->warningsLogWrite (_("HTTP: internal error"));
       return 0;
-    };
+    }
 }
 
 /*!
@@ -1590,12 +1554,13 @@ Internal Server Error\n\
  */
 MimeRecord* Http::getMIME (string &filename)
 {
-  if (staticHttp.allowVhostMime && td->connection->host->isMIME ())
-    {
-      return td->connection->host->getMIME ()->getMIME (filename);
-    }
+  const char *handler = td->securityToken.getData ("mime.handler",
+                      MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, NULL);
 
-  return Server::getInstance ()->getMimeManager ()->getMIME (filename);
+  if (staticHttp.allowVhostMime && td->connection->host->isMIME ())
+    return td->connection->host->getMIME ()->getMIME (filename);
+
+  return Server::getInstance ()->getMimeManager ()->getMIME (filename, handler);
 }
 
 /*!
@@ -1731,7 +1696,7 @@ int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
 
   if (!handler)
     {
-      td->connection->host->warningsLogWrite ("HTTP<ERROR>: cannot find a valid handler.");
+      td->connection->host->warningsLogWrite (_("HTTP: internal error"));
       return raiseHTTPError (500);
     }
 
@@ -1766,7 +1731,7 @@ int Http::sendHTTPRedirect (const char *newURL)
   if (td->connection->socket->send (td->secondaryBuffer->getBuffer (),
                                     (int) td->secondaryBuffer->getLength (), 0) == -1)
     {
-      td->connection->host->warningsLogWrite ("HTTP<SOCKET ERROR>: unable to send a redirect message.");
+      td->connection->host->warningsLogWrite (_("HTTP: socket error"));
       return 0;
     }
 
@@ -1799,7 +1764,7 @@ int Http::sendHTTPNonModified ()
   if (td->connection->socket->send (td->secondaryBuffer->getBuffer (),
                                     (int) td->secondaryBuffer->getLength (), 0) == -1)
     {
-      td->connection->host->warningsLogWrite ("HTTP<SOCKET ERROR>: unable to send a non-modified message.");
+      td->connection->host->warningsLogWrite (_("HTTP: socket error"));
       return 0;
     }
   return 1;
@@ -1824,7 +1789,7 @@ int Http::sendAuth ()
 /*!
  * Load the HTTP protocol.
  */
-int Http::loadProtocolStatic (XmlParser* languageParser)
+int Http::loadProtocolStatic ()
 {
   const char *data = NULL;
   string pluginsResource (Server::getInstance ()->getExternalPath ());
@@ -1847,7 +1812,7 @@ int Http::loadProtocolStatic (XmlParser* languageParser)
   staticHttp.dynManagerList.addHttpManager ("ISAPI", new Isapi ());
   staticHttp.dynManagerList.addHttpManager ("PROXY", new Proxy ());
 
-  data = Server::getInstance ()->getHashedData ("vhost.allow_mime");
+  data = Server::getInstance ()->getData ("vhost.allow_mime");
   if (data)
     {
 
@@ -1856,7 +1821,7 @@ int Http::loadProtocolStatic (XmlParser* languageParser)
       else
         staticHttp.allowVhostMime = 0;
     }
-  data = Server::getInstance ()->getHashedData ("cgi.timeout");
+  data = Server::getInstance ()->getData ("cgi.timeout");
   if (data)
     {
       staticHttp.timeout = MYSERVER_SEC (atoi (data));
@@ -1868,7 +1833,7 @@ int Http::loadProtocolStatic (XmlParser* languageParser)
 /*!
  * Unload the HTTP protocol.
  */
-int Http::unLoadProtocolStatic (XmlParser* languageParser)
+int Http::unLoadProtocolStatic ()
 {
   /* Unload the errors.  */
   HttpErrors::unLoad ();

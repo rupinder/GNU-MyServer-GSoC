@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -41,31 +41,31 @@ class TestSocket : public CppUnit::TestFixture
 {
   Socket *obj;
   ThreadID tid;
-  
+
   CPPUNIT_TEST_SUITE( TestSocket );
-  
+
   CPPUNIT_TEST( testGethostname );
   CPPUNIT_TEST( testRecv );
   CPPUNIT_TEST( testGetLocalIPsList );
-  
+
   CPPUNIT_TEST_SUITE_END( );
-  
+
 public:
-  
+
   void setUp ( )
   {
     CPPUNIT_ASSERT_EQUAL( Socket::startupSocketLib ( ), 0 );
-    
+
     obj = new Socket;
   }
-  
+
   void tearDown ( )
   {
     delete obj;
   }
-  
+
   void testGethostname ( )
-  { 
+  {
     int len;
 #ifdef HOST_NAME_MAX
     len = HOST_NAME_MAX;
@@ -76,10 +76,10 @@ public:
 #endif
 
     int status = obj->gethostname ( host, len );
-  
+
     CPPUNIT_ASSERT_EQUAL( status, 0 );
   }
-  
+
   void testRecv ( )
   {
     ThreadID tid;
@@ -88,15 +88,15 @@ public:
     int port = 6543;
     MYSERVER_SOCKADDRIN sockIn = { 0 };
     int status;
-    
+
     ((sockaddr_in*) (&sockIn))->sin_family = AF_INET;
     ((sockaddr_in*) (&sockIn))->sin_addr.s_addr = inet_addr ( "127.0.0.1" );
     ((sockaddr_in*) (&sockIn))->sin_port = htons ( port );
-    
+
     socklen_t sockInLen = sizeof ( sockaddr_in );
-    
+
     CPPUNIT_ASSERT( obj->socket ( AF_INET, SOCK_STREAM, 0 ) != -1 );
-    
+
     CPPUNIT_ASSERT( obj->setsockopt ( SOL_SOCKET, SO_REUSEADDR,
                                       (const char*) &optvalReuseAddr,
                                       sizeof(optvalReuseAddr) ) != -1 );
@@ -106,7 +106,7 @@ public:
       while ( ++port < 28000 )
       {
         ((sockaddr_in*) (&sockIn))->sin_port = htons ( port );
-        
+
         if ( ( status = obj->bind ( &sockIn, sockInLen ) ) == 0 )
           break;
       }
@@ -141,19 +141,19 @@ public:
 
     CPPUNIT_ASSERT( obj->close ( ) != -1 );
   }
-  
+
   void testGetLocalIPsList ( )
   {
     int status = obj->socket ( AF_INET, SOCK_STREAM, 0 );
 
     CPPUNIT_ASSERT( status != -1 );
-    
+
     string out;
-    
+
     status = obj->getLocalIPsList ( out );
-    
+
     CPPUNIT_ASSERT( status != -1 );
-    
+
     status = obj->close ( );
 
     CPPUNIT_ASSERT( status != -1 );

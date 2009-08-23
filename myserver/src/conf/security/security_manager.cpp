@@ -43,8 +43,8 @@ SecurityManager::~SecurityManager ()
 /*!
  *Get the permission mask for the requested resource.
  */
-int SecurityManager::getPermissionMask (SecurityToken* st, 
-                                        SecurityDomain **domains, 
+int SecurityManager::getPermissionMask (SecurityToken* st,
+                                        SecurityDomain **domains,
                                         string &validator,
                                         string &authMethod)
 {
@@ -60,8 +60,8 @@ int SecurityManager::getPermissionMask (SecurityToken* st,
 /*!
  *Get the permission mask for the requested resource.
  */
-int SecurityManager::getPermissionMask (SecurityToken* st, 
-                                        list<SecurityDomain*> *domains, 
+int SecurityManager::getPermissionMask (SecurityToken* st,
+                                        list<SecurityDomain*> *domains,
                                         string &validator,
                                         string &authMethod)
 {
@@ -79,7 +79,7 @@ int SecurityManager::getPermissionMask (SecurityToken* st,
  *Initialize the pointers to the specified Validator and AuthMethod.
  *\param validatorName The validator name to find.
  *\param authMethodName The auth method name to find.
- *\param validator Pointer to the Validator to initialize. 
+ *\param validator Pointer to the Validator to initialize.
  *\param authMethod Pointer to the AuthMethod initialize.
  *\return 0 if the pointers were successfully initialized.
  */

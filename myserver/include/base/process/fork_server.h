@@ -47,7 +47,7 @@ class ForkServer
   int forkServerLoop (UnixSocket *socket);
 
   int executeProcess (StartProcInfo *spi, int flags,
-                      int *pid, int *port, 
+                      int *pid, int *port,
                       bool waitEnd = false);
 
   u_short getPort (){return port;}

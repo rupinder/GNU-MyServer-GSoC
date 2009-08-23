@@ -107,8 +107,8 @@ public:
   virtual int controlConnection (ConnectionPtr pConnection, char *b1,
 				 char *b2, int bs1, int bs2, u_long nbtr,
 				 u_long id);
-  static int loadProtocolstatic (XmlParser *);
-  static int unLoadProtocolstatic (XmlParser *);
+  static int loadProtocolstatic ();
+  static int unLoadProtocolstatic ();
 
   int parseControlConnection ();
   yyscan_t getScanner ()
@@ -234,14 +234,14 @@ public:
     return ftp.controlConnection (a, b1, b2, bs1, bs2, nbtr, id);
   }
 
-  virtual int loadProtocol (XmlParser * parser)
+  virtual int loadProtocol ()
   {
-    return Ftp::loadProtocolstatic (parser);
+    return Ftp::loadProtocolstatic ();
   }
 
-  virtual int unLoadProtocol (XmlParser * parser)
+  virtual int unLoadProtocol ()
   {
-    return Ftp::unLoadProtocolstatic (parser);
+    return Ftp::unLoadProtocolstatic ();
 
   }
 

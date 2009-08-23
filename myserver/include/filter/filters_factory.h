@@ -32,7 +32,7 @@ using namespace std;
 typedef Filter* (*FILTERCREATE)(const char* name);
 
 
-class FiltersFactory 
+class FiltersFactory
 {
 public:
 	class FiltersSource
@@ -44,9 +44,9 @@ public:
   int insert(const char*, FILTERCREATE ptr);
   int insert(const char*, FiltersSource* ptr);
   Filter *getFilter(const char*);
-  FiltersChain* chain(list<string> &l, Stream* out, u_long *nbw, 
+  FiltersChain* chain(list<string> &l, Stream* out, u_long *nbw,
 											int onlyNotModifiers = 0);
-  int chain(FiltersChain*, list<string> &l, Stream* out, u_long *nbw, 
+  int chain(FiltersChain*, list<string> &l, Stream* out, u_long *nbw,
              int onlyNotModifiers = 0);
   FiltersFactory();
   ~FiltersFactory();

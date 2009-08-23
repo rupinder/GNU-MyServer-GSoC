@@ -11,7 +11,7 @@ extern "C" int EXPORTABLE myserver_main (char *cmd,MsCgiData* data)
   char *post = cm.postParam("T1");
 
   if(post == NULL)
-    {	
+    {
       cm.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\r\n\
 \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\r\n\
 <html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">\r\n\
@@ -42,14 +42,14 @@ extern "C" int EXPORTABLE myserver_main (char *cmd,MsCgiData* data)
 #ifdef WIN32
 BOOL APIENTRY DllMain( HANDLE,DWORD ul_reason_for_call,LPVOID)
 {
-	switch (ul_reason_for_call)	
+	switch (ul_reason_for_call)
     {
-		case DLL_PROCESS_ATTACH:	
-		case DLL_THREAD_ATTACH:	
-		case DLL_THREAD_DETACH:	
+		case DLL_PROCESS_ATTACH:
+		case DLL_THREAD_ATTACH:
+		case DLL_THREAD_DETACH:
 		case DLL_PROCESS_DETACH:
-      break;	
-    }   
+      break;
+    }
 	return TRUE;
 }
 #endif

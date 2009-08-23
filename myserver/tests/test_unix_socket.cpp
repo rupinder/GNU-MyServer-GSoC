@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -46,17 +46,17 @@ void* test_unix_socket_server (void* pParam)
 
   if (client.getHandle () == 0)
     return NULL;
-  
+
   char buffer [256];
   if (client.recv(buffer, 256, 0, MYSERVER_SEC (1)) == 0)
     {
       client.close ();
       return NULL;
     }
-  
+
 
   server->result = !strcmpi (buffer, TEST_STRING);
- 
+
   client.close ();
   return NULL;
 }
@@ -69,11 +69,11 @@ class TestUnixSocket : public CppUnit::TestFixture
   CPPUNIT_TEST( testBind );
   CPPUNIT_TEST( testClient );
   CPPUNIT_TEST_SUITE_END();
-  
+
   UnixSocket *sock;
 public:
 
-  void setUp () 
+  void setUp ()
   {
     sock = new UnixSocket ();
   }
@@ -124,7 +124,7 @@ public:
     sock->socket ();
     sock->bind (path.c_str ());
     CPPUNIT_ASSERT_EQUAL (sock->listen (1), 0);
-  
+
     int res = Thread::create (&tid, test_unix_socket_server, &data);
 
     UnixSocket client;

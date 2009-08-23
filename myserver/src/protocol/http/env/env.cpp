@@ -6,7 +6,7 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful, 
+This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
@@ -40,10 +40,10 @@ using namespace std;
  *This function is used by other server side protocols too.
  *\param td The HTTP thread context.
  *\param cgiEnv The zero terminated list of environment string.
- *\param processEnv Specify if add current process environment 
+ *\param processEnv Specify if add current process environment
  *variables too.
  */
-void Env::buildEnvironmentString(HttpThreadContext* td, char *cgiEnv, 
+void Env::buildEnvironmentString(HttpThreadContext* td, char *cgiEnv,
                                  int processEnv)
 {
   MemBuf memCgi;
@@ -66,36 +66,36 @@ void Env::buildEnvironmentString(HttpThreadContext* td, char *cgiEnv,
 #endif
   /* Must use REDIRECT_STATUS for php and others.  */
   memCgi << end_str << "REDIRECT_STATUS=TRUE";
-  
+
   memCgi << end_str << "SERVER_NAME=";
   memCgi << Server::getInstance()->getServerName();
-  
+
   memCgi << end_str << "SERVER_SIGNATURE=";
   memCgi << "<address>GNU MyServer " << MYSERVER_VERSION << "</address>";
-  
+
   memCgi << end_str << "SERVER_PROTOCOL=";
-  memCgi << td->request.ver.c_str();  
-  
+  memCgi << td->request.ver.c_str();
+
   portBuffer.uintToStr( td->connection->getLocalPort());
   memCgi << end_str << "SERVER_PORT="<< portBuffer;
 
   memCgi << end_str << "SERVER_ADMIN=";
-  memCgi << td->securityToken.getHashedData ("server.admin", 
+  memCgi << td->securityToken.getData ("server.admin",
                                              MYSERVER_VHOST_CONF |
                                              MYSERVER_SERVER_CONF, "");
 
   memCgi << end_str << "REQUEST_METHOD=";
   memCgi << td->request.cmd.c_str();
-  
+
   memCgi << end_str << "REQUEST_URI=";
-  
+
   memCgi << td->request.uri.c_str();
 
   memCgi << end_str << "QUERY_STRING=";
   memCgi << td->request.uriOpts.c_str();
-  
+
   memCgi << end_str << "GATEWAY_INTERFACE=CGI/1.1";
-  
+
   if(td->request.contentLength.length())
   {
     memCgi << end_str << "CONTENT_LENGTH=";
@@ -105,7 +105,7 @@ void Env::buildEnvironmentString(HttpThreadContext* td, char *cgiEnv,
   {
     u_long fs = 0;
     ostringstream stream;
- 
+
     if(td->inputData.getHandle())
       fs = td->inputData.getFileSize();
 
@@ -129,7 +129,7 @@ void Env::buildEnvironmentString(HttpThreadContext* td, char *cgiEnv,
     {
       rangeBuffer << td->request.rangeByteEnd;
       memCgi << rangeBuffer.str();
-    }   
+    }
 
   }
 
@@ -144,7 +144,7 @@ void Env::buildEnvironmentString(HttpThreadContext* td, char *cgiEnv,
 
   memCgi << end_str << "REMOTE_USER=";
   memCgi << td->connection->getLogin();
-  
+
   if(td->http->getProtocolOptions() & PROTOCOL_USES_SSL)
     memCgi << end_str << "SSL=ON";
   else
@@ -155,7 +155,7 @@ void Env::buildEnvironmentString(HttpThreadContext* td, char *cgiEnv,
   {
     memCgi << end_str << "PATH_INFO=";
     memCgi << td->pathInfo;
-      
+
     memCgi << end_str << "PATH_TRANSLATED=";
     memCgi << td->pathTranslated;
   }
@@ -167,9 +167,9 @@ void Env::buildEnvironmentString(HttpThreadContext* td, char *cgiEnv,
 
   memCgi << end_str << "SCRIPT_FILENAME=";
   memCgi << td->filenamePath;
-  
+
   /*
-   *For the DOCUMENT_URI and SCRIPT_NAME copy the 
+   *For the DOCUMENT_URI and SCRIPT_NAME copy the
    *requested uri without the pathInfo.
    */
   memCgi << end_str << "SCRIPT_NAME=";
@@ -230,14 +230,14 @@ void Env::buildHttpHeaderEnvString(MemBuf& memCgi, HttpRequestHeader & req)
   {
     HttpRequestHeader::Entry* en = *it;
     string name;
-    
+
     name.assign("HTTP_");
     name.append(en->name->c_str());
     transform(name.begin()+5, name.end(), name.begin()+5, ::toupper);
     for(int i = name.length(); i > 5; i--)
       if(name[i] == '-')
         name[i] = '_';
-    
+
     memCgi  << end_str << name.c_str() << "=" << en->value->c_str();
   }
 }
@@ -248,13 +248,13 @@ void Env::buildHttpHeaderEnvString(MemBuf& memCgi, HttpRequestHeader & req)
 void Env::buildProcessEnvString(MemBuf& memCgi)
 {
 #ifdef WIN32
-  LPTSTR lpszVariable; 
-  LPVOID lpvEnv; 
+  LPTSTR lpszVariable;
+  LPVOID lpvEnv;
   lpvEnv = Server::getInstance()->getEnvString();
   memCgi << end_str;
   if (lpvEnv)
-    for (lpszVariable = (LPTSTR) lpvEnv; *lpszVariable; lpszVariable++) 
-    { 
+    for (lpszVariable = (LPTSTR) lpvEnv; *lpszVariable; lpszVariable++)
+    {
       if(((char*)lpszVariable)[0]  != '=' )
       {
         memCgi << (char*)lpszVariable << end_str;

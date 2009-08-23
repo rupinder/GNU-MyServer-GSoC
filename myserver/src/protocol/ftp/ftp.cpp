@@ -336,7 +336,7 @@ int Ftp::controlConnection (ConnectionPtr pConnection, char *b1, char *b2,
     return ClientsThread::DELETE_CONNECTION;
 
   // check if ftp is busy(return 120) or unavailable(return 421)
-  if (pConnection->getToRemove () == CONNECTION_REMOVE_OVERLOAD)
+  if (pConnection->getToRemove () == Connection::REMOVE_OVERLOAD)
     {
       pFtpuserData->m_nFtpstate = FtpuserData::BUISY;
       // TODO: really compute busy time interval
@@ -391,45 +391,42 @@ char * Ftp::registerNameImpl (char *out, int len)
 }
 
 
-int Ftp::loadProtocolstatic (XmlParser *)
+int Ftp::loadProtocolstatic ()
 {
   // load custom messages from cfg here
   Server *server = Server::getInstance ();
 
   // allow anonymous access
-  const char *pData = server->getHashedData ("ftp.allow_anonymous");
+  const char *pData = server->getData ("ftp.allow_anonymous");
   if (pData != NULL)
     m_ballowAnonymous = strcmpi ("Yes", pData) == 0 ? true : false;
 
   // request password for anonymous
-  pData = server->getHashedData ("ftp.anonymous_need_pass");
+  pData = server->getData ("ftp.anonymous_need_pass");
   if (pData != NULL)
     m_bAnonymousNeedPass = strcmpi ("Yes", pData) == 0 ? true : false;
 
   // enable asyncronous cmds
-  pData = server->getHashedData ("ftp.allow_asynchronous_cmds");
+  pData = server->getData ("ftp.allow_asynchronous_cmds");
   if (pData != NULL)
     m_ballowAsynchronousCmds = strcmpi ("Yes", pData) == 0 ? true : false;
 
   // enable pipelining
-  pData = server->getHashedData ("ftp.allow_pipelining");
+  pData = server->getData ("ftp.allow_pipelining");
   if (pData != NULL)
     m_bEnablePipelining = strcmpi ("Yes", pData) == 0 ? true : false;
 
   // enable write commands
-  pData = server->getHashedData ("ftp.allow_store");
+  pData = server->getData ("ftp.allow_store");
   if (pData != NULL)
     m_bEnablestoreCmds = strcmpi ("Yes", pData) == 0 ? true : false;
 
   return 1;
 }
 
-int Ftp::unLoadProtocolstatic (XmlParser *)
+int Ftp::unLoadProtocolstatic ()
 {
-  if (true /*everything is ok */ )
-    return 1;
-  else
-    return 0;
+  return 1;
 }
 
 void Ftp::ftpReply (int nReplyCode, const std::string & sCustomText /*= ""*/ )
@@ -462,7 +459,7 @@ void Ftp::logAccess (int nReplyCode, const std::string & sCustomText)
 #endif
 
   if (td.pConnection->host)
-    td.pConnection->host->accessesLogWrite (td.secondaryBuffer->getBuffer ());
+    td.pConnection->host->accessesLogWrite ("%s", td.secondaryBuffer->getBuffer ());
 }
 
 int Ftp::closeDataConnection ()
@@ -475,17 +472,7 @@ int Ftp::closeDataConnection ()
 
 int Ftp::printError (const char *msg)
 {
-  /* Log the reply.  */
-  string time;
-  getLocalLogFormatDate (time, 32);
-
-  td.secondaryBuffer->setLength (0);
-  *td.secondaryBuffer << td.pConnection->getIpAddr ();
-  *td.secondaryBuffer << " " << time << " " << msg;
-
-  if (td.pConnection->host)
-    td.pConnection->host->warningsLogWrite (td.secondaryBuffer->getBuffer ());
-
+  td.pConnection->host->warningsLogWrite ("%s", msg);
   return 1;
 }
 
@@ -616,7 +603,7 @@ void Ftp::retrstor (bool bretr, bool bappend, const std::string & sPath)
   FilesUtility::splitPath (sLocalPath, sLocalDir, sLocalFileName);
 
   /* The security file doesn't exist in any case.  */
-  const char *secName = td.st.getHashedData ("security.filename",
+  const char *secName = td.st.getData ("security.filename",
                                              MYSERVER_VHOST_CONF |
                                              MYSERVER_SERVER_CONF,
                                              ".security.xml");
@@ -1365,7 +1352,7 @@ DEFINE_THREAD (ReceiveImageFile, pParam)
 #endif
         }
     }
-  
+
   if (pFtpuserData->m_pDataConnection == NULL ||
       pFtpuserData->m_pDataConnection->socket == NULL)
     {
@@ -1562,7 +1549,7 @@ Ftp::OpenDataConnection ()
   if (pFtpuserData->m_nFtpstate == FtpuserData::DATA_CONNECTION_UP)
     return 1;
 
-  int nRet = pFtpuserData->m_bPassiveSrv ? openDataPassive () 
+  int nRet = pFtpuserData->m_bPassiveSrv ? openDataPassive ()
                                          : openDataActive ();
   if (nRet != 0)
     pFtpuserData->m_nFtpstate = FtpuserData::DATA_CONNECTION_UP;
@@ -1760,7 +1747,7 @@ Ftp::list (const std::string & sParam /*= ""*/ )
           return;
         }
 
-      const char *secName = td.st.getHashedData ("security.filename",
+      const char *secName = td.st.getData ("security.filename",
                                                  MYSERVER_VHOST_CONF |
                                                  MYSERVER_SERVER_CONF,
                                                  ".security.xml");
@@ -1998,7 +1985,7 @@ Ftp::nlst (const std::string & sParam /* = "" */ )
   MemBuf & secondaryBuffer = *td.secondaryBuffer;
   secondaryBuffer.setLength (0);
 
-  const char *secName = td.st.getHashedData ("security.filename",
+  const char *secName = td.st.getData ("security.filename",
 					     MYSERVER_VHOST_CONF |
 					     MYSERVER_SERVER_CONF,
 					     ".security.xml");
@@ -2285,7 +2272,7 @@ void Ftp::dele (const std::string & sPath)
   FilesUtility::splitPath (sLocalPath, sLocalDir, sLocalFileName);
 
   /* The security file doesn't exist in any case.  */
-  const char *secName = td.st.getHashedData ("security.filename",
+  const char *secName = td.st.getData ("security.filename",
                                              MYSERVER_VHOST_CONF |
                                              MYSERVER_SERVER_CONF,
                                              ".security.xml");
@@ -2415,7 +2402,7 @@ void Ftp::rnfr (const std::string & sPath)
   std::string sLocalDir, sLocalFileName;
   FilesUtility::splitPath (sLocalPath, sLocalDir, sLocalFileName);
 
-  const char *secName = td.st.getHashedData ("security.filename",
+  const char *secName = td.st.getData ("security.filename",
 					     MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF,
 					     ".security.xml");
 
@@ -2459,7 +2446,7 @@ void Ftp::Rnto (const std::string & sPath)
       return;
     }
 
-  const char *secName = td.st.getHashedData ("security.filename",
+  const char *secName = td.st.getData ("security.filename",
 					     MYSERVER_VHOST_CONF |
 					     MYSERVER_SERVER_CONF,
 					     ".security.xml");
@@ -2509,9 +2496,9 @@ int Ftp::checkRights (const std::string & suser, const std::string & sPass,
   td.st.setResource (&sFileName);
 
   AuthDomain auth (&td.st);
-  string validator (td.st.getHashedData ("sec.validator", MYSERVER_VHOST_CONF
+  string validator (td.st.getData ("sec.validator", MYSERVER_VHOST_CONF
                                          | MYSERVER_SERVER_CONF, "xml"));
-  string authMethod (td.st.getHashedData ("sec.auth_method", MYSERVER_VHOST_CONF
+  string authMethod (td.st.getData ("sec.auth_method", MYSERVER_VHOST_CONF
                                           | MYSERVER_SERVER_CONF, "xml"));
 
   SecurityDomain *domains[] = { &auth, NULL };
@@ -2536,7 +2523,7 @@ void Ftp::size (const std::string & sPath)
   FilesUtility::splitPath (sLocalPath, sLocalDir, sLocalFileName);
 
   /* The security file doesn't exist in any case.  */
-  const char *secName = td.st.getHashedData ("security.filename",
+  const char *secName = td.st.getData ("security.filename",
                                              MYSERVER_VHOST_CONF |
                                              MYSERVER_SERVER_CONF,
                                              ".security.xml");

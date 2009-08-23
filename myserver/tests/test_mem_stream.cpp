@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -63,13 +63,13 @@ public:
 
     return nbw;
   }
-  
+
   void testAvailableToRead()
   {
     u_long size = addSomeData(stream);
 
     CPPUNIT_ASSERT_EQUAL(size, (u_long)stream->availableToRead());
-  } 
+  }
 
   void testRead()
   {
@@ -81,7 +81,7 @@ public:
     CPPUNIT_ASSERT_EQUAL(size, (u_long)stream->availableToRead());
 
     stream->read(buffer, 20, &nbr);
-    
+
     CPPUNIT_ASSERT_EQUAL(size - 20u, (u_long)stream->availableToRead());
   }
 
@@ -118,7 +118,7 @@ public:
     u_long nbw;
     addSomeData(stream);
     int ret = stream->flush(&nbw);
-    
+
     CPPUNIT_ASSERT(nbw >= 0);
     CPPUNIT_ASSERT_EQUAL(ret, 0);
   }

@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/protocols_manager.h>
 #include <string>
 #include <algorithm>
-#include <cctype> 
+#include <cctype>
 
 /*!
  * Class constructor.

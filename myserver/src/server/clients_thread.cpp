@@ -6,7 +6,7 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful, 
+This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/ftp/ftp.h>
 
 #ifndef WIN32
-extern "C" 
+extern "C"
 {
 # include <sys/socket.h>
 # include <netinet/in.h>
@@ -48,7 +48,7 @@ extern "C"
 #endif
 
 /*!
- *Construct the object.
+ * Construct the object.
  */
 ClientsThread::ClientsThread (Server* server)
 {
@@ -92,7 +92,7 @@ ClientsThread::~ClientsThread()
 }
 
 /*!
- *Get the timeout value.
+ * Get the timeout value.
  */
 int ClientsThread::getTimeout ()
 {
@@ -100,8 +100,8 @@ int ClientsThread::getTimeout ()
 }
 
 /*!
- *Set the timeout value for the thread.
- *\param newTimeout The new timeout value.
+ * Set the timeout value for the thread.
+ * \param newTimeout The new timeout value.
  */
 void ClientsThread::setTimeout (int newTimeout)
 {
@@ -109,9 +109,9 @@ void ClientsThread::setTimeout (int newTimeout)
 }
 
 /*!
- *This function starts a new thread controlled by a ClientsThread 
- *class instance.
- *\param pParam Params to pass to the new thread.
+ * This function starts a new thread controlled by a ClientsThread
+ * class instance.
+ * \param pParam Params to pass to the new thread.
  */
 DEFINE_THREAD(clients_thread, pParam)
 {
@@ -139,7 +139,7 @@ DEFINE_THREAD(clients_thread, pParam)
   ct->threadIsStopped = false;
   ct->buffersize = ct->server->getBuffersize ();
   ct->secondaryBufferSize = ct->server->getBuffersize2 ();
-  
+
   ct->buffer.setLength (ct->buffersize);
   ct->buffer.m_nSizeLimit = ct->buffersize;
   ct->secondaryBuffer.setLength (ct->secondaryBufferSize);
@@ -184,16 +184,13 @@ DEFINE_THREAD(clients_thread, pParam)
         }
       catch (bad_alloc &ba)
         {
-          ostringstream s;
-          s << "Bad alloc: " << ba.what();
-
-          ct->server->logWriteln  (s.str ().c_str (), MYSERVER_LOG_MSG_ERROR);
+          ct->server->log (MYSERVER_LOG_MSG_ERROR, _("Bad alloc: %s"),
+                                  ba.what ());
         }
       catch (exception &e)
         {
-          ostringstream s;
-          s << "Error: " << e.what ();
-          ct->server->logWriteln (s.str ().c_str (), MYSERVER_LOG_MSG_ERROR);
+          ct->server->log (MYSERVER_LOG_MSG_ERROR, _("Error : %s"),
+                                  e.what ());
         };
   }
 
@@ -205,8 +202,7 @@ DEFINE_THREAD(clients_thread, pParam)
 }
 
 /*!
- *Join the thread.
- *
+ * Join the thread.
  */
 int ClientsThread::join ()
 {
@@ -215,7 +211,7 @@ int ClientsThread::join ()
 
 
 /*!
- *Create the new thread.
+ * Create the new thread.
  */
 int ClientsThread::run ()
 {
@@ -225,7 +221,7 @@ int ClientsThread::run ()
 }
 
 /*!
- *Returns if the thread can be destroyed.
+ * Returns if the thread can be destroyed.
  */
 bool ClientsThread::isToDestroy()
 {
@@ -233,7 +229,7 @@ bool ClientsThread::isToDestroy()
 }
 
 /*!
- *Check if the thread is a static one.
+ * Check if the thread is a static one.
  */
 bool ClientsThread::isStatic()
 {
@@ -241,8 +237,8 @@ bool ClientsThread::isStatic()
 }
 
 /*!
- *Set the thread to be static.
- *\param value The new static value.
+ * Set the thread to be static.
+ * \param value The new static value.
  */
 void ClientsThread::setStatic (bool value)
 {
@@ -250,8 +246,8 @@ void ClientsThread::setStatic (bool value)
 }
 
 /*!
- *Set if the thread can be destroyed.
- *\param value The new destroy value.
+ * Set if the thread can be destroyed.
+ * \param value The new destroy value.
  */
 void ClientsThread::setToDestroy(bool value)
 {
@@ -259,18 +255,16 @@ void ClientsThread::setToDestroy(bool value)
 }
 
 /*!
- *This is the main loop of the thread.
- *Here are controlled all the connections that belongs to the 
- *ClientsThread class instance.
- *Every connection is controlled by its protocol.
- *Return 1 if no connections to serve are available.
- *Return 0 in all other cases.
+ * This is the main loop of the thread.
+ * Here are controlled all the connections that belongs to the
+ * ClientsThread class instance.
+ * Every connection is controlled by its protocol.
+ *\return 1 if no connections to serve are available.
+ *\return 0 in all other cases.
  */
 int ClientsThread::controlConnections ()
 {
-  /*
-   *Control the protocol used by the connection.
-   */
+  /* Control the protocol used by the connection.  */
   int retcode = 0;
   int err = 0;
   ConnectionPtr c;
@@ -281,9 +275,6 @@ int ClientsThread::controlConnections ()
 
   server->decreaseFreeThread ();
 
-  /*
-   *Check if c is a valid connection structure.
-   */
   if (!c)
     return 1;
 
@@ -322,10 +313,10 @@ int ClientsThread::controlConnections ()
   {
     if (c->hasContinuation ())
       {
-        retcode = c->getContinuation ()(c, (char*)buffer.getBuffer(), 
-                                   (char*)secondaryBuffer.getBuffer(), 
-                                   buffer.getRealLength(), 
-                                   secondaryBuffer.getRealLength(), 
+        retcode = c->getContinuation ()(c, (char*)buffer.getBuffer(),
+                                   (char*)secondaryBuffer.getBuffer(),
+                                   buffer.getRealLength(),
+                                   secondaryBuffer.getRealLength(),
                                    nBytesToRead, id);
         c->setContinuation (NULL);
       }
@@ -333,13 +324,11 @@ int ClientsThread::controlConnections ()
       {
         protocol = server->getProtocol (c->host->getProtocolName ());
         if (protocol)
-          {
-            retcode = protocol->controlConnection (c, (char*)buffer.getBuffer(),
-                                             (char*)secondaryBuffer.getBuffer(), 
-                                              buffer.getRealLength(), 
-                                             secondaryBuffer.getRealLength(), 
-                                             nBytesToRead, id);
-          }
+          retcode = protocol->controlConnection (c, (char*)buffer.getBuffer(),
+                                           (char*)secondaryBuffer.getBuffer(),
+                                           buffer.getRealLength(),
+                                           secondaryBuffer.getRealLength(),
+                                           nBytesToRead, id);
         else
           retcode = DELETE_CONNECTION;
       }
@@ -367,9 +356,9 @@ int ClientsThread::controlConnections ()
   else if (retcode == INCOMPLETE_REQUEST)
     {
       /*
-       *If the header is incomplete save the current received
-       *data in the connection buffer.
-       *Save the header in the connection buffer.
+       * If the header is incomplete save the current received
+       * data in the connection buffer.
+       * Save the header in the connection buffer.
        */
       c->getConnectionBuffer ()->setBuffer (buffer.getBuffer (), nBytesToRead);
       server->getConnectionsScheduler ()->addWaitingConnection (c);

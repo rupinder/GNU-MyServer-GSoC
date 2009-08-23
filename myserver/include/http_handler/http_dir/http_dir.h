@@ -52,7 +52,7 @@ private:
   static bool compareFileStructByTime (HttpDir::FileStruct i, HttpDir::FileStruct j);
   static bool compareFileStructBySize (HttpDir::FileStruct i, HttpDir::FileStruct j);
   void getFormattedSize(u_long bytes, string& out);
-  
+
   void generateHeader (MemBuf &out, char sortType, bool sortReverse, const char *formatString);
   void generateElement (MemBuf &out, FileStruct& fs, string &linkPrefix, const char *formatString);
 

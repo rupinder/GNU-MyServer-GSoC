@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -34,27 +34,26 @@ using namespace std;
 class CachedFileFactory
 {
 public:
-  CachedFileFactory();
-  ~CachedFileFactory();
-  CachedFileFactory(u_long m);
-  void initialize(u_long size);
-  void clean();
-  void setSize(u_long m){size = m;}
-  u_long getSize(){return size;}
-  u_long getUsedSize(){return usedSize;}
-  u_long getUsed(){return used;}
+  CachedFileFactory ();
+  ~CachedFileFactory ();
+  CachedFileFactory (u_long m);
+  void initialize (u_long size);
+  void clean ();
+  void setSize (u_long m){size = m;}
+  u_long getSize (){return size;}
+  u_long getUsedSize (){return usedSize;}
+  u_long getUsed (){return used;}
 
-  File *open(const char* file);
-  void nullReferences(CachedFileBuffer* cfb);
+  File *open (const char* file);
+  void nullReferences (CachedFileBuffer* cfb);
 
-  void setMaxSize(u_long maxSize);
-  void setMinSize(u_long minSize);
-  u_long getMaxSize();
-  u_long getMinSize();
+  void setMaxSize (u_long maxSize);
+  void setMinSize (u_long minSize);
+  u_long getMaxSize ();
+  u_long getMinSize ();
+
 protected:
-
-  u_long purgeRecords();
-
+  u_long purgeRecords ();
 
   Mutex mutex;
 

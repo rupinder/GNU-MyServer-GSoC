@@ -41,11 +41,11 @@ extern "C"
 #include <sys/types.h>
 
 #ifdef WIN32
-#include <direct.h>
+# include <direct.h>
 #endif
 
 /*!
- *Sleep the caller thread for [TIME] microseconds.
+ * Sleep the caller thread for [TIME] microseconds.
  */
 void Thread::wait (u_long time)
 {

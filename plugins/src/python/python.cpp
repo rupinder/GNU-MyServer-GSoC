@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007, 2008 The MyServer Team
+Copyright (C) 2007, 2008, 2009 The MyServer Team
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -53,16 +53,16 @@ void PythonData::clear ()
 
 
 
-int load (void* server, void* parser)
+int load (void* server)
 {
 	serverInstance = (Server*)server;
-	const char* pathData = serverInstance->getHashedData("PYTHON_PATH");
+	const char* pathData = serverInstance->getData("PYTHON_PATH");
 	PyThreadState * mainThreadState;
 	if (pathData)
-	{	
+	{
 		string path (pathData);
 		FilesUtility::completePath (path);
-		
+
 		setenv ("PYTHONPATH", path.c_str(), 1);
 	}
 	else
@@ -112,7 +112,7 @@ int unLoad (void* p)
 
 	Py_Finalize ();
 
-	
+
 	PyThreadState_Swap (NULL);
 
 
@@ -153,7 +153,7 @@ int executeImpl (char* code, u_long length, PyThreadState *threadState, int newT
 
 
 	PyRun_SimpleString (code);
-	
+
 	PyThreadState_Swap (NULL);
 
   if (newThreadState)
@@ -202,20 +202,13 @@ int executeFromFileImpl(char* filename, PyThreadState *threadState, int newThrea
 
 	if(file == 0)
 	{
-		string msg;
-		msg.assign ("Python: Cannot load file ");
-		msg.append (filename);
-
-
-		serverInstance->logWriteln (msg.c_str ());
-
-
+    serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("Python: cannot load file %s"), filename);
 		ret = -1;
 	}
 	else
 		ret = PyRun_AnyFileEx (file, filename, 1);
 
-	
+
 	PyThreadState_Swap (NULL);
 
   if (newThreadState)
@@ -235,7 +228,7 @@ PyObject* callObject(PyObject *obj, PyObject *args)
   return callObjectImpl(obj, args, NULL, 1);
 }
 
- 
+
 PyObject* callObjectImpl(PyObject *obj, PyObject *args, PyThreadState *threadState, int newThreadState)
 {
 	PyInterpreterState *interpreter = NULL;

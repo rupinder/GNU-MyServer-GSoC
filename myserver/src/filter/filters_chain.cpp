@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
- 
+
 #include "stdafx.h"
 #include <include/filter/filters_chain.h>
 #include <include/base/string/stringutils.h>
@@ -34,7 +34,7 @@ int FiltersChain::read(char* buffer, u_long len, u_long* nbr)
     return -1;
   if(firstFilter)
     return firstFilter->read(buffer, len, nbr);
-  
+
   return stream->read(buffer, len, nbr);
 }
 
@@ -95,7 +95,7 @@ void FiltersChain::setAcceptDuplicates(int v)
 }
 
 /*!
- *Return if the chain can have the same filter in multiple places. 
+ *Return if the chain can have the same filter in multiple places.
  */
 int FiltersChain::getAcceptDuplicates()
 {
@@ -111,9 +111,9 @@ FiltersChain::~FiltersChain()
 }
 
 /*!
- *Add a filter to the chain. 
+ *Add a filter to the chain.
  *Returns 0 on success.
- *the number of bytes written to initialize the filter. 
+ *the number of bytes written to initialize the filter.
  */
 int FiltersChain::addFilter(Filter* f, u_long *nbw, int sendData)
 {
@@ -153,7 +153,7 @@ int FiltersChain::addFilter(Filter* f, u_long *nbw, int sendData)
     }
   }
 
-  /*! 
+  /*!
    *Add the new filter at the end of the list.
    *The new filter will write directly the old firstFilter.
    */
@@ -167,10 +167,10 @@ int FiltersChain::addFilter(Filter* f, u_long *nbw, int sendData)
   return ret;
 }
 
-/*! 
+/*!
  *Flush remaining data.
  *Additional footer data for filters is added at the end.
- *Returns 0 on success. 
+ *Returns 0 on success.
  */
 int FiltersChain::flush(u_long* nbw)
 {
@@ -192,7 +192,7 @@ int FiltersChain::flush(u_long* nbw)
 
   ;
   /*!
-   *Position on the last element. 
+   *Position on the last element.
    */
   i = filters.end();
 
@@ -209,7 +209,7 @@ int FiltersChain::flush(u_long* nbw)
     f->getParent()->write(buffer, tmpNbw, nbw);
     written += (*nbw);
   }
-  
+
   /*! Set the final value. */
   *nbw = written;
   return 0;
@@ -248,7 +248,7 @@ int FiltersChain::isFilterPresent(const char* name)
 int FiltersChain::removeFilter(Filter* f)
 {
   list<Filter*>::iterator i = filters.begin();
-  list<Filter*>::iterator prev = filters.end();   
+  list<Filter*>::iterator prev = filters.end();
   for( ; i != filters.end(); ++i )
   {
     if(*i == f)
@@ -259,8 +259,8 @@ int FiltersChain::removeFilter(Filter* f)
       }
       else
       {
-        /*! 
-         *It is the first filter according to the linked list. 
+        /*!
+         *It is the first filter according to the linked list.
          *Do not use the getParent function here as it can be a Stream.
          */
         if(i == filters.end())
@@ -281,7 +281,7 @@ int FiltersChain::removeFilter(Filter* f)
     }
     prev = i;
   }
-      
+
   return 0;
 }
 

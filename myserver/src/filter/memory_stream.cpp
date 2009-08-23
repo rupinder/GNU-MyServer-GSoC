@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
- 
+
 #include <include/filter/memory_stream.h>
 
 #include <string>
@@ -45,7 +45,7 @@ int MemoryStream::read(char* buffer, u_long len, u_long *nbr)
  */
 int MemoryStream::read(Stream* s, u_long len, u_long *nbr)
 {
-  u_long towrite = *nbr = std::min(len, static_cast<u_long>(data->getLength() - readSeek));  
+  u_long towrite = *nbr = std::min(len, static_cast<u_long>(data->getLength() - readSeek));
   int ret = s->write(data->getBuffer()+readSeek, towrite, nbr);
   readSeek += towrite;
   return ret;

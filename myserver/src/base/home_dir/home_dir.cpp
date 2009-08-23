@@ -110,7 +110,7 @@ int HomeDir::load ()
 {
   int ret;
   loadMutex.lock ();
-  
+
   ret = loadImpl ();
 
   loadMutex.unlock ();
@@ -158,7 +158,7 @@ int HomeDir::loadImpl ()
       return 1;
     }
 
-  buffer = new char[size+1]; 
+  buffer = new char[size+1];
 
   usersFile.read (buffer, size, &read);
   buffer[read] = '\0';

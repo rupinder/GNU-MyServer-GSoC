@@ -109,7 +109,7 @@ int Semaphore::lock(u_long /*id*/)
     Thread::wait(1);
 #endif
 
-#else  
+#else
   err = (WaitForSingleObject(semaphore, INFINITE) == WAIT_FAILED) ? 1 : 0;
 #endif
   return err;
@@ -123,7 +123,7 @@ int Semaphore::unlock(u_long/*! id*/)
   int err;
 #ifdef HAVE_PTHREAD
   err = sem_post(&semaphore);
-#else  
+#else
   err = (ReleaseSemaphore(semaphore, 1, NULL) == FALSE) ? 1 : 0;
 #endif
   return err;

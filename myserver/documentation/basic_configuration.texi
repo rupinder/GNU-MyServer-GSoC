@@ -24,12 +24,6 @@ following order:
 @item Global scope inside /etc/myserver.
 @end enumerate
 
-@section Message localization
-It is possible to change the localization for some MyServer messages
-changing the @code{server.language} value in the @file{myserver.xml} file.
-By default the english language is used, the value specified here must
-refer to a xml file contained in the @file{languages/} directory.
-
 @section Server administrator
 CGI scripts can get the server administrator e-mail and show them to
 the user (through the SERVER_ADMIN environment variable). 

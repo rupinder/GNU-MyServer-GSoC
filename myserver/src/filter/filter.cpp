@@ -127,7 +127,7 @@ int Filter::modifyData()
 }
 
 /*!
- *Return a string with the filter name. 
+ *Return a string with the filter name.
  *If an external buffer is provided write the name there too.
  *\param name The buffer where write the filter name.
  *\param len The buffer length.

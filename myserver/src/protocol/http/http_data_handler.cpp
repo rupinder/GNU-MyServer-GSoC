@@ -6,7 +6,7 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful, 
+This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
@@ -26,7 +26,7 @@ HttpDataHandler::send (HttpThreadContext* td,
                        const char* /*filenamePath*/, const char* /*exec*/,
                        bool /*execute*/, bool /*onlyHeader*/)
 {
-  td->connection->host->warningsLogWrite ("HttpDataHandler: using the base interface!");
+  td->connection->host->warningsLogWrite (_("HttpDataHandler: using the base interface!"));
   return td->http->raiseHTTPError (500);
 }
 
@@ -99,14 +99,14 @@ int HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td,
 
   if (chain->write (buffer, size, &nbw))
     {
-      td->connection->host->warningsLogWrite ("HTTP<DATA HANDLER ERROR>: unable to write data in the buffer.");
+      td->connection->host->warningsLogWrite (_("Http: internal error"));
       return 1;
     }
 
 
   if (tmpStream->read (buffer, realBufferSize, &nbr))
     {
-      td->connection->host->warningsLogWrite ("HTTP<DATA HANDLER ERROR>: unable to read data from the buffer.");
+      td->connection->host->warningsLogWrite (_("Http: internal error"));
       return 1;
     }
 
@@ -132,19 +132,15 @@ int HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td,
  * \param useChunks Can we use HTTP chunks to send data?
  */
 int
-HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td,
-                                          char* buffer,
-                                          u_long size,
-                                          File* appendFile,
-                                          FiltersChain* chain,
-                                          bool append,
-                                          bool useChunks)
+HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td, char* buffer,
+                           u_long size, File* appendFile, FiltersChain* chain,
+                                          bool append, bool useChunks)
 {
   u_long nbw;
 
   if (chain->hasModifiersFilters ())
     {
-      td->connection->host->warningsLogWrite ("HTTP<DATA HANDLER ERROR>: Filter chain has modifiers filters.");
+      td->connection->host->warningsLogWrite (_("Http: internal error"));
       return 1;
     }
 
@@ -160,27 +156,27 @@ HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td,
 
           if (chain->flush (&flushNbw))
             {
-              td->connection->host->warningsLogWrite ("HTTP<DATA HANDLER ERROR>: unable to flush data.");
+              td->connection->host->warningsLogWrite (_("Http: internal error"));
               return 1;
             }
 
           if (chain->getStream ()->write (chunkHeader.str ().c_str (),
                                           chunkHeader.str ().length (), &nbw))
             {
-              td->connection->host->warningsLogWrite ("HTTP<DATA HANDLER ERROR>: unable to write data in the filters chain.");
+              td->connection->host->warningsLogWrite (_("Http: internal error"));
               return 1;
             }
         }
 
       if (size && chain->write (buffer, size, &nbw))
         {
-          td->connection->host->warningsLogWrite ("HTTP<DATA HANDLER ERROR>: unable to write data in the filters chain.");
+          td->connection->host->warningsLogWrite (_("Http: internal error"));
           return 1;
         }
 
       if (useChunks && chain->getStream ()->write ("\r\n", 2, &nbw))
         {
-          td->connection->host->warningsLogWrite ("HTTP<DATA HANDLER ERROR>: unable to write data in the filters chain.");
+          td->connection->host->warningsLogWrite (_("Http: internal error"));
           return 1;
         }
 

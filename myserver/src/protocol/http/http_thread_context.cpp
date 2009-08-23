@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *is propagated to the virtual host, if it is defined.
  *\param name The key name to look for in the hash map.
  */
-const char* HttpThreadContext::getHashedData (const char *name)
+const char* HttpThreadContext::getData (const char *name)
 {
   Vhost *vh = (Vhost*)connection->host;
 
@@ -35,7 +35,7 @@ const char* HttpThreadContext::getHashedData (const char *name)
   if (ret)
     return ret->c_str ();
   else
-    return vh ? vh->getHashedData (name) : NULL;
+    return vh ? vh->getData (name) : NULL;
 }
 
 /*!

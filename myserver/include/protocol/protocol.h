@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /*!
  *This is the base class to derive other protocols implementations for the server.
  */
-class Protocol 
+class Protocol
 {
 public:
 	Protocol();
@@ -37,8 +37,8 @@ public:
 	virtual char* registerName (char*,int len);
 	virtual int controlConnection (ConnectionPtr a, char *b1, char *b2,
                                  int bs1, int bs2, u_long nbtr, u_long id);
-	virtual int loadProtocol (XmlParser*);
-	virtual int unLoadProtocol (XmlParser*);
+	virtual int loadProtocol ();
+	virtual int unLoadProtocol ();
 
   virtual int getProtocolOptions (){return protocolOptions;}
 

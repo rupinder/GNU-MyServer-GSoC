@@ -115,14 +115,14 @@ char* MscgiManager::getParam(const char* param)
   {
     while((*c) && strncmp(c, param, std::min(strlen(param), strlen(c))))
       c++;
-      
+
     if(*c == '\0')
     {
        return &localbuffer[0];
     }
-    
+
     c += strlen(param);
-    
+
     if(*c == '=')
     {
       c++;
@@ -146,12 +146,12 @@ char* MscgiManager::postParam(const char* param)
   char buffer[LOCAL_BUFFER_DIM + 50];
   u_long nbr = 0;
   char c;
-  
+
   u_long toRead = td->inputData.getFileSize();
 
   buffer[0] = '\0';
   localbuffer[0] = '\0';
-  
+
   if( (toRead == 0) || (toRead == (u_long)-1) )
     return 0;
   do
@@ -204,12 +204,12 @@ char *MscgiManager::operator >>(const char* str)
     return postParam(str);
   else
     return getParam(str);
-} 
+}
 
 /*!
  *Get the value of an environment variable.
  */
-void MscgiManager::getenv(const char* lpszVariableName, char *lpvBuffer, 
+void MscgiManager::getenv(const char* lpszVariableName, char *lpvBuffer,
                         u_long* lpdwSize)
 {
   ((char*)lpvBuffer)[0] = '\0';
@@ -217,12 +217,12 @@ void MscgiManager::getenv(const char* lpszVariableName, char *lpvBuffer,
   size_t variableNameLen = strlen(lpszVariableName);
   for(u_long i = 0; ; i += (u_long)strlen(&localEnv[i]) + 1)
   {
-    if(((localEnv[i+variableNameLen])== '=') && 
+    if(((localEnv[i+variableNameLen])== '=') &&
        (!strncmp(&localEnv[i], lpszVariableName, variableNameLen)))
     {
       u_long j = 0;
       u_long min_v = std::min((u_long)strlen(&localEnv[i + variableNameLen+1]),
-                              (u_long)(*lpvBuffer)-1); 
+                              (u_long)(*lpvBuffer)-1);
       for(j = 0; j < min_v; j++)
         lpvBuffer[j] = localEnv[i + variableNameLen + j + 1];
       lpvBuffer[j] = '\0';
@@ -237,7 +237,7 @@ void MscgiManager::getenv(const char* lpszVariableName, char *lpvBuffer,
 }
 
 /*!
- *Returns the CGI data structure. 
+ *Returns the CGI data structure.
  *This structure is shared with the MyServer core so use it carefully!
  */
 MsCgiData* MscgiManager::getCgiData()

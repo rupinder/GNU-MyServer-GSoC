@@ -1,7 +1,7 @@
 lib_LIBRARIES = libhttp_handler.a
 libhttp_handler_a_SOURCES =
 SUBDIRS = cgi fastcgi http_dir http_file isapi mscgi proxy scgi wincgi
-INCLUDES = $(all_includes)
+AM_CPPFLAGS = $(all_includes)
 
 install:
 # Do not do anything.

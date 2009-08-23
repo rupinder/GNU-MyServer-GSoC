@@ -102,7 +102,7 @@ u_long Connection::getID ()
 
 /*!
  *Set the IDentifier for the connection.
- *\param nID The new ID. 
+ *\param nID The new ID.
  */
 void Connection::setID (u_long nID)
 {
@@ -167,7 +167,7 @@ const char* Connection::getLogin ()
 
 /*!
  *Set the login name for the connection user.
- *\param loginName The login name. 
+ *\param loginName The login name.
  */
 void Connection::setLogin (const char* loginName)
 {
@@ -242,7 +242,7 @@ u_short Connection::getLocalPort ()
 
 /*!
  *Set the local port used to connect to.
- *\param np The new local port. 
+ *\param np The new local port.
  */
 void Connection::setLocalPort (u_short np)
 {
@@ -259,7 +259,7 @@ u_long Connection::getTimeout ()
 
 /*!
  *Set the timeout to use with the connection.
- *\param nTimeout The new timeout value. 
+ *\param nTimeout The new timeout value.
  */
 void Connection::setTimeout (u_long nTimeout)
 {
@@ -276,7 +276,7 @@ int Connection::getToRemove ()
 
 /*!
  *Set the reason to remove the connection.
- *\param r Set if the connection/connection.has to be removed. 
+ *\param r Set if the connection/connection.has to be removed.
  */
 void Connection::setToRemove (int r)
 {
@@ -292,7 +292,7 @@ int Connection::isForceControl ()
 }
 /*!
  *Force the control of this connection on next server loop.
- *\param fp The new force control value even if there is new data. 
+ *\param fp The new force control value even if there is new data.
  */
 void Connection::setForceControl (int fp)
 {

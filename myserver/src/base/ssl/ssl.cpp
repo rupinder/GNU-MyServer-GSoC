@@ -85,7 +85,7 @@ int SslContext::initialize ()
     return -1;
 
   return 1;
-}  
+}
 
 int SslContext::free ()
 {
@@ -96,7 +96,7 @@ int SslContext::free ()
       ret = 1;
       context = 0;
     }
-  else 
+  else
     ret = 0;
   certificateFile.assign ("");
   privateKeyFile.assign ("");

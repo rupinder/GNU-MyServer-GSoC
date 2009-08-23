@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
- *To get more info about the FastCGI protocol please visit the official 
+ *To get more info about the FastCGI protocol please visit the official
  *FastCGI site at: http://www.fastcgi.com.
  *On that site you can find samples and all the supported languages.
  */
@@ -100,14 +100,14 @@ int FastCgi::send(HttpThreadContext* td, const char* scriptpath,
   chain.setProtocol(td->http);
   chain.setProtocolData(td);
   chain.setStream(td->connection->socket);
- 
+
   if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain,
                                                                    td->mime->filters,
                                                                    td->connection->socket,
-                                                                   &nbw, 
+                                                                   &nbw,
                                                                    1))
   {
-    td->connection->host->warningsLogWrite("FastCGI: Error loading filters");
+    td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
     chain.clearAllFilters();
     return td->http->raiseHTTPError(500);
   }
@@ -169,7 +169,7 @@ int FastCgi::send(HttpThreadContext* td, const char* scriptpath,
         int len = strlen(cgipath);
         int subString = cgipath[0] == '"';
 
-        cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" " 
+        cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" "
                 << moreArg << " \"" <<  td->filenamePath << "\"";
       }
 #else
@@ -192,16 +192,12 @@ int FastCgi::send(HttpThreadContext* td, const char* scriptpath,
   }
 
   td->inputData.close();
-  if(td->inputData.openFile(td->inputDataPath, File::READ | 
+  if(td->inputData.openFile(td->inputDataPath, File::READ |
                             File::FILE_OPEN_ALWAYS |
                             File::NO_INHERIT))
   {
     td->buffer->setLength(0);
-    if(Server::getInstance()->getVerbosity() > 2)
-    {
-      *td->buffer << "FastCGI: Error opening stdin file" << '\0';
-      td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-    }
+    td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
     chain.clearAllFilters();
     return td->http->raiseHTTPError(500);
   }
@@ -211,12 +207,8 @@ int FastCgi::send(HttpThreadContext* td, const char* scriptpath,
   if (server == 0)
   {
     td->buffer->setLength (0);
-    if(Server::getInstance ()->getVerbosity () > 2)
-    {
-      *td->buffer << "FastCGI: Error connecting to FastCGI "
-                  << cmdLine.str().c_str() << " process" << '\0';
-      td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-    }
+    td->connection->host->warningsLogWrite (_("FastCGI: cannot connect to the %s process"),
+                                            cmdLine.str ().c_str ());
     chain.clearAllFilters();
     return td->http->raiseHTTPError(500);
   }
@@ -224,9 +216,7 @@ int FastCgi::send(HttpThreadContext* td, const char* scriptpath,
   id = td->id + 1;
 
   if (fastCgiRequest (&con, id))
-  {
     return td->http->raiseHTTPError(500);
-  }
 
   /*! Now read the output. This flag is used by the external loop.  */
   exit = 0;
@@ -242,7 +232,7 @@ int FastCgi::send(HttpThreadContext* td, const char* scriptpath,
   do
   {
     u_long dim;
-    
+
     if (readHeader (&con, &header, initialTicks, timeout, id))
     {
       exit = 1;
@@ -278,7 +268,7 @@ int FastCgi::send(HttpThreadContext* td, const char* scriptpath,
           break;
         case FCGISTDOUT:
           headerCompleted = false;
-          ret = sendData (&con, dim, static_cast<u_long>(timeout), &chain, 
+          ret = sendData (&con, dim, static_cast<u_long>(timeout), &chain,
                           &headerCompleted, onlyHeader);
 
           if (ret)
@@ -311,7 +301,7 @@ int FastCgi::send(HttpThreadContext* td, const char* scriptpath,
       while (toPad)
       {
         nbr = con.sock.recv(td->buffer->getBuffer(),
-                            std::min(toPad, (u_long)td->buffer->getRealLength()), 0, 
+                            std::min(toPad, (u_long)td->buffer->getRealLength()), 0,
                             static_cast<u_long>(timeout));
         if (nbr == (u_long)-1)
         {
@@ -325,13 +315,13 @@ int FastCgi::send(HttpThreadContext* td, const char* scriptpath,
   }while (!exit);
 
   /* Send the last null chunk if needed.  */
-  if(con.useChunks && 
+  if(con.useChunks &&
      (td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL))
     chain.getStream ()->write("0\r\n\r\n", 5, &nbw);
 
   chain.clearAllFilters();
   con.sock.close();
- 
+
   return ret;
 }
 
@@ -505,10 +495,10 @@ FastCgiServer* FastCgi::connect(FcgiContext* con, const char* path)
 
 /*!
  *Run the FastCGI server.
- *If the path starts with a @ character, the path is handled as a 
+ *If the path starts with a @ character, the path is handled as a
  *remote server.
  */
-FastCgiServer* FastCgi::runFcgiServer(FcgiContext* context, 
+FastCgiServer* FastCgi::runFcgiServer(FcgiContext* context,
                                       const char* path)
 {
   /* This method needs a better home (and maybe better code).
@@ -538,8 +528,8 @@ FastCgiServer* FastCgi::runFcgiServer(FcgiContext* context,
     myserver_strlcpy(host, &path[1], min(128, i));
 
     myserver_strlcpy(port, &path[i + 1], 6);
-    
-    return processServerManager->addRemoteServer(SERVERS_DOMAIN, path, 
+
+    return processServerManager->addRemoteServer(SERVERS_DOMAIN, path,
                                                  host, atoi(port));
   }
 
@@ -584,11 +574,7 @@ int FastCgi::fastCgiRequest (FcgiContext* con, int id)
   if(sizeEnvString == -1)
   {
     td->buffer->setLength(0);
-    if(Server::getInstance()->getVerbosity() > 2)
-    {
-      *td->buffer << "FastCGI: Error to build env string" << '\0';
-      td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-    }
+    td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
     return 1;
   }
 
@@ -601,11 +587,7 @@ int FastCgi::fastCgiRequest (FcgiContext* con, int id)
   if(sendFcgiBody(con, (char*)&tBody, sizeof(tBody), FCGIBEGIN_REQUEST, id))
   {
     td->buffer->setLength(0);
-    if(Server::getInstance()->getVerbosity() > 2)
-    {
-      *td->buffer<< "FastCGI: Error beginning the request" << '\0';
-      td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-    }
+    td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
     return 1;
   }
 
@@ -613,22 +595,14 @@ int FastCgi::fastCgiRequest (FcgiContext* con, int id)
                   FCGIPARAMS, id))
   {
     td->buffer->setLength(0);
-    if(Server::getInstance()->getVerbosity() > 2)
-    {
-      *td->buffer << "FastCGI: Error sending params" << '\0';
-      td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-    }
+    td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
     return 1;
   }
 
   if(sendFcgiBody(con, 0, 0, FCGIPARAMS, id))
   {
     td->buffer->setLength(0);
-    if(Server::getInstance()->getVerbosity() > 2)
-    {
-      *td->buffer << "FastCGI: Error sending params" << '\0';
-      td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-    }
+    td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
     return 1;
   }
 
@@ -638,10 +612,9 @@ int FastCgi::fastCgiRequest (FcgiContext* con, int id)
 
 
     if(td->inputData.seek (0))
-      if(Server::getInstance()->getVerbosity() > 2)
       {
-        *td->buffer << "FastCGI: Error sending POST data" << '\0';
-        td->connection->host->warningsLogWrite(td->buffer->getBuffer());
+        td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
+        return 1;
       }
 
     /*! Send the STDIN data.  */
@@ -651,48 +624,34 @@ int FastCgi::fastCgiRequest (FcgiContext* con, int id)
                                     maxStdinChunk, &nbr))
       {
         td->buffer->setLength(0);
-        if(Server::getInstance()->getVerbosity() > 2)
-        {
-          *td->buffer << "FastCGI: Error reading from file" << '\0';
-          td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-        }
+        td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
         return 1;
       }
 
       if(!nbr)
         break;
 
-      generateFcgiHeader( header, FCGISTDIN, id, nbr);
-      if(con->sock.send((char*)&header, sizeof(header), 0) == -1)
-      {
+      generateFcgiHeader (header, FCGISTDIN, id, nbr);
+      if (con->sock.send ((char*)&header, sizeof(header), 0) == -1)
         return 1;
-      }
 
-      if(con->sock.send(td->buffer->getBuffer(),nbr,0) == -1)
-      {
-        td->buffer->setLength(0);
-        if(Server::getInstance()->getVerbosity() > 2)
+      if (con->sock.send (td->buffer->getBuffer (), nbr, 0) == -1)
         {
-          *td->buffer << "FastCGI: Error sending data" << '\0';
-          td->connection->host->warningsLogWrite(td->buffer->getBuffer());
+          td->buffer->setLength(0);
+          td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
+          return 1;
         }
-        return 1;
-      }
-    }while(nbr == maxStdinChunk);
+    }
+    while (nbr == maxStdinChunk);
   }
 
   /*! Final stdin chunk.  */
-  if(sendFcgiBody(con, 0, 0, FCGISTDIN, id))
-  {
-    td->buffer->setLength(0);
-    if(Server::getInstance()->getVerbosity() > 2)
+  if (sendFcgiBody (con, 0, 0, FCGISTDIN, id))
     {
-      *td->buffer << "FastCGI: Error sending POST data" << '\0';
-      td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-
+      td->buffer->setLength(0);
+      td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
+      return 1;
     }
-    return 1;
-  }
 
   return 0;
 }
@@ -709,7 +668,7 @@ int FastCgi::fastCgiRequest (FcgiContext* con, int id)
  *\param onlyHeader Send only the HTTP header.
  *\return 0 on success.
  */
-int FastCgi::sendData (FcgiContext* con, u_long dim, u_long timeout, FiltersChain* chain, 
+int FastCgi::sendData (FcgiContext* con, u_long dim, u_long timeout, FiltersChain* chain,
                        bool *responseCompleted, int onlyHeader)
 {
   u_long dataRead = 0;
@@ -729,7 +688,7 @@ int FastCgi::sendData (FcgiContext* con, u_long dim, u_long timeout, FiltersChai
 
     u_long nbr = con->sock.recv (td->buffer->getBuffer () + td->buffer->getLength (),
                                  std::min ((u_long)td->buffer->getRealLength (),
-                                           dim - td->buffer->getLength ()), 
+                                           dim - td->buffer->getLength ()),
                                  0, timeout);
     if (nbr == (u_long)-1 || nbr == 0)
     {
@@ -749,7 +708,7 @@ int FastCgi::sendData (FcgiContext* con, u_long dim, u_long timeout, FiltersChai
   if (onlyHeader || con->td->response.getStatusType () != HttpResponseHeader::SUCCESSFUL)
     return 0;
 
-  if(HttpDataHandler::appendDataToHTTPChannel(con->td, 
+  if(HttpDataHandler::appendDataToHTTPChannel(con->td,
                                               con->td->buffer->getBuffer (),
                                               con->td->buffer->getLength (),
                                               &(con->td->outputData),
@@ -757,7 +716,7 @@ int FastCgi::sendData (FcgiContext* con, u_long dim, u_long timeout, FiltersChai
                                               con->td->appendOutputs,
                                               con->useChunks))
     return 1;
-  
+
   con->td->sentData += con->td->buffer->getLength ();
 
   return 0;
@@ -787,7 +746,7 @@ int FastCgi::handleHeader (FcgiContext* con, FiltersChain* chain, bool* response
   }
 
   HttpHeaders::buildHTTPResponseHeaderStruct(con->td->buffer->getBuffer(),
-                                             &con->td->response, 
+                                             &con->td->response,
                                              &(con->td->nBytesToRead));
 
   if(!con->td->appendOutputs)
@@ -808,18 +767,18 @@ int FastCgi::handleHeader (FcgiContext* con, FiltersChain* chain, bool* response
     {
       *responseCompleted = true;
       return 1;
-    }  
+    }
 
   }
-  
+
   con->headerSent = true;
 
   /* Flush the buffer if remaining data is present.  */
-  if (con->td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL && 
+  if (con->td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL &&
       size - headerSize)
   {
-    if(HttpDataHandler::appendDataToHTTPChannel(con->td, 
-                                                con->td->buffer->getBuffer() + headerSize, 
+    if(HttpDataHandler::appendDataToHTTPChannel(con->td,
+                                                con->td->buffer->getBuffer() + headerSize,
                                                 size - headerSize,
                                                 &(con->td->outputData),
                                                 chain,
@@ -854,16 +813,14 @@ int FastCgi::readHeader (FcgiContext *con, FcgiHeader* header, u_long started, u
     u_long ticks = getTicks ();
 
     if (ticks - started > timeout)
-    {
-      td->buffer->setLength(0);
-      *td->buffer << "FastCGI: server timeout" << '\0';
-      td->connection->host->warningsLogWrite(td->buffer->getBuffer());
-      sendFcgiBody(con, 0, 0, FCGIABORT_REQUEST, id);
-      return 1;
-    }
+      {
+        td->connection->host->warningsLogWrite (_("FastCGI: server timeout"));
+        sendFcgiBody (con, 0, 0, FCGIABORT_REQUEST, id);
+        return 1;
+      }
 
-    nbr = con->sock.recv(buffer + readData, sizeof(FcgiHeader) - readData, 0, 
-                         timeout - (ticks - started));
+    nbr = con->sock.recv (buffer + readData, sizeof(FcgiHeader) - readData, 0,
+                          timeout - (ticks - started));
 
     if (nbr == static_cast<u_long>(-1) || nbr == 0)
       return 1;
@@ -875,9 +832,7 @@ int FastCgi::readHeader (FcgiContext *con, FcgiHeader* header, u_long started, u
 
     if (readData > sizeof (FcgiHeader))
     {
-      td->buffer->setLength(0);
-      *td->buffer << "FastCGI: Error reading data" << '\0';
-      td->connection->host->warningsLogWrite(td->buffer->getBuffer());
+      td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
       sendFcgiBody(con, 0, 0, FCGIABORT_REQUEST, id);
       return 1;
     }

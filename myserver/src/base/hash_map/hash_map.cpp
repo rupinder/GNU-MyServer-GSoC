@@ -937,7 +937,7 @@ ValueType HashMap<string, ValueType>::get(const string& key)
 {
   unsigned int tempHash;
   typename list < Shkv<string, ValueType> >::iterator dataIter;
-  
+
   tempHash=hash(key.c_str(), key.size());
   if(map[tempHash & mask]>=offset)
   {

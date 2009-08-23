@@ -39,8 +39,8 @@ public:
 	{
 		/*! Server executable path.  */
 		string path;
-		
-		union 
+
+		union
 		{
 			unsigned long fileHandle;
 			SocketHandle sock;
@@ -49,7 +49,7 @@ public:
 
 		Socket socket;
 		string host;
-		Process process; 
+		Process process;
 		u_short port;
 		struct ServerDomain* sd;
 		bool isLocal;
@@ -74,7 +74,7 @@ public:
 			clear = 0;
 		}
 	};
-	
+
 	ServerDomain* createDomain(const char* name);
 	ServerDomain* getDomain(const char* name);
 	void clear();
@@ -87,16 +87,16 @@ public:
 	void removeDomain(const char* domain);
 	int domainServers(const char* domain);
 	void load();
-	Server* runAndAddServer(const char* domain, const char* name, 
+	Server* runAndAddServer(const char* domain, const char* name,
                           int uid = 0, int gid = 0, u_short port = 0);
-	Server* addRemoteServer(const char* domain, const char* name, 
+	Server* addRemoteServer(const char* domain, const char* name,
 													const char* host, u_short port);
 private:
 	int maxServers;
 	int nServers;
   Mutex mutex;
 	HashMap<string, ServerDomain*> domains;
-  int runServer(Server* server, const char* path, int uid = 0, 
+  int runServer(Server* server, const char* path, int uid = 0,
                 int gid = 0, u_short port = 0);
 	void addServer(Server* server, const char* domain, const char* name);
 };

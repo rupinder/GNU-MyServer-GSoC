@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /*!
  * Load the protocol. Called once at runtime.
  */
-int Protocol::loadProtocol (XmlParser* /*languageParser*/)
+int Protocol::loadProtocol ()
 {
   return 1;
 }
@@ -28,7 +28,7 @@ int Protocol::loadProtocol (XmlParser* /*languageParser*/)
 /*!
  * Unload the protocol. Called once.
  */
-int Protocol::unLoadProtocol (XmlParser* /*languageParser*/)
+int Protocol::unLoadProtocol ()
 {
   return 1;
 }
@@ -44,7 +44,7 @@ int Protocol::controlConnection (ConnectionPtr /*a*/,char* /*b1*/,
 }
 
 /*!
- * Returns the name of the protocol. If an out buffer is 
+ * Returns the name of the protocol. If an out buffer is
  * defined fullfill it with the name too.
  */
 char* Protocol::registerName (char* /*out*/,int /*len*/)

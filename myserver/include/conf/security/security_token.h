@@ -51,7 +51,7 @@ public:
   SecurityToken();
   void reset();
 
-  const char* getHashedData (const char* name, int domains, const char *def = NULL);
+  const char* getData (const char* name, int domains, const char *def = NULL);
   NodeTree<string>* getNodeTree (string& key, int domains, NodeTree<string>* def = NULL);
 
 
@@ -94,7 +94,7 @@ public:
   {
     return providedMask;
   }
-  
+
   string& getNeededPassword ()
   {
     return neededPassword;
@@ -155,7 +155,7 @@ public:
   {
     providedMask = p;
   }
-  
+
   void setNeededPassword (string& pw)
   {
     neededPassword.assign (pw);
@@ -211,7 +211,7 @@ private:
   int mask;
 
   /*!
-   *Password that the user should provide to have access. 
+   *Password that the user should provide to have access.
    *This is used in authorization schemes like the HTTP digest,
    *where the password is not sent in clear on the network.
    */
@@ -219,7 +219,7 @@ private:
 
   /*! The provided password is correct.  */
   bool authenticated;
- 
+
   /*! The obtained mask if password were correct.  */
   int providedMask;
 

@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
   MyServer
-  Copyright (C) 2007 Free Software Foundation, Inc.
+  Copyright (C) 2007, 2009 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -26,14 +26,14 @@
 class VhostSource
 {
 public:
-  VhostSource();
-  ~VhostSource();
-  int load();
-  int save();
-  int free();
-  Vhost* getVHost(const char*, const char*, u_short);
-  Vhost* getVHostByNumber(int n);
-  int addVHost(Vhost*);
+  VhostSource ();
+  ~VhostSource ();
+  int load ();
+  int save ();
+  int free ();
+  Vhost* getVHost (const char*, const char*, u_short);
+  Vhost* getVHostByNumber (int n);
+  int addVHost (Vhost*);
 private:
   list<Vhost*> *hostList;
 };
@@ -41,25 +41,25 @@ private:
 class VhostManager
 {
 public:
-  void setExternalSource(VhostSource* extSource);
-  VhostManager(ListenThreads* lt, LogManager* lm);
-  ~VhostManager();
-  int getHostsNumber();
-  Vhost* getVHostByNumber(int n);
-  void clean();
-  int removeVHost(int n);
-  int switchVhosts(int n1,int n2);
-  list<Vhost*>* getVHostList();
-	
+  void setExternalSource (VhostSource* extSource);
+  VhostManager (ListenThreads* lt, LogManager* lm);
+  ~VhostManager ();
+  int getHostsNumber ();
+  Vhost* getVHostByNumber (int n);
+  void clean ();
+  int removeVHost (int n);
+  int switchVhosts (int n1,int n2);
+  list<Vhost*>* getVHostList ();
+
   /*! Get a pointer to a vhost.  */
-  Vhost* getVHost(const char*,const char*,u_short);
-	
+  Vhost* getVHost (const char*,const char*,u_short);
+
   /*! Add an element to the vhost list.  */
-  int addVHost(Vhost*);
-	
+  int addVHost (Vhost*);
+
   /*! Load the virtual hosts list from a xml configuration file.  */
-  int loadXMLConfigurationFile(const char *);
-	
+  int loadXMLConfigurationFile (const char *);
+
   /*! Set the right owner for the log locations.  */
   void changeLocationsOwner ();
 private:
@@ -72,6 +72,5 @@ private:
   list<Vhost*> hostList;
   LogManager* logManager;
 };
-
 
 #endif

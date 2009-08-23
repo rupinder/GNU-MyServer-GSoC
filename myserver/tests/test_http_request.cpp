@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -64,7 +64,7 @@ public:
     int ret = HttpHeaders::buildHTTPRequestHeaderStruct(requestStr,
                                                         bufferLength,
                                                         &requestLength,
-                                                        &header, 
+                                                        &header,
                                                         &connection);
 
     CPPUNIT_ASSERT_EQUAL(ret, 200);
@@ -91,10 +91,10 @@ public:
     ret = HttpHeaders::buildHTTPRequestHeaderStruct(requestStr,
                                                     bufferLength,
                                                     &requestLength,
-                                                    &header, 
+                                                    &header,
                                                     &connection);
 
-    
+
     CPPUNIT_ASSERT(ret == 200);
     CPPUNIT_ASSERT(header.rangeByteBegin == 10);
     CPPUNIT_ASSERT(header.rangeByteEnd == 20);
@@ -107,10 +107,10 @@ public:
     ret = HttpHeaders::buildHTTPRequestHeaderStruct(requestStr,
                                                     bufferLength,
                                                     &requestLength,
-                                                    &header, 
+                                                    &header,
                                                     &connection);
 
-    
+
     CPPUNIT_ASSERT(ret == 200);
     CPPUNIT_ASSERT(header.rangeByteBegin == 10);
     CPPUNIT_ASSERT(header.rangeByteEnd == 0);
@@ -125,7 +125,7 @@ public:
     u_long nChars;
     ret = HttpHeaders::validHTTPRequest(request,
                                         strlen(request),
-                                        &nLines, 
+                                        &nLines,
                                         &nChars);
 
     CPPUNIT_ASSERT_EQUAL(ret, 200);
@@ -139,12 +139,12 @@ public:
     u_long nChars;
     ret = HttpHeaders::validHTTPRequest(incompleteRequest,
                                         strlen(incompleteRequest),
-                                        &nLines, 
+                                        &nLines,
                                         &nChars);
 
     CPPUNIT_ASSERT_EQUAL(ret, -1);
   }
-  
+
 
   void testDefaultHttpRequest()
   {
@@ -159,7 +159,7 @@ public:
     CPPUNIT_ASSERT(header.uriOptsPtr == NULL);
     CPPUNIT_ASSERT(header.getValue("NotExists", 0) == NULL);
   }
-  
+
 
   void testResetHttpRequest()
   {
@@ -173,7 +173,7 @@ public:
     CPPUNIT_ASSERT(header.uriOptsPtr == NULL);
     CPPUNIT_ASSERT(header.getValue("NotExists", 0) == NULL);
   }
-  
+
 };
 
 

@@ -41,7 +41,7 @@ using namespace std;
  */
 #define FCGI_LISTENSOCK_FILENO 0
 
-typedef struct 
+typedef struct
 {
     unsigned char version;
     unsigned char type;
@@ -79,7 +79,7 @@ typedef struct
 #define FCGIUNKNOWN_TYPE       11
 #define FCGIMAXTYPE (FCGIUNKNOWN_TYPE)
 
-typedef struct 
+typedef struct
 {
     unsigned char roleB1;
     unsigned char roleB0;
@@ -87,7 +87,7 @@ typedef struct
     unsigned char reserved[5];
 } FcgiBeginRequestBody;
 
-typedef struct 
+typedef struct
 {
     FcgiHeader header;
     FcgiBeginRequestBody body;
@@ -105,7 +105,7 @@ typedef struct
 #define FCGIAUTHORIZER 2
 #define FCGIFILTER     3
 
-typedef struct 
+typedef struct
 {
     unsigned char appStatusB3;
     unsigned char appStatusB2;
@@ -115,7 +115,7 @@ typedef struct
     unsigned char reserved[3];
 } FcgiEndRequestBody;
 
-typedef struct 
+typedef struct
 {
     FcgiHeader header;
     FcgiEndRequestBody body;
@@ -129,13 +129,13 @@ typedef struct
 #define FCGIOVERLOADED       2
 #define FCGIUNKNOWN_ROLE     3
 
-typedef struct 
+typedef struct
 {
-    unsigned char type;    
+    unsigned char type;
     unsigned char reserved[7];
 } FcgiUnknownTypeBody;
 
-typedef struct 
+typedef struct
 {
     FcgiHeader header;
     FcgiUnknownTypeBody body;
@@ -174,9 +174,9 @@ private:
 	static int timeout;
 	static int initialized;
 
-  int handleHeader (FcgiContext* con, FiltersChain* chain, 
+  int handleHeader (FcgiContext* con, FiltersChain* chain,
                     bool *responseCompleted);
-  int sendData (FcgiContext* con, u_long dim, 
+  int sendData (FcgiContext* con, u_long dim,
                 u_long timeout, FiltersChain* chain,
                 bool *responseCompleted, int onlyHeader);
   int fastCgiRequest (FcgiContext* con, int id);

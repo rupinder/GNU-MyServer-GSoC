@@ -27,6 +27,8 @@
 #include <include/filter/filters_factory.h>
 #include <include/log/stream/log_stream.h>
 #include <include/log/stream/log_stream_factory.h>
+#include <cstdarg>
+
 
 using namespace std;
 
@@ -35,27 +37,34 @@ class LogManager
 public:
   LogManager (FiltersFactory* ff, LoggingLevel level = MYSERVER_LOG_MSG_INFO);
   ~LogManager ();
-  int add (void* owner, string type, string location, 
+  int add (const void *owner, string type, string location,
            list<string>& filters, u_long cycle);
-  int remove (void* owner);
-  int log (void* owner, string message, bool appendNL = false,
+  int remove (const void *owner);
+
+  int log (const void* owner, string & message, bool appendNL = false,
            LoggingLevel level = MYSERVER_LOG_MSG_INFO);
-  int log (void* owner, string type, string message, bool appendNL = false,
-           LoggingLevel level = MYSERVER_LOG_MSG_INFO);
-  int log (void* owner, string type, string location, string message, 
+  int log (const void* owner, const string & type, string & message,
            bool appendNL = false, LoggingLevel level = MYSERVER_LOG_MSG_INFO);
-  int close (void* owner);
-  int close (void* owner, string type);
-  int close (void* owner, string type, string location);
-  int chown (void* owner, string &uid, string &gid);
-  int chown (void* owner, string type, string &uid, string &gid);
-  int chown (void* owner, string type, string location, string &uid, string &gid);
-  int get (void* owner, list<string>* l);
-  int get (void* owner, string type, list<string>* l);
-  int get (void* owner, string type, string location, LogStream** ls);
-  int setCycle (void* owner, u_long cycle);
-  int setCycle (void* owner, string type, u_long cycle);
-  int setCycle (void* owner, string type, string location, u_long cycle);
+  int log (const void* owner, const string & type, const string & location,
+           string & message, bool appendNL = false,
+           LoggingLevel level = MYSERVER_LOG_MSG_INFO);
+  int log (const void* owner, const string & type, LoggingLevel level,
+           bool ts, bool appendNL, const char *fmt, ...);
+  int log (const void* owner, const string & type, LoggingLevel level,
+           bool ts, bool appendNL, const char *fmt, va_list args);
+
+  int close (const void *owner);
+  int close (const void *owner, string type);
+  int close (const void *owner, string type, string location);
+  int chown (const void *owner, string &uid, string &gid);
+  int chown (const void *owner, string type, string &uid, string &gid);
+  int chown (const void *owner, string type, string location, string &uid, string &gid);
+  int get (const void *owner, list<string>* l);
+  int get (const void *owner, string type, list<string>* l);
+  int get (const void *owner, string type, string location, LogStream** ls);
+  int setCycle (const void *owner, u_long cycle);
+  int setCycle (const void *owner, string type, u_long cycle);
+  int setCycle (const void *owner, string type, string location, u_long cycle);
   int getCycle (string location, u_long* cycle);
   int getFilters (string location, list<string>* l);
   LoggingLevel setLevel (LoggingLevel level);
@@ -63,29 +72,31 @@ public:
   void setFiltersFactory (FiltersFactory* ff);
   FiltersFactory* getFiltersFactory ();
   bool empty ();
-  bool contains (string location);
-  bool contains (void* owner);
-  bool contains (void* owner, string type);
-  bool contains (void* owner, string type, string location);
-  int count (void* owner);
-  int count (void* owner, string type);
-  int count (void* owner, string type, string location);
+  bool containsOwner (const void* owner);
+  bool contains (const string & location);
+  bool contains (const void* owner, const string & type);
+  bool contains (const void* owner, const string & type, const string &
+                 location);
+  int count (const void* owner);
+  int count (const void* owner, const string & type);
+  int count (const void* owner, const string & type, const string & location);
   int clear ();
-  int getOwnersList (string, list<void*>*);
+  int getOwnersList (string, list<const void*>*);
   list<string> getLoggingLevelsByNames ();
   map<LoggingLevel, string>& getLoggingLevels () { return loggingLevels; }
 private:
-  int notify (void* owner, string type, string location, LogStreamEvent evt, 
-              void* msg = 0, void* reply = 0);
-  int notify (void* owner, string type, LogStreamEvent evt, void* msg = 0, 
-              void* reply = 0);
-  int notify (void* owner, LogStreamEvent evt, void* msg = 0, void* reply = 0);
-  int add (void* owner);
-  int add (void* owner, string type);
-  int add (void* owner, string type, string location, LogStream* ls);
+  int notify (const void* owner, const string & type, const string & location,
+              LogStreamEvent evt, void* msg = NULL, void* reply = NULL);
+  int notify (const void* owner, const string & type, LogStreamEvent evt,
+              void* msg = NULL, void* reply = NULL);
+  int notify (const void* owner, LogStreamEvent evt, void* msg = 0,
+              void* reply = NULL);
+  int add (const void *owner);
+  int add (const void *owner, string type);
+  int add (const void *owner, string type, string location, LogStream* ls);
   int computeNewLine ();
   void associateLoggingLevelsWithNames ();
-  int logWriteln (string, LoggingLevel);
+  int log (const string &, LoggingLevel);
 
   LoggingLevel level;
   Mutex* mutex;
@@ -98,22 +109,22 @@ private:
    * anyway it is possible to share the same LogStream between more owners.
    */
   map<string, LogStream*> logStreams;
-  
+
   /*!
    * For each LogStream, store the list of objects that use it.
    */
-  map<string, list<void*> > logStreamOwners;
+  map<string, list<const void*> > logStreamOwners;
 
   /*!
    * For each owner, store the LogStream objects that it owns.
    */
-  map<void*, map<string, map<string, LogStream*> > > owners;
+  map<const void*, map<string, map<string, LogStream*> > > owners;
 
   /*!
    * Store the newline string for the host operating system.
    */
   string newline;
-  
+
   /*!
    * Associate each LoggingLevel with its string representation.
    */

@@ -50,11 +50,11 @@ public:
 	static int buildHTTPRequestHeaderStruct (const char* input,
                                            u_long inputSize,
                                            u_long* nHeaderChars,
-                                           HttpRequestHeader *request, 
+                                           HttpRequestHeader *request,
                                            Connection* connection);
-  
-	static int buildHTTPResponseHeaderStruct (const char *input, 
-                                           HttpResponseHeader *response, 
+
+	static int buildHTTPResponseHeaderStruct (const char *input,
+                                           HttpResponseHeader *response,
                                            u_long* nbtr);
 
 	static int validHTTPRequest (const char*, u_long, u_long*, u_long*);
@@ -70,13 +70,13 @@ public:
 	static u_long buildHTTPRequestHeader (char*, HttpRequestHeader*);
 
 protected:
-  static int readReqAuthLine (HttpRequestHeader *request, 
-                              Connection *connection, 
+  static int readReqAuthLine (HttpRequestHeader *request,
+                              Connection *connection,
                               const char *token,
                               int *lenOut);
 
-  static int readReqRangeLine (HttpRequestHeader *request, 
-                               Connection *connection, 
+  static int readReqRangeLine (HttpRequestHeader *request,
+                               Connection *connection,
                                const char *token,
                                int *lenOut);
 };
