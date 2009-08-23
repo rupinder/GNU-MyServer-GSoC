@@ -275,7 +275,7 @@ void ConnectionsScheduler::initialize ()
   if (err == -1)
     {
       if (server)
-        server->logWriteln (MYSERVER_LOG_MSG_ERROR, _("Error initializing socket pair"));
+        server->log (MYSERVER_LOG_MSG_ERROR, _("Error initializing socket pair"));
       return;
     }
 
@@ -287,7 +287,7 @@ void ConnectionsScheduler::initialize ()
   if (Thread::create (&dispatchedThreadId, dispatcher, &dispatcherArg))
     {
       if (server)
-        server->logWriteln (MYSERVER_LOG_MSG_ERROR,
+        server->log (MYSERVER_LOG_MSG_ERROR,
                             _("Error while initializing the dispatcher thread"));
 
       dispatchedThreadId = 0;

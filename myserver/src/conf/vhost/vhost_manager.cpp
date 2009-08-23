@@ -49,7 +49,7 @@ int VhostManager::addVHost(Vhost* vh)
       if (!vh->getProtocolName ())
         {
           vh->setProtocolName("http");
-          Server::getInstance()->logWriteln (MYSERVER_LOG_MSG_WARNING,
+          Server::getInstance()->log (MYSERVER_LOG_MSG_WARNING,
                  _("Protocol not defined for vhost: %s, using HTTP by default"),
                                              vh->getName ());
         }
@@ -201,12 +201,12 @@ void VhostManager::changeLocationsOwner ()
           /* Chown the log files.  */
           err = logManager->chown (vh, "ACCESSLOG", uid, gid);
           if(err)
-            Server::getInstance()->logWriteln (MYSERVER_LOG_MSG_ERROR,
+            Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
                     _("Error while changing accesses log locations owner"));
 
           err = logManager->chown (vh, "WARNINGLOG", uid, gid);
           if(err)
-            Server::getInstance()->logWriteln (MYSERVER_LOG_MSG_ERROR,
+            Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
                     _("Error while changing log locations owner"));
         }
     }
@@ -285,7 +285,7 @@ VhostManager::loadXMLlogData (string name, Vhost* vh, xmlNode* lcur)
               err = vh->openAccessLog (location, filters, cycle);
               vh->setAccessLogOpt (opt.c_str ());
               if (err)
-                Server::getInstance()->logWriteln (MYSERVER_LOG_MSG_ERROR,
+                Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
                                                    _("Error opening %s"), location.c_str ());
             }
           else if (!name.compare ("WARNINGLOG"))
@@ -293,11 +293,11 @@ VhostManager::loadXMLlogData (string name, Vhost* vh, xmlNode* lcur)
               err = vh->openWarningLog (location, filters, cycle);
               vh->setWarningLogOpt (opt.c_str ());
               if (err)
-                Server::getInstance()->logWriteln (MYSERVER_LOG_MSG_ERROR,
+                Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
                                                    _("Error opening %s"), location.c_str ());
             }
           else
-            Server::getInstance()->logWriteln (MYSERVER_LOG_MSG_ERROR,
+            Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
                                                _(" Unrecognized log type"));
         }
     }
@@ -315,7 +315,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
   xmlNodePtr node;
   if(parser.open(filename))
     {
-      Server::getInstance()->logWriteln (MYSERVER_LOG_MSG_ERROR,
+      Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
                                          _("Error opening %s"), filename);
       return -1;
     }
@@ -334,7 +334,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
         {
           parser.close();
           clean();
-          Server::getInstance()->logWriteln (MYSERVER_LOG_MSG_ERROR,
+          Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
                                              _("internal error"), filename);
           return -1;
         }
@@ -424,7 +424,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
             {
               int val = atoi ((char*)lcur->children->content);
               if (val > (1 << 16) || strlen ((const char*)lcur->children->content) > 6)
-                Server::getInstance()->logWriteln (MYSERVER_LOG_MSG_ERROR,
+                Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
                        _("Specified invalid port %s"), lcur->children->content);
               vh->setPort ((u_short)val);
             }
@@ -494,7 +494,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
 
       if (vh->openLogFiles ())
         {
-          Server::getInstance()->logWriteln (MYSERVER_LOG_MSG_ERROR,
+          Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
                                              _("Error opening log files"));
           delete vh;
           vh = 0;
@@ -503,7 +503,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
 
       if (vh->initializeSSL () < 0)
         {
-          Server::getInstance()->logWriteln (MYSERVER_LOG_MSG_ERROR,
+          Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
                                              _("Error initializing SSL for %s"),
                                              vh->getName ());
           delete vh;
@@ -513,7 +513,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
 
       if (addVHost (vh))
         {
-          Server::getInstance()->logWriteln (MYSERVER_LOG_MSG_ERROR,
+          Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
                                              _("Internal error"));
           delete vh;
           vh = 0;

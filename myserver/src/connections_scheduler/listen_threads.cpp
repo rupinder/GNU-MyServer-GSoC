@@ -91,7 +91,7 @@ int ListenThreads::createServerAndListener(u_short port)
           serverSocketIPv4->socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
           if (serverSocketIPv4->getHandle() == (Handle)INVALID_SOCKET)
             {
-              server->logWriteln (MYSERVER_LOG_MSG_ERROR,
+              server->log (MYSERVER_LOG_MSG_ERROR,
                             _("Error while creating the server socket"));
               delete serverSocketIPv4;
               serverSocketIPv4 = NULL;
@@ -110,7 +110,7 @@ int ListenThreads::createServerAndListener(u_short port)
                                                 (const char *)&optvalReuseAddr,
                                                 sizeof(optvalReuseAddr)) < 0)
                 {
-                  server->logWriteln (MYSERVER_LOG_MSG_ERROR,
+                  server->log (MYSERVER_LOG_MSG_ERROR,
                                  _("Error while creating the server socket"));
 
                   delete serverSocketIPv4;
@@ -119,15 +119,15 @@ int ListenThreads::createServerAndListener(u_short port)
 #endif
               if (serverSocketIPv4)
                 {
-                  server->logWriteln (MYSERVER_LOG_MSG_INFO,
+                  server->log (MYSERVER_LOG_MSG_INFO,
                                       _("Binding the port"));
 
                   if (!serverSocketIPv4->bind (&sockServerSocketIPv4,
                                               sizeof(sockaddr_in)))
-                    server->logWriteln (MYSERVER_LOG_MSG_INFO, _("Port was bound"));
+                    server->log (MYSERVER_LOG_MSG_INFO, _("Port was bound"));
                   else
                     {
-                      server->logWriteln (MYSERVER_LOG_MSG_ERROR,
+                      server->log (MYSERVER_LOG_MSG_ERROR,
                                           _("Error while creating the server socket"));
                       delete serverSocketIPv4;
                       serverSocketIPv4 = NULL;
@@ -145,7 +145,7 @@ int ListenThreads::createServerAndListener(u_short port)
           serverSocketIPv6->socket (AF_INET6, SOCK_STREAM, IPPROTO_TCP);
           if (serverSocketIPv6->getHandle () == (FileHandle)INVALID_SOCKET)
             {
-              server->logWriteln (MYSERVER_LOG_MSG_ERROR,
+              server->log (MYSERVER_LOG_MSG_ERROR,
                                  _("Error while creating the server socket"));
               delete serverSocketIPv6;
               serverSocketIPv6 = NULL;
@@ -162,7 +162,7 @@ int ListenThreads::createServerAndListener(u_short port)
                                                 (const char *)&optvalReuseAddr,
                                                 sizeof(optvalReuseAddr)) < 0)
                 {
-                  server->logWriteln (MYSERVER_LOG_MSG_ERROR,
+                  server->log (MYSERVER_LOG_MSG_ERROR,
                                  _("Error while creating the server socket"));
                   delete serverSocketIPv6;
                   serverSocketIPv6 = NULL;
@@ -172,7 +172,7 @@ int ListenThreads::createServerAndListener(u_short port)
                                               (const char *)&optvalReuseAddr,
                                               sizeof(optvalReuseAddr)) < 0)
                 {
-                  server->logWriteln (MYSERVER_LOG_MSG_ERROR,
+                  server->log (MYSERVER_LOG_MSG_ERROR,
                                  _("Error while creating the server socket"));
                   delete serverSocketIPv6;
                   serverSocketIPv6 = NULL;
@@ -180,16 +180,16 @@ int ListenThreads::createServerAndListener(u_short port)
 # endif
               if (serverSocketIPv6)
                 {
-                  server->logWriteln (MYSERVER_LOG_MSG_INFO,
+                  server->log (MYSERVER_LOG_MSG_INFO,
                                       _("Binding the port"));
 
                   if (!serverSocketIPv6->bind (&sockServerSocketIPv6,
                                                sizeof(sockaddr_in6)))
-                    server->logWriteln (MYSERVER_LOG_MSG_INFO,
+                    server->log (MYSERVER_LOG_MSG_INFO,
                                         _("Port was bound"));
                   else
                     {
-                      server->logWriteln (MYSERVER_LOG_MSG_ERROR,
+                      server->log (MYSERVER_LOG_MSG_ERROR,
                                  _("Error while creating the server socket"));
                       delete serverSocketIPv6;
                       serverSocketIPv6 = NULL;
@@ -207,7 +207,7 @@ int ListenThreads::createServerAndListener(u_short port)
 
       if (serverSocketIPv4 != NULL && serverSocketIPv4->listen (SOMAXCONN))
         {
-          server->logWriteln (MYSERVER_LOG_MSG_ERROR,
+          server->log (MYSERVER_LOG_MSG_ERROR,
                              _("Error while creating the server socket"));
           delete serverSocketIPv4;
           serverSocketIPv4 = NULL;
@@ -215,7 +215,7 @@ int ListenThreads::createServerAndListener(u_short port)
 
       if (serverSocketIPv6 != NULL && serverSocketIPv6->listen (SOMAXCONN))
         {
-          server->logWriteln (MYSERVER_LOG_MSG_ERROR,
+          server->log (MYSERVER_LOG_MSG_ERROR,
                              _("Error while creating the server socket"));
           delete serverSocketIPv6;
           serverSocketIPv6 = NULL;
@@ -227,7 +227,7 @@ int ListenThreads::createServerAndListener(u_short port)
           return 1;
         }
 
-      server->logWriteln (MYSERVER_LOG_MSG_INFO,
+      server->log (MYSERVER_LOG_MSG_INFO,
                           _("Listening on the port: %i"), port);
 
       si->ipv4 = serverSocketIPv4;
@@ -241,12 +241,12 @@ int ListenThreads::createServerAndListener(u_short port)
     }
   catch(bad_alloc &ba)
     {
-      server->logWriteln (MYSERVER_LOG_MSG_ERROR, _("Bad alloc: %s"),
+      server->log (MYSERVER_LOG_MSG_ERROR, _("Bad alloc: %s"),
                           ba.what ());
     }
   catch(exception &e)
     {
-      server->logWriteln (MYSERVER_LOG_MSG_ERROR, _("Error: %s"),
+      server->log (MYSERVER_LOG_MSG_ERROR, _("Error: %s"),
                           e.what ());
     };
   return 1;

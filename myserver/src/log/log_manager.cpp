@@ -136,7 +136,7 @@ LogManager::add (const void *owner, string type, string location,
       if (!failure && newSize > oldSize)
         {
           oss << "Warning: \'" << location << "\' shared between " << newSize << " objects.";
-          logWriteln (oss.str (), MYSERVER_LOG_MSG_WARNING);
+          log (oss.str (), MYSERVER_LOG_MSG_WARNING);
         }
     }
   mutex->unlock ();
@@ -1121,10 +1121,10 @@ LogManager::getOwnersList (string location, list<const void*>* l)
  * \return 0 on success, 1 on error.
  */
 int
-LogManager::logWriteln (const string & msg, LoggingLevel l)
+LogManager::log (const string & msg, LoggingLevel l)
 {
   if (Server::getInstance ())
-    return Server::getInstance ()->logWriteln (msg.c_str (), l);
+    return Server::getInstance ()->log (msg.c_str (), l);
 
   return 1;
 }

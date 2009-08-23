@@ -184,12 +184,12 @@ DEFINE_THREAD(clients_thread, pParam)
         }
       catch (bad_alloc &ba)
         {
-          ct->server->logWriteln (MYSERVER_LOG_MSG_ERROR, _("Bad alloc: %s"),
+          ct->server->log (MYSERVER_LOG_MSG_ERROR, _("Bad alloc: %s"),
                                   ba.what ());
         }
       catch (exception &e)
         {
-          ct->server->logWriteln (MYSERVER_LOG_MSG_ERROR, _("Error : %s"),
+          ct->server->log (MYSERVER_LOG_MSG_ERROR, _("Error : %s"),
                                   e.what ());
         };
   }

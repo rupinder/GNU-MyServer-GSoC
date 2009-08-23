@@ -96,7 +96,7 @@ private:
   int add (const void *owner, string type, string location, LogStream* ls);
   int computeNewLine ();
   void associateLoggingLevelsWithNames ();
-  int logWriteln (const string &, LoggingLevel);
+  int log (const string &, LoggingLevel);
 
   LoggingLevel level;
   Mutex* mutex;

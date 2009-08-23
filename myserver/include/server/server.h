@@ -130,29 +130,29 @@ public:
   void stop();
   void finalCleanup();
   int terminate();
-  int logWriteln (LoggingLevel level, const char *fmt, ...);
-  int logWriteln(char const*, LoggingLevel level = MYSERVER_LOG_MSG_INFO);
-  int logWriteln(string const &str)
-    {return logWriteln(str.c_str());};
-  int setLogLocation(string);
-  u_long getBuffersize();
-  u_long getBuffersize2();
-  u_long getThrottlingRate();
-  int waitNewConnection(u_long tid, u_long timeout);
-  ListenThreads *getListenThreads(){return &listenThreads;}
+  int log (LoggingLevel level, const char *fmt, ...);
+  int log (char const*, LoggingLevel level = MYSERVER_LOG_MSG_INFO);
+  int log (string const &str)
+  {return log (str.c_str());};
+  int setLogLocation (string);
+  u_long getBuffersize ();
+  u_long getBuffersize2 ();
+  u_long getThrottlingRate ();
+  int waitNewConnection (u_long tid, u_long timeout);
+  ListenThreads *getListenThreads (){return &listenThreads;}
 
-  void *getEnvString(){return envString;}
-  VhostManager *getVhosts(){return vhostList;}
-  MimeManager *getMimeManager(){return mimeManager;}
+  void *getEnvString (){return envString;}
+  VhostManager *getVhosts (){return vhostList;}
+  MimeManager *getMimeManager (){return mimeManager;}
 
-  void setProcessPermissions();
-  ConnectionsScheduler* getConnectionsScheduler(){return &connectionsScheduler;}
-  int deleteConnection(ConnectionPtr);
+  void setProcessPermissions ();
+  ConnectionsScheduler* getConnectionsScheduler (){return &connectionsScheduler;}
+  int deleteConnection (ConnectionPtr);
 
-  int notifyDeleteConnection(ConnectionPtr);
+  int notifyDeleteConnection (ConnectionPtr);
 
-  void increaseFreeThread();
-  void decreaseFreeThread();
+  void increaseFreeThread ();
+  void decreaseFreeThread ();
 
   SecurityManager *getSecurityManager (){return &securityManager;}
   AuthMethodFactory *getAuthMethodFactory () {return &authMethodFactory;}

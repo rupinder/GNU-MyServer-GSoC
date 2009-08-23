@@ -52,7 +52,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
   Isapi::isapiMutex->unlock();
   if (ConnInfo == NULL)
     {
-      Server::getInstance()->logWriteln("isapi::ServerSupportFunctionExport: invalid hConn");
+      Server::getInstance()->log("isapi::ServerSupportFunctionExport: invalid hConn");
       return 0;
     }
 
@@ -422,7 +422,7 @@ BOOL WINAPI ISAPI_GetServerVariableExport(HCONN hConn,
   Isapi::isapiMutex->unlock();
   if (ConnInfo == NULL)
   {
-    Server::getInstance()->logWriteln(
+    Server::getInstance()->log(
                        "Isapi::GetServerVariableExport: invalid hConn");
     return 0;
   }

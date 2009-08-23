@@ -67,7 +67,7 @@ void registerSignals ();
 #ifndef WIN32
 void Sig_Quit (int signal)
 {
-  Server::getInstance ()->logWriteln("Exiting...");
+  Server::getInstance ()->log("Exiting...");
   sync ();
   Server::getInstance ()->stop();
   registerSignals ();
@@ -84,7 +84,7 @@ void Sig_Hup (int signal)
 #else
 static BOOL SignalHandler (DWORD type)
 {
-  Server::getInstance ()->logWriteln ("Exiting...");
+  Server::getInstance ()->log ("Exiting...");
   Server::getInstance ()->stop ();
   registerSignals ();
 }
@@ -722,7 +722,7 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
  */
 void runService ()
 {
-  Server::getInstance()->logWriteln ("Running service...");
+  Server::getInstance()->log ("Running service...");
 #ifdef WIN32
   SERVICE_TABLE_ENTRY serviceTable[] =
     {
@@ -733,11 +733,11 @@ void runService ()
   if (!StartServiceCtrlDispatcher (serviceTable))
     {
       if (GetLastError () == ERROR_INVALID_DATA)
-          Server::getInstance ()->logWriteln("Invalid data");
+          Server::getInstance ()->log("Invalid data");
       else if (GetLastError () == ERROR_SERVICE_ALREADY_RUNNING)
-          Server::getInstance ()->logWriteln("Already running");
+          Server::getInstance ()->log("Already running");
       else
-          Server::getInstance ()->logWriteln("Error running service");
+          Server::getInstance ()->log("Error running service");
     }
 #endif
 }

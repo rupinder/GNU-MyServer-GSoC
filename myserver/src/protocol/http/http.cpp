@@ -987,7 +987,7 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
                   errMsg.assign ("Invalid virtual host requested from ");
                   errMsg.append (a->getIpAddr ());
 
-                  Server::getInstance ()->logWriteln (errMsg.c_str (), MYSERVER_LOG_MSG_ERROR);
+                  Server::getInstance ()->log (errMsg.c_str (), MYSERVER_LOG_MSG_ERROR);
 
                   raiseHTTPError (400);
                   /*

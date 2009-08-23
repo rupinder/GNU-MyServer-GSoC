@@ -150,7 +150,7 @@ int Server::checkConfigurationPaths ()
 
     if (copyConfigurationFromDefault ("myserver.xml"))
     {
-      logWriteln (MYSERVER_LOG_MSG_ERROR, _("Error loading configuration file"));
+      log (MYSERVER_LOG_MSG_ERROR, _("Error loading configuration file"));
       return -1;
     }
   }
@@ -161,7 +161,7 @@ int Server::checkConfigurationPaths ()
 
     if (copyConfigurationFromDefault ("MIMEtypes.xml"))
     {
-      logWriteln (MYSERVER_LOG_MSG_ERROR, _("Error loading MIME configuration file"));
+      log (MYSERVER_LOG_MSG_ERROR, _("Error loading MIME configuration file"));
       return -1;
     }
   }
@@ -172,7 +172,7 @@ int Server::checkConfigurationPaths ()
 
     if (copyConfigurationFromDefault ("virtualhosts.xml") != 0)
     {
-      logWriteln (MYSERVER_LOG_MSG_ERROR, _("Error loading virtual hosts configuration file"));
+      log (MYSERVER_LOG_MSG_ERROR, _("Error loading virtual hosts configuration file"));
       return -1;
     }
   }
@@ -229,7 +229,7 @@ int Server::loadLibraries ()
   gnutls_global_init ();
   if (Socket::startupSocketLib () != 0)
     {
-      logWriteln (MYSERVER_LOG_MSG_ERROR, _("Error loading the socket library"));
+      log (MYSERVER_LOG_MSG_ERROR, _("Error loading the socket library"));
       return 1;
     }
 
@@ -290,7 +290,7 @@ void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
     if (loadLibraries ())
       return;
 
-    logWriteln (MYSERVER_LOG_MSG_INFO, _("Initializing server configuration..."));
+    log (MYSERVER_LOG_MSG_INFO, _("Initializing server configuration..."));
 
     if (!resetConfigurationPaths (mainConf, mimeConf, vhostConf, externPath))
       return;
@@ -306,7 +306,7 @@ void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
     /* Initialize the SSL library.  */
     initializeSSL();
 
-    logWriteln (MYSERVER_LOG_MSG_INFO, _("Loading server configuration..."));
+    log (MYSERVER_LOG_MSG_INFO, _("Loading server configuration..."));
 
     if (postLoad ())
       return;
@@ -314,15 +314,15 @@ void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
     setProcessPermissions ();
 
     if (getGid ()[0])
-      logWriteln (MYSERVER_LOG_MSG_INFO, _("Using gid: %s"), gid.c_str ());
+      log (MYSERVER_LOG_MSG_INFO, _("Using gid: %s"), gid.c_str ());
 
     if (getUid ()[0])
-      logWriteln (MYSERVER_LOG_MSG_INFO, _("Using uid: %s"), uid.c_str ());
+      log (MYSERVER_LOG_MSG_INFO, _("Using uid: %s"), uid.c_str ());
 
-    logWriteln (MYSERVER_LOG_MSG_INFO, _("Server is ready!"));
+    log (MYSERVER_LOG_MSG_INFO, _("Server is ready!"));
 
     if (logLocation.find ("console://") != string::npos)
-      logWriteln (MYSERVER_LOG_MSG_INFO, _("Press Ctrl-C to terminate its execution"));
+      log (MYSERVER_LOG_MSG_INFO, _("Press Ctrl-C to terminate its execution"));
 
     serverReady = true;
 
@@ -332,11 +332,11 @@ void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
   }
   catch(bad_alloc &ba)
     {
-      logWriteln (MYSERVER_LOG_MSG_ERROR, _("Bad alloc: %s"), ba.what ());
+      log (MYSERVER_LOG_MSG_ERROR, _("Bad alloc: %s"), ba.what ());
     }
   catch(exception &e)
     {
-      logWriteln (MYSERVER_LOG_MSG_ERROR, _("Error: %s"), e.what ());
+      log (MYSERVER_LOG_MSG_ERROR, _("Error: %s"), e.what ());
     };
   this->terminate ();
   finalCleanup ();
@@ -358,7 +358,7 @@ int Server::postLoad ()
   memset (serverName, 0, HOST_NAME_MAX+1);
   Socket::gethostname (serverName, HOST_NAME_MAX);
 
-  logWriteln (MYSERVER_LOG_MSG_INFO, _("Host name: %s"), serverName);
+  log (MYSERVER_LOG_MSG_INFO, _("Host name: %s"), serverName);
 
   /* Find the IP addresses of the local machine.  */
   if (ipAddresses)
@@ -367,14 +367,14 @@ int Server::postLoad ()
 
   if (Socket::getLocalIPsList (*ipAddresses))
     {
-      logWriteln (MYSERVER_LOG_MSG_ERROR, _("Error reading IP list"));
+      log (MYSERVER_LOG_MSG_ERROR, _("Error reading IP list"));
       return -1;
     }
 
-  logWriteln (MYSERVER_LOG_MSG_INFO, _("IP: %s"), ipAddresses->c_str ());
+  log (MYSERVER_LOG_MSG_INFO, _("IP: %s"), ipAddresses->c_str ());
 
   /* Load the MIME types.  */
-  logWriteln (MYSERVER_LOG_MSG_INFO, _("Loading MIME types..."));
+  log (MYSERVER_LOG_MSG_INFO, _("Loading MIME types..."));
 
   if (mimeManager)
     delete mimeManager;
@@ -382,11 +382,11 @@ int Server::postLoad ()
   mimeManager = new MimeManager ();
 
   if (int nMIMEtypes = mimeManager->loadXML(mimeConfigurationFile->c_str ()))
-    logWriteln (MYSERVER_LOG_MSG_INFO, _("Using %i MIME types"), nMIMEtypes);
+    log (MYSERVER_LOG_MSG_INFO, _("Using %i MIME types"), nMIMEtypes);
   else
-    logWriteln (MYSERVER_LOG_MSG_ERROR, _("Error while loading MIME types"));
+    log (MYSERVER_LOG_MSG_ERROR, _("Error while loading MIME types"));
 
-  logWriteln (MYSERVER_LOG_MSG_INFO, _("Detected %i CPUs"), (int) getCPUCount ());
+  log (MYSERVER_LOG_MSG_INFO, _("Detected %i CPUs"), (int) getCPUCount ());
 
   connectionsScheduler.restart ();
 
@@ -418,15 +418,15 @@ int Server::postLoad ()
 
   for (u_long i = 0; i < nStaticThreads; i++)
     {
-      logWriteln (MYSERVER_LOG_MSG_INFO, _("Creating thread %i..."), (int) (i + 1));
+      log (MYSERVER_LOG_MSG_INFO, _("Creating thread %i..."), (int) (i + 1));
 
       if (addThread (true))
         {
-          logWriteln (MYSERVER_LOG_MSG_ERROR, _("Error while creating thread"));
+          log (MYSERVER_LOG_MSG_ERROR, _("Error while creating thread"));
           return -1;
         }
 
-      logWriteln (MYSERVER_LOG_MSG_INFO, _("Thread %i created"),  (int)(i + 1));
+      log (MYSERVER_LOG_MSG_INFO, _("Thread %i created"),  (int)(i + 1));
     }
 
 
@@ -448,7 +448,7 @@ void Server::loadPlugins ()
   authMethodFactory.addAuthMethod (xml, (AuthMethod*) xmlV);
 
   if (filtersFactory.insert ("gzip", Gzip::factory))
-    logWriteln (MYSERVER_LOG_MSG_ERROR, _("Error while loading plugins"));
+    log (MYSERVER_LOG_MSG_ERROR, _("Error while loading plugins"));
 
   Protocol *protocolsSet[] = {new HttpProtocol(),
                               new HttpsProtocol(),
@@ -536,11 +536,11 @@ void Server::mainLoop()
                       string beepStr (beep);
                       logManager->log (this, "MAINLOG", logLocation, beepStr);
                     }
-                  logWriteln (MYSERVER_LOG_MSG_INFO, _("Reloading MIME types"));
+                  log (MYSERVER_LOG_MSG_INFO, _("Reloading MIME types"));
 
                   getMimeManager ()->loadXML (getMIMEConfFile ());
 
-                  logWriteln (MYSERVER_LOG_MSG_INFO, _("Reloaded"));
+                  log (MYSERVER_LOG_MSG_INFO, _("Reloaded"));
 
                   mimeConfTime = mimeConfNow;
                 }
@@ -558,7 +558,7 @@ void Server::mainLoop()
                       logManager->log (this, "MAINLOG", logLocation, beepStr);
                     }
 
-                  logWriteln (MYSERVER_LOG_MSG_INFO, _("Rebooting..."));
+                  log (MYSERVER_LOG_MSG_INFO, _("Rebooting..."));
 
                   Socket::stopBlockingOperations (true);
 
@@ -589,7 +589,7 @@ void Server::mainLoop()
                     listenThreads.commitFastReboot ();
 
                   hostsConfTime = hostsConfTimeNow;
-                  logWriteln (MYSERVER_LOG_MSG_INFO, _("Reloaded"));
+                  log (MYSERVER_LOG_MSG_INFO, _("Reloaded"));
                 }
             }
         }//end  if (autoRebootEnabled)
@@ -780,7 +780,7 @@ void Server::stop ()
  */
 int Server::terminate ()
 {
-  logWriteln (MYSERVER_LOG_MSG_INFO, _("Stopping threads"));
+  log (MYSERVER_LOG_MSG_INFO, _("Stopping threads"));
 
   listenThreads.terminate ();
 
@@ -807,9 +807,9 @@ int Server::terminate ()
   /* Clear the home directories data.  */
   homeDir.clear ();
 
-  logWriteln (MYSERVER_LOG_MSG_INFO, _("Threads stopped"));
+  log (MYSERVER_LOG_MSG_INFO, _("Threads stopped"));
 
-  logWriteln (MYSERVER_LOG_MSG_INFO, _("Cleaning memory"));
+  log (MYSERVER_LOG_MSG_INFO, _("Cleaning memory"));
 
   freeHashedData ();
 
@@ -855,7 +855,7 @@ int Server::terminate ()
 
   nStaticThreads = 0;
 
-  logWriteln (MYSERVER_LOG_MSG_INFO, _("MyServer has stopped"));
+  log (MYSERVER_LOG_MSG_INFO, _("MyServer has stopped"));
 
   logManager->clear ();
 
@@ -1504,10 +1504,10 @@ void Server::setProcessPermissions ()
       ostringstream out;
 
       if (Process::setAdditionalGroups (0, 0))
-        logWriteln (MYSERVER_LOG_MSG_ERROR, _("Error setting additional groups"));
+        log (MYSERVER_LOG_MSG_ERROR, _("Error setting additional groups"));
 
       if (Process::setgid (gid.c_str ()))
-        logWriteln (MYSERVER_LOG_MSG_ERROR, _("Error setting gid"));
+        log (MYSERVER_LOG_MSG_ERROR, _("Error setting gid"));
 
       autoRebootEnabled = false;
     }
@@ -1521,7 +1521,7 @@ void Server::setProcessPermissions ()
     {
       ostringstream out;
       if (Process::setuid (uid.c_str ()))
-        logWriteln (MYSERVER_LOG_MSG_ERROR, _("Error setting uid"));
+        log (MYSERVER_LOG_MSG_ERROR, _("Error setting uid"));
 
       autoRebootEnabled = false;
     }
@@ -1563,7 +1563,7 @@ int Server::reboot ()
       logManager->log (this, "MAINLOG", logLocation, beepStr);
     }
 
-  logWriteln (MYSERVER_LOG_MSG_INFO, _("Rebooting"));
+  log (MYSERVER_LOG_MSG_INFO, _("Rebooting"));
 
   if (mustEndServer)
     return 0;
@@ -1586,7 +1586,7 @@ int Server::reboot ()
 
   serverReady = true;
 
-  logWriteln (MYSERVER_LOG_MSG_INFO, _("Restarted"));
+  log (MYSERVER_LOG_MSG_INFO, _("Restarted"));
 
   return 0;
 }
@@ -1740,7 +1740,7 @@ int Server::addThread (bool staticThread)
 
   if (ret)
     {
-      logWriteln (MYSERVER_LOG_MSG_ERROR, _("Error creating thread"));
+      log (MYSERVER_LOG_MSG_ERROR, _("Error creating thread"));
       return -1;
     }
 
@@ -1827,7 +1827,7 @@ int Server::countAvailableThreads ()
  * \see LogManager#log (void*, string, string, LoggingLeve, bool, va_list)
  * \return 0 on success, 1 on error.
  */
-int Server::logWriteln (LoggingLevel level, const char *fmt, ...)
+int Server::log (LoggingLevel level, const char *fmt, ...)
 {
   int failure = 0;
 
@@ -1850,9 +1850,9 @@ int Server::logWriteln (LoggingLevel level, const char *fmt, ...)
 /*!
  * Write a string to the log file and terminate the line.
  */
-int Server::logWriteln (char const* str, LoggingLevel level)
+int Server::log (char const* str, LoggingLevel level)
 {
-  return logWriteln (level, "%s", str);
+  return log (level, "%s", str);
 }
 
 /*!
