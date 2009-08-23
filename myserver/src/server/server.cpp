@@ -759,22 +759,6 @@ u_long Server::getNumTotalConnections ()
 }
 
 /*!
- * Get the verbosity value.
- */
-u_long Server::getVerbosity ()
-{
-  return verbosity;
-}
-
-/*!
- * Set the verbosity value.
- */
-void  Server::setVerbosity (u_long nv)
-{
-  verbosity=nv;
-}
-
-/*!
  * Return a home directory object.
  */
 HomeDir* Server::getHomeDir ()
@@ -912,7 +896,6 @@ int Server::initialize ()
   freeThreads = 0;
   connectionTimeout = MYSERVER_SEC (180);
   endServer = false;
-  verbosity = 1;
   purgeThreadsThreshold = 1;
   throttlingRate = 0;
   maxConnections = 0;
@@ -944,10 +927,6 @@ int Server::initialize ()
     }
 
   initLogManager ();
-
-  data = getHashedData ("server.verbosity");
-  if (data)
-    verbosity = (u_long)atoi(data);
 
   data = getHashedData ("server.buffer_size");
   if (data)

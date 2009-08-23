@@ -124,10 +124,8 @@ public:
   }
 
   const char *getServerName();
-  u_long getVerbosity();
   int getMaxLogFileSize();
   int mustUseLogonOption();
-  void setVerbosity(u_long);
   void start(string &, string &, string &, string &);
   void stop();
   void finalCleanup();
@@ -221,7 +219,6 @@ private:
 
   LogManager* logManager;
   bool serverReady;
-  u_long verbosity;
   u_long throttlingRate;
   u_long buffersize;
   u_long secondaryBufferSize;
