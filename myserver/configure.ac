@@ -342,8 +342,6 @@ AC_CONFIG_FILES([ po/Makefile.in
     binaries/Makefile
     binaries/certificates/Makefile
     binaries/plugins/Makefile
-    binaries/languages/Makefile
-    binaries/languages/configure/Makefile
     binaries/web/Makefile
     binaries/web/cgi-bin/Makefile
     binaries/web/cgi-src/Makefile
