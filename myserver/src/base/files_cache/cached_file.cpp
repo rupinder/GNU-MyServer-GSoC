@@ -169,10 +169,11 @@ u_long CachedFile::getFileSize ()
  */
 int CachedFile::seek (u_long initialByte)
 {
-  if (initialByte <= buffer->getFileSize())
-    fseek = initialByte;
-  else
+  if (initialByte > buffer->getFileSize())
     return -1;
+
+  fseek = initialByte;
+  return 0;
 }
 
 /*!
