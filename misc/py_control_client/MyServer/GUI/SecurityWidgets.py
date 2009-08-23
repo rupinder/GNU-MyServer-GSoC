@@ -651,7 +651,7 @@ class SecurityTable(gtk.Table):
             security = SecurityList.from_string(
                 browser.get_file('security.xml'))
             self.security_tree.set_up(security)
-        except IOError:
+        except:
             self.security_tree.clear()
 
     def write_to_file(self, browser):
