@@ -109,26 +109,26 @@ int ControlProtocol::loadProtocol ()
 
   const char *data = 0;
 
-  data = Server::getInstance ()->getHashedData ("control.enabled");
+  data = Server::getInstance ()->getData ("control.enabled");
   if (data && (!strcmpi (data, "YES")))
     controlEnabled = 1;
   else
     controlEnabled = 0;
 
-  data = Server::getInstance ()->getHashedData ("control.admin");
+  data = Server::getInstance ()->getData ("control.admin");
   if (data)
     strncpy (tmpName, data, 64);
 
-  data = Server::getInstance ()->getHashedData ("control.password");
+  data = Server::getInstance ()->getData ("control.password");
   if (data)
     strncpy (tmpPassword, data, 64);
 
-  data = Server::getInstance ()->getHashedData ("control.admin.md5");
+  data = Server::getInstance ()->getData ("control.admin.md5");
   if (data)
     if (strcmpi (data, "YES") == 0)
       adminNameMD5ized = 1;
 
-  data = Server::getInstance ()->getHashedData ("control.password.md5");
+  data = Server::getInstance ()->getData ("control.password.md5");
   if (data)
     if (strcmpi (data, "YES") == 0)
       adminPasswordMD5ized = 1;

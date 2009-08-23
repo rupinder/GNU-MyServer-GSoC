@@ -42,7 +42,7 @@ SecurityCache* XmlValidator::getCache (SecurityToken *st)
 {
   if (!secCache)
   {
-    const char *data = st->getHashedData ("SECURITY_CACHE_NODES", MYSERVER_SERVER_CONF, NULL);
+    const char *data = st->getData ("SECURITY_CACHE_NODES", MYSERVER_SERVER_CONF, NULL);
 
     secCache = new SecurityCache ();
 
@@ -68,9 +68,9 @@ XmlParser* XmlValidator::getParser (SecurityToken* st)
   if (!cache)
     return NULL;
 
-  secName = st->getHashedData ("security.filename", MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, ".security.xml");
+  secName = st->getData ("security.filename", MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, ".security.xml");
 
-  u_long maxSize = atol (st->getHashedData ("security.max_size", MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, "0"));
+  u_long maxSize = atol (st->getData ("security.max_size", MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, "0"));
 
   return cache->getParser (*(st->getDirectory ()), *(st->getSysDirectory ()), false, secName);
 }

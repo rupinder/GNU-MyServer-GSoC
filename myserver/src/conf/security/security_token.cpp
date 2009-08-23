@@ -112,7 +112,7 @@ NodeTree<string>* SecurityToken::getNodeTree (string& key, int domains, NodeTree
  *\li Global security file.
  *\li Default value.
  */
-const char* SecurityToken::getHashedData (const char* name, int domains, const char *def)
+const char* SecurityToken::getData (const char* name, int domains, const char *def)
 {
   if (domains & MYSERVER_SECURITY_CONF)
   {
@@ -126,7 +126,7 @@ const char* SecurityToken::getHashedData (const char* name, int domains, const c
   if (mimeRecord && (domains & MYSERVER_MIME_CONF))
   {
     string strName (name);
-    const char *ret = mimeRecord->getHashedData (strName);
+    const char *ret = mimeRecord->getData (strName);
 
     if (ret)
       return ret;
@@ -134,7 +134,7 @@ const char* SecurityToken::getHashedData (const char* name, int domains, const c
 
   if (vhost && (domains & MYSERVER_VHOST_CONF))
   {
-    const char* ret = vhost->getHashedData (name);
+    const char* ret = vhost->getData (name);
 
     if (ret)
       return ret;
@@ -142,7 +142,7 @@ const char* SecurityToken::getHashedData (const char* name, int domains, const c
 
   if (server && (domains & MYSERVER_SERVER_CONF))
   {
-    const char* ret = server->getHashedData (name);
+    const char* ret = server->getData (name);
 
     if (ret)
       return ret;

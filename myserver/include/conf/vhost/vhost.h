@@ -140,7 +140,7 @@ public:
   Vhost(LogManager* lm);
   ~Vhost();
 
-  const char* getHashedData (const char* name);
+  const char* getData (const char* name);
 
   NodeTree<string>* getNodeTree (string& key)
   {

@@ -705,7 +705,7 @@ BOOL Isapi::buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
 
   if(valLen + 30 < maxLen)
     valLen += sprintf(&ValStr[valLen], "SERVER_ADMIN:%s\n",
-                      td->securityToken.getHashedData ("server.admin", MYSERVER_VHOST_CONF |
+                      td->securityToken.getData ("server.admin", MYSERVER_VHOST_CONF |
                                                        MYSERVER_SERVER_CONF, ""));
   else if(valLen + 30 < maxLen)
     return 0;

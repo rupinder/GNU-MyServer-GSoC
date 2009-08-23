@@ -454,7 +454,7 @@ void Vhost::setRef (int n)
  * Get the value for name in the hash dictionary.
  * \param name The hashed entry key.
  */
-const char* Vhost::getHashedData (const char* name)
+const char* Vhost::getData (const char* name)
 {
   NodeTree<string> *s = hashedData.get(name);
 

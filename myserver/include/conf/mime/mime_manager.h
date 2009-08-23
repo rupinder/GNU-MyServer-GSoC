@@ -72,7 +72,7 @@ struct MimeRecord
 	int addFilter (const char*, bool acceptDuplicate = true);
 	~MimeRecord ();
 	void clear ();
-  const char* getHashedData(string &name);
+  const char* getData(string &name);
 };
 
 

@@ -308,7 +308,7 @@ int HttpDir::send(HttpThreadContext* td,
   char sortType = 0;
   bool sortReverse = false;
   string linkPrefix;
-  const char *formatString = td->securityToken.getHashedData ("http.dir.format",
+  const char *formatString = td->securityToken.getData ("http.dir.format",
                                                               MYSERVER_SECURITY_CONF |
                                                               MYSERVER_VHOST_CONF |
                                                               MYSERVER_SERVER_CONF, "%f%t%s");
@@ -385,7 +385,7 @@ int HttpDir::send(HttpThreadContext* td,
       sort (files.begin(), files.end(), compareFileStructByName);
   }
 
-  browseDirCSSpath = td->securityToken.getHashedData ("http.dir.css",
+  browseDirCSSpath = td->securityToken.getData ("http.dir.css",
                                                       MYSERVER_SECURITY_CONF | MYSERVER_VHOST_CONF |
                                                       MYSERVER_SERVER_CONF, NULL);
 

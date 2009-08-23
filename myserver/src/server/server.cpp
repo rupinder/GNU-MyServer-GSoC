@@ -917,53 +917,53 @@ int Server::initialize ()
 
       string fullFg ("log_color." + *it + "_fg");
       string fullBg ("log_color." + *it + "_bg");
-      data = getHashedData (fullFg.c_str ());
+      data = getData (fullFg.c_str ());
       if (data)
         consoleColors[fg] = string (data);
 
-      data = getHashedData (fullBg.c_str ());
+      data = getData (fullBg.c_str ());
       if (data)
         consoleColors[bg] = string (data);
     }
 
   initLogManager ();
 
-  data = getHashedData ("server.buffer_size");
+  data = getData ("server.buffer_size");
   if (data)
     buffersize = secondaryBufferSize= (atol(data) > 81920) ?  atol(data) :  81920 ;
 
-  data = getHashedData ("server.connection_timeout");
+  data = getData ("server.connection_timeout");
   if (data)
     connectionTimeout = MYSERVER_SEC ((u_long)atol(data));
 
-  data = getHashedData ("server.static_threads");
+  data = getData ("server.static_threads");
   if (data)
     nStaticThreads = atoi(data);
 
-  data = getHashedData ("server.max_threads");
+  data = getData ("server.max_threads");
   if (data)
     nMaxThreads = atoi(data);
 
   /* Get the max connections number to allow.  */
-  data = getHashedData ("server.max_connections");
+  data = getData ("server.max_connections");
   if (data)
     maxConnections = atoi(data);
 
   /* Get the max connections number to accept.  */
-  data = getHashedData ("server.max_accepted_connections");
+  data = getData ("server.max_accepted_connections");
   if (data)
     maxConnectionsToAccept = atoi(data);
 
-  data = getHashedData ("server.connections_pool.size");
+  data = getData ("server.connections_pool.size");
   if (data)
     connectionsPool.init (atoi (data));
 
   /* Get the default throttling rate to use on connections.  */
-  data = getHashedData ("connection.throttling");
+  data = getData ("connection.throttling");
   if (data)
     throttlingRate = (u_long)atoi(data);
 
-  data = getHashedData ("server.max_log_size");
+  data = getData ("server.max_log_size");
   if (data)
     maxLogFileSize=(u_long)atol(data);
 
@@ -976,7 +976,7 @@ int Server::initialize ()
   else
     cachedFiles.initialize (1 << 23);
 
-  data = getHashedData ("server.temp_directory");
+  data = getData ("server.temp_directory");
   if (data)
     {
       string tmpPath (data);
@@ -986,33 +986,33 @@ int Server::initialize ()
   else
     FilesUtility::resetTmpPath ();
 
-  data = getHashedData ("server.max_file_cache");
+  data = getData ("server.max_file_cache");
   if (data)
     {
       u_long maxSize = (u_long)atol(data);
       cachedFiles.setMaxSize (maxSize);
     }
 
-  data = getHashedData ("server.min_file_cache");
+  data = getData ("server.min_file_cache");
   if (data)
     {
       u_long minSize = (u_long)atol(data);
       cachedFiles.setMinSize (minSize);
     }
 
-  data = getHashedData ("server.uid");
+  data = getData ("server.uid");
   if (data)
     uid.assign (data);
   else
     uid.assign ("");
 
-  data = getHashedData ("server.gid");
+  data = getData ("server.gid");
   if (data)
     gid.assign (data);
   else
     gid.assign ("");
 
-  data = getHashedData ("server.max_servers");
+  data = getData ("server.max_servers");
   if (data)
     {
       int maxServersProcesses = atoi(data);
@@ -1464,7 +1464,7 @@ int Server::freeHashedData ()
 /*!
  * Get the value for name in the hash dictionary.
  */
-const char* Server::getHashedData (const char* name)
+const char* Server::getData (const char* name)
 {
   NodeTree<string> *s = hashedData.get (name);
 

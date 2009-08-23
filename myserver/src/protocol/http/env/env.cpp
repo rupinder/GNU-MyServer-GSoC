@@ -80,7 +80,7 @@ void Env::buildEnvironmentString(HttpThreadContext* td, char *cgiEnv,
   memCgi << end_str << "SERVER_PORT="<< portBuffer;
 
   memCgi << end_str << "SERVER_ADMIN=";
-  memCgi << td->securityToken.getHashedData ("server.admin",
+  memCgi << td->securityToken.getData ("server.admin",
                                              MYSERVER_VHOST_CONF |
                                              MYSERVER_SERVER_CONF, "");
 

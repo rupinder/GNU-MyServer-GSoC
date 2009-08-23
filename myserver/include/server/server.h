@@ -83,7 +83,7 @@ public:
   int loadLibraries();
 
   CachedFileFactory* getCachedFiles();
-  const char* getHashedData(const char* name);
+  const char* getData(const char* name);
 
   void setGlobalData(const char* name, void* data);
   void* getGlobalData(const char* name);

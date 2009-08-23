@@ -330,7 +330,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     /*
      * Use GZIP compression to send files bigger than GZIP threshold.
      */
-    const char *val = td->securityToken.getHashedData ("gzip.threshold",
+    const char *val = td->securityToken.getData ("gzip.threshold",
                                                        MYSERVER_SECURITY_CONF
                                                        | MYSERVER_VHOST_CONF
                                                        | MYSERVER_MIME_CONF

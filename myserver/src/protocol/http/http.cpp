@@ -198,7 +198,7 @@ bool Http::allowMethod (const char *method)
 {
   char name[64];
   sprintf (name, "http.%s.allow", method);
-  const char *allow = td->securityToken.getHashedData (name,
+  const char *allow = td->securityToken.getData (name,
                                                        MYSERVER_VHOST_CONF |
                                                        MYSERVER_SERVER_CONF, "YES");
 
@@ -280,7 +280,7 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
 
       if (FilesUtility::isLink (td->filenamePath.c_str ()))
         {
-          const char *perm = td->securityToken.getHashedData ("symlinks.follow",
+          const char *perm = td->securityToken.getData ("symlinks.follow",
                               MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, "NO");
 
           if (!perm || strcmpi (perm, "YES"))
@@ -330,9 +330,9 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
       AuthDomain auth (&(td->securityToken));
       HttpReqSecurityDomain httpReqSecDom (&(td->request));
 
-      string validator (td->securityToken.getHashedData ("sec.validator", MYSERVER_VHOST_CONF |
+      string validator (td->securityToken.getData ("sec.validator", MYSERVER_VHOST_CONF |
                                                          MYSERVER_SERVER_CONF, "xml"));
-      string authMethod (td->securityToken.getHashedData ("sec.auth_method", MYSERVER_VHOST_CONF |
+      string authMethod (td->securityToken.getData ("sec.auth_method", MYSERVER_VHOST_CONF |
                                                           MYSERVER_SERVER_CONF, "xml"));
 
 
@@ -341,7 +341,7 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
       Server::getInstance ()->getSecurityManager ()->getPermissionMask (&(td->securityToken),
                                                          domains, validator, authMethod);
 
-      const char *authType = td->securityToken.getHashedData ("http.auth",
+      const char *authType = td->securityToken.getData ("http.auth",
            MYSERVER_SECURITY_CONF | MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF);
       *permissions = td->securityToken.getMask ();
 
@@ -377,7 +377,7 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
       return 500;
     }
 
-  const char *tr = td->securityToken.getHashedData ("connection.throttling",
+  const char *tr = td->securityToken.getData ("connection.throttling",
                                                     MYSERVER_SECURITY_CONF |
                                                     MYSERVER_VHOST_CONF |
                                                     MYSERVER_SERVER_CONF);
@@ -1024,11 +1024,11 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
 
               if (documentRoot.length ())
                 {
-                  const char *useHomeDir = td->securityToken.getHashedData ("http.use_home_directory",
+                  const char *useHomeDir = td->securityToken.getData ("http.use_home_directory",
                                                    MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, "YES");
 
 
-                  const char *homeDir = td->securityToken.getHashedData ("http.home_directory",
+                  const char *homeDir = td->securityToken.getData ("http.home_directory",
                                                    MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF,
                                                                          "public_html");
 
@@ -1058,7 +1058,7 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
            *virtual host A value of zero means no limit.
            */
           {
-            const char* val = td->securityToken.getHashedData ("MAX_CONNECTIONS",
+            const char* val = td->securityToken.getData ("MAX_CONNECTIONS",
                                                                MYSERVER_VHOST_CONF |
                                                                MYSERVER_SERVER_CONF, NULL);
 
@@ -1357,7 +1357,7 @@ int Http::raiseHTTPError (int ID)
       int useMessagesFiles = 1;
       HttpRequestHeader::Entry *host = td->request.other.get ("Host");
       HttpRequestHeader::Entry *connection = td->request.other.get ("Connection");
-      const char *useMessagesVal = td->securityToken.getHashedData ("http.use_error_file",
+      const char *useMessagesVal = td->securityToken.getData ("http.use_error_file",
                                                                     MYSERVER_VHOST_CONF |
                                                                     MYSERVER_SERVER_CONF, NULL);
 
@@ -1389,7 +1389,7 @@ int Http::raiseHTTPError (int ID)
       char errorName [32];
       sprintf (errorName, "http.error.file.%i", ID);
 
-      const char *defErrorFile = td->securityToken.getHashedData (errorName,
+      const char *defErrorFile = td->securityToken.getData (errorName,
                                                                   MYSERVER_SECURITY_CONF |
                                                                   MYSERVER_VHOST_CONF |
                                                                   MYSERVER_SERVER_CONF);
@@ -1451,7 +1451,7 @@ int Http::raiseHTTPError (int ID)
 
       /* Send only the header (and the body if specified).  */
       {
-        const char* value = td->securityToken.getHashedData ("http.error_body",
+        const char* value = td->securityToken.getData ("http.error_body",
                                                              MYSERVER_VHOST_CONF |
                                                              MYSERVER_SERVER_CONF, NULL);
 
@@ -1554,7 +1554,7 @@ Internal Server Error\n\
  */
 MimeRecord* Http::getMIME (string &filename)
 {
-  const char *handler = td->securityToken.getHashedData ("mime.handler",
+  const char *handler = td->securityToken.getData ("mime.handler",
                       MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, NULL);
 
   if (staticHttp.allowVhostMime && td->connection->host->isMIME ())
@@ -1812,7 +1812,7 @@ int Http::loadProtocolStatic ()
   staticHttp.dynManagerList.addHttpManager ("ISAPI", new Isapi ());
   staticHttp.dynManagerList.addHttpManager ("PROXY", new Proxy ());
 
-  data = Server::getInstance ()->getHashedData ("vhost.allow_mime");
+  data = Server::getInstance ()->getData ("vhost.allow_mime");
   if (data)
     {
 
@@ -1821,7 +1821,7 @@ int Http::loadProtocolStatic ()
       else
         staticHttp.allowVhostMime = 0;
     }
-  data = Server::getInstance ()->getHashedData ("cgi.timeout");
+  data = Server::getInstance ()->getData ("cgi.timeout");
   if (data)
     {
       staticHttp.timeout = MYSERVER_SEC (atoi (data));

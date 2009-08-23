@@ -239,11 +239,11 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
   spi.cmdLine = cmdLine.str ();
   spi.cwd.assign (td->scriptDir);
 
-  spi.gid =  atoi (td->securityToken.getHashedData ("cgi.gid", MYSERVER_VHOST_CONF |
+  spi.gid =  atoi (td->securityToken.getData ("cgi.gid", MYSERVER_VHOST_CONF |
                                                     MYSERVER_MIME_CONF |
                                                     MYSERVER_SECURITY_CONF |
                                                     MYSERVER_SERVER_CONF, "0"));
-  spi.uid =  atoi (td->securityToken.getHashedData ("cgi.uid", MYSERVER_VHOST_CONF |
+  spi.uid =  atoi (td->securityToken.getData ("cgi.uid", MYSERVER_VHOST_CONF |
                                                     MYSERVER_MIME_CONF |
                                                     MYSERVER_SECURITY_CONF |
                                                     MYSERVER_SERVER_CONF, "0"));

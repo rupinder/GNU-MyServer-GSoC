@@ -93,7 +93,7 @@ struct HttpThreadContext
 
 	const char* getVhostDir();
 	const char* getVhostSys();
-	const char* getHashedData (const char *name);
+	const char* getData (const char *name);
 };
 
 #endif

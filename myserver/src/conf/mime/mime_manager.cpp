@@ -130,7 +130,7 @@ void MimeRecord::clear ()
 /*!
  * Get the value stored in the hash dictionary for the `name' key.
  */
-const char* MimeRecord::getHashedData(string &name)
+const char* MimeRecord::getData(string &name)
 {
   string *str = hashedData.get (name);
   if (str)

@@ -51,7 +51,7 @@ public:
   SecurityToken();
   void reset();
 
-  const char* getHashedData (const char* name, int domains, const char *def = NULL);
+  const char* getData (const char* name, int domains, const char *def = NULL);
   NodeTree<string>* getNodeTree (string& key, int domains, NodeTree<string>* def = NULL);
 
 

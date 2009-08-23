@@ -139,7 +139,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
   DataFileHandle.writeToFile (buffer,26,&nbr);
 
   *td->secondaryBuffer << "Server Admin=" <<
-    td->securityToken.getHashedData ("server.admin", MYSERVER_VHOST_CONF |
+    td->securityToken.getData ("server.admin", MYSERVER_VHOST_CONF |
                                      MYSERVER_SERVER_CONF, "")<< "\r\n";
   DataFileHandle.writeToFile (buffer,td->secondaryBuffer->getLength(),&nbr);
 
