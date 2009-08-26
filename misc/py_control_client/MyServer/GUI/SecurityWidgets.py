@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import gtk
 import gobject
 from MyServer.pycontrollib.security import SecurityList, User, Return, \
-    Condition, Permission
+    Condition, Permission, SecurityElement
 from MyServer.pycontrollib.definition import DefinitionElement, DefinitionTree
 
 class SecurityTree(gtk.TreeView):
@@ -37,6 +37,48 @@ class SecurityTree(gtk.TreeView):
 
         self.last_selected = None
         self.connect('cursor-changed', self.cursor_changed)
+        
+        self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK,
+                                      [('text/plain', 0, 0)],
+                                      gtk.gdk.ACTION_MOVE)
+        self.enable_model_drag_dest([('text/plain', gtk.TARGET_SAME_WIDGET, 0)],
+                                    gtk.gdk.ACTION_MOVE)
+        def get_data(tree, context, selection, target_id, etime):
+            model, selected = tree.get_selection().get_selected()
+            data = model.get_value(selected, 1)
+            selection.set(selection.target, 8, str(data))
+        self.connect('drag_data_get', get_data)
+        def data_received(tree, context, x, y, selection, info, etime):
+            model = tree.get_model()
+            try:
+                data = SecurityElement.from_string(selection.data)
+            except:
+                return # will fall if someone moves SECURITY
+            drop_info = tree.get_dest_row_at_pos(x, y)
+            if drop_info:
+                path, position = drop_info
+                it = model.get_iter(path)
+                if position in [gtk.TREE_VIEW_DROP_BEFORE,
+                                gtk.TREE_VIEW_DROP_AFTER]:
+                    parent_tag = model.get_value(model.iter_parent(it), 0)
+                else:
+                    parent_tag = model.get_value(it, 0)
+                # limit places where rows can be dropped
+                if not ((data.tag == 'DEFINE element' and
+                         parent_tag == 'DEFINE tree') or
+                        parent_tag in ['SECURITY', 'CONDITION']):
+                    return
+                if position == gtk.TREE_VIEW_DROP_BEFORE:
+                    model.insert_before(None, it, (data.tag, data, ))
+                elif position == gtk.TREE_VIEW_DROP_AFTER:
+                    model.insert_after(None, it, (data.tag, data, ))
+                else:
+                    model.append(it, (data.tag, data, ))
+            else:
+                return # drop on widget but not on any row
+            if context.action == gtk.gdk.ACTION_MOVE:
+                context.finish(True, True, etime)
+        self.connect('drag_data_received', data_received)
 
         self.scroll = gtk.ScrolledWindow()
         self.scroll.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
