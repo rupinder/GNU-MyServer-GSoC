@@ -602,7 +602,7 @@ int writePidfile (const char* filename)
       file.append ("/var/run/myserver.pid");
     }
 
-  pidfile = open (filename, O_RDWR | O_CREAT);
+  pidfile = open (filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 
   if (pidfile == -1)
     return -1;
