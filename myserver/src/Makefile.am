@@ -1,6 +1,6 @@
 # Makefile for MyServer (./src)
 SUBDIRS = base conf connection connections_scheduler filter http_handler \
-	log plugin protocol server
+	log plugin protocol server GUI
 AM_CPPFLAGS = $(all_includes)
 bin_PROGRAMS = myserver
 myserver_SOURCES = myserver.cpp
