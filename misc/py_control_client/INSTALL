@@ -1,0 +1,11 @@
+To install MyServer python control libraries run:
+
+$ python setup.py install
+
+or
+
+$ python setup.py install --prefix=/custom/path
+
+To generate tar.gz package with this libraries run:
+
+$ python setup.py sdist
