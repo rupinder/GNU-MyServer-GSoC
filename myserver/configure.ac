@@ -68,6 +68,8 @@ AC_ARG_ENABLE([ipv6], [--enable-ipv6 Build with IPv6 support], enable_ipv6="yes"
 AC_ARG_ENABLE([tests], [--disable-tests Disable the tests suite],
                        enable_tests="$enableval", enable_tests="yes")
 
+AC_ARG_ENABLE([gui], [--enable-gui Build and install GUI application], enable_gui="yes", enable_gui="")
+
 dnl Looking for argp.h
 AC_CHECK_HEADER([argp.h], AC_DEFINE(ARGP, 1, [Define if GNU argp tools are available]))
 
@@ -318,6 +320,12 @@ else
   MAKE_TESTS=no
 fi
 
+if test x$enable_gui == xyes; then
+  MAKE_GUI=yes
+else
+  MAKE_GUI=no
+fi
+
 LDFLAGS="$LDFLAGS $LIBS"
 
 AC_SUBST(CFLAGS)
@@ -331,6 +339,7 @@ AC_TYPE_GETGROUPS
 AM_CONDITIONAL(BUILD_TESTS, test "$MAKE_TESTS" = "yes")
 AM_CONDITIONAL(BUILD_MSCGI, test "$MAKE_MSCGI" = "yes")
 AM_CONDITIONAL(BUILD_DOC, test "$MAKE_DOC" = "yes")
+AM_CONDITIONAL(BUILD_GUI, test "$MAKE_GUI" = "yes")
 
 AC_SUBST(BUILD_TESTS)
 AC_SUBST(BUILD_DOC)
@@ -462,6 +471,7 @@ AC_CONFIG_FILES([ po/Makefile.in
     src/filter/gzip/Makefile
     src/plugin/Makefile
     src/server/Makefile
+    src/GUI/Makefile
     tests/Makefile
     ])
 AC_OUTPUT
