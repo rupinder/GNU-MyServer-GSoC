@@ -321,7 +321,17 @@ else
 fi
 
 if test x$enable_gui == xyes; then
-  MAKE_GUI=yes
+  dnl Checking Python version
+  AM_PYTHON(2.6.0, have_python=yes)
+  if test x$have_python != xyes; then
+    AC_MSG_WARN([
+      *** Cannot find matching Python (http://python.org) version
+      *** GUI will not be built
+    ])
+    MAKE_GUI=no
+  else
+    MAKE_GUI=yes
+  fi
 else
   MAKE_GUI=no
 fi
