@@ -331,6 +331,30 @@ if test x$enable_gui == xyes; then
     MAKE_GUI=no
   else
     MAKE_GUI=yes
+    AM_PYTHON_MODULE(lxml, have_lxml=yes)
+    if test x$have_lxml != xyes; then
+      AC_MSG_WARN([
+        *** Cannon find lxml Python module (http://codespeak.net/lxml/)
+        *** GUI will not be built
+      ])
+      MAKE_GUI=no
+    fi
+    AM_PYTHON_MODULE(gtk, have_gtk=yes)
+    if test x$have_gtk != xyes; then
+      AC_MSG_WARN([
+        *** Cannon find PyGTK Python module (http://www.pygtk.org/)
+        *** GUI will not be built
+      ])
+      MAKE_GUI=no
+    fi
+    AM_PYTHON_MODULE(gobject, have_gobject=yes)
+    if test x$have_gobject != xyes; then
+      AC_MSG_WARN([
+        *** Cannon find PyGObject Python module (http://www.pygtk.org/)
+        *** GUI will not be built
+      ])
+      MAKE_GUI=no
+    fi
   fi
 else
   MAKE_GUI=no
