@@ -17,52 +17,52 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SERVER_H
-#define SERVER_H
+# define SERVER_H
 
-#include "stdafx.h"
-#include <include/base/thread/thread.h>
-#include <include/base/utility.h>
-#include <include/base/xml/xml_parser.h>
-#include <include/base/utility.h>
-#include <include/connection/connection.h>
-#include <include/base/socket/socket.h>
-#include <include/base/sync/event.h>
-#include <include/conf/mime/mime_manager.h>
-#include <include/conf/vhost/vhost_manager.h>
-#include <include/protocol/protocols_manager.h>
-#include <include/connection/connection.h>
-#include <include/log/log_manager.h>
-#include <include/filter/filters_factory.h>
-#include <include/plugin/plugins_manager.h>
-#include <include/base/hash_map/hash_map.h>
-#include <include/base/home_dir/home_dir.h>
-#include <include/base/files_cache/cached_file_factory.h>
-#include <include/base/process/process_server_manager.h>
-#include <include/connections_scheduler/listen_threads.h>
-#include <include/base/multicast/multicast.h>
-#include <include/connections_scheduler/connections_scheduler.h>
+# include "stdafx.h"
+# include <include/base/thread/thread.h>
+# include <include/base/utility.h>
+# include <include/base/xml/xml_parser.h>
+# include <include/base/utility.h>
+# include <include/connection/connection.h>
+# include <include/base/socket/socket.h>
+# include <include/base/sync/event.h>
+# include <include/conf/mime/mime_manager.h>
+# include <include/conf/vhost/vhost_manager.h>
+# include <include/protocol/protocols_manager.h>
+# include <include/connection/connection.h>
+# include <include/log/log_manager.h>
+# include <include/filter/filters_factory.h>
+# include <include/plugin/plugins_manager.h>
+# include <include/base/hash_map/hash_map.h>
+# include <include/base/home_dir/home_dir.h>
+# include <include/base/files_cache/cached_file_factory.h>
+# include <include/base/process/process_server_manager.h>
+# include <include/connections_scheduler/listen_threads.h>
+# include <include/base/multicast/multicast.h>
+# include <include/connections_scheduler/connections_scheduler.h>
 
-#include <include/conf/nodetree.h>
+# include <include/conf/nodetree.h>
 
-#include <include/conf/security/security_manager.h>
-#include <include/conf/security/auth_method_factory.h>
-#include <include/conf/security/validator_factory.h>
+# include <include/conf/security/security_manager.h>
+# include <include/conf/security/auth_method_factory.h>
+# include <include/conf/security/validator_factory.h>
 
-#include <include/base/slab/slab.h>
+# include <include/base/slab/slab.h>
 
-#include <string>
-#include <list>
+# include <string>
+# include <list>
 
 using namespace std;
 
 /*!
  *Definition for new threads entry-point.
  */
-#ifdef WIN32
+# ifdef WIN32
 unsigned int __stdcall listenServer(void* pParam);
-#else
+# else
 void* listenServer(void* pParam);
-#endif
+# endif
 
 class Server : public MulticastRegistry<string, void*, int>
 {
@@ -168,12 +168,12 @@ private:
 
   XmlParser configurationFileManager;
 
-#ifdef WIN32
+# ifdef WIN32
   friend int __stdcall control_handler(u_long control_type);
-#endif
-#ifdef NOT_WIN
+# endif
+# ifdef NOT_WIN
   friend int control_handler (u_long control_type);
-#endif
+# endif
   /*!
    *When the flag mustEndServer is 1 all the threads are
    *stopped and the application stop its execution.

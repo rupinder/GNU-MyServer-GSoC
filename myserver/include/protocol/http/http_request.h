@@ -21,20 +21,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/http/http_header.h>
 
 #ifndef HTTP_REQUEST_H
-#define HTTP_REQUEST_H
+# define HTTP_REQUEST_H
 
 using namespace std;
 
 
 /*! Max length for a HTTP request fields. */
-#define HTTP_REQUEST_CMD_DIM 16
-#define HTTP_REQUEST_VER_DIM 10
-#define HTTP_REQUEST_AUTH_DIM 16
-#define HTTP_REQUEST_CONTENT_LENGTH_DIM 12
-#define HTTP_REQUEST_URI_DIM 4096
-#define HTTP_REQUEST_URI_OPTS_DIM 4096
-#define HTTP_REQUEST_OTHER_DIM 4096
-#define HTTP_REQUEST_RANGE_TYPE_DIM 16
+# define HTTP_REQUEST_CMD_DIM 16
+# define HTTP_REQUEST_VER_DIM 10
+# define HTTP_REQUEST_AUTH_DIM 16
+# define HTTP_REQUEST_CONTENT_LENGTH_DIM 12
+# define HTTP_REQUEST_URI_DIM 4096
+# define HTTP_REQUEST_URI_OPTS_DIM 4096
+# define HTTP_REQUEST_OTHER_DIM 4096
+# define HTTP_REQUEST_RANGE_TYPE_DIM 16
 
 
 /*!

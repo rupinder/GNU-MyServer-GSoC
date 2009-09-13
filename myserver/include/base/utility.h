@@ -17,21 +17,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef UTILITY_H
-#define UTILITY_H
+# define UTILITY_H
 
-#include "stdafx.h"
-#include <include/base/file/file.h>
-#include <include/base/string/stringutils.h>
-#include <include/base/process/process.h>
-#include <include/base/thread/thread.h>
-#include <include/base/sync/mutex.h>
-#include <string.h>
+# include "stdafx.h"
+# include <include/base/file/file.h>
+# include <include/base/string/stringutils.h>
+# include <include/base/process/process.h>
+# include <include/base/thread/thread.h>
+# include <include/base/sync/mutex.h>
+# include <string.h>
 
 using namespace std;
 
-#define MYSERVER_KB(x) (x << 10)
-#define MYSERVER_MB(x) (x << 20)
-#define MYSERVER_SEC(x) (x * 1000)
+# define MYSERVER_KB(x) (x << 10)
+# define MYSERVER_MB(x) (x << 20)
+# define MYSERVER_SEC(x) (x * 1000)
 
 int preparePrintError ();
 int endPrintError ();

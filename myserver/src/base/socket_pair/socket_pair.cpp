@@ -22,23 +22,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef WIN32
 extern "C" {
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <time.h>
+# include <fcntl.h>
+# include <unistd.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <errno.h>
+# include <stdio.h>
+# include <fcntl.h>
+# include <stdlib.h>
+# include <string.h>
+# include <math.h>
+# include <time.h>
 
-#include <sys/socket.h>
-#include <sys/uio.h>
+# include <sys/socket.h>
+# include <sys/uio.h>
 }
 #else
-#include <windows.h>
+# include <windows.h>
 #endif
 
 #include <string>
@@ -60,9 +60,9 @@ SocketPair::SocketPair ()
 int SocketPair::create ()
 {
 #ifdef WIN32
-#define LOCAL_SOCKETPAIR_AF AF_INET
+# define LOCAL_SOCKETPAIR_AF AF_INET
 #else
-#define LOCAL_SOCKETPAIR_AF AF_UNIX
+# define LOCAL_SOCKETPAIR_AF AF_UNIX
 #endif
 
   int af = LOCAL_SOCKETPAIR_AF;

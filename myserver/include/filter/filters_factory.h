@@ -17,15 +17,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef FILTERS_FACTORY_H
-#define FILTERS_FACTORY_H
+# define FILTERS_FACTORY_H
 
-#include "stdafx.h"
-#include <include/filter/stream.h>
-#include <include/filter/filter.h>
-#include <include/filter/filters_chain.h>
-#include <include/base/hash_map/hash_map.h>
+# include "stdafx.h"
+# include <include/filter/stream.h>
+# include <include/filter/filter.h>
+# include <include/filter/filters_chain.h>
+# include <include/base/hash_map/hash_map.h>
 
-#include <list>
+# include <list>
 
 using namespace std;
 

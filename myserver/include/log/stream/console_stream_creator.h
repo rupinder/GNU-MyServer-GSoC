@@ -17,10 +17,10 @@
 */
 
 #ifndef CONSOLE_STREAM_CREATOR_H
-#define CONSOLE_STREAM_CREATOR_H
+# define CONSOLE_STREAM_CREATOR_H
 
-#include <include/log/stream/log_stream_creator.h>
-#include <include/log/stream/console_stream.h>
+# include <include/log/stream/log_stream_creator.h>
+# include <include/log/stream/console_stream.h>
 
 class ConsoleStreamCreator : public LogStreamCreator
 {

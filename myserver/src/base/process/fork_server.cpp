@@ -22,8 +22,8 @@
 #ifndef WIN32
 extern "C"
 {
-#include <unistd.h>
-#include <sys/wait.h>
+# include <unistd.h>
+# include <sys/wait.h>
 }
 #endif
 /*!

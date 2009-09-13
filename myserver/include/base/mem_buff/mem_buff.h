@@ -18,33 +18,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef MEMBUF_H
-#define MEMBUF_H
+# define MEMBUF_H
 
-#ifndef NULL
-#define NULL 0
-#endif
+# ifndef NULL
+#  define NULL 0
+# endif
 
-#include "stdafx.h"
-#include <iostream>
-#include <string>
+# include "stdafx.h"
+# include <iostream>
+# include <string>
 using namespace std;
 
-#define USE_NEW
+# define USE_NEW
 
 
-#define DONT_MATCH_LENGTH // Comment this line to always make the buffer
+# define DONT_MATCH_LENGTH // Comment this line to always make the buffer
 			  // have the exact length of his data
 			  // (involves reallocations => unrecommended)
-#ifdef USE_NEW
-#define mem_alloc(size) (new char[size])
-#define mem_free(pAdr) (delete [] pAdr)
-#else
-#include <stdlib.h>
-#define mem_alloc(size) ((char*) malloc(size))
-#define mem_free(pAdr) (free(pAdr))
-#endif
+# ifdef USE_NEW
+#  define mem_alloc(size) (new char[size])
+#  define mem_free(pAdr) (delete [] pAdr)
+# else
+#  include <stdlib.h>
+#  define mem_alloc(size) ((char*) malloc(size))
+#  define mem_free(pAdr) (free(pAdr))
+# endif
 
-#define end_str '\0'
+# define end_str '\0'
 
 class MemBuf
 {

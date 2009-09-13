@@ -16,13 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef LISTEN_THREADS_H
-#define LISTEN_THREADS_H
+# define LISTEN_THREADS_H
 
-#include "stdafx.h"
-#include <include/base/xml/xml_parser.h>
-#include <include/base/sync/mutex.h>
-#include <include/base/hash_map/hash_map.h>
-#include <include/connections_scheduler/connections_scheduler.h>
+# include "stdafx.h"
+# include <include/base/xml/xml_parser.h>
+# include <include/base/sync/mutex.h>
+# include <include/base/hash_map/hash_map.h>
+# include <include/connections_scheduler/connections_scheduler.h>
 
 class ListenThreads
 {

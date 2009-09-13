@@ -20,7 +20,7 @@
 #include <include/base/unix_socket/unix_socket.h>
 
 #ifndef FORK_SERVER_H
-#define FORK_SERVER_H
+# define FORK_SERVER_H
 
 struct StartProcInfo;
 

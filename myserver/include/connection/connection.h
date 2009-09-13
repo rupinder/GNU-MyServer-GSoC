@@ -17,22 +17,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CONNECTION_H
-#define CONNECTION_H
+# define CONNECTION_H
 
 extern "C"
 {
-#include <sys/time.h>
+# include <sys/time.h>
 }
 
-#include <include/base/socket/socket.h>
-#include <include/protocol/protocol_buffer.h>
-#include <include/base/utility.h>
-#include <include/base/mem_buff/mem_buff.h>
+# include <include/base/socket/socket.h>
+# include <include/protocol/protocol_buffer.h>
+# include <include/base/utility.h>
+# include <include/base/mem_buff/mem_buff.h>
 
 class Vhost;
 class ClientsThread;
 
-#include <string>
+# include <string>
 
 using namespace std;
 

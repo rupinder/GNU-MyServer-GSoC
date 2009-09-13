@@ -52,9 +52,9 @@ int DynamicLibrary::loadLibrary (const char* filename, int globally)
   else
     flag = RTLD_LOCAL | RTLD_LAZY;
 
-#ifdef RTLD_DEEPBIND
+# ifdef RTLD_DEEPBIND
   flag |= RTLD_DEEPBIND;
-#endif
+# endif
 
   handle = dlopen (filename, flag);
 #endif

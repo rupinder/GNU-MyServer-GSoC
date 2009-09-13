@@ -26,21 +26,21 @@ extern "C" {
 #include <stdarg.h>
 #include <stdio.h>
 #ifndef WIN32
-#include <errno.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <signal.h>
-#ifdef HAVE_PTHREAD
-#include <pthread.h>
-#endif
-#include <sys/wait.h>
+# include <errno.h>
+# include <netdb.h>
+# include <unistd.h>
+# include <signal.h>
+# ifdef HAVE_PTHREAD
+#  include <pthread.h>
+# endif
+# include <sys/wait.h>
 #endif
 }
 
 #include <sys/types.h>
 
 #ifdef WIN32
-#include <direct.h>
+# include <direct.h>
 #endif
 
 /*!
@@ -65,13 +65,13 @@ int Mutex::init()
 #ifdef HAVE_PTHREAD
 
 
-#if 0
+# if 0
   pthread_mutexattr_t mta;
   pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_NORMAL);
   ret = pthread_mutex_init(&mutex, &mta);
-#else
+# else
   ret = pthread_mutex_init(&mutex,(pthread_mutexattr_t*) NULL);
-#endif
+# endif
 
 
 #else
@@ -104,14 +104,14 @@ int Mutex::destroy()
 int Mutex::lock(u_long /*id*/)
 {
 #ifdef HAVE_PTHREAD
-#ifdef PTHREAD_ALTERNATE_LOCK
+# ifdef PTHREAD_ALTERNATE_LOCK
   pthread_mutex_lock(&mutex);
-#else
+# else
   while(pthread_mutex_trylock(&mutex) == EBUSY)
   {
     Thread::wait(1);
   }
-#endif
+# endif
 
 #else
   WaitForSingleObject(mutex, INFINITE);

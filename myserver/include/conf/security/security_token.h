@@ -17,12 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SECURITY_TOKEN_H
-#define SECURITY_TOKEN_H
+# define SECURITY_TOKEN_H
 
-#include "stdafx.h"
-#include <include/base/hash_map/hash_map.h>
-#include <include/conf/nodetree.h>
-#include <string>
+# include "stdafx.h"
+# include <include/base/hash_map/hash_map.h>
+# include <include/conf/nodetree.h>
+# include <string>
 
 using namespace std;
 

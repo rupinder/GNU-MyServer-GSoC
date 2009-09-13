@@ -17,13 +17,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef MULTICAST_H
-#define MULTICAST_H
+# define MULTICAST_H
 
-#include "stdafx.h"
-#include <include/base/hash_map/hash_map.h>
+# include "stdafx.h"
+# include <include/base/hash_map/hash_map.h>
 
-#include <string>
-#include <vector>
+# include <string>
+# include <vector>
 using namespace std;
 
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
@@ -53,6 +53,6 @@ private:
 };
 
 
-#include <src/base/multicast/multicast.cpp>
+# include <src/base/multicast/multicast.cpp>
 
 #endif

@@ -17,18 +17,18 @@
 */
 
 #ifndef GZIP_H
-#define GZIP_H
-#include "stdafx.h"
-#include <include/filter/filter.h>
+# define GZIP_H
+# include "stdafx.h"
+# include <include/filter/filter.h>
 
-#ifdef HAVE_ZLIB
-# include "zlib.h"
-#else
-# define z_stream (void*)
-#endif
+# ifdef HAVE_ZLIB
+#  include "zlib.h"
+# else
+#  define z_stream (void*)
+# endif
 
-#define GZIP_HEADER_LENGTH		10
-#define GZIP_FOOTER_LENGTH		8
+# define GZIP_HEADER_LENGTH		10
+# define GZIP_FOOTER_LENGTH		8
 extern char GZIP_HEADER[];
 
 class Gzip : public Filter

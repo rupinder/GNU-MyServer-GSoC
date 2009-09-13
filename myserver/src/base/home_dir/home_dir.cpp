@@ -43,11 +43,11 @@ extern "C"
 # include <netdb.h>
 # include <unistd.h>
 # include <signal.h>
-#ifdef HAVE_PTHREAD
-# include <pthread.h>
-#endif
+# ifdef HAVE_PTHREAD
+#  include <pthread.h>
+# endif
 
-#include <sys/wait.h>
+# include <sys/wait.h>
 #endif
 }
 

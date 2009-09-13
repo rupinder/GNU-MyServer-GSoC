@@ -17,23 +17,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SCGI_H
-#define SCGI_H
+# define SCGI_H
 
-#include "stdafx.h"
-#include <include/protocol/http/http_headers.h>
-#include <include/base/utility.h>
-#include <include/base/socket/socket.h>
-#include <include/conf/vhost/vhost.h>
-#include <include/protocol/http/http_errors.h>
-#include <include/connection/connection.h>
-#include <include/base/string/stringutils.h>
-#include <include/base/thread/thread.h>
-#include <include/base/sync/mutex.h>
-#include <include/protocol/http/http_data_handler.h>
-#include <include/base/hash_map/hash_map.h>
-#include <include/base/process/process_server_manager.h>
-#include <include/filter/filters_chain.h>
-#include <string>
+# include "stdafx.h"
+# include <include/protocol/http/http_headers.h>
+# include <include/base/utility.h>
+# include <include/base/socket/socket.h>
+# include <include/conf/vhost/vhost.h>
+# include <include/protocol/http/http_errors.h>
+# include <include/connection/connection.h>
+# include <include/base/string/stringutils.h>
+# include <include/base/thread/thread.h>
+# include <include/base/sync/mutex.h>
+# include <include/protocol/http/http_data_handler.h>
+# include <include/base/hash_map/hash_map.h>
+# include <include/base/process/process_server_manager.h>
+# include <include/filter/filters_chain.h>
+# include <string>
 
 using namespace std;
 

@@ -17,17 +17,17 @@
 */
 
 #ifndef LOG_MANAGER_H
-#define LOG_MANAGER_H
+# define LOG_MANAGER_H
 
-#include <algorithm>
-#include <map>
-#include <string>
+# include <algorithm>
+# include <map>
+# include <string>
 
-#include <include/base/sync/mutex.h>
-#include <include/filter/filters_factory.h>
-#include <include/log/stream/log_stream.h>
-#include <include/log/stream/log_stream_factory.h>
-#include <cstdarg>
+# include <include/base/sync/mutex.h>
+# include <include/filter/filters_factory.h>
+# include <include/log/stream/log_stream.h>
+# include <include/log/stream/log_stream_factory.h>
+# include <cstdarg>
 
 
 using namespace std;

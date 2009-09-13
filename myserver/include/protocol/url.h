@@ -17,10 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef URL_H
-#define URL_H
-#include "stdafx.h"
+# define URL_H
+# include "stdafx.h"
 
-#include <string>
+# include <string>
 
 using namespace std;
 

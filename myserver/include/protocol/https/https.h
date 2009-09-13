@@ -17,9 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef HTTPS_H
-#define HTTPS_H
-#include "stdafx.h"
-#include <include/protocol/http/http.h>
+# define HTTPS_H
+# include "stdafx.h"
+# include <include/protocol/http/http.h>
 
 class Https : public Http
 {

@@ -27,7 +27,7 @@ extern "C"
 #include <string.h>
 
 #ifndef WIN32
-#include <ctype.h>
+# include <ctype.h>
 #endif
 }
 

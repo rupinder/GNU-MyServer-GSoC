@@ -17,14 +17,14 @@
 */
 
 #ifndef CONSOLE_STREAM_H
-#define CONSOLE_STREAM_H
+# define CONSOLE_STREAM_H
 
-#include <list>
-#include <map>
-#include <string>
+# include <list>
+# include <map>
+# include <string>
 
-#include <include/log/stream/log_stream.h>
-#include <include/filter/console.h>
+# include <include/log/stream/log_stream.h>
+# include <include/filter/console.h>
 
 class ConsoleStream : public LogStream
 {

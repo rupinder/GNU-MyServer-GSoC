@@ -17,34 +17,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef THREAD_H
-#define THREAD_H
+# define THREAD_H
 
-#include "stdafx.h"
-#include <include/base/file/file.h>
-#include <include/base/string/stringutils.h>
+# include "stdafx.h"
+# include <include/base/file/file.h>
+# include <include/base/string/stringutils.h>
 
-#ifdef WIN32
+# ifdef WIN32
 	typedef unsigned int ThreadID;
-#define DEFINE_THREAD(NAME,PARAM) unsigned int __stdcall NAME(void* PARAM)
-#endif
-#ifdef HAVE_PTHREAD
+#  define DEFINE_THREAD(NAME,PARAM) unsigned int __stdcall NAME(void* PARAM)
+# endif
+# ifdef HAVE_PTHREAD
 	typedef pthread_t ThreadID;
-#define DEFINE_THREAD(NAME,PARAM) void* NAME(void* PARAM)
-#endif
+#  define DEFINE_THREAD(NAME,PARAM) void* NAME(void* PARAM)
+# endif
 
 class Thread
 {
 public:
   static void wait(u_long);
 	static ThreadID threadID();
-#ifdef WIN32
+# ifdef WIN32
 	static int create(ThreadID*  thread,
              unsigned int (_stdcall *start_routine)(void *), void * arg);
-#endif
-#ifdef HAVE_PTHREAD
+# endif
+# ifdef HAVE_PTHREAD
 	static int create(ThreadID*  thread, void * (*start_routine)(void *),
                     void * arg);
-#endif
+# endif
 	static void terminate();
 	static int join(ThreadID);
 };

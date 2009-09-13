@@ -17,16 +17,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SEMAPHORE_H
-#define SEMAPHORE_H
+# define SEMAPHORE_H
 
-#include "stdafx.h"
+# include "stdafx.h"
 
-#ifdef HAVE_PTHREAD
-#include <semaphore.h>
+# ifdef HAVE_PTHREAD
+#  include <semaphore.h>
 typedef sem_t SemaphoreHandle;
-#else
+# else
 typedef HANDLE SemaphoreHandle;
-#endif
+# endif
 
 class Semaphore
 {

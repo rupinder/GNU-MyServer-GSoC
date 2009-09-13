@@ -17,21 +17,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef STREAM_H
-#define STREAM_H
+# define STREAM_H
 
-#include "stdafx.h"
+# include "stdafx.h"
 
-#ifdef WIN32
+# ifdef WIN32
 typedef u_int Handle;
-#else
+# else
 typedef int Handle;
-#endif
+# endif
 
-#ifdef WIN32
+# ifdef WIN32
 typedef HANDLE FileHandle;
-#else
+# else
 typedef int FileHandle;
-#endif
+# endif
 
 /*!
  *Abstract class to handle virtual data streams.

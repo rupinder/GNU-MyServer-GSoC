@@ -17,12 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef HTTP_DIR_H
-#define HTTP_DIR_H
-#include "stdafx.h"
-#include <include/protocol/protocol.h>
-#include <include/protocol/http/http_headers.h>
-#include <include/protocol/http/http_data_handler.h>
-#include <list>
+# define HTTP_DIR_H
+# include "stdafx.h"
+# include <include/protocol/protocol.h>
+# include <include/protocol/http/http_headers.h>
+# include <include/protocol/http/http_data_handler.h>
+# include <list>
 
 using namespace std;
 

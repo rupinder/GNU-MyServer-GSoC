@@ -17,13 +17,13 @@
 */
 
 #ifndef SOCKET_STREAM_H
-#define SOCKET_STREAM_H
+# define SOCKET_STREAM_H
 
-#include <list>
-#include <string>
+# include <list>
+# include <string>
 
-#include <include/base/socket/socket.h>
-#include <include/log/stream/log_stream.h>
+# include <include/base/socket/socket.h>
+# include <include/log/stream/log_stream.h>
 
 class SocketStream : public LogStream
 {

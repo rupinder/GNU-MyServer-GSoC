@@ -17,17 +17,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef GZIP_DECOMPRESS_H
-#define GZIP_DECOMPRESS_H
+# define GZIP_DECOMPRESS_H
 
-#include "stdafx.h"
-#include <include/filter/filter.h>
-#include <include/filter/gzip/gzip.h>
+# include "stdafx.h"
+# include <include/filter/filter.h>
+# include <include/filter/gzip/gzip.h>
 
-#ifdef HAVE_ZLIB
-# include "zlib.h"
-#else
-# define z_stream (void*)
-#endif
+# ifdef HAVE_ZLIB
+#  include "zlib.h"
+# else
+#  define z_stream (void*)
+# endif
 
 
 class GzipDecompress : public Filter

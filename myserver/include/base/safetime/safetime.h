@@ -17,18 +17,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SAFETIME_H
-#define SAFETIME_H
+# define SAFETIME_H
 
-#include "stdafx.h"
+# include "stdafx.h"
 
-#ifdef GETTIMEOFDAY
-#include <sys/time.h>
-#endif
+# ifdef GETTIMEOFDAY
+#  include <sys/time.h>
+# endif
 
-#ifdef WIN32
-#include <direct.h>
-#include <time.h>
-#endif
+# ifdef WIN32
+#  include <direct.h>
+#  include <time.h>
+# endif
 
 void myserver_safetime_init();
 void myserver_safetime_destroy();

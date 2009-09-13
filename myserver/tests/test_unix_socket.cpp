@@ -29,7 +29,7 @@
 
 #ifdef AF_UNIX
 
-#define TEST_STRING "Hello World!"
+# define TEST_STRING "Hello World!"
 
 struct UnixSocketServerType
 {

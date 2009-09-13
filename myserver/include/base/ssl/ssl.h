@@ -17,12 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SSL_H
-#define SSL_H
+# define SSL_H
 
-#include "stdafx.h"
+# include "stdafx.h"
 
-#include <gnutls/openssl.h>
-#include <string>
+# include <gnutls/openssl.h>
+# include <string>
 
 using namespace std;
 

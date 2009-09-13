@@ -17,12 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef FILES_UTILITY_H
-#define FILES_UTILITY_H
+# define FILES_UTILITY_H
 
-#include "stdafx.h"
-#include <include/filter/stream.h>
-#include <include/base/file/file.h>
-#include <string>
+# include "stdafx.h"
+# include <include/filter/stream.h>
+# include <include/base/file/file.h>
+# include <string>
 
 using namespace std;
 

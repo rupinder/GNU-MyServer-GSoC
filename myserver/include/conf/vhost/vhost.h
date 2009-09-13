@@ -17,25 +17,25 @@
 */
 
 #ifndef VHOST_H
-#define VHOST_H
+# define VHOST_H
 
-#include <list>
-#include <string>
+# include <list>
+# include <string>
 
-#include "stdafx.h"
-#include <include/base/xml/xml_parser.h>
-#include <include/base/file/file.h>
-#include <include/base/utility.h>
-#include <include/base/regex/myserver_regex.h>
-#include <include/log/log_manager.h>
-#include <include/conf/mime/mime_manager.h>
-#include <include/base/thread/thread.h>
-#include <include/base/hash_map/hash_map.h>
-#include <include/base/sync/mutex.h>
-#include <include/base/ssl/ssl.h>
-#include <include/connections_scheduler/listen_threads.h>
-#include <include/conf/vhost/ip.h>
-#include <include/conf/nodetree.h>
+# include "stdafx.h"
+# include <include/base/xml/xml_parser.h>
+# include <include/base/file/file.h>
+# include <include/base/utility.h>
+# include <include/base/regex/myserver_regex.h>
+# include <include/log/log_manager.h>
+# include <include/conf/mime/mime_manager.h>
+# include <include/base/thread/thread.h>
+# include <include/base/hash_map/hash_map.h>
+# include <include/base/sync/mutex.h>
+# include <include/base/ssl/ssl.h>
+# include <include/connections_scheduler/listen_threads.h>
+# include <include/conf/vhost/ip.h>
+# include <include/conf/nodetree.h>
 
 using namespace std;
 typedef int (*NULL_REFERENCECB)(class Vhost*);

@@ -17,28 +17,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef EVENT_H
-#define EVENT_H
+# define EVENT_H
 
-#include "stdafx.h"
-#include <include/base/sync/mutex.h>
+# include "stdafx.h"
+# include <include/base/sync/mutex.h>
 
-#ifdef HAVE_PTHREAD
+# ifdef HAVE_PTHREAD
 	typedef pthread_cond_t EventHandle;
-#else
+# else
 	typedef HANDLE EventHandle;
-#endif
+# endif
 
 class Event
 {
 private:
 	bool initialized;
 	bool broadcast;
-#ifdef HAVE_PTHREAD
+# ifdef HAVE_PTHREAD
 	/*!
 	 *Under pthread a condition is associated with a mutex.
 	 */
 	pthread_mutex_t mutex;
-#endif
+# endif
 	EventHandle event;
 public:
 	Event(bool broadcast);

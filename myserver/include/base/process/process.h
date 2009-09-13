@@ -17,16 +17,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef PROCESS_H
-#define PROCESS_H
+# define PROCESS_H
 
-#include "stdafx.h"
+# include "stdafx.h"
 
-#include <include/base/file/file.h>
-#include <include/base/sync/mutex.h>
-#include <include/base/process/fork_server.h>
-#include <include/base/string/stringutils.h>
+# include <include/base/file/file.h>
+# include <include/base/sync/mutex.h>
+# include <include/base/process/fork_server.h>
+# include <include/base/string/stringutils.h>
 
-#include <string>
+# include <string>
 
 /*!
  *Structure used for start a new process.
@@ -71,12 +71,12 @@ struct StartProcInfo
 class Process
 {
 public:
-#ifdef HAVE_PTHREAD
+# ifdef HAVE_PTHREAD
 	static Mutex forkMutex;
 	static void forkPrepare();
 	static void forkParent();
 	static void forkChild();
-#endif
+# endif
 	static void initialize();
   int exec (StartProcInfo *spi, bool waitEnd = false);
   int terminateProcess();

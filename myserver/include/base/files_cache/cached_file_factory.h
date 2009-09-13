@@ -17,17 +17,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CACHED_FILE_FACTORY_H
-#define CACHED_FILE_FACTORY_H
+# define CACHED_FILE_FACTORY_H
 
-#include "stdafx.h"
-#include <include/filter/stream.h>
-#include <include/base/hash_map/hash_map.h>
-#include <include/base/file/file.h>
-#include <include/base/sync/mutex.h>
-#include <include/base/files_cache/cached_file.h>
-#include <include/base/files_cache/cached_file_buffer.h>
-#include <string>
-#include <list>
+# include "stdafx.h"
+# include <include/filter/stream.h>
+# include <include/base/hash_map/hash_map.h>
+# include <include/base/file/file.h>
+# include <include/base/sync/mutex.h>
+# include <include/base/files_cache/cached_file.h>
+# include <include/base/files_cache/cached_file_buffer.h>
+# include <string>
+# include <list>
 
 using namespace std;
 

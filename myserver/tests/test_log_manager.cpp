@@ -19,8 +19,8 @@
 #include <string>
 
 #ifndef WIN32
-#include <unistd.h>
-#include <sys/types.h>
+# include <unistd.h>
+# include <sys/types.h>
 #endif
 
 #include <cppunit/CompilerOutputter.h>

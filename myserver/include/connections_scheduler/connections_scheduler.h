@@ -17,26 +17,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CONNECTIONS_SCHEDULER_H
-#define CONNECTIONS_SCHEDULER_H
+# define CONNECTIONS_SCHEDULER_H
 
-#include "stdafx.h"
-#include <include/base/socket/socket.h>
-#include <include/connection/connection.h>
-#include <include/base/sync/mutex.h>
-#include <include/base/sync/event.h>
-#include <include/base/sync/semaphore.h>
-#include <include/base/hash_map/hash_map.h>
-#include <include/base/thread/thread.h>
-#include <include/base/socket_pair/socket_pair.h>
+# include "stdafx.h"
+# include <include/base/socket/socket.h>
+# include <include/connection/connection.h>
+# include <include/base/sync/mutex.h>
+# include <include/base/sync/event.h>
+# include <include/base/sync/semaphore.h>
+# include <include/base/hash_map/hash_map.h>
+# include <include/base/thread/thread.h>
+# include <include/base/socket_pair/socket_pair.h>
 
-#include <list>
-#include <queue>
+# include <list>
+# include <queue>
 
-#include <event.h>
+# include <event.h>
 
 using namespace std;
 
-#define PRIORITY_CLASSES 3
+# define PRIORITY_CLASSES 3
 
 
 class Server;

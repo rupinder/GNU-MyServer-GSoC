@@ -17,16 +17,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef DYN_HTTP_MANAGER_LIST_H
-#define DYN_HTTP_MANAGER_LIST_H
+# define DYN_HTTP_MANAGER_LIST_H
 
-#include "stdafx.h"
-#include <include/base/xml/xml_parser.h>
-#include <include/protocol/protocol.h>
-#include <include/connection/connection.h>
-#include <include/base/dynamic_lib/dynamiclib.h>
-#include <include/protocol/http/http_headers.h>
-#include <include/base/hash_map/hash_map.h>
-#include <string>
+# include "stdafx.h"
+# include <include/base/xml/xml_parser.h>
+# include <include/protocol/protocol.h>
+# include <include/connection/connection.h>
+# include <include/base/dynamic_lib/dynamiclib.h>
+# include <include/protocol/http/http_headers.h>
+# include <include/base/hash_map/hash_map.h>
+# include <string>
 using namespace std;
 
 class HttpDataHandler;

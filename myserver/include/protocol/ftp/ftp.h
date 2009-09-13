@@ -18,18 +18,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #ifndef FTP_H
-#define FTP_H
-#include "stdafx.h"
-#include <include/protocol/protocol.h>
-#include <include/connection/connection.h>
-#include <include/base/mem_buff/mem_buff.h>
-#include <include/base/xml/xml_parser.h>
-#include <include/protocol/ftp/ftp_common.h>
+# define FTP_H
+# include "stdafx.h"
+# include <include/protocol/protocol.h>
+# include <include/connection/connection.h>
+# include <include/base/mem_buff/mem_buff.h>
+# include <include/base/xml/xml_parser.h>
+# include <include/protocol/ftp/ftp_common.h>
 
-#include <include/protocol/ftp/ftp_parser.h>
-#include <include/protocol/ftp/ftp_lexer.h>
+# include <include/protocol/ftp/ftp_parser.h>
+# include <include/protocol/ftp/ftp_lexer.h>
 
-#include <include/conf/security/security_token.h>
+# include <include/conf/security/security_token.h>
 class Ftp;
 
 class FtpuserData:public ProtocolBuffer

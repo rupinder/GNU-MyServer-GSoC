@@ -453,9 +453,9 @@ int main  (int argn, char **argv)
       cout << MYSERVER_VERSION << endl;
 
       cout
-#ifdef __DATE__
+# ifdef __DATE__
         << "Compiled on " << __DATE__
-#endif
+# endif
         << endl;
 
       cout << "http://www.gnu.org/software/myserver" << endl;
@@ -476,9 +476,9 @@ int main  (int argn, char **argv)
       if (!strcmpi (argv[1], "REGISTER"))
         {
           registerService ();
-#ifndef ARGP
+# ifndef ARGP
           runAsService ();
-#endif
+# endif
           runas = MYSERVER_RUNAS_SERVICE;
           return 0;
         }
@@ -545,14 +545,14 @@ int main  (int argn, char **argv)
 
           if (pid)
             {
-#ifdef ARGP
+# ifdef ARGP
               if(input.pidFileName)
                 writePidfile (input.pidFileName);
               else
                 writePidfile();
-#else
+# else
               writePidfile ();
-#endif
+# endif
               return 0;
             }
           /*
@@ -595,10 +595,10 @@ int writePidfile (const char* filename)
 
   if (filename == NULL)
     {
-#ifdef PREFIX
+# ifdef PREFIX
       file.assign (PREFIX);
       file.append ("/");
-#endif
+# endif
       file.append ("/var/run/myserver.pid");
     }
 

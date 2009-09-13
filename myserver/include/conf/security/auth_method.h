@@ -17,10 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef AUTH_METHOD_H
-#define AUTH_METHOD_H
+# define AUTH_METHOD_H
 
-#include "stdafx.h"
-#include <include/conf/security/security_manager.h>
+# include "stdafx.h"
+# include <include/conf/security/security_manager.h>
 
 using namespace std;
 

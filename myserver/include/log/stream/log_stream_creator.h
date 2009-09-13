@@ -17,13 +17,13 @@
 */
 
 #ifndef LOG_STREAM_CREATOR_H
-#define LOG_STREAM_CREATOR_H
+# define LOG_STREAM_CREATOR_H
 
-#include <list>
-#include <string>
+# include <list>
+# include <string>
 
-#include <include/log/stream/log_stream.h>
-#include <include/filter/filters_factory.h>
+# include <include/log/stream/log_stream.h>
+# include <include/filter/filters_factory.h>
 
 class LogStreamCreator
 {

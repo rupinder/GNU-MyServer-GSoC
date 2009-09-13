@@ -17,16 +17,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SECURITY_MANAGER_H
-#define SECURITY_MANAGER_H
+# define SECURITY_MANAGER_H
 
-#include "stdafx.h"
-#include <include/conf/security/security_token.h>
-#include <include/connection/connection.h>
-#include <include/base/xml/xml_parser.h>
-#include <include/protocol/http/http_headers.h>
-#include <include/base/hash_map/hash_map.h>
+# include "stdafx.h"
+# include <include/conf/security/security_token.h>
+# include <include/connection/connection.h>
+# include <include/base/xml/xml_parser.h>
+# include <include/protocol/http/http_headers.h>
+# include <include/base/hash_map/hash_map.h>
 
-#include <string>
+# include <string>
 
 using namespace std;
 

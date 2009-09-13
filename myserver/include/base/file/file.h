@@ -17,14 +17,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef FILE_H
-#define FILE_H
+# define FILE_H
 
-#include "stdafx.h"
-#include <include/filter/stream.h>
-#include <string>
+# include "stdafx.h"
+# include <include/filter/stream.h>
+# include <string>
 
-#include <include/base/socket/socket.h>
-#include <include/base/mem_buff/mem_buff.h>
+# include <include/base/socket/socket.h>
+# include <include/base/mem_buff/mem_buff.h>
 
 using namespace std;
 

@@ -17,8 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef NODE_TREE_H
-#define NODE_TREE_H
+# define NODE_TREE_H
 
-#include <src/conf/nodetree.cpp>
+# include <src/conf/nodetree.cpp>
 
 #endif

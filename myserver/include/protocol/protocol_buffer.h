@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef PROTOCOL_BUFFER_H
-#define PROTOCOL_BUFFER_H
+# define PROTOCOL_BUFFER_H
 
 /*!
  *Base class to handle a buffer in the connection.

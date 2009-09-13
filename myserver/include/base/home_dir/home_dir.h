@@ -17,14 +17,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef HOME_DIR_H
-#define HOME_DIR_H
+# define HOME_DIR_H
 
-#include "stdafx.h"
-#include <include/base/file/file.h>
-#include <include/base/string/stringutils.h>
-#include <include/base/hash_map/hash_map.h>
-#include <include/base/sync/mutex.h>
-#include <string>
+# include "stdafx.h"
+# include <include/base/file/file.h>
+# include <include/base/string/stringutils.h>
+# include <include/base/hash_map/hash_map.h>
+# include <include/base/sync/mutex.h>
+# include <string>
 
 using namespace std;
 
@@ -45,11 +45,11 @@ private:
   Mutex loadMutex;
   int loadImpl();
 
-#ifdef WIN32
+# ifdef WIN32
   string data;
-#elif !GETPWNAM
+# elif !GETPWNAM
 	HashMap<string, string*> data;
-#endif
+# endif
 	time_t timestamp;
 	int loaded;
 };

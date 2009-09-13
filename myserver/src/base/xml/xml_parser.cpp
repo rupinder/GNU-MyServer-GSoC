@@ -510,11 +510,11 @@ void XmlParser::setAttr(const char * name, const char * value)
  */
 void XmlParser::addLineFeed()
 {
-  #ifdef WIN32
+#ifdef WIN32
     xmlNodePtr endline = xmlNewDocText(doc, (const xmlChar *)"\r\n");
-  #else
+#else
     xmlNodePtr endline = xmlNewDocText(doc, (const xmlChar *)"\n");
-  #endif
+#endif
 
   xmlAddChild(cur, endline);
 }

@@ -616,13 +616,13 @@ void Server::displayBoot ()
 
   if (logLocation.find ("console://") != string::npos)
     {
-#ifdef WIN32
+# ifdef WIN32
       _flushall();
       system ("cls");
-#else
+# else
       sync ();
       system ("clear");
-#endif
+# endif
     }
 
 #endif /* CLEAR_BOOT_SCREEN.  */

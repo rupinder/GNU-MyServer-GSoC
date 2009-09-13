@@ -17,11 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef VALIDATOR_FACTORY_H
-#define VALIDATOR_FACTORY_H
+# define VALIDATOR_FACTORY_H
 
-#include "stdafx.h"
-#include <include/base/hash_map/hash_map.h>
-#include <string>
+# include "stdafx.h"
+# include <include/base/hash_map/hash_map.h>
+# include <string>
 
 using namespace std;
 

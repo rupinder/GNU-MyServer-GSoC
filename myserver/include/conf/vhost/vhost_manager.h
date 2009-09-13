@@ -17,11 +17,11 @@
 */
 
 #ifndef VHOST_MANAGER_H
-#define VHOST_MANAGER_H
+# define VHOST_MANAGER_H
 
-#include "stdafx.h"
-#include <include/conf/vhost/vhost.h>
-#include <include/log/log_manager.h>
+# include "stdafx.h"
+# include <include/conf/vhost/vhost.h>
+# include <include/log/log_manager.h>
 
 class VhostSource
 {

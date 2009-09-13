@@ -17,20 +17,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CXMLPARSER_IN
-#define CXMLPARSER_IN
+# define CXMLPARSER_IN
 
-#include "stdafx.h"
-#include <include/base/file/file.h>
-#include <include/base/mem_buff/mem_buff.h>
+# include "stdafx.h"
+# include <include/base/file/file.h>
+# include <include/base/mem_buff/mem_buff.h>
 extern "C"
 {
-#include <libxml/xmlmemory.h>
-#include <libxml/parser.h>
-#include <libxml/tree.h>
-#include <libxml/xpath.h>
-#include <libxml/xpathInternals.h>
+# include <libxml/xmlmemory.h>
+# include <libxml/parser.h>
+# include <libxml/tree.h>
+# include <libxml/xpath.h>
+# include <libxml/xpathInternals.h>
 }
-#include <string>
+# include <string>
 
 using namespace std;
 

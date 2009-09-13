@@ -17,13 +17,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CONTROL_PROTOCOL_H
-#define CONTROL_PROTOCOL_H
-#include "stdafx.h"
-#include <include/protocol/protocol.h>
-#include <include/protocol/control/control_header.h>
-#include <include/connections_scheduler/connections_scheduler.h>
+# define CONTROL_PROTOCOL_H
+# include "stdafx.h"
+# include <include/protocol/protocol.h>
+# include <include/protocol/control/control_header.h>
+# include <include/connections_scheduler/connections_scheduler.h>
 
-#include <string>
+# include <string>
 
 using namespace std;
 

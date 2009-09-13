@@ -17,12 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef FILTERS_CHAIN_H
-#define FILTERS_CHAIN_H
-#include "stdafx.h"
-#include <include/filter/stream.h>
-#include <include/filter/filter.h>
-#include <include/protocol/protocol.h>
-#include <list>
+# define FILTERS_CHAIN_H
+# include "stdafx.h"
+# include <include/filter/stream.h>
+# include <include/filter/filter.h>
+# include <include/protocol/protocol.h>
+# include <list>
 
 using namespace std;
 

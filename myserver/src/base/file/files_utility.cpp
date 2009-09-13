@@ -745,10 +745,10 @@ void FilesUtility::resetTmpPath ()
 #else
   const char *tmpDir = getenv ("TMPDIR");
 
-#ifdef P_tmpdir
+# ifdef P_tmpdir
   if (tmpDir == NULL)
     tmpDir = P_tmpdir;
-#endif
+# endif
 
   if (tmpDir == NULL)
     tmpDir = "/tmp";

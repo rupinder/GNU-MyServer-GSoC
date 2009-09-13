@@ -17,10 +17,10 @@
 */
 
 #ifndef FILE_STREAM_CREATOR_H
-#define FILE_STREAM_CREATOR_H
+# define FILE_STREAM_CREATOR_H
 
-#include <include/log/stream/log_stream_creator.h>
-#include <include/log/stream/file_stream.h>
+# include <include/log/stream/log_stream_creator.h>
+# include <include/log/stream/file_stream.h>
 
 class FileStreamCreator : public LogStreamCreator
 {

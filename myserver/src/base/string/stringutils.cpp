@@ -478,18 +478,18 @@ const char* getLocalLogFormatDate (const time_t t, char* out, int len)
   offset = -timezone;
 #else
 
-#ifdef GETTIMEOFDAY
+# ifdef GETTIMEOFDAY
   struct timeval tv;
   struct timezone tz;
 
   gettimeofday (&tv, &tz);
   offset = -tz.tz_minuteswest * 60;
 
-#else
+# else
   TIME_ZONE_INFORMATION tzi;
   GetTimeZoneInformation (&tzi);
   offset = -tzi.Bias * 60;
-#endif
+# endif
 
 #endif
 

@@ -23,13 +23,13 @@ extern "C" {
 #include <string.h>
 #include <stdio.h>
 #ifndef WIN32
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+# include <sys/types.h>
+# include <sys/socket.h>
+# include <sys/ioctl.h>
+# include <netdb.h>
+# include <unistd.h>
+# include <netinet/in.h>
+# include <arpa/inet.h>
 #endif
 #include <errno.h>
 }
@@ -333,11 +333,11 @@ int Socket::getLocalIPsList(string &out)
     /*! Print all the interfaces IPs. */
     for(i= 0; (localhe->h_addr_list[i]); i++)
     {
-#ifdef WIN32
+# ifdef WIN32
       ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
-#else
+# else
       ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
-#endif
+# endif
       stream << ( (i != 0) ? ", " : "") << inet_ntoa(ia);
     }
 
@@ -660,9 +660,9 @@ u_long Socket::bytesToRead()
 #ifdef FIONREAD
   ioctlsocket(FIONREAD,&nBytesToRead);
 #else
-#ifdef I_NREAD
+# ifdef I_NREAD
   ::ioctlsocket( I_NREAD, &nBytesToRead ) ;
-#endif
+# endif
 #endif
   return nBytesToRead;
 }

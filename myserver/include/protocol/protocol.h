@@ -17,14 +17,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef PROTOCOL_H
-#define PROTOCOL_H
-#include "stdafx.h"
-#include <include/base/xml/xml_parser.h>
-#include <include/connection/connection.h>
+# define PROTOCOL_H
+# include "stdafx.h"
+# include <include/base/xml/xml_parser.h>
+# include <include/connection/connection.h>
 /*! Various options that can be use for the protocol.  */
-#define PROTOCOL_USES_SSL 1
-#define PROTOCOL_FAST_CHECK 2
-#define PROTOCOL_DENY_DELETE 4
+# define PROTOCOL_USES_SSL 1
+# define PROTOCOL_FAST_CHECK 2
+# define PROTOCOL_DENY_DELETE 4
 
 /*!
  *This is the base class to derive other protocols implementations for the server.

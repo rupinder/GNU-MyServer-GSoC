@@ -17,16 +17,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef PROTOCOLS_MANAGER_H
-#define PROTOCOLS_MANAGER_H
-#include "stdafx.h"
-#include <include/base/xml/xml_parser.h>
-#include <include/protocol/protocol.h>
-#include <include/connection/connection.h>
-#include <include/base/dynamic_lib/dynamiclib.h>
-#include <include/plugin/plugin.h>
-#include <include/base/hash_map/hash_map.h>
-#include <list>
-#include <string>
+# define PROTOCOLS_MANAGER_H
+# include "stdafx.h"
+# include <include/base/xml/xml_parser.h>
+# include <include/protocol/protocol.h>
+# include <include/connection/connection.h>
+# include <include/base/dynamic_lib/dynamiclib.h>
+# include <include/plugin/plugin.h>
+# include <include/base/hash_map/hash_map.h>
+# include <list>
+# include <string>
 
 using namespace std;
 

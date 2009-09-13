@@ -17,14 +17,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef PLUGINS_MANAGER_H
-#define PLUGINS_MANAGER_H
+# define PLUGINS_MANAGER_H
 
-#include "stdafx.h"
-#include <include/plugin/plugin.h>
-#include <include/plugin/plugin_info.h>
-#include <include/base/dynamic_lib/dynamiclib.h>
-#include <include/base/hash_map/hash_map.h>
-#include <string>
+# include "stdafx.h"
+# include <include/plugin/plugin.h>
+# include <include/plugin/plugin_info.h>
+# include <include/base/dynamic_lib/dynamiclib.h>
+# include <include/base/hash_map/hash_map.h>
+# include <string>
 using namespace std;
 
 class Server;

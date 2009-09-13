@@ -17,12 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CGI_H
-#define CGI_H
+# define CGI_H
 
-#include <include/protocol/http/http_response.h>
-#include <include/protocol/http/http_request.h>
-#include <include/protocol/http/http_headers.h>
-#include <include/protocol/http/http_data_handler.h>
+# include <include/protocol/http/http_response.h>
+# include <include/protocol/http/http_request.h>
+# include <include/protocol/http/http_headers.h>
+# include <include/protocol/http/http_data_handler.h>
 
 class Pipe;
 class FiltersChain;

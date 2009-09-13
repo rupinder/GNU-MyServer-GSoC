@@ -38,7 +38,7 @@
 #include "stdafx.h"
 
 #ifndef MD5_H
-#define MD5_H
+# define MD5_H
 
 class Md5
 {
