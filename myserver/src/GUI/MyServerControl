@@ -23,7 +23,6 @@ import os
 import sys
 from MyServer.pycontrollib.config import MyServerConfig
 from MyServer.pycontrollib.mimetypes import MIMETypes
-from MyServer.pycontrollib.controller import Controller
 from MyServer.pycontrollib.vhost import VHosts
 from MyServer.GUI import GUIConfig
 from MyServer.GUI.AboutWindow import About
@@ -276,15 +275,7 @@ class PyGTKControl():
 
     def on_connect_menu_item_activate(self, widget):
         '''Show connection dialog.'''
-        dialog = Connection()
-        def connect(widget):
-            self.controller = Controller(
-                dialog.get_host(), dialog.get_port(),
-                dialog.get_username(), dialog.get_password())
-            self.controller.connect()
-            dialog.destroy()
-        dialog.widgets.get_widget('ok_button').connect('clicked', connect)
-        dialog.widgets.get_widget('connectiondialog').show()
+        dialog = Connection(self)
 
     def on_disconnect_menu_item_activate(self, widget):
         '''Disconnect from server.'''
