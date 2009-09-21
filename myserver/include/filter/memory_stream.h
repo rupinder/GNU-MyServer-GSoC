@@ -17,11 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef MEMORY_STREAM_H
-#define MEMORY_STREAM_H
+# define MEMORY_STREAM_H
 
-#include "stdafx.h"
-#include <include/filter/stream.h>
-#include <include/base/mem_buff/mem_buff.h>
+# include "stdafx.h"
+# include <include/filter/stream.h>
+# include <include/base/mem_buff/mem_buff.h>
 
 class MemoryStream : public Stream
 {

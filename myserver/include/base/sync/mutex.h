@@ -17,17 +17,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef MUTEX_H
-#define MUTEX_H
+# define MUTEX_H
 
-#include "stdafx.h"
-#include <include/base/file/file.h>
-#include <include/base/string/stringutils.h>
+# include "stdafx.h"
+# include <include/base/file/file.h>
+# include <include/base/string/stringutils.h>
 
-#ifdef HAVE_PTHREAD
+# ifdef HAVE_PTHREAD
 	typedef pthread_mutex_t MutexHandle;
-#else
+# else
 	typedef HANDLE MutexHandle;
-#endif
+# endif
 
 class Mutex
 {

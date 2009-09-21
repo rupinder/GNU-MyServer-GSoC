@@ -17,13 +17,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef HTTP_REQ_SECURITY_DOMAIN_H
-#define HTTP_REQ_SECURITY_DOMAIN_H
+# define HTTP_REQ_SECURITY_DOMAIN_H
 
-#include "stdafx.h"
+# include "stdafx.h"
 
-#include <include/conf/security/security_domain.h>
-#include <include/protocol/http/http_request.h>
-#include <string>
+# include <include/conf/security/security_domain.h>
+# include <include/protocol/http/http_request.h>
+# include <string>
 
 using namespace std;
 

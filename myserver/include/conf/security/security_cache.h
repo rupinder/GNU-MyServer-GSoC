@@ -16,17 +16,17 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef SECURITY_CACHE_H
-#define SECURITY_CACHE_H
-#include <include/base/hash_map/hash_map.h>
-#include <include/conf/security/security_manager.h>
+# define SECURITY_CACHE_H
+# include <include/base/hash_map/hash_map.h>
+# include <include/conf/security/security_manager.h>
 
-#include <include/conf/security/auth_method_factory.h>
-#include <include/conf/security/auth_method.h>
-#include <include/conf/security/validator_factory.h>
-#include <include/conf/security/validator.h>
-#include <include/conf/security/xml_validator.h>
+# include <include/conf/security/auth_method_factory.h>
+# include <include/conf/security/auth_method.h>
+# include <include/conf/security/validator_factory.h>
+# include <include/conf/security/validator.h>
+# include <include/conf/security/xml_validator.h>
 
-#include <string>
+# include <string>
 
 using namespace std;
 

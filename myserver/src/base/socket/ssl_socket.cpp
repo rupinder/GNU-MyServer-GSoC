@@ -24,13 +24,13 @@ extern "C" {
 #include <string.h>
 #include <stdio.h>
 #ifndef WIN32
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+# include <sys/types.h>
+# include <sys/socket.h>
+# include <sys/ioctl.h>
+# include <netdb.h>
+# include <unistd.h>
+# include <netinet/in.h>
+# include <arpa/inet.h>
 #endif
 }
 

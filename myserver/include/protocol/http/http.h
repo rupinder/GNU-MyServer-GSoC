@@ -17,27 +17,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef HTTP_H
-#define HTTP_H
-#include "stdafx.h"
-#include <include/protocol/http/http_thread_context.h>
-#include <include/protocol/protocol.h>
-#include <include/protocol/http/http_headers.h>
-#include <include/conf/security/security_cache.h>
-#include <include/base/xml/xml_parser.h>
-#include <include/base/thread/thread.h>
-#include <include/base/sync/mutex.h>
-#include <include/protocol/http/dyn_http_command_manager.h>
-#include <include/protocol/http/dyn_http_command.h>
-#include <include/protocol/http/dyn_http_manager_list.h>
-#include <include/protocol/http/dyn_http_manager.h>
-#include <include/base/multicast/multicast.h>
-#include <include/protocol/http/http_data_handler.h>
-#include <include/base/string/securestr.h>
+# define HTTP_H
+# include "stdafx.h"
+# include <include/protocol/http/http_thread_context.h>
+# include <include/protocol/protocol.h>
+# include <include/protocol/http/http_headers.h>
+# include <include/conf/security/security_cache.h>
+# include <include/base/xml/xml_parser.h>
+# include <include/base/thread/thread.h>
+# include <include/base/sync/mutex.h>
+# include <include/protocol/http/dyn_http_command_manager.h>
+# include <include/protocol/http/dyn_http_command.h>
+# include <include/protocol/http/dyn_http_manager_list.h>
+# include <include/protocol/http/dyn_http_manager.h>
+# include <include/base/multicast/multicast.h>
+# include <include/protocol/http/http_data_handler.h>
+# include <include/base/string/securestr.h>
 
-#include <string>
-#include <sstream>
-#include <vector>
-#include <memory>
+# include <string>
+# include <sstream>
+# include <vector>
+# include <memory>
 
 using namespace std;
 

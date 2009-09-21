@@ -17,12 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SOCKET_PAIR_H
-#define SOCKET_PAIR_H
+# define SOCKET_PAIR_H
 
-#include "stdafx.h"
-#include <include/filter/stream.h>
-#include <include/base/socket/socket.h>
-#include <string>
+# include "stdafx.h"
+# include <include/filter/stream.h>
+# include <include/base/socket/socket.h>
+# include <string>
 
 using namespace std;
 

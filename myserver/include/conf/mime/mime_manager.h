@@ -17,36 +17,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef MIME_MANAGER_H
-#define MIME_MANAGER_H
+# define MIME_MANAGER_H
 
-#include <include/base/utility.h>
-#include <include/base/hash_map/hash_map.h>
-#include <include/base/sync/mutex.h>
-#include <include/base/xml/xml_parser.h>
-#include <include/base/regex/myserver_regex.h>
+# include <include/base/utility.h>
+# include <include/base/hash_map/hash_map.h>
+# include <include/base/sync/mutex.h>
+# include <include/base/xml/xml_parser.h>
+# include <include/base/regex/myserver_regex.h>
 
 
-#ifdef WIN32
-# include <windows.h>
-#endif
+# ifdef WIN32
+#  include <windows.h>
+# endif
 
 extern "C"
 {
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
+# include <ctype.h>
 
-#ifdef WIN32
-# include <tchar.h>
-# include <io.h>
-#endif
+# ifdef WIN32
+#  include <tchar.h>
+#  include <io.h>
+# endif
 }
 
-#include <string>
-#include <map>
-#include <vector>
-#include <list>
+# include <string>
+# include <map>
+# include <vector>
+# include <list>
 
 using namespace std;
 

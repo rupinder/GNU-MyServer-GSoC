@@ -17,12 +17,12 @@
 */
 
 #ifndef SOCKET_STREAM_CREATOR_H
-#define SOCKET_STREAM_CREATOR_H
+# define SOCKET_STREAM_CREATOR_H
 
-#include <include/log/stream/log_stream_creator.h>
-#include <include/log/stream/socket_stream.h>
+# include <include/log/stream/log_stream_creator.h>
+# include <include/log/stream/socket_stream.h>
 
-#include <stdlib.h>
+# include <stdlib.h>
 
 class SocketStreamCreator : public LogStreamCreator
 {

@@ -17,16 +17,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef VALIDATOR_H
-#define VALIDATOR_H
+# define VALIDATOR_H
 
-#include "stdafx.h"
-#include <include/base/hash_map/hash_map.h>
+# include "stdafx.h"
+# include <include/base/hash_map/hash_map.h>
 
-#include <include/conf/security/auth_method.h>
-#include <include/conf/security/security_domain.h>
-#include <include/conf/security/security_manager.h>
+# include <include/conf/security/auth_method.h>
+# include <include/conf/security/security_domain.h>
+# include <include/conf/security/security_manager.h>
 
-#include <list>
+# include <list>
 using namespace std;
 
 

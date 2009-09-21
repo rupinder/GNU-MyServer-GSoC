@@ -17,13 +17,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CACHED_FILE_BUFFER_H
-#define CACHED_FILE_BUFFER_H
+# define CACHED_FILE_BUFFER_H
 
-#include "stdafx.h"
-#include <include/filter/stream.h>
-#include <include/base/file/file.h>
-#include <include/base/sync/mutex.h>
-#include <string>
+# include "stdafx.h"
+# include <include/filter/stream.h>
+# include <include/base/file/file.h>
+# include <include/base/sync/mutex.h>
+# include <string>
 
 using namespace std;
 

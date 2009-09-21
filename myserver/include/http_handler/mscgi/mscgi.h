@@ -17,17 +17,17 @@
 */
 
 #ifndef MSCGI_H
-#define MSCGI_H
-#include "stdafx.h"
-#include <include/protocol/http/http_request.h>
-#include <include/protocol/http/http_response.h>
-#include <include/connection/connection.h>
-#include <include/conf/mime/mime_manager.h>
-#include <include/base/file/file.h>
-#include <include/server/server.h>
-#include <include/protocol/http/http_headers.h>
-#include <include/protocol/http/http_data_handler.h>
-#include <include/base/dynamic_lib/dynamiclib.h>
+# define MSCGI_H
+# include "stdafx.h"
+# include <include/protocol/http/http_request.h>
+# include <include/protocol/http/http_response.h>
+# include <include/connection/connection.h>
+# include <include/conf/mime/mime_manager.h>
+# include <include/base/file/file.h>
+# include <include/server/server.h>
+# include <include/protocol/http/http_headers.h>
+# include <include/protocol/http/http_data_handler.h>
+# include <include/base/dynamic_lib/dynamiclib.h>
 struct HttpThreadContext;
 
 class MsCgi;

@@ -25,23 +25,23 @@ extern "C" {
 #include <stdarg.h>
 #include <stdio.h>
 #ifndef WIN32
-#include <errno.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <signal.h>
-#ifdef HAVE_PTHREAD
-#include <time.h>
-#include <sys/time.h>
-#include <pthread.h>
-#endif
-#include <sys/wait.h>
+# include <errno.h>
+# include <netdb.h>
+# include <unistd.h>
+# include <signal.h>
+# ifdef HAVE_PTHREAD
+#  include <time.h>
+#  include <sys/time.h>
+#  include <pthread.h>
+# endif
+# include <sys/wait.h>
 #endif
 }
 
 #include <sys/types.h>
 
 #ifdef WIN32
-#include <direct.h>
+# include <direct.h>
 #endif
 
 /*!

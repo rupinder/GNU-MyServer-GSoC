@@ -17,28 +17,28 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #ifndef CGI_MANAGER_H
-#define CGI_MANAGER_H
+# define CGI_MANAGER_H
 
-#ifdef WIN32
-#define EXPORTABLE _declspec(dllexport)
-#endif
+# ifdef WIN32
+#  define EXPORTABLE _declspec(dllexport)
+# endif
 
-#include "stdafx.h"
+# include "stdafx.h"
 
-#include <include/server/server.h>
-#include <include/protocol/http/http.h>
-#include <include/http_handler/mscgi/mscgi.h>
-#include <include/base/file/file.h>
-#include <include/protocol/http/http_request.h>
-#include <include/protocol/http/http_response.h>
-#include <include/base/string/stringutils.h>
-#define LOCAL_BUFFER_DIM 150
+# include <include/server/server.h>
+# include <include/protocol/http/http.h>
+# include <include/http_handler/mscgi/mscgi.h>
+# include <include/base/file/file.h>
+# include <include/protocol/http/http_request.h>
+# include <include/protocol/http/http_response.h>
+# include <include/base/string/stringutils.h>
+# define LOCAL_BUFFER_DIM 150
 
-#ifdef WIN32
+# ifdef WIN32
 class EXPORTABLE MscgiManager
-#else
+# else
 class MscgiManager
-#endif
+# endif
 {
 public:
 	Server *getServer();

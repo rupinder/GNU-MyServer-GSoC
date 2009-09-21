@@ -17,11 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SECURITY_DOMAIN_H
-#define SECURITY_DOMAIN_H
+# define SECURITY_DOMAIN_H
 
-#include "stdafx.h"
+# include "stdafx.h"
 
-#include <string>
+# include <string>
 
 using namespace std;
 

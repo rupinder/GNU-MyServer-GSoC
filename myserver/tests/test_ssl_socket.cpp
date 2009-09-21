@@ -32,8 +32,8 @@ extern "C"
 {
 #include <string.h>
 #ifndef WIN32
-#include <errno.h>
-#include <arpa/inet.h>
+# include <errno.h>
+# include <arpa/inet.h>
 #endif
 }
 

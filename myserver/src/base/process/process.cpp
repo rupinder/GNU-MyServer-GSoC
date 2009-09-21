@@ -60,7 +60,7 @@ extern "C"
 #endif
 
 #ifdef WIN32
-#include <direct.h>
+# include <direct.h>
 #endif
 
 #ifdef HAVE_PTHREAD
@@ -317,11 +317,11 @@ uid_t Process::getUid (const char *user)
         return uid;
     }
 
-#ifdef GETPWNAM
+# ifdef GETPWNAM
   struct passwd *u = getpwnam (user);
   if (u != NULL)
     return u->pw_uid;
-#endif
+# endif
 
 #endif
 
@@ -343,11 +343,11 @@ gid_t Process::getGid (const char *grp)
         return gid;
     }
 
-#ifdef GRP
+# ifdef GRP
   struct group *g = getgrnam (grp);
   if (g != NULL)
     return g->gr_gid;
-#endif
+# endif
 
 #endif
 
@@ -374,7 +374,7 @@ int Process::isProcessAlive ()
 
 #ifndef WIN32
   int status = 0;
-#ifdef PROCESS_ALIVE_USEWAITPID
+# ifdef PROCESS_ALIVE_USEWAITPID
   int ret;
   do
   {
@@ -384,7 +384,7 @@ int Process::isProcessAlive ()
   if (!ret)
     return 1;
   return 0;
-#else
+# else
   /* Send the pseudo-signal 0 to check if the process is alive.  */
   int ret;
   do
@@ -399,7 +399,7 @@ int Process::isProcessAlive ()
   waitpid (pid, &status, WNOHANG | WUNTRACED);
 
   return 0;
-#endif
+# endif
 
 #endif
   return 0;
@@ -512,7 +512,7 @@ int Process::setAdditionalGroups (u_long len, u_long *groups)
 {
 #ifndef WIN32
 
-#if HAVE_SETGROUPS
+# if HAVE_SETGROUPS
   u_long i;
   int ret;
   gid_t *gids = new gid_t[len];
@@ -531,9 +531,9 @@ int Process::setAdditionalGroups (u_long len, u_long *groups)
     return 0;
   return ret;
 
-#else
+# else
   return 0;
-#endif
+# endif
 
 #else
   return 0;

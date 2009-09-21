@@ -17,17 +17,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef XML_VALIDATOR_H
-#define XML_VALIDATOR_H
+# define XML_VALIDATOR_H
 
-#include "stdafx.h"
-#include <include/base/hash_map/hash_map.h>
+# include "stdafx.h"
+# include <include/base/hash_map/hash_map.h>
 
-#include <include/conf/security/security_domain.h>
-#include <include/conf/security/security_manager.h>
-#include <include/server/server.h>
-#include <include/base/sync/mutex.h>
-#include <include/conf/security/validator.h>
-#include <include/base/xml/xml_parser.h>
+# include <include/conf/security/security_domain.h>
+# include <include/conf/security/security_manager.h>
+# include <include/server/server.h>
+# include <include/base/sync/mutex.h>
+# include <include/conf/security/validator.h>
+# include <include/base/xml/xml_parser.h>
 
 class SecurityCache;
 

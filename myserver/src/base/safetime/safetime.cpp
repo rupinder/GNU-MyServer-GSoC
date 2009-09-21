@@ -25,14 +25,14 @@ extern "C" {
 #include <string.h>
 #include <ctype.h>
 #ifndef WIN32
-#include <stdio.h>
+# include <stdio.h>
 #endif
 }
 
 #ifndef WIN32
-#if !HAVE_LOCALTIME_R
+# if !HAVE_LOCALTIME_R
 static Mutex mutex;
-#endif
+# endif
 #endif
 
 /*!
@@ -41,9 +41,9 @@ static Mutex mutex;
 void myserver_safetime_init()
 {
 #ifndef WIN32
-#if !HAVE_LOCALTIME_R
+# if !HAVE_LOCALTIME_R
   mutex.init();
-#endif
+# endif
 #endif
 }
 
@@ -53,9 +53,9 @@ void myserver_safetime_init()
 void myserver_safetime_destroy()
 {
 #ifndef WIN32
-#if !HAVE_LOCALTIME_R
+# if !HAVE_LOCALTIME_R
   mutex.destroy();
-#endif
+# endif
 #endif
 }
 

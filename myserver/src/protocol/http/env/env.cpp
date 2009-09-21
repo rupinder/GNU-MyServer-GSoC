@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 extern "C" {
 #ifdef WIN32
-#include <direct.h>
+# include <direct.h>
 #endif
 #include <string.h>
 }
@@ -58,11 +58,11 @@ void Env::buildEnvironmentString(HttpThreadContext* td, char *cgiEnv,
 #ifdef WIN32
   memCgi << " (WIN32)";
 #else
-#ifdef HOST_STR
+# ifdef HOST_STR
   memCgi << " " << HOST_STR;
-#else
+# else
   memCgi << " (Unknown)";
-#endif
+# endif
 #endif
   /* Must use REDIRECT_STATUS for php and others.  */
   memCgi << end_str << "REDIRECT_STATUS=TRUE";

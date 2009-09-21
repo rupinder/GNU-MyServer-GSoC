@@ -17,10 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef READ_WRITE_LOCK_H
-#define READ_WRITE_LOCK_H
+# define READ_WRITE_LOCK_H
 
-#include "stdafx.h"
-#include <include/base/sync/semaphore.h>
+# include "stdafx.h"
+# include <include/base/sync/semaphore.h>
 
 class ReadWriteLock
 {

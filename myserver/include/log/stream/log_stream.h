@@ -17,15 +17,15 @@
 */
 
 #ifndef LOG_STREAM_H
-#define LOG_STREAM_H
+# define LOG_STREAM_H
 
-#include <list>
-#include <string>
+# include <list>
+# include <string>
 
-#include <include/filter/filters_chain.h>
-#include <include/filter/filters_factory.h>
-#include <include/filter/stream.h>
-#include <include/base/sync/mutex.h>
+# include <include/filter/filters_chain.h>
+# include <include/filter/filters_factory.h>
+# include <include/filter/stream.h>
+# include <include/base/sync/mutex.h>
 
 using namespace std;
 

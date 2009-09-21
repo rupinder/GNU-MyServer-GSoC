@@ -18,11 +18,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #ifndef __FTP_COMMON_H__
-#define __FTP_COMMON_H__
+# define __FTP_COMMON_H__
 
-#include <string>
+# include <string>
 
-#define PARSER_STR_LEN	512
+# define PARSER_STR_LEN	512
 
 struct FtpHost
 {

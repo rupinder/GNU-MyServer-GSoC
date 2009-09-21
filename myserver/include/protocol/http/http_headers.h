@@ -17,28 +17,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef HTTP_HEADERS_H
-#define HTTP_HEADERS_H
+# define HTTP_HEADERS_H
 
-#include "stdafx.h"
-#include <include/connection/connection.h>
+# include "stdafx.h"
+# include <include/connection/connection.h>
 
 extern "C" {
-#ifdef WIN32
-#include <direct.h>
-#include <errno.h>
-#else
-#include <string.h>
-#include <errno.h>
-#endif
+# ifdef WIN32
+#  include <direct.h>
+#  include <errno.h>
+# else
+#  include <string.h>
+#  include <errno.h>
+# endif
 }
 
 
-#include <string>
+# include <string>
 using namespace std;
 
 
-#define HTTP_AUTH_SCHEME_BASIC 0
-#define HTTP_AUTH_SCHEME_DIGEST 1
+# define HTTP_AUTH_SCHEME_BASIC 0
+# define HTTP_AUTH_SCHEME_DIGEST 1
 
 struct HttpThreadContext;
 struct HttpRequestHeader;

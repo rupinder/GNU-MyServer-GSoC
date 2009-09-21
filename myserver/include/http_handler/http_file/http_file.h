@@ -17,12 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef HTTP_FILE_H
-#define HTTP_FILE_H
-#include "stdafx.h"
+# define HTTP_FILE_H
+# include "stdafx.h"
 
-#include <include/protocol/protocol.h>
-#include <include/protocol/http/http_headers.h>
-#include <include/protocol/http/http_data_handler.h>
+# include <include/protocol/protocol.h>
+# include <include/protocol/http/http_headers.h>
+# include <include/protocol/http/http_data_handler.h>
 
 class HttpFile  : public HttpDataHandler
 {

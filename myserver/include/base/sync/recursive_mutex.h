@@ -17,10 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef RECURSIVE_MUTEX_H
-#define RECURSIVE_MUTEX_H
+# define RECURSIVE_MUTEX_H
 
-#include "stdafx.h"
-#include <include/base/sync/mutex.h>
+# include "stdafx.h"
+# include <include/base/sync/mutex.h>
 
 
 class RecursiveMutex : public Mutex

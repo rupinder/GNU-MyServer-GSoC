@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 
 #ifndef DONT_MATCH_LENGTH
-#include <math.h> // for the log10 function
+# include <math.h> // for the log10 function
 #endif
 
 // Used by the CRC algorithm

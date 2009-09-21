@@ -17,11 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CLIENTS_THREAD_H
-#define CLIENTS_THREAD_H
-#include "stdafx.h"
-#include <include/base/utility.h>
-#include <include/connection/connection.h>
-#include <include/base/mem_buff/mem_buff.h>
+# define CLIENTS_THREAD_H
+# include "stdafx.h"
+# include <include/base/utility.h>
+# include <include/connection/connection.h>
+# include <include/base/mem_buff/mem_buff.h>
 
 class FtpProtocol;
 class HttpProtocol;

@@ -17,14 +17,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef PLUGIN_INFO_H
-#define PLUGIN_INFO_H
+# define PLUGIN_INFO_H
 
-#include "stdafx.h"
-#include <include/base/hash_map/hash_map.h>
-#include <string>
-#include <utility>
-#include <include/plugin/plugin.h>
-#include <include/base/regex/myserver_regex.h>
+# include "stdafx.h"
+# include <include/base/hash_map/hash_map.h>
+# include <string>
+# include <utility>
+# include <include/plugin/plugin.h>
+# include <include/base/regex/myserver_regex.h>
 
 
 using namespace std;

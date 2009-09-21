@@ -42,10 +42,10 @@ extern "C" {
 #include <sys/types.h>
 
 #ifdef WIN32
-#include <direct.h>
+# include <direct.h>
 #endif
 
-#define  PTHREAD_ALTERNATE_LOCK 1
+#define PTHREAD_ALTERNATE_LOCK 1
 
 /*!
  *Constructor for the semaphore class.
@@ -101,13 +101,13 @@ int Semaphore::lock(u_long /*id*/)
   int err = 0;
 #ifdef HAVE_PTHREAD
 
-#ifdef PTHREAD_ALTERNATE_LOCK
+# ifdef PTHREAD_ALTERNATE_LOCK
   err = sem_wait(&semaphore);
-#else
+# else
   timespec ts =  {3, 0};
   while(sem_timedwait(&semaphore, &ts) && errno == ETIMEDOUT)
     Thread::wait(1);
-#endif
+# endif
 
 #else
   err = (WaitForSingleObject(semaphore, INFINITE) == WAIT_FAILED) ? 1 : 0;

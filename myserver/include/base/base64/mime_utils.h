@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #ifndef MIMEUTILS_H
-#define MIMEUTILS_H
+# define MIMEUTILS_H
 
 class CBase64Utils
 {

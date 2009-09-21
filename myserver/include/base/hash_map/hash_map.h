@@ -22,11 +22,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //valueType removeList(const hashmap <keyType, valueType>&);
 
 #ifndef HASHMAP_H
-#define HASHMAP_H
+# define HASHMAP_H
 
-#include <list>
-#include <vector>
-#include <string>
+# include <list>
+# include <vector>
+# include <string>
 
 using namespace std;
 
@@ -240,8 +240,8 @@ class HashMap <void*, ValueType>
 	unsigned int hash (const char *, int);
 };
 
-#ifndef HASHMAP_CPP
-#include <src/base/hash_map/hash_map.cpp>
-#endif
+# ifndef HASHMAP_CPP
+#  include <src/base/hash_map/hash_map.cpp>
+# endif
 
 #endif

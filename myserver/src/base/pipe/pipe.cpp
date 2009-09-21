@@ -98,11 +98,11 @@ int Pipe::create (bool readPipe)
 {
 #ifndef WIN32
 
-#ifdef HAVE_PIPE
+# ifdef HAVE_PIPE
   return pipe (handles);
-#else
+# else
   return 1;
-#endif
+# endif
 
 #else
   HANDLE tmp;

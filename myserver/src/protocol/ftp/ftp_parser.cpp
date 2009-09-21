@@ -195,7 +195,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 15 "ftp_parser.ypp"
+# line 15 "ftp_parser.ypp"
 
 	int		m_nInt;
 	char		m_nChar;
@@ -205,7 +205,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 209 "ftp_parser.cpp"
+# line 209 "ftp_parser.cpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -307,15 +307,15 @@ typedef short int yytype_int16;
 #ifndef lint
 # define YYID(n) (n)
 #else
-#if (defined __STDC__ || defined __C99__FUNC__ \
+# if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static int
 YYID (int yyi)
-#else
+# else
 static int
 YYID (yyi)
     int yyi;
-#endif
+# endif
 {
   return yyi;
 }
@@ -586,7 +586,7 @@ static const char *const yytname[] =
 };
 #endif
 
-# ifdef YYPRINT
+#ifdef YYPRINT
 /* YYTOKNUM[YYLEX-NUM] -- Internal token number corresponding to
    token YYLEX-NUM.  */
 static const yytype_uint16 yytoknum[] =
@@ -598,7 +598,7 @@ static const yytype_uint16 yytoknum[] =
      295,   296,   114,    44,   115,    98,    99,   102,   112,    97,
      105,   101,   108,   110,   116
 };
-# endif
+#endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
@@ -885,11 +885,11 @@ do {									  \
 `--------------------------------*/
 
 /*ARGSUSED*/
-#if (defined __STDC__ || defined __C99__FUNC__ \
+# if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
 yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, Ftp *pContext)
-#else
+# else
 static void
 yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, pContext)
     FILE *yyoutput;
@@ -897,7 +897,7 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, pContext)
     YYSTYPE const * const yyvaluep;
     YYLTYPE const * const yylocationp;
     Ftp *pContext;
-#endif
+# endif
 {
   if (!yyvaluep)
     return;
@@ -921,11 +921,11 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp, pContext)
 | Print this symbol on YYOUTPUT.  |
 `--------------------------------*/
 
-#if (defined __STDC__ || defined __C99__FUNC__ \
+# if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
 yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp, Ftp *pContext)
-#else
+# else
 static void
 yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, pContext)
     FILE *yyoutput;
@@ -933,7 +933,7 @@ yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, pContext)
     YYSTYPE const * const yyvaluep;
     YYLTYPE const * const yylocationp;
     Ftp *pContext;
-#endif
+# endif
 {
   if (yytype < YYNTOKENS)
     YYFPRINTF (yyoutput, "token %s (", yytname[yytype]);
@@ -951,16 +951,16 @@ yy_symbol_print (yyoutput, yytype, yyvaluep, yylocationp, pContext)
 | TOP (included).                                                   |
 `------------------------------------------------------------------*/
 
-#if (defined __STDC__ || defined __C99__FUNC__ \
+# if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
 yy_stack_print (yytype_int16 *yybottom, yytype_int16 *yytop)
-#else
+# else
 static void
 yy_stack_print (yybottom, yytop)
     yytype_int16 *yybottom;
     yytype_int16 *yytop;
-#endif
+# endif
 {
   YYFPRINTF (stderr, "Stack now");
   for (; yybottom <= yytop; yybottom++)
@@ -982,18 +982,18 @@ do {								\
 | Report that the YYRULE is going to be reduced.  |
 `------------------------------------------------*/
 
-#if (defined __STDC__ || defined __C99__FUNC__ \
+# if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
 yy_reduce_print (YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule, Ftp *pContext)
-#else
+# else
 static void
 yy_reduce_print (yyvsp, yylsp, yyrule, pContext)
     YYSTYPE *yyvsp;
     YYLTYPE *yylsp;
     int yyrule;
     Ftp *pContext;
-#endif
+# endif
 {
   int yynrhs = yyr2[yyrule];
   int yyi;
@@ -1029,7 +1029,7 @@ int yydebug;
 
 
 /* YYINITDEPTH -- initial size of the parser's stacks.  */
-#ifndef	YYINITDEPTH
+#ifndef YYINITDEPTH
 # define YYINITDEPTH 200
 #endif
 
@@ -1053,15 +1053,15 @@ int yydebug;
 #   define yystrlen strlen
 #  else
 /* Return the length of YYSTR.  */
-#if (defined __STDC__ || defined __C99__FUNC__ \
+#   if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static YYSIZE_T
 yystrlen (const char *yystr)
-#else
+#   else
 static YYSIZE_T
 yystrlen (yystr)
     const char *yystr;
-#endif
+#   endif
 {
   YYSIZE_T yylen;
   for (yylen = 0; yystr[yylen]; yylen++)
@@ -1077,16 +1077,16 @@ yystrlen (yystr)
 #  else
 /* Copy YYSRC to YYDEST, returning the address of the terminating '\0' in
    YYDEST.  */
-#if (defined __STDC__ || defined __C99__FUNC__ \
+#   if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static char *
 yystpcpy (char *yydest, const char *yysrc)
-#else
+#   else
 static char *
 yystpcpy (yydest, yysrc)
     char *yydest;
     const char *yysrc;
-#endif
+#   endif
 {
   char *yyd = yydest;
   const char *yys = yysrc;
@@ -1294,17 +1294,17 @@ yydestruct (yymsg, yytype, yyvaluep, yylocationp, pContext)
 
 /* Prevent warnings from -Wmissing-prototypes.  */
 #ifdef YYPARSE_PARAM
-#if defined __STDC__ || defined __cplusplus
+# if defined __STDC__ || defined __cplusplus
 int yyparse (void *YYPARSE_PARAM);
-#else
+# else
 int yyparse ();
-#endif
+# endif
 #else /* ! YYPARSE_PARAM */
-#if defined __STDC__ || defined __cplusplus
+# if defined __STDC__ || defined __cplusplus
 int yyparse (Ftp *pContext);
-#else
+# else
 int yyparse ();
-#endif
+# endif
 #endif /* ! YYPARSE_PARAM */
 
 
@@ -1316,25 +1316,25 @@ int yyparse ();
 `-------------------------*/
 
 #ifdef YYPARSE_PARAM
-#if (defined __STDC__ || defined __C99__FUNC__ \
+# if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 int
 yyparse (void *YYPARSE_PARAM)
-#else
+# else
 int
 yyparse (YYPARSE_PARAM)
     void *YYPARSE_PARAM;
-#endif
+# endif
 #else /* ! YYPARSE_PARAM */
-#if (defined __STDC__ || defined __C99__FUNC__ \
+# if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 int
 yyparse (Ftp *pContext)
-#else
+# else
 int
 yyparse (pContext)
     Ftp *pContext;
-#endif
+# endif
 #endif
 {
 /* The lookahead symbol.  */

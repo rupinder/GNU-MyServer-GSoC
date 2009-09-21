@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <include/base/multicast/multicast.h>
 #ifndef MULTICAST_CPP
-#define MULTICAST_CPP
+# define MULTICAST_CPP
 
 /*!
  *Register the handler for the specified message type.

@@ -17,10 +17,10 @@
 */
 
 #ifndef IP_H
-#define IP_H
+# define IP_H
 
-#include "stdafx.h"
-#include <string>
+# include "stdafx.h"
+# include <string>
 
 class IpRange
 {

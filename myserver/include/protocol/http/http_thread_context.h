@@ -17,28 +17,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef HTTP_THREAD_CONTEXT_H
-#define HTTP_THREAD_CONTEXT_H
+# define HTTP_THREAD_CONTEXT_H
 
-#include "stdafx.h"
-#include <include/protocol/http/http_request.h>
-#include <include/protocol/http/http_response.h>
-#include <include/base/string/stringutils.h>
-#include <include/base/file/file.h>
-#include <include/base/mem_buff/mem_buff.h>
-#include <include/connection/connection.h>
-#include <include/conf/mime/mime_manager.h>
-#include <include/conf/security/security_token.h>
+# include "stdafx.h"
+# include <include/protocol/http/http_request.h>
+# include <include/protocol/http/http_response.h>
+# include <include/base/string/stringutils.h>
+# include <include/base/file/file.h>
+# include <include/base/mem_buff/mem_buff.h>
+# include <include/connection/connection.h>
+# include <include/conf/mime/mime_manager.h>
+# include <include/conf/security/security_token.h>
 
 extern "C" {
-#ifdef WIN32
-#include <direct.h>
-#include <errno.h>
-#else
-#include <string.h>
-#include <errno.h>
-#endif
+# ifdef WIN32
+#  include <direct.h>
+#  include <errno.h>
+# else
+#  include <string.h>
+#  include <errno.h>
+# endif
 }
-#include <string>
+# include <string>
 using namespace std;
 
 

@@ -17,12 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef PLUGIN_H
-#define PLUGIN_H
+# define PLUGIN_H
 
-#include "stdafx.h"
-#include <include/base/dynamic_lib/dynamiclib.h>
-#include <include/base/hash_map/hash_map.h>
-#include <string>
+# include "stdafx.h"
+# include <include/base/dynamic_lib/dynamiclib.h>
+# include <include/base/hash_map/hash_map.h>
+# include <string>
 
 using namespace std;
 

@@ -18,10 +18,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #ifndef HTTP_ERRORS_H
-#define HTTP_ERRORS_H
+# define HTTP_ERRORS_H
 
-#include <string>
-#include <include/base/hash_map/hash_map.h>
+# include <string>
+# include <include/base/hash_map/hash_map.h>
 
 using namespace std;
 

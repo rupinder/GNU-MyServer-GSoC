@@ -17,11 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef PIPE_H
-#define PIPE_H
+# define PIPE_H
 
-#include "stdafx.h"
-#include <include/filter/stream.h>
-#include <string>
+# include "stdafx.h"
+# include <include/filter/stream.h>
+# include <string>
 
 using namespace std;
 
@@ -43,11 +43,11 @@ public:
   int waitForData (int sec, int usec);
 private:
   bool terminated;
-#ifndef WIN32
+# ifndef WIN32
 	int handles[2];
-#else
+# else
   HANDLE readHandle;
   HANDLE writeHandle;
-#endif
+# endif
 };
 #endif

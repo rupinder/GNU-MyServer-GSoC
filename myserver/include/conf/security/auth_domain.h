@@ -17,12 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef AUTH_DOMAIN_H
-#define AUTH_DOMAIN_H
+# define AUTH_DOMAIN_H
 
-#include "stdafx.h"
-#include <include/conf/security/security_domain.h>
+# include "stdafx.h"
+# include <include/conf/security/security_domain.h>
 
-#include <string>
+# include <string>
 
 using namespace std;
 

@@ -17,17 +17,17 @@
 */
 
 #ifndef FILE_STREAM_H
-#define FILE_STREAM_H
+# define FILE_STREAM_H
 
-#include <list>
-#include <sstream>
-#include <string>
+# include <list>
+# include <sstream>
+# include <string>
 
-#include <include/base/file/file.h>
-#include <include/base/file/files_utility.h>
-#include <include/base/string/stringutils.h>
-#include <include/base/utility.h>
-#include <include/log/stream/log_stream.h>
+# include <include/base/file/file.h>
+# include <include/base/file/files_utility.h>
+# include <include/base/string/stringutils.h>
+# include <include/base/utility.h>
+# include <include/log/stream/log_stream.h>
 
 class FileStream : public LogStream
 {

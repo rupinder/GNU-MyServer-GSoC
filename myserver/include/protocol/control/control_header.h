@@ -17,9 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CONTROLHEADER_H
-#define CONTROLHEADER_H
-#include "stdafx.h"
-#include <include/protocol/protocol.h>
+# define CONTROLHEADER_H
+# include "stdafx.h"
+# include <include/protocol/protocol.h>
 
 class ControlHeader
 {

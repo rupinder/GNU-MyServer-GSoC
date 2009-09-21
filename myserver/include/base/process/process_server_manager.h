@@ -17,19 +17,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef PROCESS_SERVER_MANAGER_H
-#define PROCESS_SERVER_MANAGER_H
+# define PROCESS_SERVER_MANAGER_H
 
-#include "stdafx.h"
-#include <include/base/utility.h>
-#include <include/base/socket/socket.h>
-#include <include/connection/connection.h>
-#include <include/base/string/stringutils.h>
-#include <include/base/thread/thread.h>
-#include <include/base/sync/mutex.h>
-#include <include/base/hash_map/hash_map.h>
-#include <string>
+# include "stdafx.h"
+# include <include/base/utility.h>
+# include <include/base/socket/socket.h>
+# include <include/connection/connection.h>
+# include <include/base/string/stringutils.h>
+# include <include/base/thread/thread.h>
+# include <include/base/sync/mutex.h>
+# include <include/base/hash_map/hash_map.h>
+# include <string>
 
-#include <vector>
+# include <vector>
 using namespace std;
 
 class ProcessServerManager

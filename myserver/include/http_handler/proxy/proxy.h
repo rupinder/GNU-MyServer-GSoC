@@ -17,12 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef PROXY_H
-#define PROXY_H
+# define PROXY_H
 
-#include <include/protocol/http/http_response.h>
-#include <include/protocol/http/http_request.h>
-#include <include/protocol/http/http_headers.h>
-#include <include/protocol/http/http_data_handler.h>
+# include <include/protocol/http/http_response.h>
+# include <include/protocol/http/http_request.h>
+# include <include/protocol/http/http_headers.h>
+# include <include/protocol/http/http_data_handler.h>
 
 class FiltersChain;
 class Socket;

@@ -17,51 +17,51 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SOCKET_H
-#define SOCKET_H
+# define SOCKET_H
 
-#include "stdafx.h"
-#include <include/filter/stream.h>
+# include "stdafx.h"
+# include <include/filter/stream.h>
 
-#include <string>
+# include <string>
 using namespace std;
 
-#ifdef WIN32
-#ifndef SOCKETLIBINCLUDED
+# ifdef WIN32
+#  ifndef SOCKETLIBINCLUDED
 extern "C"
 {
-#include <winsock2.h>
+#   include <winsock2.h>
 }
-#define SOCKETLIBINCLUDED
-#endif
-#endif
+#   define SOCKETLIBINCLUDED
+#  endif
+# endif
 
-#ifndef WIN32
+# ifndef WIN32
 extern "C" {
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <stdio.h>
-#include <unistd.h>
+#  include <sys/types.h>
+#  include <sys/socket.h>
+#  include <sys/ioctl.h>
+#  include <netinet/in.h>
+#  include <netdb.h>
+#  include <stdio.h>
+#  include <unistd.h>
 }
 
-#define INVALID_SOCKET -1
-#define SD_BOTH SHUT_RDWR
-#endif
+#  define INVALID_SOCKET -1
+#  define SD_BOTH SHUT_RDWR
+# endif
 
-#ifdef WIN32
+# ifdef WIN32
 typedef SOCKET SocketHandle;
-#else
+# else
 typedef int SocketHandle;
-#endif
+# endif
 
 
-#ifdef INET6_ADDRSTRLEN
-#define MAX_IP_STRING_LEN  INET6_ADDRSTRLEN
-#else
-#define MAX_IP_STRING_LEN  32
-#endif
+# ifdef INET6_ADDRSTRLEN
+#  define MAX_IP_STRING_LEN  INET6_ADDRSTRLEN
+# else
+#  define MAX_IP_STRING_LEN  32
+# endif
 
 typedef struct sockaddr_storage MYSERVER_SOCKADDR_STORAGE;
 typedef struct sockaddr_storage MYSERVER_SOCKADDRIN;

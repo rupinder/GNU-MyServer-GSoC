@@ -17,29 +17,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SSL_SOCKET_H
-#define SSL_SOCKET_H
+# define SSL_SOCKET_H
 
-#include "stdafx.h"
-#include <include/base/socket/socket.h>
-#include <include/base/ssl/ssl.h>
+# include "stdafx.h"
+# include <include/base/socket/socket.h>
+# include <include/base/ssl/ssl.h>
 
-#include <string>
+# include <string>
 using namespace std;
 
-#include <gnutls/openssl.h>
+# include <gnutls/openssl.h>
 
 
-#ifndef WIN32
+# ifndef WIN32
 extern "C" {
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <stdio.h>
-#include <unistd.h>
+#  include <sys/types.h>
+#  include <sys/socket.h>
+#  include <sys/ioctl.h>
+#  include <netinet/in.h>
+#  include <netdb.h>
+#  include <stdio.h>
+#  include <unistd.h>
 }
-#endif
+# endif
 
 class SslSocket : public Socket
 {
@@ -58,11 +58,11 @@ public:
 	virtual int rawSend(const char* buffer, int len, int flags);
 	virtual u_long bytesToRead();
 
-#ifdef __HURD__
+# ifdef __HURD__
 	virtual int dataOnRead(int sec = 1, int usec = 500);
-#else
+# else
 	virtual int dataOnRead(int sec = 0, int usec = 500);
-#endif
+# endif
 
 	SslSocket(Socket*);
 	~SslSocket();

@@ -17,19 +17,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef DYNAMICLIBRARY_H
-#define DYNAMICLIBRARY_H
-#include "stdafx.h"
+# define DYNAMICLIBRARY_H
+# include "stdafx.h"
 
-#include <string>
+# include <string>
 
 extern "C"
 {
-#ifdef WIN32
-#include <direct.h>
-#endif
-#ifdef HAVE_DL
-#include <dlfcn.h>
-#endif
+# ifdef WIN32
+#  include <direct.h>
+# endif
+# ifdef HAVE_DL
+#  include <dlfcn.h>
+# endif
 }
 
 using namespace std;
