@@ -42,11 +42,20 @@ class PyGTKControl():
         self.statusbar = gtk.Statusbar()
         self.menubar = gtk.MenuBar()
 
+        class MenuItemWithStockImage(gtk.ImageMenuItem):
+            '''ImageMenuItem with custom label and stock image.'''
+            def __init__(self, label, stock_id):
+                '''label - text that will be shown in menu, stock_id - id of
+                stock image that will be used.'''
+                gtk.ImageMenuItem.__init__(self, label)
+                self.set_image(gtk.image_new_from_stock(
+                        stock_id, gtk.ICON_SIZE_MENU))
+
         file_menu_item = gtk.MenuItem('_File')
         self.menubar.append(file_menu_item)
         file_menu = gtk.Menu()
         file_menu_item.set_submenu(file_menu)
-        new_menu_item = gtk.MenuItem('New')
+        new_menu_item = gtk.ImageMenuItem(gtk.STOCK_NEW)
         file_menu.append(new_menu_item)
         new_menu = gtk.Menu()
         new_menu_item.set_submenu(new_menu)
@@ -62,7 +71,7 @@ class PyGTKControl():
         new_vhost_menu_item.connect('activate',
                                     self.on_new_vhost_menu_item_activate)
         new_menu.append(new_vhost_menu_item)
-        open_menu_item = gtk.MenuItem('Open')
+        open_menu_item = gtk.ImageMenuItem(gtk.STOCK_OPEN)
         file_menu.append(open_menu_item)
         open_menu = gtk.Menu()
         open_menu_item.set_submenu(open_menu)
@@ -78,7 +87,7 @@ class PyGTKControl():
         open_vhost_menu_item.connect('activate',
                                      self.on_open_vhost_menu_item_activate)
         open_menu.append(open_vhost_menu_item)
-        save_menu_item = gtk.MenuItem('Save')
+        save_menu_item = gtk.ImageMenuItem(gtk.STOCK_SAVE)
         file_menu.append(save_menu_item)
         save_menu = gtk.Menu()
         save_menu_item.set_submenu(save_menu)
@@ -94,7 +103,7 @@ class PyGTKControl():
         save_vhost_menu_item.connect('activate',
                                      self.on_save_vhost_menu_item_activate)
         save_menu.append(save_vhost_menu_item)
-        save_as_menu_item = gtk.MenuItem('Save as')
+        save_as_menu_item = gtk.ImageMenuItem(gtk.STOCK_SAVE_AS)
         file_menu.append(save_as_menu_item)
         save_as_menu = gtk.Menu()
         save_as_menu_item.set_submenu(save_as_menu)
@@ -112,7 +121,7 @@ class PyGTKControl():
         save_as_menu.append(save_as_vhost_menu_item)
         separator = gtk.SeparatorMenuItem()
         file_menu.append(separator)
-        quit_menu_item = gtk.MenuItem('Quit')
+        quit_menu_item = gtk.ImageMenuItem(gtk.STOCK_QUIT)
         quit_menu_item.connect('activate', self.on_quit_menu_item_activate)
         file_menu.append(quit_menu_item)
 
@@ -120,17 +129,17 @@ class PyGTKControl():
         self.menubar.append(remote_menu_item)
         remote_menu = gtk.Menu()
         remote_menu_item.set_submenu(remote_menu)
-        connect_menu_item = gtk.MenuItem('Connect')
+        connect_menu_item = gtk.ImageMenuItem(gtk.STOCK_CONNECT)
         connect_menu_item.connect('activate',
                                   self.on_connect_menu_item_activate)
         remote_menu.append(connect_menu_item)
-        disconnect_menu_item = gtk.MenuItem('Disconnect')
+        disconnect_menu_item = gtk.ImageMenuItem(gtk.STOCK_DISCONNECT)
         disconnect_menu_item.connect('activate',
                                      self.on_disconnect_menu_item_activate)
         remote_menu.append(disconnect_menu_item)
         separator = gtk.SeparatorMenuItem()
         remote_menu.append(separator)
-        get_menu_item = gtk.MenuItem('Get')
+        get_menu_item = MenuItemWithStockImage('Get', gtk.STOCK_GO_DOWN)
         remote_menu.append(get_menu_item)
         get_menu = gtk.Menu()
         get_menu_item.set_submenu(get_menu)
@@ -146,7 +155,7 @@ class PyGTKControl():
         get_vhost_menu_item.connect('activate',
                                     self.on_get_vhost_menu_item_activate)
         get_menu.append(get_vhost_menu_item)
-        put_menu_item = gtk.MenuItem('Put')
+        put_menu_item = MenuItemWithStockImage('Put', gtk.STOCK_GO_UP)
         remote_menu.append(put_menu_item)
         put_menu = gtk.Menu()
         put_menu_item.set_submenu(put_menu)
@@ -168,7 +177,7 @@ class PyGTKControl():
         definitions_menu = gtk.Menu()
         definitions_menu_item.set_submenu(definitions_menu)
         add_unknown_definition_menu_item = \
-            gtk.MenuItem('Add unknown definition')
+            MenuItemWithStockImage('Add unknown definition', gtk.STOCK_ADD)
         add_unknown_definition_menu_item.connect(
             'activate',
             self.on_add_unknown_definition_menu_item_activate)
@@ -178,17 +187,20 @@ class PyGTKControl():
         self.menubar.append(mime_types_menu_item)
         mime_types_menu = gtk.Menu()
         mime_types_menu_item.set_submenu(mime_types_menu)
-        add_mime_type_menu_item = gtk.MenuItem('Add MIME type')
+        add_mime_type_menu_item = MenuItemWithStockImage(
+            'Add MIME type', gtk.STOCK_ADD)
         add_mime_type_menu_item.connect(
             'activate',
             self.on_add_mime_type_menu_item_activate)
         mime_types_menu.append(add_mime_type_menu_item)
-        remove_mime_type_menu_item = gtk.MenuItem('Remove MIME type')
+        remove_mime_type_menu_item = MenuItemWithStockImage(
+            'Remove MIME type', gtk.STOCK_DELETE)
         remove_mime_type_menu_item.connect(
             'activate',
             self.on_remove_mime_type_menu_item_activate)
         mime_types_menu.append(remove_mime_type_menu_item)
-        add_definition_to_mime_menu_item = gtk.MenuItem('Add definition MIME type')
+        add_definition_to_mime_menu_item = MenuItemWithStockImage(
+            'Add definition MIME type', gtk.STOCK_ADD)
         add_definition_to_mime_menu_item.connect(
             'activate',
             self.on_add_definition_to_mime_menu_item_activate)
@@ -198,20 +210,24 @@ class PyGTKControl():
         self.menubar.append(vhost_menu_item)
         vhost_menu = gtk.Menu()
         vhost_menu_item.set_submenu(vhost_menu)
-        add_vhost_menu_item = gtk.MenuItem('Add VHost')
+        add_vhost_menu_item = MenuItemWithStockImage(
+            'Add VHost', gtk.STOCK_ADD)
         add_vhost_menu_item.connect('activate',
                                     self.on_add_vhost_menu_item_activate)
         vhost_menu.append(add_vhost_menu_item)
-        remove_vhost_menu_item = gtk.MenuItem('Remove VHost')
+        remove_vhost_menu_item = MenuItemWithStockImage(
+            'Remove VHost', gtk.STOCK_DELETE)
         remove_vhost_menu_item.connect('activate',
                                        self.on_remove_vhost_menu_item_activate)
         vhost_menu.append(remove_vhost_menu_item)
-        add_log_to_vhost_menu_item = gtk.MenuItem('Add log to VHost')
+        add_log_to_vhost_menu_item = MenuItemWithStockImage(
+            'Add log to VHost', gtk.STOCK_ADD)
         add_log_to_vhost_menu_item.connect(
             'activate',
             self.on_add_log_to_vhost_menu_item_activate)
         vhost_menu.append(add_log_to_vhost_menu_item)
-        remove_log_from_vhost_menu_item = gtk.MenuItem('Remove log from VHost')
+        remove_log_from_vhost_menu_item = MenuItemWithStockImage(
+            'Remove log from VHost', gtk.STOCK_DELETE)
         remove_log_from_vhost_menu_item.connect(
             'activate',
             self.on_remove_log_from_vhost_menu_item_activate)
@@ -221,17 +237,19 @@ class PyGTKControl():
         self.menubar.append(security_menu_item)
         security_menu = gtk.Menu()
         security_menu_item.set_submenu(security_menu)
-        save_security_menu_item = gtk.MenuItem('Save security')
+        save_security_menu_item = MenuItemWithStockImage(
+            'Save security', gtk.STOCK_SAVE)
         save_security_menu_item.connect(
             'activate',
             self.on_save_security_menu_item_activate)
         security_menu.append(save_security_menu_item)
 
-        help_menu_item = gtk.MenuItem('_Help')
+        help_menu_item = gtk.ImageMenuItem(gtk.STOCK_HELP)
+        help_menu_item.set_image(None)
         self.menubar.append(help_menu_item)
         help_menu = gtk.Menu()
         help_menu_item.set_submenu(help_menu)
-        about_menu_item = gtk.MenuItem('About')
+        about_menu_item = gtk.ImageMenuItem(gtk.STOCK_ABOUT)
         about_menu_item.connect('activate',
                                 self.on_about_menu_item_activate)
         help_menu.append(about_menu_item)
