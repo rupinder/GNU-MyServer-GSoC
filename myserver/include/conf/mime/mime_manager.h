@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # include <include/base/sync/mutex.h>
 # include <include/base/xml/xml_parser.h>
 # include <include/base/regex/myserver_regex.h>
-
+# include <include/conf/nodetree.h>
 
 # ifdef WIN32
 #  include <windows.h>
@@ -58,28 +58,29 @@ struct PathRegex
 
 struct MimeRecord
 {
-	list<string> filters;
-	list<string> extensions;
-	string mimeType;
-	string cmdName;
-	string cgiManager;
+  list<string> filters;
+  list<string> extensions;
+  string mimeType;
+  string cmdName;
+  string cgiManager;
   bool selfExecuted;
   list<Regex*> pathRegex;
-  HashMap<string, string*> hashedData;
+  HashMap<string, NodeTree<string>*> hashedData;
 
-	MimeRecord ();
-	MimeRecord (MimeRecord&);
-	int addFilter (const char*, bool acceptDuplicate = true);
-	~MimeRecord ();
-	void clear ();
+  MimeRecord ();
+  MimeRecord (MimeRecord&);
+  int addFilter (const char*, bool acceptDuplicate = true);
+  ~MimeRecord ();
+  void clear ();
   const char* getData(string &name);
+  NodeTree<string>* getNodeTree (string &name);
 };
 
 
 class MimeManagerHandler
 {
 public:
-	virtual MimeRecord* getMIME (const char *file){return NULL;}
+  virtual MimeRecord* getMIME (const char *file){return NULL;}
   virtual MimeRecord* getMIME (string const &file)
   {return getMIME (file.c_str ());}
 };
@@ -87,28 +88,28 @@ public:
 class MimeManager
 {
 public:
-	MimeManager ();
+  MimeManager ();
   ~MimeManager ();
-	u_long getNumMIMELoaded ();
+  u_long getNumMIMELoaded ();
 
   u_long loadXML (XmlParser* parser);
-	u_long loadXML (const char *filename);
-	u_long loadXML (string &filename) {return loadXML (filename.c_str ());}
+  u_long loadXML (const char *filename);
+  u_long loadXML (string &filename) {return loadXML (filename.c_str ());}
 
-	MimeRecord* getMIME (const char *file, const char *handler = NULL);
+  MimeRecord* getMIME (const char *file, const char *handler = NULL);
   MimeRecord* getMIME (string const &file, const char *handler = NULL);
 
   bool isLoaded ();
-	void clean ();
-	int addRecord (MimeRecord *record);
+  void clean ();
+  int addRecord (MimeRecord *record);
 
   static MimeRecord *readRecord (xmlNodePtr node);
 
   void registerHandler (string &name, MimeManagerHandler *handler);
 
 protected:
-	const char *getFilename ();
-	void clearRecords ();
+  const char *getFilename ();
+  void clearRecords ();
 
 private:
   HashMap<string, MimeManagerHandler*> handlers;
@@ -117,8 +118,8 @@ private:
   vector<MimeRecord*> records;
   list<PathRegex*> pathRegex;
 
-	u_long numMimeTypesLoaded;
-	string filename;
+  u_long numMimeTypesLoaded;
+  string filename;
 };
 
 #endif

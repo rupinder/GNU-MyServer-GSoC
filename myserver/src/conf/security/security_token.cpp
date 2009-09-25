@@ -47,9 +47,11 @@ void SecurityToken::reset ()
   directory = NULL;
   sysdirectory = NULL;
   resource = NULL;
-
+  HashMap<string, NodeTree<string>*>::Iterator it = values.begin ();
+  for (;it != values.end (); it++)
+    delete (*it);
+  values.clear ();
 }
-
 
 /*!
  *Get the value for the variable using the specified domains.
@@ -63,14 +65,13 @@ void SecurityToken::reset ()
  */
 NodeTree<string>* SecurityToken::getNodeTree (string& key, int domains, NodeTree<string>* def)
 {
-/*
   if (domains & MYSERVER_SECURITY_CONF)
   {
     string strName (key);
     NodeTree<string>* ret = values.get (strName);
 
     if (ret)
-      return ret->c_str ();
+      return ret;
   }
 
   if (mimeRecord && (domains & MYSERVER_MIME_CONF))
@@ -81,7 +82,7 @@ NodeTree<string>* SecurityToken::getNodeTree (string& key, int domains, NodeTree
     if (ret)
       return ret;
   }
-*/
+
   if (vhost && (domains & MYSERVER_VHOST_CONF))
   {
     NodeTree<string>* ret = vhost->getNodeTree (key);
@@ -117,10 +118,10 @@ const char* SecurityToken::getData (const char* name, int domains, const char *d
   if (domains & MYSERVER_SECURITY_CONF)
   {
     string strName (name);
-    string *ret = values.get (strName);
+    NodeTree<string> *ret = values.get (strName);
 
     if (ret)
-      return ret->c_str ();
+      return ret->getValue ()->c_str ();
   }
 
   if (mimeRecord && (domains & MYSERVER_MIME_CONF))
