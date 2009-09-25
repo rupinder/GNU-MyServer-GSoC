@@ -64,6 +64,8 @@ unsigned int __stdcall listenServer(void* pParam);
 void* listenServer(void* pParam);
 # endif
 
+class XmlValidator;
+
 class Server : public MulticastRegistry<string, void*, int>
 {
 public:
@@ -165,6 +167,7 @@ public:
   XmlParser *getXmlConfiguration ();
 private:
   friend class ClientsThread;
+  XmlValidator *xmlValidator;
 
   XmlParser configurationFileManager;
 

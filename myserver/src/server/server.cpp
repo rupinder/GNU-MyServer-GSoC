@@ -90,6 +90,7 @@ Server::Server () : connectionsScheduler (this),
   purgeThreadsThreshold = 1;
   freeThreads = 0;
   logManager = new LogManager (&filtersFactory);
+  xmlValidator = new XmlValidator ();
   initLogManager ();
   connectionsPoolLock.init ();
 }
@@ -257,6 +258,9 @@ Server::~Server ()
   if (externalPath)
     delete externalPath;
   externalPath = 0;
+
+  if (xmlValidator)
+    delete xmlValidator;
 
   if (path)
     delete path;
@@ -441,11 +445,9 @@ int Server::postLoad ()
 void Server::loadPlugins ()
 {
   string xml ("xml");
-  //FIXME: xmlV is never freed.
-  XmlValidator *xmlV = new XmlValidator ();
 
-  validatorFactory.addValidator (xml, xmlV);
-  authMethodFactory.addAuthMethod (xml, (AuthMethod*) xmlV);
+  validatorFactory.addValidator (xml, xmlValidator);
+  authMethodFactory.addAuthMethod (xml, (AuthMethod*) xmlValidator);
 
   if (filtersFactory.insert ("gzip", Gzip::factory))
     log (MYSERVER_LOG_MSG_ERROR, _("Error while loading plugins"));
