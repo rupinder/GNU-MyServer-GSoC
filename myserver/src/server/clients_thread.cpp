@@ -137,8 +137,7 @@ DEFINE_THREAD(clients_thread, pParam)
 
   ct->threadIsRunning = true;
   ct->threadIsStopped = false;
-  ct->buffersize = ct->server->getBuffersize ();
-  ct->secondaryBufferSize = ct->server->getBuffersize2 ();
+  ct->buffersize = ct->secondaryBufferSize = ct->server->getBuffersize ();
 
   ct->buffer.setLength (ct->buffersize);
   ct->buffer.m_nSizeLimit = ct->buffersize;

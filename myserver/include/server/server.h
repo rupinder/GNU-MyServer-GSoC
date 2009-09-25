@@ -138,7 +138,6 @@ public:
   {return log (str.c_str());};
   int setLogLocation (string);
   u_long getBuffersize ();
-  u_long getBuffersize2 ();
   u_long getThrottlingRate ();
   int waitNewConnection (u_long tid, u_long timeout);
   ListenThreads *getListenThreads (){return &listenThreads;}

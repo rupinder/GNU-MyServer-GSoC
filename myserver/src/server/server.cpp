@@ -1882,14 +1882,6 @@ u_long Server::getBuffersize ()
 }
 
 /*!
- *Get the size for the second buffer.
- */
-u_long Server::getBuffersize2 ()
-{
-  return secondaryBufferSize;
-}
-
-/*!
  * Set a global descriptor.
  */
 void Server::setGlobalData (const char* name, void* data)
