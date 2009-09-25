@@ -450,13 +450,7 @@ void Ftp::logAccess (int nReplyCode, const std::string & sCustomText)
   td.secondaryBuffer->setLength (0);
   *td.secondaryBuffer << time
     << " " << td.pConnection->getIpAddr ()
-    << " " << msgCode << " " << sCustomText;
-
-#ifdef WIN32
-  *td.secondaryBuffer << "\r\n" << end_str;
-#else
-  *td.secondaryBuffer << "\n" << end_str;
-#endif
+    << " " << msgCode << " " << sCustomText << end_str;
 
   if (td.pConnection->host)
     td.pConnection->host->accessesLogWrite ("%s", td.secondaryBuffer->getBuffer ());

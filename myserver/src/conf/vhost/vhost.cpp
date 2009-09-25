@@ -368,7 +368,7 @@ Vhost::accessesLogWrite (const char* fmt, ...)
   va_list argptr;
   va_start (argptr, fmt);
   int ret = logManager->log (this, accessLogType, MYSERVER_LOG_MSG_INFO, false,
-                             false, fmt, argptr);
+                             true, fmt, argptr);
   va_end (argptr);
   return ret;
 }

@@ -538,9 +538,9 @@ int ControlProtocol::addToLog (int retCode, ConnectionPtr con, char *b1,
 #else
   sprintf(b1,
 #endif
-  "%s [%s] %s:%s:%s - %s  - %i\r\n", con->getIpAddr (), time.c_str (),
-  header.getCommand (),  header.getVersion (), header.getOptions (),
-  header.getAuthLogin () , retCode);
+  "%s [%s] %s:%s:%s - %s - %i", con->getIpAddr (), time.c_str (),
+          header.getCommand (),  header.getVersion (), header.getOptions (),
+          header.getAuthLogin (), retCode);
   con->host->accessesLogWrite ("%s", b1);
   return 0;
 }
