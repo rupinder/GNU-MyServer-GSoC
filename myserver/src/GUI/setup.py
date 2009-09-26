@@ -17,6 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from distutils.core import setup
-setup(name = 'MyServer', version = '0.0',
+
+with open('../../version') as file:
+    version = file.read()
+
+setup(name = 'MyServer', version = version,
+      scripts = ['MyServerControl'],
       py_modules = ['MyServer.__init__'],
-      packages = ['MyServer/pycontrol', 'MyServer/pycontrollib', 'MyServer.GUI'])
+      packages = ['MyServer.pycontrol', 'MyServer.pycontrollib', 'MyServer.GUI'],
+      package_data = {'': ['COPYING', 'version']})

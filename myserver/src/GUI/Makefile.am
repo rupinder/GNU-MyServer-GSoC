@@ -1,6 +1,6 @@
 install:
 if BUILD_GUI
-	python setup.py install --prefix=${prefix}
-	mkdir -p ${bindir}
-	cp MyServerControl.py ${bindir}
+	cp ../../COPYING MyServer/GUI/
+	cp ../../version MyServer/GUI/
+	python setup.py install --prefix=${prefix} --install-scripts=${bindir}
 endif
