@@ -56,19 +56,9 @@ extern "C"
 #endif
 }
 
-#ifndef MAX_PATH
-# ifdef PATH_MAX
-#  define MAX_PATH PATH_MAX
-# else
-#  define MAX_PATH 255
-# endif
-#endif
-
 #ifndef HOST_NAME_MAX
 # define HOST_NAME_MAX 255
 #endif
-
-#define USE_NEW
 
 typedef unsigned long DWORD;
 typedef unsigned int u_int;

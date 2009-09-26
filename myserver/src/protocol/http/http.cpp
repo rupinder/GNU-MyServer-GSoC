@@ -750,11 +750,9 @@ int Http::logHTTPaccess ()
             *td->secondaryBuffer << " " << (referer ? referer->value->c_str () : "")
             << " " << (userAgent ? userAgent->value->c_str () : "");
         }
-#ifdef WIN32
-      *td->secondaryBuffer << "\r\n" << end_str;
-#else
-      *td->secondaryBuffer << "\n" << end_str;
-#endif
+
+      *td->secondaryBuffer << end_str;
+
       /*!
        * Request the access to the log file then append the message.
        */

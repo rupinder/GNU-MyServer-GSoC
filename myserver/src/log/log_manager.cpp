@@ -114,32 +114,33 @@ LogManager::add (const void *owner, string type, string location,
           failure = add (owner) || add (owner, type) ||
             add (owner, type, location, ls);
         }
+      mutex->unlock ();
+      return failure;
     }
-  else
-    {
-      int oldSize;
-      int newSize;
-      ostringstream oss;
 
-      oldSize = logStreamOwners[location].size ();
-      if (!containsOwner (owner))
-        {
-          failure = add (owner) || add (owner, type) ||
-            add (owner, type, location, logStreams[location]);
-        }
-      else if (!contains (owner, type))
-        {
-          failure = add (owner, type) ||
-            add (owner, type, location, logStreams[location]);
-        }
-      newSize = logStreamOwners[location].size ();
-      if (!failure && newSize > oldSize)
-        {
-          oss << "Warning: \'" << location << "\' shared between " << newSize << " objects.";
-          log (oss.str (), MYSERVER_LOG_MSG_WARNING);
-        }
+  int oldSize;
+  int newSize;
+  ostringstream oss;
+
+  oldSize = logStreamOwners[location].size ();
+  if (!containsOwner (owner))
+    {
+      failure = add (owner) || add (owner, type) ||
+        add (owner, type, location, logStreams[location]);
     }
+  else if (!contains (owner, type))
+    {
+      failure = add (owner, type) ||
+        add (owner, type, location, logStreams[location]);
+    }
+  newSize = logStreamOwners[location].size ();
+
   mutex->unlock ();
+
+  if (!failure && newSize > oldSize && Server::getInstance ())
+    return Server::getInstance ()->log (MYSERVER_LOG_MSG_WARNING,
+                                     _("The %s log is shared among %i objects"),
+                                        location.c_str (), newSize);
   return failure;
 }
 
@@ -1113,23 +1114,6 @@ LogManager::getOwnersList (string location, list<const void*>* l)
 }
 
 /*!
- * Write a message on the main MyServer log.
- *
- * \param msg The message to write.
- * \param l The message logging level.
- *
- * \return 0 on success, 1 on error.
- */
-int
-LogManager::log (const string & msg, LoggingLevel l)
-{
-  if (Server::getInstance ())
-    return Server::getInstance ()->log (msg.c_str (), l);
-
-  return 1;
-}
-
-/*!
  * \return a list of strings each representing one of logging levels that
  * MyServer understands.
  */
@@ -1139,9 +1123,8 @@ LogManager::getLoggingLevelsByNames ()
   list<string> l;
   for (map<LoggingLevel, string>::iterator it = loggingLevels.begin ();
        it != loggingLevels.end (); it++)
-    {
       l.push_back (it->second);
-    }
+
   return l;
 }
 

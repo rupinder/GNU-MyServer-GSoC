@@ -116,15 +116,20 @@ void MimeRecord::clear ()
     delete *it;
   }
 
-  HashMap<string, string*>::Iterator it = hashedData.begin ();
+  HashMap<string, NodeTree<string>*>::Iterator it = hashedData.begin ();
   for (;it != hashedData.end (); it++)
-  {
     delete (*it);
-  }
   hashedData.clear ();
 
-
   pathRegex.clear ();
+}
+
+/*!
+ * Get the node tree stored in the hash dictionary for the `name' key.
+ */
+NodeTree<string>* MimeRecord::getNodeTree (string &name)
+{
+  return hashedData.get (name);
 }
 
 /*!
@@ -132,9 +137,9 @@ void MimeRecord::clear ()
  */
 const char* MimeRecord::getData(string &name)
 {
-  string *str = hashedData.get (name);
+  NodeTree<string> *str = hashedData.get (name);
   if (str)
-    return str->c_str ();
+    return str->getValue ()->c_str ();
 
   return NULL;
 }
@@ -207,8 +212,9 @@ MimeRecord *MimeManager::readRecord (xmlNodePtr node)
       if (name && value)
       {
         string key (name);
-        string *v = new string (value);
-        rc->hashedData.put(key, v);
+	string val (value);
+	NodeTree<string> *nt = new NodeTree<string> (val);
+        rc->hashedData.put(key, nt);
       }
 
     }

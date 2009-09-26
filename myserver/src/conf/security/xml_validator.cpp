@@ -371,9 +371,9 @@ void XmlValidator::doDefine (xmlNodePtr node, SecurityToken *st, HashMap<string,
   if (!value)
     return;
 
-  string *valStr = new string ((const char *)value);
-
-  string *old = st->getValues ()->put (name, valStr);
+  string valStr ((const char*)value);
+  NodeTree<string> *nt = new NodeTree<string> (valStr);
+  NodeTree<string> *old = st->getValues ()->put (name, nt);
 
   if (old)
     delete old;

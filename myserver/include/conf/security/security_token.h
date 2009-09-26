@@ -54,7 +54,6 @@ public:
   const char* getData (const char* name, int domains, const char *def = NULL);
   NodeTree<string>* getNodeTree (string& key, int domains, NodeTree<string>* def = NULL);
 
-
   string& getUser ()
   {
     return user;
@@ -65,7 +64,7 @@ public:
     return password;
   }
 
-	HashMap<string,string*>* getValues ()
+  HashMap<string, NodeTree<string>*>* getValues ()
   {
     return &values;
   }
@@ -224,7 +223,7 @@ private:
   int providedMask;
 
   /*! Stored values.  */
-	HashMap<string,string*> values;
+  HashMap<string, NodeTree<string>*> values;
 
   /*! If it is true the security manager will use the cached values.  */
   bool done;
