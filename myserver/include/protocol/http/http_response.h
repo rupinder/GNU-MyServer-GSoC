@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -84,15 +84,10 @@ struct HttpResponseHeader : public HttpHeader
 	string serverName;
 	string contentType;
 	string connection;
-	string mimeVer;
 	string cookie;
 	string contentLength;
 	string errorType;
-	string lastModified;
-	string location;
-	string date;
-	string dateExp;
-	string auth;
+
 	HashMap<string,HttpResponseHeader::Entry*> other;
   HttpResponseHeader();
   ~HttpResponseHeader();

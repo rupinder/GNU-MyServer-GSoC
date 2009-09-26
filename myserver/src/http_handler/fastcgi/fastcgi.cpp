@@ -751,12 +751,13 @@ int FastCgi::handleHeader (FcgiContext* con, FiltersChain* chain, bool* response
 
   if(!con->td->appendOutputs)
   {
-    if(con->td->response.location[0])
-    {
-      *responseCompleted = true;
-      con->td->http->sendHTTPRedirect((char*)con->td->response.location.c_str());
-      return 0;
-    }
+    string *location = con->td->response.getValue ("Location", NULL);
+    if (location)
+      {
+        *responseCompleted = true;
+        con->td->http->sendHTTPRedirect (location->c_str ());
+        return 0;
+      }
 
     u_long hdrLen = HttpHeaders::buildHTTPResponseHeader(con->td->secondaryBuffer->getBuffer(),
                                                          &con->td->response);

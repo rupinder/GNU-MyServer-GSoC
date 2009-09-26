@@ -1424,9 +1424,6 @@ int Http::raiseHTTPError (int ID)
           return sendHTTPRedirect (nURL.str ().c_str ());
         }
 
-      getRFC822GMTTime (time, HTTP_RESPONSE_DATE_EXPIRES_DIM);
-      td->response.dateExp.assign (time);
-
       if (useMessagesFiles)
         {
           string page;

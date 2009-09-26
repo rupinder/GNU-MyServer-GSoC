@@ -112,14 +112,9 @@ public:
     CPPUNIT_ASSERT(header.serverName.length() == 0);
     CPPUNIT_ASSERT(header.contentType.length() == 0);
     CPPUNIT_ASSERT(header.connection.length() == 0);
-    CPPUNIT_ASSERT(header.mimeVer.length() == 0);
     CPPUNIT_ASSERT(header.cookie.length() == 0);
     CPPUNIT_ASSERT(header.contentLength.length() == 0);
     CPPUNIT_ASSERT(header.errorType.length() == 0);
-    CPPUNIT_ASSERT(header.location.length() == 0);
-    CPPUNIT_ASSERT(header.date.length() == 0);
-    CPPUNIT_ASSERT(header.auth.length() == 0);
-    CPPUNIT_ASSERT(header.dateExp.length() == 0);
  }
 
 

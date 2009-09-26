@@ -81,14 +81,6 @@ u_long HttpHeaders::buildHTTPResponseHeader (char *str,
       pos += myserver_strlcpy (pos, "\r\n", MAX-(long)(pos-str));
     }
 
-  if (response->lastModified.length ())
-    {
-      pos += myserver_strlcpy (pos,"Last-Modified: ", MAX-(long)(pos-str));
-      pos += myserver_strlcpy (pos, response->lastModified.c_str (),
-                               MAX-(long)(pos-str));
-      pos += myserver_strlcpy (pos,"\r\n", MAX-(long)(pos-str));
-    }
-
   if (response->connection.length ())
     {
       pos += myserver_strlcpy (pos,"Connection: ", MAX-(long)(pos-str));
@@ -135,47 +127,11 @@ u_long HttpHeaders::buildHTTPResponseHeader (char *str,
         }
     }
 
-  if (response->mimeVer.length ())
-    {
-      pos += myserver_strlcpy (pos, "MIME-Version: ", MAX-(long)(pos-str));
-      pos += myserver_strlcpy (pos, response->mimeVer.c_str (), MAX-(long)(pos-str));
-      pos += myserver_strlcpy (pos, "\r\n", MAX-(long)(pos-str));
-    }
-
   if (response->contentType.length ())
     {
       pos += myserver_strlcpy (pos, "Content-Type: ", MAX-(long)(pos-str));
       pos += myserver_strlcpy (pos, response->contentType.c_str (), MAX-(long)(pos-str));
       pos += myserver_strlcpy (pos, "\r\n", MAX-(long)(pos-str));
-    }
-
-  if (response->date.length ())
-    {
-      pos += myserver_strlcpy(pos, "Date: ", MAX-(long)(pos-str));
-      pos += myserver_strlcpy(pos, response->date.c_str (), MAX-(long)(pos-str));
-      pos += myserver_strlcpy(pos, "\r\n", MAX-(long)(pos-str));
-    }
-
-  if (response->dateExp.length ())
-    {
-      pos += myserver_strlcpy (pos, "Expires: ", MAX-(long)(pos-str));
-      pos += myserver_strlcpy (pos, response->dateExp.c_str (), MAX-(long)(pos-str));
-      pos += myserver_strlcpy (pos, "\r\n", MAX-(long)(pos-str));
-    }
-
-  if (response->auth.length ())
-    {
-      pos += myserver_strlcpy(pos, "WWW-Authenticate: ", MAX-(long)(pos-str));
-      pos += myserver_strlcpy(pos, response->auth.c_str (), MAX-(long)(pos-str));
-      pos += myserver_strlcpy(pos, "\r\n", MAX-(long)(pos-str));
-    }
-
-  if (response->location.length ())
-    {
-      pos += myserver_strlcpy (pos, "Location: ", MAX - (long)(pos - str));
-      pos += myserver_strlcpy (pos, response->location.c_str (),
-                               MAX - (long)(pos-str));
-      pos += myserver_strlcpy (pos, "\r\n", MAX - (long)(pos - str));
     }
 
   if (response->other.size ())
@@ -294,23 +250,13 @@ u_long HttpHeaders::buildHTTPRequestHeader (char * str,HttpRequestHeader* reques
  */
 void HttpHeaders::buildDefaultHTTPResponseHeader(HttpResponseHeader* response)
 {
-  string date;
   resetHTTPResponse(response);
-  /*!
-   * By default use:
-   * -# the MIME type of the page equal to text/html.
-   * -# the version of the HTTP protocol to 1.1.
-   * -# the date of the page and the expire date to the current time.
-   * -# set the name of the server.
-   * -# set the page that it is not an error page.
-   */
+
   response->contentType.assign ("text/html");
   response->ver.assign ("HTTP/1.1");
-  getRFC822GMTTime(date,HTTP_RESPONSE_DATE_DIM);
-  response->date.assign (date);
-  response->dateExp.assign (date);
+
   response->serverName.assign ("GNU MyServer ");
-  response->serverName.append(MYSERVER_VERSION);
+  response->serverName.append (MYSERVER_VERSION);
 }
 
 /*!
@@ -1089,28 +1035,6 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(const char *input,
         if (token)
           response->serverName.assign (token);
       }
-    else if (!strcmpi(command,"Location"))
-      {
-        token = strtok (NULL, "\r\n\0" );
-        lineControlled = 1;
-
-        while (token && *token == ' ')
-          token++;
-
-        if (token)
-          response->location.assign (token);
-      }
-    else if (!strcmpi(command,"Last-Modified"))
-      {
-        token = strtok (NULL, "\r\n\0" );
-        lineControlled = 1;
-
-        while (token && *token == ' ')
-          token++;
-
-        if (token)
-          response->lastModified.assign (token);
-    }
     else if (!strcmpi(command,"Status"))
       {
         token = strtok (NULL, "\r\n\0" );
@@ -1124,17 +1048,6 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(const char *input,
           if (token)
             response->httpStatus = atoi(token);
       }
-    else if (!strcmpi(command,"Date"))
-      {
-        token = strtok (NULL, "\r\n\0" );
-        lineControlled = 1;
-
-        while (token && *token == ' ')
-          token++;
-
-        if (token)
-          response->date.assign (token);
-      }
     else if (!strcmpi(command,"Content-Type"))
       {
         token = strtok (NULL, "\r\n\0" );
@@ -1145,17 +1058,6 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(const char *input,
 
         if (token)
           response->contentType.assign (token);
-      }
-    else if (!strcmpi(command,"MIME-Version"))
-      {
-        token = strtok (NULL, "\r\n\0" );
-        lineControlled = 1;
-
-        while (token && *token == ' ')
-          token++;
-
-        if (token)
-          response->mimeVer.assign (token);
       }
     else if (!strcmpi(command,"Set-Cookie"))
       {
@@ -1190,13 +1092,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(const char *input,
         if (token)
           response->connection.assign (token);
       }
-    else if (!strcmpi (command,"Expires"))
-      {
-        token = strtok (NULL, "\r\n\0" );
-        lineControlled = 1;
-        if (token)
-          response->dateExp.assign (token);
-      }
+
     /*
      *If the line is not controlled arrive with the token
      *at the end of the line.

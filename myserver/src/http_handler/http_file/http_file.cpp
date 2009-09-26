@@ -261,13 +261,13 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
       return td->http->raiseHTTPError(500);
 
     getRFC822GMTTime (lastMT, tmpTime, HTTP_RESPONSE_LAST_MODIFIED_DIM);
-    td->response.lastModified.assign (tmpTime);
+    td->response.setValue ("Last-Modified", tmpTime.c_str ());
 
     HttpRequestHeader::Entry *ifModifiedSince =
       td->request.other.get ("Last-Modified");
 
     if (ifModifiedSince && ifModifiedSince->value->length () &&
-       !ifModifiedSince->value->compare(td->response.lastModified.c_str ()))
+        !ifModifiedSince->value->compare (tmpTime))
       return td->http->sendHTTPNonModified ();
 
     file = Server::getInstance ()->getCachedFiles ()->open (filenamePath);
