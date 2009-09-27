@@ -121,19 +121,14 @@ void ProcessServerManager::load ()
               if (portN)
                 addRemoteServer (domain.c_str(), name.c_str(), host.c_str(), portN);
               else
-                {
-                  ostringstream msg;
-                  msg << "Error: incomplete remote PROCESS_SERVER block, "
-                      << domain  << ":" << name << " needs a port";
-                  ::Server::getInstance ()->log (msg.str ().c_str (), MYSERVER_LOG_MSG_ERROR);
-                }
+                ::Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
+           _("Error: incomplete remote PROCESS_SERVER block, %s:%s needs a port"),
+                                                 domain, name);
             }
         }
       else
-        {
-          const char *msg = "Error: incomplete PROCESS_SERVER block";
-          ::Server::getInstance ()->log (msg, MYSERVER_LOG_MSG_ERROR);
-        }
+        ::Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
+                                   _("Error: incomplete PROCESS_SERVER block"));
     }
 
 }
@@ -354,10 +349,10 @@ void ProcessServerManager::removeDomain (const char* domain)
  *Count how many servers are present in a domain.
  *\param domain The server domain.
  */
-int ProcessServerManager::domainServers(const char* domain)
+int ProcessServerManager::domainServers (const char* domain)
 {
-  ServerDomain* serverDomain = getDomain(domain);
-  return serverDomain ? serverDomain->servers.size() : 0;
+  ServerDomain* serverDomain = getDomain (domain);
+  return serverDomain ? serverDomain->servers.size () : 0;
 }
 
 /*!
@@ -370,9 +365,9 @@ int ProcessServerManager::domainServers(const char* domain)
  *\param port Port to use for the server.
  */
 ProcessServerManager::Server*
-ProcessServerManager::runAndAddServer(const char *domain, const char *path,
-                                      const char *chroot, int uid, int gid,
-                                      u_short port)
+ProcessServerManager::runAndAddServer (const char *domain, const char *path,
+                                       const char *chroot, int uid, int gid,
+                                       u_short port)
 {
   Server* server = new Server;
 
@@ -405,15 +400,15 @@ int ProcessServerManager::runServer (ProcessServerManager::Server* server,
   server->host.assign("localhost");
   server->isLocal = true;
 
-  if(nServers >= maxServers)
-  {
-    ::Server::getInstance()->log(MYSERVER_LOG_MSG_ERROR,
+  if (nServers >= maxServers)
+    {
+      ::Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
                       _("Cannot run process %s: Reached max number of servers"),
                                  path);
-    return 1;
-  }
+      return 1;
+    }
 
-  if(port)
+  if (port)
     server->port = port;
   else
     server->port = 0;
@@ -422,31 +417,31 @@ int ProcessServerManager::runServer (ProcessServerManager::Server* server,
   string moreArg;
   int subString = path[0] == '"';
   int i;
-  int len = strlen(path);
+  int len = strlen (path);
 
-  for(i = 1; i < len; i++)
+  for (i = 1; i < len; i++)
     {
-      if(!subString && path[i] == ' ')
+      if (!subString && path[i] == ' ')
         break;
 
-      if(path[i] == '"' && path[i - 1] != '\\')
+      if (path[i] == '"' && path[i - 1] != '\\')
         subString = !subString;
     }
 
-  if(i < len)
+  if (i < len)
     {
       string tmpString(path);
       int begin = tmpString[0] == '"' ? 1 : 0;
       int end   = tmpString[i] == '"' ? i + 1 : i ;
-      tmpCgiPath.assign(tmpString.substr(begin, end));
-      moreArg.assign(tmpString.substr(i, len));
+      tmpCgiPath.assign (tmpString.substr (begin, end));
+      moreArg.assign (tmpString.substr(i, len));
     }
   else
     {
       int begin = (path[0] == '"') ? 1 : 0;
-      int end   = (path[len] == '"') ? len-1 : len;
-      tmpCgiPath.assign(&path[begin], end-begin);
-      moreArg.assign("");
+      int end   = (path[len] == '"') ? len - 1 : len;
+      tmpCgiPath.assign (&path[begin], end - begin);
+      moreArg.assign ("");
     }
 
   spi.envString = 0;
