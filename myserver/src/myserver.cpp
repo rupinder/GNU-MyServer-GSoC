@@ -610,7 +610,10 @@ int writePidfile (const char* filename)
   sprintf (buff,"%i\n", pid);
   ret = write (pidfile, buff, strlen(buff));
   if(ret == -1)
-    return -1;
+    {
+      close (pidfile);
+      return -1;
+    }
   return close (pidfile);
 }
 #endif
