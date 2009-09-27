@@ -123,7 +123,7 @@ void ProcessServerManager::load ()
               else
                 ::Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
            _("Error: incomplete remote PROCESS_SERVER block, %s:%s needs a port"),
-                                                 domain, name);
+                                               domain.c_str (), name.c_str ());
             }
         }
       else
