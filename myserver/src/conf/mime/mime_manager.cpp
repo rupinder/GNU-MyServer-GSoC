@@ -229,7 +229,10 @@ MimeRecord *MimeManager::readRecord (xmlNodePtr node)
           Regex *r = new Regex;
 
           if (r->compile ((const char*)attrs->children->content, 0))
-            return NULL;
+            {
+              delete r;
+              return NULL;
+            }
 
           rc->pathRegex.push_back (r);
         }
