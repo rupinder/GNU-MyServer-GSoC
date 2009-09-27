@@ -66,6 +66,11 @@ struct StartProcInfo
   /*! Pointer to a NULL terminated array of
    *  file pointers to close.  */
   FileHandle *handlesToClose;
+
+  /* If the length > 0 then change the current root
+     directory to the specified value before execute
+     the process.  */
+  string chroot;
 };
 
 class Process
@@ -81,6 +86,7 @@ public:
   int exec (StartProcInfo *spi, bool waitEnd = false);
   int terminateProcess();
   int isProcessAlive();
+  static int chroot (const char *root);
   static int setuid(const char*);
   static int setgid(const char*);
 	static int setAdditionalGroups(u_long len, u_long *groups);

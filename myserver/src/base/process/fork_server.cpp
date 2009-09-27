@@ -127,6 +127,7 @@ int ForkServer::handleRequest (Socket *sock)
   char *exec;
   char *cwd;
   char *arg;
+  char *chroot;
   char *env;
 
   readInt (sock, &flags);
@@ -147,6 +148,7 @@ int ForkServer::handleRequest (Socket *sock)
   readString (sock, &cwd);
 
   readString (sock, &arg);
+  readString (sock, &chroot);
 
   string argS (arg);
 
@@ -180,10 +182,9 @@ int ForkServer::handleRequest (Socket *sock)
   spi.stdIn = stdIn;
   spi.stdOut = stdOut;
   spi.stdError = stdErr;
-
   spi.uid.assign (uid);
   spi.gid.assign (gid);
-
+  spi.chroot.assign (chroot);
   spi.cmd.assign (exec);
   spi.arg.assign (arg);
   spi.cwd.assign (cwd);
@@ -201,6 +202,7 @@ int ForkServer::handleRequest (Socket *sock)
   delete [] cwd;
   delete [] arg;
   delete [] env;
+  delete [] chroot;
 
   if (flags & FLAG_USE_IN)
     close (stdIn);
@@ -210,9 +212,8 @@ int ForkServer::handleRequest (Socket *sock)
 
   if (flags & FLAG_USE_ERR)
     close (stdErr);
-
-  return 0;
 #endif
+
   return 0;
 }
 
@@ -316,6 +317,7 @@ int ForkServer::executeProcess (StartProcInfo *spi,
       writeString (&sock, spi->cmd.c_str (), spi->cmd.length ());
       writeString (&sock, spi->cwd.c_str (), spi->cwd.length ());
       writeString (&sock, spi->arg.c_str (), spi->arg.length ());
+      writeString (&sock, spi->chroot.c_str (), spi->chroot.length ());
 
       if (env)
         for (len = 0; env[len] != '\0' || env[len + 1] != '\0' ; len++);

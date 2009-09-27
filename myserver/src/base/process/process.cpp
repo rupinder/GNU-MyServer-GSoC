@@ -135,6 +135,20 @@ int Process::generateArgList (const char **args, size_t size, const char *proc,
   return 0;
 }
 
+/*!
+ * Change the process root directory to the specified one.
+ * \param root The new root directory.
+ * On success 0 is returned.
+ */
+int Process::chroot (const char *root)
+{
+#ifdef WIN32
+  return -1;
+#else
+  return chroot (root);
+#endif
+}
+
 
 /*!
  * Generate the env array for execve.
@@ -232,11 +246,14 @@ int Process::exec (StartProcInfo* spi, bool waitEnd)
       const char *envp[size];
       const char *args[size];
 
-      if (spi->gid.length ())
-        Process::setgid (spi->gid.c_str ());
+      if (spi->chroot.length () && Process::chroot (spi->chroot.c_str ()))
+        exit (1);
 
-      if (spi->uid.length ())
-        Process::setuid (spi->uid.c_str ());
+      if (spi->gid.length () && Process::setgid (spi->gid.c_str ()))
+        exit (1);
+
+      if (spi->uid.length () && Process::setuid (spi->uid.c_str ()))
+        exit (1);
 
       if (generateArgList (args, size, spi->cmd.c_str (), spi->arg))
         exit (1);
@@ -245,7 +262,7 @@ int Process::exec (StartProcInfo* spi, bool waitEnd)
         exit (1);
 
       if (spi->cwd.length ()
-          && chdir ((const char*)(spi->cwd.c_str())) == -1)
+          && chdir (spi->cwd.c_str()) == -1)
         exit (1);
 
       if ((long)spi->stdOut == -1)
