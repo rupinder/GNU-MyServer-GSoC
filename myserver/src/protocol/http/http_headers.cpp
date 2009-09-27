@@ -68,31 +68,6 @@ u_long HttpHeaders::buildHTTPResponseHeader (char *str,
   else
     pos += sprintf (str,"%s 200 OK\r\n",response->ver.c_str ());
 
-  if (response->serverName.length ())
-    {
-      pos += myserver_strlcpy (pos, "Server: ", MAX-(long)(pos-str));
-      pos += myserver_strlcpy (pos, response->serverName.c_str (), MAX-(long)(pos-str));
-      pos += myserver_strlcpy (pos, "\r\n", MAX-(long)(pos-str));
-    }
-  else
-    {
-      pos += myserver_strlcpy (pos, "Server: GNU MyServer ", MAX-(long)(pos-str));
-      pos += myserver_strlcpy (pos, MYSERVER_VERSION,  MAX-(long)(pos-str));
-      pos += myserver_strlcpy (pos, "\r\n", MAX-(long)(pos-str));
-    }
-
-  if (response->connection.length ())
-    {
-      pos += myserver_strlcpy (pos,"Connection: ", MAX-(long)(pos-str));
-      pos += myserver_strlcpy (pos, response->connection.c_str (),
-                             MAX-(long)(pos-str));
-      pos += myserver_strlcpy (pos, "\r\n", MAX-(long)(pos-str));
-    }
-  else
-    {
-      pos += myserver_strlcpy (pos, "Connection: Close\r\n", MAX-(long)(pos-str));
-    }
-
   if (response->contentLength.length ())
     {
       /*
@@ -109,46 +84,15 @@ u_long HttpHeaders::buildHTTPResponseHeader (char *str,
         }
     }
 
-  if (response->cookie.length ())
+  HashMap<string, HttpResponseHeader::Entry*>::Iterator it =
+    response->other.begin();
+  for (; it != response->other.end(); it++)
     {
-      string cookie;
-      const char *token = response->cookie.c_str ();
-      int max = response->cookie.length ();
-      while (token)
-        {
-          int len = getCharInString (token, "\n", max);
-          if (len == -1 || *token=='\n')
-        break;
-          cookie.assign ("Set-Cookie: ");
-          cookie.append (token, len);
-          cookie.append ("\r\n");
-          pos += myserver_strlcpy (pos, cookie.c_str (), MAX-(long)(pos-str));
-          token += len + 1;
-        }
-    }
-
-  if (response->contentType.length ())
-    {
-      pos += myserver_strlcpy (pos, "Content-Type: ", MAX-(long)(pos-str));
-      pos += myserver_strlcpy (pos, response->contentType.c_str (), MAX-(long)(pos-str));
+      HttpResponseHeader::Entry *e = *it;
+      pos += myserver_strlcpy (pos, e->name->c_str (), MAX-(long)(pos-str));
+      pos += myserver_strlcpy (pos, ": ", MAX-(long)(pos-str));
+      pos += myserver_strlcpy (pos, e->value->c_str (), MAX-(long)(pos-str));
       pos += myserver_strlcpy (pos, "\r\n", MAX-(long)(pos-str));
-    }
-
-  if (response->other.size ())
-    {
-      HashMap<string, HttpResponseHeader::Entry*>::Iterator it =
-        response->other.begin();
-    for (; it != response->other.end(); it++)
-      {
-        HttpResponseHeader::Entry *e = *it;
-        if (e)
-          {
-            pos += myserver_strlcpy (pos, e->name->c_str (), MAX-(long)(pos-str));
-            pos += myserver_strlcpy (pos, ": ", MAX-(long)(pos-str));
-            pos += myserver_strlcpy (pos, e->value->c_str (), MAX-(long)(pos-str));
-            pos += myserver_strlcpy (pos, "\r\n", MAX-(long)(pos-str));
-          }
-      }
     }
 
   pos += myserver_strlcpy (pos, "Accept-Ranges: bytes\r\n", MAX-(long)(pos-str));
@@ -252,11 +196,9 @@ void HttpHeaders::buildDefaultHTTPResponseHeader(HttpResponseHeader* response)
 {
   resetHTTPResponse(response);
 
-  response->contentType.assign ("text/html");
+  response->setValue ("Content-Type", "text/html");
   response->ver.assign ("HTTP/1.1");
-
-  response->serverName.assign ("GNU MyServer ");
-  response->serverName.append (MYSERVER_VERSION);
+  response->setValue ("Server", "GNU MyServer " MYSERVER_VERSION);
 }
 
 /*!
@@ -1024,17 +966,6 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(const char *input,
         if (token)
           response->errorType.assign (token);
       }
-    else if (!strcmpi(command,"Server"))
-      {
-        token = strtok (NULL, "\r\n\0" );
-        lineControlled = 1;
-
-        while (token && *token == ' ')
-          token++;
-
-        if (token)
-          response->serverName.assign (token);
-      }
     else if (!strcmpi(command,"Status"))
       {
         token = strtok (NULL, "\r\n\0" );
@@ -1043,36 +974,10 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(const char *input,
         while (token && *token == ' ')
           token++;
 
-        /*! If the response status is different from 200 don't modify it. */
+        /* If the response status is different from 200 don't modify it. */
         if (response->httpStatus == 200)
           if (token)
             response->httpStatus = atoi(token);
-      }
-    else if (!strcmpi(command,"Content-Type"))
-      {
-        token = strtok (NULL, "\r\n\0" );
-        lineControlled = 1;
-
-        while (token && *token == ' ')
-          token++;
-
-        if (token)
-          response->contentType.assign (token);
-      }
-    else if (!strcmpi(command,"Set-Cookie"))
-      {
-        token = strtok (NULL, "\r\n\0" );
-        lineControlled = 1;
-
-        while (token && *token == ' ')
-          token++;
-
-        if (token)
-          {
-            /* Divide multiple cookies.  */
-            response->cookie.append(token );
-            response->cookie.append("\n");
-          }
       }
     else if (!strcmpi (command, "Content-Length"))
       {
@@ -1083,14 +988,6 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(const char *input,
           token++;
 
         response->contentLength.assign (token);
-      }
-    else if (!strcmpi (command, "Connection"))
-      {
-        token = strtok (NULL, "\r\n\0" );
-        lineControlled = 1;
-
-        if (token)
-          response->connection.assign (token);
       }
 
     /*
@@ -1106,24 +1003,28 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(const char *input,
 
         if (token)
           {
-            HttpResponseHeader::Entry *e;
+            
             if (strlen (command) > HTTP_RESPONSE_OTHER_DIM ||
                 strlen (token) > HTTP_RESPONSE_OTHER_DIM)
-              return 0;
-
-            e = new HttpResponseHeader::Entry();
-            if (e)
               {
-                e->name->assign (command);
-                e->value->assign (token);
-                {
-                  HttpResponseHeader::Entry *old = 0;
-                  string cmdString (command);
-                  old = response->other.put (cmdString, e);
-                  if (old)
-                    delete old;
-                }
+                validResponse = 0;
+                break;
               }
+
+            HttpResponseHeader::Entry *old = NULL;
+            HttpResponseHeader::Entry *e = new HttpResponseHeader::Entry();
+            e->name->assign (command);
+            string cmdString (command);
+            old = response->other.put (cmdString, e);
+            if (old)
+              {
+                e->value->assign (*old->value);
+                e->value->append (", ");
+                e->value->append (token);
+                delete old;
+              }
+            else
+              e->value->assign (token);
           }
       }
     token = strtok (NULL, cmdSeps);

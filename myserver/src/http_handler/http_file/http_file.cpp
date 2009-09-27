@@ -55,7 +55,7 @@ int HttpFile::putFile (HttpThreadContext* td,
 
     if(td->request.isKeepAlive())
       {
-        td->response.connection.assign("keep-alive");
+        td->response.setValue ("Connection", "keep-alive");
         keepalive = 1;
       }
 
@@ -260,7 +260,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     if (lastMT == -1)
       return td->http->raiseHTTPError(500);
 
-    getRFC822GMTTime (lastMT, tmpTime, HTTP_RESPONSE_LAST_MODIFIED_DIM);
+    getRFC822GMTTime (lastMT, tmpTime, 32);
     td->response.setValue ("Last-Modified", tmpTime.c_str ());
 
     HttpRequestHeader::Entry *ifModifiedSince =
@@ -453,9 +453,9 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
       }
 
     if (keepalive)
-      td->response.connection.assign("keep-alive");
+      td->response.setValue ("Connection", "keep-alive");
     else
-      td->response.connection.assign("close");
+      td->response.setValue ("Connection", "close");
 
     if (useModifiers)
       {

@@ -26,7 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <algorithm>
 
-extern "C" {
+extern "C"
+{
 #ifdef WIN32
 # include <direct.h>
 #endif
@@ -179,11 +180,11 @@ void Env::buildEnvironmentString(HttpThreadContext* td, char *cgiEnv,
   memCgi << td->request.uri.c_str();
 
   memCgi << end_str << "DATE_GMT=";
-  getRFC822GMTTime(strTmp, HTTP_RESPONSE_DATE_DIM);
+  getRFC822GMTTime(strTmp, 32);
   memCgi << strTmp;
 
   memCgi << end_str << "DATE_LOCAL=";
-  getRFC822LocalTime(strTmp, HTTP_RESPONSE_DATE_DIM);
+  getRFC822LocalTime(strTmp, 32);
   memCgi << strTmp;
 
   memCgi << end_str << "DOCUMENT_ROOT=";

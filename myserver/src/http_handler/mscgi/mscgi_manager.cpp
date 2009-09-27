@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
 License as published by the Free Software Foundation; either
@@ -250,7 +250,7 @@ MsCgiData* MscgiManager::getCgiData()
  */
 void MscgiManager::setContentType(const char * type)
 {
-  td->response.contentType.assign(type, HTTP_RESPONSE_CONTENT_TYPE_DIM);
+  td->response.setValue ("ContentType", type);
 }
 
 /*!

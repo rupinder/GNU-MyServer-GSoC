@@ -337,7 +337,7 @@ int HttpDir::send(HttpThreadContext* td,
 
   checkDataChunks(td, &keepalive, &useChunks);
 
-  td->response.contentType.assign("text/html");
+  td->response.setValue ("ContentType", "text/html");
 
   if(!td->appendOutputs)
   {

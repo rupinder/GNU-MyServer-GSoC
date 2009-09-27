@@ -47,10 +47,6 @@ HttpResponseHeader::~HttpResponseHeader ()
 void HttpResponseHeader::free()
 {
   ver.clear ();
-  serverName.clear ();
-  contentType.clear ();
-  connection.clear ();
-  cookie.clear ();
   contentLength.clear ();
   errorType.clear ();
 
@@ -71,41 +67,6 @@ string* HttpResponseHeader::getValue (const char* name, string* out)
       if (out)
         out->assign (ver.c_str ());
       return &ver;
-    }
-
-  if (!strcmpi (name, "Server"))
-    {
-      if (out)
-        out->assign (serverName.c_str ());
-      return &ver;
-    }
-
-  if (!strcmpi (name, "Content-Type"))
-    {
-      if (out)
-        out->assign (contentType.c_str ());
-      return &contentType;
-    }
-
-  if (!strcmpi (name, "Connection"))
-    {
-      if (out)
-        out->assign (connection.c_str ());
-      return &connection;
-    }
-
-  if (!strcmpi (name, "Content-Type"))
-    {
-      if (out)
-        out->assign (contentType.c_str ());
-      return &contentType;
-    }
-
-  if (!strcmpi (name, "Cookie"))
-    {
-      if (out)
-        out->assign (cookie.c_str ());
-      return &cookie;
     }
 
   if (!strcmpi (name, "Content-Length"))
@@ -134,36 +95,6 @@ string* HttpResponseHeader::setValue (const char* name, const char* in)
     {
       ver.assign (in);
       return &ver;
-    }
-
-  if (!strcmpi (name, "Server"))
-    {
-      serverName.assign (in);
-      return &serverName;
-    }
-
-  if (!strcmpi (name, "Content-Type"))
-    {
-      contentType.assign (in);
-      return &contentType;
-    }
-
-  if (!strcmpi (name, "Connection"))
-    {
-      connection.assign (in);
-      return &connection;
-    }
-
-  if (!strcmpi (name, "Content-Type"))
-    {
-      contentType.assign (in);
-      return &contentType;
-    }
-
-  if (!strcmpi (name, "Cookie"))
-    {
-      cookie.assign (in);
-      return &cookie;
     }
 
   if (!strcmpi (name, "Content-Length"))

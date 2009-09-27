@@ -492,7 +492,7 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
   if (!nph)
     {
       if (keepalive)
-        td->response.connection.assign ("keep-alive");
+        td->response.setValue ("Connection", "keep-alive");
 
       /* Send the header.  */
       if (headerSize)
