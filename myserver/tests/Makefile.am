@@ -16,3 +16,7 @@ tests_suite_LDADD = ../src/libmyserver.a $(CPPUNIT_LDFLAGS) $(PTHREAD_LIB) $(IDN
 
 
 install:
+
+
+check:
+	./tests_suite$(EXEEXT)
