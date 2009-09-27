@@ -58,6 +58,7 @@ void ProcessServerManager::load ()
   string localKey ("local");
   string uidKey ("uid");
   string gidKey ("gid");
+  string chrootKey ("chroot");
 
   list<NodeTree<string>*> *children = node->getChildren ();
 
@@ -69,6 +70,7 @@ void ProcessServerManager::load ()
       string host;
       string name;
       string port;
+      const char *chroot = NULL;
       string local;
       bool localBool = true;
       int uid = 0;
@@ -97,6 +99,9 @@ void ProcessServerManager::load ()
       if (n->getAttr (gidKey))
         gid = atoi (n->getAttr (gidKey)->c_str ());
 
+      if (n->getAttr (chrootKey))
+        chroot = n->getAttr (chrootKey)->c_str ();
+
       if (!local.compare("YES") || !local.compare("yes"))
         localBool = true;
       else
@@ -110,7 +115,7 @@ void ProcessServerManager::load ()
             portN = atoi (port.c_str());
 
           if (localBool)
-            runAndAddServer (domain.c_str(), name.c_str(), uid, gid, portN);
+            runAndAddServer (domain.c_str(), name.c_str(), chroot, uid, gid, portN);
           else
             {
               if (portN)
@@ -236,22 +241,22 @@ ProcessServerManager::getServer(const char* domain, const char* name, int seed)
 
   if(s && s->isLocal && !s->process.isProcessAlive())
   {
-    s->socket.close();
-    s->process.terminateProcess();
-    if(!s->path.length())
-      s->path.assign(name);
+    s->socket.close ();
+    s->process.terminateProcess ();
+    if (!s->path.length ())
+      s->path.assign (name);
 
     s->port = 0;
 
-    if(runServer(s, s->path.c_str(), s->port))
-    {
-      sd->servers.remove(name);
-      delete s;
-      s = 0;
-    }
+    if (runServer (s, s->path.c_str(), s->port))
+      {
+        sd->servers.remove (name);
+        delete s;
+        s = 0;
+      }
   }
 
-  mutex.unlock();
+  mutex.unlock ();
   return s;
 }
 
@@ -359,16 +364,19 @@ int ProcessServerManager::domainServers(const char* domain)
  *Run and add a server to the collection.
  *\param domain The server's domain.
  *\param path The path to the executable.
+ *\param chroot The new process chroot.
  *\param uid User id to use for the new process.
  *\param gid Group id to use for the new process.
  *\param port Port to use for the server.
  */
 ProcessServerManager::Server*
-ProcessServerManager::runAndAddServer(const char* domain,  const char* path,
-                                      int uid, int gid, u_short port)
+ProcessServerManager::runAndAddServer(const char *domain, const char *path,
+                                      const char *chroot, int uid, int gid,
+                                      u_short port)
 {
   Server* server = new Server;
-  if(runServer(server, path, uid, gid, port))
+
+  if (runServer (server, path, port, chroot, uid, gid))
   {
     delete server;
     return 0;
@@ -381,13 +389,14 @@ ProcessServerManager::runAndAddServer(const char* domain,  const char* path,
  *Run a new server.
  *\param server The server object.
  *\param path The path to the executable.
+ *\param port The listening port.
+ *\param chroot The new process chroot.
  *\param uid User id to use for the new process.
  *\param gid Group id to use for the new process.
- *\param port The listening port.
  */
-int ProcessServerManager::runServer(ProcessServerManager::Server* server,
-                                    const char* path, int uid, int gid,
-                                    u_short port)
+int ProcessServerManager::runServer (ProcessServerManager::Server* server,
+                                     const char* path, u_short port,
+                                     const char *chroot, int uid, int gid)
 {
   StartProcInfo spi;
   MYSERVER_SOCKADDRIN serverSockAddrIn;
@@ -398,10 +407,9 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
 
   if(nServers >= maxServers)
   {
-    ostringstream stream;
-    stream << "Cannot run process " << path
-           << ": Reached max number of servers";
-    ::Server::getInstance()->log(stream.str().c_str(), MYSERVER_LOG_MSG_ERROR);
+    ::Server::getInstance()->log(MYSERVER_LOG_MSG_ERROR,
+                      _("Cannot run process %s: Reached max number of servers"),
+                                 path);
     return 1;
   }
 
@@ -448,6 +456,8 @@ int ProcessServerManager::runServer(ProcessServerManager::Server* server,
   spi.arg.assign(moreArg);
   spi.cmdLine.assign(path);
   server->path.assign(path);
+  if (chroot)
+    spi.chroot.assign (chroot);
 
   spi.uid = uid;
   spi.gid = gid;
