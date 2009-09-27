@@ -334,6 +334,7 @@ class PyGTKControl():
     def on_new_config_menu_item_activate(self, widget = None):
         '''Clears server configuration.'''
         if widget is not None:
+            self.statusbar.push(0, 'Server configuration cleared.')
             self.config_path = None
         self.config_custom = []
         table, tree = self.tabs['unknown']
@@ -346,6 +347,7 @@ class PyGTKControl():
     def on_new_mime_menu_item_activate(self, widget = None):
         '''Clears MIME configuration.'''
         if widget is not None:
+            self.statusbar.push(0, 'MIME configuration cleared.')
             self.mime_path = None
         self.mime_custom = []
         self.mime_custom_attrib = {}
@@ -356,6 +358,7 @@ class PyGTKControl():
     def on_new_vhost_menu_item_activate(self, widget = None):
         '''Clears VHost configuration.'''
         if widget is not None:
+            self.statusbar.push(0, 'VHost configuration cleared.')
             self.vhost_path = None
         self.vhost_custom = []
         self.vhost_custom_attrib = {}
@@ -363,7 +366,7 @@ class PyGTKControl():
         table.clear()
         tree.get_model().clear()
 
-    def generic_open(self, dialog, path, config_type, set_up_method):
+    def generic_open(self, dialog, status, path, config_type, set_up_method):
         '''Open configuration file.'''
         if self.chooser is not None:
             self.chooser.destroy()
@@ -377,6 +380,7 @@ class PyGTKControl():
                 with open(getattr(self, path)) as f:
                     conf = config_type.from_string(f.read())
                 set_up_method(conf)
+                self.statusbar.push(0, status)
             self.chooser.destroy()
         self.chooser.connect('response', handle_response)
         self.chooser.show()
@@ -384,22 +388,28 @@ class PyGTKControl():
     def on_open_config_menu_item_activate(self, widget):
         '''Open local server configuration file.'''
         self.generic_open(
-            'Open server configuration file.', 'config_path',
+            'Open server configuration file.',
+            'Opened server configuration.',
+            'config_path',
             MyServerConfig, self.set_up_config)
 
     def on_open_mime_menu_item_activate(self, widget):
         '''Open local MIME configuration file.'''
         self.generic_open(
-            'Open MIME configuration file.', 'mime_path',
+            'Open MIME configuration file.',
+            'Opened MIME configuration',
+            'mime_path',
             MIMETypes, self.set_up_mime)
 
     def on_open_vhost_menu_item_activate(self, widget):
         '''Open local VHost configuration file.'''
         self.generic_open(
-            'Open VHost configuration file.', 'vhost_path',
+            'Open VHost configuration file.',
+            'Opened VHost configuration.',
+            'vhost_path',
             VHosts, self.set_up_vhost)
 
-    def generic_save_as(self, dialog, widget, path, save_method):
+    def generic_save_as(self, dialog, status,  widget, path, save_method):
         '''Save configuration as file.'''
         if self.chooser is not None:
             self.chooser.destroy()
@@ -413,6 +423,7 @@ class PyGTKControl():
                 setattr(self, path, self.chooser.get_filename())
                 save_method(widget)
             self.chooser.destroy()
+            self.statusbar.push(0, status)
         self.chooser.connect('response', handle_response)
         self.chooser.show()
 
@@ -420,6 +431,7 @@ class PyGTKControl():
         '''Save server configuration as local file.'''
         self.generic_save_as(
             'Save server configuration file.',
+            'Saved server configuration.',
             widget, 'config_path',
             self.on_save_config_menu_item_activate)
 
@@ -427,6 +439,7 @@ class PyGTKControl():
         '''Save MIME configuration as local file.'''
         self.generic_save_as(
             'Save MIME configuration file.',
+            'Saved MIME configuration.',
             widget, 'mime_path',
             self.on_save_mime_menu_item_activate)
 
@@ -434,10 +447,11 @@ class PyGTKControl():
         '''Save VHost configuration as local file.'''
         self.generic_save_as(
             'Save VHost configuration file.',
+            'Saved VHost configuration.',
             widget, 'vhost_path',
             self.on_save_vhost_menu_item_activate)
 
-    def generic_save(self, widget, path, save_as_method, config_method):
+    def generic_save(self, status, widget, path, save_as_method, config_method):
         '''Save configuration file.'''
         if getattr(self, path) is None:
             save_as_method(widget)
@@ -445,10 +459,12 @@ class PyGTKControl():
             config = config_method()
             with open(getattr(self, path), 'w') as f:
                 f.write(str(config))
+            self.statusbar.push(0, status)
 
     def on_save_config_menu_item_activate(self, widget):
         '''Save server configuration to file.'''
         self.generic_save(
+            'Saved server configuration.',
             widget, 'config_path',
             self.on_save_as_config_menu_item_activate,
             self.get_current_config)
@@ -456,6 +472,7 @@ class PyGTKControl():
     def on_save_mime_menu_item_activate(self, widget):
         '''Save MIME configuration to file.'''
         self.generic_save(
+            'Saved MIME configuration.',
             widget, 'mime_path',
             self.on_save_as_mime_menu_item_activate,
             self.get_current_mime)
@@ -463,6 +480,7 @@ class PyGTKControl():
     def on_save_vhost_menu_item_activate(self, widget):
         '''Save VHost configuration to file.'''
         self.generic_save(
+            'Saved VHost configuration.',
             widget, 'vhost_path',
             self.on_save_as_vhost_menu_item_activate,
             self.get_current_vhost)
@@ -668,6 +686,7 @@ class PyGTKControl():
     def on_save_security_menu_item_activate(self, widget):
         self.security_table.write_to_file(
             self.browser_table.browser_tree.browser)
+        self.statusbar.push(0, 'Saved security file.')
 
 PyGTKControl()
 gtk.main()
