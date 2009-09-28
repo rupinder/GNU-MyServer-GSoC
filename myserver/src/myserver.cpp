@@ -206,19 +206,17 @@ int loadExternalPath(string &externalPath)
   try
     {
       externalPath = "";
-
 #ifdef WIN32
-      externalPath.assign("plugins");
+      externalPath.assign ("plugins");
 #else
       if (FilesUtility::fileExists ("plugins"))
-        externalPath.assign("plugins");
+        externalPath.assign ("plugins");
       else
         {
 # ifdef PREFIX
-          externalPath.assign(PREFIX);
-          externalPath.append("/lib/myserver/plugins");
+          externalPath.assign (PREFIX "/lib/myserver/plugins");
 # else
-          externalPath.assign("/usr/lib/myserver/plugins");
+          externalPath.assign ("/usr/local/lib/myserver/plugins");
 # endif
         }
 
@@ -230,126 +228,63 @@ int loadExternalPath(string &externalPath)
   return 0;
 }
 
+
 /*!
  * Load the vhost configuration files locations.
  * Return nonzero on errors.
  */
-int loadVHostConfFilesLocation (string &vhostConfigurationFile)
+int loadConfFileLocation (string &outFile, string fileName)
 {
   try
     {
-      vhostConfigurationFile = "";
+      outFile = "";
 
 #ifdef WIN32
-      vhostConfigurationFile.assign ("virtualhosts.xml");
+      outFile = fileName;
 #else
-      /*
-       * Look for .xml files in the following order.
-       *1) myserver executable working directory
-       *2) ~/.myserver/
-       *3) /etc/myserver/
-       *4) default files will be copied in myserver executable working
-       */
-      if (FilesUtility::fileExists ("virtualhosts.xml"))
-        vhostConfigurationFile.assign ("virtualhosts.xml");
-      else if (FilesUtility::fileExists ("~/.myserver/virtualhosts.xml"))
-        vhostConfigurationFile.assign ("~/.myserver/virtualhosts.xml");
-      else if (FilesUtility::fileExists ("/etc/myserver/virtualhosts.xml"))
-        vhostConfigurationFile.assign("/etc/myserver/virtualhosts.xml");
+      /* Look for .xml files in the following order:
+
+         1) current working directory
+         2) ~/.myserver/
+         3) /etc/myserver/
+      */
+      if (FilesUtility::fileExists (fileName))
+        {
+          outFile = fileName;
+          return 0;
+        }
+
+      outFile = "~/.myserver/" + fileName;
+      if (FilesUtility::fileExists (outFile))
+        return 0;
+
+      outFile = "/etc/myserver/" + fileName;
+      if (FilesUtility::fileExists (outFile))
+        return 0;
 #endif
     }
   catch (...)
     {
     }
-  return 0;
+  return 1;
 }
-
-
-/*!
- * Load the mime configuration files locations.
- * Return nonzero on errors.
- */
-int loadMimeConfFilesLocation (string &mimeConfigurationFile)
-{
-  try
-    {
-      mimeConfigurationFile = "";
-
-#ifdef WIN32
-      mimeConfigurationFile.assign ("MIMEtypes.xml");
-#else
-      /*
-       *Under an *nix environment look for .xml files in the following order.
-       *1) myserver executable working directory
-       *2) ~/.myserver/
-       *3) /etc/myserver/
-       *4) default files will be copied in myserver executable working
-       */
-      if (FilesUtility::fileExists ("MIMEtypes.xml"))
-        mimeConfigurationFile.assign ("MIMEtypes.xml");
-      else if (FilesUtility::fileExists ("~/.myserver/MIMEtypes.xml"))
-        mimeConfigurationFile.assign ("~/.myserver/MIMEtypes.xml");
-      else if (FilesUtility::fileExists ("/etc/myserver/MIMEtypes.xml"))
-        mimeConfigurationFile.assign("/etc/myserver/MIMEtypes.xml");
-#endif
-    }
-  catch (...)
-    {
-    }
-  return 0;
-}
-
-
-/*!
- * Load the main configuration files locations.
- * Return nonzero on errors.
- */
-int loadMainConfFilesLocation (string &mainConfigurationFile)
-{
-  try
-    {
-      mainConfigurationFile = "";
-
-#ifdef WIN32
-      mainConfigurationFile.assign ("myserver.xml");
-#else
-      /*
-       * Look for .xml files in the following order.
-       * 1) myserver executable working directory
-       * 2) ~/.myserver/
-       * 3) /etc/myserver/
-       * 4) default files will be copied in myserver executable working
-       */
-      if (FilesUtility::fileExists ("myserver.xml"))
-        mainConfigurationFile.assign ("myserver.xml");
-      else if (FilesUtility::fileExists ("~/.myserver/myserver.xml"))
-        mainConfigurationFile.assign ("~/.myserver/myserver.xml");
-      else if (FilesUtility::fileExists ("/etc/myserver/myserver.xml"))
-        mainConfigurationFile.assign ("/etc/myserver/myserver.xml");
-#endif
-    }
-  catch (...)
-    {
-    }
-  return 0;
-}
-
 
 /*!
  * Load the configuration files locations.
  * Return nonzero on errors.
  */
 int loadConfFilesLocation (string &mainConfigurationFile,
-     string &mimeConfigurationFile, string &vhostConfigurationFile,
+                           string &mimeConfigurationFile,
+                           string &vhostConfigurationFile,
                            string &externalPath)
 {
-  if (loadMainConfFilesLocation (mainConfigurationFile))
+  if (loadConfFileLocation (mainConfigurationFile, "myserver.xml"))
     return -1;
 
-  if (loadMimeConfFilesLocation (mimeConfigurationFile))
+  if (loadConfFileLocation (mimeConfigurationFile, "MIMEtypes.xml"))
     return -1;
 
-  if (loadVHostConfFilesLocation (vhostConfigurationFile))
+  if (loadConfFileLocation (vhostConfigurationFile, "virtualhosts.xml"))
     return -1;
 
   if (loadExternalPath (externalPath))
