@@ -115,7 +115,7 @@ void registerSignals ()
   sigaction(SIGCHLD, &sa, (struct sigaction *)NULL);
 #else
   SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), ENABLE_PROCESSED_INPUT);
-  SetConsoleCtrlHandler( (PHANDLER_ROUTINE) SignalHandler, TRUE );
+  SetConsoleCtrlHandler((PHANDLER_ROUTINE) SignalHandler, TRUE);
 #endif
 }
 
@@ -127,25 +127,41 @@ struct argp_input
 {
   /* Print the version for MyServer?  */
   int version;
-  char* logFileName;
+
+  /* Define the main log file.  */
+  const char *logFileName;
+
   /* Define how run the server.  */
   int runas;
-  char* pidFileName;
+
+  /* If executed as a daemon, write the pid to this file.  */
+  const char *pidFileName;
+
+  /* Define an alternate location for the configuration files.  */
+  const char *confFilesLocation;
+
+  /* Specify if the fork server is used.  */
   int useForkServer;
 };
 
 static char doc[] = "GNU MyServer ";
 static char argsDoc[] = "";
 
+enum
+{
+ CONFIG_OPT = UCHAR_MAX + 1
+};
+
 /* Use the GNU C argp parser under not windows environments.  */
 static struct argp_option options[] =
   {
     /* LONG NAME - SHORT NAME - PARAMETER NAME - FLAGS - DESCRIPTION.  */
-    {"version", 'v', "VERSION", OPTION_ARG_OPTIONAL , "Print the version for the application"},
-    {"run", 'r', "RUN", OPTION_ARG_OPTIONAL, "Specify how run the server (by default console mode)"},
-    {"log", 'l', "location", 0, "Specify the location (in the format protocol://resource) to use to log main myserver messages"},
-    {"pidfile", 'p', "pidfile", 0, "Specify the file where write the PID"},
-    {"fork_server", 'f', "", OPTION_ARG_OPTIONAL, "Specify if use a fork server"},
+    {"version", 'v', "VERSION", OPTION_ARG_OPTIONAL , _("Print the version for the application")},
+    {"run", 'r', "RUN", OPTION_ARG_OPTIONAL, _("Specify how run the server (by default console mode)")},
+    {"log", 'l', "location", 0, _("Specify the location (using the format protocol://resource) to use as the main log.")},
+    {"pidfile", 'p', "file", 0, _("Specify the file where write the PID")},
+    {"fork_server", 'f', NULL, 0, _("Specify if use a fork server")},
+    {"cfgdir", CONFIG_OPT, "dir", 0, _("Specify an alternate directory where look for configuration files")},
     {0}
   };
 
@@ -180,6 +196,10 @@ static error_t parseOpt(int key, char *arg, struct argp_state *state)
 
     case 'p':
       in->pidFileName = arg;
+      break;
+
+    case CONFIG_OPT:
+      in->confFilesLocation = arg;
       break;
 
     case ARGP_KEY_ARG:
@@ -231,9 +251,10 @@ int loadExternalPath(string &externalPath)
 
 /*!
  * Load the vhost configuration files locations.
+ * If DIR is specified, look only in this directory.
  * Return nonzero on errors.
  */
-int loadConfFileLocation (string &outFile, string fileName)
+int loadConfFileLocation (string &outFile, string fileName, const char *dir)
 {
   try
     {
@@ -242,6 +263,17 @@ int loadConfFileLocation (string &outFile, string fileName)
 #ifdef WIN32
       outFile = fileName;
 #else
+
+      if (dir)
+        {
+          outFile = dir;
+          if (outFile.at (outFile.length () - 1) != '/')
+            outFile += "/";
+
+          outFile += fileName;
+          return !FilesUtility::fileExists (outFile);
+        }
+
       /* Look for .xml files in the following order:
 
          1) current working directory
@@ -276,15 +308,16 @@ int loadConfFileLocation (string &outFile, string fileName)
 int loadConfFilesLocation (string &mainConfigurationFile,
                            string &mimeConfigurationFile,
                            string &vhostConfigurationFile,
-                           string &externalPath)
+                           string &externalPath,
+                           const char *dir)
 {
-  if (loadConfFileLocation (mainConfigurationFile, "myserver.xml"))
+  if (loadConfFileLocation (mainConfigurationFile, "myserver.xml", dir))
     return -1;
 
-  if (loadConfFileLocation (mimeConfigurationFile, "MIMEtypes.xml"))
+  if (loadConfFileLocation (mimeConfigurationFile, "MIMEtypes.xml", dir))
     return -1;
 
-  if (loadConfFileLocation (vhostConfigurationFile, "virtualhosts.xml"))
+  if (loadConfFileLocation (vhostConfigurationFile, "virtualhosts.xml", dir))
     return -1;
 
   if (loadExternalPath (externalPath))
@@ -366,22 +399,23 @@ int main  (int argn, char **argv)
 #ifdef ARGP
   /* Reset the struct.  */
   input.version = 0;
-  input.logFileName = 0;
+  input.confFilesLocation = NULL;
+  input.logFileName = NULL;
   input.runas = MYSERVER_RUNAS_CONSOLE;
-  input.pidFileName = 0;
+  input.pidFileName = NULL;
   input.useForkServer = 0;
 
   /* Call the parser.  */
   argp_parse (&myserverArgp, argn, argv, 0, 0, &input);
   runas = input.runas;
-  if (input.logFileName)
+
+  if (input.logFileName
+      && Server::getInstance ()->setLogLocation (input.logFileName))
     {
-      if (Server::getInstance ()->setLogLocation (input.logFileName))
-        {
-          cout << "Error setting the location for the MyServer's main log" << endl;
-          return 1;
-        }
+      cout << "Error setting the location for the MyServer's main log" << endl;
+      return 1;
     }
+
   /* If the version flag is up, show the version and exit.  */
   if (input.version)
     {
@@ -450,7 +484,8 @@ int main  (int argn, char **argv)
   try
     {
       setcwdBuffer ();
-      loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath);
+      loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath,
+                             input.confFilesLocation);
 
       switch(runas)
         {
@@ -521,7 +556,7 @@ int main  (int argn, char **argv)
 int writePidfile (const char* filename)
 {
   int pidfile;
-  pid_t pid = getpid();
+  pid_t pid = getpid ();
   char buff[12];
   int ret;
   string file = "";
@@ -594,29 +629,29 @@ void  __stdcall myServerMainNT (u_long, LPTSTR*)
     };
 
 
-  MyServiceStatusHandle = RegisterServiceCtrlHandler( "GNU MyServer",
-                                                      myServerCtrlHandler );
+  MyServiceStatusHandle = RegisterServiceCtrlHandler("GNU MyServer",
+                                                      myServerCtrlHandler);
   if(MyServiceStatusHandle)
     {
       MyServiceStatus.dwCurrentState = SERVICE_START_PENDING;
-      SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
+      SetServiceStatus(MyServiceStatusHandle, &MyServiceStatus);
 
       MyServiceStatus.dwControlsAccepted |= (SERVICE_ACCEPT_STOP
                                              | SERVICE_ACCEPT_SHUTDOWN);
       MyServiceStatus.dwCurrentState = SERVICE_RUNNING;
-      SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
+      SetServiceStatus(MyServiceStatusHandle, &MyServiceStatus);
 
 
-      loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath);
+      loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath, NULL);
       Server::getInstance()->start (mainConf, mimeConf, vhostConf, externPath);
 
       MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
-      SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
+      SetServiceStatus(MyServiceStatusHandle, &MyServiceStatus);
 
       MyServiceStatus.dwControlsAccepted &= ~(SERVICE_ACCEPT_STOP
                                               | SERVICE_ACCEPT_SHUTDOWN);
       MyServiceStatus.dwCurrentState = SERVICE_STOPPED;
-      SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
+      SetServiceStatus(MyServiceStatusHandle, &MyServiceStatus);
     }
 
 }
@@ -626,7 +661,7 @@ void  __stdcall myServerMainNT (u_long, LPTSTR*)
  */
 void __stdcall myServerCtrlHandler(u_long fdwControl)
 {
-  switch ( fdwControl )
+  switch (fdwControl)
     {
     case SERVICE_CONTROL_INTERROGATE:
       break;
@@ -634,8 +669,8 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
     case SERVICE_CONTROL_SHUTDOWN:
     case SERVICE_CONTROL_STOP:
       MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
-      SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
-      Server::getInstance()->stop();
+      SetServiceStatus (MyServiceStatusHandle, &MyServiceStatus);
+      Server::getInstance ()->stop ();
       return;
 
     case SERVICE_CONTROL_PAUSE:
@@ -644,12 +679,12 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
     case SERVICE_CONTROL_CONTINUE:
       break;
     default:
-      if ( fdwControl >= 128 && fdwControl <= 255 )
+      if (fdwControl >= 128 && fdwControl <= 255)
         break;
       else
         break;
     }
-  SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
+  SetServiceStatus (MyServiceStatusHandle, &MyServiceStatus);
 }
 #endif
 
@@ -669,11 +704,11 @@ void runService ()
   if (!StartServiceCtrlDispatcher (serviceTable))
     {
       if (GetLastError () == ERROR_INVALID_DATA)
-          Server::getInstance ()->log("Invalid data");
+        Server::getInstance ()->log("Invalid data");
       else if (GetLastError () == ERROR_SERVICE_ALREADY_RUNNING)
-          Server::getInstance ()->log("Already running");
+        Server::getInstance ()->log("Already running");
       else
-          Server::getInstance ()->log("Error running service");
+        Server::getInstance ()->log("Error running service");
     }
 #endif
 }
