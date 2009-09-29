@@ -27,6 +27,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class XmlMainConfiguration : public MainConfiguration
 {
 public:
+  XmlMainConfiguration ();
+  virtual ~XmlMainConfiguration ();
+
   virtual int open (const char* filename)
   {
     return xmlParser.open (filename);

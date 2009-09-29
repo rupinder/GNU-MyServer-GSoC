@@ -16,3 +16,13 @@
 */
 
 #include <include/conf/main/xml_main_configuration.h>
+
+XmlMainConfiguration::XmlMainConfiguration ()
+{
+
+}
+
+XmlMainConfiguration::~XmlMainConfiguration ()
+{
+
+}
