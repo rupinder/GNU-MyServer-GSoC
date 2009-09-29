@@ -53,6 +53,12 @@ int VhostManager::addVHost(Vhost* vh)
                  _("Protocol not defined for vhost: %s, using HTTP by default"),
                                              vh->getName ());
         }
+      string protocol (vh->getProtocolName ());
+      if (Server::getInstance ()->getProtocolsManager()->getProtocol (protocol)
+          == NULL)
+        Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
+                                _("The protocol \"%s\" is used but not loaded"),
+                                    protocol.c_str ());
 
       hostList.push_back (vh);
       mutex.unlock ();
