@@ -620,7 +620,6 @@ void  __stdcall myServerMainNT (u_long, LPTSTR*)
   try
     {
       Server::createInstance ();
-
     }
   catch(...)
     {
@@ -678,12 +677,8 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
 
     case SERVICE_CONTROL_CONTINUE:
       break;
-    default:
-      if (fdwControl >= 128 && fdwControl <= 255)
-        break;
-      else
-        break;
     }
+
   SetServiceStatus (MyServiceStatusHandle, &MyServiceStatus);
 }
 #endif
