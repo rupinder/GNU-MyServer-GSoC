@@ -851,7 +851,7 @@ int Server::initialize ()
   if (data)
     maxLogFileSize=(u_long)atol(data);
 
-  data = configurationFileManager.getValue ("server.max_files_cache");
+  data = getData ("server.max_files_cache");
   if (data)
     {
       u_long maxSize = (u_long)atol(data);
