@@ -229,7 +229,6 @@ private:
   string *ipAddresses;
   char serverName[HOST_NAME_MAX + 1];
   string* path;
-  string* externalPath;
   int initialize();
   int addThread(bool staticThread = false);
   ConnectionPtr addConnectionToList(Socket* s, MYSERVER_SOCKADDRIN *asock_in,
@@ -255,9 +254,12 @@ private:
 
   int purgeThreads();
   int reboot();
-  string* mainConfigurationFile;
-  string* vhostConfigurationFile;
-  string* mimeConfigurationFile;
+
+  string mainConfigurationFile;
+  string vhostConfigurationFile;
+  string mimeConfigurationFile;
+  string externalPath;
+
   PluginsManager pluginsManager;
   ProcessServerManager processServerManager;
   ConnectionsScheduler connectionsScheduler;

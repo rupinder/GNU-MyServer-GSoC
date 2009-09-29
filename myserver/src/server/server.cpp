@@ -80,10 +80,6 @@ Server::Server () : connectionsScheduler (this),
   serverReady = false;
   throttlingRate = 0;
   mimeManager = 0;
-  mimeConfigurationFile = 0;
-  mainConfigurationFile = 0;
-  vhostConfigurationFile = 0;
-  externalPath = 0;
   path = 0;
   ipAddresses = 0;
   vhostList = 0;
@@ -115,26 +111,10 @@ Server::initLogManager ()
 bool Server::resetConfigurationPaths (string &mainConf, string &mimeConf,
 				     string &vhostConf, string &externPath)
 {
-  if (!mainConfigurationFile)
-    mainConfigurationFile = new string (mainConf);
-  else
-    mainConfigurationFile->assign (mainConf);
-
-  if (!mimeConfigurationFile)
-    mimeConfigurationFile = new string (mimeConf);
-  else
-    mimeConfigurationFile->assign (mimeConf);
-
-  if (!vhostConfigurationFile)
-    vhostConfigurationFile = new string (vhostConf);
-  else
-    vhostConfigurationFile->assign (vhostConf);
-
-  if (!externalPath)
-    externalPath = new string (externPath);
-  else
-    externalPath->assign (externPath);
-
+  mainConfigurationFile = mainConf;
+  mimeConfigurationFile = mimeConf;
+  vhostConfigurationFile = vhostConf;
+  externalPath = externPath;
   return true;
 }
 
@@ -165,19 +145,6 @@ Server::~Server ()
 {
   if (vhostList)
     delete vhostList;
-
-  delete vhostConfigurationFile;
-  vhostConfigurationFile = 0;
-
-  delete mainConfigurationFile;
-  mainConfigurationFile = 0;
-
-  delete mimeConfigurationFile;
-  mimeConfigurationFile = 0;
-
-  if (externalPath)
-    delete externalPath;
-  externalPath = 0;
 
   if (xmlValidator)
     delete xmlValidator;
@@ -301,7 +268,7 @@ int Server::postLoad ()
 
   mimeManager = new MimeManager ();
 
-  if (int nMIMEtypes = mimeManager->loadXML(mimeConfigurationFile->c_str ()))
+  if (int nMIMEtypes = mimeManager->loadXML(mimeConfigurationFile.c_str ()))
     log (MYSERVER_LOG_MSG_INFO, _("Using %i MIME types"), nMIMEtypes);
   else
     log (MYSERVER_LOG_MSG_ERROR, _("Error while loading MIME types"));
@@ -328,7 +295,7 @@ int Server::postLoad ()
   loadPlugins ();
 
   /* Load the virtual hosts configuration from the xml file.  */
-  vhostList->loadXMLConfigurationFile (vhostConfigurationFile->c_str ());
+  vhostList->loadXMLConfigurationFile (vhostConfigurationFile.c_str ());
 
   if (path == 0)
     path = new string ();
@@ -372,7 +339,7 @@ void Server::loadPlugins ()
                               new HttpsProtocol(),
                               new FtpProtocol(),
                               new ControlProtocol(),
-                              0};
+                              NULL};
 
   for (int j = 0; protocolsSet[j]; j++)
     {
@@ -383,7 +350,7 @@ void Server::loadPlugins ()
       getProtocolsManager ()->addProtocol (protocolName, protocol);
     }
 
-  getPluginsManager ()->preLoad (this, *externalPath);
+  getPluginsManager ()->preLoad (this, externalPath);
   getPluginsManager ()->load (this);
   getPluginsManager ()->postLoad (this);
 }
@@ -399,10 +366,9 @@ void Server::mainLoop()
 
   u_long purgeThreadsCounter = 0;
 
-  mainConfTime = FilesUtility::getLastModTime (mainConfigurationFile->c_str ());
-  hostsConfTime =
-    FilesUtility::getLastModTime (vhostConfigurationFile->c_str ());
-  mimeConfTime = FilesUtility::getLastModTime (mimeConfigurationFile->c_str ());
+  mainConfTime = FilesUtility::getLastModTime (mainConfigurationFile.c_str ());
+  hostsConfTime = FilesUtility::getLastModTime (vhostConfigurationFile.c_str ());
+  mimeConfTime = FilesUtility::getLastModTime (mimeConfigurationFile.c_str ());
 
   /*
    * Keep thread alive.
@@ -423,11 +389,11 @@ void Server::mainLoop()
       if (autoRebootEnabled)
         {
           time_t mainConfTimeNow =
-            FilesUtility::getLastModTime (mainConfigurationFile->c_str ());
+            FilesUtility::getLastModTime (mainConfigurationFile.c_str ());
           time_t hostsConfTimeNow =
-            FilesUtility::getLastModTime (vhostConfigurationFile->c_str ());
+            FilesUtility::getLastModTime (vhostConfigurationFile.c_str ());
           time_t mimeConfNow =
-            FilesUtility::getLastModTime (mimeConfigurationFile->c_str ());
+            FilesUtility::getLastModTime (mimeConfigurationFile.c_str ());
 
           /* If a configuration file was modified reboot the server. */
           if (((mainConfTimeNow != -1) && (hostsConfTimeNow != -1)  &&
@@ -501,7 +467,7 @@ void Server::mainLoop()
                   delete oldvhost;
 
                   /* Load the virtual hosts configuration from the xml file.  */
-                  if (vhostList->loadXMLConfigurationFile (vhostConfigurationFile->c_str ()))
+                  if (vhostList->loadXMLConfigurationFile (vhostConfigurationFile.c_str ()))
                     listenThreads.rollbackFastReboot ();
                   else
                     listenThreads.commitFastReboot ();
@@ -819,7 +785,7 @@ int Server::initialize ()
   maxConnections = 0;
   maxConnectionsToAccept = 0;
 
-  if (configurationFileManager.open (mainConfigurationFile->c_str ()))
+  if (configurationFileManager.open (mainConfigurationFile.c_str ()))
     return -1;
 
   readHashedData (xmlDocGetRootElement (configurationFileManager.getDoc ())->xmlChildrenNode);
@@ -1404,7 +1370,7 @@ Protocol* Server::getProtocol (const char *protocolName)
  */
 const char* Server::getExternalPath ()
 {
-  return externalPath ? externalPath->c_str () : "";
+  return externalPath.c_str ();
 }
 
 
@@ -1540,8 +1506,7 @@ CachedFileFactory* Server::getCachedFiles ()
  */
 const char *Server::getMainConfFile ()
 {
-  return mainConfigurationFile
-    ? mainConfigurationFile->c_str () : 0;
+  return mainConfigurationFile.c_str ();
 }
 
 /*!
@@ -1549,7 +1514,7 @@ const char *Server::getMainConfFile ()
  */
 const char *Server::getVhostConfFile ()
 {
-  return vhostConfigurationFile ? vhostConfigurationFile->c_str () : NULL;
+  return vhostConfigurationFile.c_str ();
 }
 
 /*!
@@ -1557,7 +1522,7 @@ const char *Server::getVhostConfFile ()
  */
 const char *Server::getMIMEConfFile ()
 {
-  return mimeConfigurationFile ? mimeConfigurationFile->c_str () : "";
+  return mimeConfigurationFile.c_str ();
 }
 
 /*!
