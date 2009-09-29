@@ -403,6 +403,7 @@ AC_CONFIG_FILES([ po/Makefile.in
     include/log/Makefile
     include/log/stream/Makefile
     include/conf/Makefile
+    include/conf/main/Makefile
     include/conf/mime/Makefile
     include/conf/security/Makefile
     include/conf/vhost/Makefile
@@ -457,6 +458,7 @@ AC_CONFIG_FILES([ po/Makefile.in
     src/log/Makefile
     src/log/stream/Makefile
     src/conf/Makefile
+    src/conf/main/Makefile
     src/conf/mime/Makefile
     src/conf/security/Makefile
     src/conf/vhost/Makefile

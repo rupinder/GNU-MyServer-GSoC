@@ -47,6 +47,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # include <include/conf/security/security_manager.h>
 # include <include/conf/security/auth_method_factory.h>
 # include <include/conf/security/validator_factory.h>
+# include <include/conf/main/main_configuration.h>
 
 # include <include/base/slab/slab.h>
 
@@ -163,12 +164,12 @@ public:
 
   LogManager *getLogManager () { return logManager; }
 
-  XmlParser *getXmlConfiguration ();
+  MainConfiguration *getConfiguration ();
 private:
   friend class ClientsThread;
   XmlValidator *xmlValidator;
 
-  XmlParser configurationFileManager;
+  MainConfiguration *configurationFileManager;
 
 # ifdef WIN32
   friend int __stdcall control_handler(u_long control_type);

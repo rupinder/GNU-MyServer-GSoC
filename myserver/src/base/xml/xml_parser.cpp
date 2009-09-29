@@ -356,22 +356,25 @@ XmlXPathResult* XmlParser::evaluateXpath(const char* expr)
  */
 int XmlParser::close()
 {
-  if(doc)
-  {
-    xmlFreeDoc(doc);
-  }
+  int ret = 1;
+
+  if (doc)
+    {
+      xmlFreeDoc (doc);
+      ret = 0;
+    }
 
   if(useXpath && xpathCtx)
-  {
-    xmlXPathFreeContext(xpathCtx);
-  }
+    {
+      xmlXPathFreeContext(xpathCtx);
+    }
 
   doc = NULL;
   cur = NULL;
   prevCur = NULL;
   lastNode = NULL;
 
-  return 0;
+  return ret;
 }
 
 /**

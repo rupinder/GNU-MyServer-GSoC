@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/socket/ssl_socket.h>
 
 #include <include/conf/xml_conf.h>
+#include <include/conf/main/xml_main_configuration.h>
 
 #include <cstdarg>
 
@@ -89,6 +90,7 @@ Server::Server () : connectionsScheduler (this),
   xmlValidator = new XmlValidator ();
   initLogManager ();
   connectionsPoolLock.init ();
+  configurationFileManager = NULL;
 }
 
 void
@@ -158,6 +160,9 @@ Server::~Server ()
 
   if (logManager)
     delete logManager;
+
+  if (configurationFileManager)
+    delete configurationFileManager;
 
   connectionsPoolLock.destroy ();
 }
@@ -317,7 +322,9 @@ int Server::postLoad ()
     }
 
 
-  configurationFileManager.close ();
+  configurationFileManager->close ();
+  delete configurationFileManager;
+  configurationFileManager = NULL;
 
   return 0;
 }
@@ -746,16 +753,14 @@ int Server::terminate ()
   return 0;
 }
 
-
 /*!
  * Get a pointer to the configuration file.  It is
  * valid only at startup!
  */
-XmlParser *Server::getXmlConfiguration ()
+MainConfiguration *Server::getConfiguration ()
 {
-  return &configurationFileManager;
+  return configurationFileManager;
 }
-
 
 /*!
  * Here is loaded the configuration of the server.
@@ -765,12 +770,12 @@ XmlParser *Server::getXmlConfiguration ()
 int Server::initialize ()
 {
   const char *data;
+  XmlMainConfiguration *xmlMainConf;
 
 #ifdef WIN32
   envString = GetEnvironmentStrings ();
 #endif
   connectionsMutex = new Mutex ();
-
   threadsMutex = new Mutex ();
 
   /* Store the default values.  */
@@ -785,10 +790,17 @@ int Server::initialize ()
   maxConnections = 0;
   maxConnectionsToAccept = 0;
 
-  if (configurationFileManager.open (mainConfigurationFile.c_str ()))
-    return -1;
 
-  readHashedData (xmlDocGetRootElement (configurationFileManager.getDoc ())->xmlChildrenNode);
+  xmlMainConf = new XmlMainConfiguration ();
+  if (xmlMainConf->open (mainConfigurationFile.c_str ()))
+    {
+      delete xmlMainConf;
+      return -1;
+    }
+
+  configurationFileManager = xmlMainConf;
+
+  readHashedData (xmlDocGetRootElement (xmlMainConf->getDoc ())->xmlChildrenNode);
 
   /*
    * Process console colors information.

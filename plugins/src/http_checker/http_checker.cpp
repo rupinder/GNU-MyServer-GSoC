@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/multicast/multicast.h>
 #include <include/protocol/http/http.h>
 #include <include/plugin/plugin.h>
+#include <include/conf/main/xml_main_configuration.h>
 #include <Python.h>
 
 #ifdef WIN32
@@ -234,7 +235,7 @@ EXPORTABLE(int) load(void* server,void* parser)
   string msg("new-http-request");
   string pythonName("python");
   Plugin* python;
-  XmlParser* configuration;
+  MainConfiguration* configuration;
   xmlDocPtr xmlDoc;
 
   if(!staticData)
@@ -262,8 +263,10 @@ EXPORTABLE(int) load(void* server,void* parser)
       return -1;
     }
 
-  configuration = serverInstance->getXmlConfiguration ();
-  xmlDoc = configuration->getDoc ();
+  configuration = serverInstance->getConfiguration ();
+
+  /* FIXME: DON'T DO THIS.  */
+  xmlDoc = ((XmlMainConfiguration*)configuration)->getDoc ();
 
   for(xmlNodePtr ptr = xmlDoc->children->next->children; ptr; ptr = ptr->next)
     {
