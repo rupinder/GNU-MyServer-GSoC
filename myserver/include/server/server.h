@@ -241,9 +241,7 @@ private:
   int freeHashedData();
   u_long connectionTimeout;
   u_long maxLogFileSize;
-  int copyConfigurationFromDefault(const char *);
   void logWriteNTimes(string, unsigned);
-  int checkConfigurationPaths();
   bool resetConfigurationPaths(string &, string &, string &, string &);
   Mutex* connectionsMutex;
   u_long nStaticThreads;

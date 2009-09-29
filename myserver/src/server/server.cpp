@@ -139,86 +139,6 @@ bool Server::resetConfigurationPaths (string &mainConf, string &mimeConf,
 }
 
 /*!
-  *Check that the configuration paths are not empty, otherwise fall back to
- * the default ones.
- * Returns nonzero on error.
- */
-int Server::checkConfigurationPaths ()
-{
-  if (mainConfigurationFile->length() == 0)
-  {
-    mainConfigurationFile->assign ("myserver.xml");
-
-    if (copyConfigurationFromDefault ("myserver.xml"))
-    {
-      log (MYSERVER_LOG_MSG_ERROR, _("Error loading configuration file"));
-      return -1;
-    }
-  }
-
-  if (mimeConfigurationFile->length() == 0)
-  {
-    mimeConfigurationFile->assign ("MIMEtypes.xml");
-
-    if (copyConfigurationFromDefault ("MIMEtypes.xml"))
-    {
-      log (MYSERVER_LOG_MSG_ERROR, _("Error loading MIME configuration file"));
-      return -1;
-    }
-  }
-
-  if (vhostConfigurationFile->length() == 0)
-  {
-    vhostConfigurationFile->assign ("virtualhosts.xml");
-
-    if (copyConfigurationFromDefault ("virtualhosts.xml") != 0)
-    {
-      log (MYSERVER_LOG_MSG_ERROR, _("Error loading virtual hosts configuration file"));
-      return -1;
-    }
-  }
-
-  return 0;
-}
-
-/*!
- * Copy a configuration file from the default one.
- * Return nonzero on errors.
- */
-int Server::copyConfigurationFromDefault (const char *fileName)
-{
-  File inputF;
-  File outputF;
-  int ret;
-  string sSource (fileName);
-  sSource = sSource.substr (0, sSource.length () - 3);
-
-#ifdef WIN32
-  sSource.append ("default.windows.xml");
-#else
-  sSource.append ("default.xml");
-#endif
-
-  ret = inputF.openFile (sSource, File::READ
-                        | File::OPEN_IF_EXISTS);
-  if (ret)
-    return -1;
-
-  ret = outputF.openFile (fileName, File::WRITE
-                         | File::FILE_OPEN_ALWAYS);
-  if (ret)
-    return -1;
-
-  FilesUtility::copyFile (inputF, outputF);
-
-  inputF.close ();
-  outputF.close ();
-
-  return 0;
-}
-
-
-/*!
  * Load here all the libraries.
  */
 int Server::loadLibraries ()
@@ -297,10 +217,6 @@ void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
     log (MYSERVER_LOG_MSG_INFO, _("Initializing server configuration..."));
 
     if (!resetConfigurationPaths (mainConf, mimeConf, vhostConf, externPath))
-      return;
-
-    err = checkConfigurationPaths ();
-    if (err)
       return;
 
     err = initialize ();
