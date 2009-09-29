@@ -19,6 +19,3 @@ localedir.h: Makefile
 
 all: localedir.h
 # Generate the localedir.h file before any other rule.
-
-check-recursive:
-	(cd tests; $(MAKE) check)
