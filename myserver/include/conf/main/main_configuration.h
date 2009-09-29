@@ -28,7 +28,7 @@ class MainConfiguration
 {
 public:
   MainConfiguration ();
-  ~MainConfiguration ();
+  virtual ~MainConfiguration ();
   virtual char *getValue (const char* field) = 0;
   virtual char *getValue (string const &field);
   virtual int close ()
