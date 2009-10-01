@@ -179,9 +179,9 @@ int File::openFile (const char* nfilename,u_long opt)
   if (attributeFlag == 0)
     attributeFlag = FILE_ATTRIBUTE_NORMAL;
 
-  handle = CreateFile(filename.c_str (), openFlag,
-                      FILE_SHARE_READ|FILE_SHARE_WRITE,
-                      &sa, creationFlag, attributeFlag, NULL);
+  handle = CreateFile (filename.c_str (), openFlag,
+                       FILE_SHARE_READ|FILE_SHARE_WRITE,
+                       &sa, creationFlag, attributeFlag, NULL);
 
   if (handle == INVALID_HANDLE_VALUE)
     {
@@ -240,9 +240,9 @@ int File::openFile (const char* nfilename,u_long opt)
 }
 
 /*!
- *Returns the base/file/file.handle.
+ *Returns the file handle.
  */
-Handle File::getHandle()
+Handle File::getHandle ()
 {
   return (Handle) handle;
 }
@@ -305,7 +305,7 @@ int File::createTemporaryFile(const char* filename)
 }
 
 /*!
- *Close an open base/file/file.handle.
+ * Close the file.
  */
 int File::close()
 {
@@ -326,24 +326,21 @@ int File::close()
 }
 
 /*!
- *Returns the file size in bytes.
- *Returns -1 on errors.
+ * Returns the file size in bytes.
+ * Returns -1 on errors.
  */
 u_long File::getFileSize()
 {
   u_long ret;
 #ifdef WIN32
-  ret = GetFileSize(handle, NULL);
+  ret = GetFileSize (handle, NULL);
   if (ret != INVALID_FILE_SIZE)
-  {
     return ret;
-  }
   else
     return (u_long)-1;
 #else
   struct stat fStats;
   ret = fstat (handle, &fStats);
-
   if (ret)
     return (u_long)(-1);
   else
@@ -427,12 +424,12 @@ int File::write (const char* buffer, u_long len, u_long *nbw)
 int File::read (char* buffer, u_long buffersize, u_long* nbr)
 {
 #ifdef WIN32
-  int ret = ReadFile((HANDLE)handle, buffer, buffersize, nbr, NULL);
+  int ret = ReadFile (handle, buffer, buffersize, nbr, NULL);
   return (!ret);
 #else
-  int ret  = ::read((long)handle, buffer, buffersize);
+  int ret  = ::read (handle, buffer, buffersize);
   *nbr = (u_long)ret;
-  return (ret == -1) ;
+  return (ret == -1);
 #endif
 }
 
@@ -455,7 +452,6 @@ int File::fastCopyToSocket (Socket *dest, u_long firstByte, MemBuf *buf, u_long 
     {
       int ret = sendfile (dest->getHandle (), getHandle (), &offset,
                           fileSize - offset);
-
       if (ret < 0)
         {
           /* Rollback to read/write on EINVAL or ENOSYS.  */
