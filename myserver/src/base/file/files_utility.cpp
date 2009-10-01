@@ -81,55 +81,55 @@ int FilesUtility::getPathRecursionLevel (const char* path)
   int temp;
 #endif
   while (*lpath != 0)
-  {
-    /* ".." decreases the recursion level.  */
-    if ((*lpath == '\\') || (*lpath == '/'))
-      {
-        lpath++;
-        continue;
-      }
-
-    if (*lpath=='.')
-      {
-        lpath++;
-#ifdef WIN32
-        temp = 0;
-        while (*lpath == '.')
-          {
-            lpath++;
-            temp++;
-          }
-        if ((*lpath == '\\') || (*lpath == '/') || (*lpath == 0))
-          rec -= temp;
-        else
-          {
-            lpath++;
-            while ((*lpath != '\\') && (*lpath != '/') && (*lpath != 0))
-              lpath++;
-            rec++;
-          }
-#else
-        if (*lpath == '.')
-          {
-            lpath++;
-            if ((*lpath == '\\') || (*lpath == '/') || (*lpath == 0))
-              rec--;
-            else
-              {
-                while ((*lpath != '\\') && (*lpath != '/') && (*lpath != 0))
-                  lpath++;
-                rec++;
-              }
-          }
-#endif
-      }
-    else
-      {
-        while( (*lpath != '\\') && (*lpath != '/') && (*lpath != 0))
+    {
+      /* ".." decreases the recursion level.  */
+      if ((*lpath == '\\') || (*lpath == '/'))
+        {
           lpath++;
-        rec++;
-      }
-  }
+          continue;
+        }
+
+      if (*lpath=='.')
+        {
+          lpath++;
+#ifdef WIN32
+          temp = 0;
+          while (*lpath == '.')
+            {
+              lpath++;
+              temp++;
+            }
+          if ((*lpath == '\\') || (*lpath == '/') || (*lpath == 0))
+            rec -= temp;
+          else
+            {
+              lpath++;
+              while ((*lpath != '\\') && (*lpath != '/') && (*lpath != 0))
+                lpath++;
+              rec++;
+            }
+#else
+          if (*lpath == '.')
+            {
+              lpath++;
+              if ((*lpath == '\\') || (*lpath == '/') || (*lpath == 0))
+                rec--;
+              else
+                {
+                  while ((*lpath != '\\') && (*lpath != '/') && (*lpath != 0))
+                    lpath++;
+                  rec++;
+                }
+            }
+#endif
+        }
+      else
+        {
+          while( (*lpath != '\\') && (*lpath != '/') && (*lpath != 0))
+            lpath++;
+          rec++;
+        }
+    }
   return rec;
 }
 
@@ -167,7 +167,8 @@ int FilesUtility::copyFile (const char* src, const char* dest, int overwrite)
   if (srcFile.openFile (src, File::READ))
     return -1;
 
-  if (destFile.openFile (dest, File::WRITE | (overwrite ? File::FILE_CREATE_ALWAYS : 0)))
+  if (destFile.openFile (dest, File::WRITE
+                         | (overwrite ? File::FILE_CREATE_ALWAYS : 0)))
     {
       srcFile.close ();
       return -1;
