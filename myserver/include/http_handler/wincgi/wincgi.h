@@ -28,10 +28,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class WinCgi : public HttpDataHandler
 {
 public:
-  WinCgi();
-  ~WinCgi();
+  WinCgi ();
+  ~WinCgi ();
 
-  virtual int send(HttpThreadContext* td, const char* exec,
+  virtual int send (HttpThreadContext* td, const char* exec,
                    const char* cmdLine = 0, bool execute = false,
                    bool onlyHeader = false);
 };

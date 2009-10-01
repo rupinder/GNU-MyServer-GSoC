@@ -24,9 +24,9 @@ using namespace std;
 /*!
  *Default constructor.
  */
-ProcessServerManager::ProcessServerManager()
+ProcessServerManager::ProcessServerManager ()
 {
-  mutex.init();
+  mutex.init ();
   nServers = 0;
   maxServers = 25;
 }
@@ -34,9 +34,9 @@ ProcessServerManager::ProcessServerManager()
 /*!
  *Default destructor.
  */
-ProcessServerManager::~ProcessServerManager()
+ProcessServerManager::~ProcessServerManager ()
 {
-  mutex.destroy();
+  mutex.destroy ();
 }
 
 /*!
@@ -46,7 +46,7 @@ void ProcessServerManager::load ()
 {
 
   string key ("server.process_servers");
-  NodeTree<string> *node = ::Server::getInstance()->getNodeTree (key);
+  NodeTree<string> *node = ::Server::getInstance ()->getNodeTree (key);
 
   if (node == NULL)
     return;
@@ -62,7 +62,7 @@ void ProcessServerManager::load ()
 
   list<NodeTree<string>*> *children = node->getChildren ();
 
-  for(list<NodeTree<string>*>::iterator it = children->begin ();
+  for (list<NodeTree<string>*>::iterator it = children->begin ();
       it != children->end ();
       it++)
     {
@@ -102,7 +102,7 @@ void ProcessServerManager::load ()
       if (n->getAttr (chrootKey))
         chroot = n->getAttr (chrootKey)->c_str ();
 
-      if (!local.compare("YES") || !local.compare("yes"))
+      if (!local.compare ("YES") || !local.compare ("yes"))
         localBool = true;
       else
         localBool = false;
@@ -111,15 +111,15 @@ void ProcessServerManager::load ()
         {
           u_short portN = 0;
 
-          if(port.size ())
-            portN = atoi (port.c_str());
+          if (port.size ())
+            portN = atoi (port.c_str ());
 
           if (localBool)
-            runAndAddServer (domain.c_str(), name.c_str(), chroot, uid, gid, portN);
+            runAndAddServer (domain.c_str (), name.c_str (), chroot, uid, gid, portN);
           else
             {
               if (portN)
-                addRemoteServer (domain.c_str(), name.c_str(), host.c_str(), portN);
+                addRemoteServer (domain.c_str (), name.c_str (), host.c_str (), portN);
               else
                 ::Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
            _("Error: incomplete remote PROCESS_SERVER block, %s:%s needs a port"),
@@ -138,12 +138,12 @@ void ProcessServerManager::load ()
  *\param name The domain name.
  */
 ProcessServerManager::ServerDomain*
-ProcessServerManager::getDomain(const char* name)
+ProcessServerManager::getDomain (const char* name)
 {
   ServerDomain* ret;
-  mutex.lock();
-  ret = domains.get(name);
-  mutex.unlock();
+  mutex.lock ();
+  ret = domains.get (name);
+  mutex.unlock ();
   return ret;
 }
 
@@ -156,17 +156,17 @@ ProcessServerManager::createDomain (const char* name)
 {
   ServerDomain* ret;
 
-  mutex.lock();
+  mutex.lock ();
 
-  ret = domains.get(name);
-  if(!ret)
+  ret = domains.get (name);
+  if (!ret)
   {
-    string str(name);
-    ret = new ServerDomain();
-    domains.put(str, ret);
+    string str (name);
+    ret = new ServerDomain ();
+    domains.put (str, ret);
   }
 
-  mutex.unlock();
+  mutex.unlock ();
 
   return ret;
 }
@@ -174,18 +174,18 @@ ProcessServerManager::createDomain (const char* name)
 /*!
  *Clear the used memory.
  */
-void ProcessServerManager::clear()
+void ProcessServerManager::clear ()
 {
   HashMap<string, ServerDomain*>::Iterator it;
 
-  mutex.lock();
+  mutex.lock ();
 
-  it = domains.begin();
+  it = domains.begin ();
 
-  for (;it != domains.end(); it++)
+  for (;it != domains.end (); it++)
     {
       ServerDomain *sd = *it;
-      HashMap<string, vector<Server*>*>::Iterator server = sd->servers.begin();
+      HashMap<string, vector<Server*>*>::Iterator server = sd->servers.begin ();
 
       for (; server != sd->servers.end (); server++)
         {
@@ -195,21 +195,21 @@ void ProcessServerManager::clear()
             {
               Server *s = *it;
 
-              if(s->isLocal)
+              if (s->isLocal)
                 nServers--;
 
               if (sd->clear)
-                sd->clear(s);
+                sd->clear (s);
 
-              s->terminate();
+              s->terminate ();
               delete s;
             }
           delete (*server);
         }
       delete (*it);
   }
-  domains.clear();
-  mutex.unlock();
+  domains.clear ();
+  mutex.unlock ();
 }
 
 /*!
@@ -219,22 +219,22 @@ void ProcessServerManager::clear()
  *\param seed Random seed to use for choosing a server.
  */
 ProcessServerManager::Server*
-ProcessServerManager::getServer(const char* domain, const char* name, int seed)
+ProcessServerManager::getServer (const char* domain, const char* name, int seed)
 {
   ServerDomain* sd;
   Server* s = NULL;
 
-  mutex.lock();
-  sd = domains.get(domain);
+  mutex.lock ();
+  sd = domains.get (domain);
 
-  if(sd)
+  if (sd)
     {
       vector<Server*> *slist = sd->servers.get (name);
       if (slist)
         s = slist->at (seed % slist->size ());
     }
 
-  if(s && s->isLocal && !s->process.isProcessAlive())
+  if (s && s->isLocal && !s->process.isProcessAlive ())
   {
     s->socket.close ();
     s->process.terminateProcess ();
@@ -243,7 +243,7 @@ ProcessServerManager::getServer(const char* domain, const char* name, int seed)
 
     s->port = 0;
 
-    if (runServer (s, s->path.c_str(), s->port))
+    if (runServer (s, s->path.c_str (), s->port))
       {
         sd->servers.remove (name);
         delete s;
@@ -261,14 +261,14 @@ ProcessServerManager::getServer(const char* domain, const char* name, int seed)
  *\param domain The server's domain.
  *\param name The server's name.
  */
-void ProcessServerManager::addServer(ProcessServerManager::Server* server,
+void ProcessServerManager::addServer (ProcessServerManager::Server* server,
                                      const char* domain, const char* name)
 {
   ServerDomain *sd = createDomain (domain);
   Server *old;
   string strName (name);
 
-  mutex.lock();
+  mutex.lock ();
   vector<Server*>* slist = sd->servers.get (strName);
 
   if (slist == NULL)
@@ -279,7 +279,7 @@ void ProcessServerManager::addServer(ProcessServerManager::Server* server,
 
   slist->push_back (server);
 
-  mutex.unlock();
+  mutex.unlock ();
 }
 
 /*!
@@ -312,7 +312,7 @@ void ProcessServerManager::removeDomain (const char* domain)
   ServerDomain *sd;
   HashMap<string, Server*>::Iterator server;
 
-  mutex.lock();
+  mutex.lock ();
 
   sd = getDomain (domain);
 
@@ -328,11 +328,11 @@ void ProcessServerManager::removeDomain (const char* domain)
             {
               Server *s = *it;
 
-              if(s->isLocal)
+              if (s->isLocal)
                 nServers--;
 
               if (sd->clear)
-                sd->clear(s);
+                sd->clear (s);
 
               s->terminate ();
               delete s;
@@ -342,7 +342,7 @@ void ProcessServerManager::removeDomain (const char* domain)
       delete sd;
     }
 
-  mutex.unlock();
+  mutex.unlock ();
 }
 
 /*!
@@ -376,7 +376,7 @@ ProcessServerManager::runAndAddServer (const char *domain, const char *path,
     delete server;
     return 0;
   }
-  addServer(server, domain, path);
+  addServer (server, domain, path);
   return server;
 }
 
@@ -397,7 +397,7 @@ int ProcessServerManager::runServer (ProcessServerManager::Server* server,
   MYSERVER_SOCKADDRIN serverSockAddrIn;
   int addrLen = sizeof (serverSockAddrIn);
 
-  server->host.assign("localhost");
+  server->host.assign ("localhost");
   server->isLocal = true;
 
   if (nServers >= maxServers)
@@ -430,11 +430,11 @@ int ProcessServerManager::runServer (ProcessServerManager::Server* server,
 
   if (i < len)
     {
-      string tmpString(path);
+      string tmpString (path);
       int begin = tmpString[0] == '"' ? 1 : 0;
       int end   = tmpString[i] == '"' ? i + 1 : i ;
       tmpCgiPath.assign (tmpString.substr (begin, end));
-      moreArg.assign (tmpString.substr(i, len));
+      moreArg.assign (tmpString.substr (i, len));
     }
   else
     {
@@ -447,10 +447,10 @@ int ProcessServerManager::runServer (ProcessServerManager::Server* server,
   spi.envString = 0;
   spi.stdOut = spi.stdError = (FileHandle) -1;
 
-  spi.cmd.assign(tmpCgiPath);
-  spi.arg.assign(moreArg);
-  spi.cmdLine.assign(path);
-  server->path.assign(path);
+  spi.cmd.assign (tmpCgiPath);
+  spi.arg.assign (moreArg);
+  spi.cmdLine.assign (path);
+  server->path.assign (path);
   if (chroot)
     spi.chroot.assign (chroot);
 
@@ -477,25 +477,25 @@ int ProcessServerManager::runServer (ProcessServerManager::Server* server,
 
   server->socket.socket (AF_INET, SOCK_STREAM, 0);
 
-  if(server->socket.getHandle () == (Handle)INVALID_SOCKET)
+  if (server->socket.getHandle () == (Handle)INVALID_SOCKET)
     return 1;
 
   ((sockaddr_in *)(&serverSockAddrIn))->sin_family = AF_INET;
 
   ((sockaddr_in *)(&serverSockAddrIn))->sin_addr.s_addr =
-    htonl(INADDR_LOOPBACK);
+    htonl (INADDR_LOOPBACK);
   ((sockaddr_in *)(&serverSockAddrIn))->sin_port =
-    htons(server->port);
+    htons (server->port);
 
   if ( server->socket.bind (&serverSockAddrIn,
-                            sizeof(sockaddr_in)) ||
-       server->socket.listen(SOMAXCONN) )
+                            sizeof (sockaddr_in)) ||
+       server->socket.listen (SOMAXCONN) )
     {
       server->socket.close ();
       return 1;
     }
 
-  server->DESCRIPTOR.fileHandle = (unsigned long) server->socket.getHandle();
+  server->DESCRIPTOR.fileHandle = (unsigned long) server->socket.getHandle ();
   spi.stdIn = (FileHandle)server->DESCRIPTOR.fileHandle;
 
   if (server->socket.getsockname (&serverSockAddrIn, &addrLen))
@@ -504,7 +504,7 @@ int ProcessServerManager::runServer (ProcessServerManager::Server* server,
   server->port = ntohs (((sockaddr_in *)&serverSockAddrIn)->sin_port);
 
   server->process.exec (&spi);
-  server->socket.close();
+  server->socket.close ();
 
   return 0;
 }
@@ -514,25 +514,25 @@ int ProcessServerManager::runServer (ProcessServerManager::Server* server,
  *\param sock The socket to connect.
  *\param server The server to connect to.
  */
-int ProcessServerManager::connect(Socket* sock,
+int ProcessServerManager::connect (Socket* sock,
                                   ProcessServerManager::Server* server )
 {
   MYSERVER_SOCKADDRIN serverSock = { 0 };
-  socklen_t nLength = sizeof(MYSERVER_SOCKADDRIN);
+  socklen_t nLength = sizeof (MYSERVER_SOCKADDRIN);
 
-  if (server->socket.getHandle())
+  if (server->socket.getHandle ())
     server->socket.getsockname ((MYSERVER_SOCKADDR*)&serverSock, (int*)&nLength);
 
-  if(!serverSock.ss_family || serverSock.ss_family == AF_INET || !server->isLocal)
+  if (!serverSock.ss_family || serverSock.ss_family == AF_INET || !server->isLocal)
   {
     /*! Try to create the socket.  */
-    if(sock->socket(AF_INET, SOCK_STREAM, 0) == -1)
+    if (sock->socket (AF_INET, SOCK_STREAM, 0) == -1)
       return -1;
 
     /*! If the socket was created try to connect.  */
-    if(sock->connect(server->host.c_str(), server->port) == -1)
+    if (sock->connect (server->host.c_str (), server->port) == -1)
     {
-      sock->close();
+      sock->close ();
       return -1;
     }
 
@@ -541,17 +541,17 @@ int ProcessServerManager::connect(Socket* sock,
   else if ( serverSock.ss_family == AF_INET6 )
   {
     /*! Try to create the socket.  */
-    if(sock->socket(AF_INET6, SOCK_STREAM, 0) == -1)
+    if (sock->socket (AF_INET6, SOCK_STREAM, 0) == -1)
       return -1;
     /*! If the socket was created try to connect.  */
-    if(sock->connect(server->host, server->port) == -1)
+    if (sock->connect (server->host, server->port) == -1)
     {
-      sock->close();
+      sock->close ();
       return -1;
     }
   }
 #endif // HAVE_IPV6
-  sock->setNonBlocking(1);
+  sock->setNonBlocking (1);
 
   return 0;
 }

@@ -51,7 +51,7 @@ static int MemBufCloseCallback (void *context)
 
 /**
  * Initializes the libxml2 library
- * Calls xmlInitParser()
+ * Calls xmlInitParser ()
  * @return Returns true
  */
 bool XmlParser::startXML ()
@@ -87,7 +87,7 @@ int XmlParser::open (const char* filename, bool useXpath)
     return -1;
 
   if (doc!= NULL)
-    close();
+    close ();
 
   doc = xmlParseFile (filename);
 
@@ -338,7 +338,7 @@ int XmlParser::close ()
     }
 
   if (useXpath && xpathCtx)
-    xmlXPathFreeContext(xpathCtx);
+    xmlXPathFreeContext (xpathCtx);
 
   doc = NULL;
   cur = NULL;
@@ -356,7 +356,7 @@ int XmlParser::close ()
  * \param nbytes Amount of bytes
  * \return Returns 0 on success, non 0 on failures
  */
-int XmlParser::save(const char *filename,int *nbytes)
+int XmlParser::save (const char *filename,int *nbytes)
 {
   int err = xmlSaveFile (filename,doc);
 
@@ -404,7 +404,7 @@ int XmlParser::saveMemBuf (MemBuf & memory,int *nbytes)
 void XmlParser::newfile (const char * root)
 {
   if (doc != NULL)
-    close();
+    close ();
 
   doc = xmlNewDoc ((const xmlChar*)"1.0");
   cur = xmlNewDocNode (doc, NULL, (const xmlChar*)root, NULL);

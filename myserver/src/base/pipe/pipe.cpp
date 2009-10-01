@@ -54,13 +54,13 @@ int Pipe::read (char* buffer, u_long len, u_long *nbr)
 {
   *nbr = 0;
 #ifndef WIN32
-  int ret = ::read(handles[0], buffer, len);
-  if(ret == -1)
+  int ret = ::read (handles[0], buffer, len);
+  if (ret == -1)
     {
       terminated = true;
       return 1;
     }
-  else if(!ret)
+  else if (!ret)
     {
       terminated = true;
       return 0;
@@ -71,10 +71,10 @@ int Pipe::read (char* buffer, u_long len, u_long *nbr)
     }
   return 0;
 #else
-  if( !ReadFile(readHandle, buffer, len, nbr, NULL) || !nbr)
+  if ( !ReadFile (readHandle, buffer, len, nbr, NULL) || !nbr)
     {
       *nbr = 0;
-      if(GetLastError() != ERROR_BROKEN_PIPE)
+      if (GetLastError () != ERROR_BROKEN_PIPE)
         return 1;
       else
         {
@@ -107,7 +107,7 @@ int Pipe::create (bool readPipe)
 #else
   HANDLE tmp;
   SECURITY_ATTRIBUTES sa;
-  sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+  sa.nLength = sizeof (SECURITY_ATTRIBUTES);
   sa.bInheritHandle = TRUE;
   sa.lpSecurityDescriptor = NULL;
   if (!CreatePipe (&readHandle, &writeHandle, &sa, 0))
@@ -249,8 +249,8 @@ void Pipe::closeRead ()
     ::close (handles[0]);
   handles[0] = 0;
 #else
-  if(readHandle)
-    CloseHandle(readHandle);
+  if (readHandle)
+    CloseHandle (readHandle);
   readHandle = 0;
 #endif
 }

@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/connections_scheduler/connections_scheduler.h>
 #include <include/server/server.h>
 
-static DEFINE_THREAD(dispatcher, p)
+static DEFINE_THREAD (dispatcher, p)
 {
   ConnectionsScheduler::DispatcherArg *da = (ConnectionsScheduler::DispatcherArg*)p;
 
@@ -68,9 +68,9 @@ void ConnectionsScheduler::newData (short event, SocketHandle handle)
 {
   ConnectionPtr connection = NULL;
 
-  connectionsMutex.lock();
+  connectionsMutex.lock ();
   connection = connections.get (handle);
-  connectionsMutex.unlock();
+  connectionsMutex.unlock ();
 
 
   if (connection == NULL || server == NULL)
@@ -80,7 +80,7 @@ void ConnectionsScheduler::newData (short event, SocketHandle handle)
     addReadyConnection (connection);
   else if (event == EV_TIMEOUT)
     {
-      if (!connection->allowDelete())
+      if (!connection->allowDelete ())
         return;
 
       server->notifyDeleteConnection (connection);
@@ -97,7 +97,7 @@ static void eventLoopHandler (int fd, short event, void *arg)
   {
     Socket sock (da->socketPair.getFirstHandle ());
 
-    while (da->socketPair.bytesToRead())
+    while (da->socketPair.bytesToRead ())
     {
       char cmd;
       da->socketPair.read (&cmd, 1, &nbr);
@@ -114,9 +114,9 @@ static void eventLoopHandler (int fd, short event, void *arg)
         ConnectionPtr c;
         timeval tv = {10, 0};
 
-        da->socketPair.read ((char*)&handle, sizeof(SocketHandle), &nbr);
-        da->socketPair.read ((char*)&c, sizeof(ConnectionPtr), &nbr);
-        da->socketPair.read ((char*)&tv, sizeof(timeval), &nbr);
+        da->socketPair.read ((char*)&handle, sizeof (SocketHandle), &nbr);
+        da->socketPair.read ((char*)&c, sizeof (ConnectionPtr), &nbr);
+        da->socketPair.read ((char*)&tv, sizeof (timeval), &nbr);
 
         event_once ((int) handle, EV_READ | EV_TIMEOUT, newDataHandler, da, &tv);
       }
@@ -160,10 +160,10 @@ static void listenerHandler (int fd, short event, void *arg)
  */
 void ConnectionsScheduler::listener (ConnectionsScheduler::ListenerArg *la)
 {
-  ConnectionsScheduler::ListenerArg *arg = new ConnectionsScheduler::ListenerArg(la);
+  ConnectionsScheduler::ListenerArg *arg = new ConnectionsScheduler::ListenerArg (la);
   static timeval tv = {3, 0};
 
-  event_set(&(arg->ev), (int) la->serverSocket->getHandle(), EV_READ | EV_TIMEOUT,
+  event_set (&(arg->ev), (int) la->serverSocket->getHandle (), EV_READ | EV_TIMEOUT,
             listenerHandler, arg);
 
   arg->terminate = &dispatcherArg.terminate;
@@ -171,16 +171,16 @@ void ConnectionsScheduler::listener (ConnectionsScheduler::ListenerArg *la)
   arg->server = server;
   arg->eventsMutex = &eventsMutex;
 
-  listeners.push_front(arg);
+  listeners.push_front (arg);
 
-  event_add(&(arg->ev), &tv);
+  event_add (&(arg->ev), &tv);
 
   u_long nbw;
   Socket sock (dispatcherArg.socketPair.getSecondHandle ());
 
-  eventsSocketMutex.lock();
-  sock.write("l", 1, &nbw);
-  eventsSocketMutex.unlock();
+  eventsSocketMutex.lock ();
+  sock.write ("l", 1, &nbw);
+  eventsSocketMutex.unlock ();
 }
 
 /*!
@@ -188,10 +188,10 @@ void ConnectionsScheduler::listener (ConnectionsScheduler::ListenerArg *la)
  */
 void ConnectionsScheduler::removeListener (ConnectionsScheduler::ListenerArg* la)
 {
-  eventsMutex.lock();
-  event_del(&(la->ev));
-  listeners.remove(la);
-  eventsMutex.unlock();
+  eventsMutex.lock ();
+  event_del (&(la->ev));
+  listeners.remove (la);
+  eventsMutex.unlock ();
 }
 
 /*!
@@ -199,11 +199,11 @@ void ConnectionsScheduler::removeListener (ConnectionsScheduler::ListenerArg* la
  */
 ConnectionsScheduler::ConnectionsScheduler (Server* server)
 {
-  readyMutex.init();
-  eventsMutex.init();
-  connectionsMutex.init();
-  eventsSocketMutex.init();
-  readySemaphore = new Semaphore(0);
+  readyMutex.init ();
+  eventsMutex.init ();
+  connectionsMutex.init ();
+  eventsSocketMutex.init ();
+  readySemaphore = new Semaphore (0);
   currentPriority = 0;
   currentPriorityDone = 0;
   nTotalConnections = 0;
@@ -301,10 +301,10 @@ void ConnectionsScheduler::initialize ()
  */
 ConnectionsScheduler::~ConnectionsScheduler ()
 {
-  readyMutex.destroy();
-  eventsMutex.destroy();
-  eventsSocketMutex.destroy();
-  connectionsMutex.destroy();
+  readyMutex.destroy ();
+  eventsMutex.destroy ();
+  eventsSocketMutex.destroy ();
+  connectionsMutex.destroy ();
   delete readySemaphore;
   delete [] ready;
 }
@@ -376,7 +376,7 @@ void ConnectionsScheduler::addWaitingConnectionImpl (ConnectionPtr c, int lock)
   static timeval tv = {10, 0};
   SocketHandle handle = c->socket ? (SocketHandle) c->socket->getHandle () : NULL;
 
-  if(server)
+  if (server)
     tv.tv_sec = server->getTimeout () / 1000;
   else
     tv.tv_sec = 30;
@@ -400,9 +400,9 @@ void ConnectionsScheduler::addWaitingConnectionImpl (ConnectionPtr c, int lock)
 
       eventsSocketMutex.lock ();
       sock.write ("c", 1, &nbw);
-      sock.write ((char*)&handle, sizeof(SocketHandle), &nbw);
-      sock.write ((char*)&c, sizeof(ConnectionPtr), &nbw);
-      sock.write ((char*)&tv, sizeof(timeval), &nbw);
+      sock.write ((char*)&handle, sizeof (SocketHandle), &nbw);
+      sock.write ((char*)&c, sizeof (ConnectionPtr), &nbw);
+      sock.write ((char*)&tv, sizeof (timeval), &nbw);
       eventsSocketMutex.unlock ();
     }
   else
@@ -430,7 +430,7 @@ ConnectionPtr ConnectionsScheduler::getConnection ()
   for (int i = 0; i < PRIORITY_CLASSES; i++)
     {
       if (currentPriorityDone > currentPriority ||
-          !ready[currentPriority].size())
+          !ready[currentPriority].size ())
         {
           currentPriority = (currentPriority + 1) % PRIORITY_CLASSES;
           currentPriorityDone = 0;
@@ -512,7 +512,7 @@ void ConnectionsScheduler::getConnections (list<ConnectionPtr> &out)
   connectionsMutex.lock ();
 
   HashMap<SocketHandle, ConnectionPtr>::Iterator it = connections.begin ();
-  for(; it != connections.end (); it++)
+  for (; it != connections.end (); it++)
     out.push_back (*it);
 
   connectionsMutex.unlock ();
@@ -546,7 +546,7 @@ void ConnectionsScheduler::terminateConnections ()
 
   try
     {
-      connectionsMutex.lock();
+      connectionsMutex.lock ();
 
       HashMap<SocketHandle, ConnectionPtr>::Iterator it = connections.begin ();
       for (; it != connections.end (); it++)
@@ -569,7 +569,7 @@ void ConnectionsScheduler::terminateConnections ()
   readyMutex.lock ();
 
   for (i = 0; i < PRIORITY_CLASSES; i++)
-    while (ready[i].size())
+    while (ready[i].size ())
       ready[i].pop ();
 
   readyMutex.unlock ();
@@ -587,8 +587,8 @@ int ConnectionsScheduler::accept (ConnectionsSchedulerVisitor* visitor, void* ar
     {
 
       for (HashMap<SocketHandle, ConnectionPtr>::Iterator it =
-             connections.begin (); it != connections.end()  && !ret; it++)
-        visitor->visitConnection(*it, args);
+             connections.begin (); it != connections.end ()  && !ret; it++)
+        visitor->visitConnection (*it, args);
     }
   catch (...)
     {

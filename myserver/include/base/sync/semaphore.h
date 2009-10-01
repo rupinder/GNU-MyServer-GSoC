@@ -31,14 +31,14 @@ typedef HANDLE SemaphoreHandle;
 class Semaphore
 {
 public:
-	Semaphore(int n);
-	~Semaphore();
-	int init(int n);
-	int destroy();
-	int lock(u_long id = 0);
-	int unlock(u_long id = 0);
-  SemaphoreHandle *getHandle(){return &semaphore;}
-  int isInitialized(){return initialized;}
+	Semaphore (int n);
+	~Semaphore ();
+	int init (int n);
+	int destroy ();
+	int lock (u_long id = 0);
+	int unlock (u_long id = 0);
+  SemaphoreHandle *getHandle (){return &semaphore;}
+  int isInitialized (){return initialized;}
 private:
 	int initialized;
 	SemaphoreHandle semaphore;

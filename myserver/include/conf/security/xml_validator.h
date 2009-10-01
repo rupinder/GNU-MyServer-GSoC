@@ -46,7 +46,7 @@ public:
                                      AuthMethod* authMethod);
 
 private:
-  XmlParser* getParser(SecurityToken* st);
+  XmlParser* getParser (SecurityToken* st);
   bool doCondition (xmlNodePtr node,
                     HashMap<string, SecurityDomain*> *hashedDomains);
 
@@ -69,7 +69,7 @@ private:
 
   int getPermissions (xmlAttr* attrs, xmlChar** user = NULL, xmlChar** password = NULL);
 
-  SecurityCache *getCache(SecurityToken*);
+  SecurityCache *getCache (SecurityToken*);
   SecurityCache *secCache;
   Mutex cacheMutex;
 };

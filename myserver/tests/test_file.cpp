@@ -59,7 +59,7 @@ public:
 
   void testCreateTemporaryFile ()
   {
-    CPPUNIT_ASSERT_EQUAL (tfile->createTemporaryFile (fname.c_str()), 0);
+    CPPUNIT_ASSERT_EQUAL (tfile->createTemporaryFile (fname.c_str ()), 0);
 
     CPPUNIT_ASSERT_EQUAL (tfile->close (), 0);
   }

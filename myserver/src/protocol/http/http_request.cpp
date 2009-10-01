@@ -27,41 +27,41 @@ using namespace std;
 /*!
  *Create the object.
  */
-HttpRequestHeader::HttpRequestHeader()
+HttpRequestHeader::HttpRequestHeader ()
 {
-  free();
+  free ();
 }
 
 /*!
  *Destroy the object.
  */
-HttpRequestHeader::~HttpRequestHeader()
+HttpRequestHeader::~HttpRequestHeader ()
 {
-  HashMap<string, HttpRequestHeader::Entry*>::Iterator it = other.begin();
-  for(; it != other.end(); it++)
+  HashMap<string, HttpRequestHeader::Entry*>::Iterator it = other.begin ();
+  for (; it != other.end (); it++)
     delete (*it);
 }
 
 /*!
  *Free the structure.
  */
-void HttpRequestHeader::free()
+void HttpRequestHeader::free ()
 {
-  ver.clear();
-  cmd.clear();
-  auth.clear();
-  contentLength.clear();
-  uri.clear();
-  uriOpts.clear();
+  ver.clear ();
+  cmd.clear ();
+  auth.clear ();
+  contentLength.clear ();
+  uri.clear ();
+  uriOpts.clear ();
   uriOptsPtr = NULL;
 
   {
-    HashMap<string, HttpRequestHeader::Entry*>::Iterator it = other.begin();
-    for(; it != other.end(); it++)
+    HashMap<string, HttpRequestHeader::Entry*>::Iterator it = other.begin ();
+    for (; it != other.end (); it++)
       delete (*it);
   }
-  other.clear();
-  rangeType.clear();
+  other.clear ();
+  rangeType.clear ();
   rangeByteBegin = 0;
   rangeByteEnd = 0;
   uriEndsWithSlash = 0;
@@ -80,14 +80,14 @@ void HttpRequestHeader::free()
 /*!
  *Check if this request is keep-alive.
  */
-bool HttpRequestHeader::isKeepAlive()
+bool HttpRequestHeader::isKeepAlive ()
 {
-    Entry *connection = other.get("Connection");
-    if(connection)
+    Entry *connection = other.get ("Connection");
+    if (connection)
     {
-      string value(*connection->value);
-      std::transform(value.begin(), value.end(), value.begin(), (int(*)(int)) tolower);
-      return value.find("keep-alive") != string::npos;
+      string value (*connection->value);
+      std::transform (value.begin (), value.end (), value.begin (), (int (*)(int)) tolower);
+      return value.find ("keep-alive") != string::npos;
     }
     return false;
 }
@@ -95,81 +95,81 @@ bool HttpRequestHeader::isKeepAlive()
 /*!
  *Get the value of the [name] field.
  */
-string* HttpRequestHeader::getValue(const char* name, string* out)
+string* HttpRequestHeader::getValue (const char* name, string* out)
 {
-  if(!strcmpi(name, "cmd"))
+  if (!strcmpi (name, "cmd"))
   {
-    if(out)
-      out->assign(cmd.c_str());
+    if (out)
+      out->assign (cmd.c_str ());
     return &cmd;
   }
 
-  if(!strcmpi(name, "ver"))
+  if (!strcmpi (name, "ver"))
   {
-    if(out)
-      out->assign(ver.c_str());
+    if (out)
+      out->assign (ver.c_str ());
     return &ver;
   }
 
-  if(!strcmpi(name, "uri"))
+  if (!strcmpi (name, "uri"))
   {
-    if(out)
-      out->assign(uri.c_str());
+    if (out)
+      out->assign (uri.c_str ());
     return &uri;
   }
 
-  if(!strcmpi(name, "uriOpts"))
+  if (!strcmpi (name, "uriOpts"))
   {
-    if(out)
-      out->assign(uriOpts.c_str());
+    if (out)
+      out->assign (uriOpts.c_str ());
     return &uriOpts;
   }
 
- if(!strcmpi(name, "Authorization"))
+ if (!strcmpi (name, "Authorization"))
  {
-   if(out)
-     out->assign(auth.c_str());
+   if (out)
+     out->assign (auth.c_str ());
    return &auth;
  }
 
- if(!strcmpi(name, "Content-Length"))
+ if (!strcmpi (name, "Content-Length"))
  {
-   if(out)
-     out->assign(contentLength.c_str());
+   if (out)
+     out->assign (contentLength.c_str ());
    return &contentLength;
  }
 
- if(!strcmpi(name, "rangeType"))
+ if (!strcmpi (name, "rangeType"))
  {
-   if(out)
-     out->assign(rangeType.c_str());
+   if (out)
+     out->assign (rangeType.c_str ());
    return &rangeType;
  }
 
- if(!strcmpi(name, "rangeByteBegin"))
+ if (!strcmpi (name, "rangeByteBegin"))
  {
    ostringstream s;
    s << rangeByteBegin;
-   if(out)
-     out->assign(s.str());
+   if (out)
+     out->assign (s.str ());
    return 0;
  }
 
- if(!strcmpi(name, "rangeByteEnd"))
+ if (!strcmpi (name, "rangeByteEnd"))
  {
    ostringstream s;
    s << rangeByteEnd;
-   if(out)
-     out->assign(s.str());
+   if (out)
+     out->assign (s.str ());
    return 0;
  }
 
  {
-   HttpRequestHeader::Entry *e = other.get(name);
-   if(e)
+   HttpRequestHeader::Entry *e = other.get (name);
+   if (e)
    {
-     if(out)
-       out->assign(*(e->value));
+     if (out)
+       out->assign (*(e->value));
      return (e->value);
    }
    return 0;
@@ -182,75 +182,75 @@ string* HttpRequestHeader::getValue(const char* name, string* out)
 /*!
  *Set the value of the [name] field to [in].
  */
-string* HttpRequestHeader::setValue(const char* name, const char* in)
+string* HttpRequestHeader::setValue (const char* name, const char* in)
 {
-  if(!strcmpi(name, "cmd"))
+  if (!strcmpi (name, "cmd"))
   {
-    cmd.assign(in);
+    cmd.assign (in);
     return &cmd;
   }
 
-  if(!strcmpi(name, "ver"))
+  if (!strcmpi (name, "ver"))
   {
-    ver.assign(in);
+    ver.assign (in);
     return &ver;
   }
 
-  if(!strcmpi(name, "uri"))
+  if (!strcmpi (name, "uri"))
   {
-    uri.assign(in);
+    uri.assign (in);
     return &uri;
   }
 
-  if(!strcmpi(name, "uriOpts"))
+  if (!strcmpi (name, "uriOpts"))
   {
-    uriOpts.assign(in);
+    uriOpts.assign (in);
     return &uriOpts;
   }
 
- if(!strcmpi(name, "Authorization"))
+ if (!strcmpi (name, "Authorization"))
  {
-   auth.assign(in);
+   auth.assign (in);
    return &auth;
  }
 
- if(!strcmpi(name, "Content-Length"))
+ if (!strcmpi (name, "Content-Length"))
  {
-   contentLength.assign(in);
+   contentLength.assign (in);
    return &contentLength;
  }
 
- if(!strcmpi(name, "rangeType"))
+ if (!strcmpi (name, "rangeType"))
  {
-   rangeType.assign(in);
+   rangeType.assign (in);
    return &rangeType;
  }
 
- if(!strcmpi(name, "rangeByteBegin"))
+ if (!strcmpi (name, "rangeByteBegin"))
  {
-   rangeByteBegin = atoi(in);
+   rangeByteBegin = atoi (in);
    return 0;
  }
 
- if(!strcmpi(name, "rangeByteEnd"))
+ if (!strcmpi (name, "rangeByteEnd"))
  {
-   rangeByteEnd = atoi(in);
+   rangeByteEnd = atoi (in);
    return 0;
  }
 
  {
-   HttpRequestHeader::Entry *e = other.get(name);
-   if(e)
+   HttpRequestHeader::Entry *e = other.get (name);
+   if (e)
    {
-     e->value->assign(in);
+     e->value->assign (in);
      return (e->value);
    }
    else
    {
      e = new HttpRequestHeader::Entry;
-     e->name->assign(name);
-     e->value->assign(in);
-     other.put(*e->name, e);
+     e->name->assign (name);
+     e->value->assign (in);
+     other.put (*e->name, e);
    }
    return 0;
  }

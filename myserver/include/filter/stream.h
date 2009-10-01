@@ -39,14 +39,14 @@ typedef int FileHandle;
 class Stream
 {
 public:
-  virtual int read(char* buffer, u_long len, u_long*);
-  virtual int write(const char* buffer, u_long len, u_long*);
-	virtual int flush(u_long*);
-  virtual Handle getHandle();
-  virtual int close();
-  Stream();
+  virtual int read (char* buffer, u_long len, u_long*);
+  virtual int write (const char* buffer, u_long len, u_long*);
+	virtual int flush (u_long*);
+  virtual Handle getHandle ();
+  virtual int close ();
+  Stream ();
   /*! Avoid direct instances of this class. */
-  virtual ~Stream() = 0;
+  virtual ~Stream () = 0;
 };
 
 #endif

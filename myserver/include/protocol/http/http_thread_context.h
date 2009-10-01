@@ -91,8 +91,8 @@ struct HttpThreadContext
   SecurityToken securityToken;
   int permissions;
 
-	const char* getVhostDir();
-	const char* getVhostSys();
+	const char* getVhostDir ();
+	const char* getVhostSys ();
 	const char* getData (const char *name);
 };
 

@@ -59,7 +59,7 @@ void HttpErrors::getErrorMessage (int statusCode, string& out)
  */
 void HttpErrors::unLoad ()
 {
-  messagesMap.clear();
+  messagesMap.clear ();
 }
 
 /*!

@@ -25,9 +25,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class	ProtocolBuffer
 {
 public:
-  ProtocolBuffer();
-	virtual ~ProtocolBuffer();
-  virtual bool allowDelete(bool wait);
+  ProtocolBuffer ();
+	virtual ~ProtocolBuffer ();
+  virtual bool allowDelete (bool wait);
 };
 
 #endif

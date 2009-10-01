@@ -27,7 +27,7 @@ using namespace std;
  */
 HttpResponseHeader::HttpResponseHeader ()
 {
-  free();
+  free ();
 }
 
 
@@ -37,14 +37,14 @@ HttpResponseHeader::HttpResponseHeader ()
 HttpResponseHeader::~HttpResponseHeader ()
 {
   HashMap<string, HttpResponseHeader::Entry*>::Iterator it = other.begin ();
-  for (;it != other.end(); it++)
+  for (;it != other.end (); it++)
     delete (*it);
 }
 
 /*!
  *Reset the object.
  */
-void HttpResponseHeader::free()
+void HttpResponseHeader::free ()
 {
   ver.clear ();
   contentLength.clear ();
@@ -76,7 +76,7 @@ string* HttpResponseHeader::getValue (const char* name, string* out)
       return &contentLength;
     }
 
-  HttpResponseHeader::Entry *e = other.get(name);
+  HttpResponseHeader::Entry *e = other.get (name);
   if (e)
     {
       if (out)
@@ -104,7 +104,7 @@ string* HttpResponseHeader::setValue (const char* name, const char* in)
     }
 
   {
-    HttpResponseHeader::Entry *e = other.get(name);
+    HttpResponseHeader::Entry *e = other.get (name);
     if (e)
       {
         e->value->assign (in);

@@ -57,7 +57,7 @@ const char *HttpThreadContext::getVhostDir ()
  */
 const char *HttpThreadContext::getVhostSys ()
 {
-  if (vhostSys.length() > 1)
+  if (vhostSys.length () > 1)
     return vhostSys.c_str ();
 
   if (connection && connection->host)

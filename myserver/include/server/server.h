@@ -60,9 +60,9 @@ using namespace std;
  *Definition for new threads entry-point.
  */
 # ifdef WIN32
-unsigned int __stdcall listenServer(void* pParam);
+unsigned int __stdcall listenServer (void* pParam);
 # else
-void* listenServer(void* pParam);
+void* listenServer (void* pParam);
 # endif
 
 class XmlValidator;
@@ -70,73 +70,73 @@ class XmlValidator;
 class Server : public MulticastRegistry<string, void*, int>
 {
 public:
-  ProcessServerManager* getProcessServerManager()
+  ProcessServerManager* getProcessServerManager ()
   {
     return &processServerManager;
   }
-  PluginsManager* getPluginsManager(){return &pluginsManager;}
-  bool stopServer(){return mustEndServer;}
-  HomeDir* getHomeDir();
-  static void createInstance();
-  static inline Server* getInstance()
+  PluginsManager* getPluginsManager (){return &pluginsManager;}
+  bool stopServer (){return mustEndServer;}
+  HomeDir* getHomeDir ();
+  static void createInstance ();
+  static inline Server* getInstance ()
   {
     return instance;
   }
 
-  int loadLibraries();
+  int loadLibraries ();
 
-  CachedFileFactory* getCachedFiles();
-  const char* getData(const char* name);
+  CachedFileFactory* getCachedFiles ();
+  const char* getData (const char* name);
 
-  void setGlobalData(const char* name, void* data);
-  void* getGlobalData(const char* name);
+  void setGlobalData (const char* name, void* data);
+  void* getGlobalData (const char* name);
 
-  FiltersFactory* getFiltersFactory();
-  int getMaxThreads();
-  const char *getUid();
-  const char *getGid();
-  int countAvailableThreads();
-  void checkThreadsNumber();
-  int removeThread(u_long ID);
-  bool isServerReady();
-  ProtocolsManager* getProtocolsManager();
-  void disableAutoReboot();
-  void enableAutoReboot();
-  bool isAutorebootEnabled();
-  bool isRebooting(){return rebooting;}
-  void rebootOnNextLoop();
-  const char* getMainConfFile();
-  const char* getVhostConfFile();
-  const char* getMIMEConfFile();
-  const char* getExternalPath();
-  ~Server();
-  Protocol* getProtocol(const char *protocolName);
-  int addConnection(Socket,MYSERVER_SOCKADDRIN*);
-  u_long getNumConnections();
-  u_long getNumTotalConnections();
-  void getConnections(list<ConnectionPtr>&);
-  ConnectionPtr getConnection(int);
-  u_long getTimeout();
-  const char *getAddresses();
-  const char *getPath();
-  u_long getNumThreads();
+  FiltersFactory* getFiltersFactory ();
+  int getMaxThreads ();
+  const char *getUid ();
+  const char *getGid ();
+  int countAvailableThreads ();
+  void checkThreadsNumber ();
+  int removeThread (u_long ID);
+  bool isServerReady ();
+  ProtocolsManager* getProtocolsManager ();
+  void disableAutoReboot ();
+  void enableAutoReboot ();
+  bool isAutorebootEnabled ();
+  bool isRebooting (){return rebooting;}
+  void rebootOnNextLoop ();
+  const char* getMainConfFile ();
+  const char* getVhostConfFile ();
+  const char* getMIMEConfFile ();
+  const char* getExternalPath ();
+  ~Server ();
+  Protocol* getProtocol (const char *protocolName);
+  int addConnection (Socket,MYSERVER_SOCKADDRIN*);
+  u_long getNumConnections ();
+  u_long getNumTotalConnections ();
+  void getConnections (list<ConnectionPtr>&);
+  ConnectionPtr getConnection (int);
+  u_long getTimeout ();
+  const char *getAddresses ();
+  const char *getPath ();
+  u_long getNumThreads ();
 
   NodeTree<string>* getNodeTree (string& key)
   {
     return hashedData.get (key);
   }
 
-  const char *getServerName();
-  int getMaxLogFileSize();
-  int mustUseLogonOption();
-  void start(string &, string &, string &, string &);
-  void stop();
-  void finalCleanup();
-  int terminate();
+  const char *getServerName ();
+  int getMaxLogFileSize ();
+  int mustUseLogonOption ();
+  void start (string &, string &, string &, string &);
+  void stop ();
+  void finalCleanup ();
+  int terminate ();
   int log (LoggingLevel level, const char *fmt, ...);
   int log (char const*, LoggingLevel level = MYSERVER_LOG_MSG_INFO);
   int log (string const &str)
-  {return log (str.c_str());};
+  {return log (str.c_str ());};
   int setLogLocation (string);
   u_long getBuffersize ();
   u_long getThrottlingRate ();
@@ -172,7 +172,7 @@ private:
   MainConfiguration *configurationFileManager;
 
 # ifdef WIN32
-  friend int __stdcall control_handler(u_long control_type);
+  friend int __stdcall control_handler (u_long control_type);
 # endif
 # ifdef NOT_WIN
   friend int control_handler (u_long control_type);
@@ -190,13 +190,13 @@ private:
   static Server* instance;
 
   /*! Do not allow to create directly objects.  */
-  Server();
+  Server ();
 
   void readHashedData (xmlNodePtr lcur);
-  void mainLoop();
-  void loadPlugins();
-  void displayBoot();
-  int postLoad();
+  void mainLoop ();
+  void loadPlugins ();
+  void displayBoot ();
+  int postLoad ();
   void initLogManager ();
 
   CachedFileFactory cachedFiles;
@@ -230,19 +230,19 @@ private:
   string *ipAddresses;
   char serverName[HOST_NAME_MAX + 1];
   string* path;
-  int initialize();
-  int addThread(bool staticThread = false);
-  ConnectionPtr addConnectionToList(Socket* s, MYSERVER_SOCKADDRIN *asock_in,
+  int initialize ();
+  int addThread (bool staticThread = false);
+  ConnectionPtr addConnectionToList (Socket* s, MYSERVER_SOCKADDRIN *asock_in,
                                     char *ipAddr, char *localIpAddr,
                                     u_short port, u_short localPort, int);
   u_long maxConnections;
   u_long maxConnectionsToAccept;
-  void clearAllConnections();
-  int freeHashedData();
+  void clearAllConnections ();
+  int freeHashedData ();
   u_long connectionTimeout;
   u_long maxLogFileSize;
-  void logWriteNTimes(string, unsigned);
-  bool resetConfigurationPaths(string &, string &, string &, string &);
+  void logWriteNTimes (string, unsigned);
+  bool resetConfigurationPaths (string &, string &, string &, string &);
   Mutex* connectionsMutex;
   u_long nStaticThreads;
   u_long nMaxThreads;
@@ -253,8 +253,8 @@ private:
   Mutex* threadsMutex;
   list<ClientsThread*> threads;
 
-  int purgeThreads();
-  int reboot();
+  int purgeThreads ();
+  int reboot ();
 
   string mainConfigurationFile;
   string vhostConfigurationFile;

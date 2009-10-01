@@ -59,7 +59,7 @@ CachedFileBuffer::CachedFileBuffer (const char* filename)
 
   file.openFile (filename, File::OPEN_IF_EXISTS | File::READ);
 
-  fileSize = file.getFileSize();
+  fileSize = file.getFileSize ();
   buffer = new char[fileSize];
 
   file.read (buffer, fileSize, &nbw);
@@ -142,7 +142,7 @@ CachedFileBuffer::CachedFileBuffer (File* file)
   refCounter = 0;
   fileSize = file->getFileSize ();
   buffer = new char[fileSize];
-  filename.assign (file->getFilename());
+  filename.assign (file->getFilename ());
   file->seek (0);
   file->read (buffer, fileSize, &nbr);
 }

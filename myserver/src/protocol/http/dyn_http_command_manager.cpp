@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /*!
  *Initialize the object.
  */
-DynHttpCommandManager::DynHttpCommandManager()
+DynHttpCommandManager::DynHttpCommandManager ()
 {
 
 }
@@ -33,7 +33,7 @@ DynHttpCommandManager::DynHttpCommandManager()
 /*!
  *Destroy the object.
  */
-DynHttpCommandManager::~DynHttpCommandManager()
+DynHttpCommandManager::~DynHttpCommandManager ()
 {
 
 }
@@ -42,9 +42,9 @@ DynHttpCommandManager::~DynHttpCommandManager()
  *Get the DynamicHttpCommand.
  *\param name http command name.
  */
-DynamicHttpCommand* DynHttpCommandManager::getHttpCommand(string& name)
+DynamicHttpCommand* DynHttpCommandManager::getHttpCommand (string& name)
 {
-  return dynamicHttpCommands.get(name);
+  return dynamicHttpCommands.get (name);
 }
 
 /*!
@@ -52,9 +52,9 @@ DynamicHttpCommand* DynHttpCommandManager::getHttpCommand(string& name)
  *\param name http command name.
  *\param httpCommand http command to add.
  */
-void DynHttpCommandManager::addHttpCommand(string& name, DynamicHttpCommand* httpCommand)
+void DynHttpCommandManager::addHttpCommand (string& name, DynamicHttpCommand* httpCommand)
 {
-  dynamicHttpCommands.put(name,httpCommand);
+  dynamicHttpCommands.put (name,httpCommand);
 }
 
 /*!

@@ -45,15 +45,15 @@ class Md5
 public:
   Md5();
   ~Md5();
-  void init();
-  void update(unsigned char const *buf, unsigned long len);
-  void final(unsigned char digest[16]);
-  char* end(char *buf);
+  void init ();
+  void update (unsigned char const *buf, unsigned long len);
+  void final (unsigned char digest[16]);
+  char* end (char *buf);
 private:
   unsigned int buf[4];
   unsigned int bytes[2];
   unsigned int in[16];
-  void transform(unsigned int buf[4], unsigned int const in[16]);
+  void transform (unsigned int buf[4], unsigned int const in[16]);
 };
 
 #endif

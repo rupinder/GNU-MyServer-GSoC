@@ -30,12 +30,12 @@ using namespace std;
 
 class TestUrl : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestUrl );
-  CPPUNIT_TEST( testUrl );
-  CPPUNIT_TEST( testUrlWithCredentials );
-  CPPUNIT_TEST( testUrlWithQuery );
-  CPPUNIT_TEST( testUrlWithoutPort );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestUrl );
+  CPPUNIT_TEST ( testUrl );
+  CPPUNIT_TEST ( testUrlWithCredentials );
+  CPPUNIT_TEST ( testUrlWithQuery );
+  CPPUNIT_TEST ( testUrlWithoutPort );
+  CPPUNIT_TEST_SUITE_END ();
 
 public:
   void setUp ( )
@@ -101,4 +101,4 @@ public:
 
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestUrl );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestUrl );

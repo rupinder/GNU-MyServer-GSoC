@@ -26,7 +26,7 @@
 #include <iostream>
 using namespace std;
 
-static DEFINE_THREAD(test_thread,pParam)
+static DEFINE_THREAD (test_thread,pParam)
 {
   int *arg = (int*) pParam;
 
@@ -35,13 +35,13 @@ static DEFINE_THREAD(test_thread,pParam)
   return NULL;
 }
 
-static DEFINE_THREAD(test_terminate_thread, pParam)
+static DEFINE_THREAD (test_terminate_thread, pParam)
 {
   int *arg = (int*) pParam;
 
   *arg = 0;
 
-  Thread::terminate();
+  Thread::terminate ();
 
   //Should never be here.
   *arg = 1;
@@ -51,50 +51,50 @@ static DEFINE_THREAD(test_terminate_thread, pParam)
 
 class TestThread : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestThread );
-  CPPUNIT_TEST( testThreadCreate );
-  CPPUNIT_TEST( testThreadTerminate );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestThread );
+  CPPUNIT_TEST ( testThreadCreate );
+  CPPUNIT_TEST ( testThreadTerminate );
+  CPPUNIT_TEST_SUITE_END ();
 
 public:
-  void setUp()
+  void setUp ()
   {
 
   }
 
-  void tearDown()
+  void tearDown ()
   {
 
   }
 
-  void testThreadCreate()
+  void testThreadCreate ()
   {
     ThreadID tid;
     int data = 5;
     int expected = data * data;
 
-    int res = Thread::create(&tid, test_thread, &data);
-    Thread::join(tid);
+    int res = Thread::create (&tid, test_thread, &data);
+    Thread::join (tid);
 
 
-    CPPUNIT_ASSERT_EQUAL(res, 0);
-    CPPUNIT_ASSERT_EQUAL(data, expected);
+    CPPUNIT_ASSERT_EQUAL (res, 0);
+    CPPUNIT_ASSERT_EQUAL (data, expected);
   }
 
-  void testThreadTerminate()
+  void testThreadTerminate ()
   {
     ThreadID tid;
     int data = 1;
-    int res = Thread::create(&tid, test_terminate_thread, &data);
-    Thread::join(tid);
+    int res = Thread::create (&tid, test_terminate_thread, &data);
+    Thread::join (tid);
 
 
-    CPPUNIT_ASSERT_EQUAL(res, 0);
-    CPPUNIT_ASSERT_EQUAL(data, 0);
+    CPPUNIT_ASSERT_EQUAL (res, 0);
+    CPPUNIT_ASSERT_EQUAL (data, 0);
   }
 
 
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestThread );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestThread );

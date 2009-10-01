@@ -51,7 +51,7 @@ string
 LogStreamFactory::getProtocol (string location)
 {
   if (location.find ("://") != string::npos)
-    return (location.substr (0, location.find("://"))).append ("://");
+    return (location.substr (0, location.find ("://"))).append ("://");
   return string ("");
 }
 

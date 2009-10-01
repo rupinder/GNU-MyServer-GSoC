@@ -72,7 +72,7 @@ u_long GzipDecompress::decompress (const char* in, u_long sizeIn,
   data.stream.next_out = (Bytef*) out;
   data.stream.avail_out = sizeOut;
 
-  ret = inflate(&(data.stream), Z_FULL_FLUSH);
+  ret = inflate (&(data.stream), Z_FULL_FLUSH);
 
   data.data_size += data.stream.total_out - old_total_out;
   return data.stream.total_out - old_total_out;
@@ -93,7 +93,7 @@ u_long GzipDecompress::free ()
   if (data.initialized == 0)
     return 0;
   data.initialized = 0;
-  ret = inflateEnd(&(data.stream));
+  ret = inflateEnd (&(data.stream));
 #endif
   return ret;
 }
@@ -128,7 +128,7 @@ int GzipDecompress::getFooter (char* buffer, u_long len, u_long* nbw)
 /*!
  * The GzipDecompress filter modifies the data.
  */
-int GzipDecompress::modifyData()
+int GzipDecompress::modifyData ()
 {
   return 1;
 }
@@ -149,7 +149,7 @@ u_long GzipDecompress::flush (char *out, u_long sizeOut)
   data.stream.avail_in = 0;
   data.stream.next_out = (Bytef*) out;
   data.stream.avail_out = destLen;
-  inflate(&(data.stream), Z_FINISH);
+  inflate (&(data.stream), Z_FINISH);
 
   data.data_size += data.stream.total_out - old_total_out;
   return data.stream.total_out - old_total_out;
@@ -170,9 +170,9 @@ GzipDecompress::GzipDecompress ()
 /*!
  * Destructor for the class.
  */
-GzipDecompress::~GzipDecompress()
+GzipDecompress::~GzipDecompress ()
 {
-  free();
+  free ();
 }
 
 /*!
@@ -180,7 +180,7 @@ GzipDecompress::~GzipDecompress()
  * \param str Buffer where write.
  * \param size Buffer length.
  */
-u_long GzipDecompress::getFooter(char *str, int /*size*/)
+u_long GzipDecompress::getFooter (char *str, int /*size*/)
 {
 #ifdef HAVE_ZLIB
   return GZIP_FOOTER_LENGTH;
@@ -215,7 +215,7 @@ int GzipDecompress::read (char* buffer, u_long len, u_long *nbr)
   char *tmp_buff;
   int ret;
   u_long nbr_parent;
-  if(!parent)
+  if (!parent)
     return -1;
   tmp_buff = new char[len/2];
   if (!tmp_buff)
@@ -282,7 +282,7 @@ int GzipDecompress::flush (u_long *nbw)
 {
   char buffer[512];
 
-  if(!active)
+  if (!active)
     return 0;
 
   *nbw = flush (buffer, 512);
@@ -320,7 +320,7 @@ const char* GzipDecompress::getName (char* name, u_long len)
 {
   /*! No name by default. */
   if (name)
-    myserver_strlcpy(name, "gzip", len);
+    myserver_strlcpy (name, "gzip", len);
 
   return "gzip";
 }
@@ -328,7 +328,7 @@ const char* GzipDecompress::getName (char* name, u_long len)
 /*!
  * Get the GZIP header size.
  */
-u_long GzipDecompress::headerSize()
+u_long GzipDecompress::headerSize ()
 {
   return GZIP_HEADER_LENGTH;
 }
@@ -336,7 +336,7 @@ u_long GzipDecompress::headerSize()
 /*!
  * Get the GZIP footer size.
  */
-u_long GzipDecompress::footerSize()
+u_long GzipDecompress::footerSize ()
 {
   return GZIP_FOOTER_LENGTH;
 }

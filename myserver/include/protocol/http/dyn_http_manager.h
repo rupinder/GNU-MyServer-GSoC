@@ -33,9 +33,9 @@ using namespace std;
 class DynamicHttpManager
 {
 public:
-	DynamicHttpManager();
-	virtual ~DynamicHttpManager();
-	virtual int send(HttpThreadContext*, ConnectionPtr s, const char *filenamePath,
+	DynamicHttpManager ();
+	virtual ~DynamicHttpManager ();
+	virtual int send (HttpThreadContext*, ConnectionPtr s, const char *filenamePath,
                    const char* cgi, int selfExecuted, int onlyHeader = 0) = 0;
 
 };

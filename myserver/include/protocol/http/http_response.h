@@ -45,21 +45,21 @@ struct HttpResponseHeader : public HttpHeader
   {
     string *name;
     string *value;
-		Entry()
+		Entry ()
 		{
-			name = new string();
-			value = new string();
+			name = new string ();
+			value = new string ();
 		}
 
-		Entry(string& n, string& v)
+		Entry (string& n, string& v)
 		{
-			name = new string();
-			value = new string();
+			name = new string ();
+			value = new string ();
 
-			name->assign(n);
-			value->assign(v);
+			name->assign (n);
+			value->assign (v);
 		}
-		~Entry()
+		~Entry ()
 		{
 			delete name;
 			delete value;
@@ -72,14 +72,14 @@ struct HttpResponseHeader : public HttpHeader
 	string errorType;
 
 	HashMap<string,HttpResponseHeader::Entry*> other;
-  HttpResponseHeader();
-  ~HttpResponseHeader();
+  HttpResponseHeader ();
+  ~HttpResponseHeader ();
 
-  int getStatusType();
+  int getStatusType ();
 
-  virtual string* getValue(const char* name, string* out);
-  virtual string* setValue(const char* name, const char* in);
-  void free();
+  virtual string* getValue (const char* name, string* out);
+  virtual string* setValue (const char* name, const char* in);
+  void free ();
 };
 
 #endif

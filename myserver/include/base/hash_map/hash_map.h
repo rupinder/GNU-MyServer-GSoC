@@ -16,10 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//valueType putList( const list <keyType>&, const list <valueType>&);
-//valueType putList( const hashmap <keyType, valueType>&);
-//valueType removeList(const list <keyType>&);
-//valueType removeList(const hashmap <keyType, valueType>&);
+//valueType putList ( const list <keyType>&, const list <valueType>&);
+//valueType putList ( const hashmap <keyType, valueType>&);
+//valueType removeList (const list <keyType>&);
+//valueType removeList (const hashmap <keyType, valueType>&);
 
 #ifndef HASHMAP_H
 # define HASHMAP_H
@@ -59,8 +59,8 @@ class MyIterator
 	template <typename KType, typename VType>
 	friend class HashMap;
 
-	MyIterator();
-	inline KeyType getKey() const;
+	MyIterator ();
+	inline KeyType getKey () const;
 
 	inline bool operator==(const MyIterator&) const;
 	inline bool operator!=(const MyIterator&) const;
@@ -69,7 +69,7 @@ class MyIterator
 	inline MyIterator operator++(int);	//postfix
 	inline MyIterator& operator--();	//prefix
 	inline MyIterator operator--(int);	//postfix
-	//inline MyIterator operator delete(void*);
+	//inline MyIterator operator delete (void*);
 
 	private:
 
@@ -87,22 +87,22 @@ class HashMap
 
     typedef MyIterator<KeyType, ValueType> Iterator;
 
-	HashMap();
-	HashMap(int);
-	HashMap(const float);
-	HashMap(int, const float);
-	inline bool empty(void) const;
-	inline void clear(void);
-	inline int size(void) const;
-	inline Iterator begin(void);
-	inline Iterator back(void);
-	inline Iterator end(void);
-	ValueType remove(const Iterator&);
-	bool containsKey(const KeyType&);
-	ValueType get(const KeyType&);
-	Iterator getI(const KeyType&);
-	ValueType put(KeyType&, const ValueType&);
-	ValueType remove(const KeyType&);
+	HashMap ();
+	HashMap (int);
+	HashMap (const float);
+	HashMap (int, const float);
+	inline bool empty (void) const;
+	inline void clear (void);
+	inline int size (void) const;
+	inline Iterator begin (void);
+	inline Iterator back (void);
+	inline Iterator end (void);
+	ValueType remove (const Iterator&);
+	bool containsKey (const KeyType&);
+	ValueType get (const KeyType&);
+	Iterator getI (const KeyType&);
+	ValueType put (KeyType&, const ValueType&);
+	ValueType remove (const KeyType&);
 
 	private:
 
@@ -115,8 +115,8 @@ class HashMap
 	int capacity, power, mask, load;
 	float highLoadFactor, lowLoadFactor;
 
-	void increaseSize(const int);
-	void decreaseSize(const int);
+	void increaseSize (const int);
+	void decreaseSize (const int);
 	unsigned int hash (const char *, int);
 };
 
@@ -127,22 +127,22 @@ class HashMap <string, ValueType>
 
     typedef MyIterator<string, ValueType> Iterator;
 
-	HashMap();
-	HashMap(int);
-	HashMap(const float);
-	HashMap(int, const float);
-	inline bool empty(void) const;
-	inline void clear(void);
-	inline int size(void) const;
-	inline Iterator begin(void);
-	inline Iterator back(void);
-	inline Iterator end(void);
-	ValueType remove(const Iterator&);
-	bool containsKey(const string&);
-	ValueType get(const string&);
-	Iterator getI(const string&);
-	ValueType put(string&, const ValueType&);
-	ValueType remove(const string&);
+	HashMap ();
+	HashMap (int);
+	HashMap (const float);
+	HashMap (int, const float);
+	inline bool empty (void) const;
+	inline void clear (void);
+	inline int size (void) const;
+	inline Iterator begin (void);
+	inline Iterator back (void);
+	inline Iterator end (void);
+	ValueType remove (const Iterator&);
+	bool containsKey (const string&);
+	ValueType get (const string&);
+	Iterator getI (const string&);
+	ValueType put (string&, const ValueType&);
+	ValueType remove (const string&);
 
 	private:
 
@@ -155,8 +155,8 @@ class HashMap <string, ValueType>
 	int capacity, power, mask, load;
 	float highLoadFactor, lowLoadFactor;
 
-	void increaseSize(const int);
-	void decreaseSize(const int);
+	void increaseSize (const int);
+	void decreaseSize (const int);
 	unsigned int hash (const char *, int);
 };
 
@@ -167,22 +167,22 @@ class HashMap <char*, ValueType>
 
     typedef MyIterator<char*, ValueType> Iterator;
 
-	HashMap();
-	HashMap(int);
-	HashMap(const float);
-	HashMap(int, const float);
-	inline bool empty(void) const;
-	inline void clear(void);
-	inline int size(void) const;
-	inline Iterator begin(void);
-	inline Iterator back(void);
-	inline Iterator end(void);
-	ValueType remove(const Iterator&);
-	bool containsKey(const char* const);
-	ValueType get(const char* const);
-	Iterator getI(const char* const);
-	ValueType put(char* const, const ValueType&);
-	ValueType remove(const char* const);
+	HashMap ();
+	HashMap (int);
+	HashMap (const float);
+	HashMap (int, const float);
+	inline bool empty (void) const;
+	inline void clear (void);
+	inline int size (void) const;
+	inline Iterator begin (void);
+	inline Iterator back (void);
+	inline Iterator end (void);
+	ValueType remove (const Iterator&);
+	bool containsKey (const char* const);
+	ValueType get (const char* const);
+	Iterator getI (const char* const);
+	ValueType put (char* const, const ValueType&);
+	ValueType remove (const char* const);
 
 	private:
 
@@ -195,8 +195,8 @@ class HashMap <char*, ValueType>
 	int capacity, power, mask, load;
 	float highLoadFactor, lowLoadFactor;
 
-	void increaseSize(const int);
-	void decreaseSize(const int);
+	void increaseSize (const int);
+	void decreaseSize (const int);
 	unsigned int hash (const char *, int);
 };
 
@@ -207,22 +207,22 @@ class HashMap <void*, ValueType>
 
     typedef MyIterator<void*, ValueType> Iterator;
 
-	HashMap();
-	HashMap(int);
-	HashMap(const float);
-	HashMap(int, const float);
-	inline bool empty(void) const;
-	inline void clear(void);
-	inline int size(void) const;
-	inline Iterator begin(void);
-	inline Iterator back(void);
-	inline Iterator end(void);
-	ValueType remove(const Iterator&);
-	bool containsKey(const void* const);
-	ValueType get(const void* const);
-	Iterator getI(const void* const);
-	ValueType put(void* const, const ValueType&);
-	ValueType remove(const void* const);
+	HashMap ();
+	HashMap (int);
+	HashMap (const float);
+	HashMap (int, const float);
+	inline bool empty (void) const;
+	inline void clear (void);
+	inline int size (void) const;
+	inline Iterator begin (void);
+	inline Iterator back (void);
+	inline Iterator end (void);
+	ValueType remove (const Iterator&);
+	bool containsKey (const void* const);
+	ValueType get (const void* const);
+	Iterator getI (const void* const);
+	ValueType put (void* const, const ValueType&);
+	ValueType remove (const void* const);
 
 	private:
 
@@ -235,8 +235,8 @@ class HashMap <void*, ValueType>
 	int capacity, power, mask, load;
 	float highLoadFactor, lowLoadFactor;
 
-	void increaseSize(const int);
-	void decreaseSize(const int);
+	void increaseSize (const int);
+	void decreaseSize (const int);
 	unsigned int hash (const char *, int);
 };
 

@@ -28,59 +28,59 @@ using namespace std;
 
 class TestCachedFileBuffer : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestCachedFileBuffer );
+  CPPUNIT_TEST_SUITE ( TestCachedFileBuffer );
 
-  CPPUNIT_TEST(testGetFileSize);
-  CPPUNIT_TEST(testFactoryToNotify);
-  CPPUNIT_TEST(testRefCounter);
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST (testGetFileSize);
+  CPPUNIT_TEST (testFactoryToNotify);
+  CPPUNIT_TEST (testRefCounter);
+  CPPUNIT_TEST_SUITE_END ();
 
   CachedFileBuffer *cfb;
 public:
-  void setUp()
+  void setUp ()
   {
     const char* buffer = "hello world!!!";
 
-    cfb = new CachedFileBuffer(buffer, strlen(buffer));
+    cfb = new CachedFileBuffer (buffer, strlen (buffer));
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete cfb;
   }
 
-  void testGetFileSize()
+  void testGetFileSize ()
   {
-    CPPUNIT_ASSERT(cfb->getFileSize());
+    CPPUNIT_ASSERT (cfb->getFileSize ());
   }
 
 
-  void testFactoryToNotify()
+  void testFactoryToNotify ()
   {
     CachedFileFactory cff;
 
-    cfb->setFactoryToNotify(&cff);
-    CPPUNIT_ASSERT_EQUAL(cfb->getFactoryToNotify(), &cff);
+    cfb->setFactoryToNotify (&cff);
+    CPPUNIT_ASSERT_EQUAL (cfb->getFactoryToNotify (), &cff);
 
-    cfb->setFactoryToNotify(NULL);
-    CPPUNIT_ASSERT_EQUAL(cfb->getFactoryToNotify(), (CachedFileFactory*)NULL);
+    cfb->setFactoryToNotify (NULL);
+    CPPUNIT_ASSERT_EQUAL (cfb->getFactoryToNotify (), (CachedFileFactory*)NULL);
   }
 
-  void testRefCounter()
+  void testRefCounter ()
   {
-    for(u_long i = 1; i <= 20; i++)
+    for (u_long i = 1; i <= 20; i++)
     {
-      cfb->addRef();
-      CPPUNIT_ASSERT_EQUAL(cfb->getReferenceCounter(), i);
+      cfb->addRef ();
+      CPPUNIT_ASSERT_EQUAL (cfb->getReferenceCounter (), i);
     }
 
-    for(u_long i = 1; i <= 20; i++)
+    for (u_long i = 1; i <= 20; i++)
     {
-      cfb->decRef();
-      CPPUNIT_ASSERT_EQUAL(cfb->getReferenceCounter(), 20 - i);
+      cfb->decRef ();
+      CPPUNIT_ASSERT_EQUAL (cfb->getReferenceCounter (), 20 - i);
     }
 
   }
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestCachedFileBuffer );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestCachedFileBuffer );

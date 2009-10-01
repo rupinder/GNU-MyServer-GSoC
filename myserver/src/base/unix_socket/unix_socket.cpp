@@ -30,7 +30,7 @@ UnixSocket::UnixSocket ()
  *\param path Path to the file bound by the socket.
  *\return 0 on success.
  */
-int UnixSocket::bind(const char* path)
+int UnixSocket::bind (const char* path)
 {
   if (path == NULL)
     return -1;

@@ -60,7 +60,7 @@ CachedFile::CachedFile (CachedFileBuffer* cfb)
  * Inherithed by File.
  * \see File#writeToFile.
  */
-int CachedFile::writeToFile(const char* buffer, u_long buffersize, u_long* nbw)
+int CachedFile::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
 {
   return -1;
 }
@@ -124,7 +124,7 @@ int CachedFile::operator =(CachedFile f)
 int CachedFile::read (char* buffer, u_long buffersize, u_long* nbr)
 {
   u_long toRead = std::min (buffersize, this->buffer->getFileSize () - fseek);
-  const char* src = &(this->buffer->getBuffer()[fseek]);
+  const char* src = &(this->buffer->getBuffer ()[fseek]);
   if (nbr)
     *nbr = toRead;
 
@@ -169,7 +169,7 @@ u_long CachedFile::getFileSize ()
  */
 int CachedFile::seek (u_long initialByte)
 {
-  if (initialByte > buffer->getFileSize())
+  if (initialByte > buffer->getFileSize ())
     return -1;
 
   fseek = initialByte;
@@ -194,6 +194,6 @@ int CachedFile::write (const char* buffer, u_long len, u_long *nbw)
 int CachedFile::fastCopyToSocket (Socket *dest, u_long firstByte,
                                   MemBuf *buf, u_long *nbw)
 {
-  return dest->write (&(this->buffer->getBuffer()[firstByte]),
-                      buffer->getFileSize() - firstByte, nbw);
+  return dest->write (&(this->buffer->getBuffer ()[firstByte]),
+                      buffer->getFileSize () - firstByte, nbw);
 }

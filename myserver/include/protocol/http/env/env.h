@@ -27,10 +27,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class Env
 {
 public:
-	static void buildEnvironmentString(HttpThreadContext*, char*, int = 1);
+	static void buildEnvironmentString (HttpThreadContext*, char*, int = 1);
 private:
-  static void buildProcessEnvString(MemBuf& memCgi);
-  static void buildHttpHeaderEnvString(MemBuf& memCgi, HttpRequestHeader & req);
+  static void buildProcessEnvString (MemBuf& memCgi);
+  static void buildHttpHeaderEnvString (MemBuf& memCgi, HttpRequestHeader & req);
 };
 
 #endif

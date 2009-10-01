@@ -196,7 +196,7 @@ void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
       return;
 
     /* Initialize the SSL library.  */
-    initializeSSL();
+    initializeSSL ();
 
     log (MYSERVER_LOG_MSG_INFO, _("Loading server configuration..."));
 
@@ -222,11 +222,11 @@ void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
     mainLoop ();
 
   }
-  catch(bad_alloc &ba)
+  catch (bad_alloc &ba)
     {
       log (MYSERVER_LOG_MSG_ERROR, _("Bad alloc: %s"), ba.what ());
     }
-  catch(exception &e)
+  catch (exception &e)
     {
       log (MYSERVER_LOG_MSG_ERROR, _("Error: %s"), e.what ());
     };
@@ -273,7 +273,7 @@ int Server::postLoad ()
 
   mimeManager = new MimeManager ();
 
-  if (int nMIMEtypes = mimeManager->loadXML(mimeConfigurationFile.c_str ()))
+  if (int nMIMEtypes = mimeManager->loadXML (mimeConfigurationFile.c_str ()))
     log (MYSERVER_LOG_MSG_INFO, _("Using %i MIME types"), nMIMEtypes);
   else
     log (MYSERVER_LOG_MSG_ERROR, _("Error while loading MIME types"));
@@ -342,10 +342,10 @@ void Server::loadPlugins ()
   if (filtersFactory.insert ("gzip", Gzip::factory))
     log (MYSERVER_LOG_MSG_ERROR, _("Error while loading plugins"));
 
-  Protocol *protocolsSet[] = {new HttpProtocol(),
-                              new HttpsProtocol(),
-                              new FtpProtocol(),
-                              new ControlProtocol(),
+  Protocol *protocolsSet[] = {new HttpProtocol (),
+                              new HttpsProtocol (),
+                              new FtpProtocol (),
+                              new ControlProtocol (),
                               NULL};
 
   for (int j = 0; protocolsSet[j]; j++)
@@ -365,7 +365,7 @@ void Server::loadPlugins ()
 /*!
  * Server main loop.
  */
-void Server::mainLoop()
+void Server::mainLoop ()
 {
   time_t mainConfTime;
   time_t hostsConfTime;
@@ -508,7 +508,7 @@ void Server::displayBoot ()
   if (logLocation.find ("console://") != string::npos)
     {
 # ifdef WIN32
-      _flushall();
+      _flushall ();
       system ("cls");
 # else
       sync ();
@@ -530,13 +530,13 @@ void Server::displayBoot ()
           softwareSignature.assign ("************ GNU MyServer ");
           softwareSignature.append (MYSERVER_VERSION);
           softwareSignature.append (" ************");
-          length = softwareSignature.length();
+          length = softwareSignature.length ();
 
           logWriteNTimes ("*", length);
           logManager->log (this, "MAINLOG", logLocation, softwareSignature, true);
           logWriteNTimes ("*", length);
         }
-      catch(exception& e)
+      catch (exception& e)
         {
           ostringstream err;
           err << "Error: " << e.what ();
@@ -544,7 +544,7 @@ void Server::displayBoot ()
           logManager->log (this, "MAINLOG", logLocation, str, true);
           return;
         }
-      catch(...)
+      catch (...)
         {
           return;
         };
@@ -826,29 +826,29 @@ int Server::initialize ()
 
   data = getData ("server.buffer_size");
   if (data)
-    buffersize = secondaryBufferSize= (atol(data) > 81920) ?  atol(data) :  81920 ;
+    buffersize = secondaryBufferSize= (atol (data) > 81920) ?  atol (data) :  81920 ;
 
   data = getData ("server.connection_timeout");
   if (data)
-    connectionTimeout = MYSERVER_SEC ((u_long)atol(data));
+    connectionTimeout = MYSERVER_SEC ((u_long)atol (data));
 
   data = getData ("server.static_threads");
   if (data)
-    nStaticThreads = atoi(data);
+    nStaticThreads = atoi (data);
 
   data = getData ("server.max_threads");
   if (data)
-    nMaxThreads = atoi(data);
+    nMaxThreads = atoi (data);
 
   /* Get the max connections number to allow.  */
   data = getData ("server.max_connections");
   if (data)
-    maxConnections = atoi(data);
+    maxConnections = atoi (data);
 
   /* Get the max connections number to accept.  */
   data = getData ("server.max_accepted_connections");
   if (data)
-    maxConnectionsToAccept = atoi(data);
+    maxConnectionsToAccept = atoi (data);
 
   data = getData ("server.connections_pool.size");
   if (data)
@@ -857,16 +857,16 @@ int Server::initialize ()
   /* Get the default throttling rate to use on connections.  */
   data = getData ("connection.throttling");
   if (data)
-    throttlingRate = (u_long)atoi(data);
+    throttlingRate = (u_long)atoi (data);
 
   data = getData ("server.max_log_size");
   if (data)
-    maxLogFileSize=(u_long)atol(data);
+    maxLogFileSize=(u_long)atol (data);
 
   data = getData ("server.max_files_cache");
   if (data)
     {
-      u_long maxSize = (u_long)atol(data);
+      u_long maxSize = (u_long)atol (data);
       cachedFiles.initialize (maxSize);
     }
   else
@@ -885,14 +885,14 @@ int Server::initialize ()
   data = getData ("server.max_file_cache");
   if (data)
     {
-      u_long maxSize = (u_long)atol(data);
+      u_long maxSize = (u_long)atol (data);
       cachedFiles.setMaxSize (maxSize);
     }
 
   data = getData ("server.min_file_cache");
   if (data)
     {
-      u_long minSize = (u_long)atol(data);
+      u_long minSize = (u_long)atol (data);
       cachedFiles.setMinSize (minSize);
     }
 
@@ -911,7 +911,7 @@ int Server::initialize ()
   data = getData ("server.max_servers");
   if (data)
     {
-      int maxServersProcesses = atoi(data);
+      int maxServersProcesses = atoi (data);
       getProcessServerManager ()->setMaxServers (maxServersProcesses);
     }
 
@@ -1017,33 +1017,33 @@ int Server::addConnection (Socket s, MYSERVER_SOCKADDRIN *asockIn)
 #if ( HAVE_IPV6 )
   if ( asockIn->ss_family == AF_INET )
     ret = getnameinfo (reinterpret_cast<const sockaddr *>(asockIn),
-                       sizeof(sockaddr_in),
+                       sizeof (sockaddr_in),
                        ip, MAX_IP_STRING_LEN, NULL, 0, NI_NUMERICHOST);
   else
     ret = getnameinfo (reinterpret_cast<const sockaddr *>(asockIn),
-                       sizeof(sockaddr_in6),  ip, MAX_IP_STRING_LEN,
+                       sizeof (sockaddr_in6),  ip, MAX_IP_STRING_LEN,
                        NULL, 0, NI_NUMERICHOST);
   if (ret)
     return 0;
 
   if ( asockIn->ss_family == AF_INET )
-    dim = sizeof(sockaddr_in);
+    dim = sizeof (sockaddr_in);
   else
-    dim = sizeof(sockaddr_in6);
+    dim = sizeof (sockaddr_in6);
   s.getsockname ((MYSERVER_SOCKADDR*)&localSockIn, &dim);
 
   if ( asockIn->ss_family == AF_INET )
     ret = getnameinfo (reinterpret_cast<const sockaddr *>(&localSockIn),
-                       sizeof(sockaddr_in), localIp, MAX_IP_STRING_LEN,
+                       sizeof (sockaddr_in), localIp, MAX_IP_STRING_LEN,
                        NULL, 0, NI_NUMERICHOST);
   else// AF_INET6
     ret = getnameinfo (reinterpret_cast<const sockaddr *>(&localSockIn),
-                       sizeof(sockaddr_in6), localIp, MAX_IP_STRING_LEN,
+                       sizeof (sockaddr_in6), localIp, MAX_IP_STRING_LEN,
                        NULL, 0, NI_NUMERICHOST);
   if (ret)
     return 0;
 #else// !HAVE_IPV6
-  dim = sizeof(localSockIn);
+  dim = sizeof (localSockIn);
   s.getsockname ((MYSERVER_SOCKADDR*)&localSockIn, &dim);
   strncpy (ip,  inet_ntoa (((sockaddr_in *)asockIn)->sin_addr),
            MAX_IP_STRING_LEN);
@@ -1133,7 +1133,7 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
       return 0;
     }
 
-  protocol = getProtocol(newConnection->host->getProtocolName ());
+  protocol = getProtocol (newConnection->host->getProtocolName ());
 
   if (protocol)
     opts = protocol->getProtocolOptions ();
@@ -1266,7 +1266,7 @@ void Server::clearAllConnections ()
       for (it = connections.begin (); it != connections.end (); it++)
         deleteConnection (*it);
     }
-  catch(...)
+  catch (...)
     {
       throw;
     };
@@ -1350,7 +1350,7 @@ int Server::freeHashedData ()
       hashedDataTrees.clear ();
       hashedData.clear ();
     }
-  catch(...)
+  catch (...)
     {
       return 1;
     }
@@ -1670,7 +1670,7 @@ int Server::removeThread (u_long ID)
     {
       if ((*it)->id == ID)
         {
-          (*it)->stop();
+          (*it)->stop ();
           ret = 0;
           threads.erase (it);
           break;

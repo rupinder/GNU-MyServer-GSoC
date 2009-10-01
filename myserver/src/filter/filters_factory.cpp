@@ -28,15 +28,15 @@ using namespace std;
 /*!
  *Initialize the object.
  */
-FiltersFactory::FiltersFactory()
+FiltersFactory::FiltersFactory ()
 {
-  staticFilters.clear();
+  staticFilters.clear ();
 }
 
 /*!
  *Destroy the object.
  */
-FiltersFactory::~FiltersFactory()
+FiltersFactory::~FiltersFactory ()
 {
 
 }
@@ -45,10 +45,10 @@ FiltersFactory::~FiltersFactory()
  *Insert a filter by name and factory object. Returns 0 if the entry
  *was added correctly.
  */
-int FiltersFactory::insert(const char* name, FiltersSource* ptr)
+int FiltersFactory::insert (const char* name, FiltersSource* ptr)
 {
-  string nameStr(name);
-  dynamicFilters.put(nameStr, ptr);
+  string nameStr (name);
+  dynamicFilters.put (nameStr, ptr);
   return 0;
 }
 
@@ -56,10 +56,10 @@ int FiltersFactory::insert(const char* name, FiltersSource* ptr)
  *Insert a filter by name and factory routine. Returns 0 if the entry
  *was added correctly.
  */
-int FiltersFactory::insert(const char* name, FILTERCREATE fnc)
+int FiltersFactory::insert (const char* name, FILTERCREATE fnc)
 {
-  string nameStr(name);
-  staticFilters.put(nameStr, fnc);
+  string nameStr (name);
+  staticFilters.put (nameStr, fnc);
   return 0;
 }
 
@@ -69,19 +69,19 @@ int FiltersFactory::insert(const char* name, FILTERCREATE fnc)
  *Returns the new created object on success.
  *Returns 0 on errors.
  */
-Filter *FiltersFactory::getFilter(const char* name)
+Filter *FiltersFactory::getFilter (const char* name)
 {
-  FILTERCREATE staticFactory = staticFilters.get(name);
+  FILTERCREATE staticFactory = staticFilters.get (name);
   FiltersSource* dynamicFactory;
   /*! If the filter exists create a new object and return it. */
-  if(staticFactory)
-    return staticFactory(name);
+  if (staticFactory)
+    return staticFactory (name);
 
 
-  dynamicFactory = dynamicFilters.get(name);
+  dynamicFactory = dynamicFilters.get (name);
 
-  if(dynamicFactory)
-    return dynamicFactory->createFilter(name);
+  if (dynamicFactory)
+    return dynamicFactory->createFilter (name);
 
   return 0;
 }
@@ -93,15 +93,15 @@ Filter *FiltersFactory::getFilter(const char* name)
  *will not modify the data.
  *On errors returns 0.
  */
-FiltersChain* FiltersFactory::chain(list<string> &l, Stream* out, u_long *nbw,
+FiltersChain* FiltersFactory::chain (list<string> &l, Stream* out, u_long *nbw,
                                     int onlyNotModifiers)
 {
-  FiltersChain *ret = new FiltersChain();
-  if(!ret)
+  FiltersChain *ret = new FiltersChain ();
+  if (!ret)
     return 0;
-  if(chain(ret, l, out, nbw, onlyNotModifiers))
+  if (chain (ret, l, out, nbw, onlyNotModifiers))
   {
-    ret->clearAllFilters();
+    ret->clearAllFilters ();
     delete ret;
     return 0;
   }
@@ -114,28 +114,28 @@ FiltersChain* FiltersFactory::chain(list<string> &l, Stream* out, u_long *nbw,
  *will not modify the data.
  *On errors returns nonzero.
  */
-int FiltersFactory::chain(FiltersChain* c, list<string> &l, Stream* out,
+int FiltersFactory::chain (FiltersChain* c, list<string> &l, Stream* out,
                           u_long *nbw, int onlyNotModifiers)
 {
 
-  list<string>::iterator  i =l.begin();
+  list<string>::iterator  i =l.begin ();
 
-  if(!c)
+  if (!c)
     return 1;
 
-  c->setStream(out);
+  c->setStream (out);
   *nbw=0;
 
-  for( ; i != l.end(); i++)
+  for ( ; i != l.end (); i++)
   {
     u_long tmp;
-    Filter *n = getFilter((*i).c_str());
-    if( !n || ( onlyNotModifiers && n->modifyData() )  )
+    Filter *n = getFilter ((*i).c_str ());
+    if ( !n || ( onlyNotModifiers && n->modifyData () )  )
     {
-      c->clearAllFilters();
+      c->clearAllFilters ();
       return 1;
     }
-    c->addFilter(n, &tmp);
+    c->addFilter (n, &tmp);
     *nbw += tmp;
   }
 
@@ -145,8 +145,8 @@ int FiltersFactory::chain(FiltersChain* c, list<string> &l, Stream* out,
 /*!
  *Free the object.
  */
-void FiltersFactory::free()
+void FiltersFactory::free ()
 {
-  staticFilters.clear();
-  dynamicFilters.clear();
+  staticFilters.clear ();
+  dynamicFilters.clear ();
 }

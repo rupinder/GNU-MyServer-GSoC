@@ -53,7 +53,7 @@ string FilesUtility::tmpPath;
 /*!
  * Constructor body.
  */
-FilesUtility::FilesUtility()
+FilesUtility::FilesUtility ()
 {
 
 }
@@ -125,7 +125,7 @@ int FilesUtility::getPathRecursionLevel (const char* path)
         }
       else
         {
-          while( (*lpath != '\\') && (*lpath != '/') && (*lpath != 0))
+          while ( (*lpath != '\\') && (*lpath != '/') && (*lpath != 0))
             lpath++;
           rec++;
         }
@@ -245,17 +245,17 @@ int FilesUtility::isDirectory (const char *filename)
 {
 #ifdef WIN32
   u_long fa = GetFileAttributes (filename);
-  if(fa != INVALID_FILE_ATTRIBUTES)
-    return(fa & FILE_ATTRIBUTE_DIRECTORY)?1:0;
+  if (fa != INVALID_FILE_ATTRIBUTES)
+    return (fa & FILE_ATTRIBUTE_DIRECTORY)?1:0;
   else
     return 0;
 #else
   struct stat F_Stats;
-  int ret = stat(filename, &F_Stats);
-  if(ret < 0)
+  int ret = stat (filename, &F_Stats);
+  if (ret < 0)
     return 0;
 
-  return (S_ISDIR(F_Stats.st_mode))? 1 : 0;
+  return (S_ISDIR (F_Stats.st_mode))? 1 : 0;
 #endif
 }
 
@@ -263,17 +263,17 @@ int FilesUtility::isDirectory (const char *filename)
  * Returns a non-null value if the given path is a link.
  * \param filename The path to check.
  */
-int FilesUtility::isLink(const char* filename)
+int FilesUtility::isLink (const char* filename)
 {
 #ifdef WIN32
   return 0;
 #else
   struct stat F_Stats;
-  int ret = lstat(filename, &F_Stats);
-  if(ret < 0)
+  int ret = lstat (filename, &F_Stats);
+  if (ret < 0)
     return 0;
 
-  return (S_ISLNK(F_Stats.st_mode))? 1 : 0;
+  return (S_ISLNK (F_Stats.st_mode))? 1 : 0;
 #endif
 
 }
@@ -282,7 +282,7 @@ int FilesUtility::isLink(const char* filename)
  * Returns a non-null value if the given path is a valid file.
  * \param filename The path to check.
  */
-int FilesUtility::fileExists(const char* filename)
+int FilesUtility::fileExists (const char* filename)
 {
 #ifdef WIN32
   HANDLE hFile = CreateFile (filename, GENERIC_READ, FILE_SHARE_READ,
@@ -295,10 +295,10 @@ int FilesUtility::fileExists(const char* filename)
 #else
   struct stat fstats;
   int ret = stat (filename, &fstats);
-  if(ret < 0)
+  if (ret < 0)
     return 0;
   /*! Return 1 if it is a regular file or a directory.  */
-  return (S_ISREG (fstats.st_mode) | S_ISDIR(fstats.st_mode))? 1 : 0;
+  return (S_ISREG (fstats.st_mode) | S_ISDIR (fstats.st_mode))? 1 : 0;
 #endif
 }
 
@@ -373,7 +373,7 @@ time_t FilesUtility::getLastAccTime (const char *filename)
  * \param uid The user id.
  * \param gid the group id.
  */
-int FilesUtility::chown(const char* filename, string &uid, string &gid)
+int FilesUtility::chown (const char* filename, string &uid, string &gid)
 {
 #ifndef WIN32
   return ::chown (filename, Process::getUid (uid.c_str ()),
@@ -390,7 +390,7 @@ int FilesUtility::chown(const char* filename, string &uid, string &gid)
 int FilesUtility::getFilenameLength (const char *path, int *filename)
 {
   int splitpoint, i = 0, j = 0;
-  splitpoint = static_cast<int>(strlen(path) - 1);
+  splitpoint = static_cast<int>(strlen (path) - 1);
   while ((splitpoint > 0) && (path[splitpoint] != '/'))
     splitpoint--;
   *filename = splitpoint + 1;
@@ -399,7 +399,7 @@ int FilesUtility::getFilenameLength (const char *path, int *filename)
 
 /*!
  * Get the filename from a path.
- * Be sure that the filename buffer is at least getFilenameLength(...) bytes
+ * Be sure that the filename buffer is at least getFilenameLength (...) bytes
  * before call this function.
  * \param path The full path to the file.
  * \param filename A buffer to fullfill with the file name.
@@ -407,7 +407,7 @@ int FilesUtility::getFilenameLength (const char *path, int *filename)
 void FilesUtility::getFilename (const char *path, char *filename)
 {
   int splitpoint, i = 0, j = 0;
-  splitpoint = static_cast<int>(strlen(path) - 1);
+  splitpoint = static_cast<int>(strlen (path) - 1);
   while ((splitpoint > 0) && (path[splitpoint] != '/'))
     splitpoint--;
   if ((splitpoint == 0) && (path[splitpoint] != '/'))
@@ -435,7 +435,7 @@ void FilesUtility::getFilename (string const &path, string& filename)
 {
   u_long splitpoint = path.find_last_of ("\\/");
   if (splitpoint != string::npos)
-    filename = path.substr(splitpoint+1, path.length()-1);
+    filename = path.substr (splitpoint+1, path.length ()-1);
   else
     filename.assign ("");
 }
@@ -453,13 +453,13 @@ void FilesUtility::splitPathLength (const char *path, int *dir, int *filename)
   int i = 0;
 
   for (i = 0; path[i]; i++)
-    if(path[i] == '/' || path[i] == '\\' )
+    if (path[i] == '/' || path[i] == '\\' )
       splitpoint = i;
 
   if (dir)
     *dir = splitpoint + 2;
 
-  if(filename)
+  if (filename)
     *filename = i - splitpoint + 2;
 }
 
@@ -493,7 +493,7 @@ void FilesUtility::splitPath (const char *path, char *dir, char *filename)
 
   if (filename)
     {
-      memcpy(filename, path + splitpoint + (splitpoint ? 1 : 0),
+      memcpy (filename, path + splitpoint + (splitpoint ? 1 : 0),
              i - splitpoint - (splitpoint ? 1 : 0));
       filename[i - splitpoint - (splitpoint ? 1 : 0)] = '\0';
     }
@@ -515,7 +515,7 @@ void FilesUtility::splitPath (string const &path, string& dir, string& filename)
       char lastDirChar;
       dir  = path.substr (0, splitpoint);
 
-      lastDirChar = dir[dir.length() - 1];
+      lastDirChar = dir[dir.length () - 1];
 
       if (lastDirChar != '\\' && lastDirChar != '/')
         dir.append ("/");
@@ -525,20 +525,20 @@ void FilesUtility::splitPath (string const &path, string& dir, string& filename)
   else
     {
       filename  = path;
-      dir.assign("");
+      dir.assign ("");
     }
 }
 
 /*!
  * Get the file extension passing its path.
- * Save in ext all the bytes afer the last dot(.) in filename.
+ * Save in ext all the bytes afer the last dot (.) in filename.
  * \param ext The buffer to fullfill with the file extension.
  * \param filename The path to the file.
  */
 void FilesUtility::getFileExt (char* ext, const char* filename)
 {
   int nDot;
-  nDot = static_cast<int>(strlen(filename) - 1);
+  nDot = static_cast<int>(strlen (filename) - 1);
 
   while ((nDot > 0) && (filename[nDot] != '.'))
     nDot--;
@@ -551,7 +551,7 @@ void FilesUtility::getFileExt (char* ext, const char* filename)
 
 /*!
  * Get the file extension passing its path.
- * Save in ext all the bytes afer the last dot(.) in filename.
+ * Save in ext all the bytes afer the last dot (.) in filename.
  * \param ext The buffer to fullfill with the file extension.
  * \param filename The path to the file.
  */
@@ -641,7 +641,7 @@ int FilesUtility::completePath (char **fileName, int *size, int dontRealloc)
 
   buffer = bufferAutoPtr.get ();
   strcpy (buffer, *fileName);
-  bufferNewLen =  getdefaultwdlen() +  bufferLen + 1 ;
+  bufferNewLen =  getdefaultwdlen () +  bufferLen + 1 ;
   if (dontRealloc)
     {
       if (*size < bufferNewLen )
@@ -682,7 +682,7 @@ int FilesUtility::completePath (string &fileName)
 
   buffer = bufferAutoPtr.get ();
 
-  if (GetFullPathName(fileName.c_str (), bufferLen, buffer, 0) == 0)
+  if (GetFullPathName (fileName.c_str (), bufferLen, buffer, 0) == 0)
     return -1;
 
   fileName.assign (buffer);

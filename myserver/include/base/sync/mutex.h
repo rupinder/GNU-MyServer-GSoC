@@ -32,14 +32,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class Mutex
 {
 public:
-	Mutex();
-	virtual ~Mutex();
-	virtual int init();
-	int destroy();
-	int lock(u_long id = 0);
-	int unlock(u_long id = 0);
-  bool isLocked();
-  MutexHandle getHandle();
+	Mutex ();
+	virtual ~Mutex ();
+	virtual int init ();
+	int destroy ();
+	int lock (u_long id = 0);
+	int unlock (u_long id = 0);
+  bool isLocked ();
+  MutexHandle getHandle ();
 protected:
   bool locked;
 	int initialized;

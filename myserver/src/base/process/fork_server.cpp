@@ -259,7 +259,7 @@ int ForkServer::forkServerLoop (UnixSocket *serverSocket)
         }
       /* Don't let the fork server come back from this function
          in _any_ case.  */
-      catch(...)
+      catch (...)
         {
           serverSocket->close ();
           socket.close ();
@@ -363,7 +363,7 @@ void ForkServer::killServer ()
 int ForkServer::startForkServer ()
 {
 #ifndef WIN32
-  FilesUtility::temporaryFileName(0, socketPath);
+  FilesUtility::temporaryFileName (0, socketPath);
 
   socket.socket ();
   socket.bind (socketPath.c_str ());
@@ -398,11 +398,11 @@ int ForkServer::startForkServer ()
 int ForkServer::generateListenerSocket (Socket &socket, u_short *port)
 {
   int optvalReuseAddr = 1;
-  int len = sizeof(sockaddr_in);
+  int len = sizeof (sockaddr_in);
 
   socket.socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-  if (socket.getHandle() == (Handle)INVALID_SOCKET)
+  if (socket.getHandle () == (Handle)INVALID_SOCKET)
     return -1;
 
   MYSERVER_SOCKADDR_STORAGE sockaddr = { 0 };
@@ -418,7 +418,7 @@ int ForkServer::generateListenerSocket (Socket &socket, u_short *port)
 
   *port = ntohs (((sockaddr_in*)(&sockaddr))->sin_port);
 
-  if(socket.setsockopt (SOL_SOCKET, SO_REUSEADDR, (const char *)&optvalReuseAddr,
+  if (socket.setsockopt (SOL_SOCKET, SO_REUSEADDR, (const char *)&optvalReuseAddr,
                         sizeof (optvalReuseAddr)) < 0)
     return -1;
 

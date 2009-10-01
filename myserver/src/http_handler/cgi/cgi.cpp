@@ -82,12 +82,12 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
   int i;
 
   if (!(td->permissions & MYSERVER_PERMISSION_EXECUTE))
-    return td->http->sendAuth();
+    return td->http->sendAuth ();
 
   td->scriptPath.assign (scriptpath);
 
   if (!FilesUtility::fileExists (scriptpath))
-    return td->http->raiseHTTPError(404);
+    return td->http->raiseHTTPError (404);
 
   int subString = cgipath[0] == '"';
   /* Do not modify the text between " and ".  */
@@ -132,12 +132,12 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
   if (execute)
     {
       const char *args = 0;
-      if(td->request.uriOpts.length())
-        args = td->request.uriOpts.c_str();
-      else if (td->pathInfo.length())
+      if (td->request.uriOpts.length ())
+        args = td->request.uriOpts.c_str ();
+      else if (td->pathInfo.length ())
         args = &td->pathInfo[1];
 
-    if (cgipath && strlen(cgipath))
+    if (cgipath && strlen (cgipath))
       cmdLine << tmpCgiPath << " " << moreArg << " "
               << td->scriptFile <<  (args ? args : "" ) ;
     else
@@ -147,7 +147,7 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
       && td->scriptFile[1] == 'p' && td->scriptFile[2] == 'h'
       && td->scriptFile[3] == '-' ;
 
-    if (cgipath && strlen(cgipath))
+    if (cgipath && strlen (cgipath))
       {
         spi.cmd.assign (tmpCgiPath);
         spi.arg.append (" ");
@@ -177,7 +177,7 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
     {
       if (!FilesUtility::fileExists (tmpCgiPath.c_str ()))
         {
-          if (tmpCgiPath.length() > 0)
+          if (tmpCgiPath.length () > 0)
             td->connection->host->warningsLogWrite (_("Cgi: cannot find the %s file")),
               tmpCgiPath.c_str ();
           else
@@ -201,7 +201,7 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
     spi.cmd.append ("/");
     spi.cmd.append (td->cgiFile);
 
-    if (td->cgiFile.length() > 4 && td->cgiFile[0] == 'n'
+    if (td->cgiFile.length () > 4 && td->cgiFile[0] == 'n'
         && td->cgiFile[1] == 'p' && td->cgiFile[2] == 'h'
         && td->cgiFile[3] == '-' )
       nph = true;
@@ -212,7 +212,7 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
   /*
    *Open the stdout file for the new CGI process.
    */
-  if (stdOutFile.create())
+  if (stdOutFile.create ())
     {
       td->connection->host->warningsLogWrite (_("Cgi: internal error"));
       chain.clearAllFilters ();
@@ -220,7 +220,7 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
     }
 
   /* Open the stdin file for the new CGI process. */
-  if (stdInFile.openFile(td->inputDataPath,
+  if (stdInFile.openFile (td->inputDataPath,
                          File::READ | File::FILE_OPEN_ALWAYS))
     {
       td->connection->host->warningsLogWrite (_("Cgi: internal error"));
@@ -254,8 +254,8 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
 
   spi.stdError = (FileHandle) stdOutFile.getWriteHandle ();
   spi.stdIn = (FileHandle) stdInFile.getHandle ();
-  spi.stdOut = (FileHandle) stdOutFile.getWriteHandle();
-  spi.envString = td->secondaryBuffer->getBuffer();
+  spi.stdOut = (FileHandle) stdOutFile.getWriteHandle ();
+  spi.envString = td->secondaryBuffer->getBuffer ();
 
   if (spi.stdError == (FileHandle) -1 ||
       spi.stdIn == (FileHandle) -1 ||
@@ -286,10 +286,10 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
     else
       ret = cgiProc.exec (&spi);
 
-    if( ret == -1)
+    if ( ret == -1)
     {
-      stdInFile.close();
-      stdOutFile.close();
+      stdInFile.close ();
+      stdOutFile.close ();
       td->connection->host->warningsLogWrite (_("Cgi: internal error"));
       chain.clearAllFilters ();
       return td->http->raiseHTTPError (500);
@@ -305,7 +305,7 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
   cgiProc.terminateProcess ();
   chain.clearAllFilters ();
 
-  cgiProc.terminateProcess();
+  cgiProc.terminateProcess ();
 
   /* Delete the file only if it was created by the CGI module.  */
   if (!td->inputData.getHandle ())
@@ -343,14 +343,14 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
     return 1;
 
   /* Create the output filters chain.  */
-  if (td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain,
+  if (td->mime && Server::getInstance ()->getFiltersFactory ()->chain (&chain,
                                                                     td->mime->filters,
                                                                     td->connection->socket,
                                                                     &nbw,
                                                                     1))
     {
       td->connection->host->warningsLogWrite (_("Cgi: internal error"));
-      return td->http->raiseHTTPError(500);
+      return td->http->raiseHTTPError (500);
     }
 
   if (td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL)
@@ -360,7 +360,7 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
     {
       nBytesRead = 0;
       int aliveProcess = 0;
-      u_long ticks = getTicks() - procStartTime;
+      u_long ticks = getTicks () - procStartTime;
       u_long timeout = td->http->getTimeout ();
       if (ticks >= timeout ||
           stdOutFile.waitForData ((timeout - ticks) / 1000, (timeout - ticks) % 1000) == 0)
@@ -382,7 +382,7 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
 
       if (nBytesRead &&
           HttpDataHandler::appendDataToHTTPChannel (td,
-                                                    td->secondaryBuffer->getBuffer(),
+                                                    td->secondaryBuffer->getBuffer (),
                                                     nBytesRead,
                                                     &(td->outputData),
                                                     &chain,
@@ -394,7 +394,7 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
     }
 
     /* Send the last null chunk if needed.  */
-    if(useChunks && chain.getStream ()->write ("0\r\n\r\n", 5, &nbw2))
+    if (useChunks && chain.getStream ()->write ("0\r\n\r\n", 5, &nbw2))
       return 0;
   }
 
@@ -426,7 +426,7 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
     nBytesRead = 0;
     /* Do not try to read using a small buffer as this has some
        bad influence on the performances.  */
-    if (td->secondaryBuffer->getRealLength() - headerOffset - 1 < 512)
+    if (td->secondaryBuffer->getRealLength () - headerOffset - 1 < 512)
       break;
 
     term = stdOutFile.pipeTerminated ();
@@ -438,11 +438,11 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
       break;
     }
 
-    if (stdOutFile.read (td->secondaryBuffer->getBuffer() + headerOffset,
-                         td->secondaryBuffer->getRealLength() - headerOffset - 1,
+    if (stdOutFile.read (td->secondaryBuffer->getBuffer () + headerOffset,
+                         td->secondaryBuffer->getRealLength () - headerOffset - 1,
                          &nBytesRead))
       {
-        *ret = td->http->raiseHTTPError(500);
+        *ret = td->http->raiseHTTPError (500);
         return 1;
       }
 
@@ -458,17 +458,17 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
     if (headerOffset > td->secondaryBufferSize - 5)
       (td->secondaryBuffer->getBuffer ())[headerOffset] = '\0';
 
-    if(headerOffset == 0)
+    if (headerOffset == 0)
       {
-        *ret = td->http->raiseHTTPError(500);
+        *ret = td->http->raiseHTTPError (500);
         return 1;
       }
 
-    for (u_long i = std::max(0, (int)headerOffset - (int)nBytesRead - 10);
+    for (u_long i = std::max (0, (int)headerOffset - (int)nBytesRead - 10);
          i < headerOffset; i++)
       {
-        char *buff = td->secondaryBuffer->getBuffer();
-        if( (buff[i] == '\r') && (buff[i+1] == '\n')
+        char *buff = td->secondaryBuffer->getBuffer ();
+        if ( (buff[i] == '\r') && (buff[i+1] == '\n')
             && (buff[i+2] == '\r') && (buff[i+3] == '\n') )
           {
             /*
@@ -500,7 +500,7 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
 
       /* Send the header.  */
       if (headerSize)
-        HttpHeaders::buildHTTPResponseHeaderStruct (td->secondaryBuffer->getBuffer(),
+        HttpHeaders::buildHTTPResponseHeaderStruct (td->secondaryBuffer->getBuffer (),
                                                     &td->response,
                                                     &(td->nBytesToRead));
       /*

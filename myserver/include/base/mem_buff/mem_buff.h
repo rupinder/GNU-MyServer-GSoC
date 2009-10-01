@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2009 Free Software Foundation, Inc.
 Copyright (C) 2004, Guinet Adrien (grainailleur)
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -40,8 +40,8 @@ using namespace std;
 #  define mem_free(pAdr) (delete [] pAdr)
 # else
 #  include <stdlib.h>
-#  define mem_alloc(size) ((char*) malloc(size))
-#  define mem_free(pAdr) (free(pAdr))
+#  define mem_alloc(size) ((char*) malloc (size))
+#  define mem_free(pAdr) (free (pAdr))
 # endif
 
 # define end_str '\0'
@@ -49,39 +49,39 @@ using namespace std;
 class MemBuf
 {
 public:
-	MemBuf();
-	MemBuf(const void* pAdr, u_int size);
-	MemBuf(const MemBuf& srcBuf);
-	MemBuf(MemBuf& srcBuf, int bCopy);
-	~MemBuf();
+	MemBuf ();
+	MemBuf (const void* pAdr, u_int size);
+	MemBuf (const MemBuf& srcBuf);
+	MemBuf (MemBuf& srcBuf, int bCopy);
+	~MemBuf ();
 
-	void setExternalBuffer(const void* pAdr, u_int size);
-	int setBuffer(const void* pAdr, u_int size);
-	void setLength(u_int newSize);
+	void setExternalBuffer (const void* pAdr, u_int size);
+	int setBuffer (const void* pAdr, u_int size);
+	void setLength (u_int newSize);
 
-	void addBuffer(const void* pAdr, u_int size);
-	void addBuffer(MemBuf *nmb);
+	void addBuffer (const void* pAdr, u_int size);
+	void addBuffer (MemBuf *nmb);
 
-	int free();
+	int free ();
 
-	u_int find(char c, u_int start = 0);
-	u_int find(MemBuf *smb, u_int start = 0);
-	u_int find(const void* pAdr, u_int size, u_int start = 0);
-	void replace(char what, char by);
-	char& getAt(u_int nIndex);
+	u_int find (char c, u_int start = 0);
+	u_int find (MemBuf *smb, u_int start = 0);
+	u_int find (const void* pAdr, u_int size, u_int start = 0);
+	void replace (char what, char by);
+	char& getAt (u_int nIndex);
 	char& operator[](u_int nIndex);
 
-	int getPart(u_int nStart, u_int nEnd, MemBuf& result);
-	int getPartAsString(u_int nStart, u_int nEnd, MemBuf& result);
+	int getPart (u_int nStart, u_int nEnd, MemBuf& result);
+	int getPartAsString (u_int nStart, u_int nEnd, MemBuf& result);
 
-	char* getBuffersetLength(u_int newSize);
+	char* getBuffersetLength (u_int newSize);
 
-	u_int getLength();
-	u_int getRealLength();
+	u_int getLength ();
+	u_int getRealLength ();
 
-	int isValid();
+	int isValid ();
 
-	char* getBuffer();
+	char* getBuffer ();
 	operator const void*() ;
 	MemBuf operator+ (MemBuf& src);
 	MemBuf operator+ (const char* src);
@@ -106,24 +106,24 @@ public:
 						 // We assume that m_nBlockLength < m_nSizeLimit
 
 	void hashMD5(const void* pAdr, u_int nSize);
-	void hashCRC(const void* pAdr, u_int nSize);
-	void hex(const void* pAdr, u_int nSize);
-	void uintToStr(u_int i);
-	void intToStr( int i);
-	u_int strToUint(const char* pAdr);
-	unsigned char hexCharToNumber(unsigned char c);
-	MemBuf hexToData(const void* pAdr, u_int nSize);
-	int strToInt(const char* pAdr);
-	void hex(MemBuf& membuf) ;
+	void hashCRC (const void* pAdr, u_int nSize);
+	void hex (const void* pAdr, u_int nSize);
+	void uintToStr (u_int i);
+	void intToStr ( int i);
+	u_int strToUint (const char* pAdr);
+	unsigned char hexCharToNumber (unsigned char c);
+	MemBuf hexToData (const void* pAdr, u_int nSize);
+	int strToInt (const char* pAdr);
+	void hex (MemBuf& membuf) ;
 	void hashMD5(MemBuf& membuf);
-	void hashCRC(MemBuf& membuf);
-	void uintToStr(u_int i, char* pBufToUse, u_int nBufSize) ;
-	void xIntToStr(u_int i, int bNegative, char* pBufToUse, u_int nBufSize);
-	void intToStr(int i, char* pBufToUse, u_int nBufSize);
+	void hashCRC (MemBuf& membuf);
+	void uintToStr (u_int i, char* pBufToUse, u_int nBufSize) ;
+	void xIntToStr (u_int i, int bNegative, char* pBufToUse, u_int nBufSize);
+	void intToStr (int i, char* pBufToUse, u_int nBufSize);
 
 protected:
-	void xIntToStr(u_int i, int bNegative);
-	void allocBuffer(u_int size);
+	void xIntToStr (u_int i, int bNegative);
+	void allocBuffer (u_int size);
 	char* m_buffer; // Using of char* instead of void* because the C++ Compilator doesn't know the size of a void* !!!!!
 	u_int m_nSize;
 	u_int m_nRealSize;

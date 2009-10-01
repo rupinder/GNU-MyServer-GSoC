@@ -46,22 +46,22 @@ struct HttpRequestHeader : public HttpHeader
   {
     string *name;
     string *value;
-		Entry()
+		Entry ()
 		{
-			name = new string();
-			value = new string();
+			name = new string ();
+			value = new string ();
 		}
 
-		Entry(string& n, string& v)
+		Entry (string& n, string& v)
 		{
-			name = new string();
-			value = new string();
+			name = new string ();
+			value = new string ();
 
-			name->assign(n);
-			value->assign(v);
+			name->assign (n);
+			value->assign (v);
 		}
 
-		~Entry()
+		~Entry ()
 		{
 			delete name;
 			delete value;
@@ -95,19 +95,19 @@ struct HttpRequestHeader : public HttpHeader
 
 
 	HashMap<string, HttpRequestHeader::Entry*> other;
-  virtual string* getValue(const char* name, string* out);
-  virtual string* setValue(const char* name, const char* in);
+  virtual string* getValue (const char* name, string* out);
+  virtual string* setValue (const char* name, const char* in);
 
-	HashMap<string, HttpRequestHeader::Entry*>::Iterator begin(){return other.begin();}
-	HashMap<string, HttpRequestHeader::Entry*>::Iterator back(){return other.back();}
-	HashMap<string, HttpRequestHeader::Entry*>::Iterator end(){return other.end();}
+	HashMap<string, HttpRequestHeader::Entry*>::Iterator begin (){return other.begin ();}
+	HashMap<string, HttpRequestHeader::Entry*>::Iterator back (){return other.back ();}
+	HashMap<string, HttpRequestHeader::Entry*>::Iterator end (){return other.end ();}
 
 
-	bool isKeepAlive();
+	bool isKeepAlive ();
 
-  HttpRequestHeader();
-  ~HttpRequestHeader();
-  void free();
+  HttpRequestHeader ();
+  ~HttpRequestHeader ();
+  void free ();
 
 };
 

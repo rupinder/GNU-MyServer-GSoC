@@ -26,7 +26,7 @@ AuthDomain::AuthDomain (SecurityToken *st)
   securityToken = st;
 }
 
-AuthDomain::~AuthDomain()
+AuthDomain::~AuthDomain ()
 {
 
 }

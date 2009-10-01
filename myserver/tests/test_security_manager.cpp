@@ -33,32 +33,32 @@ using namespace std;
 
 class TestSecurityManager : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestSecurityManager );
-  CPPUNIT_TEST( testGetPermissionMask );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestSecurityManager );
+  CPPUNIT_TEST ( testGetPermissionMask );
+  CPPUNIT_TEST_SUITE_END ();
 
   AuthMethodFactory authMethodFactory;
   ValidatorFactory validatorFactory;
   SecurityManager* securityManager;
 public:
-  void setUp()
+  void setUp ()
   {
-    securityManager = new SecurityManager(&validatorFactory, &authMethodFactory);
+    securityManager = new SecurityManager (&validatorFactory, &authMethodFactory);
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete securityManager;
   }
 
-  void testGetPermissionMask()
+  void testGetPermissionMask ()
   {
     SecurityToken secToken;
-    string xml("xml");
-    CPPUNIT_ASSERT_EQUAL(securityManager->getPermissionMask(&secToken, (list<SecurityDomain*>*)NULL, xml, xml), 0);
-    CPPUNIT_ASSERT_EQUAL(securityManager->getPermissionMask(&secToken, (SecurityDomain**)NULL, xml, xml), 0);
+    string xml ("xml");
+    CPPUNIT_ASSERT_EQUAL (securityManager->getPermissionMask (&secToken, (list<SecurityDomain*>*)NULL, xml, xml), 0);
+    CPPUNIT_ASSERT_EQUAL (securityManager->getPermissionMask (&secToken, (SecurityDomain**)NULL, xml, xml), 0);
   }
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestSecurityManager );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestSecurityManager );

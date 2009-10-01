@@ -64,7 +64,7 @@ int FindData::findfirst (const char *filename)
   filenameStar.append ("\\*");
 
   ff = _findfirst (filenameStar.c_str (), &fd );
-  if(ff!=-1)
+  if (ff!=-1)
     {
       name = fd.name;
       attrib = fd.attrib;
@@ -79,8 +79,8 @@ int FindData::findfirst (const char *filename)
    struct dirent * dirInfo;
 
    dirName.assign (filename);
-   if (dirName[dirName.length() - 1] == '/')
-     dirName.erase (dirName.length() - 1);
+   if (dirName[dirName.length () - 1] == '/')
+     dirName.erase (dirName.length () - 1);
 
    dh = opendir (dirName.c_str ());
 

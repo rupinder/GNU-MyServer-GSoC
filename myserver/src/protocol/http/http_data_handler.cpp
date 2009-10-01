@@ -113,7 +113,7 @@ int HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td,
   chain->setStream (oldStream);
 
   /*
-   *Use of chain->getStream() is needed to write directly on the
+   *Use of chain->getStream () is needed to write directly on the
    *final stream.
    */
   return appendDataToHTTPChannel (td, buffer, nbr, appendFile, chain, append,

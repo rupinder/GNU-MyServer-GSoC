@@ -33,7 +33,7 @@ public:
   SecurityDomain (string &name);
   virtual ~SecurityDomain ();
   virtual string *getValue (string &name);
-  string& getName(){return name;}
+  string& getName (){return name;}
 protected:
   string name;
 };

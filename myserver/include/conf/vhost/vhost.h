@@ -76,7 +76,7 @@ public:
 
   /*! Set the system root. */
   void setSystemRoot (const char* n)
-  {systemRoot.assign(n);}
+  {systemRoot.assign (n);}
 
   /*! Get the document root. */
   const string& getDocumentRoot ()
@@ -97,12 +97,12 @@ public:
   int freeSSL ();
 
   /*! Clear the data dictionary. */
-  int freeHashedData();
+  int freeHashedData ();
 
   /*! Generate the RSA key for the SSL context. */
   void generateRsaKey ();
 
-  SSL_CTX* getSSLContext();
+  SSL_CTX* getSSLContext ();
 
   /*! Get the list of hosts allowed.*/
   list<StringRegex*>* getHostList ()
@@ -110,7 +110,7 @@ public:
 
   //TODO: remove
   ///*! List of IPs allowed by the vhost. */
-  //list<StringRegex*>* getIpList()
+  //list<StringRegex*>* getIpList ()
   //{return &ipList;}
 
   /*! Return the port used by the host. */
@@ -137,8 +137,8 @@ public:
   void setThrottlingRate (u_long tr)
   {throttlingRate = tr;}
 
-  Vhost(LogManager* lm);
-  ~Vhost();
+  Vhost (LogManager* lm);
+  ~Vhost ();
 
   const char* getData (const char* name);
 

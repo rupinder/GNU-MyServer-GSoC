@@ -35,22 +35,22 @@ using namespace std;
 class DynHttpCommandManager
 {
 public:
-  DynHttpCommandManager();
-  virtual ~DynHttpCommandManager();
+  DynHttpCommandManager ();
+  virtual ~DynHttpCommandManager ();
 
-  DynamicHttpCommand* getHttpCommand(string& name);
+  DynamicHttpCommand* getHttpCommand (string& name);
 
-  HashMap<string, DynamicHttpCommand*>::Iterator begin(){return dynamicHttpCommands.begin();}
-  HashMap<string, DynamicHttpCommand*>::Iterator end(){return dynamicHttpCommands.end();}
+  HashMap<string, DynamicHttpCommand*>::Iterator begin (){return dynamicHttpCommands.begin ();}
+  HashMap<string, DynamicHttpCommand*>::Iterator end (){return dynamicHttpCommands.end ();}
 
   void clear ();
 
-  void addHttpCommand(string& name, DynamicHttpCommand* httpCommand);
+  void addHttpCommand (string& name, DynamicHttpCommand* httpCommand);
 
-  void addHttpCommand(char* name, DynamicHttpCommand* httpCommand)
+  void addHttpCommand (char* name, DynamicHttpCommand* httpCommand)
   {
-   	string strName(name);
-   	addHttpCommand(strName, httpCommand);
+    string strName (name);
+    addHttpCommand (strName, httpCommand);
   }
 private:
 	HashMap<string, DynamicHttpCommand*> dynamicHttpCommands;

@@ -41,7 +41,7 @@ SecurityCache::SecurityCache ()
  */
 SecurityCache::~SecurityCache ()
 {
-  free();
+  free ();
 }
 
 /*!
@@ -49,14 +49,14 @@ SecurityCache::~SecurityCache ()
  */
 void SecurityCache::free ()
 {
-  HashMap<string, XmlParser*>::Iterator it = dictionary.begin();
+  HashMap<string, XmlParser*>::Iterator it = dictionary.begin ();
 
   for (;it != dictionary.end (); it++)
   {
     delete (*it);
   }
 
-  dictionary.clear();
+  dictionary.clear ();
 }
 
 /*!
@@ -70,10 +70,10 @@ void SecurityCache::setMaxNodes (int newLimit)
     newLimit = 1;
 
   /*! Remove all the additional nodes from the dictionary. */
-  while(newLimit < dictionary.size())
+  while (newLimit < dictionary.size ())
   {
-    XmlParser* toremove = dictionary.remove(dictionary.begin());
-    if(toremove)
+    XmlParser* toremove = dictionary.remove (dictionary.begin ());
+    if (toremove)
       delete toremove;
   }
   limit = newLimit;
@@ -94,35 +94,35 @@ int SecurityCache::getSecurityFile (const string& dir,
 {
   int found = 0;
   string secFile;
-  string file(dir);
+  string file (dir);
 
-  int i = file.length() - 1;
+  int i = file.length () - 1;
 
-  while(i && dir[i] == '/')
-    file.erase(i--, 1);
+  while (i && dir[i] == '/')
+    file.erase (i--, 1);
 
-  secFile.assign(dir);
-  secFile.append("/");
-  secFile.append(secFileName);
+  secFile.assign (dir);
+  secFile.append ("/");
+  secFile.append (secFileName);
 
   /* The security file exists in the directory.  */
-  if(FilesUtility::fileExists(secFile))
+  if (FilesUtility::fileExists (secFile))
   {
-    out.assign(secFile);
+    out.assign (secFile);
     return 0;
   }
 
 
   /* Go upper in the tree till we find a security file.  */
-  for(;;)
+  for (;;)
   {
-    if(found || !file.length())
+    if (found || !file.length ())
       break;
 
-    for(i = file.length() - 1; i; i--)
-      if(file[i] == '/')
+    for (i = file.length () - 1; i; i--)
+      if (file[i] == '/')
       {
-        file.erase(i, file.length() - i);
+        file.erase (i, file.length () - i);
         break;
       }
 
@@ -130,22 +130,22 @@ int SecurityCache::getSecurityFile (const string& dir,
      *Top of the tree, check if the security file is present in the
      *system directory.  Return an error if it is not.
      */
-    if(i == 0)
+    if (i == 0)
     {
-      out.assign(sys);
-      out.append("/");
-      out.append(secFileName);
-      return !FilesUtility::fileExists(out);
+      out.assign (sys);
+      out.append ("/");
+      out.append (secFileName);
+      return !FilesUtility::fileExists (out);
     }
 
-    secFile.assign(file);
-    secFile.append("/");
-    secFile.append(secFileName);
+    secFile.assign (file);
+    secFile.append ("/");
+    secFile.append (secFileName);
 
-    found = FilesUtility::fileExists(secFile);
+    found = FilesUtility::fileExists (secFile);
   }
 
-  out.assign(secFile);
+  out.assign (secFile);
   return 0;
 }
 
@@ -153,7 +153,7 @@ int SecurityCache::getSecurityFile (const string& dir,
 /*!
  *Get the actual limit of open nodes.
  */
-int SecurityCache::getMaxNodes()
+int SecurityCache::getMaxNodes ()
 {
   return limit;
 }
@@ -208,7 +208,7 @@ XmlParser* SecurityCache::getParser (const string &dir,
           parserFile.close ();
         }
 
-      if(parser->open (file.c_str (), useXpath) == -1)
+      if (parser->open (file.c_str (), useXpath) == -1)
       {
         dictionary.remove (file.c_str ());
         return NULL;

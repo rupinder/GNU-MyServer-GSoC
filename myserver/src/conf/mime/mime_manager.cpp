@@ -78,7 +78,7 @@ MimeRecord::MimeRecord (MimeRecord& m)
 
   filters.clear ();
 
-  for( ; i != m.filters.end (); i++)
+  for ( ; i != m.filters.end (); i++)
   {
     filters.push_back (*i);
   }
@@ -87,7 +87,7 @@ MimeRecord::MimeRecord (MimeRecord& m)
 
   extensions.clear ();
 
-  for( ; i != m.extensions.end (); i++)
+  for ( ; i != m.extensions.end (); i++)
   {
     filters.push_back (*i);
   }
@@ -135,7 +135,7 @@ NodeTree<string>* MimeRecord::getNodeTree (string &name)
 /*!
  * Get the value stored in the hash dictionary for the `name' key.
  */
-const char* MimeRecord::getData(string &name)
+const char* MimeRecord::getData (string &name)
 {
   NodeTree<string> *str = hashedData.get (name);
   if (str)
@@ -180,7 +180,7 @@ MimeRecord *MimeManager::readRecord (xmlNodePtr node)
 
   for ( ;lcur; lcur = lcur->next)
   {
-    if (lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"EXTENSION"))
+    if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *)"EXTENSION"))
     {
       for (attrs = lcur->properties; attrs; attrs = attrs->next)
       {
@@ -193,7 +193,7 @@ MimeRecord *MimeManager::readRecord (xmlNodePtr node)
       }
     }
 
-    if (lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"DEFINE"))
+    if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *)"DEFINE"))
     {
       const char *name = NULL;
       const char *value = NULL;
@@ -214,12 +214,12 @@ MimeRecord *MimeManager::readRecord (xmlNodePtr node)
         string key (name);
 	string val (value);
 	NodeTree<string> *nt = new NodeTree<string> (val);
-        rc->hashedData.put(key, nt);
+        rc->hashedData.put (key, nt);
       }
 
     }
 
-    if (lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"PATH"))
+    if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *)"PATH"))
     {
       for (attrs = lcur->properties; attrs; attrs = attrs->next)
       {
@@ -239,7 +239,7 @@ MimeRecord *MimeManager::readRecord (xmlNodePtr node)
       }
     }
 
-    if (lcur->name && !xmlStrcmp(lcur->name, (const xmlChar *)"FILTER"))
+    if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *)"FILTER"))
     {
       for (attrs = lcur->properties; attrs; attrs = attrs->next)
       {
@@ -262,7 +262,7 @@ u_long MimeManager::loadXML (const char *fn)
   XmlParser parser;
   u_long ret = 0;
 
-  if(parser.open (fn))
+  if (parser.open (fn))
   {
     return -1;
   }
@@ -312,7 +312,7 @@ u_long MimeManager::loadXML (XmlParser* parser)
  */
 MimeManager::~MimeManager ()
 {
-  clean();
+  clean ();
 }
 
 /*!
@@ -320,7 +320,7 @@ MimeManager::~MimeManager ()
  */
 void MimeManager::clean ()
 {
-  if(loaded)
+  if (loaded)
   {
     loaded = false;
     filename.assign ("");
@@ -352,7 +352,7 @@ int MimeManager::addRecord (MimeRecord *mr)
       string &ext = *it;
 
 #ifdef MIME_LOWER_CASE
-      transform (ext.begin(), ext.end(), ext.begin(), ::tolower);
+      transform (ext.begin (), ext.end (), ext.begin (), ::tolower);
 #endif
       extIndex.put (ext, position);
     }

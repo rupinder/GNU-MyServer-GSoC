@@ -41,7 +41,7 @@ using namespace std;
 /*!
  *Constructor of the class.
  */
-SslSocket::SslSocket(Socket* socket) : Socket(socket)
+SslSocket::SslSocket (Socket* socket) : Socket (socket)
 {
   this->socket = socket;
   sslConnection = 0;
@@ -51,35 +51,35 @@ SslSocket::SslSocket(Socket* socket) : Socket(socket)
   externalContext = false;
 }
 
-SslSocket::~SslSocket()
+SslSocket::~SslSocket ()
 {
-  freeSSL();
+  freeSSL ();
 }
 
 /*!
  *Close the socket.
  */
-int SslSocket::close()
+int SslSocket::close ()
 {
-  freeSSL();
+  freeSSL ();
 
-  return Socket::close();
+  return Socket::close ();
 }
 
 /*!
  *Shutdown the socket.
  */
-int SslSocket::shutdown(int how)
+int SslSocket::shutdown (int how)
 {
-  if(sslConnection)
+  if (sslConnection)
   {
-    SSL_shutdown(sslConnection);
+    SSL_shutdown (sslConnection);
   }
 
 #ifdef WIN32
-  return ::shutdown(socketHandle, how);
+  return ::shutdown (socketHandle, how);
 #else
-  return ::shutdown((int)socketHandle, how);
+  return ::shutdown ((int)socketHandle, how);
 #endif
 }
 
@@ -88,16 +88,16 @@ int SslSocket::shutdown(int how)
  *Return -1 on error.
  *This routine is accessible only from the Socket class.
  */
-int SslSocket::rawSend(const char* buffer, int len, int flags)
+int SslSocket::rawSend (const char* buffer, int len, int flags)
 {
   int err;
   do
   {
-    err = SSL_write(sslConnection,buffer,len);
-  }while((err <= 0) &&
-         (SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_WRITE
-          || SSL_get_error(sslConnection,err) == SSL_ERROR_WANT_READ));
-  if(err <= 0)
+    err = SSL_write (sslConnection,buffer,len);
+  }while ((err <= 0) &&
+         (SSL_get_error (sslConnection,err) == SSL_ERROR_WANT_WRITE
+          || SSL_get_error (sslConnection,err) == SSL_ERROR_WANT_READ));
+  if (err <= 0)
     return -1;
   else
     return err;
@@ -106,42 +106,42 @@ int SslSocket::rawSend(const char* buffer, int len, int flags)
 /*!
  *Connect the socket.
  */
-int SslSocket::connect(MYSERVER_SOCKADDR* sa, int na)
+int SslSocket::connect (MYSERVER_SOCKADDR* sa, int na)
 {
   if ( sa == NULL || (sa->ss_family != AF_INET && sa->ss_family != AF_INET6) )
     return 1;
-  if ( (sa->ss_family == AF_INET && na != sizeof(sockaddr_in))
+  if ( (sa->ss_family == AF_INET && na != sizeof (sockaddr_in))
 #if HAVE_IPV6
-       || (sa->ss_family == AF_INET6 && na != sizeof(sockaddr_in6))
+       || (sa->ss_family == AF_INET6 && na != sizeof (sockaddr_in6))
 #endif
        )
     return 1;
 
-  sslMethod = SSLv23_client_method();
+  sslMethod = SSLv23_client_method ();
   /*! Create the local context. */
-  sslContext = SSL_CTX_new(sslMethod);
-  if(sslContext == 0)
+  sslContext = SSL_CTX_new (sslMethod);
+  if (sslContext == 0)
     return -1;
 
   /*! Do the TCP connection. */
-  if(::connect((int)socketHandle,(const sockaddr *)sa, na))
+  if (::connect ((int)socketHandle,(const sockaddr *)sa, na))
   {
-    SSL_CTX_free(sslContext);
+    SSL_CTX_free (sslContext);
     sslContext = 0;
     return -1;
   }
-  sslConnection = SSL_new(sslContext);
-  if(sslConnection == 0)
+  sslConnection = SSL_new (sslContext);
+  if (sslConnection == 0)
   {
-    SSL_CTX_free(sslContext);
+    SSL_CTX_free (sslContext);
     sslContext = 0;
     return -1;
   }
-  SSL_set_fd(sslConnection, (int)socketHandle);
-  if(SSL_connect(sslConnection) < 0)
+  SSL_set_fd (sslConnection, (int)socketHandle);
+  if (SSL_connect (sslConnection) < 0)
   {
-    SSL_CTX_free(sslContext);
-    close();
+    SSL_CTX_free (sslContext);
+    close ();
     sslContext = 0;
     return -1;
   }
@@ -152,7 +152,7 @@ int SslSocket::connect(MYSERVER_SOCKADDR* sa, int na)
 /*!
  *Set the SSL context.
  */
-int SslSocket::setSSLContext(SSL_CTX* context)
+int SslSocket::setSSLContext (SSL_CTX* context)
 {
   sslContext = context;
   externalContext = true;
@@ -163,18 +163,18 @@ int SslSocket::setSSLContext(SSL_CTX* context)
 /*!
  *Free the SSL connection.
  */
-int SslSocket::freeSSL()
+int SslSocket::freeSSL ()
 {
   /*! free up the SSL context. */
-  if(sslConnection)
+  if (sslConnection)
   {
-    SSL_free(sslConnection);
+    SSL_free (sslConnection);
     sslConnection = 0;
   }
 
-  if(sslContext && !externalContext)
+  if (sslContext && !externalContext)
   {
-    SSL_CTX_free(sslContext);
+    SSL_CTX_free (sslContext);
     sslContext = 0;
   }
   return 1;
@@ -184,7 +184,7 @@ int SslSocket::freeSSL()
 /*!
  *Returns the SSL connection.
  */
-SSL* SslSocket::getSSLConnection()
+SSL* SslSocket::getSSLConnection ()
 {
   return sslConnection;
 }
@@ -193,25 +193,25 @@ SSL* SslSocket::getSSLConnection()
  *SSL handshake procedure.
  *Return nonzero on errors.
  */
-int SslSocket::sslAccept()
+int SslSocket::sslAccept ()
 {
   int sslAccept;
-  if(sslContext == 0)
+  if (sslContext == 0)
     return -1;
-  if(sslConnection)
-    freeSSL();
-  sslConnection = SSL_new(sslContext);
-  if(sslConnection == 0)
+  if (sslConnection)
+    freeSSL ();
+  sslConnection = SSL_new (sslContext);
+  if (sslConnection == 0)
   {
-    freeSSL();
+    freeSSL ();
     return -1;
   }
 
-  if(SSL_set_fd(sslConnection,socketHandle) == 0)
+  if (SSL_set_fd (sslConnection,socketHandle) == 0)
   {
-    shutdown(2);
-    freeSSL();
-    close();
+    shutdown (2);
+    freeSSL ();
+    close ();
     return -1;
   }
 
@@ -221,11 +221,11 @@ int SslSocket::sslAccept()
   }while (sslAccept != 1 &&
           SSL_get_error (sslConnection, sslAccept) == SSL_ERROR_WANT_READ);
 
-  if(sslAccept != 1 )
+  if (sslAccept != 1 )
   {
-    shutdown(2);
-    freeSSL();
-    close();
+    shutdown (2);
+    freeSSL ();
+    close ();
     return -1;
   }
 
@@ -239,7 +239,7 @@ int SslSocket::sslAccept()
  *Receive data from the socket.
  *Returns -1 on errors.
  */
-int SslSocket::recv(char* buffer, int len, int flags)
+int SslSocket::recv (char* buffer, int len, int flags)
 {
   int err = 0;
 
@@ -272,7 +272,7 @@ int SslSocket::recv(char* buffer, int len, int flags)
 /*!
  *Returns the number of bytes waiting to be read.
  */
-u_long SslSocket::bytesToRead()
+u_long SslSocket::bytesToRead ()
 {
   u_long nBytesToRead = 0;
 
@@ -289,7 +289,7 @@ u_long SslSocket::bytesToRead()
  */
 int SslSocket::dataOnRead (int sec, int usec)
 {
-  if(bytesToRead ())
+  if (bytesToRead ())
     return 1;
 
   return Socket::dataOnRead (sec, usec);

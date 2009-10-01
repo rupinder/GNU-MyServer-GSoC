@@ -26,8 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class RecursiveMutex : public Mutex
 {
 public:
-	RecursiveMutex();
-	virtual ~RecursiveMutex();
-	virtual int init();
+	RecursiveMutex ();
+	virtual ~RecursiveMutex ();
+	virtual int init ();
 };
 #endif

@@ -85,7 +85,7 @@ HomeDir::~HomeDir ()
 /*!
  *Clear the used memory.
  */
-void HomeDir::clear()
+void HomeDir::clear ()
 {
 #ifdef WIN32
   data.assign ("");
@@ -127,11 +127,11 @@ int HomeDir::loadImpl ()
   char *buf;
   buf = new char[len];
 
-  if (GetProfilesDirectory(buf, &len) == FALSE)
+  if (GetProfilesDirectory (buf, &len) == FALSE)
     {
       delete [] buf;
       buf = new char[len];
-      if (GetProfilesDirectory(buf, &len) == FALSE)
+      if (GetProfilesDirectory (buf, &len) == FALSE)
         {
           delete [] buf;
           return 1;

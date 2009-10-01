@@ -41,11 +41,11 @@ private:
 # endif
 	EventHandle event;
 public:
-	Event(bool broadcast);
-	~Event();
-	int init(bool broadcast);
-	int destroy();
-	int wait(u_long id = 0, u_long timeout = 0);
-	int signal(u_long id = 0);
+	Event (bool broadcast);
+	~Event ();
+	int init (bool broadcast);
+	int destroy ();
+	int wait (u_long id = 0, u_long timeout = 0);
+	int signal (u_long id = 0);
 };
 #endif

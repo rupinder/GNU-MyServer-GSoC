@@ -39,19 +39,19 @@ public:
 
   virtual int load ();
   virtual int unLoad ();
-  virtual int send(HttpThreadContext*,
+  virtual int send (HttpThreadContext*,
                    const char *filenamePath, const char* cgi,
                    bool execute = false, bool OnlyHeader = false);
-  HttpDir();
-  virtual ~HttpDir();
+  HttpDir ();
+  virtual ~HttpDir ();
 private:
-  double formatBytes(u_long bytes, u_int power);
-  void formatHtml(string & in, string& out);
-  static bool charIsLess(char i, char j);
+  double formatBytes (u_long bytes, u_int power);
+  void formatHtml (string & in, string& out);
+  static bool charIsLess (char i, char j);
   static bool compareFileStructByName (HttpDir::FileStruct i, HttpDir::FileStruct j);
   static bool compareFileStructByTime (HttpDir::FileStruct i, HttpDir::FileStruct j);
   static bool compareFileStructBySize (HttpDir::FileStruct i, HttpDir::FileStruct j);
-  void getFormattedSize(u_long bytes, string& out);
+  void getFormattedSize (u_long bytes, string& out);
 
   void generateHeader (MemBuf &out, char sortType, bool sortReverse, const char *formatString);
   void generateElement (MemBuf &out, FileStruct& fs, string &linkPrefix, const char *formatString);

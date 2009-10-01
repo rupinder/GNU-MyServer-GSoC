@@ -78,20 +78,20 @@ class Process
 public:
 # ifdef HAVE_PTHREAD
 	static Mutex forkMutex;
-	static void forkPrepare();
-	static void forkParent();
-	static void forkChild();
+	static void forkPrepare ();
+	static void forkParent ();
+	static void forkChild ();
 # endif
-	static void initialize();
+	static void initialize ();
   int exec (StartProcInfo *spi, bool waitEnd = false);
-  int terminateProcess();
-  int isProcessAlive();
+  int terminateProcess ();
+  int isProcessAlive ();
   static int chroot (const char *root);
-  static int setuid(const char*);
-  static int setgid(const char*);
-	static int setAdditionalGroups(u_long len, u_long *groups);
-  Process();
-  ~Process();
+  static int setuid (const char*);
+  static int setgid (const char*);
+	static int setAdditionalGroups (u_long len, u_long *groups);
+  Process ();
+  ~Process ();
 
   /*! Return the process ID.  */
   int getPid (){return pid;}

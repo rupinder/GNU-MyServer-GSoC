@@ -28,13 +28,13 @@ using namespace std;
 class HttpErrors
 {
 public:
-	static void getErrorPage(int statusCode, string& out);
-	static void getErrorMessage(int statusCode, string& out);
-	static void load();
-	static void unLoad();
+	static void getErrorPage (int statusCode, string& out);
+	static void getErrorMessage (int statusCode, string& out);
+	static void load ();
+	static void unLoad ();
 private:
   static bool loaded;
-	static void putMessage(int, const char*);
+	static void putMessage (int, const char*);
 	static HashMap<int, const char*> messagesMap;
 };
 #endif

@@ -61,14 +61,14 @@ u_long getCPUCount ()
   u_long ret = 1;
 #ifdef WIN32
   SYSTEM_INFO si;
-  GetSystemInfo(&si);
+  GetSystemInfo (&si);
   ret = si.dwNumberOfProcessors;
 #endif
 
 #ifdef _SC_NPROCESSORS_CONF
-  ret = (u_long)sysconf(_SC_NPROCESSORS_CONF);
+  ret = (u_long)sysconf (_SC_NPROCESSORS_CONF);
   /*! Use only a processor if some error happens.  */
-  if(ret == (u_long)-1)
+  if (ret == (u_long)-1)
     ret = 1;
 #endif
 
@@ -80,9 +80,9 @@ u_long getCPUCount ()
   size_t len;
   mib[0] = CTL_HW;
   mib[1] = HW_NCPU;
-  len = sizeof(nproc);
-  err = sysctl(mib, 2, &nproc, &len, NULL, 0);
-  if(err == 0)
+  len = sizeof (nproc);
+  err = sysctl (mib, 2, &nproc, &len, NULL, 0);
+  if (err == 0)
     ret = nproc;
   else
     ret = 1;
@@ -101,20 +101,20 @@ int setcwdBuffer ()
 #ifdef WIN32
   /* Under windows there is MAX_PATH, we will use it.  */
   currentPath = new char [MAX_PATH];
-  if(currentPath == 0)
+  if (currentPath == 0)
     return (-1);
-  char* ret =(char*) _getcwd(currentPath,MAX_PATH);
-  if(ret == 0)
+  char* ret =(char*) _getcwd (currentPath,MAX_PATH);
+  if (ret == 0)
     return -1;
 
   ret = 0;
 
-  for(u_long i = 0; i<(u_long)strlen(currentPath); i++)
-    if(currentPath[i] == '\\')
+  for (u_long i = 0; i<(u_long)strlen (currentPath); i++)
+    if (currentPath[i] == '\\')
       currentPath[i] = '/';
 
-  if(currentPath[strlen(currentPath)] == '/')
-    currentPath[strlen(currentPath)] = '\0';
+  if (currentPath[strlen (currentPath)] == '/')
+    currentPath[strlen (currentPath)] = '\0';
   return 0;
 #endif
 
@@ -130,22 +130,22 @@ int setcwdBuffer ()
   do
   {
     /*! Allocation problem is up.  */
-    if(currentPath == 0)
+    if (currentPath == 0)
       return -1;
 
     ret = getcwd (currentPath, size);
     /* Realloc the buffer if it cannot contain the current directory.  */
-    if(ret == 0)
+    if (ret == 0)
       {
         size *= 2;
         delete [] currentPath;
         currentPath = new char[size];
       }
   }
-  while((ret == 0) && (errno == ERANGE));
+  while ((ret == 0) && (errno == ERANGE));
 
-  if(currentPath[strlen(currentPath)] == '/')
-    currentPath[strlen(currentPath)] = '\0';
+  if (currentPath[strlen (currentPath)] == '/')
+    currentPath[strlen (currentPath)] = '\0';
   return 0;
 #endif
 }
@@ -169,7 +169,7 @@ int getdefaultwd (string& out)
 /*!
  * Free the cwd buffer.
  */
-int freecwdBuffer()
+int freecwdBuffer ()
 {
   delete [] currentPath;
   return 0;
@@ -194,9 +194,9 @@ char *getdefaultwd (char *path, int len)
     {
     /* If len is equal to zero we assume no limit.  */
       if (len)
-        myserver_strlcpy(path, currentPath, len);
+        myserver_strlcpy (path, currentPath, len);
       else
-        strcpy(path, currentPath);
+        strcpy (path, currentPath);
     }
   return currentPath;
 }
@@ -208,11 +208,11 @@ char *getdefaultwd (char *path, int len)
 int setcwd (const char *dir)
 {
 #ifdef WIN32
-  return _chdir(dir);
+  return _chdir (dir);
 #endif
 
 #ifndef WIN32
-  return chdir(dir);
+  return chdir (dir);
 #endif
 }
 
@@ -297,7 +297,7 @@ int readFileHandle (SocketHandle s, Handle* fd)
   mh.msg_controllen = sizeof (cmh[0]) * 2;
   iov.iov_base = tbuf;
   iov.iov_len = 4;
-  cmh[0].cmsg_len = sizeof (cmh[0]) + sizeof(int);
+  cmh[0].cmsg_len = sizeof (cmh[0]) + sizeof (int);
   ret = recvmsg (s, &mh, 0);
 
   if (ret < 0)
@@ -336,7 +336,7 @@ int writeFileHandle (SocketHandle s, Handle fd)
   iov.iov_len = 4;
   cmh[0].cmsg_level = SOL_SOCKET;
   cmh[0].cmsg_type = SCM_RIGHTS;
-  cmh[0].cmsg_len = sizeof(cmh[0]) + sizeof(int);
+  cmh[0].cmsg_len = sizeof (cmh[0]) + sizeof (int);
   *(int *)&cmh[1] = fd;
   return sendmsg (s, &mh, 0);
 #endif

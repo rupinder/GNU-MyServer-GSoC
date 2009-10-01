@@ -85,8 +85,8 @@ u_long HttpHeaders::buildHTTPResponseHeader (char *str,
     }
 
   HashMap<string, HttpResponseHeader::Entry*>::Iterator it =
-    response->other.begin();
-  for (; it != response->other.end(); it++)
+    response->other.begin ();
+  for (; it != response->other.end (); it++)
     {
       HttpResponseHeader::Entry *e = *it;
       pos += myserver_strlcpy (pos, e->name->c_str (), MAX-(long)(pos-str));
@@ -112,7 +112,7 @@ u_long HttpHeaders::buildHTTPResponseHeader (char *str,
 u_long HttpHeaders::buildHTTPRequestHeader (char * str,HttpRequestHeader* request)
 {
   char *pos = str;
-  const int MAX = MYSERVER_KB(8);
+  const int MAX = MYSERVER_KB (8);
 
   /* First line.  */
   pos += myserver_strlcpy (pos, request->cmd.c_str (), MAX-(long)(pos-str));
@@ -152,25 +152,25 @@ u_long HttpHeaders::buildHTTPRequestHeader (char * str,HttpRequestHeader* reques
 
       if (request->rangeByteBegin != (u_long)-1)
         {
-          sprintf(buffer, "%lu", request->rangeByteBegin);
+          sprintf (buffer, "%lu", request->rangeByteBegin);
           pos += myserver_strlcpy (pos, buffer, MAX-(long)(pos-str));
         }
 
       pos += myserver_strlcpy (pos, "-", MAX-(long)(pos-str));
       if (request->rangeByteEnd != (u_long)-1)
         {
-          sprintf(buffer, "%lu", request->rangeByteEnd);
+          sprintf (buffer, "%lu", request->rangeByteEnd);
           pos += myserver_strlcpy (pos, buffer, MAX-(long)(pos-str));
         }
       pos += myserver_strlcpy (pos, "\r\n", MAX-(long)(pos-str));
   }
 
-  if (request->other.size())
+  if (request->other.size ())
   {
     HashMap<string, HttpRequestHeader::Entry*>::Iterator it =
-      request->other.begin();
+      request->other.begin ();
 
-    for(; it != request->other.end(); it++)
+    for (; it != request->other.end (); it++)
       {
         HttpRequestHeader::Entry *e = *it;
         if (e)
@@ -192,9 +192,9 @@ u_long HttpHeaders::buildHTTPRequestHeader (char * str,HttpRequestHeader* reques
  * \param response The HTTP response header structure to fullfill with
  * the default data.
  */
-void HttpHeaders::buildDefaultHTTPResponseHeader(HttpResponseHeader* response)
+void HttpHeaders::buildDefaultHTTPResponseHeader (HttpResponseHeader* response)
 {
-  resetHTTPResponse(response);
+  resetHTTPResponse (response);
 
   response->setValue ("Content-Type", "text/html");
   response->ver.assign ("HTTP/1.1");
@@ -206,14 +206,14 @@ void HttpHeaders::buildDefaultHTTPResponseHeader(HttpResponseHeader* response)
  * \param request The HTTP response header structure to fullfill with
  * the default data.
  */
-void HttpHeaders::buildDefaultHTTPRequestHeader(HttpRequestHeader* request)
+void HttpHeaders::buildDefaultHTTPRequestHeader (HttpRequestHeader* request)
 {
   request->cmd.assign ("GET");
   request->ver.assign ("HTTP/1.1");
   request->uri.assign ("/");
 
   /* HTTP/1.1 MUST specify a host.  */
-  request->setValue("Host", "localhost");
+  request->setValue ("Host", "localhost");
   request->uriOpts.assign ("");
   request->uriOptsPtr = 0;
 }
@@ -222,18 +222,18 @@ void HttpHeaders::buildDefaultHTTPRequestHeader(HttpRequestHeader* request)
  * Reset all the HTTP_REQUEST_HEADER structure members.
  * \param request the HTTP request header to free.
  */
-void HttpHeaders::resetHTTPRequest(HttpRequestHeader *request)
+void HttpHeaders::resetHTTPRequest (HttpRequestHeader *request)
 {
-  request->free();
+  request->free ();
 }
 
 /*!
  * Reset all the HttpResponseHeader structure members.
  * \param response the HTTP response header to free.
  */
-void HttpHeaders::resetHTTPResponse(HttpResponseHeader *response)
+void HttpHeaders::resetHTTPResponse (HttpResponseHeader *response)
 {
-  response->free();
+  response->free ();
 }
 
 /*!
@@ -243,7 +243,7 @@ void HttpHeaders::resetHTTPResponse(HttpResponseHeader *response)
  * \param nLinesptr is a value of the lines number in the HEADER.
  * \param ncharsptr is a value of the characters number in the HEADER.
  */
-int HttpHeaders::validHTTPResponse(const char *res, u_long* nLinesptr, u_long* ncharsptr)
+int HttpHeaders::validHTTPResponse (const char *res, u_long* nLinesptr, u_long* ncharsptr)
 {
   u_long i;
   u_long nLinechars = 0;
@@ -254,7 +254,7 @@ int HttpHeaders::validHTTPResponse(const char *res, u_long* nLinesptr, u_long* n
   /*
    * Count the number of lines in the header.
    */
-  for(i = 0; res[i]; i++)
+  for (i = 0; res[i]; i++)
   {
     if (res[i]=='\n')
     {
@@ -299,7 +299,7 @@ int HttpHeaders::validHTTPResponse(const char *res, u_long* nLinesptr, u_long* n
  * \param request HTTP request structure to fullfill with data.
  * \param connection The current connection.
  */
-int HttpHeaders::buildHTTPRequestHeaderStruct(const char* input,
+int HttpHeaders::buildHTTPRequestHeaderStruct (const char* input,
                                               u_long inputSize,
                                               u_long* nHeaderChars,
                                               HttpRequestHeader *request,
@@ -339,7 +339,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(const char* input,
   /*
    *Control if the HTTP header is a valid header.
    */
-  validRequest = validHTTPRequest(input, inputSize, &nLines, &maxTotchars);
+  validRequest = validHTTPRequest (input, inputSize, &nLines, &maxTotchars);
 
   /* Invalid header.  */
   if (validRequest!=200)
@@ -348,23 +348,23 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(const char* input,
     if (validRequest==-1)
       return -1;
     /* Keep trace of first line for logging. */
-    tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
+    tokenOff = getEndLine (input, HTTP_REQUEST_URI_DIM);
     if (tokenOff > 0)
-      request->uri.assign ( input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+      request->uri.assign ( input, min (HTTP_REQUEST_URI_DIM, tokenOff) );
     else
       request->uri.assign (input, HTTP_REQUEST_URI_DIM );
     return validRequest;
   }
 
   /* Get the first token, this is the HTTP command.*/
-  tokenOff = getCharInString(token, cmdSeps, HTTP_REQUEST_CMD_DIM);
+  tokenOff = getCharInString (token, cmdSeps, HTTP_REQUEST_CMD_DIM);
 
   if (tokenOff == -1)
     {
       /* Keep trace of first line for logging.  */
-      tokenOff = getEndLine(token, HTTP_REQUEST_URI_DIM);
+      tokenOff = getEndLine (token, HTTP_REQUEST_URI_DIM);
       if (tokenOff > 0)
-        request->uri.assign (input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+        request->uri.assign (input, min (HTTP_REQUEST_URI_DIM, tokenOff) );
       else
         request->uri.assign (input, HTTP_REQUEST_URI_DIM );
     }
@@ -374,14 +374,14 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(const char* input,
       if (tokenOff== -1 )
         return 400;
 
-      /* Copy the HTTP field(this is the command if we are on the first line).  */
-      myserver_strlcpy (command, token, min(commandSize, tokenOff + 1) );
+      /* Copy the HTTP field (this is the command if we are on the first line).  */
+      myserver_strlcpy (command, token, min (commandSize, tokenOff + 1) );
 
       token += tokenOff;
 
       if (*token == ':')
         token++;
-      while(*token == ' ')
+      while (*token == ' ')
         token++;
       nLineControlled++;
       lineControlled = 0;
@@ -397,8 +397,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(const char* input,
           lineControlled = 1;
 
           /* Copy the method type.  */
-          request->cmd.assign (command, min(HTTP_REQUEST_CMD_DIM, tokenOff));
-          tokenOff = getEndLine(token, HTTP_REQUEST_VER_DIM
+          request->cmd.assign (command, min (HTTP_REQUEST_CMD_DIM, tokenOff));
+          tokenOff = getEndLine (token, HTTP_REQUEST_VER_DIM
                                 + HTTP_REQUEST_URI_DIM + 10);
           lenToken = tokenOff;
           if (tokenOff == -1)
@@ -414,11 +414,11 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(const char* input,
             }
           if (tokenOff > maxUri)
             {
-              request->ver.clear();
-              request->cmd.clear();
-              tokenOff = getEndLine(input, HTTP_REQUEST_URI_DIM);
+              request->ver.clear ();
+              request->cmd.clear ();
+              tokenOff = getEndLine (input, HTTP_REQUEST_URI_DIM);
               if (tokenOff > 0)
-                request->uri.assign (input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+                request->uri.assign (input, min (HTTP_REQUEST_URI_DIM, tokenOff) );
               else
                 request->uri.assign (input, HTTP_REQUEST_URI_DIM );
               return 400;
@@ -460,13 +460,13 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(const char* input,
           if (containOpts)
             {
               j = getEndLine (&token[i], HTTP_REQUEST_URI_DIM);
-              for(j = 0; ((int)(i + j + 1) < max) && (j < HTTP_REQUEST_URI_OPTS_DIM-1); j++)
+              for (j = 0; ((int)(i + j + 1) < max) && (j < HTTP_REQUEST_URI_OPTS_DIM-1); j++)
                 ++j;
             }
 
           /*
            * Save the query data and seek the cursor at the end of it. Start copying
-           * from the second byte(do not store the  ? character).
+           * from the second byte (do not store the  ? character).
            */
           request->uriOpts.assign (&token[i + 1], j);
           i += j + 1;
@@ -475,7 +475,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(const char* input,
            * Seek the cursor at the end of the spaces. Do not allow more than
            * 10 spaces character between the uri token and the HTTP version.
            */
-          for(j = 0; j < 10; j++)
+          for (j = 0; j < 10; j++)
             {
               if (token[i]==' ')
                 i++;
@@ -492,7 +492,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(const char* input,
               request->cmd.clear ();
               tokenOff = getEndLine (input, HTTP_REQUEST_URI_DIM);
               if (tokenOff > 0)
-                request->uri.assign (input, min(HTTP_REQUEST_URI_DIM, tokenOff) );
+                request->uri.assign (input, min (HTTP_REQUEST_URI_DIM, tokenOff) );
               else
                 request->uri.assign (input, HTTP_REQUEST_URI_DIM);
               return 400;
@@ -543,13 +543,13 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(const char* input,
         }
       else if (!strcmpi (command, (char*)"Content-Length"))
         {
-          tokenOff = getEndLine(token, HTTP_REQUEST_CONTENT_LENGTH_DIM);
+          tokenOff = getEndLine (token, HTTP_REQUEST_CONTENT_LENGTH_DIM);
           if (tokenOff == -1)
             return 400;
           lineControlled = 1;
           request->contentLength.assign (token,tokenOff);
         }
-      else if (!strcmpi(command, (char*)"Range"))
+      else if (!strcmpi (command, (char*)"Range"))
         {
           int ret = readReqRangeLine (request, connection, token, &tokenOff);
           if (ret)
@@ -558,34 +558,34 @@ int HttpHeaders::buildHTTPRequestHeaderStruct(const char* input,
         }
       else if (!lineControlled)
         {
-          tokenOff = getEndLine(token, maxTotchars);
+          tokenOff = getEndLine (token, maxTotchars);
           if (tokenOff==-1)
             return 400;
 
-          string cmdStr(command);
-          HttpRequestHeader::Entry *old = request->other.get(cmdStr);
+          string cmdStr (command);
+          HttpRequestHeader::Entry *old = request->other.get (cmdStr);
           if (old)
             {
-              old->value->append(", ");
-              old->value->append(token,
-                                 std::min(static_cast<int>(HTTP_RESPONSE_OTHER_DIM
-                                                           - old->value->length()),
+              old->value->append (", ");
+              old->value->append (token,
+                                 std::min (static_cast<int>(HTTP_RESPONSE_OTHER_DIM
+                                                           - old->value->length ()),
                                           static_cast<int>(tokenOff)));
             }
           else
             {
-              HttpRequestHeader::Entry *e = new HttpRequestHeader::Entry();
+              HttpRequestHeader::Entry *e = new HttpRequestHeader::Entry ();
               if (e)
                 {
                   e->name->assign (command, HTTP_RESPONSE_OTHER_DIM);
                   e->value->assign (token,
-                                   std::min(HTTP_RESPONSE_OTHER_DIM, tokenOff));
+                                   std::min (HTTP_RESPONSE_OTHER_DIM, tokenOff));
                   request->other.put (cmdStr, e);
                 }
             }
         }
       token += tokenOff + 2;
-      tokenOff = getCharInString(token, ":", maxTotchars);
+      tokenOff = getCharInString (token, ":", maxTotchars);
     }
   while (((u_long)(token - input) < maxTotchars) && token[0] != '\r');
 
@@ -613,7 +613,7 @@ int HttpHeaders::readReqRangeLine (HttpRequestHeader *request,
   rangeByteBegin[0] = '\0';
   rangeByteEnd[0] = '\0';
 
-  int tokenOff = getEndLine(token, HTTP_REQUEST_RANGE_TYPE_DIM + 30);
+  int tokenOff = getEndLine (token, HTTP_REQUEST_RANGE_TYPE_DIM + 30);
   if (tokenOff ==-1)
     return 400;
 
@@ -650,24 +650,24 @@ int HttpHeaders::readReqRangeLine (HttpRequestHeader *request,
     if (request->rangeType[i] == '=')
       request->rangeType[i] = '\0';
 
-  for(i = 0; i < static_cast<int>(strlen (rangeByteBegin)); i++)
+  for (i = 0; i < static_cast<int>(strlen (rangeByteBegin)); i++)
     if (rangeByteBegin[i] == '=')
       rangeByteBegin[i] = '\0';
 
-  for(i = 0; i < static_cast<int>(strlen (rangeByteEnd)); i++)
+  for (i = 0; i < static_cast<int>(strlen (rangeByteEnd)); i++)
     if (rangeByteEnd[i]== '=')
       rangeByteEnd[i]='\0';
 
   if (rangeByteBegin[0] == 0)
     request->rangeByteBegin=0;
   else
-    request->rangeByteBegin = (u_long)atol(rangeByteBegin);
+    request->rangeByteBegin = (u_long)atol (rangeByteBegin);
 
   if (rangeByteEnd[0] == '\r')
     request->rangeByteEnd = 0;
   else
     {
-      request->rangeByteEnd = (u_long)atol(rangeByteEnd);
+      request->rangeByteEnd = (u_long)atol (rangeByteEnd);
       if (request->rangeByteEnd < request->rangeByteBegin)
         return 400;
     }
@@ -699,7 +699,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
   connection->setLogin ("");
   connection->setPassword ("");
 
-  if (!request->auth.compare("Basic"))
+  if (!request->auth.compare ("Basic"))
     {
       u_long i;
       const char *base64 = &token[6];
@@ -724,16 +724,16 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
       if (len <= 1)
         return 400;
 
-      lsecondaryBuffer = base64Utils.decode(base64, &len);
+      lsecondaryBuffer = base64Utils.decode (base64, &len);
       lsecondaryBufferOr = lsecondaryBuffer;
 
-      for(i = 0; (*lsecondaryBuffer != ':') && (i < 32);i++)
+      for (i = 0; (*lsecondaryBuffer != ':') && (i < 32);i++)
         login[i] = *lsecondaryBuffer++;
 
       login[i] = '\0';
 
       lsecondaryBuffer++;
-      for(i = 0; (*lsecondaryBuffer) && (i < 31); i++)
+      for (i = 0; (*lsecondaryBuffer) && (i < 31); i++)
         password[i] = *lsecondaryBuffer++;
 
       password[i] = '\0';
@@ -747,10 +747,10 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
       char *digestBuff;
       char *digestToken;
       token += tokenOff;
-      while(*token == ' ')
+      while (*token == ' ')
         token++;
 
-      *lenOut = tokenOff = getEndLine(token, 1024);
+      *lenOut = tokenOff = getEndLine (token, 1024);
       if (tokenOff == -1)
         return 400;
 
@@ -784,7 +784,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
                   myserver_strlcpy (request->digestOpaque,digestToken,48 + 1);
                 }
             }
-          else if (!strcmpi(digestToken, (char*)"uri"))
+          else if (!strcmpi (digestToken, (char*)"uri"))
             {
               digestToken = strtok (NULL, (char*)"\r\n," );
               if (digestToken)
@@ -793,7 +793,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
                   myserver_strlcpy (request->digestUri,digestToken,1024 + 1);
                 }
             }
-          else if (!strcmpi(digestToken, (char*)"method"))
+          else if (!strcmpi (digestToken, (char*)"method"))
             {
               digestToken = strtok (NULL, (char*)"\r\n," );
               if (digestToken)
@@ -802,7 +802,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
                   myserver_strlcpy (request->digestMethod,digestToken,16 + 1);
                 }
             }
-          else if (!strcmpi(digestToken, (char*)"qop"))
+          else if (!strcmpi (digestToken, (char*)"qop"))
             {
               digestToken = strtok (NULL, (char*)"\r\n," );
               if (digestToken)
@@ -820,7 +820,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
                   myserver_strlcpy (request->digestRealm,digestToken,48 + 1);
                 }
             }
-          else if (!strcmpi(digestToken, (char*)"cnonce"))
+          else if (!strcmpi (digestToken, (char*)"cnonce"))
             {
               digestToken = strtok (NULL, (char*)"\r\n," );
               if (digestToken)
@@ -839,7 +839,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
                   connection->setLogin (digestToken);
                 }
             }
-          else if (!strcmpi(digestToken, (char*)"response"))
+          else if (!strcmpi (digestToken, (char*)"response"))
             {
               digestToken = strtok (NULL, "\r\n," );
               if (digestToken)
@@ -863,7 +863,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
             }
           /* Update digestToken.  */
           digestToken = strtok (NULL, (char*)"=" );
-        }while(digestToken);
+        }while (digestToken);
       delete  [] digestBuff;
     }
   return 0;
@@ -878,7 +878,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
  *\param response The HTTP response structure to fullfill.
  *\param nbtr Bytes of the header.
  */
-int HttpHeaders::buildHTTPResponseHeaderStruct(const char *input,
+int HttpHeaders::buildHTTPResponseHeaderStruct (const char *input,
                                                HttpResponseHeader *response,
                                                u_long *nbtr)
 {
@@ -908,7 +908,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(const char *input,
   /* Control if the HTTP header is a valid header.  */
   if (input[0] == 0)
     return 0;
-  validResponse = validHTTPResponse(input,&nLines, &maxTotchars);
+  validResponse = validHTTPResponse (input,&nLines, &maxTotchars);
 
   if (validResponse)
   {
@@ -919,7 +919,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(const char *input,
      * FIXME:
      * Don't alloc new memory but simply use a no-destructive parsing.
      */
-    memcpy(newInput, input, maxTotchars);
+    memcpy (newInput, input, maxTotchars);
     newInput[maxTotchars] = '\0';
     input = newInput;
   }
@@ -960,13 +960,13 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(const char *input,
 
         token = strtok (NULL, " ,\t\n\r" );
         if (token)
-          response->httpStatus = atoi(token);
+          response->httpStatus = atoi (token);
 
         token = strtok (NULL, "\r\n\0" );
         if (token)
           response->errorType.assign (token);
       }
-    else if (!strcmpi(command,"Status"))
+    else if (!strcmpi (command,"Status"))
       {
         token = strtok (NULL, "\r\n\0" );
         lineControlled = 1;
@@ -977,7 +977,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(const char *input,
         /* If the response status is different from 200 don't modify it. */
         if (response->httpStatus == 200)
           if (token)
-            response->httpStatus = atoi(token);
+            response->httpStatus = atoi (token);
       }
     else if (!strcmpi (command, "Content-Length"))
       {
@@ -998,7 +998,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(const char *input,
       {
         token = strtok (NULL, "\r\n");
 
-        while(token && *token == ' ')
+        while (token && *token == ' ')
           token++;
 
         if (token)
@@ -1012,7 +1012,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(const char *input,
               }
 
             HttpResponseHeader::Entry *old = NULL;
-            HttpResponseHeader::Entry *e = new HttpResponseHeader::Entry();
+            HttpResponseHeader::Entry *e = new HttpResponseHeader::Entry ();
             e->name->assign (command);
             string cmdString (command);
             old = response->other.put (cmdString, e);
@@ -1046,7 +1046,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct(const char *input,
  * \param nLinesptr Lines in the header.
  * \param ncharsptr Characters in the header.
  */
-int HttpHeaders::validHTTPRequest(const char *req, u_long size,
+int HttpHeaders::validHTTPRequest (const char *req, u_long size,
                                   u_long* nLinesptr, u_long* ncharsptr)
 {
   u_long i = 0;
@@ -1057,7 +1057,7 @@ int HttpHeaders::validHTTPRequest(const char *req, u_long size,
   if (req == 0)
     return 400;
 
-  for(;i < MYSERVER_KB(8); i++)
+  for (;i < MYSERVER_KB (8); i++)
   {
     if (req[i] == '\n')
     {

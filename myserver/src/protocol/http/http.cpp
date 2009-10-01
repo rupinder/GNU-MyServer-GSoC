@@ -408,7 +408,7 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped, int* permissio
   try
     {
       if (td->request.isKeepAlive ())
-        td->response.setValue("Connection", "keep-alive");
+        td->response.setValue ("Connection", "keep-alive");
 
       ret = getFilePermissions (filename, directory, file,
                                 td->filenamePath, yetmapped, permissions);
@@ -1088,7 +1088,7 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
                                           + td->nHeaderChars);
                       u_long toCopy = nbtr - td->nHeaderChars;
 
-                      a->getConnectionBuffer()->setBuffer (data, toCopy);
+                      a->getConnectionBuffer ()->setBuffer (data, toCopy);
                       retvalue = ClientsThread::INCOMPLETE_REQUEST_NO_WAIT;
                     }
                   else
@@ -1172,7 +1172,7 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
               else
                 {
                   /*
-                   *Return Method not implemented(501) if there
+                   *Return Method not implemented (501) if there
                    *is not a dynamic methods manager.
                    */
                   if (!dynamicCommand)

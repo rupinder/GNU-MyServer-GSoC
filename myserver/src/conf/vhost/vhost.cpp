@@ -83,7 +83,7 @@ Vhost::~Vhost ()
     }
 
   refMutex.destroy ();
-  mimeManager.clean();
+  mimeManager.clean ();
   logManager->remove (this);
 }
 
@@ -91,7 +91,7 @@ Vhost::~Vhost ()
  * Clear the data dictionary.
  * Returns zero on success.
  */
-int Vhost::freeHashedData()
+int Vhost::freeHashedData ()
 {
   try
     {
@@ -103,9 +103,9 @@ int Vhost::freeHashedData()
         }
 
       hashedDataTrees.clear ();
-      hashedData.clear();
+      hashedData.clear ();
     }
-  catch(...)
+  catch (...)
     {
       return 1;
     }
@@ -268,13 +268,13 @@ int Vhost::areAllHostAllowed ()
 /*!
  * Check if all the IPs are allowed to the connection.
  */
-int Vhost::areAllIPAllowed()
+int Vhost::areAllIPAllowed ()
 {
   return ipListDeny.empty () && ipListAllow.empty () ? 1 : 0;
 }
 
 /*!
- * Check if the network is allowed to the connection(control the network
+ * Check if the network is allowed to the connection (control the network
  * by the local IP).
  * \param ip The IP to check.
  */
@@ -326,7 +326,7 @@ void Vhost::addHost (const char *host, int isRegex)
   char* ascii = 0;
   uint32_t* ucs4 = stringprep_utf8_to_ucs4 (host, -1, &len);
 
-  if(!ucs4)
+  if (!ucs4)
     {
       delete hl;
       return;
@@ -412,9 +412,9 @@ NULL_REFERENCECB Vhost::getNullRefCB ()
  */
 void Vhost::addRef ()
 {
-  refMutex.lock(0);
+  refMutex.lock (0);
   refCount++;
-  refMutex.unlock(0);
+  refMutex.unlock (0);
 }
 
 /*!
@@ -422,15 +422,15 @@ void Vhost::addRef ()
  */
 void Vhost::removeRef ()
 {
-  refMutex.lock(0);
+  refMutex.lock (0);
   refCount--;
   /*!
    * If the reference count reaches zero and a callback
    * function is defined call it.
    */
   if (refCount == 0 && nullReferenceCb)
-    nullReferenceCb(this);
-  refMutex.unlock(0);
+    nullReferenceCb (this);
+  refMutex.unlock (0);
 }
 
 /*!
@@ -456,9 +456,9 @@ void Vhost::setRef (int n)
  */
 const char* Vhost::getData (const char* name)
 {
-  NodeTree<string> *s = hashedData.get(name);
+  NodeTree<string> *s = hashedData.get (name);
 
-  return s ? s->getValue ()->c_str() : 0;
+  return s ? s->getValue ()->c_str () : 0;
 }
 
 /*!

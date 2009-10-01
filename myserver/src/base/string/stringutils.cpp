@@ -45,8 +45,8 @@ extern "C"
 const char *getRFC822GMTTime (string& out,int len)
 {
   time_t ltime;
-  time( &ltime );
-  return getRFC822GMTTime(ltime, out, len);
+  time ( &ltime );
+  return getRFC822GMTTime (ltime, out, len);
 }
 
 /*!
@@ -120,7 +120,7 @@ const char *getRFC822GMTTime (const time_t ltime, char* out, int /*!len*/)
   out[ind++]= asct[6];
   out[ind++] = ' ';
 
-  sprintf(&out[ind], "%i", gmTime->tm_year);
+  sprintf (&out[ind], "%i", gmTime->tm_year);
   ind += 4;
 
   out[ind++] = ' ';
@@ -163,7 +163,7 @@ time_t getTime (const char* str)
         lb[i] = str[c++];
     }
   i = lb[0] + lb[1] + lb[3];
-  switch(i)
+  switch (i)
     {
     case 310:
       t.tm_wday = 0;  //Sun
@@ -200,7 +200,7 @@ time_t getTime (const char* str)
       else
         lb[i] = str[c++];
     }
-  t.tm_mday = atoi(lb);
+  t.tm_mday = atoi (lb);
 
   for (i = 0; i < 30; i++)
     {
@@ -214,7 +214,7 @@ time_t getTime (const char* str)
         lb[i] = str[c++];
     }
   i = lb[0] + lb[1] + lb[3];
-  switch(i)
+  switch (i)
     {
     case 281:
       t.tm_wday = 0;  //Jan
@@ -265,7 +265,7 @@ time_t getTime (const char* str)
       else
         lb[i] = str[c++];
     }
-  t.tm_year = atoi(lb) - 1900;
+  t.tm_year = atoi (lb) - 1900;
 
   for (i = 0; i < 30; i++)
     {
@@ -278,7 +278,7 @@ time_t getTime (const char* str)
       else
         lb[i] = str[c++];
     }
-  t.tm_hour = atoi(lb);
+  t.tm_hour = atoi (lb);
 
   for (i = 0; i < 30; i++)
     {
@@ -291,7 +291,7 @@ time_t getTime (const char* str)
       else
         lb[i] = str[c++];
     }
-  t.tm_min = atoi(lb);
+  t.tm_min = atoi (lb);
 
   for (i = 0; i < 30; i++)
     {
@@ -304,13 +304,13 @@ time_t getTime (const char* str)
       else
         lb[i] = str[c++];
     }
-  t.tm_sec = atoi(lb);
+  t.tm_sec = atoi (lb);
   t.tm_yday = 0;
   t.tm_wday = 0;
 
   t.tm_isdst = -1;
 
-  return mktime(&t);
+  return mktime (&t);
 }
 
 /*!
@@ -389,7 +389,7 @@ const char* getLocalLogFormatDate (char* out, int len)
 const char* getGMTLogFormatDate (char* out, int len)
 {
   time_t ltime;
-  time(&ltime);
+  time (&ltime);
   return getGMTLogFormatDate (ltime, out, len);
 }
 
@@ -429,7 +429,7 @@ const char* getLocalLogFormatDate (string& out, int len)
 /*!
  * Get the GMT time string.
  */
-const char* getGMTLogFormatDate(string& out, int len)
+const char* getGMTLogFormatDate (string& out, int len)
 {
   char buff[32];
   getGMTLogFormatDate (buff, len);
@@ -584,7 +584,7 @@ string trim (string const &s,  string const &t)
  *from the head and tail of the first string.
  *Ex:       char str[16]="Hellow World!!!";
  *          char trim[7]="e!HlwW";
- *          StrTrim(str,trim);
+ *          StrTrim (str,trim);
  *result:    str="ow World"
  *'w', 'W' and the last 'l' aren't removed because they aren't
  *attached to the head or tail of the string
@@ -657,7 +657,7 @@ void gotoNextLine (char** cmd)
 /*!
  *Translates HTTP escape sequences.
  */
-void translateEscapeString(char *str)
+void translateEscapeString (char *str)
 {
   int i, j;
   i = 0;
@@ -666,7 +666,7 @@ void translateEscapeString(char *str)
     {
       if ((str[i] == '%') && (str[i + 1] != 0) && (str[i + 2] != 0))
         {
-          str[j] =(char) (16 * hexVal(str[i + 1]) + hexVal(str[i + 2]));
+          str[j] =(char) (16 * hexVal (str[i + 1]) + hexVal (str[i + 2]));
           i = i + 3;
         }
       else
@@ -682,17 +682,17 @@ void translateEscapeString(char *str)
 /*!
  *Translates HTTP escape sequences.
  */
-void translateEscapeString(string& str)
+void translateEscapeString (string& str)
 {
   int i, j, len;
   i = 0;
   j = 0;
-  len = str.length();
+  len = str.length ();
   while (len--)
     {
       if ((str[i] == '%') && (str[i + 1] != 0) && (str[i + 2] != 0))
         {
-          str[j] =(char) (16 * hexVal(str[i + 1]) + hexVal(str[i + 2]));
+          str[j] =(char) (16 * hexVal (str[i + 1]) + hexVal (str[i + 2]));
           i = i + 3;
         }
       else
@@ -708,7 +708,7 @@ void translateEscapeString(string& str)
 /*!
  *This function converts a hexadecimal number to a decimal number.
  */
-int hexVal(char ch)
+int hexVal (char ch)
 {
   if (ch >= '0' && ch <= '9')
     return ch - '0';
@@ -729,7 +729,7 @@ int hexVal(char ch)
 /*!
  *Convert from an hex string to an int
  */
-int hexToInt(const char *str)
+int hexToInt (const char *str)
 {
   register u_long u;
   register const char *cp;
@@ -740,7 +740,7 @@ int hexToInt(const char *str)
 
   while (*cp != '\0')
     {
-      if (!isxdigit((int)*cp))
+      if (!isxdigit ((int)*cp))
         return 0;
 
       if (u >= 0x10000000)
@@ -760,7 +760,7 @@ int hexToInt(const char *str)
 /*!
  *Get the offset from string start of a character.
  */
-int getCharInString(const char* str, const char* characters, int max)
+int getCharInString (const char* str, const char* characters, int max)
 {
   int i, j;
 
@@ -865,11 +865,11 @@ int stringcmp (string const &a, const char* b)
 }
 
 #ifndef WIN32
-char* strupr(char * s)
+char* strupr (char * s)
 {
-  unsigned int len = strlen(s);
+  unsigned int len = strlen (s);
   for (register unsigned int i = 0; i < len; i++)
-    s[i] = toupper(s[i]);
+    s[i] = toupper (s[i]);
   return s;
 }
 #endif

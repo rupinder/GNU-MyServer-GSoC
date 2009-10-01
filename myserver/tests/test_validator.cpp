@@ -15,20 +15,20 @@ using namespace std;
 
 class TestValidator : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestValidator );
-  CPPUNIT_TEST( testGetPermissionMask );
-  CPPUNIT_TEST( testGetPermissionMaskImpl );
-  CPPUNIT_TEST( testGetValue );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestValidator );
+  CPPUNIT_TEST ( testGetPermissionMask );
+  CPPUNIT_TEST ( testGetPermissionMaskImpl );
+  CPPUNIT_TEST ( testGetValue );
+  CPPUNIT_TEST_SUITE_END ();
 
   Validator* validator;
 public:
-  void setUp()
+  void setUp ()
   {
     validator = new Validator ();
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete validator;
   }
@@ -58,4 +58,4 @@ public:
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestValidator );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestValidator );

@@ -54,12 +54,12 @@ public:
 		struct ServerDomain *sd;
 		bool isLocal;
 
-		void terminate()
+		void terminate ()
 		{
-			if(isLocal)
+			if (isLocal)
 			{
-				socket.close();
-				process.terminateProcess();
+				socket.close ();
+				process.terminateProcess ();
 			}
 		}
 	};
@@ -69,28 +69,28 @@ public:
 		string domainName;
 		HashMap<string, vector<Server*> *> servers;
 		void (*clear)(Server*);
-		ServerDomain()
+		ServerDomain ()
 		{
 			clear = 0;
 		}
 	};
 
-	ServerDomain *createDomain(const char *name);
-	ServerDomain *getDomain(const char *name);
-	void clear();
-	Server *getServer(const char *domain, const char *name, int seed = 0);
-	ProcessServerManager();
-	~ProcessServerManager();
-	int connect(Socket *sock, Server *server);
-	void setMaxServers(int max){maxServers = max;}
-	int getMaxServers(){return maxServers;}
-	void removeDomain(const char *domain);
-	int domainServers(const char *domain);
-	void load();
-	Server *runAndAddServer(const char *domain, const char *name,
+	ServerDomain *createDomain (const char *name);
+	ServerDomain *getDomain (const char *name);
+	void clear ();
+	Server *getServer (const char *domain, const char *name, int seed = 0);
+	ProcessServerManager ();
+	~ProcessServerManager ();
+	int connect (Socket *sock, Server *server);
+	void setMaxServers (int max){maxServers = max;}
+	int getMaxServers (){return maxServers;}
+	void removeDomain (const char *domain);
+	int domainServers (const char *domain);
+	void load ();
+	Server *runAndAddServer (const char *domain, const char *name,
                           const char *chroot = NULL, int uid = 0,
                           int gid = 0, u_short port = 0);
-	Server *addRemoteServer(const char *domain, const char *name,
+	Server *addRemoteServer (const char *domain, const char *name,
 													const char *host, u_short port);
 private:
 	int maxServers;

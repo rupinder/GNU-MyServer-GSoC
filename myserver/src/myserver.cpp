@@ -67,9 +67,9 @@ void registerSignals ();
 #ifndef WIN32
 void Sig_Quit (int signal)
 {
-  Server::getInstance ()->log("Exiting...");
+  Server::getInstance ()->log ("Exiting...");
   sync ();
-  Server::getInstance ()->stop();
+  Server::getInstance ()->stop ();
   registerSignals ();
 }
 
@@ -97,25 +97,25 @@ void registerSignals ()
   struct sigaction sig1, sig2, sig3;
   struct sigaction sa;
 
-  memset(&sa, 0, sizeof(sa));
+  memset (&sa, 0, sizeof (sa));
   sa.sa_handler = SIG_IGN;
   sa.sa_flags   = SA_RESTART;
-  memset(&sig1, 0, sizeof(sig1));
-  memset(&sig2, 0, sizeof(sig2));
-  memset(&sig3, 0, sizeof(sig3));
+  memset (&sig1, 0, sizeof (sig1));
+  memset (&sig2, 0, sizeof (sig2));
+  memset (&sig3, 0, sizeof (sig3));
   sig1.sa_handler = SIG_IGN;
   sig2.sa_handler = Sig_Quit;
   sig3.sa_handler = Sig_Hup;
-  sigaction(SIGPIPE,&sig1,NULL); // catch broken pipes
-  sigaction(SIGINT, &sig2,NULL); // catch ctrl-c
-  sigaction(SIGTERM,&sig2,NULL); // catch the kill signal
-  sigaction(SIGHUP,&sig3,NULL); // catch the HUP signal
+  sigaction (SIGPIPE,&sig1,NULL); // catch broken pipes
+  sigaction (SIGINT, &sig2,NULL); // catch ctrl-c
+  sigaction (SIGTERM,&sig2,NULL); // catch the kill signal
+  sigaction (SIGHUP,&sig3,NULL); // catch the HUP signal
 
   /* Avoid zombie processes.  */
-  sigaction(SIGCHLD, &sa, (struct sigaction *)NULL);
+  sigaction (SIGCHLD, &sa, (struct sigaction *)NULL);
 #else
-  SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), ENABLE_PROCESSED_INPUT);
-  SetConsoleCtrlHandler((PHANDLER_ROUTINE) SignalHandler, TRUE);
+  SetConsoleMode (GetStdHandle (STD_INPUT_HANDLE), ENABLE_PROCESSED_INPUT);
+  SetConsoleCtrlHandler ((PHANDLER_ROUTINE) SignalHandler, TRUE);
 #endif
 }
 
@@ -165,21 +165,21 @@ static struct argp_option options[] =
     {0}
   };
 
-static error_t parseOpt(int key, char *arg, struct argp_state *state)
+static error_t parseOpt (int key, char *arg, struct argp_state *state)
 {
   argp_input *in = static_cast<argp_input*>(state->input);
-  switch(key)
+  switch (key)
     {
     case 'v':
       in->version = 1;
       break;
 
     case 'r':
-      if(arg)
+      if (arg)
         {
-          if(!strcmpi(arg, "CONSOLE"))
+          if (!strcmpi (arg, "CONSOLE"))
             in->runas = MYSERVER_RUNAS_CONSOLE;
-          else if(!strcmpi(arg, "SERVICE"))
+          else if (!strcmpi (arg, "SERVICE"))
             in->runas = MYSERVER_RUNAS_SERVICE;
         }
       else
@@ -221,7 +221,7 @@ static struct argp myserverArgp = {options, parseOpt, argsDoc, doc};
  * Load the external path.
  * Return nonzero on errors.
  */
-int loadExternalPath(string &externalPath)
+int loadExternalPath (string &externalPath)
 {
   try
     {
@@ -353,7 +353,7 @@ int main  (int argn, char **argv)
     {
       Server::createInstance ();
     }
-  catch(...)
+  catch (...)
     {
       /* Die if we get exceptions here.  */
       return (1);
@@ -487,7 +487,7 @@ int main  (int argn, char **argv)
       loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath,
                              input.confFilesLocation);
 
-      switch(runas)
+      switch (runas)
         {
         case MYSERVER_RUNAS_CONSOLE:
           consoleService (mainConf, mimeConf, vhostConf, externPath);
@@ -514,10 +514,10 @@ int main  (int argn, char **argv)
           if (pid)
             {
 # ifdef ARGP
-              if(input.pidFileName)
+              if (input.pidFileName)
                 writePidfile (input.pidFileName);
               else
-                writePidfile();
+                writePidfile ();
 # else
               writePidfile ();
 # endif
@@ -535,7 +535,7 @@ int main  (int argn, char **argv)
           break;
         }
     }
-  catch(...)
+  catch (...)
     {
       return 1;
     };
@@ -576,8 +576,8 @@ int writePidfile (const char* filename)
     return -1;
 
   sprintf (buff,"%i\n", pid);
-  ret = write (pidfile, buff, strlen(buff));
-  if(ret == -1)
+  ret = write (pidfile, buff, strlen (buff));
+  if (ret == -1)
     {
       close (pidfile);
       return -1;
@@ -589,9 +589,9 @@ int writePidfile (const char* filename)
 /*!
  * Start MyServer in console mode.
  */
-void consoleService(string &mainConf, string &mimeConf, string &vhostConf, string &externPath)
+void consoleService (string &mainConf, string &mimeConf, string &vhostConf, string &externPath)
 {
-  Server::getInstance()->start(mainConf, mimeConf, vhostConf, externPath);
+  Server::getInstance ()->start (mainConf, mimeConf, vhostConf, externPath);
 }
 
 
@@ -621,36 +621,36 @@ void  __stdcall myServerMainNT (u_long, LPTSTR*)
     {
       Server::createInstance ();
     }
-  catch(...)
+  catch (...)
     {
       /* Die if we get exceptions here.  */
       return;
     };
 
 
-  MyServiceStatusHandle = RegisterServiceCtrlHandler("GNU MyServer",
+  MyServiceStatusHandle = RegisterServiceCtrlHandler ("GNU MyServer",
                                                       myServerCtrlHandler);
-  if(MyServiceStatusHandle)
+  if (MyServiceStatusHandle)
     {
       MyServiceStatus.dwCurrentState = SERVICE_START_PENDING;
-      SetServiceStatus(MyServiceStatusHandle, &MyServiceStatus);
+      SetServiceStatus (MyServiceStatusHandle, &MyServiceStatus);
 
       MyServiceStatus.dwControlsAccepted |= (SERVICE_ACCEPT_STOP
                                              | SERVICE_ACCEPT_SHUTDOWN);
       MyServiceStatus.dwCurrentState = SERVICE_RUNNING;
-      SetServiceStatus(MyServiceStatusHandle, &MyServiceStatus);
+      SetServiceStatus (MyServiceStatusHandle, &MyServiceStatus);
 
 
       loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath, NULL);
-      Server::getInstance()->start (mainConf, mimeConf, vhostConf, externPath);
+      Server::getInstance ()->start (mainConf, mimeConf, vhostConf, externPath);
 
       MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
-      SetServiceStatus(MyServiceStatusHandle, &MyServiceStatus);
+      SetServiceStatus (MyServiceStatusHandle, &MyServiceStatus);
 
       MyServiceStatus.dwControlsAccepted &= ~(SERVICE_ACCEPT_STOP
                                               | SERVICE_ACCEPT_SHUTDOWN);
       MyServiceStatus.dwCurrentState = SERVICE_STOPPED;
-      SetServiceStatus(MyServiceStatusHandle, &MyServiceStatus);
+      SetServiceStatus (MyServiceStatusHandle, &MyServiceStatus);
     }
 
 }
@@ -658,7 +658,7 @@ void  __stdcall myServerMainNT (u_long, LPTSTR*)
 /*!
  * Manage the NT service.
  */
-void __stdcall myServerCtrlHandler(u_long fdwControl)
+void __stdcall myServerCtrlHandler (u_long fdwControl)
 {
   switch (fdwControl)
     {
@@ -688,7 +688,7 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
  */
 void runService ()
 {
-  Server::getInstance()->log ("Running service...");
+  Server::getInstance ()->log ("Running service...");
 #ifdef WIN32
   SERVICE_TABLE_ENTRY serviceTable[] =
     {
@@ -699,11 +699,11 @@ void runService ()
   if (!StartServiceCtrlDispatcher (serviceTable))
     {
       if (GetLastError () == ERROR_INVALID_DATA)
-        Server::getInstance ()->log("Invalid data");
+        Server::getInstance ()->log ("Invalid data");
       else if (GetLastError () == ERROR_SERVICE_ALREADY_RUNNING)
-        Server::getInstance ()->log("Already running");
+        Server::getInstance ()->log ("Already running");
       else
-        Server::getInstance ()->log("Error running service");
+        Server::getInstance ()->log ("Error running service");
     }
 #endif
 }
@@ -740,11 +740,11 @@ void registerService ()
 /*
  *Unregister the OS service.
  */
-void removeService()
+void removeService ()
 {
 #ifdef WIN32
   SC_HANDLE service,manager;
-  manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
+  manager = OpenSCManager (NULL,NULL,SC_MANAGER_ALL_ACCESS);
   if (manager)
     {
       service = OpenService (manager, "GNU MyServer", SERVICE_ALL_ACCESS);
@@ -754,7 +754,7 @@ void removeService()
           while (QueryServiceStatus (service, &MyServiceStatus))
             if (MyServiceStatus.dwCurrentState != SERVICE_STOP_PENDING)
               break;
-          DeleteService(service);
+          DeleteService (service);
           CloseServiceHandle (service);
           CloseServiceHandle (manager);
         }

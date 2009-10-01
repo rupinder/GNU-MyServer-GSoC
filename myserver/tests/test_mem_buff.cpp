@@ -26,162 +26,162 @@
 
 class TestMemBuffer : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestMemBuffer );
-  CPPUNIT_TEST( testLength );
-  CPPUNIT_TEST( testFind );
-  CPPUNIT_TEST( testReplace );
-  CPPUNIT_TEST( testUintToStr );
-  CPPUNIT_TEST( testIntToStr );
-  CPPUNIT_TEST( testHexCharToNumber );
-  CPPUNIT_TEST( testGetPart );
-  CPPUNIT_TEST( testIsValid );
-  CPPUNIT_TEST( testExternalBuffer );
-  CPPUNIT_TEST( testGetAt );
-  CPPUNIT_TEST( testGetBuffer );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestMemBuffer );
+  CPPUNIT_TEST ( testLength );
+  CPPUNIT_TEST ( testFind );
+  CPPUNIT_TEST ( testReplace );
+  CPPUNIT_TEST ( testUintToStr );
+  CPPUNIT_TEST ( testIntToStr );
+  CPPUNIT_TEST ( testHexCharToNumber );
+  CPPUNIT_TEST ( testGetPart );
+  CPPUNIT_TEST ( testIsValid );
+  CPPUNIT_TEST ( testExternalBuffer );
+  CPPUNIT_TEST ( testGetAt );
+  CPPUNIT_TEST ( testGetBuffer );
+  CPPUNIT_TEST_SUITE_END ();
 
   MemBuf *memBuff;
 
 public:
-  void setUp()
+  void setUp ()
   {
-    memBuff = new MemBuf();
+    memBuff = new MemBuf ();
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete memBuff;
   }
 
 
-  void testLength()
+  void testLength ()
   {
     u_int len = 10;
-    memBuff->setLength(len);
-    CPPUNIT_ASSERT_EQUAL(memBuff->getRealLength(), len);
+    memBuff->setLength (len);
+    CPPUNIT_ASSERT_EQUAL (memBuff->getRealLength (), len);
 
-    CPPUNIT_ASSERT_EQUAL(memBuff->getLength(), 0u);
+    CPPUNIT_ASSERT_EQUAL (memBuff->getLength (), 0u);
 
     *memBuff << (const char*)"1234567890";
 
-    CPPUNIT_ASSERT_EQUAL(memBuff->getLength(), 10u);
+    CPPUNIT_ASSERT_EQUAL (memBuff->getLength (), 10u);
   }
 
-  void testFind()
+  void testFind ()
   {
     *memBuff << (const char*)"1234567890";
-    CPPUNIT_ASSERT_EQUAL(memBuff->find('5'), 4u);
+    CPPUNIT_ASSERT_EQUAL (memBuff->find ('5'), 4u);
 
-    CPPUNIT_ASSERT_EQUAL(memBuff->find('5', 4), 4u);
+    CPPUNIT_ASSERT_EQUAL (memBuff->find ('5', 4), 4u);
 
-    CPPUNIT_ASSERT_EQUAL(memBuff->find('5', 6), (u_int)-1);
+    CPPUNIT_ASSERT_EQUAL (memBuff->find ('5', 6), (u_int)-1);
 
 
   }
 
-  void testReplace()
+  void testReplace ()
   {
     *memBuff << (const char*)"1234567890";
-    CPPUNIT_ASSERT_EQUAL(memBuff->find('5'), 4u);
+    CPPUNIT_ASSERT_EQUAL (memBuff->find ('5'), 4u);
 
-    memBuff->replace('5', '6');
+    memBuff->replace ('5', '6');
 
-    CPPUNIT_ASSERT_EQUAL(memBuff->find('5'), (u_int)-1);
+    CPPUNIT_ASSERT_EQUAL (memBuff->find ('5'), (u_int)-1);
   }
 
-  void testUintToStr()
+  void testUintToStr ()
   {
-    memBuff->uintToStr(0);
+    memBuff->uintToStr (0);
 
-    CPPUNIT_ASSERT(strcmp(memBuff->getBuffer(), "0") == 0);
+    CPPUNIT_ASSERT (strcmp (memBuff->getBuffer (), "0") == 0);
 
-    memBuff->setLength(0);
+    memBuff->setLength (0);
 
-    memBuff->uintToStr(10);
-    CPPUNIT_ASSERT(strcmp(memBuff->getBuffer(), "10") == 0);
+    memBuff->uintToStr (10);
+    CPPUNIT_ASSERT (strcmp (memBuff->getBuffer (), "10") == 0);
 
-    memBuff->setLength(0);
+    memBuff->setLength (0);
 
-    memBuff->uintToStr(100);
-    CPPUNIT_ASSERT(strcmp(memBuff->getBuffer(), "100") == 0);
+    memBuff->uintToStr (100);
+    CPPUNIT_ASSERT (strcmp (memBuff->getBuffer (), "100") == 0);
   }
 
 
-  void testIntToStr()
+  void testIntToStr ()
   {
-    memBuff->intToStr(0);
-    CPPUNIT_ASSERT(strcmp(memBuff->getBuffer(), "0") == 0);
+    memBuff->intToStr (0);
+    CPPUNIT_ASSERT (strcmp (memBuff->getBuffer (), "0") == 0);
 
-    memBuff->setLength(0);
+    memBuff->setLength (0);
 
-    memBuff->intToStr(10);
-    CPPUNIT_ASSERT(strcmp(memBuff->getBuffer(), "10") == 0);
+    memBuff->intToStr (10);
+    CPPUNIT_ASSERT (strcmp (memBuff->getBuffer (), "10") == 0);
 
-    memBuff->setLength(0);
+    memBuff->setLength (0);
 
-    memBuff->intToStr(-100);
-    CPPUNIT_ASSERT(strcmp(memBuff->getBuffer(), "-100") == 0);
+    memBuff->intToStr (-100);
+    CPPUNIT_ASSERT (strcmp (memBuff->getBuffer (), "-100") == 0);
   }
 
-  void testHexCharToNumber()
+  void testHexCharToNumber ()
   {
-    CPPUNIT_ASSERT_EQUAL(memBuff->hexCharToNumber('1'), (unsigned char) 1);
-    CPPUNIT_ASSERT_EQUAL(memBuff->hexCharToNumber('a'), (unsigned char)  10);
+    CPPUNIT_ASSERT_EQUAL (memBuff->hexCharToNumber ('1'), (unsigned char) 1);
+    CPPUNIT_ASSERT_EQUAL (memBuff->hexCharToNumber ('a'), (unsigned char)  10);
   }
 
-  void testGetPart()
+  void testGetPart ()
   {
     *memBuff << "0123456789abcdef";
 
     MemBuf dest;
 
-    memBuff->getPart(3, 10, dest);
+    memBuff->getPart (3, 10, dest);
 
-    CPPUNIT_ASSERT(memcmp(dest.getBuffer(), "3456789", 7) == 0);
+    CPPUNIT_ASSERT (memcmp (dest.getBuffer (), "3456789", 7) == 0);
   }
 
-  void testIsValid()
+  void testIsValid ()
   {
-    CPPUNIT_ASSERT_EQUAL(memBuff->isValid(), 0);
+    CPPUNIT_ASSERT_EQUAL (memBuff->isValid (), 0);
 
     *memBuff << "123";
 
-    CPPUNIT_ASSERT_EQUAL(memBuff->isValid(), 1);
+    CPPUNIT_ASSERT_EQUAL (memBuff->isValid (), 1);
   }
 
-  void testExternalBuffer()
+  void testExternalBuffer ()
   {
     char buffer[256];
 
-    memBuff->setExternalBuffer(buffer, 256);
+    memBuff->setExternalBuffer (buffer, 256);
 
     *memBuff << "foo";
 
 
-    CPPUNIT_ASSERT(memcmp(buffer, "foo", 3) == 0);
+    CPPUNIT_ASSERT (memcmp (buffer, "foo", 3) == 0);
 
   }
 
-  void testGetAt()
+  void testGetAt ()
   {
     *memBuff << "foo";
-    char val = memBuff->getAt(1);
+    char val = memBuff->getAt (1);
 
-    CPPUNIT_ASSERT_EQUAL(val, 'o');
+    CPPUNIT_ASSERT_EQUAL (val, 'o');
 
     val = (*memBuff)[1];
-    CPPUNIT_ASSERT_EQUAL(val, 'o');
+    CPPUNIT_ASSERT_EQUAL (val, 'o');
   }
 
-  void testGetBuffer()
+  void testGetBuffer ()
   {
 	*memBuff << "MyServer is a powerful and easy to configure web server.";
 	char szExpected[128];
-	memset(szExpected, 0, 128);
-	strcpy(szExpected, "MyServer is a powerful and easy to configure web server.");
-	CPPUNIT_ASSERT(memcmp(memBuff->getBuffer(), szExpected, strlen(szExpected)) == 0);
+	memset (szExpected, 0, 128);
+	strcpy (szExpected, "MyServer is a powerful and easy to configure web server.");
+	CPPUNIT_ASSERT (memcmp (memBuff->getBuffer (), szExpected, strlen (szExpected)) == 0);
   }
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestMemBuffer );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestMemBuffer );

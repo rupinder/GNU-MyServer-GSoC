@@ -30,6 +30,6 @@ MainConfiguration::~MainConfiguration ()
 
 char *MainConfiguration::getValue (string const &field)
 {
-  return getValue (field.c_str());
+  return getValue (field.c_str ());
 };
 

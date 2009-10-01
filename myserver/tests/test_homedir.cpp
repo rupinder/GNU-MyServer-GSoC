@@ -23,48 +23,48 @@
 
 class TestHomeDir : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestHomeDir );
-  CPPUNIT_TEST( testLoadClear );
-  CPPUNIT_TEST( testGetAdmin );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestHomeDir );
+  CPPUNIT_TEST ( testLoadClear );
+  CPPUNIT_TEST ( testGetAdmin );
+  CPPUNIT_TEST_SUITE_END ();
   HomeDir *homeDir;
 public:
-  void setUp() {homeDir = new HomeDir();}
-  void tearDown() {delete homeDir;}
+  void setUp () {homeDir = new HomeDir ();}
+  void tearDown () {delete homeDir;}
 
-  void testLoadClear()
+  void testLoadClear ()
   {
-    CPPUNIT_ASSERT(!homeDir->isLoaded());
+    CPPUNIT_ASSERT (!homeDir->isLoaded ());
 
-    homeDir->load();
+    homeDir->load ();
 
-    CPPUNIT_ASSERT(homeDir->isLoaded());
+    CPPUNIT_ASSERT (homeDir->isLoaded ());
 
-    homeDir->clear();
+    homeDir->clear ();
 
-    CPPUNIT_ASSERT(!homeDir->isLoaded());
+    CPPUNIT_ASSERT (!homeDir->isLoaded ());
   }
 
-  void testGetAdmin()
+  void testGetAdmin ()
   {
-    homeDir->load();
+    homeDir->load ();
     string username;
 #ifdef WIN32
     /* Try to get home dir for Administrator under Windows.  */
-    username.assign("Administrator");
+    username.assign ("Administrator");
 #else
     /* Under systems different than Windows, "root" should be present,
      * if it doesn't handle this differently.  */
-    username.assign("root");
+    username.assign ("root");
 #endif
     string dir;
 
-    CPPUNIT_ASSERT_EQUAL (homeDir->getHomeDir(username, dir), 0);
+    CPPUNIT_ASSERT_EQUAL (homeDir->getHomeDir (username, dir), 0);
 
-    CPPUNIT_ASSERT(dir.length());
+    CPPUNIT_ASSERT (dir.length ());
 
-    homeDir->clear();
+    homeDir->clear ();
   }
 
 };
-CPPUNIT_TEST_SUITE_REGISTRATION( TestHomeDir );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestHomeDir );

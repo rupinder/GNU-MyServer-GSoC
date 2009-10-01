@@ -25,13 +25,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class ReadWriteLock
 {
 public:
-	ReadWriteLock(int maxReaders);
-	~ReadWriteLock();
-	void readLock();
-	void readUnlock();
+	ReadWriteLock (int maxReaders);
+	~ReadWriteLock ();
+	void readLock ();
+	void readUnlock ();
 
-	void writeLock();
-	void writeUnlock();
+	void writeLock ();
+	void writeUnlock ();
 private:
 	int maxReaders;
 	Semaphore semaphore;

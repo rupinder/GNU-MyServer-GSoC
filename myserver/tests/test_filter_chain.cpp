@@ -33,153 +33,153 @@ class MyProtocol : public Protocol
 
 class TestFilterChain : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestFilterChain );
-  CPPUNIT_TEST( testGzipChain );
-  CPPUNIT_TEST( testProtocol );
-  CPPUNIT_TEST( testIsEmpty );
-  CPPUNIT_TEST( testProtocolData );
-  CPPUNIT_TEST( testAcceptDuplicates );
-  CPPUNIT_TEST( testStream );
-  CPPUNIT_TEST( testIsFilterPresent );
-  CPPUNIT_TEST( testRemoveFilter );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestFilterChain );
+  CPPUNIT_TEST ( testGzipChain );
+  CPPUNIT_TEST ( testProtocol );
+  CPPUNIT_TEST ( testIsEmpty );
+  CPPUNIT_TEST ( testProtocolData );
+  CPPUNIT_TEST ( testAcceptDuplicates );
+  CPPUNIT_TEST ( testStream );
+  CPPUNIT_TEST ( testIsFilterPresent );
+  CPPUNIT_TEST ( testRemoveFilter );
+  CPPUNIT_TEST_SUITE_END ();
 
   FiltersChain *fc;
 
 public:
-  void setUp()
+  void setUp ()
   {
     fc = new FiltersChain;
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete fc;
   }
 
-  void testGzipChain()
+  void testGzipChain ()
   {
     char szTest[64], szTemp[64], szExpected[64];
-    strcpy(szTest, "The quick brown fox jumps over the lazy dog");
-    int nLength = strlen(szTest);
+    strcpy (szTest, "The quick brown fox jumps over the lazy dog");
+    int nLength = strlen (szTest);
 
     u_long nbw = 0;
     MemBuf mb;
-    MemoryStream ms(&mb);
-    ms.write(szTest, 64, &nbw);
+    MemoryStream ms (&mb);
+    ms.write (szTest, 64, &nbw);
 
-    fc->setStream(&ms);
-    fc->addFilter(Gzip::factory("GzipFilter"), &nbw);
-    fc->addFilter(GzipDecompress::factory("GzipDecompressFilter"), &nbw);
+    fc->setStream (&ms);
+    fc->addFilter (Gzip::factory ("GzipFilter"), &nbw);
+    fc->addFilter (GzipDecompress::factory ("GzipDecompressFilter"), &nbw);
 
     char *pBuff = szExpected;
     int i = nLength;
-    while ( !fc->read(szTemp, 64, &nbw) && nbw > 0 && i > 0 )
+    while ( !fc->read (szTemp, 64, &nbw) && nbw > 0 && i > 0 )
       {
         strncpy (pBuff, szTemp, (int)nbw > i ? i : nbw);
         pBuff += nbw;
         i -= nbw;
       }
     szExpected[nLength] = '\0';
-    fc->clearAllFilters();
+    fc->clearAllFilters ();
 
-    CPPUNIT_ASSERT(strncmp(szTest, szExpected, nbw) == 0);
+    CPPUNIT_ASSERT (strncmp (szTest, szExpected, nbw) == 0);
   }
 
 
-  void testProtocol()
+  void testProtocol ()
   {
     MyProtocol mp;
-    fc->setProtocol(&mp);
-    CPPUNIT_ASSERT_EQUAL((Protocol*)&mp, fc->getProtocol());
+    fc->setProtocol (&mp);
+    CPPUNIT_ASSERT_EQUAL ((Protocol*)&mp, fc->getProtocol ());
   }
 
-  void testAcceptDuplicates()
+  void testAcceptDuplicates ()
   {
-    fc->setAcceptDuplicates(0);
-    CPPUNIT_ASSERT_EQUAL(fc->getAcceptDuplicates(), 0);
+    fc->setAcceptDuplicates (0);
+    CPPUNIT_ASSERT_EQUAL (fc->getAcceptDuplicates (), 0);
 
-    fc->setAcceptDuplicates(1);
-    CPPUNIT_ASSERT_EQUAL(fc->getAcceptDuplicates(), 1);
+    fc->setAcceptDuplicates (1);
+    CPPUNIT_ASSERT_EQUAL (fc->getAcceptDuplicates (), 1);
   }
 
 
-  void testStream()
+  void testStream ()
   {
     MemBuf mb;
-    MemoryStream ms(&mb);
+    MemoryStream ms (&mb);
 
-    fc->setStream(&ms);
+    fc->setStream (&ms);
 
-    CPPUNIT_ASSERT_EQUAL((Stream*)&ms, fc->getStream());
+    CPPUNIT_ASSERT_EQUAL ((Stream*)&ms, fc->getStream ());
   }
 
-  void testProtocolData()
+  void testProtocolData ()
   {
     char *data = new char[2];
-    fc->setProtocolData(data);
-    CPPUNIT_ASSERT_EQUAL(data, (char*)fc->getProtocolData());
+    fc->setProtocolData (data);
+    CPPUNIT_ASSERT_EQUAL (data, (char*)fc->getProtocolData ());
     delete [] data;
   }
 
-  void testIsEmpty()
+  void testIsEmpty ()
   {
     u_long nbw;
     MemBuf mb;
-    MemoryStream ms(&mb);
+    MemoryStream ms (&mb);
 
-    fc->setStream(&ms);
+    fc->setStream (&ms);
 
-    CPPUNIT_ASSERT(fc->isEmpty() != 0);
+    CPPUNIT_ASSERT (fc->isEmpty () != 0);
 
-    fc->addFilter(Gzip::factory("GzipFilter"), &nbw);
+    fc->addFilter (Gzip::factory ("GzipFilter"), &nbw);
 
-    CPPUNIT_ASSERT_EQUAL(fc->isEmpty(), 0);
+    CPPUNIT_ASSERT_EQUAL (fc->isEmpty (), 0);
 
-    fc->clearAllFilters();
+    fc->clearAllFilters ();
 
-    CPPUNIT_ASSERT(fc->isEmpty() != 0);
+    CPPUNIT_ASSERT (fc->isEmpty () != 0);
   }
 
-  void testIsFilterPresent()
+  void testIsFilterPresent ()
   {
     u_long nbw;
-    Filter* filter = Gzip::factory("GzipFilter");
+    Filter* filter = Gzip::factory ("GzipFilter");
     MemBuf mb;
     char name[32];
-    MemoryStream ms(&mb);
+    MemoryStream ms (&mb);
 
-    fc->setStream(&ms);
+    fc->setStream (&ms);
 
-    CPPUNIT_ASSERT_EQUAL(fc->isFilterPresent(filter), 0);
-    CPPUNIT_ASSERT_EQUAL(fc->isFilterPresent(filter->getName(name, 32)), 0);
+    CPPUNIT_ASSERT_EQUAL (fc->isFilterPresent (filter), 0);
+    CPPUNIT_ASSERT_EQUAL (fc->isFilterPresent (filter->getName (name, 32)), 0);
 
-    fc->addFilter(filter, &nbw);
+    fc->addFilter (filter, &nbw);
 
-    CPPUNIT_ASSERT(fc->isFilterPresent(filter) != 0);
-    CPPUNIT_ASSERT(fc->isFilterPresent(filter->getName(name, 32)) != 0);
+    CPPUNIT_ASSERT (fc->isFilterPresent (filter) != 0);
+    CPPUNIT_ASSERT (fc->isFilterPresent (filter->getName (name, 32)) != 0);
   }
 
-  void testRemoveFilter()
+  void testRemoveFilter ()
   {
     char name[32];
     MemBuf mb;
     u_long nbw;
-    Filter* filter = Gzip::factory("GzipFilter");
-    MemoryStream ms(&mb);
+    Filter* filter = Gzip::factory ("GzipFilter");
+    MemoryStream ms (&mb);
 
-    fc->setStream(&ms);
+    fc->setStream (&ms);
 
-    fc->addFilter(filter, &nbw);
+    fc->addFilter (filter, &nbw);
 
-    CPPUNIT_ASSERT(fc->isFilterPresent(filter) != 0);
-    CPPUNIT_ASSERT(fc->isFilterPresent(filter->getName(name, 32)) != 0);
+    CPPUNIT_ASSERT (fc->isFilterPresent (filter) != 0);
+    CPPUNIT_ASSERT (fc->isFilterPresent (filter->getName (name, 32)) != 0);
 
-    fc->removeFilter(filter);
+    fc->removeFilter (filter);
 
-    CPPUNIT_ASSERT_EQUAL(fc->isFilterPresent(filter), 0);
-    CPPUNIT_ASSERT_EQUAL(fc->isFilterPresent(filter->getName(name, 32)), 0);
+    CPPUNIT_ASSERT_EQUAL (fc->isFilterPresent (filter), 0);
+    CPPUNIT_ASSERT_EQUAL (fc->isFilterPresent (filter->getName (name, 32)), 0);
   }
 
 };
-CPPUNIT_TEST_SUITE_REGISTRATION( TestFilterChain );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestFilterChain );

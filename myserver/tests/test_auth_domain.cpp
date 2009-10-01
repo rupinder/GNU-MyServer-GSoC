@@ -31,31 +31,31 @@ using namespace std;
 
 class TestAuthDomain : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestAuthDomain );
-  CPPUNIT_TEST( testGetName );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestAuthDomain );
+  CPPUNIT_TEST ( testGetName );
+  CPPUNIT_TEST_SUITE_END ();
 
   SecurityToken *secToken;
   AuthDomain* authDomain;
 public:
-  void setUp()
+  void setUp ()
   {
-    secToken = new SecurityToken();
-    authDomain = new AuthDomain(secToken);
+    secToken = new SecurityToken ();
+    authDomain = new AuthDomain (secToken);
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete authDomain;
     delete secToken;
   }
 
-  void testGetName()
+  void testGetName ()
   {
-    CPPUNIT_ASSERT_EQUAL(authDomain->getName().compare(""), 0);
+    CPPUNIT_ASSERT_EQUAL (authDomain->getName ().compare (""), 0);
   }
 
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestAuthDomain );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestAuthDomain );

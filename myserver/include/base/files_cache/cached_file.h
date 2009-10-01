@@ -37,20 +37,20 @@ public:
 	virtual int writeToFile (const char* ,u_long ,u_long* );
 	virtual int createTemporaryFile (const char* );
 
-	virtual int openFile(const char*, u_long );
-  virtual int openFile(string const &file, u_long opt)
-    {return openFile(file.c_str(), opt);}
+	virtual int openFile (const char*, u_long );
+  virtual int openFile (string const &file, u_long opt)
+    {return openFile (file.c_str (), opt);}
 
-	virtual u_long getFileSize();
+	virtual u_long getFileSize ();
 	virtual int seek (u_long);
 
 	virtual int operator =(CachedFile);
-	virtual int close();
+	virtual int close ();
 
   virtual int fastCopyToSocket (Socket *dest, u_long offset,
                                 MemBuf *buf, u_long *nbw);
 
-  virtual int write(const char* buffer, u_long len, u_long *nbw);
+  virtual int write (const char* buffer, u_long len, u_long *nbw);
 protected:
 	u_long fseek;
 	CachedFileBuffer* buffer;

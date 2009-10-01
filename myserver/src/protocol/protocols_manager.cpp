@@ -51,7 +51,7 @@ Protocol* ProtocolsManager::getProtocol (string& name)
 void ProtocolsManager::addProtocol (string& name, Protocol* protocol)
 {
   std::transform (name.begin (), name.end (), name.begin (),
-                  static_cast < int(*)(int) > (tolower));
+                  static_cast < int (*)(int) > (tolower));
 
   staticProtocols.put (name, protocol);
   staticProtocolsList.push_back (protocol);

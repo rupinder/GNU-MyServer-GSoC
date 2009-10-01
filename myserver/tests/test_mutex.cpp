@@ -37,15 +37,15 @@ struct TestMutexThreadArg
   int max;
 };
 
-static DEFINE_THREAD(test_mutex_incrementer, pParam)
+static DEFINE_THREAD (test_mutex_incrementer, pParam)
 {
   TestMutexThreadArg *arg = (TestMutexThreadArg*) pParam;
 
-  for(int i = 0; i < arg->max; i++)
+  for (int i = 0; i < arg->max; i++)
   {
-    arg->mutex->lock();
+    arg->mutex->lock ();
     arg->value++;
-    arg->mutex->unlock();
+    arg->mutex->unlock ();
   }
 
   return NULL;
@@ -54,33 +54,33 @@ static DEFINE_THREAD(test_mutex_incrementer, pParam)
 
 class TestMutex : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestMutex );
-  CPPUNIT_TEST( testLockUnlock );
-  CPPUNIT_TEST( testSynchronizedAccess );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestMutex );
+  CPPUNIT_TEST ( testLockUnlock );
+  CPPUNIT_TEST ( testSynchronizedAccess );
+  CPPUNIT_TEST_SUITE_END ();
 
   Mutex *mutex;
 public:
-  void setUp()
+  void setUp ()
   {
-    mutex = new Mutex();
+    mutex = new Mutex ();
 
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete mutex;
   }
 
-  void testLockUnlock()
+  void testLockUnlock ()
   {
-    mutex->lock();
-    CPPUNIT_ASSERT_EQUAL(mutex->isLocked(), true);
-    mutex->unlock();
-    CPPUNIT_ASSERT_EQUAL(mutex->isLocked(), false);
+    mutex->lock ();
+    CPPUNIT_ASSERT_EQUAL (mutex->isLocked (), true);
+    mutex->unlock ();
+    CPPUNIT_ASSERT_EQUAL (mutex->isLocked (), false);
   }
 
-  void testSynchronizedAccess()
+  void testSynchronizedAccess ()
   {
     const int N_THREADS = 10;
     ThreadID tid[N_THREADS];
@@ -91,19 +91,19 @@ public:
     arg.mutex = &mutex;
     arg.max = 100;
 
-    for(int i = 0; i < N_THREADS; i++)
+    for (int i = 0; i < N_THREADS; i++)
     {
-      int res = Thread::create(&(tid[i]), test_mutex_incrementer, &arg);
-      CPPUNIT_ASSERT_EQUAL(res, 0);
+      int res = Thread::create (&(tid[i]), test_mutex_incrementer, &arg);
+      CPPUNIT_ASSERT_EQUAL (res, 0);
     }
 
-    for(int i = 0; i < N_THREADS; i++)
-      Thread::join(tid[i]);
+    for (int i = 0; i < N_THREADS; i++)
+      Thread::join (tid[i]);
 
-    CPPUNIT_ASSERT_EQUAL(arg.value, N_THREADS * arg.max);
+    CPPUNIT_ASSERT_EQUAL (arg.value, N_THREADS * arg.max);
 
   }
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestMutex );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestMutex );

@@ -133,7 +133,7 @@ string *Validator::getValue (HashMap<string, SecurityDomain*> *hashedDomains, st
   }
   else
   {
-    domain.assign("");
+    domain.assign ("");
     var = name;
   }
 

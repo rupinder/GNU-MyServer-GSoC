@@ -37,7 +37,7 @@ public:
 
   virtual int open (string const &filename)
   {
-    return open (filename.c_str());
+    return open (filename.c_str ());
   };
 
   virtual char *getValue (const char* field)
@@ -47,7 +47,7 @@ public:
 
   virtual char *getValue (string const &field)
   {
-    return getValue (field.c_str());
+    return getValue (field.c_str ());
   };
 
   virtual int close ()

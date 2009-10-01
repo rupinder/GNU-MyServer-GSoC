@@ -30,20 +30,20 @@ using namespace std;
 
 class TestForkServer : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestForkServer );
-  CPPUNIT_TEST( testExecuteProcess );
+  CPPUNIT_TEST_SUITE ( TestForkServer );
+  CPPUNIT_TEST ( testExecuteProcess );
   CPPUNIT_TEST (testStartKillLoop);
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE_END ();
 
   ForkServer *fs;
 
 public:
-  void setUp()
+  void setUp ()
   {
     fs = new ForkServer;
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete fs;
   }
@@ -63,7 +63,7 @@ public:
 #endif
   }
 
-  void testExecuteProcess()
+  void testExecuteProcess ()
   {
     try
       {
@@ -77,11 +77,11 @@ public:
         int ret = fs->startForkServer ();
 
         Pipe pipe;
-        pipe.create();
+        pipe.create ();
 
         spi.stdIn = -1;
         spi.stdError = -1;
-        spi.stdOut =  pipe.getWriteHandle();
+        spi.stdOut =  pipe.getWriteHandle ();
 
         spi.cmd.assign ("/bin/echo");
         spi.arg.assign (msg);
@@ -111,4 +111,4 @@ public:
   }
 
 };
-CPPUNIT_TEST_SUITE_REGISTRATION( TestForkServer );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestForkServer );

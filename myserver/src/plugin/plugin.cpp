@@ -75,11 +75,11 @@ int Plugin::preLoad (string& file, bool global)
  * \param languageFile The language file to use to retrieve warnings/errors
  * messages.
  */
-int Plugin::postLoad(Server* server)
+int Plugin::postLoad (Server* server)
 {
   if (hinstLib.validHandle ())
     {
-      postLoadPROC proc = (postLoadPROC)hinstLib.getProc("postLoad");
+      postLoadPROC proc = (postLoadPROC)hinstLib.getProc ("postLoad");
       if (proc)
         return proc (server);
     }

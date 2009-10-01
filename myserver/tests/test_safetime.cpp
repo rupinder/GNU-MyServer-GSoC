@@ -30,69 +30,69 @@ using namespace std;
 
 class TestSafetime : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestSafetime );
-  CPPUNIT_TEST( testLocalTime );
-  CPPUNIT_TEST( testGmTime );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestSafetime );
+  CPPUNIT_TEST ( testLocalTime );
+  CPPUNIT_TEST ( testGmTime );
+  CPPUNIT_TEST_SUITE_END ();
 
 public:
-  void setUp()
+  void setUp ()
   {
-    myserver_safetime_init();
+    myserver_safetime_init ();
   }
 
-  void tearDown()
+  void tearDown ()
   {
-    myserver_safetime_destroy();
+    myserver_safetime_destroy ();
   }
 
-  void testLocalTime()
+  void testLocalTime ()
   {
     tm res;
     time_t timep = 10;
-    tm *outRes = myserver_localtime(&timep, &res);
+    tm *outRes = myserver_localtime (&timep, &res);
 
-    CPPUNIT_ASSERT(outRes);
-    CPPUNIT_ASSERT_EQUAL(res.tm_sec, outRes->tm_sec);
-    CPPUNIT_ASSERT_EQUAL(res.tm_min, outRes->tm_min);
-    CPPUNIT_ASSERT_EQUAL(res.tm_hour, outRes->tm_hour);
-    CPPUNIT_ASSERT_EQUAL(res.tm_mday, outRes->tm_mday);
-    CPPUNIT_ASSERT_EQUAL(res.tm_mon, outRes->tm_mon);
-    CPPUNIT_ASSERT_EQUAL(res.tm_year, outRes->tm_year);
-    CPPUNIT_ASSERT_EQUAL(res.tm_wday, outRes->tm_wday);
-    CPPUNIT_ASSERT_EQUAL(res.tm_yday, outRes->tm_yday);
-    CPPUNIT_ASSERT_EQUAL(res.tm_isdst, outRes->tm_isdst);
+    CPPUNIT_ASSERT (outRes);
+    CPPUNIT_ASSERT_EQUAL (res.tm_sec, outRes->tm_sec);
+    CPPUNIT_ASSERT_EQUAL (res.tm_min, outRes->tm_min);
+    CPPUNIT_ASSERT_EQUAL (res.tm_hour, outRes->tm_hour);
+    CPPUNIT_ASSERT_EQUAL (res.tm_mday, outRes->tm_mday);
+    CPPUNIT_ASSERT_EQUAL (res.tm_mon, outRes->tm_mon);
+    CPPUNIT_ASSERT_EQUAL (res.tm_year, outRes->tm_year);
+    CPPUNIT_ASSERT_EQUAL (res.tm_wday, outRes->tm_wday);
+    CPPUNIT_ASSERT_EQUAL (res.tm_yday, outRes->tm_yday);
+    CPPUNIT_ASSERT_EQUAL (res.tm_isdst, outRes->tm_isdst);
 
 
-    CPPUNIT_ASSERT_EQUAL(res.tm_sec, 10);
-    CPPUNIT_ASSERT_EQUAL(res.tm_min, 0);
-    CPPUNIT_ASSERT_EQUAL(res.tm_year, 70);
+    CPPUNIT_ASSERT_EQUAL (res.tm_sec, 10);
+    CPPUNIT_ASSERT_EQUAL (res.tm_min, 0);
+    CPPUNIT_ASSERT_EQUAL (res.tm_year, 70);
   }
 
-  void testGmTime()
+  void testGmTime ()
   {
     tm res;
     time_t timep = 10;
-    tm *outRes = myserver_gmtime(&timep, &res);
+    tm *outRes = myserver_gmtime (&timep, &res);
 
-    CPPUNIT_ASSERT(outRes);
-    CPPUNIT_ASSERT_EQUAL(res.tm_sec, outRes->tm_sec);
-    CPPUNIT_ASSERT_EQUAL(res.tm_min, outRes->tm_min);
-    CPPUNIT_ASSERT_EQUAL(res.tm_hour, outRes->tm_hour);
-    CPPUNIT_ASSERT_EQUAL(res.tm_mday, outRes->tm_mday);
-    CPPUNIT_ASSERT_EQUAL(res.tm_mon, outRes->tm_mon);
-    CPPUNIT_ASSERT_EQUAL(res.tm_year, outRes->tm_year);
-    CPPUNIT_ASSERT_EQUAL(res.tm_wday, outRes->tm_wday);
-    CPPUNIT_ASSERT_EQUAL(res.tm_yday, outRes->tm_yday);
-    CPPUNIT_ASSERT_EQUAL(res.tm_isdst, outRes->tm_isdst);
+    CPPUNIT_ASSERT (outRes);
+    CPPUNIT_ASSERT_EQUAL (res.tm_sec, outRes->tm_sec);
+    CPPUNIT_ASSERT_EQUAL (res.tm_min, outRes->tm_min);
+    CPPUNIT_ASSERT_EQUAL (res.tm_hour, outRes->tm_hour);
+    CPPUNIT_ASSERT_EQUAL (res.tm_mday, outRes->tm_mday);
+    CPPUNIT_ASSERT_EQUAL (res.tm_mon, outRes->tm_mon);
+    CPPUNIT_ASSERT_EQUAL (res.tm_year, outRes->tm_year);
+    CPPUNIT_ASSERT_EQUAL (res.tm_wday, outRes->tm_wday);
+    CPPUNIT_ASSERT_EQUAL (res.tm_yday, outRes->tm_yday);
+    CPPUNIT_ASSERT_EQUAL (res.tm_isdst, outRes->tm_isdst);
 
 
-    CPPUNIT_ASSERT_EQUAL(res.tm_sec, 10);
-    CPPUNIT_ASSERT_EQUAL(res.tm_min, 0);
-    CPPUNIT_ASSERT_EQUAL(res.tm_hour, 0);
-    CPPUNIT_ASSERT_EQUAL(res.tm_year, 70);
+    CPPUNIT_ASSERT_EQUAL (res.tm_sec, 10);
+    CPPUNIT_ASSERT_EQUAL (res.tm_min, 0);
+    CPPUNIT_ASSERT_EQUAL (res.tm_hour, 0);
+    CPPUNIT_ASSERT_EQUAL (res.tm_year, 70);
   }
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestSafetime );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestSafetime );

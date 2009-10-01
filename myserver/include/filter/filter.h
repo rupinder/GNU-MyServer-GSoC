@@ -32,34 +32,34 @@ protected:
   Stream *parent;
   void* protocolData;
 public:
-  Protocol* getProtocol()
+  Protocol* getProtocol ()
   {
     return protocol;
   }
-  void setProtocol(Protocol* pr)
+  void setProtocol (Protocol* pr)
   {
     protocol = pr;
   }
-  void* getProtocolData()
+  void* getProtocolData ()
   {
     return protocolData;
   }
-  void setProtocolData(void* prd)
+  void setProtocolData (void* prd)
   {
     protocolData = prd;
   }
-  virtual int getHeader(char* buffer, u_long len, u_long* nbw);
-  virtual int getFooter(char* buffer, u_long len, u_long* nbw);
-  virtual int read(char* buffer, u_long len, u_long*);
-  virtual int write(const char* buffer, u_long len, u_long*);
-	virtual int flush(u_long*);
-	virtual int modifyData();
-  virtual const char* getName(char*, u_long);
-  void setParent(Stream*);
-  Stream* getParent();
-  Filter();
+  virtual int getHeader (char* buffer, u_long len, u_long* nbw);
+  virtual int getFooter (char* buffer, u_long len, u_long* nbw);
+  virtual int read (char* buffer, u_long len, u_long*);
+  virtual int write (const char* buffer, u_long len, u_long*);
+	virtual int flush (u_long*);
+	virtual int modifyData ();
+  virtual const char* getName (char*, u_long);
+  void setParent (Stream*);
+  Stream* getParent ();
+  Filter ();
   /*! Avoid direct instances of this class. */
-  virtual ~Filter()=0;
+  virtual ~Filter ()=0;
 };
 
 

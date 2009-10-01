@@ -38,7 +38,7 @@ AuthMethodFactory::~AuthMethodFactory ()
 /*!
  *Return an AuthMethod given its name.
  */
-AuthMethod* AuthMethodFactory::getAuthMethod(string &name)
+AuthMethod* AuthMethodFactory::getAuthMethod (string &name)
 {
   return authMethods.get (name);
 }
@@ -49,7 +49,7 @@ AuthMethod* AuthMethodFactory::getAuthMethod(string &name)
  *\param authMethod The authMethod to add.
  *\return The old authMethod registered with [name], in any.
  */
-AuthMethod* AuthMethodFactory::addAuthMethod(string &name, AuthMethod* authMethod)
+AuthMethod* AuthMethodFactory::addAuthMethod (string &name, AuthMethod* authMethod)
 {
   return authMethods.put (name, authMethod);
 
