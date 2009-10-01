@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -36,8 +36,7 @@ class PluginInfo
 {
 public:
 
-    PluginInfo (string& name, bool enabled = 1, bool global = 0);
-
+  PluginInfo (string& name, bool enabled = 1, bool global = 0);
 	~PluginInfo ();
 
 	bool isEnabled ();
@@ -46,17 +45,11 @@ public:
 	void addDependence (string, int minVersion, int maxVersion);
 
 	int getVersion ();
-
 	void setVersion (int v);
-
 	string getName ();
-
 	int getMyServerMinVersion ();
-
 	int getMyServerMaxVersion ();
-
 	int setMyServerMinVersion (int v);
-
 	int setMyServerMaxVersion (int v);
 
 	HashMap<string, pair<int,int>* >::Iterator begin (){return dependences.begin ();}
@@ -65,27 +58,21 @@ public:
 	void setPlugin (Plugin* plugin);
 	Plugin* getPlugin ();
 	Plugin* removePlugin ();
-
 	void setEnabled (bool enabled);
-
 	pair<int,int>* getDependence (string name);
 
 	static int convertVersion (string* s);
 
-
-
-
-
 private:
 	string name;
 	bool enabled;
-    bool global;
-    int version;
-    int msMinVersion;
-    int msMaxVersion;
-    Plugin* plugin;
-    HashMap<string, pair<int,int>* > dependences;
-    static Regex* regex;
+  bool global;
+  int version;
+  int msMinVersion;
+  int msMaxVersion;
+  Plugin* plugin;
+  HashMap<string, pair<int,int>* > dependences;
+  static Regex* regex;
 };
 
 #endif

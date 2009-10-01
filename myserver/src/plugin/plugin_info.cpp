@@ -17,11 +17,9 @@
 
 #include <include/plugin/plugin_info.h>
 
-
 using namespace std;
 
-Regex* PluginInfo::regex = new Regex ("^[1-2]?[1-9]?[0-9](\\.[1-2]?[0-9]?[0-9](\\.[1-2]?[0-9]?[0-9](\\.[1-2]?[0-9]?[0-9])?)?)?$",REG_EXTENDED | REG_NOSUB);
-
+Regex* PluginInfo::regex = NULL;
 
 /*!
  *Construct a plugin info object.
@@ -188,14 +186,20 @@ Plugin* PluginInfo::removePlugin ()
 }
 
 /*!
- * Converts a string in the format "a.b.c.d" in an int in the format abcd where each number takes 8 bit.
+ * Converts a string in the format "a.b.c.d" in an int in the format abcd where
+ * each number takes 8 bit.
  */
 int PluginInfo::convertVersion (string* s)
 {
+  int ret;
 
-  int ret = regex->exec (s->c_str (), 0, NULL, 0);
+  if (regex == NULL)
+    regex = new Regex ("^[1-2]?[1-9]?[0-9](\\.[1-2]?[0-9]?[0-9](\\.[1-2]?[0-9]?[0-9](\\.[1-2]?[0-9]?[0-9])?)?)?$",
+                       REG_EXTENDED | REG_NOSUB);
 
-  if (ret!=0)
+  ret = regex->exec (s->c_str (), 0, NULL, 0);
+
+  if (ret)
     return -1;
 
   string::size_type pos = s->find (".",0);
