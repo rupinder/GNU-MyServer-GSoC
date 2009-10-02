@@ -58,14 +58,7 @@ extern "C"
 }
 #include <sstream>
 
-#if HAVE_IPV6
-const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
-#endif
-
-/*!
- *At startup the server instance is null.
- */
-Server* Server::instance = 0;
+Server* Server::instance = NULL;
 
 Server::Server () : connectionsScheduler (this),
                    listenThreads (&connectionsScheduler, this),
