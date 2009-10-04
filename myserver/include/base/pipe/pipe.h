@@ -29,17 +29,17 @@ using namespace std;
 class Pipe : public Stream
 {
 public:
-	Pipe();
-	int create(bool readPipe = true);
-	long getReadHandle();
-	long getWriteHandle();
-	void inverted(Pipe&);
-  virtual int read(char* buffer, u_long len, u_long *nbr);
-  virtual int write(const char* buffer, u_long len, u_long *nbw);
-	virtual int close();
-	void closeRead();
-	void closeWrite();
-	bool pipeTerminated(){return terminated;}
+	Pipe ();
+	int create (bool readPipe = true);
+	long getReadHandle ();
+	long getWriteHandle ();
+	void inverted (Pipe&);
+  virtual int read (char* buffer, u_long len, u_long *nbr);
+  virtual int write (const char* buffer, u_long len, u_long *nbw);
+	virtual int close ();
+	void closeRead ();
+	void closeWrite ();
+	bool pipeTerminated (){return terminated;}
   int waitForData (int sec, int usec);
 private:
   bool terminated;

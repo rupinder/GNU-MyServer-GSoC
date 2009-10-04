@@ -52,22 +52,22 @@ struct ScgiContext
 class Scgi : public HttpDataHandler
 {
 public:
-  Scgi();
-  virtual int load();
-  virtual int unLoad();
-  int send(HttpThreadContext* td, const char* scriptpath,
+  Scgi ();
+  virtual int load ();
+  virtual int unLoad ();
+  int send (HttpThreadContext* td, const char* scriptpath,
            const char *cgipath = 0, bool execute = false,
            bool onlyHeader = false);
 private:
   static ProcessServerManager *processServerManager;
   static int initialized;
-  Socket getScgiConnection();
-  int sendPostData(ScgiContext* ctx);
-  int sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain*);
-  int buildScgiEnvironmentString(HttpThreadContext*, char*, char*);
-  int sendNetString(ScgiContext*, const char*, int);
-  ScgiServer* isScgiServerRunning(const char*);
-  ScgiServer* runScgiServer(ScgiContext*, const char*);
-  ScgiServer* connect(ScgiContext*, const char*);
+  Socket getScgiConnection ();
+  int sendPostData (ScgiContext* ctx);
+  int sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain*);
+  int buildScgiEnvironmentString (HttpThreadContext*, char*, char*);
+  int sendNetString (ScgiContext*, const char*, int);
+  ScgiServer* isScgiServerRunning (const char*);
+  ScgiServer* runScgiServer (ScgiContext*, const char*);
+  ScgiServer* connect (ScgiContext*, const char*);
 };
 #endif

@@ -52,12 +52,12 @@ public:
   {
     XmlParser *parser = getTestParser ();
 
-    CPPUNIT_ASSERT_EQUAL (mm->isLoaded(), false);
+    CPPUNIT_ASSERT_EQUAL (mm->isLoaded (), false);
 
     CPPUNIT_ASSERT_EQUAL (mm->loadXML (parser), 2ul);
-    CPPUNIT_ASSERT_EQUAL (mm->getNumMIMELoaded(), 2ul);
+    CPPUNIT_ASSERT_EQUAL (mm->getNumMIMELoaded (), 2ul);
 
-    CPPUNIT_ASSERT_EQUAL (mm->isLoaded(), true);
+    CPPUNIT_ASSERT_EQUAL (mm->isLoaded (), true);
 
     delete parser;
   }
@@ -68,11 +68,11 @@ public:
     MimeRecord mr;
     mm->loadXML (parser);
 
-    CPPUNIT_ASSERT_EQUAL (mm->getNumMIMELoaded(), 2ul);
+    CPPUNIT_ASSERT_EQUAL (mm->getNumMIMELoaded (), 2ul);
 
     mm->addRecord (&mr);
 
-    CPPUNIT_ASSERT_EQUAL (mm->getNumMIMELoaded(), 3ul);
+    CPPUNIT_ASSERT_EQUAL (mm->getNumMIMELoaded (), 3ul);
 
     delete parser;
   }
@@ -92,11 +92,11 @@ private:
        <EXTENSION value=\"txt\"/>\n</MIME>\n</MIMES>\n";
 
     mb.addBuffer (buffer, strlen (buffer));
-    parser->openMemBuf(mb);
+    parser->openMemBuf (mb);
 
     return parser;
   }
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestMimeManager );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestMimeManager );

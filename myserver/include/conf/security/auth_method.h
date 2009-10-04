@@ -28,7 +28,7 @@ class AuthMethod
 {
 public:
   AuthMethod ();
-  virtual ~AuthMethod();
+  virtual ~AuthMethod ();
 
   virtual int getPermissionMask (SecurityToken* st);
 };

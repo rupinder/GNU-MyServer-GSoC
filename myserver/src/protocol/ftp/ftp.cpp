@@ -335,7 +335,7 @@ int Ftp::controlConnection (ConnectionPtr pConnection, char *b1, char *b2,
   if (pFtpuserData == NULL)
     return ClientsThread::DELETE_CONNECTION;
 
-  // check if ftp is busy(return 120) or unavailable(return 421)
+  // check if ftp is busy (return 120) or unavailable (return 421)
   if (pConnection->getToRemove () == Connection::REMOVE_OVERLOAD)
     {
       pFtpuserData->m_nFtpstate = FtpuserData::BUISY;
@@ -742,7 +742,7 @@ DEFINE_THREAD (SendAsciiFile, pParam)
 #endif
     }
 
-  File *file = NULL;		//new File();
+  File *file = NULL;		//new File ();
   try
   {
     file =
@@ -1442,7 +1442,7 @@ bool Ftp::userLoggedIn ()
 }
 
 /*!
- *Converts from relative client's path to local path(out path may not exist).
+ *Converts from relative client's path to local path (out path may not exist).
  *\param sPathIn client's relative path
  *\param sOutPath local path
  *\return Return true if path exist, file is a normal one and is into the ftp's root folder

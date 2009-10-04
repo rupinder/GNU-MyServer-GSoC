@@ -30,14 +30,14 @@ using namespace std;
 
 class TestXml : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestXml );
-  CPPUNIT_TEST( testOpenMemBuf );
-  CPPUNIT_TEST( testXPath );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestXml );
+  CPPUNIT_TEST ( testOpenMemBuf );
+  CPPUNIT_TEST ( testXPath );
+  CPPUNIT_TEST_SUITE_END ();
 
-  MemBuf* getXmlMemBuf()
+  MemBuf* getXmlMemBuf ()
   {
-    MemBuf* memBuf = new MemBuf();
+    MemBuf* memBuf = new MemBuf ();
 
     *memBuf << "<?xml version=\"1.0\"?>"
             << "<ROOT>"
@@ -52,50 +52,50 @@ class TestXml : public CppUnit::TestFixture
 
 public:
 
-  void setUp()
+  void setUp ()
   {
 
   }
 
-  void tearDown()
+  void tearDown ()
   {
 
   }
 
-  void testOpenMemBuf()
+  void testOpenMemBuf ()
   {
-    MemBuf* memBuf = getXmlMemBuf();
+    MemBuf* memBuf = getXmlMemBuf ();
 
-    XmlParser *xml = new XmlParser();
-    int ret = xml->openMemBuf(*memBuf);
+    XmlParser *xml = new XmlParser ();
+    int ret = xml->openMemBuf (*memBuf);
 
-    CPPUNIT_ASSERT_EQUAL(ret, 0);
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
 
     delete memBuf;
     delete xml;
   }
 
-  void testXPath()
+  void testXPath ()
   {
-    MemBuf* memBuf = getXmlMemBuf();
+    MemBuf* memBuf = getXmlMemBuf ();
 
-    XmlParser *xml = new XmlParser();
-    xml->openMemBuf(*memBuf, true);
+    XmlParser *xml = new XmlParser ();
+    xml->openMemBuf (*memBuf, true);
 
 
-    XmlXPathResult* xpathRes = xml->evaluateXpath("/ROOT/NODE/ELEMENT[@name='a']/text()");
+    XmlXPathResult* xpathRes = xml->evaluateXpath ("/ROOT/NODE/ELEMENT[@name='a']/text ()");
 
-    CPPUNIT_ASSERT(xpathRes);
+    CPPUNIT_ASSERT (xpathRes);
 
-    xmlXPathObjectPtr obj = xpathRes->getObject();
+    xmlXPathObjectPtr obj = xpathRes->getObject ();
 
-    xmlNodeSetPtr nodes = xpathRes->getNodeSet();
+    xmlNodeSetPtr nodes = xpathRes->getNodeSet ();
 
-    CPPUNIT_ASSERT(obj);
+    CPPUNIT_ASSERT (obj);
 
-    CPPUNIT_ASSERT_EQUAL(nodes->nodeNr, 1);
+    CPPUNIT_ASSERT_EQUAL (nodes->nodeNr, 1);
 
-    CPPUNIT_ASSERT(!strcmp((const char*)nodes->nodeTab[0]->content, "a"));
+    CPPUNIT_ASSERT (!strcmp ((const char*)nodes->nodeTab[0]->content, "a"));
 
     delete xpathRes;
     delete memBuf;
@@ -105,4 +105,4 @@ public:
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestXml );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestXml );

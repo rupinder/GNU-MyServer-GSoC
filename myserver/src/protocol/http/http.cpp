@@ -102,7 +102,7 @@ int Http::optionsHTTPRESOURCE (string& filename, int yetmapped)
       if (ret != 200)
         return raiseHTTPError (ret);
 
-      getRFC822GMTTime (time, HTTP_RESPONSE_DATE_DIM);
+      getRFC822GMTTime (time, 32);
       td->secondaryBuffer->setLength (0);
       *td->secondaryBuffer << "HTTP/1.1 200 OK\r\n";
       *td->secondaryBuffer << "Date: " << time;
@@ -150,7 +150,7 @@ int Http::traceHTTPRESOURCE (string& filename, int yetmapped)
         return raiseHTTPError (ret);
 
       tmp.intToStr (contentLength, tmpStr, 12);
-      getRFC822GMTTime (time, HTTP_RESPONSE_DATE_DIM);
+      getRFC822GMTTime (time, 32);
 
       td->secondaryBuffer->setLength (0);
       *td->secondaryBuffer << "HTTP/1.1 200 OK\r\n";
@@ -408,10 +408,7 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped, int* permissio
   try
     {
       if (td->request.isKeepAlive ())
-        {
-          td->response.connection.assign ("keep-alive");
-        }
-
+        td->response.setValue ("Connection", "keep-alive");
 
       ret = getFilePermissions (filename, directory, file,
                                 td->filenamePath, yetmapped, permissions);
@@ -643,17 +640,15 @@ Http::sendHTTPResource (string& uri, int systemrequest, int onlyHeader,
           return processDefaultFile (uri, td->permissions, onlyHeader);
         }
 
-      td->response.contentType[0] = '\0';
-
       /* If not specified differently, set the default content type to text/html.  */
       if (td->mime)
         {
-          td->response.contentType.assign (td->mime->mimeType);
+          td->response.setValue ("ContentType", td->mime->mimeType.c_str ());
           cgiManager = td->mime->cgiManager.c_str ();
         }
       else
         {
-          td->response.contentType.assign ("text/html");
+          td->response.setValue ("ContentType", "text/html");
           cgiManager = "";
         }
 
@@ -712,7 +707,7 @@ int Http::logHTTPaccess ()
 
       *td->secondaryBuffer << " [";
 
-      getLocalLogFormatDate (time, HTTP_RESPONSE_DATE_DIM);
+      getLocalLogFormatDate (time, 32);
       *td->secondaryBuffer << time << "] \"";
 
       if (td->request.cmd.length ())
@@ -1093,7 +1088,7 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
                                           + td->nHeaderChars);
                       u_long toCopy = nbtr - td->nHeaderChars;
 
-                      a->getConnectionBuffer()->setBuffer (data, toCopy);
+                      a->getConnectionBuffer ()->setBuffer (data, toCopy);
                       retvalue = ClientsThread::INCOMPLETE_REQUEST_NO_WAIT;
                     }
                   else
@@ -1177,7 +1172,7 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
               else
                 {
                   /*
-                   *Return Method not implemented(501) if there
+                   *Return Method not implemented (501) if there
                    *is not a dynamic methods manager.
                    */
                   if (!dynamicCommand)
@@ -1327,7 +1322,7 @@ int Http::requestAuthorization ()
       return raiseHTTPError (501);
     }
   *td->secondaryBuffer << "Date: ";
-  getRFC822GMTTime (time, HTTP_RESPONSE_DATE_DIM);
+  getRFC822GMTTime (time, 32);
   *td->secondaryBuffer << time
           << "\r\n\r\n";
   if (td->connection->socket->send (td->secondaryBuffer->getBuffer (),
@@ -1376,10 +1371,9 @@ int Http::raiseHTTPError (int ID)
       td->lastError = ID;
 
       HttpHeaders::buildDefaultHTTPResponseHeader (&(td->response));
+
       if (connection && !stringcmpi (connection->value->c_str (), "keep-alive"))
-        {
-          td->response.connection.assign ("keep-alive");
-        }
+        td->response.setValue ("Connection", "keep-alive");
 
       td->response.httpStatus = ID;
 
@@ -1423,9 +1417,6 @@ int Http::raiseHTTPError (int ID)
 
           return sendHTTPRedirect (nURL.str ().c_str ());
         }
-
-      getRFC822GMTTime (time, HTTP_RESPONSE_DATE_EXPIRES_DIM);
-      td->response.dateExp.assign (time);
 
       if (useMessagesFiles)
         {
@@ -1533,7 +1524,7 @@ Internal Server Error\n\
   *td->secondaryBuffer << tmp;
   *td->secondaryBuffer << "\r\n";
   *td->secondaryBuffer << "Date: ";
-  getRFC822GMTTime (time, HTTP_RESPONSE_DATE_DIM);
+  getRFC822GMTTime (time, 32);
   *td->secondaryBuffer << time;
   *td->secondaryBuffer << "\r\n\r\n";
 
@@ -1723,7 +1714,7 @@ int Http::sendHTTPRedirect (const char *newURL)
     *td->secondaryBuffer << "Connection: close\r\n";
 
   *td->secondaryBuffer << "Date: ";
-  getRFC822GMTTime (time, HTTP_RESPONSE_DATE_DIM);
+  getRFC822GMTTime (time, 32);
   *td->secondaryBuffer << time
           << "\r\n\r\n";
   if (td->connection->socket->send (td->secondaryBuffer->getBuffer (),
@@ -1755,7 +1746,7 @@ int Http::sendHTTPNonModified ()
   else
     *td->secondaryBuffer << "Connection: close\r\n";
 
-  getRFC822GMTTime (time, HTTP_RESPONSE_DATE_DIM);
+  getRFC822GMTTime (time, 32);
 
   *td->secondaryBuffer << "Date: " << time << "\r\n\r\n";
 

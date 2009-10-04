@@ -32,11 +32,11 @@ using namespace std;
 class DynamicHttpCommand
 {
 public:
-  DynamicHttpCommand(string&);
-  virtual ~DynamicHttpCommand();
-  string getName();
-  virtual int acceptData() = 0;
-  virtual int send(HttpThreadContext* context, ConnectionPtr lpconnection,
+  DynamicHttpCommand (string&);
+  virtual ~DynamicHttpCommand ();
+  string getName ();
+  virtual int acceptData () = 0;
+  virtual int send (HttpThreadContext* context, ConnectionPtr lpconnection,
 									 string& Uri, int systemrequest = 0,
 									 int OnlyHeader = 0, int yetmapped = 0) = 0;
 private:

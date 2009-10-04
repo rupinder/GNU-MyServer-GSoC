@@ -26,170 +26,170 @@
 
 class TestConnection : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestConnection );
-  CPPUNIT_TEST( testID );
-  CPPUNIT_TEST( testTimeout );
-  CPPUNIT_TEST( testLocalPort );
-  CPPUNIT_TEST( testIpAddress );
-  CPPUNIT_TEST( testActiveThread );
-  CPPUNIT_TEST( testLocalIpAddress );
-  CPPUNIT_TEST( testTries );
-  CPPUNIT_TEST( testPort );
-  CPPUNIT_TEST( testLogin );
-  CPPUNIT_TEST( testPassword );
-  CPPUNIT_TEST( testForceControl );
-  CPPUNIT_TEST( testToRemove );
-  CPPUNIT_TEST( testScheduled );
-  CPPUNIT_TEST( testPriority );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestConnection );
+  CPPUNIT_TEST ( testID );
+  CPPUNIT_TEST ( testTimeout );
+  CPPUNIT_TEST ( testLocalPort );
+  CPPUNIT_TEST ( testIpAddress );
+  CPPUNIT_TEST ( testActiveThread );
+  CPPUNIT_TEST ( testLocalIpAddress );
+  CPPUNIT_TEST ( testTries );
+  CPPUNIT_TEST ( testPort );
+  CPPUNIT_TEST ( testLogin );
+  CPPUNIT_TEST ( testPassword );
+  CPPUNIT_TEST ( testForceControl );
+  CPPUNIT_TEST ( testToRemove );
+  CPPUNIT_TEST ( testScheduled );
+  CPPUNIT_TEST ( testPriority );
+  CPPUNIT_TEST_SUITE_END ();
 
   ConnectionPtr connection;
 
 public:
-  void setUp()
+  void setUp ()
   {
     connection = new Connection;
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete connection;
   }
 
 
-  void testID()
+  void testID ()
   {
-    for(u_long i = 0; i < 100; i += 10)
+    for (u_long i = 0; i < 100; i += 10)
     {
-      connection->setID(i);
-      CPPUNIT_ASSERT_EQUAL(connection->getID(), i);
+      connection->setID (i);
+      CPPUNIT_ASSERT_EQUAL (connection->getID (), i);
     }
   }
 
-  void testTimeout()
+  void testTimeout ()
   {
-    for(u_long i = 0; i < 100; i += 10)
+    for (u_long i = 0; i < 100; i += 10)
     {
-      connection->setTimeout(i);
-      CPPUNIT_ASSERT_EQUAL(connection->getTimeout(), i);
+      connection->setTimeout (i);
+      CPPUNIT_ASSERT_EQUAL (connection->getTimeout (), i);
     }
   }
 
-  void testLocalPort()
+  void testLocalPort ()
   {
-    for(u_short i = 0; i < 100; i += 10)
+    for (u_short i = 0; i < 100; i += 10)
     {
-      connection->setLocalPort(i);
-      CPPUNIT_ASSERT_EQUAL(connection->getLocalPort(), i);
+      connection->setLocalPort (i);
+      CPPUNIT_ASSERT_EQUAL (connection->getLocalPort (), i);
     }
   }
 
-  void testIpAddress()
+  void testIpAddress ()
   {
-    connection->setIpAddr("127.0.0.1");
-    CPPUNIT_ASSERT(strcmp(connection->getIpAddr(), "127.0.0.1") == 0);
+    connection->setIpAddr ("127.0.0.1");
+    CPPUNIT_ASSERT (strcmp (connection->getIpAddr (), "127.0.0.1") == 0);
   }
 
-  void testActiveThread()
+  void testActiveThread ()
   {
-    ClientsThread *ct = new ClientsThread(NULL);
+    ClientsThread *ct = new ClientsThread (NULL);
 
-    connection->setActiveThread(ct);
+    connection->setActiveThread (ct);
 
-    CPPUNIT_ASSERT_EQUAL(connection->getActiveThread(), ct);
+    CPPUNIT_ASSERT_EQUAL (connection->getActiveThread (), ct);
 
     delete ct;
   }
 
-  void testLocalIpAddress()
+  void testLocalIpAddress ()
   {
-    connection->setLocalIpAddr("127.0.0.1");
-    CPPUNIT_ASSERT(strcmp(connection->getLocalIpAddr(), "127.0.0.1") == 0);
+    connection->setLocalIpAddr ("127.0.0.1");
+    CPPUNIT_ASSERT (strcmp (connection->getLocalIpAddr (), "127.0.0.1") == 0);
   }
 
-  void testTries()
+  void testTries ()
   {
     char tries = 0;
-    connection->setnTries(tries);
-    CPPUNIT_ASSERT_EQUAL(connection->getnTries(), tries);
+    connection->setnTries (tries);
+    CPPUNIT_ASSERT_EQUAL (connection->getnTries (), tries);
 
-    for(int i = 0; i < 10; i++)
+    for (int i = 0; i < 10; i++)
     {
       tries++;
-      connection->incnTries();
-      CPPUNIT_ASSERT_EQUAL(connection->getnTries(), tries);
+      connection->incnTries ();
+      CPPUNIT_ASSERT_EQUAL (connection->getnTries (), tries);
 
     }
   }
 
-  void testPort()
+  void testPort ()
   {
-    for(u_short i = 0; i < 100; i += 10)
+    for (u_short i = 0; i < 100; i += 10)
     {
-      connection->setPort(i);
-      CPPUNIT_ASSERT_EQUAL(connection->getPort(), i);
+      connection->setPort (i);
+      CPPUNIT_ASSERT_EQUAL (connection->getPort (), i);
     }
   }
 
 
-  void testLogin()
+  void testLogin ()
   {
-    connection->setLogin("username");
-    CPPUNIT_ASSERT(strcmp(connection->getLogin(), "username") == 0);
+    connection->setLogin ("username");
+    CPPUNIT_ASSERT (strcmp (connection->getLogin (), "username") == 0);
   }
 
-  void testPassword()
+  void testPassword ()
   {
-    connection->setPassword("password");
-    CPPUNIT_ASSERT(strcmp(connection->getPassword(), "password") == 0);
-  }
-
-
-  void testForceControl()
-  {
-    connection->setForceControl(0);
-    CPPUNIT_ASSERT_EQUAL(connection->isForceControl(), 0);
-
-    connection->setForceControl(1);
-    CPPUNIT_ASSERT_EQUAL(connection->isForceControl(), 1);
-  }
-
-  void testToRemove()
-  {
-    connection->setToRemove(0);
-    CPPUNIT_ASSERT_EQUAL(connection->getToRemove(), 0);
-
-    connection->setToRemove(1);
-    CPPUNIT_ASSERT_EQUAL(connection->getToRemove(), 1);
-  }
-
-  void testScheduled()
-  {
-    connection->setScheduled(0);
-    CPPUNIT_ASSERT_EQUAL(connection->isScheduled(), 0);
-
-    connection->setScheduled(1);
-    CPPUNIT_ASSERT_EQUAL(connection->isScheduled(), 1);
+    connection->setPassword ("password");
+    CPPUNIT_ASSERT (strcmp (connection->getPassword (), "password") == 0);
   }
 
 
-  void testPriority()
+  void testForceControl ()
   {
-    for(int i = 0; i < 100; i += 10)
+    connection->setForceControl (0);
+    CPPUNIT_ASSERT_EQUAL (connection->isForceControl (), 0);
+
+    connection->setForceControl (1);
+    CPPUNIT_ASSERT_EQUAL (connection->isForceControl (), 1);
+  }
+
+  void testToRemove ()
+  {
+    connection->setToRemove (0);
+    CPPUNIT_ASSERT_EQUAL (connection->getToRemove (), 0);
+
+    connection->setToRemove (1);
+    CPPUNIT_ASSERT_EQUAL (connection->getToRemove (), 1);
+  }
+
+  void testScheduled ()
+  {
+    connection->setScheduled (0);
+    CPPUNIT_ASSERT_EQUAL (connection->isScheduled (), 0);
+
+    connection->setScheduled (1);
+    CPPUNIT_ASSERT_EQUAL (connection->isScheduled (), 1);
+  }
+
+
+  void testPriority ()
+  {
+    for (int i = 0; i < 100; i += 10)
     {
-      connection->setPriority(i);
-      CPPUNIT_ASSERT_EQUAL(connection->getPriority(), i);
+      connection->setPriority (i);
+      CPPUNIT_ASSERT_EQUAL (connection->getPriority (), i);
     }
   }
 
-  void testContinuation()
+  void testContinuation ()
   {
     continuationPROC continuation = (continuationPROC) 100;
 
-    CPPUNIT_ASSERT(connection->getContinuation() == NULL);
-    connection->setContinuation(continuation);
+    CPPUNIT_ASSERT (connection->getContinuation () == NULL);
+    connection->setContinuation (continuation);
 
-    CPPUNIT_ASSERT(connection->getContinuation() == continuation);
+    CPPUNIT_ASSERT (connection->getContinuation () == continuation);
   }
 
 
@@ -197,4 +197,4 @@ public:
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestConnection );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestConnection );

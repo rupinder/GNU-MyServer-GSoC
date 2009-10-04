@@ -37,7 +37,7 @@ class UnixSocket: public Socket
 {
 public:
   UnixSocket ();
-  int bind(const char *path);
+  int bind (const char *path);
   int shutdown ();
   int close ();
   int connect (const char* path);
@@ -56,7 +56,7 @@ private:
 # ifdef AF_UNIX
   void makeAddrInfo (sockaddr_un *info, const char *path)
   {
-    memset(info, 0, sizeof(struct sockaddr_un));
+    memset (info, 0, sizeof (struct sockaddr_un));
     info->sun_family = AF_UNIX;
     strcpy (info->sun_path, path);
   }

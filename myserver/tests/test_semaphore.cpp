@@ -32,74 +32,74 @@ using namespace std;
 
 class TestSemaphore : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestSemaphore );
-  CPPUNIT_TEST( testUnlockLock );
-  CPPUNIT_TEST( testConstructor );
-  CPPUNIT_TEST( testIsInitialized );
-  CPPUNIT_TEST( testGetHandle );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestSemaphore );
+  CPPUNIT_TEST ( testUnlockLock );
+  CPPUNIT_TEST ( testConstructor );
+  CPPUNIT_TEST ( testIsInitialized );
+  CPPUNIT_TEST ( testGetHandle );
+  CPPUNIT_TEST_SUITE_END ();
 
   Semaphore *sem;
 public:
-  void setUp()
+  void setUp ()
   {
   }
 
-  void tearDown()
+  void tearDown ()
   {
 
   }
 
-  void testGetHandle()
+  void testGetHandle ()
   {
-    sem = new Semaphore(0);
+    sem = new Semaphore (0);
 
-    CPPUNIT_ASSERT(sem->getHandle());
+    CPPUNIT_ASSERT (sem->getHandle ());
 
     delete sem;
   }
 
-  void testUnlockLock()
+  void testUnlockLock ()
   {
-    sem = new Semaphore(0);
+    sem = new Semaphore (0);
 
-    sem->unlock();
+    sem->unlock ();
 
-    sem->lock();
+    sem->lock ();
 
-    for(int i = 0; i < 10; i++)
-      sem->unlock();
+    for (int i = 0; i < 10; i++)
+      sem->unlock ();
 
-    for(int i = 0; i < 10; i++)
-      sem->lock();
+    for (int i = 0; i < 10; i++)
+      sem->lock ();
 
     delete sem;
   }
 
 
-  void testIsInitialized()
+  void testIsInitialized ()
   {
-    sem = new Semaphore(0);
+    sem = new Semaphore (0);
 
 
-    CPPUNIT_ASSERT(sem->isInitialized());
+    CPPUNIT_ASSERT (sem->isInitialized ());
 
-    sem->destroy();
+    sem->destroy ();
 
-    CPPUNIT_ASSERT_EQUAL(sem->isInitialized(), 0);
+    CPPUNIT_ASSERT_EQUAL (sem->isInitialized (), 0);
 
     delete sem;
   }
 
-  void testConstructor()
+  void testConstructor ()
   {
-    sem = new Semaphore(10);
+    sem = new Semaphore (10);
 
-    for(int i = 0; i < 10; i++)
-      sem->lock();
+    for (int i = 0; i < 10; i++)
+      sem->lock ();
   }
 
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestSemaphore );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestSemaphore );

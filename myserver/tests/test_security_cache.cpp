@@ -69,18 +69,18 @@ public:
 
   void testGetSecurityFile ()
   {
-    string file("foo/bar/not/exist/in/reality");
+    string file ("foo/bar/not/exist/in/reality");
     string out;
 
-    CPPUNIT_ASSERT(secCache->getSecurityFile (file, file, out));
+    CPPUNIT_ASSERT (secCache->getSecurityFile (file, file, out));
   }
 
 
   void testGetParser ()
   {
-    string dir("foo/bar/not/exist/in/reality");
-    string file("baz");
-    CPPUNIT_ASSERT_EQUAL(secCache->getParser (dir, dir, false), (XmlParser*)NULL);
+    string dir ("foo/bar/not/exist/in/reality");
+    string file ("baz");
+    CPPUNIT_ASSERT_EQUAL (secCache->getParser (dir, dir, false), (XmlParser*)NULL);
   }
 
 

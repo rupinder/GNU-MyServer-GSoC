@@ -25,25 +25,25 @@ class CBase64Utils
 private:
 	int ErrorCode;
 public:
-	int GetLastError() {return ErrorCode;};
-	CBase64Utils();
-	~CBase64Utils();
-	char* decode(const char *in, int *bufsize);
-	char* encode(const char *in, int bufsize);
-  char* mimeDecodeMailHeaderField(char *s);
+	int GetLastError () {return ErrorCode;};
+	CBase64Utils ();
+	~CBase64Utils ();
+	char* decode (const char *in, int *bufsize);
+	char* encode (const char *in, int bufsize);
+  char* mimeDecodeMailHeaderField (char *s);
 };
 
 class CQPUtils
 {
 private:
-	char* expandBuffer(char *buffer, int UsedSize, int *BufSize, int SingleChar = 1);
+	char* expandBuffer (char *buffer, int UsedSize, int *BufSize, int SingleChar = 1);
 	int ErrorCode;
 public:
-	int getLastError() {return ErrorCode;};
-	char* encode(char*in);
-	char* decode(char*in);
-	CQPUtils();
-	~CQPUtils();
+	int getLastError () {return ErrorCode;};
+	char* encode (char*in);
+	char* decode (char*in);
+	CQPUtils ();
+	~CQPUtils ();
 };
 
 #endif

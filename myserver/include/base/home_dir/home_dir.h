@@ -31,11 +31,11 @@ using namespace std;
 class HomeDir
 {
 public:
-	HomeDir();
-	~HomeDir();
+	HomeDir ();
+	~HomeDir ();
 
-	void clear();
-	int load();
+	void clear ();
+	int load ();
 
 	int getHomeDir (string& userName, string& out);
 
@@ -43,7 +43,7 @@ public:
 
 private:
   Mutex loadMutex;
-  int loadImpl();
+  int loadImpl ();
 
 # ifdef WIN32
   string data;

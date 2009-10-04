@@ -35,33 +35,33 @@ extern "C"
  *Returns the name of the protocol. If an out buffer is defined
  *fullfill it with the name too.
  */
-char* Https::registerNameImpl(char* out, int len)
+char* Https::registerNameImpl (char* out, int len)
 {
-  if(out)
+  if (out)
   {
-    strncpy(out, "HTTPS", len);
+    strncpy (out, "HTTPS", len);
   }
   return (char*)"HTTPS";
 }
 
-char* Https::registerName(char* out, int len)
+char* Https::registerName (char* out, int len)
 {
-  return registerNameImpl(out, len);
+  return registerNameImpl (out, len);
 }
 
 /*!
  *Https class constructor.
  */
-Https::Https()
+Https::Https ()
 {
-  protocolPrefix.assign("https://");
+  protocolPrefix.assign ("https://");
   protocolOptions = PROTOCOL_USES_SSL;
 }
 
 /*!
  *Destructor for the class Https.
  */
-Https::~Https()
+Https::~Https ()
 {
 
 }

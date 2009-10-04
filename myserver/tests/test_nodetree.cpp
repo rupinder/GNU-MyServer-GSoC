@@ -26,22 +26,22 @@
 
 class TestNodeTree : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestNodeTree );
-  CPPUNIT_TEST( testCreateDestroy );
-  CPPUNIT_TEST( testAttributes );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestNodeTree );
+  CPPUNIT_TEST ( testCreateDestroy );
+  CPPUNIT_TEST ( testAttributes );
+  CPPUNIT_TEST_SUITE_END ();
 
 
 public:
 
   NodeTree<string> *node;
 
-  void setUp()
+  void setUp ()
   {
     node = new NodeTree<string> ();
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete node;
   }
@@ -100,4 +100,4 @@ protected:
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestNodeTree );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestNodeTree );

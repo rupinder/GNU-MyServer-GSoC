@@ -22,15 +22,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *Register the handler for the specified message type.
  */
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
-void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::addMulticast(MSG_TYPE msg, Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>* handler)
+void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::addMulticast (MSG_TYPE msg, Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>* handler)
 {
-  vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.get(msg);
-  if(!msgHandlers)
+  vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.get (msg);
+  if (!msgHandlers)
   {
     msgHandlers = new vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>();
-    handlers.put(msg, msgHandlers);
+    handlers.put (msg, msgHandlers);
   }
-  msgHandlers->push_back(handler);
+  msgHandlers->push_back (handler);
 }
 
 
@@ -38,19 +38,19 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::addMulticast(MSG_TYPE msg,
  *Remove the handler from the vector for a message type.
  */
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
-void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticast(MSG_TYPE msg, Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>* handler)
+void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticast (MSG_TYPE msg, Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>* handler)
 {
-  vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.get(msg);
+  vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.get (msg);
   typename vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE> * >::iterator it;
-  if(!msgHandlers)
+  if (!msgHandlers)
   {
     return;
   }
 
-  for(it = msgHandlers->begin(); it != msgHandlers->end(); it++)
-    if(*it == handler)
+  for (it = msgHandlers->begin (); it != msgHandlers->end (); it++)
+    if (*it == handler)
     {
-      msgHandlers->erase(it);
+      msgHandlers->erase (it);
       break;
     }
 }
@@ -59,10 +59,10 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticast(MSG_TYPE m
  *Remove all the handlers for a specified message.
  */
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
-void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticasts(MSG_TYPE msg)
+void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticasts (MSG_TYPE msg)
 {
-  vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.remove(msg);
-  if(msgHandlers)
+  vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.remove (msg);
+  if (msgHandlers)
   {
     delete msgHandlers;
   }
@@ -72,17 +72,17 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticasts(MSG_TYPE 
  *Notify the message to all the registered handlers passing an argument.
  */
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
-void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::notifyMulticast(MSG_TYPE& msg, ARG_TYPE arg)
+void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::notifyMulticast (MSG_TYPE& msg, ARG_TYPE arg)
 {
-  vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.get(msg);
+  vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*> *msgHandlers = handlers.get (msg);
 
-  if(!msgHandlers)
+  if (!msgHandlers)
     return;
 
-  for(size_t i = 0; i < msgHandlers->size(); i++)
+  for (size_t i = 0; i < msgHandlers->size (); i++)
   {
     Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>* multicast = (*msgHandlers)[i];
-    multicast->updateMulticast(this, msg, arg);
+    multicast->updateMulticast (this, msg, arg);
   }
 
 }
@@ -91,30 +91,30 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::notifyMulticast(MSG_TYPE& 
  *Get the vector of handlers for a specified message.
  */
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
-vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>* MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::getHandlers(MSG_TYPE& msg)
+vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>* MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::getHandlers (MSG_TYPE& msg)
 {
-  return handlers.get(msg);
+  return handlers.get (msg);
 }
 
 /*!
  *Clear the registry.
  */
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
-void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::clearMulticastRegistry()
+void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::clearMulticastRegistry ()
 {
   /* Dirty code, but compile and works.  */
   HashMap<void*, void*>* ptrHandlers = (HashMap<void*, void*>*) &handlers;
-  HashMap<void*, void*>::Iterator it = ptrHandlers->begin();
-  HashMap<void*, void*>::Iterator end = ptrHandlers->end();
+  HashMap<void*, void*>::Iterator it = ptrHandlers->begin ();
+  HashMap<void*, void*>::Iterator end = ptrHandlers->end ();
   vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>* v;
 
-  while(it != end)
+  while (it != end)
   {
     v = (vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>*) *it;
     delete v;
     it++;
   }
-  handlers.clear();
+  handlers.clear ();
 }
 
 

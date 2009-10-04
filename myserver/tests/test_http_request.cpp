@@ -33,27 +33,27 @@ using namespace std;
 
 class TestHttpRequest : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestHttpRequest );
-  CPPUNIT_TEST( testSimpleHeader );
-  CPPUNIT_TEST( testRange );
-  CPPUNIT_TEST( testIncompleteHeader );
-  CPPUNIT_TEST( testDefaultHttpRequest );
-  CPPUNIT_TEST( testValidRequest );
-  CPPUNIT_TEST( testResetHttpRequest );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestHttpRequest );
+  CPPUNIT_TEST ( testSimpleHeader );
+  CPPUNIT_TEST ( testRange );
+  CPPUNIT_TEST ( testIncompleteHeader );
+  CPPUNIT_TEST ( testDefaultHttpRequest );
+  CPPUNIT_TEST ( testValidRequest );
+  CPPUNIT_TEST ( testResetHttpRequest );
+  CPPUNIT_TEST_SUITE_END ();
 
 public:
-  void setUp()
+  void setUp ()
   {
 
   }
 
-  void tearDown()
+  void tearDown ()
   {
 
   }
 
-  void testSimpleHeader()
+  void testSimpleHeader ()
   {
 
     HttpRequestHeader header;
@@ -61,22 +61,22 @@ public:
     const char * requestStr = "GET /resource?args HTTP/1.1\r\nHost: localhost\r\n\r\n";
     u_long  bufferLength = strlen (requestStr);
     u_long requestLength;
-    int ret = HttpHeaders::buildHTTPRequestHeaderStruct(requestStr,
+    int ret = HttpHeaders::buildHTTPRequestHeaderStruct (requestStr,
                                                         bufferLength,
                                                         &requestLength,
                                                         &header,
                                                         &connection);
 
-    CPPUNIT_ASSERT_EQUAL(ret, 200);
-    CPPUNIT_ASSERT(header.cmd.compare("GET") == 0);
-    CPPUNIT_ASSERT(header.ver.compare("HTTP/1.1") == 0);
-    CPPUNIT_ASSERT(header.uri.compare("/resource") == 0);
-    CPPUNIT_ASSERT(header.uriOpts.compare("args") == 0);
-    CPPUNIT_ASSERT(header.getValue("Host", 0)->compare("localhost") == 0);
+    CPPUNIT_ASSERT_EQUAL (ret, 200);
+    CPPUNIT_ASSERT (header.cmd.compare ("GET") == 0);
+    CPPUNIT_ASSERT (header.ver.compare ("HTTP/1.1") == 0);
+    CPPUNIT_ASSERT (header.uri.compare ("/resource") == 0);
+    CPPUNIT_ASSERT (header.uriOpts.compare ("args") == 0);
+    CPPUNIT_ASSERT (header.getValue ("Host", 0)->compare ("localhost") == 0);
   }
 
 
-  void testRange()
+  void testRange ()
   {
     HttpRequestHeader header;
     Connection connection;
@@ -88,93 +88,93 @@ public:
     requestStr = "GET /resource HTTP/1.1\r\nHost: localhost\r\nRange: bytes=10-20\r\n\r\n";
     bufferLength = strlen (requestStr);
 
-    ret = HttpHeaders::buildHTTPRequestHeaderStruct(requestStr,
+    ret = HttpHeaders::buildHTTPRequestHeaderStruct (requestStr,
                                                     bufferLength,
                                                     &requestLength,
                                                     &header,
                                                     &connection);
 
 
-    CPPUNIT_ASSERT(ret == 200);
-    CPPUNIT_ASSERT(header.rangeByteBegin == 10);
-    CPPUNIT_ASSERT(header.rangeByteEnd == 20);
-    CPPUNIT_ASSERT(header.rangeType.compare("bytes") == 0);
+    CPPUNIT_ASSERT (ret == 200);
+    CPPUNIT_ASSERT (header.rangeByteBegin == 10);
+    CPPUNIT_ASSERT (header.rangeByteEnd == 20);
+    CPPUNIT_ASSERT (header.rangeType.compare ("bytes") == 0);
 
 
     requestStr = "GET /resource HTTP/1.1\r\nHost: localhost\r\nRange: bytes=10-\r\n\r\n";
     bufferLength = strlen (requestStr);
 
-    ret = HttpHeaders::buildHTTPRequestHeaderStruct(requestStr,
+    ret = HttpHeaders::buildHTTPRequestHeaderStruct (requestStr,
                                                     bufferLength,
                                                     &requestLength,
                                                     &header,
                                                     &connection);
 
 
-    CPPUNIT_ASSERT(ret == 200);
-    CPPUNIT_ASSERT(header.rangeByteBegin == 10);
-    CPPUNIT_ASSERT(header.rangeByteEnd == 0);
-    CPPUNIT_ASSERT(header.rangeType.compare("bytes") == 0);
+    CPPUNIT_ASSERT (ret == 200);
+    CPPUNIT_ASSERT (header.rangeByteBegin == 10);
+    CPPUNIT_ASSERT (header.rangeByteEnd == 0);
+    CPPUNIT_ASSERT (header.rangeType.compare ("bytes") == 0);
   }
 
-  void testValidRequest()
+  void testValidRequest ()
   {
     const char *request = "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n";
     int ret;
     u_long nLines;
     u_long nChars;
-    ret = HttpHeaders::validHTTPRequest(request,
-                                        strlen(request),
+    ret = HttpHeaders::validHTTPRequest (request,
+                                        strlen (request),
                                         &nLines,
                                         &nChars);
 
-    CPPUNIT_ASSERT_EQUAL(ret, 200);
+    CPPUNIT_ASSERT_EQUAL (ret, 200);
   }
 
-  void testIncompleteHeader()
+  void testIncompleteHeader ()
   {
     const char *incompleteRequest = "GET / HTTP/1.1\r\nHost: localhost";
     int ret;
     u_long nLines;
     u_long nChars;
-    ret = HttpHeaders::validHTTPRequest(incompleteRequest,
-                                        strlen(incompleteRequest),
+    ret = HttpHeaders::validHTTPRequest (incompleteRequest,
+                                        strlen (incompleteRequest),
                                         &nLines,
                                         &nChars);
 
-    CPPUNIT_ASSERT_EQUAL(ret, -1);
+    CPPUNIT_ASSERT_EQUAL (ret, -1);
   }
 
 
-  void testDefaultHttpRequest()
+  void testDefaultHttpRequest ()
   {
     HttpRequestHeader header;
-    HttpHeaders::buildDefaultHTTPRequestHeader(&header);
+    HttpHeaders::buildDefaultHTTPRequestHeader (&header);
 
 
-    CPPUNIT_ASSERT(header.cmd.compare("GET") == 0);
-    CPPUNIT_ASSERT(header.uri.compare("/") == 0);
-    CPPUNIT_ASSERT(header.uriOpts.compare("") == 0);
-    CPPUNIT_ASSERT(header.ver.compare("HTTP/1.1") == 0);
-    CPPUNIT_ASSERT(header.uriOptsPtr == NULL);
-    CPPUNIT_ASSERT(header.getValue("NotExists", 0) == NULL);
+    CPPUNIT_ASSERT (header.cmd.compare ("GET") == 0);
+    CPPUNIT_ASSERT (header.uri.compare ("/") == 0);
+    CPPUNIT_ASSERT (header.uriOpts.compare ("") == 0);
+    CPPUNIT_ASSERT (header.ver.compare ("HTTP/1.1") == 0);
+    CPPUNIT_ASSERT (header.uriOptsPtr == NULL);
+    CPPUNIT_ASSERT (header.getValue ("NotExists", 0) == NULL);
   }
 
 
-  void testResetHttpRequest()
+  void testResetHttpRequest ()
   {
     HttpRequestHeader header;
-    HttpHeaders::resetHTTPRequest(&header);
+    HttpHeaders::resetHTTPRequest (&header);
 
-    CPPUNIT_ASSERT(header.cmd.compare("") == 0);
-    CPPUNIT_ASSERT(header.uri.compare("") == 0);
-    CPPUNIT_ASSERT(header.uriOpts.compare("") == 0);
-    CPPUNIT_ASSERT(header.ver.compare("") == 0);
-    CPPUNIT_ASSERT(header.uriOptsPtr == NULL);
-    CPPUNIT_ASSERT(header.getValue("NotExists", 0) == NULL);
+    CPPUNIT_ASSERT (header.cmd.compare ("") == 0);
+    CPPUNIT_ASSERT (header.uri.compare ("") == 0);
+    CPPUNIT_ASSERT (header.uriOpts.compare ("") == 0);
+    CPPUNIT_ASSERT (header.ver.compare ("") == 0);
+    CPPUNIT_ASSERT (header.uriOptsPtr == NULL);
+    CPPUNIT_ASSERT (header.getValue ("NotExists", 0) == NULL);
   }
 
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestHttpRequest );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestHttpRequest );

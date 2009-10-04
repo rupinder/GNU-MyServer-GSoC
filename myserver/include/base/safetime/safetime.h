@@ -30,10 +30,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #  include <time.h>
 # endif
 
-void myserver_safetime_init();
-void myserver_safetime_destroy();
-struct tm *myserver_localtime(const time_t *timep, tm* res);
-struct tm *myserver_gmtime(const time_t *timep, tm* res);
+void myserver_safetime_init ();
+void myserver_safetime_destroy ();
+struct tm *myserver_localtime (const time_t *timep, tm* res);
+struct tm *myserver_gmtime (const time_t *timep, tm* res);
 
 #endif
 

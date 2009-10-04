@@ -46,20 +46,20 @@ extern "C" {
 /*!
  *Constructor for the mutex class.
  */
-Mutex::Mutex()
+Mutex::Mutex ()
 {
   initialized = 0;
-  init();
+  init ();
 }
 /*!
  *Initialize a mutex.
  */
-int Mutex::init()
+int Mutex::init ()
 {
   int ret = 0;
-  if(initialized)
+  if (initialized)
   {
-    destroy();
+    destroy ();
     initialized = 0;
   }
 #ifdef HAVE_PTHREAD
@@ -67,15 +67,15 @@ int Mutex::init()
 
 # if 0
   pthread_mutexattr_t mta;
-  pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_NORMAL);
-  ret = pthread_mutex_init(&mutex, &mta);
+  pthread_mutexattr_settype (&mta, PTHREAD_MUTEX_NORMAL);
+  ret = pthread_mutex_init (&mutex, &mta);
 # else
-  ret = pthread_mutex_init(&mutex,(pthread_mutexattr_t*) NULL);
+  ret = pthread_mutex_init (&mutex,(pthread_mutexattr_t*) NULL);
 # endif
 
 
 #else
-  mutex = CreateMutex(0, 0, 0);
+  mutex = CreateMutex (0, 0, 0);
   ret = !mutex;
 #endif
   initialized = 1;
@@ -85,14 +85,14 @@ int Mutex::init()
 /*!
  *Destroy a mutex.
  */
-int Mutex::destroy()
+int Mutex::destroy ()
 {
 #ifdef HAVE_PTHREAD
-  if(initialized)
-    pthread_mutex_destroy(&mutex);
+  if (initialized)
+    pthread_mutex_destroy (&mutex);
 #else
-  if(initialized)
-    CloseHandle(mutex);
+  if (initialized)
+    CloseHandle (mutex);
 #endif
   initialized = 0;
   return 0;
@@ -101,20 +101,20 @@ int Mutex::destroy()
 /*!
  *Lock the mutex.
  */
-int Mutex::lock(u_long /*id*/)
+int Mutex::lock (u_long /*id*/)
 {
 #ifdef HAVE_PTHREAD
 # ifdef PTHREAD_ALTERNATE_LOCK
-  pthread_mutex_lock(&mutex);
+  pthread_mutex_lock (&mutex);
 # else
-  while(pthread_mutex_trylock(&mutex) == EBUSY)
+  while (pthread_mutex_trylock (&mutex) == EBUSY)
   {
-    Thread::wait(1);
+    Thread::wait (1);
   }
 # endif
 
 #else
-  WaitForSingleObject(mutex, INFINITE);
+  WaitForSingleObject (mutex, INFINITE);
 #endif
   locked = true;
   return 0;
@@ -125,7 +125,7 @@ int Mutex::lock(u_long /*id*/)
  *
  *\return Return true if the mutex is currently locked.
  */
-bool Mutex::isLocked()
+bool Mutex::isLocked ()
 {
   return locked;
 }
@@ -133,13 +133,13 @@ bool Mutex::isLocked()
 /*!
 *Unlock the mutex access.
 */
-int Mutex::unlock(u_long/*! id*/)
+int Mutex::unlock (u_long/*! id*/)
 {
 #ifdef HAVE_PTHREAD
   int err;
-  err = pthread_mutex_unlock(&mutex);
+  err = pthread_mutex_unlock (&mutex);
 #else
-  ReleaseMutex(mutex);
+  ReleaseMutex (mutex);
 #endif
   locked = false;
   return 0;
@@ -148,15 +148,15 @@ int Mutex::unlock(u_long/*! id*/)
 /*!
 *Destroy the object.
 */
-Mutex::~Mutex()
+Mutex::~Mutex ()
 {
-  destroy();
+  destroy ();
 }
 
 /*!
  *Get the handle for the mutex.
  */
-MutexHandle Mutex::getHandle()
+MutexHandle Mutex::getHandle ()
 {
   return mutex;
 }

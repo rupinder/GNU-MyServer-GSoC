@@ -155,22 +155,22 @@ int XmlValidator::getPermissions (xmlAttr* attrs, xmlChar** user, xmlChar** pass
 
       else if (!xmlStrcmp (attrs->name, (const xmlChar *)"READ") &&
           attrs->children && attrs->children->content &&
-          !xmlStrcmp(attrs->children->content, (const xmlChar *) "YES"))
+          !xmlStrcmp (attrs->children->content, (const xmlChar *) "YES"))
         permissions |= MYSERVER_PERMISSION_READ;
 
       else if (!xmlStrcmp (attrs->name, (const xmlChar *)"WRITE") &&
           attrs->children && attrs->children->content &&
-          !xmlStrcmp(attrs->children->content, (const xmlChar *) "YES"))
+          !xmlStrcmp (attrs->children->content, (const xmlChar *) "YES"))
         permissions |= MYSERVER_PERMISSION_WRITE;
 
       else if (!xmlStrcmp (attrs->name, (const xmlChar *)"EXECUTE") &&
           attrs->children && attrs->children->content &&
-          !xmlStrcmp(attrs->children->content, (const xmlChar *) "YES"))
+          !xmlStrcmp (attrs->children->content, (const xmlChar *) "YES"))
         permissions |= MYSERVER_PERMISSION_EXECUTE;
 
       else if (!xmlStrcmp (attrs->name, (const xmlChar *)"BROWSE") &&
           attrs->children && attrs->children->content &&
-          !xmlStrcmp(attrs->children->content, (const xmlChar *) "YES"))
+          !xmlStrcmp (attrs->children->content, (const xmlChar *) "YES"))
         permissions |= MYSERVER_PERMISSION_BROWSE;
 
       attrs = attrs->next;
@@ -357,11 +357,11 @@ void XmlValidator::doDefine (xmlNodePtr node, SecurityToken *st, HashMap<string,
 
   while (attrs)
   {
-    if(!xmlStrcmp (attrs->name, (const xmlChar *)"name") &&
+    if (!xmlStrcmp (attrs->name, (const xmlChar *)"name") &&
        attrs->children && attrs->children->content)
       name.assign ((const char*)attrs->children->content);
 
-    if(!xmlStrcmp (attrs->name, (const xmlChar *)"value") &&
+    if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") &&
        attrs->children && attrs->children->content)
       value = attrs->children->content;
 

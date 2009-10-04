@@ -27,13 +27,13 @@ using namespace std;
 /*!
  *Inherited from Stream.
  */
-int MemoryStream::read(char* buffer, u_long len, u_long *nbr)
+int MemoryStream::read (char* buffer, u_long len, u_long *nbr)
 {
   char *b;
-  *nbr = std::min(len, static_cast<u_long>(data->getLength() - readSeek));
-  b = data->getBuffer() + readSeek;
+  *nbr = std::min (len, static_cast<u_long>(data->getLength () - readSeek));
+  b = data->getBuffer () + readSeek;
 
-  memcpy(buffer, b, *nbr);
+  memcpy (buffer, b, *nbr);
 
   readSeek += (*nbr);
 
@@ -43,10 +43,10 @@ int MemoryStream::read(char* buffer, u_long len, u_long *nbr)
 /*!
  *Read directly on the stream.
  */
-int MemoryStream::read(Stream* s, u_long len, u_long *nbr)
+int MemoryStream::read (Stream* s, u_long len, u_long *nbr)
 {
-  u_long towrite = *nbr = std::min(len, static_cast<u_long>(data->getLength() - readSeek));
-  int ret = s->write(data->getBuffer()+readSeek, towrite, nbr);
+  u_long towrite = *nbr = std::min (len, static_cast<u_long>(data->getLength () - readSeek));
+  int ret = s->write (data->getBuffer ()+readSeek, towrite, nbr);
   readSeek += towrite;
   return ret;
 }
@@ -54,9 +54,9 @@ int MemoryStream::read(Stream* s, u_long len, u_long *nbr)
 /*!
  *Inherited from Stream.
  */
-int MemoryStream::write(const char* buffer, u_long len, u_long *nbw)
+int MemoryStream::write (const char* buffer, u_long len, u_long *nbw)
 {
-  data->addBuffer(buffer, len);
+  data->addBuffer (buffer, len);
   *nbw = len;
   return 0;
 }
@@ -64,7 +64,7 @@ int MemoryStream::write(const char* buffer, u_long len, u_long *nbw)
 /*!
  *Inherited from Stream.
  */
-int MemoryStream::flush(u_long* nbw)
+int MemoryStream::flush (u_long* nbw)
 {
   *nbw = 0;
   return 0;
@@ -73,48 +73,48 @@ int MemoryStream::flush(u_long* nbw)
 /*!
  *Use an external buffer to store data.
  */
-MemoryStream::MemoryStream(MemBuf* out)
+MemoryStream::MemoryStream (MemBuf* out)
 {
   readSeek = 0;
   internalData = 0;
   data = out;
-  data->setLength(0);
+  data->setLength (0);
 }
 
 /*!
  *Return how many bytes can be read.
  */
-int MemoryStream::availableToRead()
+int MemoryStream::availableToRead ()
 {
-  return data->getLength()-readSeek;
+  return data->getLength ()-readSeek;
 }
 
 /*!
  *Construct the object.
  */
-MemoryStream::MemoryStream()
+MemoryStream::MemoryStream ()
 {
   internalData = 1;
   readSeek = 0;
-  data = new MemBuf();
-  data->setLength(0);
+  data = new MemBuf ();
+  data->setLength (0);
 }
 
 /*!
  *Inherited from Stream.
  */
-MemoryStream::~MemoryStream()
+MemoryStream::~MemoryStream ()
 {
-  if(internalData)
+  if (internalData)
     delete data;
 }
 
 /*!
  *Recycle the buffer.
  */
-int MemoryStream::refresh()
+int MemoryStream::refresh ()
 {
   readSeek = 0;
-  data->setLength(0);
+  data->setLength (0);
   return 0;
 }

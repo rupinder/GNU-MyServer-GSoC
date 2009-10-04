@@ -45,30 +45,30 @@ extern "C" {
 /*!
  *Constructor for the recursive mutex class.
  */
-RecursiveMutex::RecursiveMutex() : Mutex()
+RecursiveMutex::RecursiveMutex () : Mutex ()
 {
   initialized = 0;
-  init();
+  init ();
 }
 
 /*!
  *Initialize a recursive mutex.
  */
-int RecursiveMutex::init()
+int RecursiveMutex::init ()
 {
   int ret = 0;
-  if(initialized)
+  if (initialized)
   {
-    destroy();
+    destroy ();
     initialized = 0;
   }
 #ifdef HAVE_PTHREAD
   pthread_mutexattr_t mta;
-  pthread_mutexattr_init(&mta);
-  pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_RECURSIVE);
-  ret = pthread_mutex_init(&mutex, &mta);
+  pthread_mutexattr_init (&mta);
+  pthread_mutexattr_settype (&mta, PTHREAD_MUTEX_RECURSIVE);
+  ret = pthread_mutex_init (&mutex, &mta);
 #else
-  return Mutex::init();
+  return Mutex::init ();
 #endif
 
   initialized = 1;
@@ -78,7 +78,7 @@ int RecursiveMutex::init()
 /*!
 *Destroy the object.
 */
-RecursiveMutex::~RecursiveMutex()
+RecursiveMutex::~RecursiveMutex ()
 {
-  destroy();
+  destroy ();
 }

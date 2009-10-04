@@ -168,8 +168,8 @@ int ControlProtocol::checkAuth (ControlHeader& header)
   /*! Return 0 if we haven't enabled the service. */
   if (!controlEnabled)
     return 0;
-  headerLogin = header.getAuthLogin();
-  headerPassword = header.getAuthPassword();
+  headerLogin = header.getAuthLogin ();
+  headerPassword = header.getAuthPassword ();
   authLoginHeaderMD5[0] = authPasswordHeaderMD5[0] = '\0';
   md5.init ();
   md5.update ((unsigned char const*) headerLogin, (unsigned int)strlen ( headerLogin ) );
@@ -242,12 +242,12 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *b1, char *b2,
     {
       return 2;
     }
-    sendResponse(b2, bs2, a, ret, header, 0);
+    sendResponse (b2, bs2, a, ret, header, 0);
     return 0;
   }
   specifiedLength = header.getLength ();
   version = header.getVersion ();
-  timeout=getTicks();
+  timeout=getTicks ();
   if (specifiedLength)
   {
     inFile = new File ();
@@ -257,15 +257,15 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *b1, char *b2,
       return 0;
     }
 
-    inFilePath << getdefaultwd(0,0) << "/ControlInput_" << (u_int) id;
+    inFilePath << getdefaultwd (0,0) << "/ControlInput_" << (u_int) id;
 
-    ret = inFile->createTemporaryFile (inFilePath.str().c_str());
+    ret = inFile->createTemporaryFile (inFilePath.str ().c_str ());
     if (ret)
       {
         a->host->warningsLogWrite (_("Control: internal error"));
         sendResponse (b2, bs2, a, CONTROL_INTERNAL, header, 0);
         inFile->close ();
-        FilesUtility::deleteFile (inFilePath.str().c_str());
+        FilesUtility::deleteFile (inFilePath.str ().c_str ());
         delete inFile;
         return 0;
       }
@@ -277,9 +277,9 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *b1, char *b2,
         if (ret)
           {
             a->host->warningsLogWrite (_("Control: internal error"));
-            sendResponse(b2, bs2, a, CONTROL_INTERNAL, header, 0);
+            sendResponse (b2, bs2, a, CONTROL_INTERNAL, header, 0);
             inFile->close ();
-            FilesUtility::deleteFile (inFilePath.str().c_str());
+            FilesUtility::deleteFile (inFilePath.str ().c_str ());
             delete inFile;
             inFile=0;
             return 0;
@@ -293,15 +293,15 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *b1, char *b2,
       /* Check if we can read all the specified data. */
       while (specifiedLength != static_cast<int>(nbtr - realHeaderLength))
         {
-          if (a->socket->bytesToRead())
+          if (a->socket->bytesToRead ())
             {
-              ret = a->socket->recv(b2, bs2, 0);
+              ret = a->socket->recv (b2, bs2, 0);
               if (ret == -1)
                 {
                   a->host->warningsLogWrite (_("Control: internal error"));
                   sendResponse (b2, bs2, a, CONTROL_INTERNAL, header, 0);
                   inFile->close ();
-                  FilesUtility::deleteFile (inFilePath.str().c_str());
+                  FilesUtility::deleteFile (inFilePath.str ().c_str ());
                   delete inFile;
                   inFile=0;
                   return -1;
@@ -313,20 +313,20 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *b1, char *b2,
                   a->host->warningsLogWrite (_("Control: internal error"));
                   sendResponse (b2, bs2, a, CONTROL_INTERNAL, header, 0);
                   inFile->close ();
-                  FilesUtility::deleteFile (inFilePath.str().c_str());
+                  FilesUtility::deleteFile (inFilePath.str ().c_str ());
                   delete inFile;
                   inFile=0;
                 }
 
               if (dataWritten >=  specifiedLength)
                 break;
-              timeout = getTicks();
+              timeout = getTicks ();
             }
-          else if (getTicks() - timeout > MYSERVER_SEC(5))
+          else if (getTicks () - timeout > MYSERVER_SEC (5))
             {
               sendResponse (b2, bs2, a, CONTROL_BAD_LEN, header, 0);
               inFile->close ();
-              FilesUtility::deleteFile (inFilePath.str().c_str());
+              FilesUtility::deleteFile (inFilePath.str ().c_str ());
               delete inFile;
               inFile=0;
               return 0;
@@ -349,15 +349,15 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *b1, char *b2,
       if (inFile)
         {
           inFile->close ();
-          FilesUtility::deleteFile (inFilePath.str().c_str());
+          FilesUtility::deleteFile (inFilePath.str ().c_str ());
           delete inFile;
           inFile = 0;
         }
-      sendResponse(b2, bs2, a, CONTROL_BAD_VERSION, header, 0);
+      sendResponse (b2, bs2, a, CONTROL_BAD_VERSION, header, 0);
       return 0;
     }
 
-  authorized = checkAuth(header);
+  authorized = checkAuth (header);
 
   /*
    *If the client is not authorized remove the connection.
@@ -367,11 +367,11 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *b1, char *b2,
       if (inFile)
         {
           inFile->close ();
-          FilesUtility::deleteFile (inFilePath.str().c_str());
+          FilesUtility::deleteFile (inFilePath.str ().c_str ());
           delete inFile;
           inFile=0;
         }
-      sendResponse(b2, bs2, a, CONTROL_AUTH, header, 0);
+      sendResponse (b2, bs2, a, CONTROL_AUTH, header, 0);
       return 0;
     }
   /*
@@ -383,16 +383,16 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *b1, char *b2,
       if (inFile)
         {
           inFile->close ();
-          FilesUtility::deleteFile (inFilePath.str().c_str());
+          FilesUtility::deleteFile (inFilePath.str ().c_str ());
           delete inFile;
           inFile = 0;
         }
-      sendResponse(b2, bs2, a, CONTROL_BAD_LEN, header, 0);
+      sendResponse (b2, bs2, a, CONTROL_BAD_LEN, header, 0);
       return 0;
     }
 
-  command = header.getCommand();
-  opt     = header.getOptions();
+  command = header.getCommand ();
+  opt     = header.getOptions ();
 
   knownCommand = 0;
 
@@ -403,7 +403,7 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *b1, char *b2,
   outFile = new File ();
   outFilePath << getdefaultwd (0, 0) << "/ControlOutput_" << (u_int) id;
 
-  ret = outFile->createTemporaryFile (outFilePath.str().c_str());
+  ret = outFile->createTemporaryFile (outFilePath.str ().c_str ());
   if (ret)
     {
       a->host->warningsLogWrite (_("Control: internal error"));
@@ -412,17 +412,17 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *b1, char *b2,
       inFile->close ();
       delete inFile;
 
-      FilesUtility::deleteFile (inFilePath.str().c_str());
-      FilesUtility::deleteFile (outFilePath.str().c_str());
+      FilesUtility::deleteFile (inFilePath.str ().c_str ());
+      FilesUtility::deleteFile (outFilePath.str ().c_str ());
 
       inFile=0;
       outFile=0;
       return 0;
     }
-  if (!strcmp(command, "SHOWCONNECTIONS"))
+  if (!strcmp (command, "SHOWCONNECTIONS"))
     {
       knownCommand = 1;
-      ret = showConnections(a, outFile, b1, bs1, header);
+      ret = showConnections (a, outFile, b1, bs1, header);
     }
   else if (!strcmp (command, "KILLCONNECTION"))
     {
@@ -432,40 +432,40 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *b1, char *b2,
       strncpy (buff, header.getOptions (), 10 );
       buff[10] = '\0';
       id = header.getOptions () ? atol (buff) : 0;
-      ret = killConnection(a, id, outFile, b1, bs1, header);
+      ret = killConnection (a, id, outFile, b1, bs1, header);
     }
-  else if (!strcmp(command, "REBOOT"))
+  else if (!strcmp (command, "REBOOT"))
     {
       knownCommand = 1;
       Server::getInstance ()->rebootOnNextLoop ();
       ret = 0;
     }
-  else if (!strcmp(command, "GETFILE"))
+  else if (!strcmp (command, "GETFILE"))
     {
       knownCommand = 1;
       ret = getFile (a,header.getOptions (), inFile, outFile, b1, bs1, header);
     }
-  else if (!strcmp(command, "PUTFILE"))
+  else if (!strcmp (command, "PUTFILE"))
     {
       knownCommand = 1;
       ret = putFile (a,header.getOptions (), inFile, outFile, b1, bs1, header);
     }
-  else if (!strcmp(command, "DISABLEREBOOT"))
+  else if (!strcmp (command, "DISABLEREBOOT"))
     {
       Server::getInstance ()->disableAutoReboot ();
       knownCommand = 1;
 
     }
-  else if (!strcmp(command, "ENABLEREBOOT"))
+  else if (!strcmp (command, "ENABLEREBOOT"))
     {
-      Server::getInstance ()->enableAutoReboot();
+      Server::getInstance ()->enableAutoReboot ();
       knownCommand = 1;
 
     }
-  else if (!strcmp(command, "VERSION"))
+  else if (!strcmp (command, "VERSION"))
     {
       knownCommand = 1;
-      ret = getVersion(a, outFile, b1, bs1, header);
+      ret = getVersion (a, outFile, b1, bs1, header);
     }
 
   if (knownCommand)
@@ -474,10 +474,10 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *b1, char *b2,
       outFile->seek (0);
       if (ret)
         {
-          sendResponse(b2, bs2, a, CONTROL_INTERNAL, header, 0);
+          sendResponse (b2, bs2, a, CONTROL_INTERNAL, header, 0);
         }
       else
-        sendResponse(b2, bs2, a, CONTROL_OK, header, outFile);
+        sendResponse (b2, bs2, a, CONTROL_OK, header, outFile);
       if (inFile)
         {
           inFile->close ();
@@ -490,9 +490,9 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *b1, char *b2,
           delete outFile;
           outFile=0;
         }
-      FilesUtility::deleteFile (inFilePath.str().c_str());
-      FilesUtility::deleteFile (outFilePath.str().c_str());
-      connection = header.getConnection();
+      FilesUtility::deleteFile (inFilePath.str ().c_str ());
+      FilesUtility::deleteFile (outFilePath.str ().c_str ());
+      connection = header.getConnection ();
       /*
        *If the Keep-Alive was specified keep the connection in the
        *active connections list.
@@ -504,7 +504,7 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *b1, char *b2,
     }
   else
     {
-      sendResponse(b2, bs2, a, CONTROL_CMD_NOT_FOUND, header, 0);
+      sendResponse (b2, bs2, a, CONTROL_CMD_NOT_FOUND, header, 0);
 
       if (inFile)
         {
@@ -518,8 +518,8 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *b1, char *b2,
           delete outFile;
           outFile = NULL;
         }
-      FilesUtility::deleteFile (inFilePath.str().c_str());
-      FilesUtility::deleteFile (outFilePath.str().c_str());
+      FilesUtility::deleteFile (inFilePath.str ().c_str ());
+      FilesUtility::deleteFile (outFilePath.str ().c_str ());
       return 0;
     }
 }
@@ -531,12 +531,12 @@ int ControlProtocol::addToLog (int retCode, ConnectionPtr con, char *b1,
                                int bs1, ControlHeader& header)
 {
   string time;
-  getRFC822GMTTime(time, 32);
+  getRFC822GMTTime (time, 32);
 
 #ifdef HAVE_SNPRINTF
-  snprintf(b1, bs1,
+  snprintf (b1, bs1,
 #else
-  sprintf(b1,
+  sprintf (b1,
 #endif
   "%s [%s] %s:%s:%s - %s - %i", con->getIpAddr (), time.c_str (),
           header.getCommand (),  header.getVersion (), header.getOptions (),
@@ -578,9 +578,9 @@ int ControlProtocol::sendResponse (char *buffer, int buffersize,
 
   /* Build and send the Length line.  */
 #ifdef HAVE_SNPRINTF
-  snprintf(buffer, buffersize,
+  snprintf (buffer, buffersize,
 #else
-  sprintf(buffer,
+  sprintf (buffer,
 #endif
           "/LEN %u\r\n", (u_int)dataLength);
 
@@ -604,9 +604,9 @@ int ControlProtocol::sendResponse (char *buffer, int buffersize,
   {
     int dataToSend = dataLength;
     u_long nbr;
-    for( ; ; )
+    for ( ; ; )
     {
-      err = outFile->read(buffer, min (dataToSend, buffersize), &nbr);
+      err = outFile->read (buffer, min (dataToSend, buffersize), &nbr);
       if (err)
       {
         a->host->warningsLogWrite (_("Control: internal error"));
@@ -647,7 +647,7 @@ int  ControlProtocol::showConnections (ConnectionPtr a,File* out, char *b1,
 /*!
  *Kill a connection by its ID.
  */
-int ControlProtocol::killConnection(ConnectionPtr a, u_long id, File* out,
+int ControlProtocol::killConnection (ConnectionPtr a, u_long id, File* out,
                                     char *b1, int bs1, ControlHeader& header)
 {
   if (id == 0)
@@ -662,7 +662,7 @@ int ControlProtocol::killConnection(ConnectionPtr a, u_long id, File* out,
   args.bs1 = bs1;
   args.header = &header;
 
-  Server::getInstance ()->getConnectionsScheduler ()->accept(this, &args);
+  Server::getInstance ()->getConnectionsScheduler ()->accept (this, &args);
 
   return 0;
 }
@@ -680,16 +680,16 @@ int ControlProtocol::visitConnection (ConnectionPtr con, void* argP)
   {
 #ifdef HAVE_SNPRINTF
     snprintf (arg->b1, arg->bs1, "%i - %s - %i - %s - %i - %s - %s\r\n",
-             static_cast<int>(con->getID()),  con->getIpAddr(),
-             static_cast<int>(con->getPort()),
-             con->getLocalIpAddr(),  static_cast<int>(con->getLocalPort()),
-             con->getLogin(), con->getPassword());
+             static_cast<int>(con->getID ()),  con->getIpAddr (),
+             static_cast<int>(con->getPort ()),
+             con->getLocalIpAddr (),  static_cast<int>(con->getLocalPort ()),
+             con->getLogin (), con->getPassword ());
 #else
     sprintf (arg->b1, "%i - %s - %i - %s - %i - %s - %s\r\n",
-            static_cast<int>(con->getID()),  con->getIpAddr(),
-            static_cast<int>(con->getPort()),
-            con->getLocalIpAddr(),  static_cast<int>(con->getLocalPort()),
-            con->getLogin(), con->getPassword());
+            static_cast<int>(con->getID ()),  con->getIpAddr (),
+            static_cast<int>(con->getPort ()),
+            con->getLocalIpAddr (),  static_cast<int>(con->getLocalPort ()),
+            con->getLogin (), con->getPassword ());
 #endif
 
     ret = arg->out->writeToFile (arg->b1, strlen (arg->b1), &nbw);
@@ -750,9 +750,9 @@ int ControlProtocol::getFile (ConnectionPtr a, char* fn, File* in, File* out,
     a->host->warningsLogWrite (_("Control: internal error"));
     return CONTROL_INTERNAL;
     }
-  for(;;)
+  for (;;)
     {
-    ret = localfile.read(b1, bs1, &nbr);
+    ret = localfile.read (b1, bs1, &nbr);
     if (ret)
       {
         a->host->warningsLogWrite (_("Control: internal error"));
@@ -785,13 +785,13 @@ int ControlProtocol::putFile (ConnectionPtr a, char* fn, File* in,
 {
   const char *filename = 0;
   File localfile;
-  int isAutoRebootToEnable = Server::getInstance ()->isAutorebootEnabled();
+  int isAutoRebootToEnable = Server::getInstance ()->isAutorebootEnabled ();
   int ret = 0;
   /*! # of bytes read.  */
   u_long nbr = 0;
   /*! # of bytes written.  */
   u_long nbw = 0;
-  Server::getInstance ()->disableAutoReboot();
+  Server::getInstance ()->disableAutoReboot ();
 
   if (!strcmpi (fn, "myserver.xml"))
     filename = Server::getInstance ()->getMainConfFile ();
@@ -827,9 +827,9 @@ int ControlProtocol::putFile (ConnectionPtr a, char* fn, File* in,
       return CONTROL_INTERNAL;
     }
 
-  for(;;)
+  for (;;)
     {
-      ret = in->read(b1, bs1, &nbr);
+      ret = in->read (b1, bs1, &nbr);
 
       if (ret)
         {

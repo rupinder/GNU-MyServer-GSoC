@@ -29,21 +29,21 @@ using namespace std;
 class SslContext
 {
 public:
-	SslContext();
+	SslContext ();
 
-	int initialize();
-	int free();
+	int initialize ();
+	int free ();
 
-	SSL_CTX* getContext(){return context;}
-	SSL_METHOD* getMethod(){return method;}
+	SSL_CTX* getContext (){return context;}
+	SSL_METHOD* getMethod (){return method;}
 
-	string& getCertificateFile(){return certificateFile;}
-	string& getPrivateKeyFile(){return privateKeyFile;}
-	string& getPassword(){return password;}
+	string& getCertificateFile (){return certificateFile;}
+	string& getPrivateKeyFile (){return privateKeyFile;}
+	string& getPassword (){return password;}
 
-	void setCertificateFile(string& c){certificateFile.assign (c);}
-	void setPrivateKeyFile(string& pk){privateKeyFile.assign (pk);}
-	void setPassword(string& p){password.assign (p);}
+	void setCertificateFile (string& c){certificateFile.assign (c);}
+	void setPrivateKeyFile (string& pk){privateKeyFile.assign (pk);}
+	void setPassword (string& p){password.assign (p);}
 
 private:
 	SSL_CTX* context;
@@ -54,7 +54,7 @@ private:
 	string password;
 };
 
-void initializeSSL();
-void cleanupSSL();
+void initializeSSL ();
+void cleanupSSL ();
 
 #endif

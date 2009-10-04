@@ -51,37 +51,37 @@ int HttpFile::putFile (HttpThreadContext* td,
 
   try
   {
-    HttpHeaders::buildDefaultHTTPResponseHeader(&td->response);
+    HttpHeaders::buildDefaultHTTPResponseHeader (&td->response);
 
-    if(td->request.isKeepAlive())
+    if (td->request.isKeepAlive ())
       {
-        td->response.connection.assign("keep-alive");
+        td->response.setValue ("Connection", "keep-alive");
         keepalive = 1;
       }
 
-    if(!(td->permissions & MYSERVER_PERMISSION_WRITE))
-      return td->http->sendAuth();
+    if (!(td->permissions & MYSERVER_PERMISSION_WRITE))
+      return td->http->sendAuth ();
 
-    if(FilesUtility::fileExists (td->filenamePath.c_str()))
+    if (FilesUtility::fileExists (td->filenamePath.c_str ()))
       {
         File file;
-        if (file.openFile (td->filenamePath.c_str(), File::OPEN_IF_EXISTS |
+        if (file.openFile (td->filenamePath.c_str (), File::OPEN_IF_EXISTS |
                            File::WRITE))
           return td->http->raiseHTTPError (500);
 
         file.seek (firstByte);
 
-        for(;;)
+        for (;;)
           {
             u_long nbr = 0, nbw = 0;
-            if(td->inputData.read (td->buffer->getBuffer(),
-                                   td->buffer->getRealLength(), &nbr))
+            if (td->inputData.read (td->buffer->getBuffer (),
+                                   td->buffer->getRealLength (), &nbr))
               {
                 file.close ();
-                return td->http->raiseHTTPError(500);
+                return td->http->raiseHTTPError (500);
               }
 
-            if(nbr)
+            if (nbr)
               {
                 if (file.writeToFile (td->buffer->getBuffer (), nbr, &nbw))
                   {
@@ -107,12 +107,12 @@ int HttpFile::putFile (HttpThreadContext* td,
       {
         /* The file doesn't exist.  */
         File file;
-        if(file.openFile(td->filenamePath.c_str(),
+        if (file.openFile (td->filenamePath.c_str (),
                          File::FILE_CREATE_ALWAYS |
                          File::WRITE))
           {
             /* Internal server error. */
-            return td->http->raiseHTTPError(500);
+            return td->http->raiseHTTPError (500);
           }
 
         for (;;)
@@ -124,7 +124,7 @@ int HttpFile::putFile (HttpThreadContext* td,
                 file.close ();
                 return td->http->raiseHTTPError (500);
               }
-            if(nbr)
+            if (nbr)
               {
                 if (file.writeToFile (td->buffer->getBuffer (), nbr, &nbw))
                   {
@@ -134,7 +134,7 @@ int HttpFile::putFile (HttpThreadContext* td,
               }
             else
               break;
-            if( nbw != nbr )
+            if ( nbw != nbr )
               {
                 file.close ();
                 return td->http->raiseHTTPError (500);
@@ -177,7 +177,7 @@ int HttpFile::deleteFile (HttpThreadContext* td,
     else
       return td->http->raiseHTTPError (204);
   }
-  catch(...)
+  catch (...)
     {
       return td->http->raiseHTTPError (500);
     };
@@ -195,7 +195,7 @@ void HttpFile::generateEtag (string & etag, u_long mtime, u_long fsize)
 {
 #define ROL(x, y) ((x << y) | (x >> (32 - y)))
   /* Do a bit rotation to have less significative bits in the middle.  */
-  u_long x = ROL(mtime, 16) | fsize;
+  u_long x = ROL (mtime, 16) | fsize;
 
   char buf[16];
   sprintf (buf, "%u", x);
@@ -253,21 +253,21 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
       return td->http->sendAuth ();
 
     if (!FilesUtility::fileExists (filenamePath))
-      return td->http->raiseHTTPError(404);
+      return td->http->raiseHTTPError (404);
 
-    lastMT = FilesUtility::getLastModTime (td->filenamePath.c_str());
+    lastMT = FilesUtility::getLastModTime (td->filenamePath.c_str ());
 
     if (lastMT == -1)
-      return td->http->raiseHTTPError(500);
+      return td->http->raiseHTTPError (500);
 
-    getRFC822GMTTime (lastMT, tmpTime, HTTP_RESPONSE_LAST_MODIFIED_DIM);
-    td->response.lastModified.assign (tmpTime);
+    getRFC822GMTTime (lastMT, tmpTime, 32);
+    td->response.setValue ("Last-Modified", tmpTime.c_str ());
 
     HttpRequestHeader::Entry *ifModifiedSince =
       td->request.other.get ("Last-Modified");
 
     if (ifModifiedSince && ifModifiedSince->value->length () &&
-       !ifModifiedSince->value->compare(td->response.lastModified.c_str ()))
+        !ifModifiedSince->value->compare (tmpTime))
       return td->http->sendHTTPNonModified ();
 
     file = Server::getInstance ()->getCachedFiles ()->open (filenamePath);
@@ -354,7 +354,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
       {
         HttpRequestHeader::Entry* e = td->request.other.get ("Accept-Encoding");
         if (e)
-          useGzip &= (e->value->find("gzip") != string::npos);
+          useGzip &= (e->value->find ("gzip") != string::npos);
         else
           useGzip = false;
       }
@@ -383,7 +383,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         {
           e = new HttpResponseHeader::Entry ();
           e->name->assign ("Content-Range");
-          e->value->assign (buffer.str());
+          e->value->assign (buffer.str ());
           td->response.other.put (*(e->name), e);
         }
 
@@ -392,7 +392,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         e->value->assign ("chunked");
       else
         {
-          e = new HttpResponseHeader::Entry();
+          e = new HttpResponseHeader::Entry ();
           e->name->assign ("Transfer-Encoding");
           e->value->assign ("chunked");
           td->response.other.put (*(e->name), e);
@@ -416,14 +416,14 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
             chain.clearAllFilters ();
             return 0;
           }
-      memStream.refresh();
+      memStream.refresh ();
       dataSent += nbw;
     }
 
     if (useGzip && !chain.isFilterPresent ("gzip"))
       {
         Filter* gzipFilter =
-          Server::getInstance()->getFiltersFactory()->getFilter ("gzip");
+          Server::getInstance ()->getFiltersFactory ()->getFilter ("gzip");
         u_long nbw;
         if (!gzipFilter)
           {
@@ -453,9 +453,9 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
       }
 
     if (keepalive)
-      td->response.connection.assign("keep-alive");
+      td->response.setValue ("Connection", "keep-alive");
     else
-      td->response.connection.assign("close");
+      td->response.setValue ("Connection", "close");
 
     if (useModifiers)
       {
@@ -478,7 +478,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
           {
             HttpResponseHeader::Entry *e;
             e = td->response.other.get ("Transfer-Encoding");
-            if(e)
+            if (e)
               e->value->assign ("chunked");
             else
               {
@@ -491,7 +491,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
           }
       }
 
-    u_long hdrLen = HttpHeaders::buildHTTPResponseHeader (td->buffer->getBuffer(),
+    u_long hdrLen = HttpHeaders::buildHTTPResponseHeader (td->buffer->getBuffer (),
                                                           &td->response);
 
     td->buffer->setLength (hdrLen);
@@ -527,7 +527,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
      * file to the socket.
      */
     if (!useChunks && chain.isEmpty () && !td->appendOutputs
-        && !(td->http->getProtocolOptions() & PROTOCOL_USES_SSL))
+        && !(td->http->getProtocolOptions () & PROTOCOL_USES_SSL))
       {
         u_long nbw = 0;
         int ret = file->fastCopyToSocket (td->connection->socket, firstByte,
@@ -555,8 +555,8 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
      */
     if (memStream.availableToRead ())
       {
-        if (memStream.read (td->buffer->getBuffer(),
-                              td->buffer->getRealLength(),
+        if (memStream.read (td->buffer->getBuffer (),
+                              td->buffer->getRealLength (),
                             &nbr))
           {
             file->close ();
@@ -569,8 +569,8 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
 
         if (nbr)
           {
-            if (HttpDataHandler::appendDataToHTTPChannel(td,
-                                   td->buffer->getBuffer(),
+            if (HttpDataHandler::appendDataToHTTPChannel (td,
+                                   td->buffer->getBuffer (),
                                    nbr, &(td->outputData),
                                    &chain, td->appendOutputs,
                                    useChunks))
@@ -582,7 +582,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
                 dataSent += nbw;
               }
           } /* nbr.  */
-      } /* memStream.availableToRead().  */
+      } /* memStream.availableToRead ().  */
 
     /* Flush the rest of the file.  */
     for (;;)
@@ -594,9 +594,9 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         if (bytesToSend)
           {
             /* Read from the file the bytes to send.  */
-            if (ret = file->read (td->buffer->getBuffer(),
+            if (ret = file->read (td->buffer->getBuffer (),
                   std::min (static_cast<u_long> (bytesToSend),
-                  static_cast<u_long> (td->buffer->getRealLength() / 2)),
+                  static_cast<u_long> (td->buffer->getRealLength () / 2)),
                   &nbr))
               break;
 
@@ -615,7 +615,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
 
             dataSent += nbr;
           }
-        else /* if(bytesToSend) */
+        else /* if (bytesToSend) */
           {
             /* If we don't use chunks we can flush directly.  */
             if (!useChunks)
@@ -639,7 +639,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
 
                 chain.setStream (tmpStream);
                 if (ret = memStream.read (td->buffer->getBuffer (),
-                    td->buffer->getRealLength(), &nbr))
+                    td->buffer->getRealLength (), &nbr))
                   break;
 
                 if (ret = HttpDataHandler::appendDataToHTTPChannel (td,

@@ -30,7 +30,6 @@
 
 (defun myserver-control-init (server port)
   "Initialize a connection to the specified SERVER using the PORT."
-  (when (get-buffer "myserver") (kill-buffer "myserver"))
   (let ((proc (starttls-open-stream "myserver" 
                                        (get-buffer-create "myserver")
                                        server
@@ -43,8 +42,8 @@
   "Send the message MSG to the specified PROC and
    return the response header lines."
   (process-send-string proc msg)
-      
   (with-current-buffer "myserver"
+    (erase-buffer)
     (let ((i 3)
           (np 0)
           (start 0)

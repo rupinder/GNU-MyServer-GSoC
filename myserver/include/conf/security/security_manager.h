@@ -68,8 +68,8 @@ enum PERMISSION_MASK
 class SecurityManager
 {
 public:
-  SecurityManager(ValidatorFactory*, AuthMethodFactory*);
-  ~SecurityManager();
+  SecurityManager (ValidatorFactory*, AuthMethodFactory*);
+  ~SecurityManager ();
 
   int getPermissionMask (SecurityToken* st,
                          SecurityDomain **domains,

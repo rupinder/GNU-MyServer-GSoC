@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 # define CGI_MANAGER_H
 
 # ifdef WIN32
-#  define EXPORTABLE _declspec(dllexport)
+#  define EXPORTABLE _declspec (dllexport)
 # endif
 
 # include "stdafx.h"
@@ -41,23 +41,23 @@ class MscgiManager
 # endif
 {
 public:
-	Server *getServer();
-	MsCgiData* getCgiData();
-	void setContentType(const char *);
-	void addHeader(const char*,  const char *);
-	int setPageError(int);
-	int raiseError(int);
-	MscgiManager(MsCgiData* data);
-	~MscgiManager(void);
+	Server *getServer ();
+	MsCgiData* getCgiData ();
+	void setContentType (const char *);
+	void addHeader (const char*,  const char *);
+	int setPageError (int);
+	int raiseError (int);
+	MscgiManager (MsCgiData* data);
+	~MscgiManager (void);
 	int operator <<(const char*);
 	char* operator >>(const char*);
-	int start(MsCgiData* data);
-	int clean();
-	void getenv(const char*, char*, u_long*);
-	char* getParam(const char*);
-	char* postParam(const char*);
-	int write(const char*);
-	int write(const void*, int);
+	int start (MsCgiData* data);
+	int clean ();
+	void getenv (const char*, char*, u_long*);
+	char* getParam (const char*);
+	char* postParam (const char*);
+	int write (const char*);
+	int write (const void*, int);
 private:
 	HttpThreadContext* td;
 	MsCgiData* cgidata;

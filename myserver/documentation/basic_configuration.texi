@@ -24,6 +24,11 @@ following order:
 @item Global scope inside /etc/myserver.
 @end enumerate
 
+It is possible to specify a different directory where looks for
+configuration files by the @code{--cfgdir} argument to the myserver
+process.  In case a path is specified, then the configuration files
+are looked exclusively in this directory.
+
 @section Server administrator
 CGI scripts can get the server administrator e-mail and show them to
 the user (through the SERVER_ADMIN environment variable). 

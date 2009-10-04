@@ -73,48 +73,48 @@ class Socket: public Stream
 public:
   static int startupSocketLib ();
 
-  void setServerSocket(Socket*);
-  Socket* getServerSocket();
+  void setServerSocket (Socket*);
+  Socket* getServerSocket ();
 
-  static void stopBlockingOperations(bool);
-  virtual Handle getHandle();
-  void setHandle(SocketHandle);
-  static MYSERVER_HOSTENT *gethostbyaddr(char* addr, int len, int type);
-  static MYSERVER_HOSTENT *gethostbyname(const char*);
-  static int gethostname(char*, int);
-  int socket(int, int, int);
-  int bind(MYSERVER_SOCKADDR*, int);
-  int listen(int);
-  Socket();
-  Socket(Socket*);
-  Socket(SocketHandle);
+  static void stopBlockingOperations (bool);
+  virtual Handle getHandle ();
+  void setHandle (SocketHandle);
+  static MYSERVER_HOSTENT *gethostbyaddr (char* addr, int len, int type);
+  static MYSERVER_HOSTENT *gethostbyname (const char*);
+  static int gethostname (char*, int);
+  int socket (int, int, int);
+  int bind (MYSERVER_SOCKADDR*, int);
+  int listen (int);
+  Socket ();
+  Socket (Socket*);
+  Socket (SocketHandle);
 
-  Socket accept(MYSERVER_SOCKADDR*, socklen_t*);
-  int setsockopt(int,int, const char*,int);
+  Socket accept (MYSERVER_SOCKADDR*, socklen_t*);
+  int setsockopt (int,int, const char*,int);
 
-  virtual int connect(MYSERVER_SOCKADDR*, int);
-  virtual int close();
-  virtual int shutdown(int how);
-  virtual int recv(char*, int, int, u_long);
-  virtual int recv(char*, int, int);
-  virtual u_long bytesToRead();
+  virtual int connect (MYSERVER_SOCKADDR*, int);
+  virtual int close ();
+  virtual int shutdown (int how);
+  virtual int recv (char*, int, int, u_long);
+  virtual int recv (char*, int, int);
+  virtual u_long bytesToRead ();
 
-  int ioctlsocket(long, unsigned long*);
-  int send(const char*, int, int);
-  int connect(const char* host, u_short port);
+  int ioctlsocket (long, unsigned long*);
+  int send (const char*, int, int);
+  int connect (const char* host, u_short port);
   int operator==(Socket);
   int operator=(Socket);
-  int getsockname(MYSERVER_SOCKADDR*,int*);
-  int setNonBlocking(int);
+  int getsockname (MYSERVER_SOCKADDR*,int*);
+  int setNonBlocking (int);
   bool getNonBLocking () {return isNonBlocking;}
-  virtual int dataOnRead(int sec = 0, int usec = 500);
+  virtual int dataOnRead (int sec = 0, int usec = 500);
 
-  u_long getThrottling();
-  void setThrottling(u_long);
-  static int getLocalIPsList(string&);
+  u_long getThrottling ();
+  void setThrottling (u_long);
+  static int getLocalIPsList (string&);
   /*! Inherithed from Stream.  */
-  virtual int read(char* buffer, u_long len, u_long *nbr);
-  virtual int write(const char* buffer, u_long len, u_long *nbw);
+  virtual int read (char* buffer, u_long len, u_long *nbr);
+  virtual int write (const char* buffer, u_long len, u_long *nbw);
 
 protected:
   SocketHandle socketHandle;
@@ -131,6 +131,6 @@ protected:
   /*! Stop the sockets system.  */
   static bool denyBlockingOperations;
 
-  virtual int rawSend(const char* buffer, int len, int flags);
+  virtual int rawSend (const char* buffer, int len, int flags);
 };
 #endif

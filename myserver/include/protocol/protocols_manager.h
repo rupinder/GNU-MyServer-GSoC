@@ -33,17 +33,17 @@ using namespace std;
 class ProtocolsManager
 {
 public:
-	ProtocolsManager();
-	~ProtocolsManager();
+	ProtocolsManager ();
+	~ProtocolsManager ();
 
-  Protocol* getProtocol(string& name);
+  Protocol* getProtocol (string& name);
 
-  void addProtocol(string& name, Protocol* protocol);
+  void addProtocol (string& name, Protocol* protocol);
 
-  void addProtocol(char* name, Protocol* protocol)
+  void addProtocol (char* name, Protocol* protocol)
   {
-    string strName(name);
-    addProtocol(strName, protocol);
+    string strName (name);
+    addProtocol (strName, protocol);
   }
 
 protected:

@@ -41,7 +41,7 @@ ValidatorFactory::~ValidatorFactory ()
 /*!
  *Return a validator given its name.
  */
-Validator* ValidatorFactory::getValidator(string &name)
+Validator* ValidatorFactory::getValidator (string &name)
 {
   return validators.get (name);
 }
@@ -52,7 +52,7 @@ Validator* ValidatorFactory::getValidator(string &name)
  *\param validator The validator to add.
  *\return The old validator registered with [name], in any.
  */
-Validator* ValidatorFactory::addValidator(string &name, Validator* validator)
+Validator* ValidatorFactory::addValidator (string &name, Validator* validator)
 {
   return validators.put (name, validator);
 }

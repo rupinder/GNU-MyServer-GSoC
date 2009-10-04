@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -27,24 +27,11 @@ using namespace std;
 
 /*! Max length for a HTTP response fields. */
 # define HTTP_RESPONSE_VER_DIM 10
-# define HTTP_RESPONSE_SERVER_NAME_DIM 64
-# define HTTP_RESPONSE_CONTENT_TYPE_DIM 48
-# define HTTP_RESPONSE_CONTENT_RANGE_DIM 32
-# define HTTP_RESPONSE_CONNECTION_DIM 32
-# define HTTP_RESPONSE_MIME_VER_DIM 8
-# define HTTP_RESPONSE_COOKIE_DIM 8192
-# define HTTP_RESPONSE_CONTENT_LENGTH_DIM 8
-# define HTTP_RESPONSE_ERROR_TYPE_DIM 32
-# define HTTP_RESPONSE_LOCATION_DIM MAX_PATH
-# define HTTP_RESPONSE_DATE_DIM 32
-# define HTTP_RESPONSE_DATE_EXPIRES_DIM 32
-# define HTTP_RESPONSE_CACHE_CONTROL_DIM 64
-# define HTTP_RESPONSE_AUTH_DIM 256
-# define HTTP_RESPONSE_OTHER_DIM 512
-# define HTTP_RESPONSE_LAST_MODIFIED_DIM 32
+# define HTTP_RESPONSE_OTHER_DIM 4096
+
 
 /*!
- *Structure to describe an HTTP response
+ * Structure to describe an HTTP response
  */
 struct HttpResponseHeader : public HttpHeader
 {
@@ -58,21 +45,21 @@ struct HttpResponseHeader : public HttpHeader
   {
     string *name;
     string *value;
-		Entry()
+		Entry ()
 		{
-			name = new string();
-			value = new string();
+			name = new string ();
+			value = new string ();
 		}
 
-		Entry(string& n, string& v)
+		Entry (string& n, string& v)
 		{
-			name = new string();
-			value = new string();
+			name = new string ();
+			value = new string ();
 
-			name->assign(n);
-			value->assign(v);
+			name->assign (n);
+			value->assign (v);
 		}
-		~Entry()
+		~Entry ()
 		{
 			delete name;
 			delete value;
@@ -81,27 +68,18 @@ struct HttpResponseHeader : public HttpHeader
   };
 	int httpStatus;
 	string ver;
-	string serverName;
-	string contentType;
-	string connection;
-	string mimeVer;
-	string cookie;
 	string contentLength;
 	string errorType;
-	string lastModified;
-	string location;
-	string date;
-	string dateExp;
-	string auth;
+
 	HashMap<string,HttpResponseHeader::Entry*> other;
-  HttpResponseHeader();
-  ~HttpResponseHeader();
+  HttpResponseHeader ();
+  ~HttpResponseHeader ();
 
-  int getStatusType();
+  int getStatusType ();
 
-  virtual string* getValue(const char* name, string* out);
-  virtual string* setValue(const char* name, const char* in);
-  void free();
+  virtual string* getValue (const char* name, string* out);
+  virtual string* setValue (const char* name, const char* in);
+  void free ();
 };
 
 #endif

@@ -25,27 +25,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # ifdef WIN32
 	typedef unsigned int ThreadID;
-#  define DEFINE_THREAD(NAME,PARAM) unsigned int __stdcall NAME(void* PARAM)
+#  define DEFINE_THREAD(NAME,PARAM) unsigned int __stdcall NAME (void* PARAM)
 # endif
 # ifdef HAVE_PTHREAD
 	typedef pthread_t ThreadID;
-#  define DEFINE_THREAD(NAME,PARAM) void* NAME(void* PARAM)
+#  define DEFINE_THREAD(NAME,PARAM) void* NAME (void* PARAM)
 # endif
 
 class Thread
 {
 public:
-  static void wait(u_long);
-	static ThreadID threadID();
+  static void wait (u_long);
+	static ThreadID threadID ();
 # ifdef WIN32
-	static int create(ThreadID*  thread,
+	static int create (ThreadID*  thread,
              unsigned int (_stdcall *start_routine)(void *), void * arg);
 # endif
 # ifdef HAVE_PTHREAD
-	static int create(ThreadID*  thread, void * (*start_routine)(void *),
+	static int create (ThreadID*  thread, void * (*start_routine)(void *),
                     void * arg);
 # endif
-	static void terminate();
-	static int join(ThreadID);
+	static void terminate ();
+	static int join (ThreadID);
 };
 #endif

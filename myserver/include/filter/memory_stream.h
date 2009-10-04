@@ -26,15 +26,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class MemoryStream : public Stream
 {
 public:
-  virtual int read(char* buffer, u_long len, u_long*);
-  virtual int write(const char* buffer, u_long len, u_long*);
-  virtual int flush(u_long*);
-  int refresh();
-  int availableToRead();
-  int read(Stream*, u_long len, u_long *nbw);
-  MemoryStream();
-  MemoryStream(MemBuf*);
-  virtual ~MemoryStream();
+  virtual int read (char* buffer, u_long len, u_long*);
+  virtual int write (const char* buffer, u_long len, u_long*);
+  virtual int flush (u_long*);
+  int refresh ();
+  int availableToRead ();
+  int read (Stream*, u_long len, u_long *nbw);
+  MemoryStream ();
+  MemoryStream (MemBuf*);
+  virtual ~MemoryStream ();
 private:
   int internalData;
   MemBuf *data;

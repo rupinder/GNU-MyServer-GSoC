@@ -31,17 +31,17 @@ class ControlHeader
   char version[12];
   int length;
 public:
-  void reset();
-  char *getOptions();
-  char *getVersion();
-  char *getConnection();
-  int getLength();
-  char *getAuthLogin();
-  char *getAuthPassword();
-  char *getCommand();
-  ControlHeader();
-  virtual ~ControlHeader();
-  int parse_header(char *buffer, int bufferlen, int*);
+  void reset ();
+  char *getOptions ();
+  char *getVersion ();
+  char *getConnection ();
+  int getLength ();
+  char *getAuthLogin ();
+  char *getAuthPassword ();
+  char *getCommand ();
+  ControlHeader ();
+  virtual ~ControlHeader ();
+  int parse_header (char *buffer, int bufferlen, int*);
 };
 
 #endif

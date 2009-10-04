@@ -38,19 +38,19 @@ public:
 	class FiltersSource
 	{
 	public:
-		virtual Filter* createFilter(const char* name) = 0;
-		virtual ~FiltersSource(){}
+		virtual Filter* createFilter (const char* name) = 0;
+		virtual ~FiltersSource (){}
 	};
-  int insert(const char*, FILTERCREATE ptr);
-  int insert(const char*, FiltersSource* ptr);
-  Filter *getFilter(const char*);
-  FiltersChain* chain(list<string> &l, Stream* out, u_long *nbw,
+  int insert (const char*, FILTERCREATE ptr);
+  int insert (const char*, FiltersSource* ptr);
+  Filter *getFilter (const char*);
+  FiltersChain* chain (list<string> &l, Stream* out, u_long *nbw,
 											int onlyNotModifiers = 0);
-  int chain(FiltersChain*, list<string> &l, Stream* out, u_long *nbw,
+  int chain (FiltersChain*, list<string> &l, Stream* out, u_long *nbw,
              int onlyNotModifiers = 0);
-  FiltersFactory();
-  ~FiltersFactory();
-  void free();
+  FiltersFactory ();
+  ~FiltersFactory ();
+  void free ();
 protected:
   HashMap<string, FILTERCREATE> staticFilters;
   HashMap<string, FiltersSource*> dynamicFilters;

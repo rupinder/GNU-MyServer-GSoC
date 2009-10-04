@@ -48,7 +48,7 @@ using namespace std;
 /*!
  * C'tor.
  */
-ListenThreads::ListenThreads(ConnectionsScheduler* scheduler, Server* server)
+ListenThreads::ListenThreads (ConnectionsScheduler* scheduler, Server* server)
 {
   fastRebooting = false;
   committingFastReboot = false;
@@ -60,7 +60,7 @@ ListenThreads::ListenThreads(ConnectionsScheduler* scheduler, Server* server)
  * This function is used to create a socket server and a thread listener
  * for a port.
  */
-int ListenThreads::createServerAndListener(u_short port)
+int ListenThreads::createServerAndListener (u_short port)
 {
   int optvalReuseAddr = 1;
   string listenPortMsg;
@@ -75,7 +75,7 @@ int ListenThreads::createServerAndListener(u_short port)
    * Create the server sockets:
    * one server socket for IPv4 and another one for IPv6
    */
-  Socket *serverSocketIPv4 = new Socket();
+  Socket *serverSocketIPv4 = new Socket ();
   Socket *serverSocketIPv6 = NULL;
 
   SocketInformation* si = new SocketInformation;
@@ -89,7 +89,7 @@ int ListenThreads::createServerAndListener(u_short port)
       if (serverSocketIPv4 != NULL)
         {
           serverSocketIPv4->socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
-          if (serverSocketIPv4->getHandle() == (Handle)INVALID_SOCKET)
+          if (serverSocketIPv4->getHandle () == (Handle)INVALID_SOCKET)
             {
               server->log (MYSERVER_LOG_MSG_ERROR,
                             _("Error while creating the server socket"));
@@ -108,7 +108,7 @@ int ListenThreads::createServerAndListener(u_short port)
 #ifndef WIN32
               if (serverSocketIPv4->setsockopt (SOL_SOCKET, SO_REUSEADDR,
                                                 (const char *)&optvalReuseAddr,
-                                                sizeof(optvalReuseAddr)) < 0)
+                                                sizeof (optvalReuseAddr)) < 0)
                 {
                   server->log (MYSERVER_LOG_MSG_ERROR,
                                  _("Error while creating the server socket"));
@@ -123,7 +123,7 @@ int ListenThreads::createServerAndListener(u_short port)
                                       _("Binding the port"));
 
                   if (!serverSocketIPv4->bind (&sockServerSocketIPv4,
-                                              sizeof(sockaddr_in)))
+                                              sizeof (sockaddr_in)))
                     server->log (MYSERVER_LOG_MSG_INFO, _("Port was bound"));
                   else
                     {
@@ -138,7 +138,7 @@ int ListenThreads::createServerAndListener(u_short port)
         }
 
 #if HAVE_IPV6
-      serverSocketIPv6 = new Socket();
+      serverSocketIPv6 = new Socket ();
 
       if (serverSocketIPv6 != NULL)
         {
@@ -156,11 +156,11 @@ int ListenThreads::createServerAndListener(u_short port)
               ((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_family = AF_INET6;
               ((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_addr = in6addr_any;
               ((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_port =
-                htons((u_short)port);
+                htons ((u_short)port);
 # ifndef WIN32
               if (serverSocketIPv6->setsockopt (SOL_SOCKET, SO_REUSEADDR,
                                                 (const char *)&optvalReuseAddr,
-                                                sizeof(optvalReuseAddr)) < 0)
+                                                sizeof (optvalReuseAddr)) < 0)
                 {
                   server->log (MYSERVER_LOG_MSG_ERROR,
                                  _("Error while creating the server socket"));
@@ -168,9 +168,9 @@ int ListenThreads::createServerAndListener(u_short port)
                   serverSocketIPv6 = NULL;
                 }
 
-              if(serverSocketIPv6->setsockopt (IPPROTO_IPV6, IPV6_V6ONLY,
+              if (serverSocketIPv6->setsockopt (IPPROTO_IPV6, IPV6_V6ONLY,
                                               (const char *)&optvalReuseAddr,
-                                              sizeof(optvalReuseAddr)) < 0)
+                                              sizeof (optvalReuseAddr)) < 0)
                 {
                   server->log (MYSERVER_LOG_MSG_ERROR,
                                  _("Error while creating the server socket"));
@@ -184,7 +184,7 @@ int ListenThreads::createServerAndListener(u_short port)
                                       _("Binding the port"));
 
                   if (!serverSocketIPv6->bind (&sockServerSocketIPv6,
-                                               sizeof(sockaddr_in6)))
+                                               sizeof (sockaddr_in6)))
                     server->log (MYSERVER_LOG_MSG_INFO,
                                         _("Port was bound"));
                   else
@@ -239,12 +239,12 @@ int ListenThreads::createServerAndListener(u_short port)
 
       return 0;
     }
-  catch(bad_alloc &ba)
+  catch (bad_alloc &ba)
     {
       server->log (MYSERVER_LOG_MSG_ERROR, _("Bad alloc: %s"),
                           ba.what ());
     }
-  catch(exception &e)
+  catch (exception &e)
     {
       server->log (MYSERVER_LOG_MSG_ERROR, _("Error: %s"),
                           e.what ());
@@ -319,7 +319,7 @@ void ListenThreads::commitFastReboot ()
       it != usedPorts.end (); it++)
     presentPorts.insert ((*it)->port);
 
-  for(list<u_short>::iterator it = frPortsToAdd.begin ();
+  for (list<u_short>::iterator it = frPortsToAdd.begin ();
       it != frPortsToAdd.end (); it++)
     newPorts.insert (*it);
 
@@ -414,7 +414,7 @@ int ListenThreads::terminate ()
     }
   else
     {
-      for (HashMap<u_short, SocketInformation*>::Iterator i = usedPorts.begin();
+      for (HashMap<u_short, SocketInformation*>::Iterator i = usedPorts.begin ();
            i != usedPorts.end (); i++)
       sockets.push_front (*i);
       it = sockets.begin ();

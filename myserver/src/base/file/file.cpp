@@ -68,7 +68,7 @@ const u_long File::NO_INHERIT = (1<<8);
 /*!
  *Costructor of the class.
  */
-File::File()
+File::File ()
 {
   handle = 0;
 }
@@ -83,7 +83,7 @@ File::File()
  *\param buffersize The length of the buffer in bytes.
  *\param nbw How many bytes were written to the file.
  */
-int File::writeToFile(const char* buffer, u_long buffersize, u_long* nbw)
+int File::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
 {
   if (buffersize == 0)
   {
@@ -179,13 +179,13 @@ int File::openFile (const char* nfilename,u_long opt)
   if (attributeFlag == 0)
     attributeFlag = FILE_ATTRIBUTE_NORMAL;
 
-  handle = CreateFile(filename.c_str (), openFlag,
-                      FILE_SHARE_READ|FILE_SHARE_WRITE,
-                      &sa, creationFlag, attributeFlag, NULL);
+  handle = CreateFile (filename.c_str (), openFlag,
+                       FILE_SHARE_READ|FILE_SHARE_WRITE,
+                       &sa, creationFlag, attributeFlag, NULL);
 
   if (handle == INVALID_HANDLE_VALUE)
     {
-      filename.clear();
+      filename.clear ();
       return 1;
     }
   else
@@ -197,8 +197,8 @@ int File::openFile (const char* nfilename,u_long opt)
 
       if (ret)
         {
-          close();
-          filename.clear();
+          close ();
+          filename.clear ();
           return 1;
         }
     }
@@ -240,9 +240,9 @@ int File::openFile (const char* nfilename,u_long opt)
 }
 
 /*!
- *Returns the base/file/file.handle.
+ *Returns the file handle.
  */
-Handle File::getHandle()
+Handle File::getHandle ()
 {
   return (Handle) handle;
 }
@@ -252,7 +252,7 @@ Handle File::getHandle()
  *Return a non null-value on errors.
  *\param hl The new base/file/file.handle.
  */
-int File::setHandle(Handle hl)
+int File::setHandle (Handle hl)
 {
   handle = (FileHandle) hl;
   return 0;
@@ -274,16 +274,16 @@ int File::operator =(File f)
  *Return Non-zero on errors.
  *\param nfilename The new file name.
  */
-int File::setFilename(const char* nfilename)
+int File::setFilename (const char* nfilename)
 {
-  filename.assign(nfilename);
+  filename.assign (nfilename);
   return 0;
 }
 
 /*!
  *Returns the file path.
  */
-const char *File::getFilename()
+const char *File::getFilename ()
 {
   return filename.c_str ();
 }
@@ -292,12 +292,12 @@ const char *File::getFilename()
  *Create a temporary file.
  *\param filename The new temporary file name.
  */
-int File::createTemporaryFile(const char* filename)
+int File::createTemporaryFile (const char* filename)
 {
-  if (FilesUtility::fileExists(filename))
-    FilesUtility::deleteFile(filename);
+  if (FilesUtility::fileExists (filename))
+    FilesUtility::deleteFile (filename);
 
-  return openFile(filename, File::READ |
+  return openFile (filename, File::READ |
                   File::WRITE|
                   File::FILE_CREATE_ALWAYS |
                   File::TEMPORARY |
@@ -305,9 +305,9 @@ int File::createTemporaryFile(const char* filename)
 }
 
 /*!
- *Close an open base/file/file.handle.
+ * Close the file.
  */
-int File::close()
+int File::close ()
 {
   int ret = 0;
   if (handle)
@@ -320,30 +320,27 @@ int File::close()
       ret |= ::close (handle);
 #endif
   }
-  filename.clear();
+  filename.clear ();
   handle = 0;
   return ret;
 }
 
 /*!
- *Returns the file size in bytes.
- *Returns -1 on errors.
+ * Returns the file size in bytes.
+ * Returns -1 on errors.
  */
-u_long File::getFileSize()
+u_long File::getFileSize ()
 {
   u_long ret;
 #ifdef WIN32
-  ret = GetFileSize(handle, NULL);
+  ret = GetFileSize (handle, NULL);
   if (ret != INVALID_FILE_SIZE)
-  {
     return ret;
-  }
   else
     return (u_long)-1;
 #else
   struct stat fStats;
   ret = fstat (handle, &fStats);
-
   if (ret)
     return (u_long)(-1);
   else
@@ -392,9 +389,9 @@ time_t File::getLastModTime ()
 /*!
  *This function returns the creation time of the file.
  */
-time_t File::getCreationTime()
+time_t File::getCreationTime ()
 {
-  return FilesUtility::getCreationTime(filename);
+  return FilesUtility::getCreationTime (filename);
 }
 
 /*!
@@ -427,12 +424,12 @@ int File::write (const char* buffer, u_long len, u_long *nbw)
 int File::read (char* buffer, u_long buffersize, u_long* nbr)
 {
 #ifdef WIN32
-  int ret = ReadFile((HANDLE)handle, buffer, buffersize, nbr, NULL);
+  int ret = ReadFile (handle, buffer, buffersize, nbr, NULL);
   return (!ret);
 #else
-  int ret  = ::read((long)handle, buffer, buffersize);
+  int ret  = ::read (handle, buffer, buffersize);
   *nbr = (u_long)ret;
-  return (ret == -1) ;
+  return (ret == -1);
 #endif
 }
 
@@ -455,7 +452,6 @@ int File::fastCopyToSocket (Socket *dest, u_long firstByte, MemBuf *buf, u_long 
     {
       int ret = sendfile (dest->getHandle (), getHandle (), &offset,
                           fileSize - offset);
-
       if (ret < 0)
         {
           /* Rollback to read/write on EINVAL or ENOSYS.  */

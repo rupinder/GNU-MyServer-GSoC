@@ -96,7 +96,7 @@ int Process::generateArgList (const char **args, size_t size, const char *proc,
           start = i++;
           while (additionalArgs[++i] != '"' && i < len);
           if (i == len)
-            exit(1);
+            exit (1);
 
           if (count < size)
             {
@@ -116,7 +116,7 @@ int Process::generateArgList (const char **args, size_t size, const char *proc,
               args[count++] = &(additionalArgs[start]);
               additionalArgs[i] = '\0';
 
-              while((arg[i] == ' ') && (i < len))
+              while ((arg[i] == ' ') && (i < len))
                 i++;
 
               start = i + 1;
@@ -135,6 +135,20 @@ int Process::generateArgList (const char **args, size_t size, const char *proc,
   return 0;
 }
 
+/*!
+ * Change the process root directory to the specified one.
+ * \param root The new root directory.
+ * On success 0 is returned.
+ */
+int Process::chroot (const char *root)
+{
+#ifdef WIN32
+  return -1;
+#else
+  return chroot (root);
+#endif
+}
+
 
 /*!
  * Generate the env array for execve.
@@ -149,7 +163,7 @@ int Process::generateEnvString (const char **envp, size_t size, char *envString)
 
   if (envString != NULL)
     {
-      while(*(envString + i) != '\0')
+      while (*(envString + i) != '\0')
         {
           envp[index] = envString + i;
           index++;
@@ -182,8 +196,8 @@ int Process::exec (StartProcInfo* spi, bool waitEnd)
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
   const char *cwd;
-  ZeroMemory( &si, sizeof(si));
-  si.cb = sizeof(si);
+  ZeroMemory ( &si, sizeof (si));
+  si.cb = sizeof (si);
   si.hStdInput = (HANDLE)spi->stdIn;
   si.hStdOutput = (HANDLE)spi->stdOut;
   si.hStdError = (HANDLE)spi->stdError;
@@ -192,10 +206,10 @@ int Process::exec (StartProcInfo* spi, bool waitEnd)
     si.dwFlags |= STARTF_USESTDHANDLES;
   si.wShowWindow = SW_HIDE;
 
-  cwd = spi->cwd.length() ? (char*)spi->cwd.c_str() : 0;
-  ZeroMemory( &pi, sizeof(pi) );
+  cwd = spi->cwd.length () ? (char*)spi->cwd.c_str () : 0;
+  ZeroMemory ( &pi, sizeof (pi) );
 
-  BOOL ret = CreateProcess(NULL, (char*)spi->cmdLine.c_str(), NULL, NULL, TRUE,0,
+  BOOL ret = CreateProcess (NULL, (char*)spi->cmdLine.c_str (), NULL, NULL, TRUE,0,
                            spi->envString, cwd, &si, &pi);
 
   if (!ret)
@@ -232,11 +246,14 @@ int Process::exec (StartProcInfo* spi, bool waitEnd)
       const char *envp[size];
       const char *args[size];
 
-      if (spi->gid.length ())
-        Process::setgid (spi->gid.c_str ());
+      if (spi->chroot.length () && Process::chroot (spi->chroot.c_str ()))
+        exit (1);
 
-      if (spi->uid.length ())
-        Process::setuid (spi->uid.c_str ());
+      if (spi->gid.length () && Process::setgid (spi->gid.c_str ()))
+        exit (1);
+
+      if (spi->uid.length () && Process::setuid (spi->uid.c_str ()))
+        exit (1);
 
       if (generateArgList (args, size, spi->cmd.c_str (), spi->arg))
         exit (1);
@@ -245,7 +262,7 @@ int Process::exec (StartProcInfo* spi, bool waitEnd)
         exit (1);
 
       if (spi->cwd.length ()
-          && chdir ((const char*)(spi->cwd.c_str())) == -1)
+          && chdir (spi->cwd.c_str ()) == -1)
         exit (1);
 
       if ((long)spi->stdOut == -1)
@@ -254,7 +271,7 @@ int Process::exec (StartProcInfo* spi, bool waitEnd)
       if ((long)spi->stdError == -1)
         spi->stdError = (FileHandle)open ("/dev/null", O_WRONLY);
 
-      close(0);
+      close (0);
 
       if (spi->stdIn != -1)
         {

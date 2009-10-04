@@ -33,7 +33,7 @@ class  ClientsThread
 {
   friend class Server;
 
-  friend DEFINE_THREAD(clients_thread, pParam);
+  friend DEFINE_THREAD (clients_thread, pParam);
 
 public:
   enum RETURN_CODE
@@ -66,8 +66,8 @@ public:
   void setTimeout (int);
   bool isToDestroy ();
   void setToDestroy (bool);
-  bool isStatic();
-  bool isBusy();
+  bool isStatic ();
+  bool isBusy ();
   void setStatic (bool);
   int run ();
   ThreadID getThreadId (){return tid;}
@@ -87,18 +87,18 @@ private:
   bool threadIsRunning;
   u_long buffersize;
   u_long secondaryBufferSize;
-  bool isRunning();
-  bool isStopped();
+  bool isRunning ();
+  bool isStopped ();
   FtpProtocol *ftpParser;
   HttpProtocol* httpParser;
   HttpsProtocol* httpsParser;
   ControlProtocol  *controlProtocolParser;
   MemBuf buffer;
   MemBuf secondaryBuffer;
-  int controlConnections();
+  int controlConnections ();
   u_long nBytesToRead;
 };
 
-DEFINE_THREAD(clients_thread, pParam);
+DEFINE_THREAD (clients_thread, pParam);
 
 #endif

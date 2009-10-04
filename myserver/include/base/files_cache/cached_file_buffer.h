@@ -32,21 +32,21 @@ class CachedFileFactory;
 class CachedFileBuffer
 {
 public:
-  void addRef();
-  void decRef();
-  u_long getReferenceCounter();
+  void addRef ();
+  void decRef ();
+  u_long getReferenceCounter ();
 
-  void setFactoryToNotify(CachedFileFactory *cff);
-  CachedFileFactory* getFactoryToNotify(){return factoryToNotify;}
+  void setFactoryToNotify (CachedFileFactory *cff);
+  CachedFileFactory* getFactoryToNotify (){return factoryToNotify;}
 
-  u_long getFileSize(){return fileSize;}
-  CachedFileBuffer(const char* filename);
-  CachedFileBuffer(File* file);
-  CachedFileBuffer(const char* buffer, u_long size);
-  ~CachedFileBuffer();
+  u_long getFileSize (){return fileSize;}
+  CachedFileBuffer (const char* filename);
+  CachedFileBuffer (File* file);
+  CachedFileBuffer (const char* buffer, u_long size);
+  ~CachedFileBuffer ();
 
-  const char* getFilename(){return filename.c_str();}
-  const char* getBuffer(){return buffer;}
+  const char* getFilename (){return filename.c_str ();}
+  const char* getBuffer (){return buffer;}
 protected:
   Mutex mutex;
   char *buffer;

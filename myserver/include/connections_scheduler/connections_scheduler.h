@@ -44,7 +44,7 @@ class Server;
 class ConnectionsSchedulerVisitor
 {
 public:
-  virtual int visitConnection(ConnectionPtr conn, void* param) = 0;
+  virtual int visitConnection (ConnectionPtr conn, void* param) = 0;
 };
 
 class ConnectionsScheduler
@@ -59,10 +59,10 @@ public:
     Mutex* eventsMutex;
     ConnectionsScheduler *scheduler;
     Server* server;
-    void reset(Socket* sock, u_short p, Server* ser){serverSocket = sock; port = p; server = ser;}
-    ListenerArg(Socket* sock, u_short p, Server* server){reset(sock, p, server);}
-    ListenerArg(){reset(NULL, 0, NULL);}
-    ListenerArg(ListenerArg* l){serverSocket = l->serverSocket; port = l->port; server = l->server;}
+    void reset (Socket* sock, u_short p, Server* ser){serverSocket = sock; port = p; server = ser;}
+    ListenerArg (Socket* sock, u_short p, Server* server){reset (sock, p, server);}
+    ListenerArg (){reset (NULL, 0, NULL);}
+    ListenerArg (ListenerArg* l){serverSocket = l->serverSocket; port = l->port; server = l->server;}
   };
 
   struct DispatcherArg
@@ -76,38 +76,38 @@ public:
     SocketPair socketPair;
   };
 
-  ConnectionsScheduler(Server* server = NULL);
-  ~ConnectionsScheduler();
+  ConnectionsScheduler (Server* server = NULL);
+  ~ConnectionsScheduler ();
 
-  void addNewReadyConnection(ConnectionPtr);
-  void addReadyConnection(ConnectionPtr);
+  void addNewReadyConnection (ConnectionPtr);
+  void addReadyConnection (ConnectionPtr);
 
-  void addNewWaitingConnection(ConnectionPtr);
-  void addWaitingConnection(ConnectionPtr);
+  void addNewWaitingConnection (ConnectionPtr);
+  void addWaitingConnection (ConnectionPtr);
 
-  ConnectionPtr getConnection();
-  void release();
-  void restart();
-  void initialize();
-  void listener(struct ListenerArg* );
-  void removeListener(struct ListenerArg*);
-  u_long getConnectionsNumber();
-  void removeConnection(ConnectionPtr connection);
-  void terminateConnections();
-  void getConnections(list<ConnectionPtr> &out);
+  ConnectionPtr getConnection ();
+  void release ();
+  void restart ();
+  void initialize ();
+  void listener (struct ListenerArg* );
+  void removeListener (struct ListenerArg*);
+  u_long getConnectionsNumber ();
+  void removeConnection (ConnectionPtr connection);
+  void terminateConnections ();
+  void getConnections (list<ConnectionPtr> &out);
 
-  int accept(ConnectionsSchedulerVisitor*, void*);
+  int accept (ConnectionsSchedulerVisitor*, void*);
 
-  void registerConnectionID(ConnectionPtr);
+  void registerConnectionID (ConnectionPtr);
 
-  u_long getNumTotalConnections();
+  u_long getNumTotalConnections ();
 
-  void newData(short event, SocketHandle handle);
+  void newData (short event, SocketHandle handle);
 
 private:
   Server* server;
-  void addWaitingConnectionImpl(ConnectionPtr, int lock);
-  void addReadyConnectionImpl(ConnectionPtr);
+  void addWaitingConnectionImpl (ConnectionPtr, int lock);
+  void addReadyConnectionImpl (ConnectionPtr);
   u_long nTotalConnections;
   ThreadID dispatchedThreadId;
   Semaphore *readySemaphore;

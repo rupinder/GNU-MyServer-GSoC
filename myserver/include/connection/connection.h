@@ -79,7 +79,7 @@ public:
   const char* getPassword ();
   void setPassword (const char*);
 
-	void setnTries(char);
+	void setnTries (char);
 	char getnTries ();
 	void incnTries ();
 

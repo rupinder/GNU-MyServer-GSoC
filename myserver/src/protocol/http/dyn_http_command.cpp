@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /*!
  *Default constructor.
  */
-DynamicHttpCommand::DynamicHttpCommand(string& name)
+DynamicHttpCommand::DynamicHttpCommand (string& name)
 {
   this->name = name;
 }
@@ -31,7 +31,7 @@ DynamicHttpCommand::DynamicHttpCommand(string& name)
 /*!
  *Default constructor.
  */
-string DynamicHttpCommand::getName()
+string DynamicHttpCommand::getName ()
 {
   return name;
 }
@@ -39,7 +39,7 @@ string DynamicHttpCommand::getName()
 /*!
  *Destroy the object.
  */
-DynamicHttpCommand::~DynamicHttpCommand()
+DynamicHttpCommand::~DynamicHttpCommand ()
 {
 }
 

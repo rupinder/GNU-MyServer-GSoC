@@ -27,79 +27,79 @@ using namespace std;
 
 class TestCachedFile : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestCachedFile );
+  CPPUNIT_TEST_SUITE ( TestCachedFile );
 
-  CPPUNIT_TEST(testFilePointer);
-  CPPUNIT_TEST(testGetHandle);
-  CPPUNIT_TEST(testOpenFile);
-  CPPUNIT_TEST(testCreateTemporaryFile);
-  CPPUNIT_TEST(testWrite);
-  CPPUNIT_TEST(testRead);
+  CPPUNIT_TEST (testFilePointer);
+  CPPUNIT_TEST (testGetHandle);
+  CPPUNIT_TEST (testOpenFile);
+  CPPUNIT_TEST (testCreateTemporaryFile);
+  CPPUNIT_TEST (testWrite);
+  CPPUNIT_TEST (testRead);
 
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE_END ();
 
   CachedFileBuffer *cfb;
   CachedFile *cf;
 
 public:
-  void setUp()
+  void setUp ()
   {
     const char* buffer = "hello world!!!";
 
-    cfb = new CachedFileBuffer(buffer, strlen(buffer));
+    cfb = new CachedFileBuffer (buffer, strlen (buffer));
 
-    cf = new CachedFile(cfb);
+    cf = new CachedFile (cfb);
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete cf;
     delete cfb;
   }
 
 
-  void testFilePointer()
+  void testFilePointer ()
   {
-    CPPUNIT_ASSERT_EQUAL(cf->seek (3), 0);
-    CPPUNIT_ASSERT(cf->seek (100000));
+    CPPUNIT_ASSERT_EQUAL (cf->seek (3), 0);
+    CPPUNIT_ASSERT (cf->seek (100000));
   }
 
 
-  void testGetHandle()
+  void testGetHandle ()
   {
-    CPPUNIT_ASSERT_EQUAL(cf->getHandle(), (Handle)-1);
+    CPPUNIT_ASSERT_EQUAL (cf->getHandle (), (Handle)-1);
   }
 
-  void testOpenFile()
+  void testOpenFile ()
   {
     string filename;
-    CPPUNIT_ASSERT(cf->openFile(NULL, 0));
-    CPPUNIT_ASSERT(cf->openFile(filename, 0));
+    CPPUNIT_ASSERT (cf->openFile (NULL, 0));
+    CPPUNIT_ASSERT (cf->openFile (filename, 0));
   }
 
-  void testCreateTemporaryFile()
+  void testCreateTemporaryFile ()
   {
-    CPPUNIT_ASSERT(cf->createTemporaryFile(NULL));
+    CPPUNIT_ASSERT (cf->createTemporaryFile (NULL));
   }
 
-  void testWrite()
+  void testWrite ()
   {
-    CPPUNIT_ASSERT(cf->writeToFile(NULL, 0, NULL));
+    CPPUNIT_ASSERT (cf->writeToFile (NULL, 0, NULL));
   }
 
-  void testRead()
+  void testRead ()
   {
     u_long nbr = 0;
-    u_long size = cf->getFileSize();
+    u_long size = cf->getFileSize ();
 
-    CPPUNIT_ASSERT(size > 0);
+    CPPUNIT_ASSERT (size > 0);
 
     char *buffer =new char[size];
 
-    int ret = cf->read(buffer, size, &nbr);
+    int ret = cf->read (buffer, size, &nbr);
 
-    CPPUNIT_ASSERT_EQUAL(ret, 0);
-    CPPUNIT_ASSERT(nbr > 0);
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
+    CPPUNIT_ASSERT (nbr > 0);
 
     delete [] buffer;
   }
@@ -108,4 +108,4 @@ public:
 
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestCachedFile );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestCachedFile );

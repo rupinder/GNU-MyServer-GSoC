@@ -45,27 +45,27 @@ class SslSocket : public Socket
 {
 public:
 
-	int setSSLContext(SSL_CTX*);
-	int sslAccept();
+	int setSSLContext (SSL_CTX*);
+	int sslAccept ();
 
-	int freeSSL();
-	SSL* getSSLConnection();
+	int freeSSL ();
+	SSL* getSSLConnection ();
 
-	virtual int close();
-	virtual int shutdown(int how);
-	virtual int connect(MYSERVER_SOCKADDR* sa, int na);
-	virtual int recv(char* buffer,int len,int flags);
-	virtual int rawSend(const char* buffer, int len, int flags);
-	virtual u_long bytesToRead();
+	virtual int close ();
+	virtual int shutdown (int how);
+	virtual int connect (MYSERVER_SOCKADDR* sa, int na);
+	virtual int recv (char* buffer,int len,int flags);
+	virtual int rawSend (const char* buffer, int len, int flags);
+	virtual u_long bytesToRead ();
 
 # ifdef __HURD__
-	virtual int dataOnRead(int sec = 1, int usec = 500);
+	virtual int dataOnRead (int sec = 1, int usec = 500);
 # else
-	virtual int dataOnRead(int sec = 0, int usec = 500);
+	virtual int dataOnRead (int sec = 0, int usec = 500);
 # endif
 
-	SslSocket(Socket*);
-	~SslSocket();
+	SslSocket (Socket*);
+	~SslSocket ();
 
 protected:
 	bool externalContext;

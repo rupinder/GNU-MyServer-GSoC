@@ -26,6 +26,7 @@ AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
 AM_INIT_AUTOMAKE([gnu])
+AM_SILENT_RULES([yes])
 
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -128,9 +129,7 @@ case "${host}" in
              ])
     fi
 
-
-
-        AC_SUBST(PTHREAD_LIB)
+    AC_SUBST(PTHREAD_LIB)
 
     dnl Looking for dl
     AC_SEARCH_LIBS([dlopen], [dl c], have_dl=yes)
@@ -404,6 +403,7 @@ AC_CONFIG_FILES([ po/Makefile.in
     include/log/Makefile
     include/log/stream/Makefile
     include/conf/Makefile
+    include/conf/main/Makefile
     include/conf/mime/Makefile
     include/conf/security/Makefile
     include/conf/vhost/Makefile
@@ -458,6 +458,7 @@ AC_CONFIG_FILES([ po/Makefile.in
     src/log/Makefile
     src/log/stream/Makefile
     src/conf/Makefile
+    src/conf/main/Makefile
     src/conf/mime/Makefile
     src/conf/security/Makefile
     src/conf/vhost/Makefile

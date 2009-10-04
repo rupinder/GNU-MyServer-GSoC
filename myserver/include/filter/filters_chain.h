@@ -29,42 +29,42 @@ using namespace std;
 class FiltersChain : public Stream
 {
 public:
-  Protocol* getProtocol()
+  Protocol* getProtocol ()
   {
     return protocol;
   }
-  void setProtocol(Protocol* pr)
+  void setProtocol (Protocol* pr)
   {
     protocol = pr;
   }
-  void* getProtocolData()
+  void* getProtocolData ()
   {
     return protocolData;
   }
-  void setProtocolData(void* prd)
+  void setProtocolData (void* prd)
   {
     protocolData = prd;
   }
-  void setAcceptDuplicates(int);
-  int getAcceptDuplicates();
-  void setStream(Stream*);
-  Stream* getStream();
-  Filter* getFirstFilter();
-  int isEmpty();
-  int addFilter(Filter*,u_long *nbw, int sendData = 1);
-  void clearAllFilters();
-  int isFilterPresent(Filter*);
-  int isFilterPresent(const char*);
-  int removeFilter(Filter*);
-  int clear();
-  void getName(string& out);
-  int hasModifiersFilters();
+  void setAcceptDuplicates (int);
+  int getAcceptDuplicates ();
+  void setStream (Stream*);
+  Stream* getStream ();
+  Filter* getFirstFilter ();
+  int isEmpty ();
+  int addFilter (Filter*,u_long *nbw, int sendData = 1);
+  void clearAllFilters ();
+  int isFilterPresent (Filter*);
+  int isFilterPresent (const char*);
+  int removeFilter (Filter*);
+  int clear ();
+  void getName (string& out);
+  int hasModifiersFilters ();
   list<string> getFilters ();
-  virtual int read(char* buffer, u_long len, u_long*);
-  virtual int write(const char* buffer, u_long len, u_long*);
-        virtual int flush(u_long*);
-  FiltersChain();
-  ~FiltersChain();
+  virtual int read (char* buffer, u_long len, u_long*);
+  virtual int write (const char* buffer, u_long len, u_long*);
+        virtual int flush (u_long*);
+  FiltersChain ();
+  ~FiltersChain ();
 protected:
   Protocol *protocol;
   void *protocolData;

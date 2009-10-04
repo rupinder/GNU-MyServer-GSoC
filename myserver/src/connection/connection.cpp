@@ -66,7 +66,7 @@ void Connection::destroy ()
   if (password)
     delete password;
 
-  if(ipAddr)
+  if (ipAddr)
     delete ipAddr;
 
   if (localIpAddr)
@@ -75,7 +75,7 @@ void Connection::destroy ()
   if (connectionBuffer)
     delete connectionBuffer;
 
-  if(protocolBuffer)
+  if (protocolBuffer)
     delete protocolBuffer;
 
   /*! Remove the reference for the vhost. */
@@ -162,7 +162,7 @@ void Connection::setPort (u_short newPort)
  */
 const char* Connection::getLogin ()
 {
-  return login->c_str();
+  return login->c_str ();
 }
 
 /*!
@@ -203,7 +203,7 @@ void Connection::incnTries ()
  */
 const char* Connection::getIpAddr ()
 {
-  return ipAddr->c_str();
+  return ipAddr->c_str ();
 }
 
 /*!
@@ -304,7 +304,7 @@ void Connection::setForceControl (int fp)
  */
 const char* Connection::getPassword ()
 {
-  return password->c_str();
+  return password->c_str ();
 }
 
 /*!
@@ -313,7 +313,7 @@ const char* Connection::getPassword ()
  */
 void Connection::setPassword (const char* p)
 {
-  password->assign(p);
+  password->assign (p);
 }
 
 /*!

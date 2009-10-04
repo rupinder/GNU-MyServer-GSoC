@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/socket/ssl_socket.h>
 
 #include <include/conf/xml_conf.h>
+#include <include/conf/main/xml_main_configuration.h>
 
 #include <cstdarg>
 
@@ -57,14 +58,7 @@ extern "C"
 }
 #include <sstream>
 
-#if HAVE_IPV6
-const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
-#endif
-
-/*!
- *At startup the server instance is null.
- */
-Server* Server::instance = 0;
+Server* Server::instance = NULL;
 
 Server::Server () : connectionsScheduler (this),
                    listenThreads (&connectionsScheduler, this),
@@ -80,10 +74,6 @@ Server::Server () : connectionsScheduler (this),
   serverReady = false;
   throttlingRate = 0;
   mimeManager = 0;
-  mimeConfigurationFile = 0;
-  mainConfigurationFile = 0;
-  vhostConfigurationFile = 0;
-  externalPath = 0;
   path = 0;
   ipAddresses = 0;
   vhostList = 0;
@@ -93,6 +83,7 @@ Server::Server () : connectionsScheduler (this),
   xmlValidator = new XmlValidator ();
   initLogManager ();
   connectionsPoolLock.init ();
+  configurationFileManager = NULL;
 }
 
 void
@@ -115,108 +106,12 @@ Server::initLogManager ()
 bool Server::resetConfigurationPaths (string &mainConf, string &mimeConf,
 				     string &vhostConf, string &externPath)
 {
-  if (!mainConfigurationFile)
-    mainConfigurationFile = new string (mainConf);
-  else
-    mainConfigurationFile->assign (mainConf);
-
-  if (!mimeConfigurationFile)
-    mimeConfigurationFile = new string (mimeConf);
-  else
-    mimeConfigurationFile->assign (mimeConf);
-
-  if (!vhostConfigurationFile)
-    vhostConfigurationFile = new string (vhostConf);
-  else
-    vhostConfigurationFile->assign (vhostConf);
-
-  if (!externalPath)
-    externalPath = new string (externPath);
-  else
-    externalPath->assign (externPath);
-
+  mainConfigurationFile = mainConf;
+  mimeConfigurationFile = mimeConf;
+  vhostConfigurationFile = vhostConf;
+  externalPath = externPath;
   return true;
 }
-
-/*!
-  *Check that the configuration paths are not empty, otherwise fall back to
- * the default ones.
- * Returns nonzero on error.
- */
-int Server::checkConfigurationPaths ()
-{
-  if (mainConfigurationFile->length() == 0)
-  {
-    mainConfigurationFile->assign ("myserver.xml");
-
-    if (copyConfigurationFromDefault ("myserver.xml"))
-    {
-      log (MYSERVER_LOG_MSG_ERROR, _("Error loading configuration file"));
-      return -1;
-    }
-  }
-
-  if (mimeConfigurationFile->length() == 0)
-  {
-    mimeConfigurationFile->assign ("MIMEtypes.xml");
-
-    if (copyConfigurationFromDefault ("MIMEtypes.xml"))
-    {
-      log (MYSERVER_LOG_MSG_ERROR, _("Error loading MIME configuration file"));
-      return -1;
-    }
-  }
-
-  if (vhostConfigurationFile->length() == 0)
-  {
-    vhostConfigurationFile->assign ("virtualhosts.xml");
-
-    if (copyConfigurationFromDefault ("virtualhosts.xml") != 0)
-    {
-      log (MYSERVER_LOG_MSG_ERROR, _("Error loading virtual hosts configuration file"));
-      return -1;
-    }
-  }
-
-  return 0;
-}
-
-/*!
- * Copy a configuration file from the default one.
- * Return nonzero on errors.
- */
-int Server::copyConfigurationFromDefault (const char *fileName)
-{
-  File inputF;
-  File outputF;
-  int ret;
-  string sSource (fileName);
-  sSource = sSource.substr (0, sSource.length () - 3);
-
-#ifdef WIN32
-  sSource.append ("default.windows.xml");
-#else
-  sSource.append ("default.xml");
-#endif
-
-  ret = inputF.openFile (sSource, File::READ
-                        | File::OPEN_IF_EXISTS);
-  if (ret)
-    return -1;
-
-  ret = outputF.openFile (fileName, File::WRITE
-                         | File::FILE_OPEN_ALWAYS);
-  if (ret)
-    return -1;
-
-  FilesUtility::copyFile (inputF, outputF);
-
-  inputF.close ();
-  outputF.close ();
-
-  return 0;
-}
-
 
 /*!
  * Load here all the libraries.
@@ -246,19 +141,6 @@ Server::~Server ()
   if (vhostList)
     delete vhostList;
 
-  delete vhostConfigurationFile;
-  vhostConfigurationFile = 0;
-
-  delete mainConfigurationFile;
-  mainConfigurationFile = 0;
-
-  delete mimeConfigurationFile;
-  mimeConfigurationFile = 0;
-
-  if (externalPath)
-    delete externalPath;
-  externalPath = 0;
-
   if (xmlValidator)
     delete xmlValidator;
 
@@ -271,6 +153,9 @@ Server::~Server ()
 
   if (logManager)
     delete logManager;
+
+  if (configurationFileManager)
+    delete configurationFileManager;
 
   connectionsPoolLock.destroy ();
 }
@@ -299,16 +184,12 @@ void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
     if (!resetConfigurationPaths (mainConf, mimeConf, vhostConf, externPath))
       return;
 
-    err = checkConfigurationPaths ();
-    if (err)
-      return;
-
     err = initialize ();
     if (err)
       return;
 
     /* Initialize the SSL library.  */
-    initializeSSL();
+    initializeSSL ();
 
     log (MYSERVER_LOG_MSG_INFO, _("Loading server configuration..."));
 
@@ -334,11 +215,11 @@ void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
     mainLoop ();
 
   }
-  catch(bad_alloc &ba)
+  catch (bad_alloc &ba)
     {
       log (MYSERVER_LOG_MSG_ERROR, _("Bad alloc: %s"), ba.what ());
     }
-  catch(exception &e)
+  catch (exception &e)
     {
       log (MYSERVER_LOG_MSG_ERROR, _("Error: %s"), e.what ());
     };
@@ -385,7 +266,7 @@ int Server::postLoad ()
 
   mimeManager = new MimeManager ();
 
-  if (int nMIMEtypes = mimeManager->loadXML(mimeConfigurationFile->c_str ()))
+  if (int nMIMEtypes = mimeManager->loadXML (mimeConfigurationFile.c_str ()))
     log (MYSERVER_LOG_MSG_INFO, _("Using %i MIME types"), nMIMEtypes);
   else
     log (MYSERVER_LOG_MSG_ERROR, _("Error while loading MIME types"));
@@ -412,7 +293,7 @@ int Server::postLoad ()
   loadPlugins ();
 
   /* Load the virtual hosts configuration from the xml file.  */
-  vhostList->loadXMLConfigurationFile (vhostConfigurationFile->c_str ());
+  vhostList->loadXMLConfigurationFile (vhostConfigurationFile.c_str ());
 
   if (path == 0)
     path = new string ();
@@ -434,7 +315,9 @@ int Server::postLoad ()
     }
 
 
-  configurationFileManager.close ();
+  configurationFileManager->close ();
+  delete configurationFileManager;
+  configurationFileManager = NULL;
 
   return 0;
 }
@@ -452,11 +335,11 @@ void Server::loadPlugins ()
   if (filtersFactory.insert ("gzip", Gzip::factory))
     log (MYSERVER_LOG_MSG_ERROR, _("Error while loading plugins"));
 
-  Protocol *protocolsSet[] = {new HttpProtocol(),
-                              new HttpsProtocol(),
-                              new FtpProtocol(),
-                              new ControlProtocol(),
-                              0};
+  Protocol *protocolsSet[] = {new HttpProtocol (),
+                              new HttpsProtocol (),
+                              new FtpProtocol (),
+                              new ControlProtocol (),
+                              NULL};
 
   for (int j = 0; protocolsSet[j]; j++)
     {
@@ -467,7 +350,7 @@ void Server::loadPlugins ()
       getProtocolsManager ()->addProtocol (protocolName, protocol);
     }
 
-  getPluginsManager ()->preLoad (this, *externalPath);
+  getPluginsManager ()->preLoad (this, externalPath);
   getPluginsManager ()->load (this);
   getPluginsManager ()->postLoad (this);
 }
@@ -475,7 +358,7 @@ void Server::loadPlugins ()
 /*!
  * Server main loop.
  */
-void Server::mainLoop()
+void Server::mainLoop ()
 {
   time_t mainConfTime;
   time_t hostsConfTime;
@@ -483,10 +366,9 @@ void Server::mainLoop()
 
   u_long purgeThreadsCounter = 0;
 
-  mainConfTime = FilesUtility::getLastModTime (mainConfigurationFile->c_str ());
-  hostsConfTime =
-    FilesUtility::getLastModTime (vhostConfigurationFile->c_str ());
-  mimeConfTime = FilesUtility::getLastModTime (mimeConfigurationFile->c_str ());
+  mainConfTime = FilesUtility::getLastModTime (mainConfigurationFile.c_str ());
+  hostsConfTime = FilesUtility::getLastModTime (vhostConfigurationFile.c_str ());
+  mimeConfTime = FilesUtility::getLastModTime (mimeConfigurationFile.c_str ());
 
   /*
    * Keep thread alive.
@@ -507,11 +389,11 @@ void Server::mainLoop()
       if (autoRebootEnabled)
         {
           time_t mainConfTimeNow =
-            FilesUtility::getLastModTime (mainConfigurationFile->c_str ());
+            FilesUtility::getLastModTime (mainConfigurationFile.c_str ());
           time_t hostsConfTimeNow =
-            FilesUtility::getLastModTime (vhostConfigurationFile->c_str ());
+            FilesUtility::getLastModTime (vhostConfigurationFile.c_str ());
           time_t mimeConfNow =
-            FilesUtility::getLastModTime (mimeConfigurationFile->c_str ());
+            FilesUtility::getLastModTime (mimeConfigurationFile.c_str ());
 
           /* If a configuration file was modified reboot the server. */
           if (((mainConfTimeNow != -1) && (hostsConfTimeNow != -1)  &&
@@ -585,7 +467,7 @@ void Server::mainLoop()
                   delete oldvhost;
 
                   /* Load the virtual hosts configuration from the xml file.  */
-                  if (vhostList->loadXMLConfigurationFile (vhostConfigurationFile->c_str ()))
+                  if (vhostList->loadXMLConfigurationFile (vhostConfigurationFile.c_str ()))
                     listenThreads.rollbackFastReboot ();
                   else
                     listenThreads.commitFastReboot ();
@@ -619,7 +501,7 @@ void Server::displayBoot ()
   if (logLocation.find ("console://") != string::npos)
     {
 # ifdef WIN32
-      _flushall();
+      _flushall ();
       system ("cls");
 # else
       sync ();
@@ -641,13 +523,13 @@ void Server::displayBoot ()
           softwareSignature.assign ("************ GNU MyServer ");
           softwareSignature.append (MYSERVER_VERSION);
           softwareSignature.append (" ************");
-          length = softwareSignature.length();
+          length = softwareSignature.length ();
 
           logWriteNTimes ("*", length);
           logManager->log (this, "MAINLOG", logLocation, softwareSignature, true);
           logWriteNTimes ("*", length);
         }
-      catch(exception& e)
+      catch (exception& e)
         {
           ostringstream err;
           err << "Error: " << e.what ();
@@ -655,7 +537,7 @@ void Server::displayBoot ()
           logManager->log (this, "MAINLOG", logLocation, str, true);
           return;
         }
-      catch(...)
+      catch (...)
         {
           return;
         };
@@ -864,16 +746,14 @@ int Server::terminate ()
   return 0;
 }
 
-
 /*!
  * Get a pointer to the configuration file.  It is
  * valid only at startup!
  */
-XmlParser *Server::getXmlConfiguration ()
+MainConfiguration *Server::getConfiguration ()
 {
-  return &configurationFileManager;
+  return configurationFileManager;
 }
-
 
 /*!
  * Here is loaded the configuration of the server.
@@ -883,12 +763,12 @@ XmlParser *Server::getXmlConfiguration ()
 int Server::initialize ()
 {
   const char *data;
+  XmlMainConfiguration *xmlMainConf;
 
 #ifdef WIN32
   envString = GetEnvironmentStrings ();
 #endif
   connectionsMutex = new Mutex ();
-
   threadsMutex = new Mutex ();
 
   /* Store the default values.  */
@@ -903,10 +783,17 @@ int Server::initialize ()
   maxConnections = 0;
   maxConnectionsToAccept = 0;
 
-  if (configurationFileManager.open (mainConfigurationFile->c_str ()))
-    return -1;
 
-  readHashedData (xmlDocGetRootElement (configurationFileManager.getDoc ())->xmlChildrenNode);
+  xmlMainConf = new XmlMainConfiguration ();
+  if (xmlMainConf->open (mainConfigurationFile.c_str ()))
+    {
+      delete xmlMainConf;
+      return -1;
+    }
+
+  configurationFileManager = xmlMainConf;
+
+  readHashedData (xmlDocGetRootElement (xmlMainConf->getDoc ())->xmlChildrenNode);
 
   /*
    * Process console colors information.
@@ -932,29 +819,29 @@ int Server::initialize ()
 
   data = getData ("server.buffer_size");
   if (data)
-    buffersize = secondaryBufferSize= (atol(data) > 81920) ?  atol(data) :  81920 ;
+    buffersize = secondaryBufferSize= (atol (data) > 81920) ?  atol (data) :  81920 ;
 
   data = getData ("server.connection_timeout");
   if (data)
-    connectionTimeout = MYSERVER_SEC ((u_long)atol(data));
+    connectionTimeout = MYSERVER_SEC ((u_long)atol (data));
 
   data = getData ("server.static_threads");
   if (data)
-    nStaticThreads = atoi(data);
+    nStaticThreads = atoi (data);
 
   data = getData ("server.max_threads");
   if (data)
-    nMaxThreads = atoi(data);
+    nMaxThreads = atoi (data);
 
   /* Get the max connections number to allow.  */
   data = getData ("server.max_connections");
   if (data)
-    maxConnections = atoi(data);
+    maxConnections = atoi (data);
 
   /* Get the max connections number to accept.  */
   data = getData ("server.max_accepted_connections");
   if (data)
-    maxConnectionsToAccept = atoi(data);
+    maxConnectionsToAccept = atoi (data);
 
   data = getData ("server.connections_pool.size");
   if (data)
@@ -963,16 +850,16 @@ int Server::initialize ()
   /* Get the default throttling rate to use on connections.  */
   data = getData ("connection.throttling");
   if (data)
-    throttlingRate = (u_long)atoi(data);
+    throttlingRate = (u_long)atoi (data);
 
   data = getData ("server.max_log_size");
   if (data)
-    maxLogFileSize=(u_long)atol(data);
+    maxLogFileSize=(u_long)atol (data);
 
-  data = configurationFileManager.getValue ("server.max_files_cache");
+  data = getData ("server.max_files_cache");
   if (data)
     {
-      u_long maxSize = (u_long)atol(data);
+      u_long maxSize = (u_long)atol (data);
       cachedFiles.initialize (maxSize);
     }
   else
@@ -991,14 +878,14 @@ int Server::initialize ()
   data = getData ("server.max_file_cache");
   if (data)
     {
-      u_long maxSize = (u_long)atol(data);
+      u_long maxSize = (u_long)atol (data);
       cachedFiles.setMaxSize (maxSize);
     }
 
   data = getData ("server.min_file_cache");
   if (data)
     {
-      u_long minSize = (u_long)atol(data);
+      u_long minSize = (u_long)atol (data);
       cachedFiles.setMinSize (minSize);
     }
 
@@ -1017,7 +904,7 @@ int Server::initialize ()
   data = getData ("server.max_servers");
   if (data)
     {
-      int maxServersProcesses = atoi(data);
+      int maxServersProcesses = atoi (data);
       getProcessServerManager ()->setMaxServers (maxServersProcesses);
     }
 
@@ -1123,33 +1010,33 @@ int Server::addConnection (Socket s, MYSERVER_SOCKADDRIN *asockIn)
 #if ( HAVE_IPV6 )
   if ( asockIn->ss_family == AF_INET )
     ret = getnameinfo (reinterpret_cast<const sockaddr *>(asockIn),
-                       sizeof(sockaddr_in),
+                       sizeof (sockaddr_in),
                        ip, MAX_IP_STRING_LEN, NULL, 0, NI_NUMERICHOST);
   else
     ret = getnameinfo (reinterpret_cast<const sockaddr *>(asockIn),
-                       sizeof(sockaddr_in6),  ip, MAX_IP_STRING_LEN,
+                       sizeof (sockaddr_in6),  ip, MAX_IP_STRING_LEN,
                        NULL, 0, NI_NUMERICHOST);
   if (ret)
     return 0;
 
   if ( asockIn->ss_family == AF_INET )
-    dim = sizeof(sockaddr_in);
+    dim = sizeof (sockaddr_in);
   else
-    dim = sizeof(sockaddr_in6);
+    dim = sizeof (sockaddr_in6);
   s.getsockname ((MYSERVER_SOCKADDR*)&localSockIn, &dim);
 
   if ( asockIn->ss_family == AF_INET )
     ret = getnameinfo (reinterpret_cast<const sockaddr *>(&localSockIn),
-                       sizeof(sockaddr_in), localIp, MAX_IP_STRING_LEN,
+                       sizeof (sockaddr_in), localIp, MAX_IP_STRING_LEN,
                        NULL, 0, NI_NUMERICHOST);
   else// AF_INET6
     ret = getnameinfo (reinterpret_cast<const sockaddr *>(&localSockIn),
-                       sizeof(sockaddr_in6), localIp, MAX_IP_STRING_LEN,
+                       sizeof (sockaddr_in6), localIp, MAX_IP_STRING_LEN,
                        NULL, 0, NI_NUMERICHOST);
   if (ret)
     return 0;
 #else// !HAVE_IPV6
-  dim = sizeof(localSockIn);
+  dim = sizeof (localSockIn);
   s.getsockname ((MYSERVER_SOCKADDR*)&localSockIn, &dim);
   strncpy (ip,  inet_ntoa (((sockaddr_in *)asockIn)->sin_addr),
            MAX_IP_STRING_LEN);
@@ -1239,7 +1126,7 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
       return 0;
     }
 
-  protocol = getProtocol(newConnection->host->getProtocolName ());
+  protocol = getProtocol (newConnection->host->getProtocolName ());
 
   if (protocol)
     opts = protocol->getProtocolOptions ();
@@ -1372,7 +1259,7 @@ void Server::clearAllConnections ()
       for (it = connections.begin (); it != connections.end (); it++)
         deleteConnection (*it);
     }
-  catch(...)
+  catch (...)
     {
       throw;
     };
@@ -1456,7 +1343,7 @@ int Server::freeHashedData ()
       hashedDataTrees.clear ();
       hashedData.clear ();
     }
-  catch(...)
+  catch (...)
     {
       return 1;
     }
@@ -1488,7 +1375,7 @@ Protocol* Server::getProtocol (const char *protocolName)
  */
 const char* Server::getExternalPath ()
 {
-  return externalPath ? externalPath->c_str () : "";
+  return externalPath.c_str ();
 }
 
 
@@ -1624,8 +1511,7 @@ CachedFileFactory* Server::getCachedFiles ()
  */
 const char *Server::getMainConfFile ()
 {
-  return mainConfigurationFile
-    ? mainConfigurationFile->c_str () : 0;
+  return mainConfigurationFile.c_str ();
 }
 
 /*!
@@ -1633,7 +1519,7 @@ const char *Server::getMainConfFile ()
  */
 const char *Server::getVhostConfFile ()
 {
-  return vhostConfigurationFile ? vhostConfigurationFile->c_str () : NULL;
+  return vhostConfigurationFile.c_str ();
 }
 
 /*!
@@ -1641,7 +1527,7 @@ const char *Server::getVhostConfFile ()
  */
 const char *Server::getMIMEConfFile ()
 {
-  return mimeConfigurationFile ? mimeConfigurationFile->c_str () : "";
+  return mimeConfigurationFile.c_str ();
 }
 
 /*!
@@ -1777,7 +1663,7 @@ int Server::removeThread (u_long ID)
     {
       if ((*it)->id == ID)
         {
-          (*it)->stop();
+          (*it)->stop ();
           ret = 0;
           threads.erase (it);
           break;

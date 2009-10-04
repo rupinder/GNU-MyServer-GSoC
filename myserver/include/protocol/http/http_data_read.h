@@ -41,9 +41,9 @@ using namespace std;
 class HttpDataRead
 {
 public:
-  static int readPostData(HttpThreadContext* td, int* ret);
+  static int readPostData (HttpThreadContext* td, int* ret);
 
-  static int readContiguousPrimitivePostData(const char* inBuffer,
+  static int readContiguousPrimitivePostData (const char* inBuffer,
                                              u_long *inBufferPos,
                                              u_long inBufferSize,
                                              Socket *inSocket,
@@ -51,7 +51,7 @@ public:
                                              u_long outBufferSize,
                                              u_long* nbr,
                                              u_long timeout);
-  static int readChunkedPostData(const char* inBuffer,
+  static int readChunkedPostData (const char* inBuffer,
                                  u_long *inBufferPos,
                                  u_long inBufferSize,
                                  Socket *inSocket,

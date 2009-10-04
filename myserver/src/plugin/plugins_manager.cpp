@@ -314,7 +314,7 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
 
   delete xpathRes;
 
-  xpathRes = xml.evaluateXpath ("/PLUGIN/NAME/text()");
+  xpathRes = xml.evaluateXpath ("/PLUGIN/NAME/text ()");
   nodes = xpathRes->getNodeSet ();
   size = (nodes) ? nodes->nodeNr : 0;
 
@@ -338,7 +338,7 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
 
   delete xpathRes;
 
-  xpathRes = xml.evaluateXpath ("/PLUGIN/VERSION/text()");
+  xpathRes = xml.evaluateXpath ("/PLUGIN/VERSION/text ()");
   nodes = xpathRes->getNodeSet ();
   size = (nodes) ? nodes->nodeNr : 0;
 
@@ -351,7 +351,7 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
       return NULL;
     }
 
-  string verStr((char*) nodes->nodeTab[0]->content);
+  string verStr ((char*) nodes->nodeTab[0]->content);
   int version = PluginInfo::convertVersion (&verStr);
 
   if (version != -1)

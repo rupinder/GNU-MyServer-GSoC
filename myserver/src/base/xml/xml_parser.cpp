@@ -31,9 +31,9 @@ extern "C"
  * \param len Length
  * \return Returns the length
  */
-static int MemBufWriteCallback(void * context, const char * buffer, int len)
+static int MemBufWriteCallback (void * context, const char * buffer, int len)
 {
-  ((MemBuf *)context)->addBuffer((const void *)buffer, len);
+  ((MemBuf *)context)->addBuffer ((const void *)buffer, len);
   return len;
 }
 
@@ -43,7 +43,7 @@ static int MemBufWriteCallback(void * context, const char * buffer, int len)
  * \param context Context
  * \return Returns 0
  */
-static int MemBufCloseCallback(void * context)
+static int MemBufCloseCallback (void *context)
 {
   return 0;
 }
@@ -51,12 +51,12 @@ static int MemBufCloseCallback(void * context)
 
 /**
  * Initializes the libxml2 library
- * Calls xmlInitParser()
+ * Calls xmlInitParser ()
  * @return Returns true
  */
-bool XmlParser::startXML()
+bool XmlParser::startXML ()
 {
-  xmlInitParser();
+  xmlInitParser ();
   return 1;
 }
 
@@ -65,9 +65,9 @@ bool XmlParser::startXML()
  * Cleans up the libxml2 library.
  * @return Returns true
  */
-bool XmlParser::cleanXML()
+bool XmlParser::cleanXML ()
 {
-  xmlCleanupParser();
+  xmlCleanupParser ();
   return 1;
 }
 
@@ -78,48 +78,46 @@ bool XmlParser::cleanXML()
  * \param useXpath Specify if XPath is enabled.
  * \return Returns 0 on success, non zero values on failure
  */
-int XmlParser::open(const char* filename, bool useXpath)
+int XmlParser::open (const char* filename, bool useXpath)
 {
   cur = NULL;
   this->useXpath = useXpath;
 
-  if(!FilesUtility::fileExists(filename))
+  if (!FilesUtility::fileExists (filename))
     return -1;
 
-  if(doc!= NULL)
-    close();
+  if (doc!= NULL)
+    close ();
 
-  doc = xmlParseFile(filename);
+  doc = xmlParseFile (filename);
 
-  if(doc == NULL)
+  if (doc == NULL)
     return -1;
 
-  cur = xmlDocGetRootElement(doc);
-
-  if(!cur)
+  cur = xmlDocGetRootElement (doc);
+  if (!cur)
   {
-    close();
+    close ();
     return -1;
   }
 
-  mtime = FilesUtility::getLastModTime(filename);
+  mtime = FilesUtility::getLastModTime (filename);
 
-  if(mtime == static_cast<time_t>(-1))
+  if (mtime == static_cast<time_t>(-1))
   {
-    close();
+    close ();
     return -1;
   }
 
-  if(useXpath)
+  if (useXpath)
   {
-    xpathCtx = xmlXPathNewContext(doc);
-    if(xpathCtx == NULL)
+    xpathCtx = xmlXPathNewContext (doc);
+    if (xpathCtx == NULL)
     {
-      close();
+      close ();
       return -1;
     }
   }
-
   return 0;
 }
 
@@ -128,7 +126,7 @@ int XmlParser::open(const char* filename, bool useXpath)
  * Gets the last modification time of the file
  * @return Returns last modification time
  */
-time_t XmlParser::getLastModTime()
+time_t XmlParser::getLastModTime ()
 {
   return mtime;
 }
@@ -139,51 +137,50 @@ time_t XmlParser::getLastModTime()
  * \param useXpath Specify if XPath is enabled.
  * \return Returns 0 on succes, non 0 on failure
  */
-int XmlParser::openMemBuf(MemBuf & memory, bool useXpath)
+int XmlParser::openMemBuf (MemBuf & memory, bool useXpath)
 {
   mtime = 0;
   cur = NULL;
   this->useXpath = useXpath;
 
-  if(memory.getLength() == 0)
+  if (memory.getLength () == 0)
     return -1;
 
-  if(!doc)
-  {
-    doc = xmlParseMemory((const char * )memory.getBuffer(),
-                         memory.getLength());
-  }
-  else
-    close();
-
-  if(!doc)
-    return -1;
-
-  cur = xmlDocGetRootElement(doc);
-
-  if(!cur)
-  {
-    close();
-    return -1;
-  }
-
-  if(useXpath)
-  {
-    xpathCtx = xmlXPathNewContext(doc);
-    if(xpathCtx == NULL)
+  if (!doc)
     {
-      close();
+      doc = xmlParseMemory ((const char * )memory.getBuffer (),
+                            memory.getLength ());
+    }
+  else
+    close ();
+
+  if (!doc)
+    return -1;
+
+  cur = xmlDocGetRootElement (doc);
+
+  if (!cur)
+    {
+      close ();
       return -1;
     }
-  }
 
+  if (useXpath)
+    {
+      xpathCtx = xmlXPathNewContext (doc);
+    if (xpathCtx == NULL)
+      {
+      close ();
+      return -1;
+      }
+    }
   return 0;
 }
 
 /**
  * Constructor of the XmlParser class
  */
-XmlParser::XmlParser()
+XmlParser::XmlParser ()
 {
   doc = NULL;
   cur = NULL;
@@ -198,16 +195,16 @@ XmlParser::XmlParser()
  * Destructor of the XmlParser class
  * Destroys the XmlParser object
  */
-XmlParser::~XmlParser()
+XmlParser::~XmlParser ()
 {
-  close();
+  close ();
 }
 
 /**
  * Returns the XML document
  * @return Returns XML document
  */
-xmlDocPtr XmlParser::getDoc()
+xmlDocPtr XmlParser::getDoc ()
 {
   return doc;
 }
@@ -217,44 +214,23 @@ xmlDocPtr XmlParser::getDoc()
  * \param vName vName of the root child elment
  * \return Returns the value of the vName
  */
-char *XmlParser::getValue(const char* vName)
+const char *XmlParser::getValue (const char* vName)
 {
   char *ret = NULL;
   xmlNodePtr lcur;
-  cur = xmlDocGetRootElement(doc);
+  cur = xmlDocGetRootElement (doc);
 
-  if(!cur)
+  if (!cur)
     return 0;
 
   lcur = cur->xmlChildrenNode;
-  buffer.assign("");
 
-  while(lcur)
+  while (lcur)
   {
-    if(!xmlStrcmp(lcur->name, (const xmlChar *)vName))
+    if (!xmlStrcmp (lcur->name, (const xmlChar *)vName))
     {
       lastNode = lcur;
-
-      if(lcur->children->content)
-      {
-        int inlen = strlen((const char*)lcur->children->content);
-        int outlen = inlen * 2;
-        char* tmpBuff = new char[outlen];
-        if(UTF8Toisolat1((unsigned char*)tmpBuff, &outlen,
-                              (unsigned char*)lcur->children->content, &inlen) >= 0)
-        {
-          tmpBuff[outlen] = '\0';
-          buffer.assign(tmpBuff);
-        }
-        else
-          buffer.assign((char*)lcur->children->content);
-
-        delete [] tmpBuff;
-
-        ret = (char*)buffer.c_str();
-      }
-
-      break;
+      return (char*)lcur->children->content;
     }
 
     lcur = lcur->next;
@@ -270,24 +246,22 @@ char *XmlParser::getValue(const char* vName)
  * \param value
  * \return Returns 0 on success, non zero on failures
  */
-int XmlParser::setValue(const char* vName, const char *value)
+int XmlParser::setValue (const char* vName, const char *value)
 {
   xmlNodePtr lcur = cur->xmlChildrenNode;
-  buffer.assign("");
-
-  while(lcur)
+  while (lcur)
   {
-    if(!xmlStrcmp(lcur->name, (const xmlChar *)vName))
+    if (!xmlStrcmp (lcur->name, (const xmlChar *)vName))
     {
       lastNode = lcur;
 
-      if(lcur->children->content)
-        strcpy((char*)lcur->children->content, value);
+      if (lcur->children->content)
+        strcpy ((char*)lcur->children->content, value);
 
       return 0;
     }
 
-    lcur=lcur->next;
+    lcur = lcur->next;
   }
 
   return 1;
@@ -300,21 +274,20 @@ int XmlParser::setValue(const char* vName, const char *value)
  * \param attr Attribute
  * \return
  */
-char *XmlParser::getAttr(const char* field, const char *attr)
+const char *XmlParser::getAttr (const char* field, const char *attr)
 {
   xmlNodePtr lcur = cur->xmlChildrenNode;
-  buffer.assign("");
 
-  while(lcur)
+  while (lcur)
   {
-    if(!xmlStrcmp(lcur->name, (const xmlChar *)field))
+    if (!xmlStrcmp (lcur->name, (const xmlChar *)field))
     {
       lastNode = lcur;
       xmlAttr *attrs =  lcur->properties;
 
-      while(attrs)
+      while (attrs)
       {
-        if(!xmlStrcmp(attrs->name, (const xmlChar *)attr))
+        if (!xmlStrcmp (attrs->name, (const xmlChar *)attr))
         {
           return (char*)attrs->children->content;
         }
@@ -335,43 +308,44 @@ char *XmlParser::getAttr(const char* field, const char *attr)
  *\return NULL on errors.
  *\return The XmlXPathResult containing the result.
  */
-XmlXPathResult* XmlParser::evaluateXpath(const char* expr)
+XmlXPathResult* XmlParser::evaluateXpath (const char* expr)
 {
   xmlXPathObjectPtr xpathObj;
 
-  if(!useXpath)
+  if (!useXpath)
     return NULL;
 
-  xpathObj = xmlXPathEvalExpression((const xmlChar*)expr, xpathCtx);
+  xpathObj = xmlXPathEvalExpression ((const xmlChar*)expr, xpathCtx);
 
-  if(xpathObj == NULL)
+  if (xpathObj == NULL)
     return NULL;
 
-  return new XmlXPathResult(xpathObj);
+  return new XmlXPathResult (xpathObj);
 }
 
 
 /**
  * Frees the memory, use by the XmlParser class
  */
-int XmlParser::close()
+int XmlParser::close ()
 {
-  if(doc)
-  {
-    xmlFreeDoc(doc);
-  }
+  int ret = 1;
 
-  if(useXpath && xpathCtx)
-  {
-    xmlXPathFreeContext(xpathCtx);
-  }
+  if (doc)
+    {
+      xmlFreeDoc (doc);
+      ret = 0;
+    }
+
+  if (useXpath && xpathCtx)
+    xmlXPathFreeContext (xpathCtx);
 
   doc = NULL;
   cur = NULL;
   prevCur = NULL;
   lastNode = NULL;
 
-  return 0;
+  return ret;
 }
 
 /**
@@ -382,11 +356,11 @@ int XmlParser::close()
  * \param nbytes Amount of bytes
  * \return Returns 0 on success, non 0 on failures
  */
-int XmlParser::save(const char *filename,int *nbytes)
+int XmlParser::save (const char *filename,int *nbytes)
 {
-  int err = xmlSaveFile(filename,doc);
+  int err = xmlSaveFile (filename,doc);
 
-  if(nbytes)
+  if (nbytes)
     *nbytes = err;
 
   return err;
@@ -401,22 +375,22 @@ int XmlParser::save(const char *filename,int *nbytes)
  * \param nbytes Amount of bytes
  * \return Returns 0 on success, non 0 on failures
  */
-int XmlParser::saveMemBuf(MemBuf & memory,int *nbytes)
+int XmlParser::saveMemBuf (MemBuf & memory,int *nbytes)
 {
   /*! Initialize the callback struct. */
   xmlOutputBufferPtr callback;
-  callback = xmlOutputBufferCreateIO(MemBufWriteCallback,
-                                       MemBufCloseCallback,
-                                       (void *)&memory,
-                                       NULL);
+  callback = xmlOutputBufferCreateIO (MemBufWriteCallback,
+                                      MemBufCloseCallback,
+                                      (void *)&memory,
+                                      NULL);
 
   /*! Clear the buffer */
-  memory.free();
+  memory.free ();
 
   /*! Let libxml2 fill the MemBuf class with our interal callbacks. */
-  int err = xmlSaveFileTo(callback, doc, NULL);
+  int err = xmlSaveFileTo (callback, doc, NULL);
 
-  if(nbytes)
+  if (nbytes)
     *nbytes = err;
 
   return err;
@@ -427,18 +401,18 @@ int XmlParser::saveMemBuf(MemBuf & memory,int *nbytes)
  * Starts a new XML tree for a new file
  * \param root roote elment entry
  */
-void XmlParser::newfile(const char * root)
+void XmlParser::newfile (const char * root)
 {
-  if(doc != NULL)
-    close();
+  if (doc != NULL)
+    close ();
 
-  doc = xmlNewDoc((const xmlChar*)"1.0");
-  cur = xmlNewDocNode(doc, NULL, (const xmlChar*)root, NULL);
+  doc = xmlNewDoc ((const xmlChar*)"1.0");
+  cur = xmlNewDocNode (doc, NULL, (const xmlChar*)root, NULL);
 
-  xmlDocSetRootElement(doc, cur);
+  xmlDocSetRootElement (doc, cur);
 
-  addLineFeed();
-  addLineFeed();
+  addLineFeed ();
+  addLineFeed ();
 }
 
 
@@ -447,12 +421,12 @@ void XmlParser::newfile(const char * root)
  * \param name Child name
  * \param value Value of the child
  */
-void XmlParser::addChild(const char * name, const char * value)
+void XmlParser::addChild (const char * name, const char * value)
 {
-  lastNode = xmlNewTextChild(cur, NULL, (const xmlChar*)name,
-                               (const xmlChar*)value);
+  lastNode = xmlNewTextChild (cur, NULL, (const xmlChar*)name,
+                              (const xmlChar*)value);
 
-  addLineFeed();
+  addLineFeed ();
 }
 
 
@@ -461,16 +435,15 @@ void XmlParser::addChild(const char * name, const char * value)
  * Only one level for now
  * \param name Name of the sub group
  */
-void XmlParser::addGroup(const char * name)
+void XmlParser::addGroup (const char * name)
 {
-  if(prevCur == NULL)
-  {
-    prevCur = cur;
-    cur = xmlNewTextChild(cur, NULL, (const xmlChar*)name, NULL);
-    lastNode = cur;
-
-    addLineFeed();
-  }
+  if (prevCur == NULL)
+    {
+      prevCur = cur;
+      cur = xmlNewTextChild (cur, NULL, (const xmlChar*)name, NULL);
+      lastNode = cur;
+      addLineFeed ();
+    }
 }
 
 
@@ -478,15 +451,14 @@ void XmlParser::addGroup(const char * name)
  * Ends the sub group, if any
  * Only one level for now
  */
-void XmlParser::endGroup()
+void XmlParser::endGroup ()
 {
-  if(prevCur != NULL)
+  if (prevCur != NULL)
   {
     cur = prevCur;
     prevCur = NULL;
-
-    addLineFeed();
-    addLineFeed();
+    addLineFeed ();
+    addLineFeed ();
   }
 }
 
@@ -496,25 +468,25 @@ void XmlParser::endGroup()
  * \param name Name
  * \param value Value
  */
-void XmlParser::setAttr(const char * name, const char * value)
+void XmlParser::setAttr (const char * name, const char * value)
 {
-  if(lastNode == NULL)
+  if (lastNode == NULL)
     return;
 
-  xmlSetProp(lastNode, (const xmlChar*)name, (const xmlChar*)value);
+  xmlSetProp (lastNode, (const xmlChar*)name, (const xmlChar*)value);
 }
 
 
 /**
  * Adds a line feed to the XML data
  */
-void XmlParser::addLineFeed()
+void XmlParser::addLineFeed ()
 {
 #ifdef WIN32
-    xmlNodePtr endline = xmlNewDocText(doc, (const xmlChar *)"\r\n");
+    xmlNodePtr endline = xmlNewDocText (doc, (const xmlChar *)"\r\n");
 #else
-    xmlNodePtr endline = xmlNewDocText(doc, (const xmlChar *)"\n");
+    xmlNodePtr endline = xmlNewDocText (doc, (const xmlChar *)"\n");
 #endif
 
-  xmlAddChild(cur, endline);
+  xmlAddChild (cur, endline);
 }

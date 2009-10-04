@@ -94,9 +94,9 @@ int BitVec::ffs ()
  * Find a bit set to '1'.
  *
  * The cost of adding N elements sequentially and after unset them, after the
- * index is found by ffs is O(n^2).
+ * index is found by ffs is O (n^2).
  *
- * Use the `find' function instead to have a O(n) cost.
+ * Use the `find' function instead to have a O (n) cost.
  *
  *\return the Index of the first bit.
  *\return -1 If there are not free bits.

@@ -37,13 +37,13 @@ using namespace std;
 class DynamicLibrary
 {
 public:
-  int validHandle();
-  DynamicLibrary();
-  ~DynamicLibrary();
-  int loadLibrary(const char* filename, int globally=0);
-  void* getProc(const char*);
-  int close();
-	const char* getFileName(){return fileName.c_str();}
+  int validHandle ();
+  DynamicLibrary ();
+  ~DynamicLibrary ();
+  int loadLibrary (const char* filename, int globally=0);
+  void* getProc (const char*);
+  int close ();
+	const char* getFileName (){return fileName.c_str ();}
 private:
 	string fileName;
   void *handle;

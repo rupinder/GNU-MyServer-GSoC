@@ -68,7 +68,7 @@ ClientsThread::ClientsThread (Server* server)
 /*!
  *Destroy the ClientsThread object.
  */
-ClientsThread::~ClientsThread()
+ClientsThread::~ClientsThread ()
 {
   if (!initialized)
     return;
@@ -113,7 +113,7 @@ void ClientsThread::setTimeout (int newTimeout)
  * class instance.
  * \param pParam Params to pass to the new thread.
  */
-DEFINE_THREAD(clients_thread, pParam)
+DEFINE_THREAD (clients_thread, pParam)
 {
 #ifndef WIN32
   /* Block SigTerm, SigInt, and SigPipe in threads.  */
@@ -150,11 +150,11 @@ DEFINE_THREAD(clients_thread, pParam)
   ct->server->increaseFreeThread ();
 
   /* Wait that the server is ready before go in the running loop.  */
-  while (!ct->server->isServerReady() && ct->threadIsRunning)
-    Thread::wait(500);
+  while (!ct->server->isServerReady () && ct->threadIsRunning)
+    Thread::wait (500);
 
   /*
-   * This function when is alive only call the controlConnections(...) function
+   * This function when is alive only call the controlConnections (...) function
    * of the ClientsThread class instance used for control the thread.
    */
   while (ct->threadIsRunning)
@@ -222,7 +222,7 @@ int ClientsThread::run ()
 /*!
  * Returns if the thread can be destroyed.
  */
-bool ClientsThread::isToDestroy()
+bool ClientsThread::isToDestroy ()
 {
   return toDestroy;
 }
@@ -230,7 +230,7 @@ bool ClientsThread::isToDestroy()
 /*!
  * Check if the thread is a static one.
  */
-bool ClientsThread::isStatic()
+bool ClientsThread::isStatic ()
 {
   return staticThread;
 }
@@ -248,7 +248,7 @@ void ClientsThread::setStatic (bool value)
  * Set if the thread can be destroyed.
  * \param value The new destroy value.
  */
-void ClientsThread::setToDestroy(bool value)
+void ClientsThread::setToDestroy (bool value)
 {
   toDestroy = value;
 }
@@ -280,10 +280,10 @@ int ClientsThread::controlConnections ()
   busy = 1;
   dataRead = c->getConnectionBuffer ()->getLength ();
 
-  err = c->socket->recv(&((char*)(buffer.getBuffer()))[dataRead],
-                        MYSERVER_KB(8) - dataRead - 1, 0);
+  err = c->socket->recv (&((char*)(buffer.getBuffer ()))[dataRead],
+                        MYSERVER_KB (8) - dataRead - 1, 0);
 
-  if(err == -1 && !server->deleteConnection(c))
+  if (err == -1 && !server->deleteConnection (c))
     return 0;
 
   buffer.setLength (dataRead + err);
@@ -293,18 +293,18 @@ int ClientsThread::controlConnections ()
   nBytesToRead = dataRead + err;
 
   if ((dataRead + err) < MYSERVER_KB (8))
-    ((char*)buffer.getBuffer())[dataRead + err] = '\0';
+    ((char*)buffer.getBuffer ())[dataRead + err] = '\0';
   else
     {
       server->deleteConnection (c);
       return 0;
     }
 
-  if (getTicks() - c->getTimeout () > 5000)
+  if (getTicks () - c->getTimeout () > 5000)
     c->setnTries (0);
 
   if (dataRead)
-    memcpy ((char*)buffer.getBuffer(), c->getConnectionBuffer ()->getBuffer (),
+    memcpy ((char*)buffer.getBuffer (), c->getConnectionBuffer ()->getBuffer (),
             dataRead);
 
   c->setActiveThread (this);
@@ -312,10 +312,10 @@ int ClientsThread::controlConnections ()
   {
     if (c->hasContinuation ())
       {
-        retcode = c->getContinuation ()(c, (char*)buffer.getBuffer(),
-                                   (char*)secondaryBuffer.getBuffer(),
-                                   buffer.getRealLength(),
-                                   secondaryBuffer.getRealLength(),
+        retcode = c->getContinuation ()(c, (char*)buffer.getBuffer (),
+                                   (char*)secondaryBuffer.getBuffer (),
+                                   buffer.getRealLength (),
+                                   secondaryBuffer.getRealLength (),
                                    nBytesToRead, id);
         c->setContinuation (NULL);
       }
@@ -323,10 +323,10 @@ int ClientsThread::controlConnections ()
       {
         protocol = server->getProtocol (c->host->getProtocolName ());
         if (protocol)
-          retcode = protocol->controlConnection (c, (char*)buffer.getBuffer(),
-                                           (char*)secondaryBuffer.getBuffer(),
-                                           buffer.getRealLength(),
-                                           secondaryBuffer.getRealLength(),
+          retcode = protocol->controlConnection (c, (char*)buffer.getBuffer (),
+                                           (char*)secondaryBuffer.getBuffer (),
+                                           buffer.getRealLength (),
+                                           secondaryBuffer.getRealLength (),
                                            nBytesToRead, id);
         else
           retcode = DELETE_CONNECTION;
@@ -375,7 +375,7 @@ int ClientsThread::controlConnections ()
 /*!
  * Stop the thread.
  */
-void ClientsThread::stop()
+void ClientsThread::stop ()
 {
   /*
    * Set the run flag to False.

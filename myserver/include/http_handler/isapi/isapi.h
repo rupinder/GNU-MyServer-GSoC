@@ -131,20 +131,20 @@ class Isapi  : public HttpDataHandler
 {
 public:
 # ifdef WIN32
-  static ConnTableRecord *HConnRecord(HCONN hConn);
-  int Redirect(HttpThreadContext* td,ConnectionPtr a,char *URL);
-  int Senduri(HttpThreadContext* td,ConnectionPtr a,char *URL);
-  int SendHeader(HttpThreadContext* td,ConnectionPtr a,char *URL);
-  static BOOL buildAllHttpHeaders(HttpThreadContext* td,ConnectionPtr a,
+  static ConnTableRecord *HConnRecord (HCONN hConn);
+  int Redirect (HttpThreadContext* td,ConnectionPtr a,char *URL);
+  int Senduri (HttpThreadContext* td,ConnectionPtr a,char *URL);
+  int SendHeader (HttpThreadContext* td,ConnectionPtr a,char *URL);
+  static BOOL buildAllHttpHeaders (HttpThreadContext* td,ConnectionPtr a,
                                   LPVOID output, LPDWORD maxLen);
-  static BOOL buildAllRawHeaders(HttpThreadContext* td,ConnectionPtr a,
+  static BOOL buildAllRawHeaders (HttpThreadContext* td,ConnectionPtr a,
                                  LPVOID output, LPDWORD maxLen);
 # endif
-  Isapi();
+  Isapi ();
   static Mutex *isapiMutex;
   virtual int load ();
-  virtual int unLoad();
-  virtual int send(HttpThreadContext* td, const char* scriptpath,
+  virtual int unLoad ();
+  virtual int send (HttpThreadContext* td, const char* scriptpath,
                    const char *cgipath = 0, bool execute = false,
                    bool onlyHeader = false);
 private:
@@ -156,13 +156,13 @@ private:
 };
 
 # ifdef WIN32
-BOOL WINAPI ISAPI_ServerSupportFunctionExport(HCONN hConn, DWORD dwHSERRequest,
+BOOL WINAPI ISAPI_ServerSupportFunctionExport (HCONN hConn, DWORD dwHSERRequest,
                                               LPVOID lpvBuffer, LPDWORD lpdwSize,
                                               LPDWORD lpdwDataType);
-BOOL WINAPI ISAPI_ReadClientExport(HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize ) ;
-BOOL WINAPI ISAPI_WriteClientExport(HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes,
+BOOL WINAPI ISAPI_ReadClientExport (HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize ) ;
+BOOL WINAPI ISAPI_WriteClientExport (HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes,
                                     DWORD dwReserved);
-BOOL WINAPI ISAPI_GetServerVariableExport(HCONN, LPSTR, LPVOID, LPDWORD);
+BOOL WINAPI ISAPI_GetServerVariableExport (HCONN, LPSTR, LPVOID, LPDWORD);
 # endif
 
 #endif

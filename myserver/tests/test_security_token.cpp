@@ -35,7 +35,7 @@ using namespace std;
 
 class TestSecurityToken : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestSecurityToken );
+  CPPUNIT_TEST_SUITE ( TestSecurityToken );
   CPPUNIT_TEST ( testUser);
   CPPUNIT_TEST ( testPassword);
 	CPPUNIT_TEST ( testValues );
@@ -49,29 +49,29 @@ class TestSecurityToken : public CppUnit::TestFixture
   CPPUNIT_TEST ( testAuthenticated );
   CPPUNIT_TEST ( testServer );
   CPPUNIT_TEST ( testVhost );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE_END ();
 
   SecurityToken* securityToken;
 public:
-  void setUp()
+  void setUp ()
   {
-    securityToken = new SecurityToken();
+    securityToken = new SecurityToken ();
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete securityToken;
   }
 
 
-  void testUser()
+  void testUser ()
   {
     string user ("foo");
     securityToken->setUser (user);
     CPPUNIT_ASSERT_EQUAL (securityToken->getUser ().compare (user), 0);
   }
 
-  void testPassword()
+  void testPassword ()
   {
     string password ("foo");
     securityToken->setPassword (password);
@@ -160,4 +160,4 @@ public:
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestSecurityToken );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestSecurityToken );

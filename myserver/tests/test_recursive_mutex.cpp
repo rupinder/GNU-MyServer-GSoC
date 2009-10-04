@@ -26,40 +26,40 @@
 
 class TestRecursiveMutex : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestRecursiveMutex );
-  CPPUNIT_TEST( testLockUnlock );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestRecursiveMutex );
+  CPPUNIT_TEST ( testLockUnlock );
+  CPPUNIT_TEST_SUITE_END ();
 
   Mutex *mutex;
 public:
-  void setUp()
+  void setUp ()
   {
-    mutex = new RecursiveMutex();
+    mutex = new RecursiveMutex ();
 
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete mutex;
   }
 
-  void testLockUnlock()
+  void testLockUnlock ()
   {
     const int N_TIMES = 10;
     //This shouldn't deadlock.  If it does, then it is bug.
-    for(int i = 0; i < N_TIMES; i++)
+    for (int i = 0; i < N_TIMES; i++)
     {
-      mutex->lock();
-      CPPUNIT_ASSERT_EQUAL(mutex->isLocked(), true);
+      mutex->lock ();
+      CPPUNIT_ASSERT_EQUAL (mutex->isLocked (), true);
     }
 
-    for(int i = 0; i < N_TIMES; i++)
+    for (int i = 0; i < N_TIMES; i++)
     {
-      mutex->unlock();
-      CPPUNIT_ASSERT_EQUAL(mutex->isLocked(), false);
+      mutex->unlock ();
+      CPPUNIT_ASSERT_EQUAL (mutex->isLocked (), false);
     }
   }
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestRecursiveMutex );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestRecursiveMutex );

@@ -38,7 +38,7 @@ ProcessServerManager *Scgi::processServerManager = 0;
 /*!
  *Entry-Point to manage a SCGI request.
  */
-int Scgi::send(HttpThreadContext* td, const char* scriptpath,
+int Scgi::send (HttpThreadContext* td, const char* scriptpath,
                const char *cgipath, bool execute, bool onlyHeader)
 {
   ScgiContext con;
@@ -55,45 +55,45 @@ int Scgi::send(HttpThreadContext* td, const char* scriptpath,
   string moreArg;
   con.td = td;
 
-  td->scriptPath.assign(scriptpath);
+  td->scriptPath.assign (scriptpath);
 
   if (!(td->permissions & MYSERVER_PERMISSION_EXECUTE))
-    return td->http->sendAuth();
+    return td->http->sendAuth ();
 
   {
     string tmp;
-    tmp.assign(cgipath);
-    FilesUtility::splitPath(tmp, td->cgiRoot, td->cgiFile);
-    tmp.assign(scriptpath);
-    FilesUtility::splitPath(tmp, td->scriptDir, td->scriptFile);
+    tmp.assign (cgipath);
+    FilesUtility::splitPath (tmp, td->cgiRoot, td->cgiFile);
+    tmp.assign (scriptpath);
+    FilesUtility::splitPath (tmp, td->scriptDir, td->scriptFile);
   }
 
-  chain.setProtocol(td->http);
-  chain.setProtocolData(td);
-  chain.setStream(td->connection->socket);
+  chain.setProtocol (td->http);
+  chain.setProtocolData (td);
+  chain.setStream (td->connection->socket);
   if (td->mime)
   {
     u_long nbw;
-    if (td->mime && Server::getInstance()->getFiltersFactory ()->chain(&chain,
+    if (td->mime && Server::getInstance ()->getFiltersFactory ()->chain (&chain,
                                                     td->mime->filters,
                                                     td->connection->socket,
                                                     &nbw,
                                                     1))
     {
-      td->connection->host->warningsLogWrite(_("SCGI: internal error"));
-      chain.clearAllFilters();
+      td->connection->host->warningsLogWrite (_("SCGI: internal error"));
+      chain.clearAllFilters ();
       return td->http->raiseHTTPError (500);
     }
   }
 
-  td->buffer->setLength(0);
-  td->secondaryBuffer->getAt(0) = '\0';
+  td->buffer->setLength (0);
+  td->secondaryBuffer->getAt (0) = '\0';
 
   {
     /*! Do not modify the text between " and ".  */
     int i;
     int subString = cgipath[0] == '"';
-    int len = strlen(cgipath);
+    int len = strlen (cgipath);
     string tmpCgiPath;
     for (i = 1; i < len; i++)
     {
@@ -112,34 +112,34 @@ int Scgi::send(HttpThreadContext* td, const char* scriptpath,
     {
       if (i < len)
       {
-        string tmpString(cgipath);
+        string tmpString (cgipath);
         int begin = tmpString[0]=='"' ? 1: 0;
         int end = tmpString[i] == '"' ? i - 1: i;
-        tmpCgiPath.assign(tmpString.substr (begin, end - begin));
-        moreArg.assign(tmpString.substr (i, len - 1));
+        tmpCgiPath.assign (tmpString.substr (begin, end - begin));
+        moreArg.assign (tmpString.substr (i, len - 1));
       }
       else
       {
         int begin = (cgipath[0] == '"') ? 1 : 0;
         int end   = (cgipath[len] == '"') ? len - 1 : len;
-        tmpCgiPath.assign(&cgipath[begin], end - begin);
-        moreArg.assign("");
+        tmpCgiPath.assign (&cgipath[begin], end - begin);
+        moreArg.assign ("");
       }
-      FilesUtility::splitPath(tmpCgiPath, td->cgiRoot, td->cgiFile);
+      FilesUtility::splitPath (tmpCgiPath, td->cgiRoot, td->cgiFile);
     }
-    tmpCgiPath.assign(scriptpath);
-    FilesUtility::splitPath(tmpCgiPath, td->scriptDir, td->scriptFile);
+    tmpCgiPath.assign (scriptpath);
+    FilesUtility::splitPath (tmpCgiPath, td->scriptDir, td->scriptFile);
   }
 
   if (execute)
   {
-    if (cgipath && strlen(cgipath))
+    if (cgipath && strlen (cgipath))
     {
 #ifdef WIN32
       {
         int x;
-        string cgipathString(cgipath);
-        int len = strlen(cgipath);
+        string cgipathString (cgipath);
+        int len = strlen (cgipath);
         int subString = cgipath[0] == '"';
 
         cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" "
@@ -164,53 +164,53 @@ int Scgi::send(HttpThreadContext* td, const char* scriptpath,
 #endif
   }
 
-  Env::buildEnvironmentString(td, td->buffer->getBuffer ());
-  sizeEnvString = buildScgiEnvironmentString(td,td->buffer->getBuffer (),
+  Env::buildEnvironmentString (td, td->buffer->getBuffer ());
+  sizeEnvString = buildScgiEnvironmentString (td,td->buffer->getBuffer (),
                                              td->secondaryBuffer->getBuffer ());
   if (sizeEnvString == -1)
   {
-    td->connection->host->warningsLogWrite(_("SCGI: internal error"));
-    chain.clearAllFilters();
+    td->connection->host->warningsLogWrite (_("SCGI: internal error"));
+    chain.clearAllFilters ();
     return td->http->raiseHTTPError (500);
   }
-  td->inputData.close();
-  if (td->inputData.openFile(td->inputDataPath, File::READ |
+  td->inputData.close ();
+  if (td->inputData.openFile (td->inputDataPath, File::READ |
                             File::FILE_OPEN_ALWAYS |
                             File::NO_INHERIT))
   {
-    td->connection->host->warningsLogWrite(_("SCGI: internal error"));
-    chain.clearAllFilters();
+    td->connection->host->warningsLogWrite (_("SCGI: internal error"));
+    chain.clearAllFilters ();
     return td->http->raiseHTTPError (500);
   }
 
-  server = connect(&con, cmdLine.str ().c_str ());
+  server = connect (&con, cmdLine.str ().c_str ());
 
   if (server == 0)
   {
-    td->connection->host->warningsLogWrite(_("SCGI: error connecting to the process %s"),
+    td->connection->host->warningsLogWrite (_("SCGI: error connecting to the process %s"),
                                            cmdLine.str ().c_str ());
-    chain.clearAllFilters();
+    chain.clearAllFilters ();
     return td->http->raiseHTTPError (500);
   }
-  ret = sendNetString(&con, td->secondaryBuffer->getBuffer (), sizeEnvString);
+  ret = sendNetString (&con, td->secondaryBuffer->getBuffer (), sizeEnvString);
 
-  if (td->request.contentLength.size() &&
-     !td->request.contentLength.compare("0"))
+  if (td->request.contentLength.size () &&
+     !td->request.contentLength.compare ("0"))
   {
-    if (sendPostData(&con))
+    if (sendPostData (&con))
      {
-      chain.clearAllFilters();
+      chain.clearAllFilters ();
       return td->http->raiseHTTPError (500);
     }
   }
 
-  ret = !sendResponse(&con, onlyHeader, &chain);
+  ret = !sendResponse (&con, onlyHeader, &chain);
 
 
-  chain.clearAllFilters();
-  con.tempOut.close();
+  chain.clearAllFilters ();
+  con.tempOut.close ();
 
-  con.sock.close();
+  con.sock.close ();
   return ret;
 }
 
@@ -218,9 +218,9 @@ int Scgi::send(HttpThreadContext* td, const char* scriptpath,
 /*!
  *Send the response to the client.
  */
-int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
+int Scgi::sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
 {
-  clock_t initialTicks = getTicks();
+  clock_t initialTicks = getTicks ();
   bool useChunks = false;
   bool keepalive = false;
   u_long read = 0;
@@ -230,22 +230,22 @@ int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
   u_long sentData = 0;
   HttpThreadContext* td = ctx->td;
 
-  checkDataChunks(td, &keepalive, &useChunks);
+  checkDataChunks (td, &keepalive, &useChunks);
 
   for (;;)
   {
-    while(!ctx->sock.bytesToRead())
+    while (!ctx->sock.bytesToRead ())
     {
-      if ((clock_t)(getTicks() - initialTicks) > td->http->getTimeout ())
+      if ((clock_t)(getTicks () - initialTicks) > td->http->getTimeout ())
         break;
-      Thread::wait(1);
+      Thread::wait (1);
     }
 
-    if (!ctx->sock.bytesToRead())
+    if (!ctx->sock.bytesToRead ())
       return -1;
 
-    nbr = ctx->sock.recv(td->secondaryBuffer->getBuffer () + read,
-                        td->secondaryBuffer->getRealLength() - read,
+    nbr = ctx->sock.recv (td->secondaryBuffer->getBuffer () + read,
+                        td->secondaryBuffer->getRealLength () - read,
                          td->http->getTimeout ());
 
     read += nbr;
@@ -271,19 +271,19 @@ int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
   {
     if (headerSize)
     {
-      HttpHeaders::buildHTTPResponseHeaderStruct(td->secondaryBuffer->getBuffer (),
+      HttpHeaders::buildHTTPResponseHeaderStruct (td->secondaryBuffer->getBuffer (),
                                                  &td->response,
                                                  &(td->nBytesToRead));
     }
     u_long hdrLen = HttpHeaders::buildHTTPResponseHeader (td->buffer->getBuffer (),
                                                          &td->response);
 
-    if (chain->write(td->buffer->getBuffer (), hdrLen, &nbw))
+    if (chain->write (td->buffer->getBuffer (), hdrLen, &nbw))
       return -1;
   }
 
   if (read - headerSize)
-    if (appendDataToHTTPChannel(td, td->secondaryBuffer->getBuffer () + headerSize,
+    if (appendDataToHTTPChannel (td, td->secondaryBuffer->getBuffer () + headerSize,
                                read - headerSize,
                                &(td->outputData),
                                chain,
@@ -297,14 +297,14 @@ int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
   {
     for (;;)
     {
-      nbr = ctx->sock.recv(td->secondaryBuffer->getBuffer (),
-                           td->secondaryBuffer->getRealLength(),
+      nbr = ctx->sock.recv (td->secondaryBuffer->getBuffer (),
+                           td->secondaryBuffer->getRealLength (),
                            0);
 
       if (!nbr || (nbr == (u_long)-1))
         break;
 
-      if (appendDataToHTTPChannel(td, td->secondaryBuffer->getBuffer (),
+      if (appendDataToHTTPChannel (td, td->secondaryBuffer->getBuffer (),
                                  nbr,
                                  &(td->outputData),
                                  chain,
@@ -317,7 +317,7 @@ int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
 
     if (!td->appendOutputs && useChunks)
     {
-      if (chain->getStream ()->write("0\r\n\r\n", 5, &nbw))
+      if (chain->getStream ()->write ("0\r\n\r\n", 5, &nbw))
         return -1;
     }
   }
@@ -330,18 +330,18 @@ int Scgi::sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
 /*!
  *Send a netstring to the SCGI server.
  */
-int Scgi::sendNetString(ScgiContext* ctx, const char* data, int len)
+int Scgi::sendNetString (ScgiContext* ctx, const char* data, int len)
 {
   char header[7];
   int headerLen = sprintf (header, "%i:", len);
 
-  if (ctx->sock.send(header, headerLen, 0) == -1)
+  if (ctx->sock.send (header, headerLen, 0) == -1)
     return -1;
 
-  if (ctx->sock.send(data, len, 0) == -1)
+  if (ctx->sock.send (data, len, 0) == -1)
     return -1;
 
-  if (ctx->sock.send(",", 1, 0) == -1)
+  if (ctx->sock.send (",", 1, 0) == -1)
     return -1;
 
   return 0;
@@ -350,24 +350,24 @@ int Scgi::sendNetString(ScgiContext* ctx, const char* data, int len)
 /*!
  *Send the post data to the SCGI server.
  */
-int Scgi::sendPostData(ScgiContext* ctx)
+int Scgi::sendPostData (ScgiContext* ctx)
 {
     u_long nbr;
     do
     {
-      if (ctx->td->inputData.read(ctx->td->secondaryBuffer->getBuffer (),
-                                         ctx->td->secondaryBuffer->getRealLength(),
+      if (ctx->td->inputData.read (ctx->td->secondaryBuffer->getBuffer (),
+                                         ctx->td->secondaryBuffer->getRealLength (),
                                          &nbr))
       {
         return -1;
       }
 
-      if (nbr && (ctx->sock.send(ctx->td->secondaryBuffer->getBuffer (), nbr, 0) == -1))
+      if (nbr && (ctx->sock.send (ctx->td->secondaryBuffer->getBuffer (), nbr, 0) == -1))
       {
         return -1;
       }
     }
-    while(nbr);
+    while (nbr);
     return 0;
 }
 
@@ -375,7 +375,7 @@ int Scgi::sendPostData(ScgiContext* ctx)
  *Trasform from a standard environment string to the SCGI environment
  *string.
  */
-int Scgi::buildScgiEnvironmentString(HttpThreadContext* td, char* src,
+int Scgi::buildScgiEnvironmentString (HttpThreadContext* td, char* src,
                                      char* dest)
 {
   char *ptr = dest;
@@ -386,9 +386,9 @@ int Scgi::buildScgiEnvironmentString(HttpThreadContext* td, char* src,
   ptr += myserver_strlcpy (ptr, "CONTENT_LENGTH", 15);
   *ptr++ = '\0';
 
-  if ( td->request.contentLength.size())
+  if ( td->request.contentLength.size ())
     ptr += myserver_strlcpy (ptr, td->request.contentLength.c_str (),
-                            td->request.contentLength.size() + 1);
+                            td->request.contentLength.size () + 1);
   else
     *ptr++ = '0';
 
@@ -411,10 +411,10 @@ int Scgi::buildScgiEnvironmentString(HttpThreadContext* td, char* src,
     varName[0] = '\0';
     varValue[0] = '\0';
 
-    while(*sptr == '\0')
+    while (*sptr == '\0')
       sptr++;
 
-    while((--max) && *sptr != '=')
+    while ((--max) && *sptr != '=')
     {
       varName[varNameLen++] = *sptr++;
       varName[varNameLen] = '\0';
@@ -423,7 +423,7 @@ int Scgi::buildScgiEnvironmentString(HttpThreadContext* td, char* src,
       return -1;
     sptr++;
     max = 2500;
-    while((--max) && *sptr != '\0')
+    while ((--max) && *sptr != '\0')
      {
       varValue[varValueLen++] = *sptr++;
       varValue[varValueLen] = '\0';
@@ -432,7 +432,7 @@ int Scgi::buildScgiEnvironmentString(HttpThreadContext* td, char* src,
     if (max == 0)
       return -1;
 
-    if (!strcmpi(varName, "CONTENT_LENGTH") || !strcmpi(varName, "SCGI") ||
+    if (!strcmpi (varName, "CONTENT_LENGTH") || !strcmpi (varName, "SCGI") ||
        !varNameLen || !varValueLen)
       continue;
 
@@ -453,7 +453,7 @@ int Scgi::buildScgiEnvironmentString(HttpThreadContext* td, char* src,
 /*!
  *Constructor for the FASTCGI class
  */
-Scgi::Scgi()
+Scgi::Scgi ()
 {
 
 }
@@ -466,15 +466,15 @@ int Scgi::load ()
   if (initialized)
     return 1;
   initialized = 1;
-  processServerManager = Server::getInstance()->getProcessServerManager ();
-  processServerManager->createDomain(SERVERS_DOMAIN);
+  processServerManager = Server::getInstance ()->getProcessServerManager ();
+  processServerManager->createDomain (SERVERS_DOMAIN);
   return 0;
 }
 
 /*!
  *Clean the memory and the processes occuped by the FastCGI servers
  */
-int Scgi::unLoad()
+int Scgi::unLoad ()
 {
   initialized = 0;
   return 0;
@@ -484,7 +484,7 @@ int Scgi::unLoad()
  *Return the the running server specified by path.
  *If the server is not running returns 0.
  */
-ScgiServer* Scgi::isScgiServerRunning(const char* path)
+ScgiServer* Scgi::isScgiServerRunning (const char* path)
 {
   return processServerManager->getServer (SERVERS_DOMAIN, path);
 }
@@ -493,7 +493,7 @@ ScgiServer* Scgi::isScgiServerRunning(const char* path)
 /*!
  *Get a connection to the FastCGI server.
  */
-ScgiServer* Scgi::connect(ScgiContext* con, const char* path)
+ScgiServer* Scgi::connect (ScgiContext* con, const char* path)
 {
   ScgiServer* server = runScgiServer (con, path);
   /*!
@@ -501,7 +501,7 @@ ScgiServer* Scgi::connect(ScgiContext* con, const char* path)
    */
   if (server)
   {
-    int ret = processServerManager->connect(&(con->sock), server);
+    int ret = processServerManager->connect (&(con->sock), server);
 
     if (ret == -1)
       return 0;
@@ -537,15 +537,15 @@ ScgiServer* Scgi::runScgiServer (ScgiContext* context,
     char host[128];
     char port[6];
 
-    while(path[i] && path[i] != ':')
+    while (path[i] && path[i] != ':')
       i++;
 
-    myserver_strlcpy (host, &path[1], min(128, i));
+    myserver_strlcpy (host, &path[1], min (128, i));
 
     myserver_strlcpy (port, &path[i + 1], 6);
 
     return processServerManager->addRemoteServer (SERVERS_DOMAIN, path,
-                                                 host, atoi(port));
+                                                 host, atoi (port));
   }
 
   return processServerManager->runAndAddServer (SERVERS_DOMAIN, path);

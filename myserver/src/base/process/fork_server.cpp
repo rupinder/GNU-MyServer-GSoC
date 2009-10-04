@@ -127,6 +127,7 @@ int ForkServer::handleRequest (Socket *sock)
   char *exec;
   char *cwd;
   char *arg;
+  char *chroot;
   char *env;
 
   readInt (sock, &flags);
@@ -147,6 +148,7 @@ int ForkServer::handleRequest (Socket *sock)
   readString (sock, &cwd);
 
   readString (sock, &arg);
+  readString (sock, &chroot);
 
   string argS (arg);
 
@@ -180,10 +182,9 @@ int ForkServer::handleRequest (Socket *sock)
   spi.stdIn = stdIn;
   spi.stdOut = stdOut;
   spi.stdError = stdErr;
-
   spi.uid.assign (uid);
   spi.gid.assign (gid);
-
+  spi.chroot.assign (chroot);
   spi.cmd.assign (exec);
   spi.arg.assign (arg);
   spi.cwd.assign (cwd);
@@ -201,6 +202,7 @@ int ForkServer::handleRequest (Socket *sock)
   delete [] cwd;
   delete [] arg;
   delete [] env;
+  delete [] chroot;
 
   if (flags & FLAG_USE_IN)
     close (stdIn);
@@ -210,9 +212,8 @@ int ForkServer::handleRequest (Socket *sock)
 
   if (flags & FLAG_USE_ERR)
     close (stdErr);
-
-  return 0;
 #endif
+
   return 0;
 }
 
@@ -258,7 +259,7 @@ int ForkServer::forkServerLoop (UnixSocket *serverSocket)
         }
       /* Don't let the fork server come back from this function
          in _any_ case.  */
-      catch(...)
+      catch (...)
         {
           serverSocket->close ();
           socket.close ();
@@ -316,6 +317,7 @@ int ForkServer::executeProcess (StartProcInfo *spi,
       writeString (&sock, spi->cmd.c_str (), spi->cmd.length ());
       writeString (&sock, spi->cwd.c_str (), spi->cwd.length ());
       writeString (&sock, spi->arg.c_str (), spi->arg.length ());
+      writeString (&sock, spi->chroot.c_str (), spi->chroot.length ());
 
       if (env)
         for (len = 0; env[len] != '\0' || env[len + 1] != '\0' ; len++);
@@ -361,7 +363,7 @@ void ForkServer::killServer ()
 int ForkServer::startForkServer ()
 {
 #ifndef WIN32
-  FilesUtility::temporaryFileName(0, socketPath);
+  FilesUtility::temporaryFileName (0, socketPath);
 
   socket.socket ();
   socket.bind (socketPath.c_str ());
@@ -396,11 +398,11 @@ int ForkServer::startForkServer ()
 int ForkServer::generateListenerSocket (Socket &socket, u_short *port)
 {
   int optvalReuseAddr = 1;
-  int len = sizeof(sockaddr_in);
+  int len = sizeof (sockaddr_in);
 
   socket.socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-  if (socket.getHandle() == (Handle)INVALID_SOCKET)
+  if (socket.getHandle () == (Handle)INVALID_SOCKET)
     return -1;
 
   MYSERVER_SOCKADDR_STORAGE sockaddr = { 0 };
@@ -416,7 +418,7 @@ int ForkServer::generateListenerSocket (Socket &socket, u_short *port)
 
   *port = ntohs (((sockaddr_in*)(&sockaddr))->sin_port);
 
-  if(socket.setsockopt (SOL_SOCKET, SO_REUSEADDR, (const char *)&optvalReuseAddr,
+  if (socket.setsockopt (SOL_SOCKET, SO_REUSEADDR, (const char *)&optvalReuseAddr,
                         sizeof (optvalReuseAddr)) < 0)
     return -1;
 

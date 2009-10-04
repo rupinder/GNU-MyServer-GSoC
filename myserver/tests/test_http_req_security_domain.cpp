@@ -31,18 +31,18 @@ using namespace std;
 
 class TestHttpReqSecurityDomain : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestHttpReqSecurityDomain );
-  CPPUNIT_TEST( testConstructor );
-  CPPUNIT_TEST( testGetValue );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestHttpReqSecurityDomain );
+  CPPUNIT_TEST ( testConstructor );
+  CPPUNIT_TEST ( testGetValue );
+  CPPUNIT_TEST_SUITE_END ();
 
 public:
-  void setUp()
+  void setUp ()
   {
 
   }
 
-  void tearDown()
+  void tearDown ()
   {
 
   }
@@ -79,4 +79,4 @@ public:
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestHttpReqSecurityDomain );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestHttpReqSecurityDomain );

@@ -41,35 +41,35 @@ public:
   static const u_long FILE_CREATE_ALWAYS;
   static const u_long NO_INHERIT;
 
-  File();
-  File(char *,int);
-  virtual Handle getHandle();
-  virtual int setHandle(Handle);
-  virtual int writeToFile(const char* ,u_long ,u_long* );
-  virtual int createTemporaryFile(const char* );
+  File ();
+  File (char *,int);
+  virtual Handle getHandle ();
+  virtual int setHandle (Handle);
+  virtual int writeToFile (const char* ,u_long ,u_long* );
+  virtual int createTemporaryFile (const char* );
 
-  virtual int openFile(const char*, u_long );
-  virtual int openFile(string const &file, u_long opt)
-    {return openFile(file.c_str(), opt);}
+  virtual int openFile (const char*, u_long );
+  virtual int openFile (string const &file, u_long opt)
+    {return openFile (file.c_str (), opt);}
 
-  virtual u_long getFileSize();
+  virtual u_long getFileSize ();
   virtual int seek (u_long);
   virtual u_long getSeek ();
 
-  virtual time_t getLastModTime();
-  virtual time_t getCreationTime();
-  virtual time_t getLastAccTime();
-  virtual const char *getFilename();
-  virtual int setFilename(const char*);
-  virtual int setFilename(string const &name)
-    {return setFilename(name.c_str());}
+  virtual time_t getLastModTime ();
+  virtual time_t getCreationTime ();
+  virtual time_t getLastAccTime ();
+  virtual const char *getFilename ();
+  virtual int setFilename (const char*);
+  virtual int setFilename (string const &name)
+    {return setFilename (name.c_str ());}
 
   virtual int operator =(File);
-  virtual int close();
+  virtual int close ();
 
   /*! Inherithed from Stream. */
-  virtual int read(char* buffer, u_long len, u_long *nbr);
-  virtual int write(const char* buffer, u_long len, u_long *nbw);
+  virtual int read (char* buffer, u_long len, u_long *nbr);
+  virtual int write (const char* buffer, u_long len, u_long *nbw);
 
   virtual int fastCopyToSocket (Socket *dest, u_long offset,
                                 MemBuf *buf, u_long *nbw);

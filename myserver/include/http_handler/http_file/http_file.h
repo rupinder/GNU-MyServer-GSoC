@@ -32,8 +32,8 @@ public:
   virtual int send (HttpThreadContext* td,
                    const char *filenamePath, const char* cgi,
                    bool execute = false, bool OnlyHeader = false);
-  HttpFile();
-  virtual ~HttpFile();
+  HttpFile ();
+  virtual ~HttpFile ();
 
 protected:
   int putFile (HttpThreadContext* td,

@@ -24,7 +24,7 @@ AuthMethod::AuthMethod ()
 
 }
 
-AuthMethod::~AuthMethod()
+AuthMethod::~AuthMethod ()
 {
 
 }

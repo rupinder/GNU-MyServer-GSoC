@@ -81,7 +81,7 @@ int SocketPair::create ()
   struct sockaddr_in addr;
   SOCKET listener;
   int e;
-  int addrlen = sizeof(addr);
+  int addrlen = sizeof (addr);
   DWORD flags = 0;
 
   if (handles == 0)
@@ -93,19 +93,19 @@ int SocketPair::create ()
   if (listener == INVALID_SOCKET)
     return -1;
 
-  memset(&addr, 0, sizeof (addr));
+  memset (&addr, 0, sizeof (addr));
   addr.sin_family = AF_INET;
   addr.sin_addr.s_addr = htonl (0x7f000001);
   addr.sin_port = 0;
 
-  e = ::bind(listener, (const struct sockaddr*) &addr, sizeof(addr));
+  e = ::bind (listener, (const struct sockaddr*) &addr, sizeof (addr));
   if (e == SOCKET_ERROR)
     {
       closesocket (listener);
       return -1;
     }
 
-  e = ::getsockname(listener, (struct sockaddr*) &addr, &addrlen);
+  e = ::getsockname (listener, (struct sockaddr*) &addr, &addrlen);
   if (e == SOCKET_ERROR)
     {
       closesocket (listener);
@@ -118,7 +118,7 @@ int SocketPair::create ()
         break;
       if ((handles[0] = ::socket (AF_INET, type, 0)) == INVALID_SOCKET)
         break;
-      if (::connect(handles[0], (const struct sockaddr*) &addr, sizeof (addr)) == SOCKET_ERROR)
+      if (::connect (handles[0], (const struct sockaddr*) &addr, sizeof (addr)) == SOCKET_ERROR)
         break;
       if ((handles[1] = ::accept (listener, NULL, NULL)) == INVALID_SOCKET)
         break;

@@ -45,7 +45,7 @@ void XmlConf::readNode (xmlNodePtr lcur,
                         HashMap<string, NodeTree<string>*> *hashedData)
 {
   xmlAttr *attrs;
-  for(; lcur; lcur = lcur->next)
+  for (; lcur; lcur = lcur->next)
     if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *)"DEFINE"))
       {
         NodeTree<string> *node = new NodeTree<string> ();
@@ -68,14 +68,14 @@ void XmlConf::readNode (xmlNodePtr lcur,
               }
           }
 
-        string *v = value ? new string((const char*)value) : NULL;
+        string *v = value ? new string ((const char*)value) : NULL;
 
         node->setValue (v);
 
-        if(name)
+        if (name)
           {
-            string key((const char*)name);
-            hashedData->put(key, node);
+            string key ((const char*)name);
+            hashedData->put (key, node);
           }
 
         if (root)

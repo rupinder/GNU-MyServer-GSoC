@@ -30,11 +30,11 @@ struct FtpHost
 	int p1, p2;
 };
 
-void setFtpHost(FtpHost &out, const FtpHost &in);
-void setFtpHost(FtpHost &out, const char *szIn);
-void getIpAddr(const FtpHost &host, char *pOut, const int &nBuffSize);
-int getPortNo(const FtpHost &host);
-std::string getPortNo(unsigned int nport);
-std::string getHost(const FtpHost &host);
+void setFtpHost (FtpHost &out, const FtpHost &in);
+void setFtpHost (FtpHost &out, const char *szIn);
+void getIpAddr (const FtpHost &host, char *pOut, const int &nBuffSize);
+int getPortNo (const FtpHost &host);
+std::string getPortNo (unsigned int nport);
+std::string getHost (const FtpHost &host);
 
 #endif //__FTP_COMMON_H__

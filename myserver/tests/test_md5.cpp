@@ -25,42 +25,42 @@
 
 class TestMd5 : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestMd5 );
-  CPPUNIT_TEST( testHash );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestMd5 );
+  CPPUNIT_TEST ( testHash );
+  CPPUNIT_TEST_SUITE_END ();
 
   Md5* md5;
 public:
-  void setUp()
+  void setUp ()
   {
     md5 = new Md5();
 
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete md5;
   }
 
-  void testHash()
+  void testHash ()
   {
     unsigned char out[33];
     const unsigned char* msg = (unsigned char* ) "hello world!\n";
 
     char *expected = (char*) "c897d1410af8f2c74fba11b1db511e9e";
 
-    md5->init();
-    md5->update(msg, 13);
+    md5->init ();
+    md5->update (msg, 13);
 
-    md5->end((char*)out);
+    md5->end ((char*)out);
 
-    for(int i = 0; i < 32; i++)
+    for (int i = 0; i < 32; i++)
     {
-      CPPUNIT_ASSERT_EQUAL(tolower(expected[i]), tolower(out[i]));
+      CPPUNIT_ASSERT_EQUAL (tolower (expected[i]), tolower (out[i]));
     }
 
   }
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestMd5 );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestMd5 );

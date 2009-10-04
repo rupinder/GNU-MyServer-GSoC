@@ -46,20 +46,20 @@ int main (int argc, char* argv[])
     }
 
   CppUnit::Outputter * out;
-  CppUnit::Test *suite = CppUnit::TestFactoryRegistry::getRegistry().makeTest();
+  CppUnit::Test *suite = CppUnit::TestFactoryRegistry::getRegistry ().makeTest ();
   CppUnit::TextUi::TestRunner runner;
   runner.addTest ( suite );
 
   if (xml)
-    out = new CppUnit::XmlOutputter( &runner.result(), *str );
+    out = new CppUnit::XmlOutputter ( &runner.result (), *str );
   else if (compiler)
-    out = new CppUnit::CompilerOutputter( &runner.result(), *str );
+    out = new CppUnit::CompilerOutputter ( &runner.result (), *str );
   else
-    out = new CppUnit::TextOutputter( &runner.result(), *str );
+    out = new CppUnit::TextOutputter ( &runner.result (), *str );
 
-  runner.setOutputter( out );
+  runner.setOutputter ( out );
 
-  int ret = runner.run() ? 0 : 1;
+  int ret = runner.run () ? 0 : 1;
 
   if (filename)
       ofile.close ();

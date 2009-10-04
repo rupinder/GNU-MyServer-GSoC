@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class Protocol
 {
 public:
-	Protocol();
+	Protocol ();
   virtual ~Protocol ();
 	virtual char* registerName (char*,int len);
 	virtual int controlConnection (ConnectionPtr a, char *b1, char *b2,

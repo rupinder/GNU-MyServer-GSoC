@@ -19,6 +19,7 @@
 #include <string.h>
 #include <include/server/server.h>
 #include <include/protocol/http/http.h>
+#include <include/conf/main/xml_main_configuration.h>
 #include "heading.h"
 
 #ifdef WIN32
@@ -98,7 +99,7 @@ EXPORTABLE(int) load (void* server)
   Server* serverInstance = (Server*)server;
   HttpStaticData* staticData =(HttpStaticData*) serverInstance->getGlobalData("http-static");
   string msg("new-http-request");
-  XmlParser* configuration;
+  MainConfiguration* configuration;
   xmlDocPtr xmlDoc;
   if(!staticData)
     {
@@ -109,8 +110,10 @@ EXPORTABLE(int) load (void* server)
 
   staticData->addMulticast(msg, &observer);
 
-  configuration = serverInstance->getXmlConfiguration();
-  xmlDoc = configuration->getDoc();
+  configuration = serverInstance->getConfiguration ();
+
+  /* FIXME: DON'T DO THIS.  */
+  xmlDoc = ((XmlMainConfiguration*)configuration)->getDoc ();
 
   for(xmlNodePtr ptr = xmlDoc->children->next->children; ptr; ptr = ptr->next)
     {

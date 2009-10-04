@@ -25,19 +25,19 @@
 
 class TestSocketPair : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestSocketPair );
-  CPPUNIT_TEST( testCreateClose );
-  CPPUNIT_TEST( testInverted );
-  CPPUNIT_TEST( testWriteRead );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestSocketPair );
+  CPPUNIT_TEST ( testCreateClose );
+  CPPUNIT_TEST ( testInverted );
+  CPPUNIT_TEST ( testWriteRead );
+  CPPUNIT_TEST_SUITE_END ();
 
 public:
 
-  void setUp()
+  void setUp ()
   {
   }
 
-  void tearDown()
+  void tearDown ()
   {
   }
 
@@ -81,18 +81,18 @@ public:
 
     ret = writeSock.write (inBuffer, strlen (inBuffer) + 1, &nbw);
 
-    CPPUNIT_ASSERT_EQUAL(ret, 0);
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
 
     ret = readSock.read (outBuffer, 256, &nbr);
 
-    CPPUNIT_ASSERT_EQUAL(ret, 0);
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
 
 
-    CPPUNIT_ASSERT_EQUAL(strcmp (inBuffer, outBuffer), 0);
+    CPPUNIT_ASSERT_EQUAL (strcmp (inBuffer, outBuffer), 0);
 
     writeSock.close ();
   }
 
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestSocketPair );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestSocketPair );

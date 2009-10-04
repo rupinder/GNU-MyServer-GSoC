@@ -26,14 +26,14 @@
  *VhostManager add function.
  *\param vh The virtual host to add.
  */
-int VhostManager::addVHost(Vhost* vh)
+int VhostManager::addVHost (Vhost* vh)
 {
   list<Vhost*>::iterator it;
 
-  mutex.lock();
+  mutex.lock ();
 
   /* Be sure there is a listening thread on the specified port.  */
-  listenThreads->addListeningThread(vh->getPort());
+  listenThreads->addListeningThread (vh->getPort ());
 
   if (extSource)
     {
@@ -48,19 +48,25 @@ int VhostManager::addVHost(Vhost* vh)
     {
       if (!vh->getProtocolName ())
         {
-          vh->setProtocolName("http");
-          Server::getInstance()->log (MYSERVER_LOG_MSG_WARNING,
+          vh->setProtocolName ("http");
+          Server::getInstance ()->log (MYSERVER_LOG_MSG_WARNING,
                  _("Protocol not defined for vhost: %s, using HTTP by default"),
                                              vh->getName ());
         }
+      string protocol (vh->getProtocolName ());
+      if (Server::getInstance ()->getProtocolsManager ()->getProtocol (protocol)
+          == NULL)
+        Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
+                                _("The protocol \"%s\" is used but not loaded"),
+                                    protocol.c_str ());
 
       hostList.push_back (vh);
       mutex.unlock ();
       return 0;
     }
-  catch(...)
+  catch (...)
     {
-      mutex.unlock();
+      mutex.unlock ();
       return -1;
     };
 }
@@ -72,50 +78,50 @@ int VhostManager::addVHost(Vhost* vh)
  *\param ip IP address for the virtual host.
  *\param port The port used by the client to connect to the server.
  */
-Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
+Vhost* VhostManager::getVHost (const char* host, const char* ip, u_short port)
 {
   list<Vhost*>::iterator it;
 
-  mutex.lock();
+  mutex.lock ();
 
   try
     {
-      if(extSource)
+      if (extSource)
         {
-          Vhost* ret = extSource->getVHost(host, ip, port);
-          mutex.unlock();
+          Vhost* ret = extSource->getVHost (host, ip, port);
+          mutex.unlock ();
           return ret;
         }
 
-      it = hostList.begin();
+      it = hostList.begin ();
 
       /*Do a linear search here. We have to use the first full-matching
        *virtual host.
        */
-      for(; it != hostList.end(); it++)
+      for (; it != hostList.end (); it++)
         {
           Vhost* vh = *it;
           /* Control if the host port is the correct one.  */
-          if(vh->getPort() != port)
+          if (vh->getPort () != port)
             continue;
           /* If ip is defined check that it is allowed to connect to the host.  */
-          if(ip && !vh->isIPAllowed(ip))
+          if (ip && !vh->isIPAllowed (ip))
             continue;
           /* If host is defined check if it is allowed to connect to the host.  */
-          if(host && !vh->isHostAllowed(host))
+          if (host && !vh->isHostAllowed (host))
             continue;
           /* We find a valid host.  */
-          mutex.unlock();
+          mutex.unlock ();
           /* Add a reference.  */
-          vh->addRef();
+          vh->addRef ();
           return vh;
         }
-      mutex.unlock();
+      mutex.unlock ();
       return 0;
     }
-  catch(...)
+  catch (...)
     {
-      mutex.unlock();
+      mutex.unlock ();
       return 0;
     };
 }
@@ -125,38 +131,38 @@ Vhost* VhostManager::getVHost(const char* host, const char* ip, u_short port)
  *\param lt A ListenThreads object to use to create new threads.
  *\param lm The log manager to use.
  */
-VhostManager::VhostManager(ListenThreads* lt, LogManager* lm)
+VhostManager::VhostManager (ListenThreads* lt, LogManager* lm)
 {
   listenThreads = lt;
-  hostList.clear();
+  hostList.clear ();
   extSource = 0;
-  mutex.init();
+  mutex.init ();
   logManager = lm;
 }
 
 /*!
  *Clean the virtual hosts.
  */
-void VhostManager::clean()
+void VhostManager::clean ()
 {
   list<Vhost*>::iterator it;
 
-  mutex.lock();
+  mutex.lock ();
 
-  it = hostList.begin();
+  it = hostList.begin ();
 
   try
     {
-      for(;it != hostList.end(); it++)
+      for (;it != hostList.end (); it++)
         delete *it;
 
-      hostList.clear();
+      hostList.clear ();
 
-      mutex.unlock();
+      mutex.unlock ();
     }
-  catch(...)
+  catch (...)
     {
-      mutex.unlock();
+      mutex.unlock ();
       return;
     };
 }
@@ -164,16 +170,16 @@ void VhostManager::clean()
 /*!
  *vhostmanager destructor.
  */
-VhostManager::~VhostManager()
+VhostManager::~VhostManager ()
 {
-  clean();
-  mutex.destroy();
+  clean ();
+  mutex.destroy ();
 }
 
 /*!
  *Returns the entire virtual hosts list.
  */
-list<Vhost*>* VhostManager::getVHostList()
+list<Vhost*>* VhostManager::getVHostList ()
 {
   return &(this->hostList);
 }
@@ -183,30 +189,30 @@ list<Vhost*>* VhostManager::getVHostList()
  */
 void VhostManager::changeLocationsOwner ()
 {
-  if(Server::getInstance ()->getUid () ||
+  if (Server::getInstance ()->getUid () ||
      Server::getInstance ()->getGid ())
     {
-      string uid (Server::getInstance()->getUid ());
-      string gid (Server::getInstance()->getGid ());
+      string uid (Server::getInstance ()->getUid ());
+      string gid (Server::getInstance ()->getGid ());
 
       /*
        *Change the log files owner if a different user or group
        *identifier is specified.
        */
-      for(list<Vhost*>::iterator it = hostList.begin (); it != hostList.end (); it++)
+      for (list<Vhost*>::iterator it = hostList.begin (); it != hostList.end (); it++)
         {
           int err;
           Vhost* vh = *it;
 
           /* Chown the log files.  */
           err = logManager->chown (vh, "ACCESSLOG", uid, gid);
-          if(err)
-            Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
+          if (err)
+            Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
                     _("Error while changing accesses log locations owner"));
 
           err = logManager->chown (vh, "WARNINGLOG", uid, gid);
-          if(err)
-            Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
+          if (err)
+            Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
                     _("Error while changing log locations owner"));
         }
     }
@@ -216,9 +222,9 @@ void VhostManager::changeLocationsOwner ()
 /*!
  *Returns the number of hosts in the list
  */
-int VhostManager::getHostsNumber()
+int VhostManager::getHostsNumber ()
 {
-  return hostList.size();
+  return hostList.size ();
 }
 
 
@@ -285,7 +291,7 @@ VhostManager::loadXMLlogData (string name, Vhost* vh, xmlNode* lcur)
               err = vh->openAccessLog (location, filters, cycle);
               vh->setAccessLogOpt (opt.c_str ());
               if (err)
-                Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
+                Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
                                                    _("Error opening %s"), location.c_str ());
             }
           else if (!name.compare ("WARNINGLOG"))
@@ -293,11 +299,11 @@ VhostManager::loadXMLlogData (string name, Vhost* vh, xmlNode* lcur)
               err = vh->openWarningLog (location, filters, cycle);
               vh->setWarningLogOpt (opt.c_str ());
               if (err)
-                Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
+                Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
                                                    _("Error opening %s"), location.c_str ());
             }
           else
-            Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
+            Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
                                                _(" Unrecognized log type"));
         }
     }
@@ -308,18 +314,18 @@ VhostManager::loadXMLlogData (string name, Vhost* vh, xmlNode* lcur)
  *Returns non-null on errors.
  *\param filename The XML file to open.
  */
-int VhostManager::loadXMLConfigurationFile(const char *filename)
+int VhostManager::loadXMLConfigurationFile (const char *filename)
 {
   XmlParser parser;
   xmlDocPtr doc;
   xmlNodePtr node;
-  if(parser.open(filename))
+  if (parser.open (filename))
     {
-      Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
+      Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
                                          _("Error opening %s"), filename);
       return -1;
     }
-  doc = parser.getDoc();
+  doc = parser.getDoc ();
   node = doc->children->children;
 
   for (;node;node = node->next )
@@ -332,9 +338,9 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
       vh = new Vhost (logManager);
       if (vh == 0)
         {
-          parser.close();
-          clean();
-          Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
+          parser.close ();
+          clean ();
+          Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
                                              _("internal error"), filename);
           return -1;
         }
@@ -354,7 +360,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
                 {
                   if (!xmlStrcmp (attrs->name, (const xmlChar *)"isRegex")
                       && attrs->children && attrs->children->content
-                      && (!xmlStrcmp(attrs->children->content,
+                      && (!xmlStrcmp (attrs->children->content,
                                      (const xmlChar *)"YES")))
                         useRegex = 1;
                 }
@@ -367,7 +373,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
             }
           else if (!xmlStrcmp (lcur->name, (const xmlChar *)"LOCATION"))
             {
-              string loc (vh->getDocumentRoot());
+              string loc (vh->getDocumentRoot ());
               loc.append ("/");
               for (xmlAttr *attrs = lcur->properties; attrs; attrs = attrs->next)
                 {
@@ -384,8 +390,8 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
             }
           else if (!xmlStrcmp (lcur->name, (const xmlChar *)"SSL_CERTIFICATE"))
             {
-              string certificate((char*)lcur->children->content);
-              sslContext->setCertificateFile(certificate);
+              string certificate ((char*)lcur->children->content);
+              sslContext->setCertificateFile (certificate);
             }
           else if (!xmlStrcmp (lcur->name, (const xmlChar *)"CONNECTIONS_PRIORITY"))
             {
@@ -409,10 +415,10 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
 
               while (attrs)
                 {
-                  if (!xmlStrcmp(attrs->name, (const xmlChar *)"isRegex"))
+                  if (!xmlStrcmp (attrs->name, (const xmlChar *)"isRegex"))
                     {
                       if (attrs->children && attrs->children->content &&
-                          (!xmlStrcmp(attrs->children->content,
+                          (!xmlStrcmp (attrs->children->content,
                                       (const xmlChar *)"YES")))
                         useRegex = 1;
                     }
@@ -424,7 +430,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
             {
               int val = atoi ((char*)lcur->children->content);
               if (val > (1 << 16) || strlen ((const char*)lcur->children->content) > 6)
-                Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
+                Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
                        _("Specified invalid port %s"), lcur->children->content);
               vh->setPort ((u_short)val);
             }
@@ -454,16 +460,16 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
               else
                 vh->setDocumentRoot ("");
             }
-          else if (!xmlStrcmp(lcur->name, (const xmlChar *)"SYSROOT"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"SYSROOT"))
             {
               if (lcur->children && lcur->children->content)
                 {
                   char* lastChar = (char*)lcur->children->content;
 
-                  while(*(lastChar+1) != '\0')
+                  while (*(lastChar+1) != '\0')
                     lastChar++;
 
-                  if(*lastChar == '\\' || *lastChar == '/')
+                  if (*lastChar == '\\' || *lastChar == '/')
                     *lastChar = '\0';
 
                   vh->setSystemRoot ((const char*)lcur->children->content);
@@ -482,7 +488,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
           else if (!xmlStrcmp (lcur->name, (const xmlChar *)"MIME_FILE"))
             {
               if (lcur->children)
-                vh->getMIME()->loadXML ((char*)lcur->children->content);
+                vh->getMIME ()->loadXML ((char*)lcur->children->content);
             }
           else if (!xmlStrcmp (lcur->name, (const xmlChar *)"THROTTLING_RATE"))
             {
@@ -490,11 +496,11 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
             }
 
           lcur = lcur->next;
-        }// while(lcur)
+        }// while (lcur)
 
       if (vh->openLogFiles ())
         {
-          Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
+          Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
                                              _("Error opening log files"));
           delete vh;
           vh = 0;
@@ -503,7 +509,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
 
       if (vh->initializeSSL () < 0)
         {
-          Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
+          Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
                                              _("Error initializing SSL for %s"),
                                              vh->getName ());
           delete vh;
@@ -513,7 +519,7 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
 
       if (addVHost (vh))
         {
-          Server::getInstance()->log (MYSERVER_LOG_MSG_ERROR,
+          Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
                                              _("Internal error"));
           delete vh;
           vh = 0;
@@ -532,36 +538,36 @@ int VhostManager::loadXMLConfigurationFile(const char *filename)
  *Zero based list.
  *\param n The virtual host id.
  */
-Vhost* VhostManager::getVHostByNumber(int n)
+Vhost* VhostManager::getVHostByNumber (int n)
 {
   Vhost* ret = 0;
-  mutex.lock();
+  mutex.lock ();
   try
     {
-      list<Vhost*>::iterator i = hostList.begin();
-      if(extSource)
+      list<Vhost*>::iterator i = hostList.begin ();
+      if (extSource)
         {
-          ret=extSource->getVHostByNumber(n);
-          mutex.unlock();
+          ret=extSource->getVHostByNumber (n);
+          mutex.unlock ();
           return ret;
         }
 
-      for( ; i != hostList.end(); i++)
+      for ( ; i != hostList.end (); i++)
         {
-          if(!(n--))
+          if (!(n--))
             {
               ret = *i;
-              ret->addRef();
+              ret->addRef ();
               break;
             }
         }
-      mutex.unlock();
+      mutex.unlock ();
 
       return ret;
     }
-  catch(...)
+  catch (...)
     {
-      mutex.unlock();
+      mutex.unlock ();
       return ret;
     };
 }
@@ -571,28 +577,28 @@ Vhost* VhostManager::getVHostByNumber(int n)
  *First position is zero.
  *\param n The virtual host identifier in the list.
  */
-int VhostManager::removeVHost(int n)
+int VhostManager::removeVHost (int n)
 {
-  mutex.lock();
+  mutex.lock ();
   try
     {
-      list<Vhost*>::iterator i = hostList.begin();
+      list<Vhost*>::iterator i = hostList.begin ();
 
-      for( ;i != hostList.end(); i++)
+      for ( ;i != hostList.end (); i++)
         {
-          if(!(n--))
+          if (!(n--))
             {
               delete *i;
-              mutex.unlock();
+              mutex.unlock ();
               return 1;
             }
         }
-      mutex.unlock();
+      mutex.unlock ();
       return 0;
     }
-  catch(...)
+  catch (...)
     {
-      mutex.unlock();
+      mutex.unlock ();
       return 0;
     };
 }
@@ -601,17 +607,17 @@ int VhostManager::removeVHost(int n)
  *Set an external source for the virtual hosts.
  *\param nExtSource The new external source.
  */
-void VhostManager::setExternalSource(VhostSource* nExtSource)
+void VhostManager::setExternalSource (VhostSource* nExtSource)
 {
-  mutex.lock();
+  mutex.lock ();
   extSource = nExtSource;
-  mutex.unlock();
+  mutex.unlock ();
 }
 
 /*!
  *Construct the object.
  */
-VhostSource::VhostSource()
+VhostSource::VhostSource ()
 {
 
 }
@@ -619,7 +625,7 @@ VhostSource::VhostSource()
 /*!
  *Destroy the object.
  */
-VhostSource::~VhostSource()
+VhostSource::~VhostSource ()
 {
 
 }
@@ -627,7 +633,7 @@ VhostSource::~VhostSource()
 /*!
  *Load the object.
  */
-int VhostSource::load()
+int VhostSource::load ()
 {
   return 0;
 }
@@ -635,7 +641,7 @@ int VhostSource::load()
 /*!
  *Save the object.
  */
-int VhostSource::save()
+int VhostSource::save ()
 {
   return 0;
 }
@@ -643,7 +649,7 @@ int VhostSource::save()
 /*!
  *Free the object.
  */
-int VhostSource::free()
+int VhostSource::free ()
 {
   return 0;
 }
@@ -651,7 +657,7 @@ int VhostSource::free()
 /*!
  *Add a virtual host to the source.
  */
-int VhostSource::addVHost(Vhost*)
+int VhostSource::addVHost (Vhost*)
 {
   return 0;
 }
@@ -659,7 +665,7 @@ int VhostSource::addVHost(Vhost*)
 /*!
  *Get a virtual host.
  */
-Vhost* VhostSource::getVHost(const char*, const char*, u_short)
+Vhost* VhostSource::getVHost (const char*, const char*, u_short)
 {
   return 0;
 }
@@ -667,7 +673,7 @@ Vhost* VhostSource::getVHost(const char*, const char*, u_short)
 /*!
  *Get a virtual host by its number.
  */
-Vhost* VhostSource::getVHostByNumber(int n)
+Vhost* VhostSource::getVHostByNumber (int n)
 {
   return 0;
 }
