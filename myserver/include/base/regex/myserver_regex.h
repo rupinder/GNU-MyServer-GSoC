@@ -28,7 +28,7 @@ extern "C"
 
 # ifdef TRE
 #  include <tre/regex.h>
-# elif REGEX
+# elif HAVE_REGCOMP
 #  include <regex.h>
 # else
   typedef void* regmatch_t;

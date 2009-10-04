@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <include/base/regex/myserver_regex.h>
 
-#ifdef REGEX
+#ifdef HAVE_REGCOMP
 # define REGLIB 1
 #elif TRE
 # define REGLIB 1
