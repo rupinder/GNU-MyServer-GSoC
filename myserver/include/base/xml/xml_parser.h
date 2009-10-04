@@ -41,9 +41,9 @@ class XmlXPathResult
 {
 public:
   XmlXPathResult (xmlXPathObjectPtr obj){xpathObj = obj;}
-  ~XmlXPathResult (){if (xpathObj)xmlXPathFreeObject (xpathObj);}
-  xmlXPathObjectPtr getObject (){return xpathObj;}
-  xmlNodeSetPtr getNodeSet (){return (xpathObj ? xpathObj->nodesetval : NULL);}
+  ~XmlXPathResult (){if (xpathObj) xmlXPathFreeObject (xpathObj);}
+  const xmlXPathObjectPtr getObject (){return xpathObj;}
+  const xmlNodeSetPtr getNodeSet (){return (xpathObj ? xpathObj->nodesetval : NULL);}
 private:
   xmlXPathObjectPtr xpathObj;
 };
@@ -63,9 +63,9 @@ public:
   int open (string const &filename, bool useXpath = 0){return open (filename.c_str (), useXpath);};
   int openMemBuf (MemBuf &, bool useXpath = 0);
 
-  char *getValue (const char* field);
-  char *getValue (string const &field){return getValue (field.c_str ());};
-  char *getAttr (const char* field, const char *attr);
+  const char *getValue (const char* field);
+  const char *getValue (string const &field){return getValue (field.c_str ());};
+  const char *getAttr (const char* field, const char *attr);
   int setValue (const char* field, const char *value);
   int close ();
 

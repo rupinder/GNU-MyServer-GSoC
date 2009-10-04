@@ -20,7 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # define MAIN_CONFIGURATION_H
 
 # include "stdafx.h"
-#include <string>
+# include <string>
+
 using namespace std;
 
 /*! Define the interface to read from the main configuration file.  */
@@ -29,8 +30,8 @@ class MainConfiguration
 public:
   MainConfiguration ();
   virtual ~MainConfiguration ();
-  virtual char *getValue (const char* field) = 0;
-  virtual char *getValue (string const &field);
+  virtual const char *getValue (const char* field) = 0;
+  virtual const char *getValue (string const &field);
   virtual int close ()
   {
     return 0;

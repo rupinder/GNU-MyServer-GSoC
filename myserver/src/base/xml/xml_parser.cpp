@@ -214,7 +214,7 @@ xmlDocPtr XmlParser::getDoc ()
  * \param vName vName of the root child elment
  * \return Returns the value of the vName
  */
-char *XmlParser::getValue (const char* vName)
+const char *XmlParser::getValue (const char* vName)
 {
   char *ret = NULL;
   xmlNodePtr lcur;
@@ -274,7 +274,7 @@ int XmlParser::setValue (const char* vName, const char *value)
  * \param attr Attribute
  * \return
  */
-char *XmlParser::getAttr (const char* field, const char *attr)
+const char *XmlParser::getAttr (const char* field, const char *attr)
 {
   xmlNodePtr lcur = cur->xmlChildrenNode;
 

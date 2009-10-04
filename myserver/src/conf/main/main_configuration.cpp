@@ -28,7 +28,7 @@ MainConfiguration::~MainConfiguration ()
 
 }
 
-char *MainConfiguration::getValue (string const &field)
+const char *MainConfiguration::getValue (string const &field)
 {
   return getValue (field.c_str ());
 };

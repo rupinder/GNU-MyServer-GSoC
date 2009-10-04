@@ -40,12 +40,12 @@ public:
     return open (filename.c_str ());
   };
 
-  virtual char *getValue (const char* field)
+  virtual const char *getValue (const char* field)
   {
     return xmlParser.getValue (field);
   }
 
-  virtual char *getValue (string const &field)
+  virtual const char *getValue (string const &field)
   {
     return getValue (field.c_str ());
   };
