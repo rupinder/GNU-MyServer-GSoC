@@ -731,16 +731,7 @@ int ControlProtocol::getFile (ConnectionPtr a, char* fn, File* in, File* out,
   /* # of bytes written.  */
   u_long nbw = 0;
 
-  if (!strcmpi (fn, "myserver.xml"))
-    filename = Server::getInstance ()->getMainConfFile ();
-  else if (!strcmpi (fn, "MIMEtypes.xml"))
-    filename = Server::getInstance ()->getMIMEConfFile ();
-  else if (!strcmpi (fn, "virtualhosts.xml"))
-    filename = Server::getInstance ()->getVhostConfFile ();
-  else if (!FilesUtility::fileExists (fn))
-    return CONTROL_FILE_NOT_FOUND;
-  else
-    filename = fn;
+  filename = fn;
 
   ret = localfile.openFile (filename, File::READ | File::OPEN_IF_EXISTS);
 
@@ -793,14 +784,7 @@ int ControlProtocol::putFile (ConnectionPtr a, char* fn, File* in,
   u_long nbw = 0;
   Server::getInstance ()->disableAutoReboot ();
 
-  if (!strcmpi (fn, "myserver.xml"))
-    filename = Server::getInstance ()->getMainConfFile ();
-  else if (!strcmpi (fn, "MIMEtypes.xml"))
-    filename = Server::getInstance ()->getMIMEConfFile ();
-  else if (!strcmpi (fn, "virtualhosts.xml"))
-    filename = Server::getInstance ()->getVhostConfFile ();
-  else
-    filename = fn;
+  filename = fn;
 
   /* Remove the file before create it.  */
   ret = FilesUtility::deleteFile (filename);

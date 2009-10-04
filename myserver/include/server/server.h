@@ -105,10 +105,6 @@ public:
   bool isAutorebootEnabled ();
   bool isRebooting (){return rebooting;}
   void rebootOnNextLoop ();
-  const char* getMainConfFile ();
-  const char* getVhostConfFile ();
-  const char* getMIMEConfFile ();
-  const char* getExternalPath ();
   ~Server ();
   Protocol* getProtocol (const char *protocolName);
   int addConnection (Socket,MYSERVER_SOCKADDRIN*);
@@ -241,7 +237,6 @@ private:
   int freeHashedData ();
   u_long connectionTimeout;
   u_long maxLogFileSize;
-  void logWriteNTimes (string, unsigned);
   bool resetConfigurationPaths (string &, string &, string &, string &);
   Mutex* connectionsMutex;
   u_long nStaticThreads;

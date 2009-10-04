@@ -422,7 +422,7 @@ void Server::mainLoop ()
                     }
                   log (MYSERVER_LOG_MSG_INFO, _("Reloading MIME types"));
 
-                  getMimeManager ()->loadXML (getMIMEConfFile ());
+                  getMimeManager ()->reload ();
 
                   log (MYSERVER_LOG_MSG_INFO, _("Reloaded"));
 
@@ -481,15 +481,6 @@ void Server::mainLoop ()
     }
 }
 
-void Server::logWriteNTimes (string str, unsigned n)
-{
-  while (n--)
-    logManager->log (this, "MAINLOG", logLocation, str);
-
-  string msg ("");
-  logManager->log (this, "MAINLOG", logLocation, msg, true);
-}
-
 /*!
  * Display the MyServer boot.
  */
@@ -519,15 +510,14 @@ void Server::displayBoot ()
       try
         {
           size_t length;
-          string softwareSignature;
-          softwareSignature.assign ("************ GNU MyServer ");
-          softwareSignature.append (MYSERVER_VERSION);
-          softwareSignature.append (" ************");
-          length = softwareSignature.length ();
+          string softwareSignature = "************ GNU MyServer "
+            MYSERVER_VERSION " ************";
 
-          logWriteNTimes ("*", length);
+          string tmp (softwareSignature.length (), '*');
+
+          logManager->log (this, "MAINLOG", logLocation, tmp, true);
           logManager->log (this, "MAINLOG", logLocation, softwareSignature, true);
-          logWriteNTimes ("*", length);
+          logManager->log (this, "MAINLOG", logLocation, tmp, true);
         }
       catch (exception& e)
         {
@@ -1371,15 +1361,6 @@ Protocol* Server::getProtocol (const char *protocolName)
 }
 
 /*!
- * Get where external protocols are.
- */
-const char* Server::getExternalPath ()
-{
-  return externalPath.c_str ();
-}
-
-
-/*!
  * If specified set the uid/gid for the process.
  */
 void Server::setProcessPermissions ()
@@ -1497,37 +1478,12 @@ void Server::rebootOnNextLoop ()
   toReboot = true;
 }
 
-
 /*!
  * Return the factory object to create cached files.
  */
 CachedFileFactory* Server::getCachedFiles ()
 {
   return &cachedFiles;
-}
-
-/*!
- * Return the path to the mail configuration file.
- */
-const char *Server::getMainConfFile ()
-{
-  return mainConfigurationFile.c_str ();
-}
-
-/*!
- * Return the path to the mail configuration file.
- */
-const char *Server::getVhostConfFile ()
-{
-  return vhostConfigurationFile.c_str ();
-}
-
-/*!
- * Return the path to the mail configuration file.
- */
-const char *Server::getMIMEConfFile ()
-{
-  return mimeConfigurationFile.c_str ();
 }
 
 /*!
@@ -1606,9 +1562,6 @@ int Server::addThread (bool staticThread)
     }
 
   newThread = new ClientsThread (this);
-
-  if (newThread == 0)
-    return -1;
 
   handlers = getHandlers (msg);
 

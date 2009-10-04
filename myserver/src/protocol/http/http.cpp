@@ -1781,12 +1781,7 @@ int Http::sendAuth ()
 int Http::loadProtocolStatic ()
 {
   const char *data = NULL;
-  string pluginsResource (Server::getInstance ()->getExternalPath ());
 
-  /*
-   * Store defaults value.
-   * By default use GZIP with files bigger than a MB.
-   */
   staticHttp.timeout = MYSERVER_SEC (15);
 
   Server::getInstance ()->setGlobalData ("http-static", getStaticData ());
@@ -1810,11 +1805,10 @@ int Http::loadProtocolStatic ()
       else
         staticHttp.allowVhostMime = 0;
     }
+
   data = Server::getInstance ()->getData ("cgi.timeout");
   if (data)
-    {
-      staticHttp.timeout = MYSERVER_SEC (atoi (data));
-    }
+    staticHttp.timeout = MYSERVER_SEC (atoi (data));
 
   return 1;
 }

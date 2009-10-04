@@ -92,6 +92,7 @@ public:
   ~MimeManager ();
   u_long getNumMIMELoaded ();
 
+  u_long reload ();
   u_long loadXML (XmlParser* parser);
   u_long loadXML (const char *filename);
   u_long loadXML (string &filename) {return loadXML (filename.c_str ());}
