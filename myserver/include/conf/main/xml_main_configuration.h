@@ -60,6 +60,9 @@ public:
     return xmlParser.getDoc ();
   }
 
+  virtual void readData (list<NodeTree<string>*> *hashedDataTrees,
+                         HashMap<string, NodeTree<string>*> *hashedData);
+
 private:
   XmlParser xmlParser;
 };

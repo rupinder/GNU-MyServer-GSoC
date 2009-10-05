@@ -20,6 +20,7 @@
 #include <include/base/file/files_utility.h>
 #include <include/base/string/stringutils.h>
 #include <include/base/process/process.h>
+#include <include/conf/main/xml_main_configuration.h>
 
 extern "C"
 {
@@ -46,7 +47,8 @@ extern "C"
 #define MYSERVER_RUNAS_CONSOLE 1
 #define MYSERVER_RUNAS_SERVICE 2
 
-void consoleService (string &, string &, string &, string &);
+void consoleService (string &, string &, string &, string &,
+           MainConfiguration* (*genMainConf) (Server *server, const char *arg));
 
 #ifdef WIN32
 void __stdcall myServerCtrlHandler (u_long fdwControl);
@@ -326,6 +328,17 @@ int loadConfFilesLocation (string &mainConfigurationFile,
   return 0;
 }
 
+static MainConfiguration *genMainConf (Server *server, const char *arg)
+{
+  XmlMainConfiguration *conf = new XmlMainConfiguration ();
+  if (conf->open (arg))
+    {
+      delete conf;
+      return NULL;
+    }
+    return conf;
+}
+
 int main  (int argn, char **argv)
 {
   int runas = MYSERVER_RUNAS_CONSOLE;
@@ -359,41 +372,38 @@ int main  (int argn, char **argv)
       return (1);
     };
 
-  {
-    u_int pathLen = 0;
-    u_int len = 0;
-    bool differentCwd = false;
-    char *path;
+  u_int pathLen = 0;
+  u_int len = 0;
+  bool differentCwd = false;
+  char *path;
 
-    pathLen = strlen (argv[0]);
-    path = new char[pathLen + 1];
-    if (path == 0)
-      return 1;
-    strncpy (path, argv[0], pathLen);
+  pathLen = strlen (argv[0]);
+  path = new char[pathLen + 1];
+  if (path == 0)
+    return 1;
+  strncpy (path, argv[0], pathLen);
 
-    for (len = 0; len < pathLen; len++)
-      {
-        if (path[len] == '/' || path[len] == '\\')
-          {
-            differentCwd = true;
-            break;
-          }
-      }
+  for (len = 0; len < pathLen; len++)
+    {
+      if (path[len] == '/' || path[len] == '\\')
+        {
+          differentCwd = true;
+          break;
+        }
+    }
 
-    /* Current working directory is where the myserver executable is.  */
-    if (differentCwd)
-      {
-        len = pathLen;
-        while ((path[len] != '\\') && (path[len] != '/'))
-          len--;
-        path[len] = '\0';
+  if (differentCwd)
+    {
+      len = pathLen;
+      while ((path[len] != '\\') && (path[len] != '/'))
+        len--;
+      path[len] = '\0';
 
-        setcwd (path);
-      }
+      setcwd (path);
+    }
 
-    /* We can free path memory now.  */
-    delete [] path;
-  }
+  /* We can free path memory now.  */
+  delete [] path;
 
 
 #ifdef ARGP
@@ -489,9 +499,6 @@ int main  (int argn, char **argv)
 
       switch (runas)
         {
-        case MYSERVER_RUNAS_CONSOLE:
-          consoleService (mainConf, mimeConf, vhostConf, externPath);
-          break;
         case MYSERVER_RUNAS_SERVICE:
 #ifdef WIN32
           runService ();
@@ -529,10 +536,9 @@ int main  (int argn, char **argv)
           sid = setsid ();
           if (sid < 0)
             return 1;
-
-          consoleService (mainConf, mimeConf, vhostConf, externPath);
 #endif
-          break;
+        case MYSERVER_RUNAS_CONSOLE:
+          consoleService (mainConf, mimeConf, vhostConf, externPath, &genMainConf);
         }
     }
   catch (...)
@@ -589,9 +595,10 @@ int writePidfile (const char* filename)
 /*!
  * Start MyServer in console mode.
  */
-void consoleService (string &mainConf, string &mimeConf, string &vhostConf, string &externPath)
+ void consoleService (string &mainConf, string &mimeConf, string &vhostConf, string &externPath,
+                      MainConfiguration* (*genMainConf) (Server *server, const char *arg))
 {
-  Server::getInstance ()->start (mainConf, mimeConf, vhostConf, externPath);
+  Server::getInstance ()->start (mainConf, mimeConf, vhostConf, externPath, genMainConf);
 }
 
 

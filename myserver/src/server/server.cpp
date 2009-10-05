@@ -31,7 +31,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/ssl/ssl.h>
 #include <include/base/socket/ssl_socket.h>
 
-#include <include/conf/xml_conf.h>
 #include <include/conf/main/xml_main_configuration.h>
 
 #include <cstdarg>
@@ -84,6 +83,7 @@ Server::Server () : connectionsScheduler (this),
   initLogManager ();
   connectionsPoolLock.init ();
   configurationFileManager = NULL;
+  genMainConf = NULL;
 }
 
 void
@@ -164,13 +164,17 @@ Server::~Server ()
  *Start the server.
  */
 void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
-                    string &externPath)
+                    string &externPath, MainConfiguration* (*genMainConf)
+                    (Server *server, const char *arg))
+
 {
   int err = 0;
 #ifdef WIN32
   DWORD eventsCount, cNumRead;
   INPUT_RECORD irInBuf[128];
 #endif
+
+  this->genMainConf = genMainConf;
 
   displayBoot ();
 
@@ -753,8 +757,6 @@ MainConfiguration *Server::getConfiguration ()
 int Server::initialize ()
 {
   const char *data;
-  XmlMainConfiguration *xmlMainConf;
-
 #ifdef WIN32
   envString = GetEnvironmentStrings ();
 #endif
@@ -773,17 +775,25 @@ int Server::initialize ()
   maxConnections = 0;
   maxConnectionsToAccept = 0;
 
-
-  xmlMainConf = new XmlMainConfiguration ();
-  if (xmlMainConf->open (mainConfigurationFile.c_str ()))
+  /* FIXME: the main configuration type is not always XmlMainConfiguration.  */
+  if (genMainConf)
     {
-      delete xmlMainConf;
-      return -1;
+        configurationFileManager =
+          static_cast<XmlMainConfiguration*> (genMainConf (this,
+                                               mainConfigurationFile.c_str ()));
+    }
+  else
+    {
+      XmlMainConfiguration *xmlMainConf = new XmlMainConfiguration ();
+      if (xmlMainConf->open (mainConfigurationFile.c_str ()))
+        {
+          delete xmlMainConf;
+          return -1;
+        }
+      configurationFileManager = xmlMainConf;
     }
 
-  configurationFileManager = xmlMainConf;
-
-  readHashedData (xmlDocGetRootElement (xmlMainConf->getDoc ())->xmlChildrenNode);
+  configurationFileManager->readData (&hashedDataTrees, &hashedData);
 
   /*
    * Process console colors information.
@@ -900,17 +910,6 @@ int Server::initialize ()
 
   return 0;
 }
-
-/*!
- * Read the values defined in the global configuration file.
- */
-void Server::readHashedData (xmlNodePtr lcur)
-{
-  XmlConf::build (lcur,
-                  &hashedDataTrees,
-                  &hashedData);
-}
-
 
 /*!
  * Check if there are free threads to handle a new request.  If there

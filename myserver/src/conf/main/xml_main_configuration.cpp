@@ -16,6 +16,7 @@
 */
 
 #include <include/conf/main/xml_main_configuration.h>
+#include <include/conf/xml_conf.h>
 
 XmlMainConfiguration::XmlMainConfiguration ()
 {
@@ -25,4 +26,11 @@ XmlMainConfiguration::XmlMainConfiguration ()
 XmlMainConfiguration::~XmlMainConfiguration ()
 {
 
+}
+
+void XmlMainConfiguration::readData (list<NodeTree<string>*> *hashedDataTrees,
+                                 HashMap<string, NodeTree<string>*> *hashedData)
+{
+  xmlNodePtr root = xmlDocGetRootElement (xmlParser.getDoc ())->xmlChildrenNode;
+  XmlConf::build (root, hashedDataTrees, hashedData);
 }

@@ -125,7 +125,8 @@ public:
   const char *getServerName ();
   int getMaxLogFileSize ();
   int mustUseLogonOption ();
-  void start (string &, string &, string &, string &);
+  void start (string &, string &, string &, string &,
+           MainConfiguration* (*genMainConf) (Server *server, const char *arg));
   void stop ();
   void finalCleanup ();
   int terminate ();
@@ -166,6 +167,7 @@ private:
   XmlValidator *xmlValidator;
 
   MainConfiguration *configurationFileManager;
+  MainConfiguration* (*genMainConf) (Server *server, const char *arg);
 
 # ifdef WIN32
   friend int __stdcall control_handler (u_long control_type);
@@ -188,7 +190,6 @@ private:
   /*! Do not allow to create directly objects.  */
   Server ();
 
-  void readHashedData (xmlNodePtr lcur);
   void mainLoop ();
   void loadPlugins ();
   void displayBoot ();
