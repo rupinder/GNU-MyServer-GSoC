@@ -78,6 +78,7 @@ public:
   }
 
 private:
+  int find (const char *filename);
 # ifdef WIN32
 	_finddata_t fd;
   intptr_t  ff;

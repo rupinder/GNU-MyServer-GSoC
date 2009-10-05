@@ -55,37 +55,59 @@ FindData::~FindData ()
  */
 int FindData::findfirst (const char *filename)
 {
-#ifdef WIN32
-  string filenameStar;
-  filenameStar.assign (filename);
-  // trim ending '/' or '\'
-  string::size_type slashBackSlash = filenameStar.find_last_not_of ("/\\");
-  filenameStar.erase (slashBackSlash + 1);
-  filenameStar.append ("\\*");
+  return find (filename);
+}
 
-  ff = _findfirst (filenameStar.c_str (), &fd );
-  if (ff!=-1)
+/*!
+ * Find the next file in the directory.
+ */
+int FindData::findnext ()
+{
+  return find (NULL);
+}
+
+int FindData::find (const char *filename)
+{
+#ifdef WIN32
+  int ret;
+
+  if (filename)
+    {
+      string filenameStar;
+      filenameStar.assign (filename);
+      /* trim trailing '/' or '\'  */
+      string::size_type slashBackSlash = filenameStar.find_last_not_of ("/\\");
+      filenameStar.erase (slashBackSlash + 1);
+      filenameStar.append ("\\*");
+
+      ret = ff = _findfirst (filenameStar.c_str (), &fd );
+    }
+  else
+    ret = _findnext (ff, &fd) ? -1 : 0 ;
+
+  if (ret != -1)
     {
       name = fd.name;
       attrib = fd.attrib;
       time_write = fd.time_write;
       size = fd.size ;
-      return 0;
     }
-  else
-    return ff;
 
+  return ret;
 #else
    struct dirent * dirInfo;
 
-   dirName.assign (filename);
-   if (dirName[dirName.length () - 1] == '/')
-     dirName.erase (dirName.length () - 1);
+   if (filename)
+     {
+       dirName.assign (filename);
+       if (dirName[dirName.length () - 1] == '/')
+         dirName.erase (dirName.length () - 1);
 
-   dh = opendir (dirName.c_str ());
+       dh = opendir (dirName.c_str ());
 
-   if (dh == NULL)
-     return -1;
+       if (dh == NULL)
+         return -1;
+     }
 
    dirInfo = readdir (dh);
 
@@ -111,56 +133,6 @@ int FindData::findfirst (const char *filename)
    if (S_ISDIR (stats.st_mode))
      attrib = FILE_ATTRIBUTE_DIRECTORY;
 
-   time_write = stats.st_mtime;
-   size = stats.st_size;
-   return 0;
-#endif
-}
-
-/*!
- * Find the next file in the directory.
- */
-int FindData::findnext ()
-{
-#ifdef WIN32
-  if (!ff)
-    return -1;
-  int ret = _findnext (ff, &fd) ? -1 : 0 ;
-  if (ret != -1)
-  {
-    name = fd.name;
-    attrib = fd.attrib;
-    time_write = fd.time_write;
-    size = fd.size ;
-  }
-  return ret;
-#else
-   struct dirent * dirInfo;
-   string tempName;
-
-   dirInfo = readdir (dh);
-
-   if (dirInfo == NULL)
-     return -1;
-
-   name = dirInfo->d_name;
-
-# ifdef HAVE_FSTATAT
-   if (fstatat (dirfd (dh), dirInfo->d_name, &stats, 0))
-     return -1;
-# else
-   tempName.assign (dirName);
-   tempName.append ("/");
-   tempName.append (dirInfo->d_name);
-
-   if (stat (tempName.c_str (), &stats))
-     return -1;
-# endif
-
-   if (S_ISDIR (stats.st_mode))
-     attrib = FILE_ATTRIBUTE_DIRECTORY;
-   else
-     attrib = 0;
    time_write = stats.st_mtime;
    size = stats.st_size;
    return 0;
