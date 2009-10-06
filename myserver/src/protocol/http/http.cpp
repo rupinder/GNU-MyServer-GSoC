@@ -643,12 +643,12 @@ Http::sendHTTPResource (string& uri, int systemrequest, int onlyHeader,
       /* If not specified differently, set the default content type to text/html.  */
       if (td->mime)
         {
-          td->response.setValue ("ContentType", td->mime->mimeType.c_str ());
+          td->response.setValue ("Content-Type", td->mime->mimeType.c_str ());
           cgiManager = td->mime->cgiManager.c_str ();
         }
       else
         {
-          td->response.setValue ("ContentType", "text/html");
+          td->response.setValue ("Content-Type", "text/html");
           cgiManager = "";
         }
 
