@@ -28,6 +28,10 @@ extern "C"
 
 using namespace std;
 
+#ifndef WIN32
+Mutex ReadDirectory::mutex;
+#endif
+
 /*!
  * Initialize class members.
  */
@@ -103,23 +107,31 @@ int ReadDirectory::find (const char *filename)
        if (dirName[dirName.length () - 1] == '/')
          dirName.erase (dirName.length () - 1);
 
+       mutex.lock ();
        dh = opendir (dirName.c_str ());
 
        if (dh == NULL)
-         return -1;
+         {
+           mutex.unlock ();
+           return -1;
+         }
      }
 
    dirInfo = readdir (dh);
-
    if (dirInfo == NULL)
-     return -1;
+     {
+       mutex.unlock ();
+       return -1;
+     }
 
    name = dirInfo->d_name;
+   mutex.unlock ();
 
 # ifdef HAVE_FSTATAT
-   if (fstatat (dirfd (dh), dirInfo->d_name, &stats, 0))
+   if (fstatat (dirfd (dh), name.c_str (), &stats, 0))
      return -1;
 # else
+
    string tempName = filename;
 
    tempName.assign (dirName);

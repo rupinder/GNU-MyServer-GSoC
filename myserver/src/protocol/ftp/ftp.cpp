@@ -1747,7 +1747,7 @@ Ftp::list (const std::string & sParam /*= ""*/ )
                                                  ".security.xml");
       do
         {
-          if (fd.name[0] == '.' || !strcmpi (fd.name, secName))
+          if (fd.name[0] == '.' || !strcmpi (fd.name.c_str (), secName))
             continue;
 
           perm[10] = '\0';
@@ -1842,7 +1842,7 @@ Ftp::list (const std::string & sParam /*= ""*/ )
         }
       do
         {
-          if (strcmp (fd.name, sFileName.c_str ()) != 0)
+          if (strcmp (fd.name.c_str (), sFileName.c_str ()) != 0)
             continue;
 
           perm[10] = '\0';
@@ -1985,7 +1985,7 @@ Ftp::nlst (const std::string & sParam /* = "" */ )
 					     ".security.xml");
   do
     {
-      if (fd.name[0] == '.' || !strcmpi (fd.name, secName))
+      if (fd.name[0] == '.' || !strcmpi (fd.name.c_str (), secName))
         continue;
 
       if (!sParam.empty ())

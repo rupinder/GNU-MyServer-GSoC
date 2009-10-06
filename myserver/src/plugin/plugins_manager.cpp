@@ -172,7 +172,7 @@ PluginsManager::preLoad (Server* server, string& resource)
             continue;
 
 
-          if (!strstr (flib.name, "plugin.xml"))
+          if (!strstr (flib.name.c_str (), "plugin.xml"))
             continue;
           completeFileName.assign (filename);
 

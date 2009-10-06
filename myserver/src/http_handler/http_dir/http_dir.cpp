@@ -530,7 +530,7 @@ int HttpDir::send (HttpThreadContext* td,
       continue;
 
     FileStruct file;
-    file.name.assign (fd.name);
+    file.name = fd.name;
     file.time_write = fd.time_write;
     file.attrib = fd.attrib;
     file.size = fd.size;

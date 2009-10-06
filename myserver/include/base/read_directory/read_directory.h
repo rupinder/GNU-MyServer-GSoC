@@ -38,6 +38,7 @@ extern "C"
 }
 
 # include <string>
+# include <include/base/sync/mutex.h>
 
 using namespace std;
 
@@ -58,7 +59,7 @@ using namespace std;
 class ReadDirectory
 {
 public:
-  char * name;
+  string name;
   int attrib;
   time_t time_write;
   off_t size;
@@ -86,6 +87,8 @@ private:
   string dirName;
   DIR *dh;
   struct stat stats;
+
+  static Mutex mutex;
 # endif
 };
 
