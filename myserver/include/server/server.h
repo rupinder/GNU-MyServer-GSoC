@@ -107,7 +107,7 @@ public:
   void rebootOnNextLoop ();
   ~Server ();
   Protocol* getProtocol (const char *protocolName);
-  int addConnection (Socket,MYSERVER_SOCKADDRIN*);
+  int addConnection (Socket*, MYSERVER_SOCKADDRIN*);
   u_long getNumConnections ();
   u_long getNumTotalConnections ();
   void getConnections (list<ConnectionPtr>&);

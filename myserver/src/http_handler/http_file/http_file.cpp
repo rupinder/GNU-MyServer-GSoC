@@ -225,7 +225,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
    */
   bool useGzip = false;
   u_long filesize = 0;
-  File *file = 0;
+  File *file = NULL;
   u_long bytesToSend;
   u_long firstByte = td->request.rangeByteBegin;
   u_long lastByte = td->request.rangeByteEnd;
@@ -271,7 +271,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
       return td->http->sendHTTPNonModified ();
 
     file = Server::getInstance ()->getCachedFiles ()->open (filenamePath);
-    if (file == 0)
+    if (!file)
       return td->http->raiseHTTPError (500);
 
     /*

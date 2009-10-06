@@ -36,7 +36,8 @@ extern "C"
 # endif
 
 # ifndef WIN32
-extern "C" {
+extern "C"
+{
 #  include <sys/types.h>
 #  include <sys/socket.h>
 #  include <sys/ioctl.h>
@@ -88,8 +89,8 @@ public:
   Socket ();
   Socket (Socket*);
   Socket (SocketHandle);
-
-  Socket accept (MYSERVER_SOCKADDR*, socklen_t*);
+  virtual ~Socket ();
+  Socket* accept (MYSERVER_SOCKADDR*, socklen_t*);
   int setsockopt (int,int, const char*,int);
 
   virtual int connect (MYSERVER_SOCKADDR*, int);
@@ -102,8 +103,8 @@ public:
   int ioctlsocket (long, unsigned long*);
   int send (const char*, int, int);
   int connect (const char* host, u_short port);
-  int operator==(Socket);
-  int operator=(Socket);
+  int operator==(Socket*);
+  int operator=(Socket*);
   int getsockname (MYSERVER_SOCKADDR*,int*);
   int setNonBlocking (int);
   bool getNonBLocking () {return isNonBlocking;}

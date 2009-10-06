@@ -19,7 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "stdafx.h"
 #include <include/base/utility.h>
 #include <include/base/socket/socket.h>
-extern "C" {
+extern "C"
+{
 #include <string.h>
 #include <stdio.h>
 #ifndef WIN32
@@ -80,20 +81,20 @@ void Socket::setHandle (SocketHandle h)
 /*!
  *Check if the two sockets have the same handle descriptor
  */
-int Socket::operator==(Socket s)
+int Socket::operator==(Socket* s)
 {
-  return socketHandle == s.socketHandle;
+  return socketHandle == s->socketHandle;
 }
 
 /*!
  *Set the socket using the = operator
  */
-int Socket::operator=(Socket s)
+int Socket::operator=(Socket* s)
 {
-  socketHandle = s.socketHandle;
-  serverSocket = s.serverSocket;
-  throttlingRate = s.throttlingRate;
-  isNonBlocking = s.isNonBlocking;
+  socketHandle = s->socketHandle;
+  serverSocket = s->serverSocket;
+  throttlingRate = s->throttlingRate;
+  isNonBlocking = s->isNonBlocking;
   return 0;
 }
 /*!
@@ -103,15 +104,15 @@ int Socket::operator=(Socket s)
 int Socket::socket (int af, int type, int protocol)
 {
 #ifdef WIN32
-  socketHandle = (SOCKET)::socket (af, type, protocol);
+  socketHandle = ::socket (af, type, protocol);
 #else
   socketHandle = (FileHandle)::socket (af, type, protocol);
 #endif
-  return  (int)socketHandle;
+  return (int)socketHandle;
 }
 
 /*!
- *Set the base/socket/socket.handle.
+ * C'tor.
  */
 Socket::Socket (SocketHandle handle)
 {
@@ -121,7 +122,7 @@ Socket::Socket (SocketHandle handle)
 }
 
 /*!
- *Set the base/socket/socket.handle.
+ * C'tor.
  */
 Socket::Socket (Socket* socket)
 {
@@ -129,6 +130,11 @@ Socket::Socket (Socket* socket)
   serverSocket = socket->serverSocket;
   throttlingRate = socket->throttlingRate;
   isNonBlocking = socket->isNonBlocking;
+}
+
+Socket::~Socket ()
+{
+  close ();
 }
 
 /*!
@@ -156,8 +162,8 @@ Socket::Socket ()
 {
   /*! Reset everything.  */
   throttlingRate = 0;
-  serverSocket = 0;
-  setHandle (0);
+  serverSocket = NULL;
+  setHandle (-1);
 }
 
 /*!
@@ -176,9 +182,9 @@ int Socket::bind (MYSERVER_SOCKADDR* sa,int namelen)
     return -1;
 
 #ifdef WIN32
-  return ::bind ((SOCKET)socketHandle,(const struct sockaddr*)sa,namelen);
+  return ::bind (socketHandle, (const struct sockaddr*)sa, namelen);
 #else
-  return ::bind ((int)socketHandle,(const struct sockaddr*)sa,namelen);
+  return ::bind (socketHandle, (const struct sockaddr*)sa, namelen);
 #endif
 }
 
@@ -190,25 +196,25 @@ int Socket::listen (int max)
 #ifdef WIN32
   return ::listen (socketHandle, max);
 #else
-  return ::listen ((int)socketHandle, max);
+  return ::listen (socketHandle, max);
 #endif
 }
 
 /*!
  *Accept a new connection.
  */
-Socket Socket::accept (MYSERVER_SOCKADDR* sa, socklen_t* sockaddrlen)
+Socket* Socket::accept (MYSERVER_SOCKADDR* sa, socklen_t* sockaddrlen)
 {
-  Socket s;
-
   socklen_t connectSize;
   connectSize = (socklen_t) *sockaddrlen;
 
-  SocketHandle acceptHandle = ::accept ((int)socketHandle, (struct sockaddr *)sa,
-                                       (socklen_t*)&connectSize);
-  s.setHandle (acceptHandle);
+  SocketHandle acceptedHandle = ::accept (socketHandle, (struct sockaddr *)sa,
+                                          (socklen_t*)&connectSize);
 
-  return s;
+  if (acceptedHandle >= 0)
+    return new Socket (acceptedHandle);
+  else
+    return NULL;
 }
 
 /*!
@@ -216,25 +222,17 @@ Socket Socket::accept (MYSERVER_SOCKADDR* sa, socklen_t* sockaddrlen)
  */
 int Socket::close ()
 {
+  int ret = -1;
+  if (socketHandle >= 0)
+    {
 #ifdef WIN32
-  if (socketHandle)
-  {
-    int ret = ::closesocket (socketHandle);
-    socketHandle = 0;
-    return ret;
-  }
-  else
-    return 0;
+      ret = ::closesocket (socketHandle);
 #else
-  if (socketHandle)
-  {
-    int ret = ::close ((int)socketHandle);
-    socketHandle = 0;
-    return ret;
-  }
-  else
-    return 0;
+      ret = ::close (socketHandle);
+    }
 #endif
+  socketHandle = -1;
+  return ret;
 }
 
 /*!
@@ -264,9 +262,9 @@ MYSERVER_HOSTENT *Socket::gethostbyname (const char *hostname)
 int Socket::shutdown (int how)
 {
 #ifdef WIN32
-  return ::shutdown (socketHandle,how);
+  return ::shutdown (socketHandle, how);
 #else
-  return ::shutdown ((int)socketHandle,how);
+  return ::shutdown (socketHandle, how);
 #endif
 }
 
@@ -384,7 +382,7 @@ int Socket::rawSend (const char* buffer, int len, int flags)
   }
   return ret;
 #else
-  return ::send ((int)socketHandle, buffer, len, flags);
+  return ::send (socketHandle, buffer, len, flags);
 #endif
 }
 
@@ -442,7 +440,7 @@ int Socket::ioctlsocket (long cmd,unsigned long* argp)
   return ::ioctlsocket (socketHandle, cmd, argp);
 #else
   int int_argp = 0;
-  int ret = ::ioctl ((int)socketHandle, cmd, &int_argp);
+  int ret = ::ioctl (socketHandle, cmd, &int_argp);
   *argp = int_argp;
   return ret;
 #endif
@@ -601,9 +599,9 @@ int Socket::connect (MYSERVER_SOCKADDR* sa, int na)
     return -1;
 
 #ifdef WIN32
-  return ::connect ((SOCKET)socketHandle,(const sockaddr *)sa, na);
+  return ::connect (socketHandle,(const sockaddr *)sa, na);
 #else
-  return ::connect ((int)socketHandle,(const sockaddr *)sa,na);
+  return ::connect (socketHandle,(const sockaddr *)sa,na);
 #endif
 }
 
@@ -637,7 +635,7 @@ int Socket::recv (char* buffer,int len,int flags)
   else
     return err;
 #else
-  err = ::recv ((int)socketHandle, buffer, len, flags);
+  err = ::recv (socketHandle, buffer, len, flags);
 
   if ( err < 0 && errno == EAGAIN && isNonBlocking)
     return 0;
@@ -685,7 +683,7 @@ int Socket::setNonBlocking (int nonBlocking)
 #else
 
   int flags;
-  flags = fcntl ((int)socketHandle, F_GETFL, 0);
+  flags = fcntl (socketHandle, F_GETFL, 0);
   if (flags < 0)
     return -1;
 
@@ -694,7 +692,7 @@ int Socket::setNonBlocking (int nonBlocking)
   else
     flags &= ~O_NONBLOCK;
 
-  ret = fcntl ((int)socketHandle, F_SETFL, flags);
+  ret = fcntl (socketHandle, F_SETFL, flags);
 
 #endif
   isNonBlocking = nonBlocking ? true : false;
@@ -718,7 +716,7 @@ int Socket::getsockname (MYSERVER_SOCKADDR *ad, int *namelen)
   return ::getsockname (socketHandle,(sockaddr *)ad,namelen);
 #else
   socklen_t len =(socklen_t) *namelen;
-  int ret = ::getsockname ((int)socketHandle, (struct sockaddr *)ad, &len);
+  int ret = ::getsockname (socketHandle, (struct sockaddr *)ad, &len);
   *namelen = (int)len;
   return ret;
 #endif
@@ -753,7 +751,7 @@ int Socket::dataOnRead (int sec, int usec)
 
   FD_ZERO (&readfds);
 #ifdef WIN32
-  FD_SET ((SOCKET)socketHandle, &readfds);
+  FD_SET (socketHandle, &readfds);
 #else
   FD_SET (socketHandle, &readfds);
 #endif

@@ -37,7 +37,7 @@ void Connection::init ()
   toRemove = 0;
   forceControl = 0;
   protocolBuffer = NULL;
-  socket = 0;
+  socket = NULL;
   priority = -1;
   continuation = NULL;
 	connectionBuffer = new MemBuf ();

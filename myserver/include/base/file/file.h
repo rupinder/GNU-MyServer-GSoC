@@ -43,6 +43,8 @@ public:
 
   File ();
   File (char *,int);
+  virtual ~File ();
+
   virtual Handle getHandle ();
   virtual int setHandle (Handle);
   virtual int writeToFile (const char* ,u_long ,u_long* );

@@ -955,7 +955,7 @@ u_long Server::getTimeout ()
 /*!
  * This function add a new connection to the list.
  */
-int Server::addConnection (Socket s, MYSERVER_SOCKADDRIN *asockIn)
+int Server::addConnection (Socket *s, MYSERVER_SOCKADDRIN *asockIn)
 {
 
   int ret = 0;
@@ -977,13 +977,19 @@ int Server::addConnection (Socket s, MYSERVER_SOCKADDRIN *asockIn)
    */
   if ( asockIn == NULL ||
        (asockIn->ss_family != AF_INET && asockIn->ss_family != AF_INET6))
-    return 0;
+    {
+      delete s;
+      return 0;
+    }
 
   memset (ip, 0, MAX_IP_STRING_LEN);
   memset (localIp, 0, MAX_IP_STRING_LEN);
 
-  if ( s.getHandle () == 0 )
-    return 0;
+  if (s->getHandle () < 0)
+    {
+      delete s;
+      return 0;
+    }
 
   /*
    * Do not accept this connection if a MAX_CONNECTIONS_TO_ACCEPT limit is
@@ -992,7 +998,10 @@ int Server::addConnection (Socket s, MYSERVER_SOCKADDRIN *asockIn)
   if (maxConnectionsToAccept
       && ((u_long)connectionsScheduler.getConnectionsNumber ()
           >= maxConnectionsToAccept))
-    return 0;
+    {
+      delete s;
+      return 0;
+    }
 
 #if ( HAVE_IPV6 )
   if ( asockIn->ss_family == AF_INET )
@@ -1004,13 +1013,16 @@ int Server::addConnection (Socket s, MYSERVER_SOCKADDRIN *asockIn)
                        sizeof (sockaddr_in6),  ip, MAX_IP_STRING_LEN,
                        NULL, 0, NI_NUMERICHOST);
   if (ret)
-    return 0;
+    {
+      delete s;
+      return 0;
+    }
 
   if ( asockIn->ss_family == AF_INET )
     dim = sizeof (sockaddr_in);
   else
     dim = sizeof (sockaddr_in6);
-  s.getsockname ((MYSERVER_SOCKADDR*)&localSockIn, &dim);
+  s->getsockname ((MYSERVER_SOCKADDR*)&localSockIn, &dim);
 
   if ( asockIn->ss_family == AF_INET )
     ret = getnameinfo (reinterpret_cast<const sockaddr *>(&localSockIn),
@@ -1024,7 +1036,7 @@ int Server::addConnection (Socket s, MYSERVER_SOCKADDRIN *asockIn)
     return 0;
 #else// !HAVE_IPV6
   dim = sizeof (localSockIn);
-  s.getsockname ((MYSERVER_SOCKADDR*)&localSockIn, &dim);
+  s->getsockname ((MYSERVER_SOCKADDR*)&localSockIn, &dim);
   strncpy (ip,  inet_ntoa (((sockaddr_in *)asockIn)->sin_addr),
            MAX_IP_STRING_LEN);
   strncpy (localIp,  inet_ntoa (((sockaddr_in *)&localSockIn)->sin_addr),
@@ -1047,16 +1059,18 @@ int Server::addConnection (Socket s, MYSERVER_SOCKADDRIN *asockIn)
     myPort = ntohs (((sockaddr_in6 *)(&localSockIn))->sin6_port);
 #endif
 
-  if (!addConnectionToList (&s, asockIn, &ip[0], &localIp[0], port, myPort, 1))
+  if (!addConnectionToList (s, asockIn, &ip[0], &localIp[0], port, myPort, 1))
     {
       /* If we report error to add the connection to the thread.  */
       ret = 0;
 
       /* Shutdown the socket both on receive that on send.  */
-      s.shutdown (2);
+      s->shutdown (2);
 
       /* Then close it.  */
-      s.close ();
+      s->close ();
+
+      delete s;
     }
   return ret;
 }
@@ -1114,7 +1128,6 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
     }
 
   protocol = getProtocol (newConnection->host->getProtocolName ());
-
   if (protocol)
     opts = protocol->getProtocolOptions ();
 
@@ -1124,12 +1137,9 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
   if (opts & PROTOCOL_FAST_CHECK)
     doFastCheck = 1;
 
-
-
   string msg ("new-connection");
 
   handlers = getHandlers (msg);
-
   if (handlers)
     {
       for (size_t i = 0; i < handlers->size (); i++)
@@ -1163,7 +1173,7 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
       newConnection->socket = sslSocket;
     }
   else
-    newConnection->socket = new Socket (s);
+    newConnection->socket = s;
 
   if (doFastCheck)
     {

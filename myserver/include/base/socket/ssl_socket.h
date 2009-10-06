@@ -65,7 +65,7 @@ public:
 # endif
 
 	SslSocket (Socket*);
-	~SslSocket ();
+	virtual ~SslSocket ();
 
 protected:
 	bool externalContext;

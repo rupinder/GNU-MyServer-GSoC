@@ -52,7 +52,7 @@ ReadDirectory::ReadDirectory ()
  */
 ReadDirectory::~ReadDirectory ()
 {
-
+ findclose ();
 }
 
 /*!
@@ -163,6 +163,7 @@ int ReadDirectory::find (const char *filename)
  */
 int ReadDirectory::findclose ()
 {
+  dirName.empty ();
 #ifdef WIN32
   int ret;
   if (!ff)
@@ -171,9 +172,11 @@ int ReadDirectory::findclose ()
   ff = 0;
   return ret;
 #else
-  if (dh)
-    closedir (dh);
-  dirName.empty ();
+  if (!dh)
+    return -1;
+
+  closedir (dh);
+  dh = NULL;
   return 0;
 #endif
 }

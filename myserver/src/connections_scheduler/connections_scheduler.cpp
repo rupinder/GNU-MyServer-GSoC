@@ -95,8 +95,6 @@ static void eventLoopHandler (int fd, short event, void *arg)
   u_long nbr;
   if (event == EV_READ || event == EV_TIMEOUT)
   {
-    Socket sock (da->socketPair.getFirstHandle ());
-
     while (da->socketPair.bytesToRead ())
     {
       char cmd;
@@ -134,22 +132,17 @@ static void listenerHandler (int fd, short event, void *arg)
   static timeval tv = {5, 0};
   ConnectionsScheduler::ListenerArg* s = (ConnectionsScheduler::ListenerArg*)arg;
 
-  if (event == EV_TIMEOUT)
-    event_add (&(s->ev), &tv);
-  else if (event == EV_READ)
+  if (event == EV_READ)
     {
       MYSERVER_SOCKADDRIN asockIn;
-      socklen_t asockInLen = 0;
-      Socket clientSock;
+      socklen_t asockInLen = sizeof (asockIn);
+      Socket *clientSock = s->serverSocket->accept (&asockIn, &asockInLen);
 
-      asockInLen = sizeof (asockIn);
-      clientSock = s->serverSocket->accept (&asockIn, &asockInLen);
-
-      if (s->server && (SocketHandle)clientSock.getHandle () != INVALID_SOCKET)
+      if (s->server && clientSock)
         s->server->addConnection (clientSock, &asockIn);
-
-      event_add (&(s->ev), &tv);
     }
+ 
+  event_add (&(s->ev), &tv);
 }
 
 /*!
@@ -176,10 +169,9 @@ void ConnectionsScheduler::listener (ConnectionsScheduler::ListenerArg *la)
   event_add (&(arg->ev), &tv);
 
   u_long nbw;
-  Socket sock (dispatcherArg.socketPair.getSecondHandle ());
 
   eventsSocketMutex.lock ();
-  sock.write ("l", 1, &nbw);
+  dispatcherArg.socketPairWrite.write ("l", 1, &nbw);
   eventsSocketMutex.unlock ();
 }
 
@@ -279,8 +271,10 @@ void ConnectionsScheduler::initialize ()
       return;
     }
 
-  event_set (&(dispatcherArg.loopEvent), dispatcherArg.socketPair.getFirstHandle (), EV_READ | EV_TIMEOUT,
-             eventLoopHandler, &dispatcherArg);
+  dispatcherArg.socketPairWrite.setHandle (dispatcherArg.socketPair.getSecondHandle ());
+
+  event_set (&(dispatcherArg.loopEvent), dispatcherArg.socketPair.getFirstHandle (),
+             EV_READ | EV_TIMEOUT, eventLoopHandler, &dispatcherArg);
 
   event_add (&(dispatcherArg.loopEvent), NULL);
 
@@ -396,13 +390,16 @@ void ConnectionsScheduler::addWaitingConnectionImpl (ConnectionPtr c, int lock)
   if (lock)
     {
       u_long nbw;
-      Socket sock (dispatcherArg.socketPair.getSecondHandle ());
-
       eventsSocketMutex.lock ();
-      sock.write ("c", 1, &nbw);
-      sock.write ((char*)&handle, sizeof (SocketHandle), &nbw);
-      sock.write ((char*)&c, sizeof (ConnectionPtr), &nbw);
-      sock.write ((char*)&tv, sizeof (timeval), &nbw);
+
+      dispatcherArg.socketPairWrite.write ("c", 1, &nbw);
+      dispatcherArg.socketPairWrite.write ((const char*)&handle,
+                                           sizeof (SocketHandle), &nbw);
+      dispatcherArg.socketPairWrite.write ((const char*)&c,
+                                           sizeof (ConnectionPtr), &nbw);
+      dispatcherArg.socketPairWrite.write ((const char*)&tv,
+                                           sizeof (timeval), &nbw);
+
       eventsSocketMutex.unlock ();
     }
   else
@@ -464,15 +461,10 @@ void ConnectionsScheduler::release ()
     max = server->getNumThreads () * 2;
 
   for (u_long i = 0; i < max; i++)
-    {
-      readySemaphore->unlock ();
-    }
-
-  Socket sockR (dispatcherArg.socketPair.getFirstHandle ());
-  Socket sockW (dispatcherArg.socketPair.getSecondHandle ());
+    readySemaphore->unlock ();
 
   eventsSocketMutex.lock ();
-  sockW.write ("r", 1, &nbw);
+  dispatcherArg.socketPairWrite.write ("r", 1, &nbw);
   eventsSocketMutex.unlock ();
 
   if (dispatchedThreadId)
@@ -585,7 +577,6 @@ int ConnectionsScheduler::accept (ConnectionsSchedulerVisitor* visitor, void* ar
 
   try
     {
-
       for (HashMap<SocketHandle, ConnectionPtr>::Iterator it =
              connections.begin (); it != connections.end ()  && !ret; it++)
         visitor->visitConnection (*it, args);

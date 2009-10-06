@@ -74,7 +74,8 @@ public:
     Server* server;
     ConnectionsScheduler* scheduler;
     SocketPair socketPair;
-  };
+    Socket socketPairWrite;
+   };
 
   ConnectionsScheduler (Server* server = NULL);
   ~ConnectionsScheduler ();

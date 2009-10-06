@@ -37,11 +37,12 @@ class UnixSocket: public Socket
 {
 public:
   UnixSocket ();
+  virtual ~UnixSocket ();
   int bind (const char *path);
   int shutdown ();
   int close ();
   int connect (const char* path);
-  Socket accept ();
+  Socket* accept ();
   int socket ();
 protected:
 
