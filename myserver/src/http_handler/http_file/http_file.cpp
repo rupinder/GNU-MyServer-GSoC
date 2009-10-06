@@ -51,8 +51,6 @@ int HttpFile::putFile (HttpThreadContext* td,
 
   try
   {
-    HttpHeaders::buildDefaultHTTPResponseHeader (&td->response);
-
     if (td->request.isKeepAlive ())
       {
         td->response.setValue ("Connection", "keep-alive");
@@ -164,8 +162,6 @@ int HttpFile::deleteFile (HttpThreadContext* td,
   int ret;
   try
   {
-    HttpHeaders::buildDefaultHTTPResponseHeader (&td->response);
-
     if (!(td->permissions & MYSERVER_PERMISSION_DELETE))
       return td->http->sendAuth ();
 
