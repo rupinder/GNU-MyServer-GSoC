@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <include/base/file/files_utility.h>
 #include <include/base/file/file.h>
 #include <include/base/string/securestr.h>
-#include <include/base/find_data/find_data.h>
+#include <include/base/read_directory/read_directory.h>
 #include <include/base/string/stringutils.h>
 #include <include/base/mem_buff/mem_buff.h>
 
@@ -1732,7 +1732,7 @@ Ftp::list (const std::string & sParam /*= ""*/ )
   char perm[11];
   if (FilesUtility::isDirectory (sPath))
     {
-      FindData fd;
+      ReadDirectory fd;
       //dir MUST ends with '/'
       if (fd.findfirst (sPath))
         {
@@ -1833,7 +1833,7 @@ Ftp::list (const std::string & sParam /*= ""*/ )
       // TODO: implement * selection
       std::string sDir, sFileName;
       FilesUtility::splitPath (sLocalPath, sDir, sFileName);
-      FindData fd;
+      ReadDirectory fd;
       if (fd.findfirst (sDir))
         {
           ftpReply (450);
@@ -1968,7 +1968,7 @@ Ftp::nlst (const std::string & sParam /* = "" */ )
       closeDataConnection ();
       return;
     }
-  FindData fd;
+  ReadDirectory fd;
   if (fd.findfirst (sPath))
     {
       ftpReply (450);

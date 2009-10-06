@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "stdafx.h"
 #include <include/plugin/plugins_manager.h>
 #include <include/base/xml/xml_parser.h>
-#include <include/base/find_data/find_data.h>
+#include <include/base/read_directory/read_directory.h>
 #include <include/server/server.h>
 #include <include/base/string/stringutils.h>
 #include <list>
@@ -127,8 +127,8 @@ PluginsManager::loadOptions (Server *server)
 int
 PluginsManager::preLoad (Server* server, string& resource)
 {
-  FindData fdir;
-  FindData flib;
+  ReadDirectory fdir;
+  ReadDirectory flib;
   string filename;
   string completeFileName;
   int ret;

@@ -55,7 +55,7 @@ using namespace std;
 #  define intptr_t int
 # endif
 
-class FindData
+class ReadDirectory
 {
 public:
   char * name;
@@ -66,8 +66,8 @@ public:
   int findfirst (string &filename){return findfirst (filename.c_str ());};
   int findnext ();
   int findclose ();
-  FindData ();
-  ~FindData ();
+  ReadDirectory ();
+  ~ReadDirectory ();
   struct stat* getStatStruct ()
   {
 # ifndef WIN32

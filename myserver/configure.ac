@@ -393,7 +393,7 @@ AC_CONFIG_FILES([ po/Makefile.in
     include/http_handler/http_dir/Makefile
     include/base/Makefile
     include/base/bitvec/Makefile
-    include/base/find_data/Makefile
+    include/base/read_directory/Makefile
     include/base/file/Makefile
     include/base/pipe/Makefile
     include/base/base64/Makefile
@@ -448,7 +448,7 @@ AC_CONFIG_FILES([ po/Makefile.in
     src/http_handler/http_dir/Makefile
     src/base/Makefile
     src/base/bitvec/Makefile
-    src/base/find_data/Makefile
+    src/base/read_directory/Makefile
     src/base/file/Makefile
     src/base/pipe/Makefile
     src/base/base64/Makefile

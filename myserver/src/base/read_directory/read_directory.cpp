@@ -14,7 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <include/base/find_data/find_data.h>
+#include <include/base/read_directory/read_directory.h>
 
 extern "C"
 {
@@ -31,7 +31,7 @@ using namespace std;
 /*!
  * Initialize class members.
  */
-FindData::FindData ()
+ReadDirectory::ReadDirectory ()
 {
 #ifdef WIN32
   ff = 0;
@@ -44,7 +44,7 @@ FindData::FindData ()
 /*!
  * D'ctor.
  */
-FindData::~FindData ()
+ReadDirectory::~ReadDirectory ()
 {
 
 }
@@ -53,7 +53,7 @@ FindData::~FindData ()
  * Find the first file using its name.
  * Return -1 or errors.
  */
-int FindData::findfirst (const char *filename)
+int ReadDirectory::findfirst (const char *filename)
 {
   return find (filename);
 }
@@ -61,12 +61,12 @@ int FindData::findfirst (const char *filename)
 /*!
  * Find the next file in the directory.
  */
-int FindData::findnext ()
+int ReadDirectory::findnext ()
 {
   return find (NULL);
 }
 
-int FindData::find (const char *filename)
+int ReadDirectory::find (const char *filename)
 {
 #ifdef WIN32
   int ret;
@@ -142,7 +142,7 @@ int FindData::find (const char *filename)
 /*!
  * Free the used resources.
  */
-int FindData::findclose ()
+int ReadDirectory::findclose ()
 {
 #ifdef WIN32
   int ret;
