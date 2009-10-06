@@ -29,7 +29,9 @@ extern "C"
 using namespace std;
 
 #ifndef WIN32
+# ifndef HAVE_READDIR_R
 Mutex ReadDirectory::mutex;
+# endif
 #endif
 
 /*!
@@ -72,6 +74,8 @@ int ReadDirectory::findnext ()
 
 int ReadDirectory::find (const char *filename)
 {
+/* FIXME: return a different code for EOF or error.  */
+
 #ifdef WIN32
   int ret;
 
@@ -107,16 +111,18 @@ int ReadDirectory::find (const char *filename)
        if (dirName[dirName.length () - 1] == '/')
          dirName.erase (dirName.length () - 1);
 
-       mutex.lock ();
        dh = opendir (dirName.c_str ());
 
        if (dh == NULL)
-         {
-           mutex.unlock ();
-           return -1;
-         }
+         return -1;
      }
 
+# ifdef HAVE_READDIR_R
+   if (readdir_r (dh, &entry, &dirInfo) || !dirInfo)
+     return -1;
+   name = dirInfo->d_name;
+# else
+   mutex.lock ();
    dirInfo = readdir (dh);
    if (dirInfo == NULL)
      {
@@ -126,6 +132,7 @@ int ReadDirectory::find (const char *filename)
 
    name = dirInfo->d_name;
    mutex.unlock ();
+# endif
 
 # ifdef HAVE_FSTATAT
    if (fstatat (dirfd (dh), name.c_str (), &stats, 0))

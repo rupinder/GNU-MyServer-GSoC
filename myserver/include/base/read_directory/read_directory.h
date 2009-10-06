@@ -88,7 +88,12 @@ private:
   DIR *dh;
   struct stat stats;
 
+#  ifdef HAVE_READDIR_R
+  struct dirent entry;
+#  else
   static Mutex mutex;
+#  endif
+
 # endif
 };
 

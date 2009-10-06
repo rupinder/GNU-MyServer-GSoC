@@ -78,7 +78,7 @@ AC_CHECK_HEADER([grp.h], AC_DEFINE(GRP, 1, [Define if grp.h is available]))
 AC_CHECK_HEADER([tre/regex.h], AC_DEFINE(TRE, 1, [Define if the tre library is present]))
 AC_CHECK_HEADER([sys/sendfile.h], AC_DEFINE(SENDFILE, 1, [Define if the sendfile syscall is present]))
 
-AC_CHECK_FUNCS(regcomp gettimeofday setgroups localtime_r pipe posix_fallocate snprintf openat fstatat getpwnam ffsl)
+AC_CHECK_FUNCS(regcomp gettimeofday setgroups localtime_r pipe posix_fallocate snprintf openat fstatat getpwnam ffsl readdir_r)
 
 AC_CHECK_LIB(gcrypt, gcry_control, AC_DEFINE(GCRY_CONTROL, 1, [Define if the gcry_control function is present]))
 
