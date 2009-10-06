@@ -775,12 +775,10 @@ int Server::initialize ()
   maxConnections = 0;
   maxConnectionsToAccept = 0;
 
-  /* FIXME: the main configuration type is not always XmlMainConfiguration.  */
   if (genMainConf)
     {
-        configurationFileManager =
-          static_cast<XmlMainConfiguration*> (genMainConf (this,
-                                               mainConfigurationFile.c_str ()));
+        configurationFileManager = genMainConf (this,
+                                   mainConfigurationFile.c_str ());
     }
   else
     {
