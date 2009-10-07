@@ -199,8 +199,8 @@ bool Http::allowMethod (const char *method)
   char name[64];
   sprintf (name, "http.%s.allow", method);
   const char *allow = td->securityToken.getData (name,
-                                                       MYSERVER_VHOST_CONF |
-                                                       MYSERVER_SERVER_CONF, "YES");
+                                                 MYSERVER_VHOST_CONF |
+                                                 MYSERVER_SERVER_CONF, "YES");
 
   if (!strcmpi (allow, "NO"))
     return false;
@@ -790,8 +790,6 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       td->http = this;
       td->appendOutputs = 0;
       td->onlyHeader = 0;
-      td->inputData.setHandle ((Handle) 0);
-      td->outputData.setHandle ((Handle) 0);
       td->filenamePath.assign ("");
       td->outputDataPath.assign ("");
       td->inputDataPath.assign ("");
