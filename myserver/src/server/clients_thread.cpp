@@ -58,11 +58,6 @@ ClientsThread::ClientsThread (Server* server)
   toDestroy = false;
   staticThread = 0;
   nBytesToRead = 0;
-
-  httpParser = NULL;
-  httpsParser = NULL;
-  controlProtocolParser = NULL;
-  ftpParser = NULL;
 }
 
 /*!
@@ -74,18 +69,6 @@ ClientsThread::~ClientsThread ()
     return;
 
   threadIsRunning = false;
-
-  if (httpParser)
-    delete httpParser;
-
-  if (httpsParser)
-    delete httpsParser;
-
-  if (controlProtocolParser)
-    delete controlProtocolParser;
-
-  if (ftpParser)
-    delete ftpParser;
 
   buffer.free ();
   secondaryBuffer.free ();
