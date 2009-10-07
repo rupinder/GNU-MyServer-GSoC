@@ -77,7 +77,6 @@ public:
   void setServerSocket (Socket*);
   Socket* getServerSocket ();
 
-  static void stopBlockingOperations (bool);
   virtual Handle getHandle ();
   void setHandle (SocketHandle);
   static MYSERVER_HOSTENT *gethostbyaddr (char* addr, int len, int type);
@@ -128,9 +127,6 @@ protected:
 
   /*! Is the socket non blocking?  */
   bool isNonBlocking;
-
-  /*! Stop the sockets system.  */
-  static bool denyBlockingOperations;
 
   virtual int rawSend (const char* buffer, int len, int flags);
 };

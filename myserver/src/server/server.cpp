@@ -448,8 +448,6 @@ void Server::mainLoop ()
 
                   log (MYSERVER_LOG_MSG_INFO, _("Rebooting..."));
 
-                  Socket::stopBlockingOperations (true);
-
                   connectionsScheduler.release ();
 
                   listenThreads.beginFastReboot ();
@@ -457,8 +455,6 @@ void Server::mainLoop ()
                   listenThreads.terminate ();
 
                   clearAllConnections ();
-
-                  Socket::stopBlockingOperations (false);
 
                   connectionsScheduler.restart ();
                   listenThreads.initialize ();
@@ -669,7 +665,6 @@ int Server::terminate ()
     (*it)->stop ();
 
   threadsMutex->unlock ();
-  Socket::stopBlockingOperations (true);
 
   connectionsScheduler.release ();
 
@@ -690,9 +685,6 @@ int Server::terminate ()
   log (MYSERVER_LOG_MSG_INFO, _("Cleaning memory"));
 
   freeHashedData ();
-
-  /* Restore the blocking status in case of a reboot.  */
-  Socket::stopBlockingOperations (false);
 
   ipAddresses = 0;
   vhostList = 0;

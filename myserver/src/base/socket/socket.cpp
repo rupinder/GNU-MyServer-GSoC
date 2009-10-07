@@ -39,8 +39,6 @@ extern "C"
 
 using namespace std;
 
-bool Socket::denyBlockingOperations = false;
-
 /*!
  *Source code to wrap the socket library to MyServer project.
  */
@@ -352,14 +350,6 @@ int Socket::getLocalIPsList (string &out)
 }
 
 /*!
- *Set this to true to stop any operation that can block sockets.
- */
-void Socket::stopBlockingOperations (bool value)
-{
-  denyBlockingOperations = value;
-}
-
-/*!
  *Send data over the socket.
  *Return -1 on error.
  *This routine is accessible only from the Socket class.
@@ -369,18 +359,8 @@ int Socket::rawSend (const char* buffer, int len, int flags)
 #ifdef WIN32
   int ret;
   SetLastError (0);
-  while (!denyBlockingOperations)
-  {
-    ret = ::send (socketHandle, buffer, len, flags);
-    if ((ret == SOCKET_ERROR) && (GetLastError () == WSAEWOULDBLOCK))
-    {
-      Thread::wait (10);
-    }
-    else
-      break;
 
-  }
-  return ret;
+  return ::send (socketHandle, buffer, len, flags);
 #else
   return ::send (socketHandle, buffer, len, flags);
 #endif
@@ -404,27 +384,27 @@ int Socket::send (const char* buffer, int len, int flags)
   }
   else
   {
-    while (!denyBlockingOperations)
-    {
-      /*! When we can send data again?  */
-      u_long time = getTicks () + (1000 * 1024 / throttlingRate) ;
-      /*! If a throttling rate is specified, send chunks of 1024 bytes.  */
-      ret = rawSend (buffer + (len - toSend), toSend < 1024 ?
-                    toSend : 1024, flags);
-      /*! On errors returns directly -1.  */
-      if (ret < 0)
-        return -1;
-      toSend -= (u_long)ret;
-      /*!
-       *If there are other bytes to send wait before cycle again.
-       */
-      if (toSend)
+    while (1)
       {
-        Thread::wait (getTicks () - time);
+        /*! When we can send data again?  */
+        u_long time = getTicks () + (1000 * 1024 / throttlingRate) ;
+        /*! If a throttling rate is specified, send chunks of 1024 bytes.  */
+        ret = rawSend (buffer + (len - toSend), toSend < 1024 ?
+                       toSend : 1024, flags);
+        /*! On errors returns directly -1.  */
+        if (ret < 0)
+          return -1;
+        toSend -= (u_long)ret;
+        /*!
+         *If there are other bytes to send wait before cycle again.
+         */
+        if (toSend)
+          {
+            Thread::wait (getTicks () - time);
+          }
+        else
+          break;
       }
-      else
-        break;
-    }
     /*! Return the number of sent bytes. */
     return len - toSend;
   }
