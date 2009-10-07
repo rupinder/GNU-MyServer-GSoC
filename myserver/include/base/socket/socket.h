@@ -107,7 +107,7 @@ public:
   int operator=(Socket*);
   int getsockname (MYSERVER_SOCKADDR*,int*);
   int setNonBlocking (int);
-  bool getNonBLocking () {return isNonBlocking;}
+  bool getNonBlocking () {return isNonBlocking;}
   virtual int dataOnRead (int sec = 0, int usec = 500);
 
   u_long getThrottling ();
