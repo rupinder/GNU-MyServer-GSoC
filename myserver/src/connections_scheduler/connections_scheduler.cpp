@@ -92,35 +92,42 @@ static void eventLoopHandler (int fd, short event, void *arg)
 {
   ConnectionsScheduler::DispatcherArg *da = (ConnectionsScheduler::DispatcherArg*)arg;
   u_long nbr;
+  timeval tv = {10, 0};
+
   if (event == EV_READ || event == EV_TIMEOUT)
     {
       while (da->socketPair.bytesToRead ())
-	{
-	  char cmd;
-	  da->socketPair.read (&cmd, 1, &nbr);
-	  if (cmd == 'c')
-	    {
-	      /*
-	       * Schedule a new connection.
-	       * The 'c' command is followed by:
-	       * SocketHandle  -> Socket to monitor for new data.
-	       * ConnectionPtr -> Related Connection.
-	       * timeval       -> Timeout.
-	       */
-	      SocketHandle handle;
-	      ConnectionPtr c;
-	      timeval tv = {10, 0};
+        {
+          char cmd;
+          da->socketPair.read (&cmd, 1, &nbr);
+          if (cmd == 'c')
+            {
+              /*
+               * Schedule a new connection.
+               * The 'c' command is followed by:
+               * SocketHandle  -> Socket to monitor for new data.
+               * ConnectionPtr -> Related Connection.
+               * timeval       -> Timeout.
+               */
+              SocketHandle handle;
+              ConnectionPtr c;
 
-	      da->socketPair.read ((char*)&handle, sizeof (SocketHandle), &nbr);
-	      da->socketPair.read ((char*)&c, sizeof (ConnectionPtr), &nbr);
-	      da->socketPair.read ((char*)&tv, sizeof (timeval), &nbr);
+              da->socketPair.read ((char*)&handle, sizeof (SocketHandle), &nbr);
+              da->socketPair.read ((char*)&c, sizeof (ConnectionPtr), &nbr);
+              da->socketPair.read ((char*)&tv, sizeof (timeval), &nbr);
 
-	      event_once ((int) handle, EV_READ | EV_TIMEOUT, newDataHandler, da, &tv);
-	    }
-	  if (cmd == 'r')
-	    return;
-	  /* Handle other cmd without do anything else.  */
-	}
+              event_once (handle, EV_READ | EV_TIMEOUT, newDataHandler, da, &tv);
+            }
+          if (cmd == 'l')
+            {
+              ConnectionsScheduler::ListenerArg *arg;
+              da->socketPair.read ((char*)&arg, sizeof (arg), &nbr);
+              event_add (&(arg->ev), &tv);
+            }
+          if (cmd == 'r')
+            return;
+          /* Handle other cmd without do anything else.  */
+        }
 
       event_add (&(da->loopEvent), NULL);
     }
@@ -135,18 +142,21 @@ static void listenerHandler (int fd, short event, void *arg)
     {
       MYSERVER_SOCKADDRIN asockIn;
       socklen_t asockInLen = sizeof (asockIn);
-      Socket *clientSock = s->serverSocket->accept (&asockIn, &asockInLen);
-      if (s->server && clientSock)
-	{
-	  if (s->server->addConnection (clientSock, &asockIn))
-	    {
-	      clientSock->shutdown (2);
-	      clientSock->close ();
-	      delete clientSock;
-	    }
-	}
+      Socket *clientSock;
+      do
+        {
+          clientSock = s->serverSocket->accept (&asockIn, &asockInLen);
+          if (s->server && clientSock
+              && s->server->addConnection (clientSock, &asockIn))
+            {
+              clientSock->shutdown (2);
+              clientSock->close ();
+              delete clientSock;
+            }
+        }
+      while (clientSock);
     }
- 
+
   event_add (&(s->ev), &tv);
 }
 
@@ -159,24 +169,22 @@ static void listenerHandler (int fd, short event, void *arg)
 void ConnectionsScheduler::listener (ConnectionsScheduler::ListenerArg *la)
 {
   ConnectionsScheduler::ListenerArg *arg = new ConnectionsScheduler::ListenerArg (la);
-  static timeval tv = {3, 0};
 
   event_set (&(arg->ev), (int) la->serverSocket->getHandle (), EV_READ | EV_TIMEOUT,
-            listenerHandler, arg);
+             listenerHandler, arg);
 
   arg->terminate = &dispatcherArg.terminate;
   arg->scheduler = this;
   arg->server = server;
   arg->eventsMutex = &eventsMutex;
 
+  la->serverSocket->setNonBlocking (1);
   listeners.push_front (arg);
 
-  event_add (&(arg->ev), &tv);
-
-  u_long nbw;
-
   eventsSocketMutex.lock ();
+  u_long nbw;
   dispatcherArg.socketPairWrite.write ("l", 1, &nbw);
+  dispatcherArg.socketPairWrite.write ((const char*)&arg, sizeof (arg), &nbw);
   eventsSocketMutex.unlock ();
 }
 
@@ -323,7 +331,6 @@ void ConnectionsScheduler::addNewReadyConnection (ConnectionPtr c)
 {
   addReadyConnectionImpl (c);
 }
-
 
 /*!
  * Add a connection to ready connections queue.
