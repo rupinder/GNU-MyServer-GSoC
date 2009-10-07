@@ -954,11 +954,12 @@ u_long Server::getTimeout ()
 
 /*!
  * This function add a new connection to the list.
+ * On a failure, it is responsibility of the caller to
+ * free S.
+ * \return 0 on success.
  */
 int Server::addConnection (Socket *s, MYSERVER_SOCKADDRIN *asockIn)
 {
-
-  int ret = 0;
   char ip[MAX_IP_STRING_LEN];
   char localIp[MAX_IP_STRING_LEN];
   u_short port;
@@ -977,19 +978,13 @@ int Server::addConnection (Socket *s, MYSERVER_SOCKADDRIN *asockIn)
    */
   if ( asockIn == NULL ||
        (asockIn->ss_family != AF_INET && asockIn->ss_family != AF_INET6))
-    {
-      delete s;
-      return 0;
-    }
+    return -1;
 
   memset (ip, 0, MAX_IP_STRING_LEN);
   memset (localIp, 0, MAX_IP_STRING_LEN);
 
   if (s->getHandle () < 0)
-    {
-      delete s;
-      return 0;
-    }
+    return -1;
 
   /*
    * Do not accept this connection if a MAX_CONNECTIONS_TO_ACCEPT limit is
@@ -998,10 +993,7 @@ int Server::addConnection (Socket *s, MYSERVER_SOCKADDRIN *asockIn)
   if (maxConnectionsToAccept
       && ((u_long)connectionsScheduler.getConnectionsNumber ()
           >= maxConnectionsToAccept))
-    {
-      delete s;
-      return 0;
-    }
+    return -1;
 
 #if ( HAVE_IPV6 )
   if ( asockIn->ss_family == AF_INET )
@@ -1013,10 +1005,7 @@ int Server::addConnection (Socket *s, MYSERVER_SOCKADDRIN *asockIn)
                        sizeof (sockaddr_in6),  ip, MAX_IP_STRING_LEN,
                        NULL, 0, NI_NUMERICHOST);
   if (ret)
-    {
-      delete s;
-      return 0;
-    }
+    return -1;
 
   if ( asockIn->ss_family == AF_INET )
     dim = sizeof (sockaddr_in);
@@ -1033,13 +1022,13 @@ int Server::addConnection (Socket *s, MYSERVER_SOCKADDRIN *asockIn)
                        sizeof (sockaddr_in6), localIp, MAX_IP_STRING_LEN,
                        NULL, 0, NI_NUMERICHOST);
   if (ret)
-    return 0;
+    return -1;
 #else// !HAVE_IPV6
   dim = sizeof (localSockIn);
   s->getsockname ((MYSERVER_SOCKADDR*)&localSockIn, &dim);
   strncpy (ip,  inet_ntoa (((sockaddr_in *)asockIn)->sin_addr),
            MAX_IP_STRING_LEN);
-  strncpy (localIp,  inet_ntoa (((sockaddr_in *)&localSockIn)->sin_addr),
+  strncpy (localIp, inet_ntoa (((sockaddr_in *)&localSockIn)->sin_addr),
            MAX_IP_STRING_LEN);
 #endif//HAVE_IPV6
 
@@ -1059,20 +1048,7 @@ int Server::addConnection (Socket *s, MYSERVER_SOCKADDRIN *asockIn)
     myPort = ntohs (((sockaddr_in6 *)(&localSockIn))->sin6_port);
 #endif
 
-  if (!addConnectionToList (s, asockIn, &ip[0], &localIp[0], port, myPort, 1))
-    {
-      /* If we report error to add the connection to the thread.  */
-      ret = 0;
-
-      /* Shutdown the socket both on receive that on send.  */
-      s->shutdown (2);
-
-      /* Then close it.  */
-      s->close ();
-
-      delete s;
-    }
-  return ret;
+  return addConnectionToList (s, asockIn, &ip[0], &localIp[0], port, myPort, 1) ? 0 : -1;
 }
 
 /*!

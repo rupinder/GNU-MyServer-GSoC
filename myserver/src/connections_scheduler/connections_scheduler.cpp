@@ -72,7 +72,6 @@ void ConnectionsScheduler::newData (short event, SocketHandle handle)
   connection = connections.get (handle);
   connectionsMutex.unlock ();
 
-
   if (connection == NULL || server == NULL)
     return;
 
@@ -94,37 +93,37 @@ static void eventLoopHandler (int fd, short event, void *arg)
   ConnectionsScheduler::DispatcherArg *da = (ConnectionsScheduler::DispatcherArg*)arg;
   u_long nbr;
   if (event == EV_READ || event == EV_TIMEOUT)
-  {
-    while (da->socketPair.bytesToRead ())
     {
-      char cmd;
-      da->socketPair.read (&cmd, 1, &nbr);
-      if (cmd == 'c')
-      {
-        /*
-         * Schedule a new connection.
-         * The 'c' command is followed by:
-         * SocketHandle  -> Socket to monitor for new data.
-         * ConnectionPtr -> Related Connection.
-         * timeval       -> Timeout.
-         */
-        SocketHandle handle;
-        ConnectionPtr c;
-        timeval tv = {10, 0};
+      while (da->socketPair.bytesToRead ())
+	{
+	  char cmd;
+	  da->socketPair.read (&cmd, 1, &nbr);
+	  if (cmd == 'c')
+	    {
+	      /*
+	       * Schedule a new connection.
+	       * The 'c' command is followed by:
+	       * SocketHandle  -> Socket to monitor for new data.
+	       * ConnectionPtr -> Related Connection.
+	       * timeval       -> Timeout.
+	       */
+	      SocketHandle handle;
+	      ConnectionPtr c;
+	      timeval tv = {10, 0};
 
-        da->socketPair.read ((char*)&handle, sizeof (SocketHandle), &nbr);
-        da->socketPair.read ((char*)&c, sizeof (ConnectionPtr), &nbr);
-        da->socketPair.read ((char*)&tv, sizeof (timeval), &nbr);
+	      da->socketPair.read ((char*)&handle, sizeof (SocketHandle), &nbr);
+	      da->socketPair.read ((char*)&c, sizeof (ConnectionPtr), &nbr);
+	      da->socketPair.read ((char*)&tv, sizeof (timeval), &nbr);
 
-        event_once ((int) handle, EV_READ | EV_TIMEOUT, newDataHandler, da, &tv);
-      }
-      if (cmd == 'r')
-        return;
-      /* Handle other cmd without do anything else.  */
+	      event_once ((int) handle, EV_READ | EV_TIMEOUT, newDataHandler, da, &tv);
+	    }
+	  if (cmd == 'r')
+	    return;
+	  /* Handle other cmd without do anything else.  */
+	}
+
+      event_add (&(da->loopEvent), NULL);
     }
-
-    event_add (&(da->loopEvent), NULL);
-  }
 }
 
 static void listenerHandler (int fd, short event, void *arg)
@@ -137,9 +136,15 @@ static void listenerHandler (int fd, short event, void *arg)
       MYSERVER_SOCKADDRIN asockIn;
       socklen_t asockInLen = sizeof (asockIn);
       Socket *clientSock = s->serverSocket->accept (&asockIn, &asockInLen);
-
       if (s->server && clientSock)
-        s->server->addConnection (clientSock, &asockIn);
+	{
+	  if (s->server->addConnection (clientSock, &asockIn))
+	    {
+	      clientSock->shutdown (2);
+	      clientSock->close ();
+	      delete clientSock;
+	    }
+	}
     }
  
   event_add (&(s->ev), &tv);
@@ -210,7 +215,6 @@ u_long ConnectionsScheduler::getNumTotalConnections ()
 {
   return nTotalConnections;
 }
-
 
 /*!
  * Register the connection with a new ID.
