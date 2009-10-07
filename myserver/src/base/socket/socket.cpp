@@ -97,14 +97,13 @@ int Socket::operator=(Socket* s)
 }
 /*!
  *Create the socket.
- *\return 0 on error.
  */
 int Socket::socket (int af, int type, int protocol)
 {
 #ifdef WIN32
   socketHandle = ::socket (af, type, protocol);
 #else
-  socketHandle = (FileHandle)::socket (af, type, protocol);
+  socketHandle = ::socket (af, type, protocol);
 #endif
   return (int)socketHandle;
 }
@@ -203,14 +202,11 @@ int Socket::listen (int max)
  */
 Socket* Socket::accept (MYSERVER_SOCKADDR* sa, socklen_t* sockaddrlen)
 {
-  socklen_t connectSize;
-  connectSize = (socklen_t) *sockaddrlen;
-
-  SocketHandle acceptedHandle = ::accept (socketHandle, (struct sockaddr *)sa,
-                                          (socklen_t*)&connectSize);
+  int acceptedHandle = ::accept (socketHandle, (struct sockaddr *)sa,
+                                          sockaddrlen);
 
   if (acceptedHandle >= 0)
-    return new Socket (acceptedHandle);
+    return new Socket ((SocketHandle)acceptedHandle);
   else
     return NULL;
 }
@@ -276,7 +272,7 @@ int  Socket::setsockopt (int level, int optname,
 }
 
 /*!
- *Fill the out string with a list of the local IPs. Returns 0 on success.
+ * Fill the out string with a list of the local IPs. Returns 0 on success.
  */
 int Socket::getLocalIPsList (string &out)
 {
@@ -290,32 +286,32 @@ int Socket::getLocalIPsList (string &out)
   aiHints.ai_socktype = SOCK_STREAM;
   if ( getaddrinfo (serverName, NULL, &aiHints, &pHostInfo) == 0 &&
        pHostInfo != NULL )
-  {
-    sockaddr_storage *pCurrentSockAddr = NULL;
-    char straddr[NI_MAXHOST] = "";
-    memset (straddr, 0, NI_MAXHOST);
-    ostringstream stream;
-    for ( pCrtHostInfo = pHostInfo; pCrtHostInfo != NULL;
-          pCrtHostInfo = pCrtHostInfo->ai_next )
     {
-      pCurrentSockAddr =
-        reinterpret_cast<sockaddr_storage *>(pCrtHostInfo->ai_addr);
-      if ( pCurrentSockAddr == NULL )
-        continue;
+      sockaddr_storage *pCurrentSockAddr = NULL;
+      char straddr[NI_MAXHOST] = "";
+      memset (straddr, 0, NI_MAXHOST);
+      ostringstream stream;
+      for ( pCrtHostInfo = pHostInfo; pCrtHostInfo != NULL;
+            pCrtHostInfo = pCrtHostInfo->ai_next )
+        {
+          pCurrentSockAddr =
+            reinterpret_cast<sockaddr_storage *>(pCrtHostInfo->ai_addr);
+          if ( pCurrentSockAddr == NULL )
+            continue;
 
-            if ( !getnameinfo (reinterpret_cast<sockaddr *>(pCurrentSockAddr),
-                              sizeof (sockaddr_storage), straddr, NI_MAXHOST,
-                              NULL, 0, NI_NUMERICHOST) )
+          if ( !getnameinfo (reinterpret_cast<sockaddr *>(pCurrentSockAddr),
+                             sizeof (sockaddr_storage), straddr, NI_MAXHOST,
+                             NULL, 0, NI_NUMERICHOST) )
             {
               stream << ( !stream.str ().empty () ? ", " : "" ) << straddr;
             }
-            else
-        return -1;
+          else
+            return -1;
         }
-        out.assign (stream.str ());
-        freeaddrinfo (pHostInfo);
+      out.assign (stream.str ());
+      freeaddrinfo (pHostInfo);
     }
-    return 0;
+  return 0;
 #else// !HAVE_IPV6
 
   MYSERVER_HOSTENT *localhe;
@@ -323,28 +319,28 @@ int Socket::getLocalIPsList (string &out)
   localhe = Socket::gethostbyname (serverName);
 
   if (localhe)
-  {
-    ostringstream stream;
-    int i;
-    /*! Print all the interfaces IPs. */
-    for (i= 0; (localhe->h_addr_list[i]); i++)
     {
+      ostringstream stream;
+      int i;
+      /*! Print all the interfaces IPs. */
+      for (i = 0; (localhe->h_addr_list[i]); i++)
+        {
 # ifdef WIN32
-      ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
+          ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
 # else
-      ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
+          ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
 # endif
-      stream << ( (i != 0) ? ", " : "") << inet_ntoa (ia);
-    }
+          stream << ( (i != 0) ? ", " : "") << inet_ntoa (ia);
+        }
 
-    out.assign (stream.str ());
-    return 0;
-  }
+      out.assign (stream.str ());
+      return 0;
+    }
   else
-  {
-    out.assign ("127.0.0.1");
-    return 0;
-  }
+    {
+      out.assign ("127.0.0.1");
+      return 0;
+    }
 #endif//HAVE_IPV6
   return -1;
 }
@@ -419,10 +415,7 @@ int Socket::ioctlsocket (long cmd,unsigned long* argp)
 #ifdef WIN32
   return ::ioctlsocket (socketHandle, cmd, argp);
 #else
-  int int_argp = 0;
-  int ret = ::ioctl (socketHandle, cmd, &int_argp);
-  *argp = int_argp;
-  return ret;
+  return ::ioctl (socketHandle, cmd, argp);
 #endif
 }
 
@@ -452,12 +445,11 @@ int Socket::connect (const char* host, u_short port)
    *have this host, than create socket.
    */
 
-  //getsockname (&thisSock, &nLength);
   if ( getsockname (&thisSock, &nLength) == 0 )
-  {
-    aiHints.ai_family = thisSock.ss_family;
-    aiHints.ai_socktype = SOCK_STREAM;
-  }
+    {
+      aiHints.ai_family = thisSock.ss_family;
+      aiHints.ai_socktype = SOCK_STREAM;
+    }
 
   memset (szPort, 0, sizeof (char)*10);
   snprintf (szPort, 10, "%d", port);
@@ -471,68 +463,65 @@ int Socket::connect (const char* host, u_short port)
 
   for ( pCrtHostInfo = pHostInfo; pCrtHostInfo != NULL;
         pCrtHostInfo = pCrtHostInfo->ai_next )
-  {
-    pCurrentSockAddr = reinterpret_cast<sockaddr_storage *>
-      (pCrtHostInfo->ai_addr);
-    if ( pCurrentSockAddr == NULL ||
-        (thisSock.ss_family != 0 &&
-         pCurrentSockAddr->ss_family != thisSock.ss_family) )
-      continue;
-
-    if ( thisSock.ss_family == 0 )// socket not created yet
     {
-      //so try to create one now based on 'pCurrentSockAddr'
-      if ( pCurrentSockAddr->ss_family == AF_INET )
-      {
-        if (Socket::socket (AF_INET, SOCK_STREAM, 0) == -1)
-          continue;
-      }
-      else if ( pCurrentSockAddr->ss_family == AF_INET6 )
-      {
-        if (Socket::socket (AF_INET6, SOCK_STREAM, 0) == -1)
-          continue;
-      }
-      if ( getsockname (&thisSock, &nLength) != 0 )
-        return -1;
-    }
+      pCurrentSockAddr = reinterpret_cast<sockaddr_storage *>
+        (pCrtHostInfo->ai_addr);
+      if ( pCurrentSockAddr == NULL ||
+           (thisSock.ss_family != 0 &&
+            pCurrentSockAddr->ss_family != thisSock.ss_family) )
+        continue;
 
-    memset (&connectionSockAddrIn, 0, sizeof (connectionSockAddrIn));
-    connectionSockAddrIn.ss_family = pCurrentSockAddr->ss_family;
+      if ( thisSock.ss_family == 0 )
+        {
+          if ( pCurrentSockAddr->ss_family == AF_INET )
+            {
+              if (Socket::socket (AF_INET, SOCK_STREAM, 0) == -1)
+                continue;
+            }
+          else if ( pCurrentSockAddr->ss_family == AF_INET6 )
+            {
+              if (Socket::socket (AF_INET6, SOCK_STREAM, 0) == -1)
+                continue;
+            }
+          if ( getsockname (&thisSock, &nLength) != 0 )
+            return -1;
+        }
 
-     if ( connectionSockAddrIn.ss_family != AF_INET &&
-         connectionSockAddrIn.ss_family != AF_INET6 )
-         continue;
+      memset (&connectionSockAddrIn, 0, sizeof (connectionSockAddrIn));
+      connectionSockAddrIn.ss_family = pCurrentSockAddr->ss_family;
 
-    if ( connectionSockAddrIn.ss_family == AF_INET )
-    {
-      nSockLen = sizeof (sockaddr_in);
-      memcpy ((sockaddr_in *)&connectionSockAddrIn,
-             (sockaddr_in *)pCurrentSockAddr, nSockLen);
-      ((sockaddr_in *)(&connectionSockAddrIn))->sin_port = htons (port);
+      if ( connectionSockAddrIn.ss_family != AF_INET &&
+           connectionSockAddrIn.ss_family != AF_INET6 )
+        continue;
 
-    }
-    else// if ( connectionSockAddrIn.ss_family == AF_INET6 )
-    {
-      nSockLen = sizeof (sockaddr_in6);
-      memcpy ((sockaddr_in6 *)&connectionSockAddrIn,
-             (sockaddr_in6 *)pCurrentSockAddr, nSockLen);
-      ((sockaddr_in6 *)&connectionSockAddrIn)->sin6_port = htons (port);
-    }
+      if ( connectionSockAddrIn.ss_family == AF_INET )
+        {
+          nSockLen = sizeof (sockaddr_in);
+          memcpy ((sockaddr_in *)&connectionSockAddrIn,
+                  (sockaddr_in *)pCurrentSockAddr, nSockLen);
+          ((sockaddr_in *)(&connectionSockAddrIn))->sin_port = htons (port);
 
-    if (Socket::connect ((MYSERVER_SOCKADDR*)(&connectionSockAddrIn),
-                       nSockLen) == -1)
-    {
-      Socket::close ();
+        }
+      else// if ( connectionSockAddrIn.ss_family == AF_INET6 )
+        {
+          nSockLen = sizeof (sockaddr_in6);
+          memcpy ((sockaddr_in6 *)&connectionSockAddrIn,
+                  (sockaddr_in6 *)pCurrentSockAddr, nSockLen);
+          ((sockaddr_in6 *)&connectionSockAddrIn)->sin6_port = htons (port);
+        }
+
+      if (Socket::connect ((MYSERVER_SOCKADDR*)(&connectionSockAddrIn),
+                           nSockLen) == -1)
+        Socket::close ();
+      else
+        {
+          bSocketConnected = true;
+          break;
+        }
     }
-    else
-    {
-       bSocketConnected = true;
-       break;
-    }
-  }
   freeaddrinfo (pHostInfo);
   if ( !bSocketConnected )
-     return -1;
+    return -1;
 #else
   MYSERVER_HOSTENT *hp = Socket::gethostbyname (host);
   struct sockaddr_in sockAddr;
@@ -541,23 +530,20 @@ int Socket::connect (const char* host, u_short port)
     return -1;
 
   /*! If the socket is not created, create it before use. */
-  if (socketHandle == 0)
-  {
-    if (Socket::socket (AF_INET, SOCK_STREAM, 0) == -1)
-    {
-      return -1;
-    }
-  }
+  if (socketHandle == -1 &&
+      Socket::socket (AF_INET, SOCK_STREAM, 0) == -1)
+    return -1;
+
   sockLen = sizeof (sockAddr);
   memset (&sockAddr, 0, sizeof (sockAddr));
   sockAddr.sin_family = AF_INET;
   memcpy (&sockAddr.sin_addr, hp->h_addr, hp->h_length);
   sockAddr.sin_port = htons (port);
   if (Socket::connect ((MYSERVER_SOCKADDR*)&sockAddr, sockLen) == -1)
-  {
-    Socket::close ();
-    return -1;
-  }
+    {
+      Socket::close ();
+      return -1;
+    }
 #endif
 
   return 0;
@@ -737,7 +723,7 @@ int Socket::dataOnRead (int sec, int usec)
 #endif
   ret = ::select (socketHandle + 1, &readfds, NULL, NULL, &tv);
 
-  if (ret == -1 || ret == 0)
+  if (ret <= 0)
     return 0;
 
   if (FD_ISSET (socketHandle, &readfds))
@@ -753,7 +739,6 @@ int Socket::dataOnRead (int sec, int usec)
 int Socket::read (char* buffer, u_long len, u_long *nbr)
 {
   *nbr = static_cast<u_long>(recv (buffer, len, 0));
-
   if (*nbr == static_cast<u_long>(-1))
     return -1;
 
@@ -767,7 +752,6 @@ int Socket::read (char* buffer, u_long len, u_long *nbr)
 int Socket::write (const char* buffer, u_long len, u_long *nbw)
 {
   *nbw = static_cast<u_long>(send (buffer, len, 0));
-
   if ( *nbw == static_cast<u_long>(-1) )
     return -1;
 

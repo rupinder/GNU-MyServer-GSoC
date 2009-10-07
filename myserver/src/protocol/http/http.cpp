@@ -797,11 +797,9 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       td->sentData = 0;
       td->vhostDir.assign ("");
       td->vhostSys.assign ("");
-      {
-        HashMap<string, string*>::Iterator it = td->other.begin ();
-        while (it != td->other.end ())
-          delete (*it);
-      }
+      HashMap<string, string*>::Iterator it = td->other.begin ();
+      while (it != td->other.end ())
+        delete (*it);
       td->other.clear ();
 
       /*
@@ -913,7 +911,6 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           if (ret == -1)
             {
               logHTTPaccess ();
-
               return ClientsThread::DELETE_CONNECTION;
             }
           else if (ret)

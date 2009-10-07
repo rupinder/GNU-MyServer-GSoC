@@ -114,7 +114,7 @@ int File::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
  *\param opt Specify how open the file.
  */
 File::File (char *nfilename, int opt)
-  : handle (0)
+  : handle (-1)
 {
   openFile (nfilename, opt);
 }
@@ -306,11 +306,11 @@ int File::createTemporaryFile (const char* filename)
   if (FilesUtility::fileExists (filename))
     FilesUtility::deleteFile (filename);
 
-  return openFile (filename, File::READ |
-                  File::WRITE|
-                  File::FILE_CREATE_ALWAYS |
-                  File::TEMPORARY |
-                  File::NO_INHERIT);
+  return openFile (filename, File::READ
+                  | File::WRITE
+                  | File::FILE_CREATE_ALWAYS
+                  | File::TEMPORARY
+                  | File::NO_INHERIT);
 }
 
 /*!
