@@ -100,8 +100,9 @@ static void eventLoopHandler (int fd, short event, void *arg)
         {
           char cmd;
           da->socketPair.read (&cmd, 1, &nbr);
-          if (cmd == 'c')
+          switch (cmd)
             {
+            case 'c':
               /*
                * Schedule a new connection.
                * The 'c' command is followed by:
@@ -115,22 +116,25 @@ static void eventLoopHandler (int fd, short event, void *arg)
               da->socketPair.read ((char*)&handle, sizeof (SocketHandle), &nbr);
               da->socketPair.read ((char*)&c, sizeof (ConnectionPtr), &nbr);
               da->socketPair.read ((char*)&tv, sizeof (timeval), &nbr);
-
               event_once (handle, EV_READ | EV_TIMEOUT, newDataHandler, da, &tv);
-            }
-          if (cmd == 'l')
-            {
+              break;
+
+            case 'l':
               ConnectionsScheduler::ListenerArg *arg;
               da->socketPair.read ((char*)&arg, sizeof (arg), &nbr);
               event_add (&(arg->ev), &tv);
-            }
-          if (cmd == 'r')
-            return;
-          /* Handle other cmd without do anything else.  */
-        }
+              break;
 
-      event_add (&(da->loopEvent), NULL);
+            case 'r':
+              return;
+
+            default:
+              /* Handle other cmd with a nop.  */
+              continue;
+            }
+        }
     }
+  event_add (&(da->loopEvent), NULL);
 }
 
 static void listenerHandler (int fd, short event, void *arg)
