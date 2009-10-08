@@ -57,7 +57,7 @@ if plugin=="":
 plugins = plugin.split(",");
 
 
-msheaders = ARGUMENTS.get('msheaders', "")
+msheaders = ARGUMENTS.get('msheaders', os.path.normpath (os.getcwd () + "/../myserver"))
 
 listinc=[
       '/usr/local/include',
