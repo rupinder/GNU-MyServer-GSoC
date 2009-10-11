@@ -4,7 +4,7 @@
 # MyServer
 # http://www.gnu.org/software/myserver/
 #
-# Copyright (C) 2002-2008 Free Software Foundation, Inc.
+# Copyright (C) 2002-2009 Free Software Foundation, Inc.
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 3 of the License, or
@@ -36,29 +36,23 @@ release_dir = "pub/"
 plugin = ARGUMENTS.get('plugin', "")
 command = ARGUMENTS.get('command', "build")
 
-
 arch = ""
 import os
 if os.name=="nt":
     arch = "win32"
 else:
-    import string
     arch = string.lower(os.uname()[0])
     if string.find(os.uname()[4],"64")==-1:
         arch = arch + "32"
     else:
         arch = arch + "64"
 
-
 if plugin=="":
     print_help()
     Exit(1)
 
 plugins = plugin.split(",");
-
-
 msheaders = ARGUMENTS.get('msheaders', os.path.normpath (os.getcwd () + "/../myserver"))
-
 listinc=[
       '/usr/local/include',
       '/usr/include',
@@ -67,8 +61,6 @@ listinc=[
       msheaders,
       '.'
       ]
-    
-
 
 def tar_package(src_dir, name, filename):
     import tarfile
@@ -80,7 +72,7 @@ def build_plugin(name):
     dest_dir = bin_dir + name
     SConscript([src_dir + name + "/SConscript"],['dest_dir','listinc'])
     Command(dest_dir + "/plugin.xml",src_dir + name + "/plugin.xml", Copy("$TARGET", "$SOURCE"))
-    
+
 def build_plugins(plugins):
     for name in plugins:
 		build_plugin(name)
@@ -91,8 +83,8 @@ def pack_plugin(name):
     filename = name + "-" + version[0].firstChild.data + "-" + arch + ".tar.gz"
     if not os.path.exists(release_dir):
         os.makedirs(release_dir)
-    tar_package(bin_dir + name, name, release_dir + filename)	
-    
+    tar_package(bin_dir + name, name, release_dir + filename)
+
 def pack_source(name):
     doc = xml.dom.minidom.parse(src_dir + name + "/plugin.xml")
     version = doc.getElementsByTagName("VERSION")
@@ -106,16 +98,14 @@ def pack_source(name):
     shutil.copy("SConstruct",temp)
     tar_package(temp, name, release_dir + filename)
     shutil.rmtree(temp)
-     
 
 def pack_plugins(plugins):
     for name in plugins:
 		pack_plugin(name)
-		
+
 def pack_sources(plugins):
     for name in plugins:
-		pack_source(name)
-
+        pack_source(name)
 
 env = Environment(CPPPATH=listinc,CXXFLAGS="-fPIC -DPIC  -DHAVE_CONFIG_H",
                       LINKFLAGS="-rdynamic")
@@ -127,7 +117,6 @@ if not conf.CheckCXXHeader("include/server/server.h"):
     print "unable to find myserver headers"
     Exit(1)
 
-
 env = conf.Finish()
 
 if command=='build':
@@ -136,9 +125,6 @@ elif command=='package':
     pack_plugins(plugins)
 elif command=='source':
     pack_sources(plugins)
-
-    
-
 
 #TODO: test compile and run.
 #if command == "build":
