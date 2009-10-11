@@ -31,9 +31,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define EXPORTABLE(x) extern "C" x
 #endif
 
-typedef int (*executePROC)(char*, u_long);
-typedef int (*executeFromFilePROC)(char*);
-
 class MagicHandler : public MimeManagerHandler
 {
 public:
@@ -42,19 +39,24 @@ public:
 
   }
 
-  int load ()
+  virtual int load (const char *resource)
   {
     cookie = magic_open (MAGIC_SYMLINK | MAGIC_MIME_TYPE);
     return magic_load (cookie, NULL);
   }
 
-  virtual ~MagicHandler ()
+  virtual void close ()
   {
     HashMap<string, MimeRecord*>::Iterator it = records.begin ();
     for (; it != records.end (); it++)
       delete *it;
 
     magic_close (cookie);
+  }
+
+  virtual ~MagicHandler ()
+  {
+    close ();
   }
 
 	virtual MimeRecord *getMIME (const char *file)
@@ -96,6 +98,8 @@ private:
   HashMap<string, MimeRecord*> records;
 };
 
+static MagicHandler *handler;
+
 EXPORTABLE(char*) name (char* name, u_long len)
 {
 	char* str = (char*) "mime_magic";
@@ -106,17 +110,18 @@ EXPORTABLE(char*) name (char* name, u_long len)
 
 EXPORTABLE(int) load (void* server)
 {
+  handler = NULL;
 	return 0;
 }
 
 EXPORTABLE(int) postLoad(void* server)
 {
   string name ("mime_magic");
-	Server* serverInstance = (Server*)server;
+	Server *serverInstance = (Server*)server;
   MimeManager *mimeManager = serverInstance->getMimeManager ();
 
   MagicHandler *handler = new MagicHandler;
-  if (handler->load ())
+  if (handler->load (NULL))
     {
       serverInstance->log (MYSERVER_LOG_MSG_ERROR,
                                   _("cannot load mime magic configuration"));
@@ -130,5 +135,8 @@ EXPORTABLE(int) postLoad(void* server)
 
 EXPORTABLE(int) unLoad()
 {
+  if (handler)
+    delete handler;
+
 	return 0;
 }

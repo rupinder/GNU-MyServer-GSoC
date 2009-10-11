@@ -48,6 +48,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # include <include/conf/security/auth_method_factory.h>
 # include <include/conf/security/validator_factory.h>
 # include <include/conf/main/main_configuration.h>
+# include <include/conf/mime/xml_mime_handler.h>
 
 # include <include/base/slab/slab.h>
 
@@ -142,7 +143,7 @@ public:
 
   void *getEnvString (){return envString;}
   VhostManager *getVhosts (){return vhostList;}
-  MimeManager *getMimeManager (){return mimeManager;}
+  MimeManager *getMimeManager (){return &mimeManager;}
 
   void setProcessPermissions ();
   ConnectionsScheduler* getConnectionsScheduler (){return &connectionsScheduler;}
@@ -165,6 +166,7 @@ public:
 private:
   friend class ClientsThread;
   XmlValidator *xmlValidator;
+  XmlMimeHandler xmlMimeHandler;
 
   MainConfiguration *configurationFileManager;
   MainConfiguration* (*genMainConf) (Server *server, const char *arg);
@@ -200,7 +202,7 @@ private:
 
   void *envString;
   VhostManager *vhostList;
-  MimeManager *mimeManager;
+  MimeManager mimeManager;
   HomeDir homeDir;
 
   list<NodeTree<string>*> hashedDataTrees;

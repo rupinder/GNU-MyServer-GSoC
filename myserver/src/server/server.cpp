@@ -72,7 +72,6 @@ Server::Server () : connectionsScheduler (this),
   maxConnections = 0;
   serverReady = false;
   throttlingRate = 0;
-  mimeManager = 0;
   path = 0;
   ipAddresses = 0;
   vhostList = 0;
@@ -265,15 +264,14 @@ int Server::postLoad ()
   /* Load the MIME types.  */
   log (MYSERVER_LOG_MSG_INFO, _("Loading MIME types..."));
 
-  if (mimeManager)
-    delete mimeManager;
-
-  mimeManager = new MimeManager ();
-
-  if (int nMIMEtypes = mimeManager->loadXML (mimeConfigurationFile.c_str ()))
+  if (int nMIMEtypes = xmlMimeHandler.loadXML (mimeConfigurationFile.c_str ()))
     log (MYSERVER_LOG_MSG_INFO, _("Using %i MIME types"), nMIMEtypes);
   else
     log (MYSERVER_LOG_MSG_ERROR, _("Error while loading MIME types"));
+
+  string xml ("xml");
+  mimeManager.registerHandler (xml, &xmlMimeHandler);
+  mimeManager.setDefaultHandler (xml);
 
   log (MYSERVER_LOG_MSG_INFO, _("Detected %i CPUs"), (int) getCPUCount ());
 
@@ -688,13 +686,6 @@ int Server::terminate ()
 
   ipAddresses = 0;
   vhostList = 0;
-
-  if (mimeManager)
-    {
-      mimeManager->clean ();
-      delete mimeManager;
-      mimeManager = 0;
-    }
 
 #ifdef WIN32
   /*

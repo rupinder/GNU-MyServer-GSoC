@@ -36,6 +36,7 @@
 # include <include/connections_scheduler/listen_threads.h>
 # include <include/conf/vhost/ip.h>
 # include <include/conf/nodetree.h>
+# include <include/conf/mime/mime_manager.h>
 
 using namespace std;
 typedef int (*NULL_REFERENCECB)(class Vhost*);
@@ -108,11 +109,6 @@ public:
   list<StringRegex*>* getHostList ()
   {return &hostList;}
 
-  //TODO: remove
-  ///*! List of IPs allowed by the vhost. */
-  //list<StringRegex*>* getIpList ()
-  //{return &ipList;}
-
   /*! Return the port used by the host. */
   u_short getPort ()
   {return port;}
@@ -168,7 +164,7 @@ public:
   int areAllIPAllowed ();
   int isIPAllowed (const char*);
 
-  MimeManager* getMIME ();
+  MimeManagerHandler *getMIME ();
 
   /*!
    * \return 0 if the LogManager contains at least one valid entry where
@@ -220,8 +216,7 @@ private:
   LogManager* logManager;
 
   HashMap<string, MimeRecord*> locationsMime;
-
-  MimeManager mimeManager;
+  MimeManagerHandler *mimeHandler;
 
   /*! The default priority for the connections scheduler.  */
   int defaultPriority;

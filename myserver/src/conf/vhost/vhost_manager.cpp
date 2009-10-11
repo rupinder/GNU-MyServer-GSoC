@@ -16,9 +16,10 @@
 */
 #include <include/conf/vhost/vhost_manager.h>
 #include <include/conf/vhost/vhost.h>
-#include <include/conf/mime/mime_manager.h>
+#include <include/conf/mime/xml_mime_handler.h>
 #include <include/server/server.h>
 #include <include/base/file/files_utility.h>
+#include <include/conf/mime/xml_mime_handler.h>
 
 #include <include/conf/xml_conf.h>
 
@@ -380,7 +381,8 @@ int VhostManager::loadXMLConfigurationFile (const char *filename)
                   if (!xmlStrcmp (attrs->name, (const xmlChar *)"path"))
                     loc.append ((const char*) attrs->children->content);
                 }
-              MimeRecord *rc = MimeManager::readRecord (lcur);
+
+              MimeRecord *rc = XmlMimeHandler::readRecord (lcur);
               vh->locationsMime.put (loc, rc);
             }
           else if (!xmlStrcmp (lcur->name, (const xmlChar *)"SSL_PRIVATEKEY"))
@@ -488,7 +490,23 @@ int VhostManager::loadXMLConfigurationFile (const char *filename)
           else if (!xmlStrcmp (lcur->name, (const xmlChar *)"MIME_FILE"))
             {
               if (lcur->children)
-                vh->getMIME ()->loadXML ((char*)lcur->children->content);
+                {
+                  const char *filename = (const char*)lcur->children->content;
+                  XmlMimeHandler *xmlHandler = new XmlMimeHandler ();
+                  try
+                    {
+                      xmlHandler->loadXML (filename);
+                    }
+                  catch (...)
+                    {
+                      delete xmlHandler;
+                      xmlHandler = NULL;
+                      Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
+                                               _("Error loading %s"), filename);
+
+                    }
+                  vh->mimeHandler = xmlHandler;
+                }
             }
           else if (!xmlStrcmp (lcur->name, (const xmlChar *)"THROTTLING_RATE"))
             {

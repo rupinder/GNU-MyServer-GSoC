@@ -59,6 +59,7 @@ Vhost::Vhost (LogManager* lm)
   nullReferenceCb = 0;
   defaultPriority = 0;
   logManager = lm;
+  mimeHandler = NULL;
 }
 
 
@@ -75,15 +76,17 @@ Vhost::~Vhost ()
   freeHashedData ();
 
   HashMap<string, MimeRecord*>::Iterator it = locationsMime.begin ();
-
   while (it != locationsMime.end ())
     {
       delete *it;
       it++;
     }
 
+  if (mimeHandler)
+    delete mimeHandler;
+
   refMutex.destroy ();
-  mimeManager.clean ();
+  /*  mimeManager.clean ();*/
   logManager->remove (this);
 }
 
@@ -117,15 +120,15 @@ int Vhost::freeHashedData ()
  */
 int Vhost::isMIME ()
 {
-  return mimeManager.isLoaded ();
+  return mimeHandler ? 1 : 0;
 }
 
 /*!
- * Get the MIME manager for the virtual host.
+ * Get the MIME handler for the virtual host.
  */
-MimeManager* Vhost::getMIME ()
+MimeManagerHandler* Vhost::getMIME ()
 {
-  return &mimeManager;
+  return mimeHandler;
 }
 
 /*!

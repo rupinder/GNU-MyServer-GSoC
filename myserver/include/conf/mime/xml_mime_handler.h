@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009 Free Software Foundation, Inc.
+Copyright (C) 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef MIME_MANAGER_H
-# define MIME_MANAGER_H
+#ifndef XML_MIME_HANDLER_H
+# define XML_MIME_HANDLER_H
 
 # include <include/base/utility.h>
 # include <include/base/hash_map/hash_map.h>
@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # include <include/base/xml/xml_parser.h>
 # include <include/base/regex/myserver_regex.h>
 # include <include/conf/nodetree.h>
+# include <include/conf/mime/mime_manager.h>
 
 # ifdef WIN32
 #  include <windows.h>
@@ -50,56 +51,47 @@ extern "C"
 
 using namespace std;
 
-struct MimeRecord
-{
-  list<string> filters;
-  list<string> extensions;
-  string mimeType;
-  string cmdName;
-  string cgiManager;
-  bool selfExecuted;
-  list<Regex*> pathRegex;
-  HashMap<string, NodeTree<string>*> hashedData;
 
-  MimeRecord ();
-  MimeRecord (MimeRecord&);
-  int addFilter (const char*, bool acceptDuplicate = true);
-  ~MimeRecord ();
-  void clear ();
-  const char* getData (string &name);
-  NodeTree<string>* getNodeTree (string &name);
-};
-
-
-class MimeManagerHandler
+class XmlMimeHandler : public MimeManagerHandler
 {
 public:
+  XmlMimeHandler ();
+  virtual ~XmlMimeHandler ();
   virtual int load (const char *resource){return 0;}
   virtual void close (){}
-  virtual MimeRecord* getMIME (const char *file){return NULL;}
+  virtual MimeRecord* getMIME (const char *file);
   virtual MimeRecord* getMIME (string const &file)
   {return getMIME (file.c_str ());}
-  virtual u_long reload (){return 0;}
-};
+  u_long getNumMIMELoaded ();
 
+  u_long loadXML (XmlParser* parser);
+  u_long loadXML (const char *filename);
+  u_long loadXML (string &filename) {return loadXML (filename.c_str ());}
 
-class MimeManager
-{
-public:
-  MimeManager ();
-  ~MimeManager ();
-  u_long reload ();
-  MimeRecord* getMIME (const char *file, const char *handler = NULL);
-  MimeRecord* getMIME (string const &file, const char *handler = NULL)
-  {
-    return getMIME (file.c_str (), handler);
-  }
-  void registerHandler (string &name, MimeManagerHandler *handler);
-  void setDefaultHandler (string &name);
+  virtual u_long reload ();
+  bool isLoaded (){return loaded;}
   void clean ();
+  int addRecord (MimeRecord *record);
+
+  static MimeRecord *readRecord (xmlNodePtr node);
+protected:
+  const char *getFilename ();
+  void clearRecords ();
+
 private:
-  MimeManagerHandler *defHandler;
-  HashMap<string, MimeManagerHandler*> handlers;
+  struct PathRegex
+  {
+    Regex *regex;
+    int record;
+  };
+
+  HashMap<string, int> extIndex;
+  vector<MimeRecord*> records;
+  list<PathRegex*> pathRegex;
+
+  u_long numMimeTypesLoaded;
+  string filename;
+  bool loaded;
 };
 
 #endif

@@ -145,184 +145,17 @@ const char* MimeRecord::getData (string &name)
 }
 
 /*!
- * Get the name of the used file.
- */
-const char *MimeManager::getFilename ()
-{
-  return filename.c_str ();
-}
-
-/*!
- * Read a MIME record from a XML node.
- */
-MimeRecord *MimeManager::readRecord (xmlNodePtr node)
-{
-  xmlNodePtr lcur = node->children;
-  xmlAttr *attrs;
-
-  MimeRecord *rc = new MimeRecord;
-
-  for (attrs = node->properties; attrs; attrs = attrs->next)
-  {
-    if (!xmlStrcmp (attrs->name, (const xmlChar *)"handler") &&
-        attrs->children && attrs->children->content)
-      rc->cmdName.assign ((const char*)attrs->children->content);
-
-    if (!xmlStrcmp (attrs->name, (const xmlChar *)"self") &&
-        attrs->children && attrs->children->content)
-      rc->selfExecuted = xmlStrcmp (attrs->children->content,
-                                    (const xmlChar *)"YES");
-
-    if (!xmlStrcmp (attrs->name, (const xmlChar *)"mime") &&
-        attrs->children && attrs->children->content)
-      rc->mimeType.assign ((const char*)attrs->children->content);
-
-    if (!xmlStrcmp (attrs->name, (const xmlChar *)"param") &&
-        attrs->children && attrs->children->content)
-      rc->cgiManager.assign ((const char*)attrs->children->content);
-  }
-
-  for ( ;lcur; lcur = lcur->next)
-  {
-    if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *)"EXTENSION"))
-    {
-      for (attrs = lcur->properties; attrs; attrs = attrs->next)
-      {
-        if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") &&
-            attrs->children && attrs->children->content)
-        {
-          string ext ((const char*)attrs->children->content);
-          rc->extensions.push_back (ext);
-        }
-      }
-    }
-
-    if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *)"DEFINE"))
-    {
-      const char *name = NULL;
-      const char *value = NULL;
-
-      for (attrs = lcur->properties; attrs; attrs = attrs->next)
-      {
-        if (!xmlStrcmp (attrs->name, (const xmlChar *)"name") &&
-            attrs->children && attrs->children->content)
-          name = (const char*)attrs->children->content;
-
-        if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") &&
-            attrs->children && attrs->children->content)
-          value = (const char*)attrs->children->content;
-      }
-
-      if (name && value)
-      {
-        string key (name);
-	string val (value);
-	NodeTree<string> *nt = new NodeTree<string> (val);
-        rc->hashedData.put (key, nt);
-      }
-
-    }
-
-    if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *)"PATH"))
-    {
-      for (attrs = lcur->properties; attrs; attrs = attrs->next)
-      {
-        if (!xmlStrcmp (attrs->name, (const xmlChar *)"regex") &&
-            attrs->children && attrs->children->content)
-        {
-          Regex *r = new Regex;
-
-          if (r->compile ((const char*)attrs->children->content, 0))
-            {
-              delete r;
-              return NULL;
-            }
-
-          rc->pathRegex.push_back (r);
-        }
-      }
-    }
-
-    if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *)"FILTER"))
-    {
-      for (attrs = lcur->properties; attrs; attrs = attrs->next)
-      {
-        if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") &&
-            attrs->children && attrs->children->content)
-          rc->addFilter ((const char*)attrs->children->content);
-      }
-    }
-  }
-
-  return rc;
-}
-
-/*!
  * Reload using the same configuration file.
  */
 u_long MimeManager::reload ()
 {
-  if (!filename.length ())
-    return -1;
+ HashMap<string, MimeManagerHandler*>::Iterator it = handlers.begin ();
+  for (;it != handlers.end (); it++)
+    (*it)->reload ();
 
-  return loadXML (getFilename ());
+  return 0;
 }
 
-/*!
- * Load the MIME types from a XML file. Returns the number of
- * MIME types loaded successfully.
- */
-u_long MimeManager::loadXML (const char *fn)
-{
-  XmlParser parser;
-  u_long ret = 0;
-
-  if (parser.open (fn))
-    return -1;
-
-  filename.assign (fn);
-
-  ret = loadXML (&parser);
-
-  parser.close ();
-
-  return ret;
-}
-
-/*!
- * Load the MIME types from a XML parser object. Returns the number
- * of MIME types loaded successfully.
- */
-u_long MimeManager::loadXML (XmlParser* parser)
-{
-  xmlNodePtr node;
-  xmlDocPtr doc;
-
-  clearRecords ();
-
-  doc = parser->getDoc ();
-  node = doc->children->children;
-
-  for (; node; node = node->next)
-  {
-    if (xmlStrcmp (node->name, (const xmlChar *)"MIME"))
-      continue;
-
-    MimeRecord *rc = readRecord (node);
-
-    if (rc)
-      addRecord (rc);
-  }
-
-  /*! Store the loaded status. */
-  loaded = true;
-
-  return getNumMIMELoaded ();
-}
-
-/*!
- * Destroy the object.
- */
 MimeManager::~MimeManager ()
 {
   clean ();
@@ -333,12 +166,7 @@ MimeManager::~MimeManager ()
  */
 void MimeManager::clean ()
 {
-  if (loaded)
-  {
-    loaded = false;
-    filename.assign ("");
-    clearRecords ();
-  }
+
 }
 
 /*!
@@ -346,127 +174,23 @@ void MimeManager::clean ()
  */
 MimeManager::MimeManager ()
 {
-  loaded = false;
+  defHandler = NULL;
 }
 
 /*!
- * Add a new record.
- * \return Return the position for the new record.
- */
-int MimeManager::addRecord (MimeRecord *mr)
-{
-  u_long position = records.size ();
-
-  records.push_back (mr);
-
-  for (list<string>::iterator it = mr->extensions.begin ();
-       it != mr->extensions.end (); it++)
-    {
-      string &ext = *it;
-
-#ifdef MIME_LOWER_CASE
-      transform (ext.begin (), ext.end (), ext.begin (), ::tolower);
-#endif
-      extIndex.put (ext, position);
-    }
-
-  for (list<Regex*>::iterator it = mr->pathRegex.begin ();
-       it != mr->pathRegex.end (); it++)
-    {
-      PathRegex *pr = new PathRegex;
-      pr->regex = *it;
-      pr->record = position;
-
-      pathRegex.push_back (pr);
-    }
-
-  return position;
-}
-
-/*!
- * Remove all the stored records.
- */
-void MimeManager::clearRecords ()
-{
-  vector <MimeRecord*>::iterator i = records.begin ();
-
-  while (i != records.end ())
-    {
-      MimeRecord *r = *i;
-      if (r)
-        delete r;
-      i++;
-    }
-
-  for (list<PathRegex*>::iterator it = pathRegex.begin ();
-       it != pathRegex.end (); it++)
-    delete *it;
-
-
-  for (HashMap<string, MimeManagerHandler*>::Iterator it = handlers.begin ();
-       it != handlers.end (); it++)
-    delete *it;
-
-  pathRegex.clear ();
-  records.clear ();
-
-  extIndex.clear ();
-
-  /* The first record is not used to store information.  */
-  records.push_back (NULL);
-}
-
-/*!
- * Get the MIME type to use on the specified file.
- * \param filename Find the MIME type for this file.
- * \param handler If specified, indicate an external handler to use
- * if the mime cannot be found locally.
- */
-MimeRecord *MimeManager::getMIME (string const &filename, const char *handler)
-{
-  return getMIME (filename.c_str (), handler);
-}
-
-/*!
- * Get the MIME type to use on the specified file.
- * \param filename Find the MIME type for this file.
- * \param handler If specified, indicate an external handler to use
- * if the mime cannot be found locally.
+ * Get the MIME record using the registered handlers.
  */
 MimeRecord *MimeManager::getMIME (const char *filename, const char *handler)
 {
-  string ext;
-  u_long pos = 0;
-
-  for (list<PathRegex*>::iterator it = pathRegex.begin ();
-       it != pathRegex.end ();
-       it++)
-  {
-    PathRegex *pr = *it;
-    regmatch_t pm;
-
-    if (pr->regex->exec (filename, 1, &pm, 0) == 0)
-    {
-      pos = pr->record;
-      break;
-    }
-  }
-
-  if (pos == 0)
-    {
-      FilesUtility::getFileExt (ext, filename);
-      pos = extIndex.get (ext.c_str ());
-    }
-
-  if (pos)
-    return records [pos];
-
   if (handler)
     {
       MimeManagerHandler *h = handlers.get (handler);
       if (h)
         return h->getMIME (filename);
     }
+
+  if (defHandler)
+    return defHandler->getMIME (filename);
 
   return NULL;
 }
@@ -485,17 +209,11 @@ void MimeManager::registerHandler (string &name, MimeManagerHandler *handler)
 }
 
 /*!
- * Returns the number of MIME types loaded.
+ * Set the default handler specifying its name.
+ *
+ * \param name The default handler name.
  */
-u_long MimeManager::getNumMIMELoaded ()
+void MimeManager::setDefaultHandler (string &name)
 {
-  return records.size () -1;
-}
-
-/*!
- * Check if the MIME manager is loaded.
- */
-bool MimeManager::isLoaded ()
-{
-  return loaded;
+  defHandler = handlers.get (name);
 }
