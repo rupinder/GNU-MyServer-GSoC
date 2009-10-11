@@ -362,9 +362,18 @@ int XmlVhostHandler::loadXMLConfigurationFile (const char *filename)
                     loc.append ((const char*) attrs->children->content);
                 }
 
-              MimeRecord *rc = XmlMimeHandler::readRecord (lcur);
-              vh->addLocationMime (loc, rc);
-              vh->getLocationsMime ()->put (loc, rc);
+              MimeRecord *record = XmlMimeHandler::readRecord (lcur);
+              MimeRecord *prev = vh->addLocationMime (loc, record);
+              if (prev)
+                {
+                  Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
+                     _("The location `%s' is registered multiple times"),
+                                               loc.c_str ());
+
+                  delete prev;
+                }
+
+              vh->getLocationsMime ()->put (loc, record);
             }
           else if (!xmlStrcmp (lcur->name, (const xmlChar *)"SSL_PRIVATEKEY"))
             {
