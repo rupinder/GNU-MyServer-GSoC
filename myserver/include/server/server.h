@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # include <include/base/sync/event.h>
 # include <include/conf/mime/mime_manager.h>
 # include <include/conf/vhost/vhost_manager.h>
+# include <include/conf/vhost/xml_vhost_handler.h>
 # include <include/protocol/protocols_manager.h>
 # include <include/connection/connection.h>
 # include <include/log/log_manager.h>
@@ -142,7 +143,7 @@ public:
   ListenThreads *getListenThreads (){return &listenThreads;}
 
   void *getEnvString (){return envString;}
-  VhostManager *getVhosts (){return vhostList;}
+  VhostManager *getVhosts (){return &vhostList;}
   MimeManager *getMimeManager (){return &mimeManager;}
 
   void setProcessPermissions ();
@@ -167,6 +168,7 @@ private:
   friend class ClientsThread;
   XmlValidator *xmlValidator;
   XmlMimeHandler xmlMimeHandler;
+  XmlVhostHandler *vhostHandler;
 
   MainConfiguration *configurationFileManager;
   MainConfiguration* (*genMainConf) (Server *server, const char *arg);
@@ -201,7 +203,7 @@ private:
   CachedFileFactory cachedFiles;
 
   void *envString;
-  VhostManager *vhostList;
+  VhostManager vhostList;
   MimeManager mimeManager;
   HomeDir homeDir;
 

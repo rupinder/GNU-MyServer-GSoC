@@ -74,7 +74,7 @@ Server::Server () : connectionsScheduler (this),
   throttlingRate = 0;
   path = 0;
   ipAddresses = 0;
-  vhostList = 0;
+  vhostHandler = NULL;
   purgeThreadsThreshold = 1;
   freeThreads = 0;
   logManager = new LogManager (&filtersFactory);
@@ -131,14 +131,13 @@ int Server::loadLibraries ()
   return 0;
 }
 
-
 /*!
  * Destroy the object.
  */
 Server::~Server ()
 {
-  if (vhostList)
-    delete vhostList;
+  if (vhostHandler)
+    delete vhostHandler;
 
   if (xmlValidator)
     delete xmlValidator;
@@ -279,13 +278,8 @@ int Server::postLoad ()
 
   listenThreads.initialize ();
 
-  if (vhostList)
-    delete vhostList;
-
-  vhostList = new VhostManager (&listenThreads, logManager);
-
-  if (vhostList == NULL)
-    return -1;
+  vhostHandler = new XmlVhostHandler (&listenThreads, logManager);
+  vhostList.setHandler (vhostHandler);
 
   getProcessServerManager ()->load ();
 
@@ -295,7 +289,7 @@ int Server::postLoad ()
   loadPlugins ();
 
   /* Load the virtual hosts configuration from the xml file.  */
-  vhostList->loadXMLConfigurationFile (vhostConfigurationFile.c_str ());
+  vhostHandler->loadXMLConfigurationFile (vhostConfigurationFile.c_str ());
 
   if (path == 0)
     path = new string ();
@@ -432,7 +426,7 @@ void Server::mainLoop ()
                 }
               else if (hostsConfTimeNow != hostsConfTime)
                 {
-                  VhostManager* oldvhost = vhostList;
+                  VhostManagerHandler* oldvhost = vhostHandler;
                   string msg ("vhosts-conf-changed");
                   notifyMulticast (msg, 0);
 
@@ -457,15 +451,13 @@ void Server::mainLoop ()
                   connectionsScheduler.restart ();
                   listenThreads.initialize ();
 
-                  vhostList = new VhostManager (&listenThreads, logManager);
-
-                  if (!vhostList)
-                    continue;
+                  vhostHandler = new XmlVhostHandler (&listenThreads, logManager);
+                  vhostList.setHandler (vhostHandler);
 
                   delete oldvhost;
 
                   /* Load the virtual hosts configuration from the xml file.  */
-                  if (vhostList->loadXMLConfigurationFile (vhostConfigurationFile.c_str ()))
+                  if (vhostHandler->loadXMLConfigurationFile (vhostConfigurationFile.c_str ()))
                     listenThreads.rollbackFastReboot ();
                   else
                     listenThreads.commitFastReboot ();
@@ -684,8 +676,11 @@ int Server::terminate ()
 
   freeHashedData ();
 
-  ipAddresses = 0;
-  vhostList = 0;
+  ipAddresses = NULL;
+
+  if (vhostHandler)
+    delete vhostHandler;
+  vhostHandler = NULL;
 
 #ifdef WIN32
   /*
@@ -1073,11 +1068,7 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
   newConnection->setLocalPort (localPort);
   newConnection->setIpAddr (ipAddr);
   newConnection->setLocalIpAddr (localIpAddr);
-  newConnection->host = vhostList->getVHost (0,
-                                             localIpAddr,
-                                             localPort);
-
-  /* No vhost for the connection so bail.  */
+  newConnection->host = vhostList.getVHost (0, localIpAddr, localPort);
   if (newConnection->host == 0)
     {
       connectionsPoolLock.lock ();

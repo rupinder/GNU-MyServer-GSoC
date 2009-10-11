@@ -23,54 +23,31 @@
 # include <include/conf/vhost/vhost.h>
 # include <include/log/log_manager.h>
 
-class VhostSource
+class VhostManagerHandler
 {
 public:
-  VhostSource ();
-  ~VhostSource ();
-  int load ();
-  int save ();
-  int free ();
-  Vhost* getVHost (const char*, const char*, u_short);
-  Vhost* getVHostByNumber (int n);
-  int addVHost (Vhost*);
-private:
-  list<Vhost*> *hostList;
+  VhostManagerHandler ();
+  virtual ~VhostManagerHandler ();
+  virtual Vhost* getVHost (const char*, const char*, u_short);
+  virtual Vhost* getVHostByNumber (int n);
+  virtual int addVHost (Vhost*);
 };
 
+/*!
+ * Proxy class to a VhostManagerHandler object.
+*/
 class VhostManager
 {
 public:
-  void setExternalSource (VhostSource* extSource);
-  VhostManager (ListenThreads* lt, LogManager* lm);
-  ~VhostManager ();
-  int getHostsNumber ();
-  Vhost* getVHostByNumber (int n);
-  void clean ();
-  int removeVHost (int n);
-  int switchVhosts (int n1,int n2);
-  list<Vhost*>* getVHostList ();
+  VhostManager ();
+  void setHandler (VhostManagerHandler *handler);
 
   /*! Get a pointer to a vhost.  */
   Vhost* getVHost (const char*,const char*,u_short);
+  Vhost* getVHostByNumber (int n);
 
-  /*! Add an element to the vhost list.  */
-  int addVHost (Vhost*);
-
-  /*! Load the virtual hosts list from a xml configuration file.  */
-  int loadXMLConfigurationFile (const char *);
-
-  /*! Set the right owner for the log locations.  */
-  void changeLocationsOwner ();
-private:
-  void loadXMLlogData (string, Vhost*, xmlNode*);
-  ListenThreads* listenThreads;
-  Mutex mutex;
-  VhostSource* extSource;
-
-  /*! List of virtual hosts. */
-  list<Vhost*> hostList;
-  LogManager* logManager;
+protected:
+  VhostManagerHandler *handler;
 };
 
 #endif

@@ -51,8 +51,6 @@ public:
 class Vhost
 {
 public:
-  friend class VhostManager;
-
   struct StringRegex
   {
     string name;
@@ -200,6 +198,14 @@ public:
   void setProtocolData (VhostProtocolData* data){protocolData = data;}
 
   MimeRecord* getLocationMime (string& loc){return locationsMime.get (loc);}
+
+  list<NodeTree<string>*> *getHashedDataTrees (){return &hashedDataTrees;}
+  HashMap<string, NodeTree<string>*>* getHashedData (){return &hashedData;}
+
+  HashMap<string, MimeRecord*>* getLocationsMime (){return &locationsMime;}
+  MimeRecord *addLocationMime (string &val, MimeRecord *r);
+  MimeManagerHandler *getMimeHandler (){return mimeHandler;}
+  void setMimeHandler (MimeManagerHandler *h){ mimeHandler = h;}
 
 private:
   const static string accessLogType;

@@ -496,3 +496,15 @@ int Vhost::freeSSL ()
 {
   return sslContext.free ();
 }
+
+/*!
+ * Add a new location->mime association.
+ *
+ * \param location Location where use the specified mime type.
+ * \param record The MIME type to use.
+ * \return The MIME record previously registered on the location, if any.
+ */
+MimeRecord *Vhost::addLocationMime (string &location, MimeRecord *record)
+{
+  return locationsMime.put (location, record);
+}
