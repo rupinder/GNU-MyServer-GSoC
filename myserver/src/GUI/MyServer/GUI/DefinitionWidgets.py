@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import gtk
 import gobject
 from MyServer.pycontrollib.definition import DefinitionElement, DefinitionTree
+from MyServer.GUI import GUIConfig
 
 class DefinitionTable(gtk.Table):
     def __init__(self, tree):
@@ -34,13 +35,25 @@ class DefinitionTable(gtk.Table):
         self.attach(enabled_checkbutton, 1, 3, 0, 1, yoptions = gtk.FILL)
 
         value_label = gtk.Label('value:')
-        self.value_field = value_entry = gtk.Entry()
+        self.string_value_field = gtk.Entry()
+        self.int_value_field = gtk.SpinButton()
+        self.int_value_field.set_adjustment(
+            gtk.Adjustment(0, 0, 2 ** 32 - 1, 1))
+        self.int_value_field.hide()
+        self.bool_value_field = gtk.combo_box_new_text()
+        self.bool_value_field.append_text('YES')
+        self.bool_value_field.append_text('NO')
+        self.bool_value_field.hide()
+        value_box = gtk.VBox()
+        value_box.add(self.string_value_field)
+        value_box.add(self.int_value_field)
+        value_box.add(self.bool_value_field)
         self.value_check_field = value_checkbutton = gtk.CheckButton()
         value_checkbutton.set_tooltip_text('If not active value won\'t be saved in configuration.')
         value_checkbutton.set_active(True)
 
         self.attach(value_label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
-        self.attach(value_entry, 1, 2, 1, 2, yoptions = gtk.FILL)
+        self.attach(value_box, 1, 2, 1, 2, yoptions = gtk.FILL)
         self.attach(value_checkbutton, 2, 3, 1, 2, gtk.FILL, gtk.FILL)
 
         add_definition_button = gtk.Button('add sub-definition')
@@ -113,7 +126,9 @@ class DefinitionTable(gtk.Table):
     def clear(self):
         '''Clear input widgets.'''
         self.enabled_field.set_active(False)
-        self.value_field.set_text('')
+        self.string_value_field.set_text('')
+        self.int_value_field.set_value(0)
+        self.bool_value_field.set_active(0)
         self.value_check_field.set_active(False)
         self.attributes_field.clear()
         self.last_selected = None
@@ -129,7 +144,13 @@ class DefinitionTable(gtk.Table):
                 i = self.attributes_field.iter_next(i)
             row = tree.get_model()[self.last_selected]
             row[3] = self.enabled_field.get_active()
-            row[4] = self.value_field.get_text()
+            var_type = GUIConfig.options.get(row[0], ('', 'string', ))[1]
+            if var_type == 'string':
+                row[4] = self.string_value_field.get_text()
+            elif var_type == 'integer':
+                row[4] = str(int(self.int_value_field.get_value()))
+            elif var_type == 'bool':
+                row[4] = 'NO' if self.bool_value_field.get_active() else 'YES'
             row[5] = self.value_check_field.get_active()
             row[6] = attributes
 
@@ -142,7 +163,19 @@ class DefinitionTable(gtk.Table):
         self.last_selected = current = self.get_selected(tree)
         row = tree.get_model()[current]
         self.enabled_field.set_active(row[3])
-        self.value_field.set_text(row[4])
+        var_type = GUIConfig.options.get(row[0], ('', 'string', ))[1]
+        self.string_value_field.hide()
+        self.int_value_field.hide()
+        self.bool_value_field.hide()
+        if var_type == 'string':
+            self.string_value_field.set_text(row[4])
+            self.string_value_field.show()
+        elif var_type == 'integer':
+            self.int_value_field.set_value(int(row[4]))
+            self.int_value_field.show()
+        elif var_type == 'bool':
+            self.bool_value_field.set_active(int(row[4] == 'NO'))
+            self.bool_value_field.show()
         self.value_check_field.set_active(row[5])
         for attribute in row[6]:
             self.attributes_field.append((attribute, row[6][attribute], ))
@@ -244,7 +277,13 @@ class DefinitionTreeView(gtk.TreeView):
         while i is not None: # iterate over options
             row = model[i]
             row[3] = False
-            row[4] = ''
+            var_type = GUIConfig.options.get(row[0], ('', 'string', ))[1]
+            if var_type == 'string':
+                row[4] = ''
+            elif var_type == 'integer':
+                row[4] = '0'
+            elif var_type == 'bool':
+                row[4] = 'YES'
             row[5] = False
             row[6] = {}
             child = model.iter_children(i)
