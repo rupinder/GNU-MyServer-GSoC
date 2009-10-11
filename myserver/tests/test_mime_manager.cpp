@@ -22,7 +22,7 @@
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <include/conf/mime/mime_manager.h>
+#include <include/conf/mime/xml_mime_handler.h>
 
 #include <string.h>
 
@@ -30,17 +30,17 @@
 using namespace std;
 
 
-class TestMimeManager : public CppUnit::TestFixture
+class TestXmlMimeHandler : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE ( TestMimeManager );
+  CPPUNIT_TEST_SUITE ( TestXmlMimeHandler );
   CPPUNIT_TEST ( testLoadXML );
   CPPUNIT_TEST_SUITE_END ();
 
-  MimeManager *mm;
+  XmlMimeHandler *mm;
 public:
   void setUp ()
   {
-    mm = new MimeManager;
+    mm = new XmlMimeHandler;
   }
 
   void tearDown ()
@@ -99,4 +99,4 @@ private:
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION ( TestMimeManager );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestXmlMimeHandler );
