@@ -622,7 +622,7 @@ class PyGTKControl():
             self.tabs[tab] = (table, tree, )
 
             for option in options:
-                tooltip_text, var = GUIConfig.options[option]
+                tooltip_text = GUIConfig.options[option][0]
                 # all but first three columns will be set to defaults later by
                 # on_new_menu_item_activate
                 tree_model.append(None, (option, tooltip_text, True, False, '',
