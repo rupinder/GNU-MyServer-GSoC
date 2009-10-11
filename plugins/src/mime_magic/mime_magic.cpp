@@ -39,7 +39,7 @@ public:
 
   }
 
-  virtual int load (const char *resource)
+  virtual u_long load (const char *resource)
   {
     cookie = magic_open (MAGIC_SYMLINK | MAGIC_MIME_TYPE);
     return magic_load (cookie, NULL);
@@ -114,7 +114,16 @@ EXPORTABLE(int) load (void* server)
 	return 0;
 }
 
-EXPORTABLE(int) postLoad(void* server)
+static MimeManagerHandler *builder ()
+{
+  return new XmlMimeHandler ();
+}
+
+void XmlMimeHandler::registerBuilder (MimeManager& manager)
+{
+}
+
+EXPORTABLE(int) postLoad (void* server)
 {
   string name ("mime_magic");
 	Server *serverInstance = (Server*)server;
@@ -129,7 +138,7 @@ EXPORTABLE(int) postLoad(void* server)
     }
 
   mimeManager->registerHandler (name, handler);
-
+  mimeManager->registerBuilder (name, builder);
 	return 0;
 }
 
