@@ -71,39 +71,14 @@ AC_ARG_ENABLE([tests], [--disable-tests Disable the tests suite],
 
 AC_ARG_ENABLE([gui], [--enable-gui Build and install GUI application], enable_gui="yes", enable_gui="")
 
-dnl Looking for argp.h
+
 AC_CHECK_HEADER([argp.h], AC_DEFINE(ARGP, 1, [Define if GNU argp tools are available]))
-
-dnl Looking for error.h
 AC_CHECK_HEADER([error.h], AC_DEFINE(ERRORH, 1, [Define if the error.h file is present]))
-
 AC_CHECK_HEADER([grp.h], AC_DEFINE(GRP, 1, [Define if grp.h is available]))
-
 AC_CHECK_HEADER([tre/regex.h], AC_DEFINE(TRE, 1, [Define if the tre library is present]))
-
 AC_CHECK_HEADER([sys/sendfile.h], AC_DEFINE(SENDFILE, 1, [Define if the sendfile syscall is present]))
 
-AC_CHECK_FUNCS(regcomp, AC_DEFINE(REGEX, 1, [Define if the regex library is present]) )
-
-AC_CHECK_FUNCS(gettimeofday, AC_DEFINE(GETTIMEOFDAY, 1, [Define if the gettimeofday function is present]) )
-
-AC_CHECK_FUNCS(setgroups, AC_DEFINE(SETGROUPS, 1, [Define if the setgroups function is present]) )
-
-AC_CHECK_FUNCS(localtime_r, AC_DEFINE(LOCALTIME_R, 1, [Define if the localtime_r function is present]) )
-
-AC_CHECK_FUNCS(pipe, AC_DEFINE(PIPE, 1, [Define if the pipe function is present]) )
-
-AC_CHECK_FUNCS(posix_fallocate, AC_DEFINE(POSIX_FALLOCATE, 1, [Define if the posix_fallocate function is present]) )
-
-AC_CHECK_FUNCS(snprintf, AC_DEFINE(SNPRINTF, 1, [Define if the snprintf function is present]) )
-
-AC_CHECK_FUNCS(openat, AC_DEFINE(OPENAT, 1, [Define if the openat function is present]) )
-
-AC_CHECK_FUNCS(fstatat, AC_DEFINE(FSTATAT, 1, [Define if the fstatat function is present]) )
-
-AC_CHECK_FUNCS(getpwnam, AC_DEFINE(GETPWNAM, 1, [Define if the getpwnam function is present]) )
-
-AC_CHECK_FUNCS(ffsl, AC_DEFINE(FFSL, 1, [Define if the ffsl function is present]) )
+AC_CHECK_FUNCS(regcomp gettimeofday setgroups localtime_r pipe posix_fallocate snprintf openat fstatat getpwnam ffsl readdir_r)
 
 AC_CHECK_LIB(gcrypt, gcry_control, AC_DEFINE(GCRY_CONTROL, 1, [Define if the gcry_control function is present]))
 
@@ -299,8 +274,6 @@ else
     AC_DEFINE(HAVE_IPV6, 0, [Disable IPv6 support])
 fi
 
-
-
 if test x$enable_tests == xyes; then
   dnl Looking for cppunit
   AM_PATH_CPPUNIT(1.12.0, have_cppunit=yes)
@@ -420,7 +393,7 @@ AC_CONFIG_FILES([ po/Makefile.in
     include/http_handler/http_dir/Makefile
     include/base/Makefile
     include/base/bitvec/Makefile
-    include/base/find_data/Makefile
+    include/base/read_directory/Makefile
     include/base/file/Makefile
     include/base/pipe/Makefile
     include/base/base64/Makefile
@@ -475,7 +448,7 @@ AC_CONFIG_FILES([ po/Makefile.in
     src/http_handler/http_dir/Makefile
     src/base/Makefile
     src/base/bitvec/Makefile
-    src/base/find_data/Makefile
+    src/base/read_directory/Makefile
     src/base/file/Makefile
     src/base/pipe/Makefile
     src/base/base64/Makefile

@@ -199,8 +199,8 @@ bool Http::allowMethod (const char *method)
   char name[64];
   sprintf (name, "http.%s.allow", method);
   const char *allow = td->securityToken.getData (name,
-                                                       MYSERVER_VHOST_CONF |
-                                                       MYSERVER_SERVER_CONF, "YES");
+                                                 MYSERVER_VHOST_CONF |
+                                                 MYSERVER_SERVER_CONF, "YES");
 
   if (!strcmpi (allow, "NO"))
     return false;
@@ -643,12 +643,12 @@ Http::sendHTTPResource (string& uri, int systemrequest, int onlyHeader,
       /* If not specified differently, set the default content type to text/html.  */
       if (td->mime)
         {
-          td->response.setValue ("ContentType", td->mime->mimeType.c_str ());
+          td->response.setValue ("Content-Type", td->mime->mimeType.c_str ());
           cgiManager = td->mime->cgiManager.c_str ();
         }
       else
         {
-          td->response.setValue ("ContentType", "text/html");
+          td->response.setValue ("Content-Type", "text/html");
           cgiManager = "";
         }
 
@@ -790,8 +790,6 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       td->http = this;
       td->appendOutputs = 0;
       td->onlyHeader = 0;
-      td->inputData.setHandle ((Handle) 0);
-      td->outputData.setHandle ((Handle) 0);
       td->filenamePath.assign ("");
       td->outputDataPath.assign ("");
       td->inputDataPath.assign ("");
@@ -799,11 +797,9 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
       td->sentData = 0;
       td->vhostDir.assign ("");
       td->vhostSys.assign ("");
-      {
-        HashMap<string, string*>::Iterator it = td->other.begin ();
-        while (it != td->other.end ())
-          delete (*it);
-      }
+      HashMap<string, string*>::Iterator it = td->other.begin ();
+      while (it != td->other.end ())
+        delete (*it);
       td->other.clear ();
 
       /*
@@ -915,7 +911,6 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
           if (ret == -1)
             {
               logHTTPaccess ();
-
               return ClientsThread::DELETE_CONNECTION;
             }
           else if (ret)
@@ -1781,12 +1776,7 @@ int Http::sendAuth ()
 int Http::loadProtocolStatic ()
 {
   const char *data = NULL;
-  string pluginsResource (Server::getInstance ()->getExternalPath ());
 
-  /*
-   * Store defaults value.
-   * By default use GZIP with files bigger than a MB.
-   */
   staticHttp.timeout = MYSERVER_SEC (15);
 
   Server::getInstance ()->setGlobalData ("http-static", getStaticData ());
@@ -1810,11 +1800,10 @@ int Http::loadProtocolStatic ()
       else
         staticHttp.allowVhostMime = 0;
     }
+
   data = Server::getInstance ()->getData ("cgi.timeout");
   if (data)
-    {
-      staticHttp.timeout = MYSERVER_SEC (atoi (data));
-    }
+    staticHttp.timeout = MYSERVER_SEC (atoi (data));
 
   return 1;
 }

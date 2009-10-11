@@ -197,16 +197,18 @@ int Pipe::close ()
 {
   terminated = true;
 #ifndef WIN32
-  if (handles[0])
+  if (handles[0] >= 0)
     ::close (handles[0]);
-  if (handles[1])
+  if (handles[1] >= 0)
     ::close (handles[1]);
-  handles[0] = handles[1] = 0;
+
+  handles[0] = handles[1] = -1;
 #else
-  if (readHandle)
+  if (readHandle >= 0)
     CloseHandle (readHandle);
-  if (writeHandle)
+  if (writeHandle >= 0)
     CloseHandle (writeHandle);
+
   readHandle = writeHandle = 0;
 #endif
   return 0;
@@ -232,10 +234,15 @@ Pipe::Pipe ()
 {
   terminated = false;
 #ifndef WIN32
-  handles[0] = handles[1] = 0;
+  handles[0] = handles[1] = -1;
 #else
-  readHandle = writeHandle = 0;
+  readHandle = writeHandle = -1;
 #endif
+}
+
+Pipe::~Pipe ()
+{
+  close ();
 }
 
 /*!
@@ -245,13 +252,13 @@ void Pipe::closeRead ()
 {
   terminated = true;
 #ifndef WIN32
-  if (handles[0])
+  if (handles[0] >= 0)
     ::close (handles[0]);
-  handles[0] = 0;
+  handles[0] = -1;
 #else
-  if (readHandle)
+  if (readHandle >= 0)
     CloseHandle (readHandle);
-  readHandle = 0;
+  readHandle = -1;
 #endif
 }
 
@@ -262,13 +269,13 @@ void Pipe::closeWrite ()
 {
   terminated = true;
 #ifndef WIN32
-  if (handles[1])
+  if (handles[1] >= 0)
     ::close (handles[1]);
-  handles[1] = 0;
+  handles[1] = -1;
 #else
-  if (writeHandle)
+  if (writeHandle >= 0)
     CloseHandle (writeHandle);
-  writeHandle = 0;
+  writeHandle = -1;
 #endif
 }
 

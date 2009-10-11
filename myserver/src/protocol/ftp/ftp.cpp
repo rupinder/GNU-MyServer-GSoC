@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <include/base/file/files_utility.h>
 #include <include/base/file/file.h>
 #include <include/base/string/securestr.h>
-#include <include/base/find_data/find_data.h>
+#include <include/base/read_directory/read_directory.h>
 #include <include/base/string/stringutils.h>
 #include <include/base/mem_buff/mem_buff.h>
 
@@ -564,20 +564,20 @@ void Ftp::pasv ()
 #endif
   MYSERVER_SOCKADDRIN asockIn;
   socklen_t asockInLen = 0;
-  Socket asock;
+  Socket *asock;
   if (pFtpuserData->m_pDataConnection->socket->dataOnRead (timeoutvalue, 0)
       == 1)
     {
       asockInLen = sizeof (sockaddr_in);
-      asock =pFtpuserData->m_pDataConnection->socket->accept (&asockIn,
-                                                           &asockInLen);
-      if (asock.getHandle () == (Handle) INVALID_SOCKET)
+      asock = pFtpuserData->m_pDataConnection->socket->accept (&asockIn,
+                                                               &asockInLen);
+      if (asock->getHandle () == (Handle) INVALID_SOCKET)
         return;
 
       pFtpuserData->m_pDataConnection->socket->shutdown (SD_BOTH);
       pFtpuserData->m_pDataConnection->socket->close ();
       delete pFtpuserData->m_pDataConnection->socket;
-      pFtpuserData->m_pDataConnection->socket = new Socket (asock);
+      pFtpuserData->m_pDataConnection->socket = asock;
     }
 
   pFtpuserData->m_bPassiveSrv = false;
@@ -1577,9 +1577,8 @@ Ftp::openDataPassive ()
 #endif // WIN32
   ((sockaddr_in *) (&storage))->sin_port =
     htons (getPortNo (pFtpuserData->m_cdh));
-  if (pSocket->
-      setsockopt (SOL_SOCKET, SO_REUSEADDR, (const char *) &nReuseAddr,
-                  sizeof (nReuseAddr)) < 0)
+  if (pSocket->setsockopt (SOL_SOCKET, SO_REUSEADDR, (const char *) &nReuseAddr,
+                           sizeof (nReuseAddr)) < 0)
     return 0;
 
   if (pSocket->bind (&storage, sizeof (sockaddr_in)) != 0
@@ -1602,13 +1601,16 @@ Ftp::openDataActive ()
   FtpuserData *pFtpuserData =
     static_cast < FtpuserData * >(td.pConnection->protocolBuffer);
 
-  Socket dataSocket;
-  dataSocket.socket (PF_INET, SOCK_STREAM, IPPROTO_TCP);
+  Socket *dataSocket = new Socket ();
+  dataSocket->socket (PF_INET, SOCK_STREAM, IPPROTO_TCP);
   char szIpAddr[16];
   memset (szIpAddr, 0, 16);
   getIpAddr (pFtpuserData->m_cdh, szIpAddr, 16);
-  if (dataSocket.connect (szIpAddr, getPortNo (pFtpuserData->m_cdh)) < 0)
-    return 0;
+  if (dataSocket->connect (szIpAddr, getPortNo (pFtpuserData->m_cdh)) < 0)
+    {
+      delete dataSocket;
+      return 0;
+    }
 
   pFtpuserData->m_pDataConnection->setPort (getPortNo (pFtpuserData->m_cdh));
   pFtpuserData->m_pDataConnection->setLocalPort (pFtpuserData->m_nLocalDataport);
@@ -1616,7 +1618,7 @@ Ftp::openDataActive ()
   pFtpuserData->m_pDataConnection->setLocalIpAddr (td.pConnection->
                                                    getLocalIpAddr ());
   pFtpuserData->m_pDataConnection->host = td.pConnection->host;
-  pFtpuserData->m_pDataConnection->socket = new Socket (dataSocket);
+  pFtpuserData->m_pDataConnection->socket = dataSocket;
   pFtpuserData->m_pDataConnection->setScheduled (1);
 
   return 1;
@@ -1732,7 +1734,7 @@ Ftp::list (const std::string & sParam /*= ""*/ )
   char perm[11];
   if (FilesUtility::isDirectory (sPath))
     {
-      FindData fd;
+      ReadDirectory fd;
       //dir MUST ends with '/'
       if (fd.findfirst (sPath))
         {
@@ -1747,7 +1749,7 @@ Ftp::list (const std::string & sParam /*= ""*/ )
                                                  ".security.xml");
       do
         {
-          if (fd.name[0] == '.' || !strcmpi (fd.name, secName))
+          if (fd.name[0] == '.' || !strcmpi (fd.name.c_str (), secName))
             continue;
 
           perm[10] = '\0';
@@ -1833,7 +1835,7 @@ Ftp::list (const std::string & sParam /*= ""*/ )
       // TODO: implement * selection
       std::string sDir, sFileName;
       FilesUtility::splitPath (sLocalPath, sDir, sFileName);
-      FindData fd;
+      ReadDirectory fd;
       if (fd.findfirst (sDir))
         {
           ftpReply (450);
@@ -1842,7 +1844,7 @@ Ftp::list (const std::string & sParam /*= ""*/ )
         }
       do
         {
-          if (strcmp (fd.name, sFileName.c_str ()) != 0)
+          if (strcmp (fd.name.c_str (), sFileName.c_str ()) != 0)
             continue;
 
           perm[10] = '\0';
@@ -1968,7 +1970,7 @@ Ftp::nlst (const std::string & sParam /* = "" */ )
       closeDataConnection ();
       return;
     }
-  FindData fd;
+  ReadDirectory fd;
   if (fd.findfirst (sPath))
     {
       ftpReply (450);
@@ -1985,7 +1987,7 @@ Ftp::nlst (const std::string & sParam /* = "" */ )
 					     ".security.xml");
   do
     {
-      if (fd.name[0] == '.' || !strcmpi (fd.name, secName))
+      if (fd.name[0] == '.' || !strcmpi (fd.name.c_str (), secName))
         continue;
 
       if (!sParam.empty ())

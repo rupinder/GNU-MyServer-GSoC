@@ -23,10 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # include <include/connection/connection.h>
 # include <include/base/mem_buff/mem_buff.h>
 
-class FtpProtocol;
-class HttpProtocol;
-class HttpsProtocol;
-class ControlProtocol;
 class Server;
 
 class  ClientsThread
@@ -89,10 +85,6 @@ private:
   u_long secondaryBufferSize;
   bool isRunning ();
   bool isStopped ();
-  FtpProtocol *ftpParser;
-  HttpProtocol* httpParser;
-  HttpsProtocol* httpsParser;
-  ControlProtocol  *controlProtocolParser;
   MemBuf buffer;
   MemBuf secondaryBuffer;
   int controlConnections ();

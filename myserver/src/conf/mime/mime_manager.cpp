@@ -173,6 +173,10 @@ MimeRecord *MimeManager::readRecord (xmlNodePtr node)
       rc->selfExecuted = xmlStrcmp (attrs->children->content,
                                     (const xmlChar *)"YES");
 
+    if (!xmlStrcmp (attrs->name, (const xmlChar *)"mime") &&
+        attrs->children && attrs->children->content)
+      rc->mimeType.assign ((const char*)attrs->children->content);
+
     if (!xmlStrcmp (attrs->name, (const xmlChar *)"param") &&
         attrs->children && attrs->children->content)
       rc->cgiManager.assign ((const char*)attrs->children->content);
@@ -254,6 +258,17 @@ MimeRecord *MimeManager::readRecord (xmlNodePtr node)
 }
 
 /*!
+ * Reload using the same configuration file.
+ */
+u_long MimeManager::reload ()
+{
+  if (!filename.length ())
+    return -1;
+
+  return loadXML (getFilename ());
+}
+
+/*!
  * Load the MIME types from a XML file. Returns the number of
  * MIME types loaded successfully.
  */
@@ -263,9 +278,7 @@ u_long MimeManager::loadXML (const char *fn)
   u_long ret = 0;
 
   if (parser.open (fn))
-  {
     return -1;
-  }
 
   filename.assign (fn);
 

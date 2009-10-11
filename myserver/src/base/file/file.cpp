@@ -22,7 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/file/files_utility.h>
 
 #ifndef WIN32
-extern "C" {
+extern "C"
+{
 # include <fcntl.h>
 # include <unistd.h>
 # include <sys/types.h>
@@ -70,7 +71,15 @@ const u_long File::NO_INHERIT = (1<<8);
  */
 File::File ()
 {
-  handle = 0;
+  handle = -1;
+}
+
+/*!
+ *D'tor.
+ */
+File::~File ()
+{
+  close ();
 }
 
 /*!
@@ -105,7 +114,7 @@ int File::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
  *\param opt Specify how open the file.
  */
 File::File (char *nfilename, int opt)
-  : handle (0)
+  : handle (-1)
 {
   openFile (nfilename, opt);
 }
@@ -297,11 +306,11 @@ int File::createTemporaryFile (const char* filename)
   if (FilesUtility::fileExists (filename))
     FilesUtility::deleteFile (filename);
 
-  return openFile (filename, File::READ |
-                  File::WRITE|
-                  File::FILE_CREATE_ALWAYS |
-                  File::TEMPORARY |
-                  File::NO_INHERIT);
+  return openFile (filename, File::READ
+                  | File::WRITE
+                  | File::FILE_CREATE_ALWAYS
+                  | File::TEMPORARY
+                  | File::NO_INHERIT);
 }
 
 /*!
@@ -310,7 +319,7 @@ int File::createTemporaryFile (const char* filename)
 int File::close ()
 {
   int ret = 0;
-  if (handle)
+  if (handle != -1)
     {
 #ifdef WIN32
       ret = !FlushFileBuffers (handle);
@@ -321,7 +330,7 @@ int File::close ()
 #endif
   }
   filename.clear ();
-  handle = 0;
+  handle = -1;
   return ret;
 }
 

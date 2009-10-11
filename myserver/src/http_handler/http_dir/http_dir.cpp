@@ -34,7 +34,7 @@ extern "C"
 #endif
 }
 
-#include <include/base/find_data/find_data.h>
+#include <include/base/read_directory/read_directory.h>
 #include <include/base/string/stringutils.h>
 
 #include <string>
@@ -295,7 +295,7 @@ int HttpDir::send (HttpThreadContext* td,
   u_long nbw;
   string filename;
   int ret;
-  FindData fd;
+  ReadDirectory fd;
   FiltersChain chain;
   int lastSlash = 0;
   bool useChunks = false;
@@ -337,7 +337,7 @@ int HttpDir::send (HttpThreadContext* td,
 
   checkDataChunks (td, &keepalive, &useChunks);
 
-  td->response.setValue ("ContentType", "text/html");
+  td->response.setValue ("Content-Type", "text/html");
 
   if (!td->appendOutputs)
   {
@@ -530,7 +530,7 @@ int HttpDir::send (HttpThreadContext* td,
       continue;
 
     FileStruct file;
-    file.name.assign (fd.name);
+    file.name = fd.name;
     file.time_write = fd.time_write;
     file.attrib = fd.attrib;
     file.size = fd.size;

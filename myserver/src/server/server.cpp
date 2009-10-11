@@ -31,7 +31,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/ssl/ssl.h>
 #include <include/base/socket/ssl_socket.h>
 
-#include <include/conf/xml_conf.h>
 #include <include/conf/main/xml_main_configuration.h>
 
 #include <cstdarg>
@@ -84,6 +83,7 @@ Server::Server () : connectionsScheduler (this),
   initLogManager ();
   connectionsPoolLock.init ();
   configurationFileManager = NULL;
+  genMainConf = NULL;
 }
 
 void
@@ -164,13 +164,17 @@ Server::~Server ()
  *Start the server.
  */
 void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
-                    string &externPath)
+                    string &externPath, MainConfiguration* (*genMainConf)
+                    (Server *server, const char *arg))
+
 {
   int err = 0;
 #ifdef WIN32
   DWORD eventsCount, cNumRead;
   INPUT_RECORD irInBuf[128];
 #endif
+
+  this->genMainConf = genMainConf;
 
   displayBoot ();
 
@@ -422,7 +426,7 @@ void Server::mainLoop ()
                     }
                   log (MYSERVER_LOG_MSG_INFO, _("Reloading MIME types"));
 
-                  getMimeManager ()->loadXML (getMIMEConfFile ());
+                  getMimeManager ()->reload ();
 
                   log (MYSERVER_LOG_MSG_INFO, _("Reloaded"));
 
@@ -444,8 +448,6 @@ void Server::mainLoop ()
 
                   log (MYSERVER_LOG_MSG_INFO, _("Rebooting..."));
 
-                  Socket::stopBlockingOperations (true);
-
                   connectionsScheduler.release ();
 
                   listenThreads.beginFastReboot ();
@@ -453,8 +455,6 @@ void Server::mainLoop ()
                   listenThreads.terminate ();
 
                   clearAllConnections ();
-
-                  Socket::stopBlockingOperations (false);
 
                   connectionsScheduler.restart ();
                   listenThreads.initialize ();
@@ -479,15 +479,6 @@ void Server::mainLoop ()
         }//end  if (autoRebootEnabled)
 
     }
-}
-
-void Server::logWriteNTimes (string str, unsigned n)
-{
-  while (n--)
-    logManager->log (this, "MAINLOG", logLocation, str);
-
-  string msg ("");
-  logManager->log (this, "MAINLOG", logLocation, msg, true);
 }
 
 /*!
@@ -519,15 +510,14 @@ void Server::displayBoot ()
       try
         {
           size_t length;
-          string softwareSignature;
-          softwareSignature.assign ("************ GNU MyServer ");
-          softwareSignature.append (MYSERVER_VERSION);
-          softwareSignature.append (" ************");
-          length = softwareSignature.length ();
+          string softwareSignature = "************ GNU MyServer "
+            MYSERVER_VERSION " ************";
 
-          logWriteNTimes ("*", length);
+          string tmp (softwareSignature.length (), '*');
+
+          logManager->log (this, "MAINLOG", logLocation, tmp, true);
           logManager->log (this, "MAINLOG", logLocation, softwareSignature, true);
-          logWriteNTimes ("*", length);
+          logManager->log (this, "MAINLOG", logLocation, tmp, true);
         }
       catch (exception& e)
         {
@@ -675,7 +665,6 @@ int Server::terminate ()
     (*it)->stop ();
 
   threadsMutex->unlock ();
-  Socket::stopBlockingOperations (true);
 
   connectionsScheduler.release ();
 
@@ -696,9 +685,6 @@ int Server::terminate ()
   log (MYSERVER_LOG_MSG_INFO, _("Cleaning memory"));
 
   freeHashedData ();
-
-  /* Restore the blocking status in case of a reboot.  */
-  Socket::stopBlockingOperations (false);
 
   ipAddresses = 0;
   vhostList = 0;
@@ -763,8 +749,6 @@ MainConfiguration *Server::getConfiguration ()
 int Server::initialize ()
 {
   const char *data;
-  XmlMainConfiguration *xmlMainConf;
-
 #ifdef WIN32
   envString = GetEnvironmentStrings ();
 #endif
@@ -783,17 +767,23 @@ int Server::initialize ()
   maxConnections = 0;
   maxConnectionsToAccept = 0;
 
-
-  xmlMainConf = new XmlMainConfiguration ();
-  if (xmlMainConf->open (mainConfigurationFile.c_str ()))
+  if (genMainConf)
     {
-      delete xmlMainConf;
-      return -1;
+        configurationFileManager = genMainConf (this,
+                                   mainConfigurationFile.c_str ());
+    }
+  else
+    {
+      XmlMainConfiguration *xmlMainConf = new XmlMainConfiguration ();
+      if (xmlMainConf->open (mainConfigurationFile.c_str ()))
+        {
+          delete xmlMainConf;
+          return -1;
+        }
+      configurationFileManager = xmlMainConf;
     }
 
-  configurationFileManager = xmlMainConf;
-
-  readHashedData (xmlDocGetRootElement (xmlMainConf->getDoc ())->xmlChildrenNode);
+  configurationFileManager->readData (&hashedDataTrees, &hashedData);
 
   /*
    * Process console colors information.
@@ -912,17 +902,6 @@ int Server::initialize ()
 }
 
 /*!
- * Read the values defined in the global configuration file.
- */
-void Server::readHashedData (xmlNodePtr lcur)
-{
-  XmlConf::build (lcur,
-                  &hashedDataTrees,
-                  &hashedData);
-}
-
-
-/*!
  * Check if there are free threads to handle a new request.  If there
  * are not enough threads create a new one.
  */
@@ -967,11 +946,12 @@ u_long Server::getTimeout ()
 
 /*!
  * This function add a new connection to the list.
+ * On a failure, it is responsibility of the caller to
+ * free S.
+ * \return 0 on success.
  */
-int Server::addConnection (Socket s, MYSERVER_SOCKADDRIN *asockIn)
+int Server::addConnection (Socket *s, MYSERVER_SOCKADDRIN *asockIn)
 {
-
-  int ret = 0;
   char ip[MAX_IP_STRING_LEN];
   char localIp[MAX_IP_STRING_LEN];
   u_short port;
@@ -990,13 +970,13 @@ int Server::addConnection (Socket s, MYSERVER_SOCKADDRIN *asockIn)
    */
   if ( asockIn == NULL ||
        (asockIn->ss_family != AF_INET && asockIn->ss_family != AF_INET6))
-    return 0;
+    return -1;
 
   memset (ip, 0, MAX_IP_STRING_LEN);
   memset (localIp, 0, MAX_IP_STRING_LEN);
 
-  if ( s.getHandle () == 0 )
-    return 0;
+  if (s->getHandle () < 0)
+    return -1;
 
   /*
    * Do not accept this connection if a MAX_CONNECTIONS_TO_ACCEPT limit is
@@ -1005,7 +985,7 @@ int Server::addConnection (Socket s, MYSERVER_SOCKADDRIN *asockIn)
   if (maxConnectionsToAccept
       && ((u_long)connectionsScheduler.getConnectionsNumber ()
           >= maxConnectionsToAccept))
-    return 0;
+    return -1;
 
 #if ( HAVE_IPV6 )
   if ( asockIn->ss_family == AF_INET )
@@ -1017,13 +997,13 @@ int Server::addConnection (Socket s, MYSERVER_SOCKADDRIN *asockIn)
                        sizeof (sockaddr_in6),  ip, MAX_IP_STRING_LEN,
                        NULL, 0, NI_NUMERICHOST);
   if (ret)
-    return 0;
+    return -1;
 
   if ( asockIn->ss_family == AF_INET )
     dim = sizeof (sockaddr_in);
   else
     dim = sizeof (sockaddr_in6);
-  s.getsockname ((MYSERVER_SOCKADDR*)&localSockIn, &dim);
+  s->getsockname ((MYSERVER_SOCKADDR*)&localSockIn, &dim);
 
   if ( asockIn->ss_family == AF_INET )
     ret = getnameinfo (reinterpret_cast<const sockaddr *>(&localSockIn),
@@ -1034,13 +1014,13 @@ int Server::addConnection (Socket s, MYSERVER_SOCKADDRIN *asockIn)
                        sizeof (sockaddr_in6), localIp, MAX_IP_STRING_LEN,
                        NULL, 0, NI_NUMERICHOST);
   if (ret)
-    return 0;
+    return -1;
 #else// !HAVE_IPV6
   dim = sizeof (localSockIn);
-  s.getsockname ((MYSERVER_SOCKADDR*)&localSockIn, &dim);
+  s->getsockname ((MYSERVER_SOCKADDR*)&localSockIn, &dim);
   strncpy (ip,  inet_ntoa (((sockaddr_in *)asockIn)->sin_addr),
            MAX_IP_STRING_LEN);
-  strncpy (localIp,  inet_ntoa (((sockaddr_in *)&localSockIn)->sin_addr),
+  strncpy (localIp, inet_ntoa (((sockaddr_in *)&localSockIn)->sin_addr),
            MAX_IP_STRING_LEN);
 #endif//HAVE_IPV6
 
@@ -1060,18 +1040,7 @@ int Server::addConnection (Socket s, MYSERVER_SOCKADDRIN *asockIn)
     myPort = ntohs (((sockaddr_in6 *)(&localSockIn))->sin6_port);
 #endif
 
-  if (!addConnectionToList (&s, asockIn, &ip[0], &localIp[0], port, myPort, 1))
-    {
-      /* If we report error to add the connection to the thread.  */
-      ret = 0;
-
-      /* Shutdown the socket both on receive that on send.  */
-      s.shutdown (2);
-
-      /* Then close it.  */
-      s.close ();
-    }
-  return ret;
+  return addConnectionToList (s, asockIn, &ip[0], &localIp[0], port, myPort, 1) ? 0 : -1;
 }
 
 /*!
@@ -1127,7 +1096,6 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
     }
 
   protocol = getProtocol (newConnection->host->getProtocolName ());
-
   if (protocol)
     opts = protocol->getProtocolOptions ();
 
@@ -1137,12 +1105,9 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
   if (opts & PROTOCOL_FAST_CHECK)
     doFastCheck = 1;
 
-
-
   string msg ("new-connection");
 
   handlers = getHandlers (msg);
-
   if (handlers)
     {
       for (size_t i = 0; i < handlers->size (); i++)
@@ -1176,7 +1141,7 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
       newConnection->socket = sslSocket;
     }
   else
-    newConnection->socket = new Socket (s);
+    newConnection->socket = s;
 
   if (doFastCheck)
     {
@@ -1371,15 +1336,6 @@ Protocol* Server::getProtocol (const char *protocolName)
 }
 
 /*!
- * Get where external protocols are.
- */
-const char* Server::getExternalPath ()
-{
-  return externalPath.c_str ();
-}
-
-
-/*!
  * If specified set the uid/gid for the process.
  */
 void Server::setProcessPermissions ()
@@ -1497,37 +1453,12 @@ void Server::rebootOnNextLoop ()
   toReboot = true;
 }
 
-
 /*!
  * Return the factory object to create cached files.
  */
 CachedFileFactory* Server::getCachedFiles ()
 {
   return &cachedFiles;
-}
-
-/*!
- * Return the path to the mail configuration file.
- */
-const char *Server::getMainConfFile ()
-{
-  return mainConfigurationFile.c_str ();
-}
-
-/*!
- * Return the path to the mail configuration file.
- */
-const char *Server::getVhostConfFile ()
-{
-  return vhostConfigurationFile.c_str ();
-}
-
-/*!
- * Return the path to the mail configuration file.
- */
-const char *Server::getMIMEConfFile ()
-{
-  return mimeConfigurationFile.c_str ();
 }
 
 /*!
@@ -1606,9 +1537,6 @@ int Server::addThread (bool staticThread)
     }
 
   newThread = new ClientsThread (this);
-
-  if (newThread == 0)
-    return -1;
 
   handlers = getHandlers (msg);
 

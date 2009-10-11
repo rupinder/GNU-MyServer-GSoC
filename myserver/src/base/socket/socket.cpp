@@ -19,7 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "stdafx.h"
 #include <include/base/utility.h>
 #include <include/base/socket/socket.h>
-extern "C" {
+extern "C"
+{
 #include <string.h>
 #include <stdio.h>
 #ifndef WIN32
@@ -37,8 +38,6 @@ extern "C" {
 #include <sstream>
 
 using namespace std;
-
-bool Socket::denyBlockingOperations = false;
 
 /*!
  *Source code to wrap the socket library to MyServer project.
@@ -80,38 +79,37 @@ void Socket::setHandle (SocketHandle h)
 /*!
  *Check if the two sockets have the same handle descriptor
  */
-int Socket::operator==(Socket s)
+int Socket::operator==(Socket* s)
 {
-  return socketHandle == s.socketHandle;
+  return socketHandle == s->socketHandle;
 }
 
 /*!
  *Set the socket using the = operator
  */
-int Socket::operator=(Socket s)
+int Socket::operator=(Socket* s)
 {
-  socketHandle = s.socketHandle;
-  serverSocket = s.serverSocket;
-  throttlingRate = s.throttlingRate;
-  isNonBlocking = s.isNonBlocking;
+  socketHandle = s->socketHandle;
+  serverSocket = s->serverSocket;
+  throttlingRate = s->throttlingRate;
+  isNonBlocking = s->isNonBlocking;
   return 0;
 }
 /*!
  *Create the socket.
- *\return 0 on error.
  */
 int Socket::socket (int af, int type, int protocol)
 {
 #ifdef WIN32
-  socketHandle = (SOCKET)::socket (af, type, protocol);
+  socketHandle = ::socket (af, type, protocol);
 #else
-  socketHandle = (FileHandle)::socket (af, type, protocol);
+  socketHandle = ::socket (af, type, protocol);
 #endif
-  return  (int)socketHandle;
+  return (int)socketHandle;
 }
 
 /*!
- *Set the base/socket/socket.handle.
+ * C'tor.
  */
 Socket::Socket (SocketHandle handle)
 {
@@ -121,7 +119,7 @@ Socket::Socket (SocketHandle handle)
 }
 
 /*!
- *Set the base/socket/socket.handle.
+ * C'tor.
  */
 Socket::Socket (Socket* socket)
 {
@@ -129,6 +127,11 @@ Socket::Socket (Socket* socket)
   serverSocket = socket->serverSocket;
   throttlingRate = socket->throttlingRate;
   isNonBlocking = socket->isNonBlocking;
+}
+
+Socket::~Socket ()
+{
+  close ();
 }
 
 /*!
@@ -156,8 +159,8 @@ Socket::Socket ()
 {
   /*! Reset everything.  */
   throttlingRate = 0;
-  serverSocket = 0;
-  setHandle (0);
+  serverSocket = NULL;
+  setHandle (-1);
 }
 
 /*!
@@ -176,9 +179,9 @@ int Socket::bind (MYSERVER_SOCKADDR* sa,int namelen)
     return -1;
 
 #ifdef WIN32
-  return ::bind ((SOCKET)socketHandle,(const struct sockaddr*)sa,namelen);
+  return ::bind (socketHandle, (const struct sockaddr*)sa, namelen);
 #else
-  return ::bind ((int)socketHandle,(const struct sockaddr*)sa,namelen);
+  return ::bind (socketHandle, (const struct sockaddr*)sa, namelen);
 #endif
 }
 
@@ -190,25 +193,22 @@ int Socket::listen (int max)
 #ifdef WIN32
   return ::listen (socketHandle, max);
 #else
-  return ::listen ((int)socketHandle, max);
+  return ::listen (socketHandle, max);
 #endif
 }
 
 /*!
  *Accept a new connection.
  */
-Socket Socket::accept (MYSERVER_SOCKADDR* sa, socklen_t* sockaddrlen)
+Socket* Socket::accept (MYSERVER_SOCKADDR* sa, socklen_t* sockaddrlen)
 {
-  Socket s;
+  int acceptedHandle = ::accept (socketHandle, (struct sockaddr *)sa,
+                                          sockaddrlen);
 
-  socklen_t connectSize;
-  connectSize = (socklen_t) *sockaddrlen;
-
-  SocketHandle acceptHandle = ::accept ((int)socketHandle, (struct sockaddr *)sa,
-                                       (socklen_t*)&connectSize);
-  s.setHandle (acceptHandle);
-
-  return s;
+  if (acceptedHandle >= 0)
+    return new Socket ((SocketHandle)acceptedHandle);
+  else
+    return NULL;
 }
 
 /*!
@@ -216,25 +216,17 @@ Socket Socket::accept (MYSERVER_SOCKADDR* sa, socklen_t* sockaddrlen)
  */
 int Socket::close ()
 {
+  int ret = -1;
+  if (socketHandle >= 0)
+    {
 #ifdef WIN32
-  if (socketHandle)
-  {
-    int ret = ::closesocket (socketHandle);
-    socketHandle = 0;
-    return ret;
-  }
-  else
-    return 0;
+      ret = ::closesocket (socketHandle);
 #else
-  if (socketHandle)
-  {
-    int ret = ::close ((int)socketHandle);
-    socketHandle = 0;
-    return ret;
-  }
-  else
-    return 0;
+      ret = ::close (socketHandle);
+    }
 #endif
+  socketHandle = -1;
+  return ret;
 }
 
 /*!
@@ -264,9 +256,9 @@ MYSERVER_HOSTENT *Socket::gethostbyname (const char *hostname)
 int Socket::shutdown (int how)
 {
 #ifdef WIN32
-  return ::shutdown (socketHandle,how);
+  return ::shutdown (socketHandle, how);
 #else
-  return ::shutdown ((int)socketHandle,how);
+  return ::shutdown (socketHandle, how);
 #endif
 }
 
@@ -280,7 +272,7 @@ int  Socket::setsockopt (int level, int optname,
 }
 
 /*!
- *Fill the out string with a list of the local IPs. Returns 0 on success.
+ * Fill the out string with a list of the local IPs. Returns 0 on success.
  */
 int Socket::getLocalIPsList (string &out)
 {
@@ -294,32 +286,32 @@ int Socket::getLocalIPsList (string &out)
   aiHints.ai_socktype = SOCK_STREAM;
   if ( getaddrinfo (serverName, NULL, &aiHints, &pHostInfo) == 0 &&
        pHostInfo != NULL )
-  {
-    sockaddr_storage *pCurrentSockAddr = NULL;
-    char straddr[NI_MAXHOST] = "";
-    memset (straddr, 0, NI_MAXHOST);
-    ostringstream stream;
-    for ( pCrtHostInfo = pHostInfo; pCrtHostInfo != NULL;
-          pCrtHostInfo = pCrtHostInfo->ai_next )
     {
-      pCurrentSockAddr =
-        reinterpret_cast<sockaddr_storage *>(pCrtHostInfo->ai_addr);
-      if ( pCurrentSockAddr == NULL )
-        continue;
+      sockaddr_storage *pCurrentSockAddr = NULL;
+      char straddr[NI_MAXHOST] = "";
+      memset (straddr, 0, NI_MAXHOST);
+      ostringstream stream;
+      for ( pCrtHostInfo = pHostInfo; pCrtHostInfo != NULL;
+            pCrtHostInfo = pCrtHostInfo->ai_next )
+        {
+          pCurrentSockAddr =
+            reinterpret_cast<sockaddr_storage *>(pCrtHostInfo->ai_addr);
+          if ( pCurrentSockAddr == NULL )
+            continue;
 
-            if ( !getnameinfo (reinterpret_cast<sockaddr *>(pCurrentSockAddr),
-                              sizeof (sockaddr_storage), straddr, NI_MAXHOST,
-                              NULL, 0, NI_NUMERICHOST) )
+          if ( !getnameinfo (reinterpret_cast<sockaddr *>(pCurrentSockAddr),
+                             sizeof (sockaddr_storage), straddr, NI_MAXHOST,
+                             NULL, 0, NI_NUMERICHOST) )
             {
               stream << ( !stream.str ().empty () ? ", " : "" ) << straddr;
             }
-            else
-        return -1;
+          else
+            return -1;
         }
-        out.assign (stream.str ());
-        freeaddrinfo (pHostInfo);
+      out.assign (stream.str ());
+      freeaddrinfo (pHostInfo);
     }
-    return 0;
+  return 0;
 #else// !HAVE_IPV6
 
   MYSERVER_HOSTENT *localhe;
@@ -327,38 +319,30 @@ int Socket::getLocalIPsList (string &out)
   localhe = Socket::gethostbyname (serverName);
 
   if (localhe)
-  {
-    ostringstream stream;
-    int i;
-    /*! Print all the interfaces IPs. */
-    for (i= 0; (localhe->h_addr_list[i]); i++)
     {
+      ostringstream stream;
+      int i;
+      /*! Print all the interfaces IPs. */
+      for (i = 0; (localhe->h_addr_list[i]); i++)
+        {
 # ifdef WIN32
-      ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
+          ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
 # else
-      ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
+          ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
 # endif
-      stream << ( (i != 0) ? ", " : "") << inet_ntoa (ia);
-    }
+          stream << ( (i != 0) ? ", " : "") << inet_ntoa (ia);
+        }
 
-    out.assign (stream.str ());
-    return 0;
-  }
+      out.assign (stream.str ());
+      return 0;
+    }
   else
-  {
-    out.assign ("127.0.0.1");
-    return 0;
-  }
+    {
+      out.assign ("127.0.0.1");
+      return 0;
+    }
 #endif//HAVE_IPV6
   return -1;
-}
-
-/*!
- *Set this to true to stop any operation that can block sockets.
- */
-void Socket::stopBlockingOperations (bool value)
-{
-  denyBlockingOperations = value;
 }
 
 /*!
@@ -371,20 +355,10 @@ int Socket::rawSend (const char* buffer, int len, int flags)
 #ifdef WIN32
   int ret;
   SetLastError (0);
-  while (!denyBlockingOperations)
-  {
-    ret = ::send (socketHandle, buffer, len, flags);
-    if ((ret == SOCKET_ERROR) && (GetLastError () == WSAEWOULDBLOCK))
-    {
-      Thread::wait (10);
-    }
-    else
-      break;
 
-  }
-  return ret;
+  return ::send (socketHandle, buffer, len, flags);
 #else
-  return ::send ((int)socketHandle, buffer, len, flags);
+  return ::send (socketHandle, buffer, len, flags);
 #endif
 }
 
@@ -406,27 +380,27 @@ int Socket::send (const char* buffer, int len, int flags)
   }
   else
   {
-    while (!denyBlockingOperations)
-    {
-      /*! When we can send data again?  */
-      u_long time = getTicks () + (1000 * 1024 / throttlingRate) ;
-      /*! If a throttling rate is specified, send chunks of 1024 bytes.  */
-      ret = rawSend (buffer + (len - toSend), toSend < 1024 ?
-                    toSend : 1024, flags);
-      /*! On errors returns directly -1.  */
-      if (ret < 0)
-        return -1;
-      toSend -= (u_long)ret;
-      /*!
-       *If there are other bytes to send wait before cycle again.
-       */
-      if (toSend)
+    while (1)
       {
-        Thread::wait (getTicks () - time);
+        /*! When we can send data again?  */
+        u_long time = getTicks () + (1000 * 1024 / throttlingRate) ;
+        /*! If a throttling rate is specified, send chunks of 1024 bytes.  */
+        ret = rawSend (buffer + (len - toSend), toSend < 1024 ?
+                       toSend : 1024, flags);
+        /*! On errors returns directly -1.  */
+        if (ret < 0)
+          return -1;
+        toSend -= (u_long)ret;
+        /*!
+         *If there are other bytes to send wait before cycle again.
+         */
+        if (toSend)
+          {
+            Thread::wait (getTicks () - time);
+          }
+        else
+          break;
       }
-      else
-        break;
-    }
     /*! Return the number of sent bytes. */
     return len - toSend;
   }
@@ -441,10 +415,7 @@ int Socket::ioctlsocket (long cmd,unsigned long* argp)
 #ifdef WIN32
   return ::ioctlsocket (socketHandle, cmd, argp);
 #else
-  int int_argp = 0;
-  int ret = ::ioctl ((int)socketHandle, cmd, &int_argp);
-  *argp = int_argp;
-  return ret;
+  return ::ioctl (socketHandle, cmd, argp);
 #endif
 }
 
@@ -474,12 +445,11 @@ int Socket::connect (const char* host, u_short port)
    *have this host, than create socket.
    */
 
-  //getsockname (&thisSock, &nLength);
   if ( getsockname (&thisSock, &nLength) == 0 )
-  {
-    aiHints.ai_family = thisSock.ss_family;
-    aiHints.ai_socktype = SOCK_STREAM;
-  }
+    {
+      aiHints.ai_family = thisSock.ss_family;
+      aiHints.ai_socktype = SOCK_STREAM;
+    }
 
   memset (szPort, 0, sizeof (char)*10);
   snprintf (szPort, 10, "%d", port);
@@ -493,68 +463,65 @@ int Socket::connect (const char* host, u_short port)
 
   for ( pCrtHostInfo = pHostInfo; pCrtHostInfo != NULL;
         pCrtHostInfo = pCrtHostInfo->ai_next )
-  {
-    pCurrentSockAddr = reinterpret_cast<sockaddr_storage *>
-      (pCrtHostInfo->ai_addr);
-    if ( pCurrentSockAddr == NULL ||
-        (thisSock.ss_family != 0 &&
-         pCurrentSockAddr->ss_family != thisSock.ss_family) )
-      continue;
-
-    if ( thisSock.ss_family == 0 )// socket not created yet
     {
-      //so try to create one now based on 'pCurrentSockAddr'
-      if ( pCurrentSockAddr->ss_family == AF_INET )
-      {
-        if (Socket::socket (AF_INET, SOCK_STREAM, 0) == -1)
-          continue;
-      }
-      else if ( pCurrentSockAddr->ss_family == AF_INET6 )
-      {
-        if (Socket::socket (AF_INET6, SOCK_STREAM, 0) == -1)
-          continue;
-      }
-      if ( getsockname (&thisSock, &nLength) != 0 )
-        return -1;
-    }
+      pCurrentSockAddr = reinterpret_cast<sockaddr_storage *>
+        (pCrtHostInfo->ai_addr);
+      if ( pCurrentSockAddr == NULL ||
+           (thisSock.ss_family != 0 &&
+            pCurrentSockAddr->ss_family != thisSock.ss_family) )
+        continue;
 
-    memset (&connectionSockAddrIn, 0, sizeof (connectionSockAddrIn));
-    connectionSockAddrIn.ss_family = pCurrentSockAddr->ss_family;
+      if ( thisSock.ss_family == 0 )
+        {
+          if ( pCurrentSockAddr->ss_family == AF_INET )
+            {
+              if (Socket::socket (AF_INET, SOCK_STREAM, 0) == -1)
+                continue;
+            }
+          else if ( pCurrentSockAddr->ss_family == AF_INET6 )
+            {
+              if (Socket::socket (AF_INET6, SOCK_STREAM, 0) == -1)
+                continue;
+            }
+          if ( getsockname (&thisSock, &nLength) != 0 )
+            return -1;
+        }
 
-     if ( connectionSockAddrIn.ss_family != AF_INET &&
-         connectionSockAddrIn.ss_family != AF_INET6 )
-         continue;
+      memset (&connectionSockAddrIn, 0, sizeof (connectionSockAddrIn));
+      connectionSockAddrIn.ss_family = pCurrentSockAddr->ss_family;
 
-    if ( connectionSockAddrIn.ss_family == AF_INET )
-    {
-      nSockLen = sizeof (sockaddr_in);
-      memcpy ((sockaddr_in *)&connectionSockAddrIn,
-             (sockaddr_in *)pCurrentSockAddr, nSockLen);
-      ((sockaddr_in *)(&connectionSockAddrIn))->sin_port = htons (port);
+      if ( connectionSockAddrIn.ss_family != AF_INET &&
+           connectionSockAddrIn.ss_family != AF_INET6 )
+        continue;
 
-    }
-    else// if ( connectionSockAddrIn.ss_family == AF_INET6 )
-    {
-      nSockLen = sizeof (sockaddr_in6);
-      memcpy ((sockaddr_in6 *)&connectionSockAddrIn,
-             (sockaddr_in6 *)pCurrentSockAddr, nSockLen);
-      ((sockaddr_in6 *)&connectionSockAddrIn)->sin6_port = htons (port);
-    }
+      if ( connectionSockAddrIn.ss_family == AF_INET )
+        {
+          nSockLen = sizeof (sockaddr_in);
+          memcpy ((sockaddr_in *)&connectionSockAddrIn,
+                  (sockaddr_in *)pCurrentSockAddr, nSockLen);
+          ((sockaddr_in *)(&connectionSockAddrIn))->sin_port = htons (port);
 
-    if (Socket::connect ((MYSERVER_SOCKADDR*)(&connectionSockAddrIn),
-                       nSockLen) == -1)
-    {
-      Socket::close ();
+        }
+      else// if ( connectionSockAddrIn.ss_family == AF_INET6 )
+        {
+          nSockLen = sizeof (sockaddr_in6);
+          memcpy ((sockaddr_in6 *)&connectionSockAddrIn,
+                  (sockaddr_in6 *)pCurrentSockAddr, nSockLen);
+          ((sockaddr_in6 *)&connectionSockAddrIn)->sin6_port = htons (port);
+        }
+
+      if (Socket::connect ((MYSERVER_SOCKADDR*)(&connectionSockAddrIn),
+                           nSockLen) == -1)
+        Socket::close ();
+      else
+        {
+          bSocketConnected = true;
+          break;
+        }
     }
-    else
-    {
-       bSocketConnected = true;
-       break;
-    }
-  }
   freeaddrinfo (pHostInfo);
   if ( !bSocketConnected )
-     return -1;
+    return -1;
 #else
   MYSERVER_HOSTENT *hp = Socket::gethostbyname (host);
   struct sockaddr_in sockAddr;
@@ -563,23 +530,20 @@ int Socket::connect (const char* host, u_short port)
     return -1;
 
   /*! If the socket is not created, create it before use. */
-  if (socketHandle == 0)
-  {
-    if (Socket::socket (AF_INET, SOCK_STREAM, 0) == -1)
-    {
-      return -1;
-    }
-  }
+  if (socketHandle == -1 &&
+      Socket::socket (AF_INET, SOCK_STREAM, 0) == -1)
+    return -1;
+
   sockLen = sizeof (sockAddr);
   memset (&sockAddr, 0, sizeof (sockAddr));
   sockAddr.sin_family = AF_INET;
   memcpy (&sockAddr.sin_addr, hp->h_addr, hp->h_length);
   sockAddr.sin_port = htons (port);
   if (Socket::connect ((MYSERVER_SOCKADDR*)&sockAddr, sockLen) == -1)
-  {
-    Socket::close ();
-    return -1;
-  }
+    {
+      Socket::close ();
+      return -1;
+    }
 #endif
 
   return 0;
@@ -601,9 +565,9 @@ int Socket::connect (MYSERVER_SOCKADDR* sa, int na)
     return -1;
 
 #ifdef WIN32
-  return ::connect ((SOCKET)socketHandle,(const sockaddr *)sa, na);
+  return ::connect (socketHandle,(const sockaddr *)sa, na);
 #else
-  return ::connect ((int)socketHandle,(const sockaddr *)sa,na);
+  return ::connect (socketHandle,(const sockaddr *)sa,na);
 #endif
 }
 
@@ -637,7 +601,7 @@ int Socket::recv (char* buffer,int len,int flags)
   else
     return err;
 #else
-  err = ::recv ((int)socketHandle, buffer, len, flags);
+  err = ::recv (socketHandle, buffer, len, flags);
 
   if ( err < 0 && errno == EAGAIN && isNonBlocking)
     return 0;
@@ -685,7 +649,7 @@ int Socket::setNonBlocking (int nonBlocking)
 #else
 
   int flags;
-  flags = fcntl ((int)socketHandle, F_GETFL, 0);
+  flags = fcntl (socketHandle, F_GETFL, 0);
   if (flags < 0)
     return -1;
 
@@ -694,7 +658,7 @@ int Socket::setNonBlocking (int nonBlocking)
   else
     flags &= ~O_NONBLOCK;
 
-  ret = fcntl ((int)socketHandle, F_SETFL, flags);
+  ret = fcntl (socketHandle, F_SETFL, flags);
 
 #endif
   isNonBlocking = nonBlocking ? true : false;
@@ -718,7 +682,7 @@ int Socket::getsockname (MYSERVER_SOCKADDR *ad, int *namelen)
   return ::getsockname (socketHandle,(sockaddr *)ad,namelen);
 #else
   socklen_t len =(socklen_t) *namelen;
-  int ret = ::getsockname ((int)socketHandle, (struct sockaddr *)ad, &len);
+  int ret = ::getsockname (socketHandle, (struct sockaddr *)ad, &len);
   *namelen = (int)len;
   return ret;
 #endif
@@ -753,13 +717,13 @@ int Socket::dataOnRead (int sec, int usec)
 
   FD_ZERO (&readfds);
 #ifdef WIN32
-  FD_SET ((SOCKET)socketHandle, &readfds);
+  FD_SET (socketHandle, &readfds);
 #else
   FD_SET (socketHandle, &readfds);
 #endif
   ret = ::select (socketHandle + 1, &readfds, NULL, NULL, &tv);
 
-  if (ret == -1 || ret == 0)
+  if (ret <= 0)
     return 0;
 
   if (FD_ISSET (socketHandle, &readfds))
@@ -775,7 +739,6 @@ int Socket::dataOnRead (int sec, int usec)
 int Socket::read (char* buffer, u_long len, u_long *nbr)
 {
   *nbr = static_cast<u_long>(recv (buffer, len, 0));
-
   if (*nbr == static_cast<u_long>(-1))
     return -1;
 
@@ -789,7 +752,6 @@ int Socket::read (char* buffer, u_long len, u_long *nbr)
 int Socket::write (const char* buffer, u_long len, u_long *nbw)
 {
   *nbw = static_cast<u_long>(send (buffer, len, 0));
-
   if ( *nbw == static_cast<u_long>(-1) )
     return -1;
 

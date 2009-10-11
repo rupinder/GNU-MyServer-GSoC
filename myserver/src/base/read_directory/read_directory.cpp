@@ -14,7 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <include/base/find_data/find_data.h>
+#include <include/base/read_directory/read_directory.h>
 
 extern "C"
 {
@@ -28,10 +28,16 @@ extern "C"
 
 using namespace std;
 
+#ifndef WIN32
+# ifndef HAVE_READDIR_R
+Mutex ReadDirectory::mutex;
+# endif
+#endif
+
 /*!
  * Initialize class members.
  */
-FindData::FindData ()
+ReadDirectory::ReadDirectory ()
 {
 #ifdef WIN32
   ff = 0;
@@ -44,60 +50,95 @@ FindData::FindData ()
 /*!
  * D'ctor.
  */
-FindData::~FindData ()
+ReadDirectory::~ReadDirectory ()
 {
-
+ findclose ();
 }
 
 /*!
  * Find the first file using its name.
  * Return -1 or errors.
  */
-int FindData::findfirst (const char *filename)
+int ReadDirectory::findfirst (const char *filename)
 {
-#ifdef WIN32
-  string filenameStar;
-  filenameStar.assign (filename);
-  // trim ending '/' or '\'
-  string::size_type slashBackSlash = filenameStar.find_last_not_of ("/\\");
-  filenameStar.erase (slashBackSlash + 1);
-  filenameStar.append ("\\*");
+  return find (filename);
+}
 
-  ff = _findfirst (filenameStar.c_str (), &fd );
-  if (ff!=-1)
+/*!
+ * Find the next file in the directory.
+ */
+int ReadDirectory::findnext ()
+{
+  return find (NULL);
+}
+
+int ReadDirectory::find (const char *filename)
+{
+/* FIXME: return a different code for EOF or error.  */
+
+#ifdef WIN32
+  int ret;
+
+  if (filename)
+    {
+      string filenameStar;
+      filenameStar.assign (filename);
+      /* trim trailing '/' or '\'  */
+      string::size_type slashBackSlash = filenameStar.find_last_not_of ("/\\");
+      filenameStar.erase (slashBackSlash + 1);
+      filenameStar.append ("\\*");
+
+      ret = ff = _findfirst (filenameStar.c_str (), &fd );
+    }
+  else
+    ret = _findnext (ff, &fd) ? -1 : 0 ;
+
+  if (ret != -1)
     {
       name = fd.name;
       attrib = fd.attrib;
       time_write = fd.time_write;
       size = fd.size ;
-      return 0;
     }
-  else
-    return ff;
 
+  return ret;
 #else
    struct dirent * dirInfo;
 
-   dirName.assign (filename);
-   if (dirName[dirName.length () - 1] == '/')
-     dirName.erase (dirName.length () - 1);
+   if (filename)
+     {
+       dirName.assign (filename);
+       if (dirName[dirName.length () - 1] == '/')
+         dirName.erase (dirName.length () - 1);
 
-   dh = opendir (dirName.c_str ());
+       dh = opendir (dirName.c_str ());
 
-   if (dh == NULL)
+       if (dh == NULL)
+         return -1;
+     }
+
+# ifdef HAVE_READDIR_R
+   if (readdir_r (dh, &entry, &dirInfo) || !dirInfo)
      return -1;
-
+   name = dirInfo->d_name;
+# else
+   mutex.lock ();
    dirInfo = readdir (dh);
-
    if (dirInfo == NULL)
-     return -1;
+     {
+       mutex.unlock ();
+       return -1;
+     }
 
    name = dirInfo->d_name;
+   mutex.unlock ();
+# endif
 
 # ifdef HAVE_FSTATAT
-   if (fstatat (dirfd (dh), dirInfo->d_name, &stats, 0))
+   if (fstatat (dirfd (dh), name.c_str (), &stats, 0))
      return -1;
 # else
+
    string tempName = filename;
 
    tempName.assign (dirName);
@@ -118,60 +159,11 @@ int FindData::findfirst (const char *filename)
 }
 
 /*!
- * Find the next file in the directory.
- */
-int FindData::findnext ()
-{
-#ifdef WIN32
-  if (!ff)
-    return -1;
-  int ret = _findnext (ff, &fd) ? -1 : 0 ;
-  if (ret != -1)
-  {
-    name = fd.name;
-    attrib = fd.attrib;
-    time_write = fd.time_write;
-    size = fd.size ;
-  }
-  return ret;
-#else
-   struct dirent * dirInfo;
-   string tempName;
-
-   dirInfo = readdir (dh);
-
-   if (dirInfo == NULL)
-     return -1;
-
-   name = dirInfo->d_name;
-
-# ifdef HAVE_FSTATAT
-   if (fstatat (dirfd (dh), dirInfo->d_name, &stats, 0))
-     return -1;
-# else
-   tempName.assign (dirName);
-   tempName.append ("/");
-   tempName.append (dirInfo->d_name);
-
-   if (stat (tempName.c_str (), &stats))
-     return -1;
-# endif
-
-   if (S_ISDIR (stats.st_mode))
-     attrib = FILE_ATTRIBUTE_DIRECTORY;
-   else
-     attrib = 0;
-   time_write = stats.st_mtime;
-   size = stats.st_size;
-   return 0;
-#endif
-}
-
-/*!
  * Free the used resources.
  */
-int FindData::findclose ()
+int ReadDirectory::findclose ()
 {
+  dirName.empty ();
 #ifdef WIN32
   int ret;
   if (!ff)
@@ -180,9 +172,11 @@ int FindData::findclose ()
   ff = 0;
   return ret;
 #else
-  if (dh)
-    closedir (dh);
-  dirName.empty ();
+  if (!dh)
+    return -1;
+
+  closedir (dh);
+  dh = NULL;
   return 0;
 #endif
 }

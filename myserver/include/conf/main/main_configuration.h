@@ -20,7 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # define MAIN_CONFIGURATION_H
 
 # include "stdafx.h"
+# include <include/base/hash_map/hash_map.h>
+# include <include/conf/nodetree.h>
+
 # include <string>
+# include <list>
 
 using namespace std;
 
@@ -36,6 +40,8 @@ public:
   {
     return 0;
   }
+  virtual void readData (list<NodeTree<string>*> *hashedDataTrees,
+                         HashMap<string, NodeTree<string>*> *hashedData);
 private:
 
 };

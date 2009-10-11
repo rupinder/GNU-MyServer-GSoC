@@ -57,7 +57,7 @@ if plugin=="":
 plugins = plugin.split(",");
 
 
-msheaders = ARGUMENTS.get('msheaders', "")
+msheaders = ARGUMENTS.get('msheaders', os.path.normpath (os.getcwd () + "/../myserver"))
 
 listinc=[
       '/usr/local/include',
@@ -89,6 +89,8 @@ def pack_plugin(name):
     doc = xml.dom.minidom.parse(bin_dir + name + "/plugin.xml")
     version = doc.getElementsByTagName("VERSION")
     filename = name + "-" + version[0].firstChild.data + "-" + arch + ".tar.gz"
+    if not os.path.exists(release_dir):
+        os.makedirs(release_dir)
     tar_package(bin_dir + name, name, release_dir + filename)	
     
 def pack_source(name):

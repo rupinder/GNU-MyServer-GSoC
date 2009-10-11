@@ -33,3 +33,9 @@ const char *MainConfiguration::getValue (string const &field)
   return getValue (field.c_str ());
 };
 
+
+void MainConfiguration::readData (list<NodeTree<string>*> *hashedDataTrees,
+                         HashMap<string, NodeTree<string>*> *hashedData)
+{
+
+}

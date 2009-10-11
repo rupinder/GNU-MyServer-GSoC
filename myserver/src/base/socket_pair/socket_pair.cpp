@@ -21,7 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/socket_pair/socket_pair.h>
 
 #ifndef WIN32
-extern "C" {
+extern "C"
+{
 # include <fcntl.h>
 # include <unistd.h>
 # include <sys/types.h>
@@ -71,12 +72,10 @@ int SocketPair::create ()
 
 #ifndef WIN32
   int ret = socketpair (af, type, protocol, (int*)handles);
-
   if (ret == 0)
     socketHandle = handles[0];
 
   return ret;
-
 #else
   struct sockaddr_in addr;
   SOCKET listener;
@@ -205,11 +204,15 @@ void SocketPair::closeSecondHandle ()
  */
 void SocketPair::setNonBlocking (bool notBlocking)
 {
+  /* FIXME: avoid this trick to set the handle to -1 to avoid
+   a close on the real descriptor by the d'tor.  */
   Socket sock0 (handles[0]);
-   sock0.setNonBlocking (notBlocking);
+  sock0.setNonBlocking (notBlocking);
+  sock0.setHandle (-1);
 
-   Socket sock1 (handles[1]);
-   sock1.setNonBlocking (notBlocking);
+  Socket sock1 (handles[1]);
+  sock1.setNonBlocking (notBlocking);
+  sock1.setHandle (-1);
 }
 
 /*!

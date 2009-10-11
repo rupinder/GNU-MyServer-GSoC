@@ -38,6 +38,7 @@ extern "C"
 }
 
 # include <string>
+# include <include/base/sync/mutex.h>
 
 using namespace std;
 
@@ -55,10 +56,10 @@ using namespace std;
 #  define intptr_t int
 # endif
 
-class FindData
+class ReadDirectory
 {
 public:
-  char * name;
+  string name;
   int attrib;
   time_t time_write;
   off_t size;
@@ -66,8 +67,8 @@ public:
   int findfirst (string &filename){return findfirst (filename.c_str ());};
   int findnext ();
   int findclose ();
-  FindData ();
-  ~FindData ();
+  ReadDirectory ();
+  ~ReadDirectory ();
   struct stat* getStatStruct ()
   {
 # ifndef WIN32
@@ -78,6 +79,7 @@ public:
   }
 
 private:
+  int find (const char *filename);
 # ifdef WIN32
 	_finddata_t fd;
   intptr_t  ff;
@@ -85,6 +87,13 @@ private:
   string dirName;
   DIR *dh;
   struct stat stats;
+
+#  ifdef HAVE_READDIR_R
+  struct dirent entry;
+#  else
+  static Mutex mutex;
+#  endif
+
 # endif
 };
 

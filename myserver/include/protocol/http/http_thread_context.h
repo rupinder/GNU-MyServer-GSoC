@@ -29,7 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # include <include/conf/mime/mime_manager.h>
 # include <include/conf/security/security_token.h>
 
-extern "C" {
+extern "C"
+{
 # ifdef WIN32
 #  include <direct.h>
 #  include <errno.h>
@@ -52,7 +53,7 @@ struct HttpThreadContext
 {
 	int appendOutputs;
 
-  /*! Used by SSI and set by raiseHTTPError.  */
+  /*! Set by raiseHTTPError.  */
   int lastError;
 
   /*! Is the client asking only for the header?  */

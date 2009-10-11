@@ -250,7 +250,7 @@ MsCgiData* MscgiManager::getCgiData ()
  */
 void MscgiManager::setContentType (const char * type)
 {
-  td->response.setValue ("ContentType", type);
+  td->response.setValue ("Content-Type", type);
 }
 
 /*!

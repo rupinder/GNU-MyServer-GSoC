@@ -105,13 +105,9 @@ public:
   bool isAutorebootEnabled ();
   bool isRebooting (){return rebooting;}
   void rebootOnNextLoop ();
-  const char* getMainConfFile ();
-  const char* getVhostConfFile ();
-  const char* getMIMEConfFile ();
-  const char* getExternalPath ();
   ~Server ();
   Protocol* getProtocol (const char *protocolName);
-  int addConnection (Socket,MYSERVER_SOCKADDRIN*);
+  int addConnection (Socket*, MYSERVER_SOCKADDRIN*);
   u_long getNumConnections ();
   u_long getNumTotalConnections ();
   void getConnections (list<ConnectionPtr>&);
@@ -129,7 +125,8 @@ public:
   const char *getServerName ();
   int getMaxLogFileSize ();
   int mustUseLogonOption ();
-  void start (string &, string &, string &, string &);
+  void start (string &, string &, string &, string &,
+           MainConfiguration* (*genMainConf) (Server *server, const char *arg));
   void stop ();
   void finalCleanup ();
   int terminate ();
@@ -170,6 +167,7 @@ private:
   XmlValidator *xmlValidator;
 
   MainConfiguration *configurationFileManager;
+  MainConfiguration* (*genMainConf) (Server *server, const char *arg);
 
 # ifdef WIN32
   friend int __stdcall control_handler (u_long control_type);
@@ -192,7 +190,6 @@ private:
   /*! Do not allow to create directly objects.  */
   Server ();
 
-  void readHashedData (xmlNodePtr lcur);
   void mainLoop ();
   void loadPlugins ();
   void displayBoot ();
@@ -241,7 +238,6 @@ private:
   int freeHashedData ();
   u_long connectionTimeout;
   u_long maxLogFileSize;
-  void logWriteNTimes (string, unsigned);
   bool resetConfigurationPaths (string &, string &, string &, string &);
   Mutex* connectionsMutex;
   u_long nStaticThreads;
