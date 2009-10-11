@@ -31,6 +31,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
+static MimeManagerHandler *builder ()
+{
+  return new XmlMimeHandler ();
+}
+
+void XmlMimeHandler::registerBuilder (MimeManager& manager)
+{
+  string xml ("xml");
+  manager.registerBuilder (xml, builder);
+}
+
+
 /*!
  * Get the name of the used file.
  */

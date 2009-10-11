@@ -46,6 +46,8 @@ public:
 
   /*! Set the right owner for the log locations.  */
   void changeLocationsOwner ();
+
+  static void registerBuilder (VhostManager& manager);
 private:
   void loadXMLlogData (string, Vhost*, xmlNode*);
   ListenThreads* listenThreads;

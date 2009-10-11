@@ -143,7 +143,7 @@ public:
   ListenThreads *getListenThreads (){return &listenThreads;}
 
   void *getEnvString (){return envString;}
-  VhostManager *getVhosts (){return &vhostList;}
+  VhostManager *getVhosts (){return &vhostManager;}
   MimeManager *getMimeManager (){return &mimeManager;}
 
   void setProcessPermissions ();
@@ -203,7 +203,7 @@ private:
   CachedFileFactory cachedFiles;
 
   void *envString;
-  VhostManager vhostList;
+  VhostManager vhostManager;
   MimeManager mimeManager;
   HomeDir homeDir;
 

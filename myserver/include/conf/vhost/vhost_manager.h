@@ -35,18 +35,25 @@ public:
 
 /*!
  * Proxy class to a VhostManagerHandler object.
-*/
+ */
 class VhostManager
 {
 public:
+  typedef VhostManagerHandler* (*MAKE_HANDLER)(ListenThreads* lt,
+                                               LogManager* lm);
+
   VhostManager ();
   void setHandler (VhostManagerHandler *handler);
 
   /*! Get a pointer to a vhost.  */
-  Vhost* getVHost (const char*,const char*,u_short);
+  Vhost* getVHost (const char*,const char*, u_short);
   Vhost* getVHostByNumber (int n);
+  void registerBuilder (string &name, MAKE_HANDLER builder);
+  VhostManagerHandler *buildHandler (string &name, ListenThreads *lt,
+                                     LogManager *lm);
 
 protected:
+  HashMap<string, MAKE_HANDLER> builders;
   VhostManagerHandler *handler;
 };
 

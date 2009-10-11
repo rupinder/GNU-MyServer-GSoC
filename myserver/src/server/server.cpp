@@ -279,7 +279,7 @@ int Server::postLoad ()
   listenThreads.initialize ();
 
   vhostHandler = new XmlVhostHandler (&listenThreads, logManager);
-  vhostList.setHandler (vhostHandler);
+  vhostManager.setHandler (vhostHandler);
 
   getProcessServerManager ()->load ();
 
@@ -324,6 +324,9 @@ int Server::postLoad ()
 void Server::loadPlugins ()
 {
   string xml ("xml");
+
+  XmlVhostHandler::registerBuilder (vhostManager);
+  XmlMimeHandler::registerBuilder (mimeManager);
 
   validatorFactory.addValidator (xml, xmlValidator);
   authMethodFactory.addAuthMethod (xml, (AuthMethod*) xmlValidator);
@@ -452,7 +455,7 @@ void Server::mainLoop ()
                   listenThreads.initialize ();
 
                   vhostHandler = new XmlVhostHandler (&listenThreads, logManager);
-                  vhostList.setHandler (vhostHandler);
+                  vhostManager.setHandler (vhostHandler);
 
                   delete oldvhost;
 
@@ -1068,7 +1071,7 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
   newConnection->setLocalPort (localPort);
   newConnection->setIpAddr (ipAddr);
   newConnection->setLocalIpAddr (localIpAddr);
-  newConnection->host = vhostList.getVHost (0, localIpAddr, localPort);
+  newConnection->host = vhostManager.getVHost (0, localIpAddr, localPort);
   if (newConnection->host == 0)
     {
       connectionsPoolLock.lock ();

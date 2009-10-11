@@ -92,3 +92,31 @@ Vhost* VhostManager::getVHostByNumber (int n)
 
   return NULL;
 }
+
+/*!
+ * Register a builder function for a vhost manager.
+ * \param name manager name.
+ * \param builder Builder routine.
+ */
+void VhostManager::registerBuilder (string &name, MAKE_HANDLER builder)
+{
+  builders.put (name, builder);
+}
+
+/*!
+ * Build an handler given its name.
+ *
+ * \param name handler name.
+ * \return an instance of the requested handler type.
+ */
+VhostManagerHandler *VhostManager::buildHandler (string &name,
+                                                 ListenThreads *lt,
+                                                 LogManager *lm)
+{
+  MAKE_HANDLER builder = builders.get (name);
+
+  if (builder)
+    return builder (lt, lm);
+
+  return NULL;
+}

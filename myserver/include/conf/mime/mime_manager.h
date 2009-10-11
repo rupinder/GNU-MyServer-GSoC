@@ -86,6 +86,8 @@ public:
 class MimeManager
 {
 public:
+  typedef MimeManagerHandler* (*MAKE_HANDLER)();
+
   MimeManager ();
   ~MimeManager ();
   u_long reload ();
@@ -97,7 +99,12 @@ public:
   void registerHandler (string &name, MimeManagerHandler *handler);
   void setDefaultHandler (string &name);
   void clean ();
+
+  void registerBuilder (string &name, MAKE_HANDLER builder);
+  MimeManagerHandler *buildHandler (string &name);
+
 private:
+  HashMap<string, MAKE_HANDLER> builders;
   MimeManagerHandler *defHandler;
   HashMap<string, MimeManagerHandler*> handlers;
 };

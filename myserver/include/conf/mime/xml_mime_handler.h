@@ -74,6 +74,7 @@ public:
   int addRecord (MimeRecord *record);
 
   static MimeRecord *readRecord (xmlNodePtr node);
+  static void registerBuilder (MimeManager& manager);
 protected:
   const char *getFilename ();
   void clearRecords ();

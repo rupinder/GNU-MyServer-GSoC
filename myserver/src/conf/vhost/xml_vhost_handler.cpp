@@ -23,6 +23,23 @@
 
 #include <include/conf/xml_conf.h>
 
+
+static VhostManagerHandler *builder (ListenThreads* lt, LogManager* lm)
+{
+  return new XmlVhostHandler (lt, lm);
+}
+
+/*!
+ * Register the builder on the vhost manager.
+ *
+ * \param manager Where register the builder.
+ */
+void XmlVhostHandler::registerBuilder (VhostManager& manager)
+{
+  string xml ("xml");
+  manager.registerBuilder (xml, builder);
+}
+
 /*!
  *XmlVhostHandler add function.
  *\param vh The virtual host to add.

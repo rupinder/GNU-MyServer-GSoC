@@ -217,3 +217,29 @@ void MimeManager::setDefaultHandler (string &name)
 {
   defHandler = handlers.get (name);
 }
+
+/*!
+ * Register a builder function for a mime manager.
+ * \param name manager name.
+ * \param builder Builder routine.
+ */
+void MimeManager::registerBuilder (string &name, MAKE_HANDLER builder)
+{
+  builders.put (name, builder);
+}
+
+/*!
+ * Build an handler given its name.
+ *
+ * \param name handler name.
+ * \return an instance of the requested handler type.
+ */
+MimeManagerHandler *MimeManager::buildHandler (string &name)
+{
+  MAKE_HANDLER builder = builders.get (name);
+
+  if (builder)
+    return builder ();
+
+  return NULL;
+}
