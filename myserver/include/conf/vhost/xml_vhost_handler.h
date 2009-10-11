@@ -25,7 +25,6 @@
 class XmlVhostHandler : public VhostManagerHandler
 {
 public:
-  void setExternalSource (VhostManagerHandler* extSource);
   XmlVhostHandler (ListenThreads* lt, LogManager* lm);
   ~XmlVhostHandler ();
   int getHostsNumber ();
@@ -42,7 +41,7 @@ public:
   int addVHost (Vhost*);
 
   /*! Load the virtual hosts list from a xml configuration file.  */
-  int loadXMLConfigurationFile (const char *);
+  virtual int load (const char *);
 
   /*! Set the right owner for the log locations.  */
   void changeLocationsOwner ();
@@ -52,7 +51,6 @@ private:
   void loadXMLlogData (string, Vhost*, xmlNode*);
   ListenThreads* listenThreads;
   Mutex mutex;
-  VhostManagerHandler* extSource;
 
   /*! List of virtual hosts. */
   list<Vhost*> hostList;

@@ -313,7 +313,7 @@ XmlVhostHandler::loadXMLlogData (string name, Vhost* vh, xmlNode* lcur)
  *Returns non-null on errors.
  *\param filename The XML file to open.
  */
-int XmlVhostHandler::loadXMLConfigurationFile (const char *filename)
+int XmlVhostHandler::load (const char *filename)
 {
   XmlParser parser;
   xmlDocPtr doc;
@@ -496,23 +496,33 @@ int XmlVhostHandler::loadXMLConfigurationFile (const char *filename)
             }
           else if (!xmlStrcmp (lcur->name, (const xmlChar *)"MIME_FILE"))
             {
+              string hnd ("xml");
+              for (xmlAttr *attrs = lcur->properties; attrs; attrs = attrs->next)
+                {
+                  if (!xmlStrcmp (attrs->name, (const xmlChar *)"name")
+                      && attrs->children && attrs->children->content)
+                    hnd.assign((const char*) attrs->children->content);
+                }
+
               if (lcur->children)
                 {
                   const char *filename = (const char*)lcur->children->content;
-                  XmlMimeHandler *xmlHandler = new XmlMimeHandler ();
+                  MimeManagerHandler *handler =
+                    Server::getInstance ()->getMimeManager ()->buildHandler (hnd);
+
                   try
                     {
-                      xmlHandler->loadXML (filename);
+                      handler->load (filename);
                     }
                   catch (...)
                     {
-                      delete xmlHandler;
-                      xmlHandler = NULL;
+                      delete handler;
+                      handler = NULL;
                       Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
                                                _("Error loading %s"), filename);
 
                     }
-                  vh->setMimeHandler (xmlHandler);
+                  vh->setMimeHandler (handler);
                 }
             }
           else if (!xmlStrcmp (lcur->name, (const xmlChar *)"THROTTLING_RATE"))

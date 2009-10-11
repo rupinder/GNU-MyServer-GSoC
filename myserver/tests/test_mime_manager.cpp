@@ -54,7 +54,7 @@ public:
 
     CPPUNIT_ASSERT_EQUAL (mm->isLoaded (), false);
 
-    CPPUNIT_ASSERT_EQUAL (mm->loadXML (parser), 2ul);
+    CPPUNIT_ASSERT_EQUAL (mm->load (parser), 2ul);
     CPPUNIT_ASSERT_EQUAL (mm->getNumMIMELoaded (), 2ul);
 
     CPPUNIT_ASSERT_EQUAL (mm->isLoaded (), true);
@@ -66,7 +66,7 @@ public:
   {
     XmlParser *parser = getTestParser ();
     MimeRecord mr;
-    mm->loadXML (parser);
+    mm->load (parser);
 
     CPPUNIT_ASSERT_EQUAL (mm->getNumMIMELoaded (), 2ul);
 

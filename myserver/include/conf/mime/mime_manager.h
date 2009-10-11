@@ -74,7 +74,7 @@ struct MimeRecord
 class MimeManagerHandler
 {
 public:
-  virtual int load (const char *resource){return 0;}
+  virtual u_long load (const char *resource){return 0;}
   virtual void close (){}
   virtual MimeRecord* getMIME (const char *file){return NULL;}
   virtual MimeRecord* getMIME (string const &file)

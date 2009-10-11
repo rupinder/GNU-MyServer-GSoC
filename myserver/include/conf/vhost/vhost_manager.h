@@ -31,6 +31,7 @@ public:
   virtual Vhost* getVHost (const char*, const char*, u_short);
   virtual Vhost* getVHostByNumber (int n);
   virtual int addVHost (Vhost*);
+  virtual int load (const char *resource){return 0;}
 };
 
 /*!

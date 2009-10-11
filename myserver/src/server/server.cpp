@@ -263,7 +263,7 @@ int Server::postLoad ()
   /* Load the MIME types.  */
   log (MYSERVER_LOG_MSG_INFO, _("Loading MIME types..."));
 
-  if (int nMIMEtypes = xmlMimeHandler.loadXML (mimeConfigurationFile.c_str ()))
+  if (int nMIMEtypes = xmlMimeHandler.load (mimeConfigurationFile.c_str ()))
     log (MYSERVER_LOG_MSG_INFO, _("Using %i MIME types"), nMIMEtypes);
   else
     log (MYSERVER_LOG_MSG_ERROR, _("Error while loading MIME types"));
@@ -289,7 +289,7 @@ int Server::postLoad ()
   loadPlugins ();
 
   /* Load the virtual hosts configuration from the xml file.  */
-  vhostHandler->loadXMLConfigurationFile (vhostConfigurationFile.c_str ());
+  vhostHandler->load (vhostConfigurationFile.c_str ());
 
   if (path == 0)
     path = new string ();
@@ -460,7 +460,7 @@ void Server::mainLoop ()
                   delete oldvhost;
 
                   /* Load the virtual hosts configuration from the xml file.  */
-                  if (vhostHandler->loadXMLConfigurationFile (vhostConfigurationFile.c_str ()))
+                  if (vhostHandler->load (vhostConfigurationFile.c_str ()))
                     listenThreads.rollbackFastReboot ();
                   else
                     listenThreads.commitFastReboot ();

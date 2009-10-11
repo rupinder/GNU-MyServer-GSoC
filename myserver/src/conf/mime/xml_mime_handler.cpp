@@ -163,14 +163,14 @@ u_long XmlMimeHandler::reload ()
   if (!filename.length ())
     return -1;
 
-  return loadXML (getFilename ());
+  return load (getFilename ());
 }
 
 /*!
  * Load the MIME types from a XML file. Returns the number of
  * MIME types loaded successfully.
  */
-u_long XmlMimeHandler::loadXML (const char *fn)
+u_long XmlMimeHandler::load (const char *fn)
 {
   XmlParser parser;
   u_long ret = 0;
@@ -180,7 +180,7 @@ u_long XmlMimeHandler::loadXML (const char *fn)
 
   filename.assign (fn);
 
-  ret = loadXML (&parser);
+  ret = load (&parser);
 
   parser.close ();
 
@@ -191,7 +191,7 @@ u_long XmlMimeHandler::loadXML (const char *fn)
  * Load the MIME types from a XML parser object. Returns the number
  * of MIME types loaded successfully.
  */
-u_long XmlMimeHandler::loadXML (XmlParser* parser)
+u_long XmlMimeHandler::load (XmlParser* parser)
 {
   xmlNodePtr node;
   xmlDocPtr doc;

@@ -57,16 +57,15 @@ class XmlMimeHandler : public MimeManagerHandler
 public:
   XmlMimeHandler ();
   virtual ~XmlMimeHandler ();
-  virtual int load (const char *resource){return 0;}
   virtual void close (){}
   virtual MimeRecord* getMIME (const char *file);
   virtual MimeRecord* getMIME (string const &file)
   {return getMIME (file.c_str ());}
   u_long getNumMIMELoaded ();
 
-  u_long loadXML (XmlParser* parser);
-  u_long loadXML (const char *filename);
-  u_long loadXML (string &filename) {return loadXML (filename.c_str ());}
+  virtual u_long load (XmlParser* parser);
+  virtual u_long load (const char *filename);
+  virtual u_long load (string &filename) {return load (filename.c_str ());}
 
   virtual u_long reload ();
   bool isLoaded (){return loaded;}
