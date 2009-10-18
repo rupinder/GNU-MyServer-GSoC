@@ -19,3 +19,6 @@ localedir.h: Makefile
 
 all: localedir.h
 # Generate the localedir.h file before any other rule.
+
+regenerate-po:
+	find -iname '*.cpp' src/ > po/POTFILES.in
