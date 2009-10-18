@@ -36,7 +36,6 @@ using namespace std;
 int preparePrintError ();
 int endPrintError ();
 
-u_long getCPUCount ();
 u_long getTicks ();
 int setcwdBuffer ();
 int getdefaultwdlen ();
