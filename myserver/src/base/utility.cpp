@@ -25,7 +25,7 @@ extern "C"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-
+#include "nproc.h"
 #ifndef WIN32
 # include <unistd.h>
 # include <signal.h>
@@ -57,38 +57,7 @@ static char *currentPath = 0;
  */
 u_long getCPUCount ()
 {
-  /*! By default use 1 processor.  */
-  u_long ret = 1;
-#ifdef WIN32
-  SYSTEM_INFO si;
-  GetSystemInfo (&si);
-  ret = si.dwNumberOfProcessors;
-#endif
-
-#ifdef _SC_NPROCESSORS_CONF
-  ret = (u_long)sysconf (_SC_NPROCESSORS_CONF);
-  /*! Use only a processor if some error happens.  */
-  if (ret == (u_long)-1)
-    ret = 1;
-#endif
-
-
-#ifdef HW_NCPU
-  int err;
-  int mib[2];
-  int nproc;
-  size_t len;
-  mib[0] = CTL_HW;
-  mib[1] = HW_NCPU;
-  len = sizeof (nproc);
-  err = sysctl (mib, 2, &nproc, &len, NULL, 0);
-  if (err == 0)
-    ret = nproc;
-  else
-    ret = 1;
-#endif
-
-  return ret;
+  return num_processors ();
 }
 
 /*!

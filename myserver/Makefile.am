@@ -7,7 +7,7 @@ if BUILD_DOC
 DOCS = documentation
 endif
 
-SUBDIRS = po src include $(CONTROL) $(CGI_LIB) binaries $(DOCS) $(TESTS_DIR)
+SUBDIRS = po lib src include $(CONTROL) $(CGI_LIB) binaries $(DOCS) $(TESTS_DIR)
 
 EXTRA_DIST = config.rpath  stdafx.h stdafx.cpp doxygen SConstruct
 

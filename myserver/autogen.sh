@@ -18,6 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-echo "Creating configuration files for MyServer. Please wait..."
+#echo "Creating configuration files for MyServer. Please wait..."
+#autoreconf -fis
 
-autoreconf -fis
+echo "Please use ./bootstrap"

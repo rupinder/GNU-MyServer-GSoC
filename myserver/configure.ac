@@ -18,13 +18,13 @@ dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_INIT([GNU MyServer], m4_esyscmd([cat version]), [bug-myserver@gnu.org])
 AC_PREREQ([2.61])
+AC_CONFIG_AUX_DIR([build-aux])
 AM_CONFIG_HEADER(config.h)
 CFLAGS="${CFLAGS=}"
 CXXFLAGS="${CXXFLAGS=}"
 LDFLAGS="${LDFLAGS=}"
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
-
 AM_INIT_AUTOMAKE([gnu])
 AM_SILENT_RULES([yes])
 
@@ -33,6 +33,8 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_PROG_INSTALL
 AC_PROG_CC
 AC_PROG_CXX
+
+gl_EARLY
 
 AC_AIX
 AC_ISC_POSIX
@@ -77,6 +79,8 @@ AC_CHECK_HEADER([error.h], AC_DEFINE(ERRORH, 1, [Define if the error.h file is p
 AC_CHECK_HEADER([grp.h], AC_DEFINE(GRP, 1, [Define if grp.h is available]))
 AC_CHECK_HEADER([tre/regex.h], AC_DEFINE(TRE, 1, [Define if the tre library is present]))
 AC_CHECK_HEADER([sys/sendfile.h], AC_DEFINE(SENDFILE, 1, [Define if the sendfile syscall is present]))
+
+gl_INIT
 
 AC_CHECK_FUNCS(regcomp gettimeofday setgroups localtime_r pipe posix_fallocate snprintf openat fstatat getpwnam ffsl readdir_r)
 
@@ -154,7 +158,8 @@ else
 fi
 AC_SUBST(EVENT_LIB)
 
-AC_CHECK_FUNCS(event_loopbreak, AC_DEFINE(EVENT_LOOPBREAK, 1, [Define if the event_loopbreak function is present]) )
+AC_CHECK_FUNCS(event_loopbreak, AC_DEFINE(EVENT_LOOPBREAK, 1,
+                         [Define if the event_loopbreak function is present]) )
 
 dnl check for Unix98 socklen_t
  AC_MSG_CHECKING(if socklen_t is defined)
@@ -426,6 +431,7 @@ AC_CONFIG_FILES([ po/Makefile.in
     include/filter/gzip/Makefile
     include/plugin/Makefile
     include/server/Makefile
+    lib/Makefile
     src/Makefile
     src/connection/Makefile
     src/log/Makefile
