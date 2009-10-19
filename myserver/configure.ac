@@ -54,7 +54,8 @@ MYSERVER_VERSION="${PACKAGE_STRING}"
 
 AC_SUBST(MYSERVER_VERSION)
 
-AC_DEFINE_UNQUOTED([MYSERVER_VERSION], ["${MYSERVER_VERSION}"], [The software version])
+AC_DEFINE_UNQUOTED([MYSERVER_VERSION], ["${MYSERVER_VERSION}"],
+				       [The software version])
 
 AM_GNU_GETTEXT([external])
 
@@ -66,24 +67,31 @@ else
    MAKE_DOC=yes
 fi
 
-AC_ARG_ENABLE([ipv6], [--enable-ipv6 Build with IPv6 support], enable_ipv6="yes", enable_ipv6="")
+AC_ARG_ENABLE([ipv6], [--enable-ipv6 Build with IPv6 support],
+		      enable_ipv6="yes", enable_ipv6="")
 
 AC_ARG_ENABLE([tests], [--disable-tests Disable the tests suite],
                        enable_tests="$enableval", enable_tests="yes")
 
-AC_ARG_ENABLE([gui], [--enable-gui Build and install GUI application], enable_gui="yes", enable_gui="")
+AC_ARG_ENABLE([gui], [--enable-gui Build and install GUI application],
+		     enable_gui="yes", enable_gui="")
 
 
-AC_CHECK_HEADER([argp.h], AC_DEFINE(ARGP, 1, [Define if GNU argp tools are available]))
-AC_CHECK_HEADER([error.h], AC_DEFINE(ERRORH, 1, [Define if the error.h file is present]))
+AC_CHECK_HEADER([argp.h], AC_DEFINE(ARGP, 1,
+			  [Define if GNU argp tools are available]))
+AC_CHECK_HEADER([error.h], AC_DEFINE(ERRORH, 1,
+			   [Define if the error.h file is present]))
 AC_CHECK_HEADER([grp.h], AC_DEFINE(GRP, 1, [Define if grp.h is available]))
-AC_CHECK_HEADER([sys/sendfile.h], AC_DEFINE(SENDFILE, 1, [Define if the sendfile syscall is present]))
+AC_CHECK_HEADER([sys/sendfile.h], AC_DEFINE(SENDFILE, 1,
+				  [Define if the sendfile syscall is present]))
 
 gl_INIT
 
-AC_CHECK_FUNCS(regcomp gettimeofday setgroups localtime_r pipe posix_fallocate snprintf openat fstatat getpwnam ffsl readdir_r)
+AC_CHECK_FUNCS(regcomp gettimeofday setgroups localtime_r pipe posix_fallocate \
+		       snprintf openat fstatat getpwnam ffsl readdir_r)
 
-AC_CHECK_LIB(gcrypt, gcry_control, AC_DEFINE(GCRY_CONTROL, 1, [Define if the gcry_control function is present]))
+AC_CHECK_LIB(gcrypt, gcry_control, AC_DEFINE(GCRY_CONTROL, 1,
+		     [Define if the gcry_control function is present]))
 
 case "${host}" in
     *-*-mingw32*)
@@ -94,9 +102,9 @@ case "${host}" in
      dnl Looking for pthreads
         PTHREAD_LIB="" 
         AC_CHECK_LIB(pthread, pthread_create, PTHREAD_LIB="-lpthread",
-                [AC_CHECK_LIB(pthreads, pthread_create, PTHREAD_LIB="-lpthreads",
-                    [AC_CHECK_LIB(c_r, pthread_create, PTHREAD_LIB="-lc_r",
-                        [AC_CHECK_FUNC(pthread_create)]
+               [AC_CHECK_LIB(pthreads, pthread_create, PTHREAD_LIB="-lpthreads",
+                   [AC_CHECK_LIB(c_r, pthread_create, PTHREAD_LIB="-lc_r",
+                       [AC_CHECK_FUNC(pthread_create)]
                     )]
                 )]
         )
@@ -158,16 +166,16 @@ fi
 AC_SUBST(EVENT_LIB)
 
 AC_CHECK_FUNCS(event_loopbreak, AC_DEFINE(EVENT_LOOPBREAK, 1,
-                         [Define if the event_loopbreak function is present]) )
+                         [Define if the event_loopbreak function is present]))
 
 dnl check for Unix98 socklen_t
  AC_MSG_CHECKING(if socklen_t is defined)
  AC_TRY_COMPILE(
      [#include <sys/socket.h>],
      [socklen_t len = 10; return len;],
-         [AC_MSG_RESULT(yes)],
-         [AC_MSG_RESULT(no)
-          AC_DEFINE(socklen_t, int, need to define this where socklen_t is not present)])
+        [AC_MSG_RESULT(yes)],
+        [AC_MSG_RESULT(no)
+         AC_DEFINE(socklen_t, int, define this where socklen_t is not present)])
 
 
 # Libidn checks
@@ -191,7 +199,8 @@ if test "x$IDN_LIB" = "x"; then
 
 		if test "x$have_idn" = "xyes"; then
 				IDN_LIB="-lidn"
-				AC_DEFINE(HAVE_IDN, 1, [Define if the IDN library is present])
+				AC_DEFINE(HAVE_IDN, 1,
+				[Define if the IDN library is present])
 		fi
   fi
 
@@ -231,7 +240,8 @@ if test x$have_libz = xyes; then
 *** compressBound checking will not be enabled
 ])
     else
-        AC_DEFINE(GZIP_COMPRESS_BOUNDS, 1, [Memory checking for Zlib, not defined in older vrs])
+        AC_DEFINE(GZIP_COMPRESS_BOUNDS, 1,
+	[Memory checking for Zlib, not defined in older vrs])
     fi
 else
     AC_MSG_WARN([
@@ -339,7 +349,8 @@ fi
 CFLAGS="$CFLAGS $pic_flag"
 CXXFLAGS="$CXXFLAGS $pic_flag"
 LDFLAGS="$LDFLAGS $LIBS $pic_flag"
-all_includes="$all_includes -I$(top_builddir)/lib -I$(top_srcdir)/lib"
+CFLAGS="-I$(pwd)/lib -I$(pwd)/lib $CFLAGS"
+CXXFLAGS="-I$(pwd)/lib -I$(pwd)/lib $CXXFLAGS"
 
 AC_SUBST(CFLAGS)
 AC_SUBST(CXXFLAGS)

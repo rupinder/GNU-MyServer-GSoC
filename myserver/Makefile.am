@@ -7,9 +7,9 @@ if BUILD_DOC
 DOCS = documentation
 endif
 
-SUBDIRS = po lib src include $(CONTROL) $(CGI_LIB) binaries $(DOCS) $(TESTS_DIR)
+SUBDIRS = lib po src include $(CONTROL) binaries $(DOCS) $(TESTS_DIR)
 
-EXTRA_DIST = config.rpath  stdafx.h stdafx.cpp doxygen SConstruct
+EXTRA_DIST = stdafx.h stdafx.cpp doxygen SConstruct
 
 ACLOCAL_AMFLAGS = -I m4
 
@@ -20,5 +20,29 @@ localedir.h: Makefile
 all: localedir.h
 # Generate the localedir.h file before any other rule.
 
-regenerate-po:
-	find -iname '*.cpp' src/ > po/POTFILES.in
+update-po: check-gettext
+	git ls-files src/ | grep "cpp$$" \
+		| sort > $(srcdir)/po/POTFILES.in.2 ; \
+	if diff $(srcdir)/po/POTFILES.in \
+		$(srcdir)/po/POTFILES.in.2 >/dev/null 2>&1 ; then \
+		rm -f $(srcdir)/po/POTFILES.in.2 ; \
+	else \
+		mv $(srcdir)/po/POTFILES.in.2 $(srcdir)/po/POTFILES.in ; \
+	fi
+	cd po && $(MAKE) $(AM_MAKEFLAGS) update-po
+
+update-gmo: check-gettext
+	cd po && $(MAKE) $(AM_MAKEFLAGS) update-gmo
+
+force-update-gmo: check-gettext
+	touch po/*.po
+	cd po && $(MAKE) $(AM_MAKEFLAGS) update-gmo
+
+force-update-gmo-%: check-gettext
+	@language=`echo $@ | sed s/force-update-gmo-//` ; \
+	if test ! -f po/$$language.po ; then \
+	echo "file po/$$language.po does not exist" ; exit 1 ; fi ; \
+	touch po/$$language.po ; \
+	cd po && $(MAKE) $(AM_MAKEFLAGS) update-gmo
+
+.PHONY: check-gettext update-po update-gmo force-update-gmo
