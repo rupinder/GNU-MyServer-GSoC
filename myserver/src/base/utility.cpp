@@ -25,6 +25,7 @@ extern "C"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "nproc.h"
 #ifndef WIN32
 # include <unistd.h>
 # include <signal.h>
@@ -50,6 +51,14 @@ using namespace std;
  * Various utility functions.
  */
 static char *currentPath = 0;
+
+/*!
+ * Returns the number of processors available on the local machine.
+ */
+u_long getCPUCount ()
+{
+  return num_processors ();
+}
 
 /*!
  * Save the current working directory.

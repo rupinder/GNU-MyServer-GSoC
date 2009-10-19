@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/file/files_utility.h>
 #include <include/base/ssl/ssl.h>
 #include <include/base/socket/ssl_socket.h>
+
 #include <include/conf/main/xml_main_configuration.h>
 
 #include <cstdarg>
@@ -37,8 +38,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 extern "C"
 {
-#include "nproc.h"
-
 #ifdef WIN32
 # include <direct.h>
 #else
@@ -273,7 +272,7 @@ int Server::postLoad ()
   mimeManager.registerHandler (xml, &xmlMimeHandler);
   mimeManager.setDefaultHandler (xml);
 
-  log (MYSERVER_LOG_MSG_INFO, _("Detected %i CPUs"), (int) num_processors ());
+  log (MYSERVER_LOG_MSG_INFO, _("Detected %i CPUs"), (int) getCPUCount ());
 
   connectionsScheduler.restart ();
 
