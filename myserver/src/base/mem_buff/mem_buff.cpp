@@ -459,8 +459,8 @@ void MemBuf::hashMD5(const void* pAdr, u_int nSize)
   setLength (16);
 
   md5.init ();
-  md5.update ((unsigned char*) pAdr, nSize);
-  md5.final ((unsigned char*) getBuffer ());
+  md5.update ((char*) pAdr, nSize);
+  md5.end ((char*) getBuffer ());
   m_nSize = 16;
 }
 

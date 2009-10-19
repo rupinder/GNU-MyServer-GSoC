@@ -15,13 +15,14 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <ctype.h>
+#include <include/base/md5/md5.h>
 
+#include <ctype.h>
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
-#include <include/base/md5/md5.h>
+#include <string.h>
 
 class TestMd5 : public CppUnit::TestFixture
 {
@@ -44,15 +45,14 @@ public:
 
   void testHash ()
   {
-    unsigned char out[33];
-    const unsigned char* msg = (unsigned char* ) "hello world!\n";
+    char out[33];
+    const char* msg = "hello world!\n";
 
     char *expected = (char*) "c897d1410af8f2c74fba11b1db511e9e";
 
     md5->init ();
-    md5->update (msg, 13);
-
-    md5->end ((char*)out);
+    md5->update (msg, strlen (msg));
+    md5->end (out);
 
     for (int i = 0; i < 32; i++)
     {

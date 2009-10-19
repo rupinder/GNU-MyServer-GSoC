@@ -543,7 +543,7 @@ u_long Http::checkDigest ()
   *td->secondaryBuffer << td->request.digestUsername << ":" << td->request.digestRealm
                        << ":" << td->securityToken.getNeededPassword ();
 
-  md5.update ((unsigned char const*) td->secondaryBuffer->getBuffer (),
+  md5.update ((char const*) td->secondaryBuffer->getBuffer (),
               (unsigned int) td->secondaryBuffer->getLength ());
   md5.end (A1);
 
@@ -556,7 +556,7 @@ u_long Http::checkDigest ()
 
   td->secondaryBuffer->setLength (0);
   *td->secondaryBuffer << td->request.cmd.c_str () << ":" << uri;
-  md5.update ((unsigned char const*) td->secondaryBuffer->getBuffer (),
+  md5.update ((char const*) td->secondaryBuffer->getBuffer (),
               (unsigned int) td->secondaryBuffer->getLength ());
   md5.end (A2);
 
@@ -566,7 +566,7 @@ u_long Http::checkDigest ()
           << ((HttpUserData*) td->connection->protocolBuffer)->nonce << ":"
           << td->request.digestNc << ":" << td->request.digestCnonce << ":"
           << td->request.digestQop << ":" << A2;
-  md5.update ((unsigned char const*) td->secondaryBuffer->getBuffer (),
+  md5.update ((char const*) td->secondaryBuffer->getBuffer (),
               (unsigned int) td->secondaryBuffer->getLength ());
   md5.end (response);
 
@@ -1228,7 +1228,7 @@ void Http::computeDigest (char* out, char* buffer)
   sprintf (buffer, "%i-%u-%s", (int) clock (), (u_int) td->id,
            td->connection->getIpAddr ());
   md5.init ();
-  md5.update ((unsigned char const*) buffer, (unsigned int) strlen (buffer));
+  md5.update ((char const*) buffer, (unsigned int) strlen (buffer));
   md5.end (out);
 }
 
@@ -1281,7 +1281,7 @@ int Http::requestAuthorization ()
       md5Str[4] = (char) (clock () & 0xFF);
       strncpy (&(md5Str[5]), td->request.uri.c_str (), 256 - 5);
       md5.init ();
-      md5.update ((unsigned char const*) md5Str,
+      md5.update ((char const*) md5Str,
                   (unsigned int) strlen (md5Str));
       md5.end (((HttpUserData*) td->connection->protocolBuffer)->opaque);
 

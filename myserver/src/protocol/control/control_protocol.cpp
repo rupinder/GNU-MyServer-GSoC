@@ -137,7 +137,7 @@ int ControlProtocol::loadProtocol ()
   else
   {
     md5.init ();
-    md5.update ((unsigned char const*)tmpName, (unsigned int)strlen (tmpName) );
+    md5.update (tmpName, (unsigned int)strlen (tmpName) );
     md5.end ( adminLogin);
   }
 
@@ -146,7 +146,7 @@ int ControlProtocol::loadProtocol ()
   else
   {
     md5.init ();
-    md5.update ((unsigned char const*)tmpPassword,(unsigned int)strlen (tmpPassword) );
+    md5.update (tmpPassword,(unsigned int)strlen (tmpPassword) );
     md5.end (adminPassword);
   }
 
@@ -171,11 +171,11 @@ int ControlProtocol::checkAuth (ControlHeader& header)
   headerPassword = header.getAuthPassword ();
   authLoginHeaderMD5[0] = authPasswordHeaderMD5[0] = '\0';
   md5.init ();
-  md5.update ((unsigned char const*) headerLogin, (unsigned int)strlen ( headerLogin ) );
+  md5.update (headerLogin, (unsigned int)strlen ( headerLogin ) );
   md5.end ( authLoginHeaderMD5);
 
   md5.init ();
-  md5.update ((unsigned char const*) headerPassword,(unsigned int)strlen (headerPassword) );
+  md5.update (headerPassword, (unsigned int)strlen (headerPassword) );
   md5.end (authPasswordHeaderMD5);
 
   if ((!strcmpi (adminLogin, authLoginHeaderMD5)) &&
