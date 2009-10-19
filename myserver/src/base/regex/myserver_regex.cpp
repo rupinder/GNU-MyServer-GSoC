@@ -48,11 +48,9 @@ int Regex::exec (const char *text, size_t nmatch, regmatch_t matchptr [],
  */
 void Regex::free ()
 {
-#ifdef REGLIB
   if (compiled)
     regfree (&compiledRegex);
   compiled = 0;
-#endif
 }
 
 /*!
@@ -60,9 +58,7 @@ void Regex::free ()
  */
 Regex::~Regex ()
 {
-#ifdef REGLIB
   free ();
-#endif
 }
 
 /*!
@@ -70,9 +66,8 @@ Regex::~Regex ()
  */
 Regex::Regex (const char *pattern, int flags)
 {
-#ifdef REGLIB
+  compiled = 0;
   compile (pattern, flags);
-#endif
 }
 /*!
  * Return a nonzero value if the regex was compiled.
@@ -95,7 +90,9 @@ Regex::Regex (Regex& r)
  */
 void Regex::clone (Regex& r)
 {
-#ifdef REGLIB
+  r.compiled = compiled;
+  if (!compiled)
+    return;
+
   compile (r.pattern.c_str (), r.flags);
-#endif
 }
