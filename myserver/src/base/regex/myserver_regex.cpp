@@ -17,27 +17,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <include/base/regex/myserver_regex.h>
 
-#ifdef HAVE_REGCOMP
-# define REGLIB 1
-#elif TRE
-# define REGLIB 1
-#else
-# undef REGLIB
-#endif
 /*!
  * Compile the regex pattern.
  */
 int Regex::compile (const char *p, int f)
 {
-#ifdef REGLIB
   int ret = regcomp (&compiledRegex, p, f);
   pattern.assign (p);
   flags = f;
   if (!ret)
     compiled = 1;
+
   return ret;
-#endif
-  return -1;
 }
 
 /*!
@@ -46,13 +37,10 @@ int Regex::compile (const char *p, int f)
 int Regex::exec (const char *text, size_t nmatch, regmatch_t matchptr [],
                  int eflags)
 {
-#ifdef REGLIB
   if (!compiled)
     return 1;
-  int ret = regexec (&compiledRegex, text, nmatch, matchptr, eflags);
-  return ret;
-#endif
-  return -1;
+
+  return regexec (&compiledRegex, text, nmatch, matchptr, eflags);
 }
 
 /*!

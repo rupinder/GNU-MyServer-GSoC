@@ -77,7 +77,6 @@ AC_ARG_ENABLE([gui], [--enable-gui Build and install GUI application], enable_gu
 AC_CHECK_HEADER([argp.h], AC_DEFINE(ARGP, 1, [Define if GNU argp tools are available]))
 AC_CHECK_HEADER([error.h], AC_DEFINE(ERRORH, 1, [Define if the error.h file is present]))
 AC_CHECK_HEADER([grp.h], AC_DEFINE(GRP, 1, [Define if grp.h is available]))
-AC_CHECK_HEADER([tre/regex.h], AC_DEFINE(TRE, 1, [Define if the tre library is present]))
 AC_CHECK_HEADER([sys/sendfile.h], AC_DEFINE(SENDFILE, 1, [Define if the sendfile syscall is present]))
 
 gl_INIT
@@ -340,6 +339,7 @@ fi
 CFLAGS="$CFLAGS $pic_flag"
 CXXFLAGS="$CXXFLAGS $pic_flag"
 LDFLAGS="$LDFLAGS $LIBS $pic_flag"
+all_includes="$all_includes -I$(top_builddir)/lib -I$(top_srcdir)/lib"
 
 AC_SUBST(CFLAGS)
 AC_SUBST(CXXFLAGS)

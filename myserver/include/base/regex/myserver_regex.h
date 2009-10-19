@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef MYSERVER_REGEX_H
-
 # define MYSERVER_REGEX_H
 
 # include "stdafx.h"
@@ -25,15 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 extern "C"
 {
 # include <stdio.h>
-
-# ifdef TRE
-#  include <tre/regex.h>
-# elif HAVE_REGCOMP
-#  include <regex.h>
-# else
-  typedef void* regmatch_t;
-  typedef void* regex_t;
-# endif
+# include "regex.h"
 }
 
 # include <string>
@@ -69,5 +60,4 @@ private:
   string pattern;
   int flags;
 };
-
 #endif
