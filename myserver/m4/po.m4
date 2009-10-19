@@ -1,1 +1,1 @@
-/home/gscrivano/sviluppo/gnulib/m4/po.m4
+/home/gscrivano/workspace/gnulib//m4/po.m4

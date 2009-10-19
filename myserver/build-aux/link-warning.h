@@ -1,1 +1,0 @@
-/home/gscrivano/sviluppo/gnulib/build-aux/link-warning.h
