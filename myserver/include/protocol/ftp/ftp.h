@@ -92,7 +92,6 @@ struct FtpThreadContext
   MemBuf *buffer;
   MemBuf *secondaryBuffer;
   u_long buffersize;
-  u_long secondaryBufferSize;
   u_long m_nParseLength;
   u_long nBytesToRead;
   Ftp *pProtocolInterpreter;

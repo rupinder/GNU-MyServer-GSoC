@@ -766,8 +766,8 @@ int Http::logHTTPaccess ()
 /*!
  * This is the HTTP protocol main procedure to parse a request over HTTP.
  */
-int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
-                             int bs1, int bs2, u_long nbtr, u_long id)
+int Http::controlConnection (ConnectionPtr a, char*, char*, int, int,
+                             u_long nbtr, u_long id)
 {
   int retvalue = -1;
   int ret = 0;
@@ -781,8 +781,7 @@ int Http::controlConnection (ConnectionPtr a, char* /*b1*/, char* /*b2*/,
     {
       td->buffer = a->getActiveThread ()->getBuffer ();
       td->secondaryBuffer = a->getActiveThread ()->getSecondaryBuffer ();
-      td->buffersize = bs1;
-      td->secondaryBufferSize = bs2;
+      td->buffersize = a->getActiveThread ()->getBufferSize ();
       td->nBytesToRead = nbtr;
       td->connection = a;
       td->id = id;

@@ -68,7 +68,7 @@ public:
   int run ();
   ThreadID getThreadId (){return tid;}
   int join ();
-
+  u_long getBufferSize () {return bufferSize;}
 
 private:
   Server* server;

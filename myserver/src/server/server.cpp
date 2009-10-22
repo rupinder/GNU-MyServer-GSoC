@@ -798,7 +798,7 @@ int Server::initialize ()
 
   data = getData ("server.buffer_size");
   if (data)
-    buffersize = secondaryBufferSize= (atol (data) > 81920) ?  atol (data) :  81920 ;
+    buffersize = (atol (data) > 81920) ?  atol (data) :  81920 ;
 
   data = getData ("server.connection_timeout");
   if (data)

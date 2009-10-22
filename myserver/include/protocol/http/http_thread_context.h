@@ -63,7 +63,6 @@ struct HttpThreadContext
 	MemBuf *buffer;
 	MemBuf *secondaryBuffer;
 	u_long buffersize;
-	u_long secondaryBufferSize;
 	u_long id;
 	u_long nBytesToRead;
 	u_long nHeaderChars;

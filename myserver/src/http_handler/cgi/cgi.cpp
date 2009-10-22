@@ -455,7 +455,7 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
 
     headerOffset += nBytesRead;
 
-    if (headerOffset > td->secondaryBufferSize - 5)
+    if (headerOffset > td->buffersize - 5)
       (td->secondaryBuffer->getBuffer ())[headerOffset] = '\0';
 
     if (headerOffset == 0)
