@@ -120,12 +120,12 @@ DEFINE_THREAD (clients_thread, pParam)
 
   ct->threadIsRunning = true;
   ct->threadIsStopped = false;
-  ct->buffersize = ct->secondaryBufferSize = ct->server->getBuffersize ();
+  ct->bufferSize = ct->server->getBuffersize ();
 
-  ct->buffer.setLength (ct->buffersize);
-  ct->buffer.m_nSizeLimit = ct->buffersize;
-  ct->secondaryBuffer.setLength (ct->secondaryBufferSize);
-  ct->secondaryBuffer.m_nSizeLimit = ct->secondaryBufferSize;
+  ct->buffer.setLength (ct->bufferSize);
+  ct->buffer.m_nSizeLimit = ct->bufferSize;
+  ct->secondaryBuffer.setLength (ct->bufferSize);
+  ct->secondaryBuffer.m_nSizeLimit = ct->bufferSize;
 
   /* Built-in protocols will be initialized at the first use.  */
   ct->initialized = true;

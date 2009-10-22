@@ -81,8 +81,7 @@ private:
   bool busy;
   bool threadIsStopped;
   bool threadIsRunning;
-  u_long buffersize;
-  u_long secondaryBufferSize;
+  u_long bufferSize;
   bool isRunning ();
   bool isStopped ();
   MemBuf buffer;
