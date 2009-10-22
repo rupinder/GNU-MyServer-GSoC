@@ -1,6 +1,6 @@
 /*
  MyServer
- Copyright (C) 2008 Free Software Foundation, Inc.
+ Copyright (C) 2008, 2009 Free Software Foundation, Inc.
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
@@ -52,12 +52,12 @@ public:
 
     md5->init ();
     md5->update (msg, strlen (msg));
-    md5->end (out);
+    char *ret = md5->end (out);
+
+    CPPUNIT_ASSERT_EQUAL (ret, &out[0]);
 
     for (int i = 0; i < 32; i++)
-    {
       CPPUNIT_ASSERT_EQUAL (tolower (expected[i]), tolower (out[i]));
-    }
 
   }
 };

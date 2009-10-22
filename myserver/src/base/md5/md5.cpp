@@ -57,7 +57,7 @@ Md5::~Md5 ()
 char* Md5::end (char *buf)
 {
   unsigned char tmp[16];
-
+  char *ret = buf;
   if (!buf)
     return NULL;
 
@@ -67,11 +67,11 @@ char* Md5::end (char *buf)
 
   for (long i = 0; i < 16; i++)
     {
-      buf[(i << 1)] = hex[tmp[i] >> 4];
-      buf[(i << 1) + 1] = hex[tmp[i] & 0x0f];
+      *buf++ = hex[tmp[i] >> 4];
+      *buf++ = hex[tmp[i] & 0x0f];
     }
 
-  buf[32] = '\0';
+  *buf = '\0';
 
-  return buf;
+  return ret;
 }
