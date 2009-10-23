@@ -29,6 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 extern "C"
 {
+#include <stdio.h>
+
 #ifdef WIN32
 # include <direct.h>
 # include <errno.h>
@@ -535,15 +537,9 @@ int ControlProtocol::addToLog (int retCode, ConnectionPtr con, char *buffer,
 {
   string time;
   getRFC822GMTTime (time, 32);
-
-#ifdef HAVE_SNPRINTF
-  snprintf (buffer, bufferSize,
-#else
-  sprintf (buffer,
-#endif
-  "%s [%s] %s:%s:%s - %s - %i", con->getIpAddr (), time.c_str (),
-          header.getCommand (),  header.getVersion (), header.getOptions (),
-          header.getAuthLogin (), retCode);
+  snprintf (buffer, bufferSize, "%s [%s] %s:%s:%s - %s - %i", con->getIpAddr (),
+            time.c_str (), header.getCommand (), header.getVersion (),
+            header.getOptions (), header.getAuthLogin (), retCode);
   con->host->accessesLogWrite ("%s", buffer);
   return 0;
 }
