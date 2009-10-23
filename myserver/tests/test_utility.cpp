@@ -65,34 +65,22 @@ public:
 
   void testCWD ()
   {
+    string strBuff;
     char *buffer;
     unsigned int bufferLen;
-
-    setcwdBuffer ();
 
     bufferLen = getdefaultwdlen ();
     CPPUNIT_ASSERT (bufferLen > 0);
 
     buffer = new char[bufferLen + 1];
-
-
     getdefaultwd (buffer, bufferLen);
-
     CPPUNIT_ASSERT ( strlen (buffer) > 0 );
     CPPUNIT_ASSERT (strlen (buffer) <= bufferLen);
 
-
-    string strBuff;
-
     int ret = getdefaultwd (strBuff);
-
     CPPUNIT_ASSERT_EQUAL (ret, 0);
-
     CPPUNIT_ASSERT (strBuff.length () > 0);
-
-
-
-    freecwdBuffer ();
+    freecwd ();
 
     delete [] buffer;
   }

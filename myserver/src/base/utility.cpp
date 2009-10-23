@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "stdafx.h"
 #include <include/base/utility.h>
 #include <include/base/string/securestr.h>
-
 extern "C"
 {
+#include <chdir-long.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -47,10 +47,8 @@ extern "C"
 #include <iostream>
 using namespace std;
 
-/*
- * Various utility functions.
- */
-static char *currentPath = 0;
+static char *currentPath = NULL;
+static size_t currentPathLen;
 
 /*!
  * Returns the number of processors available on the local machine.
@@ -65,58 +63,17 @@ u_long getCPUCount ()
  * Return -1 on fails.
  * Return 0 on success.
  */
-int setcwdBuffer ()
+static int initializeCwd ()
 {
-#ifdef WIN32
-  /* Under windows there is MAX_PATH, we will use it.  */
-  currentPath = new char [MAX_PATH];
-  if (currentPath == 0)
-    return (-1);
-  char* ret =(char*) _getcwd (currentPath,MAX_PATH);
-  if (ret == 0)
+  if (currentPath)
+    return 0;
+
+  currentPath = getcwd (NULL, 0);
+  if (!currentPath)
     return -1;
 
-  ret = 0;
-
-  for (u_long i = 0; i<(u_long)strlen (currentPath); i++)
-    if (currentPath[i] == '\\')
-      currentPath[i] = '/';
-
-  if (currentPath[strlen (currentPath)] == '/')
-    currentPath[strlen (currentPath)] = '\0';
+  currentPathLen = strlen (currentPath) + 1;
   return 0;
-#endif
-
-#ifdef __OpenBSD__
-  currentPath = getcwd (0, 0);
-  return currentPath ? 0 : 1;
-#endif
-
-#ifndef WIN32
-  int size = 16;
-  char *ret = 0;
-  currentPath = new char[size];
-  do
-  {
-    /*! Allocation problem is up.  */
-    if (currentPath == 0)
-      return -1;
-
-    ret = getcwd (currentPath, size);
-    /* Realloc the buffer if it cannot contain the current directory.  */
-    if (ret == 0)
-      {
-        size *= 2;
-        delete [] currentPath;
-        currentPath = new char[size];
-      }
-  }
-  while ((ret == 0) && (errno == ERANGE));
-
-  if (currentPath[strlen (currentPath)] == '/')
-    currentPath[strlen (currentPath)] = '\0';
-  return 0;
-#endif
 }
 
 /*!
@@ -126,9 +83,8 @@ int setcwdBuffer ()
  */
 int getdefaultwd (string& out)
 {
-  char *wd = getdefaultwd (NULL, NULL);
-
-  if (wd == 0)
+  char *wd = getdefaultwd (NULL, 0);
+  if (wd == NULL)
     return -1;
 
   out.assign (wd);
@@ -138,9 +94,13 @@ int getdefaultwd (string& out)
 /*!
  * Free the cwd buffer.
  */
-int freecwdBuffer ()
+int freecwd ()
 {
+  if (!currentPath)
+    return 0;
+
   delete [] currentPath;
+  currentPathLen = 0;
   return 0;
 }
 
@@ -149,24 +109,31 @@ int freecwdBuffer ()
  */
 int getdefaultwdlen ()
 {
-  return strlen (currentPath) + 1;
+  if (!currentPathLen && initializeCwd ())
+    return 0;
+
+  return currentPathLen;
 }
 
 /*!
- *Get the default working directory (Where is the main executable).
+ *Get the default working directory.
  *\param path The buffer where write.
  *\param len The length of the buffer.
  */
 char *getdefaultwd (char *path, int len)
 {
+  if (!currentPath && initializeCwd ())
+      return NULL;
+
   if (path)
     {
-    /* If len is equal to zero we assume no limit.  */
+      /* If len is equal to zero we assume no limit.  */
       if (len)
-        myserver_strlcpy (path, currentPath, len);
+	myserver_strlcpy (path, currentPath, len);
       else
-        strcpy (path, currentPath);
+	strcpy (path, currentPath);
     }
+
   return currentPath;
 }
 
@@ -176,13 +143,14 @@ char *getdefaultwd (char *path, int len)
  */
 int setcwd (const char *dir)
 {
-#ifdef WIN32
-  return _chdir (dir);
-#endif
+  int ret;
+  char *tmp = strdup (dir);
+  if (!tmp)
+    return -1;
 
-#ifndef WIN32
-  return chdir (dir);
-#endif
+  ret = chdir_long (tmp);
+  free (tmp);
+  return ret;
 }
 
 /*!

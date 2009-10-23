@@ -44,7 +44,6 @@ public:
     fsc = new FileStreamCreator ();
     ff = new FiltersFactory ();
     ff->insert ("gzip", Gzip::factory);
-    setcwdBuffer ();
   }
 
   void testCycleLog ()

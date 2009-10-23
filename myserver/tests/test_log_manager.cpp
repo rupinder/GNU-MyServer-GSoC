@@ -90,7 +90,6 @@ public:
     ff->insert ("gzip", Gzip::factory);
     ff->insert ("gunzip", GzipDecompress::factory);
     lm = new LogManager (ff);
-    setcwdBuffer ();
   }
 
   void testEmpty ()

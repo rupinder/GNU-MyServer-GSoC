@@ -38,12 +38,11 @@ int endPrintError ();
 
 u_long getCPUCount ();
 u_long getTicks ();
-int setcwdBuffer ();
 int getdefaultwdlen ();
-char *getdefaultwd (char* dwd,int maxlen);
+char *getdefaultwd (char *dwd, int maxlen);
 int getdefaultwd (string&);
-int setcwd (const char * cwd);
-int freecwdBuffer ();
+int setcwd (const char *cwd);
+int freecwd ();
 
 int readFileHandle (SocketHandle s, Handle* fd);
 int writeFileHandle (SocketHandle s, Handle fd);

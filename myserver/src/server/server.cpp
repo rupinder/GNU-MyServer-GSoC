@@ -589,7 +589,7 @@ int Server::purgeThreads ()
 void Server::finalCleanup ()
 {
   XmlParser::cleanXML ();
-  freecwdBuffer ();
+  freecwd ();
   myserver_safetime_destroy ();
 }
 

@@ -405,7 +405,6 @@ int main  (int argn, char **argv)
   /* We can free path memory now.  */
   delete [] path;
 
-
 #ifdef ARGP
   /* Reset the struct.  */
   input.version = 0;
@@ -493,7 +492,6 @@ int main  (int argn, char **argv)
    */
   try
     {
-      setcwdBuffer ();
       loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath,
                              input.confFilesLocation);
 

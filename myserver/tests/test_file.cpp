@@ -47,7 +47,6 @@ class TestFile : public CppUnit::TestFixture
 public:
   void setUp ()
   {
-    setcwdBuffer ();/* Be sure the cwd buffer is initialized.  */
     FilesUtility::temporaryFileName (0, fname);
     tfile = new File;
   }
