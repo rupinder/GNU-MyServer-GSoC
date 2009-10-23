@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/protocol.h>
 #include <include/protocol/control/control_protocol.h>
 #include <include/base/xml/xml_parser.h>
-#include <include/base/md5/md5.h>
+#include <include/base/crypt/md5.h>
 #include <include/server/server.h>
 #include <include/server/clients_thread.h>
 #include <include/base/string/securestr.h>

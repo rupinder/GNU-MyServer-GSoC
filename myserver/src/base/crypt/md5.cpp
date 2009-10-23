@@ -16,7 +16,7 @@
  */
 
 #include "stdafx.h"
-#include <include/base/md5/md5.h>
+#include <include/base/crypt/md5.h>
 
 /*!
  * Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious

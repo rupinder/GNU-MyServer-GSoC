@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/server/clients_thread.h>
 #include <include/base/socket/socket.h>
 #include <include/base/utility.h>
-#include <include/base/md5/md5.h>
+#include <include/base/crypt/md5.h>
 #include <include/base/string/stringutils.h>
 #include <include/base/string/securestr.h>
 

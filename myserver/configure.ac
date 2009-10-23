@@ -424,7 +424,7 @@ AC_CONFIG_FILES([ po/Makefile.in
     include/base/hash_map/Makefile
     include/base/dynamic_lib/Makefile
     include/base/process/Makefile
-    include/base/md5/Makefile
+    include/base/crypt/Makefile
     include/base/ssl/Makefile
     include/base/xml/Makefile
     include/base/files_cache/Makefile
@@ -479,7 +479,7 @@ AC_CONFIG_FILES([ po/Makefile.in
     src/base/hash_map/Makefile
     src/base/dynamic_lib/Makefile
     src/base/process/Makefile
-    src/base/md5/Makefile
+    src/base/crypt/Makefile
     src/base/slab/Makefile
     src/base/ssl/Makefile
     src/base/xml/Makefile

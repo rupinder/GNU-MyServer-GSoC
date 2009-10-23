@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <include/base/mem_buff/mem_buff.h>
-#include <include/base/md5/md5.h>
+#include <include/base/crypt/md5.h>
 
 #include <string.h>
 
