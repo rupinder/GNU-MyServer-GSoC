@@ -32,6 +32,7 @@ public:
   ~CryptAlgoManager ();
   void registerAlgorithm (string &name, builder bld);
   CryptAlgo *make (string &s);
+  bool check (string &value, string &result, string &algo);
 private:
   HashMap<string, builder> algorithms;
 };

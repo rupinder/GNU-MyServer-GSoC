@@ -31,7 +31,8 @@ using namespace std;
 class TestCryptAlgoManager : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE ( TestCryptAlgoManager );
-  CPPUNIT_TEST ( testRegister );
+  CPPUNIT_TEST (testRegister);
+  CPPUNIT_TEST (testCheck);
   CPPUNIT_TEST_SUITE_END ();
 
 public:
@@ -63,6 +64,32 @@ public:
     cam.registerAlgorithm (name, NULL);
     cal = cam.make (name);
     CPPUNIT_ASSERT_EQUAL (cal, (CryptAlgo*) NULL);
+  }
+
+  void testCheck ()
+  {
+    string name ("md5");
+    CryptAlgoManager cam;
+    string value ("freedom");
+    string result ("d5aa1729c8c253e5d917a5264855eab8");
+    string wrong  ("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    Md5::initialize (&cam);
+
+    CPPUNIT_ASSERT (cam.check (value, result, name));
+    CPPUNIT_ASSERT (!cam.check (value, wrong, name));
+    bool raised = false;
+    try
+      {
+        /* Using an algorithm that is not registered causes an
+         * exception.  */
+        cam.check (value, result, wrong);
+      }
+    catch (...)
+      {
+        raised = true;
+      }
+
+    CPPUNIT_ASSERT (raised);
   }
 
 };

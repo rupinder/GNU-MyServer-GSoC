@@ -16,6 +16,11 @@
  */
 
 #include <include/base/crypt/crypt_algo_manager.h>
+#include <memory>
+#include <exception>
+
+using namespace std;
+
 
 /*!
  * C'tor.
@@ -58,4 +63,49 @@ CryptAlgo *CryptAlgoManager::make (string &name)
     return bdr ();
 
   return NULL;  
+}
+
+/* FIXME: Generalize.  */
+class CryptAlgoManagerException : public exception
+{
+public:
+  virtual const char *what () const throw ()
+  {
+    return message;
+  }
+
+  CryptAlgoManagerException (const char *message)
+  {
+    this->message = message;
+  }
+
+private:
+  const char *message;
+};
+
+/*!
+ * Check if F(value)=result, using the F specified by the algorithm.
+ *
+ * \param value The value to convert.
+ * \param result The final result.
+ * \param algo The name of the algorithm to use.
+ * \return true if F(value)=result.
+ * \throw If the algorithm is not registered, it throws an exception.
+ */
+bool CryptAlgoManager::check (string &value, string &result, string &algo)
+{
+  const size_t buffer_len = 256;
+  char buffer[buffer_len];
+  CryptAlgo *f = make (algo);
+  if (!f)
+    {
+      snprintf (buffer, buffer_len, _("%s is not a registered algorithm"),
+                algo.c_str ());
+      throw CryptAlgoManagerException (buffer);
+    }
+  auto_ptr<CryptAlgo> keeper (f);
+  f->init ();
+  f->update (value.c_str (), value.length ());
+  f->end (buffer);
+  return !result.compare (buffer);
 }

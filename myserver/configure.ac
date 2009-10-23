@@ -88,7 +88,7 @@ AC_CHECK_HEADER([sys/sendfile.h], AC_DEFINE(SENDFILE, 1,
 gl_INIT
 
 AC_CHECK_FUNCS(regcomp gettimeofday setgroups localtime_r pipe posix_fallocate \
-		       snprintf openat fstatat getpwnam ffsl readdir_r)
+		           openat fstatat getpwnam ffsl readdir_r)
 
 AC_CHECK_LIB(gcrypt, gcry_control, AC_DEFINE(GCRY_CONTROL, 1,
 		     [Define if the gcry_control function is present]))
