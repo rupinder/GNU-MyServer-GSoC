@@ -52,6 +52,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # include <include/conf/mime/xml_mime_handler.h>
 
 # include <include/base/slab/slab.h>
+# include <include/base/crypt/crypt_algo_manager.h>
+
 
 # include <string>
 # include <list>
@@ -164,6 +166,8 @@ public:
   LogManager *getLogManager () { return logManager; }
 
   MainConfiguration *getConfiguration ();
+  CryptAlgoManager *getCryptAlgoManager () {return &cryptAlgoManager;}
+
 private:
   friend class ClientsThread;
   XmlValidator *xmlValidator;
@@ -260,6 +264,7 @@ private:
   string mimeConfigurationFile;
   string externalPath;
 
+  CryptAlgoManager cryptAlgoManager;
   PluginsManager pluginsManager;
   ProcessServerManager processServerManager;
   ConnectionsScheduler connectionsScheduler;

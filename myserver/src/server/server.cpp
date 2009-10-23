@@ -31,6 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/ssl/ssl.h>
 #include <include/base/socket/ssl_socket.h>
 
+#include <include/base/crypt/md5.h>
+
 #include <include/conf/main/xml_main_configuration.h>
 
 #include <cstdarg>
@@ -348,6 +350,8 @@ void Server::loadPlugins ()
       protocol->registerName (protocolName, 32);
       getProtocolsManager ()->addProtocol (protocolName, protocol);
     }
+
+  Md5::initialize (&cryptAlgoManager);
 
   getPluginsManager ()->preLoad (this, externalPath);
   getPluginsManager ()->load (this);

@@ -75,3 +75,19 @@ char* Md5::end (char *buf)
 
   return ret;
 }
+
+CryptAlgo *Md5::md5Builder ()
+{
+  return new Md5 ();
+}
+
+/*!
+ * Register the algorithm on the specified manager.
+ *
+ * \param manager The manager where register MD5.
+ */
+void Md5::initialize (CryptAlgoManager *manager)
+{
+  string name ("md5");
+  manager->registerAlgorithm (name, Md5::md5Builder);
+}
