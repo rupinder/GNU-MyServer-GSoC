@@ -97,13 +97,7 @@ int Pipe::read (char* buffer, u_long len, u_long *nbr)
 int Pipe::create (bool readPipe)
 {
 #ifndef WIN32
-
-# ifdef HAVE_PIPE
   return pipe (handles);
-# else
-  return 1;
-# endif
-
 #else
   HANDLE tmp;
   SECURITY_ATTRIBUTES sa;
@@ -308,7 +302,7 @@ int Pipe::waitForData (int sec, int usec)
 
   return 0;
 
-#elif HAVE_PIPE
+#else
   struct timeval tv;
   fd_set readfds;
   int ret;
