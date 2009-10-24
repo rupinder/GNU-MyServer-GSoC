@@ -16,7 +16,7 @@ tests_suite_SOURCES = main.cpp test_auth_domain.cpp test_base64.cpp \
 	test_plugin_info.cpp test_read_directory.cpp test_recursive_mutex.cpp \
 	test_regex.cpp test_safetime.cpp test_security_cache.cpp \
 	test_security_domain.cpp test_security_manager.cpp \
-	test_security_token.cpp test_semaphore.cpp test_slab.cpp \
+	test_security_token.cpp test_sha1.cpp test_semaphore.cpp test_slab.cpp \
 	test_socket.cpp test_socket_pair.cpp test_socket_stream_creator.cpp \
 	test_ssl_socket.cpp test_thread.cpp test_unix_socket.cpp test_url.cpp \
 	test_utility.cpp test_validator.cpp test_validator_factory.cpp \

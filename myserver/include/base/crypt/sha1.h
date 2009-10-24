@@ -15,28 +15,33 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef MD5_H
-# define MD5_H
+
+/* SHA1_H is already used by the gnulib module.  */
+#ifndef SHA1_CRYPT_H
+# define SHA1_CRYPT_H
+
+extern "C"
+{
+#include <sha1.h>
+}
 
 # include "stdafx.h"
 
-# include <md5.h>
 # include <include/base/crypt/crypt_algo.h>
 # include <include/base/crypt/crypt_algo_manager.h>
 
-class Md5 : public CryptAlgo
+class Sha1 : public CryptAlgo
 {
 public:
-  Md5 ();
-  virtual ~Md5 ();
+  Sha1 ();
+  virtual ~Sha1 ();
   virtual void init ();
   virtual void update (char const *buf, unsigned long len);
   virtual char* end (char *buf);
   static void initialize (CryptAlgoManager *manager);
-  static CryptAlgo *md5Builder ();
-
+  static CryptAlgo *sha1Builder ();
 private:
-  struct md5_ctx ctx;
+  struct sha1_ctx ctx;
 };
 
 #endif

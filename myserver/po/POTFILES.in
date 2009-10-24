@@ -3,6 +3,7 @@ src/base/bitvec/bitvec.cpp
 src/base/crypt/crypt_algo.cpp
 src/base/crypt/crypt_algo_manager.cpp
 src/base/crypt/md5.cpp
+src/base/crypt/sha1.cpp
 src/base/dynamic_lib/dynamiclib.cpp
 src/base/file/file.cpp
 src/base/file/files_utility.cpp

@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/socket/ssl_socket.h>
 
 #include <include/base/crypt/md5.h>
+#include <include/base/crypt/sha1.h>
 
 #include <include/conf/main/xml_main_configuration.h>
 
@@ -352,6 +353,7 @@ void Server::loadPlugins ()
     }
 
   Md5::initialize (&cryptAlgoManager);
+  Sha1::initialize (&cryptAlgoManager);
 
   getPluginsManager ()->preLoad (this, externalPath);
   getPluginsManager ()->load (this);
