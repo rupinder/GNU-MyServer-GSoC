@@ -1,5 +1,8 @@
 src/base/base64/mime_utils.cpp
 src/base/bitvec/bitvec.cpp
+src/base/crypt/crypt_algo.cpp
+src/base/crypt/crypt_algo_manager.cpp
+src/base/crypt/md5.cpp
 src/base/dynamic_lib/dynamiclib.cpp
 src/base/file/file.cpp
 src/base/file/files_utility.cpp
@@ -8,7 +11,6 @@ src/base/files_cache/cached_file.cpp
 src/base/files_cache/cached_file_factory.cpp
 src/base/hash_map/hash_map.cpp
 src/base/home_dir/home_dir.cpp
-src/base/md5/md5.cpp
 src/base/mem_buff/mem_buff.cpp
 src/base/multicast/multicast.cpp
 src/base/pipe/pipe.cpp
