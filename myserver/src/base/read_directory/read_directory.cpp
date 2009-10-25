@@ -138,16 +138,15 @@ int ReadDirectory::find (const char *filename)
    if (fstatat (dirfd (dh), name.c_str (), &stats, 0))
      return -1;
 # else
-
-   string tempName = filename;
-
+   string tempName;
    tempName.assign (dirName);
    tempName.append ("/");
    tempName.append (dirInfo->d_name);
-
    if (stat (tempName.c_str (), &stats))
      return -1;
 # endif
+
+   attrib = 0;
 
    if (S_ISDIR (stats.st_mode))
      attrib = FILE_ATTRIBUTE_DIRECTORY;
