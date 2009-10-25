@@ -141,17 +141,17 @@ void HttpDir::getFormattedSize (u_long bytes, string & out)
   ostringstream osstr;
 
   if (bytes == 0)
-  {
-    out = "0";
-    return;
-  }
+    {
+      out = "0 bytes";
+      return;
+    }
 
   for (i = 0; i < sizeof (powers); i++)
-  {
-    result = formatBytes (bytes, powers[i]);
-    if (result != -1)
-      break;
-  }
+    {
+      result = formatBytes (bytes, powers[i]);
+      if (result != -1)
+        break;
+    }
 
   if ((result - floor (result)) < 0.01)
     osstr << std::fixed << setprecision (0) << result << " " << symbols[i];
@@ -261,15 +261,13 @@ void HttpDir::generateElement (MemBuf &out,
     case 's':
       out << "<td>";
       if (file.attrib & FILE_ATTRIBUTE_DIRECTORY)
-      {
         out << "[directory]";
-      }
       else
-      {
-        string tmp;
-        getFormattedSize (file.size, tmp);
-        out << tmp;
-      }
+        {
+          string tmp;
+          getFormattedSize (file.size, tmp);
+          out << tmp;
+        }
       out << "</td>";
       break;
     }
