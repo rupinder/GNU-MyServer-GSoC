@@ -519,7 +519,8 @@ int XmlVhostHandler::load (const char *filename)
                       delete handler;
                       handler = NULL;
                       Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
-                                               _("Error loading %s"), filename);
+                                       _("Error loading mime types file: %s"),
+                                                   filename);
 
                     }
                   vh->setMimeHandler (handler);

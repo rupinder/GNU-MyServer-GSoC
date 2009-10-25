@@ -492,8 +492,13 @@ int main  (int argn, char **argv)
    */
   try
     {
-      loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath,
-                             input.confFilesLocation);
+      if (loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath,
+                                 input.confFilesLocation))
+        {
+          cout << _("Cannot find the configuration files, be sure they exist")
+               << endl;
+          return 1;
+        }
 
       switch (runas)
         {

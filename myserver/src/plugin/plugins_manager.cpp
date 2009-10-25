@@ -134,23 +134,19 @@ PluginsManager::preLoad (Server* server, string& resource)
   string completeFileName;
   int ret;
   HashMap<string, bool> alreadyCkeched;
-  loadOptions (server);
 
+  loadOptions (server);
   filename.assign (resource);
 
-
-
   ret = fdir.findfirst (filename.c_str ());
-
   if (ret == -1)
     {
       server->log (MYSERVER_LOG_MSG_ERROR,
-                          _("Invalid plugins source"));
+                   _("Invalid plugins source"));
       return ret;
     }
 
   ret = 0;
-
   do
     {
       string dirname (filename);
@@ -211,14 +207,14 @@ PluginsManager::preLoad (Server* server, string& resource)
             {
               Plugin* plugin = preLoadPlugin (libname, server,
                                               pinfo->isGlobal ());
-              if (!plugin)
+              if (plugin)
+                pinfo->setPlugin (plugin);
+              else
                 {
                   ret |= 1;
                   server->log (MYSERVER_LOG_MSG_ERROR,
-                               _("Error loading plugin `%s'"), libname.c_str ());
+                              _("Error loading plugin `%s'"), libname.c_str ());
                 }
-              else
-                pinfo->setPlugin (plugin);
             }
           addPluginInfo (pname, pinfo);
         }

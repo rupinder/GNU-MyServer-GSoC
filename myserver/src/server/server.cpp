@@ -181,17 +181,26 @@ void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
 
   try
   {
-    if (loadLibraries ())
-      return;
-
     log (MYSERVER_LOG_MSG_INFO, _("Initializing server configuration..."));
 
+    if (loadLibraries ())
+      {
+        log (MYSERVER_LOG_MSG_INFO, _("The server could not be started"));
+        return;
+      }
+
     if (!resetConfigurationPaths (mainConf, mimeConf, vhostConf, externPath))
-      return;
+      {
+        log (MYSERVER_LOG_MSG_INFO, _("The server could not be started"));
+        return;
+      }
 
     err = initialize ();
     if (err)
-      return;
+      {
+        log (MYSERVER_LOG_MSG_INFO, _("The server could not be started"));
+        return;
+      }
 
     /* Initialize the SSL library.  */
     initializeSSL ();
@@ -199,7 +208,10 @@ void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
     log (MYSERVER_LOG_MSG_INFO, _("Loading server configuration..."));
 
     if (postLoad ())
-      return;
+      {
+        log (MYSERVER_LOG_MSG_INFO, _("The server could not be started"));
+        return;
+      }
 
     setProcessPermissions ();
 
@@ -228,12 +240,15 @@ void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
     {
       log (MYSERVER_LOG_MSG_ERROR, _("Error: %s"), e.what ());
     };
+
   this->terminate ();
   finalCleanup ();
 
 #ifdef WIN32
   WSACleanup ();
 #endif
+
+  log (MYSERVER_LOG_MSG_INFO, _("Server terminated"));
 }
 
 /*!
@@ -292,7 +307,13 @@ int Server::postLoad ()
   loadPlugins ();
 
   /* Load the virtual hosts configuration from the xml file.  */
-  vhostHandler->load (vhostConfigurationFile.c_str ());
+  if (vhostHandler->load (vhostConfigurationFile.c_str ()))
+    {
+      log (MYSERVER_LOG_MSG_ERROR,
+           _("Error loading the vhost configuration file %s"),
+           vhostConfigurationFile.c_str ());
+      return -1;
+    }
 
   if (path == 0)
     path = new string ();
@@ -312,7 +333,6 @@ int Server::postLoad ()
 
       log (MYSERVER_LOG_MSG_INFO, _("Thread %i created"),  (int)(i + 1));
     }
-
 
   configurationFileManager->close ();
   delete configurationFileManager;
@@ -764,14 +784,25 @@ int Server::initialize ()
 
   if (genMainConf)
     {
-        configurationFileManager = genMainConf (this,
-                                   mainConfigurationFile.c_str ());
+      configurationFileManager = genMainConf (this,
+                                              mainConfigurationFile.c_str ());
+      if (!configurationFileManager)
+        {
+          log (MYSERVER_LOG_MSG_ERROR,
+               _("Error while loading the %s configuration file"),
+               mainConfigurationFile.c_str ());
+          return -1;
+        }
+
     }
   else
     {
       XmlMainConfiguration *xmlMainConf = new XmlMainConfiguration ();
       if (xmlMainConf->open (mainConfigurationFile.c_str ()))
         {
+          log (MYSERVER_LOG_MSG_ERROR,
+               _("Error while loading the %s configuration file"),
+               mainConfigurationFile.c_str ());
           delete xmlMainConf;
           return -1;
         }
@@ -1418,7 +1449,10 @@ int Server::reboot ()
   ret = initialize () || postLoad ();
 
   if (ret)
-    return ret;
+    {
+      log (MYSERVER_LOG_MSG_INFO, _("The server could not be restarted"));
+      return ret;
+    }
 
   serverReady = true;
 
@@ -1641,12 +1675,10 @@ int Server::log (LoggingLevel level, const char *fmt, ...)
   va_list argptr;
 
   va_start (argptr, fmt);
-
   if (!fmt)
     return 0;
 
   bool ts = (logLocation.find ("console://") == string::npos);
-
   failure = logManager->log (this, "MAINLOG", level, ts, true, fmt, argptr);
 
   va_end (argptr);
