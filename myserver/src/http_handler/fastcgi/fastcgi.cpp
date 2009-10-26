@@ -748,23 +748,31 @@ int FastCgi::handleHeader (FcgiContext* con, FiltersChain* chain, bool* response
                                               &con->td->response,
                                               &(con->td->nBytesToRead));
 
-  string *sendfile = con->td->response.getValue ("X-Sendfile", NULL);
-  if (sendfile)
+  bool allowSendfile =
+    !strcmpi (con->td->securityToken.getData ("fastcgi.sendfile.allow",
+                                              MYSERVER_VHOST_CONF
+                                              | MYSERVER_SERVER_CONF, "NO"),
+              "YES");
+  if (allowSendfile)
     {
-      HttpStaticData *staticData = con->td->http->getStaticData ();
-      HttpDataHandler *handler = staticData->dynManagerList.getHttpManager ("SEND");
-      if (!handler)
+      string *sendfile = con->td->response.getValue ("X-Sendfile", NULL);
+      if (sendfile)
         {
-          con->td->connection->host->warningsLogWrite
-            (_("FastCGI: cannot find handler for SEND"));
-          return con->td->http->raiseHTTPError (500);
-        }
+          HttpStaticData *staticData = con->td->http->getStaticData ();
+          HttpDataHandler *handler = staticData->dynManagerList.getHttpManager ("SEND");
+          if (!handler)
+            {
+              con->td->connection->host->warningsLogWrite
+                (_("FastCGI: cannot find handler for SEND"));
+              return con->td->http->raiseHTTPError (500);
+            }
 
-      string url (*sendfile);
-      delete con->td->response.other.remove ("X-Sendfile");
-      *responseCompleted = true;
-      handler->send (con->td, url.c_str (), NULL, false, onlyHeader);
-      return 1;
+          string url (*sendfile);
+          delete con->td->response.other.remove ("X-Sendfile");
+          *responseCompleted = true;
+          handler->send (con->td, url.c_str (), NULL, false, onlyHeader);
+          return 1;
+        }
     }
 
   if (!con->td->appendOutputs)

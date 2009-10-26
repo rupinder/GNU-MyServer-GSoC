@@ -106,7 +106,8 @@ registers it on the @code{fcgi} extension:
 
 @example
 <DEFINE name="process_servers.list">
-  <DEFINE server="a_remote_server" domain="fastcgi" host="foo" port="2010" local="no"/>
+  <DEFINE server="a_remote_server" domain="fastcgi" host="foo" port="2010"
+          local="no"/>
 </DEFINE>
 
 <!-- Inside MIMEtypes.xml.  -->
@@ -114,3 +115,17 @@ registers it on the @code{fcgi} extension:
       <EXTENSION value="fcgi"/>
 </MIME>
 @end example
+
+
+@subsection FastCGI X-Sendfile directive
+The X-Sendfile directive can be used by FastCGI servers to instruct
+the web server to ignore any content but send the file specified in
+the X-Sendfile header.  It is much faster to transfer static contents
+and avoid an additional step from the FastCGI server to the web
+server.
+
+Since the FastCGI X-Sendfile can ask any file to be accessed
+statically, this feature is not considered safe you must force it
+manually, in can be done on a virtual hosts basis.
+It is done trough the @code{fastcgi.sendfile.allow} variable, to
+enable X-Sendfile set its value to @code{YES}.
