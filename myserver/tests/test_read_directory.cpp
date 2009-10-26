@@ -46,8 +46,8 @@ public:
     while (rd.findnext () != -1 && counter++ < counterMax)
       {
         CPPUNIT_ASSERT (rd.name.length ());
-        CPPUNIT_ASSERT (rd.attrib);
-        CPPUNIT_ASSERT (rd.size);
+        CPPUNIT_ASSERT (rd.attrib >= 0);
+        CPPUNIT_ASSERT (rd.size >= 0);
         CPPUNIT_ASSERT (rd.time_write);
       }
 
