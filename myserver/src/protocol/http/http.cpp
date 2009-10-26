@@ -656,12 +656,12 @@ Http::sendHTTPResource (string& uri, int systemrequest, int onlyHeader,
         return sendAuth ();
 
       manager = staticHttp.dynManagerList.getHttpManager ("SEND");
-
       if (!manager)
         {
           td->connection->host->warningsLogWrite (_("HTTP: internal error"));
           return raiseHTTPError (500);
         }
+
       return manager->send (td, td->filenamePath.c_str (), 0, onlyHeader);
     }
   catch (...)
@@ -1662,7 +1662,6 @@ int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
     }
 
   HttpDataHandler *handler = staticHttp.dynManagerList.getHttpManager ("DIR");
-
   if (!handler)
     {
       td->connection->host->warningsLogWrite (_("HTTP: internal error"));

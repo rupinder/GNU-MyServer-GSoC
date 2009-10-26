@@ -36,11 +36,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-/*!
- *Listening socket file number.
- */
-# define FCGI_LISTENSOCK_FILENO 0
-
 typedef struct
 {
     unsigned char version;
@@ -146,9 +141,9 @@ typedef ProcessServerManager::Server FastCgiServer;
 
 struct FcgiContext
 {
-	HttpThreadContext* td;
+  HttpThreadContext* td;
   FastCgiServer* server;
-	Socket sock;
+  Socket sock;
 
   bool useChunks;
   bool keepalive;
@@ -162,34 +157,34 @@ class FastCgi : public HttpDataHandler
 public:
   static int getTimeout ();
   static void setTimeout (int);
-	FastCgi ();
-	virtual int load ();
-	virtual int send (HttpThreadContext* td, const char* scriptpath,
+  FastCgi ();
+  virtual int load ();
+  virtual int send (HttpThreadContext* td, const char* scriptpath,
                     const char *cgipath, bool execute = false,
                     bool onlyHeader = false);
 
-	virtual int unLoad ();
+  virtual int unLoad ();
 private:
-	static ProcessServerManager *processServerManager;
-	static int timeout;
-	static int initialized;
+  static ProcessServerManager *processServerManager;
+  static int timeout;
+  static int initialized;
 
   int handleHeader (FcgiContext* con, FiltersChain* chain,
-                    bool *responseCompleted);
+                    bool *responseCompleted, bool onlyHeader);
   int sendData (FcgiContext* con, u_long dim,
                 u_long timeout, FiltersChain* chain,
-                bool *responseCompleted, int onlyHeader);
+                bool *responseCompleted, bool onlyHeader);
   int fastCgiRequest (FcgiContext* con, int id);
   int readHeader (FcgiContext *con, FcgiHeader* header,
                   u_long started, u_long timeout, int id);
 
 
-	void generateFcgiHeader ( FcgiHeader&, int ,int, int );
-	Socket getFcgiConnection ();
-	int buildFASTCGIEnvironmentString (HttpThreadContext*,char*,char*);
-	int sendFcgiBody (FcgiContext* con, char* buffer, int len, int type, int id);
-	FastCgiServer* isFcgiServerRunning (const char*);
+  void generateFcgiHeader ( FcgiHeader&, int ,int, int );
+  Socket getFcgiConnection ();
+  int buildFASTCGIEnvironmentString (HttpThreadContext*,char*,char*);
+  int sendFcgiBody (FcgiContext* con, char* buffer, int len, int type, int id);
+  FastCgiServer* isFcgiServerRunning (const char*);
   FastCgiServer* runFcgiServer (FcgiContext*, const char*);
-	FastCgiServer* connect (FcgiContext*, const char*);
+  FastCgiServer* connect (FcgiContext*, const char*);
 };
 #endif

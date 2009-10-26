@@ -375,27 +375,17 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         e = td->response.other.get ("Content-Range");
         if (e)
           e->value->assign (buffer.str ());
-      else
-        {
-          e = new HttpResponseHeader::Entry ();
-          e->name->assign ("Content-Range");
-          e->value->assign (buffer.str ());
-          td->response.other.put (*(e->name), e);
-        }
+	else
+	  {
+	    e = new HttpResponseHeader::Entry ();
+	    e->name->assign ("Content-Range");
+	    e->value->assign (buffer.str ());
+	    td->response.other.put (*(e->name), e);
+	  }
 
-      e = td->response.other.get ("Transfer-Encoding");
-      if (e)
-        e->value->assign ("chunked");
-      else
-        {
-          e = new HttpResponseHeader::Entry ();
-          e->name->assign ("Transfer-Encoding");
-          e->value->assign ("chunked");
-          td->response.other.put (*(e->name), e);
-        }
-
-      useGzip = false;
-    }
+	useChunks = true;
+	useGzip = false;
+      }
     chain.setProtocol (td->http);
     chain.setProtocolData (td);
     chain.setStream (&memStream);
@@ -471,20 +461,28 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
           }
         /* Do not use chunked transfer with old HTTP/1.0 clients.  */
         if (keepalive)
-          {
-            HttpResponseHeader::Entry *e;
-            e = td->response.other.get ("Transfer-Encoding");
-            if (e)
-              e->value->assign ("chunked");
-            else
-              {
-                e = new HttpResponseHeader::Entry ();
-                e->name->assign ("Transfer-Encoding");
-                e->value->assign ("chunked");
-                td->response.other.put (*(e->name), e);
-              }
-            useChunks = true;
-          }
+	  useChunks = true;
+      }
+
+    if (useChunks)
+      {
+	HttpResponseHeader::Entry *e;
+	e = td->response.other.get ("Transfer-Encoding");
+	if (e)
+	  e->value->assign ("chunked");
+	else
+	  {
+	    e = new HttpResponseHeader::Entry ();
+	    e->name->assign ("Transfer-Encoding");
+	    e->value->assign ("chunked");
+	    td->response.other.put (*(e->name), e);
+	  }
+      }
+    else
+      {	HttpResponseHeader::Entry *e;
+	e = td->response.other.remove ("Transfer-Encoding");
+	if (e)
+	  delete e;
       }
 
     u_long hdrLen = HttpHeaders::buildHTTPResponseHeader (td->buffer->getBuffer (),
@@ -645,7 +643,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
 
                 ret = HttpDataHandler::appendDataToHTTPChannel (td, 0, 0,
                                          &(td->outputData), &chain,
-                                         td->appendOutputs,useChunks);
+                                         td->appendOutputs, useChunks);
                 break;
               }
           }

@@ -58,7 +58,7 @@ struct FourChar
  *Entry-Point to manage a FastCGI request.
  */
 int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
-                  const char *cgipath, bool execute, bool onlyHeader)
+                   const char *cgipath, bool execute, bool onlyHeader)
 {
   FcgiContext con;
   u_long nbr = 0;
@@ -75,6 +75,7 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
   int id;
   ostringstream cmdLine;
   string moreArg;
+  bool responseCompleted = false;
 
   con.useChunks = false;
   con.keepalive = false;
@@ -101,117 +102,115 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
   chain.setProtocolData (td);
   chain.setStream (td->connection->socket);
 
-  if (td->mime && Server::getInstance ()->getFiltersFactory ()->chain (&chain,
-                                                                   td->mime->filters,
-                                                                   td->connection->socket,
-                                                                   &nbw,
-                                                                   1))
-  {
-    td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
-    chain.clearAllFilters ();
-    return td->http->raiseHTTPError (500);
-  }
+  if (td->mime
+      && Server::getInstance ()->getFiltersFactory ()->chain (&chain,
+                                                              td->mime->filters,
+                                                              td->connection->socket,
+                                                              &nbw,
+                                                              1))
+    {
+      td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
+      chain.clearAllFilters ();
+      return td->http->raiseHTTPError (500);
+    }
 
   td->buffer->setLength (0);
   td->secondaryBuffer->getAt (0) = '\0';
 
 
-  {
-    /*! Do not modify the text between " and ".  */
-    int i;
-    int subString = cgipath[0] == '"';
-    int len = strlen (cgipath);
-    string tmpCgiPath;
-    for (i = 1; i < len; i++)
+  /*! Do not modify the text between " and ".  */
+  int i;
+  int subString = cgipath[0] == '"';
+  int len = strlen (cgipath);
+  string tmpCgiPath;
+  for (i = 1; i < len; i++)
     {
       if (!subString && cgipath[i]==' ')
         break;
       if (cgipath[i] == '"' && cgipath[i - 1] != '\\')
         subString = !subString;
     }
-    /*!
-     *Save the cgi path and the possible arguments.
-     *the (x < len) case is when additional arguments are specified.
-     *If the cgipath is enclosed between " and " do not consider them
-     *when splitting directory and file name.
-     */
-    if (len)
+  /*!
+   *Save the cgi path and the possible arguments.
+   *the (x < len) case is when additional arguments are specified.
+   *If the cgipath is enclosed between " and " do not consider them
+   *when splitting directory and file name.
+   */
+  if (len)
     {
       if (i < len)
-      {
-        string tmpString (cgipath);
-        int begin = tmpString[0]=='"' ? 1: 0;
-        int end = tmpString[i] == '"' ? i - 1: i;
-        tmpCgiPath.assign (tmpString.substr (begin, end - begin));
-        moreArg.assign (tmpString.substr (i, len - 1));
-      }
+        {
+          string tmpString (cgipath);
+          int begin = tmpString[0]=='"' ? 1: 0;
+          int end = tmpString[i] == '"' ? i - 1: i;
+          tmpCgiPath.assign (tmpString.substr (begin, end - begin));
+          moreArg.assign (tmpString.substr (i, len - 1));
+        }
       else
-      {
-        int begin = (cgipath[0] == '"') ? 1 : 0;
-        int end   = (cgipath[len] == '"') ? len - 1 : len;
-        tmpCgiPath.assign (&cgipath[begin], end - begin);
-        moreArg.assign ("");
-      }
+        {
+          int begin = (cgipath[0] == '"') ? 1 : 0;
+          int end   = (cgipath[len] == '"') ? len - 1 : len;
+          tmpCgiPath.assign (&cgipath[begin], end - begin);
+          moreArg.assign ("");
+        }
       FilesUtility::splitPath (tmpCgiPath, td->cgiRoot, td->cgiFile);
     }
-    tmpCgiPath.assign (scriptpath);
-    FilesUtility::splitPath (tmpCgiPath, td->scriptDir, td->scriptFile);
-  }
+  tmpCgiPath.assign (scriptpath);
+  FilesUtility::splitPath (tmpCgiPath, td->scriptDir, td->scriptFile);
+
 
   if (execute)
-  {
-    if (cgipath && strlen (cgipath))
     {
+      if (cgipath && strlen (cgipath))
+        {
 #ifdef WIN32
-      {
-        int x;
-        string cgipathString (cgipath);
-        int len = strlen (cgipath);
-        int subString = cgipath[0] == '"';
+          {
+            int x;
+            string cgipathString (cgipath);
+            int len = strlen (cgipath);
+            int subString = cgipath[0] == '"';
 
-        cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" "
-                << moreArg << " \"" <<  td->filenamePath << "\"";
-      }
+            cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" "
+                    << moreArg << " \"" <<  td->filenamePath << "\"";
+          }
 #else
-       cmdLine << cgipath << " " << td->filenamePath;
+          cmdLine << cgipath << " " << td->filenamePath;
 #endif
-    }/*if (execute).  */
-    else
-    {
-      cmdLine << scriptpath;
+        }/*if (execute).  */
+      else
+        cmdLine << scriptpath;
     }
-  }
   else
-  {
+    {
 #ifdef WIN32
-    cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile
-            << "\" " << moreArg;
+      cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile
+              << "\" " << moreArg;
 #else
-    cmdLine << cgipath;
+      cmdLine << cgipath;
 #endif
-  }
+    }
 
   td->inputData.close ();
   if (td->inputData.openFile (td->inputDataPath, File::READ |
-                            File::FILE_OPEN_ALWAYS |
-                            File::NO_INHERIT))
-  {
-    td->buffer->setLength (0);
-    td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
-    chain.clearAllFilters ();
-    return td->http->raiseHTTPError (500);
-  }
+                              File::FILE_OPEN_ALWAYS |
+                              File::NO_INHERIT))
+    {
+      td->buffer->setLength (0);
+      td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
+      chain.clearAllFilters ();
+      return td->http->raiseHTTPError (500);
+    }
 
   server = connect (&con, cmdLine.str ().c_str ());
 
-  if (server == 0)
-  {
-    td->buffer->setLength (0);
-    td->connection->host->warningsLogWrite (_("FastCGI: cannot connect to the %s process"),
-                                            cmdLine.str ().c_str ());
-    chain.clearAllFilters ();
-    return td->http->raiseHTTPError (500);
-  }
+  if (server == NULL)
+    {
+      td->buffer->setLength (0);
+      td->connection->host->warningsLogWrite (_("FastCGI: cannot connect to the %s process"),
+                                              cmdLine.str ().c_str ());
+      chain.clearAllFilters ();
+      return td->http->raiseHTTPError (500);
+    }
 
   id = td->id + 1;
 
@@ -230,93 +229,98 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
   checkDataChunks (td, &con.keepalive, &con.useChunks);
 
   do
-  {
-    u_long dim;
-
-    if (readHeader (&con, &header, initialTicks, timeout, id))
     {
-      exit = 1;
-      ret = 1;
-      td->http->raiseHTTPError (500);
-      break;
-    }
+      u_long dim;
 
-    /*!
-     *contentLengthB1 is the high word of the content length value
-     *while contentLengthB0 is the low one.
-     *To retrieve the value of content length push left contentLengthB1
-     *of eight byte then do an or with contentLengthB0.
-     */
-    dim = (header.contentLengthB1 << 8) | header.contentLengthB0;
-
-    if (dim == 0)
-    {
-      exit = 1;
-      ret = 1;
-    }
-    else
-    {
-      bool headerCompleted = false;
-
-      switch (header.type)
-      {
-        case FCGISTDERR:
-          con.sock.close ();
-          td->http->raiseHTTPError (501);
-          exit = 1;
-          ret = 0;
-          break;
-        case FCGISTDOUT:
-          headerCompleted = false;
-          ret = sendData (&con, dim, static_cast<u_long>(timeout), &chain,
-                          &headerCompleted, onlyHeader);
-
-          if (ret)
-          {
-            exit = 1;
-            ret = 0;
-            break;
-          }
-
-          if (headerCompleted)
-          {
-            exit = 1;
-            break;
-          }
-
-          break;
-        case FCGIEND_REQUEST:
-          exit = 1;
-          break;
-        case FCGIGET_VALUES_RESULT:
-        case FCGIUNKNOWN_TYPE:
-        default:
-          break;
-      }
-    }
-
-    if (header.paddingLength)
-    {
-      u_long toPad = header.paddingLength;
-      while (toPad)
-      {
-        nbr = con.sock.recv (td->buffer->getBuffer (),
-                            std::min (toPad, (u_long)td->buffer->getRealLength ()), 0,
-                            static_cast<u_long>(timeout));
-        if (nbr == (u_long)-1)
+      if (readHeader (&con, &header, initialTicks, timeout, id))
         {
           exit = 1;
-          ret = 0;
+          ret = 1;
+          td->http->raiseHTTPError (500);
           break;
         }
-        toPad -= nbr;
-      }
-    }
-  }while (!exit);
+
+      /*!
+       *contentLengthB1 is the high word of the content length value
+       *while contentLengthB0 is the low one.
+       *To retrieve the value of content length push left contentLengthB1
+       *of eight byte then do an or with contentLengthB0.
+       */
+      dim = (header.contentLengthB1 << 8) | header.contentLengthB0;
+
+      if (dim == 0)
+        {
+          exit = 1;
+          ret = 1;
+        }
+      else
+        {
+          bool headerCompleted = false;
+
+          switch (header.type)
+            {
+            case FCGISTDERR:
+              con.sock.close ();
+              td->http->raiseHTTPError (501);
+              exit = 1;
+              ret = 0;
+              break;
+            case FCGISTDOUT:
+              headerCompleted = false;
+              ret = sendData (&con, dim, static_cast<u_long>(timeout),
+                              &chain, &headerCompleted, onlyHeader);
+
+              if (ret)
+                {
+                  exit = 1;
+                  if (ret == 1)
+                    responseCompleted = true;
+                  else
+                    ret = 0;
+                  break;
+                }
+
+              if (headerCompleted)
+                {
+                  exit = 1;
+                  break;
+                }
+
+              break;
+            case FCGIEND_REQUEST:
+              exit = 1;
+              break;
+            case FCGIGET_VALUES_RESULT:
+            case FCGIUNKNOWN_TYPE:
+            default:
+              break;
+            }
+        }
+
+      if (header.paddingLength)
+        {
+          u_long toPad = header.paddingLength;
+          while (toPad)
+            {
+              if (td->buffer->getRealLength () < toPad)
+                toPad =  td->buffer->getRealLength ();
+
+              nbr = con.sock.recv (td->buffer->getBuffer (), toPad,
+                                   0, static_cast<u_long>(timeout));
+              if (nbr == (u_long)-1)
+                {
+                  exit = 1;
+                  ret = 0;
+                  break;
+                }
+              toPad -= nbr;
+            }
+        }
+    }while (!exit);
 
   /* Send the last null chunk if needed.  */
-  if (con.useChunks &&
-     (td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL))
+  if (!responseCompleted && con.useChunks &&
+      (td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL))
     chain.getStream ()->write ("0\r\n\r\n", 5, &nbw);
 
   chain.clearAllFilters ();
@@ -667,55 +671,48 @@ int FastCgi::fastCgiRequest (FcgiContext* con, int id)
  *\param responseCompleted Output value.  It is true when the response is completed.
  *\param onlyHeader Send only the HTTP header.
  *\return 0 on success.
+ *\return 1 if a full response is sent to the client.
  */
 int FastCgi::sendData (FcgiContext* con, u_long dim, u_long timeout, FiltersChain* chain,
-                       bool *responseCompleted, int onlyHeader)
+                       bool *responseCompleted, bool onlyHeader)
 {
   u_long dataRead = 0;
   while (dataRead < dim)
-  {
-    HttpThreadContext* td = con->td;
-
-    if (con->headerSent)
     {
-      td->buffer->setLength (0);
+      HttpThreadContext* td = con->td;
+
+      if (con->headerSent)
+        td->buffer->setLength (0);
+
+      if (dim - td->buffer->getLength () == 0)
+        return -1;
+
+      u_long nbr = con->sock.recv (td->buffer->getBuffer () + td->buffer->getLength (),
+                                   std::min ((u_long)td->buffer->getRealLength (),
+                                             dim - td->buffer->getLength ()),
+                                   0, timeout);
+      if (nbr == (u_long)-1 || nbr == 0)
+        return -1;
+
+      td->buffer->setLength (td->buffer->getLength () + nbr);
+
+      dataRead += nbr;
+
+      if (!con->headerSent)
+        return handleHeader (con, chain, responseCompleted, onlyHeader);
     }
-
-    if (dim - td->buffer->getLength () == 0)
-    {
-      return 1;
-    }
-
-    u_long nbr = con->sock.recv (td->buffer->getBuffer () + td->buffer->getLength (),
-                                 std::min ((u_long)td->buffer->getRealLength (),
-                                           dim - td->buffer->getLength ()),
-                                 0, timeout);
-    if (nbr == (u_long)-1 || nbr == 0)
-    {
-      return 1;
-    }
-
-    td->buffer->setLength (td->buffer->getLength () + nbr);
-
-    dataRead += nbr;
-
-    if (!con->headerSent)
-    {
-      return handleHeader (con, chain, responseCompleted);
-    }
-  }
 
   if (onlyHeader || con->td->response.getStatusType () != HttpResponseHeader::SUCCESSFUL)
-    return 0;
+    return 1;
 
   if (HttpDataHandler::appendDataToHTTPChannel (con->td,
-                                              con->td->buffer->getBuffer (),
-                                              con->td->buffer->getLength (),
-                                              &(con->td->outputData),
-                                              chain,
-                                              con->td->appendOutputs,
-                                              con->useChunks))
-    return 1;
+                                                con->td->buffer->getBuffer (),
+                                                con->td->buffer->getLength (),
+                                                &(con->td->outputData),
+                                                chain,
+                                                con->td->appendOutputs,
+                                                con->useChunks))
+    return -1;
 
   con->td->sentData += con->td->buffer->getLength ();
 
@@ -727,9 +724,11 @@ int FastCgi::sendData (FcgiContext* con, u_long dim, u_long timeout, FiltersChai
  *\param con The current FastCGI context.
  *\param chain Output chain where to send data.
  *\param responseCompleted Output value.  It is true when the response is completed.
+ *\param onlyHeader If non-zero, don't send any HTTP payload.
  *\return 0 on success.
  */
-int FastCgi::handleHeader (FcgiContext* con, FiltersChain* chain, bool* responseCompleted)
+int FastCgi::handleHeader (FcgiContext* con, FiltersChain* chain, bool* responseCompleted,
+         bool onlyHeader)
 {
   char* buffer = con->td->buffer->getBuffer ();
   u_long size = con->td->buffer->getLength ();
@@ -746,49 +745,66 @@ int FastCgi::handleHeader (FcgiContext* con, FiltersChain* chain, bool* response
   }
 
   HttpHeaders::buildHTTPResponseHeaderStruct (con->td->buffer->getBuffer (),
-                                             &con->td->response,
-                                             &(con->td->nBytesToRead));
+                                              &con->td->response,
+                                              &(con->td->nBytesToRead));
 
-  if (!con->td->appendOutputs)
-  {
-    string *location = con->td->response.getValue ("Location", NULL);
-    if (location)
-      {
-        *responseCompleted = true;
-        con->td->http->sendHTTPRedirect (location->c_str ());
-        return 0;
-      }
-
-    u_long hdrLen = HttpHeaders::buildHTTPResponseHeader (con->td->secondaryBuffer->getBuffer (),
-                                                         &con->td->response);
-
-    if (con->td->connection->socket->send (con->td->secondaryBuffer->getBuffer (),
-                                         hdrLen,
-                                         0) == SOCKET_ERROR )
+  string *sendfile = con->td->response.getValue ("X-Sendfile", NULL);
+  if (sendfile)
     {
+      HttpStaticData *staticData = con->td->http->getStaticData ();
+      HttpDataHandler *handler = staticData->dynManagerList.getHttpManager ("SEND");
+      if (!handler)
+        {
+          con->td->connection->host->warningsLogWrite
+            (_("FastCGI: cannot find handler for SEND"));
+          return con->td->http->raiseHTTPError (500);
+        }
+
+      string url (*sendfile);
+      delete con->td->response.other.remove ("X-Sendfile");
       *responseCompleted = true;
+      handler->send (con->td, url.c_str (), NULL, false, onlyHeader);
       return 1;
     }
 
-  }
+  if (!con->td->appendOutputs)
+    {
+      string *location = con->td->response.getValue ("Location", NULL);
+      if (location)
+        {
+          *responseCompleted = true;
+          return con->td->http->sendHTTPRedirect (location->c_str ());
+        }
+
+      u_long hdrLen = HttpHeaders::buildHTTPResponseHeader (con->td->secondaryBuffer->getBuffer (),
+                                                            &con->td->response);
+
+      if (con->td->connection->socket->send (con->td->secondaryBuffer->getBuffer (),
+                                             hdrLen,
+                                             0) == SOCKET_ERROR )
+        {
+          *responseCompleted = true;
+          return 1;
+        }
+    }
 
   con->headerSent = true;
 
   /* Flush the buffer if remaining data is present.  */
   if (con->td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL &&
       size - headerSize)
-  {
-    if (HttpDataHandler::appendDataToHTTPChannel (con->td,
-                                                con->td->buffer->getBuffer () + headerSize,
-                                                size - headerSize,
-                                                &(con->td->outputData),
-                                                chain,
-                                                con->td->appendOutputs,
-                                                con->useChunks))
-      return 1;
+    {
+      if (HttpDataHandler::appendDataToHTTPChannel (con->td,
+                                                    con->td->buffer->getBuffer () + headerSize,
+                                                    size - headerSize,
+                                                    &(con->td->outputData),
+                                                    chain,
+                                                    con->td->appendOutputs,
+                                                    con->useChunks))
+        return 1;
 
-    con->td->sentData += size - headerSize;
-  }
+      con->td->sentData += size - headerSize;
+    }
 
   return 0;
 }
@@ -810,34 +826,34 @@ int FastCgi::readHeader (FcgiContext *con, FcgiHeader* header, u_long started, u
   u_long readData = 0;
 
   for (;;)
-  {
-    u_long ticks = getTicks ();
-
-    if (ticks - started > timeout)
-      {
-        td->connection->host->warningsLogWrite (_("FastCGI: server timeout"));
-        sendFcgiBody (con, 0, 0, FCGIABORT_REQUEST, id);
-        return 1;
-      }
-
-    nbr = con->sock.recv (buffer + readData, sizeof (FcgiHeader) - readData, 0,
-                          timeout - (ticks - started));
-
-    if (nbr == static_cast<u_long>(-1) || nbr == 0)
-      return 1;
-
-    readData += nbr;
-
-    if (readData == sizeof (FcgiHeader))
-      break;
-
-    if (readData > sizeof (FcgiHeader))
     {
-      td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
-      sendFcgiBody (con, 0, 0, FCGIABORT_REQUEST, id);
-      return 1;
+      u_long ticks = getTicks ();
+
+      if (ticks - started > timeout)
+        {
+          td->connection->host->warningsLogWrite (_("FastCGI: server timeout"));
+          sendFcgiBody (con, 0, 0, FCGIABORT_REQUEST, id);
+          return 1;
+        }
+
+      nbr = con->sock.recv (buffer + readData, sizeof (FcgiHeader) - readData, 0,
+                            timeout - (ticks - started));
+
+      if (nbr == static_cast<u_long>(-1) || nbr == 0)
+        return 1;
+
+      readData += nbr;
+
+      if (readData == sizeof (FcgiHeader))
+        break;
+
+      if (readData > sizeof (FcgiHeader))
+        {
+          td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
+          sendFcgiBody (con, 0, 0, FCGIABORT_REQUEST, id);
+          return 1;
+        }
     }
-  }
 
   return 0;
 }
