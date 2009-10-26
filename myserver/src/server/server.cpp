@@ -281,13 +281,14 @@ int Server::postLoad ()
   /* Load the MIME types.  */
   log (MYSERVER_LOG_MSG_INFO, _("Loading MIME types..."));
 
-  if (int nMIMEtypes = xmlMimeHandler.load (mimeConfigurationFile.c_str ()))
+  xmlMimeHandler = new XmlMimeHandler ();
+  if (int nMIMEtypes = xmlMimeHandler->load (mimeConfigurationFile.c_str ()))
     log (MYSERVER_LOG_MSG_INFO, _("Using %i MIME types"), nMIMEtypes);
   else
     log (MYSERVER_LOG_MSG_ERROR, _("Error while loading MIME types"));
 
   string xml ("xml");
-  mimeManager.registerHandler (xml, &xmlMimeHandler);
+  mimeManager.registerHandler (xml, xmlMimeHandler);
   mimeManager.setDefaultHandler (xml);
 
   log (MYSERVER_LOG_MSG_INFO, _("Detected %i CPUs"), (int) getCPUCount ());

@@ -171,7 +171,7 @@ public:
 private:
   friend class ClientsThread;
   XmlValidator *xmlValidator;
-  XmlMimeHandler xmlMimeHandler;
+  XmlMimeHandler *xmlMimeHandler;
   XmlVhostHandler *vhostHandler;
 
   MainConfiguration *configurationFileManager;
