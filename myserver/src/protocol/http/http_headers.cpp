@@ -71,14 +71,14 @@ u_long HttpHeaders::buildHTTPResponseHeader (char *str,
   if (response->contentLength.length ())
     {
       /*
-       * Do not specify the Content-Length field if it is used
+       * Do not specify the Content-length field if it is used
        * the chunked Transfer-Encoding.
        */
       HttpResponseHeader::Entry *e = response->other.get ("Transfer-Encoding");
 
       if (!e || (e && e->value->find ("chunked", 0) == string::npos ))
         {
-          pos += myserver_strlcpy (pos, "Content-Length: ", MAX-(long)(pos-str));
+          pos += myserver_strlcpy (pos, "Content-length: ", MAX-(long)(pos-str));
           pos += myserver_strlcpy (pos, response->contentLength.c_str (), MAX-(long)(pos-str));
           pos += myserver_strlcpy (pos, "\r\n", MAX-(long)(pos-str));
         }
@@ -138,7 +138,7 @@ u_long HttpHeaders::buildHTTPRequestHeader (char * str,HttpRequestHeader* reques
 
   if (request->contentLength.length () > 0)
     {
-      pos += myserver_strlcpy (pos, "Content-Length: ", MAX-(long)(pos-str));
+      pos += myserver_strlcpy (pos, "Content-length: ", MAX-(long)(pos-str));
       pos += myserver_strlcpy (pos, request->contentLength.c_str (), MAX-(long)(pos-str));
       pos += myserver_strlcpy (pos, "\r\n", MAX-(long)(pos-str));
     }
@@ -196,7 +196,7 @@ void HttpHeaders::buildDefaultHTTPResponseHeader (HttpResponseHeader* response)
 {
   resetHTTPResponse (response);
 
-  response->setValue ("Content-Type", "text/html");
+  response->setValue ("Content-type", "text/html");
   response->ver.assign ("HTTP/1.1");
   response->setValue ("Server", "GNU MyServer " MYSERVER_VERSION);
 }
@@ -541,7 +541,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char* input,
             return ret;
           lineControlled = 1;
         }
-      else if (!strcmpi (command, (char*)"Content-Length"))
+      else if (!strcmpi (command, (char*)"Content-length"))
         {
           tokenOff = getEndLine (token, HTTP_REQUEST_CONTENT_LENGTH_DIM);
           if (tokenOff == -1)
@@ -979,7 +979,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct (const char *input,
           if (token)
             response->httpStatus = atoi (token);
       }
-    else if (!strcmpi (command, "Content-Length"))
+    else if (!strcmpi (command, "Content-length"))
       {
         token = strtok (NULL, "\r\n\0" );
         lineControlled = 1;
@@ -996,6 +996,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct (const char *input,
      */
     if ( (!lineControlled) &&  ((!containStatusLine) || (nLineControlled != 1)))
       {
+        bool append = true;
         token = strtok (NULL, "\r\n");
 
         while (token && *token == ' ')
@@ -1011,6 +1012,9 @@ int HttpHeaders::buildHTTPResponseHeaderStruct (const char *input,
                 break;
               }
 
+            if (!strcmpi (command, "Content-type"))
+              append = false;
+
             HttpResponseHeader::Entry *old = NULL;
             HttpResponseHeader::Entry *e = new HttpResponseHeader::Entry ();
             e->name->assign (command);
@@ -1018,8 +1022,12 @@ int HttpHeaders::buildHTTPResponseHeaderStruct (const char *input,
             old = response->other.put (cmdString, e);
             if (old)
               {
-                e->value->assign (*old->value);
-                e->value->append (", ");
+                if (append)
+                  {
+                    e->value->assign (*old->value);
+                    e->value->append (", ");
+                  }
+
                 e->value->append (token);
                 delete old;
               }
