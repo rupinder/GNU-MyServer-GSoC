@@ -887,7 +887,7 @@ int Isapi::send (HttpThreadContext* td,
   ExtCtrlBlk.lpbData = 0;
   {
     HttpRequestHeader::Entry *content =
-      td->request.other.get ("Content-Type");
+      td->request.other.get ("Content-type");
     ExtCtrlBlk.lpszContentType = content ? (char*)content->value->c_str ()
                                          : 0;
   }

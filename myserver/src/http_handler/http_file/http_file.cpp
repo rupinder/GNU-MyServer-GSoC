@@ -84,7 +84,7 @@ int HttpFile::putFile (HttpThreadContext* td,
                 if (file.writeToFile (td->buffer->getBuffer (), nbr, &nbw))
                   {
                     file.close ();
-                  return td->http->raiseHTTPError (500);
+                    return td->http->raiseHTTPError (500);
                   }
               }
             else
@@ -108,10 +108,7 @@ int HttpFile::putFile (HttpThreadContext* td,
         if (file.openFile (td->filenamePath.c_str (),
                          File::FILE_CREATE_ALWAYS |
                          File::WRITE))
-          {
-            /* Internal server error. */
-            return td->http->raiseHTTPError (500);
-          }
+          return td->http->raiseHTTPError (500);
 
         for (;;)
           {
@@ -122,6 +119,7 @@ int HttpFile::putFile (HttpThreadContext* td,
                 file.close ();
                 return td->http->raiseHTTPError (500);
               }
+
             if (nbr)
               {
                 if (file.writeToFile (td->buffer->getBuffer (), nbr, &nbw))
@@ -132,7 +130,8 @@ int HttpFile::putFile (HttpThreadContext* td,
               }
             else
               break;
-            if ( nbw != nbr )
+
+            if (nbw != nbr)
               {
                 file.close ();
                 return td->http->raiseHTTPError (500);
@@ -161,18 +160,18 @@ int HttpFile::deleteFile (HttpThreadContext* td,
   string file;
   int ret;
   try
-  {
-    if (!(td->permissions & MYSERVER_PERMISSION_DELETE))
-      return td->http->sendAuth ();
+    {
+      if (!(td->permissions & MYSERVER_PERMISSION_DELETE))
+        return td->http->sendAuth ();
 
-    if (FilesUtility::fileExists (td->filenamePath))
-      {
-        FilesUtility::deleteFile (td->filenamePath.c_str ());
-        return td->http->raiseHTTPError (202);
-      }
-    else
-      return td->http->raiseHTTPError (204);
-  }
+      if (FilesUtility::fileExists (td->filenamePath))
+        {
+          FilesUtility::deleteFile (td->filenamePath.c_str ());
+          return td->http->raiseHTTPError (202);
+        }
+      else
+        return td->http->raiseHTTPError (204);
+    }
   catch (...)
     {
       return td->http->raiseHTTPError (500);
@@ -327,10 +326,10 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
      * Use GZIP compression to send files bigger than GZIP threshold.
      */
     const char *val = td->securityToken.getData ("gzip.threshold",
-                                                       MYSERVER_SECURITY_CONF
-                                                       | MYSERVER_VHOST_CONF
-                                                       | MYSERVER_MIME_CONF
-                                                       | MYSERVER_SERVER_CONF, "0");
+                                                 MYSERVER_SECURITY_CONF
+                                                 | MYSERVER_VHOST_CONF
+                                                 | MYSERVER_MIME_CONF
+                                                 | MYSERVER_SERVER_CONF, "0");
 
     useGzip = false;
     if (val)
@@ -348,7 +347,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
      */
     if (useGzip)
       {
-        HttpRequestHeader::Entry* e = td->request.other.get ("Accept-Encoding");
+        HttpRequestHeader::Entry* e = td->request.other.get ("Accept-encoding");
         if (e)
           useGzip &= (e->value->find ("gzip") != string::npos);
         else
@@ -372,19 +371,19 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         buffer << "bytes "<< (u_long)firstByte << "-"
                << (u_long) (lastByte - 1) << "/" << (u_long)filesize;
 
-        e = td->response.other.get ("Content-Range");
+        e = td->response.other.get ("Content-range");
         if (e)
           e->value->assign (buffer.str ());
-	else
-	  {
-	    e = new HttpResponseHeader::Entry ();
-	    e->name->assign ("Content-Range");
-	    e->value->assign (buffer.str ());
-	    td->response.other.put (*(e->name), e);
-	  }
+        else
+          {
+            e = new HttpResponseHeader::Entry ();
+            e->name->assign ("Content-range");
+            e->value->assign (buffer.str ());
+            td->response.other.put (*(e->name), e);
+          }
 
-	useChunks = true;
-	useGzip = false;
+        useChunks = true;
+        useGzip = false;
       }
     chain.setProtocol (td->http);
     chain.setProtocolData (td);
@@ -402,9 +401,9 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
             chain.clearAllFilters ();
             return 0;
           }
-      memStream.refresh ();
-      dataSent += nbw;
-    }
+        memStream.refresh ();
+        dataSent += nbw;
+      }
 
     if (useGzip && !chain.isFilterPresent ("gzip"))
       {
@@ -448,14 +447,14 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         string s;
         HttpResponseHeader::Entry *e;
         chain.getName (s);
-        e = td->response.other.get ("Content-Encoding");
+        e = td->response.other.get ("Content-encoding");
 
         if (e)
           e->value->assign (s);
         else
           {
             e = new HttpResponseHeader::Entry ();
-            e->name->assign ("Content-Encoding");
+            e->name->assign ("Content-encoding");
             e->value->assign (s);
             td->response.other.put (*(e->name), e);
           }
@@ -467,20 +466,20 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     if (useChunks)
       {
 	HttpResponseHeader::Entry *e;
-	e = td->response.other.get ("Transfer-Encoding");
+	e = td->response.other.get ("Transfer-encoding");
 	if (e)
 	  e->value->assign ("chunked");
 	else
 	  {
 	    e = new HttpResponseHeader::Entry ();
-	    e->name->assign ("Transfer-Encoding");
+	    e->name->assign ("Transfer-encoding");
 	    e->value->assign ("chunked");
 	    td->response.other.put (*(e->name), e);
 	  }
       }
     else
       {	HttpResponseHeader::Entry *e;
-	e = td->response.other.remove ("Transfer-Encoding");
+	e = td->response.other.remove ("Transfer-encoding");
 	if (e)
 	  delete e;
       }

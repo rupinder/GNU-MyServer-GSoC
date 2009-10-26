@@ -185,7 +185,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
   }
 
   {
-    HttpRequestHeader::Entry *contentType = td->request.other.get ("Content-Type");
+    HttpRequestHeader::Entry *contentType = td->request.other.get ("Content-type");
 
     if (contentType && contentType->value->length ())
       {

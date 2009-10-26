@@ -398,7 +398,7 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
       return 0;
   }
 
-  /* Update the Content-Length field for logging activity.  */
+  /* Update the Content-length field for logging activity.  */
   td->sentData += nbw;
   return 1;
 }

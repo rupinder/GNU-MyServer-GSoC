@@ -132,7 +132,7 @@ string* HttpRequestHeader::getValue (const char* name, string* out)
    return &auth;
  }
 
- if (!strcmpi (name, "Content-Length"))
+ if (!strcmpi (name, "Content-length"))
  {
    if (out)
      out->assign (contentLength.c_str ());
@@ -214,7 +214,7 @@ string* HttpRequestHeader::setValue (const char* name, const char* in)
    return &auth;
  }
 
- if (!strcmpi (name, "Content-Length"))
+ if (!strcmpi (name, "Content-length"))
  {
    contentLength.assign (in);
    return &contentLength;

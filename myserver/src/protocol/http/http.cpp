@@ -109,7 +109,7 @@ int Http::optionsHTTPRESOURCE (string& filename, int yetmapped)
       *td->secondaryBuffer << "\r\nServer: GNU MyServer " << MYSERVER_VERSION;
       if (connection && connection->value->length ())
         *td->secondaryBuffer << "\r\nConnection:" << connection->value->c_str () << "\r\n";
-      *td->secondaryBuffer << "Content-Length: 0\r\nAccept-Ranges: bytes\r\n";
+      *td->secondaryBuffer << "Content-length: 0\r\nAccept-Ranges: bytes\r\n";
       *td->secondaryBuffer << "Allow: " << methods << "\r\n\r\n";
 
       /* Send the HTTP header. */
@@ -159,8 +159,8 @@ int Http::traceHTTPRESOURCE (string& filename, int yetmapped)
       if (connection && connection->value->length ())
         *td->secondaryBuffer << "Connection:" << connection->value->c_str () << "\r\n";
 
-      *td->secondaryBuffer << "Content-Length:" << tmp << "\r\n"
-              << "Content-Type: message/http\r\n"
+      *td->secondaryBuffer << "Content-length:" << tmp << "\r\n"
+              << "Content-type: message/http\r\n"
               << "Accept-Ranges: bytes\r\n\r\n";
 
       /* Send our HTTP header.  */
@@ -638,12 +638,12 @@ Http::sendHTTPResource (string& uri, int systemrequest, int onlyHeader,
       /* If not specified differently, set the default content type to text/html.  */
       if (td->mime)
         {
-          td->response.setValue ("Content-Type", td->mime->mimeType.c_str ());
+          td->response.setValue ("Content-type", td->mime->mimeType.c_str ());
           cgiManager = td->mime->cgiManager.c_str ();
         }
       else
         {
-          td->response.setValue ("Content-Type", "text/html");
+          td->response.setValue ("Content-type", "text/html");
           cgiManager = "";
         }
 
@@ -1234,10 +1234,10 @@ int Http::requestAuthorization ()
   *td->secondaryBuffer << "HTTP/1.1 401 Unauthorized\r\n"
           << "Accept-Ranges: bytes\r\n";
   *td->secondaryBuffer << "Server: GNU MyServer " << MYSERVER_VERSION << "\r\n";
-  *td->secondaryBuffer << "Content-Type: text/html\r\n"
+  *td->secondaryBuffer << "Content-type: text/html\r\n"
           << "Connection: ";
   *td->secondaryBuffer << (connection ? connection->value->c_str () : "");
-  *td->secondaryBuffer << "\r\nContent-Length: 0\r\n";
+  *td->secondaryBuffer << "\r\nContent-length: 0\r\n";
 
   if (td->authScheme == HTTP_AUTH_SCHEME_BASIC)
     *td->secondaryBuffer << "WWW-Authenticate: Basic realm=\""
@@ -1499,7 +1499,7 @@ Internal Server Error\n\
   td->secondaryBuffer->setLength (0);
   *td->secondaryBuffer << "HTTP/1.1 500 System Error\r\n";
   *td->secondaryBuffer << "Server: GNU MyServer " << MYSERVER_VERSION << "\r\n";
-  *td->secondaryBuffer << " Content-Type: text/html\r\nContent-Length: ";
+  *td->secondaryBuffer << " Content-type: text/html\r\nContent-length: ";
   tmp.intToStr ((int) strlen (hardHTML), tmpStr, 12);
   *td->secondaryBuffer << tmp;
   *td->secondaryBuffer << "\r\n";
@@ -1683,9 +1683,9 @@ int Http::sendHTTPRedirect (const char *newURL)
   td->secondaryBuffer->setLength (0);
   *td->secondaryBuffer << "HTTP/1.1 302 Moved\r\nAccept-Ranges: bytes\r\n"
           << "Server: GNU MyServer " << MYSERVER_VERSION << "\r\n"
-          << "Content-Type: text/html\r\n"
+          << "Content-type: text/html\r\n"
           << "Location: " << newURL << "\r\n"
-          << "Content-Length: 0\r\n";
+          << "Content-length: 0\r\n";
 
   if (connection && !stringcmpi (connection->value->c_str (), "keep-alive"))
     *td->secondaryBuffer << "Connection: keep-alive\r\n";
