@@ -20,6 +20,7 @@ extern "C"
 {
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 #ifdef HAVE_OPENAT
 # include <fcntl.h>
@@ -57,25 +58,34 @@ ReadDirectory::~ReadDirectory ()
 
 /*!
  * Find the first file using its name.
- * Return -1 or errors.
+ *
+ * \param directory Read the content of this directory.
+ * \return 0 if there are other directory entries to be read.
+ * \return a positive integer if this is the last entry.
+ * \return -1 or errors.
  */
-int ReadDirectory::findfirst (const char *filename)
+int ReadDirectory::findfirst (const char *directory)
 {
-  return find (filename);
+  return find (directory);
 }
 
 /*!
  * Find the next file in the directory.
+ *
+ * \return 0 if there are other directory entries to be read.
+ * \return a positive integer if this is the last entry.
+ * \return -1 or errors.
  */
 int ReadDirectory::findnext ()
 {
   return find (NULL);
 }
 
+/*!
+ *\see ReadDirectory#findfirst 
+ *
 int ReadDirectory::find (const char *filename)
 {
-/* FIXME: return a different code for EOF or error.  */
-
 #ifdef WIN32
   int ret;
 
@@ -93,7 +103,14 @@ int ReadDirectory::find (const char *filename)
   else
     ret = _findnext (ff, &fd) ? -1 : 0 ;
 
-  if (ret != -1)
+  if (ret == -1)
+    {
+      if (errno == ENOENT)
+	return 1;
+
+      return -1;
+    }
+  else
     {
       name = fd.name;
       attrib = fd.attrib;
@@ -101,7 +118,7 @@ int ReadDirectory::find (const char *filename)
       size = fd.size ;
     }
 
-  return ret;
+  return 0;
 #else
    struct dirent * dirInfo;
 
@@ -117,9 +134,10 @@ int ReadDirectory::find (const char *filename)
          return -1;
      }
 
+   errno = 0;
 # ifdef HAVE_READDIR_R
    if (readdir_r (dh, &entry, &dirInfo) || !dirInfo)
-     return -1;
+     return (errno) ? -1 : 1;
    name = dirInfo->d_name;
 # else
    mutex.lock ();
@@ -127,7 +145,7 @@ int ReadDirectory::find (const char *filename)
    if (dirInfo == NULL)
      {
        mutex.unlock ();
-       return -1;
+       return (errno) ? -1 : 1;
      }
 
    name = dirInfo->d_name;

@@ -63,12 +63,13 @@ public:
   int attrib;
   time_t time_write;
   off_t size;
-  int findfirst (const char *filename);
-  int findfirst (string &filename){return findfirst (filename.c_str ());};
+  int findfirst (const char *directory);
+  int findfirst (string &directory){return findfirst (directory.c_str ());};
   int findnext ();
   int findclose ();
   ReadDirectory ();
   ~ReadDirectory ();
+
   struct stat* getStatStruct ()
   {
 # ifndef WIN32

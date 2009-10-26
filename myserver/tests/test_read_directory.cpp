@@ -43,7 +43,7 @@ public:
     /* We assume that the directory has less entries than `counterMax'.  */
     const int counterMax = 50000;
 
-    while (rd.findnext () != -1 && counter++ < counterMax)
+    while (!(ret = rd.findnext ()) && counter++ < counterMax)
       {
         CPPUNIT_ASSERT (rd.name.length ());
         CPPUNIT_ASSERT (rd.attrib >= 0);
@@ -51,6 +51,7 @@ public:
         CPPUNIT_ASSERT (rd.time_write);
       }
 
+    CPPUNIT_ASSERT (ret > 0);
     CPPUNIT_ASSERT (counter < counterMax);
 
     ret = rd.findclose ();
