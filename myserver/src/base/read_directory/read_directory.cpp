@@ -83,7 +83,7 @@ int ReadDirectory::findnext ()
 
 /*!
  *\see ReadDirectory#findfirst 
- *
+ */
 int ReadDirectory::find (const char *filename)
 {
 #ifdef WIN32
