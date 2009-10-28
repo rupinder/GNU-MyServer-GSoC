@@ -23,14 +23,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # include <include/protocol/protocol.h>
 
 /*!
- *Abstract class to handle virtual data filters.
+ * Abstract class to handle virtual data filters.
  */
 class Filter : public Stream
 {
-protected:
-  Protocol *protocol;
-  Stream *parent;
-  void* protocolData;
 public:
   Protocol* getProtocol ()
   {
@@ -39,14 +35,6 @@ public:
   void setProtocol (Protocol* pr)
   {
     protocol = pr;
-  }
-  void* getProtocolData ()
-  {
-    return protocolData;
-  }
-  void setProtocolData (void* prd)
-  {
-    protocolData = prd;
   }
   virtual int getHeader (char* buffer, u_long len, u_long* nbw);
   virtual int getFooter (char* buffer, u_long len, u_long* nbw);
@@ -59,8 +47,11 @@ public:
   Stream* getParent ();
   Filter ();
   /*! Avoid direct instances of this class. */
-  virtual ~Filter ()=0;
-};
+  virtual ~Filter () = 0;
 
+protected:
+  Protocol *protocol;
+  Stream *parent;
+};
 
 #endif

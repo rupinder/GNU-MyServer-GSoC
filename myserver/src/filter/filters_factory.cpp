@@ -27,7 +27,7 @@ using namespace std;
 
 
 /*!
- *Initialize the object.
+ * Initialize the object.
  */
 FiltersFactory::FiltersFactory ()
 {
@@ -35,7 +35,7 @@ FiltersFactory::FiltersFactory ()
 }
 
 /*!
- *Destroy the object.
+ * Destroy the object.
  */
 FiltersFactory::~FiltersFactory ()
 {
@@ -43,8 +43,8 @@ FiltersFactory::~FiltersFactory ()
 }
 
 /*!
- *Insert a filter by name and factory object. Returns 0 if the entry
- *was added correctly.
+ * Insert a filter by name and factory object. Returns 0 if the entry
+ * was added correctly.
  */
 int FiltersFactory::insert (const char* name, FiltersSource* ptr)
 {
@@ -54,8 +54,8 @@ int FiltersFactory::insert (const char* name, FiltersSource* ptr)
 }
 
 /*!
- *Insert a filter by name and factory routine. Returns 0 if the entry
- *was added correctly.
+ * Insert a filter by name and factory routine. Returns 0 if the entry
+ * was added correctly.
  */
 int FiltersFactory::insert (const char* name, FILTERCREATE fnc)
 {
@@ -65,19 +65,19 @@ int FiltersFactory::insert (const char* name, FILTERCREATE fnc)
 }
 
 /*!
- *Get a new filter by its name.
- *The object have to be freed after its use to avoid memory leaks.
- *Returns the new created object on success.
- *Returns 0 on errors.
+ * Get a new filter by its name.
+ * The object have to be freed after its use to avoid memory leaks.
+ * Returns the new created object on success.
+ * Returns 0 on errors.
  */
 Filter *FiltersFactory::getFilter (const char* name)
 {
   FILTERCREATE staticFactory = staticFilters.get (name);
   FiltersSource* dynamicFactory;
-  /*! If the filter exists create a new object and return it. */
+
+  /* If the filter exists create a new object and return it. */
   if (staticFactory)
     return staticFactory (name);
-
 
   dynamicFactory = dynamicFilters.get (name);
 
@@ -88,11 +88,11 @@ Filter *FiltersFactory::getFilter (const char* name)
 }
 
 /*!
- *Create a FiltersChain starting from a list of strings.
- *On success returns the new object.
- *If specified [onlyNotModifiers] the method wil check that all the filters
- *will not modify the data.
- *On errors returns 0.
+ * Create a FiltersChain starting from a list of strings.
+ * On success returns the new object.
+ * If specified [onlyNotModifiers] the method wil check that all the filters
+ * will not modify the data.
+ * On errors returns 0.
  */
 FiltersChain* FiltersFactory::chain (list<string> &l, Stream* out, u_long *nbw,
                                     int onlyNotModifiers)
@@ -100,6 +100,7 @@ FiltersChain* FiltersFactory::chain (list<string> &l, Stream* out, u_long *nbw,
   FiltersChain *ret = new FiltersChain ();
   if (!ret)
     return 0;
+
   if (chain (ret, l, out, nbw, onlyNotModifiers))
   {
     ret->clearAllFilters ();
@@ -110,35 +111,50 @@ FiltersChain* FiltersFactory::chain (list<string> &l, Stream* out, u_long *nbw,
 }
 
 /*!
- *Add new filters to an existent chain.
- *If specified [onlyNotModifiers] the method wil check that all the filters
- *will not modify the data.
- *On errors returns nonzero.
+ * Add new filters to an existent chain.
+ * \param c Output object.  It will receive the chain.
+ * \param l List of filters to build.
+ * \param out Output stream.
+ * \param nbw Number of written bytes, some filters may need to send a header.
+ * \param onlyNotModifiers if non-zero the method wil check that all the filters
+ * will not modify the data.
+ * \param accepted If specified, include only filters present in this string.
+ * On errors returns nonzero.
  */
 int FiltersFactory::chain (FiltersChain* c, list<string> &l, Stream* out,
-                          u_long *nbw, int onlyNotModifiers)
+			   u_long *nbw, int onlyNotModifiers, string *accepted)
 {
 
-  list<string>::iterator  i =l.begin ();
-
+  list<string>::iterator  i = l.begin ();
   if (!c)
     return 1;
 
   c->setStream (out);
-  *nbw=0;
-
+  *nbw = 0;
   for ( ; i != l.end (); i++)
-  {
-    u_long tmp;
-    Filter *n = getFilter ((*i).c_str ());
-    if ( !n || ( onlyNotModifiers && n->modifyData () )  )
     {
-      c->clearAllFilters ();
-      return 1;
+      u_long tmp;
+
+      if (accepted && accepted->find (*i) == string::npos)
+	continue;
+
+      Filter *n = getFilter ((*i).c_str ());
+      if (!n)
+	{
+	  c->clearAllFilters ();
+	  return 1;
+	}
+
+      if (onlyNotModifiers && n->modifyData ())
+	{
+	  delete n;
+	  c->clearAllFilters ();
+	  return 1;
+	}
+
+      c->addFilter (n, &tmp);
+      *nbw += tmp;
     }
-    c->addFilter (n, &tmp);
-    *nbw += tmp;
-  }
 
   return 0;
 }

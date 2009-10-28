@@ -84,7 +84,6 @@ FiltersChain::FiltersChain ()
   stream = NULL;
   firstFilter = NULL;
   protocol = NULL;
-  protocolData = NULL;
 }
 
 /*!
@@ -161,7 +160,6 @@ int FiltersChain::addFilter (Filter* f, u_long *nbw, int sendData)
   firstFilter = f;
 
   f->setProtocol (protocol);
-  f->setProtocolData (protocolData);
 
   /*! Add the filters in the list in the same order they are used. */
   filters.push_front (f);

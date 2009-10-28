@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <include/filter/gzip/gzip.h>
 #include <include/base/string/securestr.h>
-#include <include/protocol/http/http.h>
 
 extern "C"
 {
@@ -46,18 +45,6 @@ u_long Gzip::initialize ()
 {
 #ifdef HAVE_ZLIB
   long level = Z_DEFAULT_COMPRESSION;
-
-  if (protocol && protocolData)
-    {
-      if (!strstr (protocol->registerName (0,0), "HTTP"))
-        {
-          HttpRequestHeader::Entry* e = ((HttpThreadContext*)protocolData)->request.other.get ("Accept-Encoding");
-          if (e)
-            active &= (e->value->find ("gzip") != string::npos);
-          else
-            active = false;
-        }
-    }
   data.initialized = 1;
   data.data_size = 0;
   data.crc = crc32(0L, Z_NULL, 0);

@@ -347,11 +347,13 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     chain.setStream (&memStream);
     if (td->mime)
       {
+        HttpRequestHeader::Entry* e = td->request.other.get ("Accept-encoding");
         if (td->mime &&
             Server::getInstance ()->getFiltersFactory ()->chain (&chain,
-                                                                 td->mime->filters,
-                                                                 &memStream,
-                                                                 &nbw))
+                                                            td->mime->filters,
+                                                            &memStream,
+                                                                 &nbw, 0,
+                                                     e ? e->value : NULL))
           {
             file->close ();
             delete file;

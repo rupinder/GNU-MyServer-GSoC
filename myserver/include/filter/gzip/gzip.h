@@ -49,8 +49,8 @@ public:
 
   static u_long headerSize ();
   static u_long footerSize ();
-  u_long updateCRC (char* buffer,int size);
-  u_long getFooter (char *str,int size);
+  u_long updateCRC (char* buffer, int size);
+  u_long getFooter (char *str, int size);
   u_long initialize ();
   u_long compress (const char* in, u_long sizeIn,
                    char *out, u_long sizeOut);
