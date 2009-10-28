@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/http/http.h>
 #include <include/protocol/http/http_headers.h>
 #include <include/http_handler/http_file/http_file.h>
-#include <include/filter/gzip/gzip.h>
 #include <include/server/server.h>
 #include <include/filter/filters_chain.h>
 #include <include/filter/memory_stream.h>
@@ -214,11 +213,6 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
    * Open the file and save its handle.
    */
   int ret;
-
-  /*
-   * Will we use GZIP compression to send data?
-   */
-  bool useGzip = false;
   u_long filesize = 0;
   File *file = NULL;
   u_long bytesToSend;
@@ -322,43 +316,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         return td->http->raiseHTTPError (500);
       }
 
-    /*
-     * Use GZIP compression to send files bigger than GZIP threshold.
-     */
-    const char *val = td->securityToken.getData ("gzip.threshold",
-                                                 MYSERVER_SECURITY_CONF
-                                                 | MYSERVER_VHOST_CONF
-                                                 | MYSERVER_MIME_CONF
-                                                 | MYSERVER_SERVER_CONF, "0");
-
-    useGzip = false;
-    if (val)
-      {
-        u_long gzipThreshold = atoi (val);
-        if (bytesToSend >= gzipThreshold)
-          useGzip = true;
-      }
-
     keepalive = td->request.isKeepAlive ();
-
-#ifdef HAVE_ZLIB
-    /*
-     * Be sure that the client accept GZIP compressed data.
-     */
-    if (useGzip)
-      {
-        HttpRequestHeader::Entry* e = td->request.other.get ("Accept-encoding");
-        if (e)
-          useGzip &= (e->value->find ("gzip") != string::npos);
-        else
-          useGzip = false;
-      }
-#else
-    /* If compiled without GZIP support force the server to don't use it.  */
-    useGzip = false;
-#endif
-    if (td->appendOutputs)
-      useGzip = false;
 
     td->buffer->setLength (0);
 
@@ -383,7 +341,6 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
           }
 
         useChunks = true;
-        useGzip = false;
       }
     chain.setProtocol (td->http);
     chain.setProtocolData (td);
@@ -402,29 +359,6 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
             return 0;
           }
         memStream.refresh ();
-        dataSent += nbw;
-      }
-
-    if (useGzip && !chain.isFilterPresent ("gzip"))
-      {
-        Filter* gzipFilter =
-          Server::getInstance ()->getFiltersFactory ()->getFilter ("gzip");
-        u_long nbw;
-        if (!gzipFilter)
-          {
-            file->close ();
-            delete file;
-            chain.clearAllFilters ();
-            return 0;
-          }
-        if (chain.addFilter (gzipFilter, &nbw))
-          {
-            delete gzipFilter;
-            file->close ();
-            delete file;
-            chain.clearAllFilters ();
-            return 0;
-          }
         dataSent += nbw;
       }
 
@@ -549,8 +483,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     if (memStream.availableToRead ())
       {
         if (memStream.read (td->buffer->getBuffer (),
-                              td->buffer->getRealLength (),
-                            &nbr))
+			    td->buffer->getRealLength (), &nbr))
           {
             file->close ();
             delete file;
@@ -559,22 +492,18 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
           }
 
         memStream.refresh ();
-
-        if (nbr)
+	if (nbr && HttpDataHandler::appendDataToHTTPChannel (td,
+                                       td->buffer->getBuffer (),
+                                       nbr, &(td->outputData),
+                                       &chain, td->appendOutputs,
+                                       useChunks))
           {
-            if (HttpDataHandler::appendDataToHTTPChannel (td,
-                                   td->buffer->getBuffer (),
-                                   nbr, &(td->outputData),
-                                   &chain, td->appendOutputs,
-                                   useChunks))
-              {
-                file->close ();
-                delete file;
-                chain.clearAllFilters ();
-                return 1;
-                dataSent += nbw;
-              }
-          } /* nbr.  */
+            file->close ();
+            delete file;
+            chain.clearAllFilters ();
+            return 1;
+            dataSent += nbw;
+          }
       } /* memStream.availableToRead ().  */
 
     /* Flush the rest of the file.  */
@@ -663,7 +592,6 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
 
   /* For logging activity.  */
   td->sentData += dataSent;
-
   chain.clearAllFilters ();
   return !ret;
 }
