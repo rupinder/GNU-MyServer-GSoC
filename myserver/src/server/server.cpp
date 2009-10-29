@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/http/http.h>
 #include <include/protocol/https/https.h>
 #include <include/protocol/control/control_protocol.h>
+#include <include/protocol/gopher/gopher.h>
 #include <include/protocol/ftp/ftp.h>
 #include <include/base/string/stringutils.h>
 #include <include/base/socket/socket.h>
@@ -360,6 +361,7 @@ void Server::loadPlugins ()
 
   Protocol *protocolsSet[] = {new HttpProtocol (),
                               new HttpsProtocol (),
+                              new GopherProtocol (),
                               new FtpProtocol (),
                               new ControlProtocol (),
                               NULL};
