@@ -156,7 +156,7 @@ DEFINE_THREAD (clients_thread, pParam)
 
           ret = ct->controlConnections ();
           ct->server->increaseFreeThread ();
-          ct->busy = 0;
+          ct->busy = false;
 
           /*
            *The thread served the connection, so update the timeout value.
@@ -260,7 +260,7 @@ int ClientsThread::controlConnections ()
   if (!c)
     return 1;
 
-  busy = 1;
+  busy = true;
   dataRead = c->getConnectionBuffer ()->getLength ();
 
   err = c->socket->recv (&((char*)(buffer.getBuffer ()))[dataRead],
