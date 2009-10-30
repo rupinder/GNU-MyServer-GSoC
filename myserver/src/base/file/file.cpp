@@ -416,10 +416,7 @@ time_t File::getLastAccTime ()
  */
 int File::write (const char* buffer, u_long len, u_long *nbw)
 {
-  int ret = writeToFile (buffer, len, nbw );
-  if (ret != 0)
-    return -1;
-  return 0;
+  return writeToFile (buffer, len, nbw );
 }
 
 /*!
@@ -433,11 +430,10 @@ int File::write (const char* buffer, u_long len, u_long *nbw)
 int File::read (char* buffer, u_long buffersize, u_long* nbr)
 {
 #ifdef WIN32
-  int ret = ReadFile (handle, buffer, buffersize, nbr, NULL);
-  return (!ret);
+  return !ReadFile (handle, buffer, buffersize, nbr, NULL);
 #else
   int ret  = ::read (handle, buffer, buffersize);
-  *nbr = (u_long)ret;
+  *nbr = (u_long) ret;
   return (ret == -1);
 #endif
 }
