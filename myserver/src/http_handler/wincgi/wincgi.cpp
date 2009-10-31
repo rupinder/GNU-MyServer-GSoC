@@ -334,7 +334,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
     }
 
   if (td->request.isKeepAlive ())
-    td->response.connection.assign ("keep-alive");
+    td->response.setValue ("Connection", "keep-alive");
 
   HttpHeaders::buildHTTPResponseHeaderStruct (buffer, &td->response, &(td->nBytesToRead));
 

@@ -32,6 +32,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 # include <include/conf/security/security_token.h>
 class Ftp;
 
+#undef stat
+
 class FtpuserData:public ProtocolBuffer
 {
 public:

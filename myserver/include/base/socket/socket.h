@@ -57,7 +57,6 @@ typedef SOCKET SocketHandle;
 typedef int SocketHandle;
 # endif
 
-
 # ifdef INET6_ADDRSTRLEN
 #  define MAX_IP_STRING_LEN  INET6_ADDRSTRLEN
 # else

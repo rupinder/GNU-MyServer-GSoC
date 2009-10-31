@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
+#include "stdafx.h"
 #include <include/http_handler/isapi/isapi.h>
 #include <include/protocol/http/http.h>
 #include <include/server/server.h>
@@ -280,7 +280,7 @@ BOOL WINAPI ISAPI_WriteClientExport (HCONN hConn, LPVOID Buffer, LPDWORD lpdwByt
           }
         }
         else
-          ConnInfo->td->response.connection.assign ("Close");
+          ConnInfo->td->response.setValue ("Connection", "Close");
 
         u_long hdrLen = HttpHeaders::buildHTTPResponseHeader ((char*)ConnInfo->td->secondaryBuffer->getBuffer (),
                                                               &(ConnInfo->td->response));
@@ -293,7 +293,8 @@ BOOL WINAPI ISAPI_WriteClientExport (HCONN hConn, LPVOID Buffer, LPDWORD lpdwByt
       ConnInfo->headerSent=1;
 
       /*! If only the header was requested return. */
-      if (ConnInfo->headerSent && ConnInfo->onlyHeader || ConnInfo->td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL)
+      if (ConnInfo->headerSent && ConnInfo->onlyHeader
+          || ConnInfo->td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL)
         return 0;
 
       /*!Send the first chunk. */
@@ -932,9 +933,9 @@ int Isapi::send (HttpThreadContext* td,
 
   appHnd.close ();
 
-  ostringstream tmp;
-  tmp <<  connTable[connIndex].dataSent;
-  connTable[connIndex].td->response.contentLength.assign (tmp.str ());
+  ostringstream tmps;
+  tmps << connTable[connIndex].dataSent;
+  connTable[connIndex].td->response.contentLength.assign (tmps.str ());
   connTable[connIndex].chain.clearAllFilters ();
   connTable[connIndex].Allocated = 0;
   return retvalue;

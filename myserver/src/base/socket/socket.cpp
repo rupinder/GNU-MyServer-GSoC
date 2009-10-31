@@ -32,6 +32,7 @@ extern "C"
 # include <netinet/in.h>
 # include <arpa/inet.h>
 #endif
+
 #include <errno.h>
 }
 
@@ -223,8 +224,8 @@ int Socket::close ()
       ret = ::closesocket (socketHandle);
 #else
       ret = ::close (socketHandle);
-    }
 #endif
+    }
   socketHandle = -1;
   return ret;
 }
@@ -232,7 +233,7 @@ int Socket::close ()
 /*!
  *Returns an host by its address.
  */
-MYSERVER_HOSTENT *Socket::gethostbyaddr (char* addr,int len,int type)
+MYSERVER_HOSTENT *Socket::gethostbyaddr (char* addr, int len, int type)
 {
 #ifdef WIN32
   HOSTENT *he = ::gethostbyaddr (addr,len,type);

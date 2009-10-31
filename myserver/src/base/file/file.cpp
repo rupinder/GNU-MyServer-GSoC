@@ -71,7 +71,7 @@ const u_long File::NO_INHERIT = (1<<8);
  */
 File::File ()
 {
-  handle = -1;
+  handle = (FileHandle) -1;
 }
 
 /*!
@@ -114,7 +114,7 @@ int File::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
  *\param opt Specify how open the file.
  */
 File::File (char *nfilename, int opt)
-  : handle (-1)
+  : handle ((FileHandle)-1)
 {
   openFile (nfilename, opt);
 }
@@ -319,7 +319,7 @@ int File::createTemporaryFile (const char* filename)
 int File::close ()
 {
   int ret = 0;
-  if (handle != -1)
+  if (handle != (FileHandle) -1)
     {
 #ifdef WIN32
       ret = !FlushFileBuffers (handle);
@@ -330,7 +330,7 @@ int File::close ()
 #endif
   }
   filename.clear ();
-  handle = -1;
+  handle = (FileHandle) -1;
   return ret;
 }
 

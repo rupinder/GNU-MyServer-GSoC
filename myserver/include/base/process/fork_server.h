@@ -15,12 +15,17 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-#include <unistd.h>
-#include <include/base/unix_socket/unix_socket.h>
-
 #ifndef FORK_SERVER_H
 # define FORK_SERVER_H
+
+# include "stdafx.h"
+
+#ifndef WIN32
+# include <unistd.h>
+#endif
+
+#include <include/base/unix_socket/unix_socket.h>
+
 
 struct StartProcInfo;
 
