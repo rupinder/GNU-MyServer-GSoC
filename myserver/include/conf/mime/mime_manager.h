@@ -17,93 +17,96 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef MIME_MANAGER_H
-#define MIME_MANAGER_H
+# define MIME_MANAGER_H
 
-#include <include/base/utility.h>
-#include <include/base/hash_map/hash_map.h>
-#include <include/base/sync/mutex.h>
-#include <include/base/xml/xml_parser.h>
-#include <include/base/regex/myserver_regex.h>
+# include <include/base/utility.h>
+# include <include/base/hash_map/hash_map.h>
+# include <include/base/sync/mutex.h>
+# include <include/base/xml/xml_parser.h>
+# include <include/base/regex/myserver_regex.h>
+# include <include/conf/nodetree.h>
 
+# ifdef WIN32
+#  include <windows.h>
+# endif
 
-#ifdef WIN32
-#include <windows.h>
-#endif
-extern "C" {
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#ifdef WIN32
-#include <tchar.h>
-#include <io.h>
-#endif
+extern "C"
+{
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
+# include <ctype.h>
+
+# ifdef WIN32
+#  include <tchar.h>
+#  include <io.h>
+# endif
 }
 
-#include <string>
-#include <map>
-#include <vector>
-#include <list>
+# include <string>
+# include <map>
+# include <vector>
+# include <list>
 
 using namespace std;
 
-struct PathRegex
-{
-  Regex *regex;
-  int record;
-};
-
 struct MimeRecord
 {
-	list<string> filters;
-	list<string> extensions;
-	string mimeType;
-	string cmdName;
-	string cgiManager;
+  list<string> filters;
+  list<string> extensions;
+  string mimeType;
+  string cmdName;
+  string cgiManager;
   bool selfExecuted;
   list<Regex*> pathRegex;
-  HashMap<string, string*> hashedData;
+  HashMap<string, NodeTree<string>*> hashedData;
 
-	MimeRecord ();
-	MimeRecord (MimeRecord&);
-	int addFilter (const char*, bool acceptDuplicate = true);
-	~MimeRecord ();
-	void clear ();
-  const char* getHashedData(string &name);
+  MimeRecord ();
+  MimeRecord (MimeRecord&);
+  int addFilter (const char*, bool acceptDuplicate = true);
+  ~MimeRecord ();
+  void clear ();
+  const char* getData (string &name);
+  NodeTree<string>* getNodeTree (string &name);
 };
+
+
+class MimeManagerHandler
+{
+public:
+  virtual u_long load (const char *resource){return 0;}
+  virtual void close (){}
+  virtual MimeRecord* getMIME (const char *file){return NULL;}
+  virtual MimeRecord* getMIME (string const &file)
+  {return getMIME (file.c_str ());}
+  virtual u_long reload (){return 0;}
+};
+
 
 class MimeManager
 {
 public:
-	MimeManager ();
+  typedef MimeManagerHandler* (*MAKE_HANDLER)();
+
+  MimeManager ();
   ~MimeManager ();
-	u_long getNumMIMELoaded ();
+  u_long reload ();
+  MimeRecord* getMIME (const char *file, const char *handler = NULL);
+  MimeRecord* getMIME (string const &file, const char *handler = NULL)
+  {
+    return getMIME (file.c_str (), handler);
+  }
+  void registerHandler (string &name, MimeManagerHandler *handler);
+  void setDefaultHandler (string &name);
+  void clean ();
 
-  u_long loadXML (XmlParser* parser);
-	u_long loadXML (const char *filename);
-	u_long loadXML (string &filename)
-    {return loadXML (filename.c_str ());}
+  void registerBuilder (string &name, MAKE_HANDLER builder);
+  MimeManagerHandler *buildHandler (string &name);
 
-	MimeRecord* getMIME (const char *ext);
-  MimeRecord* getMIME (string const &ext);
-
-  bool isLoaded ();
-	void clean ();
-	int addRecord (MimeRecord *record);
-
-  static MimeRecord *readRecord (xmlNodePtr node);
-
-protected:
-	const char *getFilename ();
-	void clearRecords ();
 private:
-  bool loaded;
-  HashMap<string, int> extIndex;
-  vector<MimeRecord*> records;
-  list<PathRegex*> pathRegex;
-
-	u_long numMimeTypesLoaded;
-	string filename;
+  HashMap<string, MAKE_HANDLER> builders;
+  MimeManagerHandler *defHandler;
+  HashMap<string, MimeManagerHandler*> handlers;
 };
 
-#endif 
+#endif

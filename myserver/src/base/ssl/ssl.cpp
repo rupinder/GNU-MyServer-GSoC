@@ -77,15 +77,15 @@ int SslContext::initialize ()
   /*
    * The specified file doesn't exist.
    */
-  if (FilesUtility::fileExists(privateKeyFile) == 0)
+  if (FilesUtility::fileExists (privateKeyFile) == 0)
     return -1;
 
-  if (SSL_CTX_use_PrivateKey_file(context, privateKeyFile.c_str(),
+  if (SSL_CTX_use_PrivateKey_file (context, privateKeyFile.c_str (),
                                   SSL_FILETYPE_PEM) != 1)
     return -1;
 
   return 1;
-}  
+}
 
 int SslContext::free ()
 {
@@ -96,7 +96,7 @@ int SslContext::free ()
       ret = 1;
       context = 0;
     }
-  else 
+  else
     ret = 0;
   certificateFile.assign ("");
   privateKeyFile.assign ("");

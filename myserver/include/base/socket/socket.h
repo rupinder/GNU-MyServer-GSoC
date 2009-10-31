@@ -17,51 +17,52 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SOCKET_H
-#define SOCKET_H
+# define SOCKET_H
 
-#include "stdafx.h"
-#include <include/filter/stream.h>
+# include "stdafx.h"
+# include <include/filter/stream.h>
 
-#include <string>
+# include <string>
 using namespace std;
 
-#ifdef WIN32
-#ifndef SOCKETLIBINCLUDED
+# ifdef WIN32
+#  ifndef SOCKETLIBINCLUDED
 extern "C"
 {
-#include <winsock2.h>
+#   include <winsock2.h>
 }
-#define SOCKETLIBINCLUDED
-#endif
-#endif
+#   define SOCKETLIBINCLUDED
+#  endif
+# endif
 
-#ifndef WIN32
-extern "C" {
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <netinet/in.h>  
-#include <netdb.h>
-#include <stdio.h>
-#include <unistd.h>
+# ifndef WIN32
+extern "C"
+{
+#  include <sys/types.h>
+#  include <sys/socket.h>
+#  include <sys/ioctl.h>
+#  include <netinet/in.h>
+#  include <netdb.h>
+#  include <stdio.h>
+#  include <unistd.h>
 }
 
-#define INVALID_SOCKET -1
-#define SD_BOTH SHUT_RDWR
-#endif
+#  define INVALID_SOCKET -1
+#  define SD_BOTH SHUT_RDWR
+# endif
 
-#ifdef WIN32
+# ifdef WIN32
 typedef SOCKET SocketHandle;
-#else
+# else
 typedef int SocketHandle;
-#endif
+# endif
 
 
-#ifdef INET6_ADDRSTRLEN
-#define MAX_IP_STRING_LEN  INET6_ADDRSTRLEN
-#else
-#define MAX_IP_STRING_LEN  32
-#endif
+# ifdef INET6_ADDRSTRLEN
+#  define MAX_IP_STRING_LEN  INET6_ADDRSTRLEN
+# else
+#  define MAX_IP_STRING_LEN  32
+# endif
 
 typedef struct sockaddr_storage MYSERVER_SOCKADDR_STORAGE;
 typedef struct sockaddr_storage MYSERVER_SOCKADDRIN;
@@ -73,48 +74,47 @@ class Socket: public Stream
 public:
   static int startupSocketLib ();
 
-  void setServerSocket(Socket*);
-  Socket* getServerSocket();
+  void setServerSocket (Socket*);
+  Socket* getServerSocket ();
 
-  static void stopBlockingOperations(bool);
-  virtual Handle getHandle();
-  void setHandle(SocketHandle);
-  static MYSERVER_HOSTENT *gethostbyaddr(char* addr, int len, int type);
-  static MYSERVER_HOSTENT *gethostbyname(const char*);
-  static int gethostname(char*, int);
-  int socket(int, int, int);
-  int bind(MYSERVER_SOCKADDR*, int);
-  int listen(int);
-  Socket();
-  Socket(Socket*);
-  Socket(SocketHandle);
+  virtual Handle getHandle ();
+  void setHandle (SocketHandle);
+  static MYSERVER_HOSTENT *gethostbyaddr (char* addr, int len, int type);
+  static MYSERVER_HOSTENT *gethostbyname (const char*);
+  static int gethostname (char*, int);
+  int socket (int, int, int);
+  int bind (MYSERVER_SOCKADDR*, int);
+  int listen (int);
+  Socket ();
+  Socket (Socket*);
+  Socket (SocketHandle);
+  virtual ~Socket ();
+  Socket* accept (MYSERVER_SOCKADDR*, socklen_t*);
+  int setsockopt (int,int, const char*,int);
 
-  Socket accept(MYSERVER_SOCKADDR*, socklen_t*);
-  int setsockopt(int,int, const char*,int);
+  virtual int connect (MYSERVER_SOCKADDR*, int);
+  virtual int close ();
+  virtual int shutdown (int how);
+  virtual int recv (char*, int, int, u_long);
+  virtual int recv (char*, int, int);
+  virtual u_long bytesToRead ();
 
-  virtual int connect(MYSERVER_SOCKADDR*, int);
-  virtual int close();
-  virtual int shutdown(int how);
-  virtual int recv(char*, int, int, u_long);
-  virtual int recv(char*, int, int);
-  virtual u_long bytesToRead();
+  int ioctlsocket (long, unsigned long*);
+  int send (const char*, int, int);
+  int connect (const char* host, u_short port);
+  int operator==(Socket*);
+  int operator=(Socket*);
+  int getsockname (MYSERVER_SOCKADDR*,int*);
+  int setNonBlocking (int);
+  bool getNonBlocking () {return isNonBlocking;}
+  virtual int dataOnRead (int sec = 0, int usec = 500);
 
-  int ioctlsocket(long, unsigned long*);
-  int send(const char*, int, int);
-  int connect(const char* host, u_short port);
-  int operator==(Socket);
-  int operator=(Socket);
-  int getsockname(MYSERVER_SOCKADDR*,int*);
-  int setNonBlocking(int);
-  bool getNonBLocking () {return isNonBlocking;}
-  virtual int dataOnRead(int sec = 0, int usec = 500);
-
-  u_long getThrottling();
-  void setThrottling(u_long);
-  static int getLocalIPsList(string&);
+  u_long getThrottling ();
+  void setThrottling (u_long);
+  static int getLocalIPsList (string&);
   /*! Inherithed from Stream.  */
-  virtual int read(char* buffer, u_long len, u_long *nbr);
-  virtual int write(const char* buffer, u_long len, u_long *nbw);
+  virtual int read (char* buffer, u_long len, u_long *nbr);
+  virtual int write (const char* buffer, u_long len, u_long *nbw);
 
 protected:
   SocketHandle socketHandle;
@@ -128,9 +128,6 @@ protected:
   /*! Is the socket non blocking?  */
   bool isNonBlocking;
 
-  /*! Stop the sockets system.  */
-  static bool denyBlockingOperations;
-
-  virtual int rawSend(const char* buffer, int len, int flags);
+  virtual int rawSend (const char* buffer, int len, int flags);
 };
 #endif

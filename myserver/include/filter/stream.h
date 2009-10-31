@@ -17,21 +17,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef STREAM_H
-#define STREAM_H
+# define STREAM_H
 
-#include "stdafx.h"
+# include "stdafx.h"
 
-#ifdef WIN32
+# ifdef WIN32
 typedef u_int Handle;
-#else
+# else
 typedef int Handle;
-#endif
+# endif
 
-#ifdef WIN32
+# ifdef WIN32
 typedef HANDLE FileHandle;
-#else
+# else
 typedef int FileHandle;
-#endif
+# endif
 
 /*!
  *Abstract class to handle virtual data streams.
@@ -39,14 +39,14 @@ typedef int FileHandle;
 class Stream
 {
 public:
-  virtual int read(char* buffer, u_long len, u_long*);
-  virtual int write(const char* buffer, u_long len, u_long*);
-	virtual int flush(u_long*);
-  virtual Handle getHandle();
-  virtual int close();
-  Stream();
+  virtual int read (char* buffer, u_long len, u_long*);
+  virtual int write (const char* buffer, u_long len, u_long*);
+	virtual int flush (u_long*);
+  virtual Handle getHandle ();
+  virtual int close ();
+  Stream ();
   /*! Avoid direct instances of this class. */
-  virtual ~Stream() = 0;
+  virtual ~Stream () = 0;
 };
 
 #endif

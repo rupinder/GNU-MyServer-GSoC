@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -17,12 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef PLUGIN_H
-#define PLUGIN_H
+# define PLUGIN_H
 
-#include "stdafx.h"
-#include <include/base/dynamic_lib/dynamiclib.h>
-#include <include/base/hash_map/hash_map.h>
-#include <string>
+# include "stdafx.h"
+# include <include/base/dynamic_lib/dynamiclib.h>
+# include <include/base/hash_map/hash_map.h>
+# include <string>
 
 using namespace std;
 
@@ -32,17 +32,16 @@ class XmlParser;
 class Plugin
 {
 public:
-	Plugin();
-	virtual ~Plugin();
-	virtual int load(Server* server, XmlParser* languageFile);
-	virtual int preLoad(string& file, bool global);
-	virtual int postLoad(Server* server, XmlParser* languageFile);
-	virtual int unLoad();
-	virtual const char* getName(char* buffer, u_long len);
-	virtual void* getDirectMethod(char* name);
+	Plugin ();
+	virtual ~Plugin ();
+	virtual int load (Server* server);
+	virtual int preLoad (string& file, bool global);
+	virtual int postLoad (Server* server);
+	virtual int unLoad ();
+	virtual const char* getName (char* buffer, u_long len);
+	virtual void* getDirectMethod (char* name);
 protected:
 	DynamicLibrary hinstLib;
-
 };
 
 #endif

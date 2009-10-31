@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SLAB_H
-#define SLAB_H
+# define SLAB_H
 
 
 # include "stdafx.h"

@@ -17,28 +17,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef PROTOCOL_H
-#define PROTOCOL_H
-#include "stdafx.h"
-#include <include/base/xml/xml_parser.h>
-#include <include/connection/connection.h>
+# define PROTOCOL_H
+# include "stdafx.h"
+# include <include/base/xml/xml_parser.h>
+# include <include/connection/connection.h>
 /*! Various options that can be use for the protocol.  */
-#define PROTOCOL_USES_SSL 1
-#define PROTOCOL_FAST_CHECK 2
-#define PROTOCOL_DENY_DELETE 4
+# define PROTOCOL_USES_SSL 1
+# define PROTOCOL_FAST_CHECK 2
+# define PROTOCOL_DENY_DELETE 4
 
 /*!
  *This is the base class to derive other protocols implementations for the server.
  */
-class Protocol 
+class Protocol
 {
 public:
-	Protocol();
+	Protocol ();
   virtual ~Protocol ();
 	virtual char* registerName (char*,int len);
 	virtual int controlConnection (ConnectionPtr a, char *b1, char *b2,
                                  int bs1, int bs2, u_long nbtr, u_long id);
-	virtual int loadProtocol (XmlParser*);
-	virtual int unLoadProtocol (XmlParser*);
+	virtual int loadProtocol ();
+	virtual int unLoadProtocol ();
 
   virtual int getProtocolOptions (){return protocolOptions;}
 

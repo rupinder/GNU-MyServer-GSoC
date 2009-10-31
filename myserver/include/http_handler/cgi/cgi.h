@@ -17,12 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CGI_H
-#define CGI_H
+# define CGI_H
 
-#include <include/protocol/http/http_response.h>
-#include <include/protocol/http/http_request.h>
-#include <include/protocol/http/http_headers.h>
-#include <include/protocol/http/http_data_handler.h>
+# include <include/protocol/http/http_response.h>
+# include <include/protocol/http/http_request.h>
+# include <include/protocol/http/http_headers.h>
+# include <include/protocol/http/http_data_handler.h>
 
 class Pipe;
 class FiltersChain;
@@ -34,10 +34,10 @@ public:
                     const char* exec = 0, bool execute = false,
                     bool onlyHeader = false);
 private:
-  int sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain, 
+  int sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
                 Process& cgiProc, int onlyHeader, bool nph);
-  int sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain, 
-                  Process& cgiProc, int onlyHeader, bool nph, u_long procStartTime, 
+  int sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
+                  Process& cgiProc, int onlyHeader, bool nph, u_long procStartTime,
                   bool keepalive, bool useChunks, int *ret);
 };
 #endif

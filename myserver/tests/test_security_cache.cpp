@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -36,7 +36,7 @@ class TestSecurityCache : public CppUnit::TestFixture
   CPPUNIT_TEST ( testGetParser );
   CPPUNIT_TEST ( testGetSecurityFile );
   CPPUNIT_TEST_SUITE_END ();
-  
+
   SecurityCache *secCache;
 public:
   void setUp ()
@@ -69,18 +69,18 @@ public:
 
   void testGetSecurityFile ()
   {
-    string file("foo/bar/not/exist/in/reality");
+    string file ("foo/bar/not/exist/in/reality");
     string out;
 
-    CPPUNIT_ASSERT(secCache->getSecurityFile (file, file, out));
+    CPPUNIT_ASSERT (secCache->getSecurityFile (file, file, out));
   }
 
 
   void testGetParser ()
   {
-    string dir("foo/bar/not/exist/in/reality");
-    string file("baz");
-    CPPUNIT_ASSERT_EQUAL(secCache->getParser (dir, dir, false), (XmlParser*)NULL);
+    string dir ("foo/bar/not/exist/in/reality");
+    string file ("baz");
+    CPPUNIT_ASSERT_EQUAL (secCache->getParser (dir, dir, false), (XmlParser*)NULL);
   }
 
 

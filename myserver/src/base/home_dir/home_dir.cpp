@@ -43,11 +43,11 @@ extern "C"
 # include <netdb.h>
 # include <unistd.h>
 # include <signal.h>
-#ifdef HAVE_PTHREAD
-# include <pthread.h>
-#endif
+# ifdef HAVE_PTHREAD
+#  include <pthread.h>
+# endif
 
-#include <sys/wait.h>
+# include <sys/wait.h>
 #endif
 }
 
@@ -85,7 +85,7 @@ HomeDir::~HomeDir ()
 /*!
  *Clear the used memory.
  */
-void HomeDir::clear()
+void HomeDir::clear ()
 {
 #ifdef WIN32
   data.assign ("");
@@ -110,7 +110,7 @@ int HomeDir::load ()
 {
   int ret;
   loadMutex.lock ();
-  
+
   ret = loadImpl ();
 
   loadMutex.unlock ();
@@ -127,11 +127,11 @@ int HomeDir::loadImpl ()
   char *buf;
   buf = new char[len];
 
-  if (GetProfilesDirectory(buf, &len) == FALSE)
+  if (GetProfilesDirectory (buf, &len) == FALSE)
     {
       delete [] buf;
       buf = new char[len];
-      if (GetProfilesDirectory(buf, &len) == FALSE)
+      if (GetProfilesDirectory (buf, &len) == FALSE)
         {
           delete [] buf;
           return 1;
@@ -158,7 +158,7 @@ int HomeDir::loadImpl ()
       return 1;
     }
 
-  buffer = new char[size+1]; 
+  buffer = new char[size+1];
 
   usersFile.read (buffer, size, &read);
   buffer[read] = '\0';

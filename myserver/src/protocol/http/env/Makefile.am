@@ -1,5 +1,5 @@
 lib_LIBRARIES = libenv.a
 libenv_a_SOURCES = env.cpp
 SUBDIRS =
-INCLUDES = $(all_includes)
+AM_CPPFLAGS = $(all_includes)
 

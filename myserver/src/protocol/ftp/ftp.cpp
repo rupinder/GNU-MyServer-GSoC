@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <include/base/file/files_utility.h>
 #include <include/base/file/file.h>
 #include <include/base/string/securestr.h>
-#include <include/base/find_data/find_data.h>
+#include <include/base/read_directory/read_directory.h>
 #include <include/base/string/stringutils.h>
 #include <include/base/mem_buff/mem_buff.h>
 
@@ -198,7 +198,6 @@ FtpThreadContext::FtpThreadContext ()
   buffer = NULL;
   secondaryBuffer = NULL;
   buffersize = 0;
-  secondaryBufferSize = 0;
   m_nParseLength = 0;
   pProtocolInterpreter = NULL;
 }
@@ -320,7 +319,7 @@ Ftp::~Ftp ()
 }
 
 int Ftp::controlConnection (ConnectionPtr pConnection, char *b1, char *b2,
-			int bs1, int bs2, u_long nbtr, u_long id)
+                            int, int, u_long nbtr, u_long id)
 {
   if (pConnection == NULL)
     return ClientsThread::DELETE_CONNECTION;
@@ -335,8 +334,8 @@ int Ftp::controlConnection (ConnectionPtr pConnection, char *b1, char *b2,
   if (pFtpuserData == NULL)
     return ClientsThread::DELETE_CONNECTION;
 
-  // check if ftp is busy(return 120) or unavailable(return 421)
-  if (pConnection->getToRemove () == CONNECTION_REMOVE_OVERLOAD)
+  // check if ftp is busy (return 120) or unavailable (return 421)
+  if (pConnection->getToRemove () == Connection::REMOVE_OVERLOAD)
     {
       pFtpuserData->m_nFtpstate = FtpuserData::BUISY;
       // TODO: really compute busy time interval
@@ -366,8 +365,7 @@ int Ftp::controlConnection (ConnectionPtr pConnection, char *b1, char *b2,
   td.pConnection = pConnection;
   td.buffer = pConnection->getActiveThread ()->getBuffer ();
   td.secondaryBuffer = pConnection->getActiveThread ()->getSecondaryBuffer ();
-  td.buffersize = bs1;
-  td.secondaryBufferSize = bs2;
+  td.buffersize = pConnection->getActiveThread ()->getBufferSize ();
   td.nBytesToRead = nbtr;
   td.pProtocolInterpreter = this;
   td.m_nParseLength = 0;
@@ -391,45 +389,42 @@ char * Ftp::registerNameImpl (char *out, int len)
 }
 
 
-int Ftp::loadProtocolstatic (XmlParser *)
+int Ftp::loadProtocolstatic ()
 {
   // load custom messages from cfg here
   Server *server = Server::getInstance ();
 
   // allow anonymous access
-  const char *pData = server->getHashedData ("ftp.allow_anonymous");
+  const char *pData = server->getData ("ftp.allow_anonymous");
   if (pData != NULL)
     m_ballowAnonymous = strcmpi ("Yes", pData) == 0 ? true : false;
 
   // request password for anonymous
-  pData = server->getHashedData ("ftp.anonymous_need_pass");
+  pData = server->getData ("ftp.anonymous_need_pass");
   if (pData != NULL)
     m_bAnonymousNeedPass = strcmpi ("Yes", pData) == 0 ? true : false;
 
   // enable asyncronous cmds
-  pData = server->getHashedData ("ftp.allow_asynchronous_cmds");
+  pData = server->getData ("ftp.allow_asynchronous_cmds");
   if (pData != NULL)
     m_ballowAsynchronousCmds = strcmpi ("Yes", pData) == 0 ? true : false;
 
   // enable pipelining
-  pData = server->getHashedData ("ftp.allow_pipelining");
+  pData = server->getData ("ftp.allow_pipelining");
   if (pData != NULL)
     m_bEnablePipelining = strcmpi ("Yes", pData) == 0 ? true : false;
 
   // enable write commands
-  pData = server->getHashedData ("ftp.allow_store");
+  pData = server->getData ("ftp.allow_store");
   if (pData != NULL)
     m_bEnablestoreCmds = strcmpi ("Yes", pData) == 0 ? true : false;
 
   return 1;
 }
 
-int Ftp::unLoadProtocolstatic (XmlParser *)
+int Ftp::unLoadProtocolstatic ()
 {
-  if (true /*everything is ok */ )
-    return 1;
-  else
-    return 0;
+  return 1;
 }
 
 void Ftp::ftpReply (int nReplyCode, const std::string & sCustomText /*= ""*/ )
@@ -453,16 +448,10 @@ void Ftp::logAccess (int nReplyCode, const std::string & sCustomText)
   td.secondaryBuffer->setLength (0);
   *td.secondaryBuffer << time
     << " " << td.pConnection->getIpAddr ()
-    << " " << msgCode << " " << sCustomText;
-
-#ifdef WIN32
-  *td.secondaryBuffer << "\r\n" << end_str;
-#else
-  *td.secondaryBuffer << "\n" << end_str;
-#endif
+    << " " << msgCode << " " << sCustomText << end_str;
 
   if (td.pConnection->host)
-    td.pConnection->host->accessesLogWrite (td.secondaryBuffer->getBuffer ());
+    td.pConnection->host->accessesLogWrite ("%s", td.secondaryBuffer->getBuffer ());
 }
 
 int Ftp::closeDataConnection ()
@@ -475,17 +464,7 @@ int Ftp::closeDataConnection ()
 
 int Ftp::printError (const char *msg)
 {
-  /* Log the reply.  */
-  string time;
-  getLocalLogFormatDate (time, 32);
-
-  td.secondaryBuffer->setLength (0);
-  *td.secondaryBuffer << td.pConnection->getIpAddr ();
-  *td.secondaryBuffer << " " << time << " " << msg;
-
-  if (td.pConnection->host)
-    td.pConnection->host->warningsLogWrite (td.secondaryBuffer->getBuffer ());
-
+  td.pConnection->host->warningsLogWrite ("%s", msg);
   return 1;
 }
 
@@ -583,20 +562,20 @@ void Ftp::pasv ()
 #endif
   MYSERVER_SOCKADDRIN asockIn;
   socklen_t asockInLen = 0;
-  Socket asock;
+  Socket *asock;
   if (pFtpuserData->m_pDataConnection->socket->dataOnRead (timeoutvalue, 0)
       == 1)
     {
       asockInLen = sizeof (sockaddr_in);
-      asock =pFtpuserData->m_pDataConnection->socket->accept (&asockIn,
-                                                           &asockInLen);
-      if (asock.getHandle () == (Handle) INVALID_SOCKET)
+      asock = pFtpuserData->m_pDataConnection->socket->accept (&asockIn,
+                                                               &asockInLen);
+      if (asock->getHandle () == (Handle) INVALID_SOCKET)
         return;
 
       pFtpuserData->m_pDataConnection->socket->shutdown (SD_BOTH);
       pFtpuserData->m_pDataConnection->socket->close ();
       delete pFtpuserData->m_pDataConnection->socket;
-      pFtpuserData->m_pDataConnection->socket = new Socket (asock);
+      pFtpuserData->m_pDataConnection->socket = asock;
     }
 
   pFtpuserData->m_bPassiveSrv = false;
@@ -616,7 +595,7 @@ void Ftp::retrstor (bool bretr, bool bappend, const std::string & sPath)
   FilesUtility::splitPath (sLocalPath, sLocalDir, sLocalFileName);
 
   /* The security file doesn't exist in any case.  */
-  const char *secName = td.st.getHashedData ("security.filename",
+  const char *secName = td.st.getData ("security.filename",
                                              MYSERVER_VHOST_CONF |
                                              MYSERVER_SERVER_CONF,
                                              ".security.xml");
@@ -761,7 +740,7 @@ DEFINE_THREAD (SendAsciiFile, pParam)
 #endif
     }
 
-  File *file = NULL;		//new File();
+  File *file = NULL;		//new File ();
   try
   {
     file =
@@ -1365,7 +1344,7 @@ DEFINE_THREAD (ReceiveImageFile, pParam)
 #endif
         }
     }
-  
+
   if (pFtpuserData->m_pDataConnection == NULL ||
       pFtpuserData->m_pDataConnection->socket == NULL)
     {
@@ -1461,7 +1440,7 @@ bool Ftp::userLoggedIn ()
 }
 
 /*!
- *Converts from relative client's path to local path(out path may not exist).
+ *Converts from relative client's path to local path (out path may not exist).
  *\param sPathIn client's relative path
  *\param sOutPath local path
  *\return Return true if path exist, file is a normal one and is into the ftp's root folder
@@ -1562,7 +1541,7 @@ Ftp::OpenDataConnection ()
   if (pFtpuserData->m_nFtpstate == FtpuserData::DATA_CONNECTION_UP)
     return 1;
 
-  int nRet = pFtpuserData->m_bPassiveSrv ? openDataPassive () 
+  int nRet = pFtpuserData->m_bPassiveSrv ? openDataPassive ()
                                          : openDataActive ();
   if (nRet != 0)
     pFtpuserData->m_nFtpstate = FtpuserData::DATA_CONNECTION_UP;
@@ -1596,9 +1575,8 @@ Ftp::openDataPassive ()
 #endif // WIN32
   ((sockaddr_in *) (&storage))->sin_port =
     htons (getPortNo (pFtpuserData->m_cdh));
-  if (pSocket->
-      setsockopt (SOL_SOCKET, SO_REUSEADDR, (const char *) &nReuseAddr,
-                  sizeof (nReuseAddr)) < 0)
+  if (pSocket->setsockopt (SOL_SOCKET, SO_REUSEADDR, (const char *) &nReuseAddr,
+                           sizeof (nReuseAddr)) < 0)
     return 0;
 
   if (pSocket->bind (&storage, sizeof (sockaddr_in)) != 0
@@ -1621,13 +1599,16 @@ Ftp::openDataActive ()
   FtpuserData *pFtpuserData =
     static_cast < FtpuserData * >(td.pConnection->protocolBuffer);
 
-  Socket dataSocket;
-  dataSocket.socket (PF_INET, SOCK_STREAM, IPPROTO_TCP);
+  Socket *dataSocket = new Socket ();
+  dataSocket->socket (PF_INET, SOCK_STREAM, IPPROTO_TCP);
   char szIpAddr[16];
   memset (szIpAddr, 0, 16);
   getIpAddr (pFtpuserData->m_cdh, szIpAddr, 16);
-  if (dataSocket.connect (szIpAddr, getPortNo (pFtpuserData->m_cdh)) < 0)
-    return 0;
+  if (dataSocket->connect (szIpAddr, getPortNo (pFtpuserData->m_cdh)) < 0)
+    {
+      delete dataSocket;
+      return 0;
+    }
 
   pFtpuserData->m_pDataConnection->setPort (getPortNo (pFtpuserData->m_cdh));
   pFtpuserData->m_pDataConnection->setLocalPort (pFtpuserData->m_nLocalDataport);
@@ -1635,7 +1616,7 @@ Ftp::openDataActive ()
   pFtpuserData->m_pDataConnection->setLocalIpAddr (td.pConnection->
                                                    getLocalIpAddr ());
   pFtpuserData->m_pDataConnection->host = td.pConnection->host;
-  pFtpuserData->m_pDataConnection->socket = new Socket (dataSocket);
+  pFtpuserData->m_pDataConnection->socket = dataSocket;
   pFtpuserData->m_pDataConnection->setScheduled (1);
 
   return 1;
@@ -1751,7 +1732,7 @@ Ftp::list (const std::string & sParam /*= ""*/ )
   char perm[11];
   if (FilesUtility::isDirectory (sPath))
     {
-      FindData fd;
+      ReadDirectory fd;
       //dir MUST ends with '/'
       if (fd.findfirst (sPath))
         {
@@ -1760,13 +1741,13 @@ Ftp::list (const std::string & sParam /*= ""*/ )
           return;
         }
 
-      const char *secName = td.st.getHashedData ("security.filename",
+      const char *secName = td.st.getData ("security.filename",
                                                  MYSERVER_VHOST_CONF |
                                                  MYSERVER_SERVER_CONF,
                                                  ".security.xml");
       do
         {
-          if (fd.name[0] == '.' || !strcmpi (fd.name, secName))
+          if (fd.name[0] == '.' || !strcmpi (fd.name.c_str (), secName))
             continue;
 
           perm[10] = '\0';
@@ -1852,7 +1833,7 @@ Ftp::list (const std::string & sParam /*= ""*/ )
       // TODO: implement * selection
       std::string sDir, sFileName;
       FilesUtility::splitPath (sLocalPath, sDir, sFileName);
-      FindData fd;
+      ReadDirectory fd;
       if (fd.findfirst (sDir))
         {
           ftpReply (450);
@@ -1861,7 +1842,7 @@ Ftp::list (const std::string & sParam /*= ""*/ )
         }
       do
         {
-          if (strcmp (fd.name, sFileName.c_str ()) != 0)
+          if (strcmp (fd.name.c_str (), sFileName.c_str ()) != 0)
             continue;
 
           perm[10] = '\0';
@@ -1987,7 +1968,7 @@ Ftp::nlst (const std::string & sParam /* = "" */ )
       closeDataConnection ();
       return;
     }
-  FindData fd;
+  ReadDirectory fd;
   if (fd.findfirst (sPath))
     {
       ftpReply (450);
@@ -1998,13 +1979,13 @@ Ftp::nlst (const std::string & sParam /* = "" */ )
   MemBuf & secondaryBuffer = *td.secondaryBuffer;
   secondaryBuffer.setLength (0);
 
-  const char *secName = td.st.getHashedData ("security.filename",
+  const char *secName = td.st.getData ("security.filename",
 					     MYSERVER_VHOST_CONF |
 					     MYSERVER_SERVER_CONF,
 					     ".security.xml");
   do
     {
-      if (fd.name[0] == '.' || !strcmpi (fd.name, secName))
+      if (fd.name[0] == '.' || !strcmpi (fd.name.c_str (), secName))
         continue;
 
       if (!sParam.empty ())
@@ -2285,7 +2266,7 @@ void Ftp::dele (const std::string & sPath)
   FilesUtility::splitPath (sLocalPath, sLocalDir, sLocalFileName);
 
   /* The security file doesn't exist in any case.  */
-  const char *secName = td.st.getHashedData ("security.filename",
+  const char *secName = td.st.getData ("security.filename",
                                              MYSERVER_VHOST_CONF |
                                              MYSERVER_SERVER_CONF,
                                              ".security.xml");
@@ -2415,7 +2396,7 @@ void Ftp::rnfr (const std::string & sPath)
   std::string sLocalDir, sLocalFileName;
   FilesUtility::splitPath (sLocalPath, sLocalDir, sLocalFileName);
 
-  const char *secName = td.st.getHashedData ("security.filename",
+  const char *secName = td.st.getData ("security.filename",
 					     MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF,
 					     ".security.xml");
 
@@ -2459,7 +2440,7 @@ void Ftp::Rnto (const std::string & sPath)
       return;
     }
 
-  const char *secName = td.st.getHashedData ("security.filename",
+  const char *secName = td.st.getData ("security.filename",
 					     MYSERVER_VHOST_CONF |
 					     MYSERVER_SERVER_CONF,
 					     ".security.xml");
@@ -2509,9 +2490,9 @@ int Ftp::checkRights (const std::string & suser, const std::string & sPass,
   td.st.setResource (&sFileName);
 
   AuthDomain auth (&td.st);
-  string validator (td.st.getHashedData ("sec.validator", MYSERVER_VHOST_CONF
+  string validator (td.st.getData ("sec.validator", MYSERVER_VHOST_CONF
                                          | MYSERVER_SERVER_CONF, "xml"));
-  string authMethod (td.st.getHashedData ("sec.auth_method", MYSERVER_VHOST_CONF
+  string authMethod (td.st.getData ("sec.auth_method", MYSERVER_VHOST_CONF
                                           | MYSERVER_SERVER_CONF, "xml"));
 
   SecurityDomain *domains[] = { &auth, NULL };
@@ -2536,7 +2517,7 @@ void Ftp::size (const std::string & sPath)
   FilesUtility::splitPath (sLocalPath, sLocalDir, sLocalFileName);
 
   /* The security file doesn't exist in any case.  */
-  const char *secName = td.st.getHashedData ("security.filename",
+  const char *secName = td.st.getData ("security.filename",
                                              MYSERVER_VHOST_CONF |
                                              MYSERVER_SERVER_CONF,
                                              ".security.xml");

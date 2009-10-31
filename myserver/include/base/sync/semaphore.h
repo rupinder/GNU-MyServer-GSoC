@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -17,28 +17,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SEMAPHORE_H
-#define SEMAPHORE_H
+# define SEMAPHORE_H
 
-#include "stdafx.h"
+# include "stdafx.h"
 
-#ifdef HAVE_PTHREAD
-#include <semaphore.h>
+# ifdef HAVE_PTHREAD
+#  include <semaphore.h>
 typedef sem_t SemaphoreHandle;
-#else
+# else
 typedef HANDLE SemaphoreHandle;
-#endif
+# endif
 
 class Semaphore
 {
 public:
-	Semaphore(int n);
-	~Semaphore();
-	int init(int n);
-	int destroy();
-	int lock(u_long id = 0);
-	int unlock(u_long id = 0);
-  SemaphoreHandle *getHandle(){return &semaphore;}
-  int isInitialized(){return initialized;}
+	Semaphore (int n);
+	~Semaphore ();
+	int init (int n);
+	int destroy ();
+	int lock (u_long id = 0);
+	int unlock (u_long id = 0);
+  SemaphoreHandle *getHandle (){return &semaphore;}
+  int isInitialized (){return initialized;}
 private:
 	int initialized;
 	SemaphoreHandle semaphore;

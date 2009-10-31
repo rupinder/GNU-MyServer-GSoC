@@ -1,16 +1,16 @@
 /*
  MyServer
- Copyright (C) 2008 Free Software Foundation, Inc.
+ Copyright (C) 2008, 2009 Free Software Foundation, Inc.
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,76 +30,57 @@ using namespace std;
 
 class TestUtility : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestUtility );
-  CPPUNIT_TEST( testGetTicks );
-  CPPUNIT_TEST( testGetOsVersion );
-  CPPUNIT_TEST( testCWD );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestUtility );
+  CPPUNIT_TEST ( testGetTicks );
+  CPPUNIT_TEST ( testCWD );
+  CPPUNIT_TEST_SUITE_END ();
 
 public:
-  void setUp()
-  {
- 
-  }
-
-  void tearDown()
+  void setUp ()
   {
 
   }
 
-  void testGetTicks()
+  void tearDown ()
+  {
+
+  }
+
+  void testGetTicks ()
   {
 
     u_long ticks = getTicks ();
 
-    Thread::wait(25000);
+    Thread::wait (25000);
 
     u_long ticks2 = getTicks ();
 
-    CPPUNIT_ASSERT(ticks2 > ticks);
+    CPPUNIT_ASSERT (ticks2 > ticks);
   }
 
-  void testGetOsVersion()
+  void testGetCPUCount ()
   {
-    CPPUNIT_ASSERT(getOSVersion() >= 0);
+    CPPUNIT_ASSERT (getCPUCount () > 0);
   }
 
-
-  void testGetCPUCount()
+  void testCWD ()
   {
-    CPPUNIT_ASSERT(getCPUCount() > 0);
-  }
-
-  void testCWD()
-  {
+    string strBuff;
     char *buffer;
     unsigned int bufferLen;
 
-    setcwdBuffer();
-
-    bufferLen = getdefaultwdlen();
-    CPPUNIT_ASSERT(bufferLen > 0);
+    bufferLen = getdefaultwdlen ();
+    CPPUNIT_ASSERT (bufferLen > 0);
 
     buffer = new char[bufferLen + 1];
+    getdefaultwd (buffer, bufferLen);
+    CPPUNIT_ASSERT ( strlen (buffer) > 0 );
+    CPPUNIT_ASSERT (strlen (buffer) <= bufferLen);
 
-
-    getdefaultwd(buffer, bufferLen);
-
-    CPPUNIT_ASSERT( strlen(buffer) > 0 );
-    CPPUNIT_ASSERT(strlen(buffer) <= bufferLen);
-
-
-    string strBuff;
-
-    int ret = getdefaultwd(strBuff);
-
-    CPPUNIT_ASSERT_EQUAL(ret, 0);
-
-    CPPUNIT_ASSERT(strBuff.length() > 0);
-    
-
-
-    freecwdBuffer();
+    int ret = getdefaultwd (strBuff);
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
+    CPPUNIT_ASSERT (strBuff.length () > 0);
+    freecwd ();
 
     delete [] buffer;
   }
@@ -107,4 +88,4 @@ public:
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestUtility );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestUtility );

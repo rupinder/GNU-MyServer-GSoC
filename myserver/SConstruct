@@ -30,7 +30,7 @@ f = open('version','r')
 MYSERVER_VERSION = "GNU MyServer " + f.readline()
 f.close()
 
-GIT_LOCATION = "git clone git://git.savannah.gnu.org/myserver.git'
+GIT_LOCATION = "git clone git://git.savannah.gnu.org/myserver.git"
 HOMEPAGE = "http://www.gnu.org/software/myserver/"
 
 mode = ARGUMENTS.get('mode', "debug")

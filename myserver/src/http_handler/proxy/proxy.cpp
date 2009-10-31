@@ -62,10 +62,9 @@ int Proxy::send (HttpThreadContext *td,
 
   if (destUrl.getProtocol ().compare ("http") && destUrl.getProtocol ().compare ("HTTP"))
     {
-      ostringstream msg;
-      msg << "Proxy: " << destUrl.getProtocol () << " is not a known protocol.";
-      td->connection->host->warningsLogWrite (msg.str ().c_str ());
-      return 0;
+      td->connection->host->warningsLogWrite ("Proxy: %s is not a known protocol",
+                                              destUrl.getProtocol ().c_str ());
+      return td->http->raiseHTTPError (500);
     }
 
   req.ver.assign ("HTTP/1.1");
@@ -108,11 +107,11 @@ int Proxy::send (HttpThreadContext *td,
       return td->http->raiseHTTPError (500);
     }
 
-  chain.setProtocol(td->http);
-  chain.setProtocolData(td);
-  chain.setStream(td->connection->socket);
+  chain.setProtocol (td->http);
+  chain.setProtocolData (td);
+  chain.setStream (td->connection->socket);
 
-  if(td->mime && Server::getInstance()->getFiltersFactory()->chain(&chain,
+  if (td->mime && Server::getInstance ()->getFiltersFactory ()->chain (&chain,
                                                                    td->mime->filters,
                                                                    td->connection->socket,
                                                                    &nbw,
@@ -124,7 +123,7 @@ int Proxy::send (HttpThreadContext *td,
 
   int ret = flushToClient (td, sock, chain, onlyHeader);
 
-  chain.clearAllFilters();
+  chain.clearAllFilters ();
   sock.close ();
   req.free ();
 
@@ -185,7 +184,7 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
       hasTransferEncoding = false;
       transferEncoding.assign (*tmp);
     }
-  
+
 
   if (useChunks)
     td->response.setValue ("Transfer-Encoding", "chunked");
@@ -207,7 +206,7 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
                      &td->response,
                      &out,
                      &client,
-                     td->secondaryBuffer->getBuffer() + headerLength,
+                     td->secondaryBuffer->getBuffer () + headerLength,
                      read - headerLength,
                      td->http->getTimeout (),
                      useChunks,
@@ -257,7 +256,7 @@ int Proxy::readPayLoad (HttpThreadContext* td,
 
 
   /* Only the chunked transfer encoding is supported.  */
-  if(serverTransferEncoding && serverTransferEncoding->compare("chunked"))
+  if (serverTransferEncoding && serverTransferEncoding->compare ("chunked"))
     return -1;
 
   if (res->contentLength.length ())
@@ -269,14 +268,14 @@ int Proxy::readPayLoad (HttpThreadContext* td,
 
   length = contentLength;
 
-  bufferDataSize = (td->nBytesToRead < td->buffer->getRealLength() - 1
+  bufferDataSize = (td->nBytesToRead < td->buffer->getRealLength () - 1
                     ? td->nBytesToRead
-                    : td->buffer->getRealLength() - 1 ) - td->nHeaderChars;
+                    : td->buffer->getRealLength () - 1 ) - td->nHeaderChars;
 
   /* If it is specified a transfer encoding read data using it.  */
-  if(serverTransferEncoding)
+  if (serverTransferEncoding)
   {
-    if(!serverTransferEncoding->compare("chunked"))
+    if (!serverTransferEncoding->compare ("chunked"))
     {
       for (;;)
         {
@@ -284,8 +283,8 @@ int Proxy::readPayLoad (HttpThreadContext* td,
                                                  &inPos,
                                                  initBufferSize,
                                                  client,
-                                                 td->buffer->getBuffer(),
-                                                 td->buffer->getRealLength() - 1,
+                                                 td->buffer->getBuffer (),
+                                                 td->buffer->getRealLength () - 1,
                                                  &nbr,
                                                  timeout,
                                                  NULL,
@@ -296,7 +295,7 @@ int Proxy::readPayLoad (HttpThreadContext* td,
             break;
 
           if (HttpDataHandler::appendDataToHTTPChannel (td,
-                                                        td->buffer->getBuffer(),
+                                                        td->buffer->getBuffer (),
                                                         nbr,
                                                         &(td->outputData),
                                                         out,
@@ -309,10 +308,10 @@ int Proxy::readPayLoad (HttpThreadContext* td,
     }
   }
   /* If it is not specified an encoding, read the data as it is.  */
-  else for(;;)
+  else for (;;)
   {
 
-    u_long len = td->buffer->getRealLength() - 1;
+    u_long len = td->buffer->getRealLength () - 1;
 
     if (contentLength && length < len)
       len = length;
@@ -320,11 +319,11 @@ int Proxy::readPayLoad (HttpThreadContext* td,
     if (len == 0)
       break;
 
-    if(HttpDataRead::readContiguousPrimitivePostData (initBuffer,
+    if (HttpDataRead::readContiguousPrimitivePostData (initBuffer,
                                                       &inPos,
                                                       initBufferSize,
                                                       client,
-                                                      td->buffer->getBuffer(),
+                                                      td->buffer->getBuffer (),
                                                       len,
                                                       &nbr,
                                                       timeout))
@@ -349,11 +348,11 @@ int Proxy::readPayLoad (HttpThreadContext* td,
 
     written += nbr;
 
-    if(contentLength && length == 0)
+    if (contentLength && length == 0)
       break;
   }
 
-  if(useChunks && out->getStream ()->write ("0\r\n\r\n", 5, &nbw))
+  if (useChunks && out->getStream ()->write ("0\r\n\r\n", 5, &nbw))
     return -1;
 
   return written;

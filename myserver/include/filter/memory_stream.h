@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -17,24 +17,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef MEMORY_STREAM_H
-#define MEMORY_STREAM_H
+# define MEMORY_STREAM_H
 
-#include "stdafx.h"
-#include <include/filter/stream.h>
-#include <include/base/mem_buff/mem_buff.h>
+# include "stdafx.h"
+# include <include/filter/stream.h>
+# include <include/base/mem_buff/mem_buff.h>
 
 class MemoryStream : public Stream
 {
 public:
-  virtual int read(char* buffer, u_long len, u_long*);
-  virtual int write(const char* buffer, u_long len, u_long*);
-  virtual int flush(u_long*);
-  int refresh();
-  int availableToRead();
-  int read(Stream*, u_long len, u_long *nbw);
-  MemoryStream();
-  MemoryStream(MemBuf*);
-  virtual ~MemoryStream();
+  virtual int read (char* buffer, u_long len, u_long*);
+  virtual int write (const char* buffer, u_long len, u_long*);
+  virtual int flush (u_long*);
+  int refresh ();
+  int availableToRead ();
+  int read (Stream*, u_long len, u_long *nbw);
+  MemoryStream ();
+  MemoryStream (MemBuf*);
+  virtual ~MemoryStream ();
 private:
   int internalData;
   MemBuf *data;

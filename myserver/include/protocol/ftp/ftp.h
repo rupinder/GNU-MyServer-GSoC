@@ -18,18 +18,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #ifndef FTP_H
-#define FTP_H
-#include "stdafx.h"
-#include <include/protocol/protocol.h>
-#include <include/connection/connection.h>
-#include <include/base/mem_buff/mem_buff.h>
-#include <include/base/xml/xml_parser.h>
-#include <include/protocol/ftp/ftp_common.h>
+# define FTP_H
+# include "stdafx.h"
+# include <include/protocol/protocol.h>
+# include <include/connection/connection.h>
+# include <include/base/mem_buff/mem_buff.h>
+# include <include/base/xml/xml_parser.h>
+# include <include/protocol/ftp/ftp_common.h>
 
-#include <include/protocol/ftp/ftp_parser.h>
-#include <include/protocol/ftp/ftp_lexer.h>
+# include <include/protocol/ftp/ftp_parser.h>
+# include <include/protocol/ftp/ftp_lexer.h>
 
-#include <include/conf/security/security_token.h>
+# include <include/conf/security/security_token.h>
 class Ftp;
 
 class FtpuserData:public ProtocolBuffer
@@ -92,7 +92,6 @@ struct FtpThreadContext
   MemBuf *buffer;
   MemBuf *secondaryBuffer;
   u_long buffersize;
-  u_long secondaryBufferSize;
   u_long m_nParseLength;
   u_long nBytesToRead;
   Ftp *pProtocolInterpreter;
@@ -107,8 +106,8 @@ public:
   virtual int controlConnection (ConnectionPtr pConnection, char *b1,
 				 char *b2, int bs1, int bs2, u_long nbtr,
 				 u_long id);
-  static int loadProtocolstatic (XmlParser *);
-  static int unLoadProtocolstatic (XmlParser *);
+  static int loadProtocolstatic ();
+  static int unLoadProtocolstatic ();
 
   int parseControlConnection ();
   yyscan_t getScanner ()
@@ -234,14 +233,14 @@ public:
     return ftp.controlConnection (a, b1, b2, bs1, bs2, nbtr, id);
   }
 
-  virtual int loadProtocol (XmlParser * parser)
+  virtual int loadProtocol ()
   {
-    return Ftp::loadProtocolstatic (parser);
+    return Ftp::loadProtocolstatic ();
   }
 
-  virtual int unLoadProtocol (XmlParser * parser)
+  virtual int unLoadProtocol ()
   {
-    return Ftp::unLoadProtocolstatic (parser);
+    return Ftp::unLoadProtocolstatic ();
 
   }
 

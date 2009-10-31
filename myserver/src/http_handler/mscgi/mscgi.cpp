@@ -48,7 +48,7 @@ int MsCgi::send (HttpThreadContext* td, const char* exec, const char* cmdLine,
    * This files differently from standard CGI don't need a new process to run
    * but are allocated in the caller process virtual space.
    * Usually these files are faster than standard CGI.
-   * Actually myServerCGI(.mscgi) is only at an alpha status.
+   * Actually myServerCGI (.mscgi) is only at an alpha status.
    */
   ostringstream tmpStream;
   string outDataPath;
@@ -63,7 +63,7 @@ int MsCgi::send (HttpThreadContext* td, const char* exec, const char* cmdLine,
 #endif
 
   data.envString = td->request.uriOptsPtr ?
-    td->request.uriOptsPtr : (char*) td->buffer->getBuffer();
+    td->request.uriOptsPtr : (char*) td->buffer->getBuffer ();
 
   data.td = td;
   data.errorPage = 0;
@@ -95,13 +95,13 @@ int MsCgi::send (HttpThreadContext* td, const char* exec, const char* cmdLine,
   chain.setProtocolData (td);
   chain.setStream (td->connection->socket);
 
-  if (td->mime && Server::getInstance ()->getFiltersFactory ()->chain(&chain,
+  if (td->mime && Server::getInstance ()->getFiltersFactory ()->chain (&chain,
                                                                       td->mime->filters,
                                                                       td->connection->socket,
                                                                       &nbw,
                                                                       1))
     {
-      td->connection->host->warningsLogWrite ("MSCGI: Error loading filters");
+      td->connection->host->warningsLogWrite (_("MSCGI: internal error"));
       chain.clearAllFilters ();
       return td->http->raiseHTTPError (500);
     }
@@ -112,27 +112,20 @@ int MsCgi::send (HttpThreadContext* td, const char* exec, const char* cmdLine,
 
   if (ret)
     {
-      string msg;
-      msg.assign ("MSCGI: cannot load ");
-      msg.append (exec);
-      td->connection->host->warningsLogWrite (msg.c_str ());
+      td->connection->host->warningsLogWrite (_("MSCGI: cannot load %s"), exec);
       chain.clearAllFilters ();
-
       /* Internal server error.  */
       return td->http->raiseHTTPError (500);
     }
 
   td->secondaryBuffer->getAt (0) = '\0';
 
-  ProcMain = (CGIMAIN) hinstLib.getProc( "myserver_main");
+  ProcMain = (CGIMAIN) hinstLib.getProc ( "myserver_main");
   if (ProcMain)
     (ProcMain)(td->request.uriOpts.c_str (), &data);
   else
     {
-      string msg;
-      msg.assign ("MSCGI: error accessing entrypoint for ");
-      msg.append (exec);
-      td->connection->host->warningsLogWrite (msg.c_str ());
+      td->connection->host->warningsLogWrite (_("MSCGI: cannot find entry-point for %s"), exec);
       return td->http->raiseHTTPError (500);
     }
   hinstLib.close ();
@@ -148,12 +141,12 @@ int MsCgi::send (HttpThreadContext* td, const char* exec, const char* cmdLine,
       && chain.getStream ()->write ("0\r\n\r\n", 5, &nbw))
     return 0;
 
-  if(!data.error)
+  if (!data.error)
     return 0;
 
   ostringstream tmp;
   tmp << td->sentData;
-  td->response.contentLength.assign(tmp.str());
+  td->response.contentLength.assign (tmp.str ());
 
   chain.clearAllFilters ();
   return 1;
@@ -203,11 +196,11 @@ int MsCgi::sendHeader (MsCgiData* mcd)
   if (!mcd->td->appendOutputs)
     {
       HttpThreadContext* td = mcd->td;
-      char *buffer = td->secondaryBuffer->getBuffer();
+      char *buffer = td->secondaryBuffer->getBuffer ();
       ConnectionPtr s = td->connection;
 
       u_long hdrLen = HttpHeaders::buildHTTPResponseHeader (buffer, &(td->response));
-      if(td->connection->socket->send (buffer, hdrLen, 0) == SOCKET_ERROR)
+      if (td->connection->socket->send (buffer, hdrLen, 0) == SOCKET_ERROR)
         return 1;
     }
 

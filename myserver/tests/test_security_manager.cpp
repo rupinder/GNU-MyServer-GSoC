@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,32 +33,32 @@ using namespace std;
 
 class TestSecurityManager : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestSecurityManager );
-  CPPUNIT_TEST( testGetPermissionMask );
-  CPPUNIT_TEST_SUITE_END();
-  
+  CPPUNIT_TEST_SUITE ( TestSecurityManager );
+  CPPUNIT_TEST ( testGetPermissionMask );
+  CPPUNIT_TEST_SUITE_END ();
+
   AuthMethodFactory authMethodFactory;
   ValidatorFactory validatorFactory;
   SecurityManager* securityManager;
 public:
-  void setUp()
+  void setUp ()
   {
-    securityManager = new SecurityManager(&validatorFactory, &authMethodFactory);
+    securityManager = new SecurityManager (&validatorFactory, &authMethodFactory);
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete securityManager;
   }
 
-  void testGetPermissionMask()
+  void testGetPermissionMask ()
   {
     SecurityToken secToken;
-    string xml("xml");
-    CPPUNIT_ASSERT_EQUAL(securityManager->getPermissionMask(&secToken, (list<SecurityDomain*>*)NULL, xml, xml), 0);
-    CPPUNIT_ASSERT_EQUAL(securityManager->getPermissionMask(&secToken, (SecurityDomain**)NULL, xml, xml), 0);
+    string xml ("xml");
+    CPPUNIT_ASSERT_EQUAL (securityManager->getPermissionMask (&secToken, (list<SecurityDomain*>*)NULL, xml, xml), 0);
+    CPPUNIT_ASSERT_EQUAL (securityManager->getPermissionMask (&secToken, (SecurityDomain**)NULL, xml, xml), 0);
   }
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestSecurityManager );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestSecurityManager );

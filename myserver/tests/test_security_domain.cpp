@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -32,36 +32,36 @@ using namespace std;
 
 class TestSecurityDomain : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestSecurityDomain );
-  CPPUNIT_TEST( testGetValue );
-  CPPUNIT_TEST( testGetName );
-  CPPUNIT_TEST_SUITE_END();
-  
+  CPPUNIT_TEST_SUITE ( TestSecurityDomain );
+  CPPUNIT_TEST ( testGetValue );
+  CPPUNIT_TEST ( testGetName );
+  CPPUNIT_TEST_SUITE_END ();
+
   SecurityDomain* securityDomain;
 public:
-  void setUp()
+  void setUp ()
   {
-    securityDomain = new SecurityDomain();
+    securityDomain = new SecurityDomain ();
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete securityDomain;
   }
 
-  void testGetName()
+  void testGetName ()
   {
-    string val("value");
-    CPPUNIT_ASSERT_EQUAL(securityDomain->getName().compare(""), 0);
+    string val ("value");
+    CPPUNIT_ASSERT_EQUAL (securityDomain->getName ().compare (""), 0);
   }
 
-  void testGetValue()
+  void testGetValue ()
   {
-    string val("value");
-    CPPUNIT_ASSERT_EQUAL(securityDomain->getValue(val), (string*)NULL);
+    string val ("value");
+    CPPUNIT_ASSERT_EQUAL (securityDomain->getValue (val), (string*)NULL);
   }
 
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestSecurityDomain );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestSecurityDomain );

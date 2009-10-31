@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -35,7 +35,7 @@ using namespace std;
 
 class TestSecurityToken : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestSecurityToken );
+  CPPUNIT_TEST_SUITE ( TestSecurityToken );
   CPPUNIT_TEST ( testUser);
   CPPUNIT_TEST ( testPassword);
 	CPPUNIT_TEST ( testValues );
@@ -49,29 +49,29 @@ class TestSecurityToken : public CppUnit::TestFixture
   CPPUNIT_TEST ( testAuthenticated );
   CPPUNIT_TEST ( testServer );
   CPPUNIT_TEST ( testVhost );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE_END ();
 
   SecurityToken* securityToken;
 public:
-  void setUp()
+  void setUp ()
   {
-    securityToken = new SecurityToken();
+    securityToken = new SecurityToken ();
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete securityToken;
   }
 
 
-  void testUser()
+  void testUser ()
   {
     string user ("foo");
     securityToken->setUser (user);
     CPPUNIT_ASSERT_EQUAL (securityToken->getUser ().compare (user), 0);
   }
 
-  void testPassword()
+  void testPassword ()
   {
     string password ("foo");
     securityToken->setPassword (password);
@@ -117,7 +117,7 @@ public:
     securityToken->setProvidedMask (mask);
     CPPUNIT_ASSERT_EQUAL (securityToken->getProvidedMask (), mask);
   }
-  
+
   void testNeededPassword ()
   {
     string password ("foo");
@@ -149,7 +149,7 @@ public:
     securityToken->setServer (s);
     CPPUNIT_ASSERT_EQUAL (securityToken->getServer (), s);
   }
-  
+
   void testVhost ()
   {
     Vhost *v = (Vhost*)0x100; //XXX: Dirty.
@@ -160,4 +160,4 @@ public:
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestSecurityToken );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestSecurityToken );

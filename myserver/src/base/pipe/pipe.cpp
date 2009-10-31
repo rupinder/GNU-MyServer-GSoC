@@ -54,13 +54,13 @@ int Pipe::read (char* buffer, u_long len, u_long *nbr)
 {
   *nbr = 0;
 #ifndef WIN32
-  int ret = ::read(handles[0], buffer, len);
-  if(ret == -1)
+  int ret = ::read (handles[0], buffer, len);
+  if (ret == -1)
     {
       terminated = true;
       return 1;
     }
-  else if(!ret)
+  else if (!ret)
     {
       terminated = true;
       return 0;
@@ -71,10 +71,10 @@ int Pipe::read (char* buffer, u_long len, u_long *nbr)
     }
   return 0;
 #else
-  if( !ReadFile(readHandle, buffer, len, nbr, NULL) || !nbr)
+  if ( !ReadFile (readHandle, buffer, len, nbr, NULL) || !nbr)
     {
       *nbr = 0;
-      if(GetLastError() != ERROR_BROKEN_PIPE)
+      if (GetLastError () != ERROR_BROKEN_PIPE)
         return 1;
       else
         {
@@ -97,17 +97,11 @@ int Pipe::read (char* buffer, u_long len, u_long *nbr)
 int Pipe::create (bool readPipe)
 {
 #ifndef WIN32
-
-#ifdef HAVE_PIPE
   return pipe (handles);
-#else
-  return 1;
-#endif
-
 #else
   HANDLE tmp;
   SECURITY_ATTRIBUTES sa;
-  sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+  sa.nLength = sizeof (SECURITY_ATTRIBUTES);
   sa.bInheritHandle = TRUE;
   sa.lpSecurityDescriptor = NULL;
   if (!CreatePipe (&readHandle, &writeHandle, &sa, 0))
@@ -197,16 +191,18 @@ int Pipe::close ()
 {
   terminated = true;
 #ifndef WIN32
-  if (handles[0])
+  if (handles[0] >= 0)
     ::close (handles[0]);
-  if (handles[1])
+  if (handles[1] >= 0)
     ::close (handles[1]);
-  handles[0] = handles[1] = 0;
+
+  handles[0] = handles[1] = -1;
 #else
-  if (readHandle)
+  if (readHandle >= 0)
     CloseHandle (readHandle);
-  if (writeHandle)
+  if (writeHandle >= 0)
     CloseHandle (writeHandle);
+
   readHandle = writeHandle = 0;
 #endif
   return 0;
@@ -232,10 +228,15 @@ Pipe::Pipe ()
 {
   terminated = false;
 #ifndef WIN32
-  handles[0] = handles[1] = 0;
+  handles[0] = handles[1] = -1;
 #else
-  readHandle = writeHandle = 0;
+  readHandle = writeHandle = -1;
 #endif
+}
+
+Pipe::~Pipe ()
+{
+  close ();
 }
 
 /*!
@@ -245,13 +246,13 @@ void Pipe::closeRead ()
 {
   terminated = true;
 #ifndef WIN32
-  if (handles[0])
+  if (handles[0] >= 0)
     ::close (handles[0]);
-  handles[0] = 0;
+  handles[0] = -1;
 #else
-  if(readHandle)
-    CloseHandle(readHandle);
-  readHandle = 0;
+  if (readHandle >= 0)
+    CloseHandle (readHandle);
+  readHandle = -1;
 #endif
 }
 
@@ -262,13 +263,13 @@ void Pipe::closeWrite ()
 {
   terminated = true;
 #ifndef WIN32
-  if (handles[1])
+  if (handles[1] >= 0)
     ::close (handles[1]);
-  handles[1] = 0;
+  handles[1] = -1;
 #else
-  if (writeHandle)
+  if (writeHandle >= 0)
     CloseHandle (writeHandle);
-  writeHandle = 0;
+  writeHandle = -1;
 #endif
 }
 
@@ -301,7 +302,7 @@ int Pipe::waitForData (int sec, int usec)
 
   return 0;
 
-#elif HAVE_PIPE
+#else
   struct timeval tv;
   fd_set readfds;
   int ret;

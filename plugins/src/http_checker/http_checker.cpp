@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/multicast/multicast.h>
 #include <include/protocol/http/http.h>
 #include <include/plugin/plugin.h>
+#include <include/conf/main/xml_main_configuration.h>
 #include <Python.h>
 
 #ifdef WIN32
@@ -234,12 +235,12 @@ EXPORTABLE(int) load(void* server,void* parser)
   string msg("new-http-request");
   string pythonName("python");
   Plugin* python;
-  XmlParser* configuration;
+  MainConfiguration* configuration;
   xmlDocPtr xmlDoc;
 
   if(!staticData)
     {
-      serverInstance->logWriteln("HttpChecker: Invalid HTTP static data");
+      serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("HttpChecker: invalid HTTP static data"));
       return -1;
     }
 
@@ -247,7 +248,7 @@ EXPORTABLE(int) load(void* server,void* parser)
 
   if(!python)
     {
-      serverInstance->logWriteln("HttpChecker: Cannot find executors::python");
+      serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("HttpChecker: cannot find executors::python"));
       return -1;
     }
   observer.setPythonExecutor(python);
@@ -258,12 +259,14 @@ EXPORTABLE(int) load(void* server,void* parser)
 
   if(!init)
     {
-      serverInstance->logWriteln("HttpChecker: Cannot find method initModule in executors::python");
+      serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("HttpChecker: cannot find method initModule in executors::python"));
       return -1;
     }
 
-  configuration = serverInstance->getXmlConfiguration ();
-  xmlDoc = configuration->getDoc ();
+  configuration = serverInstance->getConfiguration ();
+
+  /* FIXME: DON'T DO THIS.  */
+  xmlDoc = ((XmlMainConfiguration*)configuration)->getDoc ();
 
   for(xmlNodePtr ptr = xmlDoc->children->next->children; ptr; ptr = ptr->next)
     {
@@ -289,7 +292,7 @@ EXPORTABLE(int) load(void* server,void* parser)
 
 	  if(!data)
 	    {
-	      serverInstance->logWriteln("HttpChecker: Invalid rule");
+        serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("HttpChecker: invalid rule"));
 	      return -1;
 	    }
 

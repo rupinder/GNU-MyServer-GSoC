@@ -19,311 +19,202 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "stdafx.h"
 #include <include/base/utility.h>
 #include <include/base/string/securestr.h>
-
-extern "C" {
+extern "C"
+{
+#include <chdir-long.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "nproc.h"
 #ifndef WIN32
-#include <unistd.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/time.h>
-#ifdef ERRORH
-#include <error.h>
-#endif
-#include <errno.h>
+# include <unistd.h>
+# include <signal.h>
+# include <sys/types.h>
+# include <sys/wait.h>
+# include <sys/time.h>
+# include <errno.h>
+
+# ifdef ERRORH
+#  include <error.h>
+# endif
 #endif
 }
 
 #ifdef WIN32
-#include <direct.h>
+# include <direct.h>
 #endif
 
 #include <iostream>
 using namespace std;
 
-/*
- *Various utility functions.
- */
-static char *currentPath = 0;
+static char *currentPath = NULL;
+static size_t currentPathLen;
 
 /*!
- *Returns the version of the operating system.
- *Return 0 if it is not recognized.
+ * Returns the number of processors available on the local machine.
  */
-int getOSVersion()
+u_long getCPUCount ()
 {
-  int ret = 0;
-  /*!
-   *This is the code for the win32 platform.
-   */
-#ifdef WIN32
-  OSVERSIONINFO osvi;
-  osvi.dwOSVersionInfoSize = sizeof(osvi);
-  ret = GetVersionEx(&osvi);
-  if(!ret)
-    return 0;  
-  switch(osvi.dwMinorVersion)
-  {
-  case 0:
-    if(osvi.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)
-      ret = OS_WINDOWS_9X;
-    else
-      ret = OS_WINDOWS_2000;
-    break;
-  case 10:
-    ret = OS_WINDOWS_9X;
-    break;  
-  case 90:
-    ret = OS_WINDOWS_9X;
-    break;
-  case 51:
-    ret = OS_WINDOWS_NT3;
-    break;
-  case 1:
-    ret = OS_WINDOWS_XP;
-    break;
-  }
-#endif
-
-#ifdef __linux__
-  ret = OS_GNU_LINUX;
-#endif
-
-#ifdef __FreeBSD__
-  ret = OS_FREEBSD;
-#endif
-
-  return ret;
-}  
-
-/*!
- *Returns the number of processors available on the local machine.
- */
-u_long getCPUCount()
-{
-  /*! By default use 1 processor.  */
-  u_long ret = 1;
-#ifdef WIN32
-  SYSTEM_INFO si;
-  GetSystemInfo(&si);
-  ret = si.dwNumberOfProcessors;
-#endif
-
-#ifdef _SC_NPROCESSORS_CONF
-  ret = (u_long)sysconf(_SC_NPROCESSORS_CONF); 
-  /*! Use only a processor if some error happens.  */
-  if(ret == (u_long)-1)
-    ret = 1;
-#endif
-
-
-#ifdef HW_NCPU
-  int err;
-  int mib[2];
-  int nproc;
-  size_t len;
-  mib[0] = CTL_HW;
-  mib[1] = HW_NCPU;
-  len = sizeof(nproc);
-  err = sysctl(mib, 2, &nproc, &len, NULL, 0);
-  if(err == 0)
-    ret = nproc;
-  else
-    ret = 1;
-#endif
-
-  return ret;
+  return num_processors ();
 }
 
 /*!
- *Save the current working directory.
- *Return -1 on fails.
- *Return 0 on success.
+ * Save the current working directory.
+ * Return -1 on fails.
+ * Return 0 on success.
  */
-int setcwdBuffer()
+static int initializeCwd ()
 {
-#ifdef WIN32
-  /*! Under windows there is MAX_PATH, we will use it.  */
-  currentPath = new char [MAX_PATH];
-  if(currentPath == 0)
-    return (-1);
-  char* ret =(char*) _getcwd(currentPath,MAX_PATH);
-  if(ret == 0)
+  if (currentPath)
+    return 0;
+
+  currentPath = getcwd (NULL, 0);
+  if (!currentPath)
     return -1;
 
-  ret = 0;
-
-  for(u_long i = 0; i<(u_long)strlen(currentPath); i++)
-    if(currentPath[i] == '\\')
-      currentPath[i] = '/';
-
-  if(currentPath[strlen(currentPath)] == '/')
-    currentPath[strlen(currentPath)] = '\0';
+  currentPathLen = strlen (currentPath) + 1;
   return 0;
-#endif
-
-#ifdef __OpenBSD__
-  currentPath = getcwd(0, 0);
-  return currentPath ? 0 : 1;
-#endif
-
-#ifndef WIN32
-  int size = 16;
-  char *ret = 0;
-  currentPath = new char[size];
-  do
-  {
-    /*! Allocation problem is up.  */
-    if(currentPath == 0)
-    {
-      return (-1);
-    }
-    ret = getcwd(currentPath, size);
-    /*! Realloc the buffer if it cannot contain the current directory.  */
-    if(ret == 0)
-    {
-      size *= 2;
-      delete [] currentPath;
-      currentPath = new char[size];
-    }
-  }while( (ret == 0) && (errno == ERANGE) );
-  if(currentPath[strlen(currentPath)] == '/') 
-    currentPath[strlen(currentPath)] = '\0';
-  return 0;
-#endif
 }
 
 /*!
- *Get the defult directory using a string as output.
- *Return 0 on success.
- *\param out The string where write.
+ * Get the defult directory using a string as output.
+ * Return 0 on success.
+ * \param out The string where write.
  */
-int getdefaultwd(string& out)
+int getdefaultwd (string& out)
 {
-  char *wd = getdefaultwd(0, 0);
-
-  if(wd == 0)
+  char *wd = getdefaultwd (NULL, 0);
+  if (wd == NULL)
     return -1;
 
-  out.assign(wd);
+  out.assign (wd);
   return 0;
 }
 
 /*!
- *free the cwd buffer.
+ * Free the cwd buffer.
  */
-int freecwdBuffer()
+int freecwd ()
 {
+  if (!currentPath)
+    return 0;
+
   delete [] currentPath;
-  return 0;  
+  currentPathLen = 0;
+  return 0;
 }
 
 /*!
  *Get the default working directory length.
  */
-int getdefaultwdlen()
+int getdefaultwdlen ()
 {
-  return strlen(currentPath) + 1;
+  if (!currentPathLen && initializeCwd ())
+    return 0;
+
+  return currentPathLen;
 }
 
 /*!
- *Get the default working directory (Where is the main executable).
+ *Get the default working directory.
  *\param path The buffer where write.
  *\param len The length of the buffer.
  */
-char *getdefaultwd(char *path, int len)
+char *getdefaultwd (char *path, int len)
 {
+  if (!currentPath && initializeCwd ())
+      return NULL;
 
-  if(path)
-  {
-    /*! If len is equal to zero we assume no limit.  */
-    if(len)
-      myserver_strlcpy(path, currentPath, len);
-    else
-      strcpy(path, currentPath);
-  }
+  if (path)
+    {
+      /* If len is equal to zero we assume no limit.  */
+      if (len)
+	myserver_strlcpy (path, currentPath, len);
+      else
+	strcpy (path, currentPath);
+    }
+
   return currentPath;
 }
 
-
 /*!
- *Set the current working directory. Returns Zero if successful.
- *\param dir The current working directory.
+ * Set the current working directory. Returns Zero if successful.
+ * \param dir The current working directory.
  */
-int setcwd(const char *dir)
+int setcwd (const char *dir)
 {
-#ifdef WIN32  
-  return _chdir(dir);
-#endif
-#ifndef WIN32
-  return chdir(dir);
-#endif
+  int ret;
+  char *tmp = strdup (dir);
+  if (!tmp)
+    return -1;
+
+  ret = chdir_long (tmp);
+  free (tmp);
+  return ret;
 }
 
 /*!
- *Set the text color to red on black.
- *Return 0 on success.
+ * Set the text color to red on black.
+ * Return 0 on success.
  */
-int preparePrintError()
+int preparePrintError ()
 {
-#ifdef WIN32
-  int ret = SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
-                                    FOREGROUND_RED | 
-                                    FOREGROUND_INTENSITY);
-  if(ret)
-    return 0;
-#endif
 #ifndef WIN32
   cout << "\033[31;1m";
   return 0;
+#else
+  int ret = SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE),
+                                     FOREGROUND_RED | FOREGROUND_INTENSITY);
+  if (ret)
+    return 0;
 #endif
 
+  return -1;
 }
 
 /*!
- *Set the text color to white on black.
- *Return 0 on success.
+ * Set the text color to white on black.
+ * Return 0 on success.
  */
-int endPrintError()
+int endPrintError ()
 {
-#ifdef WIN32
-  int ret = SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 
-                                    FOREGROUND_RED | 
-                                    FOREGROUND_GREEN | 
-                                    FOREGROUND_BLUE);
-  if(ret)
-    return 0;
-#else
+#ifndef WIN32
   cout << "\033[0m";
   return 0;
+#else
+  int ret = SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE),
+                                     FOREGROUND_RED |
+                                     FOREGROUND_GREEN |
+                                     FOREGROUND_BLUE);
+  if (ret)
+    return 0;
 #endif
+
+  return -1;
 }
 
 /*!
- *Return the ticks count. Used to check time variations.
- *Return 0 on errors.
+ * Return the ticks count in milliseconds.
+ * Return 0 on errors.
  */
-u_long getTicks()
+u_long getTicks ()
 {
 #ifdef WIN32
-  return GetTickCount();
+  return GetTickCount ();
 #else
   struct timeval tval;
-  int ret = gettimeofday(&tval, 0);
-  if(ret == -1)
+  int ret = gettimeofday (&tval, 0);
+  if (ret == -1)
     return 0;
   return  (tval.tv_sec * 1000) + (tval.tv_usec / 1000);
 #endif
 }
 
 /*!
- *Read a file handle from a socket.
- *\param s Socket handle to read from.
- *\param File handle received.
- *\return 0 on success.
+ * Read a file handle from a socket.
+ * \param s Socket handle to read from.
+ * \param File handle received.
+ * \return 0 on success.
  */
 int readFileHandle (SocketHandle s, Handle* fd)
 {
@@ -343,7 +234,7 @@ int readFileHandle (SocketHandle s, Handle* fd)
   mh.msg_controllen = sizeof (cmh[0]) * 2;
   iov.iov_base = tbuf;
   iov.iov_len = 4;
-  cmh[0].cmsg_len = sizeof (cmh[0]) + sizeof(int);
+  cmh[0].cmsg_len = sizeof (cmh[0]) + sizeof (int);
   ret = recvmsg (s, &mh, 0);
 
   if (ret < 0)
@@ -356,10 +247,10 @@ int readFileHandle (SocketHandle s, Handle* fd)
 }
 
 /*!
- *Write a file handle to a socket.
- *\param s Socket handle to write to.
- *\param File handle received.
- *\return 0 on success.
+ * Write a file handle to a socket.
+ * \param s Socket handle to write to.
+ * \param File handle received.
+ * \return 0 on success.
  */
 int writeFileHandle (SocketHandle s, Handle fd)
 {
@@ -382,7 +273,7 @@ int writeFileHandle (SocketHandle s, Handle fd)
   iov.iov_len = 4;
   cmh[0].cmsg_level = SOL_SOCKET;
   cmh[0].cmsg_type = SCM_RIGHTS;
-  cmh[0].cmsg_len = sizeof(cmh[0]) + sizeof(int);
+  cmh[0].cmsg_len = sizeof (cmh[0]) + sizeof (int);
   *(int *)&cmh[1] = fd;
   return sendmsg (s, &mh, 0);
 #endif

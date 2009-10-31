@@ -17,40 +17,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CLIENTS_THREAD_H
-#define CLIENTS_THREAD_H
-#include "stdafx.h"
-#include <include/base/utility.h>
-#include <include/connection/connection.h>
-#include <include/base/mem_buff/mem_buff.h>
+# define CLIENTS_THREAD_H
+# include "stdafx.h"
+# include <include/base/utility.h>
+# include <include/connection/connection.h>
+# include <include/base/mem_buff/mem_buff.h>
 
-
-class  FtpProtocol;
-class  HttpProtocol;
-class  HttpsProtocol;
-class  ControlProtocol;
 class Server;
-
 
 class  ClientsThread
 {
   friend class Server;
 
-  friend DEFINE_THREAD(clients_thread, pParam);
+  friend DEFINE_THREAD (clients_thread, pParam);
 
 public:
   enum RETURN_CODE
   {
     /*!
-     *Delete the current connection from the connections pool.  
+     *Delete the current connection from the connections pool.
      */
     DELETE_CONNECTION = 0,
     /*!
-     *Keep the connection in the connections pool waiting for new data.  
+     *Keep the connection in the connections pool waiting for new data.
      */
     KEEP_CONNECTION = 1,
     /*!
      *The request present in the connection buffer is not complete, keep
-     *data in the buffer and append to it.  
+     *data in the buffer and append to it.
      */
     INCOMPLETE_REQUEST = 2,
     /*!
@@ -68,13 +62,13 @@ public:
   void setTimeout (int);
   bool isToDestroy ();
   void setToDestroy (bool);
-  bool isStatic();
-  bool isBusy();
+  bool isStatic ();
+  bool isBusy ();
   void setStatic (bool);
   int run ();
   ThreadID getThreadId (){return tid;}
   int join ();
-
+  u_long getBufferSize () {return bufferSize;}
 
 private:
   Server* server;
@@ -87,26 +81,15 @@ private:
   bool busy;
   bool threadIsStopped;
   bool threadIsRunning;
-  u_long buffersize;
-  u_long secondaryBufferSize;
-  bool isRunning();
-  bool isStopped();
-  FtpProtocol *ftpParser;
-  HttpProtocol* httpParser;
-  HttpsProtocol* httpsParser;
-  ControlProtocol  *controlProtocolParser;
+  u_long bufferSize;
+  bool isRunning ();
+  bool isStopped ();
   MemBuf buffer;
   MemBuf secondaryBuffer;
-  int controlConnections();
+  int controlConnections ();
   u_long nBytesToRead;
 };
 
-#ifdef WIN32
-unsigned int __stdcall clients_thread(void* pParam); 
-#endif
-
-#ifdef HAVE_PTHREAD
-void* clients_thread(void* pParam);
-#endif
+DEFINE_THREAD (clients_thread, pParam);
 
 #endif

@@ -17,23 +17,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SCGI_H
-#define SCGI_H
+# define SCGI_H
 
-#include "stdafx.h"
-#include <include/protocol/http/http_headers.h>
-#include <include/base/utility.h>
-#include <include/base/socket/socket.h>
-#include <include/conf/vhost/vhost.h>
-#include <include/protocol/http/http_errors.h>
-#include <include/connection/connection.h>
-#include <include/base/string/stringutils.h>
-#include <include/base/thread/thread.h>
-#include <include/base/sync/mutex.h>
-#include <include/protocol/http/http_data_handler.h>
-#include <include/base/hash_map/hash_map.h>
-#include <include/base/process/process_server_manager.h>
-#include <include/filter/filters_chain.h>
-#include <string>
+# include "stdafx.h"
+# include <include/protocol/http/http_headers.h>
+# include <include/base/utility.h>
+# include <include/base/socket/socket.h>
+# include <include/conf/vhost/vhost.h>
+# include <include/protocol/http/http_errors.h>
+# include <include/connection/connection.h>
+# include <include/base/string/stringutils.h>
+# include <include/base/thread/thread.h>
+# include <include/base/sync/mutex.h>
+# include <include/protocol/http/http_data_handler.h>
+# include <include/base/hash_map/hash_map.h>
+# include <include/base/process/process_server_manager.h>
+# include <include/filter/filters_chain.h>
+# include <string>
 
 using namespace std;
 
@@ -52,22 +52,22 @@ struct ScgiContext
 class Scgi : public HttpDataHandler
 {
 public:
-  Scgi();
-  virtual int load();
-  virtual int unLoad();
-  int send(HttpThreadContext* td, const char* scriptpath,
+  Scgi ();
+  virtual int load ();
+  virtual int unLoad ();
+  int send (HttpThreadContext* td, const char* scriptpath,
            const char *cgipath = 0, bool execute = false,
            bool onlyHeader = false);
 private:
   static ProcessServerManager *processServerManager;
   static int initialized;
-  Socket getScgiConnection();
-  int sendPostData(ScgiContext* ctx);
-  int sendResponse(ScgiContext* ctx, int onlyHeader, FiltersChain*);
-  int buildScgiEnvironmentString(HttpThreadContext*, char*, char*);
-  int sendNetString(ScgiContext*, const char*, int);
-  ScgiServer* isScgiServerRunning(const char*);
-  ScgiServer* runScgiServer(ScgiContext*, const char*);
-  ScgiServer* connect(ScgiContext*, const char*);
+  Socket getScgiConnection ();
+  int sendPostData (ScgiContext* ctx);
+  int sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain*);
+  int buildScgiEnvironmentString (HttpThreadContext*, char*, char*);
+  int sendNetString (ScgiContext*, const char*, int);
+  ScgiServer* isScgiServerRunning (const char*);
+  ScgiServer* runScgiServer (ScgiContext*, const char*);
+  ScgiServer* connect (ScgiContext*, const char*);
 };
 #endif

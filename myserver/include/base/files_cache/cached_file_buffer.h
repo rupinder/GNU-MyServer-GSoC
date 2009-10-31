@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2006, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -17,13 +17,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CACHED_FILE_BUFFER_H
-#define CACHED_FILE_BUFFER_H
+# define CACHED_FILE_BUFFER_H
 
-#include "stdafx.h"
-#include <include/filter/stream.h>
-#include <include/base/file/file.h>
-#include <include/base/sync/mutex.h>
-#include <string>
+# include "stdafx.h"
+# include <include/filter/stream.h>
+# include <include/base/file/file.h>
+# include <include/base/sync/mutex.h>
+# include <string>
 
 using namespace std;
 
@@ -32,21 +32,21 @@ class CachedFileFactory;
 class CachedFileBuffer
 {
 public:
-  void addRef();
-  void decRef();
-  u_long getReferenceCounter();
+  void addRef ();
+  void decRef ();
+  u_long getReferenceCounter ();
 
-  void setFactoryToNotify(CachedFileFactory *cff);
-  CachedFileFactory* getFactoryToNotify(){return factoryToNotify;}
+  void setFactoryToNotify (CachedFileFactory *cff);
+  CachedFileFactory* getFactoryToNotify (){return factoryToNotify;}
 
-  u_long getFileSize(){return fileSize;}
-  CachedFileBuffer(const char* filename);
-  CachedFileBuffer(File* file);
-  CachedFileBuffer(const char* buffer, u_long size);
-  ~CachedFileBuffer();
+  u_long getFileSize (){return fileSize;}
+  CachedFileBuffer (const char* filename);
+  CachedFileBuffer (File* file);
+  CachedFileBuffer (const char* buffer, u_long size);
+  ~CachedFileBuffer ();
 
-  const char* getFilename(){return filename.c_str();}
-  const char* getBuffer(){return buffer;}
+  const char* getFilename (){return filename.c_str ();}
+  const char* getBuffer (){return buffer;}
 protected:
   Mutex mutex;
   char *buffer;

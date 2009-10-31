@@ -20,27 +20,35 @@
 #include <include/base/file/files_utility.h>
 #include <include/base/string/stringutils.h>
 #include <include/base/process/process.h>
+#include <include/conf/main/xml_main_configuration.h>
 
-extern "C" {
+extern "C"
+{
 #ifdef WIN32
-#include <direct.h>
+# include <direct.h>
 #endif
 
 #ifdef ARGP
-#include <argp.h>
+# include <argp.h>
 #endif
 
 #ifndef WIN32
-#include <string.h>
-#include <unistd.h>
-#include <signal.h>
+# include <string.h>
+# include <unistd.h>
+# include <signal.h>
 #endif
 }
+
+#ifdef HAVE_GETTEXT
+# include "localedir.h"
+#endif
+
 
 #define MYSERVER_RUNAS_CONSOLE 1
 #define MYSERVER_RUNAS_SERVICE 2
 
-void consoleService (string &, string &, string &, string &, string &);
+void consoleService (string &, string &, string &, string &,
+           MainConfiguration* (*genMainConf) (Server *server, const char *arg));
 
 #ifdef WIN32
 void __stdcall myServerCtrlHandler (u_long fdwControl);
@@ -56,61 +64,60 @@ void runAsService ();
 
 int argn;
 char **argv;
-void registerSignals();
+void registerSignals ();
 
 #ifndef WIN32
-void Sig_Quit(int signal)
+void Sig_Quit (int signal)
 {
-  Server::getInstance()->logWriteln("Exiting...");
-  sync();
-  Server::getInstance()->stop();
-  registerSignals();
+  Server::getInstance ()->log ("Exiting...");
+  sync ();
+  Server::getInstance ()->stop ();
+  registerSignals ();
 }
 
-void Sig_Hup(int signal)
+void Sig_Hup (int signal)
 {
   /*
    *On the SIGHUP signal reboot the server.
    */
-  Server::getInstance()->rebootOnNextLoop();
-  registerSignals();
+  Server::getInstance ()->rebootOnNextLoop ();
+  registerSignals ();
 }
 #else
-static BOOL SignalHandler(DWORD type)
+static BOOL SignalHandler (DWORD type)
 {
-  Server::getInstance()->logWriteln("Exiting...");
-  Server::getInstance()->stop();
-  registerSignals();
+  Server::getInstance ()->log ("Exiting...");
+  Server::getInstance ()->stop ();
+  registerSignals ();
 }
-
 #endif
 
 
-void registerSignals()
+void registerSignals ()
 {
 #ifndef WIN32
   struct sigaction sig1, sig2, sig3;
   struct sigaction sa;
 
-  memset(&sa, 0, sizeof(sa));
+  memset (&sa, 0, sizeof (sa));
   sa.sa_handler = SIG_IGN;
   sa.sa_flags   = SA_RESTART;
-  memset(&sig1, 0, sizeof(sig1));
-  memset(&sig2, 0, sizeof(sig2));
-  memset(&sig3, 0, sizeof(sig3));
+  memset (&sig1, 0, sizeof (sig1));
+  memset (&sig2, 0, sizeof (sig2));
+  memset (&sig3, 0, sizeof (sig3));
   sig1.sa_handler = SIG_IGN;
   sig2.sa_handler = Sig_Quit;
   sig3.sa_handler = Sig_Hup;
-  sigaction(SIGPIPE,&sig1,NULL); // catch broken pipes
-  sigaction(SIGINT, &sig2,NULL); // catch ctrl-c
-  sigaction(SIGTERM,&sig2,NULL); // catch the kill signal
-  sigaction(SIGHUP,&sig3,NULL); // catch the HUP signal
+  sigaction (SIGPIPE,&sig1,NULL); // catch broken pipes
+  sigaction (SIGINT, &sig2,NULL); // catch ctrl-c
+  sigaction (SIGTERM,&sig2,NULL); // catch the kill signal
+  sigaction (SIGHUP,&sig3,NULL); // catch the HUP signal
 
   /* Avoid zombie processes.  */
-  sigaction(SIGCHLD, &sa, (struct sigaction *)NULL);
+  sigaction (SIGCHLD, &sa, (struct sigaction *)NULL);
 #else
-  SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), ENABLE_PROCESSED_INPUT);
-  SetConsoleCtrlHandler( (PHANDLER_ROUTINE) SignalHandler, TRUE );
+  SetConsoleMode (GetStdHandle (STD_INPUT_HANDLE), ENABLE_PROCESSED_INPUT);
+  SetConsoleCtrlHandler ((PHANDLER_ROUTINE) SignalHandler, TRUE);
 #endif
 }
 
@@ -122,43 +129,59 @@ struct argp_input
 {
   /* Print the version for MyServer?  */
   int version;
-  char* logFileName;
+
+  /* Define the main log file.  */
+  const char *logFileName;
+
   /* Define how run the server.  */
   int runas;
-  char* pidFileName;
+
+  /* If executed as a daemon, write the pid to this file.  */
+  const char *pidFileName;
+
+  /* Define an alternate location for the configuration files.  */
+  const char *confFilesLocation;
+
+  /* Specify if the fork server is used.  */
   int useForkServer;
 };
 
 static char doc[] = "GNU MyServer ";
 static char argsDoc[] = "";
 
+enum
+{
+ CONFIG_OPT = UCHAR_MAX + 1
+};
+
 /* Use the GNU C argp parser under not windows environments.  */
 static struct argp_option options[] =
   {
     /* LONG NAME - SHORT NAME - PARAMETER NAME - FLAGS - DESCRIPTION.  */
-    {"version", 'v', "VERSION", OPTION_ARG_OPTIONAL , "Print the version for the application"},
-    {"run", 'r', "RUN", OPTION_ARG_OPTIONAL, "Specify how run the server (by default console mode)"},
-    {"log", 'l', "location", 0, "Specify the location (in the format protocol://resource) to use to log main myserver messages"},
-    {"pidfile", 'p', "pidfile", 0, "Specify the file where write the PID"},
-    {"fork_server", 'f', "", OPTION_ARG_OPTIONAL, "Specify if use a fork server"},
+    {"version", 'v', "VERSION", OPTION_ARG_OPTIONAL , _("Print the version for the application")},
+    {"run", 'r', "RUN", OPTION_ARG_OPTIONAL, _("Specify how run the server (by default console mode)")},
+    {"log", 'l', "location", 0, _("Specify the location (using the format protocol://resource) to use as the main log.")},
+    {"pidfile", 'p', "file", 0, _("Specify the file where write the PID")},
+    {"fork_server", 'f', NULL, 0, _("Specify if use a fork server")},
+    {"cfgdir", CONFIG_OPT, "dir", 0, _("Specify an alternate directory where look for configuration files")},
     {0}
   };
 
-static error_t parseOpt(int key, char *arg, struct argp_state *state)
+static error_t parseOpt (int key, char *arg, struct argp_state *state)
 {
   argp_input *in = static_cast<argp_input*>(state->input);
-  switch(key)
+  switch (key)
     {
     case 'v':
       in->version = 1;
       break;
 
     case 'r':
-      if(arg)
+      if (arg)
         {
-          if(!strcmpi(arg, "CONSOLE"))
+          if (!strcmpi (arg, "CONSOLE"))
             in->runas = MYSERVER_RUNAS_CONSOLE;
-          else if(!strcmpi(arg, "SERVICE"))
+          else if (!strcmpi (arg, "SERVICE"))
             in->runas = MYSERVER_RUNAS_SERVICE;
         }
       else
@@ -177,6 +200,10 @@ static error_t parseOpt(int key, char *arg, struct argp_state *state)
       in->pidFileName = arg;
       break;
 
+    case CONFIG_OPT:
+      in->confFilesLocation = arg;
+      break;
+
     case ARGP_KEY_ARG:
     case ARGP_KEY_END:
       break;
@@ -193,34 +220,28 @@ static struct argp myserverArgp = {options, parseOpt, argsDoc, doc};
 
 
 /*!
- *Load the external path.
- *Return nonzero on errors.
+ * Load the external path.
+ * Return nonzero on errors.
  */
-int loadExternalPath(string &externalPath)
+int loadExternalPath (string &externalPath)
 {
   try
     {
       externalPath = "";
-
 #ifdef WIN32
-      externalPath.assign("plugins");
+      externalPath.assign ("plugins");
 #else
-      if(FilesUtility::fileExists("plugins"))
-        externalPath.assign("plugins");
+      if (FilesUtility::fileExists ("plugins"))
+        externalPath.assign ("plugins");
       else
         {
-#ifdef PREFIX
-          externalPath.assign(PREFIX);
-          externalPath.append("/lib/myserver/plugins");
-#else
-          externalPath.assign("/usr/lib/myserver/plugins");
-#endif
+# ifdef PREFIX
+          externalPath.assign (PREFIX "/lib/myserver/plugins");
+# else
+          externalPath.assign ("/usr/local/lib/myserver/plugins");
+# endif
         }
 
-#endif
-
-#ifdef WIN32
-      externalPath.assign("plugins");
 #endif
     }
   catch (...)
@@ -231,203 +252,94 @@ int loadExternalPath(string &externalPath)
 
 
 /*!
- *Load the languages path.
- *Return nonzero on errors.
+ * Load the vhost configuration files locations.
+ * If DIR is specified, look only in this directory.
+ * Return nonzero on errors.
  */
-int loadLanguagesPath(string &languagesPath)
+int loadConfFileLocation (string &outFile, string fileName, const char *dir)
 {
   try
     {
-      languagesPath = "";
+      outFile = "";
 
 #ifdef WIN32
-      languagesPath.assign(getdefaultwd(0, 0));
-      languagesPath.append("/languages/");
+      outFile = fileName;
 #else
-      /*
-       *Do not use the files in the directory /usr/share/myserver/languages
-       *if exists a local directory.
-       */
-      if (FilesUtility::fileExists("languages"))
-        {
-          languagesPath.assign(getdefaultwd(0, 0));
-          languagesPath.append("/languages/");
-        }
-      else
-        {
-#ifdef PREFIX
-          languagesPath.assign(PREFIX);
-          languagesPath.append("/share/myserver/languages/");
-#else
-          /* Default PREFIX is /usr/.  */
-          languagesPath.assign("/usr/share/myserver/languages/");
-#endif
-        }
-#endif
 
-#ifdef WIN32
-      languagesPath.assign( "languages/" );
+      if (dir)
+        {
+          outFile = dir;
+          if (outFile.at (outFile.length () - 1) != '/')
+            outFile += "/";
+
+          outFile += fileName;
+          return !FilesUtility::fileExists (outFile);
+        }
+
+      /* Look for .xml files in the following order:
+
+         1) current working directory
+         2) ~/.myserver/
+         3) /etc/myserver/
+      */
+      if (FilesUtility::fileExists (fileName))
+        {
+          outFile = fileName;
+          return 0;
+        }
+
+      outFile = "~/.myserver/" + fileName;
+      if (FilesUtility::fileExists (outFile))
+        return 0;
+
+      outFile = "/etc/myserver/" + fileName;
+      if (FilesUtility::fileExists (outFile))
+        return 0;
 #endif
     }
   catch (...)
     {
     }
-  return 0;
+  return 1;
 }
 
 /*!
- *Load the vhost configuration files locations.
- *Return nonzero on errors.
+ * Load the configuration files locations.
+ * Return nonzero on errors.
  */
-int loadVHostConfFilesLocation(string &vhostConfigurationFile)
+int loadConfFilesLocation (string &mainConfigurationFile,
+                           string &mimeConfigurationFile,
+                           string &vhostConfigurationFile,
+                           string &externalPath,
+                           const char *dir)
 {
-  try
-    {
-      vhostConfigurationFile = "";
+  if (loadConfFileLocation (mainConfigurationFile, "myserver.xml", dir))
+    return -1;
 
-#ifdef WIN32
-      vhostConfigurationFile.assign("virtualhosts.xml");
-#else
-      /*
-       *Under an *nix environment look for .xml files in the following order.
-       *1) myserver executable working directory
-       *2) ~/.myserver/
-       *3) /etc/myserver/
-       *4) default files will be copied in myserver executable working
-       */
-      if (FilesUtility::fileExists("virtualhosts.xml"))
-        {
-          vhostConfigurationFile.assign("virtualhosts.xml");
-        }
-      else if (FilesUtility::fileExists("~/.myserver/virtualhosts.xml"))
-        {
-          vhostConfigurationFile.assign("~/.myserver/virtualhosts.xml");
-        }
-      else if (FilesUtility::fileExists("/etc/myserver/virtualhosts.xml"))
-        {
-          vhostConfigurationFile.assign("/etc/myserver/virtualhosts.xml");
-        }
-#endif
-    }
-  catch (...)
-    {
-    }
+  if (loadConfFileLocation (mimeConfigurationFile, "MIMEtypes.xml", dir))
+    return -1;
+
+  if (loadConfFileLocation (vhostConfigurationFile, "virtualhosts.xml", dir))
+    return -1;
+
+  if (loadExternalPath (externalPath))
+    return -1;
+
   return 0;
 }
 
-
-/*!
- *Load the mime configuration files locations.
- *Return nonzero on errors.
- */
-int loadMimeConfFilesLocation(string &mimeConfigurationFile)
+static MainConfiguration *genMainConf (Server *server, const char *arg)
 {
-  try
+  XmlMainConfiguration *conf = new XmlMainConfiguration ();
+  if (conf->open (arg))
     {
-      mimeConfigurationFile = "";
-
-#ifdef WIN32
-      mimeConfigurationFile.assign("MIMEtypes.xml");
-#else
-      /*
-       *Under an *nix environment look for .xml files in the following order.
-       *1) myserver executable working directory
-       *2) ~/.myserver/
-       *3) /etc/myserver/
-       *4) default files will be copied in myserver executable working
-       */
-      if (FilesUtility::fileExists("MIMEtypes.xml"))
-        {
-          mimeConfigurationFile.assign("MIMEtypes.xml");
-        }
-      else if (FilesUtility::fileExists("~/.myserver/MIMEtypes.xml"))
-        {
-          mimeConfigurationFile.assign("~/.myserver/MIMEtypes.xml");
-        }
-      else if (FilesUtility::fileExists("/etc/myserver/MIMEtypes.xml"))
-        {
-          mimeConfigurationFile.assign("/etc/myserver/MIMEtypes.xml");
-        }
-#endif
+      delete conf;
+      return NULL;
     }
-  catch (...)
-    {
-    }
-  return 0;
+    return conf;
 }
 
-
-/*!
- *Load the main configuration files locations.
- *Return nonzero on errors.
- */
-int loadMainConfFilesLocation(string &mainConfigurationFile)
-{
-  try
-    {
-      mainConfigurationFile = "";
-
-#ifdef WIN32
-      mainConfigurationFile.assign("myserver.xml");
-#else
-      /*
-       *Under an *nix environment look for .xml files in the following order.
-       *1) myserver executable working directory
-       *2) ~/.myserver/
-       *3) /etc/myserver/
-       *4) default files will be copied in myserver executable working
-       */
-      if (FilesUtility::fileExists("myserver.xml"))
-        {
-          mainConfigurationFile.assign("myserver.xml");
-        }
-      else if (FilesUtility::fileExists("~/.myserver/myserver.xml"))
-        {
-          mainConfigurationFile.assign("~/.myserver/myserver.xml");
-        }
-      else if (FilesUtility::fileExists("/etc/myserver/myserver.xml"))
-        {
-          mainConfigurationFile.assign("/etc/myserver/myserver.xml");
-        }
-#endif
-    }
-  catch (...)
-    {
-    }
-  return 0;
-}
-
-
-/*!
- *Load the configuration files locations.
- *Return nonzero on errors.
- */
-int loadConfFilesLocation(string &mainConfigurationFile, string &mimeConfigurationFile,
-                          string &vhostConfigurationFile, string &externalPath, string &languagesPath)
-{
-  if (loadMainConfFilesLocation(mainConfigurationFile))
-    return -1;
-
-  if (loadMimeConfFilesLocation(mimeConfigurationFile))
-    return -1;
-
-  if (loadVHostConfFilesLocation(vhostConfigurationFile))
-    return -1;
-
-  if (loadExternalPath(externalPath))
-    return -1;
-
-  if (loadLanguagesPath(languagesPath))
-    return -1;
-
-  return 0;
-}
-
-
-/*!
- *Main function for MyServer.
- */
-int main (int argn, char **argv)
+int main  (int argn, char **argv)
 {
   int runas = MYSERVER_RUNAS_CONSOLE;
 #ifdef ARGP
@@ -437,95 +349,96 @@ int main (int argn, char **argv)
   pid_t pid;
   pid_t sid;
 #endif
-  string mainConf, mimeConf, vhostConf, externPath, langPath;
+  string mainConf, mimeConf, vhostConf, externPath;
 
-  ::argn=argn;
-  ::argv=argv;
+  ::argn = argn;
+  ::argv = argv;
 
-  registerSignals();
+  registerSignals ();
+
+#if HAVE_GETTEXT
+  setlocale (LC_ALL, "");
+  bindtextdomain (PACKAGE, LOCALEDIR);
+  textdomain (PACKAGE);
+#endif
 
   try
     {
-      Server::createInstance();
+      Server::createInstance ();
     }
-  catch(...)
+  catch (...)
     {
       /* Die if we get exceptions here.  */
-      return(1);
+      return (1);
     };
 
-  {
-    u_int pathLen = 0;
-    u_int len = 0;
-    bool differentCwd = false;
-    char *path;
+  u_int pathLen = 0;
+  u_int len = 0;
+  bool differentCwd = false;
+  char *path;
 
-    pathLen = strlen(argv[0]);
-    path = new char[pathLen + 1];
-    if(path == 0)
-      return 1;
-    strncpy(path, argv[0], pathLen);
+  pathLen = strlen (argv[0]);
+  path = new char[pathLen + 1];
+  if (path == 0)
+    return 1;
+  strncpy (path, argv[0], pathLen);
 
-    for(len = 0; len < pathLen; len++)
-      {
-        if(path[len] == '/' || path[len] == '\\')
-          {
-            differentCwd = true;
-            break;
-          }
-      }
+  for (len = 0; len < pathLen; len++)
+    {
+      if (path[len] == '/' || path[len] == '\\')
+        {
+          differentCwd = true;
+          break;
+        }
+    }
 
-    /* Current working directory is where the myserver executable is.  */
-    if(differentCwd)
-      {
-        len = pathLen;
-        while((path[len] != '\\') && (path[len] != '/'))
-          len--;
-        path[len] = '\0';
+  if (differentCwd)
+    {
+      len = pathLen;
+      while ((path[len] != '\\') && (path[len] != '/'))
+        len--;
+      path[len] = '\0';
 
-        setcwd(path);
-      }
+      setcwd (path);
+    }
 
-    /* We can free path memory now.  */
-    delete [] path;
-  }
-
+  /* We can free path memory now.  */
+  delete [] path;
 
 #ifdef ARGP
   /* Reset the struct.  */
   input.version = 0;
-  input.logFileName = 0;
+  input.confFilesLocation = NULL;
+  input.logFileName = NULL;
   input.runas = MYSERVER_RUNAS_CONSOLE;
-  input.pidFileName = 0;
+  input.pidFileName = NULL;
   input.useForkServer = 0;
 
   /* Call the parser.  */
-  argp_parse(&myserverArgp, argn, argv, 0, 0, &input);
-  runas=input.runas;
-  if(input.logFileName)
+  argp_parse (&myserverArgp, argn, argv, 0, 0, &input);
+  runas = input.runas;
+
+  if (input.logFileName
+      && Server::getInstance ()->setLogLocation (input.logFileName))
     {
-      if (Server::getInstance ()->setLogLocation (input.logFileName))
-        {
-          cout << "Error setting the location for the MyServer's main log" << endl;
-          return 1;
-        }
+      cout << "Error setting the location for the MyServer's main log" << endl;
+      return 1;
     }
+
   /* If the version flag is up, show the version and exit.  */
-  if(input.version)
+  if (input.version)
     {
-      cout << MYSERVER_VERSION << endl;
-
-      cout
-#ifdef __DATE__
-        << "Compiled on " << __DATE__
-#endif
-        << endl;
-
-      cout << "http://www.gnu.org/software/myserver" << endl;
+      cout << "GNU MyServer " << MYSERVER_VERSION << endl
+           << "Copyright (C) 2009 Free Software Foundation, Inc." << endl
+           << "License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>." << endl
+           << "This is free software: you are free to change and redistribute it." << endl
+           << "There is NO WARRANTY, to the extent permitted by law." << endl
+           << endl
+           << "http://www.gnu.org/software/myserver" << endl;
       return 0;
     }
 #else
-  if(argn > 1)
+  if (argn > 1)
     {
       if (!strcmpi (argv[1], "VERSION"))
         {
@@ -539,9 +452,9 @@ int main (int argn, char **argv)
       if (!strcmpi (argv[1], "REGISTER"))
         {
           registerService ();
-#ifndef ARGP
+# ifndef ARGP
           runAsService ();
-#endif
+# endif
           runas = MYSERVER_RUNAS_SERVICE;
           return 0;
         }
@@ -559,7 +472,7 @@ int main (int argn, char **argv)
       if (!strcmpi (argv[1], "SERVICE"))
         {
           /*
-           *Set the log file to use when in service mode.
+           * Set the log file to use when in service mode.
            */
           runas = MYSERVER_RUNAS_SERVICE;
         }
@@ -575,31 +488,33 @@ int main (int argn, char **argv)
 #endif
 
   /*
-   *Start here the MyServer execution.
+   * Start here the MyServer execution.
    */
   try
     {
-      setcwdBuffer ();
-      loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath, langPath);
-
-      switch(runas)
+      if (loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath,
+                                 input.confFilesLocation))
         {
-        case MYSERVER_RUNAS_CONSOLE:
-          consoleService (mainConf, mimeConf, vhostConf, externPath, langPath);
-          break;
+          cout << _("Cannot find the configuration files, be sure they exist")
+               << endl;
+          return 1;
+        }
+
+      switch (runas)
+        {
         case MYSERVER_RUNAS_SERVICE:
 #ifdef WIN32
           runService ();
 #else
           /*
-           *Run the daemon.
-           *pid is the process ID for the forked process.
-           *Fork the process.
+           * Run the daemon.
+           * pid is the process ID for the forked process.
+           * Fork the process.
            */
           pid = fork ();
 
           /*
-           *An error happened, return with errors.
+           * An error happened, return with errors.
            */
           if (pid < 0)
             {
@@ -608,40 +523,28 @@ int main (int argn, char **argv)
 
           if (pid)
             {
-              /*
-               *Store the PID.
-               */
-#ifdef ARGP
-              if(input.pidFileName)
+# ifdef ARGP
+              if (input.pidFileName)
                 writePidfile (input.pidFileName);
               else
-                writePidfile();
-#else
+                writePidfile ();
+# else
               writePidfile ();
-#endif
+# endif
               return 0;
             }
           /*
-           *Create a SID for the new process.
+           * Create a SID for the new process.
            */
           sid = setsid ();
-   
-          /*
-           *Error in setting a new sid, return the error.
-           */
           if (sid < 0)
             return 1;
-   
-   
-          /*
-           *Finally run the server from the forked process.
-           */
-          consoleService (mainConf, mimeConf, vhostConf, externPath, langPath);
 #endif
-          break;
+        case MYSERVER_RUNAS_CONSOLE:
+          consoleService (mainConf, mimeConf, vhostConf, externPath, &genMainConf);
         }
     }
-  catch(...)
+  catch (...)
     {
       return 1;
     };
@@ -657,60 +560,64 @@ int main (int argn, char **argv)
 #ifndef WIN32
 
 /*!
- *Write the current PID to the file.
+ * Write the current PID to the file.
  */
 int writePidfile (const char* filename)
 {
   int pidfile;
-  pid_t pid = getpid();
+  pid_t pid = getpid ();
   char buff[12];
   int ret;
   string file = "";
 
   if (filename == NULL)
     {
-#ifdef PREFIX
+# ifdef PREFIX
       file.assign (PREFIX);
       file.append ("/");
-#endif
+# endif
       file.append ("/var/run/myserver.pid");
     }
 
-  pidfile = open (filename, O_RDWR | O_CREAT);
+  pidfile = open (filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 
   if (pidfile == -1)
     return -1;
 
   sprintf (buff,"%i\n", pid);
-  ret = write (pidfile, buff, strlen(buff));
-  if(ret == -1)
-    return -1;
+  ret = write (pidfile, buff, strlen (buff));
+  if (ret == -1)
+    {
+      close (pidfile);
+      return -1;
+    }
   return close (pidfile);
 }
 #endif
 
 /*!
- *Start MyServer in console mode.
+ * Start MyServer in console mode.
  */
-void consoleService(string &mainConf, string &mimeConf, string &vhostConf, string &externPath, string &langPath)
+ void consoleService (string &mainConf, string &mimeConf, string &vhostConf, string &externPath,
+                      MainConfiguration* (*genMainConf) (Server *server, const char *arg))
 {
-  Server::getInstance()->start(mainConf, mimeConf, vhostConf, externPath, langPath);
+  Server::getInstance ()->start (mainConf, mimeConf, vhostConf, externPath, genMainConf);
 }
 
 
 /*!
- *These functions are available only on the windows platform.
+ * These functions are available only on the windows platform.
  */
 #ifdef WIN32
 SERVICE_STATUS          MyServiceStatus;
 SERVICE_STATUS_HANDLE   MyServiceStatusHandle;
 
 /*!
- *Entry-point for the NT service.
+ * Entry-point for the NT service.
  */
 void  __stdcall myServerMainNT (u_long, LPTSTR*)
 {
-  string mainConf, mimeConf, vhostConf, externPath, langPath;
+  string mainConf, mimeConf, vhostConf, externPath;
 
   MyServiceStatus.dwServiceType = SERVICE_WIN32;
   MyServiceStatus.dwCurrentState = SERVICE_STOPPED;
@@ -723,48 +630,47 @@ void  __stdcall myServerMainNT (u_long, LPTSTR*)
   try
     {
       Server::createInstance ();
-
     }
-  catch(...)
+  catch (...)
     {
       /* Die if we get exceptions here.  */
       return;
     };
 
 
-  MyServiceStatusHandle = RegisterServiceCtrlHandler( "GNU MyServer",
-                                                      myServerCtrlHandler );
-  if(MyServiceStatusHandle)
+  MyServiceStatusHandle = RegisterServiceCtrlHandler ("GNU MyServer",
+                                                      myServerCtrlHandler);
+  if (MyServiceStatusHandle)
     {
       MyServiceStatus.dwCurrentState = SERVICE_START_PENDING;
-      SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
+      SetServiceStatus (MyServiceStatusHandle, &MyServiceStatus);
 
       MyServiceStatus.dwControlsAccepted |= (SERVICE_ACCEPT_STOP
                                              | SERVICE_ACCEPT_SHUTDOWN);
       MyServiceStatus.dwCurrentState = SERVICE_RUNNING;
-      SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
+      SetServiceStatus (MyServiceStatusHandle, &MyServiceStatus);
 
 
-      loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath, langPath);
-      Server::getInstance()->start (mainConf, mimeConf, vhostConf, externPath, langPath);
+      loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath, NULL);
+      Server::getInstance ()->start (mainConf, mimeConf, vhostConf, externPath);
 
       MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
-      SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
+      SetServiceStatus (MyServiceStatusHandle, &MyServiceStatus);
 
       MyServiceStatus.dwControlsAccepted &= ~(SERVICE_ACCEPT_STOP
                                               | SERVICE_ACCEPT_SHUTDOWN);
       MyServiceStatus.dwCurrentState = SERVICE_STOPPED;
-      SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
+      SetServiceStatus (MyServiceStatusHandle, &MyServiceStatus);
     }
 
 }
 
 /*!
- *Manage the NT service.
+ * Manage the NT service.
  */
-void __stdcall myServerCtrlHandler(u_long fdwControl)
+void __stdcall myServerCtrlHandler (u_long fdwControl)
 {
-  switch ( fdwControl )
+  switch (fdwControl)
     {
     case SERVICE_CONTROL_INTERROGATE:
       break;
@@ -772,8 +678,8 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
     case SERVICE_CONTROL_SHUTDOWN:
     case SERVICE_CONTROL_STOP:
       MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
-      SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
-      Server::getInstance()->stop();
+      SetServiceStatus (MyServiceStatusHandle, &MyServiceStatus);
+      Server::getInstance ()->stop ();
       return;
 
     case SERVICE_CONTROL_PAUSE:
@@ -781,22 +687,18 @@ void __stdcall myServerCtrlHandler(u_long fdwControl)
 
     case SERVICE_CONTROL_CONTINUE:
       break;
-    default:
-      if ( fdwControl >= 128 && fdwControl <= 255 )
-        break;
-      else
-        break;
     }
-  SetServiceStatus( MyServiceStatusHandle, &MyServiceStatus );
+
+  SetServiceStatus (MyServiceStatusHandle, &MyServiceStatus);
 }
 #endif
 
 /*!
- *Run MyServer service.
+ * Run MyServer service.
  */
 void runService ()
 {
-  Server::getInstance()->logWriteln ("Running service...");
+  Server::getInstance ()->log ("Running service...");
 #ifdef WIN32
   SERVICE_TABLE_ENTRY serviceTable[] =
     {
@@ -807,17 +709,17 @@ void runService ()
   if (!StartServiceCtrlDispatcher (serviceTable))
     {
       if (GetLastError () == ERROR_INVALID_DATA)
-          Server::getInstance ()->logWriteln("Invalid data");
+        Server::getInstance ()->log ("Invalid data");
       else if (GetLastError () == ERROR_SERVICE_ALREADY_RUNNING)
-          Server::getInstance ()->logWriteln("Already running");
+        Server::getInstance ()->log ("Already running");
       else
-          Server::getInstance ()->logWriteln("Error running service");
+        Server::getInstance ()->log ("Error running service");
     }
 #endif
 }
 
 /*!
- *Register the service.
+ * Register the service.
  */
 void registerService ()
 {
@@ -848,11 +750,11 @@ void registerService ()
 /*
  *Unregister the OS service.
  */
-void removeService()
+void removeService ()
 {
 #ifdef WIN32
   SC_HANDLE service,manager;
-  manager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS);
+  manager = OpenSCManager (NULL,NULL,SC_MANAGER_ALL_ACCESS);
   if (manager)
     {
       service = OpenService (manager, "GNU MyServer", SERVICE_ALL_ACCESS);
@@ -862,7 +764,7 @@ void removeService()
           while (QueryServiceStatus (service, &MyServiceStatus))
             if (MyServiceStatus.dwCurrentState != SERVICE_STOP_PENDING)
               break;
-          DeleteService(service);
+          DeleteService (service);
           CloseServiceHandle (service);
           CloseServiceHandle (manager);
         }
@@ -871,7 +773,7 @@ void removeService()
 }
 
 /*!
- *Start the service.
+ * Start the service.
  */
 void runAsService ()
 {

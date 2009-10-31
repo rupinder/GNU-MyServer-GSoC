@@ -18,11 +18,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #ifndef __FTP_COMMON_H__
-#define __FTP_COMMON_H__
+# define __FTP_COMMON_H__
 
-#include <string>
+# include <string>
 
-#define PARSER_STR_LEN	512
+# define PARSER_STR_LEN	512
 
 struct FtpHost
 {
@@ -30,11 +30,11 @@ struct FtpHost
 	int p1, p2;
 };
 
-void setFtpHost(FtpHost &out, const FtpHost &in);
-void setFtpHost(FtpHost &out, const char *szIn);
-void getIpAddr(const FtpHost &host, char *pOut, const int &nBuffSize);
-int getPortNo(const FtpHost &host);
-std::string getPortNo(unsigned int nport);
-std::string getHost(const FtpHost &host);
+void setFtpHost (FtpHost &out, const FtpHost &in);
+void setFtpHost (FtpHost &out, const char *szIn);
+void getIpAddr (const FtpHost &host, char *pOut, const int &nBuffSize);
+int getPortNo (const FtpHost &host);
+std::string getPortNo (unsigned int nport);
+std::string getHost (const FtpHost &host);
 
-#endif //__FTP_COMMON_H__ 
+#endif //__FTP_COMMON_H__

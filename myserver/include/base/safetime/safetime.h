@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2007 Free Software Foundation, Inc.
+Copyright (C) 2007, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -17,23 +17,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SAFETIME_H
-#define SAFETIME_H
+# define SAFETIME_H
 
-#include "stdafx.h"
+# include "stdafx.h"
 
-#ifdef GETTIMEOFDAY
-#include <sys/time.h>
-#endif
+# ifdef GETTIMEOFDAY
+#  include <sys/time.h>
+# endif
 
-#ifdef WIN32
-#include <direct.h>
-#include <time.h>
-#endif
+# ifdef WIN32
+#  include <direct.h>
+#  include <time.h>
+# endif
 
-void myserver_safetime_init();
-void myserver_safetime_destroy();
-struct tm *myserver_localtime(const time_t *timep, tm* res);
-struct tm *myserver_gmtime(const time_t *timep, tm* res);
+void myserver_safetime_init ();
+void myserver_safetime_destroy ();
+struct tm *myserver_localtime (const time_t *timep, tm* res);
+struct tm *myserver_gmtime (const time_t *timep, tm* res);
 
 #endif
 

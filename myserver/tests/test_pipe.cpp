@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,103 +26,103 @@
 
 class TestPipe : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestPipe );
-  CPPUNIT_TEST( testCreateClose ); 
-  CPPUNIT_TEST( testWriteRead );
-  CPPUNIT_TEST( testInverted );
-  CPPUNIT_TEST( testWaitForData );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestPipe );
+  CPPUNIT_TEST ( testCreateClose );
+  CPPUNIT_TEST ( testWriteRead );
+  CPPUNIT_TEST ( testInverted );
+  CPPUNIT_TEST ( testWaitForData );
+  CPPUNIT_TEST_SUITE_END ();
 
   Pipe *pipe;
 
 public:
-  void setUp()
+  void setUp ()
   {
-    pipe = new Pipe();
+    pipe = new Pipe ();
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete pipe;
   }
 
 
-  void testCreateClose()
+  void testCreateClose ()
   {
-    int ret = pipe->create();
-    
-    CPPUNIT_ASSERT_EQUAL(pipe->pipeTerminated(), false);
+    int ret = pipe->create ();
 
-    CPPUNIT_ASSERT_EQUAL(ret, 0);
+    CPPUNIT_ASSERT_EQUAL (pipe->pipeTerminated (), false);
 
-    pipe->close();
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
 
-    CPPUNIT_ASSERT_EQUAL(pipe->pipeTerminated(), true);
+    pipe->close ();
+
+    CPPUNIT_ASSERT_EQUAL (pipe->pipeTerminated (), true);
   }
 
-  void testWriteRead()
+  void testWriteRead ()
   {
     char outBuff[256];
     char inBuff[256];
     u_long nbw;
     u_long nbr;
 
-    strcpy(outBuff, "MyServer is a powerful and easy to configure web server");
+    strcpy (outBuff, "MyServer is a powerful and easy to configure web server");
 
-    int ret = pipe->create();
+    int ret = pipe->create ();
 
-    CPPUNIT_ASSERT_EQUAL(ret, 0);
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
 
-    ret = pipe->write(outBuff, 256, &nbw);
+    ret = pipe->write (outBuff, 256, &nbw);
 
-    CPPUNIT_ASSERT_EQUAL(ret, 0);
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
 
-    ret = pipe->read(inBuff, 256, &nbr);
+    ret = pipe->read (inBuff, 256, &nbr);
 
-    CPPUNIT_ASSERT_EQUAL(ret, 0);
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
 
 
-    CPPUNIT_ASSERT_EQUAL(nbr, nbw);
-    CPPUNIT_ASSERT(strcmp(outBuff, inBuff) == 0);
+    CPPUNIT_ASSERT_EQUAL (nbr, nbw);
+    CPPUNIT_ASSERT (strcmp (outBuff, inBuff) == 0);
 
-    pipe->close();
+    pipe->close ();
   }
 
-  void testWaitForData()
+  void testWaitForData ()
   {
     char outBuff[256];
     u_long nbw;
 
-    strcpy(outBuff, "MyServer is a powerful and easy to configure web server");
+    strcpy (outBuff, "MyServer is a powerful and easy to configure web server");
 
-    int ret = pipe->create();
+    int ret = pipe->create ();
 
-    CPPUNIT_ASSERT_EQUAL(pipe->waitForData(0, 100), 0);
+    CPPUNIT_ASSERT_EQUAL (pipe->waitForData (0, 100), 0);
 
-    ret = pipe->write(outBuff, 256, &nbw);
+    ret = pipe->write (outBuff, 256, &nbw);
 
-    CPPUNIT_ASSERT_EQUAL(pipe->waitForData(0, 100), 1);
+    CPPUNIT_ASSERT_EQUAL (pipe->waitForData (0, 100), 1);
 
-    pipe->close();
+    pipe->close ();
   }
 
 
-  void testInverted()
+  void testInverted ()
   {
     Pipe pipeInv;
-    int ret = pipe->create();
+    int ret = pipe->create ();
 
-    CPPUNIT_ASSERT_EQUAL(ret, 0);
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
 
-    pipe->inverted(pipeInv);
+    pipe->inverted (pipeInv);
 
-    CPPUNIT_ASSERT_EQUAL(pipeInv.getReadHandle(), pipe->getWriteHandle());
-    CPPUNIT_ASSERT_EQUAL(pipe->getReadHandle(), pipeInv.getWriteHandle());
-    
-    pipe->close();
+    CPPUNIT_ASSERT_EQUAL (pipeInv.getReadHandle (), pipe->getWriteHandle ());
+    CPPUNIT_ASSERT_EQUAL (pipe->getReadHandle (), pipeInv.getWriteHandle ());
+
+    pipe->close ();
 
   }
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestPipe );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestPipe );

@@ -1,7 +1,8 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2007 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2007, 2009 Free Software Foundation,
+Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -20,15 +21,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/hash_map/hash_map.h>
 
 #ifndef HTTP_HEADER_H
-#define HTTP_HEADER_H
+# define HTTP_HEADER_H
 
 using namespace std;
 
 struct HttpHeader
 {
-  virtual string* getValue(const char* name, string* out) = 0;
-	virtual string* setValue(const char* name, const char* in) = 0;
-  virtual ~HttpHeader(){}
+  virtual string* getValue (const char* name, string* out) = 0;
+	virtual string* setValue (const char* name, const char* in) = 0;
+  virtual ~HttpHeader (){}
 };
 
 #endif

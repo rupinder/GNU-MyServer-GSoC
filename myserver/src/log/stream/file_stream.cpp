@@ -17,15 +17,15 @@
 
 #include <include/log/stream/file_stream.h>
 
-int const FileStream::defaultFileMask = 
-  File::APPEND | 
+int const FileStream::defaultFileMask =
+  File::APPEND |
   File::FILE_OPEN_ALWAYS |
-  File::WRITE | 
-  File::READ | 
+  File::WRITE |
+  File::READ |
   File::NO_INHERIT;
 
 FileStream::FileStream (FiltersFactory* ff, u_long cycle, Stream* out,
-                        FiltersChain* fc) : 
+                        FiltersChain* fc) :
   LogStream (ff, cycle, out, fc)
 {
 }
@@ -68,7 +68,7 @@ FileStream::makeNewFileName (string oldFileName)
 
   getRFC822LocalTime (time, 32);
   time = trim (time.substr (5, 32));
-    
+
   for (int i = 0; i < static_cast<int>(time.length ()); i++)
     if ((time[i] == ' ') || (time[i] == ':'))
       time[i]= '.';

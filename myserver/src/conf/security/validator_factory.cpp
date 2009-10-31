@@ -1,6 +1,7 @@
 /*
 MyServer
-Copyright (C) 2002-2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Free
+Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -41,7 +42,7 @@ ValidatorFactory::~ValidatorFactory ()
 /*!
  *Return a validator given its name.
  */
-Validator* ValidatorFactory::getValidator(string &name)
+Validator* ValidatorFactory::getValidator (string &name)
 {
   return validators.get (name);
 }
@@ -52,7 +53,7 @@ Validator* ValidatorFactory::getValidator(string &name)
  *\param validator The validator to add.
  *\return The old validator registered with [name], in any.
  */
-Validator* ValidatorFactory::addValidator(string &name, Validator* validator)
+Validator* ValidatorFactory::addValidator (string &name, Validator* validator)
 {
   return validators.put (name, validator);
 }

@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,18 +31,18 @@ using namespace std;
 
 class TestHttpReqSecurityDomain : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestHttpReqSecurityDomain );
-  CPPUNIT_TEST( testConstructor );
-  CPPUNIT_TEST( testGetValue );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestHttpReqSecurityDomain );
+  CPPUNIT_TEST ( testConstructor );
+  CPPUNIT_TEST ( testGetValue );
+  CPPUNIT_TEST_SUITE_END ();
 
 public:
-  void setUp()
+  void setUp ()
   {
 
   }
 
-  void tearDown()
+  void tearDown ()
   {
 
   }
@@ -79,4 +79,4 @@ public:
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestHttpReqSecurityDomain );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestHttpReqSecurityDomain );

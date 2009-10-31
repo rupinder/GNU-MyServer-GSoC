@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -32,74 +32,74 @@ using namespace std;
 
 class TestSemaphore : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestSemaphore );
-  CPPUNIT_TEST( testUnlockLock );
-  CPPUNIT_TEST( testConstructor );
-  CPPUNIT_TEST( testIsInitialized );
-  CPPUNIT_TEST( testGetHandle );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestSemaphore );
+  CPPUNIT_TEST ( testUnlockLock );
+  CPPUNIT_TEST ( testConstructor );
+  CPPUNIT_TEST ( testIsInitialized );
+  CPPUNIT_TEST ( testGetHandle );
+  CPPUNIT_TEST_SUITE_END ();
 
   Semaphore *sem;
 public:
-  void setUp()
+  void setUp ()
   {
   }
 
-  void tearDown()
+  void tearDown ()
   {
 
   }
 
-  void testGetHandle()
+  void testGetHandle ()
   {
-    sem = new Semaphore(0);
+    sem = new Semaphore (0);
 
-    CPPUNIT_ASSERT(sem->getHandle());
+    CPPUNIT_ASSERT (sem->getHandle ());
 
     delete sem;
   }
 
-  void testUnlockLock()
+  void testUnlockLock ()
   {
-    sem = new Semaphore(0);
+    sem = new Semaphore (0);
 
-    sem->unlock();
+    sem->unlock ();
 
-    sem->lock();
+    sem->lock ();
 
-    for(int i = 0; i < 10; i++)
-      sem->unlock();
+    for (int i = 0; i < 10; i++)
+      sem->unlock ();
 
-    for(int i = 0; i < 10; i++)
-      sem->lock();
+    for (int i = 0; i < 10; i++)
+      sem->lock ();
 
     delete sem;
   }
 
 
-  void testIsInitialized()
+  void testIsInitialized ()
   {
-    sem = new Semaphore(0);
+    sem = new Semaphore (0);
 
 
-    CPPUNIT_ASSERT(sem->isInitialized());
+    CPPUNIT_ASSERT (sem->isInitialized ());
 
-    sem->destroy();
+    sem->destroy ();
 
-    CPPUNIT_ASSERT_EQUAL(sem->isInitialized(), 0);
+    CPPUNIT_ASSERT_EQUAL (sem->isInitialized (), 0);
 
     delete sem;
   }
 
-  void testConstructor()
+  void testConstructor ()
   {
-    sem = new Semaphore(10);
+    sem = new Semaphore (10);
 
-    for(int i = 0; i < 10; i++)
-      sem->lock();
+    for (int i = 0; i < 10; i++)
+      sem->lock ();
   }
 
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestSemaphore );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestSemaphore );

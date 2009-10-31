@@ -1,0 +1,692 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+'''
+MyServer
+Copyright (C) 2009 Free Software Foundation, Inc.
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+'''
+
+import gtk
+import gobject
+import os
+import sys
+from MyServer.pycontrollib.config import MyServerConfig
+from MyServer.pycontrollib.mimetypes import MIMETypes
+from MyServer.pycontrollib.vhost import VHosts
+from MyServer.GUI import GUIConfig
+from MyServer.GUI.AboutWindow import About
+from MyServer.GUI.ConnectionWindow import Connection
+from MyServer.GUI.DefinitionWidgets import DefinitionTable, DefinitionTreeView
+from MyServer.GUI.MIMEWidgets import MimeTable, MimeTreeView
+from MyServer.GUI.VHostWidgets import VHostTable, VHostTreeView
+from MyServer.GUI.BrowserWidgets import BrowserTable
+from MyServer.GUI.SecurityWidgets import SecurityTable
+
+class PyGTKControl():
+    '''GNU MyServer Control main window.'''
+
+    def __init__(self):
+        self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        self.notebook = gtk.Notebook()
+        self.statusbar = gtk.Statusbar()
+        self.menubar = gtk.MenuBar()
+
+        class MenuItemWithStockImage(gtk.ImageMenuItem):
+            '''ImageMenuItem with custom label and stock image.'''
+            def __init__(self, label, stock_id):
+                '''label - text that will be shown in menu, stock_id - id of
+                stock image that will be used.'''
+                gtk.ImageMenuItem.__init__(self, label)
+                self.set_image(gtk.image_new_from_stock(
+                        stock_id, gtk.ICON_SIZE_MENU))
+
+        file_menu_item = gtk.MenuItem('_File')
+        self.menubar.append(file_menu_item)
+        file_menu = gtk.Menu()
+        file_menu_item.set_submenu(file_menu)
+        new_menu_item = gtk.ImageMenuItem(gtk.STOCK_NEW)
+        file_menu.append(new_menu_item)
+        new_menu = gtk.Menu()
+        new_menu_item.set_submenu(new_menu)
+        new_config_menu_item = gtk.MenuItem('New server configuration')
+        new_config_menu_item.connect('activate',
+                                     self.on_new_config_menu_item_activate)
+        new_menu.append(new_config_menu_item)
+        new_mime_menu_item = gtk.MenuItem('New MIME configuration')
+        new_mime_menu_item.connect('activate',
+                                   self.on_new_mime_menu_item_activate)
+        new_menu.append(new_mime_menu_item)
+        new_vhost_menu_item = gtk.MenuItem('New VHost configuration')
+        new_vhost_menu_item.connect('activate',
+                                    self.on_new_vhost_menu_item_activate)
+        new_menu.append(new_vhost_menu_item)
+        open_menu_item = gtk.ImageMenuItem(gtk.STOCK_OPEN)
+        file_menu.append(open_menu_item)
+        open_menu = gtk.Menu()
+        open_menu_item.set_submenu(open_menu)
+        open_config_menu_item = gtk.MenuItem('Open server configuration')
+        open_config_menu_item.connect('activate',
+                                      self.on_open_config_menu_item_activate)
+        open_menu.append(open_config_menu_item)
+        open_mime_menu_item = gtk.MenuItem('Open MIME configuration')
+        open_mime_menu_item.connect('activate',
+                                    self.on_open_mime_menu_item_activate)
+        open_menu.append(open_mime_menu_item)
+        open_vhost_menu_item = gtk.MenuItem('Open VHost configuration')
+        open_vhost_menu_item.connect('activate',
+                                     self.on_open_vhost_menu_item_activate)
+        open_menu.append(open_vhost_menu_item)
+        save_menu_item = gtk.ImageMenuItem(gtk.STOCK_SAVE)
+        file_menu.append(save_menu_item)
+        save_menu = gtk.Menu()
+        save_menu_item.set_submenu(save_menu)
+        save_config_menu_item = gtk.MenuItem('Save server configuration')
+        save_config_menu_item.connect('activate',
+                                      self.on_save_config_menu_item_activate)
+        save_menu.append(save_config_menu_item)
+        save_mime_menu_item = gtk.MenuItem('Save MIME configuration')
+        save_mime_menu_item.connect('activate',
+                                    self.on_save_mime_menu_item_activate)
+        save_menu.append(save_mime_menu_item)
+        save_vhost_menu_item = gtk.MenuItem('Save VHost configuration')
+        save_vhost_menu_item.connect('activate',
+                                     self.on_save_vhost_menu_item_activate)
+        save_menu.append(save_vhost_menu_item)
+        save_as_menu_item = gtk.ImageMenuItem(gtk.STOCK_SAVE_AS)
+        file_menu.append(save_as_menu_item)
+        save_as_menu = gtk.Menu()
+        save_as_menu_item.set_submenu(save_as_menu)
+        save_as_config_menu_item = gtk.MenuItem('Save server configuration')
+        save_as_config_menu_item.connect('activate',
+                                         self.on_save_as_config_menu_item_activate)
+        save_as_menu.append(save_as_config_menu_item)
+        save_as_mime_menu_item = gtk.MenuItem('Save MIME configuration')
+        save_as_mime_menu_item.connect('activate',
+                                       self.on_save_as_mime_menu_item_activate)
+        save_as_menu.append(save_as_mime_menu_item)
+        save_as_vhost_menu_item = gtk.MenuItem('Save VHost configuration')
+        save_as_vhost_menu_item.connect('activate',
+                                        self.on_save_as_vhost_menu_item_activate)
+        save_as_menu.append(save_as_vhost_menu_item)
+        separator = gtk.SeparatorMenuItem()
+        file_menu.append(separator)
+        quit_menu_item = gtk.ImageMenuItem(gtk.STOCK_QUIT)
+        quit_menu_item.connect('activate', self.on_quit_menu_item_activate)
+        file_menu.append(quit_menu_item)
+
+        remote_menu_item = gtk.MenuItem('_Remote')
+        self.menubar.append(remote_menu_item)
+        remote_menu = gtk.Menu()
+        remote_menu_item.set_submenu(remote_menu)
+        connect_menu_item = gtk.ImageMenuItem(gtk.STOCK_CONNECT)
+        connect_menu_item.connect('activate',
+                                  self.on_connect_menu_item_activate)
+        remote_menu.append(connect_menu_item)
+        disconnect_menu_item = gtk.ImageMenuItem(gtk.STOCK_DISCONNECT)
+        disconnect_menu_item.connect('activate',
+                                     self.on_disconnect_menu_item_activate)
+        remote_menu.append(disconnect_menu_item)
+        separator = gtk.SeparatorMenuItem()
+        remote_menu.append(separator)
+        get_menu_item = MenuItemWithStockImage('Get', gtk.STOCK_GO_DOWN)
+        remote_menu.append(get_menu_item)
+        get_menu = gtk.Menu()
+        get_menu_item.set_submenu(get_menu)
+        get_config_menu_item = gtk.MenuItem('Get server configuration')
+        get_config_menu_item.connect('activate',
+                                     self.on_get_config_menu_item_activate)
+        get_menu.append(get_config_menu_item)
+        get_mime_menu_item = gtk.MenuItem('Get MIME configuration')
+        get_mime_menu_item.connect('activate',
+                                   self.on_get_mime_menu_item_activate)
+        get_menu.append(get_mime_menu_item)
+        get_vhost_menu_item = gtk.MenuItem('Get VHost configuration')
+        get_vhost_menu_item.connect('activate',
+                                    self.on_get_vhost_menu_item_activate)
+        get_menu.append(get_vhost_menu_item)
+        put_menu_item = MenuItemWithStockImage('Put', gtk.STOCK_GO_UP)
+        remote_menu.append(put_menu_item)
+        put_menu = gtk.Menu()
+        put_menu_item.set_submenu(put_menu)
+        put_config_menu_item = gtk.MenuItem('Put server configuration')
+        put_config_menu_item.connect('activate',
+                                     self.on_put_config_menu_item_activate)
+        put_menu.append(put_config_menu_item)
+        put_mime_menu_item = gtk.MenuItem('Put MIME configuration')
+        put_mime_menu_item.connect('activate',
+                                   self.on_put_mime_menu_item_activate)
+        put_menu.append(put_mime_menu_item)
+        put_vhost_menu_item = gtk.MenuItem('Put VHost configuration')
+        put_vhost_menu_item.connect('activate',
+                                    self.on_put_vhost_menu_item_activate)
+        put_menu.append(put_vhost_menu_item)
+
+        definitions_menu_item = gtk.MenuItem('_Definitions')
+        self.menubar.append(definitions_menu_item)
+        definitions_menu = gtk.Menu()
+        definitions_menu_item.set_submenu(definitions_menu)
+        add_unknown_definition_menu_item = \
+            MenuItemWithStockImage('Add unknown definition', gtk.STOCK_ADD)
+        add_unknown_definition_menu_item.connect(
+            'activate',
+            self.on_add_unknown_definition_menu_item_activate)
+        definitions_menu.append(add_unknown_definition_menu_item)
+
+        mime_types_menu_item = gtk.MenuItem('_MIME types')
+        self.menubar.append(mime_types_menu_item)
+        mime_types_menu = gtk.Menu()
+        mime_types_menu_item.set_submenu(mime_types_menu)
+        add_mime_type_menu_item = MenuItemWithStockImage(
+            'Add MIME type', gtk.STOCK_ADD)
+        add_mime_type_menu_item.connect(
+            'activate',
+            self.on_add_mime_type_menu_item_activate)
+        mime_types_menu.append(add_mime_type_menu_item)
+        remove_mime_type_menu_item = MenuItemWithStockImage(
+            'Remove MIME type', gtk.STOCK_DELETE)
+        remove_mime_type_menu_item.connect(
+            'activate',
+            self.on_remove_mime_type_menu_item_activate)
+        mime_types_menu.append(remove_mime_type_menu_item)
+        add_definition_to_mime_menu_item = MenuItemWithStockImage(
+            'Add definition MIME type', gtk.STOCK_ADD)
+        add_definition_to_mime_menu_item.connect(
+            'activate',
+            self.on_add_definition_to_mime_menu_item_activate)
+        mime_types_menu.append(add_definition_to_mime_menu_item)
+
+        vhost_menu_item = gtk.MenuItem('_VHosts')
+        self.menubar.append(vhost_menu_item)
+        vhost_menu = gtk.Menu()
+        vhost_menu_item.set_submenu(vhost_menu)
+        add_vhost_menu_item = MenuItemWithStockImage(
+            'Add VHost', gtk.STOCK_ADD)
+        add_vhost_menu_item.connect('activate',
+                                    self.on_add_vhost_menu_item_activate)
+        vhost_menu.append(add_vhost_menu_item)
+        remove_vhost_menu_item = MenuItemWithStockImage(
+            'Remove VHost', gtk.STOCK_DELETE)
+        remove_vhost_menu_item.connect('activate',
+                                       self.on_remove_vhost_menu_item_activate)
+        vhost_menu.append(remove_vhost_menu_item)
+        add_log_to_vhost_menu_item = MenuItemWithStockImage(
+            'Add log to VHost', gtk.STOCK_ADD)
+        add_log_to_vhost_menu_item.connect(
+            'activate',
+            self.on_add_log_to_vhost_menu_item_activate)
+        vhost_menu.append(add_log_to_vhost_menu_item)
+        remove_log_from_vhost_menu_item = MenuItemWithStockImage(
+            'Remove log from VHost', gtk.STOCK_DELETE)
+        remove_log_from_vhost_menu_item.connect(
+            'activate',
+            self.on_remove_log_from_vhost_menu_item_activate)
+        vhost_menu.append(remove_log_from_vhost_menu_item)
+
+        security_menu_item = gtk.MenuItem('_Security')
+        self.menubar.append(security_menu_item)
+        security_menu = gtk.Menu()
+        security_menu_item.set_submenu(security_menu)
+        save_security_menu_item = MenuItemWithStockImage(
+            'Save security', gtk.STOCK_SAVE)
+        save_security_menu_item.connect(
+            'activate',
+            self.on_save_security_menu_item_activate)
+        security_menu.append(save_security_menu_item)
+
+        help_menu_item = gtk.ImageMenuItem(gtk.STOCK_HELP)
+        help_menu_item.set_image(None)
+        self.menubar.append(help_menu_item)
+        help_menu = gtk.Menu()
+        help_menu_item.set_submenu(help_menu)
+        about_menu_item = gtk.ImageMenuItem(gtk.STOCK_ABOUT)
+        about_menu_item.connect('activate',
+                                self.on_about_menu_item_activate)
+        help_menu.append(about_menu_item)
+
+        box = gtk.VBox()
+        box.pack_end(self.statusbar)
+        box.pack_end(self.notebook)
+        box.pack_end(self.menubar)
+        self.window.add(box)
+
+        self.window.connect('destroy', self.on_window_destroy)
+
+        self.construct_options()
+        self.construct_mime()
+        self.construct_vhosts()
+        self.construct_browser()
+        self.chooser = None # Active file chooser
+        # path of currently edited files
+        self.config_path = self.mime_path = self.vhost_path = None
+        # remembered unhandled parts of configs
+        self.config_custom = []
+        self.mime_custom = []
+        self.vhost_custom = []
+        self.mime_custom_attrib = {}
+        self.vhost_custom_attrib = {}
+        self.controller = None
+
+        self.window.show_all()
+
+    def on_window_destroy(self, widget):
+        '''Exits program.'''
+        gtk.main_quit()
+
+    def on_quit_menu_item_activate(self, widget):
+        '''Exits program.'''
+        gtk.main_quit()
+
+    def on_about_menu_item_activate(self, widget):
+        '''Shows about window.'''
+        About()
+
+    def on_connect_menu_item_activate(self, widget):
+        '''Show connection dialog.'''
+        dialog = Connection(self)
+
+    def on_disconnect_menu_item_activate(self, widget):
+        '''Disconnect from server.'''
+        if self.controller is not None:
+            self.controller.disconnect()
+        self.controller = None
+
+    def on_get_config_menu_item_activate(self, widget):
+        '''Get server config from remote server.'''
+        if self.controller is not None:
+            self.set_up_config(self.controller.get_server_configuration())
+
+    def on_get_mime_menu_item_activate(self, widget):
+        '''Get MIME config from remote server.'''
+        if self.controller is not None:
+            self.set_up_mime(self.controller.get_MIME_type_configuration())
+
+    def on_get_vhost_menu_item_activate(self, widget):
+        '''Get VHost config from remote server.'''
+        if self.controller is not None:
+            self.set_up_vhost(self.controller.get_vhost_configuration())
+
+    def on_put_config_menu_item_activate(self, widget):
+        '''Put server config on remote server.'''
+        if self.controller is not None:
+            self.controller.put_server_configuration(self.get_current_config())
+
+    def on_put_mime_menu_item_activate(self, widget):
+        '''Put MIME config on remote server.'''
+        if self.controller is not None:
+            self.controller.put_MIME_type_configuration(self.get_current_mime())
+
+    def on_put_vhost_menu_item_activate(self, widget):
+        '''Put VHost config on remote server.'''
+        if self.controller is not None:
+            self.controller.put_vhost_configuration(self.get_vhost_config())
+
+    def on_new_config_menu_item_activate(self, widget = None):
+        '''Clears server configuration.'''
+        if widget is not None:
+            self.statusbar.push(0, 'Server configuration cleared.')
+            self.config_path = None
+        self.config_custom = []
+        table, tree = self.tabs['unknown']
+        tree.get_model().clear()
+        for tab in self.tabs:
+            table, tree = self.tabs[tab]
+            table.clear()
+            tree.make_clear()
+
+    def on_new_mime_menu_item_activate(self, widget = None):
+        '''Clears MIME configuration.'''
+        if widget is not None:
+            self.statusbar.push(0, 'MIME configuration cleared.')
+            self.mime_path = None
+        self.mime_custom = []
+        self.mime_custom_attrib = {}
+        table, tree = self.mime_tab[0]
+        table.clear()
+        tree.get_model().clear()
+
+    def on_new_vhost_menu_item_activate(self, widget = None):
+        '''Clears VHost configuration.'''
+        if widget is not None:
+            self.statusbar.push(0, 'VHost configuration cleared.')
+            self.vhost_path = None
+        self.vhost_custom = []
+        self.vhost_custom_attrib = {}
+        table, tree = self.vhost_tab
+        table.clear()
+        tree.get_model().clear()
+
+    def generic_open(self, dialog, status, path, config_type, set_up_method):
+        '''Open configuration file.'''
+        if self.chooser is not None:
+            self.chooser.destroy()
+        self.chooser = gtk.FileChooserDialog(
+            dialog,
+            buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                       gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+        def handle_response(widget, response):
+            if response == gtk.RESPONSE_OK:
+                setattr(self, path, self.chooser.get_filename())
+                with open(getattr(self, path)) as f:
+                    conf = config_type.from_string(f.read())
+                set_up_method(conf)
+                self.statusbar.push(0, status)
+            self.chooser.destroy()
+        self.chooser.connect('response', handle_response)
+        self.chooser.show()
+
+    def on_open_config_menu_item_activate(self, widget):
+        '''Open local server configuration file.'''
+        self.generic_open(
+            'Open server configuration file.',
+            'Opened server configuration.',
+            'config_path',
+            MyServerConfig, self.set_up_config)
+
+    def on_open_mime_menu_item_activate(self, widget):
+        '''Open local MIME configuration file.'''
+        self.generic_open(
+            'Open MIME configuration file.',
+            'Opened MIME configuration',
+            'mime_path',
+            MIMETypes, self.set_up_mime)
+
+    def on_open_vhost_menu_item_activate(self, widget):
+        '''Open local VHost configuration file.'''
+        self.generic_open(
+            'Open VHost configuration file.',
+            'Opened VHost configuration.',
+            'vhost_path',
+            VHosts, self.set_up_vhost)
+
+    def generic_save_as(self, dialog, status,  widget, path, save_method):
+        '''Save configuration as file.'''
+        if self.chooser is not None:
+            self.chooser.destroy()
+        self.chooser = gtk.FileChooserDialog(
+            dialog,
+            action = gtk.FILE_CHOOSER_ACTION_SAVE,
+            buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                       gtk.STOCK_SAVE_AS, gtk.RESPONSE_OK))
+        def handle_response(widget, response):
+            if response == gtk.RESPONSE_OK:
+                setattr(self, path, self.chooser.get_filename())
+                save_method(widget)
+            self.chooser.destroy()
+            self.statusbar.push(0, status)
+        self.chooser.connect('response', handle_response)
+        self.chooser.show()
+
+    def on_save_as_config_menu_item_activate(self, widget):
+        '''Save server configuration as local file.'''
+        self.generic_save_as(
+            'Save server configuration file.',
+            'Saved server configuration.',
+            widget, 'config_path',
+            self.on_save_config_menu_item_activate)
+
+    def on_save_as_mime_menu_item_activate(self, widget):
+        '''Save MIME configuration as local file.'''
+        self.generic_save_as(
+            'Save MIME configuration file.',
+            'Saved MIME configuration.',
+            widget, 'mime_path',
+            self.on_save_mime_menu_item_activate)
+
+    def on_save_as_vhost_menu_item_activate(self, widget):
+        '''Save VHost configuration as local file.'''
+        self.generic_save_as(
+            'Save VHost configuration file.',
+            'Saved VHost configuration.',
+            widget, 'vhost_path',
+            self.on_save_vhost_menu_item_activate)
+
+    def generic_save(self, status, widget, path, save_as_method, config_method):
+        '''Save configuration file.'''
+        if getattr(self, path) is None:
+            save_as_method(widget)
+        else:
+            config = config_method()
+            with open(getattr(self, path), 'w') as f:
+                f.write(str(config))
+            self.statusbar.push(0, status)
+
+    def on_save_config_menu_item_activate(self, widget):
+        '''Save server configuration to file.'''
+        self.generic_save(
+            'Saved server configuration.',
+            widget, 'config_path',
+            self.on_save_as_config_menu_item_activate,
+            self.get_current_config)
+
+    def on_save_mime_menu_item_activate(self, widget):
+        '''Save MIME configuration to file.'''
+        self.generic_save(
+            'Saved MIME configuration.',
+            widget, 'mime_path',
+            self.on_save_as_mime_menu_item_activate,
+            self.get_current_mime)
+
+    def on_save_vhost_menu_item_activate(self, widget):
+        '''Save VHost configuration to file.'''
+        self.generic_save(
+            'Saved VHost configuration.',
+            widget, 'vhost_path',
+            self.on_save_as_vhost_menu_item_activate,
+            self.get_current_vhost)
+
+    def get_current_config(self):
+        '''Returns current server configuration as MyServerConfig instance.'''
+        definitions = []
+        for tab in self.tabs:
+            table, tree = self.tabs[tab]
+            definitions += table.make_def(tree)
+        config = MyServerConfig(definitions)
+        config.definitions.custom = self.config_custom
+        return config
+
+    def get_current_mime(self):
+        '''Returns current MIME configuration as MIMETypes instance.'''
+        table, tree = self.mime_tab[0]
+        mimes = table.make_def(tree)
+        config = MIMETypes(mimes)
+        config.custom = self.mime_custom
+        config.custom_attrib = self.mime_custom_attrib
+        return config
+
+    def get_current_vhost(self):
+        '''Returns current VHost configuration as VHosts instance.'''
+        table, tree = self.vhost_tab
+        vhosts = table.make_def(tree)
+        config = VHosts(vhosts)
+        config.custom = self.vhost_custom
+        config.custom_attrib = self.vhost_custom_attrib
+        return config
+
+    def on_add_unknown_definition_menu_item_activate(self, widget):
+        '''Adds a new definition to unknown tab.'''
+        table, tree = self.tabs['unknown']
+        tree.get_model().append(None, ('', '', False, True, '', False, {}, ))
+
+    def on_add_mime_type_menu_item_activate(self, widget):
+        '''Adds a new MIME type.'''
+        table, tree = self.mime_tab[0]
+        mime_lists = {}
+        for mime_list in GUIConfig.mime_lists:
+            mime_lists[mime_list] = []
+        tree.get_model().append(('', {}, mime_lists, [], [], {}, ))
+
+    def on_remove_mime_type_menu_item_activate(self, widget):
+        '''Removes selected MIME type.'''
+        table, tree = self.mime_tab[0]
+        table.remove_current(tree)
+
+    def on_add_vhost_menu_item_activate(self, widget):
+        '''Adds a new VHost.'''
+        table, tree = self.vhost_tab
+        vhost_lists = {}
+        for vhost_list in GUIConfig.vhost_lists:
+            vhost_lists[vhost_list[0]] = []
+        tree.get_model().append(('', {}, vhost_lists, [], [], {}, ))
+
+    def on_remove_vhost_menu_item_activate(self, widget):
+        '''Removes selected VHost.'''
+        table, tree = self.vhost_tab
+        table.remove_current(tree)
+
+    def on_add_definition_to_mime_menu_item_activate(self, widget):
+        '''Adds a definition to currently selected MIME type.'''
+        table, tree = self.mime_tab[1]
+        tree.get_model().append(None, ('', '', False, True, '', False, {}, ))
+
+    def on_add_log_to_vhost_menu_item_activate(self, widget):
+        '''Adds a log to currently selected VHost.'''
+        table, tree = self.vhost_tab
+        table.add_log()
+
+    def on_remove_log_from_vhost_menu_item_activate(self, widget):
+        '''Removes selected log from currently selected VHost.'''
+        table, tree = self.vhost_tab
+        table.remove_log()
+
+    def set_up_config(self, config):
+        '''Reads server configuration from given config instance.'''
+        self.on_new_config_menu_item_activate()
+        self.config_custom = config.definitions.custom
+        tabs = {}
+        for tab in self.tabs:
+            tabs[tab] = []
+        for definition in config.get_definitions():
+            name = definition.get_name()
+            tab_name = self.options[name] if name in self.options else 'unknown'
+            tabs[tab_name].append(definition)
+
+        for tab in tabs:
+            tree = self.tabs[tab][1]
+            tree.set_up(tabs[tab], tab != 'unknown')
+
+    def set_up_mime(self, config):
+        '''Reads MIME configuration from given config instance.'''
+        self.on_new_mime_menu_item_activate()
+        self.mime_custom = config.custom
+        self.mime_custom_attrib = config.custom_attrib
+        tree = self.mime_tab[0][1]
+        tree.set_up(config.MIME_types)
+
+    def set_up_vhost(self, config):
+        '''Reads VHost configuration from given config instance.'''
+        self.on_new_vhost_menu_item_activate()
+        self.vhost_custom = config.custom
+        self.vhost_custom_attrib = config.custom_attrib
+        tree = self.vhost_tab[1]
+        tree.set_up(config.VHosts)
+
+    def construct_options(self):
+        '''Reads known options from file and prepares GUI.'''
+
+        # segregate options by tab
+        segregated_options = {} # tab name => option names
+        self.options = {} # option name => tab name
+        for option in GUIConfig.options:
+            tab = 'other'
+            for prefix in GUIConfig.tabs:
+                if option.startswith(prefix):
+                    tab = prefix
+                    break
+            if not segregated_options.has_key(tab):
+                segregated_options[tab] = []
+            segregated_options[tab].append(option)
+            self.options[option] = tab
+
+        self.tabs = {} # tab name => (table, tree, )
+        for tab in GUIConfig.tabs + ['other', 'unknown']:
+            options = segregated_options.get(tab, [])
+            panels = gtk.HPaned()
+
+            tree = DefinitionTreeView()
+            tree_model = tree.get_model()
+            panels.pack1(tree.scroll, True, False)
+            table = DefinitionTable(tree)
+            panels.pack2(table, False, False)
+
+            self.tabs[tab] = (table, tree, )
+
+            for option in options:
+                tooltip_text = GUIConfig.options[option][0]
+                # all but first three columns will be set to defaults later by
+                # on_new_menu_item_activate
+                tree_model.append(None, (option, tooltip_text, True, False, '',
+                                         False, {}, ))
+
+            self.notebook.append_page(panels, gtk.Label(tab))
+
+        self.on_new_config_menu_item_activate()
+        self.notebook.show_all()
+
+    def construct_mime(self):
+        '''Reads mime options from file and prepares GUI.'''
+        vpanels = gtk.VPaned()
+
+        panels = gtk.HPaned()
+        def_tree = DefinitionTreeView()
+        panels.pack1(def_tree.scroll, True, False)
+        def_table = DefinitionTable(def_tree)
+        panels.pack2(def_table, False, False)
+
+        vpanels.pack2(panels)
+
+        panels = gtk.HPaned()
+        tree = MimeTreeView()
+        panels.pack1(tree.scroll, True, False)
+        table = MimeTable(tree, def_tree, def_table)
+        panels.pack2(table, False, False)
+
+        vpanels.pack1(panels)
+
+        self.mime_tab = ((table, tree, ), (def_table, def_tree), )
+        self.notebook.append_page(vpanels, gtk.Label('MIME Type'))
+
+        self.notebook.show_all()
+
+    def construct_vhosts(self):
+        '''Reads vhost options from file and prepares GUI.'''
+        panels = gtk.HPaned()
+        tree = VHostTreeView()
+        panels.pack1(tree.scroll, True, False)
+        table = VHostTable(tree)
+        panels.pack2(table.scroll, True, False)
+
+        self.vhost_tab = (table, tree, )
+        self.notebook.append_page(panels, gtk.Label('VHosts'))
+
+        self.notebook.show_all()
+
+    def construct_browser(self):
+        '''Constructs file browser.'''
+        panels = gtk.HPaned()
+        self.security_table = SecurityTable()
+        panels.pack2(self.security_table, True, False)
+        self.browser_table = BrowserTable(self.security_table.read_from_file)
+        panels.pack1(self.browser_table, True, False)
+        
+        self.notebook.append_page(panels, gtk.Label('File browser'))
+
+        self.notebook.show_all()
+
+    def on_save_security_menu_item_activate(self, widget):
+        self.security_table.write_to_file(
+            self.browser_table.browser_tree.browser)
+        self.statusbar.push(0, 'Saved security file.')
+
+PyGTKControl()
+gtk.main()

@@ -17,28 +17,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef HTTP_HEADERS_H
-#define HTTP_HEADERS_H
+# define HTTP_HEADERS_H
 
-#include "stdafx.h"
-#include <include/connection/connection.h>
+# include "stdafx.h"
+# include <include/connection/connection.h>
 
 extern "C" {
-#ifdef WIN32
-#include <direct.h>
-#include <errno.h>
-#else
-#include <string.h>
-#include <errno.h>
-#endif
+# ifdef WIN32
+#  include <direct.h>
+#  include <errno.h>
+# else
+#  include <string.h>
+#  include <errno.h>
+# endif
 }
 
 
-#include <string>
+# include <string>
 using namespace std;
 
 
-#define HTTP_AUTH_SCHEME_BASIC 0
-#define HTTP_AUTH_SCHEME_DIGEST 1
+# define HTTP_AUTH_SCHEME_BASIC 0
+# define HTTP_AUTH_SCHEME_DIGEST 1
 
 struct HttpThreadContext;
 struct HttpRequestHeader;
@@ -50,11 +50,11 @@ public:
 	static int buildHTTPRequestHeaderStruct (const char* input,
                                            u_long inputSize,
                                            u_long* nHeaderChars,
-                                           HttpRequestHeader *request, 
+                                           HttpRequestHeader *request,
                                            Connection* connection);
-  
-	static int buildHTTPResponseHeaderStruct (const char *input, 
-                                           HttpResponseHeader *response, 
+
+	static int buildHTTPResponseHeaderStruct (const char *input,
+                                           HttpResponseHeader *response,
                                            u_long* nbtr);
 
 	static int validHTTPRequest (const char*, u_long, u_long*, u_long*);
@@ -70,13 +70,13 @@ public:
 	static u_long buildHTTPRequestHeader (char*, HttpRequestHeader*);
 
 protected:
-  static int readReqAuthLine (HttpRequestHeader *request, 
-                              Connection *connection, 
+  static int readReqAuthLine (HttpRequestHeader *request,
+                              Connection *connection,
                               const char *token,
                               int *lenOut);
 
-  static int readReqRangeLine (HttpRequestHeader *request, 
-                               Connection *connection, 
+  static int readReqRangeLine (HttpRequestHeader *request,
+                               Connection *connection,
                                const char *token,
                                int *lenOut);
 };

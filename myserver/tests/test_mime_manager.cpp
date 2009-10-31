@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,7 +22,7 @@
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <include/conf/mime/mime_manager.h>
+#include <include/conf/mime/xml_mime_handler.h>
 
 #include <string.h>
 
@@ -30,17 +30,17 @@
 using namespace std;
 
 
-class TestMimeManager : public CppUnit::TestFixture
+class TestXmlMimeHandler : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE ( TestMimeManager );
+  CPPUNIT_TEST_SUITE ( TestXmlMimeHandler );
   CPPUNIT_TEST ( testLoadXML );
   CPPUNIT_TEST_SUITE_END ();
 
-  MimeManager *mm;
+  XmlMimeHandler *mm;
 public:
   void setUp ()
   {
-    mm = new MimeManager;
+    mm = new XmlMimeHandler;
   }
 
   void tearDown ()
@@ -52,13 +52,13 @@ public:
   {
     XmlParser *parser = getTestParser ();
 
-    CPPUNIT_ASSERT_EQUAL (mm->isLoaded(), false);
+    CPPUNIT_ASSERT_EQUAL (mm->isLoaded (), false);
 
-    CPPUNIT_ASSERT_EQUAL (mm->loadXML (parser), 2ul);
-    CPPUNIT_ASSERT_EQUAL (mm->getNumMIMELoaded(), 2ul);
+    CPPUNIT_ASSERT_EQUAL (mm->load (parser), 2ul);
+    CPPUNIT_ASSERT_EQUAL (mm->getNumMIMELoaded (), 2ul);
 
-    CPPUNIT_ASSERT_EQUAL (mm->isLoaded(), true);
-    
+    CPPUNIT_ASSERT_EQUAL (mm->isLoaded (), true);
+
     delete parser;
   }
 
@@ -66,14 +66,14 @@ public:
   {
     XmlParser *parser = getTestParser ();
     MimeRecord mr;
-    mm->loadXML (parser);
+    mm->load (parser);
 
-    CPPUNIT_ASSERT_EQUAL (mm->getNumMIMELoaded(), 2ul);
+    CPPUNIT_ASSERT_EQUAL (mm->getNumMIMELoaded (), 2ul);
 
     mm->addRecord (&mr);
 
-    CPPUNIT_ASSERT_EQUAL (mm->getNumMIMELoaded(), 3ul);
-    
+    CPPUNIT_ASSERT_EQUAL (mm->getNumMIMELoaded (), 3ul);
+
     delete parser;
   }
 
@@ -92,11 +92,11 @@ private:
        <EXTENSION value=\"txt\"/>\n</MIME>\n</MIMES>\n";
 
     mb.addBuffer (buffer, strlen (buffer));
-    parser->openMemBuf(mb);
+    parser->openMemBuf (mb);
 
     return parser;
   }
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestMimeManager );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestXmlMimeHandler );

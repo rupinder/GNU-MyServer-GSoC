@@ -17,12 +17,12 @@
 */
 
 #ifndef CONSOLE_H
-#define CONSOLE_H
+# define CONSOLE_H
 
-#include <iostream>
-#include <map>
+# include <iostream>
+# include <map>
 
-#include <include/filter/stream.h>
+# include <include/filter/stream.h>
 
 using namespace std;
 
@@ -39,13 +39,13 @@ public:
   int reset ();
 protected:
   ostream* fd;
-#ifdef WIN32
+# ifdef WIN32
   map<string, WORD> fg_colors;
   map<string, WORD> bg_colors;
-#else
+# else
   map<string, string> fg_colors;
   map<string, string> bg_colors;
-#endif
+# endif
 };
 
 #endif

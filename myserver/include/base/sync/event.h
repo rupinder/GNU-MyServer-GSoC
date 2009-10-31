@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2006 Free Software Foundation, Inc.
+Copyright (C) 2006, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -17,35 +17,35 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef EVENT_H
-#define EVENT_H
+# define EVENT_H
 
-#include "stdafx.h"
-#include <include/base/sync/mutex.h>
+# include "stdafx.h"
+# include <include/base/sync/mutex.h>
 
-#ifdef HAVE_PTHREAD
+# ifdef HAVE_PTHREAD
 	typedef pthread_cond_t EventHandle;
-#else
+# else
 	typedef HANDLE EventHandle;
-#endif
+# endif
 
 class Event
 {
 private:
 	bool initialized;
 	bool broadcast;
-#ifdef HAVE_PTHREAD
+# ifdef HAVE_PTHREAD
 	/*!
 	 *Under pthread a condition is associated with a mutex.
 	 */
 	pthread_mutex_t mutex;
-#endif
+# endif
 	EventHandle event;
 public:
-	Event(bool broadcast);
-	~Event();
-	int init(bool broadcast);
-	int destroy();
-	int wait(u_long id = 0, u_long timeout = 0);
-	int signal(u_long id = 0);
+	Event (bool broadcast);
+	~Event ();
+	int init (bool broadcast);
+	int destroy ();
+	int wait (u_long id = 0, u_long timeout = 0);
+	int signal (u_long id = 0);
 };
 #endif

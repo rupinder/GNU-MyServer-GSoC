@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,40 +26,40 @@
 
 class TestRecursiveMutex : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestRecursiveMutex );
-  CPPUNIT_TEST( testLockUnlock );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestRecursiveMutex );
+  CPPUNIT_TEST ( testLockUnlock );
+  CPPUNIT_TEST_SUITE_END ();
 
   Mutex *mutex;
 public:
-  void setUp()
+  void setUp ()
   {
-    mutex = new RecursiveMutex();
+    mutex = new RecursiveMutex ();
 
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete mutex;
   }
 
-  void testLockUnlock()
+  void testLockUnlock ()
   {
     const int N_TIMES = 10;
     //This shouldn't deadlock.  If it does, then it is bug.
-    for(int i = 0; i < N_TIMES; i++)
+    for (int i = 0; i < N_TIMES; i++)
     {
-      mutex->lock();
-      CPPUNIT_ASSERT_EQUAL(mutex->isLocked(), true);
+      mutex->lock ();
+      CPPUNIT_ASSERT_EQUAL (mutex->isLocked (), true);
     }
 
-    for(int i = 0; i < N_TIMES; i++)
+    for (int i = 0; i < N_TIMES; i++)
     {
-      mutex->unlock();
-      CPPUNIT_ASSERT_EQUAL(mutex->isLocked(), false);
+      mutex->unlock ();
+      CPPUNIT_ASSERT_EQUAL (mutex->isLocked (), false);
     }
   }
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestRecursiveMutex );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestRecursiveMutex );

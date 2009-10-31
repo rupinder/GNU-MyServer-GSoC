@@ -17,10 +17,10 @@
 */
 
 #ifndef STRINGUTILS_H
-#define STRINGUTILS_H
+# define STRINGUTILS_H
 
-#include "stdafx.h"
-#include <string>
+# include "stdafx.h"
+# include <string>
 
 using namespace std;
 
@@ -59,7 +59,7 @@ void translateEscapeString (char *TargetStr);
 void translateEscapeString (string& TargetStr);
 
 int hexToInt (const char *str);
-inline time_t hexToInt (string const& str){ return hexToInt(str.c_str ()); }
+inline time_t hexToInt (string const& str){ return hexToInt (str.c_str ()); }
 
 int getEndLine (const char* str, int max);
 inline int getEndLine (string const& str, int max)
@@ -75,16 +75,16 @@ int stringcmp (string const &a, string const &b);
 int stringcmpi (string const &a, const char* b);
 int stringcmp (string const &a, const char* b);
 
-#ifndef WIN32
+# ifndef WIN32
 extern "C"
 {
 char* strupr (char * string);
-# include <string.h>
+#  include <string.h>
 }
-#endif
+# endif
 
-#ifndef strcmpi
-# define strcmpi strcasecmp
-#endif
+# ifndef strcmpi
+#  define strcmpi strcasecmp
+# endif
 
 #endif

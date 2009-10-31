@@ -21,24 +21,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/socket_pair/socket_pair.h>
 
 #ifndef WIN32
-extern "C" {
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <errno.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <time.h>
+extern "C"
+{
+# include <fcntl.h>
+# include <unistd.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <errno.h>
+# include <stdio.h>
+# include <fcntl.h>
+# include <stdlib.h>
+# include <string.h>
+# include <math.h>
+# include <time.h>
 
-#include <sys/socket.h>
-#include <sys/uio.h>
+# include <sys/socket.h>
+# include <sys/uio.h>
 }
 #else
-#include <windows.h>
+# include <windows.h>
 #endif
 
 #include <string>
@@ -60,9 +61,9 @@ SocketPair::SocketPair ()
 int SocketPair::create ()
 {
 #ifdef WIN32
-#define LOCAL_SOCKETPAIR_AF AF_INET
+# define LOCAL_SOCKETPAIR_AF AF_INET
 #else
-#define LOCAL_SOCKETPAIR_AF AF_UNIX
+# define LOCAL_SOCKETPAIR_AF AF_UNIX
 #endif
 
   int af = LOCAL_SOCKETPAIR_AF;
@@ -71,19 +72,17 @@ int SocketPair::create ()
 
 #ifndef WIN32
   int ret = socketpair (af, type, protocol, (int*)handles);
-
   if (ret == 0)
     socketHandle = handles[0];
 
   return ret;
-
 #else
   struct sockaddr_in addr;
   SOCKET listener;
   int e;
-  int addrlen = sizeof(addr);
+  int addrlen = sizeof (addr);
   DWORD flags = 0;
-  
+
   if (handles == 0)
     return -1;
 
@@ -93,46 +92,46 @@ int SocketPair::create ()
   if (listener == INVALID_SOCKET)
     return -1;
 
-  memset(&addr, 0, sizeof (addr));
+  memset (&addr, 0, sizeof (addr));
   addr.sin_family = AF_INET;
   addr.sin_addr.s_addr = htonl (0x7f000001);
   addr.sin_port = 0;
 
-  e = ::bind(listener, (const struct sockaddr*) &addr, sizeof(addr));
+  e = ::bind (listener, (const struct sockaddr*) &addr, sizeof (addr));
   if (e == SOCKET_ERROR)
     {
       closesocket (listener);
       return -1;
     }
-  
-  e = ::getsockname(listener, (struct sockaddr*) &addr, &addrlen);
+
+  e = ::getsockname (listener, (struct sockaddr*) &addr, &addrlen);
   if (e == SOCKET_ERROR)
     {
       closesocket (listener);
       return -1;
     }
-  
+
   do
     {
       if (::listen (listener, 1) == SOCKET_ERROR)
         break;
       if ((handles[0] = ::socket (AF_INET, type, 0)) == INVALID_SOCKET)
         break;
-      if (::connect(handles[0], (const struct sockaddr*) &addr, sizeof (addr)) == SOCKET_ERROR)
+      if (::connect (handles[0], (const struct sockaddr*) &addr, sizeof (addr)) == SOCKET_ERROR)
         break;
       if ((handles[1] = ::accept (listener, NULL, NULL)) == INVALID_SOCKET)
         break;
-    
+
       socketHandle = handles[0];
 
       closesocket (listener);
       return 0;
     } while (0);
-  
+
   closesocket (listener);
   closesocket (handles[0]);
   closesocket (handles[1]);
-  
+
   return -1;
 #endif
 
@@ -205,11 +204,15 @@ void SocketPair::closeSecondHandle ()
  */
 void SocketPair::setNonBlocking (bool notBlocking)
 {
+  /* FIXME: avoid this trick to set the handle to -1 to avoid
+   a close on the real descriptor by the d'tor.  */
   Socket sock0 (handles[0]);
-   sock0.setNonBlocking (notBlocking);
+  sock0.setNonBlocking (notBlocking);
+  sock0.setHandle (-1);
 
-   Socket sock1 (handles[1]);
-   sock1.setNonBlocking (notBlocking);
+  Socket sock1 (handles[1]);
+  sock1.setNonBlocking (notBlocking);
+  sock1.setHandle (-1);
 }
 
 /*!

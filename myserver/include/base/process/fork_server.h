@@ -20,7 +20,7 @@
 #include <include/base/unix_socket/unix_socket.h>
 
 #ifndef FORK_SERVER_H
-#define FORK_SERVER_H
+# define FORK_SERVER_H
 
 struct StartProcInfo;
 
@@ -47,7 +47,7 @@ class ForkServer
   int forkServerLoop (UnixSocket *socket);
 
   int executeProcess (StartProcInfo *spi, int flags,
-                      int *pid, int *port, 
+                      int *pid, int *port,
                       bool waitEnd = false);
 
   u_short getPort (){return port;}

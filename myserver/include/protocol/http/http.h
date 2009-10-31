@@ -17,44 +17,44 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef HTTP_H
-#define HTTP_H
-#include "stdafx.h"
-#include <include/protocol/http/http_thread_context.h>
-#include <include/protocol/protocol.h>
-#include <include/protocol/http/http_headers.h>
-#include <include/conf/security/security_cache.h>
-#include <include/base/xml/xml_parser.h>
-#include <include/base/thread/thread.h>
-#include <include/base/sync/mutex.h>
-#include <include/protocol/http/dyn_http_command_manager.h>
-#include <include/protocol/http/dyn_http_command.h>
-#include <include/protocol/http/dyn_http_manager_list.h>
-#include <include/protocol/http/dyn_http_manager.h>
-#include <include/base/multicast/multicast.h>
-#include <include/protocol/http/http_data_handler.h>
-#include <include/base/string/securestr.h>
+# define HTTP_H
+# include "stdafx.h"
+# include <include/protocol/http/http_thread_context.h>
+# include <include/protocol/protocol.h>
+# include <include/protocol/http/http_headers.h>
+# include <include/conf/security/security_cache.h>
+# include <include/base/xml/xml_parser.h>
+# include <include/base/thread/thread.h>
+# include <include/base/sync/mutex.h>
+# include <include/protocol/http/dyn_http_command_manager.h>
+# include <include/protocol/http/dyn_http_command.h>
+# include <include/protocol/http/dyn_http_manager_list.h>
+# include <include/protocol/http/dyn_http_manager.h>
+# include <include/base/multicast/multicast.h>
+# include <include/protocol/http/http_data_handler.h>
+# include <include/base/string/securestr.h>
 
-#include <string>
-#include <sstream>
-#include <vector>
-#include <memory>
+# include <string>
+# include <sstream>
+# include <vector>
+# include <memory>
 
 using namespace std;
 
 class HttpStaticData : public MulticastRegistry<string, void*, int>
 {
 public:
-  vector<Multicast<string, void*, int>*>* getHandlers(string& msg)
+  vector<Multicast<string, void*, int>*>* getHandlers (string& msg)
   {
-    return MulticastRegistry<string, void*, int>::getHandlers(msg);
+    return MulticastRegistry<string, void*, int>::getHandlers (msg);
   }
 
   HttpStaticData ();
   virtual ~HttpStaticData ();
 
-  void clear()
+  void clear ()
   {
-    clearMulticastRegistry();
+    clearMulticastRegistry ();
     dynManagerList.clear ();
     dynCmdManager.clear ();
   }
@@ -92,100 +92,99 @@ public:
 
   /*! Nonzero if the digest was already checked.  */
   int digestChecked;
-  HttpUserData();
-  ~HttpUserData();
-  void reset();
+  HttpUserData ();
+  ~HttpUserData ();
+  void reset ();
 };
 
 
 class Http : public Protocol
 {
 public:
-  int requestAuthorization();
+  int requestAuthorization ();
 
-  int sendHTTPResource(string& filename,
-                       int systemrequest = 0, 
-                       int onlyHeader = 0, 
+  int sendHTTPResource (string& filename,
+                       int systemrequest = 0,
+                       int onlyHeader = 0,
                        int yetMapped = 0);
 
-  int putHTTPRESOURCE(string &filename,
+  int putHTTPRESOURCE (string &filename,
                       int systemrequest = 0,
                       int onlyHeader = 0,
                       int yetMapped = 0);
 
-  int optionsHTTPRESOURCE(string &filename,
+  int optionsHTTPRESOURCE (string &filename,
                           int yetMapped = 0);
 
-  int traceHTTPRESOURCE(string& filename,
+  int traceHTTPRESOURCE (string& filename,
                         int yetMapped = 0);
 
-  int deleteHTTPRESOURCE(string &filename,
+  int deleteHTTPRESOURCE (string &filename,
                          int systemrequest = 0,
                          int onlyHeader = 0,
                          int yetMapped = 0);
 
-  bool allowMethod(const char *name);
+  bool allowMethod (const char *name);
 
-  int raiseHTTPError(int ID);
+  int raiseHTTPError (int ID);
 
   int sendHTTPhardError500();
 
-  int sendAuth();
+  int sendAuth ();
 
 
-  int getPath(string& filenamePath,
+  int getPath (string& filenamePath,
                      const string& filename,
                      int systemrequest)
-  {return getPath(td, filenamePath, filename.c_str(), systemrequest);}
+  {return getPath (td, filenamePath, filename.c_str (), systemrequest);}
 
-  int getPath(string& filenamePath,
+  int getPath (string& filenamePath,
                      const char *filename,
                      int systemrequest)
-  {return getPath(td, filenamePath, filename, systemrequest);}
+  {return getPath (td, filenamePath, filename, systemrequest);}
 
 
-  static int getPath(HttpThreadContext* td,
+  static int getPath (HttpThreadContext* td,
                      string& filenamePath,
                      const string& filename,
                      int systemrequest)
-  {return getPath(td, filenamePath, filename.c_str(), systemrequest);}
+  {return getPath (td, filenamePath, filename.c_str (), systemrequest);}
 
-  static int getPath(HttpThreadContext* td, 
+  static int getPath (HttpThreadContext* td,
                      string& filenamePath,
                      const char *filename,
                      int systemrequest);
 
-  MimeRecord* getMIME(string& filename);
+  MimeRecord* getMIME (string& filename);
 
-  int logHTTPaccess();
-  int sendHTTPRedirect(const char *newURL);
-  int sendHTTPNonModified();
-  Http();
-  virtual ~Http();
-  virtual char* registerName(char* out,int len){return registerNameImpl(out, len);}
+  int logHTTPaccess ();
+  int sendHTTPRedirect (const char *newURL);
+  int sendHTTPNonModified ();
+  Http ();
+  virtual ~Http ();
+  virtual char* registerName (char* out,int len){return registerNameImpl (out, len);}
 
-  static char* registerNameImpl(char*, int len);
-  int controlConnection(ConnectionPtr a, 
-                        char *b1, 
-                        char *b2, 
-                        int bs1, 
-                        int bs2, 
-                        u_long nbtr, 
+  static char* registerNameImpl (char*, int len);
+  int controlConnection (ConnectionPtr a,
+                        char *b1,
+                        char *b2,
+                        int bs1,
+                        int bs2,
+                        u_long nbtr,
                         u_long id);
 
-  static int loadProtocolStatic(XmlParser*);
-
-  static int unLoadProtocolStatic(XmlParser*);
+  static int loadProtocolStatic ();
+  static int unLoadProtocolStatic ();
 
   u_long getTimeout ();
-  int preprocessHttpRequest(string& filename, int yetmapped, 
+  int preprocessHttpRequest (string& filename, int yetmapped,
                             int* permissions);
 
-  int getFilePermissions(string& filename, string& directory, 
-                         string& file, string &filenamePath, 
+  int getFilePermissions (string& filename, string& directory,
+                         string& file, string &filenamePath,
                          int yetmapped, int* permissions);
 
-  static HttpStaticData* getStaticData();
+  static HttpStaticData* getStaticData ();
 
   SecurityToken *getSecurityToken (){return &(td->securityToken);}
 
@@ -194,9 +193,9 @@ protected:
   int processDefaultFile (string& uri, int permissions, int onlyHeader);
 
   struct HttpThreadContext *td;
-  void clean();
-  void computeDigest(char*, char*);
-  u_long checkDigest();
+  void clean ();
+  void computeDigest (char*, char*);
+  u_long checkDigest ();
 };
 
 
@@ -206,40 +205,40 @@ protected:
 class HttpProtocol : public Protocol
 {
 public:
-	HttpProtocol()
+	HttpProtocol ()
   {
     protocolOptions = 0;
   }
 
-  virtual ~HttpProtocol()
+  virtual ~HttpProtocol ()
   {
 
   }
 
-  virtual char* registerName(char* out, int len)
+  virtual char* registerName (char* out, int len)
   {
-    return Http::registerNameImpl(out, len);
+    return Http::registerNameImpl (out, len);
   }
 
-	virtual int controlConnection(ConnectionPtr a, char *b1, char *b2,
+	virtual int controlConnection (ConnectionPtr a, char *b1, char *b2,
                                 int bs1, int bs2, u_long nbtr, u_long id)
   {
     Http http;
     int ret = 0;
 
-    ret = http.controlConnection(a, b1, b2, bs1, bs2, nbtr, id);
+    ret = http.controlConnection (a, b1, b2, bs1, bs2, nbtr, id);
 
     return ret;
   }
 
-	virtual int loadProtocol(XmlParser* parser)
+	virtual int loadProtocol ()
   {
-    return Http::loadProtocolStatic(parser);
+    return Http::loadProtocolStatic ();
   }
-  
-  virtual int unLoadProtocol(XmlParser* parser)
+
+  virtual int unLoadProtocol ()
   {
-    return Http::unLoadProtocolStatic(parser);
+    return Http::unLoadProtocolStatic ();
 
   }
 

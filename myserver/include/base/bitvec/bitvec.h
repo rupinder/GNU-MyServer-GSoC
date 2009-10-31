@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef BITVEC_H
-#define BITVEC_H
+# define BITVEC_H
 
 # include "stdafx.h"
 
@@ -32,7 +32,7 @@ public:
 
   int find ();
 
-  /*! 
+  /*!
    * Set the value of a bit to 1.
    * \param i index of the bit to set.
    */
@@ -41,7 +41,7 @@ public:
     data[i / (sizeof (long int) * 8)] |= 1l << i % (sizeof (long int) * 8);
   }
 
-  /*! 
+  /*!
    * Set the value of a bit to 1.
    * \param i index of the bit to set.
    */
@@ -50,7 +50,7 @@ public:
     data[i / (sizeof (long int) * 8)] &= ~(1l << i % (sizeof (long int) * 8));
   }
 
-  /*! 
+  /*!
    * Get the value of the specified bit.
    * \param i index of the bit to get.
    */
@@ -64,7 +64,7 @@ public:
   {
     delete [] data;
   }
-  
+
   size_t getCapacity ()
   {
     return capacity;

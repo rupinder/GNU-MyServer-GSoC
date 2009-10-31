@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
- #include <include/filter/stream.h>
+#include <include/filter/stream.h>
 
 #include <string>
 #include <sstream>
@@ -48,8 +48,8 @@ int Stream::write (const char* buffer, u_long len, u_long *nbw)
   return 0;
 }
 
-/*! 
- *Write remaining data to the stream. 
+/*!
+ *Write remaining data to the stream.
  */
 int Stream::flush (u_long* nbw)
 {
@@ -67,7 +67,7 @@ Stream::~Stream ()
 
 }
 
-/*! 
+/*!
  *Get the file handle.
  */
 Handle Stream::getHandle ()

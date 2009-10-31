@@ -47,7 +47,7 @@ using namespace std;
  *\param timeout Timeout value to use on the socket.
  *\return Return 0 on success.
  */
-int HttpDataRead::readContiguousPrimitivePostData(const char* inBuffer,
+int HttpDataRead::readContiguousPrimitivePostData (const char* inBuffer,
                                                   u_long *inBufferPos,
                                                   u_long inBufferSize,
                                                   Socket *inSocket,
@@ -58,22 +58,22 @@ int HttpDataRead::readContiguousPrimitivePostData(const char* inBuffer,
 {
   int ret;
   *nbr = 0;
-  if(inBufferSize - *inBufferPos)
+  if (inBufferSize - *inBufferPos)
   {
-    *nbr = min(outBufferSize, inBufferSize - *inBufferPos);
-    memcpy(outBuffer, inBuffer + *inBufferPos, *nbr);
+    *nbr = min (outBufferSize, inBufferSize - *inBufferPos);
+    memcpy (outBuffer, inBuffer + *inBufferPos, *nbr);
     *inBufferPos += *nbr;
   }
 
   /*
    * No other space in the out buffer, return from the function with success.
    */
-  if(outBufferSize == *nbr)
+  if (outBufferSize == *nbr)
     return 0;
 
-  ret = inSocket->recv(outBuffer + *nbr,  outBufferSize - *nbr, 0, timeout);
+  ret = inSocket->recv (outBuffer + *nbr,  outBufferSize - *nbr, 0, timeout);
 
-  if(ret == -1)
+  if (ret == -1)
     return -1;
 
   *nbr += ret;
@@ -100,7 +100,7 @@ int HttpDataRead::readContiguousPrimitivePostData(const char* inBuffer,
  *\return -1 on internal error.
  *\return Any other value is the HTTP error code.
  */
-int HttpDataRead::readChunkedPostData(const char* inBuffer,
+int HttpDataRead::readChunkedPostData (const char* inBuffer,
                                       u_long *inBufferPos,
                                       u_long inBufferSize,
                                       Socket *inSocket,
@@ -124,9 +124,9 @@ int HttpDataRead::readChunkedPostData(const char* inBuffer,
     char c;
     bufferlen = 0;
     buffer[0] = '\0';
-    for(;;)
+    for (;;)
     {
-      if(readContiguousPrimitivePostData(inBuffer,
+      if (readContiguousPrimitivePostData (inBuffer,
                                          inBufferPos,
                                          inBufferSize,
                                          inSocket,
@@ -136,10 +136,10 @@ int HttpDataRead::readChunkedPostData(const char* inBuffer,
                                          timeout))
         return -1;
 
-      if(nbr != 1)
+      if (nbr != 1)
         return -1;
 
-      if((c != '\r') && (bufferlen < 19))
+      if ((c != '\r') && (bufferlen < 19))
       {
         buffer[bufferlen++] = c;
         buffer[bufferlen] = '\0';
@@ -149,7 +149,7 @@ int HttpDataRead::readChunkedPostData(const char* inBuffer,
     }
 
     /* Read the \n character too. */
-    if(readContiguousPrimitivePostData(inBuffer,
+    if (readContiguousPrimitivePostData (inBuffer,
                                        inBufferPos,
                                        inBufferSize,
                                        inSocket,
@@ -159,19 +159,19 @@ int HttpDataRead::readChunkedPostData(const char* inBuffer,
                                        timeout))
        return -1;
 
-    dataToRead = (u_long)hexToInt(buffer);
+    dataToRead = (u_long)hexToInt (buffer);
 
     /*! The last chunk length is 0.  */
-    if(dataToRead == 0)
+    if (dataToRead == 0)
       break;
 
     chunkNbr = 0;
 
-    while(chunkNbr < dataToRead)
+    while (chunkNbr < dataToRead)
     {
-      u_long rs = min(outBufferSize , dataToRead - chunkNbr);
+      u_long rs = min (outBufferSize , dataToRead - chunkNbr);
 
-      if(readContiguousPrimitivePostData(inBuffer,
+      if (readContiguousPrimitivePostData (inBuffer,
                                          inBufferPos,
                                          inBufferSize,
                                          inSocket,
@@ -183,7 +183,7 @@ int HttpDataRead::readChunkedPostData(const char* inBuffer,
         return -1;
       }
 
-      if(nbr == 0)
+      if (nbr == 0)
         return -1;
 
       chunkNbr += nbr;
@@ -191,7 +191,7 @@ int HttpDataRead::readChunkedPostData(const char* inBuffer,
       if (out && out->write (outBuffer, nbr, &nbw))
         return -1;
 
-      if(nbw != nbr)
+      if (nbw != nbr)
         return -1;
 
       if (out)
@@ -200,7 +200,7 @@ int HttpDataRead::readChunkedPostData(const char* inBuffer,
         *outNbr += nbr;
 
       /* Read final chunk \r\n.  */
-      if(readContiguousPrimitivePostData(inBuffer,
+      if (readContiguousPrimitivePostData (inBuffer,
                                          inBufferPos,
                                          inBufferSize,
                                          inSocket,
@@ -223,11 +223,11 @@ int HttpDataRead::readChunkedPostData(const char* inBuffer,
  *\param td The Active thread context.
  *\param httpRetCode The HTTP error to report to the client.
  *\return Return 0 on success.
- *\return Return -1 on irreversible error and 
+ *\return Return -1 on irreversible error and
  *        the connection should be removed immediately.
  *\return Any other value is a protocol error specified in HTTPRETCODE.
  */
-int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
+int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
 {
   int contentLength = 0;
   bool contentLengthSpecified = false;
@@ -235,38 +235,38 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
   u_long bufferDataSize = 0;
 
 
-  u_long timeout = MYSERVER_SEC(10);
+  u_long timeout = MYSERVER_SEC (10);
   u_long inPos = 0;
   u_long nbr;
   u_long length;
 
   HttpRequestHeader::Entry *contentType =
-    td->request.other.get("Content-Type");
+    td->request.other.get ("Content-type");
 
   HttpRequestHeader::Entry *encoding =
-    td->request.other.get("Transfer-Encoding");
+    td->request.other.get ("Transfer-Encoding");
 
   /* Specify a type if it not specified by the client.  */
-  if(contentType == 0)
+  if (contentType == 0)
   {
-    contentType = new HttpRequestHeader::Entry();
-    contentType->name->assign("Content-Type");
-    contentType->value->assign("application/x-www-form-urlencoded");
+    contentType = new HttpRequestHeader::Entry ();
+    contentType->name->assign ("Content-type");
+    contentType->value->assign ("application/x-www-form-urlencoded");
   }
-  else if(contentType->value->length() == 0)
+  else if (contentType->value->length () == 0)
   {
-    contentType->value->assign("application/x-www-form-urlencoded");
+    contentType->value->assign ("application/x-www-form-urlencoded");
   }
 
-  td->request.uriOptsPtr = &(td->buffer->getBuffer())[td->nHeaderChars];
-  td->buffer->getBuffer()[td->nBytesToRead < td->buffer->getRealLength() - 1
-                   ? td->nBytesToRead : td->buffer->getRealLength()-1] = '\0';
+  td->request.uriOptsPtr = &(td->buffer->getBuffer ())[td->nHeaderChars];
+  td->buffer->getBuffer ()[td->nBytesToRead < td->buffer->getRealLength () - 1
+                   ? td->nBytesToRead : td->buffer->getRealLength ()-1] = '\0';
 
-  if(td->request.contentLength.length())
+  if (td->request.contentLength.length ())
   {
-    contentLength = atoi(td->request.contentLength.c_str());
+    contentLength = atoi (td->request.contentLength.c_str ());
     contentLengthSpecified = true;
-    if(contentLength < 0)
+    if (contentLength < 0)
     {
       *httpRetCode = 400;
       return 1;
@@ -279,13 +279,13 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
    *If a CONTENT-ENCODING is specified the CONTENT-LENGTH is not
    *always needed.
    */
-  if(!contentLengthSpecified && td->request.isKeepAlive ())
+  if (!contentLengthSpecified && td->request.isKeepAlive ())
   {
     HttpRequestHeader::Entry *content =
-      td->request.other.get("Content-Encoding");
+      td->request.other.get ("Content-Encoding");
 
-    if(content && (content->value->length() == '\0')
-           && (td->request.contentLength.length() == 0))
+    if (content && (content->value->length () == '\0')
+           && (td->request.contentLength.length () == 0))
     {
       *httpRetCode = 400;
       return 1;
@@ -296,7 +296,7 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
    *Create the file that contains the posted data.
    *This data is the stdin file in the CGI.
    */
-  if(td->inputData.openFile(td->inputDataPath, File::FILE_CREATE_ALWAYS |
+  if (td->inputData.openFile (td->inputDataPath, File::FILE_CREATE_ALWAYS |
                             File::READ |
                             File::WRITE))
   {
@@ -306,34 +306,34 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
 
   length = contentLength;
 
-  bufferDataSize = (td->nBytesToRead < td->buffer->getRealLength() - 1
+  bufferDataSize = (td->nBytesToRead < td->buffer->getRealLength () - 1
                     ? td->nBytesToRead
-                    : td->buffer->getRealLength() - 1 ) - td->nHeaderChars;
+                    : td->buffer->getRealLength () - 1 ) - td->nHeaderChars;
 
   /* If it is specified a transfer encoding read data using it.  */
-  if(encoding)
+  if (encoding)
   {
-    if(!encoding->value->compare("chunked"))
+    if (!encoding->value->compare ("chunked"))
     {
       int ret = readChunkedPostData (td->request.uriOptsPtr,
                                      &inPos,
                                      bufferDataSize,
                                      td->connection->socket,
-                                     td->secondaryBuffer->getBuffer(),
-                                     td->secondaryBuffer->getRealLength() - 1,
+                                     td->secondaryBuffer->getBuffer (),
+                                     td->secondaryBuffer->getRealLength () - 1,
                                      &nbr,
                                      timeout,
                                      &(td->inputData),
                                      0);
 
-      if(ret == -1)
+      if (ret == -1)
       {
-        td->inputDataPath.assign("");
-        td->outputDataPath.assign("");
-        td->inputData.close();
+        td->inputDataPath.assign ("");
+        td->outputDataPath.assign ("");
+        td->inputData.close ();
         return -1;
       }
-      else if(ret)
+      else if (ret)
       {
         *httpRetCode = ret;
         return 1;
@@ -359,7 +359,7 @@ int HttpDataRead::readPostData(HttpThreadContext* td, int* httpRetCode)
         {
 
           /* Do not try to read more than what we expect.  */
-          u_long dimBuffer = std::min (td->secondaryBuffer->getRealLength() - 1ul,
+          u_long dimBuffer = std::min (td->secondaryBuffer->getRealLength () - 1ul,
                                        length);
 
           if (readContiguousPrimitivePostData (td->request.uriOptsPtr,

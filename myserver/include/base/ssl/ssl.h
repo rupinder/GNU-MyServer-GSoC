@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -17,33 +17,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SSL_H
-#define SSL_H
+# define SSL_H
 
-#include "stdafx.h"
+# include "stdafx.h"
 
-#include <gnutls/openssl.h>
-#include <string>
+# include <gnutls/openssl.h>
+# include <string>
 
 using namespace std;
 
 class SslContext
 {
 public:
-	SslContext();
+	SslContext ();
 
-	int initialize();
-	int free();
+	int initialize ();
+	int free ();
 
-	SSL_CTX* getContext(){return context;}
-	SSL_METHOD* getMethod(){return method;}
+	SSL_CTX* getContext (){return context;}
+	SSL_METHOD* getMethod (){return method;}
 
-	string& getCertificateFile(){return certificateFile;}
-	string& getPrivateKeyFile(){return privateKeyFile;}
-	string& getPassword(){return password;}
+	string& getCertificateFile (){return certificateFile;}
+	string& getPrivateKeyFile (){return privateKeyFile;}
+	string& getPassword (){return password;}
 
-	void setCertificateFile(string& c){certificateFile.assign (c);}
-	void setPrivateKeyFile(string& pk){privateKeyFile.assign (pk);}
-	void setPassword(string& p){password.assign (p);}
+	void setCertificateFile (string& c){certificateFile.assign (c);}
+	void setPrivateKeyFile (string& pk){privateKeyFile.assign (pk);}
+	void setPassword (string& p){password.assign (p);}
 
 private:
 	SSL_CTX* context;
@@ -54,7 +54,7 @@ private:
 	string password;
 };
 
-void initializeSSL();
-void cleanupSSL();
+void initializeSSL ();
+void cleanupSSL ();
 
 #endif

@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2005, 2007 Free Software Foundation, Inc.
+Copyright (C) 2005, 2007, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -17,50 +17,41 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef FILTER_H
-#define FILTER_H
-#include "stdafx.h"
-#include <include/filter/stream.h>
-#include <include/protocol/protocol.h>
+# define FILTER_H
+# include "stdafx.h"
+# include <include/filter/stream.h>
+# include <include/protocol/protocol.h>
 
 /*!
- *Abstract class to handle virtual data filters.
+ * Abstract class to handle virtual data filters.
  */
 class Filter : public Stream
 {
-protected:
-  Protocol *protocol;
-  Stream *parent;
-  void* protocolData;
 public:
-  Protocol* getProtocol()
+  Protocol* getProtocol ()
   {
     return protocol;
   }
-  void setProtocol(Protocol* pr)
+  void setProtocol (Protocol* pr)
   {
     protocol = pr;
   }
-  void* getProtocolData()
-  {
-    return protocolData;
-  }
-  void setProtocolData(void* prd)
-  {
-    protocolData = prd;
-  }
-  virtual int getHeader(char* buffer, u_long len, u_long* nbw);
-  virtual int getFooter(char* buffer, u_long len, u_long* nbw);
-  virtual int read(char* buffer, u_long len, u_long*);
-  virtual int write(const char* buffer, u_long len, u_long*);
-	virtual int flush(u_long*);
-	virtual int modifyData();
-  virtual const char* getName(char*, u_long);
-  void setParent(Stream*);
-  Stream* getParent();
-  Filter();
+  virtual int getHeader (char* buffer, u_long len, u_long* nbw);
+  virtual int getFooter (char* buffer, u_long len, u_long* nbw);
+  virtual int read (char* buffer, u_long len, u_long*);
+  virtual int write (const char* buffer, u_long len, u_long*);
+	virtual int flush (u_long*);
+	virtual int modifyData ();
+  virtual const char* getName (char*, u_long);
+  void setParent (Stream*);
+  Stream* getParent ();
+  Filter ();
   /*! Avoid direct instances of this class. */
-  virtual ~Filter()=0;
-};
+  virtual ~Filter () = 0;
 
+protected:
+  Protocol *protocol;
+  Stream *parent;
+};
 
 #endif

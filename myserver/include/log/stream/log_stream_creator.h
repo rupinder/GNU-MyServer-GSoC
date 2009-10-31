@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
   MyServer
-  Copyright (C) 2006, 2008 Free Software Foundation, Inc.
+  Copyright (C) 2006, 2008, 2009 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -17,13 +17,13 @@
 */
 
 #ifndef LOG_STREAM_CREATOR_H
-#define LOG_STREAM_CREATOR_H
+# define LOG_STREAM_CREATOR_H
 
-#include <list>
-#include <string>
+# include <list>
+# include <string>
 
-#include <include/log/stream/log_stream.h>
-#include <include/filter/filters_factory.h>
+# include <include/log/stream/log_stream.h>
+# include <include/filter/filters_factory.h>
 
 class LogStreamCreator
 {

@@ -17,16 +17,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef PROCESS_H
-#define PROCESS_H
+# define PROCESS_H
 
-#include "stdafx.h"
+# include "stdafx.h"
 
-#include <include/base/file/file.h>
-#include <include/base/sync/mutex.h>
-#include <include/base/process/fork_server.h>
-#include <include/base/string/stringutils.h>
+# include <include/base/file/file.h>
+# include <include/base/sync/mutex.h>
+# include <include/base/process/fork_server.h>
+# include <include/base/string/stringutils.h>
 
-#include <string>
+# include <string>
 
 /*!
  *Structure used for start a new process.
@@ -40,17 +40,17 @@ struct StartProcInfo
   }
 
 	/*! STDIN file for new process.  */
-	FileHandle stdIn;	
-	
+	FileHandle stdIn;
+
 	/*! STDOUT file for new process.  */
 	FileHandle stdOut;
-	
+
 	/*! STDERR file for new process.  */
 	FileHandle stdError;
-	
+
 	string cmdLine;
 	string cwd;
-	
+
 	/*! added for unix support.  */
 	string cmd;
 	string arg;
@@ -63,29 +63,35 @@ struct StartProcInfo
 
 	void *envString;
 
-  /*! Pointer to a NULL terminated array of 
+  /*! Pointer to a NULL terminated array of
    *  file pointers to close.  */
-  FileHandle *handlesToClose; 
+  FileHandle *handlesToClose;
+
+  /* If the length > 0 then change the current root
+     directory to the specified value before execute
+     the process.  */
+  string chroot;
 };
 
 class Process
 {
 public:
-#ifdef HAVE_PTHREAD
+# ifdef HAVE_PTHREAD
 	static Mutex forkMutex;
-	static void forkPrepare();
-	static void forkParent();
-	static void forkChild();
-#endif
-	static void initialize();
+	static void forkPrepare ();
+	static void forkParent ();
+	static void forkChild ();
+# endif
+	static void initialize ();
   int exec (StartProcInfo *spi, bool waitEnd = false);
-  int terminateProcess();
-  int isProcessAlive();
-  static int setuid(const char*);
-  static int setgid(const char*);
-	static int setAdditionalGroups(u_long len, u_long *groups);
-  Process();
-  ~Process();
+  int terminateProcess ();
+  int isProcessAlive ();
+  static int chroot (const char *root);
+  static int setuid (const char*);
+  static int setgid (const char*);
+	static int setAdditionalGroups (u_long len, u_long *groups);
+  Process ();
+  ~Process ();
 
   /*! Return the process ID.  */
   int getPid (){return pid;}
@@ -96,8 +102,10 @@ public:
   static uid_t getUid (const char *user);
   static gid_t getGid (const char *group);
 
-  static int generateEnvString (const char **envp, char *envString);
-  static int generateArgList (const char **args, const char *proc, string &additionalArgs);
+  static int generateEnvString (const char **envp, size_t size,
+                                char *envString);
+  static int generateArgList (const char **args, size_t size, const char *proc,
+                              string &additionalArgs);
 
   static ForkServer *getForkServer (){return &forkServer;}
 private:

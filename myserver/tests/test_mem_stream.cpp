@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,30 +27,30 @@
 
 class TestMemStream : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestMemStream );
-  CPPUNIT_TEST( testRead );
-  CPPUNIT_TEST( testWrite );
-  CPPUNIT_TEST( testFlush );
-  CPPUNIT_TEST( testRefresh );
-  CPPUNIT_TEST( testAvailableToRead );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestMemStream );
+  CPPUNIT_TEST ( testRead );
+  CPPUNIT_TEST ( testWrite );
+  CPPUNIT_TEST ( testFlush );
+  CPPUNIT_TEST ( testRefresh );
+  CPPUNIT_TEST ( testAvailableToRead );
+  CPPUNIT_TEST_SUITE_END ();
 
   MemoryStream *stream;
 
 public:
-  void setUp()
+  void setUp ()
   {
-    stream = new MemoryStream();
+    stream = new MemoryStream ();
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete stream;
   }
 
 
   /* Helper method.  */
-  u_long addSomeData(MemoryStream* s)
+  u_long addSomeData (MemoryStream* s)
   {
     u_long nbw;
 
@@ -59,72 +59,72 @@ public:
                       the Free Software Foundation; either version 3 of the License, or\n\
                       (at your option) any later version.\n";
 
-    s->write(data, 512, &nbw);
+    s->write (data, 512, &nbw);
 
     return nbw;
   }
-  
-  void testAvailableToRead()
+
+  void testAvailableToRead ()
   {
-    u_long size = addSomeData(stream);
+    u_long size = addSomeData (stream);
 
-    CPPUNIT_ASSERT_EQUAL(size, (u_long)stream->availableToRead());
-  } 
+    CPPUNIT_ASSERT_EQUAL (size, (u_long)stream->availableToRead ());
+  }
 
-  void testRead()
+  void testRead ()
   {
     u_long nbr;
-    u_long size = addSomeData(stream);
+    u_long size = addSomeData (stream);
 
     char buffer[20];
 
-    CPPUNIT_ASSERT_EQUAL(size, (u_long)stream->availableToRead());
+    CPPUNIT_ASSERT_EQUAL (size, (u_long)stream->availableToRead ());
 
-    stream->read(buffer, 20, &nbr);
-    
-    CPPUNIT_ASSERT_EQUAL(size - 20u, (u_long)stream->availableToRead());
+    stream->read (buffer, 20, &nbr);
+
+    CPPUNIT_ASSERT_EQUAL (size - 20u, (u_long)stream->availableToRead ());
   }
 
 
-  void testRefresh()
+  void testRefresh ()
   {
     u_long nbr;
-    u_long size = addSomeData(stream);
+    u_long size = addSomeData (stream);
 
     char buffer[20];
 
-    CPPUNIT_ASSERT_EQUAL(size, (u_long)stream->availableToRead());
+    CPPUNIT_ASSERT_EQUAL (size, (u_long)stream->availableToRead ());
 
-    stream->read(buffer, 20, &nbr);
-    stream->refresh();
+    stream->read (buffer, 20, &nbr);
+    stream->refresh ();
 
-    CPPUNIT_ASSERT_EQUAL((u_long)stream->availableToRead(), 0ul);
+    CPPUNIT_ASSERT_EQUAL ((u_long)stream->availableToRead (), 0ul);
   }
 
 
-  void testWrite()
+  void testWrite ()
   {
     u_long nbw;
 
-    int ret = stream->write("hello world!", 12, &nbw);
+    int ret = stream->write ("hello world!", 12, &nbw);
 
-    CPPUNIT_ASSERT_EQUAL(ret, 0);
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
 
-    CPPUNIT_ASSERT_EQUAL((u_long)stream->availableToRead(), 12ul);
+    CPPUNIT_ASSERT_EQUAL ((u_long)stream->availableToRead (), 12ul);
   }
 
-  void testFlush()
+  void testFlush ()
   {
     u_long nbw;
-    addSomeData(stream);
-    int ret = stream->flush(&nbw);
-    
-    CPPUNIT_ASSERT(nbw >= 0);
-    CPPUNIT_ASSERT_EQUAL(ret, 0);
+    addSomeData (stream);
+    int ret = stream->flush (&nbw);
+
+    CPPUNIT_ASSERT (nbw >= 0);
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
   }
 
 
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestMemStream );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestMemStream );

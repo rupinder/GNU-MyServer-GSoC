@@ -42,35 +42,35 @@ extern "C" {
 #include <sys/types.h>
 
 #ifdef WIN32
-#include <direct.h>
+# include <direct.h>
 #endif
 
-#define  PTHREAD_ALTERNATE_LOCK 1
+#define PTHREAD_ALTERNATE_LOCK 1
 
 /*!
  *Constructor for the semaphore class.
  */
-Semaphore::Semaphore(int n)
+Semaphore::Semaphore (int n)
 {
   initialized = 0;
-  init(n);
+  init (n);
 }
 
 /*!
  *Initialize the semaphore.
  */
-int Semaphore::init(int n)
+int Semaphore::init (int n)
 {
   int ret = 0;
-  if(initialized)
+  if (initialized)
   {
-    destroy();
+    destroy ();
     initialized = 0;
   }
 #ifdef HAVE_PTHREAD
-  ret = sem_init(&semaphore, 0, n);
+  ret = sem_init (&semaphore, 0, n);
 #else
-  semaphore = CreateSemaphore(0, n, LONG_MAX, 0);
+  semaphore = CreateSemaphore (0, n, LONG_MAX, 0);
   ret = !semaphore;
 #endif
   initialized = 1;
@@ -80,14 +80,14 @@ int Semaphore::init(int n)
 /*!
  *Destroy the semaphore.
  */
-int Semaphore::destroy()
+int Semaphore::destroy ()
 {
 #ifdef HAVE_PTHREAD
-  if(initialized)
-    sem_destroy(&semaphore);
+  if (initialized)
+    sem_destroy (&semaphore);
 #else
-  if(initialized)
-    CloseHandle(semaphore);
+  if (initialized)
+    CloseHandle (semaphore);
 #endif
   initialized = 0;
   return 0;
@@ -96,21 +96,21 @@ int Semaphore::destroy()
 /*!
  *Lock the semaphore (p).
  */
-int Semaphore::lock(u_long /*id*/)
+int Semaphore::lock (u_long /*id*/)
 {
   int err = 0;
 #ifdef HAVE_PTHREAD
 
-#ifdef PTHREAD_ALTERNATE_LOCK
-  err = sem_wait(&semaphore);
-#else
+# ifdef PTHREAD_ALTERNATE_LOCK
+  err = sem_wait (&semaphore);
+# else
   timespec ts =  {3, 0};
-  while(sem_timedwait(&semaphore, &ts) && errno == ETIMEDOUT)
-    Thread::wait(1);
-#endif
+  while (sem_timedwait (&semaphore, &ts) && errno == ETIMEDOUT)
+    Thread::wait (1);
+# endif
 
-#else  
-  err = (WaitForSingleObject(semaphore, INFINITE) == WAIT_FAILED) ? 1 : 0;
+#else
+  err = (WaitForSingleObject (semaphore, INFINITE) == WAIT_FAILED) ? 1 : 0;
 #endif
   return err;
 }
@@ -118,13 +118,13 @@ int Semaphore::lock(u_long /*id*/)
 /*!
 *Unlock the semaphore access (n).
 */
-int Semaphore::unlock(u_long/*! id*/)
+int Semaphore::unlock (u_long/*! id*/)
 {
   int err;
 #ifdef HAVE_PTHREAD
-  err = sem_post(&semaphore);
-#else  
-  err = (ReleaseSemaphore(semaphore, 1, NULL) == FALSE) ? 1 : 0;
+  err = sem_post (&semaphore);
+#else
+  err = (ReleaseSemaphore (semaphore, 1, NULL) == FALSE) ? 1 : 0;
 #endif
   return err;
 }
@@ -132,7 +132,7 @@ int Semaphore::unlock(u_long/*! id*/)
 /*!
 *Destroy the object.
 */
-Semaphore::~Semaphore()
+Semaphore::~Semaphore ()
 {
-  destroy();
+  destroy ();
 }

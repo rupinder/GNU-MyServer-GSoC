@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -20,69 +20,59 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /*!
  * Compile the regex pattern.
  */
-int Regex::compile(const char *p, int f)
+int Regex::compile (const char *p, int f)
 {
-#ifdef REGEX | TRE
-  int ret = regcomp(&compiledRegex, p, f);
-  pattern.assign(p);
+  int ret = regcomp (&compiledRegex, p, f);
+  pattern.assign (p);
   flags = f;
-  if(!ret)
+  if (!ret)
     compiled = 1;
+
   return ret;
-#endif
-  return -1;
 }
 
 /*!
  * Match the pattern against strings.
  */
-int Regex::exec(const char *text, size_t nmatch, regmatch_t matchptr [], 
-                int eflags)
+int Regex::exec (const char *text, size_t nmatch, regmatch_t matchptr [],
+                 int eflags)
 {
-#ifdef REGEX | TRE
-  if(!compiled)
+  if (!compiled)
     return 1;
-  int ret = regexec (&compiledRegex, text, nmatch, matchptr, eflags);
-  return ret;
-#endif
-  return -1;
+
+  return regexec (&compiledRegex, text, nmatch, matchptr, eflags);
 }
 
 /*!
  * Free the used memory.
  */
-void Regex::free()
+void Regex::free ()
 {
-#ifdef REGEX | TRE
-  if(compiled)
-    regfree(&compiledRegex);
+  if (compiled)
+    regfree (&compiledRegex);
   compiled = 0;
-#endif
 }
 
 /*!
  * Destructor for the class
  */
-Regex::~Regex()
+Regex::~Regex ()
 {
-#ifdef REGEX | TRE
-  free();
-#endif
+  free ();
 }
 
 /*!
  * Constructor for the class.
  */
-Regex::Regex(const char *pattern, int flags)
+Regex::Regex (const char *pattern, int flags)
 {
-#ifdef REGEX | TRE
-  compile(pattern, flags);
-#endif
+  compiled = 0;
+  compile (pattern, flags);
 }
 /*!
  * Return a nonzero value if the regex was compiled.
  */
-int Regex::isCompiled()
+int Regex::isCompiled ()
 {
   return compiled;
 }
@@ -90,17 +80,19 @@ int Regex::isCompiled()
 /*!
  * Construct by copy.
  */
-Regex::Regex(Regex& r)
+Regex::Regex (Regex& r)
 {
-  clone(r);
+  clone (r);
 }
 
 /*!
  * Create a clone.
  */
-void Regex::clone(Regex& r)
+void Regex::clone (Regex& r)
 {
-#ifdef REGEX | TRE
-  compile(r.pattern.c_str(), r.flags);
-#endif
+  r.compiled = compiled;
+  if (!compiled)
+    return;
+
+  compile (r.pattern.c_str (), r.flags);
 }

@@ -17,13 +17,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef XML_CONF_H
-#define XML_CONF_H
+# define XML_CONF_H
 
-#include <include/conf/nodetree.h>
-#include <include/base/xml/xml_parser.h>
-#include <include/base/hash_map/hash_map.h>
+# include <include/conf/nodetree.h>
+# include <include/base/xml/xml_parser.h>
+# include <include/base/hash_map/hash_map.h>
 
-#include <list>
+# include <list>
 
 using namespace std;
 

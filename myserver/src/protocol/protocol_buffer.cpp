@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /*!
  *Create the buffer.
  */
-ProtocolBuffer::ProtocolBuffer()
+ProtocolBuffer::ProtocolBuffer ()
 {
 
 }
@@ -28,17 +28,17 @@ ProtocolBuffer::ProtocolBuffer()
 /*!
  *Destroy the protocol buffer object.
  */
-ProtocolBuffer::~ProtocolBuffer()
+ProtocolBuffer::~ProtocolBuffer ()
 {
 
 }
 
 /*!
- *Check if the protocol allows the connection to be removed. 
+ *Check if the protocol allows the connection to be removed.
  *\param wait Define if the protocol can wait that the current job is
  *finished before.
  */
-bool ProtocolBuffer::allowDelete(bool wait)
+bool ProtocolBuffer::allowDelete (bool wait)
 {
   return true;
 }

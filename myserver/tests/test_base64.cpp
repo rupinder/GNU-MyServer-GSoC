@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,39 +30,39 @@ using namespace std;
 
 class TestBase64 : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestBase64 );
-  CPPUNIT_TEST( testEncodeDecode );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestBase64 );
+  CPPUNIT_TEST ( testEncodeDecode );
+  CPPUNIT_TEST_SUITE_END ();
 
   CBase64Utils *base64;
 public:
-  void setUp()
+  void setUp ()
   {
-    base64 = new CBase64Utils();
+    base64 = new CBase64Utils ();
 
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete base64;
   }
 
-  void testEncodeDecode()
+  void testEncodeDecode ()
   {
     int len = 0;
     char* input = (char*) "Hello world!\n";
-    char* encoded = base64->encode(input, 13);
+    char* encoded = base64->encode (input, 13);
 
-    len = strlen(encoded);
+    len = strlen (encoded);
 
-    char* decoded = base64->decode(encoded, &len);
+    char* decoded = base64->decode (encoded, &len);
 
-    CPPUNIT_ASSERT_EQUAL(strlen(input), strlen(decoded));
+    CPPUNIT_ASSERT_EQUAL (strlen (input), strlen (decoded));
 
-    for (unsigned int i = 0; i < strlen(decoded); i++)
-      CPPUNIT_ASSERT_EQUAL(input[i], decoded[i]);
+    for (unsigned int i = 0; i < strlen (decoded); i++)
+      CPPUNIT_ASSERT_EQUAL (input[i], decoded[i]);
   }
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestBase64 );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestBase64 );

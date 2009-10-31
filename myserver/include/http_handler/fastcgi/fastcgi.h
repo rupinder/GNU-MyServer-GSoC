@@ -17,31 +17,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef FASTCGI_H
-#define FASTCGI_H
+# define FASTCGI_H
 
-#include "stdafx.h"
-#include <include/protocol/http/http_headers.h>
-#include <include/base/utility.h>
-#include <include/base/socket/socket.h>
-#include <include/conf/vhost/vhost.h>
-#include <include/protocol/http/http_errors.h>
-#include <include/connection/connection.h>
-#include <include/base/string/stringutils.h>
-#include <include/base/thread/thread.h>
-#include <include/base/sync/mutex.h>
-#include <include/protocol/http/http_data_handler.h>
-#include <include/base/hash_map/hash_map.h>
-#include <include/base/process/process_server_manager.h>
-#include <string>
+# include "stdafx.h"
+# include <include/protocol/http/http_headers.h>
+# include <include/base/utility.h>
+# include <include/base/socket/socket.h>
+# include <include/conf/vhost/vhost.h>
+# include <include/protocol/http/http_errors.h>
+# include <include/connection/connection.h>
+# include <include/base/string/stringutils.h>
+# include <include/base/thread/thread.h>
+# include <include/base/sync/mutex.h>
+# include <include/protocol/http/http_data_handler.h>
+# include <include/base/hash_map/hash_map.h>
+# include <include/base/process/process_server_manager.h>
+# include <string>
 
 using namespace std;
 
-/*!
- *Listening socket file number.
- */
-#define FCGI_LISTENSOCK_FILENO 0
-
-typedef struct 
+typedef struct
 {
     unsigned char version;
     unsigned char type;
@@ -56,30 +51,30 @@ typedef struct
 /*!
  *Value for version component of FcgiHeader.
  */
-#define FCGIVERSION_1           1
+# define FCGIVERSION_1           1
 
 /*!
  *Current version of the FastCGI protocol.
  */
-#define FCGIVERSION FCGIVERSION_1
+# define FCGIVERSION FCGIVERSION_1
 
 /*!
  *Values for type component of FcgiHeader
  */
-#define FCGIBEGIN_REQUEST       1
-#define FCGIABORT_REQUEST       2
-#define FCGIEND_REQUEST         3
-#define FCGIPARAMS              4
-#define FCGISTDIN               5
-#define FCGISTDOUT              6
-#define FCGISTDERR              7
-#define FCGIDATA                8
-#define FCGIGET_VALUES          9
-#define FCGIGET_VALUES_RESULT  10
-#define FCGIUNKNOWN_TYPE       11
-#define FCGIMAXTYPE (FCGIUNKNOWN_TYPE)
+# define FCGIBEGIN_REQUEST       1
+# define FCGIABORT_REQUEST       2
+# define FCGIEND_REQUEST         3
+# define FCGIPARAMS              4
+# define FCGISTDIN               5
+# define FCGISTDOUT              6
+# define FCGISTDERR              7
+# define FCGIDATA                8
+# define FCGIGET_VALUES          9
+# define FCGIGET_VALUES_RESULT  10
+# define FCGIUNKNOWN_TYPE       11
+# define FCGIMAXTYPE (FCGIUNKNOWN_TYPE)
 
-typedef struct 
+typedef struct
 {
     unsigned char roleB1;
     unsigned char roleB0;
@@ -87,7 +82,7 @@ typedef struct
     unsigned char reserved[5];
 } FcgiBeginRequestBody;
 
-typedef struct 
+typedef struct
 {
     FcgiHeader header;
     FcgiBeginRequestBody body;
@@ -96,16 +91,16 @@ typedef struct
 /*!
  *Mask for flags component of FcgiBeginRequestBody.
  */
-#define FCGIKEEP_CONN  1
+# define FCGIKEEP_CONN  1
 
 /*!
  *Values for role component of FcgiBeginRequestBody.
  */
-#define FCGIRESPONDER  1
-#define FCGIAUTHORIZER 2
-#define FCGIFILTER     3
+# define FCGIRESPONDER  1
+# define FCGIAUTHORIZER 2
+# define FCGIFILTER     3
 
-typedef struct 
+typedef struct
 {
     unsigned char appStatusB3;
     unsigned char appStatusB2;
@@ -115,7 +110,7 @@ typedef struct
     unsigned char reserved[3];
 } FcgiEndRequestBody;
 
-typedef struct 
+typedef struct
 {
     FcgiHeader header;
     FcgiEndRequestBody body;
@@ -124,18 +119,18 @@ typedef struct
 /*!
  *Values for protocolStatus component of FcgiEndRequestBody.
  */
-#define FCGIREQUEST_COMPLETE 0
-#define FCGICANT_MPX_CONN    1
-#define FCGIOVERLOADED       2
-#define FCGIUNKNOWN_ROLE     3
+# define FCGIREQUEST_COMPLETE 0
+# define FCGICANT_MPX_CONN    1
+# define FCGIOVERLOADED       2
+# define FCGIUNKNOWN_ROLE     3
 
-typedef struct 
+typedef struct
 {
-    unsigned char type;    
+    unsigned char type;
     unsigned char reserved[7];
 } FcgiUnknownTypeBody;
 
-typedef struct 
+typedef struct
 {
     FcgiHeader header;
     FcgiUnknownTypeBody body;
@@ -146,9 +141,9 @@ typedef ProcessServerManager::Server FastCgiServer;
 
 struct FcgiContext
 {
-	HttpThreadContext* td;
+  HttpThreadContext* td;
   FastCgiServer* server;
-	Socket sock;
+  Socket sock;
 
   bool useChunks;
   bool keepalive;
@@ -162,34 +157,34 @@ class FastCgi : public HttpDataHandler
 public:
   static int getTimeout ();
   static void setTimeout (int);
-	FastCgi ();
-	virtual int load ();
-	virtual int send (HttpThreadContext* td, const char* scriptpath,
+  FastCgi ();
+  virtual int load ();
+  virtual int send (HttpThreadContext* td, const char* scriptpath,
                     const char *cgipath, bool execute = false,
                     bool onlyHeader = false);
 
-	virtual int unLoad ();
+  virtual int unLoad ();
 private:
-	static ProcessServerManager *processServerManager;
-	static int timeout;
-	static int initialized;
+  static ProcessServerManager *processServerManager;
+  static int timeout;
+  static int initialized;
 
-  int handleHeader (FcgiContext* con, FiltersChain* chain, 
-                    bool *responseCompleted);
-  int sendData (FcgiContext* con, u_long dim, 
+  int handleHeader (FcgiContext* con, FiltersChain* chain,
+                    bool *responseCompleted, bool onlyHeader);
+  int sendData (FcgiContext* con, u_long dim,
                 u_long timeout, FiltersChain* chain,
-                bool *responseCompleted, int onlyHeader);
+                bool *responseCompleted, bool onlyHeader);
   int fastCgiRequest (FcgiContext* con, int id);
   int readHeader (FcgiContext *con, FcgiHeader* header,
                   u_long started, u_long timeout, int id);
 
 
-	void generateFcgiHeader ( FcgiHeader&, int ,int, int );
-	Socket getFcgiConnection ();
-	int buildFASTCGIEnvironmentString (HttpThreadContext*,char*,char*);
-	int sendFcgiBody (FcgiContext* con, char* buffer, int len, int type, int id);
-	FastCgiServer* isFcgiServerRunning (const char*);
+  void generateFcgiHeader ( FcgiHeader&, int ,int, int );
+  Socket getFcgiConnection ();
+  int buildFASTCGIEnvironmentString (HttpThreadContext*,char*,char*);
+  int sendFcgiBody (FcgiContext* con, char* buffer, int len, int type, int id);
+  FastCgiServer* isFcgiServerRunning (const char*);
   FastCgiServer* runFcgiServer (FcgiContext*, const char*);
-	FastCgiServer* connect (FcgiContext*, const char*);
+  FastCgiServer* connect (FcgiContext*, const char*);
 };
 #endif

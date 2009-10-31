@@ -18,120 +18,123 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/connections_scheduler/connections_scheduler.h>
 #include <include/server/server.h>
 
-static DEFINE_THREAD(dispatcher, p)
+static DEFINE_THREAD (dispatcher, p)
 {
   ConnectionsScheduler::DispatcherArg *da = (ConnectionsScheduler::DispatcherArg*)p;
 
-  if(da == NULL)
+  if (da == NULL)
     return NULL;
 
-  da->mutex->lock();
-  if(!da->terminated)
-  {
-    da->mutex->unlock();
-    return 0;
-  }
+  da->mutex->lock ();
+  if (!da->terminated)
+    {
+      da->mutex->unlock ();
+      return 0;
+    }
 
   da->terminated = false;
 
-  da->mutex->unlock();
+  da->mutex->unlock ();
 
-  while(!da->terminate)
-  {    
-    int res;
-
-    da->mutex->lock();
-    res = event_loop(EVLOOP_ONCE);
-    da->mutex->unlock();
-
-    if(res == 1)
+  while (!da->terminate)
     {
-      Thread::wait(10);
+      int res;
+
+      da->mutex->lock ();
+      res = event_loop (EVLOOP_ONCE);
+      da->mutex->unlock ();
+
+      if (res == 1)
+        Thread::wait (10);
     }
 
-  }
-  
-  da->mutex->lock();
+  da->mutex->lock ();
   da->terminated = true;
-  da->mutex->unlock();
+  da->mutex->unlock ();
 
   return NULL;
 }
 
-static void newDataHandler(int fd, short event, void *param)
+static void newDataHandler (int fd, short event, void *param)
 {
   ConnectionsScheduler::DispatcherArg* arg = (ConnectionsScheduler::DispatcherArg*) param;
 
-  if(!arg->terminate && arg->scheduler)
-    arg->scheduler->newData(event, fd);
+  if (!arg->terminate && arg->scheduler)
+    arg->scheduler->newData (event, fd);
 }
 
 
-void ConnectionsScheduler::newData(short event, SocketHandle handle)
+void ConnectionsScheduler::newData (short event, SocketHandle handle)
 {
   ConnectionPtr connection = NULL;
 
-  connectionsMutex.lock();
+  connectionsMutex.lock ();
   connection = connections.get (handle);
-  connectionsMutex.unlock();
+  connectionsMutex.unlock ();
 
-
-  if(connection == NULL || server == NULL)
+  if (connection == NULL || server == NULL)
     return;
 
-  if(event == EV_TIMEOUT)
-  {
-    if(!connection->allowDelete())
-      return;
+  if (event == EV_READ)
+    addReadyConnection (connection);
+  else if (event == EV_TIMEOUT)
+    {
+      if (!connection->allowDelete ())
+        return;
 
-    server->notifyDeleteConnection(connection);
+      server->notifyDeleteConnection (connection);
 
-    removeConnection(connection);
-  }
-  else if(event == EV_READ)
-  {
-    addReadyConnection(connection);
-  }
+      removeConnection (connection);
+    }
 }
 
-static void eventLoopHandler(int fd, short event, void *arg)
+static void eventLoopHandler (int fd, short event, void *arg)
 {
   ConnectionsScheduler::DispatcherArg *da = (ConnectionsScheduler::DispatcherArg*)arg;
   u_long nbr;
+  timeval tv = {10, 0};
+
   if (event == EV_READ || event == EV_TIMEOUT)
-  {
-    Socket sock (da->socketPair.getFirstHandle ());
-
-    while (da->socketPair.bytesToRead())
     {
-      char cmd;
-      da->socketPair.read (&cmd, 1, &nbr);
-      if (cmd == 'c')
-      {
-        /*
-         *Schedule a new connection.
-         *The 'c' command is followed by:
-         *SocketHandle  -> Socket to monitor for new data.
-         *ConnectionPtr -> Related Connection.
-         *timeval       -> Timeout.
-         */
-        SocketHandle handle;
-        ConnectionPtr c;
-        timeval tv = {10, 0};
+      while (da->socketPair.bytesToRead ())
+        {
+          char cmd;
+          da->socketPair.read (&cmd, 1, &nbr);
+          switch (cmd)
+            {
+            case 'c':
+              /*
+               * Schedule a new connection.
+               * The 'c' command is followed by:
+               * SocketHandle  -> Socket to monitor for new data.
+               * ConnectionPtr -> Related Connection.
+               * timeval       -> Timeout.
+               */
+              SocketHandle handle;
+              ConnectionPtr c;
 
-        da->socketPair.read ((char*)&handle, sizeof(SocketHandle), &nbr);
-        da->socketPair.read ((char*)&c, sizeof(ConnectionPtr), &nbr);
-        da->socketPair.read ((char*)&tv, sizeof(timeval), &nbr);
+              da->socketPair.read ((char*)&handle, sizeof (SocketHandle), &nbr);
+              da->socketPair.read ((char*)&c, sizeof (ConnectionPtr), &nbr);
+              da->socketPair.read ((char*)&tv, sizeof (timeval), &nbr);
+              event_once (handle, EV_READ | EV_TIMEOUT, newDataHandler, da, &tv);
+              break;
 
-        event_once ((int) handle, EV_READ | EV_TIMEOUT, newDataHandler, da, &tv);
-      }
-      if (cmd == 'r')
-        return;
-      /* Handle other cmd without do anything else.  */
+            case 'l':
+              ConnectionsScheduler::ListenerArg *arg;
+              da->socketPair.read ((char*)&arg, sizeof (arg), &nbr);
+              event_add (&(arg->ev), &tv);
+              break;
+
+            case 'r':
+              return;
+
+            default:
+              /* Handle other cmd with a nop.  */
+              continue;
+            }
+        }
     }
-
-    event_add (&(da->loopEvent), NULL);
-  }
+  event_add (&(da->loopEvent), NULL);
 }
 
 static void listenerHandler (int fd, short event, void *arg)
@@ -139,76 +142,77 @@ static void listenerHandler (int fd, short event, void *arg)
   static timeval tv = {5, 0};
   ConnectionsScheduler::ListenerArg* s = (ConnectionsScheduler::ListenerArg*)arg;
 
-  if (event == EV_TIMEOUT)
-    event_add (&(s->ev), &tv);
-  else if (event == EV_READ)
+  if (event == EV_READ)
     {
       MYSERVER_SOCKADDRIN asockIn;
-      socklen_t asockInLen = 0;
-      Socket clientSock;
-
-      asockInLen = sizeof (asockIn);
-      clientSock = s->serverSocket->accept (&asockIn, &asockInLen);
-
-      if (s->server && (SocketHandle)clientSock.getHandle () != INVALID_SOCKET)
-        s->server->addConnection (clientSock, &asockIn);
-
-      event_add (&(s->ev), &tv);
+      socklen_t asockInLen = sizeof (asockIn);
+      Socket *clientSock;
+      do
+        {
+          clientSock = s->serverSocket->accept (&asockIn, &asockInLen);
+          if (s->server && clientSock
+              && s->server->addConnection (clientSock, &asockIn))
+            {
+              clientSock->shutdown (2);
+              clientSock->close ();
+              delete clientSock;
+            }
+        }
+      while (clientSock);
     }
+
+  event_add (&(s->ev), &tv);
 }
 
 /*!
- *Add a listener socket to the event queue.
- *This is used to renew the event after the listener thread is notified.
+ * Add a listener socket to the event queue.
+ * This is used to renew the event after the listener thread is notified.
  *
- *\param la Structure containing an Event to be notified on new data.
+ * \param la Structure containing an Event to be notified on new data.
  */
-void ConnectionsScheduler::listener(ConnectionsScheduler::ListenerArg *la)
+void ConnectionsScheduler::listener (ConnectionsScheduler::ListenerArg *la)
 {
-  ConnectionsScheduler::ListenerArg *arg = new ConnectionsScheduler::ListenerArg(la);
-  static timeval tv = {3, 0};
+  ConnectionsScheduler::ListenerArg *arg = new ConnectionsScheduler::ListenerArg (la);
 
-  event_set(&(arg->ev), (int) la->serverSocket->getHandle(), EV_READ | EV_TIMEOUT, 
-            listenerHandler, arg);
+  event_set (&(arg->ev), (int) la->serverSocket->getHandle (), EV_READ | EV_TIMEOUT,
+             listenerHandler, arg);
 
   arg->terminate = &dispatcherArg.terminate;
   arg->scheduler = this;
   arg->server = server;
   arg->eventsMutex = &eventsMutex;
 
-  listeners.push_front(arg);
+  la->serverSocket->setNonBlocking (1);
+  listeners.push_front (arg);
 
-  event_add(&(arg->ev), &tv);
-
+  eventsSocketMutex.lock ();
   u_long nbw;
-  Socket sock (dispatcherArg.socketPair.getSecondHandle ());
-
-  eventsSocketMutex.lock();
-  sock.write("l", 1, &nbw);  
-  eventsSocketMutex.unlock();
+  dispatcherArg.socketPairWrite.write ("l", 1, &nbw);
+  dispatcherArg.socketPairWrite.write ((const char*)&arg, sizeof (arg), &nbw);
+  eventsSocketMutex.unlock ();
 }
 
 /*!
- *Remove a listener thread from the list.
+ * Remove a listener thread from the list.
  */
-void ConnectionsScheduler::removeListener(ConnectionsScheduler::ListenerArg* la)
+void ConnectionsScheduler::removeListener (ConnectionsScheduler::ListenerArg* la)
 {
-  eventsMutex.lock();
-  event_del(&(la->ev));
-  listeners.remove(la);
-  eventsMutex.unlock();
+  eventsMutex.lock ();
+  event_del (&(la->ev));
+  listeners.remove (la);
+  eventsMutex.unlock ();
 }
 
 /*!
- *C'tor.
+ * C'tor.
  */
-ConnectionsScheduler::ConnectionsScheduler(Server* server)
+ConnectionsScheduler::ConnectionsScheduler (Server* server)
 {
-  readyMutex.init();
-  eventsMutex.init();
-  connectionsMutex.init();
-  eventsSocketMutex.init();
-  readySemaphore = new Semaphore(0);
+  readyMutex.init ();
+  eventsMutex.init ();
+  connectionsMutex.init ();
+  eventsSocketMutex.init ();
+  readySemaphore = new Semaphore (0);
   currentPriority = 0;
   currentPriorityDone = 0;
   nTotalConnections = 0;
@@ -217,55 +221,54 @@ ConnectionsScheduler::ConnectionsScheduler(Server* server)
 }
 
 /*!
- *Get the number of all connections made to the server.
+ * Get the number of all connections made to the server.
  */
-u_long ConnectionsScheduler::getNumTotalConnections()
+u_long ConnectionsScheduler::getNumTotalConnections ()
 {
   return nTotalConnections;
 }
 
-
 /*!
- *Register the connection with a new ID.
- *\param connection The connection to register.
+ * Register the connection with a new ID.
+ * \param connection The connection to register.
  */
-void ConnectionsScheduler::registerConnectionID(ConnectionPtr connection)
+void ConnectionsScheduler::registerConnectionID (ConnectionPtr connection)
 {
-  connectionsMutex.lock();
-  connection->setID(nTotalConnections++);
-  connectionsMutex.unlock();
+  connectionsMutex.lock ();
+  connection->setID (nTotalConnections++);
+  connectionsMutex.unlock ();
 }
 
 /*!
- *Restart the scheduler.
+ * Restart the scheduler.
  */
-void ConnectionsScheduler::restart()
+void ConnectionsScheduler::restart ()
 {
-  readyMutex.init();
-  connectionsMutex.init();
-  eventsMutex.init();
-  listeners.clear();
+  readyMutex.init ();
+  connectionsMutex.init ();
+  eventsMutex.init ();
+  listeners.clear ();
 
-  if(readySemaphore)
+  if (readySemaphore)
     delete readySemaphore;
 
-  readySemaphore = new Semaphore(0);
+  readySemaphore = new Semaphore (0);
 
-  initialize();
+  initialize ();
 }
 
 /*!
- *Static initialization.
+ * Static initialization.
  */
-void ConnectionsScheduler::initialize()
+void ConnectionsScheduler::initialize ()
 {
   static int initialized = 0;
 
   if (!initialized)
-  {
-    event_init();
-    initialized = 1;
-  }
+    {
+      event_init ();
+      initialized = 1;
+    }
 
   dispatcherArg.terminated = true;
   dispatcherArg.terminate = false;
@@ -278,191 +281,191 @@ void ConnectionsScheduler::initialize()
   int err = dispatcherArg.socketPair.create ();
 
   if (err == -1)
-  {
-    if(server)
     {
-      server->logWriteln("Error initializing socket pair.", MYSERVER_LOG_MSG_ERROR);
+      if (server)
+        server->log (MYSERVER_LOG_MSG_ERROR, _("Error initializing socket pair"));
+      return;
     }
-    return;
-  }
 
-  event_set (&(dispatcherArg.loopEvent), dispatcherArg.socketPair.getFirstHandle (), EV_READ | EV_TIMEOUT,
-            eventLoopHandler, &dispatcherArg);
+  dispatcherArg.socketPairWrite.setHandle (dispatcherArg.socketPair.getSecondHandle ());
+
+  event_set (&(dispatcherArg.loopEvent), dispatcherArg.socketPair.getFirstHandle (),
+             EV_READ | EV_TIMEOUT, eventLoopHandler, &dispatcherArg);
 
   event_add (&(dispatcherArg.loopEvent), NULL);
 
   if (Thread::create (&dispatchedThreadId, dispatcher, &dispatcherArg))
-  {
-    if (server)
     {
-      server->logWriteln ("Error initializing dispatcher thread.", MYSERVER_LOG_MSG_ERROR);
+      if (server)
+        server->log (MYSERVER_LOG_MSG_ERROR,
+                            _("Error while initializing the dispatcher thread"));
+
+      dispatchedThreadId = 0;
     }
-    dispatchedThreadId = 0;
-  }
-  
+
   releasing = false;
 }
 
 /*!
- *D'tor.
+ * D'tor.
  */
-ConnectionsScheduler::~ConnectionsScheduler()
+ConnectionsScheduler::~ConnectionsScheduler ()
 {
-  readyMutex.destroy();
-  eventsMutex.destroy();
-  eventsSocketMutex.destroy();
-  connectionsMutex.destroy();
+  readyMutex.destroy ();
+  eventsMutex.destroy ();
+  eventsSocketMutex.destroy ();
+  connectionsMutex.destroy ();
   delete readySemaphore;
   delete [] ready;
 }
 
 
 /*!
- *Add an existent connection to ready connections queue.
+ * Add an existent connection to ready connections queue.
  */
-void ConnectionsScheduler::addReadyConnection(ConnectionPtr c)
+void ConnectionsScheduler::addReadyConnection (ConnectionPtr c)
 {
-  addReadyConnectionImpl(c);
+  addReadyConnectionImpl (c);
 }
 
 /*!
- *Add a new connection to ready connections queue.
+ * Add a new connection to ready connections queue.
  */
-void ConnectionsScheduler::addNewReadyConnection(ConnectionPtr c)
+void ConnectionsScheduler::addNewReadyConnection (ConnectionPtr c)
 {
-  addReadyConnectionImpl(c);
-}
-
-
-/*!
- *Add a connection to ready connections queue.
- */
-void ConnectionsScheduler::addReadyConnectionImpl(ConnectionPtr c)
-{
-  int priority = c->getPriority();
-
-  if(priority == -1 && c->host)
-    priority = c->host->getDefaultPriority();
-    
-  priority = std::max(0, priority);
-  priority = std::min(PRIORITY_CLASSES - 1, priority);
-
-  c->setScheduled(1);
-
-  readyMutex.lock();
-  ready[priority].push(c);
-  readyMutex.unlock();
-
-  if(server)
-    server->checkThreadsNumber();
-
-  readySemaphore->unlock();
+  addReadyConnectionImpl (c);
 }
 
 /*!
- *Add a new connection to the scheduler.
+ * Add a connection to ready connections queue.
  */
-void ConnectionsScheduler::addNewWaitingConnection(ConnectionPtr c)
+void ConnectionsScheduler::addReadyConnectionImpl (ConnectionPtr c)
 {
-  addWaitingConnectionImpl(c, 0);
+  int priority = c->getPriority ();
+
+  if (priority == -1 && c->host)
+    priority = c->host->getDefaultPriority ();
+
+  priority = std::max (0, priority);
+  priority = std::min (PRIORITY_CLASSES - 1, priority);
+
+  c->setScheduled (1);
+
+  readyMutex.lock ();
+  ready[priority].push (c);
+  readyMutex.unlock ();
+
+  if (server)
+    server->checkThreadsNumber ();
+
+  readySemaphore->unlock ();
 }
 
 /*!
- *Reschedule a connection in the scheduler.
+ * Add a new connection to the scheduler.
  */
-void ConnectionsScheduler::addWaitingConnection(ConnectionPtr c)
+void ConnectionsScheduler::addNewWaitingConnection (ConnectionPtr c)
 {
-  addWaitingConnectionImpl(c, 1);
+  addWaitingConnectionImpl (c, 0);
 }
 
 /*!
- *Implementation to add a connection to waiting connections queue.
+ * Reschedule a connection in the scheduler.
  */
-void ConnectionsScheduler::addWaitingConnectionImpl(ConnectionPtr c, int lock)
+void ConnectionsScheduler::addWaitingConnection (ConnectionPtr c)
+{
+  addWaitingConnectionImpl (c, 1);
+}
+
+/*!
+ * Implementation to add a connection to waiting connections queue.
+ */
+void ConnectionsScheduler::addWaitingConnectionImpl (ConnectionPtr c, int lock)
 {
   static timeval tv = {10, 0};
-  SocketHandle handle = c->socket ? (SocketHandle) c->socket->getHandle() : NULL;
+  SocketHandle handle = c->socket ? (SocketHandle) c->socket->getHandle () : NULL;
 
-  if(server)
-    tv.tv_sec = server->getTimeout() / 1000;
+  if (server)
+    tv.tv_sec = server->getTimeout () / 1000;
   else
     tv.tv_sec = 30;
 
-  c->setScheduled(0);
+  c->setScheduled (0);
 
-  connectionsMutex.lock();
-  connections.put(handle, c);
-  connectionsMutex.unlock();
+  connectionsMutex.lock ();
+  connections.put (handle, c);
+  connectionsMutex.unlock ();
 
   /*
-   *If there is need to obtain the events lock don't block the current
-   *thread but send the 'c' message to the eventLoopHandler function,
-   *it will reschedule the connection from its thread context while it
-   *owns the lock.
+   * If there is need to obtain the events lock don't block the current
+   * thread but send the 'c' message to the eventLoopHandler function,
+   * it will reschedule the connection from its thread context while it
+   * owns the lock.
    */
-  if(lock)
-  {
-    u_long nbw;
-    Socket sock (dispatcherArg.socketPair.getSecondHandle ());
+  if (lock)
+    {
+      u_long nbw;
+      eventsSocketMutex.lock ();
 
-    eventsSocketMutex.lock();
-    sock.write("c", 1, &nbw);
-    sock.write((char*)&handle, sizeof(SocketHandle), &nbw);
-    sock.write((char*)&c, sizeof(ConnectionPtr), &nbw);
-    sock.write((char*)&tv, sizeof(timeval), &nbw);
-    eventsSocketMutex.unlock();
-  }
+      dispatcherArg.socketPairWrite.write ("c", 1, &nbw);
+      dispatcherArg.socketPairWrite.write ((const char*)&handle,
+                                           sizeof (SocketHandle), &nbw);
+      dispatcherArg.socketPairWrite.write ((const char*)&c,
+                                           sizeof (ConnectionPtr), &nbw);
+      dispatcherArg.socketPairWrite.write ((const char*)&tv,
+                                           sizeof (timeval), &nbw);
+
+      eventsSocketMutex.unlock ();
+    }
   else
-  {
-    event_once((int)handle, EV_READ | EV_TIMEOUT, newDataHandler, &dispatcherArg, &tv);
-  }
+    event_once ((int)handle, EV_READ | EV_TIMEOUT, newDataHandler,
+                &dispatcherArg, &tv);
 }
 
 /*!
- *Get a connection from the active connections queue.
+ * Get a connection from the active connections queue.
  */
-ConnectionPtr ConnectionsScheduler::getConnection()
+ConnectionPtr ConnectionsScheduler::getConnection ()
 {
   ConnectionPtr ret = 0;
 
-  if(releasing)
+  if (releasing)
     return NULL;
 
-  readySemaphore->lock();
+  readySemaphore->lock ();
 
-  if(releasing)
+  if (releasing)
     return NULL;
 
-  readyMutex.lock();
+  readyMutex.lock ();
 
-  for(int i = 0; i < PRIORITY_CLASSES; i++)
-  {
-    if(currentPriorityDone > currentPriority ||
-       !ready[currentPriority].size())
+  for (int i = 0; i < PRIORITY_CLASSES; i++)
     {
-      currentPriority = (currentPriority + 1) % PRIORITY_CLASSES;
-      currentPriorityDone = 0;
+      if (currentPriorityDone > currentPriority ||
+          !ready[currentPriority].size ())
+        {
+          currentPriority = (currentPriority + 1) % PRIORITY_CLASSES;
+          currentPriorityDone = 0;
+        }
+
+      if (ready[currentPriority].size ())
+        {
+          ret = ready[currentPriority].front ();
+          ret->setScheduled (0);
+          ready[currentPriority].pop ();
+          currentPriorityDone++;
+          break;
+        }
     }
 
-    if(ready[currentPriority].size())
-    {
-      ret = ready[currentPriority].front();
-      ret->setScheduled(0);
-      ready[currentPriority].pop();
-      currentPriorityDone++;
-      break;
-    }
-  }
-
-  readyMutex.unlock();
-
+  readyMutex.unlock ();
   return ret;
 }
 
 /*!
- *Release all the blocking calls.
+ * Release all the blocking calls.
  */
-void ConnectionsScheduler::release()
+void ConnectionsScheduler::release ()
 {
   u_long nbw;
   u_long max = 0;
@@ -470,146 +473,136 @@ void ConnectionsScheduler::release()
   dispatcherArg.terminate = true;
 
   if (server)
-    max = server->getNumThreads() * 2;
+    max = server->getNumThreads () * 2;
 
   for (u_long i = 0; i < max; i++)
-  {
-    readySemaphore->unlock();
-  }
+    readySemaphore->unlock ();
 
-  Socket sockR (dispatcherArg.socketPair.getFirstHandle ());
-  Socket sockW (dispatcherArg.socketPair.getSecondHandle ());
+  eventsSocketMutex.lock ();
+  dispatcherArg.socketPairWrite.write ("r", 1, &nbw);
+  eventsSocketMutex.unlock ();
 
-  eventsSocketMutex.lock();
-  sockW.write("r", 1, &nbw);
-  eventsSocketMutex.unlock();
-  
-  if(dispatchedThreadId)
-    Thread::join(dispatchedThreadId);
+  if (dispatchedThreadId)
+    Thread::join (dispatchedThreadId);
 
-  terminateConnections();
+  terminateConnections ();
 
-  eventsMutex.lock();
+  eventsMutex.lock ();
 
-  event_del(&(dispatcherArg.loopEvent));
+  event_del (&(dispatcherArg.loopEvent));
 
-  list<ListenerArg*>::iterator it = listeners.begin();
+  list<ListenerArg*>::iterator it = listeners.begin ();
 
-  while(it != listeners.end())
-  {
-    event_del(&((*it)->ev));
-    delete (*it);
-    it++;
-  }
+  while (it != listeners.end ())
+    {
+      event_del (&((*it)->ev));
+      delete *it;
+      it++;
+    }
 
-  listeners.clear();
-  
-  eventsMutex.unlock();
+  listeners.clear ();
+
+  eventsMutex.unlock ();
 
   dispatcherArg.socketPair.close ();
 }
 
 /*!
- *Fill a list with all the alive connections.
- *\param out A list that will receive all the connections alive on the
- *server.
+ * Fill a list with all the alive connections.
+ * \param out A list that will receive all the connections alive on the
+ * server.
  */
-void ConnectionsScheduler::getConnections(list<ConnectionPtr> &out)
+void ConnectionsScheduler::getConnections (list<ConnectionPtr> &out)
 {
-  out.clear();
+  out.clear ();
 
-  connectionsMutex.lock();
+  connectionsMutex.lock ();
 
-  HashMap<SocketHandle, ConnectionPtr>::Iterator it = connections.begin();
-  for(; it != connections.end(); it++)
-    out.push_back(*it);
+  HashMap<SocketHandle, ConnectionPtr>::Iterator it = connections.begin ();
+  for (; it != connections.end (); it++)
+    out.push_back (*it);
 
-  connectionsMutex.unlock();
+  connectionsMutex.unlock ();
 }
 
 /*!
- *Get the alive connections number.
+ * Get the alive connections number.
  */
-u_long ConnectionsScheduler::getConnectionsNumber()
+u_long ConnectionsScheduler::getConnectionsNumber ()
 {
-  return connections.size();
+  return connections.size ();
 }
 
 /*!
- *Remove a connection from the connections set.
+ * Remove a connection from the connections set.
  */
-void ConnectionsScheduler::removeConnection(ConnectionPtr connection)
+void ConnectionsScheduler::removeConnection (ConnectionPtr connection)
 {
-  connectionsMutex.lock();
-  if(connection->socket)
-    connections.remove((SocketHandle)connection->socket->getHandle());
-  connectionsMutex.unlock();
+  connectionsMutex.lock ();
+  if (connection->socket)
+    connections.remove ((SocketHandle)connection->socket->getHandle ());
+  connectionsMutex.unlock ();
 }
 
 /*!
- *Terminate any active connection.
+ * Terminate any active connection.
  */
-void ConnectionsScheduler::terminateConnections()
+void ConnectionsScheduler::terminateConnections ()
 {
   int i;
 
   try
-  {
-    connectionsMutex.lock();
-
-    HashMap<SocketHandle, ConnectionPtr>::Iterator it = connections.begin();
-    for(; it != connections.end(); it++)
     {
-      ConnectionPtr c = *it;
-      if (c->allowDelete(true) && c->socket)
-        c->socket->close();
+      connectionsMutex.lock ();
+
+      HashMap<SocketHandle, ConnectionPtr>::Iterator it = connections.begin ();
+      for (; it != connections.end (); it++)
+        {
+          ConnectionPtr c = *it;
+          if (c->allowDelete (true) && c->socket)
+            c->socket->close ();
+        }
     }
-  }
-  catch(...)
-  {
-    connectionsMutex.unlock();
-    throw;
-  };
+  catch (...)
+    {
+      connectionsMutex.unlock ();
+      throw;
+    };
 
-  connections.clear();
+  connections.clear ();
 
-  connectionsMutex.unlock();
+  connectionsMutex.unlock ();
 
-  readyMutex.lock();
+  readyMutex.lock ();
 
-  for(i = 0; i < PRIORITY_CLASSES; i++)
-    while(ready[i].size())
-      ready[i].pop();
+  for (i = 0; i < PRIORITY_CLASSES; i++)
+    while (ready[i].size ())
+      ready[i].pop ();
 
-  readyMutex.unlock();
+  readyMutex.unlock ();
 }
 
 /*!
- *Accept a visitor on the connections.
+ * Accept a visitor on the connections.
  */
-int ConnectionsScheduler::accept(ConnectionsSchedulerVisitor* visitor, void* args)
+int ConnectionsScheduler::accept (ConnectionsSchedulerVisitor* visitor, void* args)
 {
   int ret = 0;
-  connectionsMutex.lock();
+  connectionsMutex.lock ();
 
   try
-  {
-
-    for(HashMap<SocketHandle, ConnectionPtr>::Iterator it = connections.begin(); 
-        it != connections.end()  && !ret; 
-        it++)
     {
-      visitor->visitConnection(*it, args);
+      for (HashMap<SocketHandle, ConnectionPtr>::Iterator it =
+             connections.begin (); it != connections.end ()  && !ret; it++)
+        visitor->visitConnection (*it, args);
     }
-  }
-  catch(...)
-  {
-    connectionsMutex.unlock();
-    return 1;
-  }
+  catch (...)
+    {
+      connectionsMutex.unlock ();
+      return 1;
+    }
 
-  connectionsMutex.unlock();
+  connectionsMutex.unlock ();
 
   return ret;
-
 }

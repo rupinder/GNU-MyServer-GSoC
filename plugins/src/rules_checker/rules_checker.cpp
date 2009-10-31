@@ -19,6 +19,7 @@
 #include <string.h>
 #include <include/server/server.h>
 #include <include/protocol/http/http.h>
+#include <include/conf/main/xml_main_configuration.h>
 #include "heading.h"
 
 #ifdef WIN32
@@ -85,7 +86,7 @@ private:
 static RulesCheckerObserver observer;
 
 
-EXPORTABLE(char*) name(char* name, u_long len)
+EXPORTABLE(char*) name (char* name, u_long len)
 {
   char* str = (char*)"rules_checker";
   if(name)
@@ -93,24 +94,26 @@ EXPORTABLE(char*) name(char* name, u_long len)
   return str;
 }
 
-EXPORTABLE(int) load(void* server,void* parser)
+EXPORTABLE(int) load (void* server)
 {
   Server* serverInstance = (Server*)server;
   HttpStaticData* staticData =(HttpStaticData*) serverInstance->getGlobalData("http-static");
   string msg("new-http-request");
-  XmlParser* configuration;
+  MainConfiguration* configuration;
   xmlDocPtr xmlDoc;
   if(!staticData)
     {
-      serverInstance->logWriteln("RulesChecker: Invalid HTTP static data");
+      serverInstance->log("RulesChecker: Invalid HTTP static data");
       return -1;
     }
 
 
   staticData->addMulticast(msg, &observer);
 
-  configuration = serverInstance->getXmlConfiguration();
-  xmlDoc = configuration->getDoc();
+  configuration = serverInstance->getConfiguration ();
+
+  /* FIXME: DON'T DO THIS.  */
+  xmlDoc = ((XmlMainConfiguration*)configuration)->getDoc ();
 
   for(xmlNodePtr ptr = xmlDoc->children->next->children; ptr; ptr = ptr->next)
     {
@@ -123,7 +126,7 @@ EXPORTABLE(int) load(void* server,void* parser)
 
 	  if(!data)
 	    {
-	      serverInstance->logWriteln("RulesChecker: Invalid rule");
+	      serverInstance->log("RulesChecker: Invalid rule");
 	      return -1;
 	    }
 
@@ -135,11 +138,12 @@ EXPORTABLE(int) load(void* server,void* parser)
   return 0;
 }
 
-EXPORTABLE(int) postLoad(void* server,void* parser)
+EXPORTABLE(int) postLoad (void* server)
 {
   return 0;
 }
-EXPORTABLE(int) unLoad(void* parser)
+
+EXPORTABLE(int) unLoad ()
 {
   return 0;
 }

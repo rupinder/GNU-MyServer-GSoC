@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -25,19 +25,19 @@
 
 class TestSocketPair : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestSocketPair );
-  CPPUNIT_TEST( testCreateClose );
-  CPPUNIT_TEST( testInverted );
-  CPPUNIT_TEST( testWriteRead );
-  CPPUNIT_TEST_SUITE_END();
-  
+  CPPUNIT_TEST_SUITE ( TestSocketPair );
+  CPPUNIT_TEST ( testCreateClose );
+  CPPUNIT_TEST ( testInverted );
+  CPPUNIT_TEST ( testWriteRead );
+  CPPUNIT_TEST_SUITE_END ();
+
 public:
 
-  void setUp() 
+  void setUp ()
   {
   }
 
-  void tearDown()
+  void tearDown ()
   {
   }
 
@@ -81,18 +81,18 @@ public:
 
     ret = writeSock.write (inBuffer, strlen (inBuffer) + 1, &nbw);
 
-    CPPUNIT_ASSERT_EQUAL(ret, 0);
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
 
     ret = readSock.read (outBuffer, 256, &nbr);
-    
-    CPPUNIT_ASSERT_EQUAL(ret, 0);
+
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
 
 
-    CPPUNIT_ASSERT_EQUAL(strcmp (inBuffer, outBuffer), 0);
+    CPPUNIT_ASSERT_EQUAL (strcmp (inBuffer, outBuffer), 0);
 
     writeSock.close ();
   }
 
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestSocketPair );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestSocketPair );

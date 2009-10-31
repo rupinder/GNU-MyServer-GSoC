@@ -26,71 +26,75 @@
 #include <include/conf/vhost/ip.h>
 
 #ifdef HAVE_IDN
-#include <stringprep.h>
-#include <punycode.h>
-#include <idna.h>
+# include <stringprep.h>
+# include <punycode.h>
+# include <idna.h>
 #endif
+
+#include <cstdarg>
+
+const string Vhost::accessLogType ("ACCESSLOG");
+const string Vhost::warningLogType ("WARNINGLOG");
 
 
 /*!
- *vhost costructor
+ * Vhost costructor
  */
-Vhost::Vhost(LogManager* lm)
+Vhost::Vhost (LogManager* lm)
 {
-  //ipList.clear();
-  hostList.clear();
-  refMutex.init();
-  documentRoot.assign("");
-  systemRoot.assign("");
-  hashedData.clear();
+  hostList.clear ();
+  refMutex.init ();
+  documentRoot.assign ("");
+  systemRoot.assign ("");
+  hashedData.clear ();
   protocolData = 0;
 
   /*
-   *By default use a non specified value for the throttling rate. -1 means 
-   *that the throttling rate was not specified, while 0 means it was 
-   *specified but there is not a limit.
+   * By default use a non specified value for the throttling rate. -1 means
+   * that the throttling rate was not specified, while 0 means it was
+   * specified but there is not a limit.
    */
   throttlingRate = (u_long) -1;
   refCount = 0;
   nullReferenceCb = 0;
   defaultPriority = 0;
   logManager = lm;
+  mimeHandler = NULL;
 }
 
 
 /*!
- *Destroy the vhost. 
+ * Destroy the vhost.
  */
-Vhost::~Vhost()
+Vhost::~Vhost ()
 {
-  if(protocolData)
+  if (protocolData)
     delete protocolData;
-  clearHostList();
-  clearIPList();
-  freeSSL();
-  freeHashedData();
+  clearHostList ();
+  clearIPList ();
+  freeSSL ();
+  freeHashedData ();
 
   HashMap<string, MimeRecord*>::Iterator it = locationsMime.begin ();
-
   while (it != locationsMime.end ())
     {
       delete *it;
       it++;
     }
 
+  if (mimeHandler)
+    delete mimeHandler;
 
-  refMutex.destroy();
-  documentRoot.assign("");
-  systemRoot.assign("");
-  mimeManager.clean();
+  refMutex.destroy ();
+  /*  mimeManager.clean ();*/
   logManager->remove (this);
 }
 
-/*! 
- *Clear the data dictionary. 
- *Returns zero on success.
+/*!
+ * Clear the data dictionary.
+ * Returns zero on success.
  */
-int Vhost::freeHashedData()
+int Vhost::freeHashedData ()
 {
   try
     {
@@ -102,9 +106,9 @@ int Vhost::freeHashedData()
         }
 
       hashedDataTrees.clear ();
-      hashedData.clear();
+      hashedData.clear ();
     }
-  catch(...)
+  catch (...)
     {
       return 1;
     }
@@ -112,278 +116,211 @@ int Vhost::freeHashedData()
 }
 
 /*!
- *Check if a MIME type file is defined for the virtual host.
+ * Check if a MIME type file is defined for the virtual host.
  */
-int Vhost::isMIME()
+int Vhost::isMIME ()
 {
-  return mimeManager.isLoaded();
+  return mimeHandler ? 1 : 0;
 }
 
 /*!
- *Get the MIME manager for the virtual host.
+ * Get the MIME handler for the virtual host.
  */
-MimeManager* Vhost::getMIME()
+MimeManagerHandler* Vhost::getMIME ()
 {
-  return &mimeManager;
+  return mimeHandler;
 }
 
 /*!
- *Clear the list of the hosts.
+ * Clear the list of the hosts.
  */
-void Vhost::clearHostList()
+void Vhost::clearHostList ()
 {
-  list<StringRegex*>::iterator i = hostList.begin();
-  while(i != hostList.end())
+  list<StringRegex*>::iterator i = hostList.begin ();
+  while (i != hostList.end ())
     {
       StringRegex* sr = *i;
       delete sr;
       i++;
     }
-  hostList.clear();
+  hostList.clear ();
 }
 
 /*!
- *Clear the list of IPs.
+ * Clear the list of IPs.
  */
-void Vhost::clearIPList()
+void Vhost::clearIPList ()
 {
-  list<IpRange *>::iterator it = ipListAllow.begin();
-  while(it != ipListAllow.end())
+  list<IpRange *>::iterator it = ipListAllow.begin ();
+  while (it != ipListAllow.end ())
     {
       delete (*it);
       it++;
     }
-  ipListAllow.clear();
+  ipListAllow.clear ();
 
-  it = ipListDeny.begin();
-  while(it != ipListDeny.end())
+  it = ipListDeny.begin ();
+  while (it != ipListDeny.end ())
     {
       delete (*it);
       it++;
     }
-  ipListDeny.clear();
-
-  /*
-  list<StringRegex*>::iterator i = ipList.begin();
-  while(i != ipList.end())
-    {
-      StringRegex* sr = *i;
-      delete sr;
-      i++;
-    }
-  hostList.clear();
-  */
+  ipListDeny.clear ();
 }
 
 int
 Vhost::openAccessLog (string location, list<string>& filters, u_long cycle)
 {
-  return logManager->add (this, "ACCESSLOG", location, filters, cycle);
+  return logManager->add (this, accessLogType, location, filters, cycle);
 }
 
 int
 Vhost::openWarningLog (string location, list<string>& filters, u_long cycle)
 {
-  return logManager->add (this, "WARNINGLOG", location, filters, cycle);
+  return logManager->add (this, warningLogType, location, filters, cycle);
 }
 
 int
 Vhost::openLogFiles ()
-{ 
-  return logManager->count (this, "ACCESSLOG") == 0 ||
-    logManager->count (this, "WARNINGLOG") == 0;
+{
+  return logManager->count (this, accessLogType) == 0 ||
+    logManager->count (this, warningLogType) == 0;
 }
 
 /*!
- *Add an IP address to the list.
- *\param ip The ip to add.
- *\param isRegex Specify if the ip is specified as a regex.
+ * Add an IP address to the list.
+ * \param ip The ip to add.
+ * \param isRegex Specify if the ip is specified as a regex.
  */
-void Vhost::addIP(const char *ip, int isRegex)
+void Vhost::addIP (const char *ip, int isRegex)
 {
-  std::string sTempIp(ip);
-  IpRange *pNewRange = IpRange::RangeFactory(sTempIp);
+  std::string sTempIp (ip);
+  IpRange *pNewRange = IpRange::RangeFactory (sTempIp);
   if ( pNewRange != NULL )
-    ipListAllow.push_back(pNewRange);
+    ipListAllow.push_back (pNewRange);
 }
 
 /*!
- *Remove the IP address to the list.
- *\param ip The ip to remove.
+ * Remove the IP address to the list.
+ * \param ip The ip to remove.
  */
-void Vhost::removeIP(const char *ip)
+void Vhost::removeIP (const char *ip)
 {
-  std::string sTempIp(ip);
-  ipListDeny.push_back(IpRange::RangeFactory(sTempIp));
-
-  /*
-  list<StringRegex*>::iterator i = ipList.begin();
-
-  while(i != ipList.end())
-    {
-      StringRegex* sr = *i;
-      / *
-       *If this is the virtual host with the right IP.
-       * /
-      if(!stringcmp(sr->name,ip))
-        {
-          ipList.erase(i);
-          return;
-        }
-    
-      i++;
-    }
-  */
+  std::string sTempIp (ip);
+  ipListDeny.push_back (IpRange::RangeFactory (sTempIp));
 }
 
 /*!
- *Remove the host address to the list.
- *\param host The hostname to remove.
+ * Remove the host address to the list.
+ * \param host The hostname to remove.
  */
-void Vhost::removeHost(const char *host)
+void Vhost::removeHost (const char *host)
 {
-  list<StringRegex*>::iterator i = hostList.begin();
+  list<StringRegex*>::iterator i = hostList.begin ();
 
-  while(i != hostList.end())
+  while (i != hostList.end ())
     {
       StringRegex* sr = *i;
       /*
-       *If this is the virtual host with the right IP.
+       * If this is the virtual host with the right IP.
        */
-      if(!stringcmp(sr->name, host))
+      if (!stringcmp (sr->name, host))
         {
-          hostList.erase(i);
+          hostList.erase (i);
           return;
         }
-    
       i++;
     }
 }
 /*!
- *Check if an host is allowed to the connection
- *\param host hostname to check.
+ * Check if an host is allowed to the connection
+ * \param host hostname to check.
  */
-int Vhost::isHostAllowed(const char* host)
+int Vhost::isHostAllowed (const char* host)
 {
   /* If no hosts are specified then every host is allowed to connect here.  */
-  if(!hostList.size() || !host)
+  if (!hostList.size () || !host)
     return 1;
-    
-  list<StringRegex*>::iterator i = hostList.begin();
-  while(i != hostList.end())
+
+  list<StringRegex*>::iterator i = hostList.begin ();
+  while (i != hostList.end ())
     {
       StringRegex* sr = *i;
       regmatch_t pm;
-      if(sr->regex.isCompiled())
-        {
-          if (!sr->regex.exec(host, 1, &pm, REG_NOTBOL))
-            {
-              return 1;
-            }
-        }
-    
-      if(!stringcmp(sr->name, host))
+      if (sr->regex.isCompiled () &&!sr->regex.exec (host, 1, &pm, REG_NOTBOL))
         return 1;
-      
+
+      if (!stringcmp (sr->name, host))
+        return 1;
+
       i++;
     }
   return 0;
 }
 
 /*!
- *Check if all the host are allowed to the connection.
+ * Check if all the host are allowed to the connection.
  */
-int Vhost::areAllHostAllowed()
+int Vhost::areAllHostAllowed ()
 {
-  if(hostList.size() == 0)
+  if (hostList.size () == 0)
     return 1;
   return 0;
 }
 
 /*!
- *Check if all the IPs are allowed to the connection.
+ * Check if all the IPs are allowed to the connection.
  */
-int Vhost::areAllIPAllowed()
+int Vhost::areAllIPAllowed ()
 {
-  /*
-  if(ipList.size() == 0)
-    return 1;
-  */
-  if ( ipListDeny.empty() && ipListAllow.empty() )
-    return 1;
-  return 0;
+  return ipListDeny.empty () && ipListAllow.empty () ? 1 : 0;
 }
 
 /*!
- *Check if the network is allowed to the connection(control the network 
- *by the local IP).
- *\param ip The IP to check.
+ * Check if the network is allowed to the connection (control the network
+ * by the local IP).
+ * \param ip The IP to check.
  */
-int Vhost::isIPAllowed(const char* ip)
+int Vhost::isIPAllowed (const char* ip)
 {
-  if ( areAllIPAllowed() )
+  if (areAllIPAllowed ())
     return 1;
 
-  std::string sTempIp(ip);
-  IpRange *pTempIp = IpRange::RangeFactory(sTempIp);
-  list<IpRange *>::const_iterator it = ipListDeny.begin();
-  while ( it != ipListDeny.end() )
+  std::string sTempIp (ip);
+  IpRange *pTempIp = IpRange::RangeFactory (sTempIp);
+  list<IpRange *>::const_iterator it = ipListDeny.begin ();
+  while (it != ipListDeny.end ())
     {
-      if ( (*it)->InRange(pTempIp) )
-	{
-	  delete pTempIp;
-	  return 0;
-	}
+      if ((*it)->InRange (pTempIp) )
+        {
+          delete pTempIp;
+          return 0;
+        }
       it++;
     }
-  it = ipListAllow.begin();
-  while ( it != ipListAllow.end() )
+  it = ipListAllow.begin ();
+  while (it != ipListAllow.end () )
     {
-      if ( (*it)->InRange(pTempIp) )
-	{
-	  delete pTempIp;
-	  return 1;
-	}
+      if ((*it)->InRange (pTempIp))
+        {
+          delete pTempIp;
+          return 1;
+        }
       it++;
     }
   delete pTempIp;
   return 0;
-  /*
-  / * If no IPs are specified then every host is allowed to connect here.  * /
-  if(!ipList.size() || !ip)
-    return 1;
-    
-  list<StringRegex*>::iterator i = ipList.begin();
-  while(i != ipList.end())
-    {
-      StringRegex* sr = *i;
-      regmatch_t pm;
-      if(sr->regex.isCompiled())
-        {
-          if (!sr->regex.exec(ip ,1, &pm, REG_NOTBOL))
-            {
-              return 1;
-            }
-        }
-    
-      if(!stringcmp(sr->name, ip))
-        return 1;
-      
-      i++;
-    }
-  */
-  return 0;
 }
 
 /*!
- *Add an host to the allowed host list.
- *\param host hostname to add.
- *\param isRegex Is the host a regex?
+ * Add an host to the allowed host list.
+ * \param host hostname to add.
+ * \param isRegex Is the host a regex?
  */
-void Vhost::addHost(const char *host, int isRegex)
+void Vhost::addHost (const char *host, int isRegex)
 {
-  StringRegex* hl = new StringRegex();
-  if(hl == 0)
+  StringRegex* hl = new StringRegex ();
+  if (hl == 0)
     return;
 
 #ifdef HAVE_IDN
@@ -392,7 +329,7 @@ void Vhost::addHost(const char *host, int isRegex)
   char* ascii = 0;
   uint32_t* ucs4 = stringprep_utf8_to_ucs4 (host, -1, &len);
 
-  if(!ucs4)
+  if (!ucs4)
     {
       delete hl;
       return;
@@ -400,10 +337,10 @@ void Vhost::addHost(const char *host, int isRegex)
 
   ret = idna_to_ascii_4z (ucs4, &ascii, 0);
 
-  free(ucs4);
-  
+  free (ucs4);
+
   if (ret != IDNA_SUCCESS)
-    {   
+    {
       delete hl;
       return;
     }
@@ -411,145 +348,163 @@ void Vhost::addHost(const char *host, int isRegex)
   host = ascii;
 #endif
 
-  hl->name.assign(host);
+  hl->name.assign (host);
 
-  if(isRegex)
-    hl->regex.compile(host, REG_EXTENDED);
-  hostList.push_back(hl);
+  if (isRegex)
+    hl->regex.compile (host, REG_EXTENDED);
+  hostList.push_back (hl);
 
 #ifdef HAVE_IDN
-  free(ascii);
+  free (ascii);
 #endif
 
 }
 
 /*!
  * Write to the accesses log.
- * \param str The line to log.
+ * \param fmt The log format string.
+ * \param ... Arguments.
  */
-int 
-Vhost::accessesLogWrite (const char* str)
+int
+Vhost::accessesLogWrite (const char* fmt, ...)
 {
-  return logManager->log (this, "ACCESSLOG", string (str));
+  va_list argptr;
+  va_start (argptr, fmt);
+  int ret = logManager->log (this, accessLogType, MYSERVER_LOG_MSG_INFO, false,
+                             true, fmt, argptr);
+  va_end (argptr);
+  return ret;
 }
 
 /*!
  * Write a line to the warnings log.
- * \param str The line to log.
+ * \param fmt The log format string.
+ * \param ... Arguments.
  */
 int
-Vhost::warningsLogWrite (const char* str)
+Vhost::warningsLogWrite (const char* fmt, ...)
 {
-  string msg;
-  getLocalLogFormatDate (msg, 100);
-  msg.append (" -- ");
-  msg.append (str);
-  return logManager->log (this, "WARNINGLOG", msg, true);
+  va_list argptr;
+  va_start (argptr, fmt);
+  int ret = logManager->log (this, warningLogType, MYSERVER_LOG_MSG_INFO, true,
+                             false, fmt, argptr);
+  va_end (argptr);
+  return ret;
 }
 
 /*!
- *Set the null reference callback function. It is called when the reference
- *counter for the virtual host is zero. 
- *\param cb The null references callback function.
+ * Set the null reference callback function. It is called when the reference
+ * counter for the virtual host is zero.
+ * \param cb The null references callback function.
  */
-void Vhost::setNullRefCB(NULL_REFERENCECB cb)
+void Vhost::setNullRefCB (NULL_REFERENCECB cb)
 {
   nullReferenceCb = cb;
 }
 
 /*!
- *Get the null reference callback function used by the virtual host.
+ * Get the null reference callback function used by the virtual host.
  */
-NULL_REFERENCECB Vhost::getNullRefCB()
+NULL_REFERENCECB Vhost::getNullRefCB ()
 {
-  return nullReferenceCb;               
+  return nullReferenceCb;
 }
 
 /*!
- *Increment current references counter by 1.
+ * Increment current references counter by 1.
  */
-void Vhost::addRef()
+void Vhost::addRef ()
 {
-  refMutex.lock(0);
+  refMutex.lock (0);
   refCount++;
-  refMutex.unlock(0);
+  refMutex.unlock (0);
 }
 
 /*!
- *Decrement current references counter by 1.
+ * Decrement current references counter by 1.
  */
-void Vhost::removeRef()
+void Vhost::removeRef ()
 {
-  refMutex.lock(0);
+  refMutex.lock (0);
   refCount--;
-  /*! 
-   *If the reference count reaches zero and a callback 
-   *function is defined call it.
+  /*!
+   * If the reference count reaches zero and a callback
+   * function is defined call it.
    */
-  if(refCount == 0 && nullReferenceCb)
-    nullReferenceCb(this);
-  refMutex.unlock(0);
+  if (refCount == 0 && nullReferenceCb)
+    nullReferenceCb (this);
+  refMutex.unlock (0);
 }
 
 /*!
- *Get the references counter.
+ * Get the references counter.
  */
-int Vhost::getRef()
+int Vhost::getRef ()
 {
   return refCount;
 }
 
 /*!
- *Set the reference counter for the virtual host.
- *\param n The new reference counter.
+ * Set the reference counter for the virtual host.
+ * \param n The new reference counter.
  */
-void Vhost::setRef(int n)
+void Vhost::setRef (int n)
 {
   refCount = n;
 }
 
-/*! 
- *Get the value for name in the hash dictionary.
- *\param name The hashed entry key.
- */
-const char* Vhost::getHashedData(const char* name)
-{
-  NodeTree<string> *s = hashedData.get(name);
-
-  return s ? s->getValue ()->c_str() : 0;
-}
-  
 /*!
- *Initialize SSL on the virtual host.
+ * Get the value for name in the hash dictionary.
+ * \param name The hashed entry key.
  */
-int Vhost::initializeSSL()
+const char* Vhost::getData (const char* name)
+{
+  NodeTree<string> *s = hashedData.get (name);
+
+  return s ? s->getValue ()->c_str () : 0;
+}
+
+/*!
+ * Initialize SSL on the virtual host.
+ */
+int Vhost::initializeSSL ()
 {
   Protocol* protocol;
 
-  protocol = Server::getInstance()->getProtocol(protocolName.c_str());
-  if(!protocol)
-    return 0;
-    
-  if(!(protocol->getProtocolOptions() & PROTOCOL_USES_SSL))
+  protocol = Server::getInstance ()->getProtocol (protocolName.c_str ());
+  if (!protocol)
     return 0;
 
-  return sslContext.initialize();
-}  
+  if (!(protocol->getProtocolOptions () & PROTOCOL_USES_SSL))
+    return 0;
 
-
-/*!
- *Get the SSL context.
- */
-SSL_CTX* Vhost::getSSLContext()
-{
-  return sslContext.getContext();
+  return sslContext.initialize ();
 }
 
+/*!
+ * Get the SSL context.
+ */
+SSL_CTX* Vhost::getSSLContext ()
+{
+  return sslContext.getContext ();
+}
 
 /*!
- *Clean the memory used by the SSL context.
+ * Clean the memory used by the SSL context.
  */
-int Vhost::freeSSL()
+int Vhost::freeSSL ()
 {
-  return sslContext.free();
+  return sslContext.free ();
+}
+
+/*!
+ * Add a new location->mime association.
+ *
+ * \param location Location where use the specified mime type.
+ * \param record The MIME type to use.
+ * \return The MIME record previously registered on the location, if any.
+ */
+MimeRecord *Vhost::addLocationMime (string &location, MimeRecord *record)
+{
+  return locationsMime.put (location, record);
 }

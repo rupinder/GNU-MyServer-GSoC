@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007, 2008 Free Software Foundation, Inc.
+Copyright (C) 2007, 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *Initialize the read write lock.
  *\param maxReaders The max number of readers.
  */
-ReadWriteLock::ReadWriteLock(int maxReaders) : semaphore(maxReaders)
+ReadWriteLock::ReadWriteLock (int maxReaders) : semaphore (maxReaders)
 {
   ReadWriteLock::maxReaders = maxReaders;
 }
@@ -32,42 +32,42 @@ ReadWriteLock::ReadWriteLock(int maxReaders) : semaphore(maxReaders)
 /*!
  *Free the used resources.
  */
-ReadWriteLock::~ReadWriteLock()
+ReadWriteLock::~ReadWriteLock ()
 {
-  semaphore.destroy();
+  semaphore.destroy ();
 }
 
 /*!
  *Reader access.
  */
-void ReadWriteLock::readLock()
+void ReadWriteLock::readLock ()
 {
-  semaphore.lock(1);
+  semaphore.lock (1);
 }
 
 /*!
  *Reader terminate access.
  */
-void ReadWriteLock::readUnlock()
+void ReadWriteLock::readUnlock ()
 {
-  semaphore.unlock(1);
+  semaphore.unlock (1);
 }
 
 /*!
  *Writer access.
  */
-void ReadWriteLock::writeLock()
+void ReadWriteLock::writeLock ()
 {
-  for(int i = 0; i < maxReaders; i++)
-    semaphore.lock();
+  for (int i = 0; i < maxReaders; i++)
+    semaphore.lock ();
 }
 
 /*!
  *Writer terminate access.
  */
-void ReadWriteLock::writeUnlock()
+void ReadWriteLock::writeUnlock ()
 {
-  for(int i = 0; i < maxReaders; i++)
-    semaphore.unlock();
+  for (int i = 0; i < maxReaders; i++)
+    semaphore.unlock ();
 }
 

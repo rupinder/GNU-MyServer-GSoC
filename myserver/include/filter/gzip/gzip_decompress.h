@@ -17,17 +17,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef GZIP_DECOMPRESS_H
-#define GZIP_DECOMPRESS_H
+# define GZIP_DECOMPRESS_H
 
-#include "stdafx.h"
-#include <include/filter/filter.h>
-#include <include/filter/gzip/gzip.h>
+# include "stdafx.h"
+# include <include/filter/filter.h>
+# include <include/filter/gzip/gzip.h>
 
-#ifdef HAVE_ZLIB
-# include "zlib.h"
-#else
-# define z_stream (void*)
-#endif
+# ifdef HAVE_ZLIB
+#  include "zlib.h"
+# else
+#  define z_stream (void*)
+# endif
 
 
 class GzipDecompress : public Filter
@@ -42,31 +42,31 @@ public:
 	};
 
 
-  GzipDecompress();
-  ~GzipDecompress();
+  GzipDecompress ();
+  ~GzipDecompress ();
 
-	u_long updateCRC(char* buffer,int size);
-	u_long getFooter(char *str,int size);
-	u_long initialize();
-	u_long decompress(const char* in, u_long sizeIn,
+	u_long updateCRC (char* buffer,int size);
+	u_long getFooter (char *str,int size);
+	u_long initialize ();
+	u_long decompress (const char* in, u_long sizeIn,
 										char *out,u_long sizeOut);
-	u_long free();
-	u_long flush(char *out,u_long sizeOut);
-	u_long getHeader(char *buffer,u_long buffersize);
+	u_long free ();
+	u_long flush (char *out,u_long sizeOut);
+	u_long getHeader (char *buffer,u_long buffersize);
 
-  static Filter* factory(const char* name);
+  static Filter* factory (const char* name);
 
-	static u_long headerSize();
-	static u_long footerSize();
+	static u_long headerSize ();
+	static u_long footerSize ();
 
   /*! From Filter*/
-  virtual int getHeader(char* buffer, u_long len, u_long* nbw);
-  virtual int getFooter(char* buffer, u_long len, u_long* nbw);
-  virtual int read(char* buffer, u_long len, u_long*);
-  virtual int write(const char* buffer, u_long len, u_long*);
-	virtual int flush(u_long*);
-	virtual int modifyData();
-  virtual const char* getName(char* name, u_long len);
+  virtual int getHeader (char* buffer, u_long len, u_long* nbw);
+  virtual int getFooter (char* buffer, u_long len, u_long* nbw);
+  virtual int read (char* buffer, u_long len, u_long*);
+  virtual int write (const char* buffer, u_long len, u_long*);
+	virtual int flush (u_long*);
+	virtual int modifyData ();
+  virtual const char* getName (char* name, u_long len);
 private:
 	int active;
 	GzipData data;

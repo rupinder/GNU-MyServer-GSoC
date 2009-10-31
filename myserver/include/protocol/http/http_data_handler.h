@@ -17,13 +17,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef HTTP_DATA_HANDLER_H
-#define HTTP_DATA_HANDLER_H
+# define HTTP_DATA_HANDLER_H
 
-#include "stdafx.h"
-#include <include/protocol/protocol.h>
-#include "include/protocol/http/http_headers.h"
-#include <include/filter/filters_chain.h>
-#include <include/filter/memory_stream.h>
+# include "stdafx.h"
+# include <include/protocol/protocol.h>
+# include "include/protocol/http/http_headers.h"
+# include <include/filter/filters_chain.h>
+# include <include/filter/memory_stream.h>
 
 
 /*!
@@ -35,14 +35,14 @@ public:
   virtual int load ();
   virtual int unLoad ();
 
-	virtual int send(HttpThreadContext*, const char* exec,
+	virtual int send (HttpThreadContext*, const char* exec,
                    const char* cmdLine = 0, bool execute = false,
                    bool onlyHeader = false);
 
-  HttpDataHandler();
-  virtual ~HttpDataHandler();
+  HttpDataHandler ();
+  virtual ~HttpDataHandler ();
 
-	static void checkDataChunks(HttpThreadContext*, bool*, bool*);
+	static void checkDataChunks (HttpThreadContext*, bool*, bool*);
 
   static int appendDataToHTTPChannel (HttpThreadContext* td,
                                       char* buffer,
@@ -54,12 +54,12 @@ public:
                                       u_long realBufferSize,
                                       MemoryStream *tmpStream);
 
-	static int appendDataToHTTPChannel(HttpThreadContext* td, 
+	static int appendDataToHTTPChannel (HttpThreadContext* td,
                                      char* buffer,
                                      u_long size,
-                                     File* appendFile, 
+                                     File* appendFile,
                                      FiltersChain* chain,
-                                     bool append, 
+                                     bool append,
                                      bool useChunks);
 
 };

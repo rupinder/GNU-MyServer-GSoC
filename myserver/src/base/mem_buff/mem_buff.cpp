@@ -17,12 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <include/base/mem_buff/mem_buff.h>
-#include <include/base/md5/md5.h>
+#include <include/base/crypt/md5.h>
 
 #include <string.h>
 
 #ifndef DONT_MATCH_LENGTH
-#include <math.h> // for the log10 function
+# include <math.h> // for the log10 function
 #endif
 
 // Used by the CRC algorithm
@@ -99,7 +99,7 @@ u_int  MemBuf::crc32Table[256] =
 };
 
 /*! Default constructor */
-MemBuf::MemBuf()
+MemBuf::MemBuf ()
 {
   m_buffer = NULL;
   m_nSize = 0;
@@ -114,19 +114,19 @@ Copy constructor
 pAdr : pointer to the buffer to copy
 size : size of pAdr
 */
-MemBuf::MemBuf(const void* pAdr, u_int size)
+MemBuf::MemBuf (const void* pAdr, u_int size)
 {
   m_buffer = NULL;
   m_nSize = 0;
   m_nRealSize = 0;
   m_nSizeLimit = 0;
   m_nBlockLength = 1024;
-  setBuffer(pAdr, size);
+  setBuffer (pAdr, size);
   m_bCanDelete = 1;
 }
 
 /*! Direct copy constructor (should only be used by the operators to avoid reallocations) */
-MemBuf::MemBuf(const MemBuf& srcBuf)
+MemBuf::MemBuf (const MemBuf& srcBuf)
 {
   m_buffer = srcBuf.m_buffer;
   m_nSize = srcBuf.m_nSize;
@@ -137,32 +137,32 @@ MemBuf::MemBuf(const MemBuf& srcBuf)
 }
 
 /*! Copy constructor */
-MemBuf::MemBuf(MemBuf &srcBuf, int)
+MemBuf::MemBuf (MemBuf &srcBuf, int)
 {
   m_buffer = NULL;
   m_nSize = 0;
   m_nRealSize = 0;
   m_nBlockLength = 1024;
   m_nSizeLimit = 0;
-  setBuffer(srcBuf.m_buffer, srcBuf.m_nSize);
+  setBuffer (srcBuf.m_buffer, srcBuf.m_nSize);
   m_bCanDelete = 1;
 }
 
 /*! find a specific character in the internal buffer from a specific location */
-u_int MemBuf::find(char c, u_int start)
+u_int MemBuf::find (char c, u_int start)
 {
 #ifdef ASSERT
-  ASSERT(m_buffer != NULL);
+  ASSERT (m_buffer != NULL);
 #endif
   if (start >= m_nSize)
     return (u_int) -1;
-  void* pFound = memchr(m_buffer + start, c, m_nSize - start);
+  void* pFound = memchr (m_buffer + start, c, m_nSize - start);
 
   return (pFound == NULL) ? (u_int) -1 : ((char*) pFound - m_buffer);
 }
 
 /*! find a specific buffer in the internal buffer from a specific location */
-u_int MemBuf::find(const void* pAdr, u_int size, u_int start)
+u_int MemBuf::find (const void* pAdr, u_int size, u_int start)
 {
   if (start >= m_nSize)
     return (u_int)-1;
@@ -172,14 +172,14 @@ u_int MemBuf::find(const void* pAdr, u_int size, u_int start)
   const char* pPrev = m_buffer + start;
   u_int size_buf = m_nSize - start;
   const char* pEnd = m_buffer + m_nSize + 1;
-  while ((pLast = (char*) memchr(pPrev, first, size_buf)) != NULL)
+  while ((pLast = (char*) memchr (pPrev, first, size_buf)) != NULL)
   {
     size_buf -= (u_int)(pLast - pPrev);
     pPrev = pLast + 1;
 
     if (pLast + size >= pEnd)
       return (u_int)-1;
-    if (memcmp(pLast, pAdr, size) == 0)
+    if (memcmp (pLast, pAdr, size) == 0)
       return (u_int)(pLast - m_buffer);
   }
 
@@ -188,7 +188,7 @@ u_int MemBuf::find(const void* pAdr, u_int size, u_int start)
 
 /*! replace a character by another */
 
-void MemBuf::replace(char what, char by)
+void MemBuf::replace (char what, char by)
 {
   const char* pEnd = m_buffer + m_nSize;
   char *buf_c = m_buffer;
@@ -204,7 +204,7 @@ Add a buffer at the end of the internal buffer.
 If the internal buffer isn't large enough, a reallocation is done until m_nSizeLimit is reached
 If m_nSizeLimit is equal to 0, reallocation are always done.
 */
-void MemBuf::addBuffer(const void* pAdr, u_int size)
+void MemBuf::addBuffer (const void* pAdr, u_int size)
 {
   if (size == 0)
     return;
@@ -213,9 +213,9 @@ void MemBuf::addBuffer(const void* pAdr, u_int size)
   if (nNewSize > m_nRealSize)
   {
     if (nNewSize - m_nRealSize < m_nBlockLength)
-      setLength(m_nRealSize + m_nBlockLength);
+      setLength (m_nRealSize + m_nBlockLength);
     else
-      setLength(nNewSize);
+      setLength (nNewSize);
   }
   const u_int nAllowedSize = m_nRealSize - m_nSize;
   if (nAllowedSize == 0)
@@ -223,12 +223,12 @@ void MemBuf::addBuffer(const void* pAdr, u_int size)
   if (size > nAllowedSize)
   {
     size = nAllowedSize;
-    memcpy(m_buffer + m_nSize, pAdr, size);
+    memcpy (m_buffer + m_nSize, pAdr, size);
     m_nSize = m_nRealSize;
   }
   else
   {
-    memcpy(m_buffer + m_nSize, pAdr, size);
+    memcpy (m_buffer + m_nSize, pAdr, size);
     m_nSize = nNewSize;
   }
 #else
@@ -239,36 +239,36 @@ void MemBuf::addBuffer(const void* pAdr, u_int size)
     fs = m_nSizeLimit;
   }
 
-  char* temp = mem_alloc(fs);
-  memcpy(temp, m_buffer, m_nSize);
-  memcpy(temp + m_nRealSize, pAdr, size);
-  mem_free(m_buffer);
+  char* temp = mem_alloc (fs);
+  memcpy (temp, m_buffer, m_nSize);
+  memcpy (temp + m_nRealSize, pAdr, size);
+  mem_free (m_buffer);
   m_buffer = temp;
   m_nRealSize = fs;
 #endif
   return;
 }
 
-int MemBuf::setBuffer(const void* pAdr, u_int size)
+int MemBuf::setBuffer (const void* pAdr, u_int size)
 {
 #ifdef DONT_MATCH_LENGTH
   if (size <= m_nRealSize)
   {
-    memcpy(m_buffer, pAdr, size);
+    memcpy (m_buffer, pAdr, size);
     m_nSize = size;
   }
   else
   {
     if (m_nSizeLimit != 0 && size > m_nSizeLimit)
       size = m_nSizeLimit;
-    allocBuffer(size);
-    memcpy(m_buffer, pAdr, size);
+    allocBuffer (size);
+    memcpy (m_buffer, pAdr, size);
     m_nSize = m_nRealSize = size;
   }
 #else
-  ASSERT(size != 0);
-  allocBuffer(size);
-  memcpy(m_buffer, pAdr, size);
+  ASSERT (size != 0);
+  allocBuffer (size);
+  memcpy (m_buffer, pAdr, size);
 #endif
   return 1;
 }
@@ -280,11 +280,11 @@ This can be useful to use variables from the stack.
 Ex.:
 unsigned char stackBuffer[10];
 MemBuf buffer;
-buffer.setExternalBuffer(stackBuffer, 10); // here, you'll use the memory from stackBuffer
+buffer.setExternalBuffer (stackBuffer, 10); // here, you'll use the memory from stackBuffer
 */
-void MemBuf::setExternalBuffer(const void* pAdr, u_int size)
+void MemBuf::setExternalBuffer (const void* pAdr, u_int size)
 {
-  free();
+  free ();
   m_bCanDelete = false;
   m_buffer = (char*) pAdr;
   m_nRealSize = size;
@@ -292,9 +292,9 @@ void MemBuf::setExternalBuffer(const void* pAdr, u_int size)
 }
 
 /*! Return the internal buffer by setting previously a specific length */
-char* MemBuf::getBuffersetLength(u_int newSize)
+char* MemBuf::getBuffersetLength (u_int newSize)
 {
-  setLength(newSize);
+  setLength (newSize);
   return (char*)m_buffer;
 }
 
@@ -302,7 +302,7 @@ char* MemBuf::getBuffersetLength(u_int newSize)
 Copy a part of the internal buffer in "result".
 Here, "result" is completly removed and replaced by this part.
 */
-int MemBuf::getPart(u_int nStart, u_int nEnd, MemBuf& result)
+int MemBuf::getPart (u_int nStart, u_int nEnd, MemBuf& result)
 {
   if (nEnd > m_nSize)
     nEnd = m_nSize;
@@ -312,12 +312,12 @@ int MemBuf::getPart(u_int nStart, u_int nEnd, MemBuf& result)
 #ifdef DONT_MATCH_LENGTH
     result.m_nSize = 0;
 #else
-    result.free();
+    result.free ();
 #endif
     return 1;
   }
 
-  result.setBuffer(m_buffer + nStart, nEnd - nStart);
+  result.setBuffer (m_buffer + nStart, nEnd - nStart);
   return 1;
 }
 
@@ -325,7 +325,7 @@ int MemBuf::getPart(u_int nStart, u_int nEnd, MemBuf& result)
 Copy a part of the internal buffer in "result".
 Here, "result" is completly removed and replaced by this part.
 */
-int MemBuf::getPartAsString(u_int nStart, u_int nEnd, MemBuf& result)
+int MemBuf::getPartAsString (u_int nStart, u_int nEnd, MemBuf& result)
 {
   if (nEnd > m_nRealSize)
     nEnd = m_nRealSize;
@@ -336,14 +336,14 @@ int MemBuf::getPartAsString(u_int nStart, u_int nEnd, MemBuf& result)
     result.m_nSize = 0;
     result[0] = '\0';
 #else
-    result.free();
+    result.free ();
 #endif
     return 1;
   }
 
   const u_int lg = nEnd - nStart;
-  char* buf = (char*) result.getBuffersetLength(lg + 1);
-  memcpy(buf, m_buffer + nStart,  lg);
+  char* buf = (char*) result.getBuffersetLength (lg + 1);
+  memcpy (buf, m_buffer + nStart,  lg);
   buf[lg] = '\0';
 
   return 1;
@@ -354,7 +354,7 @@ Set the length of the internal buffer.
 If the length is smallest than the existing one, no reallocation is done.
 if it's biggest, a reallocation is done until m_nSizeLimit is reached.
 */
-void MemBuf::setLength(u_int newSize)
+void MemBuf::setLength (u_int newSize)
 {
 #ifndef DONT_MATCH_LENGTH
   if (newSize == 0)
@@ -369,11 +369,11 @@ void MemBuf::setLength(u_int newSize)
 #ifdef DONT_MATCH_LENGTH
     m_nSize = newSize;
 #else
-    ASSERT(m_buffer != NULL);
-    char* temp = mem_alloc(newSize);
-    memcpy(temp, m_buffer, newSize);
+    ASSERT (m_buffer != NULL);
+    char* temp = mem_alloc (newSize);
+    memcpy (temp, m_buffer, newSize);
     if (m_bCanDelete)
-      mem_free(m_buffer);
+      mem_free (m_buffer);
     m_buffer = temp;
     m_nRealSize = m_nSize = newSize;
 #endif
@@ -391,14 +391,14 @@ void MemBuf::setLength(u_int newSize)
 
     if (m_buffer == NULL || m_nRealSize == 0)
     {
-      allocBuffer(newSize);
+      allocBuffer (newSize);
       return;
     }
 
-    char* temp = mem_alloc(newSize);
-    memcpy(temp, m_buffer, m_nRealSize);
+    char* temp = mem_alloc (newSize);
+    memcpy (temp, m_buffer, m_nRealSize);
     if (m_bCanDelete)
-      mem_free(m_buffer);
+      mem_free (m_buffer);
     m_buffer = temp;
     m_nRealSize = newSize;
 #ifndef DONT_MATCH_LENGTH
@@ -411,10 +411,10 @@ void MemBuf::setLength(u_int newSize)
 // hex <-> Data conversion functions
 
 /*! Write to the MemBuf the hex representation of pAdr */
-void MemBuf::hex(const void* pAdr, u_int nSize)
+void MemBuf::hex (const void* pAdr, u_int nSize)
 {
   const u_int nFinalSize = nSize * 2;
-  setLength(nFinalSize + 1);
+  setLength (nFinalSize + 1);
   const char* hex_chars = "0123456789abcdef";
   for (u_int i = 0; i < nSize; i++)
   {
@@ -426,7 +426,7 @@ void MemBuf::hex(const void* pAdr, u_int nSize)
 }
 
 /*! Return the decimal number of an hexadecimal character */
-unsigned char MemBuf::hexCharToNumber(unsigned char c)
+unsigned char MemBuf::hexCharToNumber (unsigned char c)
 {
   if (c >= '0' && c <= '9')
     return c - '0';
@@ -438,17 +438,17 @@ unsigned char MemBuf::hexCharToNumber(unsigned char c)
 }
 
 /*! Return a MemBuf with the decoded hexadicmal string pointed at pAdr */
-MemBuf MemBuf::hexToData(const void* pAdr, u_int nSize)
+MemBuf MemBuf::hexToData (const void* pAdr, u_int nSize)
 {
   if ((nSize & 1) == 1) // nSize impair
-    return MemBuf("", 1);
+    return MemBuf ("", 1);
   MemBuf memFinal;
   memFinal.m_bCanDelete = false;
-  memFinal.setLength(nSize >> 1);
+  memFinal.setLength (nSize >> 1);
   const char* pTmp = (const char*) pAdr;
   const char* pEnd = pTmp + nSize;
   for ( ; pTmp < pEnd; pTmp += 2)
-    memFinal << (unsigned char) ((hexCharToNumber(*pTmp) << 4) + hexCharToNumber(*(pTmp + 1)));
+    memFinal << (unsigned char) ((hexCharToNumber (*pTmp) << 4) + hexCharToNumber (*(pTmp + 1)));
   return memFinal;
 }
 
@@ -456,19 +456,19 @@ MemBuf MemBuf::hexToData(const void* pAdr, u_int nSize)
 void MemBuf::hashMD5(const void* pAdr, u_int nSize)
 {
   Md5 md5;
-  setLength(16);
+  setLength (16);
 
-  md5.init();
-  md5.update((unsigned char*) pAdr, nSize);
-  md5.final((unsigned char*) getBuffer());
+  md5.init ();
+  md5.update ((char*) pAdr, nSize);
+  md5.end ((char*) getBuffer ());
   m_nSize = 16;
 }
 
 /*! CRC hashing function */
-void MemBuf::hashCRC(const void* pAdr, u_int nSize)
+void MemBuf::hashCRC (const void* pAdr, u_int nSize)
 {
-  setLength(4);
-  u_int* nCrc32 = (u_int*) getBuffer();
+  setLength (4);
+  u_int* nCrc32 = (u_int*) getBuffer ();
   *nCrc32 = 0xFFFFFFFF;
   for (u_int i = 0; i < nSize; i++)
   {
@@ -482,18 +482,18 @@ void MemBuf::hashCRC(const void* pAdr, u_int nSize)
 // Int <-> Str conversion functions
 
 /*! Return a MemBuf with the string representation of "i" */
-void MemBuf::xIntToStr(u_int i, int bNegative)
+void MemBuf::xIntToStr (u_int i, int bNegative)
 {
   if (i == 0) // log10(0) won't work !!
   {
-    setBuffer("0", 2);
+    setBuffer ("0", 2);
     m_nSize = 1;
     return;
   }
 #ifdef DONT_MATCH_LENGTH
-  setLength(12);
+  setLength (12);
 #else
-  setLength((u_int) log10(i) + 3);
+  setLength ((u_int) log10(i) + 3);
 #endif
   do
   {
@@ -523,13 +523,13 @@ void MemBuf::xIntToStr(u_int i, int bNegative)
 }
 
 /*! Return a MemBuf with the string representation of "i" using an external buffer. */
-void MemBuf::xIntToStr(u_int i, int bNegative, char* pBufToUse, u_int nBufSize)
+void MemBuf::xIntToStr (u_int i, int bNegative, char* pBufToUse, u_int nBufSize)
 {
   m_nSizeLimit = nBufSize;
-  setExternalBuffer(pBufToUse, nBufSize);
+  setExternalBuffer (pBufToUse, nBufSize);
   if (i == 0) // log10(0) won't work !!
   {
-    setBuffer("0", 2);
+    setBuffer ("0", 2);
     m_nSize = 1;
     return;
   }
@@ -562,9 +562,9 @@ void MemBuf::xIntToStr(u_int i, int bNegative, char* pBufToUse, u_int nBufSize)
 }
 
 /* Convert a string into an unsigned number */
-u_int MemBuf::strToUint(const char* pAdr)
+u_int MemBuf::strToUint (const char* pAdr)
 {
-  int nSize = (int)strlen(pAdr);
+  int nSize = (int)strlen (pAdr);
   if (nSize > 10) // a (signed/unsigned) 32-bit number as a maximun of 10 digit
     nSize = 10;
   u_int nRes = 0;
@@ -578,33 +578,33 @@ u_int MemBuf::strToUint(const char* pAdr)
 }
 
 /* Convert a string into a signed number */
-int MemBuf::strToInt(const char* pAdr)
+int MemBuf::strToInt (const char* pAdr)
 {
   if (*pAdr == '-')
-    return (int) (-(int) (strToUint(++pAdr)));
-  return (int) strToUint(pAdr);
+    return (int) (-(int) (strToUint (++pAdr)));
+  return (int) strToUint (pAdr);
 }
 
 /*! Destructor */
-MemBuf::~MemBuf()
+MemBuf::~MemBuf ()
 {
-  if(m_buffer != NULL && m_bCanDelete)
-    mem_free(m_buffer);
+  if (m_buffer != NULL && m_bCanDelete)
+    mem_free (m_buffer);
 }
-  
-void MemBuf::addBuffer(MemBuf *nmb) 
+
+void MemBuf::addBuffer (MemBuf *nmb)
 {
-  addBuffer(nmb->m_buffer, nmb->m_nSize);
+  addBuffer (nmb->m_buffer, nmb->m_nSize);
 }
 
 /*! free used memory */
-int MemBuf::free() 
+int MemBuf::free ()
 {
-  if(m_buffer != NULL && m_bCanDelete) 
+  if (m_buffer != NULL && m_bCanDelete)
   {
-    mem_free(m_buffer); 
-    m_buffer = NULL; 
-    m_nSize = m_nRealSize = 0; 
+    mem_free (m_buffer);
+    m_buffer = NULL;
+    m_nSize = m_nRealSize = 0;
     return 0;
   }
   return 1;
@@ -612,39 +612,39 @@ int MemBuf::free()
 /*!
 *Get the real allocated size.
 */
-u_int MemBuf::getRealLength()
+u_int MemBuf::getRealLength ()
 {
   return m_nRealSize;
 }
 
-u_int MemBuf::find(MemBuf *smb, u_int start) 
+u_int MemBuf::find (MemBuf *smb, u_int start)
 {
-  return find(smb->m_buffer, smb->m_nSize, start);
+  return find (smb->m_buffer, smb->m_nSize, start);
 }
-char& MemBuf::getAt(u_int nIndex) 
+char& MemBuf::getAt (u_int nIndex)
 {
 #ifdef ASSERT
-  ASSERT(m_buffer != NULL); 
-  ASSERT(nIndex <= m_nSize); 
+  ASSERT (m_buffer != NULL);
+  ASSERT (nIndex <= m_nSize);
 #endif
   return *(m_buffer + nIndex);
 }
-char& MemBuf::operator[](u_int nIndex) 
+char& MemBuf::operator[](u_int nIndex)
 {
-  return getAt(nIndex);
+  return getAt (nIndex);
 }
 
-u_int MemBuf::getLength()
+u_int MemBuf::getLength ()
 {
   return m_nSize;
 }
 
-int MemBuf::isValid() 
+int MemBuf::isValid ()
 {
   return ((m_nSize != 0) || (m_buffer != NULL))?1:0;
 }
 
-char* MemBuf::getBuffer() 
+char* MemBuf::getBuffer ()
 {
   return ( char*) m_buffer;
 }
@@ -653,134 +653,134 @@ MemBuf::operator const void*()
 {
   return (const void*) m_buffer;
 }
-MemBuf MemBuf::operator+ (MemBuf& src) 
-{  
-  MemBuf temp(*this); 
-  temp.addBuffer(&src); 
+MemBuf MemBuf::operator+ (MemBuf& src)
+{
+  MemBuf temp (*this);
+  temp.addBuffer (&src);
   return temp;
 }
-MemBuf MemBuf::operator+ (const char* src) 
+MemBuf MemBuf::operator+ (const char* src)
 {
-  MemBuf temp(*this); 
-  temp.addBuffer((const void*) src, (u_int)strlen(src)); 
+  MemBuf temp (*this);
+  temp.addBuffer ((const void*) src, (u_int)strlen (src));
   return temp;
 }
-const MemBuf& MemBuf::operator+= (MemBuf& add) 
+const MemBuf& MemBuf::operator+= (MemBuf& add)
 {
-  addBuffer(&add); 
+  addBuffer (&add);
   return *this;
 }
-const MemBuf& MemBuf::operator+= (const char* pStr) 
+const MemBuf& MemBuf::operator+= (const char* pStr)
 {
-  addBuffer(pStr, (u_int)strlen(pStr)); 
+  addBuffer (pStr, (u_int)strlen (pStr));
   return *this;
 }
-const MemBuf& MemBuf::operator+= (char c) 
+const MemBuf& MemBuf::operator+= (char c)
 {
-  addBuffer(&c, 1); 
+  addBuffer (&c, 1);
   return *this;
 }
-MemBuf& MemBuf::operator<< (const char* pSrc) 
+MemBuf& MemBuf::operator<< (const char* pSrc)
 {
-  addBuffer(pSrc, (u_int)strlen(pSrc)); 
+  addBuffer (pSrc, (u_int)strlen (pSrc));
   return *this;
 }
-MemBuf& MemBuf::operator<< (int i) 
+MemBuf& MemBuf::operator<< (int i)
 {
-  addBuffer(&i, 4); 
+  addBuffer (&i, 4);
   return *this;
 }
-MemBuf& MemBuf::operator<< (unsigned int i) 
+MemBuf& MemBuf::operator<< (unsigned int i)
 {
-  addBuffer(&i, 4); 
+  addBuffer (&i, 4);
   return *this;
 }
-MemBuf& MemBuf::operator<< (long i) 
+MemBuf& MemBuf::operator<< (long i)
 {
-  addBuffer(&i, 4); 
+  addBuffer (&i, 4);
   return *this;
 }
-MemBuf& MemBuf::operator<< (unsigned long i) 
+MemBuf& MemBuf::operator<< (unsigned long i)
 {
-  addBuffer(&i, 4); 
+  addBuffer (&i, 4);
   return *this;
 }
-MemBuf& MemBuf::operator<< (char c) 
+MemBuf& MemBuf::operator<< (char c)
 {
-  addBuffer(&c, 1); 
+  addBuffer (&c, 1);
   return *this;
 }
-MemBuf& MemBuf::operator<< (unsigned char c) 
+MemBuf& MemBuf::operator<< (unsigned char c)
 {
-  addBuffer(&c, 1); 
+  addBuffer (&c, 1);
   return *this;
 }
-MemBuf& MemBuf::operator<< (const  MemBuf &src) 
+MemBuf& MemBuf::operator<< (const  MemBuf &src)
 {
-  addBuffer(src.m_buffer, src.m_nSize); 
+  addBuffer (src.m_buffer, src.m_nSize);
   return *this;
 }
 MemBuf& MemBuf::operator<< (const string &src)
 {
-  addBuffer((const void*) src.c_str(), src.length());
+  addBuffer ((const void*) src.c_str (), src.length ());
   return *this;
 }
 MemBuf& MemBuf::operator=(const MemBuf& src)
 {
-  setBuffer(src.m_buffer, src.m_nRealSize); 
+  setBuffer (src.m_buffer, src.m_nRealSize);
   return *this;
 }
-MemBuf& MemBuf::operator=(const char* src) 
+MemBuf& MemBuf::operator=(const char* src)
 {
-  setBuffer((const void*) src, (u_int)strlen(src) + 1); 
+  setBuffer ((const void*) src, (u_int)strlen (src) + 1);
   return* this;
 }
-  
-void MemBuf::uintToStr(u_int i) 
+
+void MemBuf::uintToStr (u_int i)
 {
-  xIntToStr(i, 0);
+  xIntToStr (i, 0);
 }
 
-void MemBuf::uintToStr(u_int i, char* pBufToUse, u_int nBufSize) 
+void MemBuf::uintToStr (u_int i, char* pBufToUse, u_int nBufSize)
 {
-  xIntToStr(i, 0, pBufToUse, nBufSize);
+  xIntToStr (i, 0, pBufToUse, nBufSize);
 }
 
-void MemBuf::intToStr(int i)
+void MemBuf::intToStr (int i)
 {
-  if (i < 0) 
-    xIntToStr( (u_int)(-i), 1); 
-  else 
-    xIntToStr( (u_int) i, 0);
+  if (i < 0)
+    xIntToStr ( (u_int)(-i), 1);
+  else
+    xIntToStr ( (u_int) i, 0);
 }
 
-void MemBuf::intToStr(int i, char* pBufToUse, u_int nBufSize) 
+void MemBuf::intToStr (int i, char* pBufToUse, u_int nBufSize)
 {
-  if (i < 0) 
-    xIntToStr((u_int)(-i), 1, pBufToUse, nBufSize); 
-  else 
-    xIntToStr((u_int) i, 0, pBufToUse, nBufSize);
+  if (i < 0)
+    xIntToStr ((u_int)(-i), 1, pBufToUse, nBufSize);
+  else
+    xIntToStr ((u_int) i, 0, pBufToUse, nBufSize);
 }
 
-void MemBuf::hex(MemBuf& membuf)
+void MemBuf::hex (MemBuf& membuf)
 {
-  hex(membuf.m_buffer, membuf.m_nSize);
+  hex (membuf.m_buffer, membuf.m_nSize);
 }
-void MemBuf::hashMD5(MemBuf& membuf) 
+void MemBuf::hashMD5(MemBuf& membuf)
 {
   hashMD5(membuf.m_buffer, membuf.m_nSize);
 }
-void MemBuf::hashCRC(MemBuf& membuf) 
+void MemBuf::hashCRC (MemBuf& membuf)
 {
-  hashCRC(membuf.m_buffer, membuf.m_nSize);
+  hashCRC (membuf.m_buffer, membuf.m_nSize);
 }
 
-void MemBuf::allocBuffer(u_int size)
+void MemBuf::allocBuffer (u_int size)
 {
-  if(size > m_nRealSize || m_buffer == NULL)
+  if (size > m_nRealSize || m_buffer == NULL)
   {
-    free();
-    m_buffer = mem_alloc(size); 
+    free ();
+    m_buffer = mem_alloc (size);
     m_nRealSize = size;
   }
 }

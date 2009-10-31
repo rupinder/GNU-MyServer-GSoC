@@ -5,12 +5,12 @@
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
   (at your option) any later version.
- 
-  This program is distributed in the hope that it will be useful, 
+
+  This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
- 
+
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -19,8 +19,8 @@
 #include <string>
 
 #ifndef WIN32
-#include <unistd.h>
-#include <sys/types.h>
+# include <unistd.h>
+# include <sys/types.h>
 #endif
 
 #include <cppunit/CompilerOutputter.h>
@@ -78,7 +78,7 @@ class TestLogManager : public CppUnit::TestFixture
   CPPUNIT_TEST (testLogOnAClosedLogStream);
   CPPUNIT_TEST (testChown);
   CPPUNIT_TEST_SUITE_END ();
-  
+
   class AnObject
   {
   };
@@ -90,14 +90,13 @@ public:
     ff->insert ("gzip", Gzip::factory);
     ff->insert ("gunzip", GzipDecompress::factory);
     lm = new LogManager (ff);
-    setcwdBuffer ();
   }
 
   void testEmpty ()
   {
     CPPUNIT_ASSERT (lm->empty ());
   }
-  
+
   void testNotEmpty ()
   {
     list<string> filters;
@@ -115,10 +114,10 @@ public:
   void testContainsOwner ()
   {
     list<string> filters;
-    
+
     lm->add (this, "test", "file://foo", filters, 0);
 
-    CPPUNIT_ASSERT (lm->contains (this));
+    CPPUNIT_ASSERT (lm->containsOwner (this));
   }
 
   void testFileStreamAdd ()
@@ -140,7 +139,7 @@ public:
     lm->add (this, "test", "file://foo", filters, 0);
     lm->remove (this);
 
-    CPPUNIT_ASSERT (!lm->contains (this));
+    CPPUNIT_ASSERT (!lm->containsOwner (this));
   }
 
   void testFileStreamLog ()
@@ -162,7 +161,7 @@ public:
 
     CPPUNIT_ASSERT (!message.compare (buf));
   }
-  
+
   void testFileStreamClose ()
   {
     list<string> filters;
@@ -236,7 +235,8 @@ public:
     lm->add (this, "test", "file://foo", filters, 0);
     lm->setLevel (MYSERVER_LOG_MSG_WARNING);
 
-    CPPUNIT_ASSERT (!lm->log (this, "test", "a message", false, MYSERVER_LOG_MSG_ERROR));
+    string msg ("a message");
+    CPPUNIT_ASSERT (!lm->log (this, "test", msg, false, MYSERVER_LOG_MSG_ERROR));
   }
 
   void testMessageLevelLessThanLogManagerOne ()
@@ -247,7 +247,8 @@ public:
     lm->add (this, "test", "file://foo", filters, 0);
     lm->setLevel (MYSERVER_LOG_MSG_WARNING);
 
-    CPPUNIT_ASSERT (lm->log (this, "test", "a message", false, MYSERVER_LOG_MSG_INFO));
+    string msg ("a message");
+    CPPUNIT_ASSERT (lm->log (this, "test", msg, false, MYSERVER_LOG_MSG_INFO));
   }
 
   void testMessageLevelEqualToLogManagerOne ()
@@ -258,7 +259,8 @@ public:
     lm->add (this, "test", "file://foo", filters, 0);
     lm->setLevel (MYSERVER_LOG_MSG_WARNING);
 
-    CPPUNIT_ASSERT (!lm->log (this, "test", "a message", false, MYSERVER_LOG_MSG_WARNING));    
+    string msg ("a message");
+    CPPUNIT_ASSERT (!lm->log (this, "test", msg, false, MYSERVER_LOG_MSG_WARNING));
   }
 
   void testClear ()
@@ -273,7 +275,7 @@ public:
 
     CPPUNIT_ASSERT (lm->empty ());
   }
-  
+
   void testLogThroughGzip ()
   {
     list<string> filters;
@@ -293,7 +295,7 @@ public:
     f.openFile ("fooz", File::READ | File::OPEN_IF_EXISTS);
     f.read (gzipChainComp, 64, &nbr);
     f.close ();
-    gzdc.decompress (&gzipChainComp[gzdc.headerSize ()], 
+    gzdc.decompress (&gzipChainComp[gzdc.headerSize ()],
                      nbr - gzdc.headerSize (),
                      gzipChainDecomp, 64);
     gzipChainDecomp[message.size ()] = '\0';
@@ -320,7 +322,7 @@ public:
     list<string>::iterator it;
     LogStream* ls;
     FilesUtility::deleteFile ("fooc");
-    
+
     filters.push_back ("gzip");
     lm->add (this, "test", "file://fooc", filters, cycleLog);
     lm->log (this, "test", "file://fooc", message);
@@ -328,7 +330,7 @@ public:
     f.openFile ("fooc", File::READ | File::OPEN_IF_EXISTS);
     f.read (gzipComp, 128, &nbr);
     f.close ();
-    gzdc.decompress (&gzipComp[gzdc.headerSize ()], 
+    gzdc.decompress (&gzipComp[gzdc.headerSize ()],
                      nbr - gzdc.headerSize (),
                      gzipDecomp, 128);
     gzipDecomp[message1.size ()] = '\0';
@@ -340,7 +342,7 @@ public:
         f.openFile (*it, File::READ | File::OPEN_IF_EXISTS);
         f.read (gzipComp, 128, &nbr);
         f.close ();
-        gzdc.decompress (&gzipComp[gzdc.headerSize ()], 
+        gzdc.decompress (&gzipComp[gzdc.headerSize ()],
                          nbr - gzdc.headerSize (),
                          gzipDecomp, 128);
         gzipDecomp[message.size ()] = '\0';
@@ -389,7 +391,7 @@ public:
 
     CPPUNIT_ASSERT_EQUAL (lm->count (this), 3);
   }
-  
+
   void testGetWhenNotOwningAnyLogStream ()
   {
     list<string> l;
@@ -411,7 +413,7 @@ public:
     tmp.push_back ("console://stdout");
     tmp.push_back ("console://stderr");
     lm->get (this, &l);
-    tmp.sort (); 
+    tmp.sort ();
     l.sort ();
 
     CPPUNIT_ASSERT (tmp == l);
@@ -430,12 +432,12 @@ public:
     tmp.push_back ("file://foo");
     tmp.push_back ("console://stdout");
     lm->get (this, "test", &l);
-    tmp.sort (); 
+    tmp.sort ();
     l.sort ();
 
     CPPUNIT_ASSERT (tmp == l);
   }
-  
+
   void testGetASingleExistingLogStream ()
   {
     list<string> filters;
@@ -452,12 +454,12 @@ public:
     list<string> filters;
     LogStream* ls;
     FilesUtility::deleteFile ("foo");
-    
+
     lm->add (this, "test", "file://foo", filters, 0);
 
     CPPUNIT_ASSERT (lm->get (this, "test", "file://bar", &ls));
   }
-  
+
   void testReOpen ()
   {
     list<string> filters;
@@ -559,7 +561,7 @@ public:
   {
     list<string> filters;
     AnObject anObject;
-    list<void*> l;
+    list<const void*> l;
     LogStream* ls;
     LogStream* ls1;
     FilesUtility::deleteFile ("foo");
@@ -576,7 +578,7 @@ public:
   void testGetLogStreamSharedByTheSameObject ()
   {
     list<string> filters;
-    list<void*> l;
+    list<const void*> l;
     LogStream* ls;
     LogStream* ls1;
     FilesUtility::deleteFile ("foo");
@@ -595,7 +597,7 @@ public:
     list<string> filters;
     AnObject anObject;
     AnObject anotherObject;
-    list<void*> l;
+    list<const void*> l;
     FilesUtility::deleteFile ("foo");
 
     lm->add (this, "test", "file://foo", filters, 0);
@@ -612,15 +614,15 @@ public:
     list<string> filters;
     AnObject anObject;
     AnObject anotherObject;
-    list<void*> l;
-    
+    list<const void*> l;
+
     lm->add (this, "test", "file://foo", filters, 0);
     lm->add (&anObject, "test1", "file://foo", filters, 0);
     lm->add (&anotherObject, "test2", "file://foo", filters, 0);
     lm->remove (this);
     lm->remove (&anObject);
     lm->remove (&anotherObject);
-    
+
     CPPUNIT_ASSERT (!lm->contains ("file://foo"));
   }
 
@@ -631,8 +633,8 @@ public:
 
     lm->add (this, "test", "file://foo", filters, 0);
     lm->close (this, "test", "file://foo");
-
-    CPPUNIT_ASSERT (lm->log (this, "test", "file://foo", "message"));
+    string msg ("message");
+    CPPUNIT_ASSERT (lm->log (this, "test", "file://foo", msg));
   }
 
   void testChown ()

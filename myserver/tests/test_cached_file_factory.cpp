@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,66 +28,66 @@ using namespace std;
 
 class TestCachedFileFactory : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestCachedFileFactory );
+  CPPUNIT_TEST_SUITE ( TestCachedFileFactory );
 
-  CPPUNIT_TEST(testInitialize);
-  CPPUNIT_TEST(testSize);
-  CPPUNIT_TEST(testMaxSize);
-  CPPUNIT_TEST(testMinSize);
+  CPPUNIT_TEST (testInitialize);
+  CPPUNIT_TEST (testSize);
+  CPPUNIT_TEST (testMaxSize);
+  CPPUNIT_TEST (testMinSize);
 
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE_END ();
   CachedFileFactory *cff;
 
 public:
-  void setUp()
+  void setUp ()
   {
-    cff = new CachedFileFactory();
+    cff = new CachedFileFactory ();
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete cff;
   }
 
-  void testInitialize()
+  void testInitialize ()
   {
-    cff->initialize(20);
+    cff->initialize (20);
 
-    CPPUNIT_ASSERT_EQUAL(cff->getSize(), 20ul);
-    CPPUNIT_ASSERT_EQUAL(cff->getUsed(), 0ul);
-    CPPUNIT_ASSERT_EQUAL(cff->getUsedSize(), 0ul);
-    CPPUNIT_ASSERT_EQUAL(cff->getMaxSize(), 0ul);
-    CPPUNIT_ASSERT_EQUAL(cff->getMinSize(), 0ul);
-    CPPUNIT_ASSERT_EQUAL(cff->getMaxSize(), 0ul);
+    CPPUNIT_ASSERT_EQUAL (cff->getSize (), 20ul);
+    CPPUNIT_ASSERT_EQUAL (cff->getUsed (), 0ul);
+    CPPUNIT_ASSERT_EQUAL (cff->getUsedSize (), 0ul);
+    CPPUNIT_ASSERT_EQUAL (cff->getMaxSize (), 0ul);
+    CPPUNIT_ASSERT_EQUAL (cff->getMinSize (), 0ul);
+    CPPUNIT_ASSERT_EQUAL (cff->getMaxSize (), 0ul);
   }
 
 
-  void testSize()
+  void testSize ()
   {
-    for(u_long i = 0; i < 100; i += 10)
+    for (u_long i = 0; i < 100; i += 10)
     {
-      cff->setSize(i);
-      CPPUNIT_ASSERT_EQUAL(cff->getSize(), i);
+      cff->setSize (i);
+      CPPUNIT_ASSERT_EQUAL (cff->getSize (), i);
     }
   }
 
-  void testMaxSize()
+  void testMaxSize ()
   {
-    for(u_long i = 0; i < 100; i += 10)
+    for (u_long i = 0; i < 100; i += 10)
     {
-      cff->setMaxSize(i);
-      CPPUNIT_ASSERT_EQUAL(cff->getMaxSize(), i);
+      cff->setMaxSize (i);
+      CPPUNIT_ASSERT_EQUAL (cff->getMaxSize (), i);
     }
   }
 
-  void testMinSize()
+  void testMinSize ()
   {
-    for(u_long i = 0; i < 100; i += 10)
+    for (u_long i = 0; i < 100; i += 10)
     {
-      cff->setMinSize(i);
-      CPPUNIT_ASSERT_EQUAL(cff->getMinSize(), i);
+      cff->setMinSize (i);
+      CPPUNIT_ASSERT_EQUAL (cff->getMinSize (), i);
     }
   }
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestCachedFileFactory );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestCachedFileFactory );

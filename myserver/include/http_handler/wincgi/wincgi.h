@@ -17,21 +17,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef WINCGI_H
-#define WINCGI_H
+# define WINCGI_H
 
-#include <include/protocol/http/http_request.h>
-#include <include/protocol/http/http_response.h>
-#include <include/conf/mime/mime_manager.h>
-#include <include/protocol/http/http_headers.h>
-#include <include/protocol/http/http_data_handler.h>
+# include <include/protocol/http/http_request.h>
+# include <include/protocol/http/http_response.h>
+# include <include/conf/mime/mime_manager.h>
+# include <include/protocol/http/http_headers.h>
+# include <include/protocol/http/http_data_handler.h>
 
 class WinCgi : public HttpDataHandler
 {
 public:
-  WinCgi();
-  ~WinCgi();
+  WinCgi ();
+  ~WinCgi ();
 
-  virtual int send(HttpThreadContext* td, const char* exec,
+  virtual int send (HttpThreadContext* td, const char* exec,
                    const char* cmdLine = 0, bool execute = false,
                    bool onlyHeader = false);
 };

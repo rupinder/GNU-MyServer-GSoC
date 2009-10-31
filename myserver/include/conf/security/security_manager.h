@@ -1,7 +1,8 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2008, 2009 Free Software Foundation,
+Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -17,16 +18,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SECURITY_MANAGER_H
-#define SECURITY_MANAGER_H
+# define SECURITY_MANAGER_H
 
-#include "stdafx.h"
-#include <include/conf/security/security_token.h>
-#include <include/connection/connection.h>
-#include <include/base/xml/xml_parser.h>
-#include <include/protocol/http/http_headers.h>
-#include <include/base/hash_map/hash_map.h>
+# include "stdafx.h"
+# include <include/conf/security/security_token.h>
+# include <include/connection/connection.h>
+# include <include/base/xml/xml_parser.h>
+# include <include/protocol/http/http_headers.h>
+# include <include/base/hash_map/hash_map.h>
 
-#include <string>
+# include <string>
 
 using namespace std;
 
@@ -68,16 +69,16 @@ enum PERMISSION_MASK
 class SecurityManager
 {
 public:
-  SecurityManager(ValidatorFactory*, AuthMethodFactory*);
-  ~SecurityManager();
+  SecurityManager (ValidatorFactory*, AuthMethodFactory*);
+  ~SecurityManager ();
 
-  int getPermissionMask (SecurityToken* st, 
-                         SecurityDomain **domains, 
+  int getPermissionMask (SecurityToken* st,
+                         SecurityDomain **domains,
                          string& validator,
                          string& authMethod);
 
-  int getPermissionMask (SecurityToken* st, 
-                         list<SecurityDomain*> *domains, 
+  int getPermissionMask (SecurityToken* st,
+                         list<SecurityDomain*> *domains,
                          string& validator,
                          string& authMethod);
 

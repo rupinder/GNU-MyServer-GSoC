@@ -17,19 +17,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef UNIX_SOCKET_H
-#define UNIX_SOCKET_H
+# define UNIX_SOCKET_H
 
-#include "stdafx.h"
-#include <include/base/socket/socket.h>
+# include "stdafx.h"
+# include <include/base/socket/socket.h>
 
 
 extern "C"
 {
-#ifdef WIN32
-#undef AF_UNIX //This shouldn't happen, but better be sure.
-#else
-#include <sys/un.h>
-#endif
+# ifdef WIN32
+#  undef AF_UNIX //This shouldn't happen, but better be sure.
+# else
+#  include <sys/un.h>
+# endif
 }
 
 
@@ -37,30 +37,31 @@ class UnixSocket: public Socket
 {
 public:
   UnixSocket ();
-  int bind(const char *path);
+  virtual ~UnixSocket ();
+  int bind (const char *path);
   int shutdown ();
   int close ();
   int connect (const char* path);
-  Socket accept ();
+  Socket* accept ();
   int socket ();
 protected:
 
-#ifdef AF_UNIX
+# ifdef AF_UNIX
   sockaddr_un addr;
-#endif
+# endif
 
   int readHandle (Handle* fd);
   int writeHandle (Handle fd);
 
 private:
-#ifdef AF_UNIX
+# ifdef AF_UNIX
   void makeAddrInfo (sockaddr_un *info, const char *path)
   {
-    memset(info, 0, sizeof(struct sockaddr_un));
+    memset (info, 0, sizeof (struct sockaddr_un));
     info->sun_family = AF_UNIX;
     strcpy (info->sun_path, path);
   }
-#endif
+# endif
 };
 
 #endif

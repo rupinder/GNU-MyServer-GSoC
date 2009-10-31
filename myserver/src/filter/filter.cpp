@@ -25,119 +25,117 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 /*!
- *Read [len] characters using the filter. Returns -1 on errors.
- *\param buffer The buffer where receive read data.
- *\param len The buffer length in bytes.
- *\param nbr A pointer to receive the number of read bytes.
+ * Read [len] characters using the filter. Returns -1 on errors.
+ * \param buffer The buffer where receive read data.
+ * \param len The buffer length in bytes.
+ * \param nbr A pointer to receive the number of read bytes.
  */
-int Filter::read(char* buffer, u_long len, u_long *nbr)
+int Filter::read (char* buffer, u_long len, u_long *nbr)
 {
-  *nbr=0;
+  *nbr = 0;
   return 0;
 }
 
 /*!
- *Write [len] characters to the stream. Returns -1 on errors.
- *\param buffer The buffer with the data to write.
- *\param len Number of bytes to use.
- *\param nbw A pointer to receive the number of written bytes.
+ * Write [len] characters to the stream. Returns -1 on errors.
+ * \param buffer The buffer with the data to write.
+ * \param len Number of bytes to use.
+ * \param nbw A pointer to receive the number of written bytes.
  */
-int Filter::write(const char* buffer, u_long len, u_long* nbw)
+int Filter::write (const char* buffer, u_long len, u_long* nbw)
 {
   *nbw = 0;
   return 0;
 }
 
 /*!
- *Get an header for the filter. Returns -1 on errors.
- *\param buffer The buffer where receive read data.
- *\param len The buffer length in bytes.
- *\param nbr A pointer to receive the number of read bytes.
+ * Get an header for the filter. Returns -1 on errors.
+ * \param buffer The buffer where receive read data.
+ * \param len The buffer length in bytes.
+ * \param nbr A pointer to receive the number of read bytes.
  */
-int Filter::getHeader(char* buffer, u_long len, u_long* nbr)
+int Filter::getHeader (char* buffer, u_long len, u_long* nbr)
 {
   *nbr = 0;
   return 0;
 }
 
 /*!
- *Get a footer for the filter. Returns -1 on errors.
- *\param buffer The buffer where receive read data.
- *\param len The buffer length in bytes.
- *\param nbr A pointer to receive the number of read bytes.
+ * Get a footer for the filter. Returns -1 on errors.
+ * \param buffer The buffer where receive read data.
+ * \param len The buffer length in bytes.
+ * \param nbr A pointer to receive the number of read bytes.
  */
-int Filter::getFooter(char* buffer, u_long len, u_long* nbr)
+int Filter::getFooter (char* buffer, u_long len, u_long* nbr)
 {
   *nbr = 0;
   return 0;
 }
 
 /*!
- *Default constructor.
+ * Default constructor.
  */
-Filter::Filter()
+Filter::Filter ()
 {
   protocol = 0;
-  protocolData = 0;
   parent = 0;
 }
 
 
 /*!
- *Default destructor.
+ * Default destructor.
  */
-Filter::~Filter()
+Filter::~Filter ()
 {
 
 }
 
 /*!
- *Set the stream where apply the filter.
- *\param parentStream The stream to use as parent.
+ * Set the stream where apply the filter.
+ * \param parentStream The stream to use as parent.
  */
-void Filter::setParent(Stream* parentStream)
+void Filter::setParent (Stream* parentStream)
 {
   parent = parentStream;
 }
 
 /*!
- *Flush everything to the stream. Returns -1 on errors.
- *\param nbw A pointer to receive the number of read bytes.
+ * Flush everything to the stream. Returns -1 on errors.
+ * \param nbw A pointer to receive the number of read bytes.
  */
-int Filter::flush(u_long *nbw)
+int Filter::flush (u_long *nbw)
 {
   *nbw = 0;
   return 0;
 }
 
 /*!
- *Get the stream used by the filter.
+ * Get the stream used by the filter.
  */
-Stream* Filter::getParent()
+Stream* Filter::getParent ()
 {
   return parent;
 }
 
 /*!
- *Returns a nonzero value if the filter modify the input/output data.
+ * Returns a nonzero value if the filter modify the input/output data.
  */
-int Filter::modifyData()
+int Filter::modifyData ()
 {
   return 0;
 }
 
 /*!
- *Return a string with the filter name. 
- *If an external buffer is provided write the name there too.
- *\param name The buffer where write the filter name.
- *\param len The buffer length.
+ * Return a string with the filter name.
+ * If an external buffer is provided write the name there too.
+ * \param name The buffer where write the filter name.
+ * \param len The buffer length.
  */
-const char* Filter::getName(char* name, u_long len)
+const char* Filter::getName (char* name, u_long len)
 {
   /* No name by default.  */
-  if(name)
-  {
+  if (name)
     name[0] = '\0';
-  }
+
   return "\0";
 }

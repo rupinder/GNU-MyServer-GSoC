@@ -17,12 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SECURITY_TOKEN_H
-#define SECURITY_TOKEN_H
+# define SECURITY_TOKEN_H
 
-#include "stdafx.h"
-#include <include/base/hash_map/hash_map.h>
-#include <include/conf/nodetree.h>
-#include <string>
+# include "stdafx.h"
+# include <include/base/hash_map/hash_map.h>
+# include <include/conf/nodetree.h>
+# include <string>
 
 using namespace std;
 
@@ -48,12 +48,11 @@ enum SECURITY_RING
 class SecurityToken
 {
 public:
-  SecurityToken();
-  void reset();
+  SecurityToken ();
+  void reset ();
 
-  const char* getHashedData (const char* name, int domains, const char *def = NULL);
+  const char* getData (const char* name, int domains, const char *def = NULL);
   NodeTree<string>* getNodeTree (string& key, int domains, NodeTree<string>* def = NULL);
-
 
   string& getUser ()
   {
@@ -65,7 +64,7 @@ public:
     return password;
   }
 
-	HashMap<string,string*>* getValues ()
+  HashMap<string, NodeTree<string>*>* getValues ()
   {
     return &values;
   }
@@ -94,7 +93,7 @@ public:
   {
     return providedMask;
   }
-  
+
   string& getNeededPassword ()
   {
     return neededPassword;
@@ -155,7 +154,7 @@ public:
   {
     providedMask = p;
   }
-  
+
   void setNeededPassword (string& pw)
   {
     neededPassword.assign (pw);
@@ -211,7 +210,7 @@ private:
   int mask;
 
   /*!
-   *Password that the user should provide to have access. 
+   *Password that the user should provide to have access.
    *This is used in authorization schemes like the HTTP digest,
    *where the password is not sent in clear on the network.
    */
@@ -219,12 +218,12 @@ private:
 
   /*! The provided password is correct.  */
   bool authenticated;
- 
+
   /*! The obtained mask if password were correct.  */
   int providedMask;
 
   /*! Stored values.  */
-	HashMap<string,string*> values;
+  HashMap<string, NodeTree<string>*> values;
 
   /*! If it is true the security manager will use the cached values.  */
   bool done;

@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2007 Free Software Foundation, Inc.
+Copyright (C) 2007, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -17,14 +17,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef PLUGINS_MANAGER_H
-#define PLUGINS_MANAGER_H
+# define PLUGINS_MANAGER_H
 
-#include "stdafx.h"
-#include <include/plugin/plugin.h>
-#include <include/plugin/plugin_info.h>
-#include <include/base/dynamic_lib/dynamiclib.h>
-#include <include/base/hash_map/hash_map.h>
-#include <string>
+# include "stdafx.h"
+# include <include/plugin/plugin.h>
+# include <include/plugin/plugin_info.h>
+# include <include/base/dynamic_lib/dynamiclib.h>
+# include <include/base/hash_map/hash_map.h>
+# include <string>
 using namespace std;
 
 class Server;
@@ -50,7 +50,7 @@ public:
 
   int preLoad (Server *server, string& resource);
   int load (Server *server);
-  int postLoad (Server *server, XmlParser* languageFile);
+  int postLoad (Server *server);
   int unLoad ();
 
   virtual void removePlugin (string& name);

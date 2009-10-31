@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2008 Free Software Foundation, Inc.
+Copyright (C) 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -17,11 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SECURITY_DOMAIN_H
-#define SECURITY_DOMAIN_H
+# define SECURITY_DOMAIN_H
 
-#include "stdafx.h"
+# include "stdafx.h"
 
-#include <string>
+# include <string>
 
 using namespace std;
 
@@ -33,7 +33,7 @@ public:
   SecurityDomain (string &name);
   virtual ~SecurityDomain ();
   virtual string *getValue (string &name);
-  string& getName(){return name;}
+  string& getName (){return name;}
 protected:
   string name;
 };

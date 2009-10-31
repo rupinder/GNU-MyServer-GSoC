@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -17,9 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CONTROLHEADER_H
-#define CONTROLHEADER_H
-#include "stdafx.h"
-#include <include/protocol/protocol.h>
+# define CONTROLHEADER_H
+# include "stdafx.h"
+# include <include/protocol/protocol.h>
 
 class ControlHeader
 {
@@ -31,17 +31,17 @@ class ControlHeader
   char version[12];
   int length;
 public:
-  void reset();
-  char *getOptions();
-  char *getVersion();
-  char *getConnection();
-  int getLength();
-  char *getAuthLogin();
-  char *getAuthPassword();
-  char *getCommand();
-  ControlHeader();
-  virtual ~ControlHeader();
-  int parse_header(char *buffer, int bufferlen, int*);
+  void reset ();
+  char *getOptions ();
+  char *getVersion ();
+  char *getConnection ();
+  int getLength ();
+  char *getAuthLogin ();
+  char *getAuthPassword ();
+  char *getCommand ();
+  ControlHeader ();
+  virtual ~ControlHeader ();
+  int parse_header (char *buffer, int bufferlen, int*);
 };
 
 #endif

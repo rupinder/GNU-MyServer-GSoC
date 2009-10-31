@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -37,15 +37,15 @@ struct TestMutexThreadArg
   int max;
 };
 
-static DEFINE_THREAD(test_mutex_incrementer, pParam)
+static DEFINE_THREAD (test_mutex_incrementer, pParam)
 {
   TestMutexThreadArg *arg = (TestMutexThreadArg*) pParam;
 
-  for(int i = 0; i < arg->max; i++)
+  for (int i = 0; i < arg->max; i++)
   {
-    arg->mutex->lock();
+    arg->mutex->lock ();
     arg->value++;
-    arg->mutex->unlock();
+    arg->mutex->unlock ();
   }
 
   return NULL;
@@ -54,33 +54,33 @@ static DEFINE_THREAD(test_mutex_incrementer, pParam)
 
 class TestMutex : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestMutex );
-  CPPUNIT_TEST( testLockUnlock );
-  CPPUNIT_TEST( testSynchronizedAccess );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestMutex );
+  CPPUNIT_TEST ( testLockUnlock );
+  CPPUNIT_TEST ( testSynchronizedAccess );
+  CPPUNIT_TEST_SUITE_END ();
 
   Mutex *mutex;
 public:
-  void setUp()
+  void setUp ()
   {
-    mutex = new Mutex();
+    mutex = new Mutex ();
 
   }
 
-  void tearDown()
+  void tearDown ()
   {
     delete mutex;
   }
 
-  void testLockUnlock()
+  void testLockUnlock ()
   {
-    mutex->lock();
-    CPPUNIT_ASSERT_EQUAL(mutex->isLocked(), true);
-    mutex->unlock();
-    CPPUNIT_ASSERT_EQUAL(mutex->isLocked(), false);
+    mutex->lock ();
+    CPPUNIT_ASSERT_EQUAL (mutex->isLocked (), true);
+    mutex->unlock ();
+    CPPUNIT_ASSERT_EQUAL (mutex->isLocked (), false);
   }
 
-  void testSynchronizedAccess()
+  void testSynchronizedAccess ()
   {
     const int N_THREADS = 10;
     ThreadID tid[N_THREADS];
@@ -91,19 +91,19 @@ public:
     arg.mutex = &mutex;
     arg.max = 100;
 
-    for(int i = 0; i < N_THREADS; i++)
+    for (int i = 0; i < N_THREADS; i++)
     {
-      int res = Thread::create(&(tid[i]), test_mutex_incrementer, &arg);
-      CPPUNIT_ASSERT_EQUAL(res, 0);
+      int res = Thread::create (&(tid[i]), test_mutex_incrementer, &arg);
+      CPPUNIT_ASSERT_EQUAL (res, 0);
     }
 
-    for(int i = 0; i < N_THREADS; i++)
-      Thread::join(tid[i]);
+    for (int i = 0; i < N_THREADS; i++)
+      Thread::join (tid[i]);
 
-    CPPUNIT_ASSERT_EQUAL(arg.value, N_THREADS * arg.max);
+    CPPUNIT_ASSERT_EQUAL (arg.value, N_THREADS * arg.max);
 
   }
 };
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TestMutex );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestMutex );

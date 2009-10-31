@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2008 Free Software Foundation, Inc.
+Copyright (C) 2008, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -17,16 +17,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef VALIDATOR_H
-#define VALIDATOR_H
+# define VALIDATOR_H
 
-#include "stdafx.h"
-#include <include/base/hash_map/hash_map.h>
+# include "stdafx.h"
+# include <include/base/hash_map/hash_map.h>
 
-#include <include/conf/security/auth_method.h>
-#include <include/conf/security/security_domain.h>
-#include <include/conf/security/security_manager.h>
+# include <include/conf/security/auth_method.h>
+# include <include/conf/security/security_domain.h>
+# include <include/conf/security/security_manager.h>
 
-#include <list>
+# include <list>
 using namespace std;
 
 
@@ -36,11 +36,11 @@ public:
   Validator ();
   virtual ~Validator ();
 
-  int getPermissionMask (SecurityToken* st, 
+  int getPermissionMask (SecurityToken* st,
                          SecurityDomain **domains,
                          AuthMethod* authMethod);
 
-  int getPermissionMask (SecurityToken* st, 
+  int getPermissionMask (SecurityToken* st,
                          list<SecurityDomain*> *domains,
                          AuthMethod* authMethod);
 
@@ -59,7 +59,7 @@ protected:
                           hashedDomains->put (name, domain);
                         }
 
-  int getPermissionMaskInt (SecurityToken* st, 
+  int getPermissionMaskInt (SecurityToken* st,
                             HashMap<string, SecurityDomain*> *hashedDomains,
                             AuthMethod* authMethod);
 };

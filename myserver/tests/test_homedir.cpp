@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful, 
+
+ This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -23,48 +23,48 @@
 
 class TestHomeDir : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( TestHomeDir );
-  CPPUNIT_TEST( testLoadClear );
-  CPPUNIT_TEST( testGetAdmin );
-  CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE ( TestHomeDir );
+  CPPUNIT_TEST ( testLoadClear );
+  CPPUNIT_TEST ( testGetAdmin );
+  CPPUNIT_TEST_SUITE_END ();
   HomeDir *homeDir;
 public:
-  void setUp() {homeDir = new HomeDir();}
-  void tearDown() {delete homeDir;}
+  void setUp () {homeDir = new HomeDir ();}
+  void tearDown () {delete homeDir;}
 
-  void testLoadClear()
+  void testLoadClear ()
   {
-    CPPUNIT_ASSERT(!homeDir->isLoaded());
-    
-    homeDir->load();
+    CPPUNIT_ASSERT (!homeDir->isLoaded ());
 
-    CPPUNIT_ASSERT(homeDir->isLoaded());
+    homeDir->load ();
 
-    homeDir->clear();
+    CPPUNIT_ASSERT (homeDir->isLoaded ());
 
-    CPPUNIT_ASSERT(!homeDir->isLoaded());
+    homeDir->clear ();
+
+    CPPUNIT_ASSERT (!homeDir->isLoaded ());
   }
 
-  void testGetAdmin()
+  void testGetAdmin ()
   {
-    homeDir->load();
+    homeDir->load ();
     string username;
 #ifdef WIN32
     /* Try to get home dir for Administrator under Windows.  */
-    username.assign("Administrator");
+    username.assign ("Administrator");
 #else
-    /* Under systems different than Windows, "root" should be present, 
+    /* Under systems different than Windows, "root" should be present,
      * if it doesn't handle this differently.  */
-    username.assign("root");
+    username.assign ("root");
 #endif
     string dir;
 
-    CPPUNIT_ASSERT_EQUAL (homeDir->getHomeDir(username, dir), 0);
+    CPPUNIT_ASSERT_EQUAL (homeDir->getHomeDir (username, dir), 0);
 
-    CPPUNIT_ASSERT(dir.length());
+    CPPUNIT_ASSERT (dir.length ());
 
-    homeDir->clear();
+    homeDir->clear ();
   }
 
 };
-CPPUNIT_TEST_SUITE_REGISTRATION( TestHomeDir );
+CPPUNIT_TEST_SUITE_REGISTRATION ( TestHomeDir );

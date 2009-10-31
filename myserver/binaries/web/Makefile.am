@@ -4,6 +4,6 @@ endif
 
 SUBDIRS = cgi-bin $(CGI_SRC)
 
-myserverdatadir = $(DESTDIR)/var/web
+myserverdatadir = $(prefix)/var/web
 
 dist_myserverdata_DATA = logo.png goto.png default.html link.html

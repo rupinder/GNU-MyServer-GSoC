@@ -25,12 +25,17 @@ UnixSocket::UnixSocket ()
 
 }
 
+UnixSocket::~UnixSocket ()
+{
+
+}
+
 /*!
  *Bind the socket to a file.  If the file exists it is removed.
  *\param path Path to the file bound by the socket.
  *\return 0 on success.
  */
-int UnixSocket::bind(const char* path)
+int UnixSocket::bind (const char* path)
 {
   if (path == NULL)
     return -1;
@@ -108,7 +113,7 @@ int UnixSocket::connect (const char* path)
 /*!
  *Accept a new connection.
  */
-Socket UnixSocket::accept ()
+Socket* UnixSocket::accept ()
 {
 
 #ifdef AF_UNIX
@@ -117,7 +122,7 @@ Socket UnixSocket::accept ()
   return Socket::accept ((MYSERVER_SOCKADDR*)&addr, &len);
 #else
   Socket s;
-  s.setHandle (0);
+  s.setHandle (-1);
   return s;
 #endif
 }

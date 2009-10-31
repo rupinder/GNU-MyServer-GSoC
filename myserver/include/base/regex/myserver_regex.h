@@ -17,26 +17,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef MYSERVER_REGEX_H
-
 # define MYSERVER_REGEX_H
 
 # include "stdafx.h"
 
-extern "C" 
+extern "C"
 {
 # include <stdio.h>
-
-# ifdef TRE
-#  include <tre/regex.h>
-# elif REGEX
-#  include <regex.h>
-# else
-  typedef void* regmatch_t;
-  typedef void* regex_t;
-# endif
+# include "regex.h"
 }
 
-#include <string>
+# include <string>
 using namespace std;
 
 /*!
@@ -45,23 +36,23 @@ using namespace std;
 class Regex
 {
 public:
-  Regex(){compiled = 0;}
-  void clone(Regex&);
-  Regex(Regex&);
-  Regex(const char *pattern, int flags);
-  ~Regex();
-  int isCompiled();
-  int compile(const char *pattern, int flags);
-  int exec(const char *string, size_t nmatch, regmatch_t matchptr [], 
+  Regex (){compiled = 0;}
+  void clone (Regex&);
+  Regex (Regex&);
+  Regex (const char *pattern, int flags);
+  ~Regex ();
+  int isCompiled ();
+  int compile (const char *pattern, int flags);
+  int exec (const char *string, size_t nmatch, regmatch_t matchptr [],
 					 int eflags);
-  void free();
+  void free ();
 
-  Regex(string const &pattern, int flags){Regex(pattern.c_str(), flags);}
-  int compile(string const &str, int flags){
-		return compile(str.c_str(), flags );}
-  int exec(string const &str, size_t nmatch, regmatch_t matchptr [], 
+  Regex (string const &pattern, int flags){Regex (pattern.c_str (), flags);}
+  int compile (string const &str, int flags){
+		return compile (str.c_str (), flags );}
+  int exec (string const &str, size_t nmatch, regmatch_t matchptr [],
 					 int eflags)
-    {return exec(str.c_str(), nmatch, matchptr, eflags);}
+    {return exec (str.c_str (), nmatch, matchptr, eflags);}
 private:
   regex_t compiledRegex;
   regmatch_t match;
@@ -69,5 +60,4 @@ private:
   string pattern;
   int flags;
 };
-
 #endif

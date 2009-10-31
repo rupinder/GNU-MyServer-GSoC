@@ -17,146 +17,145 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SERVER_H
-#define SERVER_H
+# define SERVER_H
 
-#include "stdafx.h"
-#include <include/base/thread/thread.h>
-#include <include/base/utility.h>
-#include <include/base/xml/xml_parser.h>
-#include <include/base/utility.h>
-#include <include/connection/connection.h>
-#include <include/base/socket/socket.h>
-#include <include/base/sync/event.h>
-#include <include/conf/mime/mime_manager.h>
-#include <include/conf/vhost/vhost_manager.h>
-#include <include/protocol/protocols_manager.h>
-#include <include/connection/connection.h>
-#include <include/log/log_manager.h>
-#include <include/filter/filters_factory.h>
-#include <include/plugin/plugins_manager.h>
-#include <include/base/hash_map/hash_map.h>
-#include <include/base/home_dir/home_dir.h>
-#include <include/base/files_cache/cached_file_factory.h>
-#include <include/base/process/process_server_manager.h>
-#include <include/connections_scheduler/listen_threads.h>
-#include <include/base/multicast/multicast.h>
-#include <include/connections_scheduler/connections_scheduler.h>
+# include "stdafx.h"
+# include <include/base/thread/thread.h>
+# include <include/base/utility.h>
+# include <include/base/xml/xml_parser.h>
+# include <include/base/utility.h>
+# include <include/connection/connection.h>
+# include <include/base/socket/socket.h>
+# include <include/base/sync/event.h>
+# include <include/conf/mime/mime_manager.h>
+# include <include/conf/vhost/vhost_manager.h>
+# include <include/conf/vhost/xml_vhost_handler.h>
+# include <include/protocol/protocols_manager.h>
+# include <include/connection/connection.h>
+# include <include/log/log_manager.h>
+# include <include/filter/filters_factory.h>
+# include <include/plugin/plugins_manager.h>
+# include <include/base/hash_map/hash_map.h>
+# include <include/base/home_dir/home_dir.h>
+# include <include/base/files_cache/cached_file_factory.h>
+# include <include/base/process/process_server_manager.h>
+# include <include/connections_scheduler/listen_threads.h>
+# include <include/base/multicast/multicast.h>
+# include <include/connections_scheduler/connections_scheduler.h>
 
-#include <include/conf/nodetree.h>
+# include <include/conf/nodetree.h>
 
-#include <include/conf/security/security_manager.h>
-#include <include/conf/security/auth_method_factory.h>
-#include <include/conf/security/validator_factory.h>
+# include <include/conf/security/security_manager.h>
+# include <include/conf/security/auth_method_factory.h>
+# include <include/conf/security/validator_factory.h>
+# include <include/conf/main/main_configuration.h>
+# include <include/conf/mime/xml_mime_handler.h>
 
-#include <include/base/slab/slab.h>
+# include <include/base/slab/slab.h>
+# include <include/base/crypt/crypt_algo_manager.h>
 
-#include <string>
-#include <list>
+
+# include <string>
+# include <list>
 
 using namespace std;
 
 /*!
  *Definition for new threads entry-point.
  */
-#ifdef WIN32
-unsigned int __stdcall listenServer(void* pParam);
-#else
-void* listenServer(void* pParam);
-#endif
+# ifdef WIN32
+unsigned int __stdcall listenServer (void* pParam);
+# else
+void* listenServer (void* pParam);
+# endif
+
+class XmlValidator;
 
 class Server : public MulticastRegistry<string, void*, int>
 {
 public:
-  ProcessServerManager* getProcessServerManager()
+  ProcessServerManager* getProcessServerManager ()
   {
     return &processServerManager;
   }
-  PluginsManager* getPluginsManager(){return &pluginsManager;}
-  bool stopServer(){return mustEndServer;}
-  HomeDir* getHomeDir();
-  static void createInstance();
-  static inline Server* getInstance()
+  PluginsManager* getPluginsManager (){return &pluginsManager;}
+  bool stopServer (){return mustEndServer;}
+  HomeDir* getHomeDir ();
+  static void createInstance ();
+  static inline Server* getInstance ()
   {
     return instance;
   }
 
-  int loadLibraries();
+  int loadLibraries ();
 
-  CachedFileFactory* getCachedFiles();
-  const char* getHashedData(const char* name);
+  CachedFileFactory* getCachedFiles ();
+  const char* getData (const char* name);
 
-  void setGlobalData(const char* name, void* data);
-  void* getGlobalData(const char* name);
+  void setGlobalData (const char* name, void* data);
+  void* getGlobalData (const char* name);
 
-  FiltersFactory* getFiltersFactory();
-  int getMaxThreads();
-  const char *getUid();
-  const char *getGid();
-  int countAvailableThreads();
-  void checkThreadsNumber();
-  int removeThread(u_long ID);
-  bool isServerReady();
-  ProtocolsManager* getProtocolsManager();
-  void disableAutoReboot();
-  void enableAutoReboot();
-  bool isAutorebootEnabled();
-  bool isRebooting(){return rebooting;}
-  void rebootOnNextLoop();
-  const char* getMainConfFile();
-  const char* getVhostConfFile();
-  const char* getMIMEConfFile();
-  const char* getLanguagesPath();
-  const char* getLanguageFile();
-  const char* getExternalPath();
-  XmlParser* getLanguageParser();
-  ~Server();
-  Protocol* getProtocol(const char *protocolName);
-  int addConnection(Socket,MYSERVER_SOCKADDRIN*);
-  u_long getNumConnections();
-  u_long getNumTotalConnections();
-  void getConnections(list<ConnectionPtr>&);
-  ConnectionPtr getConnection(int);
-  u_long getTimeout();
-  const char *getAddresses();
-  const char *getPath();
-  u_long getNumThreads();
+  FiltersFactory* getFiltersFactory ();
+  int getMaxThreads ();
+  const char *getUid ();
+  const char *getGid ();
+  int countAvailableThreads ();
+  void checkThreadsNumber ();
+  int removeThread (u_long ID);
+  bool isServerReady ();
+  ProtocolsManager* getProtocolsManager ();
+  void disableAutoReboot ();
+  void enableAutoReboot ();
+  bool isAutorebootEnabled ();
+  bool isRebooting (){return rebooting;}
+  void rebootOnNextLoop ();
+  ~Server ();
+  Protocol* getProtocol (const char *protocolName);
+  int addConnection (Socket*, MYSERVER_SOCKADDRIN*);
+  u_long getNumConnections ();
+  u_long getNumTotalConnections ();
+  void getConnections (list<ConnectionPtr>&);
+  ConnectionPtr getConnection (int);
+  u_long getTimeout ();
+  const char *getAddresses ();
+  const char *getPath ();
+  u_long getNumThreads ();
 
   NodeTree<string>* getNodeTree (string& key)
   {
     return hashedData.get (key);
   }
 
-  const char *getServerName();
-  u_long getVerbosity();
-  int getMaxLogFileSize();
-  int mustUseLogonOption();
-  void setVerbosity(u_long);
-  void start(string &, string &, string &, string &, string &);
-  void stop();
-  void finalCleanup();
-  int terminate();
-  int logWriteln(char const*, LoggingLevel level = MYSERVER_LOG_MSG_INFO);
-  int logWriteln(string const &str)
-    {return logWriteln(str.c_str());};
-  int setLogLocation(string);
-  u_long getBuffersize();
-  u_long getBuffersize2();
-  u_long getThrottlingRate();
-  int waitNewConnection(u_long tid, u_long timeout);
-  ListenThreads *getListenThreads(){return &listenThreads;}
+  const char *getServerName ();
+  int getMaxLogFileSize ();
+  int mustUseLogonOption ();
+  void start (string &, string &, string &, string &,
+           MainConfiguration* (*genMainConf) (Server *server, const char *arg));
+  void stop ();
+  void finalCleanup ();
+  int terminate ();
+  int log (LoggingLevel level, const char *fmt, ...);
+  int log (char const*, LoggingLevel level = MYSERVER_LOG_MSG_INFO);
+  int log (string const &str)
+  {return log (str.c_str ());};
+  int setLogLocation (string);
+  u_long getBuffersize ();
+  u_long getThrottlingRate ();
+  int waitNewConnection (u_long tid, u_long timeout);
+  ListenThreads *getListenThreads (){return &listenThreads;}
 
-  void *getEnvString(){return envString;}
-  VhostManager *getVhosts(){return vhostList;}
-  MimeManager *getMimeManager(){return mimeManager;}
+  void *getEnvString (){return envString;}
+  VhostManager *getVhosts (){return &vhostManager;}
+  MimeManager *getMimeManager (){return &mimeManager;}
 
-  void setProcessPermissions();
-  ConnectionsScheduler* getConnectionsScheduler(){return &connectionsScheduler;}
-  int deleteConnection(ConnectionPtr);
+  void setProcessPermissions ();
+  ConnectionsScheduler* getConnectionsScheduler (){return &connectionsScheduler;}
+  int deleteConnection (ConnectionPtr);
 
-  int notifyDeleteConnection(ConnectionPtr);
+  int notifyDeleteConnection (ConnectionPtr);
 
-  void increaseFreeThread();
-  void decreaseFreeThread();
+  void increaseFreeThread ();
+  void decreaseFreeThread ();
 
   SecurityManager *getSecurityManager (){return &securityManager;}
   AuthMethodFactory *getAuthMethodFactory () {return &authMethodFactory;}
@@ -166,18 +165,24 @@ public:
 
   LogManager *getLogManager () { return logManager; }
 
-  XmlParser *getXmlConfiguration ();
+  MainConfiguration *getConfiguration ();
+  CryptAlgoManager *getCryptAlgoManager () {return &cryptAlgoManager;}
+
 private:
   friend class ClientsThread;
+  XmlValidator *xmlValidator;
+  XmlMimeHandler *xmlMimeHandler;
+  XmlVhostHandler *vhostHandler;
 
-  XmlParser configurationFileManager;
+  MainConfiguration *configurationFileManager;
+  MainConfiguration* (*genMainConf) (Server *server, const char *arg);
 
-#ifdef WIN32
-  friend int __stdcall control_handler(u_long control_type);
-#endif
-#ifdef NOT_WIN
+# ifdef WIN32
+  friend int __stdcall control_handler (u_long control_type);
+# endif
+# ifdef NOT_WIN
   friend int control_handler (u_long control_type);
-#endif
+# endif
   /*!
    *When the flag mustEndServer is 1 all the threads are
    *stopped and the application stop its execution.
@@ -191,20 +196,19 @@ private:
   static Server* instance;
 
   /*! Do not allow to create directly objects.  */
-  Server();
+  Server ();
 
-  void readHashedData (xmlNodePtr lcur);
-  void mainLoop();
-  void loadPlugins();
-  void displayBoot();
-  int postLoad();
+  void mainLoop ();
+  void loadPlugins ();
+  void displayBoot ();
+  int postLoad ();
   void initLogManager ();
 
   CachedFileFactory cachedFiles;
 
   void *envString;
-  VhostManager *vhostList;
-  MimeManager *mimeManager;
+  VhostManager vhostManager;
+  MimeManager mimeManager;
   HomeDir homeDir;
 
   list<NodeTree<string>*> hashedDataTrees;
@@ -216,7 +220,6 @@ private:
   string gid;
   int currentThreadID;
   ProtocolsManager protocols;
-  XmlParser languageParser;
 
   bool autoRebootEnabled;
   bool toReboot;
@@ -224,31 +227,25 @@ private:
 
   LogManager* logManager;
   bool serverReady;
-  u_long verbosity;
   u_long throttlingRate;
   u_long buffersize;
-  u_long secondaryBufferSize;
 
   /* Buffer that contains all the local machine IP values.  */
   string *ipAddresses;
   char serverName[HOST_NAME_MAX + 1];
   string* path;
-  string* externalPath;
-  int initialize();
-  int addThread(bool staticThread = false);
-  ConnectionPtr addConnectionToList(Socket* s, MYSERVER_SOCKADDRIN *asock_in,
+  int initialize ();
+  int addThread (bool staticThread = false);
+  ConnectionPtr addConnectionToList (Socket* s, MYSERVER_SOCKADDRIN *asock_in,
                                     char *ipAddr, char *localIpAddr,
                                     u_short port, u_short localPort, int);
   u_long maxConnections;
   u_long maxConnectionsToAccept;
-  void clearAllConnections();
-  int freeHashedData();
+  void clearAllConnections ();
+  int freeHashedData ();
   u_long connectionTimeout;
   u_long maxLogFileSize;
-  int copyConfigurationFromDefault(const char *);
-  void logWriteNTimes(string, unsigned);
-  int checkConfigurationPaths();
-  bool resetConfigurationPaths(string &, string &, string &, string &, string &);
+  bool resetConfigurationPaths (string &, string &, string &, string &);
   Mutex* connectionsMutex;
   u_long nStaticThreads;
   u_long nMaxThreads;
@@ -259,13 +256,15 @@ private:
   Mutex* threadsMutex;
   list<ClientsThread*> threads;
 
-  int purgeThreads();
-  int reboot();
-  string* languageFile;
-  string* languagesPath;
-  string* mainConfigurationFile;
-  string* vhostConfigurationFile;
-  string* mimeConfigurationFile;
+  int purgeThreads ();
+  int reboot ();
+
+  string mainConfigurationFile;
+  string vhostConfigurationFile;
+  string mimeConfigurationFile;
+  string externalPath;
+
+  CryptAlgoManager cryptAlgoManager;
   PluginsManager pluginsManager;
   ProcessServerManager processServerManager;
   ConnectionsScheduler connectionsScheduler;

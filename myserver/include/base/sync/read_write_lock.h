@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2007 Free Software Foundation, Inc.
+Copyright (C) 2007, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -17,21 +17,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef READ_WRITE_LOCK_H
-#define READ_WRITE_LOCK_H
+# define READ_WRITE_LOCK_H
 
-#include "stdafx.h"
-#include <include/base/sync/semaphore.h>
+# include "stdafx.h"
+# include <include/base/sync/semaphore.h>
 
 class ReadWriteLock
 {
 public:
-	ReadWriteLock(int maxReaders);
-	~ReadWriteLock();
-	void readLock();
-	void readUnlock();
+	ReadWriteLock (int maxReaders);
+	~ReadWriteLock ();
+	void readLock ();
+	void readUnlock ();
 
-	void writeLock();
-	void writeUnlock();
+	void writeLock ();
+	void writeUnlock ();
 private:
 	int maxReaders;
 	Semaphore semaphore;

@@ -1,0 +1,5 @@
+This plugin makes possible to use libmagic to find a file MIME type.
+
+To use it, define such line in myserver.xml or in a virtual host:
+  <DEFINE name="mime.handler" value="mime_magic" />
+

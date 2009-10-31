@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2005, 2007 Free Software Foundation, Inc.
+Copyright (C) 2005, 2007, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -17,19 +17,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef DYNAMICLIBRARY_H
-#define DYNAMICLIBRARY_H
-#include "stdafx.h"
+# define DYNAMICLIBRARY_H
+# include "stdafx.h"
 
-#include <string>
+# include <string>
 
-extern "C" 
+extern "C"
 {
-#ifdef WIN32
-#include <direct.h>
-#endif
-#ifdef HAVE_DL
-#include <dlfcn.h>
-#endif
+# ifdef WIN32
+#  include <direct.h>
+# endif
+# ifdef HAVE_DL
+#  include <dlfcn.h>
+# endif
 }
 
 using namespace std;
@@ -37,13 +37,13 @@ using namespace std;
 class DynamicLibrary
 {
 public:
-  int validHandle();
-  DynamicLibrary();
-  ~DynamicLibrary();
-  int loadLibrary(const char* filename, int globally=0);
-  void* getProc(const char*);
-  int close();
-	const char* getFileName(){return fileName.c_str();}
+  int validHandle ();
+  DynamicLibrary ();
+  ~DynamicLibrary ();
+  int loadLibrary (const char* filename, int globally=0);
+  void* getProc (const char*);
+  int close ();
+	const char* getFileName (){return fileName.c_str ();}
 private:
 	string fileName;
   void *handle;

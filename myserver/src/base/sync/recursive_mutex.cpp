@@ -1,6 +1,7 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2008, 2009 Free Software Foundation,
+Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -25,50 +26,50 @@ extern "C" {
 #include <stdarg.h>
 #include <stdio.h>
 #ifndef WIN32
-#include <errno.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <signal.h>
-#ifdef HAVE_PTHREAD
-#include <pthread.h>
-#endif
-#include <sys/wait.h>
+# include <errno.h>
+# include <netdb.h>
+# include <unistd.h>
+# include <signal.h>
+# ifdef HAVE_PTHREAD
+#  include <pthread.h>
+# endif
+# include <sys/wait.h>
 #endif
 }
 
 #include <sys/types.h>
 
 #ifdef WIN32
-#include <direct.h>
+# include <direct.h>
 #endif
 
 /*!
  *Constructor for the recursive mutex class.
  */
-RecursiveMutex::RecursiveMutex() : Mutex()
+RecursiveMutex::RecursiveMutex () : Mutex ()
 {
   initialized = 0;
-  init();
+  init ();
 }
 
 /*!
  *Initialize a recursive mutex.
  */
-int RecursiveMutex::init()
+int RecursiveMutex::init ()
 {
   int ret = 0;
-  if(initialized)
+  if (initialized)
   {
-    destroy();
+    destroy ();
     initialized = 0;
   }
 #ifdef HAVE_PTHREAD
   pthread_mutexattr_t mta;
-  pthread_mutexattr_init(&mta);
-  pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_RECURSIVE);
-  ret = pthread_mutex_init(&mutex, &mta);
+  pthread_mutexattr_init (&mta);
+  pthread_mutexattr_settype (&mta, PTHREAD_MUTEX_RECURSIVE);
+  ret = pthread_mutex_init (&mutex, &mta);
 #else
-  return Mutex::init();
+  return Mutex::init ();
 #endif
 
   initialized = 1;
@@ -78,7 +79,7 @@ int RecursiveMutex::init()
 /*!
 *Destroy the object.
 */
-RecursiveMutex::~RecursiveMutex()
+RecursiveMutex::~RecursiveMutex ()
 {
-  destroy();
+  destroy ();
 }

@@ -1,6 +1,7 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2008 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2008, 2009 Free Software Foundation,
+Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -26,56 +27,56 @@ extern "C" {
 #include <stdarg.h>
 #include <stdio.h>
 #ifndef WIN32
-#include <errno.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <signal.h>
-#ifdef HAVE_PTHREAD
-#include <pthread.h>
-#endif
-#include <sys/wait.h>
+# include <errno.h>
+# include <netdb.h>
+# include <unistd.h>
+# include <signal.h>
+# ifdef HAVE_PTHREAD
+#  include <pthread.h>
+# endif
+# include <sys/wait.h>
 #endif
 }
 
 #include <sys/types.h>
 
 #ifdef WIN32
-#include <direct.h>
+# include <direct.h>
 #endif
 
 /*!
  *Constructor for the mutex class.
  */
-Mutex::Mutex()
+Mutex::Mutex ()
 {
   initialized = 0;
-  init();
+  init ();
 }
 /*!
  *Initialize a mutex.
  */
-int Mutex::init()
+int Mutex::init ()
 {
   int ret = 0;
-  if(initialized)
+  if (initialized)
   {
-    destroy();
+    destroy ();
     initialized = 0;
   }
 #ifdef HAVE_PTHREAD
 
 
-#if 0
+# if 0
   pthread_mutexattr_t mta;
-  pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_NORMAL);
-  ret = pthread_mutex_init(&mutex, &mta);
-#else
-  ret = pthread_mutex_init(&mutex,(pthread_mutexattr_t*) NULL);
-#endif
+  pthread_mutexattr_settype (&mta, PTHREAD_MUTEX_NORMAL);
+  ret = pthread_mutex_init (&mutex, &mta);
+# else
+  ret = pthread_mutex_init (&mutex,(pthread_mutexattr_t*) NULL);
+# endif
 
 
 #else
-  mutex = CreateMutex(0, 0, 0);
+  mutex = CreateMutex (0, 0, 0);
   ret = !mutex;
 #endif
   initialized = 1;
@@ -85,14 +86,14 @@ int Mutex::init()
 /*!
  *Destroy a mutex.
  */
-int Mutex::destroy()
+int Mutex::destroy ()
 {
 #ifdef HAVE_PTHREAD
-  if(initialized)
-    pthread_mutex_destroy(&mutex);
+  if (initialized)
+    pthread_mutex_destroy (&mutex);
 #else
-  if(initialized)
-    CloseHandle(mutex);
+  if (initialized)
+    CloseHandle (mutex);
 #endif
   initialized = 0;
   return 0;
@@ -101,31 +102,31 @@ int Mutex::destroy()
 /*!
  *Lock the mutex.
  */
-int Mutex::lock(u_long /*id*/)
+int Mutex::lock (u_long /*id*/)
 {
 #ifdef HAVE_PTHREAD
-#ifdef PTHREAD_ALTERNATE_LOCK
-  pthread_mutex_lock(&mutex);
-#else
-  while(pthread_mutex_trylock(&mutex) == EBUSY)
+# ifdef PTHREAD_ALTERNATE_LOCK
+  pthread_mutex_lock (&mutex);
+# else
+  while (pthread_mutex_trylock (&mutex) == EBUSY)
   {
-    Thread::wait(1);
+    Thread::wait (1);
   }
-#endif
+# endif
 
-#else  
-  WaitForSingleObject(mutex, INFINITE);
+#else
+  WaitForSingleObject (mutex, INFINITE);
 #endif
   locked = true;
   return 0;
 }
 
 /*!
- *Check if the mutex is already locked. 
+ *Check if the mutex is already locked.
  *
  *\return Return true if the mutex is currently locked.
  */
-bool Mutex::isLocked()
+bool Mutex::isLocked ()
 {
   return locked;
 }
@@ -133,13 +134,13 @@ bool Mutex::isLocked()
 /*!
 *Unlock the mutex access.
 */
-int Mutex::unlock(u_long/*! id*/)
+int Mutex::unlock (u_long/*! id*/)
 {
 #ifdef HAVE_PTHREAD
   int err;
-  err = pthread_mutex_unlock(&mutex);
-#else  
-  ReleaseMutex(mutex);
+  err = pthread_mutex_unlock (&mutex);
+#else
+  ReleaseMutex (mutex);
 #endif
   locked = false;
   return 0;
@@ -148,15 +149,15 @@ int Mutex::unlock(u_long/*! id*/)
 /*!
 *Destroy the object.
 */
-Mutex::~Mutex()
+Mutex::~Mutex ()
 {
-  destroy();
+  destroy ();
 }
 
 /*!
  *Get the handle for the mutex.
  */
-MutexHandle Mutex::getHandle()
+MutexHandle Mutex::getHandle ()
 {
   return mutex;
 }

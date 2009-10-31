@@ -17,28 +17,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef HTTP_THREAD_CONTEXT_H
-#define HTTP_THREAD_CONTEXT_H
+# define HTTP_THREAD_CONTEXT_H
 
-#include "stdafx.h"
-#include <include/protocol/http/http_request.h>
-#include <include/protocol/http/http_response.h>
-#include <include/base/string/stringutils.h>
-#include <include/base/file/file.h>
-#include <include/base/mem_buff/mem_buff.h>
-#include <include/connection/connection.h>
-#include <include/conf/mime/mime_manager.h>
-#include <include/conf/security/security_token.h>
+# include "stdafx.h"
+# include <include/protocol/http/http_request.h>
+# include <include/protocol/http/http_response.h>
+# include <include/base/string/stringutils.h>
+# include <include/base/file/file.h>
+# include <include/base/mem_buff/mem_buff.h>
+# include <include/connection/connection.h>
+# include <include/conf/mime/mime_manager.h>
+# include <include/conf/security/security_token.h>
 
-extern "C" {
-#ifdef WIN32
-#include <direct.h>
-#include <errno.h>
-#else
-#include <string.h>
-#include <errno.h>
-#endif
+extern "C"
+{
+# ifdef WIN32
+#  include <direct.h>
+#  include <errno.h>
+# else
+#  include <string.h>
+#  include <errno.h>
+# endif
 }
-#include <string>
+# include <string>
 using namespace std;
 
 
@@ -51,8 +52,8 @@ class MimeRecord;
 struct HttpThreadContext
 {
 	int appendOutputs;
-  
-  /*! Used by SSI and set by raiseHTTPError.  */
+
+  /*! Set by raiseHTTPError.  */
   int lastError;
 
   /*! Is the client asking only for the header?  */
@@ -62,7 +63,6 @@ struct HttpThreadContext
 	MemBuf *buffer;
 	MemBuf *secondaryBuffer;
 	u_long buffersize;
-	u_long secondaryBufferSize;
 	u_long id;
 	u_long nBytesToRead;
 	u_long nHeaderChars;
@@ -91,9 +91,9 @@ struct HttpThreadContext
   SecurityToken securityToken;
   int permissions;
 
-	const char* getVhostDir();
-	const char* getVhostSys();
-	const char* getHashedData (const char *name);
+	const char* getVhostDir ();
+	const char* getVhostSys ();
+	const char* getData (const char *name);
 };
 
 #endif

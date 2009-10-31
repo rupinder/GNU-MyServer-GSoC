@@ -47,9 +47,11 @@ void SecurityToken::reset ()
   directory = NULL;
   sysdirectory = NULL;
   resource = NULL;
-
+  HashMap<string, NodeTree<string>*>::Iterator it = values.begin ();
+  for (;it != values.end (); it++)
+    delete (*it);
+  values.clear ();
 }
-
 
 /*!
  *Get the value for the variable using the specified domains.
@@ -63,14 +65,13 @@ void SecurityToken::reset ()
  */
 NodeTree<string>* SecurityToken::getNodeTree (string& key, int domains, NodeTree<string>* def)
 {
-/*
   if (domains & MYSERVER_SECURITY_CONF)
   {
     string strName (key);
     NodeTree<string>* ret = values.get (strName);
 
     if (ret)
-      return ret->c_str ();
+      return ret;
   }
 
   if (mimeRecord && (domains & MYSERVER_MIME_CONF))
@@ -81,7 +82,7 @@ NodeTree<string>* SecurityToken::getNodeTree (string& key, int domains, NodeTree
     if (ret)
       return ret;
   }
-*/
+
   if (vhost && (domains & MYSERVER_VHOST_CONF))
   {
     NodeTree<string>* ret = vhost->getNodeTree (key);
@@ -112,21 +113,21 @@ NodeTree<string>* SecurityToken::getNodeTree (string& key, int domains, NodeTree
  *\li Global security file.
  *\li Default value.
  */
-const char* SecurityToken::getHashedData (const char* name, int domains, const char *def)
+const char* SecurityToken::getData (const char* name, int domains, const char *def)
 {
   if (domains & MYSERVER_SECURITY_CONF)
   {
     string strName (name);
-    string *ret = values.get (strName);
+    NodeTree<string> *ret = values.get (strName);
 
     if (ret)
-      return ret->c_str ();
+      return ret->getValue ()->c_str ();
   }
 
   if (mimeRecord && (domains & MYSERVER_MIME_CONF))
   {
     string strName (name);
-    const char *ret = mimeRecord->getHashedData (strName);
+    const char *ret = mimeRecord->getData (strName);
 
     if (ret)
       return ret;
@@ -134,7 +135,7 @@ const char* SecurityToken::getHashedData (const char* name, int domains, const c
 
   if (vhost && (domains & MYSERVER_VHOST_CONF))
   {
-    const char* ret = vhost->getHashedData (name);
+    const char* ret = vhost->getData (name);
 
     if (ret)
       return ret;
@@ -142,7 +143,7 @@ const char* SecurityToken::getHashedData (const char* name, int domains, const c
 
   if (server && (domains & MYSERVER_SERVER_CONF))
   {
-    const char* ret = server->getHashedData (name);
+    const char* ret = server->getData (name);
 
     if (ret)
       return ret;

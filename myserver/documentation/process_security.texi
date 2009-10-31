@@ -33,6 +33,13 @@ of the new process with both uid and gid to 1000.
 <DEFINE name="cgi.gid" value="1000" />
 @end example
 
+It is also possible to specify a new root directory location using the
+cgi.chroot attribute:
+
+@example
+<DEFINE name="cgi.chroot" value="/some/where" />
+@end example
+
 @section Fork Server
 In a POSIX environment the @code{fork} syscall is used to execute new
 processes.  It clones the caller process keeping any open file or
@@ -71,7 +78,7 @@ FastCGI/SCGI configuration inside MIME types by its name.
 <DEFINE name="server.process_servers">
   <DEFINE server="/opt/bin/fastcgi_server" domain="fastcgi"
           host="localhost" port="2010" local="yes" uid="1000"
-          gid="1000"/>
+          chroot="/chroot" gid="1000"/>
 </DEFINE>
 @end example
 
@@ -88,13 +95,19 @@ It is possible to specify a different uid/gid for the local server
 process and don't maintain the original myserver process privileges.
 It can be done using the @code{uid} and @code{gid} elements.
 
+Also, it is possible to use a different root directory, mapping the
+@file{/} path to what is specied in the @code{chroot} attribute.
+Any file lookup can't go upper what is specied in the chroot.  Pay
+attention that any path specified in @code{server} must be relative to
+the new chroot.
 
 The following code, declare an already running FastCGI server and
 registers it on the @code{fcgi} extension:
 
 @example
 <DEFINE name="process_servers.list">
-  <DEFINE server="a_remote_server" domain="fastcgi" host="foo" port="2010" local="no"/>
+  <DEFINE server="a_remote_server" domain="fastcgi" host="foo" port="2010"
+          local="no"/>
 </DEFINE>
 
 <!-- Inside MIMEtypes.xml.  -->
@@ -102,3 +115,17 @@ registers it on the @code{fcgi} extension:
       <EXTENSION value="fcgi"/>
 </MIME>
 @end example
+
+
+@subsection FastCGI X-Sendfile directive
+The X-Sendfile directive can be used by FastCGI servers to instruct
+the web server to ignore any content but send the file specified in
+the X-Sendfile header.  It is much faster to transfer static contents
+and avoid an additional step from the FastCGI server to the web
+server.
+
+Since the FastCGI X-Sendfile can ask any file to be accessed
+statically, this feature is not considered safe you must force it
+manually, in can be done on a virtual hosts basis.
+It is done trough the @code{fastcgi.sendfile.allow} variable, to
+enable X-Sendfile set its value to @code{YES}.

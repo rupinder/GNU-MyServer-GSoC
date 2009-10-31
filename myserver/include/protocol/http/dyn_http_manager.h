@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
 MyServer
-Copyright (C) 2005 Free Software Foundation, Inc.
+Copyright (C) 2005, 2009 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -17,25 +17,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef DYN_HTTP_MANAGER_H
-#define DYN_HTTP_MANAGER_H
+# define DYN_HTTP_MANAGER_H
 
-#include "stdafx.h"
-#include <include/base/xml/xml_parser.h>
-#include <include/protocol/protocol.h>
-#include <include/connection/connection.h>
-#include <include/base/dynamic_lib/dynamiclib.h>
-#include <include/protocol/http/http_headers.h>
-#include <include/base/hash_map/hash_map.h>
-#include <string>
+# include "stdafx.h"
+# include <include/base/xml/xml_parser.h>
+# include <include/protocol/protocol.h>
+# include <include/connection/connection.h>
+# include <include/base/dynamic_lib/dynamiclib.h>
+# include <include/protocol/http/http_headers.h>
+# include <include/base/hash_map/hash_map.h>
+# include <string>
 using namespace std;
 
 
-class DynamicHttpManager 
+class DynamicHttpManager
 {
 public:
-	DynamicHttpManager();
-	virtual ~DynamicHttpManager();
-	virtual int send(HttpThreadContext*, ConnectionPtr s, const char *filenamePath,
+	DynamicHttpManager ();
+	virtual ~DynamicHttpManager ();
+	virtual int send (HttpThreadContext*, ConnectionPtr s, const char *filenamePath,
                    const char* cgi, int selfExecuted, int onlyHeader = 0) = 0;
 
 };

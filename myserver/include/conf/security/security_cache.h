@@ -7,7 +7,7 @@ it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful, 
+This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
@@ -16,17 +16,17 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef SECURITY_CACHE_H
-#define SECURITY_CACHE_H
-#include <include/base/hash_map/hash_map.h>
-#include <include/conf/security/security_manager.h>
+# define SECURITY_CACHE_H
+# include <include/base/hash_map/hash_map.h>
+# include <include/conf/security/security_manager.h>
 
-#include <include/conf/security/auth_method_factory.h>
-#include <include/conf/security/auth_method.h>
-#include <include/conf/security/validator_factory.h>
-#include <include/conf/security/validator.h>
-#include <include/conf/security/xml_validator.h>
+# include <include/conf/security/auth_method_factory.h>
+# include <include/conf/security/auth_method.h>
+# include <include/conf/security/validator_factory.h>
+# include <include/conf/security/validator.h>
+# include <include/conf/security/xml_validator.h>
 
-#include <string>
+# include <string>
 
 using namespace std;
 
@@ -46,7 +46,7 @@ public:
 
   /////////OLD NASTY AND DISGUSTING.  TEMPORARY SOLUTION TO DON'T BREAK APIs////////////////////////////////////
   int getPermissionMask (SecurityToken* st){return 0;}
-  int getErrorFileName (const char *root, int error, 
+  int getErrorFileName (const char *root, int error,
                        const char* sysdirectory, string& out){return 0;}
 private:
 

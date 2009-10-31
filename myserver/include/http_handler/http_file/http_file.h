@@ -17,12 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef HTTP_FILE_H
-#define HTTP_FILE_H
-#include "stdafx.h"
+# define HTTP_FILE_H
+# include "stdafx.h"
 
-#include <include/protocol/protocol.h>
-#include <include/protocol/http/http_headers.h>
-#include <include/protocol/http/http_data_handler.h>
+# include <include/protocol/protocol.h>
+# include <include/protocol/http/http_headers.h>
+# include <include/protocol/http/http_data_handler.h>
 
 class HttpFile  : public HttpDataHandler
 {
@@ -32,14 +32,16 @@ public:
   virtual int send (HttpThreadContext* td,
                    const char *filenamePath, const char* cgi,
                    bool execute = false, bool OnlyHeader = false);
-  HttpFile();
-  virtual ~HttpFile();
+  HttpFile ();
+  virtual ~HttpFile ();
 
 protected:
   int putFile (HttpThreadContext* td,
                string& filename);
   int deleteFile (HttpThreadContext* td,
                   string& filename);
+private:
+  static void generateEtag (string & etag, u_long mtime, u_long size);
 };
 
 

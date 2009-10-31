@@ -1,6 +1,6 @@
 /*
   MyServer
-  Copyright (C) 2008 Free Software Foundation, Inc.
+  Copyright (C) 2008, 2009 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -21,60 +21,61 @@
 /*!
  * comment here
  */
-IpRange *IpRange::RangeFactory(const std::string &ipRange)
+IpRange *IpRange::RangeFactory (const std::string &ipRange)
 {
-  Ipv4Range *pV4 = new Ipv4Range();
-  if ( pV4->SetRange(ipRange) )
+  Ipv4Range *pV4 = new Ipv4Range ();
+  if ( pV4->SetRange (ipRange) )
     return pV4;
 
   /* when will be implemented
-  Ipv6Range *pV6 = new Ipv6Range();
-  if ( pV6->SetRange(ipRange) )
+  Ipv6Range *pV6 = new Ipv6Range ();
+  if ( pV6->SetRange (ipRange) )
     return pV6;
   */
 
+  delete pV4;
   return NULL;
 }
 
 /*!
  * Ipv4Range c-tor
  */
-Ipv4Range::Ipv4Range()
+Ipv4Range::Ipv4Range ()
 {
-  Init();
+  Init ();
 }
 
 /*!
  * Ipv4Range c-tor
  */
-Ipv4Range::Ipv4Range(const std::string &sRange)
+Ipv4Range::Ipv4Range (const std::string &sRange)
 {
-  SetRange(sRange);
+  SetRange (sRange);
 }
 
 /*!
- * range given as x.x.x.x-y.y.y.y or x.x.x.x(/y)
+ * range given as x.x.x.x-y.y.y.y or x.x.x.x (/y)
  */
-bool Ipv4Range::SetRange(const std::string &sRange)
+bool Ipv4Range::SetRange (const std::string &sRange)
 {
-  if ( !Init() )
+  if ( !Init () )
     return false;
-  if ( sRange.empty() )
+  if ( sRange.empty () )
     return true;//just init
-  std::string::size_type nPos = sRange.find('-');
+  std::string::size_type nPos = sRange.find ('-');
   if ( nPos != std::string::npos )// x.x.x.x-y.y.y.y form
     {
-      std::string start(sRange.substr(0, nPos));
-      std::string end(sRange.substr(nPos + 1));
-      return SetRange(start, end);
+      std::string start (sRange.substr (0, nPos));
+      std::string end (sRange.substr (nPos + 1));
+      return SetRange (start, end);
     }
-  else// x.x.x.x(/y) form
+  else// x.x.x.x (/y) form
     {
-      std::istringstream istream(sRange);
+      std::istringstream istream (sRange);
       char nSep = 0;
       unsigned char nAddr[4];
       int nTemp = 0;
-      for ( int i = 0; i < 4 && !istream.eof(); i++ )
+      for ( int i = 0; i < 4 && !istream.eof (); i++ )
 	{
 	  istream >> nTemp;
 	  nAddr[i] = nTemp;
@@ -85,7 +86,7 @@ bool Ipv4Range::SetRange(const std::string &sRange)
       if ( nSep == '/' )
 	  istream >> nTemp;
 
-      if ( !istream.eof() )
+      if ( !istream.eof () )
 	return false;
 
       for ( int i = 0, nByte = 0; i < nTemp && nByte < 4; i++ )
@@ -106,15 +107,15 @@ bool Ipv4Range::SetRange(const std::string &sRange)
   return true;
 }
 
-bool Ipv4Range::SetRange(const std::string &sStartHost, const std::string &sEndHost)
+bool Ipv4Range::SetRange (const std::string &sStartHost, const std::string &sEndHost)
 {
-  if ( !Init() )
+  if ( !Init () )
     return false;
 
-  std::istringstream start(sStartHost), end(sEndHost);
+  std::istringstream start (sStartHost), end (sEndHost);
   char nSep = 0;
   int nTemp = 0;
-  for ( int i = 0; i < 4 && !start.eof() && !end.eof(); i++ )
+  for ( int i = 0; i < 4 && !start.eof () && !end.eof (); i++ )
     {
       start >> nTemp;
       m_nStart[i] = nTemp;
@@ -123,10 +124,10 @@ bool Ipv4Range::SetRange(const std::string &sStartHost, const std::string &sEndH
       m_nEnd[i] = nTemp;
       end >> nSep;
     }
-  if ( !start.eof() || !end.eof() )
+  if ( !start.eof () || !end.eof () )
     return false;
 
-  // get mask lenght(max common addr part)
+  // get mask lenght (max common addr part)
   char bs = 0;
   for ( bs = 0; bs < 32; bs++ )
     {
@@ -146,7 +147,7 @@ bool Ipv4Range::SetRange(const std::string &sStartHost, const std::string &sEndH
  * Ipv4Range initializer
  * return false on error
  */
-bool Ipv4Range::Init()
+bool Ipv4Range::Init ()
 {
   for ( int i = 0; i < 4; i++ )
     {
@@ -160,14 +161,14 @@ bool Ipv4Range::Init()
 /*!
  *d-tor
  */
-Ipv4Range::~Ipv4Range()
+Ipv4Range::~Ipv4Range ()
 {
 }
 
 /*!
  *checks if addr from param belongs the same network address
  */
-bool Ipv4Range::InRange(const unsigned char addr[4])
+bool Ipv4Range::InRange (const unsigned char addr[4])
 {
   unsigned char hostMask[4];
   for ( int i = 0; i < 4; i++ )
@@ -194,13 +195,13 @@ bool Ipv4Range::InRange(const unsigned char addr[4])
   return true;//equal to start or end
 }
 
-bool Ipv4Range::InRange(const std::string &ip)
+bool Ipv4Range::InRange (const std::string &ip)
 {
   unsigned char addr[4];
-  std::istringstream stream(ip);
+  std::istringstream stream (ip);
   char nSep = 0;
   int nTemp = 0;
-  for ( int i = 0; i < 4 && !stream.eof(); i++ )
+  for ( int i = 0; i < 4 && !stream.eof (); i++ )
     {
       stream >> nTemp;
       addr[i] = nTemp;
@@ -209,13 +210,13 @@ bool Ipv4Range::InRange(const std::string &ip)
       stream >> nSep;
     }
 
-  return InRange(addr);
+  return InRange (addr);
 }
 
-bool Ipv4Range::InRange(const IpRange *pRange)
+bool Ipv4Range::InRange (const IpRange *pRange)
 {
   if ( pRange == NULL )
     return false;
   const Ipv4Range *pLocal = static_cast<const Ipv4Range *>(pRange);
-  return InRange(pLocal->GetStart()) && InRange(pLocal->GetEnd());
+  return InRange (pLocal->GetStart ()) && InRange (pLocal->GetEnd ());
 }
