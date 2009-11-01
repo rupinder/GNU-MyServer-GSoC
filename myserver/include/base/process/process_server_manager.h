@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # define PROCESS_SERVER_MANAGER_H
 
 # include "stdafx.h"
+
 # include <include/base/utility.h>
 # include <include/base/socket/socket.h>
 # include <include/connection/connection.h>
@@ -37,7 +38,7 @@ class ProcessServerManager
 public:
 	struct Server
 	{
-		/*! Server executable path.  */
+		/* Server executable path.  */
 		string path;
 
 		union

@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #ifdef HAVE_CONFIG_H
+# include <cstdlib>
 # include <config.h>
 #endif
 
@@ -40,7 +41,6 @@ extern "C"
 }
 #endif
 
-
 extern "C"
 {
 #include <stdlib.h>
@@ -48,6 +48,8 @@ extern "C"
 #include <fcntl.h>
 #include <math.h>
 #include <time.h>
+#include <ctype.h>
+
 
 #ifndef WIN32
 # include <sys/types.h>

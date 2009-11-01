@@ -493,7 +493,12 @@ int main  (int argn, char **argv)
   try
     {
       if (loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath,
-                                 input.confFilesLocation))
+#ifdef WIN32
+                                 "."
+#else
+                                 input.confFilesLocation
+#endif
+                                 ))
         {
           cout << _("Cannot find the configuration files, be sure they exist")
                << endl;
@@ -652,7 +657,7 @@ void  __stdcall myServerMainNT (u_long, LPTSTR*)
 
 
       loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath, NULL);
-      Server::getInstance ()->start (mainConf, mimeConf, vhostConf, externPath);
+      Server::getInstance ()->start (mainConf, mimeConf, vhostConf, externPath, &genMainConf);
 
       MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
       SetServiceStatus (MyServiceStatusHandle, &MyServiceStatus);

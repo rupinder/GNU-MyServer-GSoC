@@ -230,7 +230,7 @@ Pipe::Pipe ()
 #ifndef WIN32
   handles[0] = handles[1] = -1;
 #else
-  readHandle = writeHandle = -1;
+  readHandle = writeHandle = (HANDLE) -1;
 #endif
 }
 
@@ -252,7 +252,7 @@ void Pipe::closeRead ()
 #else
   if (readHandle >= 0)
     CloseHandle (readHandle);
-  readHandle = -1;
+  readHandle = (HANDLE) -1;
 #endif
 }
 
@@ -269,7 +269,7 @@ void Pipe::closeWrite ()
 #else
   if (writeHandle >= 0)
     CloseHandle (writeHandle);
-  writeHandle = -1;
+  writeHandle = (HANDLE) -1;
 #endif
 }
 

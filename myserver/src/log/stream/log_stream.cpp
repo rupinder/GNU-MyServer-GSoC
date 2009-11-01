@@ -15,6 +15,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "stdafx.h"
 #include <include/log/stream/log_stream.h>
 
 LogStream::LogStream (FiltersFactory* ff, u_long cycle, Stream* out,

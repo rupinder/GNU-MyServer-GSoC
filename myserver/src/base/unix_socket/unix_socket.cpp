@@ -121,9 +121,7 @@ Socket* UnixSocket::accept ()
   socklen_t len = sizeof (addr);
   return Socket::accept ((MYSERVER_SOCKADDR*)&addr, &len);
 #else
-  Socket s;
-  s.setHandle (-1);
-  return s;
+  return new Socket ((SocketHandle)-1);
 #endif
 }
 

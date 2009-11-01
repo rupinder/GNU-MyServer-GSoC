@@ -19,7 +19,8 @@
 #ifndef LOG_MANAGER_H
 # define LOG_MANAGER_H
 
-# include <algorithm>
+# include "stdafx.h"
+
 # include <map>
 # include <string>
 
@@ -29,6 +30,7 @@
 # include <include/log/stream/log_stream_factory.h>
 # include <cstdarg>
 
+# include <algorithm>
 
 using namespace std;
 

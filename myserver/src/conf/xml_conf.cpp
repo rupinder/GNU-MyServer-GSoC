@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "stdafx.h"
 #include <list>
 #include <stdlib.h>
 #include <string.h>
@@ -22,14 +23,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <include/conf/xml_conf.h>
 
-
 /*!
- *Read a forest of trees (structured objects) from XML.
+ * Read a forest of trees (structured objects) from XML.
  *
- *\param root The XML document root.
- *\param rootNodes All the stored top-level objects.
- *\param hashedData Access node by a name.
- *\return 0 on success.
+ * \param root The XML document root.
+ * \param rootNodes All the stored top-level objects.
+ * \param hashedData Access node by a name.
+ * \return 0 on success.
  */
 int XmlConf::build (xmlNodePtr root,
                     list<NodeTree<string>*> *rootNodes,

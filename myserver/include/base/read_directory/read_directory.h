@@ -81,11 +81,11 @@ public:
 
 private:
   int find (const char *filename);
+  string dirName;
 # ifdef WIN32
 	_finddata_t fd;
   intptr_t  ff;
 # else
-  string dirName;
   DIR *dh;
   struct stat stats;
 

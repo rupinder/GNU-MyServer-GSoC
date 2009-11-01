@@ -16,6 +16,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "stdafx.h"
 #include <include/protocol/ftp/ftp.h>
 #include <include/protocol/ftp/ftp_common.h>
 #include <include/protocol/ftp/ftp_parser.h>
