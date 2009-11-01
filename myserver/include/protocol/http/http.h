@@ -165,13 +165,9 @@ public:
   virtual char* registerName (char* out,int len){return registerNameImpl (out, len);}
 
   static char* registerNameImpl (char*, int len);
-  int controlConnection (ConnectionPtr a,
-                        char *b1,
-                        char *b2,
-                        int bs1,
-                        int bs2,
-                        u_long nbtr,
-                        u_long id);
+	int controlConnection (ConnectionPtr con, char *request, char *auxBuf,
+                         u_long reqBufLen, u_long auxBufLen, u_long reqLen,
+                         u_long tid);
 
   static int loadProtocolStatic ();
   static int unLoadProtocolStatic ();
@@ -220,13 +216,16 @@ public:
     return Http::registerNameImpl (out, len);
   }
 
-	virtual int controlConnection (ConnectionPtr a, char *b1, char *b2,
-                                int bs1, int bs2, u_long nbtr, u_long id)
+	virtual int controlConnection (ConnectionPtr con, char *request,
+                                 char *auxBuf, u_long reqBufLen,
+                                 u_long auxBufLen, u_long reqLen,
+                                 u_long tid)
   {
     Http http;
     int ret = 0;
 
-    ret = http.controlConnection (a, b1, b2, bs1, bs2, nbtr, id);
+    ret = http.controlConnection (con, request, auxBuf, reqBufLen, auxBufLen,
+                                  reqLen, tid);
 
     return ret;
   }

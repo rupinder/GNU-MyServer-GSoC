@@ -34,8 +34,8 @@ public:
 
   int sendResponse (char*, int, ConnectionPtr, int, ControlHeader& header, File* = 0);
   virtual int loadProtocol ();
-	int controlConnection (ConnectionPtr a, char *b1, char *b2, int bs1,
-                        int bs2, u_long nbtr, u_long id);
+	int controlConnection (ConnectionPtr a, char *b1, char *b2, u_long bs1,
+                         u_long bs2, u_long nbtr, u_long id);
 	virtual char* registerName (char*,int len);
 	ControlProtocol ();
 	virtual ~ControlProtocol ();

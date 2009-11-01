@@ -75,8 +75,8 @@ int Gopher::unLoadProtocolStatic ()
 int Gopher::controlConnection (ConnectionPtr pConnection,
                                char *b1,
                                char *b2,
-                               int bs1,
-                               int bs2,
+                               u_long bs1,
+                               u_long bs2,
                                u_long nbtr,
                                u_long id)
 {

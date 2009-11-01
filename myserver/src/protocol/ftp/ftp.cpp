@@ -303,8 +303,9 @@ Ftp::~Ftp ()
 {
 }
 
-int Ftp::controlConnection (ConnectionPtr pConnection, char *b1, char *b2,
-                            int, int, u_long nbtr, u_long id)
+int Ftp::controlConnection (ConnectionPtr pConnection, char *request,
+                            char *auxBuf, u_long reqBufLen, u_long auxBufLen,
+                            u_long reqLen, u_long tid)
 {
   if (pConnection == NULL)
     return ClientsThread::DELETE_CONNECTION;
@@ -349,7 +350,7 @@ int Ftp::controlConnection (ConnectionPtr pConnection, char *b1, char *b2,
   td.buffer = pConnection->getActiveThread ()->getBuffer ();
   td.secondaryBuffer = pConnection->getActiveThread ()->getSecondaryBuffer ();
   td.buffersize = pConnection->getActiveThread ()->getBufferSize ();
-  td.nBytesToRead = nbtr;
+  td.nBytesToRead = reqLen;
   td.pProtocolInterpreter = this;
   td.m_nParseLength = 0;
 

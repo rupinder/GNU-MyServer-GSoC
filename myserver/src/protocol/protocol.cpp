@@ -34,11 +34,23 @@ int Protocol::unLoadProtocol ()
 }
 
 /*!
- * Control the connection.
+ * Entry point to check new data available from a client.
+ *
+ * \param con Connection structure with all data relative to the connection.
+ * \param request Request body ready from the client (it may be incomplete and
+ * it is protocol responsibility to check if it is complete or not.  This buffer
+ * can be used for other purposes too by the protocol, it is not required to be
+ * unchanged.
+ * \param auxBuf Auxiliary buffer available to the current thread.
+ * \param reqBufLen Length in bytes of the buffer containing the request.
+ * \param auxBufLen Length in bytes of the auxiliary buffer.
+ * \param reqLen Number of bytes read from the client in REQUEST.
+ * \param tid current thread id.
  */
-int Protocol::controlConnection (ConnectionPtr /*a*/,char* /*b1*/,
-                                 char* /*b2*/,int /*bs1*/,int /*bs2*/,
-                                 u_long /*nbtr*/,u_long /*id*/)
+int Protocol::controlConnection (ConnectionPtr con, char *request,
+                                 char *auxBuf, u_long reqBufLen,
+                                 u_long auxBufLen, u_long reqLen,
+                                 u_long tid)
 {
   return 0;
 }

@@ -759,7 +759,7 @@ int Http::logHTTPaccess ()
 /*!
  * This is the HTTP protocol main procedure to parse a request over HTTP.
  */
-int Http::controlConnection (ConnectionPtr a, char*, char*, int, int,
+int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                              u_long nbtr, u_long id)
 {
   int retvalue = -1;

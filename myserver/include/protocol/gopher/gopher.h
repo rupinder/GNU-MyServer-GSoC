@@ -43,8 +43,8 @@ public:
   int controlConnection (ConnectionPtr a,
                          char *b1,
                          char *b2,
-                         int bs1,
-                         int bs2,
+                         u_long bs1,
+                         u_long bs2,
                          u_long nbtr,
                          u_long id);
 
@@ -78,7 +78,7 @@ public:
   }
 
   virtual int controlConnection (ConnectionPtr a, char *b1, char *b2,
-                                 int bs1, int bs2, u_long nbtr, u_long id)
+                                 u_long bs1, u_long bs2, u_long nbtr, u_long id)
   {
     Gopher Gopher;
     int ret = 0;
