@@ -14,7 +14,7 @@ clean-libmyserver.a:
 	rm -f libmyserver.a
 
 libmyserver.a: clean-libmyserver.a
-	find . | grep .*\\.$(OBJEXT)$ | xargs $(AR) cru libmyserver.a
+	find . | grep .*\\.$(OBJEXT)$$ | xargs $(AR) cru libmyserver.a
 	$(RANLIB) libmyserver.a
 
 all-local: libmyserver.a myserver${EXEEXT}
@@ -22,4 +22,4 @@ all-local: libmyserver.a myserver${EXEEXT}
 
 clean-local:
 	rm -f libmyserver.a
-	find . | grep .*\\.$(OBJEXT)$ | xargs rm -f
+	find . | grep .*\\.$(OBJEXT)$$ | xargs rm -f
