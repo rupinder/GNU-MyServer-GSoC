@@ -8,6 +8,9 @@ Russ Bohnhoff <rustypaint@gmail.com>
 Original port to POSIX.
 Developed the first GUI control program.
 
+Domenico Chierico <spaghetty@gmail.com>
+Implemented the Gopher protocol.
+
 Alexandru Iancu <alexandru.iancu@gmail.com>
 Implemented the IPv6 protocol.
 Implemented the FTP protocol.
