@@ -29,21 +29,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # include <string>
 using namespace std;
 
-# define USE_NEW
-
-
-# define DONT_MATCH_LENGTH // Comment this line to always make the buffer
-			  // have the exact length of his data
-			  // (involves reallocations => unrecommended)
-# ifdef USE_NEW
-#  define mem_alloc(size) (new char[size])
-#  define mem_free(pAdr) (delete [] pAdr)
-# else
-#  include <stdlib.h>
-#  define mem_alloc(size) ((char*) malloc (size))
-#  define mem_free(pAdr) (free (pAdr))
-# endif
-
 # define end_str '\0'
 
 class MemBuf
@@ -82,7 +67,7 @@ public:
 	int isValid ();
 
 	char* getBuffer ();
-	operator const void*() ;
+	operator const void* ();
 	MemBuf operator+ (MemBuf& src);
 	MemBuf operator+ (const char* src);
 	const MemBuf& operator+= (MemBuf& add);
@@ -98,24 +83,27 @@ public:
 	MemBuf& operator<< (unsigned char c) ;
 	MemBuf& operator<< (const MemBuf &src) ;
 	MemBuf& operator<< (const string &src) ;
-	MemBuf& operator=(const MemBuf& src) ;
-	MemBuf& operator=(const char* src);
+	MemBuf& operator= (const MemBuf& src) ;
+	MemBuf& operator= (const char* src);
 
-	u_int m_nSizeLimit; // The maximun size that the buffer can reached ; 0 if none
-	u_int m_nBlockLength; // Minimun size of new allocated blocks during addings
-						 // We assume that m_nBlockLength < m_nSizeLimit
+  /* The maximun size that the buffer can reached ; 0 if none.  */
+	u_int nSizeLimit;
+
+  /* Minimun size of new allocated blocks during addings.
+   * We assume that nBlockLength < nSizeLimit.  */
+	u_int nBlockLength; 
 
 	void hashMD5(const void* pAdr, u_int nSize);
 	void hashCRC (const void* pAdr, u_int nSize);
 	void hex (const void* pAdr, u_int nSize);
 	void uintToStr (u_int i);
-	void intToStr ( int i);
+	void intToStr (int i);
 	u_int strToUint (const char* pAdr);
 	unsigned char hexCharToNumber (unsigned char c);
 	MemBuf hexToData (const void* pAdr, u_int nSize);
 	int strToInt (const char* pAdr);
 	void hex (MemBuf& membuf) ;
-	void hashMD5(MemBuf& membuf);
+	void hashMD5 (MemBuf& membuf);
 	void hashCRC (MemBuf& membuf);
 	void uintToStr (u_int i, char* pBufToUse, u_int nBufSize) ;
 	void xIntToStr (u_int i, int bNegative, char* pBufToUse, u_int nBufSize);
@@ -124,10 +112,10 @@ public:
 protected:
 	void xIntToStr (u_int i, int bNegative);
 	void allocBuffer (u_int size);
-	char* m_buffer; // Using of char* instead of void* because the C++ Compilator doesn't know the size of a void* !!!!!
-	u_int m_nSize;
-	u_int m_nRealSize;
-	int m_bCanDelete;
+	char *buffer;
+	u_int nSize;
+	u_int nRealSize;
+	int bCanDelete;
 	static u_int crc32Table[256];
 };
 

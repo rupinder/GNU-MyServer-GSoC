@@ -123,9 +123,9 @@ DEFINE_THREAD (clients_thread, pParam)
   ct->bufferSize = ct->server->getBuffersize ();
 
   ct->buffer.setLength (ct->bufferSize);
-  ct->buffer.m_nSizeLimit = ct->bufferSize;
+  ct->buffer.nSizeLimit = ct->bufferSize;
   ct->secondaryBuffer.setLength (ct->bufferSize);
-  ct->secondaryBuffer.m_nSizeLimit = ct->bufferSize;
+  ct->secondaryBuffer.nSizeLimit = ct->bufferSize;
 
   /* Built-in protocols will be initialized at the first use.  */
   ct->initialized = true;
