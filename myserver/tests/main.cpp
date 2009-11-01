@@ -1,6 +1,6 @@
 /*
  MyServer
- Copyright (C) 2008 Free Software Foundation, Inc.
+ Copyright (C) 2008, 2009 Free Software Foundation, Inc.
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
@@ -15,6 +15,11 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdafx.h>
+
+#undef open
+#undef close
+
 #include <cppunit/TextOutputter.h>
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/XmlOutputter.h>
@@ -27,11 +32,15 @@
 
 using namespace std;
 
+const char *program_name = NULL;
+
 int main (int argc, char* argv[])
 {
   bool xml = argc > 1 && !strcmp (argv[1], "xml");
   bool compiler = argc > 1 && !strcmp (argv[1], "compiler");
   char *filename = argc > 2 ? argv[2] : NULL;
+
+  program_name = argv[0];
 
 
   std::ostream *str = &(std::cerr);

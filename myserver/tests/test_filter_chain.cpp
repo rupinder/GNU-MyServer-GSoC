@@ -15,6 +15,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdafx.h>
 #include <include/filter/stream.h>
 #include <include/filter/gzip/gzip.h>
 #include <include/filter/gzip/gzip_decompress.h>
