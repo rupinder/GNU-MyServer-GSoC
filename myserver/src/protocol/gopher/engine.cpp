@@ -127,7 +127,7 @@ void GopherEngine::fileManagement (const string &fname, const string &path,Gophe
   else
     {
       MimeRecord *mime = getMIME (abs_name);
-      if (mime!=NULL)
+      if (mime != NULL)
         {
           string mymime = mime->mimeType;
           mymime = mymime.substr (0,mymime.find ('/',0));
@@ -262,7 +262,7 @@ void GopherEngine::gifFile (const string &fname, const string &path, GopherMenu 
                           port.c_str ()));
 }
 
-void GopherEngine::infoFile (const string &fname, const string &path,GopherMenu &tmp)
+void GopherEngine::infoFile (const string &fname, const string &path, GopherMenu &tmp)
 {
   string file_path;
   file_path.append (abs_path);
@@ -275,7 +275,7 @@ void GopherEngine::infoFile (const string &fname, const string &path,GopherMenu 
   int state;
   u_long fsize;
   state = f.openFile (file_path.c_str (), File::READ);
-  if(!state)
+  if (!state)
     {
       MemBuf buff;
       u_long real;

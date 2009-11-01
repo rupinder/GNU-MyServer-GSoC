@@ -33,13 +33,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 Gopher::Gopher ()
-{}
+{
+}
 
 /*!
  * Destructor for the Gopher class.
  */
 Gopher::~Gopher ()
-{}
+{
+}
 
 /*!
  * Service method
@@ -48,9 +50,8 @@ Gopher::~Gopher ()
 char *Gopher::registerNameImpl (char* out, int len)
 {
   if (out)
-    {
-      myserver_strlcpy (out, "GOPHER", len);
-    }
+    myserver_strlcpy (out, "GOPHER", len);
+
   return (char*) "GOPHER";
 }
 
@@ -59,7 +60,8 @@ char *Gopher::registerNameImpl (char* out, int len)
  */
 
 int Gopher::loadProtocolStatic ()
-{}
+{
+}
 
 int Gopher::unLoadProtocolStatic ()
 {
@@ -84,20 +86,22 @@ int Gopher::controlConnection (ConnectionPtr pConnection,
 
   if (pConnection == NULL)
     return ClientsThread::DELETE_CONNECTION;
+
   Server *server = Server::getInstance ();
   if (server == NULL)
     return ClientsThread::DELETE_CONNECTION;
+
   string command (b1);
-  string::size_type loc = command.find ('\n',0);
-  while( loc == string::npos ){
-    pConnection->socket->read (buffer, sizeof (buffer), &nbr);
-    command+=buffer;
-    loc = command.find ('\n',0);
-  }
-  GopherContent &Gu = g.incoming (GopherRequest (command.substr (0,
-                                                                 ((int)loc)-1),
-                                                 pConnection)
-                                  ,pConnection->host);
+  string::size_type loc = command.find ('\n', 0);
+  while( loc == string::npos )
+    {
+      pConnection->socket->read (buffer, sizeof (buffer), &nbr);
+      command += buffer;
+      loc = command.find ('\n', 0);
+    }
+
+  GopherContent &Gu = g.incoming (GopherRequest (command.substr (0, loc - 1),
+                                            pConnection), pConnection->host);
   reply (pConnection,Gu);
 }
 
