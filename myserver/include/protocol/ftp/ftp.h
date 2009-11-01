@@ -32,8 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 # include <include/conf/security/security_token.h>
 class Ftp;
 
-#undef stat
-
 class FtpuserData:public ProtocolBuffer
 {
 public:
@@ -158,7 +156,7 @@ public:
   void pwd ();
   void rest (const std::string & srestPoint);
   void syst ();
-  void stat (const std::string & sParam = "");
+  void statCmd (const std::string & sParam = "");
   void allo (int nSize, int nRecordSize = -1);
 
   void stor (const std::string & sPath);

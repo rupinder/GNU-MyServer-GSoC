@@ -1839,7 +1839,7 @@ yyreduce:
 /* Line 1455 of yacc.c  */
 #line 198 "ftp_parser.ypp"
     {
-			pContext->stat();
+			pContext->statCmd();
 		}
     break;
 

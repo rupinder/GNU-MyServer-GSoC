@@ -2184,7 +2184,7 @@ void Ftp::syst ()
   ftpReply (215, sTempText);
 }
 
-void Ftp::stat (const std::string & sParam /* = "" */ )
+void Ftp::statCmd (const std::string & sParam /* = "" */ )
 {
   if (!userLoggedIn ())
     return;
