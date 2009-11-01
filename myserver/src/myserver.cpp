@@ -339,8 +339,11 @@ static MainConfiguration *genMainConf (Server *server, const char *arg)
     return conf;
 }
 
+const char *program_name = NULL;
+
 int main  (int argn, char **argv)
 {
+  program_name = argv[0];
   int runas = MYSERVER_RUNAS_CONSOLE;
 #ifdef ARGP
   struct argp_input input;
