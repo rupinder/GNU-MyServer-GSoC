@@ -15,7 +15,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdafx.h>
+#include "stdafx.h"
 #include <include/protocol/ftp/ftp.h>
 #include <include/base/mem_buff/mem_buff.h>
 #include <cppunit/CompilerOutputter.h>

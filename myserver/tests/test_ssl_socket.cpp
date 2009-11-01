@@ -15,7 +15,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdafx.h>
+#include "stdafx.h"
 
 #define TESTSERVERPEM "server.pem"
 #define TESTSERVERKEY "server.key"

@@ -15,7 +15,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdafx.h>
+#include "stdafx.h"
 #include <include/base/home_dir/home_dir.h>
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
