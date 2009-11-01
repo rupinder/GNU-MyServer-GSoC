@@ -1,15 +1,19 @@
 #include <include/http_handler/mscgi/mscgi_manager.h>
 
+
+const char *program_name;
+
 #ifdef WIN32
 extern "C" int EXPORTABLE myserver_main (char *cmd,MsCgiData* data)
 #else
-  extern "C" int myserver_main (char *cmd,MsCgiData* data)
+extern "C" int myserver_main (char *cmd,MsCgiData* data)
 #endif
 {
   MscgiManager cm(data);
 
   char *post = cm.postParam("T1");
 
+  program_name = cmd;
   if(post == NULL)
     {
       cm.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\r\n\

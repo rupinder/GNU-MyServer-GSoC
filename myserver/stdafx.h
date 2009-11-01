@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef HAVE_CONFIG_H
 # include <cstdlib>
+# include "time.h"
 # include <config.h>
 #endif
 
@@ -47,7 +48,7 @@ extern "C"
 #include <stdio.h>
 #include <fcntl.h>
 #include <math.h>
-#include <time.h>
+#include "time.h"
 #include <ctype.h>
 
 

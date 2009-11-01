@@ -17,21 +17,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "stdafx.h"
 #include <include/base/base64/mime_utils.h>
-#include <include/base/string/stringutils.h>
-#include <include/base/string/securestr.h>
 
 extern "C"
 {
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #ifndef WIN32
 # include <ctype.h>
 #endif
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 }
 
-#define strupos(x, y) (strustr (x, y) != NULL ? strustr (x, y) - x : -1) //char version
+#include <include/base/string/stringutils.h>
+#include <include/base/string/securestr.h>
+
+#define strupos(x, y) (strustr (x, y) != NULL ? strustr (x, y) - x : -1)
 
 static char* strustr (char *source, char *s)
 {

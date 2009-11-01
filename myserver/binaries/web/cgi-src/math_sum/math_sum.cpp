@@ -10,6 +10,10 @@ int isNumber(char* s)
   return 1;
 
 }
+
+
+const char *program_name;
+
 #ifdef WIN32
 extern "C" int EXPORTABLE myserver_main (char *cmd, MsCgiData* data)
 #else
@@ -17,6 +21,7 @@ extern "C" int myserver_main (char *cmd, MsCgiData* data)
 #endif
 {
 	MscgiManager cm(data);
+  program_name = cmd;
 
 	if(strlen (cmd) == 0)
 	{

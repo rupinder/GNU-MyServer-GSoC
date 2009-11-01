@@ -22,9 +22,9 @@ tests_suite_SOURCES = main.cpp test_auth_domain.cpp test_base64.cpp \
 	test_utility.cpp test_validator.cpp test_validator_factory.cpp \
 	test_xml.cpp test_xml_main_configuration.cpp test_xml_validator.cpp 
 
-tests_suite_LDADD = ../src/libmyserver.a $(CPPUNIT_LDFLAGS) $(PTHREAD_LIB) \
-	$(IDN_LIB) $(XNET_LIB) $(EVENT_LIB) $(DL_LIB) $(SSL_LIB) $(ZLIB_LIB) \
-	$(XML_LIBS) $(LDFLAGS)  ../lib/libgnu.a
+tests_suite_LDADD = ../src/libmyserver.a  ../lib/libgnu.a $(CPPUNIT_LDFLAGS) \
+	$(PTHREAD_LIB) 	$(IDN_LIB) $(XNET_LIB) $(EVENT_LIB) $(DL_LIB) $(SSL_LIB) \
+	$(ZLIB_LIB) $(XML_LIBS) $(LDFLAGS)
 
 install:
 
