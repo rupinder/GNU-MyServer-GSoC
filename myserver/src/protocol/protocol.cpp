@@ -15,7 +15,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "stdafx.h"
 #include <include/protocol/protocol.h>
+#include <include/server/clients_thread.h>
+#include <include/server/server.h>
 
 /*!
  * Load the protocol. Called once at runtime.
@@ -52,7 +55,9 @@ int Protocol::controlConnection (ConnectionPtr con, char *request,
                                  u_long auxBufLen, u_long reqLen,
                                  u_long tid)
 {
-  return 0;
+  Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
+                               _("Using Protocol::controlConnection"));
+  return ClientsThread::DELETE_CONNECTION;
 }
 
 /*!

@@ -312,7 +312,7 @@ int ClientsThread::controlConnections ()
                                            secondaryBuffer.getRealLength (),
                                            nBytesToRead, id);
         else
-          retcode = DELETE_CONNECTION;
+          retcode = ClientsThread::DELETE_CONNECTION;
       }
   }
   catch (...)

@@ -227,11 +227,16 @@ public:
     return Ftp::registerNameImpl (out, len);
   }
 
-  virtual int controlConnection (ConnectionPtr a, char *b1, char *b2,
-				 int bs1, int bs2, u_long nbtr, u_long id)
+	virtual int controlConnection (ConnectionPtr con, char *request,
+                                 char *auxBuf, u_long reqBufLen,
+                                 u_long auxBufLen, u_long reqLen,
+                                 u_long tid)
   {
     Ftp ftp;
-    return ftp.controlConnection (a, b1, b2, bs1, bs2, nbtr, id);
+    int ret = 0;
+
+    return ftp.controlConnection (con, request, auxBuf, reqBufLen, auxBufLen,
+                                  reqLen, tid);
   }
 
   virtual int loadProtocol ()

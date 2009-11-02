@@ -222,12 +222,8 @@ public:
                                  u_long tid)
   {
     Http http;
-    int ret = 0;
-
-    ret = http.controlConnection (con, request, auxBuf, reqBufLen, auxBufLen,
-                                  reqLen, tid);
-
-    return ret;
+    return http.controlConnection (con, request, auxBuf, reqBufLen, auxBufLen,
+                                   reqLen, tid);
   }
 
 	virtual int loadProtocol ()
