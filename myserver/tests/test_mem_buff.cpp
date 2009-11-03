@@ -54,18 +54,20 @@ public:
     delete memBuff;
   }
 
-
   void testLength ()
   {
     u_int len = 10;
-    memBuff->setLength (len);
-    CPPUNIT_ASSERT_EQUAL (memBuff->getRealLength (), len);
-
+    memBuff->setRealLength (len);
     CPPUNIT_ASSERT_EQUAL (memBuff->getLength (), 0u);
+    CPPUNIT_ASSERT_EQUAL (memBuff->getRealLength (), len);
 
     *memBuff << (const char*)"1234567890";
 
     CPPUNIT_ASSERT_EQUAL (memBuff->getLength (), 10u);
+
+    memBuff->setLength (len / 2);
+    CPPUNIT_ASSERT_EQUAL (memBuff->getRealLength (), len);
+    CPPUNIT_ASSERT_EQUAL (memBuff->getLength (), len / 2);
   }
 
   void testFind ()

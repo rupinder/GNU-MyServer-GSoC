@@ -747,7 +747,7 @@ DEFINE_THREAD (SendAsciiFile, pParam)
       int nLineLength = 0;
       std::string sLine;
       MemBuf buffer, secondaryBuffer;
-      buffer.setLength (1024);
+      buffer.setRealLength (1024);
       while (filesize != 0)
         {
           memset (buffer.getBuffer (), 0, buffer.getRealLength ());
@@ -983,7 +983,7 @@ DEFINE_THREAD (SendImageFile, pParam)
       pFtpuserData->m_nFileSize = filesize;
 
       MemBuf secondaryBuffer;
-      secondaryBuffer.setLength (1024);
+      secondaryBuffer.setRealLength (1024);
       while (filesize != 0)
         {
           nBufferSize =
@@ -1160,7 +1160,7 @@ DEFINE_THREAD (ReceiveAsciiFile, pParam)
         }
 
       MemBuf buffer, secondaryBuffer;
-      buffer.setLength (1024);
+      buffer.setRealLength (1024);
       memset (buffer.getBuffer (), 0, buffer.getRealLength ());
       char *pLine = NULL;
       int nLineLength = 0;
@@ -1357,7 +1357,7 @@ DEFINE_THREAD (ReceiveImageFile, pParam)
         }
       u_long nbr;
       MemBuf buffer;
-      buffer.setLength (1024);
+      buffer.setRealLength (1024);
       memset (buffer.getBuffer (), 0, buffer.getRealLength ());
       while (pFtpuserData->m_pDataConnection->socket->read (buffer.getBuffer (),
                                                             (u_long) buffer.

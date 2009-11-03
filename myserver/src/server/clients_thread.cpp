@@ -122,10 +122,11 @@ DEFINE_THREAD (clients_thread, pParam)
   ct->threadIsStopped = false;
   ct->bufferSize = ct->server->getBuffersize ();
 
-  ct->buffer.setLength (ct->bufferSize);
-  ct->buffer.nSizeLimit = ct->bufferSize;
-  ct->secondaryBuffer.setLength (ct->bufferSize);
-  ct->secondaryBuffer.nSizeLimit = ct->bufferSize;
+  ct->buffer.setRealLength (ct->bufferSize);
+  ct->buffer.setSizeLimit (ct->bufferSize);
+
+  ct->secondaryBuffer.setRealLength (ct->bufferSize);
+  ct->secondaryBuffer.setSizeLimit (ct->bufferSize);
 
   /* Built-in protocols will be initialized at the first use.  */
   ct->initialized = true;
@@ -269,7 +270,7 @@ int ClientsThread::controlConnections ()
   if (err == -1 && !server->deleteConnection (c))
     return 0;
 
-  buffer.setLength (dataRead + err);
+  buffer.setRealLength (dataRead + err);
   c->setForceControl (0);
 
   /* Refresh with the right value.  */

@@ -214,9 +214,9 @@ void MemBuf::addBuffer (const void* pAdr, u_int size)
   if (nNewSize > nRealSize)
     {
       if (nNewSize - nRealSize < nBlockLength)
-        setLength (nRealSize + nBlockLength);
+        setRealLength (nRealSize + nBlockLength);
       else
-        setLength (nNewSize);
+        setRealLength (nNewSize);
     }
 
   const u_int nAllowedSize = nRealSize - nSize;
@@ -325,45 +325,52 @@ int MemBuf::getPartAsString (u_int nStart, u_int nEnd, MemBuf& result)
 }
 
 /*!
- * Set the length of the internal buffer.
+ * Set the real length of the internal buffer.  Ensure the buffer is
+ * at least newSize bytes, if this value is bigger than nSizeLimit
+ * then the latter is used.
+ *
  * If the length is smallest than the existing one, no reallocation is done.
  * if it's biggest, a reallocation is done until nSizeLimit is reached.
  */
-void MemBuf::setLength (u_int newSize)
+void MemBuf::setRealLength (u_int newSize)
 {
-  if (newSize == nRealSize)
+  if (newSize <= nRealSize)
     return;
 
+  if (nSizeLimit != 0 && newSize > nSizeLimit)
+    {
+      newSize = nSizeLimit;
+      if (newSize == nRealSize)
+        return;
+    }
+
+  if (buffer == NULL || nRealSize == 0)
+    {
+      allocBuffer (newSize);
+      return;
+    }
+
+  char* temp = mealloc (newSize);
+  memcpy (temp, buffer, nRealSize);
+  if (bCanDelete)
+    mefree (buffer);
+  buffer = temp;
+  nRealSize = newSize;
+}
+
+/*!
+ * Set the cursor in the internal buffer.
+ * If the specified position is bigger than the buffer size then a reallocation
+ * is done.
+ */
+void MemBuf::setLength (u_int newSize)
+{
+  setRealLength (newSize);
+
   if (newSize < nRealSize)
-    {
-      nSize = newSize;
-      return;
-    }
-
-  if (newSize > nRealSize)
-    {
-      if (nSizeLimit != 0 && newSize > nSizeLimit)
-        {
-          newSize = nSizeLimit;
-          if (newSize == nRealSize)
-            return;
-        }
-
-      if (buffer == NULL || nRealSize == 0)
-        {
-          allocBuffer (newSize);
-          return;
-        }
-
-      char* temp = mealloc (newSize);
-      memcpy (temp, buffer, nRealSize);
-      if (bCanDelete)
-        mefree (buffer);
-      buffer = temp;
-      nRealSize = newSize;
-      return;
-    }
-
+    nSize = newSize;
+  else
+    nSize = nRealSize;
 }
 
 
@@ -372,7 +379,7 @@ void MemBuf::setLength (u_int newSize)
 void MemBuf::hex (const void* pAdr, u_int nSize)
 {
   const u_int nFinalSize = nSize * 2;
-  setLength (nFinalSize + 1);
+  setRealLength (nFinalSize + 1);
   const char* hex_chars = "0123456789abcdef";
   for (u_int i = 0; i < nSize; i++)
     {
@@ -402,7 +409,7 @@ MemBuf MemBuf::hexToData (const void* pAdr, u_int nSize)
     return MemBuf ("", 1);
   MemBuf memFinal;
   memFinal.bCanDelete = false;
-  memFinal.setLength (nSize >> 1);
+  memFinal.setRealLength (nSize >> 1);
   const char* pTmp = (const char*) pAdr;
   const char* pEnd = pTmp + nSize;
   for ( ; pTmp < pEnd; pTmp += 2)
@@ -415,7 +422,7 @@ MemBuf MemBuf::hexToData (const void* pAdr, u_int nSize)
 void MemBuf::hashMD5(const void* pAdr, u_int nSize)
 {
   Md5 md5;
-  setLength (16);
+  setRealLength (16);
 
   md5.init ();
   md5.update ((char*) pAdr, nSize);
@@ -426,7 +433,7 @@ void MemBuf::hashMD5(const void* pAdr, u_int nSize)
 /*! CRC hashing function.  */
 void MemBuf::hashCRC (const void* pAdr, u_int nSize)
 {
-  setLength (4);
+  setRealLength (4);
   u_int* nCrc32 = (u_int*) getBuffer ();
   *nCrc32 = 0xFFFFFFFF;
   for (u_int i = 0; i < nSize; i++)
@@ -448,7 +455,7 @@ void MemBuf::xIntToStr (u_int i, int bNegative)
       nSize = 1;
       return;
     }
-  setLength (12);
+  setRealLength (12);
   do
     {
       *this << (char) ('0' + i % 10);
