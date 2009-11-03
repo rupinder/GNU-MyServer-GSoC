@@ -42,46 +42,46 @@ public:
   virtual bool allowdelete (bool);
 
   enum Ftpstate
-  {
-    NO_CONTROL_CONNECTION,
-    BUISY,
-    UNAVAILABLE,
-    CONTROL_CONNECTION_UP,
-    USER_LOGGED_IN,
-    DATA_CONNECTION_UP
-  } m_nFtpstate;
+    {
+      NO_CONTROL_CONNECTION,
+      BUISY,
+      UNAVAILABLE,
+      CONTROL_CONNECTION_UP,
+      USER_LOGGED_IN,
+      DATA_CONNECTION_UP
+    } m_nFtpstate;
 
-    std::string m_suserName, m_sPass;
+  std::string m_suserName, m_sPass;
   enum FtpRepresentation
-  {
-    REPR_ASCII,
-    REPR_IMAGE
-  } m_nFtpRepresentation;
+    {
+      REPR_ASCII,
+      REPR_IMAGE
+    } m_nFtpRepresentation;
   enum FtpFormatControl
-  {
-    NON_PRINT
-  } m_nFtpFormatControl;
+    {
+      NON_PRINT
+    } m_nFtpFormatControl;
   enum FtpFilestructure
-  {
-    STRU_FILE
-  } m_nFtpFilestructure;
+    {
+      STRU_FILE
+    } m_nFtpFilestructure;
   enum FtpTransfermode
-  {
-    MODE_STREAM
-  } m_nTransfermode;
+    {
+      MODE_STREAM
+    } m_nTransfermode;
   ConnectionPtr m_pDataConnection;
   Mutex m_DataConnBusy;
   FtpHost m_cdh;
-    std::string m_cwd;
+  std::string m_cwd;
   int m_nLocalDataport;
   bool m_bBreakDataConnection;
   ThreadID m_dataThreadId;
   bool m_bPassiveSrv;
   u_long m_nrestartOffset;
-    std::string m_sRenameFrom;
+  std::string m_sRenameFrom;
 
   // STAT data
-    std::string m_sCurrentFileName;
+  std::string m_sCurrentFileName;
   u_long m_nFileSize, m_nBytesSent;
 };
 
@@ -103,8 +103,8 @@ class Ftp:public Protocol
 public:
   Ftp ();
   virtual ~ Ftp ();
-	virtual int controlConnection (ConnectionPtr con, char *request, char *auxBuf,
-                             u_long reqBufLen, u_long auxBufLen, u_long reqLen,
+  virtual int controlConnection (ConnectionPtr con, char *request, char *auxBuf,
+                                 u_long reqBufLen, u_long auxBufLen, u_long reqLen,
                                  u_long tid);
 
   static int loadProtocolstatic ();
@@ -194,14 +194,14 @@ public:
   DataConnectionWorkerThreadData ();
   ~DataConnectionWorkerThreadData ();
   ConnectionPtr m_pConnection;
-    std::string m_sFilePath;
+  std::string m_sFilePath;
   bool m_bappend;
   Ftp *m_pFtp;
 };
 
 int getFtpReply (int nReplyCode, std::string & sReply);
 void ftpReply (ConnectionPtr pConnection, int nReplyCode,
-		const std::string & sCustomText = "");
+               const std::string & sCustomText = "");
 void yyerror (YYLTYPE * pLoc, Ftp * pContext, const char *msg);
 
 
@@ -227,7 +227,7 @@ public:
     return Ftp::registerNameImpl (out, len);
   }
 
-	virtual int controlConnection (ConnectionPtr con, char *request,
+  virtual int controlConnection (ConnectionPtr con, char *request,
                                  char *auxBuf, u_long reqBufLen,
                                  u_long auxBufLen, u_long reqLen,
                                  u_long tid)
@@ -258,4 +258,4 @@ public:
 };
 
 
-#endif // FTP_H
+#endif
