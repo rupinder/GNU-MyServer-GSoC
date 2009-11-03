@@ -233,11 +233,6 @@ void MemBuf::addBuffer (const void* pAdr, u_int size)
     {
       memcpy (buffer + nSize, pAdr, size);
       nSize = nNewSize;
-
-      /* There is room to append '\0', it is not considered
-       * as part of the buffer.  */
-      if (size < nAllowedSize)
-        buffer[nSize + size] = '\0';
     }
   return;
 }
@@ -615,7 +610,7 @@ MemBuf MemBuf::operator+ (MemBuf& src)
 MemBuf MemBuf::operator+ (const char* src)
 {
   MemBuf temp (*this);
-  temp.addBuffer ((const void*) src, (u_int)strlen (src));
+  temp.addBuffer ((const void*) src, strlen (src));
   return temp;
 }
 const MemBuf& MemBuf::operator+= (MemBuf& add)
@@ -625,7 +620,7 @@ const MemBuf& MemBuf::operator+= (MemBuf& add)
 }
 const MemBuf& MemBuf::operator+= (const char* pStr)
 {
-  addBuffer (pStr, (u_int)strlen (pStr));
+  addBuffer (pStr, strlen (pStr));
   return *this;
 }
 const MemBuf& MemBuf::operator+= (char c)
@@ -635,7 +630,7 @@ const MemBuf& MemBuf::operator+= (char c)
 }
 MemBuf& MemBuf::operator<< (const char* pSrc)
 {
-  addBuffer (pSrc, (u_int)strlen (pSrc));
+  addBuffer (pSrc, strlen (pSrc));
   return *this;
 }
 MemBuf& MemBuf::operator<< (int i)
@@ -685,7 +680,7 @@ MemBuf& MemBuf::operator=(const MemBuf& src)
 }
 MemBuf& MemBuf::operator=(const char* src)
 {
-  setBuffer ((const void*) src, (u_int)strlen (src) + 1);
+  setBuffer ((const void*) src, strlen (src) + 1);
   return* this;
 }
 
