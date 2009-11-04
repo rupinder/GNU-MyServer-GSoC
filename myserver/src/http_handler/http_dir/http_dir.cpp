@@ -106,7 +106,7 @@ int HttpDir::unLoad ()
 }
 
 /*!
-  *Get a formatted dobule representation of BYTES right shifted by POWER.
+ *Get a formatted dobule representation of BYTES right shifted by POWER.
  * \param bytes Number of bytes.
  * \param power Power of 2.
  * \return the double representation for BYTES>>POWER.
@@ -176,38 +176,38 @@ void HttpDir::generateHeader (MemBuf &out, char sortType, bool sortReverse,
   out << "<tr>\r\n";
 
   for (;;)
-  {
-    while (*cur && ((*cur == '%' ) || (*cur == ' ' )))
-      cur++;
-
-    if (!(*cur))
-      break;
-
-    switch (*cur)
     {
-    case 'f':
-      if (sortType == 'f' && !sortReverse)
-        out << "<th><a href=\"?sort=fI\">File</a></th>\r\n";
-      else
-        out << "<th><a href=\"?sort=f\">File</a></th>\r\n";
-      break;
+      while (*cur && ((*cur == '%' ) || (*cur == ' ' )))
+        cur++;
 
-    case 't':
-      if (sortType == 't' && !sortReverse)
-        out << "<th><a href=\"?sort=tI\">Last Modified</a></th>\r\n";
-      else
-        out << "<th><a href=\"?sort=t\">Last Modified</a></th>\r\n";
-      break;
+      if (!(*cur))
+        break;
 
-    case 's':
-    if (sortType == 's' && !sortReverse)
-      out << "<th><a href=\"?sort=sI\">Size</a></th>\r\n";
-    else
-      out << "<th><a href=\"?sort=s\">Size</a></th>\r\n";
-    break;
+      switch (*cur)
+        {
+        case 'f':
+          if (sortType == 'f' && !sortReverse)
+            out << "<th><a href=\"?sort=fI\">File</a></th>\r\n";
+          else
+            out << "<th><a href=\"?sort=f\">File</a></th>\r\n";
+          break;
+
+        case 't':
+          if (sortType == 't' && !sortReverse)
+            out << "<th><a href=\"?sort=tI\">Last Modified</a></th>\r\n";
+          else
+            out << "<th><a href=\"?sort=t\">Last Modified</a></th>\r\n";
+          break;
+
+        case 's':
+          if (sortType == 's' && !sortReverse)
+            out << "<th><a href=\"?sort=sI\">Size</a></th>\r\n";
+          else
+            out << "<th><a href=\"?sort=s\">Size</a></th>\r\n";
+          break;
+        }
+      cur++;
     }
-    cur++;
-  }
 
   out << "</tr>\r\n";
 }
@@ -299,17 +299,20 @@ int HttpDir::send (HttpThreadContext* td,
   bool useChunks = false;
   u_long sentData = 0;
   char* bufferloop;
-  const char* browseDirCSSpath;
+  const char* cssFile;
   bool keepalive = false;
   vector<HttpDir::FileStruct> files;
   size_t sortIndex;
   char sortType = 0;
   bool sortReverse = false;
   string linkPrefix;
+  Regex ignRegex;
+  const char *ignPattern;
   const char *formatString = td->securityToken.getData ("http.dir.format",
-                                                              MYSERVER_SECURITY_CONF |
-                                                              MYSERVER_VHOST_CONF |
-                                                              MYSERVER_SERVER_CONF, "%f%t%s");
+                                                        MYSERVER_SECURITY_CONF
+                                                        | MYSERVER_VHOST_CONF
+                                                        | MYSERVER_SERVER_CONF,
+                                                        "%f%t%s");
 
 
   HttpRequestHeader::Entry *host = td->request.other.get ("Host");
@@ -322,14 +325,16 @@ int HttpDir::send (HttpThreadContext* td,
   if ( !(td->permissions & MYSERVER_PERMISSION_BROWSE))
     return td->http->sendAuth ();
 
-  if (td->mime && Server::getInstance ()->getFiltersFactory ()->chain (&chain,
-                                                        td->mime->filters,
-                                             td->connection->socket, &nbw, 1))
-  {
-    td->connection->host->warningsLogWrite (_("HttpDir: internal error"));
-    chain.clearAllFilters ();
-    return td->http->raiseHTTPError (500);
-  }
+  if (td->mime
+      && Server::getInstance ()->getFiltersFactory ()->chain (&chain,
+                                                    td->mime->filters,
+                                                td->connection->socket,
+                                                              &nbw, 1))
+    {
+      td->connection->host->warningsLogWrite (_("HttpDir: internal error"));
+      chain.clearAllFilters ();
+      return td->http->raiseHTTPError (500);
+    }
 
   lastSlash = td->request.uri.rfind ('/') + 1;
 
@@ -337,55 +342,64 @@ int HttpDir::send (HttpThreadContext* td,
 
   td->response.setValue ("Content-type", "text/html");
 
-  if (!td->appendOutputs)
-  {
-
-    HttpHeaders::buildHTTPResponseHeader (td->buffer->getBuffer (),
-                                         &(td->response));
-
-    if (td->connection->socket->send (td->buffer->getBuffer (),
-                       (u_long)strlen (td->buffer->getBuffer ()), 0)
-       == SOCKET_ERROR)
+  ignPattern = td->securityToken.getData ("http.dir.ignore",
+                                          MYSERVER_SECURITY_CONF
+                                          | MYSERVER_VHOST_CONF
+                                          | MYSERVER_SERVER_CONF, NULL);
+  if (ignPattern)
     {
-      /* Remove the connection.  */
-      return 0;
+      int ret = ignRegex.compile (ignPattern, REG_EXTENDED);
+      if (ret)
+        {
+          td->connection->host->warningsLogWrite (_("HttpDir: pattern `%s' "
+                                                  "is not valid"), ignPattern);
+
+          fd.findclose ();
+          td->outputData.close ();
+          chain.clearAllFilters ();
+          return td->http->raiseHTTPError (500);
+        }
     }
-  }
+
+  if (!td->appendOutputs)
+    {
+
+      HttpHeaders::buildHTTPResponseHeader (td->buffer->getBuffer (),
+                                            &(td->response));
+
+      if (td->connection->socket->send (td->buffer->getBuffer (),
+                                   strlen (td->buffer->getBuffer ()), 0) < 0)
+        return 0;
+    }
 
   if (onlyHeader)
     return 1;
 
-
   sortIndex = td->request.uriOpts.find ("sort=");
 
   if (sortIndex != string::npos && sortIndex + 5 < td->request.uriOpts.length ())
-  {
     sortType = td->request.uriOpts.at (sortIndex + 5);
-  }
 
   if (sortIndex != string::npos && sortIndex + 6 < td->request.uriOpts.length ())
-  {
-     sortReverse = td->request.uriOpts.at (sortIndex + 6) == 'I';
-  }
+    sortReverse = td->request.uriOpts.at (sortIndex + 6) == 'I';
 
   /* Make sortType always lowercase.  */
   switch (sortType)
-  {
+    {
     case 's':
     case 'S':
       sortType = 's';
       break;
+
     case 't':
     case 'T':
       sortType = 't';
       break;
-    default:
-      sort (files.begin (), files.end (), compareFileStructByName);
-  }
+    }
 
-  browseDirCSSpath = td->securityToken.getData ("http.dir.css",
-                                                      MYSERVER_SECURITY_CONF | MYSERVER_VHOST_CONF |
-                                                      MYSERVER_SERVER_CONF, NULL);
+  cssFile = td->securityToken.getData ("http.dir.css", MYSERVER_SECURITY_CONF
+                                       | MYSERVER_VHOST_CONF
+                                       | MYSERVER_SERVER_CONF, NULL);
 
   td->secondaryBuffer->setLength (0);
   *td->secondaryBuffer << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
@@ -397,29 +411,29 @@ int HttpDir::send (HttpThreadContext* td,
   *td->secondaryBuffer << "</title>\r\n";
 
   /*
-   *If it is defined a CSS file for the graphic layout of
-   *the browse directory insert it in the page.
+   * If it is defined a CSS file for the graphic layout of
+   * the browse directory insert it in the page.
    */
-  if (browseDirCSSpath)
-  {
-    *td->secondaryBuffer << "<link rel=\"stylesheet\" href=\""
-                 << browseDirCSSpath
-                 << "\" type=\"text/css\" media=\"all\"/>\r\n";
-  }
+  if (cssFile)
+    {
+      *td->secondaryBuffer << "<link rel=\"stylesheet\" href=\""
+                           << cssFile
+                           << "\" type=\"text/css\" media=\"all\"/>\r\n";
+    }
 
   *td->secondaryBuffer << "</head>\r\n";
 
   ret = appendDataToHTTPChannel (td, td->secondaryBuffer->getBuffer (),
-                                td->secondaryBuffer->getLength (),
-                                &(td->outputData), &chain,
-                                td->appendOutputs, useChunks);
+                                 td->secondaryBuffer->getLength (),
+                                 &(td->outputData), &chain,
+                                 td->appendOutputs, useChunks);
   if (ret)
-  {
-    /* Return an internal server error. */
-    td->outputData.close ();
-    chain.clearAllFilters ();
-    return td->http->raiseHTTPError (500);
-  }
+    {
+      /* Return an internal server error. */
+      td->outputData.close ();
+      chain.clearAllFilters ();
+      return td->http->raiseHTTPError (500);
+    }
 
   sentData = td->secondaryBuffer->getLength ();
 
@@ -430,25 +444,25 @@ int HttpDir::send (HttpThreadContext* td,
   *td->secondaryBuffer << "</h1>\r\n<hr />\r\n";
 
   ret = appendDataToHTTPChannel (td, td->secondaryBuffer->getBuffer (),
-                                td->secondaryBuffer->getLength (),
-                                &(td->outputData), &chain,
-                                td->appendOutputs, useChunks);
+                                 td->secondaryBuffer->getLength (),
+                                 &(td->outputData), &chain,
+                                 td->appendOutputs, useChunks);
 
   if (ret)
-  {
-    td->outputData.close ();
-    /* Return an internal server error.  */
-    return td->http->raiseHTTPError (500);
-  }
+    {
+      td->outputData.close ();
+      /* Return an internal server error.  */
+      return td->http->raiseHTTPError (500);
+    }
   sentData += td->secondaryBuffer->getLength ();
 
   ret = fd.findfirst (filename.c_str ());
 
   if (ret == -1)
-  {
-    chain.clearAllFilters ();
-    return td->http->raiseHTTPError (404);
-  }
+    {
+      chain.clearAllFilters ();
+      return td->http->raiseHTTPError (404);
+    }
 
   /*
    * With the current code we build the HTML TABLE to indicize the
@@ -460,87 +474,94 @@ int HttpDir::send (HttpThreadContext* td,
   generateHeader (*td->secondaryBuffer, sortType, sortReverse, formatString);
 
   ret = appendDataToHTTPChannel (td, td->secondaryBuffer->getBuffer (),
-                                td->secondaryBuffer->getLength (),
-                                &(td->outputData), &chain,
-                                td->appendOutputs, useChunks);
+                                 td->secondaryBuffer->getLength (),
+                                 &(td->outputData), &chain,
+                                 td->appendOutputs, useChunks);
 
   if (ret)
-  {
-    td->outputData.close ();
-    chain.clearAllFilters ();
-    /* Return an internal server error.  */
-    return td->http->raiseHTTPError (500);
-  }
+    {
+      td->outputData.close ();
+      chain.clearAllFilters ();
+      /* Return an internal server error.  */
+      return td->http->raiseHTTPError (500);
+    }
 
   sentData += td->secondaryBuffer->getLength ();
 
   td->secondaryBuffer->setLength (0);
 
   if (FilesUtility::getPathRecursionLevel (td->request.uri) >= 1)
-  {
-    const char* cur = formatString;
-    string file;
-    file.assign (td->request.uri);
-    file.append ("/../");
-
-    *td->secondaryBuffer << "<tr>\r\n";
-
-    for (;;)
     {
-      while (*cur && ((*cur == '%' ) || (*cur == ' ' )))
-        cur++;
+      const char* cur = formatString;
+      string file;
+      file.assign (td->request.uri);
+      file.append ("/../");
 
-      if (!(*cur))
-        break;
+      *td->secondaryBuffer << "<tr>\r\n";
 
-      if (*cur == 'f')
-        *td->secondaryBuffer << "<td>\n"
-                             << "<a href=\""
-                             << (td->request.uriEndsWithSlash ? ".." : ".")
-                             << "\">[ .. ]</a></td>\n";
-      else
-        *td->secondaryBuffer << "<td></td>\n";
+      for (;;)
+        {
+          while (*cur && ((*cur == '%' ) || (*cur == ' ' )))
+            cur++;
 
-      cur++;
+          if (!(*cur))
+            break;
+
+          if (*cur == 'f')
+            *td->secondaryBuffer << "<td>\n"
+                                 << "<a href=\""
+                                 << (td->request.uriEndsWithSlash ? ".." : ".")
+                                 << "\">[ .. ]</a></td>\n";
+          else
+            *td->secondaryBuffer << "<td></td>\n";
+
+          cur++;
+        }
+
+      *td->secondaryBuffer << "</tr>\r\n";
+
+      ret = appendDataToHTTPChannel (td, td->secondaryBuffer->getBuffer (),
+                                     td->secondaryBuffer->getLength (),
+                                     &(td->outputData), &chain,
+                                     td->appendOutputs, useChunks);
+      if (ret)
+        {
+          fd.findclose ();
+          td->outputData.close ();
+          chain.clearAllFilters ();
+          /* Return an internal server error.  */
+          return td->http->raiseHTTPError (500);
+        }
+      sentData += td->secondaryBuffer->getLength ();
     }
-
-    *td->secondaryBuffer << "</tr>\r\n";
-
-    ret = appendDataToHTTPChannel (td, td->secondaryBuffer->getBuffer (),
-                                  td->secondaryBuffer->getLength (),
-                                  &(td->outputData), &chain,
-                                  td->appendOutputs, useChunks);
-    if (ret)
-    {
-      fd.findclose ();
-      td->outputData.close ();
-      chain.clearAllFilters ();
-      /* Return an internal server error.  */
-      return td->http->raiseHTTPError (500);
-    }
-    sentData += td->secondaryBuffer->getLength ();
-  }
 
   /* Put all files in a vector.  */
   do
-  {
-    if (fd.name[0] == '.')
-      continue;
+    {
+      if (fd.name[0] == '.')
+        continue;
 
-    FileStruct file;
-    file.name = fd.name;
-    file.time_write = fd.time_write;
-    file.attrib = fd.attrib;
-    file.size = fd.size;
-    files.push_back (file);
-  }
+      if (ignPattern)
+        {
+          regmatch_t pm[1];
+          if (! ignRegex.exec (fd.name, 1, pm, 0))
+            continue;
+        }
+
+      FileStruct file;
+      file.name = fd.name;
+      file.time_write = fd.time_write;
+      file.attrib = fd.attrib;
+      file.size = fd.size;
+      files.push_back (file);
+    }
   while (!fd.findnext ());
 
   fd.findclose ();
 
   /* Sort the vector.  */
   switch (sortType)
-  {
+    {
     case 's':
       sort (files.begin (), files.end (), compareFileStructBySize);
       break;
@@ -549,76 +570,76 @@ int HttpDir::send (HttpThreadContext* td,
       break;
     case 'f':
       sort (files.begin (), files.end (), compareFileStructByName);
-  }
+    }
 
   if (sortReverse)
     reverse (files.begin (), files.end ());
 
   if (!td->request.uriEndsWithSlash)
-  {
-    linkPrefix.assign (&td->request.uri[lastSlash]);
-    linkPrefix.append ("/");
-  }
+    {
+      linkPrefix.assign (&td->request.uri[lastSlash]);
+      linkPrefix.append ("/");
+    }
   else
     linkPrefix.assign ("");
 
 
   /* Build the files table and send it.  */
   for (vector<FileStruct>::iterator it = files.begin ();
-      it != files.end (); it++)
-  {
-    FileStruct& file = *it;
-
-    td->secondaryBuffer->setLength (0);
-
-    generateElement (*td->secondaryBuffer, file, linkPrefix, formatString);
-
-    ret = appendDataToHTTPChannel (td, td->secondaryBuffer->getBuffer (),
-                                  td->secondaryBuffer->getLength (),
-                                  &(td->outputData), &chain,
-                                  td->appendOutputs, useChunks);
-    if (ret)
+       it != files.end (); it++)
     {
-      td->outputData.close ();
-      chain.clearAllFilters ();
-      /* Return an internal server error.  */
-      return td->http->raiseHTTPError (500);
+      FileStruct& file = *it;
+
+      td->secondaryBuffer->setLength (0);
+
+      generateElement (*td->secondaryBuffer, file, linkPrefix, formatString);
+
+      ret = appendDataToHTTPChannel (td, td->secondaryBuffer->getBuffer (),
+                                     td->secondaryBuffer->getLength (),
+                                     &(td->outputData), &chain,
+                                     td->appendOutputs, useChunks);
+      if (ret)
+        {
+          td->outputData.close ();
+          chain.clearAllFilters ();
+          /* Return an internal server error.  */
+          return td->http->raiseHTTPError (500);
+        }
+
+      sentData += td->secondaryBuffer->getLength ();
+
     }
-
-    sentData += td->secondaryBuffer->getLength ();
-
-  }
 
   td->secondaryBuffer->setLength (0);
   *td->secondaryBuffer << "</table>\r\n<hr />\r\n<address>"
-               << MYSERVER_VERSION;
+                       << MYSERVER_VERSION;
 
   if (host && host->value->length ())
-  {
-    ostringstream portBuff;
-    size_t portSeparator = host->value->find (':');
-    *td->secondaryBuffer << " on ";
-    if (portSeparator != string::npos)
-      *td->secondaryBuffer << host->value->substr (0, portSeparator).c_str () ;
-    else
-      *td->secondaryBuffer << host->value->c_str () ;
+    {
+      ostringstream portBuff;
+      size_t portSeparator = host->value->find (':');
+      *td->secondaryBuffer << " on ";
+      if (portSeparator != string::npos)
+        *td->secondaryBuffer << host->value->substr (0, portSeparator).c_str () ;
+      else
+        *td->secondaryBuffer << host->value->c_str () ;
 
-    *td->secondaryBuffer << " Port ";
-    portBuff << td->connection->getLocalPort ();
-    *td->secondaryBuffer << portBuff.str ();
-  }
+      *td->secondaryBuffer << " Port ";
+      portBuff << td->connection->getLocalPort ();
+      *td->secondaryBuffer << portBuff.str ();
+    }
   *td->secondaryBuffer << "</address>\r\n</body>\r\n</html>\r\n";
   ret = appendDataToHTTPChannel (td, td->secondaryBuffer->getBuffer (),
-                                td->secondaryBuffer->getLength (),
-                                &(td->outputData), &chain,
-                                td->appendOutputs, useChunks);
+                                 td->secondaryBuffer->getLength (),
+                                 &(td->outputData), &chain,
+                                 td->appendOutputs, useChunks);
 
   if (ret)
-  {
-    td->outputData.close ();
-    /* Return an internal server error.  */
-    return td->http->raiseHTTPError (500);
-  }
+    {
+      td->outputData.close ();
+      /* Return an internal server error.  */
+      return td->http->raiseHTTPError (500);
+    }
   sentData += td->secondaryBuffer->getLength ();
 
   *td->secondaryBuffer << end_str;
@@ -628,11 +649,9 @@ int HttpDir::send (HttpThreadContext* td,
     if (*bufferloop == '\\')
       *bufferloop = '/';
 
-  if (!td->appendOutputs && useChunks)
-  {
-    if (chain.getStream ()->write ("0\r\n\r\n", 5, &nbw))
-      return 1;
-  }
+  if (!td->appendOutputs && useChunks
+      && chain.getStream ()->write ("0\r\n\r\n", 5, &nbw))
+    return 1;
 
   /* For logging activity.  */
   td->sentData += sentData;
@@ -656,20 +675,20 @@ void HttpDir::formatHtml (string& in, string& out)
    * with "&#CODE;".
    */
   for (pos = 0; out[pos] != '\0'; pos++)
-  {
-    if (((u_char)out[pos] >= 32 &&
-        (u_char)out[pos] <= 65)   ||
-       ((u_char)out[pos] >= 91 &&
-        (u_char)out[pos] <= 96)   ||
-       ((u_char)out[pos] >= 123 &&
-        (u_char)out[pos] <= 126) ||
-       ((u_char)out[pos] >= 160 &&
-        (u_char)out[pos] < 255))
     {
-      ostringstream os;
-      os << "&#" << (int)((unsigned char)out[pos]) << ";";
-      out.replace (pos, 1, os.str ());
-      pos += os.str ().length () - 1;
+      if (((u_char)out[pos] >= 32 &&
+           (u_char)out[pos] <= 65)   ||
+          ((u_char)out[pos] >= 91 &&
+           (u_char)out[pos] <= 96)   ||
+          ((u_char)out[pos] >= 123 &&
+           (u_char)out[pos] <= 126) ||
+          ((u_char)out[pos] >= 160 &&
+           (u_char)out[pos] < 255))
+        {
+          ostringstream os;
+          os << "&#" << (int)((unsigned char)out[pos]) << ";";
+          out.replace (pos, 1, os.str ());
+          pos += os.str ().length () - 1;
+        }
     }
-  }
 }

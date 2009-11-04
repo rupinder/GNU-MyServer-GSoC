@@ -64,11 +64,26 @@ by its size, while @code{%f%t} displays the file name and its last
 modified time.
 
 @subsection Directory listing layout
-
 You can change the layout of the directory browsing page. The line
 below, in @file{myserver.xml}, points to the CSS file used to
 configure the layout for the browsing directory pages:
 
 @example
   <DEFINE name="http.dir.css" value="/sys/css/browsestyle.css" />
+@end example
+
+@subsection Ignore entries
+It is possible to ignore some files to be listed from the final
+output.  It is done using the @code{http.dir.ignore} regular
+expression that can be specified at any level.
+
+Pay attention, this directive does not change the file visibility, so
+a direct request to the entries that are part of the mask will have
+the same effect as if this directive is not specified.
+
+In the following example, the file @file{hidden} is not included in
+the directory listing.
+
+@example
+  <DEFINE name="http.dir.ignore" value="hidden" />
 @end example
