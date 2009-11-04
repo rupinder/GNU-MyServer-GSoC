@@ -55,7 +55,7 @@ static size_t currentPathLen;
  */
 u_long getCPUCount ()
 {
-  return num_processors ();
+  return num_processors (NPROC_CURRENT);
 }
 
 /*!
