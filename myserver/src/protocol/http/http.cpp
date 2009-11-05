@@ -785,7 +785,8 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
       td->filenamePath.assign ("");
       td->outputDataPath.assign ("");
       td->inputDataPath.assign ("");
-      td->mime = 0;
+      td->mime = NULL;
+      td->headerSent = false;
       td->sentData = 0;
       td->vhostDir.assign ("");
       td->vhostSys.assign ("");
@@ -1333,8 +1334,8 @@ int Http::raiseHTTPError (int ID)
       HttpRequestHeader::Entry *host = td->request.other.get ("Host");
       HttpRequestHeader::Entry *connection = td->request.other.get ("Connection");
       const char *useMessagesVal = td->securityToken.getData ("http.use_error_file",
-                                                          MYSERVER_VHOST_CONF
-                                                        | MYSERVER_SERVER_CONF,
+                                                              MYSERVER_VHOST_CONF
+                                                              | MYSERVER_SERVER_CONF,
                                                               NULL);
       if (useMessagesVal)
         {
@@ -1362,15 +1363,15 @@ int Http::raiseHTTPError (int ID)
       char errorName [32];
       sprintf (errorName, "http.error.file.%i", ID);
       const char *defErrorFile = td->securityToken.getData (errorName,
-                                                                  MYSERVER_SECURITY_CONF |
-                                                                  MYSERVER_VHOST_CONF |
-                                                                  MYSERVER_SERVER_CONF);
+                                                            MYSERVER_SECURITY_CONF
+                                                            | MYSERVER_VHOST_CONF
+                                                            | MYSERVER_SERVER_CONF);
       if (defErrorFile)
         {
           ostringstream nURL;
           int isPortSpecified = 0;
           const char* hostStr = host ? host->value->c_str () : "";
-           /* Change the URI to reflect the default file name.  */
+          /* Change the URI to reflect the default file name.  */
           nURL << protocolPrefix << hostStr;
           for (int i = 0; hostStr[i]; i++)
             {
@@ -1438,20 +1439,18 @@ int Http::raiseHTTPError (int ID)
             td->response.contentLength.assign (size.str ());
           }
       }
-      u_long hdrLen = HttpHeaders::buildHTTPResponseHeader (td->buffer->getBuffer (),
-                                                            &td->response);
 
-      if (td->connection->socket->send (td->buffer->getBuffer (), hdrLen, 0) == -1)
+      if (HttpHeaders::sendHeader (td->response, *td->connection->socket,
+                                   *td->buffer, td))
         return 0;
 
-      if (errorBodyLength && (td->connection->socket->send (errorBodyMessage.str ().c_str (),
-                                                            errorBodyLength, 0)
-                              == -1))
+      if (errorBodyLength
+          && (td->connection->socket->send (errorBodyMessage.str ().c_str (),
+                                            errorBodyLength, 0) < 0))
         {
           td->connection->host->warningsLogWrite (_("HTTP: socket error"));
           return 0;
         }
-
 
       return 1;
     }

@@ -883,12 +883,15 @@ int HttpHeaders::sendHeader (HttpResponseHeader &response, Stream &stream,
                              MemBuf &memBuf, HttpThreadContext *ctx)
 {
   int ret = 0;
-  if (ctx == NULL || !ctx->appendOutputs)
+  if (ctx == NULL || (!ctx->appendOutputs && !ctx->headerSent))
     {
       u_long nbw;
       buildHTTPResponseHeader (memBuf.getBuffer (), &response);
       ret = stream.write (memBuf.getBuffer (), strlen (memBuf.getBuffer ()),
                           &nbw);
+
+      if (ctx)
+        ctx->headerSent = true;
     }
 
   return ret;

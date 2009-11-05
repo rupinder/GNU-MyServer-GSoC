@@ -1,19 +1,19 @@
 /* -*- mode: c++ -*- */
 /*
-MyServer
-Copyright (C) 2002-2009 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002-2009 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef HTTP_H
@@ -104,25 +104,25 @@ public:
   int requestAuthorization ();
 
   int sendHTTPResource (string& filename,
+                        int systemrequest = 0,
+                        int onlyHeader = 0,
+                        int yetMapped = 0);
+
+  int putHTTPRESOURCE (string &filename,
                        int systemrequest = 0,
                        int onlyHeader = 0,
                        int yetMapped = 0);
 
-  int putHTTPRESOURCE (string &filename,
-                      int systemrequest = 0,
-                      int onlyHeader = 0,
-                      int yetMapped = 0);
-
   int optionsHTTPRESOURCE (string &filename,
-                          int yetMapped = 0);
+                           int yetMapped = 0);
 
   int traceHTTPRESOURCE (string& filename,
-                        int yetMapped = 0);
+                         int yetMapped = 0);
 
   int deleteHTTPRESOURCE (string &filename,
-                         int systemrequest = 0,
-                         int onlyHeader = 0,
-                         int yetMapped = 0);
+                          int systemrequest = 0,
+                          int onlyHeader = 0,
+                          int yetMapped = 0);
 
   bool allowMethod (const char *name);
 
@@ -134,26 +134,26 @@ public:
 
 
   int getPath (string& filenamePath,
-                     const string& filename,
-                     int systemrequest)
+               const string& filename,
+               int systemrequest)
   {return getPath (td, filenamePath, filename.c_str (), systemrequest);}
 
   int getPath (string& filenamePath,
-                     const char *filename,
-                     int systemrequest)
+               const char *filename,
+               int systemrequest)
   {return getPath (td, filenamePath, filename, systemrequest);}
 
 
   static int getPath (HttpThreadContext* td,
-                     string& filenamePath,
-                     const string& filename,
-                     int systemrequest)
+                      string& filenamePath,
+                      const string& filename,
+                      int systemrequest)
   {return getPath (td, filenamePath, filename.c_str (), systemrequest);}
 
   static int getPath (HttpThreadContext* td,
-                     string& filenamePath,
-                     const char *filename,
-                     int systemrequest);
+                      string& filenamePath,
+                      const char *filename,
+                      int systemrequest);
 
   MimeRecord* getMIME (string& filename);
 
@@ -165,7 +165,7 @@ public:
   virtual char* registerName (char* out,int len){return registerNameImpl (out, len);}
 
   static char* registerNameImpl (char*, int len);
-	int controlConnection (ConnectionPtr con, char *request, char *auxBuf,
+  int controlConnection (ConnectionPtr con, char *request, char *auxBuf,
                          u_long reqBufLen, u_long auxBufLen, u_long reqLen,
                          u_long tid);
 
@@ -174,18 +174,17 @@ public:
 
   u_long getTimeout ();
   int preprocessHttpRequest (string& filename, int yetmapped,
-                            int* permissions);
+                             int* permissions);
 
   int getFilePermissions (string& filename, string& directory,
-                         string& file, string &filenamePath,
-                         int yetmapped, int* permissions);
+                          string& file, string &filenamePath,
+                          int yetmapped, int* permissions);
 
   static HttpStaticData* getStaticData ();
 
   SecurityToken *getSecurityToken (){return &(td->securityToken);}
 
 protected:
-
   int processDefaultFile (string& uri, int permissions, int onlyHeader);
 
   struct HttpThreadContext *td;
@@ -201,14 +200,13 @@ protected:
 class HttpProtocol : public Protocol
 {
 public:
-	HttpProtocol ()
+  HttpProtocol ()
   {
     protocolOptions = 0;
   }
 
   virtual ~HttpProtocol ()
   {
-
   }
 
   virtual char* registerName (char* out, int len)
@@ -216,7 +214,7 @@ public:
     return Http::registerNameImpl (out, len);
   }
 
-	virtual int controlConnection (ConnectionPtr con, char *request,
+  virtual int controlConnection (ConnectionPtr con, char *request,
                                  char *auxBuf, u_long reqBufLen,
                                  u_long auxBufLen, u_long reqLen,
                                  u_long tid)
@@ -226,7 +224,7 @@ public:
                                    reqLen, tid);
   }
 
-	virtual int loadProtocol ()
+  virtual int loadProtocol ()
   {
     return Http::loadProtocolStatic ();
   }
@@ -234,9 +232,7 @@ public:
   virtual int unLoadProtocol ()
   {
     return Http::unLoadProtocolStatic ();
-
   }
-
 };
 
 
