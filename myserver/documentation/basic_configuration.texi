@@ -29,6 +29,14 @@ configuration files by the @code{--cfgdir} argument to the myserver
 process.  In case a path is specified, then the configuration files
 are looked exclusively in this directory.
 
+@subsection Alternative handlers
+Plugins are allowed to install new handlers to read the configuration
+from other sources.  It is done changing the value of the variables
+@code{server.vhost_manager} and @code{server.server.mime_manager},
+respectively to use a different handler for the virtual hosts and for
+the MIME types.  If no value is specified then the value @value{xml}
+is used.
+
 @section Server administrator
 CGI scripts can get the server administrator e-mail and show them to
 the user (through the SERVER_ADMIN environment variable). 
