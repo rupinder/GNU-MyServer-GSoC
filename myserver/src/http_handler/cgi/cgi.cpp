@@ -514,7 +514,7 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
        */
       if (!td->appendOutputs)
         {
-          string* location = td->response.getValue ("Location", 0);
+          string* location = td->response.getValue ("Location", NULL);
 
           /* If it is present "Location: foo" in the header then send a redirect
            * to `foo'.  */
@@ -524,18 +524,13 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
               return 1;
             }
 
-          u_long hdrLen = HttpHeaders::buildHTTPResponseHeader (td->buffer->getBuffer (),
-                                                                &td->response);
-
-          td->buffer->setLength (hdrLen);
-
-          if (chain.getStream ()->write (td->buffer->getBuffer (),
-                                         static_cast<int> (td->buffer->getLength ()),
-                                         &nbw))
+          if (HttpHeaders::sendHeader (td->response, *chain.getStream (),
+                                       *td->buffer, td))
             {
               *ret = 0;
               return 1;
             }
+
         }
     }
 

@@ -88,19 +88,17 @@ int Proxy::send (HttpThreadContext *td,
   xForwardedFor.append (td->connection->getIpAddr ());
   req.setValue ("X-Forwarded-For", xForwardedFor.c_str ());
 
-	u_long hdrLen = HttpHeaders::buildHTTPRequestHeader (td->secondaryBuffer->getBuffer (),
-                                                       &req);
-
   if (sock.connect (destUrl.getHost ().c_str (), destUrl.getPort ()))
     return td->http->raiseHTTPError (500);
 
-  if (sock.write (td->secondaryBuffer->getBuffer (), hdrLen, &nbw))
+  if (HttpHeaders::sendHeader (td->response, *td->connection->socket,
+                               *td->secondaryBuffer, td))
     {
-      sock.close ();
-      return td->http->raiseHTTPError (500);
+      chain.clearAllFilters ();
+      return 1;
     }
 
- if (td->request.uriOptsPtr &&
+  if (td->request.uriOptsPtr &&
       td->inputData.fastCopyToSocket (&sock, 0, td->secondaryBuffer, &nbw))
     {
       sock.close ();
@@ -112,10 +110,10 @@ int Proxy::send (HttpThreadContext *td,
   chain.setStream (td->connection->socket);
 
   if (td->mime && Server::getInstance ()->getFiltersFactory ()->chain (&chain,
-                                                                   td->mime->filters,
-                                                                   td->connection->socket,
-                                                                   &nbw,
-                                                                   1))
+                                                            td->mime->filters,
+                                                       td->connection->socket,
+                                                                       &nbw,
+                                                                       1))
     {
       sock.close ();
       return td->http->raiseHTTPError (500);

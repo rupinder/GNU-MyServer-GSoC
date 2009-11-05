@@ -345,21 +345,14 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
   td->response.contentLength.assign (stream.str ());
   if (!td->appendOutputs)
     {
-      u_long nbw2;
-      /*!
-       *Send the header if it is not appending.
-       */
-      u_long hdrLen = HttpHeaders::buildHTTPResponseHeader (td->buffer->getBuffer (),
-                                                            &td->response);
-      if (chain.getStream ()->write ((const char*)td->buffer->getBuffer (),
-                                    hdrLen,
-                                    &nbw2))
+      if (HttpHeaders::sendHeader (td->response, *chain.getStream (),
+                                   *td->buffer, td))
         {
           OutFileHandle.close ();
           FilesUtility::deleteFile (outFilePath);
           FilesUtility::deleteFile (dataFilePath);
           chain.clearAllFilters ();
-          return 0;
+          return 1;
         }
 
       if (onlyHeader)
@@ -370,8 +363,9 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
           chain.clearAllFilters ();
           return 1;
         }
+
       /*!
-       *Send other data in the buffer.
+       * Send other data in the buffer.
        */
       chain.write ((char*)(buffer + headerSize), nBytesRead - headerSize,
                    &nbw2);

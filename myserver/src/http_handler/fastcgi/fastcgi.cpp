@@ -783,17 +783,13 @@ int FastCgi::handleHeader (FcgiContext* con, FiltersChain* chain, bool* response
           *responseCompleted = true;
           return con->td->http->sendHTTPRedirect (location->c_str ());
         }
+    }
 
-      u_long hdrLen = HttpHeaders::buildHTTPResponseHeader (con->td->secondaryBuffer->getBuffer (),
-                                                            &con->td->response);
-
-      if (con->td->connection->socket->send (con->td->secondaryBuffer->getBuffer (),
-                                             hdrLen,
-                                             0) == SOCKET_ERROR )
-        {
-          *responseCompleted = true;
-          return 1;
-        }
+  if (HttpHeaders::sendHeader (con->td->response, *con->td->connection->socket,
+                               *con->td->secondaryBuffer, con->td))
+    {
+      *responseCompleted = true;
+      return 1;
     }
 
   con->headerSent = true;

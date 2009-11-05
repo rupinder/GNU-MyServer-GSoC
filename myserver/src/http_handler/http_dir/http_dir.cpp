@@ -361,19 +361,12 @@ int HttpDir::send (HttpThreadContext* td,
         }
     }
 
-  if (!td->appendOutputs)
-    {
-
-      HttpHeaders::buildHTTPResponseHeader (td->buffer->getBuffer (),
-                                            &(td->response));
-
-      if (td->connection->socket->send (td->buffer->getBuffer (),
-                                   strlen (td->buffer->getBuffer ()), 0) < 0)
-        return 0;
-    }
+  if (HttpHeaders::sendHeader (td->response, *td->connection->socket,
+                               *td->buffer, td))
+    return 1;
 
   if (onlyHeader)
-    return 1;
+    return 0;
 
   sortIndex = td->request.uriOpts.find ("sort=");
 
@@ -676,14 +669,14 @@ void HttpDir::formatHtml (string& in, string& out)
    */
   for (pos = 0; out[pos] != '\0'; pos++)
     {
-      if (((u_char)out[pos] >= 32 &&
-           (u_char)out[pos] <= 65)   ||
-          ((u_char)out[pos] >= 91 &&
-           (u_char)out[pos] <= 96)   ||
-          ((u_char)out[pos] >= 123 &&
-           (u_char)out[pos] <= 126) ||
-          ((u_char)out[pos] >= 160 &&
-           (u_char)out[pos] < 255))
+      if (((u_char)out[pos] >= 32
+           && (u_char)out[pos] <= 65)
+          || ((u_char)out[pos] >= 91
+              && (u_char)out[pos] <= 96)
+          || ((u_char)out[pos] >= 123
+              && (u_char)out[pos] <= 126)
+          || ((u_char)out[pos] >= 160
+              && (u_char)out[pos] < 255))
         {
           ostringstream os;
           os << "&#" << (int)((unsigned char)out[pos]) << ";";

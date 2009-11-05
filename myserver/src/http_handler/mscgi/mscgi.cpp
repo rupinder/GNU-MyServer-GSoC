@@ -160,11 +160,8 @@ int MsCgi::write (const char* data, u_long len, MsCgiData* mcd)
   if (mcd->error)
     return 1;
 
-  if (!mcd->headerSent)
-    {
-      if (sendHeader (mcd))
-        return 1;
-    }
+  if (!mcd->headerSent && sendHeader (mcd))
+    return 1;
 
   if (mcd->onlyHeader)
     return 0;
@@ -187,22 +184,17 @@ int MsCgi::write (const char* data, u_long len, MsCgiData* mcd)
  */
 int MsCgi::sendHeader (MsCgiData* mcd)
 {
+  HttpThreadContext* td = mcd->td;
+
   if (mcd->error)
     return 1;
 
   if (mcd->headerSent)
     return 0;
 
-  if (!mcd->td->appendOutputs)
-    {
-      HttpThreadContext* td = mcd->td;
-      char *buffer = td->secondaryBuffer->getBuffer ();
-      ConnectionPtr s = td->connection;
-
-      u_long hdrLen = HttpHeaders::buildHTTPResponseHeader (buffer, &(td->response));
-      if (td->connection->socket->send (buffer, hdrLen, 0) == SOCKET_ERROR)
-        return 1;
-    }
+  if (HttpHeaders::sendHeader (td->response, *td->connection->socket,
+                               *td->secondaryBuffer, td))
+    return 1;
 
   mcd->headerSent = true;
   return 0;

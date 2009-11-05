@@ -420,23 +420,13 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
 	  delete e;
       }
 
-    u_long hdrLen = HttpHeaders::buildHTTPResponseHeader (td->buffer->getBuffer (),
-                                                          &td->response);
-
-    td->buffer->setLength (hdrLen);
-
-    if (!td->appendOutputs)
+    if (HttpHeaders::sendHeader (td->response, *td->connection->socket,
+                                 *td->buffer, td))
       {
-        /* Send the HTTP header.  */
-        if (td->connection->socket->send (td->buffer->getBuffer (),
-                                          (u_long) td->buffer->getLength (),
-                                          0) == SOCKET_ERROR)
-          {
-            file->close ();
-            delete file;
-            chain.clearAllFilters ();
-            return 1;
-          }
+        file->close ();
+        delete file;
+        chain.clearAllFilters ();
+        return 1;
       }
 
     /*

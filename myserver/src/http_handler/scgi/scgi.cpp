@@ -216,7 +216,7 @@ int Scgi::send (HttpThreadContext* td, const char* scriptpath,
 
 
 /*!
- *Send the response to the client.
+ * Send the response to the client.
  */
 int Scgi::sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
 {
@@ -233,94 +233,90 @@ int Scgi::sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
   checkDataChunks (td, &keepalive, &useChunks);
 
   for (;;)
-  {
-    while (!ctx->sock.bytesToRead ())
     {
-      if ((clock_t)(getTicks () - initialTicks) > td->http->getTimeout ())
+      while (!ctx->sock.bytesToRead ())
+        {
+          if ((clock_t)(getTicks () - initialTicks) > td->http->getTimeout ())
+            break;
+          Thread::wait (1);
+        }
+
+      if (!ctx->sock.bytesToRead ())
+        return -1;
+
+      nbr = ctx->sock.recv (td->secondaryBuffer->getBuffer () + read,
+                            td->secondaryBuffer->getRealLength () - read,
+                            td->http->getTimeout ());
+
+      read += nbr;
+
+      for (tmpHeaderSize = (tmpHeaderSize > 3)
+             ? tmpHeaderSize - 4 : tmpHeaderSize;
+           tmpHeaderSize < read - 4; tmpHeaderSize++)
+        if ((td->secondaryBuffer->getBuffer ()[tmpHeaderSize] == '\r')
+            && (td->secondaryBuffer->getBuffer ()[tmpHeaderSize + 1] == '\n')
+            && (td->secondaryBuffer->getBuffer ()[tmpHeaderSize + 2] == '\r')
+            && (td->secondaryBuffer->getBuffer ()[tmpHeaderSize + 3] == '\n'))
+          {
+            headerSize = tmpHeaderSize + 4;
+            break;
+          }
+
+      if (headerSize)
         break;
-      Thread::wait (1);
     }
 
-    if (!ctx->sock.bytesToRead ())
-      return -1;
+  if (headerSize)
+    HttpHeaders::buildHTTPResponseHeaderStruct (td->secondaryBuffer->getBuffer (),
+                                                &td->response,
+                                                &(td->nBytesToRead));
 
-    nbr = ctx->sock.recv (td->secondaryBuffer->getBuffer () + read,
-                        td->secondaryBuffer->getRealLength () - read,
-                         td->http->getTimeout ());
+  if (HttpHeaders::sendHeader (td->response, *td->connection->socket,
+                               *td->secondaryBuffer, td))
+    return 1;
 
-    read += nbr;
-
-
-    for (tmpHeaderSize = (tmpHeaderSize > 3)
-          ? tmpHeaderSize - 4 : tmpHeaderSize;
-        tmpHeaderSize < read - 4; tmpHeaderSize++)
-      if ((td->secondaryBuffer->getBuffer ()[tmpHeaderSize] == '\r') &&
-         (td->secondaryBuffer->getBuffer ()[tmpHeaderSize + 1] == '\n') &&
-         (td->secondaryBuffer->getBuffer ()[tmpHeaderSize + 2] == '\r') &&
-         (td->secondaryBuffer->getBuffer ()[tmpHeaderSize + 3] == '\n'))
-      {
-        headerSize = tmpHeaderSize + 4;
-        break;
-      }
-    if (headerSize)
-      break;
-  }
-
-
-  if (!td->appendOutputs)
-  {
-    if (headerSize)
-    {
-      HttpHeaders::buildHTTPResponseHeaderStruct (td->secondaryBuffer->getBuffer (),
-                                                 &td->response,
-                                                 &(td->nBytesToRead));
-    }
-    u_long hdrLen = HttpHeaders::buildHTTPResponseHeader (td->buffer->getBuffer (),
-                                                         &td->response);
-
-    if (chain->write (td->buffer->getBuffer (), hdrLen, &nbw))
-      return -1;
-  }
+  if (onlyHeader)
+    return 0;
 
   if (read - headerSize)
     if (appendDataToHTTPChannel (td, td->secondaryBuffer->getBuffer () + headerSize,
-                               read - headerSize,
-                               &(td->outputData),
-                               chain,
-                               td->appendOutputs,
-                               useChunks))
-     return -1;
-
-  sentData += read - headerSize;
-
-  if (td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL)
-  {
-    for (;;)
-    {
-      nbr = ctx->sock.recv (td->secondaryBuffer->getBuffer (),
-                           td->secondaryBuffer->getRealLength (),
-                           0);
-
-      if (!nbr || (nbr == (u_long)-1))
-        break;
-
-      if (appendDataToHTTPChannel (td, td->secondaryBuffer->getBuffer (),
-                                 nbr,
+                                 read - headerSize,
                                  &(td->outputData),
                                  chain,
                                  td->appendOutputs,
                                  useChunks))
-        return -1;
+      return -1;
 
-      sentData += nbr;
-    }
+  sentData += read - headerSize;
 
-    if (!td->appendOutputs && useChunks)
+  if (td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL)
     {
-      if (chain->getStream ()->write ("0\r\n\r\n", 5, &nbw))
-        return -1;
+      for (;;)
+        {
+          nbr = ctx->sock.recv (td->secondaryBuffer->getBuffer (),
+                                td->secondaryBuffer->getRealLength (),
+                                0);
+
+          if (!nbr || (nbr == (u_long)-1))
+            break;
+
+          if (appendDataToHTTPChannel (td, td->secondaryBuffer->getBuffer (),
+                                       nbr,
+                                       &(td->outputData),
+                                       chain,
+                                       td->appendOutputs,
+                                       useChunks))
+            return -1;
+
+          sentData += nbr;
+        }
+
+      if (!td->appendOutputs && useChunks)
+        {
+          if (chain->getStream ()->write ("0\r\n\r\n", 5, &nbw))
+            return -1;
+        }
     }
-  }
   /* For logging activity.  */
   td->sentData += sentData;
 
@@ -348,27 +344,23 @@ int Scgi::sendNetString (ScgiContext* ctx, const char* data, int len)
 }
 
 /*!
- *Send the post data to the SCGI server.
+ * Send the post data to the SCGI server.
  */
 int Scgi::sendPostData (ScgiContext* ctx)
 {
-    u_long nbr;
-    do
+  u_long nbr;
+  do
     {
       if (ctx->td->inputData.read (ctx->td->secondaryBuffer->getBuffer (),
-                                         ctx->td->secondaryBuffer->getRealLength (),
-                                         &nbr))
-      {
+                                   ctx->td->secondaryBuffer->getRealLength (),
+                                   &nbr))
         return -1;
-      }
 
       if (nbr && (ctx->sock.send (ctx->td->secondaryBuffer->getBuffer (), nbr, 0) == -1))
-      {
         return -1;
-      }
     }
-    while (nbr);
-    return 0;
+  while (nbr);
+  return 0;
 }
 
 /*!
@@ -376,7 +368,7 @@ int Scgi::sendPostData (ScgiContext* ctx)
  *string.
  */
 int Scgi::buildScgiEnvironmentString (HttpThreadContext* td, char* src,
-                                     char* dest)
+                                      char* dest)
 {
   char *ptr = dest;
   char *sptr = src;
@@ -388,7 +380,7 @@ int Scgi::buildScgiEnvironmentString (HttpThreadContext* td, char* src,
 
   if ( td->request.contentLength.size ())
     ptr += myserver_strlcpy (ptr, td->request.contentLength.c_str (),
-                            td->request.contentLength.size () + 1);
+                             td->request.contentLength.size () + 1);
   else
     *ptr++ = '0';
 
@@ -401,52 +393,52 @@ int Scgi::buildScgiEnvironmentString (HttpThreadContext* td, char* src,
   *ptr++ = '\0';
 
   for (;;)
-  {
-    int i;
-    int max = 100;
-    int varNameLen;
-    int varValueLen;
-
-    varNameLen = varValueLen = 0;
-    varName[0] = '\0';
-    varValue[0] = '\0';
-
-    while (*sptr == '\0')
-      sptr++;
-
-    while ((--max) && *sptr != '=')
     {
-      varName[varNameLen++] = *sptr++;
-      varName[varNameLen] = '\0';
+      int i;
+      int max = 100;
+      int varNameLen;
+      int varValueLen;
+
+      varNameLen = varValueLen = 0;
+      varName[0] = '\0';
+      varValue[0] = '\0';
+
+      while (*sptr == '\0')
+        sptr++;
+
+      while ((--max) && *sptr != '=')
+        {
+          varName[varNameLen++] = *sptr++;
+          varName[varNameLen] = '\0';
+        }
+      if (max == 0)
+        return -1;
+      sptr++;
+      max = 2500;
+      while ((--max) && *sptr != '\0')
+        {
+          varValue[varValueLen++] = *sptr++;
+          varValue[varValueLen] = '\0';
+        }
+
+      if (max == 0)
+        return -1;
+
+      if (!strcmpi (varName, "CONTENT_LENGTH") || !strcmpi (varName, "SCGI") ||
+          !varNameLen || !varValueLen)
+        continue;
+
+      for (i = 0; i < varNameLen; i++)
+        *ptr++ = varName[i];
+      *ptr++ = '\0';
+
+      for (i = 0; i < varValueLen; i++)
+        *ptr++ = varValue[i];
+      *ptr++ = '\0';
+
+      if (*(++sptr) == '\0')
+        break;
     }
-    if (max == 0)
-      return -1;
-    sptr++;
-    max = 2500;
-    while ((--max) && *sptr != '\0')
-     {
-      varValue[varValueLen++] = *sptr++;
-      varValue[varValueLen] = '\0';
-    }
-
-    if (max == 0)
-      return -1;
-
-    if (!strcmpi (varName, "CONTENT_LENGTH") || !strcmpi (varName, "SCGI") ||
-       !varNameLen || !varValueLen)
-      continue;
-
-    for (i = 0; i < varNameLen; i++)
-      *ptr++ = varName[i];
-    *ptr++ = '\0';
-
-    for (i = 0; i < varValueLen; i++)
-      *ptr++ = varValue[i];
-    *ptr++ = '\0';
-
-    if (*(++sptr) == '\0')
-      break;
-  }
   return static_cast<int>(ptr - dest);
 }
 
@@ -500,12 +492,12 @@ ScgiServer* Scgi::connect (ScgiContext* con, const char* path)
    *If we find a valid server try the connection to it.
    */
   if (server)
-  {
-    int ret = processServerManager->connect (&(con->sock), server);
+    {
+      int ret = processServerManager->connect (&(con->sock), server);
 
-    if (ret == -1)
-      return 0;
-  }
+      if (ret == -1)
+        return 0;
+    }
   return server;
 }
 
@@ -515,7 +507,7 @@ ScgiServer* Scgi::connect (ScgiContext* con, const char* path)
  *remote server.
  */
 ScgiServer* Scgi::runScgiServer (ScgiContext* context,
-                                const char* path)
+                                 const char* path)
 {
   /* This method needs a better home (and maybe better code).
    * Compute a simple hash from the IP address.  */
@@ -525,28 +517,28 @@ ScgiServer* Scgi::runScgiServer (ScgiContext* context,
     seed = *c * 21 + seed;
 
   ScgiServer* server =  processServerManager->getServer (SERVERS_DOMAIN,
-                                                        path,
-                                                        seed);
+                                                         path,
+                                                         seed);
   if (server)
     return server;
 
   /* If the path starts with @ then the server is remote.  */
   if (path[0] == '@')
-  {
-    int i = 1;
-    char host[128];
-    char port[6];
+    {
+      int i = 1;
+      char host[128];
+      char port[6];
 
-    while (path[i] && path[i] != ':')
-      i++;
+      while (path[i] && path[i] != ':')
+        i++;
 
-    myserver_strlcpy (host, &path[1], min (128, i));
+      myserver_strlcpy (host, &path[1], min (128, i));
 
-    myserver_strlcpy (port, &path[i + 1], 6);
+      myserver_strlcpy (port, &path[i + 1], 6);
 
-    return processServerManager->addRemoteServer (SERVERS_DOMAIN, path,
-                                                 host, atoi (port));
-  }
+      return processServerManager->addRemoteServer (SERVERS_DOMAIN, path,
+                                                    host, atoi (port));
+    }
 
   return processServerManager->runAndAddServer (SERVERS_DOMAIN, path);
 }

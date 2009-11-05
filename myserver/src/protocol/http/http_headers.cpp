@@ -870,6 +870,32 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
 }
 
 /*!
+ * Flush a HTTP response to the specified stream.
+ *
+ * \param response Response object to flush.
+ * \param stream Destination stream.
+ * \param memBuf Temporary mem buffer to use, it is used internally.
+ * \param ctx Http Context object, it can be NULL.
+ *
+ * \return 0 on success.
+ */
+int HttpHeaders::sendHeader (HttpResponseHeader &response, Stream &stream,
+                             MemBuf &memBuf, HttpThreadContext *ctx)
+{
+  int ret = 0;
+  if (ctx == NULL || !ctx->appendOutputs)
+    {
+      u_long nbw;
+      buildHTTPResponseHeader (memBuf.getBuffer (), &response);
+      ret = stream.write (memBuf.getBuffer (), strlen (memBuf.getBuffer ()),
+                          &nbw);
+    }
+
+  return ret;
+}
+
+
+/*!
  *Build the HTTP RESPONSE HEADER string.
  *If no input is specified the input is the main buffer of the
  *HttpThreadContext structure.
