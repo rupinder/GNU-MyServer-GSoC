@@ -305,14 +305,17 @@ int Server::postLoad ()
   /* Load the MIME types.  */
   log (MYSERVER_LOG_MSG_INFO, _("Loading MIME types..."));
 
-  const char *mimeManagerCfg = getData ("server.mime_manager");
-  if (!mimeManagerCfg)
-    mimeManagerCfg = "xml";
-
-  string handlerStr (mimeManagerCfg);
+  string handlerStr (getData ("server.mime_handler", "xml"));
   mimeManager.setDefaultHandler (handlerStr);
 
   MimeManagerHandler *mimeHandler = mimeManager.getDefaultHandler ();
+  if (!mimeHandler)
+    {
+      log (MYSERVER_LOG_MSG_ERROR,
+          _("Error creating the MIME types handler: %s"), handlerStr.c_str ());
+      return -1;
+    }
+
   if (int nMIMEtypes = mimeHandler->load (mimeConfigurationFile.c_str ()))
     log (MYSERVER_LOG_MSG_INFO, _("Using %i MIME types"), nMIMEtypes);
   else
@@ -343,13 +346,18 @@ int Server::postLoad ()
  */
 int Server::loadVHostConf ()
 {
-  const char *vhostHandlerN = getData ("server.vhost_manager");
-  if (!vhostHandlerN)
-    vhostHandlerN = "xml";
-
-  string vhostHandlerStr (vhostHandlerN);
+  string vhostHandlerStr (getData ("server.vhost_handler", "xml"));
   vhostHandler = vhostManager.buildHandler (vhostHandlerStr, &listenThreads,
                                             logManager);
+
+  if (!vhostHandler)
+    {
+      log (MYSERVER_LOG_MSG_ERROR,
+           _("Error creating the virtual hosts handler: %s"),
+           vhostHandlerStr.c_str ());
+      return -1;
+    }
+
   vhostManager.setHandler (vhostHandler);
 
   /* Load the virtual hosts configuration.  */
@@ -1365,12 +1373,13 @@ int Server::freeHashedData ()
 
 /*!
  * Get the value for name in the hash dictionary.
+ * If the value is not found then defValue is returned.
  */
-const char* Server::getData (const char* name)
+const char *Server::getData (const char *name, const char *defValue)
 {
   NodeTree<string> *s = hashedData.get (name);
 
-  return s ? s->getValue ()->c_str () : 0;
+  return s ? s->getValue ()->c_str () : defValue;
 }
 
 /*!

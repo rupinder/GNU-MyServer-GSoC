@@ -32,7 +32,7 @@ are looked exclusively in this directory.
 @subsection Alternative handlers
 Plugins are allowed to install new handlers to read the configuration
 from other sources.  It is done changing the value of the variables
-@code{server.vhost_manager} and @code{server.server.mime_manager},
+@code{server.vhost_handler} and @code{server.server.mime_handler},
 respectively to use a different handler for the virtual hosts and for
 the MIME types.  If no value is specified then the value @value{xml}
 is used.
