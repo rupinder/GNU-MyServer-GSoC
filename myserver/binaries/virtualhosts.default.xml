@@ -2,39 +2,39 @@
 
 <VHOSTS>
 
-	<VHOST>
-		<NAME>Every HTTP connection</NAME>
-		
-		<PORT>80</PORT>
-		<PROTOCOL>HTTP</PROTOCOL>
-		
-		<DOCROOT>web</DOCROOT>
-		<SYSROOT>system</SYSROOT>
+  <VHOST>
+    <NAME>Every HTTP connection</NAME>
 
-		<ACCESSLOG>
-                  <STREAM location="file://logs/MyServerHTTP.log" cycle="1048576"/>
-                </ACCESSLOG>
+    <PORT>80</PORT>
+    <PROTOCOL>HTTP</PROTOCOL>
 
-                <WARNINGLOG>
-                  <STREAM location="file://logs/MyServerHTTP.err" cycle="1048576"/>
-                </WARNINGLOG>
-	</VHOST>
+    <DOCROOT>web</DOCROOT>
+    <SYSROOT>system</SYSROOT>
 
-	<VHOST>
-		<NAME>FTP connection</NAME>
-		
-		<PORT>21</PORT>
-		<PROTOCOL>FTP</PROTOCOL>
-		
-		<DOCROOT>web</DOCROOT>
-		<SYSROOT>system</SYSROOT>
-		
-		<ACCESSLOG>
-                  <STREAM location="file://logs/MyServerFTP.log" cycle="1048576"/>
-                </ACCESSLOG>
+    <ACCESSLOG>
+      <STREAM location="file://logs/MyServerHTTP.log" cycle="1048576"/>
+    </ACCESSLOG>
 
-		<WARNINGLOG>
-                  <STREAM location="file://logs/MyServerFTP.err" cycle="1048576"/>
-                </WARNINGLOG>
-	</VHOST>
+    <WARNINGLOG>
+      <STREAM location="file://logs/MyServerHTTP.err" cycle="1048576"/>
+    </WARNINGLOG>
+  </VHOST>
+
+  <VHOST>
+    <NAME>FTP connection</NAME>
+
+    <PORT>21</PORT>
+    <PROTOCOL>FTP</PROTOCOL>
+
+    <DOCROOT>web</DOCROOT>
+    <SYSROOT>system</SYSROOT>
+
+    <ACCESSLOG>
+      <STREAM location="file://logs/MyServerFTP.log" cycle="1048576"/>
+    </ACCESSLOG>
+
+    <WARNINGLOG>
+      <STREAM location="file://logs/MyServerFTP.err" cycle="1048576"/>
+    </WARNINGLOG>
+  </VHOST>
 </VHOSTS>

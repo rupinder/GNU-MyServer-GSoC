@@ -4,15 +4,15 @@
   <MIME mime="text/html" handler="MSCGI" param="">
     <EXTENSION value="mscgi"/>
   </MIME>
-  
+
   <MIME mime="text/html" handler="CGI" self="YES" param="">
     <EXTENSION value="cgi"/>
   </MIME>
-  
+
   <MIME mime="text/html" handler="ISAPI" param="">
     <EXTENSION value="isapi"/>
   </MIME>
-  
+
   <MIME mime="text/html" handler="SCGI" self="YES" param="">
     <EXTENSION value="scgi"/>
   </MIME>
@@ -20,7 +20,7 @@
   <MIME mime="text/html" handler="FASTCGI" self="YES" param="">
     <EXTENSION value="fcgi"/>
   </MIME>
-  
+
   <MIME mime="text/html" handler="WINCGI" param="">
     <EXTENSION value="wincgi"/>
   </MIME>
@@ -31,7 +31,7 @@
     <EXTENSION value="eps"/>
     <EXTENSION value="ps"/>
   </MIME>
-  
+
   <MIME mime="video/quicktime" handler="SEND" param="">
     <EXTENSION value="mov"/>
     <EXTENSION value="qt"/>
