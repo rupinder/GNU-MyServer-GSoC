@@ -175,6 +175,7 @@ private:
 
   MainConfiguration *configurationFileManager;
   MainConfiguration* (*genMainConf) (Server *server, const char *arg);
+  int loadVHostConf ();
 
 # ifdef WIN32
   friend int __stdcall control_handler (u_long control_type);

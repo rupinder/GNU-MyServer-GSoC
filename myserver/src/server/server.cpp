@@ -299,25 +299,8 @@ int Server::postLoad ()
   loadStaticComponents ();
   loadPlugins ();
 
-  /* FIXME: refactor.. the same code is present in the main loop.  */
-  const char *vhostHandlerN = getData ("server.vhost_manager");
-  if (!vhostHandlerN)
-    vhostHandlerN = "xml";
-
-  string vhostHandlerStr (vhostHandlerN);
-  vhostHandler = vhostManager.buildHandler (vhostHandlerStr, &listenThreads,
-                                            logManager);
-  vhostManager.setHandler (vhostHandler);
-
-  /* Load the virtual hosts configuration from the xml file.  */
-  if (vhostHandler->load (vhostConfigurationFile.c_str ()))
-    {
-      log (MYSERVER_LOG_MSG_ERROR,
-           _("Error loading the vhost configuration file %s"),
-           vhostConfigurationFile.c_str ());
-      return -1;
-    }
-
+  if (loadVHostConf ())
+    return -1;
 
   /* Load the MIME types.  */
   log (MYSERVER_LOG_MSG_INFO, _("Loading MIME types..."));
@@ -351,6 +334,32 @@ int Server::postLoad ()
   configurationFileManager->close ();
   delete configurationFileManager;
   configurationFileManager = NULL;
+
+  return 0;
+}
+
+/*!
+ * Reload the virtual hosts configuration.
+ */
+int Server::loadVHostConf ()
+{
+  const char *vhostHandlerN = getData ("server.vhost_manager");
+  if (!vhostHandlerN)
+    vhostHandlerN = "xml";
+
+  string vhostHandlerStr (vhostHandlerN);
+  vhostHandler = vhostManager.buildHandler (vhostHandlerStr, &listenThreads,
+                                            logManager);
+  vhostManager.setHandler (vhostHandler);
+
+  /* Load the virtual hosts configuration.  */
+  if (vhostHandler->load (vhostConfigurationFile.c_str ()))
+    {
+      log (MYSERVER_LOG_MSG_ERROR,
+           _("Error loading the vhost configuration file %s"),
+           vhostConfigurationFile.c_str ());
+      return -1;
+    }
 
   return 0;
 }
@@ -502,22 +511,9 @@ void Server::mainLoop ()
                   connectionsScheduler.restart ();
                   listenThreads.initialize ();
 
-                  delete vhostHandler;
-
-                  const char *vhostHandlerN = getData ("server.vhost_manager");
-                  if (!vhostHandlerN)
-                    vhostHandlerN = "xml";
-
-                  string vhostHandlerStr (vhostHandlerN);
-                  vhostHandler = vhostManager.buildHandler (vhostHandlerStr,
-                                                            &listenThreads,
-                                                            logManager);
-                  vhostManager.setHandler (vhostHandler);
-
                   delete oldvhost;
 
-                  /* Load the virtual hosts configuration from the xml file.  */
-                  if (vhostHandler->load (vhostConfigurationFile.c_str ()))
+                  if (loadVHostConf ())
                     listenThreads.rollbackFastReboot ();
                   else
                     listenThreads.commitFastReboot ();
