@@ -279,35 +279,35 @@ int Server::postLoad ()
 
   log (MYSERVER_LOG_MSG_INFO, _("IP: %s"), ipAddresses->c_str ());
 
-  /* Load the MIME types.  */
-  log (MYSERVER_LOG_MSG_INFO, _("Loading MIME types..."));
-
-  xmlMimeHandler = new XmlMimeHandler ();
-  if (int nMIMEtypes = xmlMimeHandler->load (mimeConfigurationFile.c_str ()))
-    log (MYSERVER_LOG_MSG_INFO, _("Using %i MIME types"), nMIMEtypes);
-  else
-    log (MYSERVER_LOG_MSG_ERROR, _("Error while loading MIME types"));
-
-  string xml ("xml");
-  mimeManager.registerHandler (xml, xmlMimeHandler);
-  mimeManager.setDefaultHandler (xml);
-
   log (MYSERVER_LOG_MSG_INFO, _("Detected %i CPUs"), (int) getCPUCount ());
 
   connectionsScheduler.restart ();
 
   listenThreads.initialize ();
 
-  vhostHandler = new XmlVhostHandler (&listenThreads, logManager);
-  vhostManager.setHandler (vhostHandler);
-
   getProcessServerManager ()->load ();
+
+  if (path == NULL)
+    path = new string ();
+
+  if (getdefaultwd (*path))
+    return -1;
 
   /* Load the home directories configuration.  */
   homeDir.load ();
 
   loadStaticComponents ();
   loadPlugins ();
+
+  /* FIXME: refactor.. the same code is present in the main loop.  */
+  const char *vhostHandlerN = getData ("server.vhost_manager");
+  if (!vhostHandlerN)
+    vhostHandlerN = "xml";
+
+  string vhostHandlerStr (vhostHandlerN);
+  vhostHandler = vhostManager.buildHandler (vhostHandlerStr, &listenThreads,
+                                            logManager);
+  vhostManager.setHandler (vhostHandler);
 
   /* Load the virtual hosts configuration from the xml file.  */
   if (vhostHandler->load (vhostConfigurationFile.c_str ()))
@@ -318,11 +318,22 @@ int Server::postLoad ()
       return -1;
     }
 
-  if (path == 0)
-    path = new string ();
 
-  if (getdefaultwd (*path))
-    return -1;
+  /* Load the MIME types.  */
+  log (MYSERVER_LOG_MSG_INFO, _("Loading MIME types..."));
+
+  const char *mimeManagerCfg = getData ("server.mime_manager");
+  if (!mimeManagerCfg)
+    mimeManagerCfg = "xml";
+
+  string handlerStr (mimeManagerCfg);
+  mimeManager.setDefaultHandler (handlerStr);
+
+  MimeManagerHandler *mimeHandler = mimeManager.getDefaultHandler ();
+  if (int nMIMEtypes = mimeHandler->load (mimeConfigurationFile.c_str ()))
+    log (MYSERVER_LOG_MSG_INFO, _("Using %i MIME types"), nMIMEtypes);
+  else
+    log (MYSERVER_LOG_MSG_ERROR, _("Error while loading MIME types"));
 
   for (u_long i = 0; i < nStaticThreads; i++)
     {
@@ -350,6 +361,8 @@ int Server::postLoad ()
 void Server::loadStaticComponents ()
 {
   string xml ("xml");
+
+  mimeManager.registerHandler (xml, new XmlMimeHandler ());
 
   XmlVhostHandler::registerBuilder (vhostManager);
   XmlMimeHandler::registerBuilder (mimeManager);
@@ -489,7 +502,16 @@ void Server::mainLoop ()
                   connectionsScheduler.restart ();
                   listenThreads.initialize ();
 
-                  vhostHandler = new XmlVhostHandler (&listenThreads, logManager);
+                  delete vhostHandler;
+
+                  const char *vhostHandlerN = getData ("server.vhost_manager");
+                  if (!vhostHandlerN)
+                    vhostHandlerN = "xml";
+
+                  string vhostHandlerStr (vhostHandlerN);
+                  vhostHandler = vhostManager.buildHandler (vhostHandlerStr,
+                                                            &listenThreads,
+                                                            logManager);
                   vhostManager.setHandler (vhostHandler);
 
                   delete oldvhost;
@@ -504,8 +526,7 @@ void Server::mainLoop ()
                   log (MYSERVER_LOG_MSG_INFO, _("Reloaded"));
                 }
             }
-        }//end  if (autoRebootEnabled)
-
+        }
     }
 }
 
@@ -1118,7 +1139,7 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
   newConnection->setIpAddr (ipAddr);
   newConnection->setLocalIpAddr (localIpAddr);
   newConnection->host = vhostManager.getVHost (0, localIpAddr, localPort);
-  if (newConnection->host == 0)
+  if (newConnection->host == NULL)
     {
       connectionsPoolLock.lock ();
       connectionsPool.put (newConnection);

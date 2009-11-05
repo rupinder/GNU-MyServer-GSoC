@@ -99,6 +99,8 @@ public:
   void registerHandler (string &name, MimeManagerHandler *handler);
   void setDefaultHandler (string &name);
   void clean ();
+  MimeManagerHandler *getDefaultHandler () {return defHandler;}
+
 
   void registerBuilder (string &name, MAKE_HANDLER builder);
   MimeManagerHandler *buildHandler (string &name);

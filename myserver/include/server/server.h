@@ -171,8 +171,7 @@ public:
 private:
   friend class ClientsThread;
   XmlValidator *xmlValidator;
-  XmlMimeHandler *xmlMimeHandler;
-  XmlVhostHandler *vhostHandler;
+  VhostManagerHandler *vhostHandler;
 
   MainConfiguration *configurationFileManager;
   MainConfiguration* (*genMainConf) (Server *server, const char *arg);
