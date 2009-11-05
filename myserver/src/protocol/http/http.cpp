@@ -1808,13 +1808,9 @@ int Http::unLoadProtocolStatic ()
  * Returns the name of the protocol. If an out buffer
  * is defined fullfill it with the name too.
  */
-char* Http::registerNameImpl (char* out, int len)
+const char* Http::getNameImpl ()
 {
-  if (out)
-    {
-      myserver_strlcpy (out, "HTTP", len);
-    }
-  return (char*) "HTTP";
+  return "HTTP";
 }
 
 /*!

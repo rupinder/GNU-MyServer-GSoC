@@ -358,18 +358,14 @@ int Ftp::controlConnection (ConnectionPtr pConnection, char *request,
 }
 
 
-char * Ftp::registerName (char *out, int len)
+const char * Ftp::getName ()
 {
-  return registerNameImpl (out, len);
+  return getNameImpl ();
 }
 
-char * Ftp::registerNameImpl (char *out, int len)
+const char * Ftp::getNameImpl ()
 {
-  if (out)
-    {
-      myserver_strlcpy (out, "FTP", len);
-    }
-  return (char *) "FTP";
+  return "FTP";
 }
 
 

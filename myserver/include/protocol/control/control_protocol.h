@@ -1,19 +1,19 @@
 /* -*- mode: c++ -*- */
 /*
-MyServer
-Copyright (C) 2004, 2005, 2008, 2009 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2004, 2005, 2008, 2009 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CONTROL_PROTOCOL_H
@@ -34,11 +34,11 @@ public:
 
   int sendResponse (char*, int, ConnectionPtr, int, ControlHeader& header, File* = 0);
   virtual int loadProtocol ();
-	int controlConnection (ConnectionPtr a, char *b1, char *b2, u_long bs1,
+  int controlConnection (ConnectionPtr a, char *b1, char *b2, u_long bs1,
                          u_long bs2, u_long nbtr, u_long id);
-	virtual char* registerName (char*,int len);
-	ControlProtocol ();
-	virtual ~ControlProtocol ();
+  virtual const char* getName ();
+  ControlProtocol ();
+  virtual ~ControlProtocol ();
 
 protected:
   static char adminLogin[64];
@@ -50,9 +50,9 @@ protected:
   int showDynamicProtocols (ConnectionPtr,File* out, char *b1,int bs1, ControlHeader&);
   int killConnection (ConnectionPtr,u_long ID, File* out, char *b1,int bs1, ControlHeader&);
   int getFile (ConnectionPtr, char*, File* in, File* out,
-              char *b1,int bs1, ControlHeader&);
+               char *b1,int bs1, ControlHeader&);
   int putFile (ConnectionPtr,char*, File* in, File* out,
-              char *b1,int bs1, ControlHeader&);
+               char *b1,int bs1, ControlHeader&);
   int getVersion (ConnectionPtr,File* out, char *b1,int bs1, ControlHeader&);
   int addToLog (int retCode, ConnectionPtr con, char *b1, int bs1, ControlHeader&);
 };

@@ -368,10 +368,9 @@ void Server::loadPlugins ()
 
   for (int j = 0; protocolsSet[j]; j++)
     {
-      char protocolName[32];
       Protocol *protocol = protocolsSet[j];
       protocol->loadProtocol ();
-      protocol->registerName (protocolName, 32);
+      const char *protocolName = protocol->getName ();
       getProtocolsManager ()->addProtocol (protocolName, protocol);
     }
 

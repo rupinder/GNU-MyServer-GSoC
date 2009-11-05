@@ -40,7 +40,7 @@ ProtocolsManager::~ProtocolsManager ()
 /*!
  * Return a protocol by its name.
  */
-Protocol* ProtocolsManager::getProtocol (string& name)
+Protocol* ProtocolsManager::getProtocol (string &name)
 {
   return staticProtocols.get (name);
 }
@@ -48,7 +48,7 @@ Protocol* ProtocolsManager::getProtocol (string& name)
 /*!
  * Add a static protocol to the list.
  */
-void ProtocolsManager::addProtocol (string& name, Protocol* protocol)
+void ProtocolsManager::addProtocol (string &name, Protocol *protocol)
 {
   std::transform (name.begin (), name.end (), name.begin (),
                   static_cast < int (*)(int) > (tolower));

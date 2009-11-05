@@ -35,18 +35,14 @@ extern "C"
  *Returns the name of the protocol. If an out buffer is defined
  *fullfill it with the name too.
  */
-char* Https::registerNameImpl (char* out, int len)
+const char* Https::getNameImpl ()
 {
-  if (out)
-  {
-    strncpy (out, "HTTPS", len);
-  }
-  return (char*)"HTTPS";
+  return "HTTPS";
 }
 
-char* Https::registerName (char* out, int len)
+const char* Https::getName ()
 {
-  return registerNameImpl (out, len);
+  return getNameImpl ();
 }
 
 /*!

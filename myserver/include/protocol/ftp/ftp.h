@@ -135,8 +135,8 @@ public:
   int openDataPassive ();
   int openDataActive ();
 
-  virtual char *registerName (char *out, int len);
-  static char *registerNameImpl (char *out, int len);
+  virtual const char *getName ();
+  static const char *getNameImpl ();
 
   void escapeTelnet (MemBuf & In, MemBuf & Out);
   void user (const std::string & sParam);
@@ -222,9 +222,9 @@ public:
 
   }
 
-  virtual char *registerName (char *out, int len)
+  virtual const char *getName ()
   {
-    return Ftp::registerNameImpl (out, len);
+    return Ftp::getNameImpl ();
   }
 
   virtual int controlConnection (ConnectionPtr con, char *request,

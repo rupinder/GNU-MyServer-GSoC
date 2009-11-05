@@ -162,9 +162,9 @@ public:
   int sendHTTPNonModified ();
   Http ();
   virtual ~Http ();
-  virtual char* registerName (char* out,int len){return registerNameImpl (out, len);}
+  virtual const char* getName (){return getNameImpl ();}
 
-  static char* registerNameImpl (char*, int len);
+  static const char* getNameImpl ();
   int controlConnection (ConnectionPtr con, char *request, char *auxBuf,
                          u_long reqBufLen, u_long auxBufLen, u_long reqLen,
                          u_long tid);
@@ -209,9 +209,9 @@ public:
   {
   }
 
-  virtual char* registerName (char* out, int len)
+  virtual const char* getName ()
   {
-    return Http::registerNameImpl (out, len);
+    return Http::getNameImpl ();
   }
 
   virtual int controlConnection (ConnectionPtr con, char *request,

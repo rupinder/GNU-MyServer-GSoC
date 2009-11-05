@@ -33,12 +33,12 @@ public:
   Gopher ();
   virtual ~Gopher ();
 
-  virtual char* registerName (char* out,int len)
+  virtual const char* getName ()
   {
-    return registerNameImpl (out, len);
+    return getNameImpl ();
   }
 
-  static char* registerNameImpl (char*, int len);
+  static const char* getNameImpl ();
 
   int controlConnection (ConnectionPtr a,
                          char *b1,
@@ -72,20 +72,19 @@ public:
   virtual ~GopherProtocol ()
   {}
 
-  virtual char* registerName (char* out, int len)
+  virtual const char* getName ()
   {
-    return Gopher::registerNameImpl (out, len);
+    return Gopher::getNameImpl ();
   }
 
-  virtual int controlConnection (ConnectionPtr a, char *b1, char *b2,
-                                 u_long bs1, u_long bs2, u_long nbtr, u_long id)
+  virtual int controlConnection (ConnectionPtr con, char *request,
+                                 char *auxBuf, u_long reqBufLen,
+                                 u_long auxBufLen, u_long reqLen,
+                                 u_long tid)
   {
-    Gopher Gopher;
-    int ret = 0;
-
-    ret = Gopher.controlConnection (a, b1, b2, bs1, bs2, nbtr, id);
-
-    return ret;
+    Gopher gopher;
+    return gopher.controlConnection (con, request, auxBuf, reqBufLen, auxBufLen,
+                                     reqLen, tid);
   }
 
   virtual int loadProtocol ()

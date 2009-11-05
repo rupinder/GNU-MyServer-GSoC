@@ -64,9 +64,9 @@ int Protocol::controlConnection (ConnectionPtr con, char *request,
  * Returns the name of the protocol. If an out buffer is
  * defined fullfill it with the name too.
  */
-char* Protocol::registerName (char* /*out*/,int /*len*/)
+const char* Protocol::getName ()
 {
-  return 0;
+  return "";
 }
 
 /*!

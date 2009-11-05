@@ -47,12 +47,9 @@ Gopher::~Gopher ()
  * Service method
  */
 
-char *Gopher::registerNameImpl (char* out, int len)
+const char *Gopher::getNameImpl ()
 {
-  if (out)
-    myserver_strlcpy (out, "GOPHER", len);
-
-  return (char*) "GOPHER";
+  return "GOPHER";
 }
 
 /*!

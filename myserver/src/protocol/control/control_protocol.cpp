@@ -67,12 +67,9 @@ struct ControlProtocolVisitorArg
  *Returns the name of the protocol. If an out buffer is defined
  *fullfill it with the name too.
  */
-char* ControlProtocol::registerName (char* out,int len)
+const char* ControlProtocol::getName ()
 {
-  if (out)
-    strncpy (out, "CONTROL", len);
-
-  return (char*)"CONTROL";
+  return "CONTROL";
 }
 
 /*!
