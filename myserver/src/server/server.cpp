@@ -306,6 +306,7 @@ int Server::postLoad ()
   /* Load the home directories configuration.  */
   homeDir.load ();
 
+  loadStaticComponents ();
   loadPlugins ();
 
   /* Load the virtual hosts configuration from the xml file.  */
@@ -344,9 +345,9 @@ int Server::postLoad ()
 }
 
 /*!
- * Load the plugins.
+ * Load static built-in components.
  */
-void Server::loadPlugins ()
+void Server::loadStaticComponents ()
 {
   string xml ("xml");
 
@@ -376,7 +377,13 @@ void Server::loadPlugins ()
 
   Md5::initialize (&cryptAlgoManager);
   Sha1::initialize (&cryptAlgoManager);
+}
 
+/*!
+ * Load the plugins.
+ */
+void Server::loadPlugins ()
+{
   getPluginsManager ()->preLoad (this, externalPath);
   getPluginsManager ()->load (this);
   getPluginsManager ()->postLoad (this);

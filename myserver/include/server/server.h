@@ -199,6 +199,7 @@ private:
   Server ();
 
   void mainLoop ();
+  void loadStaticComponents ();
   void loadPlugins ();
   void displayBoot ();
   int postLoad ();
