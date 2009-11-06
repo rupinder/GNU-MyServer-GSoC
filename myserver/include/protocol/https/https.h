@@ -49,7 +49,7 @@ class HttpsProtocol : public Protocol
 public:
   HttpsProtocol ()
   {
-    protocolOptions = PROTOCOL_USES_SSL;
+    protocolOptions = Protocol::SSL;
   }
 
   virtual ~HttpsProtocol ()

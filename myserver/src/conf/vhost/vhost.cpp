@@ -476,7 +476,7 @@ int Vhost::initializeSSL ()
   if (!protocol)
     return 0;
 
-  if (!(protocol->getProtocolOptions () & PROTOCOL_USES_SSL))
+  if (!(protocol->getProtocolOptions () & Protocol::SSL))
     return 0;
 
   return sslContext.initialize ();

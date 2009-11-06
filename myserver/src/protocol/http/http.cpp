@@ -1117,7 +1117,6 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                         ret = 1;
                         retvalue = ClientsThread::KEEP_CONNECTION;
                         break;
-
                       }
 
                   }

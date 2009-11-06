@@ -446,7 +446,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
      * file to the socket.
      */
     if (!useChunks && chain.isEmpty () && !td->appendOutputs
-        && !(td->http->getProtocolOptions () & PROTOCOL_USES_SSL))
+        && !(td->http->getProtocolOptions () & Protocol::SSL))
       {
         u_long nbw = 0;
         int ret = file->fastCopyToSocket (td->connection->socket, firstByte,

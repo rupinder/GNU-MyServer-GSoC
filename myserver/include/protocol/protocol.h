@@ -21,10 +21,6 @@
 # include "stdafx.h"
 # include <include/base/xml/xml_parser.h>
 # include <include/connection/connection.h>
-/*! Various options that can be use for the protocol.  */
-# define PROTOCOL_USES_SSL 1
-# define PROTOCOL_FAST_CHECK 2
-# define PROTOCOL_DENY_DELETE 4
 
 /*!
  *This is the base class to derive other protocols implementations for the server.
@@ -32,6 +28,14 @@
 class Protocol
 {
 public:
+  /*! Various options that can be use for the protocol.  */
+  enum
+    {
+      SSL = 1,
+      FAST_CHECK = 2,
+      DENY_DELETE = 4
+    };
+
   Protocol ();
   virtual ~Protocol ();
   virtual const char* getName ();

@@ -75,7 +75,7 @@ const char* ControlProtocol::getName ()
  */
 ControlProtocol::ControlProtocol ()
 {
-  protocolOptions = PROTOCOL_USES_SSL;
+  protocolOptions = Protocol::SSL;
   protocolPrefix.assign ("control://");
 }
 

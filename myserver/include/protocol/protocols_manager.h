@@ -36,11 +36,9 @@ class ProtocolsManager
 public:
   ProtocolsManager ();
   ~ProtocolsManager ();
-
   Protocol* getProtocol (string &name);
 
   void addProtocol (string &name, Protocol *protocol);
-
   void addProtocol (const char *name, Protocol *protocol)
   {
     string strName (name);

@@ -295,7 +295,7 @@ int Ftp::LAST_PASV_PORT = 65000;
 Ftp::Ftp ()
 {
   m_nPassiveport = Ftp::FIRST_PASV_PORT;
-  protocolOptions = PROTOCOL_FAST_CHECK | PROTOCOL_DENY_DELETE;
+  protocolOptions = Protocol::FAST_CHECK | Protocol::DENY_DELETE;
   protocolPrefix.assign ("ftp://");
 }
 

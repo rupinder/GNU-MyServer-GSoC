@@ -51,7 +51,7 @@ const char* Https::getName ()
 Https::Https ()
 {
   protocolPrefix.assign ("https://");
-  protocolOptions = PROTOCOL_USES_SSL;
+  protocolOptions = Protocol::SSL;
 }
 
 /*!

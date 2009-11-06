@@ -1155,14 +1155,13 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
   if (protocol)
     opts = protocol->getProtocolOptions ();
 
-  if (opts & PROTOCOL_USES_SSL)
+  if (opts & Protocol::SSL)
     doSSLhandshake = 1;
 
-  if (opts & PROTOCOL_FAST_CHECK)
+  if (opts & Protocol::FAST_CHECK)
     doFastCheck = 1;
 
   string msg ("new-connection");
-
   handlers = getHandlers (msg);
   if (handlers)
     {

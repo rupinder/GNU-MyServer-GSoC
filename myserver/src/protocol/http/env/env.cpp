@@ -146,7 +146,7 @@ void Env::buildEnvironmentString (HttpThreadContext* td, char *cgiEnv,
   memCgi << end_str << "REMOTE_USER=";
   memCgi << td->connection->getLogin ();
 
-  if (td->http->getProtocolOptions () & PROTOCOL_USES_SSL)
+  if (td->http->getProtocolOptions () & Protocol::SSL)
     memCgi << end_str << "SSL=ON";
   else
     memCgi << end_str << "SSL=OFF";
