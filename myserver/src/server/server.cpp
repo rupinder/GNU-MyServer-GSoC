@@ -1,18 +1,18 @@
 /*
-MyServer
-Copyright (C) 2002-2009 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002-2009 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "stdafx.h"
@@ -674,7 +674,7 @@ const char *Server::getGid ()
  */
 u_long Server::getNumConnections ()
 {
-  return connectionsScheduler.getConnectionsNumber ();
+  return connectionsScheduler.getNumAliveConnections ();
 }
 
 /*!
@@ -1042,9 +1042,8 @@ int Server::addConnection (Socket *s, MYSERVER_SOCKADDRIN *asockIn)
    * Do not accept this connection if a MAX_CONNECTIONS_TO_ACCEPT limit is
    * defined.
    */
-  if (maxConnectionsToAccept
-      && ((u_long)connectionsScheduler.getConnectionsNumber ()
-          >= maxConnectionsToAccept))
+  if (maxConnectionsToAccept && connectionsScheduler.getNumAliveConnections ()
+      >= maxConnectionsToAccept)
     return -1;
 
 #if ( HAVE_IPV6 )
@@ -1213,8 +1212,8 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
    * is bigger than it say to the protocol that will parse the connection
    * to remove it from the active connections list.
    */
-  if (maxConnections && ((u_long)connectionsScheduler.getConnectionsNumber ()
-                         > maxConnections))
+  if (maxConnections
+      && connectionsScheduler.getNumAliveConnections () > maxConnections)
     newConnection->setToRemove (Connection::REMOVE_OVERLOAD);
 
   connectionsScheduler.registerConnectionID (newConnection);

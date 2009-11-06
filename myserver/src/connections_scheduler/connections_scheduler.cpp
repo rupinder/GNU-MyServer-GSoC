@@ -528,7 +528,7 @@ void ConnectionsScheduler::getConnections (list<ConnectionPtr> &out)
 /*!
  * Get the alive connections number.
  */
-u_long ConnectionsScheduler::getConnectionsNumber ()
+u_long ConnectionsScheduler::getNumAliveConnections ()
 {
   return connections.size ();
 }

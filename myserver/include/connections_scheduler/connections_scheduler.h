@@ -94,7 +94,7 @@ public:
   void initialize ();
   void listener (struct ListenerArg* );
   void removeListener (struct ListenerArg*);
-  u_long getConnectionsNumber ();
+  u_long getNumAliveConnections ();
   void removeConnection (ConnectionPtr connection);
   void terminateConnections ();
   void getConnections (list<ConnectionPtr> &out);
