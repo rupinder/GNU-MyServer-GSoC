@@ -139,7 +139,7 @@ struct argp_input
   /* If executed as a daemon, write the pid to this file.  */
   const char *pidFileName;
 
-  /* Define an alternate location for the configuration files.  */
+  /* Define an alternative location for the configuration files.  */
   const char *confFilesLocation;
 
   /* Specify if the fork server is used.  */
@@ -163,7 +163,7 @@ static struct argp_option options[] =
     {"log", 'l', "location", 0, _("Specify the location (using the format protocol://resource) to use as the main log.")},
     {"pidfile", 'p', "file", 0, _("Specify the file where write the PID")},
     {"fork_server", 'f', NULL, 0, _("Specify if use a fork server")},
-    {"cfgdir", CONFIG_OPT, "dir", 0, _("Specify an alternate directory where look for configuration files")},
+    {"cfgdir", CONFIG_OPT, "dir", 0, _("Specify an alternative directory where look for configuration files")},
     {0}
   };
 
@@ -336,7 +336,7 @@ static MainConfiguration *genMainConf (Server *server, const char *arg)
       delete conf;
       return NULL;
     }
-    return conf;
+  return conf;
 }
 
 const char *program_name = NULL;
@@ -606,8 +606,8 @@ int writePidfile (const char* filename)
 /*!
  * Start MyServer in console mode.
  */
- void consoleService (string &mainConf, string &mimeConf, string &vhostConf, string &externPath,
-                      MainConfiguration* (*genMainConf) (Server *server, const char *arg))
+void consoleService (string &mainConf, string &mimeConf, string &vhostConf, string &externPath,
+                     MainConfiguration* (*genMainConf) (Server *server, const char *arg))
 {
   Server::getInstance ()->start (mainConf, mimeConf, vhostConf, externPath, genMainConf);
 }
