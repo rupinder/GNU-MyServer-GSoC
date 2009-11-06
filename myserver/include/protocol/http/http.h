@@ -41,33 +41,8 @@
 
 using namespace std;
 
-class HttpStaticData : public MulticastRegistry<string, void*, int>
-{
-public:
-  vector<Multicast<string, void*, int>*>* getHandlers (string& msg)
-  {
-    return MulticastRegistry<string, void*, int>::getHandlers (msg);
-  }
-
-  HttpStaticData ();
-  virtual ~HttpStaticData ();
-
-  void clear ()
-  {
-    clearMulticastRegistry ();
-    dynManagerList.clear ();
-    dynCmdManager.clear ();
-  }
-
-  u_long timeout;
-  int allowVhostMime;
-
-  DynHttpCommandManager dynCmdManager;
-  DynHttpManagerList dynManagerList;
-};
-
 /*!
- *Data used only by an HTTP user.
+ * Data used only by an HTTP user.
  */
 class HttpUserData : public ProtocolBuffer
 {
@@ -97,6 +72,7 @@ public:
   void reset ();
 };
 
+class HttpProtocol;
 
 class Http : public Protocol
 {
@@ -160,7 +136,7 @@ public:
   int logHTTPaccess ();
   int sendHTTPRedirect (const char *newURL);
   int sendHTTPNonModified ();
-  Http ();
+  Http (HttpProtocol *staticData);
   virtual ~Http ();
   virtual const char* getName (){return getNameImpl ();}
 
@@ -170,7 +146,6 @@ public:
                          u_long tid);
 
   static int loadProtocolStatic ();
-  static int unLoadProtocolStatic ();
 
   u_long getTimeout ();
   int preprocessHttpRequest (string& filename, int yetmapped,
@@ -180,10 +155,8 @@ public:
                           string& file, string &filenamePath,
                           int yetmapped, int* permissions);
 
-  static HttpStaticData* getStaticData ();
-
   SecurityToken *getSecurityToken (){return &(td->securityToken);}
-
+  HttpProtocol *getStaticData () {return staticData;}
 protected:
   int processDefaultFile (string& uri, int permissions, int onlyHeader);
 
@@ -191,13 +164,17 @@ protected:
   void clean ();
   void computeDigest (char*, char*);
   u_long checkDigest ();
+
+  HttpProtocol *staticData;
+
 };
 
 
 /*!
  *Adapter class to make Http reentrant.
  */
-class HttpProtocol : public Protocol
+class HttpProtocol : public Protocol,
+                     public MulticastRegistry<string, void*, int>
 {
 public:
   HttpProtocol ()
@@ -219,20 +196,30 @@ public:
                                  u_long auxBufLen, u_long reqLen,
                                  u_long tid)
   {
-    Http http;
+    Http http (this);
     return http.controlConnection (con, request, auxBuf, reqBufLen, auxBufLen,
                                    reqLen, tid);
   }
 
-  virtual int loadProtocol ()
+  virtual int loadProtocol ();
+  virtual int unLoadProtocol ();
+
+  vector<Multicast<string, void*, int>*>* getHandlers (string& msg)
   {
-    return Http::loadProtocolStatic ();
+    return MulticastRegistry<string, void*, int>::getHandlers (msg);
   }
 
-  virtual int unLoadProtocol ()
-  {
-    return Http::unLoadProtocolStatic ();
-  }
+  DynHttpCommandManager *getDynCmdManager (){return &dynCmdManager;}
+  DynHttpManagerList *getDynManagerList (){return &dynManagerList;}
+
+  u_long getTimeout () {return timeout;}
+  int getAllowVhostMime () {return allowVhostMime;}
+private:
+  u_long timeout;
+  int allowVhostMime;
+
+  DynHttpCommandManager dynCmdManager;
+  DynHttpManagerList dynManagerList;
 };
 
 

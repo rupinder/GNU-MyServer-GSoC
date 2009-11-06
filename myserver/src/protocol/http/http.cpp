@@ -1,20 +1,19 @@
 /*
-MyServer
-Copyright (C) 2002-2009 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002-2009 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include <include/protocol/http/http.h>
 #include <include/protocol/http/http_headers.h>
@@ -61,19 +60,46 @@ extern "C"
 #endif
 }
 
-static HttpStaticData staticHttp;
-
-/*!
- * Get a pointer to a structure shared among all the instances.
- */
-HttpStaticData* Http::getStaticData ()
+int HttpProtocol::loadProtocol ()
 {
-  return &staticHttp;
+  const char *data = NULL;
+
+  timeout = MYSERVER_SEC (15);
+  dynManagerList.addHttpManager ("SEND", new HttpFile ());
+  dynManagerList.addHttpManager ("DIR", new HttpDir ());
+  dynManagerList.addHttpManager ("CGI", new Cgi ());
+  dynManagerList.addHttpManager ("MSCGI", new MsCgi ());
+  dynManagerList.addHttpManager ("SCGI", new Scgi ());
+  dynManagerList.addHttpManager ("WINGI", new WinCgi ());
+  dynManagerList.addHttpManager ("FASTCGI", new FastCgi ());
+  dynManagerList.addHttpManager ("ISAPI", new Isapi ());
+  dynManagerList.addHttpManager ("PROXY", new Proxy ());
+
+  data = Server::getInstance ()->getData ("vhost.allow_mime");
+  if (data)
+    {
+
+      if (!strcmpi (data, "YES"))
+        allowVhostMime = 1;
+      else
+        allowVhostMime = 0;
+    }
+
+  data = Server::getInstance ()->getData ("cgi.timeout");
+  if (data)
+    timeout = MYSERVER_SEC (atoi (data));
+
+  return 1;
 }
 
-HttpStaticData::HttpStaticData () { }
-
-HttpStaticData::~HttpStaticData () { }
+int HttpProtocol::unLoadProtocol ()
+{
+  HttpErrors::unLoad ();
+  clearMulticastRegistry ();
+  dynManagerList.clear ();
+  dynCmdManager.clear ();
+  return 0;
+}
 
 /*!
  * Build a response for an OPTIONS request.
@@ -89,8 +115,9 @@ int Http::optionsHTTPRESOURCE (string& filename, int yetmapped)
       HttpRequestHeader::Entry *connection = td->request.other.get ("Connection");
       string methods ("OPTIONS, GET, POST, HEAD, DELETE, PUT, TRACE");
 
-      HashMap<string, DynamicHttpCommand*>::Iterator it = staticHttp.dynCmdManager.begin ();
-      while (it != staticHttp.dynCmdManager.end ())
+      HashMap<string, DynamicHttpCommand*>::Iterator it =
+        staticData->getDynCmdManager ()->begin ();
+      while (it != staticData->getDynCmdManager ()->end ())
         {
           methods.append (", ");
           methods.append ((*it)->getName ());
@@ -210,7 +237,7 @@ bool Http::allowMethod (const char *method)
  */
 u_long Http::getTimeout ()
 {
-  return staticHttp.timeout;
+  return staticData->getTimeout ();
 }
 
 /*!
@@ -649,15 +676,15 @@ Http::sendHTTPResource (string& uri, int systemrequest, int onlyHeader,
           cgiManager = "";
         }
 
-      if (td->mime && (manager = staticHttp.dynManagerList.getHttpManager (td->mime->cmdName)))
+      if (td->mime && (manager =
+          staticData->getDynManagerList ()->getHttpManager (td->mime->cmdName)))
         return manager->send (td, td->filenamePath.c_str (), cgiManager,
                               td->mime->selfExecuted, onlyHeader);
-
 
       if (!(td->permissions & MYSERVER_PERMISSION_READ))
         return sendAuth ();
 
-      manager = staticHttp.dynManagerList.getHttpManager ("SEND");
+      manager = staticData->getDynManagerList ()->getHttpManager ("SEND");
       if (!manager)
         {
           td->connection->host->warningsLogWrite (_("HTTP: internal error"));
@@ -876,7 +903,8 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
       FilesUtility::temporaryFileName (td->id, td->inputDataPath);
       FilesUtility::temporaryFileName (td->id, td->outputDataPath);
 
-      dynamicCommand = staticHttp.dynCmdManager.getHttpCommand (td->request.cmd);
+      dynamicCommand =
+        staticData->getDynCmdManager ()->getHttpCommand (td->request.cmd);
 
       /* If the used method supports POST data, read it.  */
       if ((!td->request.cmd.compare ("POST")) ||
@@ -1077,15 +1105,13 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
           {
             string msg ("new-http-request");
             vector<Multicast<string, void*, int>*>* handlers =
-                    staticHttp.getHandlers (msg);
-
+                    staticData->getHandlers (msg);
             if (handlers)
               {
                 for (size_t i = 0; i < handlers->size (); i++)
                   {
                     int handlerRet = (*handlers)[i]->updateMulticast (getStaticData (),
                                                                       msg, td);
-
                     if (handlerRet == ClientsThread::DELETE_CONNECTION)
                       {
                         ret = ClientsThread::DELETE_CONNECTION;
@@ -1495,7 +1521,7 @@ MimeRecord* Http::getMIME (string &filename)
   const char *handler = td->securityToken.getData ("mime.handler",
                       MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, NULL);
 
-  if (staticHttp.allowVhostMime && td->connection->host->isMIME ())
+  if (staticData->getAllowVhostMime () && td->connection->host->isMIME ())
     return td->connection->host->getMIME ()->getMIME (filename);
 
   return Server::getInstance ()->getMimeManager ()->getMIME (filename, handler);
@@ -1625,7 +1651,8 @@ int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
         }
     }
 
-  HttpDataHandler *handler = staticHttp.dynManagerList.getHttpManager ("DIR");
+  HttpDataHandler *handler =
+    staticData->getDynManagerList ()->getHttpManager ("DIR");
   if (!handler)
     {
       td->connection->host->warningsLogWrite (_("HTTP: internal error"));
@@ -1721,50 +1748,6 @@ int Http::sendAuth ()
  */
 int Http::loadProtocolStatic ()
 {
-  const char *data = NULL;
-
-  staticHttp.timeout = MYSERVER_SEC (15);
-
-  Server::getInstance ()->setGlobalData ("http-static", getStaticData ());
-
-  staticHttp.dynManagerList.addHttpManager ("SEND", new HttpFile ());
-  staticHttp.dynManagerList.addHttpManager ("DIR", new HttpDir ());
-  staticHttp.dynManagerList.addHttpManager ("CGI", new Cgi ());
-  staticHttp.dynManagerList.addHttpManager ("MSCGI", new MsCgi ());
-  staticHttp.dynManagerList.addHttpManager ("SCGI", new Scgi ());
-  staticHttp.dynManagerList.addHttpManager ("WINGI", new WinCgi ());
-  staticHttp.dynManagerList.addHttpManager ("FASTCGI", new FastCgi ());
-  staticHttp.dynManagerList.addHttpManager ("ISAPI", new Isapi ());
-  staticHttp.dynManagerList.addHttpManager ("PROXY", new Proxy ());
-
-  data = Server::getInstance ()->getData ("vhost.allow_mime");
-  if (data)
-    {
-
-      if (!strcmpi (data, "YES"))
-        staticHttp.allowVhostMime = 1;
-      else
-        staticHttp.allowVhostMime = 0;
-    }
-
-  data = Server::getInstance ()->getData ("cgi.timeout");
-  if (data)
-    staticHttp.timeout = MYSERVER_SEC (atoi (data));
-
-  return 1;
-}
-
-/*!
- * Unload the HTTP protocol.
- */
-int Http::unLoadProtocolStatic ()
-{
-  /* Unload the errors.  */
-  HttpErrors::unLoad ();
-
-  staticHttp.clear ();
-
-  return 1;
 }
 
 /*!
@@ -1779,10 +1762,10 @@ const char* Http::getNameImpl ()
 /*!
  * Constructor for the class http.
  */
-Http::Http ()
+Http::Http (HttpProtocol *staticData)
 {
   td = new HttpThreadContext ();
-
+  this->staticData = staticData;
   protocolPrefix.assign ("http://");
   protocolOptions = 0;
   td->filenamePath.assign ("");

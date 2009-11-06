@@ -755,8 +755,9 @@ int FastCgi::handleHeader (FcgiContext* con, FiltersChain* chain, bool* response
       string *sendfile = con->td->response.getValue ("X-Sendfile", NULL);
       if (sendfile)
         {
-          HttpStaticData *staticData = con->td->http->getStaticData ();
-          HttpDataHandler *handler = staticData->dynManagerList.getHttpManager ("SEND");
+          DynHttpManagerList *m =
+            con->td->http->getStaticData ()->getDynManagerList ();
+          HttpDataHandler *handler = m->getHttpManager ("SEND");
           if (!handler)
             {
               con->td->connection->host->warningsLogWrite

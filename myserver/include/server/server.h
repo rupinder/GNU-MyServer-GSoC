@@ -92,9 +92,6 @@ public:
   CachedFileFactory* getCachedFiles ();
   const char* getData (const char *name, const char *defValue = NULL);
 
-  void setGlobalData (const char* name, void* data);
-  void* getGlobalData (const char* name);
-
   FiltersFactory* getFiltersFactory ();
   int getMaxThreads ();
   const char *getUid ();
@@ -215,7 +212,6 @@ private:
   list<NodeTree<string>*> hashedDataTrees;
   HashMap<string, NodeTree<string>*> hashedData;
 
-  HashMap<string, void*> globalData;
   FiltersFactory filtersFactory;
   string uid;
   string gid;

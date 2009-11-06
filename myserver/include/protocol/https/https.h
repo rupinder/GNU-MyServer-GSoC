@@ -27,17 +27,8 @@ class Https : public Http
 public:
   static const char* getNameImpl ();
   virtual const char* getName ();
-  Https ();
+  Https (HttpProtocol *https);
   virtual ~Https ();
-
-  static int loadProtocolStatic (XmlParser* lang)
-  {
-    return 1;
-  }
-  static int unLoadProtocolStatic (XmlParser* lang)
-  {
-    return 1;
-  }
 
 };
 
@@ -47,9 +38,10 @@ public:
 class HttpsProtocol : public Protocol
 {
 public:
-  HttpsProtocol ()
+  HttpsProtocol (HttpProtocol *http)
   {
     protocolOptions = Protocol::SSL;
+    this->http = http;
   }
 
   virtual ~HttpsProtocol ()
@@ -67,20 +59,12 @@ public:
                                  u_long auxBufLen, u_long reqLen,
                                  u_long tid)
   {
-    Https https;
+    Https https (http);
     return https.controlConnection (con, request, auxBuf, reqBufLen, auxBufLen,
                                     reqLen, tid);
   }
-
-  virtual int loadProtocol (XmlParser* parser)
-  {
-    return Https::loadProtocolStatic (parser);
-  }
-
-  virtual int unLoadProtocol (XmlParser* parser)
-  {
-    return Https::unLoadProtocolStatic (parser);
-  }
+protected:
+  HttpProtocol *http;
 };
 
 #endif

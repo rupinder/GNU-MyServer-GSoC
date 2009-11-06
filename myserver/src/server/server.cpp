@@ -390,8 +390,9 @@ void Server::loadStaticComponents ()
   if (filtersFactory.insert ("gzip", Gzip::factory))
     log (MYSERVER_LOG_MSG_ERROR, _("Error while loading plugins"));
 
-  Protocol *protocolsSet[] = {new HttpProtocol (),
-                              new HttpsProtocol (),
+  HttpProtocol *http = new HttpProtocol ();
+  Protocol *protocolsSet[] = {http,
+                              new HttpsProtocol (http),
                               new GopherProtocol (),
                               new FtpProtocol (),
                               new ControlProtocol (),
@@ -761,8 +762,6 @@ int Server::terminate ()
   delete connectionsMutex;
 
   clearMulticastRegistry ();
-
-  globalData.clear ();
 
   /*
    * Free all the threads.
@@ -1749,22 +1748,4 @@ Server::setLogLocation (string location)
 u_long Server::getBuffersize ()
 {
   return buffersize;
-}
-
-/*!
- * Set a global descriptor.
- */
-void Server::setGlobalData (const char* name, void* data)
-{
-  string str (name);
-  globalData.put (str, data);
-}
-
-/*!
- * Get a global descriptor.
- */
-void* Server::getGlobalData (const char* name)
-{
-  string str (name);
-  return globalData.get (str);
 }
