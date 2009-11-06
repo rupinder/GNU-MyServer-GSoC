@@ -80,7 +80,7 @@ void Sig_Hup (int signal)
   /*
    *On the SIGHUP signal reboot the server.
    */
-  Server::getInstance ()->rebootOnNextLoop ();
+  Server::getInstance ()->delayedReboot ();
   registerSignals ();
 }
 #else

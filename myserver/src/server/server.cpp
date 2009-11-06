@@ -1507,7 +1507,7 @@ bool Server::isServerReady ()
 /*!
  * Reboot the server on the next loop.
  */
-void Server::rebootOnNextLoop ()
+void Server::delayedReboot ()
 {
   serverReady = false;
   toReboot = true;

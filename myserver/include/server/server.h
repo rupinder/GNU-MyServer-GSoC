@@ -108,7 +108,7 @@ public:
   void enableAutoReboot ();
   bool isAutorebootEnabled ();
   bool isRebooting (){return rebooting;}
-  void rebootOnNextLoop ();
+  void delayedReboot ();
   ~Server ();
   Protocol* getProtocol (const char *protocolName);
   int addConnection (Socket*, MYSERVER_SOCKADDRIN*);

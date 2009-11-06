@@ -53,19 +53,17 @@ struct ControlProtocolVisitorArg
   static const int SHOW_CONNECTIONS = 1;
   static const int KILL_CONNECTION = 2;
   int command;
-
   ConnectionPtr connection;
-  File* out;
+  File *out;
   char *buffer;
   int bufferSize;
-  ControlHeader* header;
-
+  ControlHeader *header;
   u_long id;
 };
 
 /*!
- *Returns the name of the protocol. If an out buffer is defined
- *fullfill it with the name too.
+ * Returns the name of the protocol. If an out buffer is defined
+ * fullfill it with the name too.
  */
 const char* ControlProtocol::getName ()
 {
@@ -367,7 +365,7 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
   authorized = checkAuth (header);
 
   /*
-   *If the client is not authorized remove the connection.
+   * If the client is not authorized remove the connection.
    */
   if (authorized == 0)
     {
@@ -382,8 +380,8 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
       return 0;
     }
   /*
-   *If the specified length is different from the length that the
-   *server can read, remove the connection.
+   * If the specified length is different from the length that the
+   * server can read, remove the connection.
    */
   if (dataWritten != specifiedLength)
     {
@@ -403,11 +401,8 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
 
   knownCommand = 0;
 
-  /*
-   *Create an out file. This can be used by commands that
-   *needs it.
-   */
-  outFile = new File ();
+  /* Create an out file. This can be used by commands needing it. */
+    outFile = new File ();
   outFilePath << getdefaultwd (0, 0) << "/ControlOutput_" << (u_int) id;
 
   ret = outFile->createTemporaryFile (outFilePath.str ().c_str ());
@@ -444,7 +439,7 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
   else if (!strcmp (command, "REBOOT"))
     {
       knownCommand = 1;
-      Server::getInstance ()->rebootOnNextLoop ();
+      Server::getInstance ()->delayedReboot ();
       ret = 0;
     }
   else if (!strcmp (command, "GETFILE"))
@@ -482,34 +477,36 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
       char *connection;
       outFile->seek (0);
       if (ret)
-        {
-          sendResponse (auxBuffer, bufferSize, a, CONTROL_INTERNAL, header, 0);
-        }
+        sendResponse (auxBuffer, bufferSize, a, CONTROL_INTERNAL, header, 0);
       else
         sendResponse (auxBuffer, bufferSize, a, CONTROL_OK, header, outFile);
+
       if (inFile)
         {
           inFile->close ();
           delete inFile;
-          inFile=0;
+          inFile = NULL;
         }
+
       if (outFile)
         {
           outFile->close ();
           delete outFile;
-          outFile=0;
+          outFile = NULL;
         }
+
       FilesUtility::deleteFile (inFilePath.str ().c_str ());
       FilesUtility::deleteFile (outFilePath.str ().c_str ());
       connection = header.getConnection ();
+
       /*
-       *If the Keep-Alive was specified keep the connection in the
-       *active connections list.
+       * If the Keep-Alive was specified keep the connection in the
+       * active connections list.
        */
-      if (!strcmpi (connection,"keep-alive"))
-        return 1;
+      if (!strcmpi (connection, "keep-alive"))
+        return ClientsThread::KEEP_CONNECTION;
       else
-        return 0;
+        return ClientsThread::DELETE_CONNECTION;
     }
   else
     {
@@ -521,6 +518,7 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
           delete inFile;
           inFile = NULL;
         }
+
       if (outFile)
         {
           outFile->close ();
@@ -529,15 +527,16 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
         }
       FilesUtility::deleteFile (inFilePath.str ().c_str ());
       FilesUtility::deleteFile (outFilePath.str ().c_str ());
-      return 0;
+
+      return ClientsThread::DELETE_CONNECTION;
     }
 }
 
 /*!
- *Add the entry to the log file.
+ * Add the entry to the log file.
  */
 int ControlProtocol::addToLog (int retCode, ConnectionPtr con, char *buffer,
-                               int bufferSize, ControlHeader& header)
+                               int bufferSize, ControlHeader &header)
 {
   string time;
   getRFC822GMTTime (time, 32);
@@ -549,92 +548,79 @@ int ControlProtocol::addToLog (int retCode, ConnectionPtr con, char *buffer,
 }
 
 /*!
- *Send the response with status=errID and the data contained in the outFile.
- *Return nonzero on errors.
+ * Send the response with status=errID and the data contained in the outFile.
+ * Return nonzero on errors.
  */
 int ControlProtocol::sendResponse (char *buffer, int buffersize,
                                    ConnectionPtr a, int errID,
-                                   ControlHeader& header, File* outFile)
+                                   ControlHeader &header, File *outFile)
 {
   u_long dataLength = 0;
-  int err;
-  err = addToLog (errID, a, buffer, buffersize, header);
-  if (err)
-    return err;
+
+  if (addToLog (errID, a, buffer, buffersize, header))
+    return -1;
 
   if (outFile)
     dataLength = outFile->getFileSize ();
+
   /* Build and send the first line.  */
-#ifdef HAVE_SNPRINTF
-  snprintf (buffer, buffersize,
-#else
-  sprintf (buffer,
-#endif
-          "/%i\r\n", errID);
+  snprintf (buffer, buffersize, "/%i\r\n", errID);
+  if (a->socket->send (buffer, strlen (buffer), 0) < 0)
+    {
+      a->host->warningsLogWrite (_("Control: socket error"));
+      return -1;
+    }
 
-  err = a->socket->send (buffer, strlen (buffer), 0);
-  if (err == -1)
-  {
-    a->host->warningsLogWrite (_("Control: socket error"));
-    return -1;
-  }
-
-  /* Build and send the Length line.  */
-#ifdef HAVE_SNPRINTF
-  snprintf (buffer, buffersize,
-#else
-  sprintf (buffer,
-#endif
-          "/LEN %u\r\n", (u_int)dataLength);
-
-  err = a->socket->send (buffer, strlen (buffer), 0);
-           if (err == -1)
-  {
-    a->host->warningsLogWrite (_("Control: socket error"));
-    return -1;
-  }
+  snprintf (buffer, buffersize, "/LEN %u\r\n", (u_int)dataLength);
+  if (a->socket->send (buffer, strlen (buffer), 0) < 0)
+    {
+      a->host->warningsLogWrite (_("Control: socket error"));
+      return -1;
+    }
 
   /* Send the end of the header.  */
-  err = a->socket->send ("\r\n", 2, 0);
-  if (err == -1)
-  {
-    a->host->warningsLogWrite (_("Control: socket error"));
-    return -1;
-  }
+  if (a->socket->send ("\r\n", 2, 0) < 0)
+    {
+      a->host->warningsLogWrite (_("Control: socket error"));
+      return -1;
+    }
 
   /* Flush the content of the file if any.  */
   if (dataLength)
-  {
-    int dataToSend = dataLength;
-    u_long nbr;
-    for ( ; ; )
     {
-      err = outFile->read (buffer, min (dataToSend, buffersize), &nbr);
-      if (err)
-      {
-        a->host->warningsLogWrite (_("Control: internal error"));
-        return -1;
-      }
-      dataToSend -= nbr;
-      err = a->socket->send (buffer, nbr, 0);
-      if (dataToSend == 0)
-        break;
-      if (err == -1)
-      {
-        a->host->warningsLogWrite (_("Control: socket error"));
-        return -1;
-      }
+      int dataToSend = dataLength;
+      u_long nbr;
+      for ( ; ; )
+        {
+          int err;
+          if (outFile->read (buffer, min (dataToSend, buffersize), &nbr))
+            {
+              a->host->warningsLogWrite (_("Control: internal error"));
+              return -1;
+            }
+
+          dataToSend -= nbr;
+          err = a->socket->send (buffer, nbr, 0);
+
+          if (dataToSend == 0)
+            break;
+
+          if (err == -1)
+            {
+              a->host->warningsLogWrite (_("Control: socket error"));
+              return -1;
+            }
+        }
     }
-  }
 
   return 0;
 }
 
 /*!
- *Show the currect active connections.
+ * Show the currect active connections.
  */
-int  ControlProtocol::showConnections (ConnectionPtr a,File* out, char *buffer,
-                                      int bufferSize, ControlHeader& header)
+int  ControlProtocol::showConnections (ConnectionPtr a,File *out, char *buffer,
+                                      int bufferSize, ControlHeader &header)
 {
   ControlProtocolVisitorArg args;
   args.command = ControlProtocolVisitorArg::SHOW_CONNECTIONS;
@@ -648,7 +634,7 @@ int  ControlProtocol::showConnections (ConnectionPtr a,File* out, char *buffer,
 }
 
 /*!
- *Kill a connection by its ID.
+ * Kill a connection by its ID.
  */
 int ControlProtocol::killConnection (ConnectionPtr a, u_long id, File *out,
                                     char *buffer, int bufferSize,
@@ -672,9 +658,9 @@ int ControlProtocol::killConnection (ConnectionPtr a, u_long id, File *out,
 }
 
 /*!
- *Visitor.
+ * Visitor.
  */
-int ControlProtocol::visitConnection (ConnectionPtr con, void* argP)
+int ControlProtocol::visitConnection (ConnectionPtr con, void *argP)
 {
   int ret = 0;
   u_long nbw;
@@ -682,19 +668,11 @@ int ControlProtocol::visitConnection (ConnectionPtr con, void* argP)
 
   if (arg->command == ControlProtocolVisitorArg::SHOW_CONNECTIONS)
   {
-#ifdef HAVE_SNPRINTF
     snprintf (arg->buffer, arg->bufferSize, "%i - %s - %i - %s - %i - %s - %s\r\n",
              static_cast<int>(con->getID ()),  con->getIpAddr (),
              static_cast<int>(con->getPort ()),
              con->getLocalIpAddr (),  static_cast<int>(con->getLocalPort ()),
              con->getLogin (), con->getPassword ());
-#else
-    sprintf (arg->buffer, "%i - %s - %i - %s - %i - %s - %s\r\n",
-            static_cast<int>(con->getID ()),  con->getIpAddr (),
-            static_cast<int>(con->getPort ()),
-            con->getLocalIpAddr (),  static_cast<int>(con->getLocalPort ()),
-            con->getLogin (), con->getPassword ());
-#endif
 
     ret = arg->out->writeToFile (arg->buffer, strlen (arg->buffer), &nbw);
 
@@ -776,9 +754,9 @@ int ControlProtocol::getFile (ConnectionPtr a, char *fn, File *in, File *out,
 /*!
  * Save the file on the local FS.
  */
-int ControlProtocol::putFile (ConnectionPtr a, char* fn, File* in,
-                              File* out, char *buffer,int bufferSize,
-                              ControlHeader& header)
+int ControlProtocol::putFile (ConnectionPtr a, char *fn, File *in,
+                              File *out, char *buffer, int bufferSize,
+                              ControlHeader &header)
 {
   const char *filename = 0;
   File localfile;
@@ -847,8 +825,8 @@ int ControlProtocol::putFile (ConnectionPtr a, char* fn, File* in,
 /*!
  *Return the current MyServer version.
  */
-int ControlProtocol::getVersion (ConnectionPtr a, File* out, char *buffer,
-                                 int bufferSize, ControlHeader& header)
+int ControlProtocol::getVersion (ConnectionPtr a, File *out, char *buffer,
+                                 int bufferSize, ControlHeader &header)
 {
   u_long nbw;
   myserver_strlcpy (buffer, MYSERVER_VERSION, bufferSize);
