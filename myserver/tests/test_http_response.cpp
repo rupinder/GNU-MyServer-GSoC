@@ -34,12 +34,13 @@ using namespace std;
 
 class TestHttpResponse : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE ( TestHttpResponse );
-  CPPUNIT_TEST ( testSimpleHeader );
-  CPPUNIT_TEST ( testInvalidResponse );
-  CPPUNIT_TEST ( testJoinField );
-  CPPUNIT_TEST ( testValidResponse );
-  CPPUNIT_TEST ( testReset );
+  CPPUNIT_TEST_SUITE (TestHttpResponse);
+  CPPUNIT_TEST (testSimpleHeader);
+  CPPUNIT_TEST (testInvalidResponse);
+  CPPUNIT_TEST (testJoinField);
+  CPPUNIT_TEST (testValidResponse);
+  CPPUNIT_TEST (testReset);
+  CPPUNIT_TEST (testResponseLength);
   CPPUNIT_TEST_SUITE_END ();
 
 public:
@@ -103,7 +104,6 @@ ToJoin: b\r\n";
     CPPUNIT_ASSERT (ret != 0);
   }
 
-
   void testInvalidResponse ()
   {
     HttpResponseHeader header;
@@ -115,14 +115,11 @@ ToJoin: b\r\n";
     ret = HttpHeaders::validHTTPResponse (responseStr,
                                          &nLinesptr,
                                          &ncharsptr);
-
     CPPUNIT_ASSERT_EQUAL (ret, 0);
-
 
     ret = HttpHeaders::validHTTPResponse (NULL,
                                          &nLinesptr,
                                          &ncharsptr);
-
     CPPUNIT_ASSERT_EQUAL (ret, 0);
   }
 
@@ -157,8 +154,15 @@ ToJoin: b\r\n";
     CPPUNIT_ASSERT_EQUAL (header.getStatusType (), HttpResponseHeader::SERVER_ERROR);
   }
 
-
+  void testResponseLength ()
+  {
+    char buffer[512];
+    HttpResponseHeader response;
+    response.setValue ("foo", "bar");
+    response.setValue ("baz", "foo");
+    u_long len = HttpHeaders::buildHTTPResponseHeader (buffer, &response);
+    CPPUNIT_ASSERT_EQUAL (len, (u_long) strlen (buffer));
+  }
 };
-
 
 CPPUNIT_TEST_SUITE_REGISTRATION ( TestHttpResponse );

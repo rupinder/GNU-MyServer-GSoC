@@ -886,9 +886,8 @@ int HttpHeaders::sendHeader (HttpResponseHeader &response, Stream &stream,
   if (ctx == NULL || (!ctx->appendOutputs && !ctx->headerSent))
     {
       u_long nbw;
-      buildHTTPResponseHeader (memBuf.getBuffer (), &response);
-      ret = stream.write (memBuf.getBuffer (), strlen (memBuf.getBuffer ()),
-                          &nbw);
+      u_long len = buildHTTPResponseHeader (memBuf.getBuffer (), &response);
+      ret = stream.write (memBuf.getBuffer (), len, &nbw);
 
       if (ctx)
         ctx->headerSent = true;
