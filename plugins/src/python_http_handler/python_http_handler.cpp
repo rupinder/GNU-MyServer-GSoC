@@ -16,21 +16,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <stdafx.h>
 #include <string.h>
+
+#include <Python.h>
+
 #include <include/server/server.h>
 #include <include/protocol/http/http_data_handler.h>
 #include <include/base/multicast/multicast.h>
 #include <include/protocol/http/http.h>
 #include <include/plugin/plugin.h>
 #include <include/conf/main/xml_main_configuration.h>
-#include <Python.h>
 
 
 static Server* serverInstance;
 
 #ifdef WIN32
-#define EXPORTABLE(x) x _declspec(dllexport)
+# define EXPORTABLE(x) x _declspec(dllexport)
 #else
-#define EXPORTABLE(x) extern "C" x
+# define EXPORTABLE(x) extern "C" x
 #endif
 
 typedef int (*executePROC)(char*, u_long);
@@ -45,39 +47,39 @@ class ThreadData : public HttpDataHandler
   FiltersChain chain;
 public:
 
-  ThreadData(HttpThreadContext* td)
+  ThreadData (HttpThreadContext* td)
   {
     this->td = td;
     ret = 0;
   }
 
-	HttpThreadContext* getHttpThreadContext(){return td;}
-	int getRet(){return ret;}
+	HttpThreadContext* getHttpThreadContext (){return td;}
+	int getRet (){return ret;}
 
-	void setHttpThreadContext(HttpThreadContext* td){this->td = td;}
-	void setRet(int r){ret = r;}
+	void setHttpThreadContext (HttpThreadContext* td){this->td = td;}
+	void setRet (int r){ret = r;}
 
 
-	virtual int send(HttpThreadContext*, ConnectionPtr s,
-                   const char* exec, const char* cmdLine,
-                   int execute, int onlyHeader)
+	virtual int send (HttpThreadContext*, ConnectionPtr s,
+                    const char* exec, const char* cmdLine,
+                    int execute, int onlyHeader)
   {
     return 0;
   }
 
-  int send(char* buffer, u_long size)
+  int send (char* buffer, u_long size)
   {
-    return appendDataToHTTPChannel(td, buffer, size, 0, &chain, 0, useChunks);
+    return appendDataToHTTPChannel (td, buffer, size, 0, &chain,
+                                    0, useChunks);
   }
 
-  void check()
+  void check ()
   {
-    checkDataChunks(td, &keepalive, &useChunks);
-    chain.setProtocol(td->http);
-    chain.setProtocolData(td);
-    chain.setStream(td->connection->socket);
+    checkDataChunks (td, &keepalive, &useChunks);
+    chain.setProtocol (td->http);
+    chain.setProtocolData (td);
+    chain.setStream (td->connection->socket);
   }
-
 };
 
 static HashMap<ThreadID, ThreadData*> pythonThreadData;
@@ -87,87 +89,86 @@ typedef int (*INIT_MODULE)(char* name, PyMethodDef methods[]);
 static INIT_MODULE init;
 
 
-static ThreadData* getThreadData()
+static ThreadData* getThreadData ()
 {
 	ThreadID tid = Thread::threadID();
 	ThreadData* ret;
-	mutex.lock();
-	ret = pythonThreadData.get(tid);
-	mutex.unlock();
+	mutex.lock ();
+	ret = pythonThreadData.get (tid);
+	mutex.unlock ();
 	return ret;
 }
 
-static HttpThreadContext* getThreadContext()
+static HttpThreadContext* getThreadContext ()
 {
-	return getThreadData()->getHttpThreadContext();
+	return getThreadData ()->getHttpThreadContext ();
 }
 
-static PyObject *get_remote_addr(PyObject *self, PyObject *args)
+static PyObject *get_remote_addr (PyObject *self, PyObject *args)
 {
-	HttpThreadContext* context = getThreadContext();
-  return Py_BuildValue((char*)"s", context->connection->getIpAddr());
+	HttpThreadContext* context = getThreadContext ();
+  return Py_BuildValue((char*)"s", context->connection->getIpAddr ());
 }
 
-static PyObject *get_remote_port(PyObject *self, PyObject *args)
+static PyObject *get_remote_port (PyObject *self, PyObject *args)
 {
-	HttpThreadContext* context = getThreadContext();
-  return Py_BuildValue((char*)"i", context->connection->getPort());
+	HttpThreadContext* context = getThreadContext ();
+  return Py_BuildValue((char*)"i", context->connection->getPort ());
 }
 
-static PyObject *get_local_addr(PyObject *self, PyObject *args)
+static PyObject *get_local_addr (PyObject *self, PyObject *args)
 {
-	HttpThreadContext* context = getThreadContext();
-  return Py_BuildValue((char*)"s", context->connection->getLocalIpAddr());
+	HttpThreadContext* context = getThreadContext ();
+  return Py_BuildValue ((char*)"s", context->connection->getLocalIpAddr ());
 }
 
-static PyObject *get_local_port(PyObject *self, PyObject *args)
+static PyObject *get_local_port (PyObject *self, PyObject *args)
 {
-	HttpThreadContext* context = getThreadContext();
-  return Py_BuildValue((char*)"i", context->connection->getLocalPort());
+	HttpThreadContext* context = getThreadContext ();
+  return Py_BuildValue ((char*)"i", context->connection->getLocalPort ());
 }
 
 
-static PyObject *get_response_header(PyObject *self, PyObject *args)
+static PyObject *get_response_header (PyObject *self, PyObject *args)
+{
+	char *header;
+	string value;
+	if (!PyArg_ParseTuple (args, (char*)"s", &header))
+		return NULL;
+
+	HttpThreadContext* context = getThreadContext ();
+
+	context->response.getValue (header, &value);
+
+	return Py_BuildValue ((char*)"s", value.c_str());
+}
+
+static PyObject *get_request_header (PyObject *self, PyObject *args)
 {
 	char *header;
 	string value;
 	if (!PyArg_ParseTuple(args, (char*)"s", &header))
 		return NULL;
 
-	HttpThreadContext* context = getThreadContext();
+	HttpThreadContext* context = getThreadContext ();
 
-	context->response.getValue(header, &value);
+	context->request.getValue (header, &value);
 
-	return Py_BuildValue((char*)"s", value.c_str());
+	return Py_BuildValue ((char*)"s", value.c_str ());
 }
 
-static PyObject *get_request_header(PyObject *self, PyObject *args)
-{
-	char *header;
-	string value;
-	if (!PyArg_ParseTuple(args, (char*)"s", &header))
-		return NULL;
-
-	HttpThreadContext* context = getThreadContext();
-
-	context->request.getValue(header, &value);
-
-	return Py_BuildValue((char*)"s", value.c_str());
-}
-
-static PyObject *log_server_error(PyObject *self, PyObject *args)
+static PyObject *log_server_error (PyObject *self, PyObject *args)
 {
 	char *msg;
 
 	if (!PyArg_ParseTuple(args, (char*)"s", &msg))
 		return NULL;
 
-  serverInstance->log(MYSERVER_LOG_MSG_ERROR, "%s", msg);
-
+  serverInstance->log (MYSERVER_LOG_MSG_ERROR, "%s", msg);
 	return NULL;
 }
 
-static PyObject *set_response_header(PyObject *self, PyObject *args)
+static PyObject *set_response_header (PyObject *self, PyObject *args)
 {
 	char *header;
 	char *value;
@@ -175,19 +176,19 @@ static PyObject *set_response_header(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, (char*)"ss", &header, &value))
 		return NULL;
 
-	HttpThreadContext* context = getThreadContext();
+	HttpThreadContext* context = getThreadContext ();
 
-	string *retS =  context->response.setValue(header, value);
+	string *retS =  context->response.setValue (header, value);
 
-  if(retS)
-  {
-    ret = retS->c_str();
-    return Py_BuildValue((char*)"s", ret);
-  }
-  return Py_BuildValue((char*)"s", "");
+  if (retS)
+    {
+      ret = retS->c_str ();
+      return Py_BuildValue ((char*)"s", ret);
+    }
+  return Py_BuildValue ((char*)"s", "");
 }
 
-static PyObject *set_request_header(PyObject *self, PyObject *args)
+static PyObject *set_request_header (PyObject *self, PyObject *args)
 {
 	char *header;
 	char *value;
@@ -195,123 +196,120 @@ static PyObject *set_request_header(PyObject *self, PyObject *args)
 	if (!PyArg_ParseTuple(args, (char*)"ss", &header, &value))
 		return NULL;
 
-	HttpThreadContext* context = getThreadContext();
+	HttpThreadContext* context = getThreadContext ();
 
-	string *retS =  context->request.setValue(header, value);
-
-  if(retS)
-  {
-    ret = retS->c_str();
-    return Py_BuildValue((char*)"s", ret);
-  }
-  return Py_BuildValue((char*)"s", "");
+	string *retS =  context->request.setValue (header, value);
+  if (retS)
+    {
+      ret = retS->c_str ();
+      return Py_BuildValue ((char*)"s", ret);
+    }
+  return Py_BuildValue ((char*)"s", "");
 }
 
-static PyObject *send_header(PyObject *self, PyObject *args)
+static PyObject *send_header (PyObject *self, PyObject *args)
 {
-	ThreadData *tdata = getThreadData();
-	HttpThreadContext* td = tdata->getHttpThreadContext();
+	ThreadData *tdata = getThreadData ();
+	HttpThreadContext* td = tdata->getHttpThreadContext ();
 
-  tdata->check();
+  tdata->check ();
 
-  HttpHeaders::buildHTTPResponseHeader(td->buffer->getBuffer(),
-                                       &(td->response));
+  HttpHeaders::buildHTTPResponseHeader (td->buffer->getBuffer(),
+                                        &(td->response));
 
-  if(td->connection->socket->send(td->buffer->getBuffer(),
-             (u_long)strlen(td->buffer->getBuffer()), 0)
-     == SOCKET_ERROR)
-		{
-      return Py_BuildValue((char*)"i", 1);
-		}
+  if(td->connection->socket->send (td->buffer->getBuffer(),
+                                  (u_long)strlen(td->buffer->getBuffer()), 0)
+     < 0)
+    return Py_BuildValue((char*)"i", 1);
 
-  tdata->setRet(1);
+  tdata->setRet (1);
 
-  return Py_BuildValue((char*)"i", 0);
+  return Py_BuildValue ((char*)"i", 0);
 }
 
-static PyObject *get_document_root(PyObject *self, PyObject *args)
+static PyObject *get_document_root (PyObject *self, PyObject *args)
 {
 	char *data;
 	if (!PyArg_ParseTuple(args, (char*)"s", &data))
 		return NULL;
 
-	HttpThreadContext* context = getThreadContext();
+	HttpThreadContext* context = getThreadContext ();
 
-	return Py_BuildValue((char*)"s", context->getVhostDir());
+	return Py_BuildValue ((char*)"s", context->getVhostDir ());
 }
 
-static PyObject *send_data(PyObject *self, PyObject *args)
+static PyObject *send_data (PyObject *self, PyObject *args)
 {
 	char *data;
   u_long size = 0;
 	if (!PyArg_ParseTuple(args, (char*)"s", &data))
 		return NULL;
 
-  size = strlen(data);
+  size = strlen (data);
 
-	ThreadData *tdata = getThreadData();
+	ThreadData *tdata = getThreadData ();
 
-  if(tdata->send(data, size))
-    return Py_BuildValue((char*)"i", 0);
+  if (tdata->send(data, size))
+    return Py_BuildValue ((char*)"i", 0);
 
-  tdata->setRet(1);
+  tdata->setRet (1);
 
 	return Py_BuildValue((char*)"i", size);
 }
 
-static PyObject *end_send_data(PyObject *, PyObject *)
+static PyObject *end_send_data (PyObject *, PyObject *)
 {
-	ThreadData *tdata = getThreadData();
+	ThreadData *tdata = getThreadData ();
 
-  tdata->send(0, 0);
+  tdata->send (0, 0);
 
-	return Py_BuildValue((char*)"i", 0);
+	return Py_BuildValue ((char*)"i", 0);
 }
 
-static PyObject *raise_error(PyObject *self, PyObject *args)
+static PyObject *raise_error (PyObject *self, PyObject *args)
 {
 	int error;
 	if (!PyArg_ParseTuple(args, (char*)"i", &error))
 		return NULL;
 
-	ThreadData* data = getThreadData();
+	ThreadData* data = getThreadData ();
 
 	if(data->getRet())
 		return NULL;
 
-	data->getHttpThreadContext()->http->raiseHTTPError(error);
+	data->getHttpThreadContext ()->http->raiseHTTPError (error);
 
-	data->setRet(1);
+	data->setRet (1);
 
-	return Py_BuildValue((char*)"s", "");
+	return Py_BuildValue ((char*)"s", "");
 }
 
 
-static PyObject *is_ssl(PyObject *self, PyObject *args)
+static PyObject *is_ssl (PyObject *self, PyObject *args)
 {
-	HttpThreadContext* context = getThreadContext();
-	int isSsl = context->http->getProtocolOptions() & PROTOCOL_USES_SSL;
+	HttpThreadContext* context = getThreadContext ();
+	int isSsl = context->http->getProtocolOptions () & Protocol::SSL;
 
-	return Py_BuildValue((char*)"b", isSsl);
+	return Py_BuildValue ((char*)"b", isSsl);
 }
 
 
-static PyObject *send_redirect(PyObject *self, PyObject *args)
+static PyObject *send_redirect (PyObject *self, PyObject *args)
 {
 	char* dest;
 	if (!PyArg_ParseTuple(args, (char*)"s", &dest))
 		return NULL;
 
-	ThreadData* data = getThreadData();
+	ThreadData* data = getThreadData ();
 
-	if(data->getRet())
+	if (data->getRet())
 		return NULL;
 
-	data->getHttpThreadContext()->http->sendHTTPRedirect(dest);
+	data->getHttpThreadContext ()->http->sendHTTPRedirect (dest);
 
-	data->setRet(1);
+	data->setRet (1);
 
-	return Py_BuildValue((char*)"s", dest);
+	return Py_BuildValue ((char*)"s", dest);
 }
 
 static PyMethodDef PythonHttpHandlerMethods[] = {
@@ -344,46 +342,49 @@ class HttpObserver : public Multicast<string, void*, int>
 	};
 public:
 
-	virtual int updateMulticast (MulticastRegistry<string, void*, int>* reg, string& msg, void* arg)
+	virtual int updateMulticast (MulticastRegistry<string, void*, int>* reg,
+                               string& msg, void* arg)
 	{
 		HttpThreadContext *td = (HttpThreadContext*)arg;
-		ThreadID tid = Thread::threadID();
+		ThreadID tid = Thread::threadID ();
 		list<Item>::iterator it;
-		mutex.lock();
-		ThreadData threadData(td);
-		pythonThreadData.put(tid, &threadData);
-		mutex.unlock();
+		mutex.lock ();
+		ThreadData threadData (td);
+		pythonThreadData.put (tid, &threadData);
+		mutex.unlock ();
 
-		init((char*)"python_http_handler_internal", PythonHttpHandlerMethods);
+		init ((char*)"python_http_handler_internal", PythonHttpHandlerMethods);
 
-		for(it = rules.begin(); it != rules.end(); it++)
-		{
-			if((*it).file)
-			{
-				executeFromFilePROC execute = ((executeFromFilePROC)python->getDirectMethod((char*)"executeFromFile"));
-				if (execute)
-				  execute((char*)(*it).data.c_str());
-			}else
-			{
-				executePROC execute = ((executePROC)python->getDirectMethod((char*)"execute"));
-
-				if (execute)
-				  execute((char*)(*it).data.c_str(), (*it).data.length());
-			}
-		}
-		return threadData.getRet();
+		for (it = rules.begin (); it != rules.end (); it++)
+      {
+        if ((*it).file)
+          {
+            char *method = (char*)"executeFromFile";
+            executeFromFilePROC execute =
+              ((executeFromFilePROC)python->getDirectMethod(method);
+            if (execute)
+              execute((char*)(*it).data.c_str ());
+          }
+        else
+          {
+            executePROC execute =
+              ((executePROC)python->getDirectMethod((char*)"execute"));
+            if (execute)
+              execute ((char*)(*it).data.c_str(), (*it).data.length());
+          }
+      }
+		return threadData.getRet ();
 	}
 
 	void addRule (const char* rule, bool file)
 	{
 		Item it;
-		it.data.assign(rule);
+		it.data.assign (rule);
 		it.file = file;
-		rules.push_back(it);
+		rules.push_back (it);
 	}
 
 	void setPythonExecutor (Plugin* python){this->python = python;}
-
 private:
 	list<Item> rules;
 	Plugin* python;
@@ -403,34 +404,31 @@ EXPORTABLE(char*) name (char* name, u_long len)
 EXPORTABLE(int) load (void* server)
 {
 	serverInstance = (Server*)server;
-	HttpStaticData* staticData =(HttpStaticData*) serverInstance->getGlobalData("http-static");
 	string msg("new-http-request");
 	string pythonName("python");
 	Plugin* python;
   MainConfiguration* configuration;
 	xmlDocPtr xmlDoc;
-
-	if(!staticData)
-    {
-      serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("PythonHttpHandler: Invalid HTTP static data"));
-      return -1;
-    }
 	python = serverInstance->getPluginsManager ()->getPlugin (pythonName);
 
 	if(!python)
     {
-      serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("PythonHttpHandler: Cannot find executors::python"));
+      serverInstance->log (MYSERVER_LOG_MSG_ERROR,
+                           _("PythonHttpHandler: Cannot find python"));
       return -1;
     }
 	observer.setPythonExecutor(python);
 
-	staticData->addMulticast(msg, &observer);
+  string httpStr ("http");
+  Protocol *p = serverInstance->getProtocolsManager ()->getProtocol (httpStr);
+  static_cast<HttpProtocol*>(p)->addMulticast(msg, &observer);
 
 	init = (INIT_MODULE) python->getDirectMethod((char*)"initModule");
 
 	if(!init)
     {
-      serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("PythonHttpHandler: Cannot find method initModule in executors::python"));
+      serverInstance->log (MYSERVER_LOG_MSG_ERROR,
+      _("PythonHttpHandler: Cannot find method initModule in python"));
       return -1;
     }
 
@@ -439,16 +437,16 @@ EXPORTABLE(int) load (void* server)
   /* FIXME: DON'T DO THIS.  */
   xmlDoc = ((XmlMainConfiguration*)configuration)->getDoc ();
 
-	for(xmlNodePtr ptr = xmlDoc->children->next->children; ptr; ptr = ptr->next)
+	for (xmlNodePtr ptr = xmlDoc->children->next->children; ptr; ptr = ptr->next)
 	  {
-	    if(!xmlStrcmp(ptr->name, (const xmlChar *)"PYTHON_HTTP_HANDLER"))
+	    if (!xmlStrcmp(ptr->name, (const xmlChar *)"PYTHON_HTTP_HANDLER"))
 	      {
           bool file = false;
           xmlAttrPtr properties = ptr->properties;
           char* data = 0;
-          while(properties)
+          while (properties)
             {
-              if(!xmlStrcmp(properties->name, (const xmlChar *)"file"))
+              if (!xmlStrcmp(properties->name, (const xmlChar *)"file"))
                 {
                   if(properties->children && properties->children->content)
                     data = (char*)properties->children->content;
@@ -458,12 +456,14 @@ EXPORTABLE(int) load (void* server)
               properties = properties->next;
             }
 
-          if(!file && ptr->children && ptr->children->next && ptr->children->next->content)
+          if (!file && ptr->children && ptr->children->next
+             && ptr->children->next->content)
             data = (char*)ptr->children->next->content;
 
-          if(!data)
+          if (!data)
             {
-              serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("PythonHttpHandler: Invalid rule"));
+              serverInstance->log (MYSERVER_LOG_MSG_ERROR,
+                                   _("PythonHttpHandler: Invalid rule"));
               return -1;
             }
 

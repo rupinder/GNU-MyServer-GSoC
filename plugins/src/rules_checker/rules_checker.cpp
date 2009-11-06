@@ -23,11 +23,10 @@
 #include "heading.h"
 
 #ifdef WIN32
-#define EXPORTABLE(x) x _declspec(dllexport)
+# define EXPORTABLE(x) x _declspec(dllexport)
 #else
-#define EXPORTABLE(x) extern "C" x
+# define EXPORTABLE(x) extern "C" x
 #endif
-
 
 class RulesCheckerObserver : public Multicast<string, void*, int>
 {
@@ -97,18 +96,12 @@ EXPORTABLE(char*) name (char* name, u_long len)
 EXPORTABLE(int) load (void* server)
 {
   Server* serverInstance = (Server*)server;
-  HttpStaticData* staticData =(HttpStaticData*) serverInstance->getGlobalData("http-static");
   string msg("new-http-request");
   MainConfiguration* configuration;
   xmlDocPtr xmlDoc;
-  if(!staticData)
-    {
-      serverInstance->log("RulesChecker: Invalid HTTP static data");
-      return -1;
-    }
-
-
-  staticData->addMulticast(msg, &observer);
+  string httpStr ("http");
+  Protocol *p = serverInstance->getProtocolsManager ()->getProtocol (httpStr);
+  static_cast<HttpProtocol*>(p)->addMulticast(msg, &observer);
 
   configuration = serverInstance->getConfiguration ();
 

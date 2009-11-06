@@ -15,18 +15,20 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <stdafx.h>
+
+#include <Python.h>
+
 #include <string.h>
 #include <include/server/server.h>
 #include <include/base/multicast/multicast.h>
 #include <include/protocol/http/http.h>
 #include <include/plugin/plugin.h>
 #include <include/conf/main/xml_main_configuration.h>
-#include <Python.h>
 
 #ifdef WIN32
-#define EXPORTABLE(x) x _declspec(dllexport)
+# define EXPORTABLE(x) x _declspec(dllexport)
 #else
-#define EXPORTABLE(x) extern "C" x
+# define EXPORTABLE(x) extern "C" x
 #endif
 
 typedef int (*executePROC)(char*, u_long);
@@ -231,21 +233,13 @@ EXPORTABLE(char*) name(char* name, u_long len)
 EXPORTABLE(int) load(void* server,void* parser)
 {
   Server* serverInstance = (Server*)server;
-  HttpStaticData* staticData =(HttpStaticData*) serverInstance->getGlobalData("http-static");
   string msg("new-http-request");
   string pythonName("python");
   Plugin* python;
   MainConfiguration* configuration;
   xmlDocPtr xmlDoc;
 
-  if(!staticData)
-    {
-      serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("HttpChecker: invalid HTTP static data"));
-      return -1;
-    }
-
   python = serverInstance->getPluginsManager()->getPlugin(pythonName);
-
   if(!python)
     {
       serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("HttpChecker: cannot find executors::python"));
@@ -253,13 +247,16 @@ EXPORTABLE(int) load(void* server,void* parser)
     }
   observer.setPythonExecutor(python);
 
-  staticData->addMulticast(msg, &observer);
+  string httpStr ("http");
+  Protocol *p = serverInstance->getProtocolsManager ()->getProtocol (httpStr);
+  static_cast<HttpProtocol*>(p)->addMulticast(msg, &observer);
 
   init = (INIT_MODULE) python->getDirectMethod((char*)"initModule");
 
   if(!init)
     {
-      serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("HttpChecker: cannot find method initModule in executors::python"));
+      serverInstance->log (MYSERVER_LOG_MSG_ERROR,
+         _("HttpChecker: cannot find method initModule in executors::python"));
       return -1;
     }
 
