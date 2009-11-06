@@ -32,23 +32,23 @@ using namespace std;
 DynamicLibrary MsCgi::mscgiModule;
 
 /*!
- * Entry-point for the MyServer CGI; differently from standard CGI this doesn't
- * need a new process to run making it faster.
- * \param td The HTTP thread context.
- * \param exec The script path.
- * \param cmdLine The command line.
- * \param execute Specify if the script has to be executed.
- * \param onlyHeader Specify if send only the HTTP header.
+  Entry-point for the MyServer CGI; differently from standard CGI this doesn't
+  need a new process to run making it faster.
+  \param td The HTTP thread context.
+  \param exec The script path.
+  \param cmdLine The command line.
+  \param execute Specify if the script has to be executed.
+  \param onlyHeader Specify if send only the HTTP header.
  */
 int MsCgi::send (HttpThreadContext* td, const char* exec, const char* cmdLine,
                  bool /*execute*/, bool onlyHeader)
 {
   /*
-   * This is the code for manage a .mscgi file.
-   * This files differently from standard CGI don't need a new process to run
-   * but are allocated in the caller process virtual space.
-   * Usually these files are faster than standard CGI.
-   * Actually myServerCGI (.mscgi) is only at an alpha status.
+    This is the code for manage a .mscgi file.
+    This files differently from standard CGI don't need a new process to run
+    but are allocated in the caller process virtual space.
+    Usually these files are faster than standard CGI.
+    Actually myServerCGI (.mscgi) is only at an alpha status.
    */
   ostringstream tmpStream;
   string outDataPath;
@@ -139,17 +139,17 @@ int MsCgi::send (HttpThreadContext* td, const char* exec, const char* cmdLine,
 
   if (!td->appendOutputs && data.useChunks && !data.error
       && chain.getStream ()->write ("0\r\n\r\n", 5, &nbw))
-    return 0;
+    return HttpDataHandler::RET_FAILURE;
 
   if (!data.error)
-    return 0;
+    return HttpDataHandler::RET_FAILURE;
 
   ostringstream tmp;
   tmp << td->sentData;
   td->response.contentLength.assign (tmp.str ());
 
   chain.clearAllFilters ();
-  return 1;
+  return HttpDataHandler::RET_OK;
 }
 
 /*!
@@ -201,8 +201,8 @@ int MsCgi::sendHeader (MsCgiData* mcd)
 }
 
 /*!
- * Map the library in the application address space.
- * \param confFile The xml parser with configuration.
+  Map the library in the application address space.
+  \param confFile The xml parser with configuration.
  */
 int MsCgi::load ()
 {
@@ -210,7 +210,7 @@ int MsCgi::load ()
 }
 
 /*!
- * Free the memory allocated by the MSCGI library.
+  Free the memory allocated by the MSCGI library.
  */
 int MsCgi::unLoad ()
 {

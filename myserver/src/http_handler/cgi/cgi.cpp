@@ -340,7 +340,7 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
     return ret;
 
   if (!nph && onlyHeader)
-    return 1;
+    return HttpDataHandler::RET_OK;
 
   /* Create the output filters chain.  */
   if (td->mime
@@ -378,7 +378,7 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
       if (stdOutFile.read (td->secondaryBuffer->getBuffer (),
                            td->secondaryBuffer->getRealLength (),
                            &nBytesRead))
-        return 0;
+        return HttpDataHandler::RET_FAILURE;
 
       if (!aliveProcess && !nBytesRead)
         break;
@@ -391,19 +391,20 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
                                                     &chain,
                                                     td->appendOutputs,
                                                     useChunks))
-        return 0;
+        return HttpDataHandler::RET_FAILURE;
 
       nbw += nBytesRead;
     }
 
     /* Send the last null chunk if needed.  */
     if (useChunks && chain.getStream ()->write ("0\r\n\r\n", 5, &nbw2))
-      return 0;
+        return HttpDataHandler::RET_FAILURE;
   }
 
   /* Update the Content-length field for logging activity.  */
   td->sentData += nbw;
-  return 1;
+
+  return HttpDataHandler::RET_OK;
 }
 
 /*!
@@ -527,7 +528,7 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
           if (HttpHeaders::sendHeader (td->response, *chain.getStream (),
                                        *td->buffer, td))
             {
-              *ret = 0;
+              *ret = HttpDataHandler::RET_FAILURE;
               return 1;
             }
 
@@ -544,7 +545,10 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
                                                     &chain,
                                                     td->appendOutputs,
                                                     useChunks))
-        return 0;
+        {
+          *ret = HttpDataHandler::RET_FAILURE;
+          return 1;
+        }
 
       td->sentData += headerOffset - headerSize;
     }

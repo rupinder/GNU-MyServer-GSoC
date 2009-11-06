@@ -1,18 +1,18 @@
 /*
-MyServer
-Copyright (C) 2009 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2009 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "stdafx.h"
@@ -32,13 +32,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 
 /*
- *Forward the HTTP requesto to another server.
- *
- *\param td The HTTP thread context.
- *\param scriptpath Not used.
- *\param exec The remote server Url.
- *\param execute Not used.
- *\param onlyHeader Specify if send only the HTTP header.
+  Forward the HTTP requesto to another server.
+
+  \param td The HTTP thread context.
+  \param scriptpath Not used.
+  \param exec The remote server Url.
+  \param execute Not used.
+  \param onlyHeader Specify if send only the HTTP header.
  */
 int Proxy::send (HttpThreadContext *td,
                  const char* scriptpath,
@@ -95,7 +95,7 @@ int Proxy::send (HttpThreadContext *td,
                                *td->secondaryBuffer, td))
     {
       chain.clearAllFilters ();
-      return 1;
+      return HttpDataHandler::RET_FAILURE;
     }
 
   if (td->request.uriOptsPtr &&
@@ -143,19 +143,18 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
 
   do
     {
-      ret = client.recv (td->secondaryBuffer->getBuffer () + read,
-                         td->secondaryBuffer->getRealLength () - read,
-                         0,
-                         td->http->getTimeout ());
-
-      if (ret == 0)
+      if (client.recv (td->secondaryBuffer->getBuffer () + read,
+                       td->secondaryBuffer->getRealLength () - read,
+                       0,
+                       td->http->getTimeout () == 0))
         return td->http->raiseHTTPError (500);
 
       read += ret;
 
-      ret = HttpHeaders::buildHTTPResponseHeaderStruct (td->secondaryBuffer->getBuffer (),
-                                                        &td->response,
-                                                        &headerLength);
+      if (HttpHeaders::buildHTTPResponseHeaderStruct (td->secondaryBuffer->getBuffer (),
+                                                      &td->response,
+                                                      &headerLength))
+      ret = HttpDataHandler::RET_FAILURE;
     }
   while (ret == -1);
 
@@ -197,8 +196,7 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
     return 0;
 
   if (onlyHeader)
-    return keepalive;
-
+    ret = HttpDataHandler::RET_OK;
 
   ret = readPayLoad (td,
                      &td->response,
@@ -211,29 +209,30 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
                      keepalive,
                      hasTransferEncoding ? &transferEncoding : NULL);
 
-  if (ret != -1)
-    td->sentData += ret;
+  if (ret == -1)
+    return HttpDataHandler::RET_FAILURE;
 
-  return ret == -1 ? 0 : keepalive;
+  td->sentData += ret;
+  return HttpDataHandler::RET_OK;
 }
 
 /*!
- *Forward the message payload to the client.
- *
- *\param td The current HTTP thread context.
- *\param res Response obtained by the server.
- *\param out The client chain.
- *\param initBuffer Initial read data.
- *\param initBufferSize Size of initial data.
- *\param timeout Connection timeout.
- *\param useChunks Use chunked transfer encoding
- *with the client.
- *\param keepalive The connection is keep-alive.
- *\param serverTransferEncoding Transfer-Encoding
- *used by the server.
- *
- *\return -1 on error.
- *\return Otherwise the number of bytes transmitted.
+  Forward the message payload to the client.
+
+  \param td The current HTTP thread context.
+  \param res Response obtained by the server.
+  \param out The client chain.
+  \param initBuffer Initial read data.
+  \param initBufferSize Size of initial data.
+  \param timeout Connection timeout.
+  \param useChunks Use chunked transfer encoding
+  with the client.
+  \param keepalive The connection is keep-alive.
+  \param serverTransferEncoding Transfer-Encoding
+  used by the server.
+
+  \return -1 on error.
+  \return Otherwise the number of bytes transmitted.
  */
 int Proxy::readPayLoad (HttpThreadContext* td,
                         HttpResponseHeader* res,
@@ -252,16 +251,15 @@ int Proxy::readPayLoad (HttpThreadContext* td,
   u_long bufferDataSize = 0;
   u_long written = 0;
 
-
   /* Only the chunked transfer encoding is supported.  */
   if (serverTransferEncoding && serverTransferEncoding->compare ("chunked"))
-    return -1;
+    return HttpDataHandler::RET_FAILURE;
 
   if (res->contentLength.length ())
     {
       contentLength = atol (res->contentLength.c_str ());
       if (contentLength < 0)
-        return -1;
+        return HttpDataHandler::RET_FAILURE;
     }
 
   length = contentLength;
@@ -287,7 +285,7 @@ int Proxy::readPayLoad (HttpThreadContext* td,
                                                  timeout,
                                                  NULL,
                                                  1))
-            return -1;
+            return HttpDataHandler::RET_FAILURE;
 
           if (!nbr)
             break;
@@ -299,7 +297,7 @@ int Proxy::readPayLoad (HttpThreadContext* td,
                                                         out,
                                                         td->appendOutputs,
                                                         useChunks))
-            return -1;
+            return HttpDataHandler::RET_FAILURE;
 
           written += nbr;
         }
@@ -325,9 +323,7 @@ int Proxy::readPayLoad (HttpThreadContext* td,
                                                       len,
                                                       &nbr,
                                                       timeout))
-    {
-      return -1;
-    }
+      return HttpDataHandler::RET_FAILURE;
 
     if (contentLength == 0 && nbr == 0)
       break;
@@ -342,7 +338,7 @@ int Proxy::readPayLoad (HttpThreadContext* td,
                                                          out,
                                                          td->appendOutputs,
                                                          useChunks))
-      return -1;
+      return HttpDataHandler::RET_FAILURE;
 
     written += nbr;
 
@@ -351,7 +347,7 @@ int Proxy::readPayLoad (HttpThreadContext* td,
   }
 
   if (useChunks && out->getStream ()->write ("0\r\n\r\n", 5, &nbw))
-    return -1;
+    return HttpDataHandler::RET_FAILURE;
 
   return written;
 }

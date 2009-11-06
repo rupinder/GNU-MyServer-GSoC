@@ -363,10 +363,10 @@ int HttpDir::send (HttpThreadContext* td,
 
   if (HttpHeaders::sendHeader (td->response, *td->connection->socket,
                                *td->buffer, td))
-    return 1;
+    return HttpDataHandler::RET_FAILURE;
 
   if (onlyHeader)
-    return 0;
+    return HttpDataHandler::RET_OK;
 
   sortIndex = td->request.uriOpts.find ("sort=");
 
@@ -644,14 +644,13 @@ int HttpDir::send (HttpThreadContext* td,
 
   if (!td->appendOutputs && useChunks
       && chain.getStream ()->write ("0\r\n\r\n", 5, &nbw))
-    return 1;
+    return HttpDataHandler::RET_FAILURE;
 
   /* For logging activity.  */
   td->sentData += sentData;
 
   chain.clearAllFilters ();
-  return 1;
-
+  return HttpDataHandler::RET_OK;
 }
 
 /*!

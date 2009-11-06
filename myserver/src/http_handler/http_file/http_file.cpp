@@ -1,20 +1,19 @@
 /*
-MyServer
-Copyright (C) 2005, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2005, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 
 #include <include/protocol/http/http.h>
 #include <include/protocol/http/http_headers.h>
@@ -39,7 +38,7 @@ extern "C"
 }
 
 /*!
- * Main function to handle the HTTP PUT command.
+  Main function to handle the HTTP PUT command.
  */
 int HttpFile::putFile (HttpThreadContext* td,
                        string& filename)
@@ -98,7 +97,7 @@ int HttpFile::putFile (HttpThreadContext* td,
         file.close ();
 
         td->http->raiseHTTPError (200);
-        return keepalive;
+        return HttpDataHandler::RET_OK;
       }
     else
       {
@@ -139,7 +138,7 @@ int HttpFile::putFile (HttpThreadContext* td,
         file.close ();
 
         td->http->raiseHTTPError (201);
-        return 1;
+        return HttpDataHandler::RET_OK;
       }
   }
   catch (...)
@@ -358,7 +357,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
             file->close ();
             delete file;
             chain.clearAllFilters ();
-            return 0;
+            return HttpDataHandler::RET_FAILURE;
           }
         memStream.refresh ();
         dataSent += nbw;
@@ -426,25 +425,25 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         file->close ();
         delete file;
         chain.clearAllFilters ();
-        return 1;
+        return HttpDataHandler::RET_FAILURE;
       }
 
     /*
-     * If is requested only the header exit from the function;
-     * used by the HEAD request.
-     */
+      If is requested only the header exit from the function;
+      used by the HEAD request.
+    */
     if (onlyHeader)
       {
         file->close ();
         delete file;
         chain.clearAllFilters ();
-        return 0;
+        return HttpDataHandler::RET_OK;
       }
 
     /*
-     * Check if there are all the conditions to use a direct copy from the
-     * file to the socket.
-     */
+      Check if there are all the conditions to use a direct copy from the
+      file to the socket.
+    */
     if (!useChunks && chain.isEmpty () && !td->appendOutputs
         && !(td->http->getProtocolOptions () & Protocol::SSL))
       {
@@ -459,7 +458,10 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
 
         td->sentData += nbw;
 
-        return ret;
+        if (ret)
+          return HttpDataHandler::RET_FAILURE;
+        else
+          return HttpDataHandler::RET_OK;
       }
 
     if (td->appendOutputs)
@@ -468,10 +470,10 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
       chain.setStream (td->connection->socket);
 
     /*
-     * Flush initial data.  This is data that filters could have added
-     * and we have to send before the file itself, for example the gzip
-     * filter add a header to file.
-     */
+      Flush initial data.  This is data that filters could have added
+      and we have to send before the file itself, for example the gzip
+      filter add a header to file.
+    */
     if (memStream.availableToRead ())
       {
         if (memStream.read (td->buffer->getBuffer (),
@@ -480,7 +482,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
             file->close ();
             delete file;
             chain.clearAllFilters ();
-            return 0;
+            return HttpDataHandler::RET_FAILURE;
           }
 
         memStream.refresh ();
@@ -493,8 +495,8 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
             file->close ();
             delete file;
             chain.clearAllFilters ();
-            return 1;
             dataSent += nbw;
+            return HttpDataHandler::RET_FAILURE;
           }
       } /* memStream.availableToRead ().  */
 
@@ -540,11 +542,11 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
             else
               {
                 /*
-                 * Replace the final stream before the flush and write to a
-                 * memory buffer, after all the data is flushed from the
-                 * chain we can replace the stream with the original one and
-                 * write there the HTTP data chunk.
-                 */
+                  Replace the final stream before the flush and write to a
+                  memory buffer, after all the data is flushed from the
+                  chain we can replace the stream with the original one and
+                  write there the HTTP data chunk.
+                */
                 Stream* tmpStream = chain.getStream ();
                 chain.setStream (&memStream);
                 memStream.refresh ();
@@ -585,36 +587,40 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
   /* For logging activity.  */
   td->sentData += dataSent;
   chain.clearAllFilters ();
-  return !ret;
+
+  if (ret)
+  return HttpDataHandler::RET_FAILURE;
+  else
+    return HttpDataHandler::RET_OK;
 }
 
 /*!
- * Constructor for the class.
- */
+  Constructor for the class.
+*/
 HttpFile::HttpFile ()
 {
 
 }
 
 /*!
- * Destroy the object.
- */
+  Destroy the object.
+*/
 HttpFile::~HttpFile ()
 {
 
 }
 
 /*!
- * Load the static elements.
- * \param confFile Not used.
- */
+  Load the static elements.
+  \param confFile Not used.
+*/
 int HttpFile::load ()
 {
   return 0;
 }
 
 /*!
- * Unload the static elements.
+  Unload the static elements.
  */
 int HttpFile::unLoad ()
 {

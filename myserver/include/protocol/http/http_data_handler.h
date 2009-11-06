@@ -27,11 +27,18 @@
 
 
 /*!
- *Base class to handle HTTP data.
+ * Base class to handle HTTP data.
  */
 class HttpDataHandler
 {
 public:
+
+  enum
+    {
+      RET_OK = 0,
+      RET_FAILURE
+    };
+
   virtual int load ();
   virtual int unLoad ();
 
@@ -63,6 +70,5 @@ public:
                                       bool useChunks);
 
 };
-
 
 #endif

@@ -1,18 +1,18 @@
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "stdafx.h"
@@ -33,6 +33,7 @@ extern "C"
 #ifdef WIN32
 # include <direct.h>
 #endif
+
 #include <string.h>
 }
 
@@ -42,7 +43,7 @@ using namespace std;
 
 
 /*!
- * Constructor for the wincgi class.
+  Constructor for the wincgi class.
  */
 WinCgi::WinCgi ()
 {
@@ -50,7 +51,7 @@ WinCgi::WinCgi ()
 }
 
 /*!
- * Destructor for the wincgi class.
+  Destructor for the wincgi class.
  */
 WinCgi::~WinCgi ()
 {
@@ -58,7 +59,7 @@ WinCgi::~WinCgi ()
 }
 
 /*!
- * Send the WinCGI data.
+  Send the WinCGI data.
  */
 int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
                   const char *cgipath, bool /*execute*/, bool onlyHeader)
@@ -67,8 +68,8 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
   FiltersChain chain;
   Process proc;
   u_long nbr;
-  char  dataFilePath[MAX_PATH];/*! Use MAX_PATH under windows. */
-  char outFilePath[MAX_PATH];  /*! Use MAX_PATH under windows. */
+  char  dataFilePath[MAX_PATH];
+  char outFilePath[MAX_PATH];
   char *buffer;
   File DataFileHandle, OutFileHandle;
   StartProcInfo spi;
@@ -77,9 +78,8 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
   int bias;
 
   int ret;
-  char execname[MAX_PATH];/*! Use MAX_PATH under windows. */
-  char pathname[MAX_PATH];/*! Use MAX_PATH under windows. */
-
+  char execname[MAX_PATH];
+  char pathname[MAX_PATH];
   u_long nBytesRead = 0;
   u_long headerSize = 0;
   u_long nbw = 0;
@@ -107,9 +107,10 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
   if (td->mime)
     {
       u_long nbw2;
-      if (td->mime && Server::getInstance ()->getFiltersFactory ()->chain (&chain,
-                                                                         td->mime->filters,
-                                                                         td->connection->socket, &nbw2, 1))
+      if (td->mime
+          && Server::getInstance ()->getFiltersFactory ()->chain (&chain,
+                                                       td->mime->filters,
+                                        td->connection->socket, &nbw2, 1))
         {
           td->connection->host->warningsLogWrite (_("WinCGI: internal error"));
           chain.clearAllFilters ();
@@ -117,10 +118,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
         }
     }
 
-
-  /*!
-   *The WinCGI protocol uses a .ini file to send data to the new process.
-   */
+  /* The WinCGI protocol uses a .ini file to send data to the new process.  */
   ret = DataFileHandle.openFile (dataFilePath, File::FILE_CREATE_ALWAYS
                                  | File::WRITE);
   if (ret)
@@ -352,7 +350,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
           FilesUtility::deleteFile (outFilePath);
           FilesUtility::deleteFile (dataFilePath);
           chain.clearAllFilters ();
-          return 1;
+          return HttpDataHandler::RET_FAILURE;
         }
 
       if (onlyHeader)
@@ -361,12 +359,9 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
           FilesUtility::deleteFile (outFilePath);
           FilesUtility::deleteFile (dataFilePath);
           chain.clearAllFilters ();
-          return 1;
+          return HttpDataHandler::RET_OK;
         }
 
-      /*!
-       * Send other data in the buffer.
-       */
       chain.write ((char*)(buffer + headerSize), nBytesRead - headerSize,
                    &nbw2);
       nbw += nbw2;
@@ -379,7 +374,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
       if (onlyHeader)
         {
           chain.clearAllFilters ();
-          return 1;
+          return HttpDataHandler::RET_OK;
         }
 
       td->outputData.writeToFile ((char*)(buffer + headerSize),
@@ -407,7 +402,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
                       FilesUtility::deleteFile (outFilePath);
                       FilesUtility::deleteFile (dataFilePath);
                       chain.clearAllFilters ();
-                      return 0;
+                      return HttpDataHandler::RET_FAILURE;
                     }
                 }
               else
@@ -420,7 +415,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
                       FilesUtility::deleteFile (outFilePath);
                       FilesUtility::deleteFile (dataFilePath);
                       chain.clearAllFilters ();
-                      return 0;
+                      return HttpDataHandler::RET_FAILURE;
                     }
                 }
             }
@@ -435,12 +430,9 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
   OutFileHandle.close ();
   FilesUtility::deleteFile (outFilePath);
   FilesUtility::deleteFile (dataFilePath);
-  return 1;
+
+  return HttpDataHandler::RET_OK;
 #else
-  /*
-   * WinCGI is available only under windows. Raise the right error
-   * when it is used under another architecture.
-   */
   td->connection->host->warningsLogWrite (_("WinCGI: not implemented"));
 
   return td->http->raiseHTTPError (501);

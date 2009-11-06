@@ -523,8 +523,9 @@ u_long Http::checkDigest ()
   u_long digestCount;
 
   /* Return 0 if the password is different.  */
-  if (td->request.digestOpaque[0] && strcmp (td->request.digestOpaque,
-                                             ((HttpUserData*) td->connection->protocolBuffer)->opaque))
+  if (td->request.digestOpaque[0]
+      && strcmp (td->request.digestOpaque,
+                 ((HttpUserData*) td->connection->protocolBuffer)->opaque))
     return 0;
 
   /*! If is not equal return 0.  */
@@ -540,7 +541,8 @@ u_long Http::checkDigest ()
 
   md5.init ();
   td->secondaryBuffer->setLength (0);
-  *td->secondaryBuffer << td->request.digestUsername << ":" << td->request.digestRealm
+  *td->secondaryBuffer << td->request.digestUsername << ":"
+                       << td->request.digestRealm
                        << ":" << td->securityToken.getNeededPassword ();
 
   md5.update ((char const*) td->secondaryBuffer->getBuffer (),
@@ -670,7 +672,7 @@ Http::sendHTTPResource (string& uri, int systemrequest, int onlyHeader,
       return raiseHTTPError (500);
     };
 
-  return ret;
+  return HttpDataHandler::RET_OK;
 }
 
 /*!
@@ -751,7 +753,7 @@ int Http::logHTTPaccess ()
     }
   catch (...)
     {
-      return 1;
+      return HttpDataHandler::RET_FAILURE;
     };
   return 0;
 }
@@ -762,8 +764,7 @@ int Http::logHTTPaccess ()
 int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                              u_long nbtr, u_long id)
 {
-  int retvalue = -1;
-  int ret = 0;
+  int ret = -1;
   int validRequest;
 
   /* Dimension of the POST data. */
@@ -805,7 +806,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
       td->response.httpStatus = 200;
 
       /*
-       * If the connection must be removed, remove it.
+       * The connection should be removed.
        */
       if (td->connection->getToRemove ())
         {
@@ -813,11 +814,12 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
             {
               /* Remove the connection from the list.  */
             case Connection::REMOVE_OVERLOAD:
-              retvalue = raiseHTTPError (503);
+              ret = raiseHTTPError (503);
               logHTTPaccess ();
               return ClientsThread::DELETE_CONNECTION;
 
             default:
+              logHTTPaccess ();
               return ClientsThread::DELETE_CONNECTION;
             }
         }
@@ -839,7 +841,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
       /* If the validRequest cointains an error code send it to the user.  */
       if (validRequest != 200)
         {
-          retvalue = raiseHTTPError (validRequest);
+          ret = raiseHTTPError (validRequest);
           logHTTPaccess ();
           return ClientsThread::DELETE_CONNECTION;
         }
@@ -881,7 +883,6 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
           (!td->request.cmd.compare ("PUT")) ||
           (dynamicCommand && dynamicCommand->acceptData ()))
         {
-          int ret;
           int httpErrorCode;
 
           /* Be sure that the client can handle the 100 status code.  */
@@ -905,12 +906,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
             }
           else if (ret)
             {
-              int retvalue = raiseHTTPError (httpErrorCode);
-
-              logHTTPaccess ();
-
-              return retvalue ? ClientsThread::KEEP_CONNECTION
-                      : ClientsThread::DELETE_CONNECTION;
+              ret = raiseHTTPError (httpErrorCode);
             }
         }
       else
@@ -920,7 +916,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
         }
 
       /* If return value is not configured propertly.  */
-      if (retvalue == -1)
+      if (ret < 0)
         {
           /*
            * How is expressly said in the RFC2616 a client that sends an
@@ -1035,55 +1031,38 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
            *Check if there is a limit for the number of connections in the
            *virtual host A value of zero means no limit.
            */
-          {
-            const char* val = td->securityToken.getData ("MAX_CONNECTIONS",
-                                                    MYSERVER_VHOST_CONF
-                                                   | MYSERVER_SERVER_CONF,
-                                                         NULL);
-
-            if (val)
-              {
-                u_long limit = (u_long) atoi (val);
-                if (limit && (u_long) a->host->getRef () >= limit)
-                  {
-                    retvalue = raiseHTTPError (500);
-                    logHTTPaccess ();
-                    return retvalue ? ClientsThread::KEEP_CONNECTION
-                                    : ClientsThread::DELETE_CONNECTION;
-                  }
-              }
-          }
-
-          if (!td->request.isKeepAlive ())
-            retvalue = ClientsThread::DELETE_CONNECTION;
-          else
+          const char* val = td->securityToken.getData ("MAX_CONNECTIONS",
+                                                       MYSERVER_VHOST_CONF
+                                                       | MYSERVER_SERVER_CONF,
+                                                       NULL);
+          if (val)
             {
-              /* Support for HTTP pipelining.  */
-              if (contentLength == 0)
-                {
-                  /*  connectionBuffer is 8 KB, so don't copy more bytes.  */
-                  u_long bufferStrLen = strlen (td->buffer->getBuffer ());
-                  u_long remainingData = 0;
+              u_long limit = (u_long) atoi (val);
+              if (limit && (u_long) a->host->getRef () >= limit)
+                ret = raiseHTTPError (500);
+            }
 
-                  if (bufferStrLen - td->nHeaderChars >= MYSERVER_KB (8))
-                    remainingData = MYSERVER_KB (8);
-                  else
-                    remainingData = bufferStrLen - td->nHeaderChars;
+          /* Support for HTTP pipelining.  */
+          if (contentLength == 0)
+            {
+              /*  connectionBuffer is 8 KB, so don't copy more bytes.  */
+              u_long bufferStrLen = strlen (td->buffer->getBuffer ());
+              u_long remainingData = 0;
 
-                  if (remainingData)
-                    {
-                      const char *data = (td->buffer->getBuffer ()
-                                          + td->nHeaderChars);
-                      u_long toCopy = nbtr - td->nHeaderChars;
-
-                      a->getConnectionBuffer ()->setBuffer (data, toCopy);
-                      retvalue = ClientsThread::INCOMPLETE_REQUEST_NO_WAIT;
-                    }
-                  else
-                    retvalue = ClientsThread::KEEP_CONNECTION;
-                }
+              if (bufferStrLen - td->nHeaderChars >= MYSERVER_KB (8))
+                remainingData = MYSERVER_KB (8);
               else
-                retvalue = ClientsThread::KEEP_CONNECTION;
+                remainingData = bufferStrLen - td->nHeaderChars;
+
+              if (remainingData)
+                {
+                  const char *data = (td->buffer->getBuffer ()
+                                      + td->nHeaderChars);
+                  u_long toCopy = nbtr - td->nHeaderChars;
+
+                  a->getConnectionBuffer ()->setBuffer (data, toCopy);
+                  return ClientsThread::INCOMPLETE_REQUEST_NO_WAIT;
+                }
             }
 
           /*
@@ -1106,50 +1085,41 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                   {
                     int handlerRet = (*handlers)[i]->updateMulticast (getStaticData (),
                                                                       msg, td);
-                    if (handlerRet == 1)
-                      {
-                        ret = 1;
-                        retvalue = ClientsThread::DELETE_CONNECTION;
-                        break;
-                      }
-                    else if (handlerRet == 2)
-                      {
-                        ret = 1;
-                        retvalue = ClientsThread::KEEP_CONNECTION;
-                        break;
-                      }
 
+                    if (handlerRet == ClientsThread::DELETE_CONNECTION)
+                      {
+                        ret = ClientsThread::DELETE_CONNECTION;
+                        break;
+                      }
+                    else if (handlerRet == ClientsThread::KEEP_CONNECTION)
+                      {
+                        ret = ClientsThread::KEEP_CONNECTION;
+                        break;
+                      }
                   }
               }
           }
 
-          if (!ret)
+          if (ret < 0)
             {
               if (!allowMethod (td->request.cmd.c_str ()))
                 return raiseHTTPError (401);
 
-              /* GET REQUEST.  */
               if (!td->request.cmd.compare ("GET"))
                 ret = sendHTTPResource (td->request.uri);
-                /* POST REQUEST.  */
               else if (!td->request.cmd.compare ("POST"))
                 ret = sendHTTPResource (td->request.uri);
-                /* HEAD REQUEST.  */
               else if (!td->request.cmd.compare ("HEAD"))
                 {
                   td->onlyHeader = 1;
                   ret = sendHTTPResource (td->request.uri, 0, 1);
                 }
-                /* DELETE REQUEST.  */
               else if (!td->request.cmd.compare ("DELETE"))
                 ret = deleteHTTPRESOURCE (td->request.uri, 0, 1);
-                /* PUT REQUEST.  */
               else if (!td->request.cmd.compare ("PUT"))
                 ret = putHTTPRESOURCE (td->request.uri, 0, 1);
-                /* OPTIONS REQUEST.  */
               else if (!td->request.cmd.compare ("OPTIONS"))
                 ret = optionsHTTPRESOURCE (td->request.uri, 0);
-                /* TRACE REQUEST.  */
               else if (!td->request.cmd.compare ("TRACE"))
                 ret = traceHTTPRESOURCE (td->request.uri, 0);
               else
@@ -1161,13 +1131,10 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                   if (!dynamicCommand)
                     ret = raiseHTTPError (501);
                   else
-                    retvalue = dynamicCommand->send (td, a, td->request.uri, 0,
-                                                     0, 0)
-                      ? ClientsThread::KEEP_CONNECTION
-                      : ClientsThread::DELETE_CONNECTION;
+                    ret = dynamicCommand->send (td, a, td->request.uri, 0,
+                                                0, 0);
                 }
             }
-          logHTTPaccess ();
         }
 
       /* If the inputData file was not closed close it.  */
@@ -1184,22 +1151,24 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
           FilesUtility::deleteFile (td->outputDataPath);
         }
 
+      bool keepalive = false;
       HttpRequestHeader::Entry *connection = td->request.other.get
                                                        ("Connection");
       if (connection)
-        ret &= !stringcmpi (connection->value->c_str (), "keep-alive");
-      else
-        ret = 0;
+        keepalive = !stringcmpi (connection->value->c_str (), "keep-alive");
 
-      return (ret && retvalue != ClientsThread::DELETE_CONNECTION)
-              ? retvalue
-              : ClientsThread::DELETE_CONNECTION;
+      logHTTPaccess ();
+
+      if (ret == HttpDataHandler::RET_OK && keepalive)
+        return ClientsThread::KEEP_CONNECTION;
+      else
+        return ClientsThread::DELETE_CONNECTION;
+
     }
   catch (...)
     {
-
       td->connection->host->warningsLogWrite (_("HTTP: internal error"));
-      return raiseHTTPError (500);
+      raiseHTTPError (500);
       logHTTPaccess ();
       return ClientsThread::DELETE_CONNECTION;
     }
@@ -1252,7 +1221,7 @@ int Http::requestAuthorization ()
           if (!td->connection->protocolBuffer)
             {
               sendHTTPhardError500 ();
-              return 0;
+              return HttpDataHandler::RET_FAILURE;
             }
           ((HttpUserData*) (td->connection->protocolBuffer))->reset ();
         }
@@ -1311,9 +1280,10 @@ int Http::requestAuthorization ()
                                     td->secondaryBuffer->getLength (), 0) == -1)
     {
       td->connection->host->warningsLogWrite (_("HTTP: socket error"));
-      return 0;
+      return HttpDataHandler::RET_FAILURE;
     }
-  return 1;
+
+  return HttpDataHandler::RET_OK;
 }
 
 /*!
@@ -1413,7 +1383,6 @@ int Http::raiseHTTPError (int ID)
             td->connection->host->warningsLogWrite (
                _("HTTP: The specified error page: %s does not exist"),
                errorFile.str ().c_str ());
-
         }
 
       HttpErrors::getErrorMessage (ID, errorMessage);
@@ -1441,22 +1410,22 @@ int Http::raiseHTTPError (int ID)
 
       if (HttpHeaders::sendHeader (td->response, *td->connection->socket,
                                    *td->buffer, td))
-        return 0;
+        return 1;
 
       if (errorBodyLength
           && (td->connection->socket->send (errorBodyMessage.str ().c_str (),
                                             errorBodyLength, 0) < 0))
         {
           td->connection->host->warningsLogWrite (_("HTTP: socket error"));
-          return 0;
+          return HttpDataHandler::RET_FAILURE;
         }
 
-      return 1;
+      return HttpDataHandler::RET_OK;
     }
   catch (...)
     {
       td->connection->host->warningsLogWrite (_("HTTP: internal error"));
-      return 0;
+      return HttpDataHandler::RET_FAILURE;
     }
 }
 
@@ -1507,12 +1476,14 @@ Internal Server Error\n\
   *td->secondaryBuffer << "\r\n\r\n";
 
   if (td->connection->socket->send (td->secondaryBuffer->getBuffer (),
-                                    (u_long) td->secondaryBuffer->getLength (), 0) != -1)
-    {
-      if (!td->onlyHeader)
-        td->connection->socket->send (hardHTML, (u_long) strlen (hardHTML), 0);
-    }
-  return 0;
+                                    (u_long) td->secondaryBuffer->getLength (),
+                                    0) < 0)
+    return HttpDataHandler::RET_FAILURE;
+
+  if (!td->onlyHeader)
+    td->connection->socket->send (hardHTML, (u_long) strlen (hardHTML), 0);
+
+  return HttpDataHandler::RET_FAILURE;
 }
 
 /*!
@@ -1649,12 +1620,7 @@ int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
                 nUrl << "?" << td->request.uriOpts;
 
               /* Send a redirect to the new location.  */
-              if (sendHTTPRedirect (nUrl.str ().c_str ()))
-                ret = 1;
-              else
-                ret = 0;
-
-              return ret;
+              return sendHTTPRedirect (nUrl.str ().c_str ());
             }
         }
     }
@@ -1695,14 +1661,13 @@ int Http::sendHTTPRedirect (const char *newURL)
   *td->secondaryBuffer << time
           << "\r\n\r\n";
   if (td->connection->socket->send (td->secondaryBuffer->getBuffer (),
-                                    (int) td->secondaryBuffer->getLength (), 0) == -1)
+                                    (int) td->secondaryBuffer->getLength (), 0) < 0)
     {
       td->connection->host->warningsLogWrite (_("HTTP: socket error"));
-      return 0;
+      return HttpDataHandler::RET_FAILURE;
     }
 
-
-  return 1;
+  return HttpDataHandler::RET_OK;
 }
 
 /*!
@@ -1728,12 +1693,13 @@ int Http::sendHTTPNonModified ()
   *td->secondaryBuffer << "Date: " << time << "\r\n\r\n";
 
   if (td->connection->socket->send (td->secondaryBuffer->getBuffer (),
-                                    (int) td->secondaryBuffer->getLength (), 0) == -1)
+                                    (int) td->secondaryBuffer->getLength (), 0) < 0)
     {
       td->connection->host->warningsLogWrite (_("HTTP: socket error"));
-      return 0;
+      return HttpDataHandler::RET_FAILURE;
     }
-  return 1;
+
+  return HttpDataHandler::RET_OK;
 }
 
 /*!
@@ -1742,9 +1708,7 @@ int Http::sendHTTPNonModified ()
 int Http::sendAuth ()
 {
   if (td->connection->getnTries () > 2)
-    {
-      return raiseHTTPError (401);
-    }
+    return raiseHTTPError (401);
   else
     {
       td->connection->incnTries ();

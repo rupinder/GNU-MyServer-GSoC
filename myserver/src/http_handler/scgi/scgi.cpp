@@ -1,18 +1,18 @@
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <include/http_handler/scgi/scgi.h>
 #include <include/protocol/http/env/env.h>
@@ -34,10 +34,9 @@ int Scgi::initialized = 0;
 /*! Process server manager.  */
 ProcessServerManager *Scgi::processServerManager = 0;
 
-
 /*!
- *Entry-Point to manage a SCGI request.
- */
+  Entry-Point to manage a SCGI request.
+*/
 int Scgi::send (HttpThreadContext* td, const char* scriptpath,
                const char *cgipath, bool execute, bool onlyHeader)
 {
@@ -90,7 +89,7 @@ int Scgi::send (HttpThreadContext* td, const char* scriptpath,
   td->secondaryBuffer->getAt (0) = '\0';
 
   {
-    /*! Do not modify the text between " and ".  */
+    /* Do not modify the text between " and ".  */
     int i;
     int subString = cgipath[0] == '"';
     int len = strlen (cgipath);
@@ -103,10 +102,10 @@ int Scgi::send (HttpThreadContext* td, const char* scriptpath,
         subString = !subString;
     }
     /*!
-     *Save the cgi path and the possible arguments.
-     *the (x < len) case is when additional arguments are specified.
-     *If the cgipath is enclosed between " and " do not consider them
-     *when splitting directory and file name.
+      Save the cgi path and the possible arguments.
+      the (x < len) case is when additional arguments are specified.
+      If the cgipath is enclosed between " and " do not consider them
+      when splitting directory and file name.
      */
     if (len)
     {
@@ -204,7 +203,7 @@ int Scgi::send (HttpThreadContext* td, const char* scriptpath,
     }
   }
 
-  ret = !sendResponse (&con, onlyHeader, &chain);
+  ret = sendResponse (&con, onlyHeader, &chain);
 
 
   chain.clearAllFilters ();
@@ -242,7 +241,7 @@ int Scgi::sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
         }
 
       if (!ctx->sock.bytesToRead ())
-        return -1;
+        return HttpDataHandler::RET_FAILURE;
 
       nbr = ctx->sock.recv (td->secondaryBuffer->getBuffer () + read,
                             td->secondaryBuffer->getRealLength () - read,
@@ -273,10 +272,10 @@ int Scgi::sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
 
   if (HttpHeaders::sendHeader (td->response, *td->connection->socket,
                                *td->secondaryBuffer, td))
-    return 1;
+    return HttpDataHandler::RET_FAILURE;
 
   if (onlyHeader)
-    return 0;
+    return HttpDataHandler::RET_OK;
 
   if (read - headerSize)
     if (appendDataToHTTPChannel (td, td->secondaryBuffer->getBuffer () + headerSize,
@@ -285,7 +284,7 @@ int Scgi::sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
                                  chain,
                                  td->appendOutputs,
                                  useChunks))
-      return -1;
+      return HttpDataHandler::RET_FAILURE;
 
   sentData += read - headerSize;
 
@@ -306,7 +305,7 @@ int Scgi::sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
                                        chain,
                                        td->appendOutputs,
                                        useChunks))
-            return -1;
+            return HttpDataHandler::RET_FAILURE;
 
           sentData += nbr;
         }
@@ -314,13 +313,13 @@ int Scgi::sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
       if (!td->appendOutputs && useChunks)
         {
           if (chain->getStream ()->write ("0\r\n\r\n", 5, &nbw))
-            return -1;
+            return HttpDataHandler::RET_FAILURE;
         }
     }
   /* For logging activity.  */
   td->sentData += sentData;
 
-  return 0;
+  return HttpDataHandler::RET_OK;
 }
 
 /*!

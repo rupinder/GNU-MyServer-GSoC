@@ -1,24 +1,24 @@
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*
- *To get more info about the FastCGI protocol please visit the official
- *FastCGI site at: http://www.fastcgi.com.
- *On that site you can find samples and all the supported languages.
+  To get more info about the FastCGI protocol please visit the official
+  FastCGI site at: http://www.fastcgi.com.
+  On that site you can find samples and all the supported languages.
  */
 #include <include/http_handler/fastcgi/fastcgi.h>
 #include <include/protocol/http/env/env.h>
@@ -44,7 +44,6 @@ int FastCgi::timeout = MYSERVER_SEC (15);
 /*! Process server manager.  */
 ProcessServerManager *FastCgi::processServerManager = 0;
 
-
 struct FourChar
 {
   union
@@ -55,7 +54,7 @@ struct FourChar
 };
 
 /*!
- *Entry-Point to manage a FastCGI request.
+ * Entry-Point to manage a FastCGI request.
  */
 int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
                    const char *cgipath, bool execute, bool onlyHeader)
@@ -89,14 +88,11 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
   if (!(td->permissions & MYSERVER_PERMISSION_EXECUTE))
     return td->http->sendAuth ();
 
-
-  {
-    string tmp;
-    tmp.assign (cgipath);
-    FilesUtility::splitPath (tmp, td->cgiRoot, td->cgiFile);
-    tmp.assign (scriptpath);
-    FilesUtility::splitPath (tmp, td->scriptDir, td->scriptFile);
-  }
+  string tmp;
+  tmp.assign (cgipath);
+  FilesUtility::splitPath (tmp, td->cgiRoot, td->cgiFile);
+  tmp.assign (scriptpath);
+  FilesUtility::splitPath (tmp, td->scriptDir, td->scriptFile);
 
   chain.setProtocol (td->http);
   chain.setProtocolData (td);
@@ -131,10 +127,10 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
         subString = !subString;
     }
   /*!
-   *Save the cgi path and the possible arguments.
-   *the (x < len) case is when additional arguments are specified.
-   *If the cgipath is enclosed between " and " do not consider them
-   *when splitting directory and file name.
+    Save the cgi path and the possible arguments.
+    the (x < len) case is when additional arguments are specified.
+    If the cgipath is enclosed between " and " do not consider them
+    when splitting directory and file name.
    */
   if (len)
     {
@@ -221,7 +217,7 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
   exit = 0;
 
   /*! Return 1 if keep the connection. A nonzero value also mean no errors. */
-  ret = 1;
+  ret = HttpDataHandler::RET_OK;
 
   initialTicks = getTicks ();
 
@@ -235,8 +231,7 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
       if (readHeader (&con, &header, initialTicks, timeout, id))
         {
           exit = 1;
-          ret = 1;
-          td->http->raiseHTTPError (500);
+          ret = td->http->raiseHTTPError (500);
           break;
         }
 
@@ -251,7 +246,7 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
       if (dim == 0)
         {
           exit = 1;
-          ret = 1;
+          ret = HttpDataHandler::RET_FAILURE;
         }
       else
         {
@@ -263,7 +258,7 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
               con.sock.close ();
               td->http->raiseHTTPError (501);
               exit = 1;
-              ret = 0;
+              ret = HttpDataHandler::RET_FAILURE;
               break;
             case FCGISTDOUT:
               headerCompleted = false;
@@ -276,7 +271,8 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
                   if (ret == 1)
                     responseCompleted = true;
                   else
-                    ret = 0;
+                    ret = HttpDataHandler::RET_FAILURE;
+
                   break;
                 }
 
@@ -310,7 +306,7 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
               if (nbr == (u_long)-1)
                 {
                   exit = 1;
-                  ret = 0;
+                  ret = HttpDataHandler::RET_FAILURE;
                   break;
                 }
               toPad -= nbr;
@@ -662,16 +658,17 @@ int FastCgi::fastCgiRequest (FcgiContext* con, int id)
 
 
 /*!
- *Handle the STDOUT data received from the FastCGI server.
- *The FastCGI header must be read previously, only the payload is processed here.
- *\param con The current FastCGI context.
- *\param dim Size of the payload.
- *\param timeout Connection timeout to use.
- *\param chain Output chain where to send data.
- *\param responseCompleted Output value.  It is true when the response is completed.
- *\param onlyHeader Send only the HTTP header.
- *\return 0 on success.
- *\return 1 if a full response is sent to the client.
+  Handle the STDOUT data received from the FastCGI server.
+  The FastCGI header must be read previously, only the payload is processed here.
+  \param con The current FastCGI context.
+  \param dim Size of the payload.
+  \param timeout Connection timeout to use.
+  \param chain Output chain where to send data.
+  \param responseCompleted Output value.  It is true when the response is completed.
+  \param onlyHeader Send only the HTTP header.
+  \return 0 on success.
+  \return 1 if a full response is sent to the client.
+  \return -1 on error.
  */
 int FastCgi::sendData (FcgiContext* con, u_long dim, u_long timeout, FiltersChain* chain,
                        bool *responseCompleted, bool onlyHeader)
