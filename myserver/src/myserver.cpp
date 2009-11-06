@@ -44,8 +44,11 @@ extern "C"
 #endif
 
 
-#define MYSERVER_RUNAS_CONSOLE 1
-#define MYSERVER_RUNAS_SERVICE 2
+enum
+{
+  MYSERVER_RUNAS_CONSOLE = 1,
+  MYSERVER_RUNAS_SERVICE
+};
 
 void consoleService (string &, string &, string &, string &,
            MainConfiguration* (*genMainConf) (Server *server, const char *arg));
@@ -61,9 +64,6 @@ void runService ();
 void registerService ();
 void removeService ();
 void runAsService ();
-
-int argn;
-char **argv;
 void registerSignals ();
 
 #ifndef WIN32
@@ -108,10 +108,10 @@ void registerSignals ()
   sig1.sa_handler = SIG_IGN;
   sig2.sa_handler = Sig_Quit;
   sig3.sa_handler = Sig_Hup;
-  sigaction (SIGPIPE,&sig1,NULL); // catch broken pipes
-  sigaction (SIGINT, &sig2,NULL); // catch ctrl-c
-  sigaction (SIGTERM,&sig2,NULL); // catch the kill signal
-  sigaction (SIGHUP,&sig3,NULL); // catch the HUP signal
+  sigaction (SIGPIPE, &sig1, NULL);
+  sigaction (SIGINT, &sig2, NULL);
+  sigaction (SIGTERM, &sig2, NULL);
+  sigaction (SIGHUP, &sig3, NULL);
 
   /* Avoid zombie processes.  */
   sigaction (SIGCHLD, &sa, (struct sigaction *)NULL);
@@ -348,14 +348,12 @@ int main  (int argn, char **argv)
 #ifdef ARGP
   struct argp_input input;
 #endif
+
 #ifndef WIN32
   pid_t pid;
   pid_t sid;
 #endif
   string mainConf, mimeConf, vhostConf, externPath;
-
-  ::argn = argn;
-  ::argv = argv;
 
   registerSignals ();
 
