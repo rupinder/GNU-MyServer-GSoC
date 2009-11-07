@@ -213,10 +213,10 @@ private:
   int mask;
 
   /*!
-   *Password that the user should provide to have access.
-   *This is used in authorization schemes like the HTTP digest,
-   *where the password is not sent in clear on the network.
-   */
+    Password that the user should provide to have access.
+    This is used in authorization schemes like the HTTP digest,
+    where the password is not sent in clear on the network.
+  */
   string neededPassword;
 
   /*! The provided password is correct.  */

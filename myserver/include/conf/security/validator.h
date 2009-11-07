@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 
+
 class Validator
 {
 public:
@@ -45,19 +46,22 @@ public:
                          AuthMethod* authMethod);
 
   virtual int getPermissionMaskImpl (SecurityToken* st,
-                                     HashMap<string, SecurityDomain*> *hashedDomains,
+                               HashMap<string, SecurityDomain*> *hashedDomains,
                                      AuthMethod* authMethod);
 
 
   string *getValue (HashMap<string, SecurityDomain*> *hashedDomains,
                     string &name);
 protected:
+  bool comparePassword (const char *password, const char *savedPassword,
+                        const char *algorithm);
+
   inline void addDomain (HashMap<string, SecurityDomain*> *hashedDomains,
                          SecurityDomain *domain)
-                        {
-                          string &name = domain->getName ();
-                          hashedDomains->put (name, domain);
-                        }
+  {
+    string &name = domain->getName ();
+    hashedDomains->put (name, domain);
+  }
 
   int getPermissionMaskInt (SecurityToken* st,
                             HashMap<string, SecurityDomain*> *hashedDomains,

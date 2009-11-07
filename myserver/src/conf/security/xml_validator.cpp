@@ -111,10 +111,10 @@ int XmlValidator::getPermissionMask (SecurityToken* st)
 
       xmlAttr *attrs = cur->properties;
 
-      xmlChar* name = NULL;
-      xmlChar* password = NULL;
-
-      int permissions =  getPermissions (attrs, &name, &password);
+      xmlChar *name = NULL;
+      xmlChar *password = NULL;
+      xmlChar *algorithm = NULL; 
+      int permissions =  getPermissions (attrs, &name, &password, &algorithm);
 
       if (!name || !password
           || xmlStrcmp (name, (const xmlChar *)st->getUser ().c_str ()))
@@ -122,15 +122,17 @@ int XmlValidator::getPermissionMask (SecurityToken* st)
 
       st->setProvidedMask (permissions);
 
-      if (xmlStrcmp (password, (const xmlChar *)st->getPassword ().c_str ()))
-        {
-          st->setAuthenticated (false);
-          st->setMask (0);
-        }
-      else
+      if (AuthMethod::comparePassword ((const char *)password,
+                                       st->getPassword ().c_str (),
+                                       (const char *)algorithm))
         {
           st->setAuthenticated (true);
           st->setMask (permissions);
+        }
+      else
+        {
+          st->setAuthenticated (false);
+          st->setMask (0);
         }
 
       return st->getMask ();
@@ -140,14 +142,16 @@ int XmlValidator::getPermissionMask (SecurityToken* st)
 }
 
 /*!
- *Get a permission mask from the attributes.
- *\param attrs Attributes list.
- *\param user The found user name.
- *\param password The found password.
- *\return the permissions mask.
+  Get a permission mask from the attributes.
+  \param attrs Attributes list.
+  \param user The found user name.
+  \param password The found password.
+  \param the crypt algorithm used on password.
+  \return the permissions mask.
  */
-int XmlValidator::getPermissions (xmlAttr* attrs, xmlChar** user,
-                                  xmlChar** password)
+int
+XmlValidator::getPermissions (xmlAttr* attrs, xmlChar** user,
+                              xmlChar** password, xmlChar **algorithm)
 {
   int permissions = 0;
 
@@ -157,13 +161,20 @@ int XmlValidator::getPermissions (xmlAttr* attrs, xmlChar** user,
           && attrs->children && attrs->children->content)
         *user = attrs->children->content;
 
-      else if (password && !xmlStrcmp (attrs->name, (const xmlChar *)"password")
+      else if (password
+               && !xmlStrcmp (attrs->name, (const xmlChar *)"password")
                && attrs->children && attrs->children->content)
         *password = attrs->children->content;
 
-      else if (!xmlStrcmp (attrs->name, (const xmlChar *)"READ") &&
-               attrs->children && attrs->children->content &&
-               !xmlStrcmp (attrs->children->content, (const xmlChar *) "YES"))
+      else if (algorithm
+               && !xmlStrcmp (attrs->name, (const xmlChar *)"algorithm")
+               && attrs->children && attrs->children->content)
+        *algorithm = attrs->children->content;
+
+      else if (!xmlStrcmp (attrs->name, (const xmlChar *)"READ")
+               && attrs->children && attrs->children->content
+               && !xmlStrcmp (attrs->children->content,
+                              (const xmlChar *) "YES"))
         permissions |= MYSERVER_PERMISSION_READ;
 
       else if (!xmlStrcmp (attrs->name, (const xmlChar *)"WRITE")
@@ -192,9 +203,10 @@ int XmlValidator::getPermissions (xmlAttr* attrs, xmlChar** user,
 /*!
  \see XmlValidator#getPermissionMaskImpl.
 */
-int XmlValidator::getPermissionMaskImpl (SecurityToken* st,
-                                HashMap<string, SecurityDomain*> *hashedDomains,
-                                         AuthMethod* authMethod)
+int
+XmlValidator::getPermissionMaskImpl (SecurityToken* st,
+                               HashMap<string, SecurityDomain*> *hashedDomains,
+                                     AuthMethod* authMethod)
 {
   XmlParser* xmlFile = getParser (st);
 
@@ -229,10 +241,11 @@ int XmlValidator::getPermissionMaskImpl (SecurityToken* st,
 /*!
  *Compute the current XML node.
  */
-int XmlValidator::computeXmlNode (xmlNodePtr node,
-                                  SecurityToken *st,
-                                  int *cmd,
-                                HashMap<string, SecurityDomain*> *hashedDomains)
+int
+XmlValidator::computeXmlNode (xmlNodePtr node,
+                              SecurityToken *st,
+                              int *cmd,
+                              HashMap<string, SecurityDomain*> *hashedDomains)
 {
   if (!node)
     return 0;
@@ -269,13 +282,9 @@ int XmlValidator::computeXmlNode (xmlNodePtr node,
           return 1;
         }
       else if (!xmlStrcmp (cur->name, (const xmlChar *) "DEFINE"))
-        {
-          doDefine (cur, st, hashedDomains);
-        }
+        doDefine (cur, st, hashedDomains);
       else if (!xmlStrcmp (cur->name, (const xmlChar *) "PERMISSION"))
-        {
-          doPermission (cur, st, hashedDomains);
-        }
+        doPermission (cur, st, hashedDomains);
     }
 
   return 0;

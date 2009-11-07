@@ -65,7 +65,7 @@ Server* Server::instance = NULL;
 
 Server::Server () : connectionsScheduler (this),
                    listenThreads (&connectionsScheduler, this),
-                   authMethodFactory (),
+                   authMethodFactory (&cryptAlgoManager),
                    validatorFactory (),
                    securityManager (&validatorFactory, &authMethodFactory),
                    connectionsPool (100)

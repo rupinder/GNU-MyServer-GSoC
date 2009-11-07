@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # include "stdafx.h"
 # include <include/conf/security/security_manager.h>
 
+# include <include/base/crypt/crypt_algo_manager.h>
+
 using namespace std;
 
 class AuthMethod
@@ -32,6 +34,16 @@ public:
   virtual ~AuthMethod ();
 
   virtual int getPermissionMask (SecurityToken* st);
+
+  CryptAlgoManager *getCryptAlgoManager () {return cryptAlgoManager;}
+  void setCryptAlgoManager (CryptAlgoManager *cam){cryptAlgoManager = cam;}
+  
+
+protected:
+  bool comparePassword (const char *password, const char *savedPassword,
+                        const char *algorithm);
+
+  CryptAlgoManager *cryptAlgoManager;
 };
 
 #endif

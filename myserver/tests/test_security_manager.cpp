@@ -42,6 +42,11 @@ class TestSecurityManager : public CppUnit::TestFixture
   ValidatorFactory validatorFactory;
   SecurityManager* securityManager;
 public:
+
+  TestSecurityManager () : authMethodFactory (NULL)
+  {
+  }
+
   void setUp ()
   {
     securityManager = new SecurityManager (&validatorFactory, &authMethodFactory);

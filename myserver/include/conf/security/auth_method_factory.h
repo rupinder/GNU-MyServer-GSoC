@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # include "stdafx.h"
 # include <include/base/hash_map/hash_map.h>
 # include <string>
+# include <include/base/crypt/crypt_algo_manager.h>
 
 using namespace std;
 
@@ -31,12 +32,14 @@ class AuthMethod;
 class AuthMethodFactory
 {
 public:
-  AuthMethodFactory ();
+  AuthMethodFactory (CryptAlgoManager *cryptAlgoManager);
   virtual ~AuthMethodFactory ();
   AuthMethod* getAuthMethod (string &name);
   AuthMethod* addAuthMethod (string &name, AuthMethod* authMethod);
   bool isAuthMethodPresent (string &name);
+
 private:
+  CryptAlgoManager *cryptAlgoManager;
 	HashMap<string, AuthMethod*> authMethods;
 };
 #endif

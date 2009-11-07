@@ -60,21 +60,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-/*!
- *Definition for new threads entry-point.
- */
-# ifdef WIN32
-unsigned int __stdcall listenServer (void* pParam);
-# else
-void* listenServer (void* pParam);
-# endif
-
 class XmlValidator;
 
 class Server : public MulticastRegistry<string, void*, int>
 {
 public:
-  ProcessServerManager* getProcessServerManager ()
+
+  static inline Server* getInstance ()
+  {
+    return instance;
+  }
+
+  ProcessServerManager *getProcessServerManager ()
   {
     return &processServerManager;
   }
@@ -82,15 +79,11 @@ public:
   bool stopServer (){return mustEndServer;}
   HomeDir* getHomeDir ();
   static void createInstance ();
-  static inline Server* getInstance ()
-  {
-    return instance;
-  }
 
   int loadLibraries ();
 
   CachedFileFactory* getCachedFiles ();
-  const char* getData (const char *name, const char *defValue = NULL);
+  const char *getData (const char *name, const char *defValue = NULL);
 
   FiltersFactory* getFiltersFactory ();
   int getMaxThreads ();
@@ -146,7 +139,9 @@ public:
   MimeManager *getMimeManager (){return &mimeManager;}
 
   void setProcessPermissions ();
-  ConnectionsScheduler* getConnectionsScheduler (){return &connectionsScheduler;}
+  ConnectionsScheduler* getConnectionsScheduler ()
+  {return &connectionsScheduler;}
+
   int deleteConnection (ConnectionPtr);
 
   int notifyDeleteConnection (ConnectionPtr);
@@ -174,9 +169,9 @@ private:
   int loadVHostConf ();
 
   /*!
-   *When the flag mustEndServer is 1 all the threads are
-   *stopped and the application stop its execution.
-   */
+    When the flag mustEndServer is 1 all the threads are
+    stopped and the application stop its execution.
+  */
   int mustEndServer;
 
   Mutex connectionsPoolLock;
@@ -227,8 +222,8 @@ private:
   int initialize ();
   int addThread (bool staticThread = false);
   ConnectionPtr addConnectionToList (Socket* s, MYSERVER_SOCKADDRIN *asock_in,
-                                    char *ipAddr, char *localIpAddr,
-                                    u_short port, u_short localPort, int);
+                                     char *ipAddr, char *localIpAddr,
+                                     u_short port, u_short localPort, int);
   u_long maxConnections;
   u_long maxConnectionsToAccept;
   void clearAllConnections ();

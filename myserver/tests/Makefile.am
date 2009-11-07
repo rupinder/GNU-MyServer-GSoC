@@ -2,11 +2,11 @@
 #
 
 bin_PROGRAMS = tests_suite
-tests_suite_SOURCES = main.cpp test_auth_domain.cpp test_base64.cpp \
-	test_bitvec.cpp test_cached_file_buffer.cpp test_cached_file.cpp \
-	test_cached_file_factory.cpp test_crypt_algo_manager.cpp test_connection.cpp \
-	test_connections_scheduler.cpp test_file.cpp test_file_stream.cpp \
-	test_file_stream_creator.cpp test_files_utility.cpp \
+tests_suite_SOURCES = main.cpp test_auth_domain.cpp test_auth_method.cpp \
+  test_base64.cpp test_bitvec.cpp test_cached_file_buffer.cpp \
+	test_cached_file.cpp test_cached_file_factory.cpp test_crypt_algo_manager.cpp \
+	test_connection.cpp test_connections_scheduler.cpp test_file.cpp \
+	test_file_stream.cpp test_file_stream_creator.cpp test_files_utility.cpp \
 	test_filter_chain.cpp test_fork_server.cpp test_ftp.cpp test_gzip.cpp \
 	test_hashmap.cpp test_homedir.cpp test_http_req_security_domain.cpp \
 	test_http_request.cpp test_http_response.cpp test_ip.cpp \

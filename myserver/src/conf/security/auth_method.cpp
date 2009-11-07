@@ -22,7 +22,7 @@
 
 AuthMethod::AuthMethod ()
 {
-
+  cryptAlgoManager = NULL;
 }
 
 AuthMethod::~AuthMethod ()
@@ -36,4 +36,27 @@ AuthMethod::~AuthMethod ()
 int AuthMethod::getPermissionMask (SecurityToken* st)
 {
   return 0;
+}
+
+
+/*!
+ * Check if ALGORITHM (SAVED_PASSWORD) = PASSWORD.
+ */
+bool AuthMethod::comparePassword (const char *password,
+                                  const char *savedPassword,
+                                  const char *algorithm)
+{
+  if (!algorithm)
+    return  strcmpi (password, savedPassword) == 0;
+
+  if (cryptAlgoManager)
+    {
+      string pwStr (password);
+      string savedpwStr (savedPassword);
+      string algorithmStr (algorithm);
+
+      return cryptAlgoManager->check (savedpwStr, pwStr, algorithmStr);
+    }
+
+  return false;
 }

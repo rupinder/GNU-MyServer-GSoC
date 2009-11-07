@@ -25,9 +25,9 @@
 
 using namespace std;
 
-AuthMethodFactory::AuthMethodFactory ()
+AuthMethodFactory::AuthMethodFactory (CryptAlgoManager *cryptAlgoManager)
 {
-
+  this->cryptAlgoManager = cryptAlgoManager;
 }
 
 AuthMethodFactory::~AuthMethodFactory ()
@@ -36,30 +36,31 @@ AuthMethodFactory::~AuthMethodFactory ()
 }
 
 /*!
- *Return an AuthMethod given its name.
- */
+  Return an AuthMethod given its name.
+*/
 AuthMethod* AuthMethodFactory::getAuthMethod (string &name)
 {
   return authMethods.get (name);
 }
 
 /*!
- *Add a new AuthMethod to the factory.
- *\param name AuthMethod name.
- *\param authMethod The authMethod to add.
- *\return The old authMethod registered with [name], in any.
- */
-AuthMethod* AuthMethodFactory::addAuthMethod (string &name, AuthMethod* authMethod)
+  Add a new AuthMethod to the factory.
+  \param name AuthMethod name.
+  \param authMethod The authMethod to add.
+  \return The old authMethod registered with [name], in any.
+*/
+AuthMethod* AuthMethodFactory::addAuthMethod (string &name,
+                                              AuthMethod* authMethod)
 {
+  authMethod->setCryptAlgoManager (cryptAlgoManager);
   return authMethods.put (name, authMethod);
-
 }
 
 /*!
- *Check if the specified authMethod is present in the factory.
- *\param name The authMethod name.
- *\return a bool value to indicate if it is present or not.
- */
+  Check if the specified authMethod is present in the factory.
+  \param name The authMethod name.
+  \return a bool value to indicate if it is present or not.
+*/
 bool AuthMethodFactory::isAuthMethodPresent (string &name)
 {
   return getAuthMethod (name) != NULL;

@@ -74,6 +74,20 @@ denied.
 As no other information beside username:password is used, this first
 phase is the same for any protocol supported by MyServer.
 
+To improve security it is possible to use in place of the clear-text
+password a crypted version of it.  It is done using the
+@code{algorithm} variable.  It specifies the function F to apply to
+the client specified password before compare it with the
+@code{password} value.
+
+@example
+<SECURITY>
+  <USER name="admin" password="8ee0f7b66d1ab05714573fc556fbd7ff"
+               algorithm="md5" READ="YES" EXECUTE="YES"
+               BROWSE="YES" DELETE="NO" WRITE="NO"/>
+</SECURITY>
+@end example
+
 @subsection FTP Anonymous user
 To allow the @file{.security.xml} re-use, the FTP ``Anonymous'' user
 is mapped internally by MyServer to the ``Guest'' user.
