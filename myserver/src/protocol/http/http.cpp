@@ -132,18 +132,18 @@ int Http::optionsHTTPRESOURCE (string& filename, int yetmapped)
         return raiseHTTPError (ret);
 
       getRFC822GMTTime (time, 32);
-      td->secondaryBuffer->setLength (0);
-      *td->secondaryBuffer << "HTTP/1.1 200 OK\r\n";
-      *td->secondaryBuffer << "Date: " << time;
-      *td->secondaryBuffer << "\r\nServer: GNU MyServer " << MYSERVER_VERSION;
+      td->auxiliaryBuffer->setLength (0);
+      *td->auxiliaryBuffer << "HTTP/1.1 200 OK\r\n";
+      *td->auxiliaryBuffer << "Date: " << time;
+      *td->auxiliaryBuffer << "\r\nServer: GNU MyServer " << MYSERVER_VERSION;
       if (connection && connection->value->length ())
-        *td->secondaryBuffer << "\r\nConnection:" << connection->value->c_str () << "\r\n";
-      *td->secondaryBuffer << "Content-length: 0\r\nAccept-Ranges: bytes\r\n";
-      *td->secondaryBuffer << "Allow: " << methods << "\r\n\r\n";
+        *td->auxiliaryBuffer << "\r\nConnection:" << connection->value->c_str () << "\r\n";
+      *td->auxiliaryBuffer << "Content-length: 0\r\nAccept-Ranges: bytes\r\n";
+      *td->auxiliaryBuffer << "Allow: " << methods << "\r\n\r\n";
 
       /* Send the HTTP header. */
-      ret = td->connection->socket->send (td->secondaryBuffer->getBuffer (),
-                                          td->secondaryBuffer->getLength (), 0);
+      ret = td->connection->socket->send (td->auxiliaryBuffer->getBuffer (),
+                                          td->auxiliaryBuffer->getLength (), 0);
       if (ret == SOCKET_ERROR)
         {
           td->connection->host->warningsLogWrite (_("HTTP: socket error"));
@@ -180,21 +180,21 @@ int Http::traceHTTPRESOURCE (string& filename, int yetmapped)
       tmp.intToStr (contentLength, tmpStr, 12);
       getRFC822GMTTime (time, 32);
 
-      td->secondaryBuffer->setLength (0);
-      *td->secondaryBuffer << "HTTP/1.1 200 OK\r\n";
-      *td->secondaryBuffer << "Date: " << time << "\r\n";
-      *td->secondaryBuffer << "Server: GNU MyServer " << MYSERVER_VERSION << "\r\n";
+      td->auxiliaryBuffer->setLength (0);
+      *td->auxiliaryBuffer << "HTTP/1.1 200 OK\r\n";
+      *td->auxiliaryBuffer << "Date: " << time << "\r\n";
+      *td->auxiliaryBuffer << "Server: GNU MyServer " << MYSERVER_VERSION << "\r\n";
       connection = td->request.other.get ("Connection");
       if (connection && connection->value->length ())
-        *td->secondaryBuffer << "Connection:" << connection->value->c_str () << "\r\n";
+        *td->auxiliaryBuffer << "Connection:" << connection->value->c_str () << "\r\n";
 
-      *td->secondaryBuffer << "Content-length:" << tmp << "\r\n"
+      *td->auxiliaryBuffer << "Content-length:" << tmp << "\r\n"
               << "Content-type: message/http\r\n"
               << "Accept-Ranges: bytes\r\n\r\n";
 
       /* Send our HTTP header.  */
-      ret = td->connection->socket->send (td->secondaryBuffer->getBuffer (),
-                                          (u_long) td->secondaryBuffer->getLength (), 0);
+      ret = td->connection->socket->send (td->auxiliaryBuffer->getBuffer (),
+                                          (u_long) td->auxiliaryBuffer->getLength (), 0);
       if (ret == SOCKET_ERROR)
         {
           td->connection->host->warningsLogWrite (_("HTTP: socket error"));
@@ -569,13 +569,13 @@ u_long Http::checkDigest ()
     ((HttpUserData*) td->connection->protocolBuffer)->nc++;
 
   md5.init ();
-  td->secondaryBuffer->setLength (0);
-  *td->secondaryBuffer << td->request.digestUsername << ":"
+  td->auxiliaryBuffer->setLength (0);
+  *td->auxiliaryBuffer << td->request.digestUsername << ":"
                        << td->request.digestRealm
                        << ":" << td->securityToken.getNeededPassword ();
 
-  md5.update ((char const*) td->secondaryBuffer->getBuffer (),
-              (unsigned int) td->secondaryBuffer->getLength ());
+  md5.update ((char const*) td->auxiliaryBuffer->getBuffer (),
+              (unsigned int) td->auxiliaryBuffer->getLength ());
   md5.end (A1);
 
   md5.init ();
@@ -585,20 +585,20 @@ u_long Http::checkDigest ()
   else
     uri = (char*) td->request.uriOpts.c_str ();
 
-  td->secondaryBuffer->setLength (0);
-  *td->secondaryBuffer << td->request.cmd.c_str () << ":" << uri;
-  md5.update ((char const*) td->secondaryBuffer->getBuffer (),
-              (unsigned int) td->secondaryBuffer->getLength ());
+  td->auxiliaryBuffer->setLength (0);
+  *td->auxiliaryBuffer << td->request.cmd.c_str () << ":" << uri;
+  md5.update ((char const*) td->auxiliaryBuffer->getBuffer (),
+              (unsigned int) td->auxiliaryBuffer->getLength ());
   md5.end (A2);
 
   md5.init ();
-  td->secondaryBuffer->setLength (0);
-  *td->secondaryBuffer << A1 << ":"
+  td->auxiliaryBuffer->setLength (0);
+  *td->auxiliaryBuffer << A1 << ":"
           << ((HttpUserData*) td->connection->protocolBuffer)->nonce << ":"
           << td->request.digestNc << ":" << td->request.digestCnonce << ":"
           << td->request.digestQop << ":" << A2;
-  md5.update ((char const*) td->secondaryBuffer->getBuffer (),
-              (unsigned int) td->secondaryBuffer->getLength ());
+  md5.update ((char const*) td->auxiliaryBuffer->getBuffer (),
+              (unsigned int) td->auxiliaryBuffer->getLength ());
   md5.end (response);
 
   return strcmp (response, td->request.digestResponse) ? 0 : 1;
@@ -715,50 +715,50 @@ int Http::logHTTPaccess ()
 
   try
     {
-      td->secondaryBuffer->setLength (0);
-      *td->secondaryBuffer << td->connection->getIpAddr ();
-      *td->secondaryBuffer << " ";
+      td->auxiliaryBuffer->setLength (0);
+      *td->auxiliaryBuffer << td->connection->getIpAddr ();
+      *td->auxiliaryBuffer << " ";
 
       if (td->connection->getLogin ()[0])
-        *td->secondaryBuffer << td->connection->getLogin ();
+        *td->auxiliaryBuffer << td->connection->getLogin ();
       else
-        *td->secondaryBuffer << "-";
+        *td->auxiliaryBuffer << "-";
 
-      *td->secondaryBuffer << " ";
+      *td->auxiliaryBuffer << " ";
 
       if (td->connection->getLogin ()[0])
-        *td->secondaryBuffer << td->connection->getLogin ();
+        *td->auxiliaryBuffer << td->connection->getLogin ();
       else
-        *td->secondaryBuffer << "-";
+        *td->auxiliaryBuffer << "-";
 
-      *td->secondaryBuffer << " [";
+      *td->auxiliaryBuffer << " [";
 
       getLocalLogFormatDate (time, 32);
-      *td->secondaryBuffer << time << "] \"";
+      *td->auxiliaryBuffer << time << "] \"";
 
       if (td->request.cmd.length ())
-        *td->secondaryBuffer << td->request.cmd.c_str () << "";
+        *td->auxiliaryBuffer << td->request.cmd.c_str () << "";
 
       if (td->request.cmd.length () || td->request.uri.length ())
-        *td->secondaryBuffer << " ";
+        *td->auxiliaryBuffer << " ";
 
       if (td->request.uri.length () == '\0')
-        *td->secondaryBuffer << "/";
+        *td->auxiliaryBuffer << "/";
       else
-        *td->secondaryBuffer << td->request.uri.c_str ();
+        *td->auxiliaryBuffer << td->request.uri.c_str ();
 
       if (td->request.uriOpts.length ())
-        *td->secondaryBuffer << "?" << td->request.uriOpts.c_str ();
+        *td->auxiliaryBuffer << "?" << td->request.uriOpts.c_str ();
 
       sprintf (tmpStrInt, "%u ", td->response.httpStatus);
 
       if (td->request.ver.length ())
-        *td->secondaryBuffer << " " << td->request.ver.c_str ();
+        *td->auxiliaryBuffer << " " << td->request.ver.c_str ();
 
-      *td->secondaryBuffer << "\" " << tmpStrInt << " ";
+      *td->auxiliaryBuffer << "\" " << tmpStrInt << " ";
 
       sprintf (tmpStrInt, "%u", td->sentData);
-      *td->secondaryBuffer << tmpStrInt;
+      *td->auxiliaryBuffer << tmpStrInt;
 
       if (td->connection->host)
         {
@@ -766,19 +766,19 @@ int Http::logHTTPaccess ()
           HttpRequestHeader::Entry *referer = td->request.other.get ("Refer");
 
           if (strstr ((td->connection->host)->getAccessLogOpt (), "type=combined"))
-            *td->secondaryBuffer << " " << (referer ? referer->value->c_str () : "")
+            *td->auxiliaryBuffer << " " << (referer ? referer->value->c_str () : "")
             << " " << (userAgent ? userAgent->value->c_str () : "");
         }
 
-      *td->secondaryBuffer << end_str;
+      *td->auxiliaryBuffer << end_str;
 
       /*
        * Request the access to the log file then append the message.
        */
       if (td->connection->host)
-        td->connection->host->accessesLogWrite ("%s", td->secondaryBuffer->getBuffer ());
+        td->connection->host->accessesLogWrite ("%s", td->auxiliaryBuffer->getBuffer ());
 
-      td->secondaryBuffer->setLength (0);
+      td->auxiliaryBuffer->setLength (0);
     }
   catch (...)
     {
@@ -803,7 +803,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
   try
     {
       td->buffer = a->getActiveThread ()->getBuffer ();
-      td->secondaryBuffer = a->getActiveThread ()->getSecondaryBuffer ();
+      td->auxiliaryBuffer = a->getActiveThread ()->getSecondaryBuffer ();
       td->buffersize = a->getActiveThread ()->getBufferSize ();
       td->nBytesToRead = nbtr;
       td->connection = a;
@@ -1227,18 +1227,18 @@ int Http::requestAuthorization ()
   HttpRequestHeader::Entry *connection = td->request.other.get ("Connection");
   HttpRequestHeader::Entry *host = td->request.other.get ("Host");
   td->response.httpStatus = 401;
-  td->secondaryBuffer->setLength (0);
-  *td->secondaryBuffer << "HTTP/1.1 401 Unauthorized\r\n"
+  td->auxiliaryBuffer->setLength (0);
+  *td->auxiliaryBuffer << "HTTP/1.1 401 Unauthorized\r\n"
           << "Accept-Ranges: bytes\r\n";
-  *td->secondaryBuffer << "Server: GNU MyServer " << MYSERVER_VERSION << "\r\n";
-  *td->secondaryBuffer << "Content-type: text/html\r\n"
+  *td->auxiliaryBuffer << "Server: GNU MyServer " << MYSERVER_VERSION << "\r\n";
+  *td->auxiliaryBuffer << "Content-type: text/html\r\n"
           << "Connection: ";
-  *td->secondaryBuffer << (connection ? connection->value->c_str () : "");
-  *td->secondaryBuffer << "\r\nContent-length: 0\r\n";
+  *td->auxiliaryBuffer << (connection ? connection->value->c_str () : "");
+  *td->auxiliaryBuffer << "\r\nContent-length: 0\r\n";
 
   if (td->authScheme == HTTP_AUTH_SCHEME_BASIC)
     {
-      *td->secondaryBuffer << "WWW-Authenticate: Basic realm=\""
+      *td->auxiliaryBuffer << "WWW-Authenticate: Basic realm=\""
                            << (host ? host->value->c_str () : "")
                            << "\"\r\n";
     }
@@ -1277,15 +1277,15 @@ int Http::requestAuthorization ()
           hud->nc = 0;
         }
 
-      *td->secondaryBuffer << "WWW-Authenticate: digest "
+      *td->auxiliaryBuffer << "WWW-Authenticate: digest "
                            << " qop=\"auth\", algorithm =\"MD5\", realm =\""
                            << hud->realm << "\",  opaque =\"" << hud->opaque
                            << "\",  nonce =\"" << hud->nonce << "\" ";
 
       if (hud->cnonce[0])
-        *td->secondaryBuffer << ", cnonce =\"" << hud->cnonce << "\" ";
+        *td->auxiliaryBuffer << ", cnonce =\"" << hud->cnonce << "\" ";
 
-      *td->secondaryBuffer << "\r\n";
+      *td->auxiliaryBuffer << "\r\n";
     }
   else
     {
@@ -1293,12 +1293,12 @@ int Http::requestAuthorization ()
       return raiseHTTPError (501);
     }
 
-  *td->secondaryBuffer << "Date: ";
+  *td->auxiliaryBuffer << "Date: ";
   getRFC822GMTTime (time, 32);
-  *td->secondaryBuffer << time << "\r\n\r\n";
+  *td->auxiliaryBuffer << time << "\r\n\r\n";
 
-  if (td->connection->socket->send (td->secondaryBuffer->getBuffer (),
-                                    td->secondaryBuffer->getLength (), 0) < 0)
+  if (td->connection->socket->send (td->auxiliaryBuffer->getBuffer (),
+                                    td->auxiliaryBuffer->getLength (), 0) < 0)
     {
       td->connection->host->warningsLogWrite (_("HTTP: socket error"));
       return HttpDataHandler::RET_FAILURE;
@@ -1484,20 +1484,20 @@ Internal Server Error\n\
   *td->buffer << " from: ";
   *td->buffer << td->connection->getIpAddr ();
   *td->buffer << "\r\n";
-  td->secondaryBuffer->setLength (0);
-  *td->secondaryBuffer << "HTTP/1.1 500 System Error\r\n";
-  *td->secondaryBuffer << "Server: GNU MyServer " << MYSERVER_VERSION << "\r\n";
-  *td->secondaryBuffer << " Content-type: text/html\r\nContent-length: ";
+  td->auxiliaryBuffer->setLength (0);
+  *td->auxiliaryBuffer << "HTTP/1.1 500 System Error\r\n";
+  *td->auxiliaryBuffer << "Server: GNU MyServer " << MYSERVER_VERSION << "\r\n";
+  *td->auxiliaryBuffer << " Content-type: text/html\r\nContent-length: ";
   tmp.intToStr ((int) strlen (hardHTML), tmpStr, 12);
-  *td->secondaryBuffer << tmp;
-  *td->secondaryBuffer << "\r\n";
-  *td->secondaryBuffer << "Date: ";
+  *td->auxiliaryBuffer << tmp;
+  *td->auxiliaryBuffer << "\r\n";
+  *td->auxiliaryBuffer << "Date: ";
   getRFC822GMTTime (time, 32);
-  *td->secondaryBuffer << time;
-  *td->secondaryBuffer << "\r\n\r\n";
+  *td->auxiliaryBuffer << time;
+  *td->auxiliaryBuffer << "\r\n\r\n";
 
-  if (td->connection->socket->send (td->secondaryBuffer->getBuffer (),
-                                    (u_long) td->secondaryBuffer->getLength (),
+  if (td->connection->socket->send (td->auxiliaryBuffer->getBuffer (),
+                                    (u_long) td->auxiliaryBuffer->getLength (),
                                     0) < 0)
     return HttpDataHandler::RET_FAILURE;
 
@@ -1666,24 +1666,24 @@ int Http::sendHTTPRedirect (const char *newURL)
   HttpRequestHeader::Entry *connection = td->request.other.get ("Connection");
 
   td->response.httpStatus = 302;
-  td->secondaryBuffer->setLength (0);
-  *td->secondaryBuffer << "HTTP/1.1 302 Moved\r\nAccept-Ranges: bytes\r\n"
+  td->auxiliaryBuffer->setLength (0);
+  *td->auxiliaryBuffer << "HTTP/1.1 302 Moved\r\nAccept-Ranges: bytes\r\n"
           << "Server: GNU MyServer " << MYSERVER_VERSION << "\r\n"
           << "Content-type: text/html\r\n"
           << "Location: " << newURL << "\r\n"
           << "Content-length: 0\r\n";
 
   if (connection && !stringcmpi (connection->value->c_str (), "keep-alive"))
-    *td->secondaryBuffer << "Connection: keep-alive\r\n";
+    *td->auxiliaryBuffer << "Connection: keep-alive\r\n";
   else
-    *td->secondaryBuffer << "Connection: close\r\n";
+    *td->auxiliaryBuffer << "Connection: close\r\n";
 
-  *td->secondaryBuffer << "Date: ";
+  *td->auxiliaryBuffer << "Date: ";
   getRFC822GMTTime (time, 32);
-  *td->secondaryBuffer << time
+  *td->auxiliaryBuffer << time
           << "\r\n\r\n";
-  if (td->connection->socket->send (td->secondaryBuffer->getBuffer (),
-                                    (int) td->secondaryBuffer->getLength (), 0) < 0)
+  if (td->connection->socket->send (td->auxiliaryBuffer->getBuffer (),
+                                    (int) td->auxiliaryBuffer->getLength (), 0) < 0)
     {
       td->connection->host->warningsLogWrite (_("HTTP: socket error"));
       return HttpDataHandler::RET_FAILURE;
@@ -1701,21 +1701,21 @@ int Http::sendHTTPNonModified ()
   HttpRequestHeader::Entry *connection = td->request.other.get ("Connection");
 
   td->response.httpStatus = 304;
-  td->secondaryBuffer->setLength (0);
-  *td->secondaryBuffer << "HTTP/1.1 304 Not Modified\r\nAccept-Ranges: bytes\r\n"
+  td->auxiliaryBuffer->setLength (0);
+  *td->auxiliaryBuffer << "HTTP/1.1 304 Not Modified\r\nAccept-Ranges: bytes\r\n"
           << "Server: GNU MyServer " << MYSERVER_VERSION << "\r\n";
 
   if (connection && !stringcmpi (connection->value->c_str (), "keep-alive"))
-    *td->secondaryBuffer << "Connection: keep-alive\r\n";
+    *td->auxiliaryBuffer << "Connection: keep-alive\r\n";
   else
-    *td->secondaryBuffer << "Connection: close\r\n";
+    *td->auxiliaryBuffer << "Connection: close\r\n";
 
   getRFC822GMTTime (time, 32);
 
-  *td->secondaryBuffer << "Date: " << time << "\r\n\r\n";
+  *td->auxiliaryBuffer << "Date: " << time << "\r\n\r\n";
 
-  if (td->connection->socket->send (td->secondaryBuffer->getBuffer (),
-                                    (int) td->secondaryBuffer->getLength (), 0) < 0)
+  if (td->connection->socket->send (td->auxiliaryBuffer->getBuffer (),
+                                    (int) td->auxiliaryBuffer->getLength (), 0) < 0)
     {
       td->connection->host->warningsLogWrite (_("HTTP: socket error"));
       return HttpDataHandler::RET_FAILURE;

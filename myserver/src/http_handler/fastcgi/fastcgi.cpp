@@ -114,7 +114,7 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
     }
 
   td->buffer->setLength (0);
-  td->secondaryBuffer->getAt (0) = '\0';
+  td->auxiliaryBuffer->getAt (0) = '\0';
 
 
   /*! Do not modify the text between " and ".  */
@@ -573,7 +573,7 @@ int FastCgi::fastCgiRequest (FcgiContext* con, int id)
 
   Env::buildEnvironmentString (td, td->buffer->getBuffer ());
   sizeEnvString = buildFASTCGIEnvironmentString (td,td->buffer->getBuffer (),
-                                                td->secondaryBuffer->getBuffer ());
+                                                td->auxiliaryBuffer->getBuffer ());
   if (sizeEnvString == -1)
   {
     td->buffer->setLength (0);
@@ -594,7 +594,7 @@ int FastCgi::fastCgiRequest (FcgiContext* con, int id)
     return 1;
   }
 
-  if (sendFcgiBody (con, td->secondaryBuffer->getBuffer (), sizeEnvString,
+  if (sendFcgiBody (con, td->auxiliaryBuffer->getBuffer (), sizeEnvString,
                   FCGIPARAMS, id))
   {
     td->buffer->setLength (0);
@@ -787,7 +787,7 @@ int FastCgi::handleHeader (FcgiContext* con, FiltersChain* chain, bool* response
     }
 
   if (HttpHeaders::sendHeader (con->td->response, *con->td->connection->socket,
-                               *con->td->secondaryBuffer, con->td))
+                               *con->td->auxiliaryBuffer, con->td))
     {
       *responseCompleted = true;
       return 1;

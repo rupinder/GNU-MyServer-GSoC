@@ -85,7 +85,7 @@ private:
   bool isRunning ();
   bool isStopped ();
   MemBuf buffer;
-  MemBuf secondaryBuffer;
+  MemBuf auxiliaryBuffer;
   int controlConnections ();
   u_long nBytesToRead;
 };

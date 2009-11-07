@@ -92,14 +92,14 @@ int Proxy::send (HttpThreadContext *td,
     return td->http->raiseHTTPError (500);
 
   if (HttpHeaders::sendHeader (td->response, *td->connection->socket,
-                               *td->secondaryBuffer, td))
+                               *td->auxiliaryBuffer, td))
     {
       chain.clearAllFilters ();
       return HttpDataHandler::RET_FAILURE;
     }
 
   if (td->request.uriOptsPtr &&
-      td->inputData.fastCopyToSocket (&sock, 0, td->secondaryBuffer, &nbw))
+      td->inputData.fastCopyToSocket (&sock, 0, td->auxiliaryBuffer, &nbw))
     {
       sock.close ();
       return td->http->raiseHTTPError (500);
@@ -143,15 +143,15 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
 
   do
     {
-      if (client.recv (td->secondaryBuffer->getBuffer () + read,
-                       td->secondaryBuffer->getRealLength () - read,
+      if (client.recv (td->auxiliaryBuffer->getBuffer () + read,
+                       td->auxiliaryBuffer->getRealLength () - read,
                        0,
                        td->http->getTimeout () == 0))
         return td->http->raiseHTTPError (500);
 
       read += ret;
 
-      if (HttpHeaders::buildHTTPResponseHeaderStruct (td->secondaryBuffer->getBuffer (),
+      if (HttpHeaders::buildHTTPResponseHeaderStruct (td->auxiliaryBuffer->getBuffer (),
                                                       &td->response,
                                                       &headerLength))
       ret = HttpDataHandler::RET_FAILURE;
@@ -202,7 +202,7 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
                      &td->response,
                      &out,
                      &client,
-                     td->secondaryBuffer->getBuffer () + headerLength,
+                     td->auxiliaryBuffer->getBuffer () + headerLength,
                      read - headerLength,
                      td->http->getTimeout (),
                      useChunks,

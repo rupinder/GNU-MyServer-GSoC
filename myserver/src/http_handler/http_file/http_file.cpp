@@ -221,7 +221,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
   bool keepalive = false;
   bool useChunks = false;
   bool useModifiers = false;
-  MemoryStream memStream (td->secondaryBuffer);
+  MemoryStream memStream (td->auxiliaryBuffer);
   FiltersChain chain;
   u_long nbw;
   u_long nbr;

@@ -320,8 +320,8 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
                                      &inPos,
                                      bufferDataSize,
                                      td->connection->socket,
-                                     td->secondaryBuffer->getBuffer (),
-                                     td->secondaryBuffer->getRealLength () - 1,
+                                     td->auxiliaryBuffer->getBuffer (),
+                                     td->auxiliaryBuffer->getRealLength () - 1,
                                      &nbr,
                                      timeout,
                                      &(td->inputData),
@@ -360,14 +360,14 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
         {
 
           /* Do not try to read more than what we expect.  */
-          u_long dimBuffer = std::min (td->secondaryBuffer->getRealLength () - 1ul,
+          u_long dimBuffer = std::min (td->auxiliaryBuffer->getRealLength () - 1ul,
                                        length);
 
           if (readContiguousPrimitivePostData (td->request.uriOptsPtr,
                                                &inPos,
                                                bufferDataSize,
                                                td->connection->socket,
-                                               td->secondaryBuffer->getBuffer (),
+                                               td->auxiliaryBuffer->getBuffer (),
                                                dimBuffer,
                                                &nbr,
                                                timeout))
@@ -388,9 +388,9 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
               return 1;
             }
 
-          td->secondaryBuffer->getBuffer ()[nbr] = '\0';
+          td->auxiliaryBuffer->getBuffer ()[nbr] = '\0';
 
-          if (nbr && td->inputData.writeToFile (td->secondaryBuffer->getBuffer (),
+          if (nbr && td->inputData.writeToFile (td->auxiliaryBuffer->getBuffer (),
                                                 nbr, &nbw))
             {
               td->inputDataPath.assign ("");

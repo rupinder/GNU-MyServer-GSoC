@@ -90,7 +90,7 @@ struct FtpThreadContext
   FtpThreadContext ();
   ConnectionPtr pConnection;
   MemBuf *buffer;
-  MemBuf *secondaryBuffer;
+  MemBuf *auxiliaryBuffer;
   u_long buffersize;
   u_long m_nParseLength;
   u_long nBytesToRead;

@@ -53,7 +53,7 @@ void Env::buildEnvironmentString (HttpThreadContext* td, char *cgiEnv,
   char strTmp[32];
   HttpRequestHeader::Entry* reqEntry = NULL;
 
-  memCgi.setExternalBuffer (cgiEnv, td->secondaryBuffer->getRealLength ());
+  memCgi.setExternalBuffer (cgiEnv, td->auxiliaryBuffer->getRealLength ());
   memCgi << "SERVER_SOFTWARE=GNU MyServer " << MYSERVER_VERSION;
 
 #ifdef WIN32

@@ -71,7 +71,7 @@ ClientsThread::~ClientsThread ()
   threadIsRunning = false;
 
   buffer.free ();
-  secondaryBuffer.free ();
+  auxiliaryBuffer.free ();
 }
 
 /*!
@@ -125,8 +125,8 @@ DEFINE_THREAD (clients_thread, pParam)
   ct->buffer.setRealLength (ct->bufferSize);
   ct->buffer.setSizeLimit (ct->bufferSize);
 
-  ct->secondaryBuffer.setRealLength (ct->bufferSize);
-  ct->secondaryBuffer.setSizeLimit (ct->bufferSize);
+  ct->auxiliaryBuffer.setRealLength (ct->bufferSize);
+  ct->auxiliaryBuffer.setSizeLimit (ct->bufferSize);
 
   /* Built-in protocols will be initialized at the first use.  */
   ct->initialized = true;
@@ -297,9 +297,9 @@ int ClientsThread::controlConnections ()
     if (c->hasContinuation ())
       {
         retcode = c->getContinuation ()(c, (char*)buffer.getBuffer (),
-                                   (char*)secondaryBuffer.getBuffer (),
+                                   (char*)auxiliaryBuffer.getBuffer (),
                                    buffer.getRealLength (),
-                                   secondaryBuffer.getRealLength (),
+                                   auxiliaryBuffer.getRealLength (),
                                    nBytesToRead, id);
         c->setContinuation (NULL);
       }
@@ -308,9 +308,9 @@ int ClientsThread::controlConnections ()
         protocol = server->getProtocol (c->host->getProtocolName ());
         if (protocol)
           retcode = protocol->controlConnection (c, (char*)buffer.getBuffer (),
-                                           (char*)secondaryBuffer.getBuffer (),
+                                           (char*)auxiliaryBuffer.getBuffer (),
                                            buffer.getRealLength (),
-                                           secondaryBuffer.getRealLength (),
+                                           auxiliaryBuffer.getRealLength (),
                                            nBytesToRead, id);
         else
           retcode = ClientsThread::DELETE_CONNECTION;
@@ -398,7 +398,7 @@ MemBuf* ClientsThread::getBuffer ()
  */
 MemBuf *ClientsThread::getSecondaryBuffer ()
 {
-  return &secondaryBuffer;
+  return &auxiliaryBuffer;
 }
 
 /*!

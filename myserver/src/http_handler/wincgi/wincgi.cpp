@@ -127,8 +127,8 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
       return td->http->raiseHTTPError (500);
     }
 
-  td->secondaryBuffer->setLength (0);
-  buffer = td->secondaryBuffer->getBuffer ();
+  td->auxiliaryBuffer->setLength (0);
+  buffer = td->auxiliaryBuffer->getBuffer ();
 
   strcpy (buffer, "[CGI]\r\n");
   DataFileHandle.writeToFile (buffer,7,&nbr);
@@ -136,10 +136,10 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
   strcpy (buffer, "CGI Version=CGI/1.3a WIN\r\n");
   DataFileHandle.writeToFile (buffer,26,&nbr);
 
-  *td->secondaryBuffer << "Server Admin=" <<
+  *td->auxiliaryBuffer << "Server Admin=" <<
     td->securityToken.getData ("server.admin", MYSERVER_VHOST_CONF |
                                      MYSERVER_SERVER_CONF, "")<< "\r\n";
-  DataFileHandle.writeToFile (buffer,td->secondaryBuffer->getLength (),&nbr);
+  DataFileHandle.writeToFile (buffer,td->auxiliaryBuffer->getLength (),&nbr);
 
   {
     if (td->request.isKeepAlive ())
@@ -154,17 +154,17 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
       }
   }
 
-  td->secondaryBuffer->setLength (0);
-  *td->secondaryBuffer << "Request Method=" << td->request.cmd << "\r\n";
-  DataFileHandle.writeToFile (buffer, td->secondaryBuffer->getLength (), &nbr);
+  td->auxiliaryBuffer->setLength (0);
+  *td->auxiliaryBuffer << "Request Method=" << td->request.cmd << "\r\n";
+  DataFileHandle.writeToFile (buffer, td->auxiliaryBuffer->getLength (), &nbr);
 
-  td->secondaryBuffer->setLength (0);
-  *td->secondaryBuffer << "Request Protocol=HTTP/" << td->request.ver << "\r\n";
-  DataFileHandle.writeToFile (buffer, td->secondaryBuffer->getLength (), &nbr);
+  td->auxiliaryBuffer->setLength (0);
+  *td->auxiliaryBuffer << "Request Protocol=HTTP/" << td->request.ver << "\r\n";
+  DataFileHandle.writeToFile (buffer, td->auxiliaryBuffer->getLength (), &nbr);
 
-  td->secondaryBuffer->setLength (0);
-  *td->secondaryBuffer << "Executable Path=" << execname << "\r\n";
-  DataFileHandle.writeToFile (buffer,td->secondaryBuffer->getLength (),&nbr);
+  td->auxiliaryBuffer->setLength (0);
+  *td->auxiliaryBuffer << "Executable Path=" << execname << "\r\n";
+  DataFileHandle.writeToFile (buffer,td->auxiliaryBuffer->getLength (),&nbr);
 
   if (td->request.uriOpts[0])
     {
@@ -302,7 +302,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
       chain.clearAllFilters ();
       return td->http->raiseHTTPError (500);
     }
-  OutFileHandle.read (buffer,td->secondaryBuffer->getRealLength (),&nBytesRead);
+  OutFileHandle.read (buffer,td->auxiliaryBuffer->getRealLength (),&nBytesRead);
   if (!nBytesRead)
     {
       ostringstream msg;
@@ -388,7 +388,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
       /* Flush the rest of the file.  */
       do
         {
-          OutFileHandle.read (buffer, td->secondaryBuffer->getLength (),
+          OutFileHandle.read (buffer, td->auxiliaryBuffer->getLength (),
                              &nBytesRead);
           if (nBytesRead)
             {

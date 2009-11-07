@@ -118,7 +118,7 @@ int MsCgi::send (HttpThreadContext* td, const char* exec, const char* cmdLine,
       return td->http->raiseHTTPError (500);
     }
 
-  td->secondaryBuffer->getAt (0) = '\0';
+  td->auxiliaryBuffer->getAt (0) = '\0';
 
   ProcMain = (CGIMAIN) hinstLib.getProc ( "myserver_main");
   if (ProcMain)
@@ -193,7 +193,7 @@ int MsCgi::sendHeader (MsCgiData* mcd)
     return 0;
 
   if (HttpHeaders::sendHeader (td->response, *td->connection->socket,
-                               *td->secondaryBuffer, td))
+                               *td->auxiliaryBuffer, td))
     return 1;
 
   mcd->headerSent = true;

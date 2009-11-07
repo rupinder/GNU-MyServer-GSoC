@@ -64,7 +64,7 @@ struct HttpThreadContext
 
   ConnectionPtr connection;
   MemBuf *buffer;
-  MemBuf *secondaryBuffer;
+  MemBuf *auxiliaryBuffer;
   u_long buffersize;
   u_long id;
   u_long nBytesToRead;

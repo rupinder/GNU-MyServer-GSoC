@@ -292,7 +292,7 @@ BOOL WINAPI ISAPI_WriteClientExport (HCONN hConn, LPVOID Buffer, LPDWORD lpdwByt
 
 
               if (HttpHeaders::sendHeader (ConnInfo->td->response, *td->connection->socket,
-                                           *ConnInfo->td->secondaryBuffer, ConnInfo->td))
+                                           *ConnInfo->td->auxiliaryBuffer, ConnInfo->td))
                 return HttpDataHandler::RET_FAILURE;
             }
           /*! Save the headerSent status. */
@@ -846,8 +846,8 @@ int Isapi::send (HttpThreadContext* td,
       return td->http->raiseHTTPError (500);
     }
 
-  /* Store the environment string in the secondaryBuffer.  */
-  connTable[connIndex].envString=td->secondaryBuffer->getBuffer ();
+  /* Store the environment string in the auxiliaryBuffer.  */
+  connTable[connIndex].envString=td->auxiliaryBuffer->getBuffer ();
 
   /* Build the environment string.  */
   td->scriptPath.assign (scriptpath);

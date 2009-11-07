@@ -89,7 +89,7 @@ int Scgi::send (HttpThreadContext* td, const char* scriptpath,
   }
 
   td->buffer->setLength (0);
-  td->secondaryBuffer->getAt (0) = '\0';
+  td->auxiliaryBuffer->getAt (0) = '\0';
 
   {
     /* Do not modify the text between " and ".  */
@@ -168,7 +168,7 @@ int Scgi::send (HttpThreadContext* td, const char* scriptpath,
 
   Env::buildEnvironmentString (td, td->buffer->getBuffer ());
   sizeEnvString = buildScgiEnvironmentString (td,td->buffer->getBuffer (),
-                                             td->secondaryBuffer->getBuffer ());
+                                             td->auxiliaryBuffer->getBuffer ());
   if (sizeEnvString == -1)
   {
     td->connection->host->warningsLogWrite (_("SCGI: internal error"));
@@ -194,7 +194,7 @@ int Scgi::send (HttpThreadContext* td, const char* scriptpath,
     chain.clearAllFilters ();
     return td->http->raiseHTTPError (500);
   }
-  ret = sendNetString (&con, td->secondaryBuffer->getBuffer (), sizeEnvString);
+  ret = sendNetString (&con, td->auxiliaryBuffer->getBuffer (), sizeEnvString);
 
   if (td->request.contentLength.size () &&
      !td->request.contentLength.compare ("0"))
@@ -246,8 +246,8 @@ int Scgi::sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
       if (!ctx->sock.bytesToRead ())
         return HttpDataHandler::RET_FAILURE;
 
-      nbr = ctx->sock.recv (td->secondaryBuffer->getBuffer () + read,
-                            td->secondaryBuffer->getRealLength () - read,
+      nbr = ctx->sock.recv (td->auxiliaryBuffer->getBuffer () + read,
+                            td->auxiliaryBuffer->getRealLength () - read,
                             td->http->getTimeout ());
 
       read += nbr;
@@ -255,10 +255,10 @@ int Scgi::sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
       for (tmpHeaderSize = (tmpHeaderSize > 3)
              ? tmpHeaderSize - 4 : tmpHeaderSize;
            tmpHeaderSize < read - 4; tmpHeaderSize++)
-        if ((td->secondaryBuffer->getBuffer ()[tmpHeaderSize] == '\r')
-            && (td->secondaryBuffer->getBuffer ()[tmpHeaderSize + 1] == '\n')
-            && (td->secondaryBuffer->getBuffer ()[tmpHeaderSize + 2] == '\r')
-            && (td->secondaryBuffer->getBuffer ()[tmpHeaderSize + 3] == '\n'))
+        if ((td->auxiliaryBuffer->getBuffer ()[tmpHeaderSize] == '\r')
+            && (td->auxiliaryBuffer->getBuffer ()[tmpHeaderSize + 1] == '\n')
+            && (td->auxiliaryBuffer->getBuffer ()[tmpHeaderSize + 2] == '\r')
+            && (td->auxiliaryBuffer->getBuffer ()[tmpHeaderSize + 3] == '\n'))
           {
             headerSize = tmpHeaderSize + 4;
             break;
@@ -269,19 +269,19 @@ int Scgi::sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
     }
 
   if (headerSize)
-    HttpHeaders::buildHTTPResponseHeaderStruct (td->secondaryBuffer->getBuffer (),
+    HttpHeaders::buildHTTPResponseHeaderStruct (td->auxiliaryBuffer->getBuffer (),
                                                 &td->response,
                                                 &(td->nBytesToRead));
 
   if (HttpHeaders::sendHeader (td->response, *td->connection->socket,
-                               *td->secondaryBuffer, td))
+                               *td->auxiliaryBuffer, td))
     return HttpDataHandler::RET_FAILURE;
 
   if (onlyHeader)
     return HttpDataHandler::RET_OK;
 
   if (read - headerSize)
-    if (appendDataToHTTPChannel (td, td->secondaryBuffer->getBuffer () + headerSize,
+    if (appendDataToHTTPChannel (td, td->auxiliaryBuffer->getBuffer () + headerSize,
                                  read - headerSize,
                                  &(td->outputData),
                                  chain,
@@ -295,14 +295,14 @@ int Scgi::sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
     {
       for (;;)
         {
-          nbr = ctx->sock.recv (td->secondaryBuffer->getBuffer (),
-                                td->secondaryBuffer->getRealLength (),
+          nbr = ctx->sock.recv (td->auxiliaryBuffer->getBuffer (),
+                                td->auxiliaryBuffer->getRealLength (),
                                 0);
 
           if (!nbr || (nbr == (u_long)-1))
             break;
 
-          if (appendDataToHTTPChannel (td, td->secondaryBuffer->getBuffer (),
+          if (appendDataToHTTPChannel (td, td->auxiliaryBuffer->getBuffer (),
                                        nbr,
                                        &(td->outputData),
                                        chain,
@@ -353,12 +353,12 @@ int Scgi::sendPostData (ScgiContext* ctx)
   u_long nbr;
   do
     {
-      if (ctx->td->inputData.read (ctx->td->secondaryBuffer->getBuffer (),
-                                   ctx->td->secondaryBuffer->getRealLength (),
+      if (ctx->td->inputData.read (ctx->td->auxiliaryBuffer->getBuffer (),
+                                   ctx->td->auxiliaryBuffer->getRealLength (),
                                    &nbr))
         return -1;
 
-      if (nbr && (ctx->sock.send (ctx->td->secondaryBuffer->getBuffer (), nbr, 0) == -1))
+      if (nbr && (ctx->sock.send (ctx->td->auxiliaryBuffer->getBuffer (), nbr, 0) == -1))
         return -1;
     }
   while (nbr);
