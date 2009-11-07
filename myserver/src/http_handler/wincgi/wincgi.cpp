@@ -362,9 +362,10 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
           return HttpDataHandler::RET_OK;
         }
 
+      u_long written;
       chain.write ((char*)(buffer + headerSize), nBytesRead - headerSize,
-                   &nbw2);
-      nbw += nbw2;
+                   &written);
+      nbw += written;
     }
   else
     {

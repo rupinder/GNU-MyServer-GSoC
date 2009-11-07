@@ -290,9 +290,10 @@ BOOL WINAPI ISAPI_WriteClientExport (HCONN hConn, LPVOID Buffer, LPDWORD lpdwByt
               else
                 ConnInfo->td->response.setValue ("Connection", "Close");
 
-
-              if (HttpHeaders::sendHeader (ConnInfo->td->response, *td->connection->socket,
-                                           *ConnInfo->td->auxiliaryBuffer, ConnInfo->td))
+              if (HttpHeaders::sendHeader (ConnInfo->td->response,
+                                           *ConnInfo->td->connection->socket,
+                                           *ConnInfo->td->auxiliaryBuffer,
+                                           ConnInfo->td))
                 return HttpDataHandler::RET_FAILURE;
             }
           /*! Save the headerSent status. */
