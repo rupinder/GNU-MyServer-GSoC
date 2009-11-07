@@ -26,34 +26,37 @@
  * Use these definitions instead of hardly-code the value.
  */
 
-  /*! The request was accepted and served. */
-# define CONTROL_OK            100
+enum
+  {
+    /*! The request was accepted and served. */
+    CONTROL_OK = 100,
 
-  /*! A generic error was encountered. */
-# define CONTROL_ERROR         200
+    /*! A generic error was encountered. */
+    CONTROL_ERROR = 200,
 
-  /*! An internal server error happened. */
-# define CONTROL_INTERNAL      201
+    /*! An internal server error happened. */
+    CONTROL_INTERNAL = 201,
 
-  /*! The Authorization was not accepted. */
-# define CONTROL_AUTH          202
+    /*! The Authorization was not accepted. */
+    CONTROL_AUTH = 202,
 
-  /*! A malformed request was sent. */
-# define CONTROL_MALFORMED     203
+    /*! A malformed request was sent. */
+    CONTROL_MALFORMED = 203,
 
-  /*! A bad command was specified. */
-# define CONTROL_CMD_NOT_FOUND    204
+    /*! A bad command was specified. */
+    CONTROL_CMD_NOT_FOUND = 204,
 
-  /*! A bad length field was specified. */
-# define CONTROL_BAD_LEN     205
+    /*! A bad length field was specified. */
+    CONTROL_BAD_LEN = 205,
 
-  /*! The server is too busy to handle the request. */
-# define CONTROL_SERVER_BUSY      206
+    /*! The server is too busy to handle the request. */
+    CONTROL_SERVER_BUSY = 206,
 
-  /*! The client uses a version of this protocol that we cannot understand. */
-# define CONTROL_BAD_VERSION      207
+    /*! The client uses a version of this protocol that we cannot understand. */
+    CONTROL_BAD_VERSION = 207,
 
-  /*! The requested file doesn't exist on the local FS. */
-# define CONTROL_FILE_NOT_FOUND      208
+    /*! The requested file doesn't exist on the local FS. */
+    CONTROL_FILE_NOT_FOUND = 208
+  };
 
 #endif
