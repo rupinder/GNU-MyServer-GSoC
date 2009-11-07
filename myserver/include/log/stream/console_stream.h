@@ -19,6 +19,8 @@
 #ifndef CONSOLE_STREAM_H
 # define CONSOLE_STREAM_H
 
+# include "stdafx.h"
+
 # include <list>
 # include <map>
 # include <string>

@@ -19,6 +19,8 @@
 #ifndef CONNECTION_H
 # define CONNECTION_H
 
+# include "stdafx.h"
+
 extern "C"
 {
 # include <sys/time.h>

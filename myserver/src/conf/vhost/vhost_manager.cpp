@@ -14,6 +14,9 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#include "stdafx.h"
+
 #include <include/conf/vhost/vhost_manager.h>
 #include <include/conf/vhost/vhost.h>
 #include <include/conf/mime/xml_mime_handler.h>

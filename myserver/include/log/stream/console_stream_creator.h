@@ -19,6 +19,8 @@
 #ifndef CONSOLE_STREAM_CREATOR_H
 # define CONSOLE_STREAM_CREATOR_H
 
+# include "stdafx.h"
+
 # include <include/log/stream/log_stream_creator.h>
 # include <include/log/stream/console_stream.h>
 

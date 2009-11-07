@@ -19,6 +19,8 @@
 #ifndef FILE_STREAM_H
 # define FILE_STREAM_H
 
+# include "stdafx.h"
+
 # include <list>
 # include <sstream>
 # include <string>

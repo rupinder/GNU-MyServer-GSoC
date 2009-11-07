@@ -20,6 +20,9 @@
   FastCGI site at: http://www.fastcgi.com.
   On that site you can find samples and all the supported languages.
  */
+
+#include "stdafx.h"
+
 #include <include/http_handler/fastcgi/fastcgi.h>
 #include <include/protocol/http/env/env.h>
 #include <include/protocol/http/http.h>

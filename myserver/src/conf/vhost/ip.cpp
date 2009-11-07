@@ -15,11 +15,13 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "stdafx.h"
+
 #include <include/conf/vhost/ip.h>
 #include <sstream>
 
 /*!
- * comment here
+ * Create a new IpRange object given its value.
  */
 IpRange *IpRange::RangeFactory (const std::string &ipRange)
 {

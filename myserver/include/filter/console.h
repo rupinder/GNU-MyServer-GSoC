@@ -19,6 +19,8 @@
 #ifndef CONSOLE_H
 # define CONSOLE_H
 
+# include "stdafx.h"
+
 # include <iostream>
 # include <map>
 
