@@ -318,7 +318,7 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
       else
         FilesUtility::splitPath (filenamePath, directory, file);
 
-      if (td->connection->protocolBuffer == 0)
+      if (td->connection->protocolBuffer == NULL)
         {
           td->connection->protocolBuffer = new HttpUserData;
           if (!td->connection->protocolBuffer)
@@ -326,7 +326,7 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
               td->connection->host->warningsLogWrite (_("HTTP: internal error"));
               return 500;
             }
-          ((HttpUserData*) (td->connection->protocolBuffer))->reset ();
+          static_cast<HttpUserData*> (td->connection->protocolBuffer)->reset ();
         }
 
       string user;
@@ -360,8 +360,6 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
                                                          | MYSERVER_SERVER_CONF, "xml"));
       string authMethod (td->securityToken.getData ("sec.auth_method", MYSERVER_VHOST_CONF
                                                          | MYSERVER_SERVER_CONF, "xml"));
-
-
       SecurityDomain * domains[] = {&auth, &httpReqSecDom, NULL};
 
       Server::getInstance ()->getSecurityManager ()->getPermissionMask (&(td->securityToken),
@@ -383,7 +381,6 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
                 hud->digest = checkDigest ();
 
               hud->digestChecked = 1;
-
               if (hud->digest == 1)
                 {
                   string &pwd = td->securityToken.getNeededPassword ();
@@ -393,7 +390,7 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
             }
           td->authScheme = HTTP_AUTH_SCHEME_DIGEST;
         }
-        /* By default use the Basic authentication scheme. */
+      /* By default use the Basic authentication scheme. */
       else
         td->authScheme = HTTP_AUTH_SCHEME_BASIC;
     }
@@ -825,18 +822,14 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
         delete (*it);
       td->other.clear ();
 
-      /*
-       * Reset the request and response structures.
-       */
       HttpHeaders::resetHTTPRequest (&td->request);
       HttpHeaders::resetHTTPResponse (&td->response);
 
       /* Reset the HTTP status once per request. */
       td->response.httpStatus = 200;
 
-      /*
-       * The connection should be removed.
-       */
+      /* The connection must be removed in a soft-way.  The connections
+         scheduler sets this flag.  */
       if (td->connection->getToRemove ())
         {
           switch (td->connection->getToRemove ())
@@ -860,7 +853,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                                                    &(td->request),
                                                    td->connection);
 
-      /* -1 means the request is not complete yet. */
+      /* -1 means the request is not complete yet.  */
       if (validRequest == -1)
         return ClientsThread::INCOMPLETE_REQUEST;
 
@@ -935,9 +928,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
               return ClientsThread::DELETE_CONNECTION;
             }
           else if (ret)
-            {
-              ret = raiseHTTPError (httpErrorCode);
-            }
+            ret = raiseHTTPError (httpErrorCode);
         }
       else
         {
@@ -1021,6 +1012,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
               while (pos < td->request.uri.length ())
                 if (td->request.uri[++pos] == '/')
                   break;
+
               user.assign (td->request.uri.substr (2, pos - 2));
               Server::getInstance ()->getHomeDir ()->getHomeDir (user,
                                                                  documentRoot);
@@ -1055,21 +1047,6 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                   else
                     td->request.uri.assign ("");
                 }
-            }
-
-          /*
-           *Check if there is a limit for the number of connections in the
-           *virtual host A value of zero means no limit.
-           */
-          const char* val = td->securityToken.getData ("MAX_CONNECTIONS",
-                                                       MYSERVER_VHOST_CONF
-                                                       | MYSERVER_SERVER_CONF,
-                                                       NULL);
-          if (val)
-            {
-              u_long limit = (u_long) atoi (val);
-              if (limit && (u_long) a->host->getRef () >= limit)
-                ret = raiseHTTPError (500);
             }
 
           /* Support for HTTP pipelining.  */
@@ -1187,6 +1164,8 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
 
       logHTTPaccess ();
 
+      /* Map the HttpDataHandler return value to codes understood by
+         ClientsThread.  */
       if (ret == HttpDataHandler::RET_OK && keepalive)
         return ClientsThread::KEEP_CONNECTION;
       else
@@ -1210,8 +1189,10 @@ void Http::computeDigest (char* out, char* buffer)
   Md5 md5;
   if (!out)
     return;
+
   sprintf (buffer, "%i-%u-%s", (int) clock (), (u_int) td->id,
            td->connection->getIpAddr ());
+
   md5.init ();
   md5.update ((char const*) buffer, (unsigned int) strlen (buffer));
   md5.end (out);

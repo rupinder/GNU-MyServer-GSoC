@@ -117,7 +117,8 @@ Any other element passed after the location will be part of the
 @code{PATH_INFO} variable.
 
 @example
-    <LOCATION path="foo/bar" mime="text/html" handler="CGI" param="/usr/local/bin/handler" />
+    <LOCATION path="foo/bar" mime="text/html" handler="CGI"
+              param="/usr/local/bin/handler" />
 @end example
 
 In the previous example, the CGI process @file{/usr/local/bin/handler}
