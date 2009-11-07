@@ -348,7 +348,7 @@ int Ftp::controlConnection (ConnectionPtr pConnection, char *request,
 
   td.pConnection = pConnection;
   td.buffer = pConnection->getActiveThread ()->getBuffer ();
-  td.auxiliaryBuffer = pConnection->getActiveThread ()->getSecondaryBuffer ();
+  td.auxiliaryBuffer = pConnection->getActiveThread ()->getAuxiliaryBuffer ();
   td.buffersize = pConnection->getActiveThread ()->getBufferSize ();
   td.nBytesToRead = reqLen;
   td.pProtocolInterpreter = this;

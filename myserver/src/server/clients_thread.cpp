@@ -396,7 +396,7 @@ MemBuf* ClientsThread::getBuffer ()
 /*!
  * Get a pointer to the secondary buffer.
  */
-MemBuf *ClientsThread::getSecondaryBuffer ()
+MemBuf *ClientsThread::getAuxiliaryBuffer ()
 {
   return &auxiliaryBuffer;
 }

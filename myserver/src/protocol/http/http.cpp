@@ -800,7 +800,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
   try
     {
       td->buffer = a->getActiveThread ()->getBuffer ();
-      td->auxiliaryBuffer = a->getActiveThread ()->getSecondaryBuffer ();
+      td->auxiliaryBuffer = a->getActiveThread ()->getAuxiliaryBuffer ();
       td->buffersize = a->getActiveThread ()->getBufferSize ();
       td->nBytesToRead = nbtr;
       td->connection = a;

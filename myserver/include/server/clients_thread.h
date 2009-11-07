@@ -55,7 +55,7 @@ public:
   };
 
   MemBuf *getBuffer ();
-  MemBuf *getSecondaryBuffer ();
+  MemBuf *getAuxiliaryBuffer ();
 
   ClientsThread (Server* server);
   ~ClientsThread ();
