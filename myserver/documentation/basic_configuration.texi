@@ -34,7 +34,7 @@ Plugins are allowed to install new handlers to read the configuration
 from other sources.  It is done changing the value of the variables
 @code{server.vhost_handler} and @code{server.server.mime_handler},
 respectively to use a different handler for the virtual hosts and for
-the MIME types.  If no value is specified then the value @value{xml}
+the MIME types.  If no value is specified then the value @code{xml}
 is used.
 
 @section Server administrator
