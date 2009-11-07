@@ -1237,12 +1237,15 @@ int Http::requestAuthorization ()
   *td->secondaryBuffer << "\r\nContent-length: 0\r\n";
 
   if (td->authScheme == HTTP_AUTH_SCHEME_BASIC)
-    *td->secondaryBuffer << "WWW-Authenticate: Basic realm=\""
-                         << (host ? host->value->c_str () : "")
-                         << "\"\r\n";
+    {
+      *td->secondaryBuffer << "WWW-Authenticate: Basic realm=\""
+                           << (host ? host->value->c_str () : "")
+                           << "\"\r\n";
+    }
   else if (td->authScheme == HTTP_AUTH_SCHEME_DIGEST)
     {
       char md5Str[256];
+      HttpUserData *hud = (HttpUserData*) td->connection->protocolBuffer;
       if (td->connection->protocolBuffer == 0)
         {
           td->connection->protocolBuffer = new HttpUserData;
@@ -1251,11 +1254,10 @@ int Http::requestAuthorization ()
               sendHTTPhardError500 ();
               return HttpDataHandler::RET_FAILURE;
             }
-          ((HttpUserData*) (td->connection->protocolBuffer))->reset ();
+          hud->reset ();
         }
 
-      myserver_strlcpy (((HttpUserData*) td->connection->protocolBuffer)->realm,
-                        host ? host->value->c_str () : "", 48);
+      myserver_strlcpy (hud->realm, host ? host->value->c_str () : "", 48);
 
       /* Just a random string.  */
       md5Str[0] = (char) td->id;
@@ -1265,34 +1267,24 @@ int Http::requestAuthorization ()
       md5Str[4] = (char) (clock () & 0xFF);
       strncpy (&(md5Str[5]), td->request.uri.c_str (), 256 - 5);
       md5.init ();
-      md5.update ((char const*) md5Str,
-                  (unsigned int) strlen (md5Str));
-      md5.end (((HttpUserData*) td->connection->protocolBuffer)->opaque);
+      md5.update (md5Str, strlen (md5Str));
+      md5.end (hud->opaque);
 
       if (td->connection->protocolBuffer &&
-          ((!(((HttpUserData*) td->connection->protocolBuffer)->digest)) ||
-           (((HttpUserData*) td->connection->protocolBuffer)->nonce[0] == '\0')))
+          ((!(hud->digest)) || (hud->nonce[0] == '\0')))
         {
-          computeDigest (((HttpUserData*) td->connection->protocolBuffer)->nonce,
-                         md5Str);
-          ((HttpUserData*) td->connection->protocolBuffer)->nc = 0;
+          computeDigest (hud->nonce, md5Str);
+          hud->nc = 0;
         }
 
       *td->secondaryBuffer << "WWW-Authenticate: digest "
-              << " qop=\"auth\", algorithm =\"MD5\", realm =\""
-              << ((HttpUserData*) td->connection->protocolBuffer)->realm
-              << "\",  opaque =\""
-              << ((HttpUserData*) td->connection->protocolBuffer)->opaque
-              << "\",  nonce =\""
-              << ((HttpUserData*) td->connection->protocolBuffer)->nonce
-              << "\" ";
+                           << " qop=\"auth\", algorithm =\"MD5\", realm =\""
+                           << hud->realm << "\",  opaque =\"" << hud->opaque
+                           << "\",  nonce =\"" << hud->nonce << "\" ";
 
-      if (((HttpUserData*) td->connection->protocolBuffer)->cnonce[0])
-        {
-          *td->secondaryBuffer << ", cnonce =\""
-                  << ((HttpUserData*) td->connection->protocolBuffer)->cnonce
-                  << "\" ";
-        }
+      if (hud->cnonce[0])
+        *td->secondaryBuffer << ", cnonce =\"" << hud->cnonce << "\" ";
+
       *td->secondaryBuffer << "\r\n";
     }
   else
@@ -1300,12 +1292,13 @@ int Http::requestAuthorization ()
       /* Send a non implemented error page if the auth scheme is not known.  */
       return raiseHTTPError (501);
     }
+
   *td->secondaryBuffer << "Date: ";
   getRFC822GMTTime (time, 32);
-  *td->secondaryBuffer << time
-          << "\r\n\r\n";
+  *td->secondaryBuffer << time << "\r\n\r\n";
+
   if (td->connection->socket->send (td->secondaryBuffer->getBuffer (),
-                                    td->secondaryBuffer->getLength (), 0) == -1)
+                                    td->secondaryBuffer->getLength (), 0) < 0)
     {
       td->connection->host->warningsLogWrite (_("HTTP: socket error"));
       return HttpDataHandler::RET_FAILURE;
