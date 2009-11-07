@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # include "stdafx.h"
 # include <include/filter/stream.h>
 # include <include/filter/filter.h>
-# include <include/protocol/protocol.h>
 # include <list>
 
 using namespace std;
@@ -30,22 +29,6 @@ using namespace std;
 class FiltersChain : public Stream
 {
 public:
-  Protocol* getProtocol ()
-  {
-    return protocol;
-  }
-  void setProtocol (Protocol* pr)
-  {
-    protocol = pr;
-  }
-  void* getProtocolData ()
-  {
-    return protocolData;
-  }
-  void setProtocolData (void* prd)
-  {
-    protocolData = prd;
-  }
   void setAcceptDuplicates (int);
   int getAcceptDuplicates ();
   void setStream (Stream*);
@@ -67,8 +50,6 @@ public:
   FiltersChain ();
   ~FiltersChain ();
 protected:
-  Protocol *protocol;
-  void *protocolData;
   list <Filter*> filters;
   Filter* firstFilter;
   Stream *stream;

@@ -70,8 +70,6 @@ int Scgi::send (HttpThreadContext* td, const char* scriptpath,
     FilesUtility::splitPath (tmp, td->scriptDir, td->scriptFile);
   }
 
-  chain.setProtocol (td->http);
-  chain.setProtocolData (td);
   chain.setStream (td->connection->socket);
   if (td->mime)
   {

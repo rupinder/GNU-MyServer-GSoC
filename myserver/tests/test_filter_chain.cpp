@@ -24,21 +24,13 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
-#include <include/protocol/protocol.h>
 #include <include/filter/memory_stream.h>
-
-class MyProtocol : public Protocol
-{
-
-};
 
 class TestFilterChain : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE ( TestFilterChain );
   CPPUNIT_TEST ( testGzipChain );
-  CPPUNIT_TEST ( testProtocol );
   CPPUNIT_TEST ( testIsEmpty );
-  CPPUNIT_TEST ( testProtocolData );
   CPPUNIT_TEST ( testAcceptDuplicates );
   CPPUNIT_TEST ( testStream );
   CPPUNIT_TEST ( testIsFilterPresent );
@@ -87,14 +79,6 @@ public:
     CPPUNIT_ASSERT (strncmp (szTest, szExpected, nbw) == 0);
   }
 
-
-  void testProtocol ()
-  {
-    MyProtocol mp;
-    fc->setProtocol (&mp);
-    CPPUNIT_ASSERT_EQUAL ((Protocol*)&mp, fc->getProtocol ());
-  }
-
   void testAcceptDuplicates ()
   {
     fc->setAcceptDuplicates (0);
@@ -113,14 +97,6 @@ public:
     fc->setStream (&ms);
 
     CPPUNIT_ASSERT_EQUAL ((Stream*)&ms, fc->getStream ());
-  }
-
-  void testProtocolData ()
-  {
-    char *data = new char[2];
-    fc->setProtocolData (data);
-    CPPUNIT_ASSERT_EQUAL (data, (char*)fc->getProtocolData ());
-    delete [] data;
   }
 
   void testIsEmpty ()

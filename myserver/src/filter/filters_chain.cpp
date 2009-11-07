@@ -83,7 +83,6 @@ FiltersChain::FiltersChain ()
   acceptDuplicates = 1;
   stream = NULL;
   firstFilter = NULL;
-  protocol = NULL;
 }
 
 /*!
@@ -131,7 +130,8 @@ int FiltersChain::addFilter (Filter* f, u_long *nbw, int sendData)
     f->setParent (firstFilter);
   }
 
-  /*! If the chain doesn't support duplicates check if the filter is already present.*/
+  /* If the chain doesn't support duplicates check if the filter is already
+     present.  */
   if (!acceptDuplicates)
   {
     if (isFilterPresent (f))
@@ -158,8 +158,6 @@ int FiltersChain::addFilter (Filter* f, u_long *nbw, int sendData)
    *The new filter will write directly the old firstFilter.
    */
   firstFilter = f;
-
-  f->setProtocol (protocol);
 
   /*! Add the filters in the list in the same order they are used. */
   filters.push_front (f);

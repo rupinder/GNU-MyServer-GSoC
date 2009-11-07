@@ -100,9 +100,6 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
   strcpy (outFilePath,td->outputDataPath.c_str ());
   strcat (outFilePath,"WC");
   td->inputData.seek (0);
-
-  chain.setProtocol (td->http);
-  chain.setProtocolData (td);
   chain.setStream (td->connection->socket);
   if (td->mime)
     {

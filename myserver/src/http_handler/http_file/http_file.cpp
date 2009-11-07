@@ -342,8 +342,6 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
 
         useChunks = true;
       }
-    chain.setProtocol (td->http);
-    chain.setProtocolData (td);
     chain.setStream (&memStream);
     if (td->mime)
       {

@@ -125,8 +125,6 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
   tmpScriptPath.assign (scriptpath);
   FilesUtility::splitPath (tmpScriptPath, td->scriptDir, td->scriptFile);
 
-  chain.setProtocol (td->http);
-  chain.setProtocolData (td);
   chain.setStream (td->connection->socket);
 
   if (execute)

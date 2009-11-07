@@ -96,9 +96,6 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
   FilesUtility::splitPath (tmp, td->cgiRoot, td->cgiFile);
   tmp.assign (scriptpath);
   FilesUtility::splitPath (tmp, td->scriptDir, td->scriptFile);
-
-  chain.setProtocol (td->http);
-  chain.setProtocolData (td);
   chain.setStream (td->connection->socket);
 
   if (td->mime

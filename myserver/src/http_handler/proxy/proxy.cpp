@@ -105,8 +105,6 @@ int Proxy::send (HttpThreadContext *td,
       return td->http->raiseHTTPError (500);
     }
 
-  chain.setProtocol (td->http);
-  chain.setProtocolData (td);
   chain.setStream (td->connection->socket);
 
   if (td->mime && Server::getInstance ()->getFiltersFactory ()->chain (&chain,

@@ -317,11 +317,7 @@ int HttpDir::send (HttpThreadContext* td,
 
   HttpRequestHeader::Entry *host = td->request.other.get ("Host");
 
-
-  chain.setProtocol (td->http);
-  chain.setProtocolData (td);
   chain.setStream (td->connection->socket);
-
   if ( !(td->permissions & MYSERVER_PERMISSION_BROWSE))
     return td->http->sendAuth ();
 

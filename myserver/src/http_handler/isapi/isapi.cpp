@@ -792,8 +792,6 @@ int Isapi::send (HttpThreadContext* td,
       return td->http->raiseHTTPError (500);
     }
 
-  connTable[connIndex].chain.setProtocol (td->http);
-  connTable[connIndex].chain.setProtocolData (td);
   connTable[connIndex].chain.setStream (td->connection->socket);
   if (td->mime)
     {

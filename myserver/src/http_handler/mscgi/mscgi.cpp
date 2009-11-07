@@ -90,9 +90,6 @@ int MsCgi::send (HttpThreadContext* td, const char* exec, const char* cmdLine,
   }
 
   Env::buildEnvironmentString (td,data.envString);
-
-  chain.setProtocol (td->http);
-  chain.setProtocolData (td);
   chain.setStream (td->connection->socket);
 
   if (td->mime && Server::getInstance ()->getFiltersFactory ()->chain (&chain,
