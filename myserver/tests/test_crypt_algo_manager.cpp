@@ -82,7 +82,7 @@ public:
     try
       {
         /* Using an algorithm that is not registered causes an
-         * exception.  */
+           exception.  */
         cam.check (value, result, wrong);
       }
     catch (...)

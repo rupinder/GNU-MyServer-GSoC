@@ -27,10 +27,7 @@ using namespace std;
 
 AuthMethodFactory::AuthMethodFactory ()
 {
-  //  XmlAuthMethod* xmlAuthMethod = new XmlAuthMethod;
-  //  string xml ("xml");
 
-  //  authMethods.put (xml, xmlAuthMethod);
 }
 
 AuthMethodFactory::~AuthMethodFactory ()

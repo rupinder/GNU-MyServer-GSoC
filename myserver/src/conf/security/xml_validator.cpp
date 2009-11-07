@@ -31,10 +31,10 @@ XmlValidator::XmlValidator ()
 XmlValidator::~XmlValidator ()
 {
   if (secCache != NULL)
-  {
-    secCache->free ();
-    delete secCache;
-  }
+    {
+      secCache->free ();
+      delete secCache;
+    }
 }
 
 /*!
@@ -43,24 +43,25 @@ XmlValidator::~XmlValidator ()
 SecurityCache* XmlValidator::getCache (SecurityToken *st)
 {
   if (!secCache)
-  {
-    const char *data = st->getData ("SECURITY_CACHE_NODES", MYSERVER_SERVER_CONF, NULL);
-
-    secCache = new SecurityCache ();
-
-    if (data)
     {
-      int nodes = atoi (data);
-      secCache->setMaxNodes (nodes);
+      const char *data = st->getData ("SECURITY_CACHE_NODES",
+                                      MYSERVER_SERVER_CONF, NULL);
+
+      secCache = new SecurityCache ();
+
+      if (data)
+        {
+          int nodes = atoi (data);
+          secCache->setMaxNodes (nodes);
+        }
     }
-  }
 
   return secCache;
 }
 
 /*!
- *Get the XML parser to use.
- */
+  Get the XML parser to use.
+*/
 XmlParser* XmlValidator::getParser (SecurityToken* st)
 {
   const char *secName;
@@ -70,16 +71,19 @@ XmlParser* XmlValidator::getParser (SecurityToken* st)
   if (!cache)
     return NULL;
 
-  secName = st->getData ("security.filename", MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, ".security.xml");
+  secName = st->getData ("security.filename", MYSERVER_VHOST_CONF
+                         | MYSERVER_SERVER_CONF, ".security.xml");
 
-  u_long maxSize = atol (st->getData ("security.max_size", MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, "0"));
+  u_long maxSize = atol (st->getData ("security.max_size", MYSERVER_VHOST_CONF
+                                      | MYSERVER_SERVER_CONF, "0"));
 
-  return cache->getParser (*(st->getDirectory ()), *(st->getSysDirectory ()), false, secName);
+  return cache->getParser (*(st->getDirectory ()), *(st->getSysDirectory ()),
+                           false, secName);
 }
 
 /*!
- *\see AuthMethod#getPermissionMask.
- */
+  \see AuthMethod#getPermissionMask.
+*/
 int XmlValidator::getPermissionMask (SecurityToken* st)
 {
   xmlNodePtr root;
@@ -90,46 +94,47 @@ int XmlValidator::getPermissionMask (SecurityToken* st)
 
   for (xmlNodePtr cur = xmlFile->getDoc ()->children; cur; cur = cur->next)
     if (cur->type == XML_ELEMENT_NODE)
-    {
-      for (xmlNodePtr curChild = cur->children; curChild; curChild = curChild->next)
-        if (curChild->type == XML_ELEMENT_NODE)
-        {
-          root = curChild;
-          break;
-        }
-    }
+      {
+        for (xmlNodePtr curChild = cur->children; curChild;
+             curChild = curChild->next)
+          if (curChild->type == XML_ELEMENT_NODE)
+            {
+              root = curChild;
+              break;
+            }
+      }
 
   for (xmlNodePtr cur = root; cur; cur = cur->next)
-  {
-    if (xmlStrcmp (cur->name, (const xmlChar *) "USER"))
-      continue;
-
-    xmlAttr *attrs = cur->properties;
-
-    xmlChar* name = NULL;
-    xmlChar* password = NULL;
-
-    int permissions =  getPermissions (attrs, &name, &password);
-
-    if (!name || !password ||
-        xmlStrcmp (name, (const xmlChar *)st->getUser ().c_str ()))
-      continue;
-
-    st->setProvidedMask (permissions);
-
-    if (xmlStrcmp (password, (const xmlChar *)st->getPassword ().c_str ()))
     {
-      st->setAuthenticated (false);
-      st->setMask (0);
-    }
-    else
-    {
-      st->setAuthenticated (true);
-      st->setMask (permissions);
-    }
+      if (xmlStrcmp (cur->name, (const xmlChar *) "USER"))
+        continue;
 
-    return st->getMask ();
-  }
+      xmlAttr *attrs = cur->properties;
+
+      xmlChar* name = NULL;
+      xmlChar* password = NULL;
+
+      int permissions =  getPermissions (attrs, &name, &password);
+
+      if (!name || !password
+          || xmlStrcmp (name, (const xmlChar *)st->getUser ().c_str ()))
+        continue;
+
+      st->setProvidedMask (permissions);
+
+      if (xmlStrcmp (password, (const xmlChar *)st->getPassword ().c_str ()))
+        {
+          st->setAuthenticated (false);
+          st->setMask (0);
+        }
+      else
+        {
+          st->setAuthenticated (true);
+          st->setMask (permissions);
+        }
+
+      return st->getMask ();
+    }
 
   return 0;
 }
@@ -141,52 +146,54 @@ int XmlValidator::getPermissionMask (SecurityToken* st)
  *\param password The found password.
  *\return the permissions mask.
  */
-int XmlValidator::getPermissions (xmlAttr* attrs, xmlChar** user, xmlChar** password )
+int XmlValidator::getPermissions (xmlAttr* attrs, xmlChar** user,
+                                  xmlChar** password)
 {
-    int permissions = 0;
+  int permissions = 0;
 
-    while (attrs)
+  while (attrs)
     {
-      if (user && !xmlStrcmp (attrs->name, (const xmlChar *)"name") &&
-          attrs->children && attrs->children->content)
+      if (user && !xmlStrcmp (attrs->name, (const xmlChar *)"name")
+          && attrs->children && attrs->children->content)
         *user = attrs->children->content;
 
-      else if (password && !xmlStrcmp (attrs->name, (const xmlChar *)"password") &&
-          attrs->children && attrs->children->content)
+      else if (password && !xmlStrcmp (attrs->name, (const xmlChar *)"password")
+               && attrs->children && attrs->children->content)
         *password = attrs->children->content;
 
       else if (!xmlStrcmp (attrs->name, (const xmlChar *)"READ") &&
-          attrs->children && attrs->children->content &&
-          !xmlStrcmp (attrs->children->content, (const xmlChar *) "YES"))
+               attrs->children && attrs->children->content &&
+               !xmlStrcmp (attrs->children->content, (const xmlChar *) "YES"))
         permissions |= MYSERVER_PERMISSION_READ;
 
-      else if (!xmlStrcmp (attrs->name, (const xmlChar *)"WRITE") &&
-          attrs->children && attrs->children->content &&
-          !xmlStrcmp (attrs->children->content, (const xmlChar *) "YES"))
+      else if (!xmlStrcmp (attrs->name, (const xmlChar *)"WRITE")
+               && attrs->children && attrs->children->content &&
+               !xmlStrcmp (attrs->children->content, (const xmlChar *) "YES"))
         permissions |= MYSERVER_PERMISSION_WRITE;
 
-      else if (!xmlStrcmp (attrs->name, (const xmlChar *)"EXECUTE") &&
-          attrs->children && attrs->children->content &&
-          !xmlStrcmp (attrs->children->content, (const xmlChar *) "YES"))
+      else if (!xmlStrcmp (attrs->name, (const xmlChar *)"EXECUTE")
+               && attrs->children && attrs->children->content &&
+               !xmlStrcmp (attrs->children->content, (const xmlChar *) "YES"))
         permissions |= MYSERVER_PERMISSION_EXECUTE;
 
-      else if (!xmlStrcmp (attrs->name, (const xmlChar *)"BROWSE") &&
-          attrs->children && attrs->children->content &&
-          !xmlStrcmp (attrs->children->content, (const xmlChar *) "YES"))
+      else if (!xmlStrcmp (attrs->name, (const xmlChar *)"BROWSE")
+               && attrs->children && attrs->children->content
+               && !xmlStrcmp (attrs->children->content,
+                              (const xmlChar *) "YES"))
         permissions |= MYSERVER_PERMISSION_BROWSE;
 
       attrs = attrs->next;
     }
 
-    return permissions;
+  return permissions;
 }
 
 
 /*!
- *\see XmlValidator#getPermissionMaskImpl.
- */
+ \see XmlValidator#getPermissionMaskImpl.
+*/
 int XmlValidator::getPermissionMaskImpl (SecurityToken* st,
-                                         HashMap<string, SecurityDomain*> *hashedDomains,
+                                HashMap<string, SecurityDomain*> *hashedDomains,
                                          AuthMethod* authMethod)
 {
   XmlParser* xmlFile = getParser (st);
@@ -196,25 +203,25 @@ int XmlValidator::getPermissionMaskImpl (SecurityToken* st,
 
   for (xmlNodePtr cur = xmlFile->getDoc ()->children; cur; cur = cur->next)
     if (cur->type == XML_ELEMENT_NODE)
-    {
-      int cmd = -1;
-
-      computeXmlNode (cur, st, &cmd, hashedDomains);
-
-      /* By default return ALLOW.  */
-      if (cmd == -1)
-        return 1;
-
-      if (cmd == 0)
-        return 0;
-
-      if (cmd == 1)
       {
-        st->setMask (MYSERVER_PERMISSION_ALL);
-        return 1;
-      }
+        int cmd = -1;
 
-    }
+        computeXmlNode (cur, st, &cmd, hashedDomains);
+
+        /* By default return ALLOW.  */
+        if (cmd == -1)
+          return 1;
+
+        if (cmd == 0)
+          return 0;
+
+        if (cmd == 1)
+          {
+            st->setMask (MYSERVER_PERMISSION_ALL);
+            return 1;
+          }
+
+      }
 
   return 0;
 }
@@ -225,59 +232,60 @@ int XmlValidator::getPermissionMaskImpl (SecurityToken* st,
 int XmlValidator::computeXmlNode (xmlNodePtr node,
                                   SecurityToken *st,
                                   int *cmd,
-                                  HashMap<string, SecurityDomain*> *hashedDomains)
+                                HashMap<string, SecurityDomain*> *hashedDomains)
 {
   if (!node)
     return 0;
 
   xmlNodePtr cur = node->children;
   for (;;)
-  {
-    if (cur->next == NULL)
     {
-      cur = cur->parent;
+      if (cur->next == NULL)
+        {
+          cur = cur->parent;
 
-      /* The root is reached.  */
-      if (cur == node)
-        return 1;
+          /* The root is reached.  */
+          if (cur == node)
+            return 1;
 
-      /* This should never happen.  */
-      if (cur == NULL)
-        return 0;
-    }
-    else
-      cur = cur->next;
+          /* This should never happen.  */
+          if (cur == NULL)
+            return 0;
+        }
+      else
+        cur = cur->next;
 
-    if (cur->type != XML_ELEMENT_NODE)
-      continue;
+      if (cur->type != XML_ELEMENT_NODE)
+        continue;
 
-    if (!xmlStrcmp (cur->name, (const xmlChar *) "CONDITION"))
-    {
-      if (doCondition (cur, hashedDomains))
-        cur = cur->children;
+      if (!xmlStrcmp (cur->name, (const xmlChar *) "CONDITION"))
+        {
+          if (doCondition (cur, hashedDomains))
+            cur = cur->children;
+        }
+      else if (!xmlStrcmp (cur->name, (const xmlChar *) "RETURN"))
+        {
+          doReturn (cur, cmd, hashedDomains);
+          return 1;
+        }
+      else if (!xmlStrcmp (cur->name, (const xmlChar *) "DEFINE"))
+        {
+          doDefine (cur, st, hashedDomains);
+        }
+      else if (!xmlStrcmp (cur->name, (const xmlChar *) "PERMISSION"))
+        {
+          doPermission (cur, st, hashedDomains);
+        }
     }
-    else if (!xmlStrcmp (cur->name, (const xmlChar *) "RETURN"))
-    {
-      doReturn (cur, cmd, hashedDomains);
-      return 1;
-    }
-    else if (!xmlStrcmp (cur->name, (const xmlChar *) "DEFINE"))
-    {
-      doDefine (cur, st, hashedDomains);
-    }
-    else if (!xmlStrcmp (cur->name, (const xmlChar *) "PERMISSION"))
-    {
-      doPermission (cur, st, hashedDomains);
-    }
-  }
 
   return 0;
 }
 
 /*!
- *Handle a CONDITION.
- */
-bool XmlValidator::doCondition (xmlNodePtr node, HashMap<string, SecurityDomain*> *hashedDomains)
+  Handle a CONDITION.
+*/
+bool XmlValidator::doCondition (xmlNodePtr node,
+                                HashMap<string, SecurityDomain*> *hashedDomains)
 {
   string name;
   const xmlChar *isNot = (const xmlChar*)"";
@@ -286,25 +294,25 @@ bool XmlValidator::doCondition (xmlNodePtr node, HashMap<string, SecurityDomain*
   xmlAttr *attrs = node->properties;
 
   while (attrs)
-  {
-    if (!xmlStrcmp (attrs->name, (const xmlChar *)"name") &&
-       attrs->children && attrs->children->content)
-      name.assign ((const char*)attrs->children->content);
+    {
+      if (!xmlStrcmp (attrs->name, (const xmlChar *)"name") &&
+          attrs->children && attrs->children->content)
+        name.assign ((const char*)attrs->children->content);
 
-    if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") &&
-       attrs->children && attrs->children->content)
-      value = attrs->children->content;
+      if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") &&
+          attrs->children && attrs->children->content)
+        value = attrs->children->content;
 
-    if (!xmlStrcmp (attrs->name, (const xmlChar *)"not") &&
-       attrs->children && attrs->children->content)
-      isNot = attrs->children->content;
+      if (!xmlStrcmp (attrs->name, (const xmlChar *)"not") &&
+          attrs->children && attrs->children->content)
+        isNot = attrs->children->content;
 
-    if (!xmlStrcmp (attrs->name, (const xmlChar *)"regex") &&
-       attrs->children && attrs->children->content)
-      regex = attrs->children->content;
+      if (!xmlStrcmp (attrs->name, (const xmlChar *)"regex") &&
+          attrs->children && attrs->children->content)
+        regex = attrs->children->content;
 
-    attrs = attrs->next;
-  }
+      attrs = attrs->next;
+    }
 
   string *storedValue = getValue (hashedDomains, name);
 
@@ -314,16 +322,16 @@ bool XmlValidator::doCondition (xmlNodePtr node, HashMap<string, SecurityDomain*
   bool eq;
 
   if (!xmlStrcmp (regex, (const xmlChar *) "yes"))
-  {
-    Regex regex;
+    {
+      Regex regex;
 
-    if (regex.compile ((const char*)value, REG_EXTENDED))
-      return false;
+      if (regex.compile ((const char*)value, REG_EXTENDED))
+        return false;
 
-    regmatch_t pm;
+      regmatch_t pm;
 
-    eq = regex.exec (storedValue->c_str (), 1, &pm, 0) == 0;
-  }
+      eq = regex.exec (storedValue->c_str (), 1, &pm, 0) == 0;
+    }
   else
     eq = storedValue->compare ((const char*)value) == 0;
 
@@ -336,7 +344,8 @@ bool XmlValidator::doCondition (xmlNodePtr node, HashMap<string, SecurityDomain*
 /*!
  *Handle a PERMISSION.
  */
-void XmlValidator::doPermission (xmlNodePtr node, SecurityToken *st, HashMap<string, SecurityDomain*> *hashedDomains)
+void XmlValidator::doPermission (xmlNodePtr node, SecurityToken *st,
+                               HashMap<string, SecurityDomain*> *hashedDomains)
 {
   string name;
   xmlAttr *attrs = node->properties;
@@ -351,24 +360,25 @@ void XmlValidator::doPermission (xmlNodePtr node, SecurityToken *st, HashMap<str
 /*!
  *Handle a DEFINE.
  */
-void XmlValidator::doDefine (xmlNodePtr node, SecurityToken *st, HashMap<string, SecurityDomain*> *hashedDomains)
+void XmlValidator::doDefine (xmlNodePtr node, SecurityToken *st,
+                             HashMap<string, SecurityDomain*> *hashedDomains)
 {
   string name;
   const xmlChar *value = (const xmlChar*)"";
   xmlAttr *attrs = node->properties;
 
   while (attrs)
-  {
-    if (!xmlStrcmp (attrs->name, (const xmlChar *)"name") &&
-       attrs->children && attrs->children->content)
-      name.assign ((const char*)attrs->children->content);
+    {
+      if (!xmlStrcmp (attrs->name, (const xmlChar *)"name") &&
+          attrs->children && attrs->children->content)
+        name.assign ((const char*)attrs->children->content);
 
-    if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") &&
-       attrs->children && attrs->children->content)
-      value = attrs->children->content;
+      if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") &&
+          attrs->children && attrs->children->content)
+        value = attrs->children->content;
 
-    attrs = attrs->next;
-  }
+      attrs = attrs->next;
+    }
 
   if (!value)
     return;
@@ -384,20 +394,19 @@ void XmlValidator::doDefine (xmlNodePtr node, SecurityToken *st, HashMap<string,
 /*!
  *Handle a RETURN.
  */
-void XmlValidator::doReturn (xmlNodePtr node, int *cmd, HashMap<string, SecurityDomain*> *hashedDomains)
+void XmlValidator::doReturn (xmlNodePtr node, int *cmd,
+                             HashMap<string, SecurityDomain*> *hashedDomains)
 {
   xmlAttr *attrs = node->properties;
-
   xmlChar *value = NULL;
-
   while (attrs)
-  {
-    if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") &&
-        attrs->children && attrs->children->content)
-      value = attrs->children->content;
+    {
+      if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") &&
+          attrs->children && attrs->children->content)
+        value = attrs->children->content;
 
-    attrs = attrs->next;
-  }
+      attrs = attrs->next;
+    }
 
   if (value && !xmlStrcmp (value, (const xmlChar *) "ALLOW"))
     *cmd = 1;

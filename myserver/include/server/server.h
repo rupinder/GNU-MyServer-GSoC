@@ -166,7 +166,6 @@ public:
   CryptAlgoManager *getCryptAlgoManager () {return &cryptAlgoManager;}
 
 private:
-  friend class ClientsThread;
   XmlValidator *xmlValidator;
   VhostManagerHandler *vhostHandler;
 
@@ -174,12 +173,6 @@ private:
   MainConfiguration* (*genMainConf) (Server *server, const char *arg);
   int loadVHostConf ();
 
-# ifdef WIN32
-  friend int __stdcall control_handler (u_long control_type);
-# endif
-# ifdef NOT_WIN
-  friend int control_handler (u_long control_type);
-# endif
   /*!
    *When the flag mustEndServer is 1 all the threads are
    *stopped and the application stop its execution.

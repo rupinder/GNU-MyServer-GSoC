@@ -23,8 +23,8 @@
 # include <include/connection/connection.h>
 
 /*!
- *This is the base class to derive other protocols implementations for the server.
- */
+  This is the base class to derive other protocols implementations for
+  the server.  */
 class Protocol
 {
 public:

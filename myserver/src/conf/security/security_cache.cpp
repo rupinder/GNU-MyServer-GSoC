@@ -27,14 +27,14 @@
 
 using namespace std;
 
-/*!
- *Constructor for the SecurityCache object.
+/*
+  Constructor for the SecurityCache object.
  */
 SecurityCache::SecurityCache ()
 {
-  /*!
-   *By default do not store more than 25 nodes.
-   */
+  /*
+    By default do not store more than 25 nodes.
+  */
   limit = 25;
 }
 
@@ -47,25 +47,23 @@ SecurityCache::~SecurityCache ()
 }
 
 /*!
- *free the memory used by the SecurityCache object.
- */
+  Free the memory used by the SecurityCache object.
+*/
 void SecurityCache::free ()
 {
   HashMap<string, XmlParser*>::Iterator it = dictionary.begin ();
 
   for (;it != dictionary.end (); it++)
-  {
     delete (*it);
-  }
 
   dictionary.clear ();
 }
 
 /*!
- *Set a new limit on the nodes to keep in memory.
- *\param newLimit Number of files to cache.  it is adjusted
- *to be >= 1.
- */
+  Set a new limit on the nodes to keep in memory.
+  \param newLimit Number of files to cache.  it is adjusted
+  to be >= 1.
+*/
 void SecurityCache::setMaxNodes (int newLimit)
 {
   if (newLimit <= 0)
@@ -82,13 +80,13 @@ void SecurityCache::setMaxNodes (int newLimit)
 }
 
 /*!
- *Get the security file to use starting from the file location, returns
- *zero on success.
- *\param dir The directory we need a security parser for.
- *\param sys The system directory.
- *\param out Output string where put the security file path.
- *\param secFileName The security file name.
- */
+  Get the security file to use starting from the file location, returns
+  zero on success.
+  \param dir The directory we need a security parser for.
+  \param sys The system directory.
+  \param out Output string where put the security file path.
+  \param secFileName The security file name.
+*/
 int SecurityCache::getSecurityFile (const string& dir,
                                     const string& sys,
                                     string& out,
@@ -129,9 +127,9 @@ int SecurityCache::getSecurityFile (const string& dir,
       }
 
     /*
-     *Top of the tree, check if the security file is present in the
-     *system directory.  Return an error if it is not.
-     */
+      Top of the tree, check if the security file is present in the
+      system directory.  Return an error if it is not.
+    */
     if (i == 0)
     {
       out.assign (sys);
@@ -153,21 +151,21 @@ int SecurityCache::getSecurityFile (const string& dir,
 
 
 /*!
- *Get the actual limit of open nodes.
- */
+  Get the actual limit of open nodes.
+*/
 int SecurityCache::getMaxNodes ()
 {
   return limit;
 }
 
 /*!
- *Open the XML parser associated to the file.
- *\param dir The path where start looking.
- *\param sys The system directory.
- *\param useXpath Specify if XPath will be used on the file.
- *\param secFileName The security file name.
- *\param maxSize The maximum file size allowed for the security file.
- */
+  Open the XML parser associated to the file.
+  \param dir The path where start looking.
+  \param sys The system directory.
+  \param useXpath Specify if XPath will be used on the file.
+  \param secFileName The security file name.
+  \param maxSize The maximum file size allowed for the security file.
+*/
 XmlParser* SecurityCache::getParser (const string &dir,
                                      const string &sys,
                                      bool useXpath,
@@ -182,13 +180,10 @@ XmlParser* SecurityCache::getParser (const string &dir,
 
   parser = dictionary.get (file);
 
-  /*!
-   *If the parser is already present and satisfy XPath then use it.
-   */
+  /* If the parser is already present and satisfy XPath then use it.  */
   if (parser && (!useXpath || parser->isXpathEnabled ()))
   {
     time_t fileModTime;
-    /*! If the file was modified reload it. */
     fileModTime = FilesUtility::getLastModTime (file.c_str ());
 
     if ((fileModTime != static_cast<time_t>(-1))  &&
@@ -220,16 +215,12 @@ XmlParser* SecurityCache::getParser (const string &dir,
   }
   else
   {
-    /*!
-     *Create the parser and add it to the dictionary.
-     */
+    /* Create the parser and add it to the dictionary.  */
     XmlParser* old;
     parser = new XmlParser ();
 
     if (parser == NULL)
-    {
       return NULL;
-    }
 
     if (dictionary.size () >= limit)
     {

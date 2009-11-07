@@ -1,19 +1,19 @@
 /* -*- mode: c++ -*- */
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2008, 2009 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2008, 2009 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef SECURITY_TOKEN_H
@@ -31,19 +31,19 @@ class Vhost;
 struct MimeRecord;
 
 enum SECURITY_RING
-{
-  /*! Security file configuration.  */
-  MYSERVER_SECURITY_CONF = (1 << 0),
+  {
+    /*! Security file configuration.  */
+    MYSERVER_SECURITY_CONF = (1 << 1),
 
-  /*! Virtual host configuration.  */
-  MYSERVER_VHOST_CONF = (1 << 1),
+    /*! Virtual host configuration.  */
+    MYSERVER_VHOST_CONF = (1 << 2),
 
-  /*! Mime type.  */
-  MYSERVER_MIME_CONF = (1 << 2),
+    /*! Mime type.  */
+    MYSERVER_MIME_CONF = (1 << 3),
 
-  /*! Global server configuration. */
-  MYSERVER_SERVER_CONF = (1 << 3),
-};
+    /*! Global server configuration. */
+    MYSERVER_SERVER_CONF = (1 << 4),
+  };
 
 class SecurityToken
 {
@@ -51,10 +51,13 @@ public:
   SecurityToken ();
   void reset ();
 
-  const char* getData (const char* name, int domains, const char *def = NULL);
-  NodeTree<string>* getNodeTree (string& key, int domains, NodeTree<string>* def = NULL);
+  const char* getData (const char *name, int domains,
+                       const char *def = NULL);
 
-  string& getUser ()
+  NodeTree<string>* getNodeTree (string &key, int domains,
+                                 NodeTree<string> *def = NULL);
+
+  string &getUser ()
   {
     return user;
   }
@@ -64,7 +67,7 @@ public:
     return password;
   }
 
-  HashMap<string, NodeTree<string>*>* getValues ()
+  HashMap<string, NodeTree<string>*> *getValues ()
   {
     return &values;
   }
@@ -94,7 +97,7 @@ public:
     return providedMask;
   }
 
-  string& getNeededPassword ()
+  string &getNeededPassword ()
   {
     return neededPassword;
   }
@@ -110,32 +113,32 @@ public:
   }
 
 
-  Server* getServer ()
+  Server *getServer ()
   {
     return server;
   }
 
-  Vhost* getVhost ()
+  Vhost *getVhost ()
   {
     return vhost;
   }
 
-  void setUser (string& u)
+  void setUser (string &u)
   {
     user.assign (u);
   }
 
-  void setPassword (string& pw)
+  void setPassword (string &pw)
   {
     password.assign (pw);
   }
 
-  void setDirectory (string * d)
+  void setDirectory (string *d)
   {
     directory = d;
   }
 
-  void setSysDirectory (string * sd)
+  void setSysDirectory (string *sd)
   {
     sysdirectory = sd;
   }
@@ -155,7 +158,7 @@ public:
     providedMask = p;
   }
 
-  void setNeededPassword (string& pw)
+  void setNeededPassword (string &pw)
   {
     neededPassword.assign (pw);
   }
@@ -170,12 +173,12 @@ public:
     authenticated = a;
   }
 
-  void setServer (Server* s)
+  void setServer (Server *s)
   {
     server = s;
   }
 
-  void  setVhost (Vhost* v)
+  void  setVhost (Vhost *v)
   {
     vhost = v;
   }
