@@ -35,26 +35,28 @@ public:
   enum RETURN_CODE
   {
     /*!
-     *Delete the current connection from the connections pool.
-     */
-    DELETE_CONNECTION = 0,
-    /*!
-     *Keep the connection in the connections pool waiting for new data.
-     */
-    KEEP_CONNECTION = 1,
-    /*!
-     *The request present in the connection buffer is not complete, keep
-     *data in the buffer and append to it.
-     */
-    INCOMPLETE_REQUEST = 2,
-    /*!
-    *The request present in the buffer is not complete, append to the buffer
-    *and check before new data is present.
+      Delete the current connection from the connections pool.
     */
-    INCOMPLETE_REQUEST_NO_WAIT = 3
+    DELETE_CONNECTION = 1,
+    /*!
+      Keep the connection in the connections pool waiting for new data.
+    */
+    KEEP_CONNECTION,
+    /*!
+      The request present in the connection buffer is not complete, keep
+      data in the buffer and append to it.
+    */
+    INCOMPLETE_REQUEST,
+    /*!
+      The request present in the buffer is not complete, append to the buffer
+      and check before new data is present.
+    */
+    INCOMPLETE_REQUEST_NO_WAIT
   };
+
   MemBuf *getBuffer ();
   MemBuf *getSecondaryBuffer ();
+
   ClientsThread (Server* server);
   ~ClientsThread ();
   void stop ();
