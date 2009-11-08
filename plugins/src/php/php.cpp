@@ -1,18 +1,18 @@
 /*
-MyServer
-Copyright (C) 2007, 2009 The Free Software Foundation Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2007, 2009 The Free Software Foundation Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "php.h"
 #include <include/base/thread/thread.h>
@@ -68,13 +68,14 @@ int modifyHeader(HttpResponseHeader *response, char* name, char* value)
 	if(val)
 		val->assign(value);
 	else
-	{
-		string field(name);
-		string valString(value);
-		HttpResponseHeader::Entry* entry = new HttpResponseHeader::Entry(field, valString);
+    {
+      string field(name);
+      string valString(value);
+      HttpResponseHeader::Entry* entry =
+        new HttpResponseHeader::Entry(field, valString);
 
-		response->other.put(field, entry);
-	}
+      response->other.put(field, entry);
+    }
 	return 0;
 }
 
@@ -106,10 +107,10 @@ int sendHeader(PhpData* data)
 	 *send a redirect to xxx.
 	 */
 	if(location && location->length())
-	{
-		data->td->http->sendHTTPRedirect(location->c_str());
-		return 0;
-	}
+    {
+      data->td->http->sendHTTPRedirect(location->c_str());
+      return 0;
+    }
 
 	data->headerSent = true;
 	return data->td->connection->socket->send( buffer,
@@ -121,7 +122,8 @@ int sendHeader(PhpData* data)
 
 }
 
-int myphp_header_handler(sapi_header_struct *sapi_header, sapi_headers_struct *sapi_headers TSRMLS_DC)
+int myphp_header_handler(sapi_header_struct *sapi_header,
+                         sapi_headers_struct *sapi_headers TSRMLS_DC)
 {
 	PhpData* data = getPhpData();
 	char* valInit;
@@ -229,65 +231,67 @@ void myphp_register_variables(zval *track_vars_array TSRMLS_DC)
 	ptr = data->td->buffer->getBuffer();
 
 	while(ptr)
-	{
-		char* name = ptr;
-		char* value = strchr(name, '=') + 1;
-		if(name >= value)
-			break;
+    {
+      char* name = ptr;
+      char* value = strchr(name, '=') + 1;
+      if(name >= value)
+        break;
 
-		ptr += strlen(name) + 1;
+      ptr += strlen(name) + 1;
 
-		value[-1] = '\0';
+      value[-1] = '\0';
 
-		php_register_variable(name, value, track_vars_array TSRMLS_CC);
+      php_register_variable(name, value, track_vars_array TSRMLS_CC);
 
-		value[-1] = '=';
+      value[-1] = '=';
 
-	}
-	php_register_variable("env", (char*)data->td->request.uriOpts.c_str(), track_vars_array TSRMLS_CC);
-	php_register_variable("PHP_SELF", (char*)data->td->request.uri.c_str(), track_vars_array TSRMLS_CC);
+    }
+	php_register_variable("env", (char*)data->td->request.uriOpts.c_str(),
+                        track_vars_array TSRMLS_CC);
+	php_register_variable("PHP_SELF", (char*)data->td->request.uri.c_str(),
+                        track_vars_array TSRMLS_CC);
 }
 
 int	myphp_startup(struct _sapi_module_struct *sapi_module)
 {
 	if(php_module_startup(sapi_module, entries, loadedEntries) == FAILURE)
-	{
-		return FAILURE;
-	}
+    {
+      return FAILURE;
+    }
 
 	return 0;
 }
 
 static sapi_module_struct myphp_module =
-{
-	"myphp",
-	"MyServer PHP Module",
+  {
+    "myphp",
+    "MyServer PHP Module",
 
-	myphp_startup,                            /* startup */
-	php_module_shutdown_wrapper,                    /* shutdown */
-	NULL,                                           /* activate */
-	NULL,                                           /* deactivate */
+    myphp_startup,                            /* startup */
+    php_module_shutdown_wrapper,                    /* shutdown */
+    NULL,                                           /* activate */
+    NULL,                                           /* deactivate */
 
-	myphp_ub_write,                       /* unbuffered write */
-	myphp_flush,                          /* flush */
-	NULL, //myphp_get_stat,                       /* get uid */
-	NULL, //myphp_getenv,                         /* getenv */
+    myphp_ub_write,                       /* unbuffered write */
+    myphp_flush,                          /* flush */
+    NULL, //myphp_get_stat,                       /* get uid */
+    NULL, //myphp_getenv,                         /* getenv */
 
-	php_error,                                      /* error handler */
+    php_error,                                      /* error handler */
 
-	myphp_header_handler,                 /* header handler */
-	myphp_send_headers,                   /* send headers handler */
-	NULL,                                           /* send header handler */
+    myphp_header_handler,                 /* header handler */
+    myphp_send_headers,                   /* send headers handler */
+    NULL,                                           /* send header handler */
 
-	myphp_read_post,                      /* read POST data */
-	myphp_read_cookies,                   /* read Cookies */
+    myphp_read_post,                      /* read POST data */
+    myphp_read_cookies,                   /* read Cookies */
 
-	myphp_register_variables,
-	myphp_log_message,                    /* Log message */
-	NULL,//myphp_sapi_get_request_time,               /* Request Time */
+    myphp_register_variables,
+    myphp_log_message,                    /* Log message */
+    NULL,//myphp_sapi_get_request_time,               /* Request Time */
 
-	STANDARD_SAPI_MODULE_PROPERTIES
-};
+    STANDARD_SAPI_MODULE_PROPERTIES
+  };
 
 int load(void* server)
 {
@@ -296,19 +300,19 @@ int load(void* server)
 	data = ::server->getData("PHP_NO_REBOOT");
 
 	if(!(::server->isRebooting() && !(data && !strcmpi(data, "YES"))))
-	{
-		data = ::server->getData("PHP_SAFE_MODE");
+    {
+      data = ::server->getData("PHP_SAFE_MODE");
 
-		if(data && !strcmpi(data, "YES"))
-			singleRequest = 1;
-		else
-			singleRequest = 0;
+      if(data && !strcmpi(data, "YES"))
+        singleRequest = 1;
+      else
+        singleRequest = 0;
 
-		loadedEntries = 0;
+      loadedEntries = 0;
 
-		if(singleRequest)
-			requestMutex.init();
-	}
+      if(singleRequest)
+        requestMutex.init();
+    }
 	return 0;
 }
 
@@ -320,14 +324,14 @@ int postLoad(void* server)
 	data = ::server->getData("PHP_NO_REBOOT");
 
 	if(!(::server->isRebooting() && !(data && !strcmpi(data, "YES"))))
-	{
+    {
 #ifdef ZTS
-		tsrm_startup(((Server*)server)->getMaxThreads(), 1, 0, NULL);
+      tsrm_startup(((Server*)server)->getMaxThreads(), 1, 0, NULL);
 #endif
 
-		sapi_startup(&myphp_module);
-		myphp_module.startup(&myphp_module);
-	}
+      sapi_startup(&myphp_module);
+      myphp_module.startup(&myphp_module);
+    }
 	return 0;
 }
 
@@ -339,20 +343,20 @@ int unLoad(void* p)
 	data = ::server->getData("PHP_NO_REBOOT");
 
 	if(!(::server->isRebooting() && !(data && !strcmpi(data, "YES"))))
-	{
-		myphp_module.shutdown(&myphp_module);
+    {
+      myphp_module.shutdown(&myphp_module);
 
-		sapi_shutdown();
+      sapi_shutdown();
 
-		if(singleRequest)
-			requestMutex.destroy();
+      if(singleRequest)
+        requestMutex.destroy();
 
 #ifdef ZTS
-    tsrm_shutdown();
+      tsrm_shutdown();
 #endif
 
-		loadedEntries = 0;
-	}
+      loadedEntries = 0;
+    }
 	return 0;
 }
 
@@ -374,8 +378,9 @@ PhpManager::~PhpManager()
 }
 
 
-int PhpManager::send(HttpThreadContext*, ConnectionPtr s, const char *filenamePath,
-                   const char* cgi, int selfExecuted, int onlyHeader = 0)
+int
+PhpManager::send(HttpThreadContext*, ConnectionPtr s, const char *filenamePath,
+                 const char* cgi, int selfExecuted, int onlyHeader = 0)
 {
 	PhpData* data;
 	zend_file_handle script;
@@ -432,10 +437,12 @@ int PhpManager::send(HttpThreadContext*, ConnectionPtr s, const char *filenamePa
 		char limit[15];
 		char *name = "memory_limit";
  		sprintf(limit, "%d", 1 << 30);
-		zend_alter_ini_entry(name, strlen(name), limit, strlen(limit), PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
+		zend_alter_ini_entry(name, strlen(name), limit, strlen(limit),
+                         PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
 
 		name = "html_errors";
-		zend_alter_ini_entry(name, strlen(name), "0", 1, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
+		zend_alter_ini_entry(name, strlen(name), "0", 1, PHP_INI_SYSTEM,
+                         PHP_INI_STAGE_ACTIVATE);
 
 	}
 
@@ -447,28 +454,28 @@ int PhpManager::send(HttpThreadContext*, ConnectionPtr s, const char *filenamePa
 	script.free_filename = 0;
 
 	zend_first_try
-	{
+    {
 
-		if (php_request_startup(TSRMLS_C) == FAILURE)
-		{
-			return FAILURE;
-		}
+      if (php_request_startup(TSRMLS_C) == FAILURE)
+        {
+          return FAILURE;
+        }
 
-		php_execute_script(&script TSRMLS_CC);
+      php_execute_script(&script TSRMLS_CC);
 
-		if(data->useChunks)
-			HttpDataHandler::appendDataToHTTPChannel(data->td,
-																							 0,
-																							 0,
-																							 &(data->td->outputData),
-																							 &(data->chain),
-																							 (bool)data->td->appendOutputs,
-																							 data->useChunks);
+      if(data->useChunks)
+        HttpDataHandler::appendDataToHTTPChannel(data->td,
+                                                 0,
+                                                 0,
+                                                 &(data->td->outputData),
+                                                 &(data->chain),
+                                                 (bool)data->td->appendOutputs,
+                                                 data->useChunks);
 
-		php_request_shutdown(NULL);
+      php_request_shutdown(NULL);
 
 
-	}
+    }
 	zend_end_try();
 
 

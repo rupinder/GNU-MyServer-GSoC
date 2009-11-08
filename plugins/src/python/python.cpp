@@ -1,18 +1,18 @@
 /*
-MyServer
-Copyright (C) 2007, 2008, 2009 The MyServer Team
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2007, 2008, 2009 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "python.h"
@@ -34,12 +34,12 @@ char* name (char* name, u_long len)
 
 
 PyInterpreterState* PythonData::getInterpreter ()
-	{
-		if(interp == 0)
-			interp = Py_NewInterpreter ();
-		PyThreadState_Swap (NULL);
-		return interp->interp;
-	}
+{
+  if(interp == 0)
+    interp = Py_NewInterpreter ();
+  PyThreadState_Swap (NULL);
+  return interp->interp;
+}
 
 PythonData::PythonData ()
 {
@@ -59,19 +59,19 @@ int load (void* server)
 	const char* pathData = serverInstance->getData("PYTHON_PATH");
 	PyThreadState * mainThreadState;
 	if (pathData)
-	{
-		string path (pathData);
-		FilesUtility::completePath (path);
+    {
+      string path (pathData);
+      FilesUtility::completePath (path);
 
-		setenv ("PYTHONPATH", path.c_str(), 1);
-	}
+      setenv ("PYTHONPATH", path.c_str(), 1);
+    }
 	else
-	{
-		string path (".");
-		FilesUtility::completePath (path);
+    {
+      string path (".");
+      FilesUtility::completePath (path);
 
-		setenv ("PYTHONPATH", path.c_str(), 1);
-	}
+      setenv ("PYTHONPATH", path.c_str(), 1);
+    }
 
   Py_SetProgramName ((char *)("python"));
 	Py_Initialize ();
@@ -99,10 +99,10 @@ int unLoad (void* p)
 
 	data = pythonThreadData.get (tid);
 	if(data == 0)
-	{
-		data = new PythonData ();
-		pythonThreadData.put (tid, data);
-	}
+    {
+      data = new PythonData ();
+      pythonThreadData.put (tid, data);
+    }
 
 	interpreter = data->getInterpreter ();
 	threadState = PyThreadState_New (interpreter);
@@ -129,7 +129,8 @@ int execute (char* code, u_long length)
   return executeImpl (code, length, NULL, 1);
 }
 
-int executeImpl (char* code, u_long length, PyThreadState *threadState, int newThreadState)
+int executeImpl (char* code, u_long length, PyThreadState *threadState,
+                 int newThreadState)
 {
 	PyInterpreterState *interpreter = NULL;
 	PythonData* data = NULL;
@@ -139,10 +140,10 @@ int executeImpl (char* code, u_long length, PyThreadState *threadState, int newT
 
 	data = pythonThreadData.get (tid);
 	if (data == 0)
-	{
-		data = new PythonData();
-		pythonThreadData.put(tid, data);
-	}
+    {
+      data = new PythonData();
+      pythonThreadData.put(tid, data);
+    }
 
 	interpreter = data->getInterpreter ();
 
@@ -157,10 +158,10 @@ int executeImpl (char* code, u_long length, PyThreadState *threadState, int newT
 	PyThreadState_Swap (NULL);
 
   if (newThreadState)
-  {
-    PyThreadState_Clear (threadState);
-    PyThreadState_Delete (threadState);
-  }
+    {
+      PyThreadState_Clear (threadState);
+      PyThreadState_Delete (threadState);
+    }
 
 	PyEval_ReleaseLock ();
 
@@ -174,7 +175,8 @@ int executeFromFile (char* filename)
   return executeFromFileImpl (filename, NULL, 1);
 }
 
-int executeFromFileImpl(char* filename, PyThreadState *threadState, int newThreadState)
+int executeFromFileImpl(char* filename, PyThreadState *threadState,
+                        int newThreadState)
 {
 	PyInterpreterState *interpreter = NULL;
 	int ret = 0;
@@ -186,10 +188,10 @@ int executeFromFileImpl(char* filename, PyThreadState *threadState, int newThrea
 
 	data = pythonThreadData.get (tid);
 	if(data == 0)
-	{
-		data = new PythonData ();
-		pythonThreadData.put (tid, data);
-	}
+    {
+      data = new PythonData ();
+      pythonThreadData.put (tid, data);
+    }
 
 	interpreter = data->getInterpreter ();
 
@@ -201,10 +203,11 @@ int executeFromFileImpl(char* filename, PyThreadState *threadState, int newThrea
 	file = fopen (filename, "r");
 
 	if(file == 0)
-	{
-    serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("Python: cannot load file %s"), filename);
-		ret = -1;
-	}
+    {
+      serverInstance->log (MYSERVER_LOG_MSG_ERROR,
+                           _("Python: cannot load file %s"), filename);
+      ret = -1;
+    }
 	else
 		ret = PyRun_AnyFileEx (file, filename, 1);
 
@@ -212,10 +215,10 @@ int executeFromFileImpl(char* filename, PyThreadState *threadState, int newThrea
 	PyThreadState_Swap (NULL);
 
   if (newThreadState)
-  {
-    PyThreadState_Clear (threadState);
-    PyThreadState_Delete(threadState);
-  }
+    {
+      PyThreadState_Clear (threadState);
+      PyThreadState_Delete(threadState);
+    }
 
 	PyEval_ReleaseLock ();
 
@@ -229,7 +232,8 @@ PyObject* callObject(PyObject *obj, PyObject *args)
 }
 
 
-PyObject* callObjectImpl(PyObject *obj, PyObject *args, PyThreadState *threadState, int newThreadState)
+PyObject* callObjectImpl(PyObject *obj, PyObject *args,
+                         PyThreadState *threadState, int newThreadState)
 {
 	PyInterpreterState *interpreter = NULL;
 	PythonData* data = NULL;
@@ -240,10 +244,10 @@ PyObject* callObjectImpl(PyObject *obj, PyObject *args, PyThreadState *threadSta
 
 	data = pythonThreadData.get (tid);
 	if(data == 0)
-	{
-		data = new PythonData ();
-		pythonThreadData.put (tid, data);
-	}
+    {
+      data = new PythonData ();
+      pythonThreadData.put (tid, data);
+    }
 
 	interpreter = data->getInterpreter();
 
@@ -259,10 +263,10 @@ PyObject* callObjectImpl(PyObject *obj, PyObject *args, PyThreadState *threadSta
 	PyThreadState_Swap (NULL);
 
   if (newThreadState)
-  {
-    PyThreadState_Clear (threadState);
-    PyThreadState_Delete (threadState);
-  }
+    {
+      PyThreadState_Clear (threadState);
+      PyThreadState_Delete (threadState);
+    }
 
 	PyEval_ReleaseLock ();
 
@@ -281,10 +285,10 @@ int initModule (char* name, PyMethodDef methods[])
 
 	data = pythonThreadData.get (tid);
 	if (data == 0)
-	{
-		data = new PythonData ();
-		pythonThreadData.put (tid, data);
-	}
+    {
+      data = new PythonData ();
+      pythonThreadData.put (tid, data);
+    }
 
 	interpreter = data->getInterpreter ();
 	threadState = PyThreadState_New (interpreter);
