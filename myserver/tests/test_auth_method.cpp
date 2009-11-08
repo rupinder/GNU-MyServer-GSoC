@@ -49,6 +49,7 @@ class TestAuthMethod : public CppUnit::TestFixture
   CPPUNIT_TEST (testCryptAlgoManager);
   CPPUNIT_TEST (testGetPermissionMask);
   CPPUNIT_TEST (testComparePassword);
+  CPPUNIT_TEST (testNoException);
   CPPUNIT_TEST_SUITE_END ();
 
 public:
@@ -76,6 +77,24 @@ public:
     TestAuthMethodImpl tam;
     SecurityToken st;
     CPPUNIT_ASSERT (tam.getPermissionMask (&st) >= 0);
+  }
+
+  void testNoException ()
+  {
+    TestAuthMethodImpl tam;
+    CryptAlgoManager cam;
+    Md5::initialize (&cam);
+
+    try
+      {
+        tam.exposeComparePassword ("d5aa1729c8c253e5d917a5264855eab8",
+                                   "freedom",
+                                   "md5555");
+      }
+    catch (...)
+      {
+        CPPUNIT_FAIL ("exception raised!");
+      }
   }
 
   void testComparePassword ()

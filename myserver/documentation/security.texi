@@ -88,6 +88,29 @@ the client specified password before compare it with the
 </SECURITY>
 @end example
 
+@subsubsection Http Digest
+If the HTTP digest authorization scheme is used, it is not possible to
+use any password hash but the original clear-text password.  The only
+exception to this rule is to specify the A1 part in the Digest
+scheme.
+
+It is computed by the function: MD5 (username:realm:password).
+
+@example
+  <DEFINE name="http.auth" value="digest" />
+  <USER name="user" algorithm="a1" password="c2deada0bcb64f99e65be0d33bb92d54"
+        READ="YES" EXECUTE="YES" BROWSE="YES" WRITE="NO"/>
+@end example
+
+The realm value used by MyServer is the virtual host name, including
+the port number, i.e. @example{localhost:8080}.
+The A1 password can be computed using the following shell command, be
+sure to use the right user, realm and password values.
+
+@example
+  printf "%s:%s:%s" user realm password | md5sum
+@end example
+
 @subsection FTP Anonymous user
 To allow the @file{.security.xml} re-use, the FTP ``Anonymous'' user
 is mapped internally by MyServer to the ``Guest'' user.

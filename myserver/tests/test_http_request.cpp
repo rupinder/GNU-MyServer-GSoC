@@ -34,13 +34,15 @@ using namespace std;
 
 class TestHttpRequest : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE ( TestHttpRequest );
-  CPPUNIT_TEST ( testSimpleHeader );
-  CPPUNIT_TEST ( testRange );
-  CPPUNIT_TEST ( testIncompleteHeader );
-  CPPUNIT_TEST ( testDefaultHttpRequest );
-  CPPUNIT_TEST ( testValidRequest );
-  CPPUNIT_TEST ( testResetHttpRequest );
+  CPPUNIT_TEST_SUITE (TestHttpRequest);
+  CPPUNIT_TEST (testSimpleHeader);
+  CPPUNIT_TEST (testAuthBasic);
+  CPPUNIT_TEST (testAuthDigest);
+  CPPUNIT_TEST (testRange);
+  CPPUNIT_TEST (testIncompleteHeader);
+  CPPUNIT_TEST (testDefaultHttpRequest);
+  CPPUNIT_TEST (testValidRequest);
+  CPPUNIT_TEST (testResetHttpRequest);
   CPPUNIT_TEST_SUITE_END ();
 
 public:
@@ -146,6 +148,66 @@ public:
     CPPUNIT_ASSERT_EQUAL (ret, -1);
   }
 
+
+  void testAuthDigest ()
+  {
+    HttpRequestHeader header;
+    Connection connection;
+    const char *requestStr;
+    u_long  bufferLength;
+    u_long requestLength;
+    int ret;
+
+    requestStr = "GET /resource HTTP/1.1\r\nHost: localhost\r\n" \
+      "Authorization: Digest username=\"user\", realm=\"localhost:8080\", "\
+      "nonce=\"88b29c4b136e2efee059647dbac10427\", uri=\"/res/\", " \
+      "algorithm=MD5, response=\"e979c020b57cc0e86e46d5c8cad8497e\", " \
+      "opaque=\"8666683506aacd900bbd5a74ac4edf68\", qop=auth, nc=00000001, " \
+      "cnonce=\"c40dc807904a2357\"\r\n\r\n";
+    bufferLength = strlen (requestStr);
+
+    ret = HttpHeaders::buildHTTPRequestHeaderStruct (requestStr,
+                                                    bufferLength,
+                                                    &requestLength,
+                                                    &header,
+                                                    &connection);
+    CPPUNIT_ASSERT (ret == 200);
+    CPPUNIT_ASSERT (!strcmp (header.digestRealm, "localhost:8080"));
+    CPPUNIT_ASSERT (!strcmp (header.digestOpaque,
+                             "8666683506aacd900bbd5a74ac4edf68"));
+    CPPUNIT_ASSERT (!strcmp (header.digestNonce,
+                             "88b29c4b136e2efee059647dbac10427"));
+    CPPUNIT_ASSERT (!strcmp (header.digestUri, "/res/"));
+    CPPUNIT_ASSERT (!strcmp (header.digestUsername, "user")); 
+    CPPUNIT_ASSERT (!strcmp (header.digestNc, "00000001")); 
+    CPPUNIT_ASSERT (!strcmp (header.digestQop, "auth")); 
+    CPPUNIT_ASSERT (!strcmp (header.digestResponse,
+                             "e979c020b57cc0e86e46d5c8cad8497e")); 
+    CPPUNIT_ASSERT (!strcmp (header.digestCnonce, "c40dc807904a2357")); 
+
+  }
+
+  void testAuthBasic ()
+  {
+    HttpRequestHeader header;
+    Connection connection;
+    const char *requestStr;
+    u_long  bufferLength;
+    u_long requestLength;
+    int ret;
+
+    requestStr = "GET /resource HTTP/1.1\r\nHost: localhost\r\n" \
+      "Authorization: Basic dXNlcjpmcmVlZG9t\r\n\r\n";
+
+    bufferLength = strlen (requestStr);
+
+    ret = HttpHeaders::buildHTTPRequestHeaderStruct (requestStr,
+                                                    bufferLength,
+                                                    &requestLength,
+                                                    &header,
+                                                    &connection);
+    CPPUNIT_ASSERT (ret == 200);
+  }
 
   void testDefaultHttpRequest ()
   {

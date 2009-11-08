@@ -62,6 +62,25 @@ extern "C"
 #endif
 }
 
+/*FIXME: Move somewhere else.  */
+class HttpInternalException : public exception
+{
+public:
+  virtual const char *what () const throw ()
+  {
+    return message;
+  }
+
+  HttpInternalException (string & str)
+  {
+    this->message = str.c_str ();
+  }
+
+private:
+  const char *message;
+};
+
+
 int HttpProtocol::loadProtocol ()
 {
   const char *data = NULL;
@@ -378,7 +397,17 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
           if (!td->request.auth.compare ("Digest"))
             {
               if (!hud->digestChecked)
-                hud->digest = checkDigest ();
+                {
+                  try
+                    {
+                      hud->digest = checkDigest ();
+                    }
+                  catch (exception & e)
+                    {
+                      td->connection->host->warningsLogWrite (e.what ());
+                      return raiseHTTPError (500);
+                    }
+                }
 
               hud->digestChecked = 1;
               if (hud->digest == 1)
@@ -388,6 +417,9 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
                   *permissions = td->securityToken.getProvidedMask ();
                 }
             }
+          else
+            *permissions = 0;
+
           td->authScheme = HTTP_AUTH_SCHEME_DIGEST;
         }
       /* By default use the Basic authentication scheme. */
@@ -538,6 +570,9 @@ int Http::deleteHTTPRESOURCE (string& filename, int sysReq, int onlyHeader,
 
 /*!
  * Check the Digest authorization
+ *
+ * \return 1 if the client credentials are OK.
+ * \return 0 if the credentials are wrong.
  */
 u_long Http::checkDigest ()
 {
@@ -582,10 +617,10 @@ u_long Http::checkDigest ()
     }
   else
     {
-      td->connection->host->warningsLogWrite
-        (_("HTTP: internal error, when using digest auth only a1 and "  \
-           "cleartext passwords can be used"));
-      return 0;
+      string err (_("HTTP: internal error, when using digest auth only "\
+                    "a1 and cleartext passwords can be used"));
+
+      throw HttpInternalException (err);
     }
 
   md5.init ();
@@ -603,9 +638,10 @@ u_long Http::checkDigest ()
   md5.init ();
   td->auxiliaryBuffer->setLength (0);
   *td->auxiliaryBuffer << A1 << ":"
-          << hud->nonce << ":"
-          << td->request.digestNc << ":" << td->request.digestCnonce << ":"
-          << td->request.digestQop << ":" << A2;
+                       << hud->nonce << ":"
+                       << td->request.digestNc << ":"
+                       << td->request.digestCnonce << ":"
+                       << td->request.digestQop << ":" << A2;
   md5.update (*td->auxiliaryBuffer);
   md5.end (response);
 
@@ -1270,12 +1306,12 @@ int Http::requestAuthorization ()
         }
 
       *td->auxiliaryBuffer << "WWW-Authenticate: digest "
-                           << " qop=\"auth\", algorithm =\"MD5\", realm =\""
-                           << hud->realm << "\",  opaque =\"" << hud->opaque
-                           << "\",  nonce =\"" << hud->nonce << "\" ";
+                           << " qop=\"auth\", algorithm=\"MD5\", realm=\""
+                           << hud->realm << "\", opaque=\"" << hud->opaque
+                           << "\",  nonce=\"" << hud->nonce << "\" ";
 
       if (hud->cnonce[0])
-        *td->auxiliaryBuffer << ", cnonce =\"" << hud->cnonce << "\" ";
+        *td->auxiliaryBuffer << ", cnonce=\"" << hud->cnonce << "\" ";
 
       *td->auxiliaryBuffer << "\r\n";
     }

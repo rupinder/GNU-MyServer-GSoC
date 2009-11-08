@@ -693,7 +693,7 @@ int HttpHeaders::readReqRangeLine (HttpRequestHeader *request,
  * \param request HttpRequest object to fill.
  * \param connection Pointer to a connection structure.
  * \param token Pointer to the beginning of the authorization line.
- * \param lenOut Pointer to an itneger to keep the line length.
+ * \param lenOut Pointer to an integer to keep the line length.
  * \return 0 on success, any other value is the HTTP error.
  */
 int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
@@ -701,6 +701,8 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
                                   const char *token,
                                   int *lenOut)
 {
+  const char *origToken = token;
+
   while (*token==' ')
     token++;
   int tokenOff = getCharInString (token, " ", HTTP_REQUEST_AUTH_DIM);
@@ -752,7 +754,11 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
       connection->setLogin (login);
       connection->setPassword (password);
       delete decodedPwBuf;
+
       *lenOut = tokenOff = getEndLine (token, 100);
+      if (tokenOff == -1)
+        return 400;
+      *lenOut += token - origToken;
     }
   else if (!request->auth.compare ("Digest"))
     {
@@ -766,9 +772,12 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
       if (tokenOff == -1)
         return 400;
 
+      *lenOut += token - origToken;
+
+
       digestBuff = new char[tokenOff + 1];
       if (!digestBuff)
-        return 400;
+        return 500;
 
       memcpy (digestBuff, token, tokenOff);
       digestBuff[tokenOff] = '\0';
