@@ -58,7 +58,7 @@ void CryptAlgoManager::registerAlgorithm (string &name,
  * \return A new instance on success.
  * \return NULL on failure.
  */
-CryptAlgo *CryptAlgoManager::make (string &name)
+CryptAlgo *CryptAlgoManager::make (const char *name)
 {
   builder bdr = algorithms.get (name);
   if (bdr)
@@ -89,25 +89,29 @@ private:
  * Check if F(value)=result, using the F specified by the algorithm.
  *
  * \param value The value to convert.
+ * \param valueLen Length in bytes of value.
  * \param result The final result.
  * \param algo The name of the algorithm to use.
  * \return true if F(value)=result.
  * \throw If the algorithm is not registered, it throws an exception.
  */
-bool CryptAlgoManager::check (string &value, string &result, string &algo)
+/*bool CryptAlgoManager::check (string &value, string &result, string &algo)*/
+bool
+CryptAlgoManager::check (const char *value, size_t valueLen, const char *result,
+                         const char * algo)
 {
-  const size_t buffer_len = 256;
-  char buffer[buffer_len];
+  const size_t bufferLen = 256;
+  char buffer[bufferLen];
   CryptAlgo *f = make (algo);
   if (!f)
     {
-      snprintf (buffer, buffer_len, _("%s is not a registered algorithm"),
-                algo.c_str ());
+      snprintf (buffer, bufferLen, _("%s is not a registered algorithm"),
+                algo);
       throw CryptAlgoManagerException (buffer);
     }
   auto_ptr<CryptAlgo> keeper (f);
   f->init ();
-  f->update (value.c_str (), value.length ());
+  f->update (value, valueLen);
   f->end (buffer);
-  return !result.compare (buffer);
+  return !strcmp (result, buffer);
 }

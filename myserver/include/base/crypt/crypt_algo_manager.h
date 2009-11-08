@@ -31,8 +31,14 @@ public:
   CryptAlgoManager ();
   ~CryptAlgoManager ();
   void registerAlgorithm (string &name, builder bld);
-  CryptAlgo *make (string &s);
-  bool check (string &value, string &result, string &algo);
+  CryptAlgo *make (const char *name);
+  CryptAlgo *make (string &s) {return make (s.c_str ());}
+
+  bool check (const char *value, size_t valueLen, const char *result,
+              const char * algo);
+  bool check (string &value, string &result, string &algo)
+  {return check (value.c_str (), value.length (), result.c_str (),
+                 algo.c_str ());}
 private:
   HashMap<string, builder> algorithms;
 };

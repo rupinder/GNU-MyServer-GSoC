@@ -51,13 +51,10 @@ bool AuthMethod::comparePassword (const char *password,
 
   if (cryptAlgoManager)
     {
-      string pwStr (password);
-      string savedpwStr (savedPassword);
-      string algorithmStr (algorithm);
-
       try
         {
-          return cryptAlgoManager->check (savedpwStr, pwStr, algorithmStr);
+          return cryptAlgoManager->check (savedPassword, strlen (savedPassword),
+                                          password, algorithm);
         }
       catch (...)
         {

@@ -34,6 +34,7 @@ class TestCryptAlgoManager : public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE ( TestCryptAlgoManager );
   CPPUNIT_TEST (testRegister);
   CPPUNIT_TEST (testCheck);
+  CPPUNIT_TEST (testNoExists);
   CPPUNIT_TEST_SUITE_END ();
 
 public:
@@ -78,12 +79,30 @@ public:
 
     CPPUNIT_ASSERT (cam.check (value, result, name));
     CPPUNIT_ASSERT (!cam.check (value, wrong, name));
+
+
+    CPPUNIT_ASSERT (cam.check (value.c_str (), value.length (),
+                               result.c_str (), name.c_str ()));
+
+    CPPUNIT_ASSERT (!cam.check (value.c_str (), value.length (),
+                               wrong.c_str (), name.c_str ()));
+  }
+
+  void testNoExists ()
+  {
+    CryptAlgoManager cam;
     bool raised = false;
+    Md5::initialize (&cam);
+
+    string value ("freedom");
+    string result ("d5aa1729c8c253e5d917a5264855eab8");
+    string name  ("it_does_not_exist");
+
     try
       {
         /* Using an algorithm that is not registered causes an
            exception.  */
-        cam.check (value, result, wrong);
+        cam.check (value, result, name);
       }
     catch (...)
       {
