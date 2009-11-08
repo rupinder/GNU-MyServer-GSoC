@@ -33,10 +33,12 @@ extern "C"
 class Sha1 : public CryptAlgo
 {
 public:
+  using CryptAlgo::update;
+
   Sha1 ();
   virtual ~Sha1 ();
   virtual void init ();
-  virtual void update (char const *buf, unsigned long len);
+  virtual void update (char const *buf, u_long len);
   virtual char* end (char *buf);
   static void initialize (CryptAlgoManager *manager);
   static CryptAlgo *sha1Builder ();

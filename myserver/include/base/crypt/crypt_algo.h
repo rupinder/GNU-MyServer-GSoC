@@ -21,6 +21,7 @@
 
 # include "stdafx.h"
 # include <include/base/hash_map/hash_map.h>
+# include <include/base/mem_buff/mem_buff.h>
 
 class CryptAlgo
 {
@@ -28,7 +29,8 @@ public:
   CryptAlgo ();
   ~CryptAlgo ();
   virtual void init ();
-  virtual void update (char const *buf, unsigned long len);
+  void update (MemBuf &buf) {update (buf.getBuffer (), buf.getLength ());}
+  virtual void update (char const *buf, u_long len);
   virtual char* end (char *buf);
 };
 

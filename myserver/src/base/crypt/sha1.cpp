@@ -31,7 +31,7 @@ void Sha1::init ()
  * Update context to reflect the concatenation of another buffer full
  * of bytes.
  */
-void Sha1::update (char const *buf, unsigned long len)
+void Sha1::update (char const *buf, u_long len)
 {
   sha1_process_bytes (buf, len, &ctx);
 }

@@ -29,7 +29,11 @@ class TestMd5 : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE ( TestMd5 );
   CPPUNIT_TEST ( testHash );
+  CPPUNIT_TEST ( testHashMemBuf );
   CPPUNIT_TEST_SUITE_END ();
+
+#define msg "hello world!\n"
+#define expected "c897d1410af8f2c74fba11b1db511e9e"
 
   Md5* md5;
 public:
@@ -47,19 +51,29 @@ public:
   void testHash ()
   {
     char out[33];
-    const char* msg = "hello world!\n";
-
-    char *expected = (char*) "c897d1410af8f2c74fba11b1db511e9e";
-
     md5->init ();
     md5->update (msg, strlen (msg));
     char *ret = md5->end (out);
 
     CPPUNIT_ASSERT_EQUAL (ret, &out[0]);
 
-    for (int i = 0; i < 32; i++)
-      CPPUNIT_ASSERT_EQUAL (tolower (expected[i]), tolower (out[i]));
+    CPPUNIT_ASSERT_EQUAL (memcmp (expected, out, 32), 0);
+  }
 
+
+  void testHashMemBuf ()
+  {
+    MemBuf buffer;
+    char out[33];
+    buffer << msg;
+
+    md5->init ();
+    md5->update (buffer);
+    char *ret = md5->end (out);
+
+    CPPUNIT_ASSERT_EQUAL (ret, &out[0]);
+
+    CPPUNIT_ASSERT_EQUAL (memcmp (expected, out, 32), 0);
   }
 };
 

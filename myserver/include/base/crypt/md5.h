@@ -27,10 +27,12 @@
 class Md5 : public CryptAlgo
 {
 public:
+  using CryptAlgo::update;
+
   Md5 ();
   virtual ~Md5 ();
   virtual void init ();
-  virtual void update (char const *buf, unsigned long len);
+  virtual void update (char const *buf, u_long len);
   virtual char* end (char *buf);
   static void initialize (CryptAlgoManager *manager);
   static CryptAlgo *md5Builder ();

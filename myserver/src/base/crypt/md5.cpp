@@ -31,7 +31,7 @@ void Md5::init ()
  * Update context to reflect the concatenation of another buffer full
  * of bytes.
  */
-void Md5::update (char const *buf, unsigned long len)
+void Md5::update (char const *buf, u_long len)
 {
   md5_process_bytes (buf, len, &ctx);
 }

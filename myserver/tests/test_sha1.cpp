@@ -28,9 +28,14 @@ class TestSha1 : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE ( TestSha1 );
   CPPUNIT_TEST ( testHash );
+  CPPUNIT_TEST ( testHashMemBuf );
   CPPUNIT_TEST_SUITE_END ();
 
   Sha1* sha1;
+
+#define msg "GNU is not UNIX"
+#define expected "5ef99232e377af054b479eae19b1b06d688f2a7e"
+
 public:
   void setUp ()
   {
@@ -46,18 +51,29 @@ public:
   void testHash ()
   {
     char out[45];
-    const char* msg = "GNU is not UNIX";
-
-    char *expected = (char*) "5ef99232e377af054b479eae19b1b06d688f2a7e";
-
     sha1->init ();
     sha1->update (msg, strlen (msg));
     char *ret = sha1->end (out);
 
     CPPUNIT_ASSERT_EQUAL (ret, &out[0]);
 
-    for (int i = 0; i < 32; i++)
-      CPPUNIT_ASSERT_EQUAL (tolower (expected[i]), tolower (out[i]));
+    CPPUNIT_ASSERT_EQUAL (memcmp (expected, out, 32), 0);
+  }
+
+  void testHashMemBuf ()
+  {
+    MemBuf buffer;
+    char out[45];
+
+    buffer << msg;
+
+    sha1->init ();
+    sha1->update (buffer);
+    char *ret = sha1->end (out);
+
+    CPPUNIT_ASSERT_EQUAL (ret, &out[0]);
+
+    CPPUNIT_ASSERT_EQUAL (memcmp (expected, out, 32), 0);
   }
 };
 

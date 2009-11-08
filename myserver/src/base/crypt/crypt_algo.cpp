@@ -29,7 +29,7 @@ void CryptAlgo::init ()
 /*!
  * Write new data.
  */
-void CryptAlgo::update (char const *buf, unsigned long len)
+void CryptAlgo::update (char const *buf, u_long len)
 {
 
 }

@@ -545,18 +545,15 @@ u_long Http::checkDigest ()
   char A1[48];
   char A2[48];
   char response[48];
-  char *uri;
+  const char *uri;
   u_long digestCount;
   HttpUserData *hud =
     static_cast<HttpUserData*>(td->connection->protocolBuffer);
 
-
-  /* Return 0 if the password is different.  */
   if (td->request.digestOpaque[0]
       && strcmp (td->request.digestOpaque, hud->opaque))
     return 0;
 
-  /*! If is not equal return 0.  */
   if (strcmp (td->request.digestRealm, hud->realm))
     return 0;
 
@@ -565,7 +562,6 @@ u_long Http::checkDigest ()
     return 0;
   else
     hud->nc++;
-
 
   string &algorithm = td->securityToken.getAlgorithm ();
 
@@ -577,8 +573,7 @@ u_long Http::checkDigest ()
                            << td->request.digestRealm
                            << ":" << td->securityToken.getNeededPassword ();
 
-      md5.update ((char const*) td->auxiliaryBuffer->getBuffer (),
-                  (unsigned int) td->auxiliaryBuffer->getLength ());
+      md5.update (*td->auxiliaryBuffer);
       md5.end (A1);
     }
   else if (algorithm.compare ("a1") == 0)
@@ -588,8 +583,8 @@ u_long Http::checkDigest ()
   else
     {
       td->connection->host->warningsLogWrite
-        (_("HTTP: internal error, when using digest auth only a1 and cleartext " \
-           "passwords can be used"));
+        (_("HTTP: internal error, when using digest auth only a1 and "  \
+           "cleartext passwords can be used"));
       return 0;
     }
 
@@ -598,12 +593,11 @@ u_long Http::checkDigest ()
   if (td->request.digestUri[0])
     uri = td->request.digestUri;
   else
-    uri = (char*) td->request.uriOpts.c_str ();
+    uri = td->request.uriOpts.c_str ();
 
   td->auxiliaryBuffer->setLength (0);
   *td->auxiliaryBuffer << td->request.cmd.c_str () << ":" << uri;
-  md5.update ((char const*) td->auxiliaryBuffer->getBuffer (),
-              (unsigned int) td->auxiliaryBuffer->getLength ());
+  md5.update (*td->auxiliaryBuffer);
   md5.end (A2);
 
   md5.init ();
@@ -612,8 +606,7 @@ u_long Http::checkDigest ()
           << hud->nonce << ":"
           << td->request.digestNc << ":" << td->request.digestCnonce << ":"
           << td->request.digestQop << ":" << A2;
-  md5.update ((char const*) td->auxiliaryBuffer->getBuffer (),
-              (unsigned int) td->auxiliaryBuffer->getLength ());
+  md5.update (*td->auxiliaryBuffer);
   md5.end (response);
 
   return strcmp (response, td->request.digestResponse) ? 0 : 1;
