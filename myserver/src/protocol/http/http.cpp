@@ -547,33 +547,51 @@ u_long Http::checkDigest ()
   char response[48];
   char *uri;
   u_long digestCount;
+  HttpUserData *hud =
+    static_cast<HttpUserData*>(td->connection->protocolBuffer);
+
 
   /* Return 0 if the password is different.  */
   if (td->request.digestOpaque[0]
-      && strcmp (td->request.digestOpaque,
-                 ((HttpUserData*) td->connection->protocolBuffer)->opaque))
+      && strcmp (td->request.digestOpaque, hud->opaque))
     return 0;
 
   /*! If is not equal return 0.  */
-  if (strcmp (td->request.digestRealm,
-              ((HttpUserData*) td->connection->protocolBuffer)->realm))
+  if (strcmp (td->request.digestRealm, hud->realm))
     return 0;
 
   digestCount = hexToInt (td->request.digestNc);
-  if (digestCount != ((HttpUserData*) td->connection->protocolBuffer)->nc + 1)
+  if (digestCount != hud->nc + 1)
     return 0;
   else
-    ((HttpUserData*) td->connection->protocolBuffer)->nc++;
+    hud->nc++;
 
-  md5.init ();
-  td->auxiliaryBuffer->setLength (0);
-  *td->auxiliaryBuffer << td->request.digestUsername << ":"
-                       << td->request.digestRealm
-                       << ":" << td->securityToken.getNeededPassword ();
 
-  md5.update ((char const*) td->auxiliaryBuffer->getBuffer (),
-              (unsigned int) td->auxiliaryBuffer->getLength ());
-  md5.end (A1);
+  string &algorithm = td->securityToken.getAlgorithm ();
+
+  if (algorithm.length () == 0)
+    {
+      md5.init ();
+      td->auxiliaryBuffer->setLength (0);
+      *td->auxiliaryBuffer << td->request.digestUsername << ":"
+                           << td->request.digestRealm
+                           << ":" << td->securityToken.getNeededPassword ();
+
+      md5.update ((char const*) td->auxiliaryBuffer->getBuffer (),
+                  (unsigned int) td->auxiliaryBuffer->getLength ());
+      md5.end (A1);
+    }
+  else if (algorithm.compare ("a1") == 0)
+    {
+      strcpy (A1, td->securityToken.getNeededPassword ().c_str ());
+    }
+  else
+    {
+      td->connection->host->warningsLogWrite
+        (_("HTTP: internal error, when using digest auth only a1 and cleartext " \
+           "passwords can be used"));
+      return 0;
+    }
 
   md5.init ();
 
@@ -591,7 +609,7 @@ u_long Http::checkDigest ()
   md5.init ();
   td->auxiliaryBuffer->setLength (0);
   *td->auxiliaryBuffer << A1 << ":"
-          << ((HttpUserData*) td->connection->protocolBuffer)->nonce << ":"
+          << hud->nonce << ":"
           << td->request.digestNc << ":" << td->request.digestCnonce << ":"
           << td->request.digestQop << ":" << A2;
   md5.update ((char const*) td->auxiliaryBuffer->getBuffer (),

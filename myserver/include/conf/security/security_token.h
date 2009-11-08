@@ -97,6 +97,11 @@ public:
     return providedMask;
   }
 
+  string &getAlgorithm ()
+  {
+    return algorithm;
+  }
+
   string &getNeededPassword ()
   {
     return neededPassword;
@@ -158,9 +163,24 @@ public:
     providedMask = p;
   }
 
-  void setNeededPassword (string &pw)
+  void setNeededPassword (const char *pw)
   {
     neededPassword.assign (pw);
+  }
+
+  void setNeededPassword (string &pw)
+  {
+    neededPassword = pw;
+  }
+
+  void setAlgorithm (string &a)
+  {
+    algorithm = a;
+  }
+
+  void setAlgorithm (const char *pw)
+  {
+    algorithm = pw;
   }
 
   void setDone (bool d)
@@ -211,6 +231,9 @@ private:
 
   /*! Permission mask.  */
   int mask;
+
+  /*! Hash algorithm used to crypt the neededPassword.  */
+  string algorithm;
 
   /*!
     Password that the user should provide to have access.

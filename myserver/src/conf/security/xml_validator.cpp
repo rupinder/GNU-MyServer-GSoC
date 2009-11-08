@@ -122,6 +122,12 @@ int XmlValidator::getPermissionMask (SecurityToken* st)
 
       st->setProvidedMask (permissions);
 
+      if (algorithm)
+        st->setAlgorithm ((const char*)algorithm);
+
+      if (password)
+        st->setNeededPassword ((const char*)password);
+
       if (AuthMethod::comparePassword ((const char *)password,
                                        st->getPassword ().c_str (),
                                        (const char *)algorithm))
