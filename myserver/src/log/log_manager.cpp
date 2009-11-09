@@ -676,7 +676,7 @@ LogManager::log (const void* owner, const string & type, LoggingLevel level,
              || notify (owner, type, MYSERVER_LOG_EVT_LOG, &message);
 
       if (appendNL)
-        failure |= notify (owner, MYSERVER_LOG_EVT_LOG, &newline);
+        failure |= notify (owner, type, MYSERVER_LOG_EVT_LOG, &newline);
     }
   catch (...)
     {
