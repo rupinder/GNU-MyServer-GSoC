@@ -47,14 +47,11 @@ public:
                         const char* secName = ".security.xml", u_long maxSize = 0);
   int getSecurityFile (const string &file, const string &sys,
                        string &out, const char* secName = ".security.xml");
-
-  /////////OLD NASTY AND DISGUSTING.  TEMPORARY SOLUTION TO DON'T BREAK APIs////////////////////////////////////
-  int getPermissionMask (SecurityToken* st){return 0;}
   int getErrorFileName (const char *root, int error,
                         const char* sysdirectory, string& out){return 0;}
 private:
 
-  /*! Store a list of opened files using a hash dictionary.  */
+  /* Store a list of opened files using a hash dictionary.  */
   HashMap<string, XmlParser*> dictionary;
   int limit;
 };
