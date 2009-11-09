@@ -23,7 +23,12 @@
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
 
+#include "../include/base/file/file.h"
+#include "../include/base/file/files_utility.h"
+
 #include <string.h>
+
+using namespace std;
 
 class TestSocketPair : public CppUnit::TestFixture
 {
@@ -53,6 +58,47 @@ public:
     CPPUNIT_ASSERT_EQUAL (sp.getFirstHandle (), inverted.getSecondHandle ());
     CPPUNIT_ASSERT_EQUAL (sp.getSecondHandle (), inverted.getFirstHandle ());
 
+    sp.close ();
+  }
+  /* FIXME: generalize for other classes that inherit from File.  */
+  void testFastCopyToSocket ()
+  {
+    const u_long bsize = 512UL;
+    SocketPair sp;
+    SocketPair inverted;
+    sp.create ();
+    sp.inverted (inverted);
+
+    char inputBuffer[bsize];
+    char outputBuffer[bsize];
+    File file;
+    string fname;
+    u_long nbw;
+
+    for (int i = 0; i < bsize; i++)
+      {
+        inputBuffer[i] = '\0';
+        outputBuffer[i] = i + 1;
+      }
+
+    FilesUtility::temporaryFileName (0, fname);
+    file.openFile (fname.c_str (), File::WRITE | File::READ
+                   | File::FILE_CREATE_ALWAYS);
+    file.writeToFile (outputBuffer, bsize, &nbw);
+    file.seek (0);
+
+    MemBuf buf;
+    CPPUNIT_ASSERT_EQUAL (file.fastCopyToSocket (&sp, 0, &buf, &nbw), 0);
+    CPPUNIT_ASSERT_EQUAL (nbw, bsize);
+
+    u_long nbr;
+    inverted.read (inputBuffer, bsize, &nbr);
+    CPPUNIT_ASSERT_EQUAL (nbr, bsize);
+
+    for (int i = 0; i < bsize; i++)
+      CPPUNIT_ASSERT_EQUAL (inputBuffer[i], outputBuffer[i]);
+
+    file.close ();
     sp.close ();
   }
 
