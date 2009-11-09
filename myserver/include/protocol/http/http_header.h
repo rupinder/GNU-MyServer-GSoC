@@ -29,7 +29,7 @@ using namespace std;
 struct HttpHeader
 {
   virtual string* getValue (const char* name, string* out) = 0;
-	virtual string* setValue (const char* name, const char* in) = 0;
+  virtual string* setValue (const char* name, const char* in) = 0;
   virtual ~HttpHeader (){}
 };
 

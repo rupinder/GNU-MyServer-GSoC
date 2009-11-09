@@ -34,12 +34,12 @@ using namespace std;
  */
 class XmlConf
 {
- public:
+public:
   static int build (xmlNodePtr root,
                     list<NodeTree<string>*> *rootNodes,
                     HashMap<string, NodeTree<string>*> *hashedData);
 
- protected:
+protected:
   static void readNode (xmlNodePtr lcur,
                         NodeTree<string> *root,
                         list<NodeTree<string>*> *rootNodes,

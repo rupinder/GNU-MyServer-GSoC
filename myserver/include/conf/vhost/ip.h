@@ -24,7 +24,7 @@
 
 class IpRange
 {
- public:
+public:
   virtual bool InRange (const std::string &ip) = 0;
   virtual bool InRange (const IpRange *pRange) = 0;
 

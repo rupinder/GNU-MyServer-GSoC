@@ -1,19 +1,19 @@
 /* -*- mode: c++ -*- */
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef FASTCGI_H
@@ -38,14 +38,14 @@ using namespace std;
 
 typedef struct
 {
-    unsigned char version;
-    unsigned char type;
-    unsigned char requestIdB1;
-    unsigned char requestIdB0;
-    unsigned char contentLengthB1;
-    unsigned char contentLengthB0;
-    unsigned char paddingLength;
-    unsigned char reserved;
+  unsigned char version;
+  unsigned char type;
+  unsigned char requestIdB1;
+  unsigned char requestIdB0;
+  unsigned char contentLengthB1;
+  unsigned char contentLengthB0;
+  unsigned char paddingLength;
+  unsigned char reserved;
 } FcgiHeader;
 
 /*!
@@ -76,16 +76,16 @@ typedef struct
 
 typedef struct
 {
-    unsigned char roleB1;
-    unsigned char roleB0;
-    unsigned char flags;
-    unsigned char reserved[5];
+  unsigned char roleB1;
+  unsigned char roleB0;
+  unsigned char flags;
+  unsigned char reserved[5];
 } FcgiBeginRequestBody;
 
 typedef struct
 {
-    FcgiHeader header;
-    FcgiBeginRequestBody body;
+  FcgiHeader header;
+  FcgiBeginRequestBody body;
 } FcgiBeginRequestRecord;
 
 /*!
@@ -102,18 +102,18 @@ typedef struct
 
 typedef struct
 {
-    unsigned char appStatusB3;
-    unsigned char appStatusB2;
-    unsigned char appStatusB1;
-    unsigned char appStatusB0;
-    unsigned char protocolStatus;
-    unsigned char reserved[3];
+  unsigned char appStatusB3;
+  unsigned char appStatusB2;
+  unsigned char appStatusB1;
+  unsigned char appStatusB0;
+  unsigned char protocolStatus;
+  unsigned char reserved[3];
 } FcgiEndRequestBody;
 
 typedef struct
 {
-    FcgiHeader header;
-    FcgiEndRequestBody body;
+  FcgiHeader header;
+  FcgiEndRequestBody body;
 } FcgiEndRequestRecord;
 
 /*!
@@ -126,14 +126,14 @@ typedef struct
 
 typedef struct
 {
-    unsigned char type;
-    unsigned char reserved[7];
+  unsigned char type;
+  unsigned char reserved[7];
 } FcgiUnknownTypeBody;
 
 typedef struct
 {
-    FcgiHeader header;
-    FcgiUnknownTypeBody body;
+  FcgiHeader header;
+  FcgiUnknownTypeBody body;
 } FcgiUnknownTypeRecord;
 
 

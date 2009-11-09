@@ -48,64 +48,64 @@ struct HttpRequestHeader : public HttpHeader
   {
     string *name;
     string *value;
-		Entry ()
-		{
-			name = new string ();
-			value = new string ();
-		}
+    Entry ()
+    {
+      name = new string ();
+      value = new string ();
+    }
 
-		Entry (string& n, string& v)
-		{
-			name = new string ();
-			value = new string ();
+    Entry (string& n, string& v)
+    {
+      name = new string ();
+      value = new string ();
 
-			name->assign (n);
-			value->assign (v);
-		}
+      name->assign (n);
+      value->assign (v);
+    }
 
-		~Entry ()
-		{
-			delete name;
-			delete value;
+    ~Entry ()
+    {
+      delete name;
+      delete value;
 
-		}
+    }
 
   };
-	string cmd;
-	string ver;
-	string auth;
-	string contentLength;
-	string uri;
-	string uriOpts;
-	char *uriOptsPtr;
-	string rangeType;
-	u_long rangeByteBegin;
-	u_long rangeByteEnd;
-	int uriEndsWithSlash;
+  string cmd;
+  string ver;
+  string auth;
+  string contentLength;
+  string uri;
+  string uriOpts;
+  char *uriOptsPtr;
+  string rangeType;
+  u_long rangeByteBegin;
+  u_long rangeByteEnd;
+  int uriEndsWithSlash;
 
-	/*! Digest authorization scheme stuff.  */
-	char digestRealm[48+1];
-	char digestOpaque[48+1];
-	char digestNonce[48+1];
-	char digestCnonce[48+1];
-	char digestUri[1024+1];
-	char digestMethod[16+1];
-	char digestUsername[48+1];
-	char digestResponse[48+1];
-	char digestQop[16+1];
-	char digestNc[10+1];
+  /*! Digest authorization scheme stuff.  */
+  char digestRealm[48+1];
+  char digestOpaque[48+1];
+  char digestNonce[48+1];
+  char digestCnonce[48+1];
+  char digestUri[1024+1];
+  char digestMethod[16+1];
+  char digestUsername[48+1];
+  char digestResponse[48+1];
+  char digestQop[16+1];
+  char digestNc[10+1];
 
 
-	HashMap<string, HttpRequestHeader::Entry*> other;
+  HashMap<string, HttpRequestHeader::Entry*> other;
   virtual string* getValue (const char* name, string* out);
   virtual string* setValue (const char* name, const char* in);
 
-	HashMap<string, HttpRequestHeader::Entry*>::Iterator begin (){return other.begin ();}
-	HashMap<string, HttpRequestHeader::Entry*>::Iterator back (){return other.back ();}
-	HashMap<string, HttpRequestHeader::Entry*>::Iterator end (){return other.end ();}
+  HashMap<string, HttpRequestHeader::Entry*>::Iterator begin (){return other.begin ();}
+  HashMap<string, HttpRequestHeader::Entry*>::Iterator back (){return other.back ();}
+  HashMap<string, HttpRequestHeader::Entry*>::Iterator end (){return other.end ();}
 
 
-	bool isKeepAlive ();
+  bool isKeepAlive ();
 
   HttpRequestHeader ();
   ~HttpRequestHeader ();

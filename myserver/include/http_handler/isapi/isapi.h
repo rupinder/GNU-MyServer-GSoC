@@ -1,19 +1,19 @@
 /* -*- mode: c++ -*- */
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2008, 2009 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2008, 2009 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef ISAPI_H
@@ -136,17 +136,17 @@ public:
   int Senduri (HttpThreadContext* td,ConnectionPtr a,char *URL);
   int SendHeader (HttpThreadContext* td,ConnectionPtr a,char *URL);
   static BOOL buildAllHttpHeaders (HttpThreadContext* td,ConnectionPtr a,
-                                  LPVOID output, LPDWORD maxLen);
+                                   LPVOID output, LPDWORD maxLen);
   static BOOL buildAllRawHeaders (HttpThreadContext* td,ConnectionPtr a,
-                                 LPVOID output, LPDWORD maxLen);
+                                  LPVOID output, LPDWORD maxLen);
 # endif
   Isapi ();
   static Mutex *isapiMutex;
   virtual int load ();
   virtual int unLoad ();
   virtual int send (HttpThreadContext* td, const char* scriptpath,
-                   const char *cgipath = 0, bool execute = false,
-                   bool onlyHeader = false);
+                    const char *cgipath = 0, bool execute = false,
+                    bool onlyHeader = false);
 private:
 # ifdef WIN32
   static int initialized;
@@ -157,11 +157,11 @@ private:
 
 # ifdef WIN32
 BOOL WINAPI ISAPI_ServerSupportFunctionExport (HCONN hConn, DWORD dwHSERRequest,
-                                              LPVOID lpvBuffer, LPDWORD lpdwSize,
-                                              LPDWORD lpdwDataType);
+                                               LPVOID lpvBuffer, LPDWORD lpdwSize,
+                                               LPDWORD lpdwDataType);
 BOOL WINAPI ISAPI_ReadClientExport (HCONN hConn, LPVOID lpvBuffer, LPDWORD lpdwSize ) ;
 BOOL WINAPI ISAPI_WriteClientExport (HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes,
-                                    DWORD dwReserved);
+                                     DWORD dwReserved);
 BOOL WINAPI ISAPI_GetServerVariableExport (HCONN, LPSTR, LPVOID, LPDWORD);
 # endif
 

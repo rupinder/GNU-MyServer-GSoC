@@ -128,7 +128,7 @@ public:
   static int LAST_PASV_PORT;
 
   int checkRights (const std::string & suser, const std::string & sPass,
-		   const std::string & sPath, int mask);
+                   const std::string & sPath, int mask);
   void waitDataConnection ();
 
   int OpenDataConnection ();

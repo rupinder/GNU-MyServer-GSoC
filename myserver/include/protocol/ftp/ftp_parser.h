@@ -3,7 +3,7 @@
 
 /* Skeleton interface for Bison's Yacc-like parsers in C
    
-      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
    Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
@@ -36,49 +36,49 @@
 /* Tokens.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
-   /* Put the tokens into the symbol table, so that GDB and other debuggers
-      know about them.  */
-   enum yytokentype {
-     NUMBER_FTP_ARG = 258,
-     STRING_FTP_ARG = 259,
-     CHAR_FTP_ARG = 260,
-     CRLF_FTP_SEP = 261,
-     SPACE_FTP_SEP = 262,
-     PUNCT_FTP_SEP = 263,
-     USER_FTP_COMMAND = 264,
-     PASS_FTP_COMMAND = 265,
-     QUIT_FTP_COMMAND = 266,
-     PORT_FTP_COMMAND = 267,
-     PASV_FTP_COMMAND = 268,
-     MODE_FTP_COMMAND = 269,
-     TYPE_FTP_COMMAND = 270,
-     STRU_FTP_COMMAND = 271,
-     REST_FTP_COMMAND = 272,
-     RETR_FTP_COMMAND = 273,
-     LIST_FTP_COMMAND = 274,
-     NLST_FTP_COMMAND = 275,
-     ABOR_FTP_COMMAND = 276,
-     CWD_FTP_COMMAND = 277,
-     CDUP_FTP_COMMAND = 278,
-     PWD_FTP_COMMAND = 279,
-     ALLO_FTP_COMMAND = 280,
-     STOR_FTP_COMMAND = 281,
-     STOU_FTP_COMMAND = 282,
-     DELE_FTP_COMMAND = 283,
-     APPE_FTP_COMMAND = 284,
-     MKD_FTP_COMMAND = 285,
-     RMD_FTP_COMMAND = 286,
-     RNFR_FTP_COMMAND = 287,
-     RNTO_FTP_COMMAND = 288,
-     HELP_FTP_COMMAND = 289,
-     SYST_FTP_COMMAND = 290,
-     STAT_FTP_COMMAND = 291,
-     NOOP_FTP_COMMAND = 292,
-     SITE_FTP_COMMAND = 293,
-     CHMOD_FTP_COMMAND = 294,
-     UTIME_FTP_COMMAND = 295,
-     SIZE_FTP_COMMAND = 296
-   };
+/* Put the tokens into the symbol table, so that GDB and other debuggers
+   know about them.  */
+enum yytokentype {
+  NUMBER_FTP_ARG = 258,
+  STRING_FTP_ARG = 259,
+  CHAR_FTP_ARG = 260,
+  CRLF_FTP_SEP = 261,
+  SPACE_FTP_SEP = 262,
+  PUNCT_FTP_SEP = 263,
+  USER_FTP_COMMAND = 264,
+  PASS_FTP_COMMAND = 265,
+  QUIT_FTP_COMMAND = 266,
+  PORT_FTP_COMMAND = 267,
+  PASV_FTP_COMMAND = 268,
+  MODE_FTP_COMMAND = 269,
+  TYPE_FTP_COMMAND = 270,
+  STRU_FTP_COMMAND = 271,
+  REST_FTP_COMMAND = 272,
+  RETR_FTP_COMMAND = 273,
+  LIST_FTP_COMMAND = 274,
+  NLST_FTP_COMMAND = 275,
+  ABOR_FTP_COMMAND = 276,
+  CWD_FTP_COMMAND = 277,
+  CDUP_FTP_COMMAND = 278,
+  PWD_FTP_COMMAND = 279,
+  ALLO_FTP_COMMAND = 280,
+  STOR_FTP_COMMAND = 281,
+  STOU_FTP_COMMAND = 282,
+  DELE_FTP_COMMAND = 283,
+  APPE_FTP_COMMAND = 284,
+  MKD_FTP_COMMAND = 285,
+  RMD_FTP_COMMAND = 286,
+  RNFR_FTP_COMMAND = 287,
+  RNTO_FTP_COMMAND = 288,
+  HELP_FTP_COMMAND = 289,
+  SYST_FTP_COMMAND = 290,
+  STAT_FTP_COMMAND = 291,
+  NOOP_FTP_COMMAND = 292,
+  SITE_FTP_COMMAND = 293,
+  CHMOD_FTP_COMMAND = 294,
+  UTIME_FTP_COMMAND = 295,
+  SIZE_FTP_COMMAND = 296
+};
 #endif
 /* Tokens.  */
 #define NUMBER_FTP_ARG 258
@@ -128,17 +128,17 @@
 typedef union YYSTYPE
 {
 
-/* Line 1676 of yacc.c  */
+  /* Line 1676 of yacc.c  */
 #line 15 "ftp_parser.ypp"
 
-	int		m_nInt;
-	char		m_nChar;
-	char		m_szStr[PARSER_STR_LEN];
-	FtpHost 	m_host;
+  int           m_nInt;
+  char          m_nChar;
+  char          m_szStr[PARSER_STR_LEN];
+  FtpHost       m_host;
 
 
 
-/* Line 1676 of yacc.c  */
+  /* Line 1676 of yacc.c  */
 #line 143 "../../../include/protocol/ftp/ftp_parser.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1

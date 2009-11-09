@@ -27,8 +27,8 @@
 #  define z_stream (void*)
 # endif
 
-# define GZIP_HEADER_LENGTH		10
-# define GZIP_FOOTER_LENGTH		8
+# define GZIP_HEADER_LENGTH             10
+# define GZIP_FOOTER_LENGTH             8
 extern char GZIP_HEADER[];
 
 class Gzip : public Filter

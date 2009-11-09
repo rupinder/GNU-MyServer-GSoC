@@ -34,17 +34,17 @@ class MsCgi;
 
 struct MsCgiData
 {
-	char *envString;
-	HttpThreadContext* td;
-	int errorPage;
-	bool headerSent;
-	Server* server;
-	MsCgi* mscgi;
-	FiltersChain *filtersChain;
-	bool keepAlive;
+  char *envString;
+  HttpThreadContext* td;
+  int errorPage;
+  bool headerSent;
+  Server* server;
+  MsCgi* mscgi;
+  FiltersChain *filtersChain;
+  bool keepAlive;
   bool useChunks;
-	bool onlyHeader;
-	bool error;
+  bool onlyHeader;
+  bool error;
 
 };
 
@@ -53,17 +53,17 @@ typedef int (*CGIMAIN)(const char*, MsCgiData*);
 class MsCgi : public HttpDataHandler
 {
 public:
-	virtual int load ();
-	virtual int unLoad ();
-	virtual int send (HttpThreadContext*, const char* exec,
-                   const char* cmdLine = 0, bool execute = false,
-                   bool onlyHeader = false);
+  virtual int load ();
+  virtual int unLoad ();
+  virtual int send (HttpThreadContext*, const char* exec,
+                    const char* cmdLine = 0, bool execute = false,
+                    bool onlyHeader = false);
 
-	int write (const char*, u_long, MsCgiData*);
-	int sendHeader (MsCgiData*);
+  int write (const char*, u_long, MsCgiData*);
+  int sendHeader (MsCgiData*);
 
 private:
-	static DynamicLibrary mscgiModule;
-	MsCgiData data;
+  static DynamicLibrary mscgiModule;
+  MsCgiData data;
 };
 #endif

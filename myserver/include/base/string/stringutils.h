@@ -78,7 +78,7 @@ int stringcmp (string const &a, const char* b);
 # ifndef WIN32
 extern "C"
 {
-char* strupr (char * string);
+  char* strupr (char * string);
 #  include <string.h>
 }
 # endif

@@ -1,19 +1,19 @@
 /* -*- mode: c++ -*- */
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CLIENTS_THREAD_H
@@ -33,26 +33,26 @@ class  ClientsThread
 
 public:
   enum RETURN_CODE
-  {
-    /*!
-      Delete the current connection from the connections pool.
-    */
-    DELETE_CONNECTION = 1,
-    /*!
-      Keep the connection in the connections pool waiting for new data.
-    */
-    KEEP_CONNECTION,
-    /*!
-      The request present in the connection buffer is not complete, keep
-      data in the buffer and append to it.
-    */
-    INCOMPLETE_REQUEST,
-    /*!
-      The request present in the buffer is not complete, append to the buffer
-      and check before new data is present.
-    */
-    INCOMPLETE_REQUEST_NO_WAIT
-  };
+    {
+      /*!
+        Delete the current connection from the connections pool.
+      */
+      DELETE_CONNECTION = 1,
+      /*!
+        Keep the connection in the connections pool waiting for new data.
+      */
+      KEEP_CONNECTION,
+      /*!
+        The request present in the connection buffer is not complete, keep
+        data in the buffer and append to it.
+      */
+      INCOMPLETE_REQUEST,
+      /*!
+        The request present in the buffer is not complete, append to the buffer
+        and check before new data is present.
+      */
+      INCOMPLETE_REQUEST_NO_WAIT
+    };
 
   MemBuf *getBuffer ();
   MemBuf *getAuxiliaryBuffer ();

@@ -24,12 +24,12 @@
 
 # include <string>
 
-# define PARSER_STR_LEN	512
+# define PARSER_STR_LEN 512
 
 struct FtpHost
 {
-	int h1, h2, h3, h4;
-	int p1, p2;
+  int h1, h2, h3, h4;
+  int p1, p2;
 };
 
 void setFtpHost (FtpHost &out, const FtpHost &in);

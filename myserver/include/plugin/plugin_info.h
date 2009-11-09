@@ -1,19 +1,19 @@
 /* -*- mode: c++ -*- */
 /*
-MyServer
-Copyright (C) 2007, 2008, 2009 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2007, 2008, 2009 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef PLUGIN_INFO_H
@@ -37,35 +37,35 @@ class PluginInfo
 public:
 
   PluginInfo (string& name, bool enabled = 1, bool global = 0);
-	~PluginInfo ();
+  ~PluginInfo ();
 
-	bool isEnabled ();
-	bool isGlobal ();
+  bool isEnabled ();
+  bool isGlobal ();
 
-	void addDependence (string, int minVersion, int maxVersion);
+  void addDependence (string, int minVersion, int maxVersion);
 
-	int getVersion ();
-	void setVersion (int v);
-	string getName ();
-	int getMyServerMinVersion ();
-	int getMyServerMaxVersion ();
-	int setMyServerMinVersion (int v);
-	int setMyServerMaxVersion (int v);
+  int getVersion ();
+  void setVersion (int v);
+  string getName ();
+  int getMyServerMinVersion ();
+  int getMyServerMaxVersion ();
+  int setMyServerMinVersion (int v);
+  int setMyServerMaxVersion (int v);
 
-	HashMap<string, pair<int,int>* >::Iterator begin (){return dependences.begin ();}
-	HashMap<string, pair<int,int>* >::Iterator end (){return dependences.end ();}
+  HashMap<string, pair<int,int>* >::Iterator begin (){return dependences.begin ();}
+  HashMap<string, pair<int,int>* >::Iterator end (){return dependences.end ();}
 
-	void setPlugin (Plugin* plugin);
-	Plugin* getPlugin ();
-	Plugin* removePlugin ();
-	void setEnabled (bool enabled);
-	pair<int,int>* getDependence (string name);
+  void setPlugin (Plugin* plugin);
+  Plugin* getPlugin ();
+  Plugin* removePlugin ();
+  void setEnabled (bool enabled);
+  pair<int,int>* getDependence (string name);
 
-	static int convertVersion (string* s);
+  static int convertVersion (string* s);
 
 private:
-	string name;
-	bool enabled;
+  string name;
+  bool enabled;
   bool global;
   int version;
   int msMinVersion;

@@ -34,7 +34,7 @@ public:
   ~WinCgi ();
 
   virtual int send (HttpThreadContext* td, const char* exec,
-                   const char* cmdLine = 0, bool execute = false,
-                   bool onlyHeader = false);
+                    const char* cmdLine = 0, bool execute = false,
+                    bool onlyHeader = false);
 };
 #endif

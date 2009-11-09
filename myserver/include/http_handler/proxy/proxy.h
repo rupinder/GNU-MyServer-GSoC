@@ -35,7 +35,7 @@ public:
   static void setTimeout (int);
   static int getTimeout ();
 
-	virtual int send (HttpThreadContext*, const char* scriptpath,
+  virtual int send (HttpThreadContext*, const char* scriptpath,
                     const char* exec = 0, bool execute = false,
                     bool onlyHeader = false);
 protected:

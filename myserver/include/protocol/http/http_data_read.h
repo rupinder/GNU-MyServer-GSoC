@@ -1,19 +1,19 @@
 /* -*- mode: c++ -*- */
 /*
-MyServer
-Copyright (C) 2002-2009 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002-2009 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef HTTP_DATA_READ_H
@@ -44,23 +44,23 @@ public:
   static int readPostData (HttpThreadContext* td, int* ret);
 
   static int readContiguousPrimitivePostData (const char* inBuffer,
-                                             u_long *inBufferPos,
-                                             u_long inBufferSize,
-                                             Socket *inSocket,
-                                             char* outBuffer,
-                                             u_long outBufferSize,
-                                             u_long* nbr,
-                                             u_long timeout);
+                                              u_long *inBufferPos,
+                                              u_long inBufferSize,
+                                              Socket *inSocket,
+                                              char* outBuffer,
+                                              u_long outBufferSize,
+                                              u_long* nbr,
+                                              u_long timeout);
   static int readChunkedPostData (const char* inBuffer,
-                                 u_long *inBufferPos,
-                                 u_long inBufferSize,
-                                 Socket *inSocket,
-                                 char* outBuffer,
-                                 u_long outBufferSize,
-                                 u_long* nbr,
-                                 u_long timeout,
-                                 Stream* out,
-                                 long maxChunks);
+                                  u_long *inBufferPos,
+                                  u_long inBufferSize,
+                                  Socket *inSocket,
+                                  char* outBuffer,
+                                  u_long outBufferSize,
+                                  u_long* nbr,
+                                  u_long timeout,
+                                  Stream* out,
+                                  long maxChunks);
 
 };
 
