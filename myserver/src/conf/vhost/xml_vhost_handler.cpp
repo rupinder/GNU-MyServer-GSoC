@@ -354,6 +354,12 @@ int XmlVhostHandler::load (const char *filename)
           XmlConf::build (lcur, vh->getHashedDataTrees (),
                           vh->getHashedData ());
 
+          if (!lcur->children || !lcur->children->content)
+            {
+              lcur = lcur->next;
+              continue;
+            }
+
           if (!xmlStrcmp (lcur->name, (const xmlChar *)"HOST"))
             {
               int useRegex = 0;
@@ -376,11 +382,10 @@ int XmlVhostHandler::load (const char *filename)
             {
               string loc (vh->getDocumentRoot ());
               loc.append ("/");
+
               for (xmlAttr *attrs = lcur->properties; attrs; attrs = attrs->next)
-                {
-                  if (!xmlStrcmp (attrs->name, (const xmlChar *)"path"))
-                    loc.append ((const char*) attrs->children->content);
-                }
+                if (!xmlStrcmp (attrs->name, (const xmlChar *)"path"))
+                  loc.append ((const char*) attrs->children->content);
 
               MimeRecord *record = XmlMimeHandler::readRecord (lcur);
               MimeRecord *prev = vh->addLocationMime (loc, record);
@@ -408,16 +413,10 @@ int XmlVhostHandler::load (const char *filename)
           else if (!xmlStrcmp (lcur->name, (const xmlChar *)"CONNECTIONS_PRIORITY"))
             {
               vh->setDefaultPriority (atoi ((const char*)lcur->children->content));
-
             }
           else if (!xmlStrcmp (lcur->name, (const xmlChar *)"SSL_PASSWORD"))
             {
-              string pw;
-              if (lcur->children)
-                pw.assign ((char*)lcur->children->content);
-              else
-                pw.assign ("");
-
+              string pw ((char*)lcur->children->content);
               sslContext->setPassword (pw);
             }
           else if (!xmlStrcmp (lcur->name, (const xmlChar *)"IP"))
@@ -427,23 +426,22 @@ int XmlVhostHandler::load (const char *filename)
 
               while (attrs)
                 {
-                  if (!xmlStrcmp (attrs->name, (const xmlChar *)"isRegex"))
-                    {
-                      if (attrs->children && attrs->children->content &&
-                          (!xmlStrcmp (attrs->children->content,
-                                      (const xmlChar *)"YES")))
-                        useRegex = 1;
-                    }
+                  if (!xmlStrcmp (attrs->name, (const xmlChar *)"isRegex")
+                      && !xmlStrcmp (attrs->children->content,
+                                     (const xmlChar *)"YES"))
+                    useRegex = 1;
+
                   attrs = attrs->next;
                 }
+
               vh->addIP ((char*)lcur->children->content, useRegex);
             }
           else if (!xmlStrcmp (lcur->name, (const xmlChar *)"PORT"))
             {
               int val = atoi ((char*)lcur->children->content);
-              if (val > (1 << 16) || strlen ((const char*)lcur->children->content) > 6)
+              if (val > (1 << 16) || val <= 0)
                 Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
-                       _("Specified invalid port %s"), lcur->children->content);
+                      _("Specified invalid port %s"), lcur->children->content);
               vh->setPort ((u_short)val);
             }
           else if (!xmlStrcmp (lcur->name, (const xmlChar *)"PROTOCOL"))
@@ -458,36 +456,26 @@ int XmlVhostHandler::load (const char *filename)
             }
           else if (!xmlStrcmp (lcur->name, (const xmlChar *)"DOCROOT"))
             {
-              if (lcur->children && lcur->children->content)
-                {
-                  char* lastChar = (char*)lcur->children->content;
-                  while (*(lastChar+1) != '\0')
-                    lastChar++;
+              char* lastChar = (char*)lcur->children->content;
+              while (*(lastChar+1) != '\0')
+                lastChar++;
 
-                  if (*lastChar == '\\' || *lastChar == '/')
-                    *lastChar = '\0';
+              if (*lastChar == '\\' || *lastChar == '/')
+                *lastChar = '\0';
 
-                  vh->setDocumentRoot ((const char*)lcur->children->content);
-                }
-              else
-                vh->setDocumentRoot ("");
+              vh->setDocumentRoot ((const char*)lcur->children->content);
             }
           else if (!xmlStrcmp (lcur->name, (const xmlChar *)"SYSROOT"))
             {
-              if (lcur->children && lcur->children->content)
-                {
-                  char* lastChar = (char*)lcur->children->content;
+              char* lastChar = (char*)lcur->children->content;
 
-                  while (*(lastChar+1) != '\0')
-                    lastChar++;
+              while (*(lastChar+1) != '\0')
+                lastChar++;
 
-                  if (*lastChar == '\\' || *lastChar == '/')
-                    *lastChar = '\0';
+              if (*lastChar == '\\' || *lastChar == '/')
+                *lastChar = '\0';
 
-                  vh->setSystemRoot ((const char*)lcur->children->content);
-                }
-              else
-                vh->setSystemRoot ("");
+              vh->setSystemRoot ((const char*)lcur->children->content);
             }
           else if (!xmlStrcmp (lcur->name, (const xmlChar *)"ACCESSLOG"))
             {
@@ -507,35 +495,33 @@ int XmlVhostHandler::load (const char *filename)
                     hnd.assign((const char*) attrs->children->content);
                 }
 
-              if (lcur->children)
+              const char *filename = (const char*)lcur->children->content;
+              MimeManagerHandler *handler =
+                Server::getInstance ()->getMimeManager ()->buildHandler (hnd);
+
+              try
                 {
-                  const char *filename = (const char*)lcur->children->content;
-                  MimeManagerHandler *handler =
-                    Server::getInstance ()->getMimeManager ()->buildHandler (hnd);
-
-                  try
-                    {
-                      handler->load (filename);
-                    }
-                  catch (...)
-                    {
-                      delete handler;
-                      handler = NULL;
-                      Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
-                                       _("Error loading mime types file: %s"),
-                                                   filename);
-
-                    }
-                  vh->setMimeHandler (handler);
+                  handler->load (filename);
                 }
+              catch (...)
+                {
+                  delete handler;
+                  handler = NULL;
+                  Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
+                                         _("Error loading mime types file: %s"),
+                                               filename);
+
+                }
+              vh->setMimeHandler (handler);
             }
           else if (!xmlStrcmp (lcur->name, (const xmlChar *)"THROTTLING_RATE"))
             {
-              vh->setThrottlingRate ((u_long)atoi ((char*)lcur->children->content));
+              u_long rate = (u_long)atoi ((char*)lcur->children->content);
+              vh->setThrottlingRate (rate);
             }
 
           lcur = lcur->next;
-        }// while (lcur)
+        }/* while (lcur)  */
 
       if (vh->openLogFiles ())
         {
