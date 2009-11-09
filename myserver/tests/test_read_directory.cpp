@@ -48,6 +48,7 @@ public:
       {
         CPPUNIT_ASSERT (rd.name.length ());
         CPPUNIT_ASSERT (rd.attrib >= 0);
+        CPPUNIT_ASSERT (rd.st_nlink >= 1);
         CPPUNIT_ASSERT (rd.size >= 0);
         CPPUNIT_ASSERT (rd.time_write);
       }

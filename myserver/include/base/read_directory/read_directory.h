@@ -63,32 +63,29 @@ public:
   int attrib;
   time_t time_write;
   off_t size;
+# ifdef WIN32
+  u_long st_nlink;
+# else
+  nlink_t st_nlink;
+#endif
+
   int findfirst (const char *directory);
-  int findfirst (string &directory){return findfirst (directory.c_str ());};
+  int findfirst (string &directory) {return findfirst (directory.c_str ());};
   int findnext ();
   int findclose ();
   ReadDirectory ();
   ~ReadDirectory ();
 
-  struct stat* getStatStruct ()
-  {
-# ifndef WIN32
-    return &stats;
-# else
-    return NULL;
-# endif
-  }
-
 private:
   int find (const char *filename);
   string dirName;
+
 # ifdef WIN32
-	_finddata_t fd;
+  _finddata_t fd;
   intptr_t  ff;
 # else
   DIR *dh;
   struct stat stats;
-
 #  ifdef HAVE_READDIR_R
   struct dirent entry;
 #  else

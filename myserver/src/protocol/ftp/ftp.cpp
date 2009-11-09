@@ -1772,12 +1772,7 @@ Ftp::list (const std::string & sParam /*= ""*/ )
             }
 
           char nlinkStr[12];
-          memset (nlinkStr, 0, sizeof (char) * 12);
-#ifndef WIN32
-          nlink_t nlink = 1;
-          nlink = fd.getStatStruct ()->st_nlink;
-          sprintf (nlinkStr, "%lu", (u_long) nlink);
-#endif
+          sprintf (nlinkStr, "%lu", fd.st_nlink);
 
           char fdSizeStr[12];
           sprintf (fdSizeStr, "%li", fd.size);
@@ -1863,12 +1858,7 @@ Ftp::list (const std::string & sParam /*= ""*/ )
             }
 
           char nlinkStr[12];
-          memset (nlinkStr, 0, sizeof (char) * 12);
-#ifndef WIN32
-          nlink_t nlink = 1;
-          nlink = fd.getStatStruct ()->st_nlink;
-          sprintf (nlinkStr, "%lu", (u_long) nlink);
-#endif
+          sprintf (nlinkStr, "%lu", fd.st_nlink);
 
           char fdSizeStr[12];
           sprintf (fdSizeStr, "%li", fd.size);

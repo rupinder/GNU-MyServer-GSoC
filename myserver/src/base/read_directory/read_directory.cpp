@@ -118,11 +118,13 @@ int ReadDirectory::find (const char *filename)
       name = fd.name;
       attrib = fd.attrib;
       time_write = fd.time_write;
-      size = fd.size ;
+      size = fd.size;
+      st_nlink = 1UL;
     }
-
   return 0;
+
 #else
+
    struct dirent * dirInfo;
 
    if (filename)
@@ -136,7 +138,6 @@ int ReadDirectory::find (const char *filename)
        if (dh == NULL)
          return -1;
      }
-
    errno = 0;
 # ifdef HAVE_READDIR_R
    if (readdir_r (dh, &entry, &dirInfo) || !dirInfo)
@@ -174,6 +175,7 @@ int ReadDirectory::find (const char *filename)
 
    time_write = stats.st_mtime;
    size = stats.st_size;
+   st_nlink = stats.st_nlink;
    return 0;
 #endif
 }
