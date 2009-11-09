@@ -16,43 +16,44 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CACHED_FILE_H
-# define CACHED_FILE_H
+#ifndef MEMBUF_FILE_H
+# define MEMBUF_FILE_H
 
 # include "stdafx.h"
 # include <include/filter/stream.h>
 # include <include/base/file/file.h>
-# include <include/base/files_cache/cached_file_buffer.h>
 # include <string>
+
+# include <include/base/mem_buff/mem_buff.h>
 
 using namespace std;
 
-class CachedFile : public File
+class MemBufFile : public File
 {
 public:
-  CachedFile (CachedFileBuffer* buffer);
+  MemBufFile (MemBuf* buffer);
   virtual Handle getHandle ();
   virtual int setHandle (Handle);
-  virtual int read (char* ,u_long ,u_long* );
-  virtual int writeToFile (const char* ,u_long ,u_long* );
-  virtual int createTemporaryFile (const char* );
+  virtual int read (char* ,u_long ,u_long*);
+  virtual int writeToFile (const char* ,u_long ,u_long*);
+  virtual int createTemporaryFile (const char*);
 
-  virtual int openFile (const char*, u_long );
+  virtual int openFile (const char*, u_long);
   virtual int openFile (string const &file, u_long opt)
   {return openFile (file.c_str (), opt);}
 
   virtual u_long getFileSize ();
   virtual int seek (u_long);
 
-  virtual int operator =(CachedFile);
   virtual int close ();
 
   virtual int fastCopyToSocket (Socket *dest, u_long offset,
                                 MemBuf *buf, u_long *nbw);
 
+  virtual u_long getSeek ();
   virtual int write (const char* buffer, u_long len, u_long *nbw);
 protected:
   u_long fseek;
-  CachedFileBuffer* buffer;
+  MemBuf *buffer;
 };
 #endif
