@@ -78,7 +78,7 @@ public:
 protected:
   virtual int streamCycle ();
   int doCycle ();
-  int write (string message);
+  int write (const string &message);
   int resetFilters ();
   u_long nbw;
   u_long cycle;

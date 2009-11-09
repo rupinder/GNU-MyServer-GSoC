@@ -76,9 +76,9 @@ LogStream::doCycle ()
 }
 
 int
-LogStream::write (string message)
+LogStream::write (const string &message)
 {
-  return fc->write (message.c_str (), message.size (), &nbw);
+  return fc->write (message.c_str (), message.length (), &nbw);
 }
 
 int
