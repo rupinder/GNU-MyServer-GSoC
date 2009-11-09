@@ -52,18 +52,19 @@ int Proxy::send (HttpThreadContext *td,
   HttpRequestHeader req;
   u_long nbw;
 
-  for (HashMap<string, HttpRequestHeader::Entry*>::Iterator it = td->request.begin ();
-       it != td->request.end ();
-       it++)
+  for (HashMap<string, HttpRequestHeader::Entry*>::Iterator it =
+         td->request.begin (); it != td->request.end (); it++)
     {
       HttpRequestHeader::Entry *e = *it;
       req.setValue (e->name->c_str (), e->value->c_str ());
     }
 
-  if (destUrl.getProtocol ().compare ("http") && destUrl.getProtocol ().compare ("HTTP"))
+  if (destUrl.getProtocol ().compare ("http")
+      && destUrl.getProtocol ().compare ("HTTP"))
     {
-      td->connection->host->warningsLogWrite ("Proxy: %s is not a known protocol",
-                                              destUrl.getProtocol ().c_str ());
+      td->connection->host->warningsLogWrite
+        ("Proxy: %s is not a supported protocol",
+         destUrl.getProtocol ().c_str ());
       return td->http->raiseHTTPError (500);
     }
 
@@ -91,8 +92,12 @@ int Proxy::send (HttpThreadContext *td,
   if (sock.connect (destUrl.getHost ().c_str (), destUrl.getPort ()))
     return td->http->raiseHTTPError (500);
 
-  if (HttpHeaders::sendHeader (td->response, *td->connection->socket,
-                               *td->auxiliaryBuffer, td))
+  u_long hdrLen =
+    HttpHeaders::buildHTTPRequestHeader (td->auxiliaryBuffer->getBuffer (),
+                                         &req);
+
+
+  if (sock.write (td->auxiliaryBuffer->getBuffer (), hdrLen, &nbw))
     {
       chain.clearAllFilters ();
       return HttpDataHandler::RET_FAILURE;
@@ -107,11 +112,12 @@ int Proxy::send (HttpThreadContext *td,
 
   chain.setStream (td->connection->socket);
 
-  if (td->mime && Server::getInstance ()->getFiltersFactory ()->chain (&chain,
-                                                            td->mime->filters,
-                                                       td->connection->socket,
-                                                                       &nbw,
-                                                                       1))
+  if (td->mime
+      && Server::getInstance ()->getFiltersFactory ()->chain (&chain,
+                                                              td->mime->filters,
+                                                         td->connection->socket,
+                                                              &nbw,
+                                                              1))
     {
       sock.close ();
       return td->http->raiseHTTPError (500);
@@ -144,17 +150,16 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
       if (client.recv (td->auxiliaryBuffer->getBuffer () + read,
                        td->auxiliaryBuffer->getRealLength () - read,
                        0,
-                       td->http->getTimeout () == 0))
+                       td->http->getTimeout ()) < 0)
         return td->http->raiseHTTPError (500);
 
       read += ret;
 
-      if (HttpHeaders::buildHTTPResponseHeaderStruct (td->auxiliaryBuffer->getBuffer (),
-                                                      &td->response,
-                                                      &headerLength))
-      ret = HttpDataHandler::RET_FAILURE;
+      if (HttpHeaders::buildHTTPResponseHeaderStruct
+          (td->auxiliaryBuffer->getBuffer (), &td->response, &headerLength))
+        break;
     }
-  while (ret == -1);
+  while (ret);
 
   checkDataChunks (td, &keepalive, &useChunks);
 
@@ -180,7 +185,6 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
       transferEncoding.assign (*tmp);
     }
 
-
   if (useChunks)
     td->response.setValue ("Transfer-Encoding", "chunked");
 
@@ -191,10 +195,10 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
   if (out.getStream ()->write (td->buffer->getBuffer (),
                                hdrLen,
                                &nbw))
-    return 0;
+    return HttpDataHandler::RET_FAILURE;
 
   if (onlyHeader)
-    ret = HttpDataHandler::RET_OK;
+    return HttpDataHandler::RET_OK;
 
   ret = readPayLoad (td,
                      &td->response,

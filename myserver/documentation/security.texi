@@ -103,7 +103,7 @@ It is computed by the function: MD5 (username:realm:password).
 @end example
 
 The realm value used by MyServer is the virtual host name, including
-the port number, i.e. @example{localhost:8080}.
+the port number, i.e. @code{localhost:8080}.
 The A1 password can be computed using the following shell command, be
 sure to use the right user, realm and password values.
 

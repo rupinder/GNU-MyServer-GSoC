@@ -97,7 +97,7 @@ The following line, for example, set the maximum transfer rate to 1
 KByte/second:
 
 @example
-    <DEFINE name="connection.throttling" value="1024"/>
+<DEFINE name="connection.throttling" value="1024"/>
 @end example
 
 @subsection Connections data pool
@@ -117,8 +117,8 @@ Any other element passed after the location will be part of the
 @code{PATH_INFO} variable.
 
 @example
-    <LOCATION path="foo/bar" mime="text/html" handler="CGI"
-              param="/usr/local/bin/handler" />
+<LOCATION path="foo/bar" mime="text/html" handler="CGI"
+          param="/usr/local/bin/handler" />
 @end example
 
 In the previous example, the CGI process @file{/usr/local/bin/handler}

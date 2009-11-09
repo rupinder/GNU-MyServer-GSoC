@@ -519,7 +519,8 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped, int* permissio
           if (next >= filenamePathLen)
             break;
 
-          if (mimeLoc || !FilesUtility::isDirectory (curr.c_str ()))
+          if (mimeLoc || (FilesUtility::fileExists (curr.c_str ())
+                          && !FilesUtility::isDirectory (curr.c_str ())))
             {
               td->pathInfo.assign (&(td->filenamePath.c_str ()[next]));
               td->filenamePath.erase (next);
