@@ -1,5 +1,6 @@
 bin_PROGRAMS = tests_suite
 tests_suite_SOURCES =  	main.cpp				\
+			memory_socket.h			\
 			test_auth_domain.cpp			\
 			test_auth_method.cpp			\
 			test_base64.cpp				\
@@ -17,6 +18,7 @@ tests_suite_SOURCES =  	main.cpp				\
 			test_filter_chain.cpp			\
 			test_fork_server.cpp			\
 			test_ftp.cpp				\
+			test_gopher_content.cpp				\
 			test_gzip.cpp				\
 			test_hashmap.cpp			\
 			test_homedir.cpp			\
@@ -30,6 +32,7 @@ tests_suite_SOURCES =  	main.cpp				\
 			test_mem_buff.cpp			\
 			test_mem_stream.cpp			\
 			test_membuf_file.cpp			\
+			test_mem_socket.cpp			\
 			test_mime_manager.cpp			\
 			test_multicast.cpp			\
 			test_mutex.cpp				\
