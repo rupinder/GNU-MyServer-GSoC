@@ -64,6 +64,7 @@ public:
   void tearDown ()
   {
     delete tfile;
+    FilesUtility::deleteFile (fname);
   }
 
   void testCreateTemporaryFile ()

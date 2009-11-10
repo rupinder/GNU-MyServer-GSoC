@@ -49,7 +49,8 @@ public:
 
   void setUp ()
   {
-    securityManager = new SecurityManager (&validatorFactory, &authMethodFactory);
+    securityManager =
+      new SecurityManager (&validatorFactory, &authMethodFactory);
   }
 
   void tearDown ()
@@ -61,8 +62,10 @@ public:
   {
     SecurityToken secToken;
     string xml ("xml");
-    CPPUNIT_ASSERT_EQUAL (securityManager->getPermissionMask (&secToken, (list<SecurityDomain*>*)NULL, xml, xml), 0);
-    CPPUNIT_ASSERT_EQUAL (securityManager->getPermissionMask (&secToken, (SecurityDomain**)NULL, xml, xml), 0);
+    CPPUNIT_ASSERT_EQUAL (securityManager->getPermissionMask (&secToken,
+                                   (list<SecurityDomain*>*)NULL, xml, xml), 0);
+    CPPUNIT_ASSERT_EQUAL (securityManager->getPermissionMask (&secToken,
+                                         (SecurityDomain**)NULL, xml, xml), 0);
   }
 };
 

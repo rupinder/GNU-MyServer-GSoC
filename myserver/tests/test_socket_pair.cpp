@@ -100,6 +100,7 @@ public:
 
     file.close ();
     sp.close ();
+    FilesUtility::deleteFile (fname);
   }
 
   void testCreateClose ()
