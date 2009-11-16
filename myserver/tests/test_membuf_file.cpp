@@ -64,9 +64,9 @@ public:
   void testHandle ()
   {
     Handle handle = (Handle) 1;
-    CPPUNIT_ASSERT_EQUAL (tfile->getHandle (), -1);
+    CPPUNIT_ASSERT_EQUAL (tfile->getHandle (), (Handle)-1);
     CPPUNIT_ASSERT_EQUAL (tfile->setHandle (handle), -1);
-    CPPUNIT_ASSERT_EQUAL (tfile->getHandle (), -1);
+    CPPUNIT_ASSERT_EQUAL (tfile->getHandle (), (Handle)-1);
   }
 
   void testCreateTemporaryMembufFile ()
