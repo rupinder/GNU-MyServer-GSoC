@@ -264,6 +264,7 @@ int loadConfFileLocation (string &outFile, string fileName, const char *dir)
 
 #ifdef WIN32
       outFile = fileName;
+      return FilesUtility::fileExists (fileName) ? 0 : -1;
 #else
 
       if (dir)
