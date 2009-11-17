@@ -523,14 +523,14 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
            * If the version is not specified or it is too long store
            * some information for logging then return an invalid header value.
            */
-          if ((!j) || ( (i-j) == HTTP_REQUEST_VER_DIM ))
+          if (!j || ((i-j) == HTTP_REQUEST_VER_DIM))
             {
               request->ver.clear ();
               request->cmd.clear ();
               tokenOff = getEndLine (input, HTTP_REQUEST_URI_DIM);
               if (tokenOff > 0)
-                request->uri.assign (input,
-                                     min (HTTP_REQUEST_URI_DIM, tokenOff));
+                request->uri.assign (input, min (HTTP_REQUEST_URI_DIM,
+                                                 tokenOff));
               else
                 request->uri.assign (input, HTTP_REQUEST_URI_DIM );
               return 400;
@@ -547,14 +547,14 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
           request->uri=trimRight (request->uri, " /");
           request->uriOpts=trim (request->uriOpts, " ");
         }
-      else if (!strcmpi (command,"Authorization"))
+      else if (!strcmpi (command, "Authorization"))
         {
           int ret = readReqAuthLine (request, connection, token, &tokenOff);
           if (ret)
             return ret;
           lineControlled = 1;
         }
-      else if (!strcmpi (command, (char*)"Content-length"))
+      else if (!strcmpi (command, "Content-length"))
         {
           tokenOff = getEndLine (token, HTTP_REQUEST_CONTENT_LENGTH_DIM);
           if (tokenOff == -1)
@@ -562,7 +562,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
           lineControlled = 1;
           request->contentLength.assign (token,tokenOff);
         }
-      else if (!strcmpi (command, (char*)"Range"))
+      else if (!strcmpi (command, "Range"))
         {
           int ret = readReqRangeLine (request, connection, token, &tokenOff);
           if (ret)
@@ -588,13 +588,11 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
           else
             {
               HttpRequestHeader::Entry *e = new HttpRequestHeader::Entry ();
-              if (e)
-                {
-                  e->name->assign (command, HTTP_RESPONSE_OTHER_DIM);
-                  e->value->assign (token,
-                               std::min (HTTP_RESPONSE_OTHER_DIM, tokenOff));
-                  request->other.put (cmdStr, e);
-                }
+              e->name->assign (command, std::min (HTTP_RESPONSE_OTHER_DIM,
+                                                  tokenOff));
+              e->value->assign (token, std::min (HTTP_RESPONSE_OTHER_DIM,
+                                                 tokenOff));
+              request->other.put (cmdStr, e);
             }
         }
       token += tokenOff + 2;
