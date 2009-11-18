@@ -955,7 +955,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
           (dynamicCommand && dynamicCommand->acceptData ()))
         {
           int httpErrorCode;
-
+          int readPostRet;
           /* Be sure that the client can handle the 100 status code.  */
           if (nbtr == td->nHeaderChars && td->request.contentLength.compare ("0")
               && td->request.ver.compare ("HTTP/1.0"))
@@ -969,13 +969,13 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
               return ClientsThread::INCOMPLETE_REQUEST;
             }
 
-          ret = HttpDataRead::readPostData (td, &httpErrorCode);
-          if (ret == -1)
+          readPostRet = HttpDataRead::readPostData (td, &httpErrorCode);
+          if (readPostRet < 0)
             {
               logHTTPaccess ();
               return ClientsThread::DELETE_CONNECTION;
             }
-          else if (ret)
+          else if (readPostRet)
             ret = raiseHTTPError (httpErrorCode);
         }
       else
@@ -984,7 +984,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
           td->request.uriOptsPtr = 0;
         }
 
-      /* If return value is not configured propertly.  */
+      /* If return value is not configured properly.  */
       if (ret < 0)
         {
           /*

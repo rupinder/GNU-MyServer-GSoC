@@ -10,6 +10,7 @@ src/base/file/files_utility.cpp
 src/base/files_cache/cached_file_buffer.cpp
 src/base/files_cache/cached_file.cpp
 src/base/files_cache/cached_file_factory.cpp
+src/base/files_cache/membuf_file.cpp
 src/base/hash_map/hash_map.cpp
 src/base/home_dir/home_dir.cpp
 src/base/mem_buff/mem_buff.cpp
@@ -96,7 +97,11 @@ src/protocol/control/control_header.cpp
 src/protocol/control/control_protocol.cpp
 src/protocol/ftp/ftp.cpp
 src/protocol/ftp/ftp_lexer.cpp
+src/protocol/ftp/ftp_lexer.out.cpp
 src/protocol/ftp/ftp_parser.cpp
+src/protocol/gopher/engine.cpp
+src/protocol/gopher/gopher_content.cpp
+src/protocol/gopher/gopher.cpp
 src/protocol/http/dyn_http_command.cpp
 src/protocol/http/dyn_http_command_manager.cpp
 src/protocol/http/dyn_http_manager.cpp
