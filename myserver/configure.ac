@@ -91,8 +91,7 @@ gl_INIT
 AC_CHECK_FUNCS(regcomp setgroups localtime_r posix_fallocate \
 		           openat fstatat getpwnam ffsl readdir_r)
 
-AC_CHECK_LIB(gcrypt, gcry_control, AC_DEFINE(GCRY_CONTROL, 1,
-		     [Define if the gcry_control function is present]))
+AC_CHECK_LIB(gcrypt, gcry_control)
 
 case "${host}" in
     *-*-mingw32*)
