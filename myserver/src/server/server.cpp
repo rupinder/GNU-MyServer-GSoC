@@ -261,7 +261,7 @@ int Server::postLoad ()
   string buffer;
 
   /* Get the name of the local machine.  */
-  memset (serverName, 0, HOST_NAME_MAX+1);
+  memset (serverName, 0, HOST_NAME_MAX + 1);
   Socket::gethostname (serverName, HOST_NAME_MAX);
 
   log (MYSERVER_LOG_MSG_INFO, _("Host name: %s"), serverName);

@@ -68,15 +68,8 @@ public:
 
   void testGethostname ( )
   {
-    int len;
-#ifdef HOST_NAME_MAX
-    len = HOST_NAME_MAX;
+    int len = HOST_NAME_MAX;
     char host[HOST_NAME_MAX];
-#else
-    len = 255;
-    char host[255];
-#endif
-
     int status = obj->gethostname ( host, len );
 
     CPPUNIT_ASSERT_EQUAL ( status, 0 );
@@ -103,15 +96,14 @@ public:
                                       (const char*) &optvalReuseAddr,
                                       sizeof (optvalReuseAddr) ) != -1 );
 
-    // If the port is used by another program, try a few others.
-      if ( ( status = obj->bind ( &sockIn, sockInLen ) ) != 0 )
+    /* If the port is used by another program, try a few others.  */
+    if ( ( status = obj->bind ( &sockIn, sockInLen ) ) != 0 )
       while ( ++port < 28000 )
-      {
-        ((sockaddr_in*) (&sockIn))->sin_port = htons ( port );
-
-        if ( ( status = obj->bind ( &sockIn, sockInLen ) ) == 0 )
-          break;
-      }
+        {
+          ((sockaddr_in*) (&sockIn))->sin_port = htons ( port );
+          if ( ( status = obj->bind ( &sockIn, sockInLen ) ) == 0 )
+            break;
+        }
 
     CPPUNIT_ASSERT ( status != -1 );
 
