@@ -23,6 +23,7 @@
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
 #include <include/base/pipe/pipe.h>
+#include <include/base/file/files_utility.h>
 
 #include <exception>
 #include <string.h>
@@ -66,49 +67,45 @@ public:
 
   void testExecuteProcess ()
   {
-    try
-      {
 #ifndef WIN32
-        int pid = 0;
-        int port = 0;
-        StartProcInfo spi;
-        char buffer [32] = {'\0'};
-        const char *msg = "ForkServer";
-        u_long nbr;
-        int ret = fs->startForkServer ();
+    int pid = 0;
+    int port = 0;
+    StartProcInfo spi;
+    char buffer [32] = {'\0'};
+    const char *msg = "ForkServer";
+    u_long nbr;
+    int ret = fs->startForkServer ();
 
-        Pipe pipe;
-        pipe.create ();
+    Pipe pipe;
+    pipe.create ();
 
-        spi.stdIn = -1;
-        spi.stdError = -1;
-        spi.stdOut =  pipe.getWriteHandle ();
+    spi.stdIn = -1;
+    spi.stdError = -1;
+    spi.stdOut =  pipe.getWriteHandle ();
 
-        spi.cmd.assign ("/bin/echo");
-        spi.arg.assign (msg);
-        spi.cwd.assign ("");
-        spi.envString = NULL;
+    if (!FilesUtility::fileExists ("/bin/echo"))
+      return;
 
-        ret = fs->executeProcess (&spi, ForkServer::FLAG_USE_OUT, &pid, &port);
-        pipe.closeWrite ();
+    spi.cmd.assign ("/bin/echo");
+    spi.arg.assign (msg);
+    spi.cwd.assign ("");
+    spi.envString = NULL;
 
-        CPPUNIT_ASSERT_EQUAL (ret, 0);
+    ret = fs->executeProcess (&spi, ForkServer::FLAG_USE_OUT, &pid, &port);
+    pipe.closeWrite ();
 
-        ret = pipe.read (buffer, 32, &nbr);
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
 
-        CPPUNIT_ASSERT_EQUAL (ret, 0);
+    ret = pipe.read (buffer, 32, &nbr);
 
-        CPPUNIT_ASSERT_EQUAL (strncmp (buffer, msg, strlen (msg)), 0);
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
 
-        pipe.closeRead ();
+    CPPUNIT_ASSERT_EQUAL (strncmp (buffer, msg, strlen (msg)), 0);
 
-        fs->killServer ();
+    pipe.closeRead ();
+
+    fs->killServer ();
 #endif
-      }
-    catch (exception &e)
-      {
-        CPPUNIT_FAIL (e.what ());
-      }
   }
 
 };
