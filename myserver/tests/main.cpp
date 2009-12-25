@@ -30,6 +30,8 @@
 #include <fstream>
 #include <string.h>
 
+#include <include/server/server.h>
+
 using namespace std;
 
 const char *program_name = NULL;
@@ -42,7 +44,6 @@ int main (int argc, char* argv[])
 
   program_name = argv[0];
 
-
   std::ostream *str = &(std::cerr);
 
   ofstream ofile;
@@ -50,9 +51,10 @@ int main (int argc, char* argv[])
   if (filename)
     {
       ofile.open (filename);
-
       str = &ofile;
     }
+
+  Server::getInstance ()->loadLibraries ();
 
   CppUnit::Outputter * out;
   CppUnit::Test *suite = CppUnit::TestFactoryRegistry::getRegistry ().makeTest ();
