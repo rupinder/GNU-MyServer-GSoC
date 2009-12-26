@@ -52,60 +52,72 @@ public:
 
   void testStartKillLoop ()
   {
+    try
+      {
 #ifndef WIN32
-    CPPUNIT_ASSERT_EQUAL (fs->isInitialized (), false);
-
-    int ret = fs->startForkServer ();
-
-    CPPUNIT_ASSERT_EQUAL (ret, 0);
-
-    CPPUNIT_ASSERT_EQUAL (fs->isInitialized (), true);
-
-    fs->killServer ();
+        CPPUNIT_ASSERT_EQUAL (fs->isInitialized (), false);
+        int ret = fs->startForkServer ();
+        CPPUNIT_ASSERT_EQUAL (ret, 0);
+        CPPUNIT_ASSERT_EQUAL (fs->isInitialized (), true);
+        fs->killServer ();
 #endif
+      }
+    catch (...)
+      {
+        fs->killServer ();
+        throw;
+      }
   }
 
   void testExecuteProcess ()
   {
+    try
+      {
 #ifndef WIN32
-    int pid = 0;
-    int port = 0;
-    StartProcInfo spi;
-    char buffer [32] = {'\0'};
-    const char *msg = "ForkServer";
-    u_long nbr;
-    int ret = fs->startForkServer ();
+        int pid = 0;
+        int port = 0;
+        StartProcInfo spi;
+        char buffer [32] = {'\0'};
+        const char *msg = "ForkServer";
+        u_long nbr;
+        int ret = fs->startForkServer ();
 
-    Pipe pipe;
-    pipe.create ();
+        Pipe pipe;
+        pipe.create ();
 
-    spi.stdIn = -1;
-    spi.stdError = -1;
-    spi.stdOut =  pipe.getWriteHandle ();
+        spi.stdIn = -1;
+        spi.stdError = -1;
+        spi.stdOut =  pipe.getWriteHandle ();
 
-    if (!FilesUtility::fileExists ("/bin/echo"))
-      return;
+        if (!FilesUtility::fileExists ("/bin/echo"))
+          return;
 
-    spi.cmd.assign ("/bin/echo");
-    spi.arg.assign (msg);
-    spi.cwd.assign ("");
-    spi.envString = NULL;
+        spi.cmd.assign ("/bin/echo");
+        spi.arg.assign (msg);
+        spi.cwd.assign ("");
+        spi.envString = NULL;
 
-    ret = fs->executeProcess (&spi, ForkServer::FLAG_USE_OUT, &pid, &port);
-    pipe.closeWrite ();
+        ret = fs->executeProcess (&spi, ForkServer::FLAG_USE_OUT, &pid, &port);
+        pipe.closeWrite ();
 
-    CPPUNIT_ASSERT_EQUAL (ret, 0);
+        CPPUNIT_ASSERT_EQUAL (ret, 0);
 
-    ret = pipe.read (buffer, 32, &nbr);
+        ret = pipe.read (buffer, 32, &nbr);
 
-    CPPUNIT_ASSERT_EQUAL (ret, 0);
+        CPPUNIT_ASSERT_EQUAL (ret, 0);
 
-    CPPUNIT_ASSERT_EQUAL (strncmp (buffer, msg, strlen (msg)), 0);
+        CPPUNIT_ASSERT_EQUAL (strncmp (buffer, msg, strlen (msg)), 0);
 
-    pipe.closeRead ();
+        pipe.closeRead ();
 
-    fs->killServer ();
+        fs->killServer ();
 #endif
+      }
+    catch (...)
+      {
+        fs->killServer ();
+        throw;
+      }
   }
 
 };
