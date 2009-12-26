@@ -38,7 +38,7 @@ class ForkServer
   const static int FLAG_STDIN_SOCKET = 8;
 
   ForkServer () {initialized = false;}
-  ~ForkServer () {}
+  ~ForkServer () {killServer ();}
 
   void killServer ();
   int startForkServer ();
