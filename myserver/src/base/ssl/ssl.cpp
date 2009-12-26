@@ -24,24 +24,19 @@
 
 extern "C"
 {
-#if GCRY_CONTROL
+#if HAVE_PTHREAD
+# include <pthread.h>
+#endif
 
+#if HAVE_LIBGCRYPT
 # include <errno.h>
-
 # ifdef WIN32
 #  undef socklen_t
 # endif
-
 # include <gcrypt.h>
-
-# ifdef HAVE_PTHREAD
+# if HAVE_PTHREAD
 GCRY_THREAD_OPTION_PTHREAD_IMPL;
 # endif
-
-#endif
-
-#ifdef HAVE_PTHREAD
-# include <pthread.h>
 #endif
 }
 
@@ -110,14 +105,14 @@ void initializeSSL ()
   static bool initialized = false;
 
   if (!initialized)
-  {
-#if GCRY_CONTROL && HAVE_PTHREAD
-    gcry_control (GCRYCTL_SET_THREAD_CBS, &gcry_threads_pthread);
+    {
+#if HAVE_LIBGCRYPT && HAVE_PTHREAD
+      gcry_control (GCRYCTL_SET_THREAD_CBS, &gcry_threads_pthread);
+      gcry_control (GCRYCTL_INITIALIZATION_FINISHED);
 #endif
-    gnutls_global_init ();
-
-    initialized = true;
-  }
+      gnutls_global_init ();
+      initialized = true;
+    }
 }
 
 void cleanupSSL ()

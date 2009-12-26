@@ -121,6 +121,8 @@ bool Server::resetConfigurationPaths (string &mainConf, string &mimeConf,
  */
 int Server::loadLibraries ()
 {
+  /* Initialize the SSL library.  */
+  initializeSSL ();
   Process::initialize ();
   XmlParser::startXML ();
   myserver_safetime_init ();
@@ -202,9 +204,6 @@ void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
         log (MYSERVER_LOG_MSG_INFO, _("The server could not be started"));
         return;
       }
-
-    /* Initialize the SSL library.  */
-    initializeSSL ();
 
     log (MYSERVER_LOG_MSG_INFO, _("Loading server configuration..."));
 
