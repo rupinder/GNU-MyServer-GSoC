@@ -29,9 +29,7 @@ extern "C"
 # include <direct.h>
 #endif
 
-#ifdef ARGP
 # include <argp.h>
-#endif
 
 #ifndef WIN32
 # include <string.h>
@@ -122,10 +120,6 @@ void registerSignals ()
 #endif
 }
 
-
-
-#ifdef ARGP
-
 struct argp_input
 {
   /* Print the version for MyServer?  */
@@ -159,12 +153,19 @@ enum
 static struct argp_option options[] =
   {
     /* LONG NAME - SHORT NAME - PARAMETER NAME - FLAGS - DESCRIPTION.  */
-    {"version", 'v', "VERSION", OPTION_ARG_OPTIONAL , _("Print the version for the application")},
-    {"run", 'r', "RUN", OPTION_ARG_OPTIONAL, _("Specify how run the server (by default console mode)")},
-    {"log", 'l', "location", 0, _("Specify the location (using the format protocol://resource) to use as the main log.")},
-    {"pidfile", 'p', "file", 0, _("Specify the file where write the PID")},
-    {"fork_server", 'f', NULL, 0, _("Specify if use a fork server")},
-    {"cfgdir", CONFIG_OPT, "dir", 0, _("Specify an alternative directory where look for configuration files")},
+    {"version", 'v', "VERSION", OPTION_ARG_OPTIONAL ,
+     _("Print the version for the application")},
+    {"run", 'r', "RUN", OPTION_ARG_OPTIONAL,
+     _("Specify how run the server (by default console mode)")},
+    {"log", 'l', "location", 0,
+     _("Specify the location (using the format protocol://resource) to use "
+       "as the main log.")},
+    {"pidfile", 'p', "file", 0,
+     _("Specify the file where write the PID")},
+    {"fork_server", 'f', NULL, 0,
+     _("Specify if use a fork server")},
+    {"cfgdir", CONFIG_OPT, "dir", 0,
+     _("Specify an alternative directory where look for configuration files")},
     {0}
   };
 
@@ -216,9 +217,6 @@ static error_t parseOpt (int key, char *arg, struct argp_state *state)
 }
 
 static struct argp myserverArgp = {options, parseOpt, argsDoc, doc};
-
-#endif
-
 
 /*!
  * Load the external path.
@@ -347,9 +345,7 @@ int main  (int argn, char **argv)
 {
   program_name = argv[0];
   int runas = MYSERVER_RUNAS_CONSOLE;
-#ifdef ARGP
   struct argp_input input;
-#endif
 
 #ifndef WIN32
   pid_t pid;
@@ -408,7 +404,6 @@ int main  (int argn, char **argv)
   /* We can free path memory now.  */
   delete [] path;
 
-#ifdef ARGP
   /* Reset the struct.  */
   input.version = 0;
   input.confFilesLocation = NULL;
@@ -440,55 +435,11 @@ int main  (int argn, char **argv)
            << "http://www.gnu.org/software/myserver" << endl;
       return 0;
     }
-#else
-  if (argn > 1)
-    {
-      if (!strcmpi (argv[1], "VERSION"))
-        {
-          cout << MYSERVER_VERSION << endl;
-          return 0;
-        }
-      if (!strcmpi (argv[1], "CONSOLE"))
-        {
-          runas = MYSERVER_RUNAS_CONSOLE;
-        }
-      if (!strcmpi (argv[1], "REGISTER"))
-        {
-          registerService ();
-# ifndef ARGP
-          runAsService ();
-# endif
-          runas = MYSERVER_RUNAS_SERVICE;
-          return 0;
-        }
-      if (!strcmpi (argv[1], "RUNSERVICE"))
-        {
-          runAsService ();
-          return 0;
-        }
-      if (!strcmpi (argv[1], "UNREGISTER"))
-        {
-          removeService ();
-          runas = MYSERVER_RUNAS_SERVICE;
-          return 0;
-        }
-      if (!strcmpi (argv[1], "SERVICE"))
-        {
-          /*
-           * Set the log file to use when in service mode.
-           */
-          runas = MYSERVER_RUNAS_SERVICE;
-        }
-    }
-#endif
-
-#ifdef ARGP
   if (input.useForkServer)
     {
       FilesUtility::resetTmpPath ();
       Process::getForkServer ()->startForkServer ();
     }
-#endif
 
   /*
    * Start here the MyServer execution.
@@ -531,14 +482,10 @@ int main  (int argn, char **argv)
 
           if (pid)
             {
-# ifdef ARGP
               if (input.pidFileName)
                 writePidfile (input.pidFileName);
               else
                 writePidfile ();
-# else
-              writePidfile ();
-# endif
               return 0;
             }
           /*
@@ -557,10 +504,8 @@ int main  (int argn, char **argv)
       return 1;
     };
 
-#ifdef ARGP
   if (input.useForkServer)
     Process::getForkServer ()->killServer ();
-#endif
 
   return 0;
 }
@@ -588,7 +533,6 @@ int writePidfile (const char* filename)
     }
 
   pidfile = open (filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-
   if (pidfile == -1)
     return -1;
 
@@ -606,12 +550,13 @@ int writePidfile (const char* filename)
 /*!
  * Start MyServer in console mode.
  */
-void consoleService (string &mainConf, string &mimeConf, string &vhostConf, string &externPath,
-                     MainConfiguration* (*genMainConf) (Server *server, const char *arg))
+void consoleService (string &mainConf, string &mimeConf, string &vhostConf,
+                     string &externPath, MainConfiguration* (*genMainConf)
+                                         (Server *server, const char *arg))
 {
-  Server::getInstance ()->start (mainConf, mimeConf, vhostConf, externPath, genMainConf);
+  Server::getInstance ()->start (mainConf, mimeConf, vhostConf, externPath,
+                                 genMainConf);
 }
-
 
 /*!
  * These functions are available only on the windows platform.
@@ -660,7 +605,8 @@ void  __stdcall myServerMainNT (u_long, LPTSTR*)
 
 
       loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath, NULL);
-      Server::getInstance ()->start (mainConf, mimeConf, vhostConf, externPath, &genMainConf);
+      Server::getInstance ()->start (mainConf, mimeConf, vhostConf, externPath,
+                                     &genMainConf);
 
       MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
       SetServiceStatus (MyServiceStatusHandle, &MyServiceStatus);
