@@ -50,7 +50,7 @@ extern "C"
 #include <math.h>
 #include "time.h"
 #include <ctype.h>
-
+#include <stdint.h>
 
 #ifndef WIN32
 # include <sys/types.h>
@@ -58,16 +58,6 @@ extern "C"
 # include <limits.h>
 #endif
 }
-
-#ifndef HOST_NAME_MAX
-# define HOST_NAME_MAX 255
-#endif
-
-typedef unsigned long DWORD;
-typedef unsigned int u_int;
-typedef unsigned long u_long;
-typedef unsigned short u_short;
-typedef unsigned char u_char;
 
 typedef void* HANDLE;
 
