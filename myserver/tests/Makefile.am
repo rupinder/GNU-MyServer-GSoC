@@ -1,5 +1,5 @@
-bin_PROGRAMS = tests_suite
-tests_suite_SOURCES =  	main.cpp				\
+bin_PROGRAMS = test_suite
+test_suite_SOURCES =  	main.cpp				\
 			memory_socket.h			\
 			test_auth_domain.cpp			\
 			test_auth_method.cpp			\
@@ -64,11 +64,11 @@ tests_suite_SOURCES =  	main.cpp				\
 			test_xml_main_configuration.cpp		\
 			test_xml_validator.cpp
 
-tests_suite_LDADD = ../src/libmyserver.a  ../lib/libgnu.a $(CPPUNIT_LDFLAGS) \
+test_suite_LDADD = ../src/libmyserver.a  ../lib/libgnu.a $(CPPUNIT_LDFLAGS) \
 	$(PTHREAD_LIB) 	$(IDN_LIB) $(XNET_LIB) $(EVENT_LIB) $(DL_LIB) $(SSL_LIB) \
 	$(ZLIB_LIB) $(XML_LIBS) $(LDFLAGS)
 
 install:
 
 check:
-	./tests_suite$(EXEEXT)
+	./test_suite$(EXEEXT)
