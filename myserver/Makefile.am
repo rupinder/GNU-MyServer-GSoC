@@ -9,7 +9,7 @@ endif
 
 SUBDIRS = lib po src include $(CONTROL) binaries $(DOCS) $(TESTS_DIR)
 
-EXTRA_DIST = stdafx.h stdafx.cpp doxygen SConstruct
+EXTRA_DIST = stdafx.h doxygen SConstruct
 
 ACLOCAL_AMFLAGS = -I m4
 
