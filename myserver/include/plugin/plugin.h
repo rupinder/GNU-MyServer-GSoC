@@ -19,7 +19,7 @@
 #ifndef PLUGIN_H
 # define PLUGIN_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/dynamic_lib/dynamiclib.h>
 # include <include/base/hash_map/hash_map.h>
 # include <string>

@@ -18,7 +18,7 @@
 #ifndef FORK_SERVER_H
 # define FORK_SERVER_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 #ifndef WIN32
 # include <unistd.h>

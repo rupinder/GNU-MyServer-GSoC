@@ -24,7 +24,7 @@
 #  define EXPORTABLE _declspec (dllexport)
 # endif
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <include/server/server.h>
 # include <include/protocol/http/http.h>

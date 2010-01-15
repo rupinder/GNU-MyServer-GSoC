@@ -26,7 +26,7 @@ extern "C"
 #include <sha1.h>
 }
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <include/base/crypt/crypt_algo.h>
 # include <include/base/crypt/crypt_algo_manager.h>

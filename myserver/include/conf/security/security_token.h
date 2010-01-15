@@ -20,7 +20,7 @@
 #ifndef SECURITY_TOKEN_H
 # define SECURITY_TOKEN_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/hash_map/hash_map.h>
 # include <include/conf/nodetree.h>
 # include <string>

@@ -19,7 +19,7 @@
 #ifndef XML_VHOST_H
 # define XML_VHOST_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/conf/vhost/vhost_manager.h>
 
 class XmlVhostHandler : public VhostManagerHandler

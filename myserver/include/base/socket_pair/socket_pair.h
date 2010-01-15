@@ -19,7 +19,7 @@
 #ifndef SOCKET_PAIR_H
 # define SOCKET_PAIR_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/filter/stream.h>
 # include <include/base/socket/socket.h>
 # include <string>

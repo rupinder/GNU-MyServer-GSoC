@@ -19,7 +19,7 @@
 #ifndef SAFETIME_H
 # define SAFETIME_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # ifdef GETTIMEOFDAY
 #  include <sys/time.h>

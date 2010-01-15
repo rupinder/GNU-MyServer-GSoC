@@ -20,7 +20,7 @@
 #ifndef SSL_SOCKET_H
 # define SSL_SOCKET_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/socket/socket.h>
 # include <include/base/ssl/ssl.h>
 

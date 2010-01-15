@@ -20,7 +20,7 @@
 #ifndef HTTP_RESPONSE_H
 # define HTTP_RESPONSE_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <string>
 # include <include/base/hash_map/hash_map.h>

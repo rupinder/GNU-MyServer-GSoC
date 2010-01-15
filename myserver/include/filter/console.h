@@ -19,7 +19,7 @@
 #ifndef CONSOLE_H
 # define CONSOLE_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <iostream>
 # include <map>

@@ -19,7 +19,7 @@
 #ifndef LOG_STREAM_H
 # define LOG_STREAM_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <list>
 # include <string>

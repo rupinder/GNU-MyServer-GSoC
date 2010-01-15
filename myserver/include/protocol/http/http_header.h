@@ -19,7 +19,7 @@
 #ifndef HTTP_HEADER_H
 # define HTTP_HEADER_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <string>
 # include <include/base/hash_map/hash_map.h>

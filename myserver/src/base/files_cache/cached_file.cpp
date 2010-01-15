@@ -16,7 +16,7 @@
 */
 
 
-#include "stdafx.h"
+#include "myserver.h"
 #include <include/base/utility.h>
 #include <include/base/string/stringutils.h>
 #include <include/base/file/files_utility.h>

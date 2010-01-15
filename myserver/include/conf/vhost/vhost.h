@@ -23,7 +23,7 @@
 # include <list>
 # include <string>
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/xml/xml_parser.h>
 # include <include/base/file/file.h>
 # include <include/base/utility.h>

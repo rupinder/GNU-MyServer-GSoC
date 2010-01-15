@@ -16,7 +16,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "stdafx.h"
+#include "myserver.h"
 #include <include/http_handler/isapi/isapi.h>
 #include <include/protocol/http/http.h>
 #include <include/server/server.h>

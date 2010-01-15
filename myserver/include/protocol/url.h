@@ -18,7 +18,7 @@
 
 #ifndef URL_H
 # define URL_H
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <string>
 

@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "stdafx.h"
+#include "myserver.h"
 #include <sstream>
 #include <include/protocol/http/http_thread_context.h>
 #include <include/conf/vhost/vhost.h>

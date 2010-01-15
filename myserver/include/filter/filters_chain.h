@@ -19,7 +19,7 @@
 
 #ifndef FILTERS_CHAIN_H
 # define FILTERS_CHAIN_H
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/filter/stream.h>
 # include <include/filter/filter.h>
 # include <list>

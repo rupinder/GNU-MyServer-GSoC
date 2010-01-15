@@ -20,7 +20,7 @@
 #ifndef FILTERS_FACTORY_H
 # define FILTERS_FACTORY_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/filter/stream.h>
 # include <include/filter/filter.h>
 # include <include/filter/filters_chain.h>

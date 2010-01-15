@@ -19,7 +19,7 @@
 
 #ifndef GOPHER_H
 # define GOPHER_H
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/protocol/protocol.h>
 # include <sstream>
 # include <include/protocol/gopher/gopher_content.h>

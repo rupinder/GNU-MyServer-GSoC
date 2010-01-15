@@ -20,7 +20,7 @@
 #ifndef PROTOCOL_BUFFER_H
 # define PROTOCOL_BUFFER_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 /*!
  * Base class to handle a buffer in the connection.

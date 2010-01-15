@@ -19,7 +19,7 @@
 #ifndef CONTROL_ERRORS_H
 # define CONTROL_ERRORS_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 /*!
  * These are all the errors that the control server can return to a client.

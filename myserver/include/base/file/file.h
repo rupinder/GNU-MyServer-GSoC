@@ -20,7 +20,7 @@
 #ifndef FILE_H
 # define FILE_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/filter/stream.h>
 # include <string>
 

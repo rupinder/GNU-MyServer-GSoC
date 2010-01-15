@@ -16,7 +16,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "stdafx.h"
+#include "myserver.h"
 #include <include/base/crypt/sha1.h>
 
 /*!

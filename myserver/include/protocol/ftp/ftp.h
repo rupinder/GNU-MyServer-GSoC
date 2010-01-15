@@ -19,7 +19,7 @@
 
 #ifndef FTP_H
 # define FTP_H
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/protocol/protocol.h>
 # include <include/connection/connection.h>
 # include <include/base/mem_buff/mem_buff.h>

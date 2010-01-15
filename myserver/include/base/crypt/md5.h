@@ -19,7 +19,7 @@
 #ifndef MD5_H
 # define MD5_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <md5.h>
 # include <include/base/crypt/crypt_algo.h>

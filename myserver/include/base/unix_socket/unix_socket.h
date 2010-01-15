@@ -19,7 +19,7 @@
 #ifndef UNIX_SOCKET_H
 # define UNIX_SOCKET_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/socket/socket.h>
 
 

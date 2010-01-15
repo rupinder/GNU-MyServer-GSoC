@@ -17,7 +17,7 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "stdafx.h"
+#include "myserver.h"
 #include <include/protocol/ftp/ftp.h>
 #include <include/protocol/ftp/ftp_common.h>
 #include <include/protocol/ftp/ftp_parser.h>

@@ -19,7 +19,7 @@
 
 #ifndef HTTP_H
 # define HTTP_H
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/protocol/http/http_thread_context.h>
 # include <include/protocol/protocol.h>
 # include <include/protocol/http/http_headers.h>

@@ -19,7 +19,7 @@
 #ifndef FILE_STREAM_CREATOR_H
 # define FILE_STREAM_CREATOR_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <include/log/stream/log_stream_creator.h>
 # include <include/log/stream/file_stream.h>

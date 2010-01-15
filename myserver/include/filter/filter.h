@@ -18,7 +18,7 @@
 
 #ifndef FILTER_H
 # define FILTER_H
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/filter/stream.h>
 # include <include/protocol/protocol.h>
 

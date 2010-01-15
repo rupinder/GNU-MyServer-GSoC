@@ -19,7 +19,7 @@
 #ifndef HTTP_REQ_SECURITY_DOMAIN_H
 # define HTTP_REQ_SECURITY_DOMAIN_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <include/conf/security/security_domain.h>
 # include <include/protocol/http/http_request.h>

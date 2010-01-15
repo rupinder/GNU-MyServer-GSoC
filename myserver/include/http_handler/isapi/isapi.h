@@ -19,7 +19,7 @@
 
 #ifndef ISAPI_H
 # define ISAPI_H
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/protocol/http/http_headers.h>
 # include <include/base/utility.h>
 # include <include/protocol/http/http_errors.h>

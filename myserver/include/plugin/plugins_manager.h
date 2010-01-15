@@ -19,7 +19,7 @@
 #ifndef PLUGINS_MANAGER_H
 # define PLUGINS_MANAGER_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/plugin/plugin.h>
 # include <include/plugin/plugin_info.h>
 # include <include/base/dynamic_lib/dynamiclib.h>

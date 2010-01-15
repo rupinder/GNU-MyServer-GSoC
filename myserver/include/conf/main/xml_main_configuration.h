@@ -19,7 +19,7 @@
 #ifndef XML_MAIN_CONFIGURATION_H
 # define XML_MAIN_CONFIGURATION_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/conf/main/main_configuration.h>
 # include <include/base/xml/xml_parser.h>
 

@@ -19,7 +19,7 @@
 
 #ifndef HTTPS_H
 # define HTTPS_H
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/protocol/http/http.h>
 
 class Https : public Http

@@ -19,7 +19,7 @@
 
 #ifndef PROTOCOL_H
 # define PROTOCOL_H
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/xml/xml_parser.h>
 # include <include/connection/connection.h>
 

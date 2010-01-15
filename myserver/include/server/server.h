@@ -20,7 +20,7 @@
 #ifndef SERVER_H
 # define SERVER_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/thread/thread.h>
 # include <include/base/utility.h>
 # include <include/base/xml/xml_parser.h>

@@ -15,7 +15,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "stdafx.h"
+#include "myserver.h"
 #include <include/http_handler/proxy/proxy.h>
 
 #include <include/protocol/http/http_thread_context.h>

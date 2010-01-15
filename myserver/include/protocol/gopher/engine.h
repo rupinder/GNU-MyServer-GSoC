@@ -20,7 +20,7 @@
 #ifndef GOPHER_ENGINE_H
 #define GOPHER_ENGINE_H
 
-#include "stdafx.h"
+#include "myserver.h"
 #include <include/base/hash_map/hash_map.h>
 #include <include/conf/vhost/vhost.h>
 #include <include/base/base64/mime_utils.h>

@@ -18,7 +18,7 @@
 
 #ifndef DYNAMICLIBRARY_H
 # define DYNAMICLIBRARY_H
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <string>
 

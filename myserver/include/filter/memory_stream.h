@@ -20,7 +20,7 @@
 #ifndef MEMORY_STREAM_H
 # define MEMORY_STREAM_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/filter/stream.h>
 # include <include/base/mem_buff/mem_buff.h>
 

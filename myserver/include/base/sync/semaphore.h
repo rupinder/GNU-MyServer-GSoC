@@ -20,7 +20,7 @@
 #ifndef SEMAPHORE_H
 # define SEMAPHORE_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # ifdef HAVE_PTHREAD
 #  include <semaphore.h>

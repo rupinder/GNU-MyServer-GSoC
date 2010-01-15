@@ -19,7 +19,7 @@
 #ifndef VALIDATOR_FACTORY_H
 # define VALIDATOR_FACTORY_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/hash_map/hash_map.h>
 # include <string>
 

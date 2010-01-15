@@ -19,7 +19,7 @@
 #ifndef SECURITY_DOMAIN_H
 # define SECURITY_DOMAIN_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <string>
 

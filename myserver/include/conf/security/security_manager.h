@@ -20,7 +20,7 @@
 #ifndef SECURITY_MANAGER_H
 # define SECURITY_MANAGER_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/conf/security/security_token.h>
 # include <include/connection/connection.h>
 # include <include/base/xml/xml_parser.h>

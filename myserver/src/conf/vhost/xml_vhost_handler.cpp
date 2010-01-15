@@ -15,7 +15,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "stdafx.h"
+#include "myserver.h"
 
 #include <include/conf/vhost/xml_vhost_handler.h>
 #include <include/conf/vhost/vhost.h>

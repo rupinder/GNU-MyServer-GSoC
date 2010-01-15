@@ -19,7 +19,7 @@
 #ifndef CONNECTIONS_SCHEDULER_H
 # define CONNECTIONS_SCHEDULER_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/socket/socket.h>
 # include <include/connection/connection.h>
 # include <include/base/sync/mutex.h>

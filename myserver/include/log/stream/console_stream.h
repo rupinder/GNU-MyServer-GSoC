@@ -19,7 +19,7 @@
 #ifndef CONSOLE_STREAM_H
 # define CONSOLE_STREAM_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <list>
 # include <map>

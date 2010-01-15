@@ -19,7 +19,7 @@
 
 #ifndef CONTROLHEADER_H
 # define CONTROLHEADER_H
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/protocol/protocol.h>
 
 class ControlHeader

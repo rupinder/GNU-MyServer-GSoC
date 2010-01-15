@@ -16,7 +16,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "stdafx.h"
+#include "myserver.h"
 #include <include/conf/vhost/vhost.h>
 #include <include/base/file/file.h>
 #include <include/base/file/files_utility.h>

@@ -19,7 +19,7 @@
 #ifndef SOCKET_STREAM_H
 # define SOCKET_STREAM_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <list>
 # include <string>

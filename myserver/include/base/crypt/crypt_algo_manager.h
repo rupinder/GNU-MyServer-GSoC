@@ -19,7 +19,7 @@
 #ifndef CRYPT_ALGO_MANAGER_H
 # define CRYPT_ALGO_MANAGER_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <include/base/hash_map/hash_map.h>
 # include <include/base/crypt/crypt_algo.h>

@@ -20,7 +20,7 @@
 #ifndef CACHED_FILE_FACTORY_H
 # define CACHED_FILE_FACTORY_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/filter/stream.h>
 # include <include/base/hash_map/hash_map.h>
 # include <include/base/file/file.h>

@@ -20,7 +20,7 @@
 
 use File::Find;
 
-my @files = ('stdafx.cpp');
+my @files = ('myserver.cpp');
 my @directories = ('src');
 
 open(DAT, "version") || die("Could not open file!");

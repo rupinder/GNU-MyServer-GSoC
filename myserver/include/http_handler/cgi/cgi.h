@@ -20,7 +20,7 @@
 #ifndef CGI_H
 # define CGI_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <include/protocol/http/http_response.h>
 # include <include/protocol/http/http_request.h>

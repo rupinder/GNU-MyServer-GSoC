@@ -19,7 +19,7 @@
 #ifndef XML_VALIDATOR_H
 # define XML_VALIDATOR_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/hash_map/hash_map.h>
 
 # include <include/conf/security/security_domain.h>

@@ -19,7 +19,7 @@
 #ifndef HOME_DIR_H
 # define HOME_DIR_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/file/file.h>
 # include <include/base/string/stringutils.h>
 # include <include/base/hash_map/hash_map.h>

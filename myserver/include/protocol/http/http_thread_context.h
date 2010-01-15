@@ -20,7 +20,7 @@
 #ifndef HTTP_THREAD_CONTEXT_H
 # define HTTP_THREAD_CONTEXT_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/protocol/http/http_request.h>
 # include <include/protocol/http/http_response.h>
 # include <include/base/string/stringutils.h>

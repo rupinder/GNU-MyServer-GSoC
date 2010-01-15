@@ -20,7 +20,7 @@
 #ifndef UTILITY_H
 # define UTILITY_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/file/file.h>
 # include <include/base/string/stringutils.h>
 # include <include/base/process/process.h>

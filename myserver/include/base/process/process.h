@@ -20,7 +20,7 @@
 #ifndef PROCESS_H
 # define PROCESS_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <include/base/file/file.h>
 # include <include/base/sync/mutex.h>

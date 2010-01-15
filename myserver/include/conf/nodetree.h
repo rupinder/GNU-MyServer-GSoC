@@ -19,7 +19,7 @@
 #ifndef NODE_TREE_H
 # define NODE_TREE_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <src/conf/nodetree.cpp>
 

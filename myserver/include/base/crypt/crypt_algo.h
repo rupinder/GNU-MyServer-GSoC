@@ -19,7 +19,7 @@
 #ifndef CRYPT_ALGO_H
 # define CRYPT_ALGO_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/hash_map/hash_map.h>
 # include <include/base/mem_buff/mem_buff.h>
 

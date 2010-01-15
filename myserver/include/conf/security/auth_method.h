@@ -20,7 +20,7 @@
 #ifndef AUTH_METHOD_H
 # define AUTH_METHOD_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/conf/security/security_manager.h>
 
 # include <include/base/crypt/crypt_algo_manager.h>

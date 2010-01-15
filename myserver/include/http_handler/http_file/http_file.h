@@ -18,7 +18,7 @@
 
 #ifndef HTTP_FILE_H
 # define HTTP_FILE_H
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <include/protocol/protocol.h>
 # include <include/protocol/http/http_headers.h>

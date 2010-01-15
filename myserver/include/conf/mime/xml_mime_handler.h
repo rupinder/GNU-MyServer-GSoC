@@ -19,7 +19,7 @@
 #ifndef XML_MIME_HANDLER_H
 # define XML_MIME_HANDLER_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <include/base/utility.h>
 # include <include/base/hash_map/hash_map.h>

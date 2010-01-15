@@ -25,7 +25,7 @@
 #ifndef HASHMAP_H
 # define HASHMAP_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <list>
 # include <vector>
 # include <string>

@@ -19,7 +19,7 @@
 #ifndef MULTICAST_H
 # define MULTICAST_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/hash_map/hash_map.h>
 
 # include <string>

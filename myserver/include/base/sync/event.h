@@ -19,7 +19,7 @@
 #ifndef EVENT_H
 # define EVENT_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/sync/mutex.h>
 
 # ifdef HAVE_PTHREAD

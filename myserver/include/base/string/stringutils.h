@@ -20,7 +20,7 @@
 #ifndef STRINGUTILS_H
 # define STRINGUTILS_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <string>
 
 using namespace std;

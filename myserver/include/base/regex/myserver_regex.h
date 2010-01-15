@@ -20,7 +20,7 @@
 #ifndef MYSERVER_REGEX_H
 # define MYSERVER_REGEX_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 extern "C"
 {

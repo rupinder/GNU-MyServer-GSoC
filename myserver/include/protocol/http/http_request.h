@@ -20,7 +20,7 @@
 #ifndef HTTP_REQUEST_H
 # define HTTP_REQUEST_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <string>
 # include <include/base/hash_map/hash_map.h>
 # include <include/protocol/http/http_header.h>

@@ -19,7 +19,7 @@
 #ifndef PROCESS_SERVER_MANAGER_H
 # define PROCESS_SERVER_MANAGER_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <include/base/utility.h>
 # include <include/base/socket/socket.h>

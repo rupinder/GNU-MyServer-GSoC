@@ -19,7 +19,7 @@
 #ifndef FIND_DATA_H
 # define FIND_DATA_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 extern "C"
 {

@@ -22,7 +22,7 @@
   On that site you can find samples and all the supported languages.
  */
 
-#include "stdafx.h"
+#include "myserver.h"
 
 #include <include/http_handler/fastcgi/fastcgi.h>
 #include <include/protocol/http/env/env.h>

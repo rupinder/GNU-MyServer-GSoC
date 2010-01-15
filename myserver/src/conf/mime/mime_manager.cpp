@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "stdafx.h"
+#include "myserver.h"
 #include <include/conf/mime/mime_manager.h>
 #include <include/base/file/file.h>
 #include <include/base/string/stringutils.h>

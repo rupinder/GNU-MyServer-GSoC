@@ -19,7 +19,7 @@
 #ifndef AUTH_METHOD_FACTORY_H
 # define AUTH_METHOD_FACTORY_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/hash_map/hash_map.h>
 # include <string>
 # include <include/base/crypt/crypt_algo_manager.h>

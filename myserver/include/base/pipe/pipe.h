@@ -20,7 +20,7 @@
 #ifndef PIPE_H
 # define PIPE_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/filter/stream.h>
 # include <string>
 

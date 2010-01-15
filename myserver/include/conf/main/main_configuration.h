@@ -19,7 +19,7 @@
 #ifndef MAIN_CONFIGURATION_H
 # define MAIN_CONFIGURATION_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/hash_map/hash_map.h>
 # include <include/conf/nodetree.h>
 

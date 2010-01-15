@@ -20,7 +20,7 @@
 #ifndef FTP_COMMON_H
 # define FTP_COMMON_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <string>
 

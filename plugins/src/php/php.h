@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <php_embed.h>
 
-#include <stdafx.h>
+#include <myserver.h>
 #include <include/connection/connection.h>
 #include <include/socket/socket.h>
 #include <include/server/server.h>

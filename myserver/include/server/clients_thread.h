@@ -19,7 +19,7 @@
 
 #ifndef CLIENTS_THREAD_H
 # define CLIENTS_THREAD_H
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/utility.h>
 # include <include/connection/connection.h>
 # include <include/base/mem_buff/mem_buff.h>

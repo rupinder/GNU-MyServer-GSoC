@@ -21,7 +21,7 @@
 #ifndef HTTP_ERRORS_H
 # define HTTP_ERRORS_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <string>
 # include <include/base/hash_map/hash_map.h>

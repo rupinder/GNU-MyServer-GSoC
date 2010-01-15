@@ -19,7 +19,7 @@
 #ifndef MEMBUF_FILE_H
 # define MEMBUF_FILE_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/filter/stream.h>
 # include <include/base/file/file.h>
 # include <string>

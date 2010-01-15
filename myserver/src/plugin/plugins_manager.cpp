@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "stdafx.h"
+#include "myserver.h"
 #include <include/plugin/plugins_manager.h>
 #include <include/base/xml/xml_parser.h>
 #include <include/base/read_directory/read_directory.h>

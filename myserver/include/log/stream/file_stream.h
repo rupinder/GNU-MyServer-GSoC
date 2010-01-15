@@ -19,7 +19,7 @@
 #ifndef FILE_STREAM_H
 # define FILE_STREAM_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <list>
 # include <sstream>

@@ -20,7 +20,7 @@
 #ifndef GZIP_DECOMPRESS_H
 # define GZIP_DECOMPRESS_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/filter/filter.h>
 # include <include/filter/gzip/gzip.h>
 

@@ -25,7 +25,7 @@
 #  define NULL 0
 # endif
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <iostream>
 # include <string>
 using namespace std;

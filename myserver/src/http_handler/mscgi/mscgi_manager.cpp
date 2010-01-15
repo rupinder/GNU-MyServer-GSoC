@@ -16,7 +16,7 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include "stdafx.h"
+#include "myserver.h"
 #include <include/base/xml/xml_parser.h>
 #include <include/http_handler/mscgi/mscgi_manager.h>
 #include <include/protocol/http/http.h>

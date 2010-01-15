@@ -19,7 +19,7 @@
 
 #ifndef MSCGI_H
 # define MSCGI_H
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/protocol/http/http_request.h>
 # include <include/protocol/http/http_response.h>
 # include <include/connection/connection.h>

@@ -16,7 +16,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "stdafx.h"
+#include "myserver.h"
 #include <include/protocol/protocol.h>
 #include <include/server/clients_thread.h>
 #include <include/server/server.h>

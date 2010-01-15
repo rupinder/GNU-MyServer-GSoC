@@ -20,7 +20,7 @@
 #ifndef GOPHER_CONTENT_H
 #define GOPHER_CONTENT_H
 
-#include "stdafx.h"
+#include "myserver.h"
 #include <include/base/socket/socket.h>
 #include <include/base/mem_buff/mem_buff.h>
 #include <include/base/file/file.h>

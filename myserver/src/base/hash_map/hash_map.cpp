@@ -17,7 +17,7 @@
 */
 
 #define HASHMAP_CPP
-#include "stdafx.h"
+#include "myserver.h"
 
 #include <include/base/hash_map/hash_map.h>
 #include <string.h>

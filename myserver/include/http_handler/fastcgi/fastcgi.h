@@ -20,7 +20,7 @@
 #ifndef FASTCGI_H
 # define FASTCGI_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/protocol/http/http_headers.h>
 # include <include/base/utility.h>
 # include <include/base/socket/socket.h>

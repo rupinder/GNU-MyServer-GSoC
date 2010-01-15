@@ -19,7 +19,7 @@
 
 #ifndef HTTP_DIR_H
 # define HTTP_DIR_H
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/protocol/protocol.h>
 # include <include/protocol/http/http_headers.h>
 # include <include/protocol/http/http_data_handler.h>

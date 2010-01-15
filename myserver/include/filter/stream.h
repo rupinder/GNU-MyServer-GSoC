@@ -20,7 +20,7 @@
 #ifndef STREAM_H
 # define STREAM_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # ifdef WIN32
 typedef u_int Handle;

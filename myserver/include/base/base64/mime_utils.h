@@ -21,7 +21,7 @@
 #ifndef MIMEUTILS_H
 # define MIMEUTILS_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 class CBase64Utils
 {

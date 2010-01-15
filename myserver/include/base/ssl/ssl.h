@@ -19,7 +19,7 @@
 #ifndef SSL_H
 # define SSL_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <gnutls/openssl.h>
 # include <string>

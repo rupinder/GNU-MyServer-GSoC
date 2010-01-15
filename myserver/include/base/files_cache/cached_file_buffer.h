@@ -20,7 +20,7 @@
 #ifndef CACHED_FILE_BUFFER_H
 # define CACHED_FILE_BUFFER_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/filter/stream.h>
 # include <include/base/file/file.h>
 # include <include/base/sync/mutex.h>

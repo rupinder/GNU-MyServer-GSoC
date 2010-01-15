@@ -19,7 +19,7 @@
 
 #ifndef GZIP_H
 # define GZIP_H
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/filter/filter.h>
 
 # ifdef HAVE_ZLIB

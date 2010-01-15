@@ -19,7 +19,7 @@
 #ifndef BITVEC_H
 # define BITVEC_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 class BitVec
 {

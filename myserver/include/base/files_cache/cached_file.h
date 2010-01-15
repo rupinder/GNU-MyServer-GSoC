@@ -19,7 +19,7 @@
 #ifndef CACHED_FILE_H
 # define CACHED_FILE_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/filter/stream.h>
 # include <include/base/file/file.h>
 # include <include/base/files_cache/cached_file_buffer.h>

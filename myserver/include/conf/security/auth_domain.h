@@ -19,7 +19,7 @@
 #ifndef AUTH_DOMAIN_H
 # define AUTH_DOMAIN_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/conf/security/security_domain.h>
 
 # include <string>

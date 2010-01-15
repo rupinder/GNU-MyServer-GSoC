@@ -15,7 +15,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "stdafx.h"
+#include "myserver.h"
 #include <ctype.h>
 
 #include <include/filter/memory_stream.h>

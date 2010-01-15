@@ -19,7 +19,7 @@
 #ifndef LOG_MANAGER_H
 # define LOG_MANAGER_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <map>
 # include <string>

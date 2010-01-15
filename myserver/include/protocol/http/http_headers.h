@@ -20,7 +20,7 @@
 #ifndef HTTP_HEADERS_H
 # define HTTP_HEADERS_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/connection/connection.h>
 
 extern "C"

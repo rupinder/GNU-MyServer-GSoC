@@ -19,7 +19,7 @@
 #ifndef READ_WRITE_LOCK_H
 # define READ_WRITE_LOCK_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/sync/semaphore.h>
 
 class ReadWriteLock

@@ -20,7 +20,7 @@
 # define SLAB_H
 
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/bitvec/bitvec.h>
 
 template<class T>

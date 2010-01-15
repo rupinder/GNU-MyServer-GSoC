@@ -18,7 +18,7 @@
 #ifndef MULTICAST_CPP
 # define MULTICAST_CPP
 
-#include "stdafx.h"
+#include "myserver.h"
 #include <include/base/multicast/multicast.h>
 
 

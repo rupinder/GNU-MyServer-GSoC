@@ -20,7 +20,7 @@
 #ifndef CONNECTION_H
 # define CONNECTION_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 extern "C"
 {

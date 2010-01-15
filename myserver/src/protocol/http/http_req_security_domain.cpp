@@ -16,7 +16,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "stdafx.h"
+#include "myserver.h"
 
 #include <include/protocol/http/http_req_security_domain.h>
 #include <include/conf/security/security_domain.h>

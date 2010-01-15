@@ -20,7 +20,7 @@
 #ifndef CXMLPARSER_IN
 # define CXMLPARSER_IN
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/file/file.h>
 # include <include/base/mem_buff/mem_buff.h>
 extern "C"

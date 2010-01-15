@@ -18,7 +18,7 @@
 #ifndef LISTEN_THREADS_H
 # define LISTEN_THREADS_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/xml/xml_parser.h>
 # include <include/base/sync/mutex.h>
 # include <include/base/hash_map/hash_map.h>

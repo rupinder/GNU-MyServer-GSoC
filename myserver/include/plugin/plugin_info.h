@@ -19,7 +19,7 @@
 #ifndef PLUGIN_INFO_H
 # define PLUGIN_INFO_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/hash_map/hash_map.h>
 # include <string>
 # include <utility>

@@ -20,7 +20,7 @@
 #ifndef SOCKET_H
 # define SOCKET_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/filter/stream.h>
 
 # include <string>

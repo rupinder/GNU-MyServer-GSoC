@@ -47,7 +47,7 @@ ProductName=MyServer
 ProductVersion=0.9.0
 AutoIncBuildNr=0
 [Unit1]
-FileName=stdafx.cpp
+FileName=myserver.cpp
 CompileCpp=1
 Folder=myserver
 Compile=1

@@ -19,7 +19,7 @@
 #ifndef XML_CONF_H
 # define XML_CONF_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <include/conf/nodetree.h>
 # include <include/base/xml/xml_parser.h>

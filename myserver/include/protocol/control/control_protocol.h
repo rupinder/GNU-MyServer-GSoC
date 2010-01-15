@@ -19,7 +19,7 @@
 
 #ifndef CONTROL_PROTOCOL_H
 # define CONTROL_PROTOCOL_H
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/protocol/protocol.h>
 # include <include/protocol/control/control_header.h>
 # include <include/connections_scheduler/connections_scheduler.h>

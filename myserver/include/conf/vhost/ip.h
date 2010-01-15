@@ -19,7 +19,7 @@
 #ifndef IP_H
 # define IP_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <string>
 
 class IpRange
