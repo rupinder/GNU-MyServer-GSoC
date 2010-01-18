@@ -1,6 +1,5 @@
 if BUILD_TESTS
 TESTS_DIR = tests
-TESTS = tests/tests_suite$(EXEEXT)
 endif
 
 if BUILD_DOC
