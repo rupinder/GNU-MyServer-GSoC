@@ -42,9 +42,6 @@ using namespace std;
 /*! Is the fastcgi initialized?  */
 int FastCgi::initialized = 0;
 
-/*! Use a default timeout of 15 seconds.  */
-int FastCgi::timeout = MYSERVER_SEC (15);
-
 /*! Process server manager.  */
 ProcessServerManager *FastCgi::processServerManager = 0;
 
@@ -228,6 +225,7 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
   do
     {
       u_long dim;
+      u_long timeout = td->http->getTimeout ();
 
       if (readHeader (&con, &header, initialTicks, timeout, id))
         {
@@ -252,6 +250,7 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
       else
         {
           bool headerCompleted = false;
+          u_long timeout = td->http->getTimeout ();
 
           switch (header.type)
             {
@@ -297,6 +296,7 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
       if (header.paddingLength)
         {
           u_long toPad = header.paddingLength;
+          u_long timeout = td->http->getTimeout ();
           while (toPad)
             {
               if (td->buffer->getRealLength () < toPad)
@@ -537,23 +537,6 @@ FastCgiServer* FastCgi::runFcgiServer (FcgiContext* context,
   return processServerManager->runAndAddServer (SERVERS_DOMAIN, path);
 }
 
-
-/*!
- *Return the timeout value.
- */
-int FastCgi::getTimeout ()
-{
-  return timeout;
-}
-
-/*!
- *Set a new timeout.
- */
-void FastCgi::setTimeout (int ntimeout)
-{
-  timeout = ntimeout;
-}
-
 /*!
  *Do a request to the FastCGI server.
  *\param con The current FastCGI context.
@@ -660,24 +643,28 @@ int FastCgi::fastCgiRequest (FcgiContext* con, int id)
 
 /*!
   Handle the STDOUT data received from the FastCGI server.
-  The FastCGI header must be read previously, only the payload is processed here.
+  The FastCGI header must be read previously, only the payload is processed
+  here.
   \param con The current FastCGI context.
   \param dim Size of the payload.
   \param timeout Connection timeout to use.
   \param chain Output chain where to send data.
-  \param responseCompleted Output value.  It is true when the response is completed.
+  \param responseCompleted Output value.  It is true when the response is
+  completed.
   \param onlyHeader Send only the HTTP header.
   \return 0 on success.
   \return 1 if a full response is sent to the client.
   \return -1 on error.
  */
-int FastCgi::sendData (FcgiContext* con, u_long dim, u_long timeout, FiltersChain* chain,
-                       bool *responseCompleted, bool onlyHeader)
+int FastCgi::sendData (FcgiContext* con, u_long dim, u_long timeout,
+                       FiltersChain* chain, bool *responseCompleted,
+                       bool onlyHeader)
 {
   u_long dataRead = 0;
   while (dataRead < dim)
     {
       HttpThreadContext* td = con->td;
+      u_long timeout = td->http->getTimeout ();
 
       if (con->headerSent)
         td->buffer->setLength (0);
@@ -685,8 +672,9 @@ int FastCgi::sendData (FcgiContext* con, u_long dim, u_long timeout, FiltersChai
       if (dim - td->buffer->getLength () == 0)
         return -1;
 
-      u_long nbr = con->sock.recv (td->buffer->getBuffer () + td->buffer->getLength (),
-                                   std::min ((u_long)td->buffer->getRealLength (),
+      u_long nbr = con->sock.recv (td->buffer->getBuffer ()
+                                   + td->buffer->getLength (),
+                                std::min ((u_long) td->buffer->getRealLength (),
                                              dim - td->buffer->getLength ()),
                                    0, timeout);
       if (nbr == (u_long)-1 || nbr == 0)
@@ -821,7 +809,8 @@ int FastCgi::handleHeader (FcgiContext* con, FiltersChain* chain, bool* response
  *\param id Request ID.
  *\return 0 on success.
  */
-int FastCgi::readHeader (FcgiContext *con, FcgiHeader* header, u_long started, u_long timeout, int id)
+int FastCgi::readHeader (FcgiContext *con, FcgiHeader* header, u_long started,
+                         u_long timeout, int id)
 {
   u_long nbr;
   HttpThreadContext* td = con->td;
@@ -839,8 +828,8 @@ int FastCgi::readHeader (FcgiContext *con, FcgiHeader* header, u_long started, u
           return 1;
         }
 
-      nbr = con->sock.recv (buffer + readData, sizeof (FcgiHeader) - readData, 0,
-                            timeout - (ticks - started));
+      nbr = con->sock.recv (buffer + readData, sizeof (FcgiHeader) - readData,
+                            0, timeout - (ticks - started));
 
       if (nbr == static_cast<u_long>(-1) || nbr == 0)
         return 1;

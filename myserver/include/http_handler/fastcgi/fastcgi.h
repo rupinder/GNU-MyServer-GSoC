@@ -156,8 +156,6 @@ class FiltersChain;
 class FastCgi : public HttpDataHandler
 {
 public:
-  static int getTimeout ();
-  static void setTimeout (int);
   FastCgi ();
   virtual int load ();
   virtual int send (HttpThreadContext* td, const char* scriptpath,
@@ -167,7 +165,6 @@ public:
   virtual int unLoad ();
 private:
   static ProcessServerManager *processServerManager;
-  static int timeout;
   static int initialized;
 
   int handleHeader (FcgiContext* con, FiltersChain* chain,
