@@ -158,14 +158,14 @@ u_long HttpHeaders::buildHTTPRequestHeader (char * str,
                                MAX - (long)(pos - str));
       pos += myserver_strlcpy (pos, " ", MAX - (long)(pos - str));
 
-      if (request->rangeByteBegin != (u_long)-1)
+      if (request->rangeByteBegin != (u_long) -1)
         {
           sprintf (buffer, "%lu", request->rangeByteBegin);
           pos += myserver_strlcpy (pos, buffer, MAX - (long)(pos - str));
         }
 
       pos += myserver_strlcpy (pos, "-", MAX - (long)(pos - str));
-      if (request->rangeByteEnd != (u_long)-1)
+      if (request->rangeByteEnd != (u_long) -1)
         {
           sprintf (buffer, "%lu", request->rangeByteEnd);
           pos += myserver_strlcpy (pos, buffer, MAX - (long)(pos - str));
@@ -599,7 +599,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
       token += tokenOff + 2;
       tokenOff = getCharInString (token, ":", maxTotchars);
     }
-  while (((u_long)(token - input) < maxTotchars) && token[0] != '\r');
+  while (((u_long) (token - input) < maxTotchars) && token[0] != '\r');
 
   *nHeaderChars = maxTotchars;
   return 200;
@@ -673,13 +673,13 @@ int HttpHeaders::readReqRangeLine (HttpRequestHeader *request,
   if (rangeByteBegin[0] == 0)
     request->rangeByteBegin=0;
   else
-    request->rangeByteBegin = (u_long)atol (rangeByteBegin);
+    request->rangeByteBegin = (u_long) atol (rangeByteBegin);
 
   if (rangeByteEnd[0] == '\r')
     request->rangeByteEnd = 0;
   else
     {
-      request->rangeByteEnd = (u_long)atol (rangeByteEnd);
+      request->rangeByteEnd = (u_long) atol (rangeByteEnd);
       if (request->rangeByteEnd < request->rangeByteBegin)
         return 400;
     }

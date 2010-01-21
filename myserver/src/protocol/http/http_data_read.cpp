@@ -161,7 +161,7 @@ int HttpDataRead::readChunkedPostData (const char* inBuffer,
                                        timeout))
        return -1;
 
-    dataToRead = (u_long)hexToInt (buffer);
+    dataToRead = (u_long) hexToInt (buffer);
 
     /*! The last chunk length is 0.  */
     if (dataToRead == 0)

@@ -872,7 +872,7 @@ int Server::initialize ()
 
   data = getData ("server.connection_timeout");
   if (data)
-    connectionTimeout = MYSERVER_SEC ((u_long)atol (data));
+    connectionTimeout = MYSERVER_SEC ((u_long) atol (data));
 
   data = getData ("server.static_threads");
   if (data)
@@ -899,16 +899,16 @@ int Server::initialize ()
   /* Get the default throttling rate to use on connections.  */
   data = getData ("connection.throttling");
   if (data)
-    throttlingRate = (u_long)atoi (data);
+    throttlingRate = (u_long) atoi (data);
 
   data = getData ("server.max_log_size");
   if (data)
-    maxLogFileSize=(u_long)atol (data);
+    maxLogFileSize=(u_long) atol (data);
 
   data = getData ("server.max_files_cache");
   if (data)
     {
-      u_long maxSize = (u_long)atol (data);
+      u_long maxSize = (u_long) atol (data);
       cachedFiles.initialize (maxSize);
     }
   else
@@ -927,14 +927,14 @@ int Server::initialize ()
   data = getData ("server.max_file_cache");
   if (data)
     {
-      u_long maxSize = (u_long)atol (data);
+      u_long maxSize = (u_long) atol (data);
       cachedFiles.setMaxSize (maxSize);
     }
 
   data = getData ("server.min_file_cache");
   if (data)
     {
-      u_long minSize = (u_long)atol (data);
+      u_long minSize = (u_long) atol (data);
       cachedFiles.setMinSize (minSize);
     }
 
@@ -1607,7 +1607,7 @@ int Server::addThread (bool staticThread)
 
   newThread->setStatic (staticThread);
 
-  newThread->id = (u_long)(++currentThreadID);
+  newThread->id = (u_long) (++currentThreadID);
 
   ret = newThread->run ();
 

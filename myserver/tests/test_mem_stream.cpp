@@ -69,7 +69,7 @@ public:
   {
     u_long size = addSomeData (stream);
 
-    CPPUNIT_ASSERT_EQUAL (size, (u_long)stream->availableToRead ());
+    CPPUNIT_ASSERT_EQUAL (size, (u_long) stream->availableToRead ());
   }
 
   void testRead ()
@@ -79,11 +79,11 @@ public:
 
     char buffer[20];
 
-    CPPUNIT_ASSERT_EQUAL (size, (u_long)stream->availableToRead ());
+    CPPUNIT_ASSERT_EQUAL (size, (u_long) stream->availableToRead ());
 
     stream->read (buffer, 20, &nbr);
 
-    CPPUNIT_ASSERT_EQUAL (size - 20u, (u_long)stream->availableToRead ());
+    CPPUNIT_ASSERT_EQUAL (size - 20u, (u_long) stream->availableToRead ());
   }
 
 
@@ -94,12 +94,12 @@ public:
 
     char buffer[20];
 
-    CPPUNIT_ASSERT_EQUAL (size, (u_long)stream->availableToRead ());
+    CPPUNIT_ASSERT_EQUAL (size, (u_long) stream->availableToRead ());
 
     stream->read (buffer, 20, &nbr);
     stream->refresh ();
 
-    CPPUNIT_ASSERT_EQUAL ((u_long)stream->availableToRead (), 0ul);
+    CPPUNIT_ASSERT_EQUAL ((u_long) stream->availableToRead (), 0ul);
   }
 
 
@@ -111,7 +111,7 @@ public:
 
     CPPUNIT_ASSERT_EQUAL (ret, 0);
 
-    CPPUNIT_ASSERT_EQUAL ((u_long)stream->availableToRead (), 12ul);
+    CPPUNIT_ASSERT_EQUAL ((u_long) stream->availableToRead (), 12ul);
   }
 
   void testFlush ()

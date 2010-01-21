@@ -70,5 +70,5 @@ test_suite_LDADD = ../src/libmyserver.a  ../lib/libgnu.a $(CPPUNIT_LDFLAGS) \
 
 install:
 
-check:
+check-am:
 	./test_suite$(EXEEXT)
