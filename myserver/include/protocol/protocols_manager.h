@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
   MyServer
-  Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009 Free Software
+  Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009, 2010 Free Software
   Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 
 #ifndef PROTOCOLS_MANAGER_H
 # define PROTOCOLS_MANAGER_H
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/xml/xml_parser.h>
 # include <include/protocol/protocol.h>
 # include <include/connection/connection.h>

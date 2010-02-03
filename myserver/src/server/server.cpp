@@ -1,6 +1,7 @@
 /*
   MyServer
-  Copyright (C) 2002-2009 Free Software Foundation, Inc.
+  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
+  Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -15,7 +16,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "stdafx.h"
+#include "myserver.h"
 #include <include/server/server.h>
 #include <include/server/clients_thread.h>
 #include <include/base/safetime/safetime.h>
@@ -121,6 +122,8 @@ bool Server::resetConfigurationPaths (string &mainConf, string &mimeConf,
  */
 int Server::loadLibraries ()
 {
+  /* Initialize the SSL library.  */
+  initializeSSL ();
   Process::initialize ();
   XmlParser::startXML ();
   myserver_safetime_init ();
@@ -203,9 +206,6 @@ void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
         return;
       }
 
-    /* Initialize the SSL library.  */
-    initializeSSL ();
-
     log (MYSERVER_LOG_MSG_INFO, _("Loading server configuration..."));
 
     if (postLoad ())
@@ -261,7 +261,7 @@ int Server::postLoad ()
   string buffer;
 
   /* Get the name of the local machine.  */
-  memset (serverName, 0, HOST_NAME_MAX+1);
+  memset (serverName, 0, HOST_NAME_MAX + 1);
   Socket::gethostname (serverName, HOST_NAME_MAX);
 
   log (MYSERVER_LOG_MSG_INFO, _("Host name: %s"), serverName);
@@ -872,7 +872,7 @@ int Server::initialize ()
 
   data = getData ("server.connection_timeout");
   if (data)
-    connectionTimeout = MYSERVER_SEC ((u_long)atol (data));
+    connectionTimeout = MYSERVER_SEC ((u_long) atol (data));
 
   data = getData ("server.static_threads");
   if (data)
@@ -899,16 +899,16 @@ int Server::initialize ()
   /* Get the default throttling rate to use on connections.  */
   data = getData ("connection.throttling");
   if (data)
-    throttlingRate = (u_long)atoi (data);
+    throttlingRate = (u_long) atoi (data);
 
   data = getData ("server.max_log_size");
   if (data)
-    maxLogFileSize=(u_long)atol (data);
+    maxLogFileSize=(u_long) atol (data);
 
   data = getData ("server.max_files_cache");
   if (data)
     {
-      u_long maxSize = (u_long)atol (data);
+      u_long maxSize = (u_long) atol (data);
       cachedFiles.initialize (maxSize);
     }
   else
@@ -927,14 +927,14 @@ int Server::initialize ()
   data = getData ("server.max_file_cache");
   if (data)
     {
-      u_long maxSize = (u_long)atol (data);
+      u_long maxSize = (u_long) atol (data);
       cachedFiles.setMaxSize (maxSize);
     }
 
   data = getData ("server.min_file_cache");
   if (data)
     {
-      u_long minSize = (u_long)atol (data);
+      u_long minSize = (u_long) atol (data);
       cachedFiles.setMinSize (minSize);
     }
 
@@ -1607,7 +1607,7 @@ int Server::addThread (bool staticThread)
 
   newThread->setStatic (staticThread);
 
-  newThread->id = (u_long)(++currentThreadID);
+  newThread->id = (u_long) (++currentThreadID);
 
   ret = newThread->run ();
 

@@ -275,7 +275,7 @@ if command == "build":
     testsFiles = glob.glob('tests/*.cpp') + files
     testsFiles.remove('src/myserver.cpp')
     testsFiles.sort()
-    t = env.Program('tests/tests_suite', testsFiles)
+    t = env.Program('tests/test_suite', testsFiles)
 
 if command == "tests":
     AddPostAction('tests/tests_suite', env.Execute('tests/tests_suite'))

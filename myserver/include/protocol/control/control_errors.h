@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
   MyServer
-  Copyright (C) 2004, 2005, 2009 Free Software Foundation, Inc.
+  Copyright (C) 2004, 2005, 2009, 2010 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -19,7 +19,7 @@
 #ifndef CONTROL_ERRORS_H
 # define CONTROL_ERRORS_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 /*!
  * These are all the errors that the control server can return to a client.

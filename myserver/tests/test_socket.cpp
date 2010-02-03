@@ -1,6 +1,6 @@
 /*
  MyServer
- Copyright (C) 2008, 2009 Free Software Foundation, Inc.
+ Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
@@ -15,7 +15,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "stdafx.h"
+#include "myserver.h"
 
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
@@ -24,6 +24,7 @@
 
 #include "../include/base/socket/socket.h"
 #include "../include/base/thread/thread.h"
+#include "../include/base/utility.h"
 
 extern "C"
 {
@@ -44,45 +45,38 @@ class TestSocket : public CppUnit::TestFixture
   Socket *obj;
   ThreadID tid;
 
-  CPPUNIT_TEST_SUITE ( TestSocket );
+  CPPUNIT_TEST_SUITE (TestSocket);
 
-  CPPUNIT_TEST ( testGethostname );
-  CPPUNIT_TEST ( testRecv );
-  CPPUNIT_TEST ( testGetLocalIPsList );
+  CPPUNIT_TEST (testGethostname);
+  CPPUNIT_TEST (testRecv);
+  CPPUNIT_TEST (testGetLocalIPsList);
 
-  CPPUNIT_TEST_SUITE_END ( );
+  CPPUNIT_TEST_SUITE_END ();
 
 public:
 
-  void setUp ( )
+  void setUp ()
   {
-    CPPUNIT_ASSERT_EQUAL ( Socket::startupSocketLib ( ), 0 );
+    CPPUNIT_ASSERT_EQUAL (Socket::startupSocketLib (), 0);
 
     obj = new Socket;
   }
 
-  void tearDown ( )
+  void tearDown ()
   {
     delete obj;
   }
 
-  void testGethostname ( )
+  void testGethostname ()
   {
-    int len;
-#ifdef HOST_NAME_MAX
-    len = HOST_NAME_MAX;
+    int len = HOST_NAME_MAX;
     char host[HOST_NAME_MAX];
-#else
-    len = 255;
-    char host[255];
-#endif
+    int status = obj->gethostname (host, len);
 
-    int status = obj->gethostname ( host, len );
-
-    CPPUNIT_ASSERT_EQUAL ( status, 0 );
+    CPPUNIT_ASSERT_EQUAL (status, 0);
   }
 
-  void testRecv ( )
+  void testRecv ()
   {
     ThreadID tid;
     int optvalReuseAddr = 1;
@@ -92,77 +86,78 @@ public:
     int status;
 
     ((sockaddr_in*) (&sockIn))->sin_family = AF_INET;
-    ((sockaddr_in*) (&sockIn))->sin_addr.s_addr = inet_addr ( "127.0.0.1" );
-    ((sockaddr_in*) (&sockIn))->sin_port = htons ( port );
+    ((sockaddr_in*) (&sockIn))->sin_addr.s_addr = inet_addr ("127.0.0.1");
+    ((sockaddr_in*) (&sockIn))->sin_port = htons (port);
 
-    socklen_t sockInLen = sizeof ( sockaddr_in );
+    socklen_t sockInLen = sizeof (sockaddr_in);
 
-    CPPUNIT_ASSERT ( obj->socket ( AF_INET, SOCK_STREAM, 0 ) != -1 );
+    CPPUNIT_ASSERT (obj->socket (AF_INET, SOCK_STREAM, 0) != -1);
 
-    CPPUNIT_ASSERT ( obj->setsockopt ( SOL_SOCKET, SO_REUSEADDR,
+    CPPUNIT_ASSERT (obj->setsockopt (SOL_SOCKET, SO_REUSEADDR,
                                       (const char*) &optvalReuseAddr,
-                                      sizeof (optvalReuseAddr) ) != -1 );
+                                      sizeof (optvalReuseAddr)) != -1);
 
-    // If the port is used by another program, try a few others.
-      if ( ( status = obj->bind ( &sockIn, sockInLen ) ) != 0 )
-      while ( ++port < 28000 )
-      {
-        ((sockaddr_in*) (&sockIn))->sin_port = htons ( port );
+    /* If the port is used by another program, try a few others.  */
+    if ((status = obj->bind (&sockIn, sockInLen)) != 0)
+      while (++port < 28000)
+        {
+          ((sockaddr_in*) (&sockIn))->sin_port = htons (port);
+          if ((status = obj->bind (&sockIn, sockInLen)) == 0)
+            break;
+        }
 
-        if ( ( status = obj->bind ( &sockIn, sockInLen ) ) == 0 )
-          break;
-      }
+    CPPUNIT_ASSERT (status != -1);
 
-    CPPUNIT_ASSERT ( status != -1 );
+    CPPUNIT_ASSERT (obj->listen (1) != -1);
 
-    CPPUNIT_ASSERT ( obj->listen ( 1 ) != -1 );
+    CPPUNIT_ASSERT_EQUAL (Thread::create (&tid, testRecvClient, &port), 0);
 
-    CPPUNIT_ASSERT_EQUAL ( Thread::create ( &tid, testRecvClient, &port ), 0 );
+    CPPUNIT_ASSERT (obj->dataOnRead (5));
 
-    Socket s = obj->accept ( &sockIn, &sockInLen );
+    Socket s = obj->accept (&sockIn, &sockInLen);
 
-    status = int ( s.getHandle ( ) );
+    status = int (s.getHandle ());
 
-    if ( status < 0 )
-      CPPUNIT_ASSERT ( status != -1 );
+    if (status < 0)
+      CPPUNIT_ASSERT (status != -1);
 
-    CPPUNIT_ASSERT ( s.bytesToRead ( ) >= 0 );
+    CPPUNIT_ASSERT (s.bytesToRead () >= 0);
 
     int bufLen = 8;
     char buf[bufLen];
-    memset ( buf, 0, bufLen );
+    memset (buf, 0, bufLen);
 
-    status = s.recv ( buf, bufLen, 0 );
+    status = s.recv (buf, bufLen, 0);
 
     s.send ("a", 1, 0);
 
-    CPPUNIT_ASSERT ( !strcmp (buf, "ehlo"));
-    CPPUNIT_ASSERT ( status >= 0 || status == -2 );
+    CPPUNIT_ASSERT (!strcmp (buf, "ehlo"));
+    CPPUNIT_ASSERT (status >= 0 || status == -2);
 
-    Thread::join ( tid );
+    Thread::join (tid);
 
-    CPPUNIT_ASSERT ( obj->close ( ) != -1 );
+    CPPUNIT_ASSERT (obj->close () != -1);
   }
 
-  void testGetLocalIPsList ( )
+  void testGetLocalIPsList ()
   {
-    int status = obj->socket ( AF_INET, SOCK_STREAM, 0 );
+    int status = obj->socket (AF_INET, SOCK_STREAM, 0);
 
-    CPPUNIT_ASSERT ( status != -1 );
+    CPPUNIT_ASSERT (status != -1);
 
     string out;
 
-    status = obj->getLocalIPsList ( out );
+    status = obj->getLocalIPsList (out);
 
-    CPPUNIT_ASSERT ( status != -1 );
+    CPPUNIT_ASSERT (status != -1);
 
-    status = obj->close ( );
+    status = obj->close ();
 
-    CPPUNIT_ASSERT ( status != -1 );
+    CPPUNIT_ASSERT (status != -1);
   }
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION ( TestSocket );
+CPPUNIT_TEST_SUITE_REGISTRATION (TestSocket);
 
 static DEFINE_THREAD (testRecvClient, pParam)
 {
@@ -173,23 +168,23 @@ static DEFINE_THREAD (testRecvClient, pParam)
   int port = *((int*)pParam);
   int status;
 
-  CPPUNIT_ASSERT ( obj2->socket ( AF_INET, SOCK_STREAM, 0 ) != -1 );
+  CPPUNIT_ASSERT (obj2->socket (AF_INET, SOCK_STREAM, 0) != -1);
 
-  CPPUNIT_ASSERT ( obj2->connect ( host, port ) != -1 );
+  CPPUNIT_ASSERT (obj2->connect (host, port) != -1);
 
   int bufLen = 8;
   char buf[bufLen];
-  memset ( buf, 0, bufLen );
-  strcpy ( buf, "ehlo" );
+  memset (buf, 0, bufLen);
+  strcpy (buf, "ehlo");
 
-  CPPUNIT_ASSERT ( obj2->send ( buf, strlen ( buf ), 0 ) != -1 );
+  CPPUNIT_ASSERT (obj2->send (buf, strlen (buf), 0) != -1);
 
   /* To sync.  */
-  CPPUNIT_ASSERT ( obj2->recv ( buf, bufLen, 0 ) != -1 );
+  CPPUNIT_ASSERT (obj2->recv (buf, bufLen, 0, MYSERVER_SEC (5)) != -1);
 
-  CPPUNIT_ASSERT ( obj2->shutdown ( SD_BOTH ) != -1 );
+  CPPUNIT_ASSERT (obj2->shutdown (SD_BOTH) != -1);
 
-  CPPUNIT_ASSERT ( obj2->close ( ) != -1 );
+  CPPUNIT_ASSERT (obj2->close () != -1);
 
   delete obj2;
   obj2 = NULL;

@@ -1,7 +1,8 @@
 /* -*- mode: c++ -*- */
 /*
   MyServer
-  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
+  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
+  Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -19,7 +20,7 @@
 #ifndef SERVER_H
 # define SERVER_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/thread/thread.h>
 # include <include/base/utility.h>
 # include <include/base/xml/xml_parser.h>

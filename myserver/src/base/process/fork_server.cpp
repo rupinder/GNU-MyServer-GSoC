@@ -1,6 +1,6 @@
 /*
   MyServer
-  Copyright (C) 2008, 2009 Free Software Foundation, Inc.
+  Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -15,7 +15,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "stdafx.h"
+#include "myserver.h"
 
 #include <include/base/process/fork_server.h>
 #include <include/base/file/files_utility.h>
@@ -420,8 +420,9 @@ int ForkServer::generateListenerSocket (Socket &socket, u_short *port)
 
   *port = ntohs (((sockaddr_in*)(&sockaddr))->sin_port);
 
-  if (socket.setsockopt (SOL_SOCKET, SO_REUSEADDR, (const char *)&optvalReuseAddr,
-                        sizeof (optvalReuseAddr)) < 0)
+  if (socket.setsockopt (SOL_SOCKET, SO_REUSEADDR,
+                         (const char *) &optvalReuseAddr,
+                         sizeof (optvalReuseAddr)) < 0)
     return -1;
 
   return 0;

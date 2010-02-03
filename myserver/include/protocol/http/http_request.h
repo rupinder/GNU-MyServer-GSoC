@@ -1,8 +1,8 @@
 /* -*- mode: c++ -*- */
 /*
   MyServer
-  Copyright (C) 2002, 2003, 2004, 2007, 2009 Free Software Foundation,
-  Inc.
+  Copyright (C) 2002, 2003, 2004, 2007, 2009, 2010 Free Software
+  Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -20,7 +20,7 @@
 #ifndef HTTP_REQUEST_H
 # define HTTP_REQUEST_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <string>
 # include <include/base/hash_map/hash_map.h>
 # include <include/protocol/http/http_header.h>

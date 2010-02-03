@@ -1,6 +1,6 @@
 /*
  MyServer
- Copyright (C) 2008, 2009 Free Software Foundation, Inc.
+ Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
@@ -15,7 +15,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "stdafx.h"
+#include "myserver.h"
 #include <include/base/process/fork_server.h>
 #include <include/base/process/process.h>
 #include <cppunit/CompilerOutputter.h>
@@ -23,6 +23,7 @@
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
 #include <include/base/pipe/pipe.h>
+#include <include/base/file/files_utility.h>
 
 #include <exception>
 #include <string.h>
@@ -51,17 +52,21 @@ public:
 
   void testStartKillLoop ()
   {
+    try
+      {
 #ifndef WIN32
-    CPPUNIT_ASSERT_EQUAL (fs->isInitialized (), false);
-
-    int ret = fs->startForkServer ();
-
-    CPPUNIT_ASSERT_EQUAL (ret, 0);
-
-    CPPUNIT_ASSERT_EQUAL (fs->isInitialized (), true);
-
-    fs->killServer ();
+        CPPUNIT_ASSERT_EQUAL (fs->isInitialized (), false);
+        int ret = fs->startForkServer ();
+        CPPUNIT_ASSERT_EQUAL (ret, 0);
+        CPPUNIT_ASSERT_EQUAL (fs->isInitialized (), true);
+        fs->killServer ();
 #endif
+      }
+    catch (...)
+      {
+        fs->killServer ();
+        throw;
+      }
   }
 
   void testExecuteProcess ()
@@ -84,6 +89,9 @@ public:
         spi.stdError = -1;
         spi.stdOut =  pipe.getWriteHandle ();
 
+        if (!FilesUtility::fileExists ("/bin/echo"))
+          return;
+
         spi.cmd.assign ("/bin/echo");
         spi.arg.assign (msg);
         spi.cwd.assign ("");
@@ -105,9 +113,10 @@ public:
         fs->killServer ();
 #endif
       }
-    catch (exception &e)
+    catch (...)
       {
-        CPPUNIT_FAIL (e.what ());
+        fs->killServer ();
+        throw;
       }
   }
 

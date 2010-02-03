@@ -1,6 +1,5 @@
 if BUILD_TESTS
 TESTS_DIR = tests
-TESTS = tests/tests_suite$(EXEEXT)
 endif
 
 if BUILD_DOC
@@ -9,7 +8,7 @@ endif
 
 SUBDIRS = lib po src include $(CONTROL) binaries $(DOCS) $(TESTS_DIR)
 
-EXTRA_DIST = stdafx.h stdafx.cpp doxygen SConstruct
+EXTRA_DIST = myserver.h doxygen SConstruct
 
 ACLOCAL_AMFLAGS = -I m4
 

@@ -1,6 +1,6 @@
 /*
  MyServer
- Copyright (C) 2008, 2009 Free Software Foundation, Inc.
+ Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
@@ -15,7 +15,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "stdafx.h"
+#include "myserver.h"
 
 #undef open
 #undef close
@@ -30,6 +30,8 @@
 #include <fstream>
 #include <string.h>
 
+#include <include/server/server.h>
+
 using namespace std;
 
 const char *program_name = NULL;
@@ -42,7 +44,6 @@ int main (int argc, char* argv[])
 
   program_name = argv[0];
 
-
   std::ostream *str = &(std::cerr);
 
   ofstream ofile;
@@ -50,9 +51,10 @@ int main (int argc, char* argv[])
   if (filename)
     {
       ofile.open (filename);
-
       str = &ofile;
     }
+
+  Server::getInstance ()->loadLibraries ();
 
   CppUnit::Outputter * out;
   CppUnit::Test *suite = CppUnit::TestFactoryRegistry::getRegistry ().makeTest ();

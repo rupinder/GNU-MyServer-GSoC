@@ -1,7 +1,8 @@
 /*
   MyServer
   * strlcpy and strlcat by codingmaster
-  Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009 Free Software Foundation, Inc.
+  Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009, 2010 Free Software
+  Foundation, Inc.
   Copyright (C) 2004 by codingmaster
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -17,7 +18,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "stdafx.h"
+#include "myserver.h"
 
 #include <include/base/string/securestr.h>
 #include <string.h>

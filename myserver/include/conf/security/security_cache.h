@@ -1,7 +1,8 @@
 /* -*- mode: c++ -*- */
 /*
   MyServer
-  Copyright (C) 2005, 2006, 2008, 2009 Free Software Foundation, Inc.
+  Copyright (C) 2005, 2006, 2008, 2009, 2010 Free Software Foundation,
+  Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -18,7 +19,7 @@
 #ifndef SECURITY_CACHE_H
 # define SECURITY_CACHE_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <include/base/hash_map/hash_map.h>
 # include <include/conf/security/security_manager.h>

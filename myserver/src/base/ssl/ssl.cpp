@@ -1,6 +1,6 @@
 /*
   MyServer
-  Copyright (C) 2007, 2008, 2009 Free Software Foundation, Inc.
+  Copyright (C) 2007, 2008, 2009, 2010 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -15,7 +15,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "stdafx.h"
+#include "myserver.h"
 
 #include <include/base/ssl/ssl.h>
 #include <include/base/file/files_utility.h>
@@ -24,24 +24,19 @@
 
 extern "C"
 {
-#if GCRY_CONTROL
+#if HAVE_PTHREAD
+# include <pthread.h>
+#endif
 
+#if HAVE_LIBGCRYPT
 # include <errno.h>
-
 # ifdef WIN32
 #  undef socklen_t
 # endif
-
 # include <gcrypt.h>
-
-# ifdef HAVE_PTHREAD
+# if HAVE_PTHREAD
 GCRY_THREAD_OPTION_PTHREAD_IMPL;
 # endif
-
-#endif
-
-#ifdef HAVE_PTHREAD
-# include <pthread.h>
 #endif
 }
 
@@ -110,14 +105,14 @@ void initializeSSL ()
   static bool initialized = false;
 
   if (!initialized)
-  {
-#if GCRY_CONTROL && HAVE_PTHREAD
-    gcry_control (GCRYCTL_SET_THREAD_CBS, &gcry_threads_pthread);
+    {
+#if HAVE_LIBGCRYPT && HAVE_PTHREAD
+      gcry_control (GCRYCTL_SET_THREAD_CBS, &gcry_threads_pthread);
+      gcry_control (GCRYCTL_INITIALIZATION_FINISHED);
 #endif
-    gnutls_global_init ();
-
-    initialized = true;
-  }
+      gnutls_global_init ();
+      initialized = true;
+    }
 }
 
 void cleanupSSL ()

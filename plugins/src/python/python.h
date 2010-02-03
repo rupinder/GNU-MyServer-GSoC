@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <Python.h>
 
-#include <stdafx.h>
+#include <myserver.h>
 #include <include/connection/connection.h>
 #include <include/base/socket/socket.h>
 #include <include/server/server.h>

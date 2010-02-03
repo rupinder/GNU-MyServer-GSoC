@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
   MyServer
-  Copyright (C) 2008, 2009 Free Software Foundation, Inc.
+  Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
@@ -20,7 +20,7 @@
 #ifndef FTP_COMMON_H
 # define FTP_COMMON_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # include <string>
 

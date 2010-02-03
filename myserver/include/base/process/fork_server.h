@@ -1,6 +1,6 @@
 /*
   MyServer
-  Copyright (C) 2008, 2009 Free Software Foundation, Inc.
+  Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -18,7 +18,7 @@
 #ifndef FORK_SERVER_H
 # define FORK_SERVER_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 #ifndef WIN32
 # include <unistd.h>
@@ -38,7 +38,7 @@ class ForkServer
   const static int FLAG_STDIN_SOCKET = 8;
 
   ForkServer () {initialized = false;}
-  ~ForkServer () {}
+  ~ForkServer () {killServer ();}
 
   void killServer ();
   int startForkServer ();

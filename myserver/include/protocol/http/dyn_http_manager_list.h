@@ -1,7 +1,8 @@
 /* -*- mode: c++ -*- */
 /*
   MyServer
-  Copyright (C) 2005, 2007, 2008, 2009 Free Software Foundation, Inc.
+  Copyright (C) 2005, 2007, 2008, 2009, 2010 Free Software Foundation,
+  Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -19,7 +20,7 @@
 #ifndef DYN_HTTP_MANAGER_LIST_H
 # define DYN_HTTP_MANAGER_LIST_H
 
-# include "stdafx.h"
+# include "myserver.h"
 # include <include/base/xml/xml_parser.h>
 # include <include/protocol/protocol.h>
 # include <include/connection/connection.h>

@@ -1,6 +1,6 @@
 /*
   MyServer
-  Copyright (C) 2009 Free Software Foundation, Inc.
+  Copyright (C) 2009, 2010 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -16,7 +16,7 @@
 */
 
 
-#include "stdafx.h"
+#include "myserver.h"
 #include <include/base/utility.h>
 #include <include/base/string/stringutils.h>
 #include <include/base/file/files_utility.h>

@@ -1,6 +1,7 @@
 /*
 MyServer
-Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009 Free Software Foundation, Inc.
+Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009, 2010 Free Software
+Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -15,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "stdafx.h"
+#include "myserver.h"
 #include <sstream>
 #include <include/protocol/http/http_headers.h>
 #include <include/protocol/http/http.h>
@@ -157,14 +158,14 @@ u_long HttpHeaders::buildHTTPRequestHeader (char * str,
                                MAX - (long)(pos - str));
       pos += myserver_strlcpy (pos, " ", MAX - (long)(pos - str));
 
-      if (request->rangeByteBegin != (u_long)-1)
+      if (request->rangeByteBegin != (u_long) -1)
         {
           sprintf (buffer, "%lu", request->rangeByteBegin);
           pos += myserver_strlcpy (pos, buffer, MAX - (long)(pos - str));
         }
 
       pos += myserver_strlcpy (pos, "-", MAX - (long)(pos - str));
-      if (request->rangeByteEnd != (u_long)-1)
+      if (request->rangeByteEnd != (u_long) -1)
         {
           sprintf (buffer, "%lu", request->rangeByteEnd);
           pos += myserver_strlcpy (pos, buffer, MAX - (long)(pos - str));
@@ -598,7 +599,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
       token += tokenOff + 2;
       tokenOff = getCharInString (token, ":", maxTotchars);
     }
-  while (((u_long)(token - input) < maxTotchars) && token[0] != '\r');
+  while (((u_long) (token - input) < maxTotchars) && token[0] != '\r');
 
   *nHeaderChars = maxTotchars;
   return 200;
@@ -672,13 +673,13 @@ int HttpHeaders::readReqRangeLine (HttpRequestHeader *request,
   if (rangeByteBegin[0] == 0)
     request->rangeByteBegin=0;
   else
-    request->rangeByteBegin = (u_long)atol (rangeByteBegin);
+    request->rangeByteBegin = (u_long) atol (rangeByteBegin);
 
   if (rangeByteEnd[0] == '\r')
     request->rangeByteEnd = 0;
   else
     {
-      request->rangeByteEnd = (u_long)atol (rangeByteEnd);
+      request->rangeByteEnd = (u_long) atol (rangeByteEnd);
       if (request->rangeByteEnd < request->rangeByteBegin)
         return 400;
     }

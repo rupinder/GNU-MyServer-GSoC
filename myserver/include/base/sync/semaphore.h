@@ -1,7 +1,8 @@
 /* -*- mode: c++ -*- */
 /*
   MyServer
-  Copyright (C) 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
+  Copyright (C) 2006, 2007, 2008, 2009, 2010 Free Software Foundation,
+  Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -19,7 +20,7 @@
 #ifndef SEMAPHORE_H
 # define SEMAPHORE_H
 
-# include "stdafx.h"
+# include "myserver.h"
 
 # ifdef HAVE_PTHREAD
 #  include <semaphore.h>

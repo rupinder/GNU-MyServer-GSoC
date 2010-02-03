@@ -1,6 +1,6 @@
 /*
  MyServer
- Copyright (C) 2008, 2009 Free Software Foundation, Inc.
+ Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
@@ -15,7 +15,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "stdafx.h"
+#include "myserver.h"
 #include <ctype.h>
 
 #include <include/filter/memory_stream.h>
@@ -69,7 +69,7 @@ public:
   {
     u_long size = addSomeData (stream);
 
-    CPPUNIT_ASSERT_EQUAL (size, (u_long)stream->availableToRead ());
+    CPPUNIT_ASSERT_EQUAL (size, (u_long) stream->availableToRead ());
   }
 
   void testRead ()
@@ -79,11 +79,11 @@ public:
 
     char buffer[20];
 
-    CPPUNIT_ASSERT_EQUAL (size, (u_long)stream->availableToRead ());
+    CPPUNIT_ASSERT_EQUAL (size, (u_long) stream->availableToRead ());
 
     stream->read (buffer, 20, &nbr);
 
-    CPPUNIT_ASSERT_EQUAL (size - 20u, (u_long)stream->availableToRead ());
+    CPPUNIT_ASSERT_EQUAL (size - 20u, (u_long) stream->availableToRead ());
   }
 
 
@@ -94,12 +94,12 @@ public:
 
     char buffer[20];
 
-    CPPUNIT_ASSERT_EQUAL (size, (u_long)stream->availableToRead ());
+    CPPUNIT_ASSERT_EQUAL (size, (u_long) stream->availableToRead ());
 
     stream->read (buffer, 20, &nbr);
     stream->refresh ();
 
-    CPPUNIT_ASSERT_EQUAL ((u_long)stream->availableToRead (), 0ul);
+    CPPUNIT_ASSERT_EQUAL ((u_long) stream->availableToRead (), 0ul);
   }
 
 
@@ -111,7 +111,7 @@ public:
 
     CPPUNIT_ASSERT_EQUAL (ret, 0);
 
-    CPPUNIT_ASSERT_EQUAL ((u_long)stream->availableToRead (), 12ul);
+    CPPUNIT_ASSERT_EQUAL ((u_long) stream->availableToRead (), 12ul);
   }
 
   void testFlush ()
