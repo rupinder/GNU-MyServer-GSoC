@@ -21,6 +21,13 @@
 # define SSL_SOCKET_H
 
 # include "myserver.h"
+
+extern "C"
+{
+#  include <sys/types.h>
+#  include <sys/socket.h>
+}
+
 # include <include/base/socket/socket.h>
 # include <include/base/ssl/ssl.h>
 
@@ -32,8 +39,6 @@ using namespace std;
 
 # ifndef WIN32
 extern "C" {
-#  include <sys/types.h>
-#  include <sys/socket.h>
 #  include <sys/ioctl.h>
 #  include <netinet/in.h>
 #  include <netdb.h>

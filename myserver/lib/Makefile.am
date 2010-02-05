@@ -9,12 +9,28 @@
 ## (at your option) any later version.
 ##
 ## This program is distributed in the hope that it will be useful,
-## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## but WITHOUT ANY WARRANTY
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ## GNU General Public License for more details.
 ##
 ## You should have received a copy of the GNU General Public License
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+GNULIB_SOCKET=1
+GNULIB_CONNECT=1
+GNULIB_ACCEPT=1
+GNULIB_BIND=1
+GNULIB_GETPEERNAME=1
+GNULIB_GETSOCKNAME=1
+GNULIB_GETSOCKOPT=1
+GNULIB_LISTEN=1
+GNULIB_RECV=1
+GNULIB_SEND=1
+GNULIB_RECVFROM=1
+GNULIB_SENDTO=1
+GNULIB_SETSOCKOPT=1
+GNULIB_SHUTDOWN=1
+GNULIB_ACCEPT4=1
 
 include gnulib.mk
 

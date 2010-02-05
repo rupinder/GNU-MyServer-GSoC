@@ -19,24 +19,26 @@
 #ifndef STDAFX_H
 #define STDAFX_H
 
+extern "C"
+{
 #ifndef WIN32
 # include "config.h"
 #endif
 
 #ifdef HAVE_CONFIG_H
 # include <cstdlib>
-# include "time.h"
+/*# include "time.h"*/
 # include <config.h>
 #endif
 
 #ifdef HAVE_PTHREAD
 # include <pthread.h>
 #endif
+}
 
 #ifdef WIN32
 extern "C"
 {
-# include <winsock2.h>
 # include <tchar.h>
 # include <process.h>
 }
@@ -71,9 +73,12 @@ typedef void* HANDLE;
 
 #endif
 
+extern "C"
+{
 #ifdef HAVE_GETTEXT
 # include <libintl.h>
 # define _(X) gettext (X)
 #else
 # define _(X) X
 #endif
+}

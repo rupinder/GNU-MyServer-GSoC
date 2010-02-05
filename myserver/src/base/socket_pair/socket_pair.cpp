@@ -97,7 +97,7 @@ int SocketPair::create ()
   addr.sin_addr.s_addr = htonl (0x7f000001);
   addr.sin_port = 0;
 
-  e = ::bind (listener, (const struct sockaddr*) &addr, sizeof (addr));
+  e = ::bind (listener, (struct sockaddr*) &addr, sizeof (addr));
   if (e == SOCKET_ERROR)
     {
       closesocket (listener);
@@ -117,7 +117,8 @@ int SocketPair::create ()
         break;
       if ((handles[0] = ::socket (AF_INET, type, 0)) == INVALID_SOCKET)
         break;
-      if (::connect (handles[0], (const struct sockaddr*) &addr, sizeof (addr)) == SOCKET_ERROR)
+      if (::connect (handles[0], (struct sockaddr*) &addr, sizeof (addr))
+          == SOCKET_ERROR)
         break;
       if ((handles[1] = ::accept (listener, NULL, NULL)) == INVALID_SOCKET)
         break;
