@@ -48,7 +48,6 @@ AC_PROG_RANLIB
 AC_PROG_LIBTOOL
 
 AC_CANONICAL_HOST
-AC_LIBTOOL_WIN32_DLL
 
 PACKAGE_STRING="m4_esyscmd([cat version])"
 MYSERVER_VERSION="${PACKAGE_STRING}"
@@ -95,7 +94,7 @@ AC_CHECK_LIB(gcrypt, gcry_control)
 
 case "${host}" in
     *-*-mingw32*)
-     LDFLAGS="-lwsock32 -lgdi32 -lole32  -luuid -luserenv $LDFLAGS"
+     LDFLAGS="-lwsock32 -lws2_32 -lgdi32 -lole32  -luuid -luserenv $LDFLAGS"
      MAKE_MSCGI=yes
      ;;
   *)
@@ -151,32 +150,10 @@ else
 fi
 AC_SUBST(XNET_LIB)
 
-AC_SEARCH_LIBS([event_add], [event event_core event_extra],  have_event=yes)
-AC_CHECK_LIB([event],  [event_add],  have_event=yes)
-if test x$have_event = xyes; then
-   EVENT_LIB="-levent"
-else
-   EVENT_LIB=""
-
-   AC_MSG_ERROR([
-*** This system appears to have no libevent
-*** Libevent is required by MyServer
-      ])
-fi
-AC_SUBST(EVENT_LIB)
+AC_SEARCH_LIBS([event_add], [event event_core event_extra])
 
 AC_CHECK_FUNCS(event_loopbreak, AC_DEFINE(EVENT_LOOPBREAK, 1,
                          [Define if the event_loopbreak function is present]))
-
-dnl check for Unix98 socklen_t
- AC_MSG_CHECKING(if socklen_t is defined)
- AC_TRY_COMPILE(
-     [#include <sys/socket.h>],
-     [socklen_t len = 10; return len;],
-        [AC_MSG_RESULT(yes)],
-        [AC_MSG_RESULT(no)
-         AC_DEFINE(socklen_t, int, define this where socklen_t is not present)])
-
 
 # Libidn checks
 # -------------

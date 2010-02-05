@@ -18,12 +18,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "myserver.h"
-#include <include/base/utility.h>
+
 #include <include/base/socket/socket.h>
+#include <include/base/utility.h>
+
 extern "C"
 {
-#include <string.h>
-#include <stdio.h>
 #ifndef WIN32
 # include <sys/types.h>
 # include <sys/socket.h>
@@ -34,6 +34,7 @@ extern "C"
 # include <arpa/inet.h>
 #endif
 
+#include <sys/select.h>
 #include <errno.h>
 }
 
@@ -181,7 +182,7 @@ int Socket::bind (MYSERVER_SOCKADDR* sa,int namelen)
     return -1;
 
 #ifdef WIN32
-  return ::bind (socketHandle, (const struct sockaddr*)sa, namelen);
+  return ::bind (socketHandle, (struct sockaddr*) sa, namelen);
 #else
   return ::bind (socketHandle, (const struct sockaddr*)sa, namelen);
 #endif
@@ -567,7 +568,7 @@ int Socket::connect (MYSERVER_SOCKADDR* sa, int na)
     return -1;
 
 #ifdef WIN32
-  return ::connect (socketHandle,(const sockaddr *)sa, na);
+  return ::connect (socketHandle,(sockaddr *)sa, na);
 #else
   return ::connect (socketHandle,(const sockaddr *)sa,na);
 #endif

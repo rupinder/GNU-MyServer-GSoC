@@ -20,27 +20,24 @@
 #ifndef SOCKET_H
 # define SOCKET_H
 
+# define GNULIB_SOCKET 1
+
 # include "myserver.h"
+
+extern "C"
+{
+# include <sys/types.h>
+# include <sys/socket.h>
+}
+
 # include <include/filter/stream.h>
 
 # include <string>
 using namespace std;
 
-# ifdef WIN32
-#  ifndef SOCKETLIBINCLUDED
-extern "C"
-{
-#   include <winsock2.h>
-}
-#   define SOCKETLIBINCLUDED
-#  endif
-# endif
-
 # ifndef WIN32
 extern "C"
 {
-#  include <sys/types.h>
-#  include <sys/socket.h>
 #  include <sys/ioctl.h>
 #  include <netinet/in.h>
 #  include <netdb.h>

@@ -65,7 +65,7 @@ test_suite_SOURCES =  	main.cpp				\
 			test_xml_validator.cpp
 
 test_suite_LDADD = ../src/libmyserver.a  ../lib/libgnu.a $(CPPUNIT_LDFLAGS) \
-	$(PTHREAD_LIB) 	$(IDN_LIB) $(XNET_LIB) $(EVENT_LIB) $(DL_LIB) $(SSL_LIB) \
+	$(PTHREAD_LIB) 	$(IDN_LIB) $(XNET_LIB) $(DL_LIB) $(SSL_LIB) \
 	$(ZLIB_LIB) $(XML_LIBS) $(LDFLAGS)
 
 install:

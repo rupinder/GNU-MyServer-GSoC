@@ -125,7 +125,7 @@ int SslSocket::connect (MYSERVER_SOCKADDR* sa, int na)
     return -1;
 
   /*! Do the TCP connection. */
-  if (::connect ((int)socketHandle,(const sockaddr *)sa, na))
+  if (::connect ((int) socketHandle,(sockaddr *) sa, na))
   {
     SSL_CTX_free (sslContext);
     sslContext = 0;
