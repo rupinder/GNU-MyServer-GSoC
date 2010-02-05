@@ -151,19 +151,7 @@ else
 fi
 AC_SUBST(XNET_LIB)
 
-AC_SEARCH_LIBS([event_add], [event event_core event_extra],  have_event=yes)
-AC_CHECK_LIB([event],  [event_add],  have_event=yes)
-if test x$have_event = xyes; then
-   EVENT_LIB="-levent"
-else
-   EVENT_LIB=""
-
-   AC_MSG_ERROR([
-*** This system appears to have no libevent
-*** Libevent is required by MyServer
-      ])
-fi
-AC_SUBST(EVENT_LIB)
+AC_SEARCH_LIBS([event_add], [event event_core event_extra])
 
 AC_CHECK_FUNCS(event_loopbreak, AC_DEFINE(EVENT_LOOPBREAK, 1,
                          [Define if the event_loopbreak function is present]))
