@@ -209,19 +209,48 @@ int Pipe::close ()
   return 0;
 }
 
+class PipeException : public exception
+{
+public:
+  virtual const char *what () const throw ()
+  {
+    return message;
+  }
+
+  PipeException (string & str)
+  {
+    this->message = str.c_str ();
+  }
+
+private:
+  const char *message;
+};
+
 /*!
  * Invert the current pipe on another instance of the class.
- * The input will be used as output and viceversa.
+ * The input stream will be used as output and viceversa.
  * \param pipe The pipe where write.
  */
 void Pipe::inverted (Pipe& pipe)
 {
 #ifndef WIN32
-  handles[0] = pipe.handles[1];
-  handles[1] = pipe.handles[0];
+  pipe.handles[0] = dup (handles[1]);
+  pipe.handles[1] = dup (handles[0]);
+  if (pipe.handles[0] < 0 || pipe.handles[1] < 0)
+    {
+      string err (_("Internal error"));
+      throw PipeException (err);
+    }
 #else
-  pipe.readHandle = writeHandle;
-  pipe.writeHandle = readHandle;
+  if ((! DuplicateHandle (GetCurrentProcess(), writeHandle, GetCurrentProcess(),
+                          &pipe.readHandle, 0, FALSE, DUPLICATE_SAME_ACCESS))
+      || (! DuplicateHandle (GetCurrentProcess(), readHandle,
+                             GetCurrentProcess(), &pipe.writeHandle, 0, FALSE,
+                             DUPLICATE_SAME_ACCESS)))
+    {
+      string err (_("Internal error"));
+      throw PipeException (err);
+    }
 #endif
 }
 

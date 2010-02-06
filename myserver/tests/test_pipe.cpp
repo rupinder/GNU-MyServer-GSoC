@@ -117,8 +117,8 @@ public:
 
     pipe->inverted (pipeInv);
 
-    CPPUNIT_ASSERT_EQUAL (pipeInv.getReadHandle (), pipe->getWriteHandle ());
-    CPPUNIT_ASSERT_EQUAL (pipe->getReadHandle (), pipeInv.getWriteHandle ());
+    CPPUNIT_ASSERT (pipeInv.getReadHandle () != pipe->getReadHandle ());
+    CPPUNIT_ASSERT (pipeInv.getWriteHandle () != pipe->getWriteHandle ());
 
     pipe->close ();
 
