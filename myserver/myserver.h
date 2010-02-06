@@ -21,28 +21,12 @@
 
 extern "C"
 {
-#ifndef WIN32
-# include "config.h"
-#endif
-
-#ifdef HAVE_CONFIG_H
-# include <cstdlib>
-/*# include "time.h"*/
-# include <config.h>
-#endif
+#include "config.h"
 
 #ifdef HAVE_PTHREAD
 # include <pthread.h>
 #endif
 }
-
-#ifdef WIN32
-extern "C"
-{
-# include <tchar.h>
-# include <process.h>
-}
-#endif
 
 extern "C"
 {
@@ -54,7 +38,10 @@ extern "C"
 #include <ctype.h>
 #include <stdint.h>
 
-#ifndef WIN32
+#ifdef WIN32
+# include <tchar.h>
+# include <process.h>
+#else
 # include <sys/types.h>
 # include <sys/stat.h>
 # include <limits.h>
