@@ -258,11 +258,7 @@ MYSERVER_HOSTENT *Socket::gethostbyname (const char *hostname)
  */
 int Socket::shutdown (int how)
 {
-#ifdef WIN32
   return ::shutdown (socketHandle, how);
-#else
-  return ::shutdown (socketHandle, how);
-#endif
 }
 
 /*!
