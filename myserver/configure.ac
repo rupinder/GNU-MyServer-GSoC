@@ -2,7 +2,7 @@ dnl GNU MySever configuration script
 dnl
 dnl GNU MyServer
 dnl
-dnl Copyright (C) 2002-2009 Free Software Foundation, Inc.
+dnl Copyright (C) 2002-2010 Free Software Foundation, Inc.
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
 dnl the Free Software Foundation; either version 3 of the License, or
@@ -46,6 +46,7 @@ AC_PROG_YACC
 AC_C_BIGENDIAN
 AC_PROG_RANLIB
 AC_PROG_LIBTOOL
+AC_LIBTOOL_WIN32_DLL
 
 AC_CANONICAL_HOST
 
