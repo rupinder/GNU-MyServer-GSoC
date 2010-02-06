@@ -23,9 +23,9 @@ SocketStreamCreator::create (FiltersFactory* ff, string location,
                              list<string>& filters, u_long cycle)
 {
   Socket* out = new Socket ();
-  char const* host = getHost (location).c_str ();
+  string host = getHost (location);
   u_short port = getPort (location);
-  if (out && !out->connect (host, port))
+  if (out && !out->connect (host.c_str (), port))
     {
       u_long nbw;
       FiltersChain* fc = ff->chain (filters, out, &nbw);
