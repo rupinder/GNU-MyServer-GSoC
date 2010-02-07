@@ -752,7 +752,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
       password[i] = '\0';
       connection->setLogin (login);
       connection->setPassword (password);
-      delete decodedPwBuf;
+      delete [] decodedPwBuf;
 
       *lenOut = tokenOff = getEndLine (token, 100);
       if (tokenOff == -1)

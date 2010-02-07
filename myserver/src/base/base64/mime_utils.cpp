@@ -393,7 +393,7 @@ char* CBase64Utils::encode (const char *input, int bufsize)
 char* CBase64Utils::decode (const char *input, int *bufsize)
 {
   int std = 0, count = 1, resultlen = 0;
-  char *finalresult = (char*)calloc (*bufsize + sizeof (char), sizeof (char));
+  char *finalresult = new char[*bufsize + sizeof (char)];
 
   const char *s = input;
   char *result = finalresult;
@@ -472,8 +472,7 @@ CQPUtils::~CQPUtils ()
 char* CQPUtils::decode (char *input)
 {
   char *s = input;
-  char *finalresult = (char*)calloc (strlen (input) + sizeof (char),
-                                    sizeof (char));
+  char *finalresult = new char [strlen (input) + sizeof (char)];
   char *result = finalresult;
   while (*s != '\0')
   {
