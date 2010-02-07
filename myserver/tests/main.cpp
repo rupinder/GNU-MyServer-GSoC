@@ -16,6 +16,7 @@
  */
 
 #include "myserver.h"
+#include <include/server/server.h>
 
 #undef open
 #undef close
@@ -29,8 +30,6 @@
 
 #include <fstream>
 #include <string.h>
-
-#include <include/server/server.h>
 
 using namespace std;
 
@@ -74,7 +73,7 @@ int main (int argc, char* argv[])
   int ret = runner.run () ? 0 : 1;
 
   if (filename)
-      ofile.close ();
+    ofile.close ();
 
   return ret;
 }
