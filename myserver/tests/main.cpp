@@ -27,6 +27,9 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/BriefTestProgressListener.h>
+#include <cppunit/TestResult.h>
+#include <cppunit/TestResultCollector.h>
 
 #include <fstream>
 #include <string.h>
@@ -40,6 +43,7 @@ int main (int argc, char* argv[])
   bool xml = argc > 1 && !strcmp (argv[1], "xml");
   bool compiler = argc > 1 && !strcmp (argv[1], "compiler");
   char *filename = argc > 2 ? argv[2] : NULL;
+  CppUnit::BriefTestProgressListener progress;
 
   program_name = argv[0];
 
@@ -59,16 +63,19 @@ int main (int argc, char* argv[])
   CppUnit::Outputter * out;
   CppUnit::Test *suite = CppUnit::TestFactoryRegistry::getRegistry ().makeTest ();
   CppUnit::TextUi::TestRunner runner;
-  runner.addTest ( suite );
+  runner.addTest (suite);
 
   if (xml)
-    out = new CppUnit::XmlOutputter ( &runner.result (), *str );
+    out = new CppUnit::XmlOutputter (&runner.result (), *str);
   else if (compiler)
-    out = new CppUnit::CompilerOutputter ( &runner.result (), *str );
+    out = new CppUnit::CompilerOutputter (&runner.result (), *str);
   else
-    out = new CppUnit::TextOutputter ( &runner.result (), *str );
+    {
+      out = new CppUnit::TextOutputter (&runner.result (), *str);
+      runner.eventManager ().addListener (&progress);
+    }
 
-  runner.setOutputter ( out );
+  runner.setOutputter (out);
 
   int ret = runner.run () ? 0 : 1;
 
