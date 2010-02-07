@@ -112,6 +112,8 @@ public:
 
     CPPUNIT_ASSERT_EQUAL (Thread::create (&tid, testRecvClient, &port), 0);
 
+    Thread::wait (MYSERVER_SEC (1));
+
     CPPUNIT_ASSERT (obj->dataOnRead (5));
 
     Socket s = obj->accept (&sockIn, &sockInLen);
