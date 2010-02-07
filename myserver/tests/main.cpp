@@ -54,6 +54,7 @@ int main (int argc, char* argv[])
       str = &ofile;
     }
 
+  Server::createInstance ();
   Server::getInstance ()->loadLibraries ();
 
   CppUnit::Outputter * out;
