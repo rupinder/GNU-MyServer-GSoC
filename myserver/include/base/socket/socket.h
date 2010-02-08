@@ -49,11 +49,7 @@ extern "C"
 #  define SD_BOTH SHUT_RDWR
 # endif
 
-# ifdef WIN32
-typedef SOCKET SocketHandle;
-# else
 typedef int SocketHandle;
-# endif
 
 # ifdef INET6_ADDRSTRLEN
 #  define MAX_IP_STRING_LEN  INET6_ADDRSTRLEN

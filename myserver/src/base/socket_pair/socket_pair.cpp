@@ -60,18 +60,8 @@ SocketPair::SocketPair ()
  */
 int SocketPair::create ()
 {
-#ifdef WIN32
-# define LOCAL_SOCKETPAIR_AF AF_INET
-#else
-# define LOCAL_SOCKETPAIR_AF AF_UNIX
-#endif
-
-  int af = LOCAL_SOCKETPAIR_AF;
-  int type = SOCK_STREAM;
-  int protocol = 0;
-
 #ifndef WIN32
-  int ret = socketpair (af, type, protocol, (int*)handles);
+  int ret = socketpair (AF_UNIX, SOCK_STREAM, 0, (int*) handles);
   if (ret == 0)
     socketHandle = handles[0];
 
@@ -86,10 +76,10 @@ int SocketPair::create ()
   if (handles == 0)
     return -1;
 
-  handles[0] = handles[1] = INVALID_SOCKET;
-  listener = socket (AF_INET, type, 0);
+  handles[0] = handles[1] = -1;
+  listener = ::socket (AF_INET, SOCK_STREAM, 0);
 
-  if (listener == INVALID_SOCKET)
+  if (listener < 0)
     return -1;
 
   memset (&addr, 0, sizeof (addr));
@@ -97,41 +87,46 @@ int SocketPair::create ()
   addr.sin_addr.s_addr = htonl (0x7f000001);
   addr.sin_port = 0;
 
-  e = ::bind (listener, (struct sockaddr*) &addr, sizeof (addr));
-  if (e == SOCKET_ERROR)
+  if (::bind (listener, (struct sockaddr*) &addr, sizeof (addr)) < 0)
     {
-      closesocket (listener);
+      ::close (listener);
       return -1;
     }
 
-  e = ::getsockname (listener, (struct sockaddr*) &addr, &addrlen);
-  if (e == SOCKET_ERROR)
+  if (::getsockname (listener, (struct sockaddr*) &addr, &addrlen) < 0)
     {
-      closesocket (listener);
+      ::close (listener);
       return -1;
     }
 
   do
     {
-      if (::listen (listener, 1) == SOCKET_ERROR)
+      if (::listen (listener, 1) < 0)
         break;
-      if ((handles[0] = ::socket (AF_INET, type, 0)) == INVALID_SOCKET)
+
+      if ((handles[0] = ::socket (AF_INET, SOCK_STREAM, 0)) < 0)
         break;
-      if (::connect (handles[0], (struct sockaddr*) &addr, sizeof (addr))
-          == SOCKET_ERROR)
+
+      if (::connect (handles[0], (struct sockaddr*) &addr, sizeof (addr)) < 0)
         break;
-      if ((handles[1] = ::accept (listener, NULL, NULL)) == INVALID_SOCKET)
+
+      if ((handles[1] = ::accept (listener, NULL, NULL)) < 0)
         break;
 
       socketHandle = handles[0];
 
-      closesocket (listener);
+      ::close (listener);
       return 0;
     } while (0);
 
-  closesocket (listener);
-  closesocket (handles[0]);
-  closesocket (handles[1]);
+  ::close (listener);
+
+  if (handles[0] != -1)
+    ::close (handles[0]);
+
+
+  if (handles[1] != -1)
+    ::close (handles[1]);
 
   return -1;
 #endif

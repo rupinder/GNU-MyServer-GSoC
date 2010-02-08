@@ -93,15 +93,13 @@ static DEFINE_THREAD (testSslRecvClient, pParam);
 
 class TestSslSocket : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE ( TestSslSocket );
-
-  CPPUNIT_TEST ( testRecv );
-
-  CPPUNIT_TEST_SUITE_END ( );
+  CPPUNIT_TEST_SUITE (TestSslSocket);
+  CPPUNIT_TEST (testRecv);
+  CPPUNIT_TEST_SUITE_END ();
 
 public:
 
-  void setUp ( )
+  void setUp ()
   {
     initializeSSL ();
     u_long nbw;
@@ -116,13 +114,13 @@ public:
     f.close ();
   }
 
-  void tearDown ( )
+  void tearDown ()
   {
     FilesUtility::deleteFile (TESTSERVERPEM);
     FilesUtility::deleteFile (TESTSERVERKEY);
   }
 
-  void testRecv ( )
+  void testRecv ()
   {
     Socket *obj = new Socket;
     SslSocket *sslObj = NULL;
@@ -136,84 +134,83 @@ public:
     int status;
 
     ((sockaddr_in*) (&sockIn))->sin_family = AF_INET;
-    ((sockaddr_in*) (&sockIn))->sin_addr.s_addr = inet_addr ( "127.0.0.1" );
-    ((sockaddr_in*) (&sockIn))->sin_port = htons ( port );
+    ((sockaddr_in*) (&sockIn))->sin_addr.s_addr = inet_addr ("127.0.0.1");
+    ((sockaddr_in*) (&sockIn))->sin_port = htons (port);
 
-    socklen_t sockInLen = sizeof ( sockaddr_in );
+    socklen_t sockInLen = sizeof (sockaddr_in);
 
-    CPPUNIT_ASSERT ( obj->socket ( AF_INET, SOCK_STREAM, 0 ) != -1 );
+    CPPUNIT_ASSERT (obj->socket (AF_INET, SOCK_STREAM, 0) != -1);
 
-    CPPUNIT_ASSERT ( obj->setsockopt ( SOL_SOCKET, SO_REUSEADDR,
+    CPPUNIT_ASSERT (obj->setsockopt (SOL_SOCKET, SO_REUSEADDR,
                                       (const char*) &optvalReuseAddr,
-                                      sizeof (optvalReuseAddr) ) != -1 );
+                                      sizeof (optvalReuseAddr)) != -1);
 
-    ctx = SSL_CTX_new ( SSLv23_server_method () );
+    ctx = SSL_CTX_new (SSLv23_server_method ());
 
-    if ( SSL_CTX_use_certificate_file ( ctx, TESTSERVERPEM, SSL_FILETYPE_PEM ) != 1 )
+    if (SSL_CTX_use_certificate_file (ctx, TESTSERVERPEM, SSL_FILETYPE_PEM) != 1)
     {
-      SSL_CTX_free ( ctx );
+      SSL_CTX_free (ctx);
       CPPUNIT_ASSERT (false);
     }
 
-    if ( SSL_CTX_use_PrivateKey_file ( ctx, TESTSERVERKEY, SSL_FILETYPE_PEM ) != 1 )
+    if (SSL_CTX_use_PrivateKey_file (ctx, TESTSERVERKEY, SSL_FILETYPE_PEM) != 1)
     {
-      SSL_CTX_free ( ctx );
+      SSL_CTX_free (ctx);
       CPPUNIT_ASSERT (false);
     }
 
-    // If the port is used by another program, try a few others.
+    /* If the port is used by another program, try a few others.  */
     do
-    {
-      port++;
-      ((sockaddr_in*) (&sockIn))->sin_port = htons ( port);
-    }
+      {
+        port++;
+        ((sockaddr_in*) (&sockIn))->sin_port = htons (port);
+      }
     while ((status = obj->bind (&sockIn, sockInLen)) != 0 && port < 28000);
 
-    CPPUNIT_ASSERT ( status != -1 );
+    CPPUNIT_ASSERT (status != -1);
 
-    CPPUNIT_ASSERT ( obj->listen ( 1 ) != -1 );
+    CPPUNIT_ASSERT (obj->listen (1) != -1);
 
-    CPPUNIT_ASSERT_EQUAL ( Thread::create ( &tid, testSslRecvClient, &port ), 0 );
-    Socket s = obj->accept ( &sockIn, &sockInLen );
+    CPPUNIT_ASSERT_EQUAL (Thread::create (&tid, testSslRecvClient, &port), 0);
+    Socket s = obj->accept (&sockIn, &sockInLen);
+
     sslObj = new SslSocket (&s);
+    sslObj->setSSLContext (ctx);
 
-    sslObj->setSSLContext ( ctx );
+    int ret = sslObj->sslAccept ();
 
-    int ret = sslObj->sslAccept ( );
-
-    if ( ret < 0 )
+    if (ret < 0)
     {
       delete obj;
       delete sslObj;
-      SSL_CTX_free ( ctx );
+      SSL_CTX_free (ctx);
       CPPUNIT_ASSERT (false);
     }
 
     char buf[32] = {0};
 
-    ret = sslObj->recv ( buf, sizeof (buf), 0 );
+    ret = sslObj->recv (buf, sizeof (buf), 0);
 
-    sslObj->send ( "a", 1, 0);
+    sslObj->send ("a", 1, 0);
 
-    CPPUNIT_ASSERT (ret != -1 );
+    CPPUNIT_ASSERT (ret != -1);
 
-    CPPUNIT_ASSERT ( sslObj->close ( ) != -1 );
+    CPPUNIT_ASSERT (sslObj->close () != -1);
 
-    CPPUNIT_ASSERT ( obj->close ( ) != -1 );
+    CPPUNIT_ASSERT (obj->close () != -1);
 
-    SSL_CTX_free ( ctx );
+    SSL_CTX_free (ctx);
 
     delete obj;
     delete sslObj;
   }
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION ( TestSslSocket );
+CPPUNIT_TEST_SUITE_REGISTRATION (TestSslSocket);
 
 static DEFINE_THREAD (testSslRecvClient, pParam)
 {
-  Socket *obj2 = new Socket;
-  SslSocket *sslObj2 = NULL;
+  SslSocket *sslClient = NULL;
   int optvalReuseAddr = 1;
   char host[] = "localhost";
   int port = *((int*)pParam);
@@ -221,29 +218,24 @@ static DEFINE_THREAD (testSslRecvClient, pParam)
   MYSERVER_SOCKADDRIN sockIn = { 0 };
 
   ((sockaddr_in*) (&sockIn))->sin_family = AF_INET;
-  ((sockaddr_in*) (&sockIn))->sin_addr.s_addr = inet_addr ( "127.0.0.1" );
-  ((sockaddr_in*) (&sockIn))->sin_port = htons ( port );
+  ((sockaddr_in*) (&sockIn))->sin_addr.s_addr = inet_addr ("127.0.0.1");
+  ((sockaddr_in*) (&sockIn))->sin_port = htons (port);
 
-  int sockInLen = sizeof ( struct sockaddr_in );
+  int sockInLen = sizeof (struct sockaddr_in);
 
-  CPPUNIT_ASSERT ( obj2->socket ( AF_INET, SOCK_STREAM, 0 ) != -1 );
+  sslClient = new SslSocket ();
 
-  sslObj2 = new SslSocket ( obj2 );
+  CPPUNIT_ASSERT (sslClient->socket (AF_INET, SOCK_STREAM, 0) != -1);
 
-  CPPUNIT_ASSERT ( sslObj2->connect ( &sockIn, sockInLen ) != -1 );
+  CPPUNIT_ASSERT (sslClient->connect (&sockIn, sockInLen) != -1);
 
   char buf[] = "Works?\n";
 
-  int ret = sslObj2->send ( buf, strlen (buf), 0 );
+  int ret = sslClient->send (buf, strlen (buf), 0);
+  sslClient->recv (buf, 1, 0);
 
-  sslObj2->recv ( buf, 1, 0 );
-
-  CPPUNIT_ASSERT (ret != -1 );
-
-
-  CPPUNIT_ASSERT ( sslObj2->close ( ) != -1 );
-
-  delete obj2;
-  delete sslObj2;
+  CPPUNIT_ASSERT (ret != -1);
+  CPPUNIT_ASSERT (sslClient->close () != -1);
+  delete sslClient;
   return 0;
 }

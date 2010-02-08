@@ -100,7 +100,6 @@ int freecwd ()
   if (!currentPath)
     return 0;
 
-  delete [] currentPath;
   currentPathLen = 0;
   return 0;
 }
@@ -124,15 +123,15 @@ int getdefaultwdlen ()
 char *getdefaultwd (char *path, int len)
 {
   if (!currentPath && initializeCwd ())
-      return NULL;
+    return NULL;
 
   if (path)
     {
       /* If len is equal to zero we assume no limit.  */
       if (len)
-	myserver_strlcpy (path, currentPath, len);
+        myserver_strlcpy (path, currentPath, len);
       else
-	strcpy (path, currentPath);
+        strcpy (path, currentPath);
     }
 
   return currentPath;

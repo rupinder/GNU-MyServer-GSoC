@@ -24,12 +24,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 extern "C"
 {
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+
 #ifndef WIN32
-# include <sys/types.h>
-# include <sys/socket.h>
-# include <sys/ioctl.h>
-# include <netdb.h>
 # include <unistd.h>
+# include <netdb.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
 #endif
@@ -48,16 +49,12 @@ using namespace std;
 int Socket::startupSocketLib ()
 {
 #ifdef WIN32
-  /*
-   *Under windows we need to initialize the socket library before use it.
-   */
   static bool done = false;
-
   if (!done)
     {
       WSADATA wsaData;
       done = true;
-      return WSAStartup (MAKEWORD ( 1, 1), &wsaData);
+      return WSAStartup (MAKEWORD (1, 1), &wsaData);
     }
 #endif
   return 0;
@@ -103,12 +100,8 @@ int Socket::operator=(Socket* s)
  */
 int Socket::socket (int af, int type, int protocol)
 {
-#ifdef WIN32
   socketHandle = ::socket (af, type, protocol);
-#else
-  socketHandle = ::socket (af, type, protocol);
-#endif
-  return (int)socketHandle;
+  return socketHandle;
 }
 
 /*!
@@ -169,23 +162,19 @@ Socket::Socket ()
 /*!
  *Bind the port to the socket.
  */
-int Socket::bind (MYSERVER_SOCKADDR* sa,int namelen)
+int Socket::bind (MYSERVER_SOCKADDR* sa, int namelen)
 {
-   if ( sa == NULL )
-      return -1;
+  if ( sa == NULL )
+    return -1;
 
   if ((sa->ss_family == AF_INET && namelen != sizeof (sockaddr_in))
 #if HAVE_IPV6
-  || (sa->ss_family == AF_INET6 && namelen != sizeof (sockaddr_in6))
+      || (sa->ss_family == AF_INET6 && namelen != sizeof (sockaddr_in6))
 #endif
-       )
+      )
     return -1;
 
-#ifdef WIN32
   return ::bind (socketHandle, (struct sockaddr*) sa, namelen);
-#else
-  return ::bind (socketHandle, (const struct sockaddr*)sa, namelen);
-#endif
 }
 
 /*!
@@ -193,11 +182,7 @@ int Socket::bind (MYSERVER_SOCKADDR* sa,int namelen)
  */
 int Socket::listen (int max)
 {
-#ifdef WIN32
   return ::listen (socketHandle, max);
-#else
-  return ::listen (socketHandle, max);
-#endif
 }
 
 /*!
@@ -209,7 +194,7 @@ Socket* Socket::accept (MYSERVER_SOCKADDR* sa, socklen_t* sockaddrlen)
                                           sockaddrlen);
 
   if (acceptedHandle >= 0)
-    return new Socket ((SocketHandle)acceptedHandle);
+    return new Socket ((SocketHandle) acceptedHandle);
   else
     return NULL;
 }
@@ -221,13 +206,8 @@ int Socket::close ()
 {
   int ret = -1;
   if (socketHandle >= 0)
-    {
-#ifdef WIN32
-      ret = ::closesocket (socketHandle);
-#else
-      ret = ::close (socketHandle);
-#endif
-    }
+    ret = ::close (socketHandle);
+
   socketHandle = -1;
   return ret;
 }
@@ -237,12 +217,7 @@ int Socket::close ()
  */
 MYSERVER_HOSTENT *Socket::gethostbyaddr (char* addr, int len, int type)
 {
-#ifdef WIN32
-  HOSTENT *he = ::gethostbyaddr (addr,len,type);
-#else
-  struct hostent * he = ::gethostbyaddr (addr,len,type);
-#endif
-  return he;
+  return (MYSERVER_HOSTENT *) ::gethostbyaddr (addr, len, type);
 }
 
 /*!
@@ -250,7 +225,7 @@ MYSERVER_HOSTENT *Socket::gethostbyaddr (char* addr, int len, int type)
 */
 MYSERVER_HOSTENT *Socket::gethostbyname (const char *hostname)
 {
-  return (MYSERVER_HOSTENT *)::gethostbyname (hostname);
+  return (MYSERVER_HOSTENT *) ::gethostbyname (hostname);
 }
 
 /*!
@@ -279,7 +254,7 @@ int Socket::getLocalIPsList (string &out)
   memset (serverName, 0, HOST_NAME_MAX + 1);
 
   Socket::gethostname (serverName, HOST_NAME_MAX);
-#if ( HAVE_IPV6 )
+#if HAVE_IPV6
   addrinfo aiHints = { 0 }, *pHostInfo = NULL, *pCrtHostInfo = NULL;
   /* only interested in socket types the that server will listen to.  */
   aiHints.ai_socktype = SOCK_STREAM;
@@ -351,14 +326,7 @@ int Socket::getLocalIPsList (string &out)
  */
 int Socket::rawSend (const char* buffer, int len, int flags)
 {
-#ifdef WIN32
-  int ret;
-  SetLastError (0);
-
   return ::send (socketHandle, buffer, len, flags);
-#else
-  return ::send (socketHandle, buffer, len, flags);
-#endif
 }
 
 /*!
@@ -409,13 +377,9 @@ int Socket::send (const char* buffer, int len, int flags)
 /*!
  *Function used to control the socket.
  */
-int Socket::ioctlsocket (long cmd,unsigned long* argp)
+int Socket::ioctlsocket (long cmd, unsigned long* argp)
 {
-#ifdef WIN32
-  return ::ioctlsocket (socketHandle, cmd, argp);
-#else
   return ::ioctl (socketHandle, cmd, argp);
-#endif
 }
 
 /*!
@@ -427,7 +391,7 @@ int Socket::connect (const char* host, u_short port)
   if ( host == NULL )
     return -1;
 
-#if ( HAVE_IPV6 )
+#if HAVE_IPV6
   MYSERVER_SOCKADDRIN thisSock = { 0 };
   int nLength = sizeof (MYSERVER_SOCKADDRIN);
   int nSockLen = 0;
@@ -563,11 +527,7 @@ int Socket::connect (MYSERVER_SOCKADDR* sa, int na)
  )
     return -1;
 
-#ifdef WIN32
-  return ::connect (socketHandle,(sockaddr *)sa, na);
-#else
-  return ::connect (socketHandle,(const sockaddr *)sa,na);
-#endif
+  return ::connect (socketHandle, (sockaddr *) sa, na);
 }
 
 /*!
@@ -589,17 +549,6 @@ int Socket::recv (char* buffer,int len,int flags)
 {
   int err = 0;
 
-#ifdef WIN32
-  err = ::recv (socketHandle, buffer, len, flags);
-
-  if ( err == SOCKET_ERROR && GetLastError () == WSAEWOULDBLOCK && isNonBlocking)
-    return 0;
-
-  if (err == SOCKET_ERROR)
-    return -1;
-  else
-    return err;
-#else
   err = ::recv (socketHandle, buffer, len, flags);
 
   if ( err < 0 && errno == EAGAIN && isNonBlocking)
@@ -609,8 +558,6 @@ int Socket::recv (char* buffer,int len,int flags)
     err = -1;
 
   return err;
-#endif
-
 }
 
 /*!
@@ -631,23 +578,22 @@ u_long Socket::bytesToRead ()
 }
 
 /*!
- *Change the socket behaviour when an operation can't be completed
- *immediately.
- *If the socket is configured to be non blocking then it will return
- *immediately the control to the caller function.
- *A blocking socket will wait until the operation can be performed.
- *\param nonBlocking Nonzero to configure the socket non blocking.
+ * Change the socket behaviour when an operation can't be completed
+ * immediately.
+ * If the socket is configured to be non blocking then it will return
+ * immediately the control to the caller function.
+ * A blocking socket will wait until the operation can be performed.
+ * \param nonBlocking Nonzero to configure the socket non blocking.
  */
 int Socket::setNonBlocking (int nonBlocking)
 {
   int ret = -1;
+  int flags;
+
 #ifdef WIN32
   u_long nonblock = nonBlocking ? 1 : 0;
-  ret = ioctlsocket ( FIONBIO, &nonblock);
-
+  ret = ioctlsocket (FIONBIO, &nonblock);
 #else
-
-  int flags;
   flags = fcntl (socketHandle, F_GETFL, 0);
   if (flags < 0)
     return -1;
@@ -659,8 +605,9 @@ int Socket::setNonBlocking (int nonBlocking)
 
   ret = fcntl (socketHandle, F_SETFL, flags);
 
-#endif
   isNonBlocking = nonBlocking ? true : false;
+#endif
+
   return ret;
 }
 
@@ -677,14 +624,10 @@ int Socket::gethostname (char *name, int namelen)
  */
 int Socket::getsockname (MYSERVER_SOCKADDR *ad, int *namelen)
 {
-#ifdef WIN32
-  return ::getsockname (socketHandle,(sockaddr *)ad,namelen);
-#else
   socklen_t len =(socklen_t) *namelen;
   int ret = ::getsockname (socketHandle, (struct sockaddr *)ad, &len);
   *namelen = (int)len;
   return ret;
-#endif
 }
 
 /*!
@@ -715,11 +658,8 @@ int Socket::dataOnRead (int sec, int usec)
   tv.tv_usec = usec;
 
   FD_ZERO (&readfds);
-#ifdef WIN32
   FD_SET (socketHandle, &readfds);
-#else
-  FD_SET (socketHandle, &readfds);
-#endif
+
   ret = ::select (socketHandle + 1, &readfds, NULL, NULL, &tv);
 
   if (ret <= 0)

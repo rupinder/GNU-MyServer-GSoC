@@ -25,20 +25,22 @@ SocketStreamCreator::create (FiltersFactory* ff, string location,
   Socket* out = new Socket ();
   string host = getHost (location);
   u_short port = getPort (location);
+
+  if (out->socket (AF_INET, SOCK_STREAM, 0) < 0)
+    return NULL;
+
   if (out && !out->connect (host.c_str (), port))
     {
       u_long nbw;
       FiltersChain* fc = ff->chain (filters, out, &nbw);
       if (fc)
-        {
-          return new SocketStream (ff, cycle, out, fc);
-        }
+        return new SocketStream (ff, cycle, out, fc);
     }
+
   if (out)
-    {
-      delete out;
-    }
-  return 0;
+    delete out;
+
+  return NULL;
 }
 
 u_short

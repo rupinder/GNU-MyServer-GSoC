@@ -36,17 +36,6 @@ using namespace std;
 
 # include <gnutls/openssl.h>
 
-
-# ifndef WIN32
-extern "C" {
-#  include <sys/ioctl.h>
-#  include <netinet/in.h>
-#  include <netdb.h>
-#  include <stdio.h>
-#  include <unistd.h>
-}
-# endif
-
 class SslSocket : public Socket
 {
 public:
@@ -70,12 +59,13 @@ public:
   virtual int dataOnRead (int sec = 0, int usec = 500);
 # endif
 
+  SslSocket ();
   SslSocket (Socket*);
   virtual ~SslSocket ();
 
 protected:
   bool externalContext;
-  Socket* socket;
+  Socket* sock;
   SSL *sslConnection;
   SSL_CTX *sslContext;
   const X509 *clientCert;

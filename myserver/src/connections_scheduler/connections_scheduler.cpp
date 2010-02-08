@@ -22,7 +22,8 @@
 
 static DEFINE_THREAD (dispatcher, p)
 {
-  ConnectionsScheduler::DispatcherArg *da = (ConnectionsScheduler::DispatcherArg*)p;
+  ConnectionsScheduler::DispatcherArg *da
+    = (ConnectionsScheduler::DispatcherArg*) p;
 
   if (da == NULL)
     return NULL;
