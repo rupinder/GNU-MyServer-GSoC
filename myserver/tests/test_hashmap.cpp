@@ -16,7 +16,11 @@
  */
 
 #include "myserver.h"
+
+#undef remove
+
 #include <include/base/hash_map/hash_map.h>
+
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
@@ -78,9 +82,7 @@ public:
     CPPUNIT_ASSERT_EQUAL (map->empty (), true);
     map->put ((char*)"key", 0);
     CPPUNIT_ASSERT_EQUAL (map->empty (), false);
-
   }
-
 
   void testPut ()
   {

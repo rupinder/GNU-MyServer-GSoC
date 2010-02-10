@@ -30,6 +30,8 @@
 # include <vector>
 # include <string>
 
+# undef remove
+
 using namespace std;
 
 //hashmap Hash-Key-Value Struct

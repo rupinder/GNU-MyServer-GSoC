@@ -142,11 +142,7 @@ int FilesUtility::getPathRecursionLevel (const char* path)
  */
 int FilesUtility::renameFile (const char* before, const char* after)
 {
-#ifdef WIN32
-  return MoveFile (before, after) ? 0 : 1;
-#else
   return rename (before, after);
-#endif
 }
 
 /*!
@@ -157,9 +153,6 @@ int FilesUtility::renameFile (const char* before, const char* after)
  */
 int FilesUtility::copyFile (const char* src, const char* dest, int overwrite)
 {
-#ifdef WIN32
-  return CopyFile (src, dest, overwrite ? FALSE : TRUE) ? 0 : 1;
-#else
   File srcFile;
   File destFile;
   char buffer[4096];
@@ -181,7 +174,6 @@ int FilesUtility::copyFile (const char* src, const char* dest, int overwrite)
   destFile.close ();
 
   return ret;
-#endif
 }
 
 /*!
@@ -225,16 +217,11 @@ int FilesUtility::copyFile (File& src, File& dest)
 int FilesUtility::deleteFile (const char *filename)
 {
   int ret;
-#ifdef WIN32
-  ret = DeleteFile (filename);
-  if (ret)
-    return 0;
-#else
   ret = remove (filename);
 
   if (ret && errno == ENOENT)
     ret = 0;
-#endif
+
   return ret;
 }
 

@@ -34,6 +34,8 @@
 
 using namespace std;
 
+# undef remove
+
 class LogManager
 {
 public:

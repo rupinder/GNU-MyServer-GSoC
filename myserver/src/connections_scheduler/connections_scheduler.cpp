@@ -17,6 +17,8 @@
 
 #include "myserver.h"
 
+#undef remove
+
 #include <include/connections_scheduler/connections_scheduler.h>
 #include <include/server/server.h>
 

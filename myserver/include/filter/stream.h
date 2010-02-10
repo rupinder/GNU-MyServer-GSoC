@@ -28,11 +28,7 @@ typedef u_int Handle;
 typedef int Handle;
 # endif
 
-# ifdef WIN32
-typedef HANDLE FileHandle;
-# else
 typedef int FileHandle;
-# endif
 
 /*!
  *Abstract class to handle virtual data streams.
