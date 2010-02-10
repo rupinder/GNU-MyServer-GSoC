@@ -29,6 +29,8 @@
 # include <include/base/thread/thread.h>
 # include <include/base/socket_pair/socket_pair.h>
 
+# undef remove
+
 # include <list>
 # include <queue>
 

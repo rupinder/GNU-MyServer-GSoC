@@ -16,6 +16,9 @@
 */
 
 #include "myserver.h"
+
+#undef remove
+
 #include <include/log/log_manager.h>
 #include <include/server/server.h>
 
