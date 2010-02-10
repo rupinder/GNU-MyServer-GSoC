@@ -147,10 +147,11 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
 
   do
     {
-      if (client.recv (td->auxiliaryBuffer->getBuffer () + read,
-                       td->auxiliaryBuffer->getRealLength () - read,
-                       0,
-                       td->http->getTimeout ()) < 0)
+      ret = client.recv (td->auxiliaryBuffer->getBuffer () + read,
+                         td->auxiliaryBuffer->getRealLength () - read,
+                         0,
+                         td->http->getTimeout ());
+      if (ret < 0)
         return td->http->raiseHTTPError (500);
 
       read += ret;

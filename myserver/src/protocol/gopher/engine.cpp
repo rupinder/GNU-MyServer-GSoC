@@ -280,7 +280,6 @@ void GopherEngine::infoFile (const string &fname, const string &path, GopherMenu
     {
       MemBuf buff;
       u_long real;
-      int sts;
       fsize = f.getFileSize ();
       buff.setLength (fsize);
       f.read (buff.getBuffer (), fsize, &real);

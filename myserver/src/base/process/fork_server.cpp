@@ -97,10 +97,10 @@ int ForkServer::readInt (Socket *sock, int *dest)
  */
 int ForkServer::readString (Socket *sock, char **out)
 {
-  int len;
+  u_long len;
   u_long nbr;
 
-  if (sock->read ((char*)&len, 4, &nbr) || nbr < 4)
+  if (sock->read ((char*) &len, 4, &nbr) || nbr < 4)
     {
       return -1;
     }
@@ -123,7 +123,7 @@ int ForkServer::readString (Socket *sock, char **out)
 int ForkServer::handleRequest (Socket *sock)
 {
 #ifndef WIN32
-  int ret, flags, stdIn = -1, stdOut = -1, stdErr = -1;
+  int flags, stdIn = -1, stdOut = -1, stdErr = -1;
   char *gid, *uid;
   int stdInPort = 0;
   char *exec;

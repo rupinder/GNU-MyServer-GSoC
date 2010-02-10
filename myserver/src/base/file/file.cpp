@@ -139,10 +139,8 @@ int File::truncate (u_long size)
  */
 int File::openFile (const char* nfilename,u_long opt)
 {
-  long ret = 0;
   struct stat fStats;
   int flags;
-
 
   filename.assign (nfilename);
 
@@ -373,7 +371,7 @@ int File::fastCopyToSocket (Socket *dest, u_long firstByte, MemBuf *buf, u_long 
 
       *nbw += ret;
 
-      if (fileSize == offset)
+      if (fileSize == (size_t) offset)
         return 0;
     }
 
@@ -401,7 +399,7 @@ int File::fastCopyToSocket (Socket *dest, u_long firstByte, MemBuf *buf, u_long 
 
       *nbw += tmpNbw;
     }
+#endif
 
   return 0;
-#endif
 }

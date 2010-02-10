@@ -155,8 +155,6 @@ int FilesUtility::copyFile (const char* src, const char* dest, int overwrite)
 {
   File srcFile;
   File destFile;
-  char buffer[4096];
-  size_t dim;
 
   if (srcFile.openFile (src, File::READ))
     return -1;
@@ -377,8 +375,7 @@ int FilesUtility::chown (const char* filename, string &uid, string &gid)
  */
 int FilesUtility::getFilenameLength (const char *path, int *filename)
 {
-  int splitpoint, i = 0, j = 0;
-  splitpoint = static_cast<int>(strlen (path) - 1);
+  int splitpoint = static_cast<int> (strlen (path) - 1);
   while ((splitpoint > 0) && (path[splitpoint] != '/'))
     splitpoint--;
   *filename = splitpoint + 1;

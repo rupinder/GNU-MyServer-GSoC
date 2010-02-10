@@ -1773,10 +1773,10 @@ Ftp::list (const std::string & sParam /*= ""*/ )
             }
 
           char nlinkStr[12];
-          sprintf (nlinkStr, "%lu", fd.st_nlink);
+          sprintf (nlinkStr, "%lu", static_cast<u_long> (fd.st_nlink));
 
           char fdSizeStr[12];
-          sprintf (fdSizeStr, "%li", fd.size);
+          sprintf (fdSizeStr, "%lu", static_cast<u_long> (fd.size));
 
           auxiliaryBuffer << (const char *) perm << " " << nlinkStr << " "
                           << username << " " << username << " " << fdSizeStr
@@ -1859,10 +1859,10 @@ Ftp::list (const std::string & sParam /*= ""*/ )
             }
 
           char nlinkStr[12];
-          sprintf (nlinkStr, "%lu", fd.st_nlink);
+          sprintf (nlinkStr, "%lu", static_cast<u_long> (fd.st_nlink));
 
           char fdSizeStr[12];
-          sprintf (fdSizeStr, "%li", fd.size);
+          sprintf (fdSizeStr, "%lu", static_cast<u_long> (fd.size));
 
           auxiliaryBuffer << (const char *) perm << " " << nlinkStr << " "
                           << username << " " << username << " " << fdSizeStr
@@ -2496,7 +2496,7 @@ void Ftp::size (const std::string & sPath)
     }
 
   char size[12];
-  sprintf (size, "%l", f.getFileSize ());
+  sprintf (size, "%lu", static_cast <u_long> (f.getFileSize ()));
   f.close ();
 
   ftpReply (213, size);

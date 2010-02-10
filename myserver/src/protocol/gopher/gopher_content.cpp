@@ -33,7 +33,6 @@ void GopherMenu::addIntro (string freeText, string host, string port)
   size_t size = freeText.size ();
   char myline[size];
   vector<GopherItem> tmp;
-  istream *res;
   istringstream str (freeText);
   while (!str.getline (myline, size).eof ())
     {
@@ -56,7 +55,7 @@ void GopherMenu::addItem (GopherItem i)
 
 void GopherMenu::toProtocol (Socket *s)
 {
-  for(int i = 0; i < Items.size (); i++)
+  for (u_long i = 0; i < Items.size (); i++)
     Items.at (i).toProtocol (s);
 
   s->send (".\n", 3, 0);

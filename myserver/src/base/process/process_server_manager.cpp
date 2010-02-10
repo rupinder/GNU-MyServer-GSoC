@@ -270,7 +270,6 @@ void ProcessServerManager::addServer (ProcessServerManager::Server* server,
                                      const char* domain, const char* name)
 {
   ServerDomain *sd = createDomain (domain);
-  Server *old;
   string strName (name);
 
   mutex.lock ();

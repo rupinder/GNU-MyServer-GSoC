@@ -59,11 +59,12 @@ const char *Gopher::getNameImpl ()
 
 int Gopher::loadProtocolStatic ()
 {
+  return 0;
 }
 
 int Gopher::unLoadProtocolStatic ()
 {
-  return 1;
+  return 0;
 }
 
 /*!
@@ -101,6 +102,7 @@ int Gopher::controlConnection (ConnectionPtr pConnection,
   GopherContent &Gu = g.incoming (GopherRequest (command.substr (0, loc - 1),
                                             pConnection), pConnection->host);
   reply (pConnection,Gu);
+  return ClientsThread::DELETE_CONNECTION;
 }
 
 void Gopher::reply (ConnectionPtr pConnection,

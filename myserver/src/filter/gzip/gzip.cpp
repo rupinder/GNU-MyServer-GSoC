@@ -71,6 +71,8 @@ u_long Gzip::compressBound (int size)
 #else
   return -1;
 #endif
+
+  return 0;
 }
 
 /*!

@@ -459,7 +459,7 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped, int* permissio
 {
   string directory;
   string file;
-  int filenamePathLen;
+  u_long filenamePathLen;
   string dirscan;
   int ret;
 
@@ -1628,8 +1628,6 @@ int Http::getPath (HttpThreadContext* td, string& filenamePath,
  */
 int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
 {
-  int i;
-  int ret;
   string key ("http.default_file");
   NodeTree<string> *node = td->securityToken.getNodeTree (key,
                      MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, NULL);
@@ -1773,6 +1771,7 @@ int Http::sendAuth ()
  */
 int Http::loadProtocolStatic ()
 {
+  return 0;
 }
 
 /*!

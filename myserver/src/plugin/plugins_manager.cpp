@@ -472,7 +472,7 @@ PluginsManager::load (Server *server)
       HashMap<string, pair<int, int>* >::Iterator depIt = pinfo->begin ();
 
       string msversion (MYSERVER_VERSION);
-      int i = msversion.find ("-", 0);
+      size_t i = msversion.find ("-", 0);
       if (i != string::npos)
         msversion = msversion.substr (0, i);
 

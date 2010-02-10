@@ -763,7 +763,6 @@ int ControlProtocol::putFile (ConnectionPtr a, char *fn, File *in,
 {
   const char *filename = 0;
   File localfile;
-  int isAutoRebootToEnable = Server::getInstance ()->isAutorebootEnabled ();
   int ret = 0;
   /*! # of bytes read.  */
   u_long nbr = 0;

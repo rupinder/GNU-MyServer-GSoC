@@ -78,7 +78,7 @@ public:
     Slab<TestSlabRecord> slabs (N);
     TestSlabRecord *recs[N];
 
-    for (int j = 0; j < N; j++)
+    for (u_long j = 0; j < N; j++)
       {
         recs[j] = slabs.get ();
         CPPUNIT_ASSERT (recs[j]);
@@ -87,7 +87,7 @@ public:
     /* No more free instances.  */
     CPPUNIT_ASSERT_EQUAL (slabs.get (), (TestSlabRecord*)NULL);
 
-    for (int j = 0; j < N; j++)
+    for (u_long j = 0; j < N; j++)
       slabs.put (recs[j]);
 
 
@@ -100,13 +100,13 @@ public:
     Slab<TestSlabRecord> slabs (N);
     TestSlabRecord *recs[N * 2];
 
-    for (int j = 0; j < N * 2; j++)
+    for (u_long j = 0; j < N * 2; j++)
       {
         recs[j] = slabs.forcedGet ();
         CPPUNIT_ASSERT (recs[j]);
       }
 
-    for (int j = 0; j < N * 2; j++)
+    for (u_long j = 0; j < N * 2; j++)
       slabs.put (recs[j]);
   }
 
