@@ -9,7 +9,7 @@ all : all-am math_sum.mscgi
 math_sum.mscgi : $(libmath_sum_a_OBJECTS) $(libmath_sum_a_DEPENDENCIES)
 	-rm -f math_sum.mscgi
 	$(CXX) $(libmath_sum_a_OBJECTS) ../../../../src/libmyserver.a  ../../../../lib/libgnu.a \
-	 $(libmath_sum_a_LIBADD) $(PTHREAD_LIB) $(IDN_LIB) $(XNET_LIB) $(DL_LIB) $(SSL_LIB) $(ZLIB_LIB)\
+	 $(libmath_sum_a_LIBADD) $(PTHREAD_LIB) $(IDN_LIB) $(XNET_LIB) $(DL_LIB) $(ZLIB_LIB)\
 	 $(XML_LIBS) $(LDFLAGS) -o math_sum.mscgi -shared $(CXXFLAGS) $(XML_CFLAGS)
 
 install : math_sum.mscgi
