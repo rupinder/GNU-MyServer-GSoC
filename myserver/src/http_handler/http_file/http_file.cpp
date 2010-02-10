@@ -45,7 +45,6 @@ extern "C"
 int HttpFile::putFile (HttpThreadContext* td, string& filename)
 {
   u_long firstByte = td->request.rangeByteBegin;
-  int ret;
 
   try
   {
@@ -150,10 +149,8 @@ int HttpFile::putFile (HttpThreadContext* td, string& filename)
 int HttpFile::deleteFile (HttpThreadContext* td,
                           string& filename)
 {
-  int permissions = -1;
   string directory;
   string file;
-  int ret;
   try
     {
       if (!(td->permissions & MYSERVER_PERMISSION_DELETE))
@@ -171,7 +168,6 @@ int HttpFile::deleteFile (HttpThreadContext* td,
     {
       return td->http->raiseHTTPError (500);
     };
-
 }
 
 /*!
@@ -187,7 +183,7 @@ void HttpFile::generateEtag (string & etag, u_long mtime, u_long fsize)
   /* Do a bit rotation to have less significative bits in the middle.  */
   u_long x = ROL (mtime, 16) | fsize;
   char buf[16];
-  sprintf (buf, "%u", x);
+  sprintf (buf, "%lu", x);
   etag.assign (buf);
 }
 
@@ -505,10 +501,10 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         if (bytesToSend)
           {
             /* Read from the file the bytes to send.  */
-            if (ret = file->read (td->buffer->getBuffer (),
+            if ((ret = file->read (td->buffer->getBuffer (),
                                   std::min (static_cast<u_long> (bytesToSend),
                       static_cast<u_long> (td->buffer->getRealLength () / 2)),
-                                  &nbr))
+                                  &nbr)))
               break;
 
             if (nbr == 0)
@@ -519,9 +515,9 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
 
             bytesToSend -= nbr;
 
-            if (ret = appendDataToHTTPChannel (td, td->buffer->getBuffer (),
+            if ((ret = appendDataToHTTPChannel (td, td->buffer->getBuffer (),
                            nbr, &(td->outputData), &chain, td->appendOutputs,
-                          useChunks, td->buffer->getRealLength (), &memStream))
+                        useChunks, td->buffer->getRealLength (), &memStream)))
               break;
 
             dataSent += nbr;
@@ -545,17 +541,17 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
                 Stream* tmpStream = chain.getStream ();
                 chain.setStream (&memStream);
                 memStream.refresh ();
-                if (ret = chain.flush (&nbw))
+                if ((ret = chain.flush (&nbw)))
                   break;
 
                 chain.setStream (tmpStream);
-                if (ret = memStream.read (td->buffer->getBuffer (),
-                                          td->buffer->getRealLength (), &nbr))
+                if ((ret = memStream.read (td->buffer->getBuffer (),
+                                          td->buffer->getRealLength (), &nbr)))
                   break;
 
-                if (ret = HttpDataHandler::appendDataToHTTPChannel (td,
+                if ((ret = HttpDataHandler::appendDataToHTTPChannel (td,
                         td->buffer->getBuffer (), nbr, &(td->outputData),
-                                   &chain, td->appendOutputs, useChunks))
+                                   &chain, td->appendOutputs, useChunks)))
                   break;
 
                 ret = HttpDataHandler::appendDataToHTTPChannel (td, 0, 0,

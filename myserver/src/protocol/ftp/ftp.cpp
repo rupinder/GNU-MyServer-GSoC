@@ -163,7 +163,7 @@ int FtpuserData::closeDataConnection ()
 
   if (m_pDataConnection != NULL && m_pDataConnection->socket != NULL)
     {
-      m_pDataConnection->socket->shutdown (SD_BOTH);
+      m_pDataConnection->socket->shutdown (SHUT_RDWR);
       m_pDataConnection->socket->close ();
       delete m_pDataConnection->socket;
       m_pDataConnection->socket = NULL;
@@ -543,10 +543,10 @@ void Ftp::pasv ()
       asockInLen = sizeof (sockaddr_in);
       asock = pFtpuserData->m_pDataConnection->socket->accept (&asockIn,
                                                                &asockInLen);
-      if (asock->getHandle () == (Handle) INVALID_SOCKET)
+      if (asock->getHandle () < 0)
         return;
 
-      pFtpuserData->m_pDataConnection->socket->shutdown (SD_BOTH);
+      pFtpuserData->m_pDataConnection->socket->shutdown (SHUT_RDWR);
       pFtpuserData->m_pDataConnection->socket->close ();
       delete pFtpuserData->m_pDataConnection->socket;
       pFtpuserData->m_pDataConnection->socket = asock;
@@ -807,7 +807,7 @@ DEFINE_THREAD (SendAsciiFile, pParam)
             }
           if (pFtpuserData->m_pDataConnection->socket->
               send (auxiliaryBuffer.getBuffer (),
-                    (u_long) auxiliaryBuffer.getLength (), 0) == SOCKET_ERROR)
+                    (u_long) auxiliaryBuffer.getLength (), 0) < 0)
             {
               ftpReply (pConnection, 451);
               file->close ();
@@ -983,15 +983,15 @@ DEFINE_THREAD (SendImageFile, pParam)
       auxiliaryBuffer.setRealLength (1024);
       while (filesize != 0)
         {
+          Socket *socket = pFtpuserData->m_pDataConnection->socket;
           nBufferSize =
             std::min (static_cast < u_long > (filesize),
                       static_cast < u_long >
                       (auxiliaryBuffer.getRealLength () / 2));
 
           if (file->read (auxiliaryBuffer.getBuffer (), nBufferSize, &nbr)
-              || pFtpuserData->m_pDataConnection->socket->send (auxiliaryBuffer.getBuffer (),
-                                                                (u_long)nBufferSize, 0)
-              == SOCKET_ERROR)
+              || socket->send (auxiliaryBuffer.getBuffer (),
+                               (u_long) nBufferSize, 0) < 0)
             {
               ftpReply (pConnection, 451);
               file->close ();
@@ -1163,9 +1163,10 @@ DEFINE_THREAD (ReceiveAsciiFile, pParam)
       int nLineLength = 0;
       std::string sLine;
       u_long nbr;
-      while (pFtpuserData->m_pDataConnection->socket->read (buffer.getBuffer (),
-                                                            (u_long) buffer.getRealLength () - 1, &nbr)
-             != SOCKET_ERROR && nbr != 0)
+      Socket *socket = pFtpuserData->m_pDataConnection->socket;
+      while (!socket->read (buffer.getBuffer (),
+                           (u_long) buffer.getRealLength () - 1, &nbr)
+             && nbr != 0)
         {
           memset (auxiliaryBuffer.getBuffer (), 0,
                   auxiliaryBuffer.getRealLength ());
@@ -1356,12 +1357,10 @@ DEFINE_THREAD (ReceiveImageFile, pParam)
       MemBuf buffer;
       buffer.setRealLength (1024);
       memset (buffer.getBuffer (), 0, buffer.getRealLength ());
-      while (pFtpuserData->m_pDataConnection->socket->read (buffer.getBuffer (),
-                                                            (u_long) buffer.
-                                                            getRealLength () -
-                                                            1,
-                                                            &nbr) !=
-             SOCKET_ERROR && nbr != 0)
+      Socket *socket = pFtpuserData->m_pDataConnection->socket;
+      while (!socket->read (buffer.getBuffer (),
+                            (u_long) buffer.getRealLength () - 1,
+                            &nbr) && nbr != 0)
         {
           file.write (buffer.getBuffer (), nbr, &nbr);
           if (pFtpuserData->m_bBreakDataConnection)
@@ -1530,8 +1529,9 @@ Ftp::openDataPassive ()
 
   Socket *pSocket = new Socket ();
   pSocket->socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (pSocket->getHandle () == (Handle) INVALID_SOCKET)
+  if (pSocket->getHandle () < 0)
     return 0;
+
   int nReuseAddr = 1;
   MYSERVER_SOCKADDR_STORAGE storage = { 0 };
   ((sockaddr_in *) (&storage))->sin_family = AF_INET;
@@ -1773,10 +1773,10 @@ Ftp::list (const std::string & sParam /*= ""*/ )
             }
 
           char nlinkStr[12];
-          sprintf (nlinkStr, "%lu", fd.st_nlink);
+          sprintf (nlinkStr, "%lu", static_cast<u_long> (fd.st_nlink));
 
           char fdSizeStr[12];
-          sprintf (fdSizeStr, "%li", fd.size);
+          sprintf (fdSizeStr, "%lu", static_cast<u_long> (fd.size));
 
           auxiliaryBuffer << (const char *) perm << " " << nlinkStr << " "
                           << username << " " << username << " " << fdSizeStr
@@ -1859,10 +1859,10 @@ Ftp::list (const std::string & sParam /*= ""*/ )
             }
 
           char nlinkStr[12];
-          sprintf (nlinkStr, "%lu", fd.st_nlink);
+          sprintf (nlinkStr, "%lu", static_cast<u_long> (fd.st_nlink));
 
           char fdSizeStr[12];
-          sprintf (fdSizeStr, "%li", fd.size);
+          sprintf (fdSizeStr, "%lu", static_cast<u_long> (fd.size));
 
           auxiliaryBuffer << (const char *) perm << " " << nlinkStr << " "
                           << username << " " << username << " " << fdSizeStr
@@ -1875,7 +1875,7 @@ Ftp::list (const std::string & sParam /*= ""*/ )
 
   if (pFtpuserData->m_pDataConnection->socket->
       send (td.auxiliaryBuffer->getBuffer (),
-            (u_long) td.auxiliaryBuffer->getLength (), 0) == SOCKET_ERROR)
+            (u_long) td.auxiliaryBuffer->getLength (), 0) < 0)
     {
       ftpReply (451);
     }
@@ -1946,7 +1946,7 @@ Ftp::nlst (const std::string & sParam /* = "" */ )
 
   if (pFtpuserData->m_pDataConnection->socket->
       send (td.auxiliaryBuffer->getBuffer (),
-            (u_long) td.auxiliaryBuffer->getLength (), 0) == SOCKET_ERROR)
+            (u_long) td.auxiliaryBuffer->getLength (), 0) < 0)
     {
       ftpReply (451);
     }
@@ -2496,7 +2496,7 @@ void Ftp::size (const std::string & sPath)
     }
 
   char size[12];
-  sprintf (size, "%l", f.getFileSize ());
+  sprintf (size, "%lu", static_cast <u_long> (f.getFileSize ()));
   f.close ();
 
   ftpReply (213, size);

@@ -60,7 +60,7 @@ public:
   {
     int i = mask.find ();
 
-    if (i == -1 || i >= capacity)
+    if (i == -1 || static_cast <u_long> (i) >= capacity)
       return NULL;
 
     mask.unset (i);

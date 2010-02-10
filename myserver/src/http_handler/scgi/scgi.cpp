@@ -237,7 +237,7 @@ int Scgi::sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
     {
       while (!ctx->sock.bytesToRead ())
         {
-          if ((clock_t)(getTicks () - initialTicks) > td->http->getTimeout ())
+          if ((getTicks () - initialTicks) > (u_long) td->http->getTimeout ())
             break;
           Thread::wait (1);
         }

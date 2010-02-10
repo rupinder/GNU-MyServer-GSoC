@@ -63,8 +63,8 @@ void BitVec::init (int capacity, bool val)
     this->data[i] = 0;
 
   if (val)
-    for (u_long i = 0; i < capacity; i++)
-      set (i);
+    for (int i = 0; i < capacity; i++)
+      set (static_cast <u_long> (i));
 
   lastFound = 0;
 }
@@ -79,10 +79,10 @@ void BitVec::init (int capacity, bool val)
 int BitVec::ffs ()
 {
   int p = 0;
-  for (int i = 0; i < dataSize; i++)
-    if (p = ffsl (data[i]))
+  for (u_long i = 0; i < dataSize; i++)
+    if ((p = ffsl (data[i])))
       {
-        int r = (i * sizeof (long int) * 8) + p - 1;
+        u_long r = (i * sizeof (long int) * 8) + p - 1;
         if (r < capacity)
           return r;
       }
@@ -105,10 +105,10 @@ int BitVec::find ()
 {
   int p = 0;
 
-  for (int i = lastFound; i < dataSize + lastFound; i++)
-    if (p = ffsl (data[i % dataSize]))
+  for (u_long i = lastFound; i < dataSize + lastFound; i++)
+    if ((p = ffsl (data[i % dataSize])))
       {
-        int r = (i * sizeof (long int) * 8) + p - 1;
+        u_long r = (i * sizeof (long int) * 8) + p - 1;
         if (r < capacity)
           {
             lastFound = i;

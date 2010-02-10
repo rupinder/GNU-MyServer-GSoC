@@ -74,9 +74,7 @@ XmlParser* XmlValidator::getParser (SecurityToken* st)
   secName = st->getData ("security.filename", MYSERVER_VHOST_CONF
                          | MYSERVER_SERVER_CONF, ".security.xml");
 
-  u_long maxSize = atol (st->getData ("security.max_size", MYSERVER_VHOST_CONF
-                                      | MYSERVER_SERVER_CONF, "0"));
-
+  /*TODO: check that file size is not bigger than "security.max_size".  */
   return cache->getParser (*(st->getDirectory ()), *(st->getSysDirectory ()),
                            false, secName);
 }

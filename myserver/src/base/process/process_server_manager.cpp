@@ -270,7 +270,6 @@ void ProcessServerManager::addServer (ProcessServerManager::Server* server,
                                      const char* domain, const char* name)
 {
   ServerDomain *sd = createDomain (domain);
-  Server *old;
   string strName (name);
 
   mutex.lock ();
@@ -482,7 +481,7 @@ int ProcessServerManager::runServer (ProcessServerManager::Server* server,
 
   server->socket.socket (AF_INET, SOCK_STREAM, 0);
 
-  if (server->socket.getHandle () == (Handle)INVALID_SOCKET)
+  if (server->socket.getHandle () < 0)
     return 1;
 
   ((sockaddr_in *)(&serverSockAddrIn))->sin_family = AF_INET;

@@ -85,7 +85,7 @@ int SslSocket::shutdown (int how)
   if (sslConnection)
     SSL_shutdown (sslConnection);
 
-  return ::shutdown (socketHandle, how);
+  return ::shutdown (fd, how);
 }
 
 /*!
@@ -129,7 +129,7 @@ int SslSocket::connect (MYSERVER_SOCKADDR* sa, int na)
     return -1;
 
   /*! Do the TCP connection.  */
-  if (::connect (socketHandle, (sockaddr *) sa, na))
+  if (::connect (fd, (sockaddr *) sa, na))
     {
       SSL_CTX_free (sslContext);
       sslContext = 0;
@@ -142,7 +142,7 @@ int SslSocket::connect (MYSERVER_SOCKADDR* sa, int na)
       sslContext = 0;
       return -1;
     }
-  SSL_set_fd (sslConnection, socketHandle);
+  SSL_set_fd (sslConnection, fd);
   if (SSL_connect (sslConnection) < 0)
     {
       SSL_CTX_free (sslContext);
@@ -211,7 +211,7 @@ int SslSocket::sslAccept ()
       return -1;
     }
 
-  if (SSL_set_fd (sslConnection, socketHandle) == 0)
+  if (SSL_set_fd (sslConnection, fd) == 0)
     {
       shutdown (2);
       freeSSL ();

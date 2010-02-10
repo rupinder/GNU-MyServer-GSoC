@@ -52,11 +52,7 @@ void Connection::destroy ()
 {
   if (socket)
   {
-    socket->shutdown (SD_BOTH);
-    char buffer[256];
-    int buffersize = 256;
-    int err;
-
+    socket->shutdown (SHUT_RDWR);
     socket->close ();
     delete socket;
     socket = NULL;

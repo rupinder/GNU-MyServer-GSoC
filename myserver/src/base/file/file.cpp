@@ -91,14 +91,19 @@ File::~File ()
  */
 int File::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
 {
+  int ret;
   if (buffersize == 0)
   {
     *nbw = 0;
-    return 1;
+    return -1;
   }
 
-  *nbw = ::write (handle, buffer, buffersize);
-  return (*nbw == buffersize) ? 0 : 1 ;
+  ret = ::write (handle, buffer, buffersize);
+  if (ret < 0)
+    return ret;
+
+  *nbw = static_cast<u_long> (ret);
+  return 0;
 }
 
 /*!
@@ -134,10 +139,8 @@ int File::truncate (u_long size)
  */
 int File::openFile (const char* nfilename,u_long opt)
 {
-  long ret = 0;
   struct stat fStats;
   int flags;
-
 
   filename.assign (nfilename);
 
@@ -322,7 +325,7 @@ int File::write (const char* buffer, u_long len, u_long *nbw)
 
 /*!
  *Read data from a file to a buffer.
- *Return 1 on errors.
+ *Return a negative value on errors.
  *Return 0 on success.
  *\param buffer The buffer where write.
  *\param buffersize The length of the buffer in bytes.
@@ -331,8 +334,11 @@ int File::write (const char* buffer, u_long len, u_long *nbw)
 int File::read (char* buffer, u_long buffersize, u_long* nbr)
 {
   int ret  = ::read (handle, buffer, buffersize);
-  *nbr = (u_long) ret;
-  return (ret == -1);
+  if (ret < 0)
+    return ret;
+
+  *nbr = static_cast<u_long> (ret);
+  return 0;
 }
 
 /*!
@@ -365,7 +371,7 @@ int File::fastCopyToSocket (Socket *dest, u_long firstByte, MemBuf *buf, u_long 
 
       *nbw += ret;
 
-      if (fileSize == offset)
+      if (fileSize == (size_t) offset)
         return 0;
     }
 
@@ -374,26 +380,26 @@ int File::fastCopyToSocket (Socket *dest, u_long firstByte, MemBuf *buf, u_long 
   char *buffer = buf->getBuffer ();
   u_long size = buf->getRealLength ();
 
-	if (seek (firstByte))
+  if (seek (firstByte))
     return 0;
 
   for (;;)
-  {
-    u_long nbr;
-    u_long tmpNbw;
+    {
+      u_long nbr;
+      u_long tmpNbw;
 
-    if (read (buffer, size, &nbr))
-      return -1;
+      if (read (buffer, size, &nbr))
+        return -1;
 
-    if (nbr == 0)
-      break;
+      if (nbr == 0)
+        break;
 
-    if (dest->write (buffer, nbr, &tmpNbw))
-      return -1;
+      if (dest->write (buffer, nbr, &tmpNbw))
+        return -1;
 
-    *nbw += tmpNbw;
-  }
+      *nbw += tmpNbw;
+    }
+#endif
 
   return 0;
-#endif
 }

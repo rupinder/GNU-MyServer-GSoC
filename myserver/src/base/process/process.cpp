@@ -83,7 +83,7 @@ int Process::generateArgList (const char **args, size_t size, const char *proc,
   args[0] = proc;
 
   const char *arg = additionalArgs.c_str ();
-  int count = 1;
+  u_long count = 1;
   int len = additionalArgs.length ();
   int start = 0;
 
@@ -331,7 +331,7 @@ uid_t Process::getUid (const char *user)
     {
       uid_t uid = atol (user);
 
-      if (uid >= 0 && uid <= MAXUID)
+      if (uid >= 0L && uid <= (uid_t) MAXUID)
         return uid;
     }
 
@@ -357,7 +357,7 @@ gid_t Process::getGid (const char *grp)
     {
       gid_t gid = atol (grp);
 
-      if (gid >= 0 && gid <= MAXGID)
+      if (gid >= 0L && gid <= (gid_t) MAXGID)
         return gid;
     }
 

@@ -417,7 +417,6 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
   u_long headerSize = 0;
   bool headerCompleted = false;
   u_long headerOffset = 0;
-  u_long nbw = 0;
   u_long nBytesRead;
 
   /* Parse initial chunks of data looking for the HTTP header.  */

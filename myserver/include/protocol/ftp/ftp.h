@@ -233,8 +233,6 @@ public:
                                  u_long tid)
   {
     Ftp ftp;
-    int ret = 0;
-
     return ftp.controlConnection (con, request, auxBuf, reqBufLen, auxBufLen,
                                   reqLen, tid);
   }

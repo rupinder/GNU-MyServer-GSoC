@@ -16,10 +16,10 @@ dnl
 dnl You should have received a copy of the GNU General Public License
 dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-AC_INIT([GNU MyServer], m4_esyscmd([cat version]), [bug-myserver@gnu.org])
-AC_PREREQ([2.61])
+AC_INIT([GNU MyServer],[m4_esyscmd(cat version)],[bug-myserver@gnu.org])
+AC_PREREQ(2.65)
 AC_CONFIG_AUX_DIR([build-aux])
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS([config.h])
 CFLAGS="${CFLAGS=}"
 CXXFLAGS="${CXXFLAGS=}"
 LDFLAGS="${LDFLAGS=}"
@@ -37,18 +37,18 @@ AC_PROG_CXX
 
 gl_EARLY
 
-AC_AIX
-AC_ISC_POSIX
-AC_MINIX
+AC_USE_SYSTEM_EXTENSIONS
+AC_SEARCH_LIBS([strerror],[cposix])
+AC_USE_SYSTEM_EXTENSIONS
 AC_HEADER_STDC
 AM_PROG_LEX
 AC_PROG_YACC
 AC_C_BIGENDIAN
-AC_PROG_RANLIB
-AC_PROG_LIBTOOL
+LT_INIT
 
 AC_DEFINE([WINVER], [0x0501], [WINVER])
-AC_LIBTOOL_WIN32_DLL
+
+LT_INIT
 
 AC_CANONICAL_HOST
 
@@ -93,12 +93,11 @@ gl_INIT
 AC_CHECK_FUNCS(regcomp setgroups localtime_r posix_fallocate \
 		           openat fstatat getpwnam ffsl readdir_r)
 
-AC_CHECK_LIB(gcrypt, gcry_control)
-
 case "${host}" in
     *-*-mingw32*)
      LDFLAGS="-lwsock32 -lws2_32 -lgdi32 -lole32  -luuid -luserenv $LDFLAGS"
      MAKE_MSCGI=yes
+     LTCFLAGS=""
      ;;
   *)
      dnl Looking for pthreads
@@ -198,11 +197,12 @@ else
 	CPPFLAGS="$CPPFLAGS $XML_CPPFLAGS"
 fi
 
-AC_CHECK_LIB(gnutls-openssl, main, have_ssl=yes)
+AC_CHECK_LIB(gpg-error, gpg_err_init)
+AC_CHECK_LIB(gcrypt, gcry_control)
+AC_CHECK_LIB(gnutls, main)
+AC_CHECK_LIB(gnutls-openssl, main)
 
-if test x_$have_ssl == x_yes; then
-   SSL_LIB="-lgnutls-openssl"
-else
+if test x$ac_cv_lib_gnutls_openssl_main != xyes; then
    AC_MSG_ERROR(Cannot find ssl libraries)
 fi
 
@@ -237,7 +237,7 @@ AC_SUBST(SSL_LIB)
 if test x$enable_ipv6 = xyes; then
     dnl Check for IPv6
     AC_MSG_CHECKING([for IPv6])
-    AC_TRY_RUN([ /* AF_INET6 available check */
+    AC_RUN_IFELSE([AC_LANG_SOURCE([[ /* AF_INET6 available check */
     #include <sys/types.h>
     #include <sys/socket.h>
     main()
@@ -247,23 +247,20 @@ if test x$enable_ipv6 = xyes; then
      else
        exit(0);
     }
-    ],
-    [ AC_MSG_RESULT(yes)
+    ]])],[ AC_MSG_RESULT(yes)
       AC_DEFINE(HAVE_IPV6, 1, [Enable IPv6 support])
-    ],
-    [ AC_MSG_RESULT(no)
+    ],[ AC_MSG_RESULT(no)
       AC_DEFINE(HAVE_IPV6, 0, [Disable IPv6 support])
       AC_MSG_ERROR([
 *** Cannot enable IPv6 support
 ])
-    ],
-    [ AC_MSG_RESULT(no)
+    ],[ AC_MSG_RESULT(no)
       AC_DEFINE(HAVE_IPV6, 0, [Disable IPv6 support])
       AC_MSG_ERROR([
 *** Cannot enable IPv6 support
 ])
-    ]
-    )
+    
+    ])
 else
     AC_DEFINE(HAVE_IPV6, 0, [Disable IPv6 support])
 fi
@@ -326,11 +323,10 @@ else
   MAKE_GUI=no
 fi
 
-CFLAGS="$CFLAGS $pic_flag"
-CXXFLAGS="$CXXFLAGS $pic_flag"
 LDFLAGS="$LDFLAGS $LIBS $pic_flag"
-CFLAGS="-I$(pwd)/lib -I$(pwd)/lib $CFLAGS"
-CXXFLAGS="-I$(pwd)/lib -I$(pwd)/lib $CXXFLAGS"
+CFLAGS="$pic_flag $CFLAGS"
+# FIXME: Define in every Makefile.am
+CXXFLAGS="-I$(pwd)/lib $pic_flag $CXXFLAGS"
 
 AC_SUBST(CFLAGS)
 AC_SUBST(CXXFLAGS)

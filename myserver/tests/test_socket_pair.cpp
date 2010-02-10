@@ -75,7 +75,7 @@ public:
     string fname;
     u_long nbw;
 
-    for (int i = 0; i < bsize; i++)
+    for (u_long i = 0; i < bsize; i++)
       {
         inputBuffer[i] = '\0';
         outputBuffer[i] = i + 1;
@@ -95,7 +95,7 @@ public:
     inverted.read (inputBuffer, bsize, &nbr);
     CPPUNIT_ASSERT_EQUAL (nbr, bsize);
 
-    for (int i = 0; i < bsize; i++)
+    for (u_long i = 0; i < bsize; i++)
       CPPUNIT_ASSERT_EQUAL (inputBuffer[i], outputBuffer[i]);
 
     file.close ();

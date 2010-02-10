@@ -92,7 +92,7 @@ int ListenThreads::createServerAndListener (u_short port)
       if (serverSocketIPv4 != NULL)
         {
           serverSocketIPv4->socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
-          if (serverSocketIPv4->getHandle () == (Handle)INVALID_SOCKET)
+          if (serverSocketIPv4->getHandle () < 0)
             {
               server->log (MYSERVER_LOG_MSG_ERROR,
                             _("Error while creating the server socket"));
@@ -146,7 +146,7 @@ int ListenThreads::createServerAndListener (u_short port)
       if (serverSocketIPv6 != NULL)
         {
           serverSocketIPv6->socket (AF_INET6, SOCK_STREAM, IPPROTO_TCP);
-          if (serverSocketIPv6->getHandle () == (FileHandle)INVALID_SOCKET)
+          if (serverSocketIPv6->getHandle () < 0)
             {
               server->log (MYSERVER_LOG_MSG_ERROR,
                                  _("Error while creating the server socket"));
@@ -440,7 +440,7 @@ int ListenThreads::terminate ()
           if (!serverSocket)
             continue;
 
-          serverSocket->shutdown (SD_BOTH);
+          serverSocket->shutdown (SHUT_RDWR);
           do
             {
               err = serverSocket->recv (buffer, 256, 0);

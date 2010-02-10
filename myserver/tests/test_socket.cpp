@@ -80,7 +80,6 @@ public:
   {
     ThreadID tid;
     int optvalReuseAddr = 1;
-    char host[] = "localhost";
     int port = 6543;
     MYSERVER_SOCKADDRIN sockIn = { 0 };
     int status;
@@ -164,11 +163,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION (TestSocket);
 static DEFINE_THREAD (testRecvClient, pParam)
 {
   Socket *obj2 = new Socket;
-
-  int optvalReuseAddr = 1;
   char host[] = "localhost";
   int port = *((int*)pParam);
-  int status;
 
   CPPUNIT_ASSERT (obj2->socket (AF_INET, SOCK_STREAM, 0) != -1);
 
@@ -184,10 +180,11 @@ static DEFINE_THREAD (testRecvClient, pParam)
   /* To sync.  */
   CPPUNIT_ASSERT (obj2->recv (buf, bufLen, 0, MYSERVER_SEC (5)) != -1);
 
-  CPPUNIT_ASSERT (obj2->shutdown (SD_BOTH) != -1);
+  CPPUNIT_ASSERT (obj2->shutdown (SHUT_RDWR) != -1);
 
   CPPUNIT_ASSERT (obj2->close () != -1);
 
   delete obj2;
   obj2 = NULL;
+  return 0;
 }

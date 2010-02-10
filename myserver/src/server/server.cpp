@@ -64,12 +64,12 @@ extern "C"
 
 Server* Server::instance = NULL;
 
-Server::Server () : connectionsScheduler (this),
-                   listenThreads (&connectionsScheduler, this),
-                   authMethodFactory (&cryptAlgoManager),
-                   validatorFactory (),
-                   securityManager (&validatorFactory, &authMethodFactory),
-                   connectionsPool (100)
+Server::Server () : connectionsPool (100),
+                    connectionsScheduler (this),
+                    listenThreads (&connectionsScheduler, this),
+                    authMethodFactory (&cryptAlgoManager),
+                    validatorFactory (),
+                    securityManager (&validatorFactory, &authMethodFactory)
 {
   toReboot = false;
   autoRebootEnabled = true;
@@ -563,7 +563,6 @@ void Server::displayBoot ()
     {
       try
         {
-          size_t length;
           string softwareSignature = "************ GNU MyServer "
             MYSERVER_VERSION " ************";
 
