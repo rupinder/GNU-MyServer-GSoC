@@ -99,6 +99,7 @@ case "${host}" in
     *-*-mingw32*)
      LDFLAGS="-lwsock32 -lws2_32 -lgdi32 -lole32  -luuid -luserenv $LDFLAGS"
      MAKE_MSCGI=yes
+     LTCFLAGS=""
      ;;
   *)
      dnl Looking for pthreads
@@ -201,7 +202,7 @@ fi
 AC_CHECK_LIB(gnutls-openssl, main, have_ssl=yes)
 
 if test x_$have_ssl == x_yes; then
-   SSL_LIB="-lgnutls-openssl"
+   SSL_LIB="-lgnutls-openssl -lgnutls -lgcrypt -lgpg-error"
 else
    AC_MSG_ERROR(Cannot find ssl libraries)
 fi
@@ -324,7 +325,8 @@ else
 fi
 
 LDFLAGS="$LDFLAGS $LIBS $pic_flag"
-CFLAGS="-I$(pwd)/lib $pic_flag $CFLAGS"
+CFLAGS="$pic_flag $CFLAGS"
+# FIXME: Define in every Makefile.am
 CXXFLAGS="-I$(pwd)/lib $pic_flag $CXXFLAGS"
 
 AC_SUBST(CFLAGS)
