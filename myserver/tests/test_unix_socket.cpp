@@ -119,15 +119,13 @@ public:
     UnixSocketServerType data;
     data.socket = sock;
     data.result = false;
-
-    int ret;
     string path;
     FilesUtility::temporaryFileName (0, path);
     sock->socket ();
     sock->bind (path.c_str ());
     CPPUNIT_ASSERT_EQUAL (sock->listen (1), 0);
 
-    int res = Thread::create (&tid, test_unix_socket_server, &data);
+    Thread::create (&tid, test_unix_socket_server, &data);
 
     UnixSocket client;
     client.socket ();

@@ -128,7 +128,6 @@ public:
     ThreadID tid;
 
     int optvalReuseAddr = 1;
-    char host[] = "localhost";
     int port = 6543;
     MYSERVER_SOCKADDRIN sockIn = { 0 };
     int status;
@@ -211,10 +210,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION (TestSslSocket);
 static DEFINE_THREAD (testSslRecvClient, pParam)
 {
   SslSocket *sslClient = NULL;
-  int optvalReuseAddr = 1;
-  char host[] = "localhost";
   int port = *((int*)pParam);
-  int cstatus = 0;
   MYSERVER_SOCKADDRIN sockIn = { 0 };
 
   ((sockaddr_in*) (&sockIn))->sin_family = AF_INET;
