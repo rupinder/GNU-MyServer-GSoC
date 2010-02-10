@@ -163,7 +163,7 @@ int FtpuserData::closeDataConnection ()
 
   if (m_pDataConnection != NULL && m_pDataConnection->socket != NULL)
     {
-      m_pDataConnection->socket->shutdown (SD_BOTH);
+      m_pDataConnection->socket->shutdown (SHUT_RDWR);
       m_pDataConnection->socket->close ();
       delete m_pDataConnection->socket;
       m_pDataConnection->socket = NULL;
@@ -546,7 +546,7 @@ void Ftp::pasv ()
       if (asock->getHandle () < 0)
         return;
 
-      pFtpuserData->m_pDataConnection->socket->shutdown (SD_BOTH);
+      pFtpuserData->m_pDataConnection->socket->shutdown (SHUT_RDWR);
       pFtpuserData->m_pDataConnection->socket->close ();
       delete pFtpuserData->m_pDataConnection->socket;
       pFtpuserData->m_pDataConnection->socket = asock;

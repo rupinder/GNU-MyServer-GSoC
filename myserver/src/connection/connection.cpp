@@ -52,7 +52,7 @@ void Connection::destroy ()
 {
   if (socket)
   {
-    socket->shutdown (SD_BOTH);
+    socket->shutdown (SHUT_RDWR);
     socket->close ();
     delete socket;
     socket = NULL;

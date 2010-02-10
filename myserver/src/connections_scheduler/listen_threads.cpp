@@ -440,7 +440,7 @@ int ListenThreads::terminate ()
           if (!serverSocket)
             continue;
 
-          serverSocket->shutdown (SD_BOTH);
+          serverSocket->shutdown (SHUT_RDWR);
           do
             {
               err = serverSocket->recv (buffer, 256, 0);
