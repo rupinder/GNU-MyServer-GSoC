@@ -33,7 +33,3 @@ GNULIB_SHUTDOWN=1
 GNULIB_ACCEPT4=1
 
 include gnulib.mk
-
-# Dirty hack.  FIXME!
-all-local: libgnu.la
-	cp .libs/libgnu.a .

@@ -8,7 +8,7 @@ myserver_CXXFLAGS = $(CXXFLAGS) -DHOST_STR=\"$(build)\" -DPREFIX=\"$(prefix)\"
 myserver_LDFLAGS =  -rdynamic
 myserver_LDADD = libmyserver.a $(PTHREAD_LIB) $(IDN_LIB) \
 	$(XNET_LIB) $(DL_LIB) $(ZLIB_LIB) \
-	$(XML_LIBS)  ../lib/libgnu.a $(LDFLAGS)
+	$(XML_LIBS)  ../lib/libgnu.a $(INTLLIBS) $(LDFLAGS)
 
 clean-libmyserver.a:
 	rm -f libmyserver.a
