@@ -110,7 +110,7 @@ public:
   virtual int write (const char* buffer, u_long len, u_long *nbw);
 
 protected:
-  SocketHandle socketHandle;
+  SocketHandle fd;
 
   /*! Pointer to the socket that has accepted this connection.  */
   Socket *serverSocket;

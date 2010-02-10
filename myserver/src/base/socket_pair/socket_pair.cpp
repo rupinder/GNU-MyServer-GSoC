@@ -63,7 +63,7 @@ int SocketPair::create ()
 #ifndef WIN32
   int ret = socketpair (AF_UNIX, SOCK_STREAM, 0, (int*) handles);
   if (ret == 0)
-    socketHandle = handles[0];
+    fd = handles[0];
 
   return ret;
 #else
@@ -113,7 +113,7 @@ int SocketPair::create ()
       if ((handles[1] = ::accept (listener, NULL, NULL)) < 0)
         break;
 
-      socketHandle = handles[0];
+      fd = handles[0];
 
       ::close (listener);
       return 0;
@@ -162,7 +162,7 @@ void SocketPair::inverted (SocketPair& inverted)
   inverted.handles[0] = handles[1];
   inverted.handles[1] = handles[0];
 
-  inverted.socketHandle = handles[1];
+  inverted.fd = handles[1];
 }
 
 /*!

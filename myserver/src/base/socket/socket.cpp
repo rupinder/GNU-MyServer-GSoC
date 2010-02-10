@@ -65,7 +65,7 @@ int Socket::startupSocketLib ()
  */
 Handle Socket::getHandle ()
 {
-  return (Handle) socketHandle;
+  return (Handle) fd;
 }
 
 /*!
@@ -73,7 +73,7 @@ Handle Socket::getHandle ()
  */
 void Socket::setHandle (SocketHandle h)
 {
-  socketHandle = h;
+  fd = h;
 }
 
 /*!
@@ -81,7 +81,7 @@ void Socket::setHandle (SocketHandle h)
  */
 int Socket::operator==(Socket* s)
 {
-  return socketHandle == s->socketHandle;
+  return fd == s->fd;
 }
 
 /*!
@@ -89,7 +89,7 @@ int Socket::operator==(Socket* s)
  */
 int Socket::operator=(Socket* s)
 {
-  socketHandle = s->socketHandle;
+  fd = s->fd;
   serverSocket = s->serverSocket;
   throttlingRate = s->throttlingRate;
   isNonBlocking = s->isNonBlocking;
@@ -100,8 +100,8 @@ int Socket::operator=(Socket* s)
  */
 int Socket::socket (int af, int type, int protocol)
 {
-  socketHandle = ::socket (af, type, protocol);
-  return socketHandle;
+  fd = ::socket (af, type, protocol);
+  return fd;
 }
 
 /*!
@@ -119,7 +119,7 @@ Socket::Socket (SocketHandle handle)
  */
 Socket::Socket (Socket* socket)
 {
-  socketHandle = socket->socketHandle;
+  fd = socket->fd;
   serverSocket = socket->serverSocket;
   throttlingRate = socket->throttlingRate;
   isNonBlocking = socket->isNonBlocking;
@@ -174,7 +174,7 @@ int Socket::bind (MYSERVER_SOCKADDR* sa, int namelen)
       )
     return -1;
 
-  return ::bind (socketHandle, (struct sockaddr*) sa, namelen);
+  return ::bind (fd, (struct sockaddr*) sa, namelen);
 }
 
 /*!
@@ -182,7 +182,7 @@ int Socket::bind (MYSERVER_SOCKADDR* sa, int namelen)
  */
 int Socket::listen (int max)
 {
-  return ::listen (socketHandle, max);
+  return ::listen (fd, max);
 }
 
 /*!
@@ -190,7 +190,7 @@ int Socket::listen (int max)
  */
 Socket* Socket::accept (MYSERVER_SOCKADDR* sa, socklen_t* sockaddrlen)
 {
-  int acceptedHandle = ::accept (socketHandle, (struct sockaddr *)sa,
+  int acceptedHandle = ::accept (fd, (struct sockaddr *)sa,
                                           sockaddrlen);
 
   if (acceptedHandle >= 0)
@@ -205,10 +205,10 @@ Socket* Socket::accept (MYSERVER_SOCKADDR* sa, socklen_t* sockaddrlen)
 int Socket::close ()
 {
   int ret = -1;
-  if (socketHandle >= 0)
-    ret = ::close (socketHandle);
+  if (fd >= 0)
+    ret = ::close (fd);
 
-  socketHandle = -1;
+  fd = -1;
   return ret;
 }
 
@@ -233,7 +233,7 @@ MYSERVER_HOSTENT *Socket::gethostbyname (const char *hostname)
  */
 int Socket::shutdown (int how)
 {
-  return ::shutdown (socketHandle, how);
+  return ::shutdown (fd, how);
 }
 
 /*!
@@ -242,7 +242,7 @@ int Socket::shutdown (int how)
 int  Socket::setsockopt (int level, int optname,
                        const char *optval, int optlen)
 {
-  return ::setsockopt (socketHandle, level, optname, optval, optlen);
+  return ::setsockopt (fd, level, optname, optval, optlen);
 }
 
 /*!
@@ -326,7 +326,7 @@ int Socket::getLocalIPsList (string &out)
  */
 int Socket::rawSend (const char* buffer, int len, int flags)
 {
-  return ::send (socketHandle, buffer, len, flags);
+  return ::send (fd, buffer, len, flags);
 }
 
 /*!
@@ -379,7 +379,7 @@ int Socket::send (const char* buffer, int len, int flags)
  */
 int Socket::ioctlsocket (long cmd, unsigned long* argp)
 {
-  return ::ioctl (socketHandle, cmd, argp);
+  return ::ioctl (fd, cmd, argp);
 }
 
 /*!
@@ -493,7 +493,7 @@ int Socket::connect (const char* host, u_short port)
     return -1;
 
   /*! If the socket is not created, create it before use. */
-  if (socketHandle == -1 &&
+  if (fd == -1 &&
       Socket::socket (AF_INET, SOCK_STREAM, 0) == -1)
     return -1;
 
@@ -527,7 +527,7 @@ int Socket::connect (MYSERVER_SOCKADDR* sa, int na)
  )
     return -1;
 
-  return ::connect (socketHandle, (sockaddr *) sa, na);
+  return ::connect (fd, (sockaddr *) sa, na);
 }
 
 /*!
@@ -549,7 +549,7 @@ int Socket::recv (char* buffer,int len,int flags)
 {
   int err = 0;
 
-  err = ::recv (socketHandle, buffer, len, flags);
+  err = ::recv (fd, buffer, len, flags);
 
   if ( err < 0 && errno == EAGAIN && isNonBlocking)
     return 0;
@@ -594,7 +594,7 @@ int Socket::setNonBlocking (int nonBlocking)
   u_long nonblock = nonBlocking ? 1 : 0;
   ret = ioctlsocket (FIONBIO, &nonblock);
 #else
-  flags = fcntl (socketHandle, F_GETFL, 0);
+  flags = fcntl (fd, F_GETFL, 0);
   if (flags < 0)
     return -1;
 
@@ -603,7 +603,7 @@ int Socket::setNonBlocking (int nonBlocking)
   else
     flags &= ~O_NONBLOCK;
 
-  ret = fcntl (socketHandle, F_SETFL, flags);
+  ret = fcntl (fd, F_SETFL, flags);
 
   isNonBlocking = nonBlocking ? true : false;
 #endif
@@ -625,7 +625,7 @@ int Socket::gethostname (char *name, int namelen)
 int Socket::getsockname (MYSERVER_SOCKADDR *ad, int *namelen)
 {
   socklen_t len =(socklen_t) *namelen;
-  int ret = ::getsockname (socketHandle, (struct sockaddr *)ad, &len);
+  int ret = ::getsockname (fd, (struct sockaddr *)ad, &len);
   *namelen = (int)len;
   return ret;
 }
@@ -658,14 +658,14 @@ int Socket::dataOnRead (int sec, int usec)
   tv.tv_usec = usec;
 
   FD_ZERO (&readfds);
-  FD_SET (socketHandle, &readfds);
+  FD_SET (fd, &readfds);
 
-  ret = ::select (socketHandle + 1, &readfds, NULL, NULL, &tv);
+  ret = ::select (fd + 1, &readfds, NULL, NULL, &tv);
 
   if (ret <= 0)
     return 0;
 
-  if (FD_ISSET (socketHandle, &readfds))
+  if (FD_ISSET (fd, &readfds))
     return 1;
 
   return 0;

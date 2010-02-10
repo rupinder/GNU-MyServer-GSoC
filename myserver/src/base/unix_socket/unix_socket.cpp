@@ -133,7 +133,7 @@ Socket* UnixSocket::accept ()
  */
 int UnixSocket::readHandle (Handle* fd)
 {
-  return readFileHandle (socketHandle, fd);
+  return readFileHandle (fd, fd);
 }
 
 /*!
@@ -143,5 +143,5 @@ int UnixSocket::readHandle (Handle* fd)
  */
 int UnixSocket::writeHandle (Handle fd)
 {
-  return writeFileHandle (socketHandle, fd);
+  return writeFileHandle (fd, fd);
 }
