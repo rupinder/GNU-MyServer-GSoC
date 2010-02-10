@@ -673,26 +673,28 @@ int Socket::dataOnRead (int sec, int usec)
 
 /*!
  *Inherited from Stream.
- *Return zero on success, or -1 error. Also sets nbr to -1 if error.
+ *Return zero on success, or a negative number on error.
  */
 int Socket::read (char* buffer, u_long len, u_long *nbr)
 {
-  *nbr = static_cast<u_long>(recv (buffer, len, 0));
-  if (*nbr == static_cast<u_long>(-1))
-    return -1;
+  int ret = recv (buffer, len, 0);
+  if (ret < 0)
+    return ret;
 
+  *nbr = static_cast<u_long> (ret);
   return 0;
 }
 
 /*!
  *Inherited from Stream.
- *Return zero on success, or -1 on error. Also sets nbw to -1 if error.
+ *Return zero on success, or a negative number on error.
  */
 int Socket::write (const char* buffer, u_long len, u_long *nbw)
 {
-  *nbw = static_cast<u_long>(send (buffer, len, 0));
-  if ( *nbw == static_cast<u_long>(-1) )
-    return -1;
+  int ret = send (buffer, len, 0);
+  if (ret < 0)
+    return ret;
 
+  *nbw = static_cast<u_long> (ret);
   return 0;
 }
