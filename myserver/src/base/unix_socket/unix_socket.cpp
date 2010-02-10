@@ -133,7 +133,7 @@ Socket* UnixSocket::accept ()
  */
 int UnixSocket::readHandle (Handle* fd)
 {
-  return readFileHandle (fd, fd);
+  return readFileHandle (this->fd, fd);
 }
 
 /*!
