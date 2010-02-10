@@ -16,10 +16,10 @@ dnl
 dnl You should have received a copy of the GNU General Public License
 dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-AC_INIT([GNU MyServer], m4_esyscmd([cat version]), [bug-myserver@gnu.org])
-AC_PREREQ([2.61])
+AC_INIT([GNU MyServer],[m4_esyscmd(cat version)],[bug-myserver@gnu.org])
+AC_PREREQ(2.65)
 AC_CONFIG_AUX_DIR([build-aux])
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS([config.h])
 CFLAGS="${CFLAGS=}"
 CXXFLAGS="${CXXFLAGS=}"
 LDFLAGS="${LDFLAGS=}"
@@ -37,18 +37,18 @@ AC_PROG_CXX
 
 gl_EARLY
 
-AC_AIX
-AC_ISC_POSIX
-AC_MINIX
+AC_USE_SYSTEM_EXTENSIONS
+AC_SEARCH_LIBS([strerror],[cposix])
+AC_USE_SYSTEM_EXTENSIONS
 AC_HEADER_STDC
 AM_PROG_LEX
 AC_PROG_YACC
 AC_C_BIGENDIAN
-AC_PROG_RANLIB
-AC_PROG_LIBTOOL
+LT_INIT
 
 AC_DEFINE([WINVER], [0x0501], [WINVER])
-AC_LIBTOOL_WIN32_DLL
+
+LT_INIT
 
 AC_CANONICAL_HOST
 
@@ -237,7 +237,7 @@ AC_SUBST(SSL_LIB)
 if test x$enable_ipv6 = xyes; then
     dnl Check for IPv6
     AC_MSG_CHECKING([for IPv6])
-    AC_TRY_RUN([ /* AF_INET6 available check */
+    AC_RUN_IFELSE([AC_LANG_SOURCE([[ /* AF_INET6 available check */
     #include <sys/types.h>
     #include <sys/socket.h>
     main()
@@ -247,23 +247,20 @@ if test x$enable_ipv6 = xyes; then
      else
        exit(0);
     }
-    ],
-    [ AC_MSG_RESULT(yes)
+    ]])],[ AC_MSG_RESULT(yes)
       AC_DEFINE(HAVE_IPV6, 1, [Enable IPv6 support])
-    ],
-    [ AC_MSG_RESULT(no)
+    ],[ AC_MSG_RESULT(no)
       AC_DEFINE(HAVE_IPV6, 0, [Disable IPv6 support])
       AC_MSG_ERROR([
 *** Cannot enable IPv6 support
 ])
-    ],
-    [ AC_MSG_RESULT(no)
+    ],[ AC_MSG_RESULT(no)
       AC_DEFINE(HAVE_IPV6, 0, [Disable IPv6 support])
       AC_MSG_ERROR([
 *** Cannot enable IPv6 support
 ])
-    ]
-    )
+    
+    ])
 else
     AC_DEFINE(HAVE_IPV6, 0, [Disable IPv6 support])
 fi
@@ -326,11 +323,9 @@ else
   MAKE_GUI=no
 fi
 
-CFLAGS="$CFLAGS $pic_flag"
-CXXFLAGS="$CXXFLAGS $pic_flag"
 LDFLAGS="$LDFLAGS $LIBS $pic_flag"
-CFLAGS="-I$(pwd)/lib -I$(pwd)/lib $CFLAGS"
-CXXFLAGS="-I$(pwd)/lib -I$(pwd)/lib $CXXFLAGS"
+CFLAGS="-I$(pwd)/lib $pic_flag $CFLAGS"
+CXXFLAGS="-I$(pwd)/lib $pic_flag $CXXFLAGS"
 
 AC_SUBST(CFLAGS)
 AC_SUBST(CXXFLAGS)
