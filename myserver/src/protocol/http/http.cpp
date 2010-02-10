@@ -164,7 +164,7 @@ int Http::optionsHTTPRESOURCE (string& filename, int yetmapped)
       /* Send the HTTP header. */
       ret = td->connection->socket->send (td->auxiliaryBuffer->getBuffer (),
                                           td->auxiliaryBuffer->getLength (), 0);
-      if (ret == SOCKET_ERROR)
+      if (ret < 0)
         {
           td->connection->host->warningsLogWrite (_("HTTP: socket error"));
           return 0;
@@ -215,7 +215,7 @@ int Http::traceHTTPRESOURCE (string& filename, int yetmapped)
       /* Send our HTTP header.  */
       ret = td->connection->socket->send (td->auxiliaryBuffer->getBuffer (),
                                           (u_long) td->auxiliaryBuffer->getLength (), 0);
-      if (ret == SOCKET_ERROR)
+      if (ret < 0)
         {
           td->connection->host->warningsLogWrite (_("HTTP: socket error"));
           return 0;
@@ -224,7 +224,7 @@ int Http::traceHTTPRESOURCE (string& filename, int yetmapped)
       /* Send the client request header as the HTTP body.  */
       ret = td->connection->socket->send (td->buffer->getBuffer (),
                                           contentLength, 0);
-      if (ret == SOCKET_ERROR)
+      if (ret < 0)
         {
           td->connection->host->warningsLogWrite (_("HTTP: socket error"));
           return 0;

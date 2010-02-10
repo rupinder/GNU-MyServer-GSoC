@@ -807,7 +807,7 @@ DEFINE_THREAD (SendAsciiFile, pParam)
             }
           if (pFtpuserData->m_pDataConnection->socket->
               send (auxiliaryBuffer.getBuffer (),
-                    (u_long) auxiliaryBuffer.getLength (), 0) == SOCKET_ERROR)
+                    (u_long) auxiliaryBuffer.getLength (), 0) < 0)
             {
               ftpReply (pConnection, 451);
               file->close ();
@@ -983,15 +983,15 @@ DEFINE_THREAD (SendImageFile, pParam)
       auxiliaryBuffer.setRealLength (1024);
       while (filesize != 0)
         {
+          Socket *socket = pFtpuserData->m_pDataConnection->socket;
           nBufferSize =
             std::min (static_cast < u_long > (filesize),
                       static_cast < u_long >
                       (auxiliaryBuffer.getRealLength () / 2));
 
           if (file->read (auxiliaryBuffer.getBuffer (), nBufferSize, &nbr)
-              || pFtpuserData->m_pDataConnection->socket->send (auxiliaryBuffer.getBuffer (),
-                                                                (u_long)nBufferSize, 0)
-              == SOCKET_ERROR)
+              || socket->send (auxiliaryBuffer.getBuffer (),
+                               (u_long) nBufferSize, 0) < 0)
             {
               ftpReply (pConnection, 451);
               file->close ();
@@ -1163,9 +1163,10 @@ DEFINE_THREAD (ReceiveAsciiFile, pParam)
       int nLineLength = 0;
       std::string sLine;
       u_long nbr;
-      while (pFtpuserData->m_pDataConnection->socket->read (buffer.getBuffer (),
-                                                            (u_long) buffer.getRealLength () - 1, &nbr)
-             != SOCKET_ERROR && nbr != 0)
+      Socket *socket = pFtpuserData->m_pDataConnection->socket;
+      while (!socket->read (buffer.getBuffer (),
+                           (u_long) buffer.getRealLength () - 1, &nbr)
+             && nbr != 0)
         {
           memset (auxiliaryBuffer.getBuffer (), 0,
                   auxiliaryBuffer.getRealLength ());
@@ -1356,12 +1357,10 @@ DEFINE_THREAD (ReceiveImageFile, pParam)
       MemBuf buffer;
       buffer.setRealLength (1024);
       memset (buffer.getBuffer (), 0, buffer.getRealLength ());
-      while (pFtpuserData->m_pDataConnection->socket->read (buffer.getBuffer (),
-                                                            (u_long) buffer.
-                                                            getRealLength () -
-                                                            1,
-                                                            &nbr) !=
-             SOCKET_ERROR && nbr != 0)
+      Socket *socket = pFtpuserData->m_pDataConnection->socket;
+      while (!socket->read (buffer.getBuffer (),
+                            (u_long) buffer.getRealLength () - 1,
+                            &nbr) && nbr != 0)
         {
           file.write (buffer.getBuffer (), nbr, &nbr);
           if (pFtpuserData->m_bBreakDataConnection)
@@ -1876,7 +1875,7 @@ Ftp::list (const std::string & sParam /*= ""*/ )
 
   if (pFtpuserData->m_pDataConnection->socket->
       send (td.auxiliaryBuffer->getBuffer (),
-            (u_long) td.auxiliaryBuffer->getLength (), 0) == SOCKET_ERROR)
+            (u_long) td.auxiliaryBuffer->getLength (), 0) < 0)
     {
       ftpReply (451);
     }
@@ -1947,7 +1946,7 @@ Ftp::nlst (const std::string & sParam /* = "" */ )
 
   if (pFtpuserData->m_pDataConnection->socket->
       send (td.auxiliaryBuffer->getBuffer (),
-            (u_long) td.auxiliaryBuffer->getLength (), 0) == SOCKET_ERROR)
+            (u_long) td.auxiliaryBuffer->getLength (), 0) < 0)
     {
       ftpReply (451);
     }
