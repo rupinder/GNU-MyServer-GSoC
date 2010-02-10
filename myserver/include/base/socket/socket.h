@@ -44,9 +44,6 @@ extern "C"
 #  include <stdio.h>
 #  include <unistd.h>
 }
-
-#  define INVALID_SOCKET -1
-#  define SD_BOTH SHUT_RDWR
 # endif
 
 typedef int SocketHandle;

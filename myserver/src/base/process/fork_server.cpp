@@ -404,7 +404,7 @@ int ForkServer::generateListenerSocket (Socket &socket, u_short *port)
 
   socket.socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-  if (socket.getHandle () == (Handle)INVALID_SOCKET)
+  if (socket.getHandle () < 0)
     return -1;
 
   MYSERVER_SOCKADDR_STORAGE sockaddr = { 0 };

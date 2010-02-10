@@ -54,10 +54,6 @@ typedef void* HANDLE;
 # define SOCKET_ERROR -1
 #endif
 
-#ifndef INVALID_SOCKET
-# define INVALID_SOCKET -1
-#endif
-
 #endif
 
 extern "C"
