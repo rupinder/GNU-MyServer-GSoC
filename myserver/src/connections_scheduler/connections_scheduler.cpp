@@ -19,6 +19,8 @@
 
 #undef remove
 
+#include <w32sock.h>
+
 #include <include/connections_scheduler/connections_scheduler.h>
 #include <include/server/server.h>
 
@@ -62,7 +64,8 @@ static DEFINE_THREAD (dispatcher, p)
 
 static void newDataHandler (int fd, short event, void *param)
 {
-  ConnectionsScheduler::DispatcherArg* arg = (ConnectionsScheduler::DispatcherArg*) param;
+  ConnectionsScheduler::DispatcherArg* arg
+    = (ConnectionsScheduler::DispatcherArg*) param;
 
   if (!arg->terminate && arg->scheduler)
     arg->scheduler->newData (event, fd);
@@ -74,7 +77,7 @@ void ConnectionsScheduler::newData (short event, SocketHandle handle)
   ConnectionPtr connection = NULL;
 
   connectionsMutex.lock ();
-  connection = connections.get (handle);
+  connection = connections.get ((int) handle);
   connectionsMutex.unlock ();
 
   if (connection == NULL || server == NULL)
@@ -95,7 +98,8 @@ void ConnectionsScheduler::newData (short event, SocketHandle handle)
 
 static void eventLoopHandler (int fd, short event, void *arg)
 {
-  ConnectionsScheduler::DispatcherArg *da = (ConnectionsScheduler::DispatcherArg*)arg;
+  ConnectionsScheduler::DispatcherArg *da
+    = (ConnectionsScheduler::DispatcherArg*) arg;
   u_long nbr;
   timeval tv = {10, 0};
 
@@ -118,15 +122,16 @@ static void eventLoopHandler (int fd, short event, void *arg)
               SocketHandle handle;
               ConnectionPtr c;
 
-              da->socketPair.read ((char*)&handle, sizeof (SocketHandle), &nbr);
-              da->socketPair.read ((char*)&c, sizeof (ConnectionPtr), &nbr);
-              da->socketPair.read ((char*)&tv, sizeof (timeval), &nbr);
-              event_once (handle, EV_READ | EV_TIMEOUT, newDataHandler, da, &tv);
+              da->socketPair.read ((char*) &handle, sizeof (SocketHandle), &nbr);
+              da->socketPair.read ((char*) &c, sizeof (ConnectionPtr), &nbr);
+              da->socketPair.read ((char*) &tv, sizeof (timeval), &nbr);
+              event_once (FD_TO_SOCKET (handle), EV_READ | EV_TIMEOUT,
+                          newDataHandler, da, &tv);
               break;
 
             case 'l':
               ConnectionsScheduler::ListenerArg *arg;
-              da->socketPair.read ((char*)&arg, sizeof (arg), &nbr);
+              da->socketPair.read ((char*) &arg, sizeof (arg), &nbr);
               event_add (&(arg->ev), &tv);
               break;
 
@@ -145,7 +150,8 @@ static void eventLoopHandler (int fd, short event, void *arg)
 static void listenerHandler (int fd, short event, void *arg)
 {
   static timeval tv = {5, 0};
-  ConnectionsScheduler::ListenerArg* s = (ConnectionsScheduler::ListenerArg*)arg;
+  ConnectionsScheduler::ListenerArg* s
+    = (ConnectionsScheduler::ListenerArg*) arg;
 
   if (event == EV_READ)
     {
@@ -179,8 +185,8 @@ void ConnectionsScheduler::listener (ConnectionsScheduler::ListenerArg *la)
 {
   ConnectionsScheduler::ListenerArg *arg = new ConnectionsScheduler::ListenerArg (la);
 
-  event_set (&(arg->ev), (int) la->serverSocket->getHandle (), EV_READ | EV_TIMEOUT,
-             listenerHandler, arg);
+  event_set (&(arg->ev), FD_TO_SOCKET (la->serverSocket->getHandle ()),
+             EV_READ | EV_TIMEOUT, listenerHandler, arg);
 
   arg->terminate = &dispatcherArg.terminate;
   arg->scheduler = this;
@@ -193,7 +199,7 @@ void ConnectionsScheduler::listener (ConnectionsScheduler::ListenerArg *la)
   eventsSocketMutex.lock ();
   u_long nbw;
   dispatcherArg.socketPairWrite.write ("l", 1, &nbw);
-  dispatcherArg.socketPairWrite.write ((const char*)&arg, sizeof (arg), &nbw);
+  dispatcherArg.socketPairWrite.write ((const char*) &arg, sizeof (arg), &nbw);
   eventsSocketMutex.unlock ();
 }
 
@@ -294,7 +300,8 @@ void ConnectionsScheduler::initialize ()
 
   dispatcherArg.socketPairWrite.setHandle (dispatcherArg.socketPair.getSecondHandle ());
 
-  event_set (&(dispatcherArg.loopEvent), dispatcherArg.socketPair.getFirstHandle (),
+  event_set (&(dispatcherArg.loopEvent),
+             FD_TO_SOCKET (dispatcherArg.socketPair.getFirstHandle ()),
              EV_READ | EV_TIMEOUT, eventLoopHandler, &dispatcherArg);
 
   event_add (&(dispatcherArg.loopEvent), NULL);
@@ -388,7 +395,8 @@ void ConnectionsScheduler::addWaitingConnection (ConnectionPtr c)
 void ConnectionsScheduler::addWaitingConnectionImpl (ConnectionPtr c, int lock)
 {
   static timeval tv = {10, 0};
-  SocketHandle handle = c->socket ? (SocketHandle) c->socket->getHandle () : NULL;
+  int handle = c->socket->getHandle ();
+  SocketHandle socketHandle = FD_TO_SOCKET (handle);
 
   if (server)
     tv.tv_sec = server->getTimeout () / 1000;
@@ -398,7 +406,7 @@ void ConnectionsScheduler::addWaitingConnectionImpl (ConnectionPtr c, int lock)
   c->setScheduled (0);
 
   connectionsMutex.lock ();
-  connections.put (handle, c);
+  connections.put (socketHandle, c);
   connectionsMutex.unlock ();
 
   /*
@@ -413,17 +421,17 @@ void ConnectionsScheduler::addWaitingConnectionImpl (ConnectionPtr c, int lock)
       eventsSocketMutex.lock ();
 
       dispatcherArg.socketPairWrite.write ("c", 1, &nbw);
-      dispatcherArg.socketPairWrite.write ((const char*)&handle,
+      dispatcherArg.socketPairWrite.write ((const char*) &handle,
                                            sizeof (SocketHandle), &nbw);
-      dispatcherArg.socketPairWrite.write ((const char*)&c,
+      dispatcherArg.socketPairWrite.write ((const char*) &c,
                                            sizeof (ConnectionPtr), &nbw);
-      dispatcherArg.socketPairWrite.write ((const char*)&tv,
+      dispatcherArg.socketPairWrite.write ((const char*) &tv,
                                            sizeof (timeval), &nbw);
 
       eventsSocketMutex.unlock ();
     }
   else
-    event_once ((int)handle, EV_READ | EV_TIMEOUT, newDataHandler,
+    event_once (FD_TO_SOCKET (handle), EV_READ | EV_TIMEOUT, newDataHandler,
                 &dispatcherArg, &tv);
 }
 
