@@ -19,7 +19,12 @@
 
 #undef remove
 
-#include <w32sock.h>
+#ifdef WIN32
+extern "C"
+{
+# include <w32sock.h>
+}
+#endif
 
 #include <include/connections_scheduler/connections_scheduler.h>
 #include <include/server/server.h>
@@ -125,8 +130,14 @@ static void eventLoopHandler (int fd, short event, void *arg)
               da->socketPair.read ((char*) &handle, sizeof (SocketHandle), &nbr);
               da->socketPair.read ((char*) &c, sizeof (ConnectionPtr), &nbr);
               da->socketPair.read ((char*) &tv, sizeof (timeval), &nbr);
-              event_once (FD_TO_SOCKET (handle), EV_READ | EV_TIMEOUT,
-                          newDataHandler, da, &tv);
+
+              event_once (
+#ifdef WIN32
+              FD_TO_SOCKET (handle), 
+#else
+              handle,
+#endif
+              EV_READ | EV_TIMEOUT, newDataHandler, da, &tv);
               break;
 
             case 'l':
@@ -185,8 +196,13 @@ void ConnectionsScheduler::listener (ConnectionsScheduler::ListenerArg *la)
 {
   ConnectionsScheduler::ListenerArg *arg = new ConnectionsScheduler::ListenerArg (la);
 
-  event_set (&(arg->ev), FD_TO_SOCKET (la->serverSocket->getHandle ()),
-             EV_READ | EV_TIMEOUT, listenerHandler, arg);
+    event_set (&(arg->ev),
+#ifdef WIN32
+              FD_TO_SOCKET (la->serverSocket->getHandle ()),
+#else
+              la->serverSocket->getHandle (),
+#endif
+              EV_READ | EV_TIMEOUT, listenerHandler, arg);
 
   arg->terminate = &dispatcherArg.terminate;
   arg->scheduler = this;
@@ -301,7 +317,11 @@ void ConnectionsScheduler::initialize ()
   dispatcherArg.socketPairWrite.setHandle (dispatcherArg.socketPair.getSecondHandle ());
 
   event_set (&(dispatcherArg.loopEvent),
+#ifdef WIN32
              FD_TO_SOCKET (dispatcherArg.socketPair.getFirstHandle ()),
+#else
+             dispatcherArg.socketPair.getFirstHandle (),
+#endif
              EV_READ | EV_TIMEOUT, eventLoopHandler, &dispatcherArg);
 
   event_add (&(dispatcherArg.loopEvent), NULL);
@@ -396,7 +416,12 @@ void ConnectionsScheduler::addWaitingConnectionImpl (ConnectionPtr c, int lock)
 {
   static timeval tv = {10, 0};
   int handle = c->socket->getHandle ();
-  SocketHandle socketHandle = FD_TO_SOCKET (handle);
+  SocketHandle socketHandle;
+#ifdef WIN32
+  socketHandle = FD_TO_SOCKET (handle);
+#else
+  socketHandle = handle;
+#endif
 
   if (server)
     tv.tv_sec = server->getTimeout () / 1000;
@@ -431,7 +456,13 @@ void ConnectionsScheduler::addWaitingConnectionImpl (ConnectionPtr c, int lock)
       eventsSocketMutex.unlock ();
     }
   else
-    event_once (FD_TO_SOCKET (handle), EV_READ | EV_TIMEOUT, newDataHandler,
+    event_once (
+#ifdef WIN32
+                FD_TO_SOCKET (handle),
+#else
+                handle,
+#endif
+                EV_READ | EV_TIMEOUT, newDataHandler,
                 &dispatcherArg, &tv);
 }
 

@@ -25,16 +25,16 @@ extern "C"
 {
 #include <string.h>
 #include <stdio.h>
-# include <sys/types.h>
-# include <sys/socket.h>
-# include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
 #ifdef WIN32
 # include <w32sock.h>
 #else
-# include <netdb.h>
-# include <unistd.h>
-# include <netinet/in.h>
-# include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #endif
 }
 
@@ -146,7 +146,13 @@ int SslSocket::connect (MYSERVER_SOCKADDR* sa, int na)
       sslContext = 0;
       return -1;
     }
+
+#ifdef WIN32
   SSL_set_fd (sslConnection, FD_TO_SOCKET (fd));
+#else
+  SSL_set_fd (sslConnection, fd);
+#endif
+
   if (SSL_connect (sslConnection) < 0)
     {
       SSL_CTX_free (sslContext);
@@ -217,7 +223,11 @@ int SslSocket::sslAccept ()
       return -1;
     }
 
+#ifdef WIN32
   if (SSL_set_fd (sslConnection, FD_TO_SOCKET (fd)) == 0)
+#else
+  if (SSL_set_fd (sslConnection, fd) == 0)
+#endif
     {
       shutdown (2);
       freeSSL ();
