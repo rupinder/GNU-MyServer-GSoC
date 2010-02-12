@@ -41,6 +41,7 @@ class TestFile : public CppUnit::TestFixture
 
   CPPUNIT_TEST (testCreateTemporaryFile);
   CPPUNIT_TEST (testOnFile);
+  CPPUNIT_TEST (testBinary);
   CPPUNIT_TEST (testTruncate);
   CPPUNIT_TEST (testCreationTime);
   CPPUNIT_TEST (testLastAccessTime);
@@ -126,6 +127,22 @@ public:
     CPPUNIT_ASSERT_EQUAL (openHelper (), 0);
     CPPUNIT_ASSERT_EQUAL (tfile->seek (1), 0);
     CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), 1ul);
+  }
+
+  void testBinary ()
+  {
+    const char *data = "this\0text\0is\0NUL\0separed\0\0";
+    char buffer[32];
+    u_long nbw, nbr;
+    CPPUNIT_ASSERT_EQUAL (openHelper (), 0);
+    CPPUNIT_ASSERT_EQUAL (tfile->write (data, 26, &nbw), 0);
+    CPPUNIT_ASSERT_EQUAL (nbw, 26ul);
+
+    CPPUNIT_ASSERT_EQUAL (tfile->seek (0), 0);
+
+    CPPUNIT_ASSERT_EQUAL (tfile->read (buffer, 26, &nbr), 0);
+    CPPUNIT_ASSERT_EQUAL (nbr, 26ul);
+    CPPUNIT_ASSERT_EQUAL (memcmp (data, buffer, 26), 0);
   }
 
   void testTruncate ()
