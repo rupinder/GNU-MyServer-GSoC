@@ -29,6 +29,7 @@
 #include "../include/base/file/file.h"
 #include "../include/base/file/files_utility.h"
 #include "../include/base/thread/thread.h"
+#include "../include/base/utility.h"
 
 extern "C"
 {
@@ -39,6 +40,7 @@ extern "C"
 #endif
 }
 
+#include <string>
 #include <iostream>
 using namespace std;
 
@@ -90,6 +92,15 @@ FX3J22wtVUi4Ve/XftYt6RJKd764o5WTdh/Z+RUbtusXnj3ygpI/G7fTzuPUj9uF\n\
 -----END CERTIFICATE-----\n";
 
 static DEFINE_THREAD (testSslRecvClient, pParam);
+
+struct SslThreadArg
+{
+  int port;
+  bool success;
+
+  /* This is valid only if !success.  */
+  exception reason;
+};
 
 class TestSslSocket : public CppUnit::TestFixture
 {
@@ -170,14 +181,18 @@ public:
 
     CPPUNIT_ASSERT (obj->listen (1) != -1);
 
-    CPPUNIT_ASSERT_EQUAL (Thread::create (&tid, testSslRecvClient, &port), 0);
+    SslThreadArg arg;
+    arg.port = port;
+    CPPUNIT_ASSERT_EQUAL (Thread::create (&tid, testSslRecvClient, &arg), 0);
+
+    Thread::wait (MYSERVER_SEC (1));
+
     Socket s = obj->accept (&sockIn, &sockInLen);
 
     sslObj = new SslSocket (&s);
     sslObj->setSSLContext (ctx);
 
     int ret = sslObj->sslAccept ();
-
     if (ret < 0)
     {
       delete obj;
@@ -200,6 +215,10 @@ public:
 
     SSL_CTX_free (ctx);
 
+    Thread::join (tid);
+    if (!arg.success)
+      throw arg.reason;
+
     delete obj;
     delete sslObj;
   }
@@ -210,28 +229,45 @@ CPPUNIT_TEST_SUITE_REGISTRATION (TestSslSocket);
 static DEFINE_THREAD (testSslRecvClient, pParam)
 {
   SslSocket *sslClient = NULL;
-  int port = *((int*)pParam);
+  int err;
+  SslThreadArg *arg = (SslThreadArg *) pParam;
   MYSERVER_SOCKADDRIN sockIn = { 0 };
 
   ((sockaddr_in*) (&sockIn))->sin_family = AF_INET;
   ((sockaddr_in*) (&sockIn))->sin_addr.s_addr = inet_addr ("127.0.0.1");
-  ((sockaddr_in*) (&sockIn))->sin_port = htons (port);
+  ((sockaddr_in*) (&sockIn))->sin_port = htons (arg->port);
 
   int sockInLen = sizeof (struct sockaddr_in);
 
+  arg->success = true;
+
   sslClient = new SslSocket ();
 
-  CPPUNIT_ASSERT (sslClient->socket (AF_INET, SOCK_STREAM, 0) != -1);
+  try
+    {
+      err = sslClient->socket (AF_INET, SOCK_STREAM, 0);
+      CPPUNIT_ASSERT (err != -1);
 
-  CPPUNIT_ASSERT (sslClient->connect (&sockIn, sockInLen) != -1);
+      err = sslClient->connect (&sockIn, sockInLen);
+      CPPUNIT_ASSERT (err != -1);
 
-  char buf[] = "Works?\n";
+      char buf[] = "Works?\n";
 
-  int ret = sslClient->send (buf, strlen (buf), 0);
-  sslClient->recv (buf, 1, 0);
+      err = sslClient->send (buf, strlen (buf), 0);
+      sslClient->recv (buf, 1, 0);
 
-  CPPUNIT_ASSERT (ret != -1);
-  CPPUNIT_ASSERT (sslClient->close () != -1);
-  delete sslClient;
+      CPPUNIT_ASSERT (err != -1);
+      CPPUNIT_ASSERT (sslClient->close () != -1);
+      delete sslClient;
+    }
+  catch (exception& e)
+    {
+      arg->success = false;
+      arg->reason = e;
+    }
+  catch (...)
+    {
+    }
+
   return 0;
 }

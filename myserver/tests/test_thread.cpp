@@ -45,7 +45,7 @@ static DEFINE_THREAD (test_terminate_thread, pParam)
 
   Thread::terminate ();
 
-  //Should never be here.
+  /* Should never be here.  */
   *arg = 1;
 
   return NULL;

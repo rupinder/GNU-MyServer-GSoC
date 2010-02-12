@@ -40,6 +40,15 @@ using namespace std;
 
 static DEFINE_THREAD (testRecvClient, pParam);
 
+struct ThreadArg
+{
+  int port;
+  bool success;
+
+  /* This is valid only if !success.  */
+  exception reason;
+};
+
 class TestSocket : public CppUnit::TestFixture
 {
   Socket *obj;
@@ -80,27 +89,28 @@ public:
   {
     ThreadID tid;
     int optvalReuseAddr = 1;
-    int port = 6543;
+    ThreadArg arg;
+    arg.port = 6543;
     MYSERVER_SOCKADDRIN sockIn = { 0 };
     int status;
 
     ((sockaddr_in*) (&sockIn))->sin_family = AF_INET;
     ((sockaddr_in*) (&sockIn))->sin_addr.s_addr = inet_addr ("127.0.0.1");
-    ((sockaddr_in*) (&sockIn))->sin_port = htons (port);
+    ((sockaddr_in*) (&sockIn))->sin_port = htons (arg.port);
 
     socklen_t sockInLen = sizeof (sockaddr_in);
 
     CPPUNIT_ASSERT (obj->socket (AF_INET, SOCK_STREAM, 0) != -1);
 
     CPPUNIT_ASSERT (obj->setsockopt (SOL_SOCKET, SO_REUSEADDR,
-                                      (const char*) &optvalReuseAddr,
-                                      sizeof (optvalReuseAddr)) != -1);
+                                     (const char*) &optvalReuseAddr,
+                                     sizeof (optvalReuseAddr)) != -1);
 
     /* If the port is used by another program, try a few others.  */
     if ((status = obj->bind (&sockIn, sockInLen)) != 0)
-      while (++port < 28000)
+      while (++arg.port < 28000)
         {
-          ((sockaddr_in*) (&sockIn))->sin_port = htons (port);
+          ((sockaddr_in*) (&sockIn))->sin_port = htons (arg.port);
           if ((status = obj->bind (&sockIn, sockInLen)) == 0)
             break;
         }
@@ -109,18 +119,16 @@ public:
 
     CPPUNIT_ASSERT (obj->listen (1) != -1);
 
-    CPPUNIT_ASSERT_EQUAL (Thread::create (&tid, testRecvClient, &port), 0);
-
-    Thread::wait (MYSERVER_SEC (1));
+    CPPUNIT_ASSERT_EQUAL (Thread::create (&tid, testRecvClient, &arg), 0);
 
     CPPUNIT_ASSERT (obj->dataOnRead (5));
 
     Socket s = obj->accept (&sockIn, &sockInLen);
 
-    status = int (s.getHandle ());
+    status = (int) s.getHandle ();
 
     if (status < 0)
-      CPPUNIT_ASSERT (status != -1);
+      CPPUNIT_ASSERT (status);
 
     CPPUNIT_ASSERT (s.bytesToRead () >= 0);
 
@@ -133,9 +141,11 @@ public:
     s.send ("a", 1, 0);
 
     CPPUNIT_ASSERT (!strcmp (buf, "ehlo"));
-    CPPUNIT_ASSERT (status >= 0 || status == -2);
+    CPPUNIT_ASSERT (status >= 0);
 
     Thread::join (tid);
+    if (!arg.success)
+      throw arg.reason;
 
     CPPUNIT_ASSERT (obj->close () != -1);
   }
@@ -162,29 +172,48 @@ CPPUNIT_TEST_SUITE_REGISTRATION (TestSocket);
 
 static DEFINE_THREAD (testRecvClient, pParam)
 {
-  Socket *obj2 = new Socket;
-  char host[] = "localhost";
-  int port = *((int*)pParam);
+  ThreadArg *arg = (ThreadArg *) pParam;
+  arg->success = true;
+  try
+    {
+      int ret;
+      Socket *obj2 = new Socket;
+      char host[] = "localhost";
 
-  CPPUNIT_ASSERT (obj2->socket (AF_INET, SOCK_STREAM, 0) != -1);
+      ret = obj2->socket (AF_INET, SOCK_STREAM, 0);
+      CPPUNIT_ASSERT (ret != -1);
 
-  CPPUNIT_ASSERT (obj2->connect (host, port) != -1);
+      ret = obj2->connect (host, arg->port);
+      CPPUNIT_ASSERT (ret != -1);
 
-  int bufLen = 8;
-  char buf[bufLen];
-  memset (buf, 0, bufLen);
-  strcpy (buf, "ehlo");
+      int bufLen = 8;
+      char buf[bufLen];
+      memset (buf, 0, bufLen);
+      strcpy (buf, "ehlo");
 
-  CPPUNIT_ASSERT (obj2->send (buf, strlen (buf), 0) != -1);
+      ret = obj2->send (buf, strlen (buf), 0);
+      CPPUNIT_ASSERT (ret != -1);
 
-  /* To sync.  */
-  CPPUNIT_ASSERT (obj2->recv (buf, bufLen, 0, MYSERVER_SEC (5)) != -1);
+      /* To sync.  */
+      ret = obj2->recv (buf, bufLen, 0, MYSERVER_SEC (5));
+      CPPUNIT_ASSERT (ret != -1);
 
-  CPPUNIT_ASSERT (obj2->shutdown (SHUT_RDWR) != -1);
+      ret = obj2->shutdown (SHUT_RDWR);
+      CPPUNIT_ASSERT (ret != -1);
 
-  CPPUNIT_ASSERT (obj2->close () != -1);
+      ret = obj2->close ();
+      CPPUNIT_ASSERT (ret != -1);
 
-  delete obj2;
-  obj2 = NULL;
-  return 0;
+      delete obj2;
+      obj2 = NULL;
+      return 0;
+    }
+  catch (exception& e)
+    {
+      arg->success = false;
+      arg->reason = e;
+    }
+  catch (...)
+    {
+    }
 }
