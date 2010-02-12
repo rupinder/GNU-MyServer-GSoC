@@ -63,31 +63,25 @@ const u_long File::FILE_CREATE_ALWAYS = (1<<7);
 const u_long File::NO_INHERIT = (1<<8);
 
 
-/*!
- *Costructor of the class.
- */
 File::File ()
 {
   handle = (FileHandle) -1;
 }
 
-/*!
- *D'tor.
- */
 File::~File ()
 {
   close ();
 }
 
 /*!
- *Write data to a file.
- *buffer is the pointer to the data to write
- *buffersize is the number of byte to write
- *nbw is a pointer to an unsigned long that receive the number of the
- *bytes written correctly.
- *\param buffer The buffer where write.
- *\param buffersize The length of the buffer in bytes.
- *\param nbw How many bytes were written to the file.
+ * Write data to a file.
+ * buffer is the pointer to the data to write
+ * buffersize is the number of byte to write
+ * nbw is a pointer to an unsigned long that receive the number of the
+ * bytes written correctly.
+ * \param buffer The buffer where write.
+ * \param buffersize The length of the buffer in bytes.
+ * \param nbw How many bytes were written to the file.
  */
 int File::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
 {
@@ -107,9 +101,9 @@ int File::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
 }
 
 /*!
- *Constructor for the class.
- *\param nfilename Filename to open.
- *\param opt Specify how open the file.
+ * Constructor for the class.
+ * \param nfilename Filename to open.
+ * \param opt Specify how open the file.
  */
 File::File (char *nfilename, int opt)
   : handle ((FileHandle) -1)
@@ -119,7 +113,7 @@ File::File (char *nfilename, int opt)
 
 /*!
  * Truncate the file.
- *\param size Specify the new file size.
+ * \param size Specify the new file size.
  */
 int File::truncate (u_long size)
 {
@@ -131,11 +125,11 @@ int File::truncate (u_long size)
 }
 
 /*!
- *Open (or create if not exists) a file, but must explicitly use read and/or
- *write flags and open flag.
- *\param nfilename Filename to open.
- *\param opt Specify how open the file.
- *openFile returns 0 if the call was successful, any other value on errors.
+ * Open (or create if not exists) a file, but must explicitly use read and/or
+ * write flags and open flag.
+ * \param nfilename Filename to open.
+ * \param opt Specify how open the file.
+ * It returns 0 if the call was successful, any other value on errors.
  */
 int File::openFile (const char* nfilename,u_long opt)
 {
@@ -154,28 +148,33 @@ int File::openFile (const char* nfilename,u_long opt)
   /* FIXME: how avoid a stat?  */
   bool exists = stat (filename.c_str (), &fStats) == 0;
 
-  if (opt & File::OPEN_IF_EXISTS && !exists)
+  if ((opt & File::OPEN_IF_EXISTS) && !exists)
     return 1;
 
   if (exists && (opt & File::APPEND))
     flags |= O_APPEND;
 
+#if O_BINARY
+  flags |= O_BINARY;
+#endif
+
   if (exists)
-    handle = open (filename.c_str (), O_APPEND | flags);
+    handle = open (filename.c_str (), flags);
   else
     handle = open (filename.c_str (), O_CREAT | flags, S_IRUSR | S_IWUSR);
 
   if (opt & File::FILE_CREATE_ALWAYS)
     truncate ();
 
+  /* It will be removed on close.  */
   if (opt & File::TEMPORARY)
-    unlink (filename.c_str ()); /* It will be removed on close.  */
+    unlink (filename.c_str ());
 
   return handle < 0;
 }
 
 /*!
- *Returns the file handle.
+ * Returns the file handle.
  */
 Handle File::getHandle ()
 {
@@ -183,9 +182,9 @@ Handle File::getHandle ()
 }
 
 /*!
- *Set the base/file/file.handle.
- *Return a non null-value on errors.
- *\param hl The new base/file/file.handle.
+ * Set the base/file/file.handle.
+ * Return a non null-value on errors.
+ * \param hl The new base/file/file.handle.
  */
 int File::setHandle (Handle hl)
 {
@@ -194,8 +193,8 @@ int File::setHandle (Handle hl)
 }
 
 /*!
- *define the operator =.
- *\param f The file to copy.
+ * Define the operator =.
+ * \param f The file to copy.
  */
 int File::operator =(File f)
 {
@@ -205,9 +204,9 @@ int File::operator =(File f)
 }
 
 /*!
- *Set the name of the file
- *Return Non-zero on errors.
- *\param nfilename The new file name.
+ * Set the name of the file
+ * Return Non-zero on errors.
+ * \param nfilename The new file name.
  */
 int File::setFilename (const char* nfilename)
 {
@@ -216,7 +215,7 @@ int File::setFilename (const char* nfilename)
 }
 
 /*!
- *Returns the file path.
+ * Returns the file path.
  */
 const char *File::getFilename ()
 {
@@ -224,8 +223,8 @@ const char *File::getFilename ()
 }
 
 /*!
- *Create a temporary file.
- *\param filename The new temporary file name.
+ * Create a temporary file.
+ * \param filename The new temporary file name.
  */
 int File::createTemporaryFile (const char* filename)
 {
@@ -233,10 +232,10 @@ int File::createTemporaryFile (const char* filename)
     FilesUtility::deleteFile (filename);
 
   return openFile (filename, File::READ
-                  | File::WRITE
-                  | File::FILE_CREATE_ALWAYS
-                  | File::TEMPORARY
-                  | File::NO_INHERIT);
+                   | File::WRITE
+                   | File::FILE_CREATE_ALWAYS
+                   | File::TEMPORARY
+                   | File::NO_INHERIT);
 }
 
 /*!
@@ -271,8 +270,8 @@ u_long File::getFileSize ()
 }
 
 /*!
- *Change the position of the pointer to the file.
- *\param initialByte The new file pointer position.
+ * Change the position of the pointer to the file.
+ * \param initialByte The new file pointer position.
  */
 int File::seek (u_long initialByte)
 {
@@ -284,7 +283,7 @@ int File::seek (u_long initialByte)
 /*!
  * Get the current file pointer position.
  *
- *\return The current file pointer position.
+ * \return The current file pointer position.
  */
 u_long File::getSeek ()
 {
@@ -292,7 +291,7 @@ u_long File::getSeek ()
 }
 
 /*!
- *Get the time of the last modifify did to the file.
+ * Get the time of the last modifify did to the file.
  */
 time_t File::getLastModTime ()
 {
@@ -300,7 +299,7 @@ time_t File::getLastModTime ()
 }
 
 /*!
- *This function returns the creation time of the file.
+ * This function returns the creation time of the file.
  */
 time_t File::getCreationTime ()
 {
@@ -308,7 +307,7 @@ time_t File::getCreationTime ()
 }
 
 /*!
- *Returns the time of the last access to the file.
+ * Returns the time of the last access to the file.
  */
 time_t File::getLastAccTime ()
 {
@@ -316,7 +315,7 @@ time_t File::getLastAccTime ()
 }
 
 /*!
- *Inherited from Stream.
+ * Inherited from Stream.
  */
 int File::write (const char* buffer, u_long len, u_long *nbw)
 {
@@ -324,16 +323,16 @@ int File::write (const char* buffer, u_long len, u_long *nbw)
 }
 
 /*!
- *Read data from a file to a buffer.
- *Return a negative value on errors.
- *Return 0 on success.
- *\param buffer The buffer where write.
- *\param buffersize The length of the buffer in bytes.
- *\param nbr How many bytes were read to the buffer.
+ * Read data from a file to a buffer.
+ * Return a negative value on errors.
+ * Return 0 on success.
+ * \param buffer The buffer where write.
+ * \param buffersize The length of the buffer in bytes.
+ * \param nbr How many bytes were read to the buffer.
  */
 int File::read (char* buffer, u_long buffersize, u_long* nbr)
 {
-  int ret  = ::read (handle, buffer, buffersize);
+  int ret = ::read (handle, buffer, buffersize);
   if (ret < 0)
     return ret;
 
