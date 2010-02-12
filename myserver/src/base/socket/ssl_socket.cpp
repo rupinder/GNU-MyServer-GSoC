@@ -28,7 +28,9 @@ extern "C"
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <sys/ioctl.h>
-#ifndef WIN32
+#ifdef WIN32
+# include <w32sock.h>
+#else
 # include <netdb.h>
 # include <unistd.h>
 # include <netinet/in.h>
@@ -46,6 +48,7 @@ using namespace std;
 SslSocket::SslSocket (Socket* sock) : Socket (sock)
 {
   this->sock = sock;
+  this->fd = sock->getHandle ();
   sslConnection = 0;
   sslContext = 0;
   clientCert = 0;
@@ -56,6 +59,7 @@ SslSocket::SslSocket (Socket* sock) : Socket (sock)
 SslSocket::SslSocket ()
 {
   this->sock = NULL;
+  this->fd = -1;
   sslConnection = 0;
   sslContext = 0;
   clientCert = 0;
@@ -100,8 +104,8 @@ int SslSocket::rawSend (const char* buffer, int len, int flags)
     {
       err = SSL_write (sslConnection, buffer, len);
     }while ((err <= 0) &&
-            (SSL_get_error (sslConnection,err) == SSL_ERROR_WANT_WRITE
-             || SSL_get_error (sslConnection,err) == SSL_ERROR_WANT_READ));
+            (SSL_get_error (sslConnection, err) == SSL_ERROR_WANT_WRITE
+             || SSL_get_error (sslConnection, err) == SSL_ERROR_WANT_READ));
   if (err <= 0)
     return -1;
   else
@@ -142,7 +146,7 @@ int SslSocket::connect (MYSERVER_SOCKADDR* sa, int na)
       sslContext = 0;
       return -1;
     }
-  SSL_set_fd (sslConnection, fd);
+  SSL_set_fd (sslConnection, FD_TO_SOCKET (fd));
   if (SSL_connect (sslConnection) < 0)
     {
       SSL_CTX_free (sslContext);
@@ -194,16 +198,18 @@ SSL* SslSocket::getSSLConnection ()
 }
 
 /*!
- *SSL handshake procedure.
- *Return nonzero on errors.
+ * SSL handshake procedure.
+ * Return nonzero on errors.
  */
 int SslSocket::sslAccept ()
 {
   int sslAccept;
   if (sslContext == 0)
     return -1;
+
   if (sslConnection)
     freeSSL ();
+
   sslConnection = SSL_new (sslContext);
   if (sslConnection == 0)
     {
@@ -211,7 +217,7 @@ int SslSocket::sslAccept ()
       return -1;
     }
 
-  if (SSL_set_fd (sslConnection, fd) == 0)
+  if (SSL_set_fd (sslConnection, FD_TO_SOCKET (fd)) == 0)
     {
       shutdown (2);
       freeSSL ();
@@ -221,10 +227,11 @@ int SslSocket::sslAccept ()
   do
     {
       sslAccept = SSL_accept (sslConnection);
-    }while (sslAccept != 1
-            && SSL_get_error (sslConnection, sslAccept) == SSL_ERROR_WANT_READ);
+    }
+  while (sslAccept != 1
+         && SSL_get_error (sslConnection, sslAccept) == SSL_ERROR_WANT_READ);
 
-  if (sslAccept != 1 )
+  if (sslAccept != 1)
     {
       shutdown (2);
       freeSSL ();
