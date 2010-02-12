@@ -19,6 +19,7 @@
 
 #include <include/base/ssl/ssl.h>
 #include <include/base/file/files_utility.h>
+#include <include/base/sync/mutex.h>
 
 #include <string.h>
 
@@ -100,6 +101,42 @@ int SslContext::free ()
   return ret;
 }
 
+#if !HAVE_LIBGCRYPT || !HAVE_PTHREAD
+
+static int gcry_lock (void **mutex)
+{
+  return ((Mutex *) *mutex)->lock ();
+}
+
+static int gcry_unlock (void **mutex)
+{
+  return ((Mutex *) *mutex)->unlock ();
+}
+
+static int gcry_init (void **mutex)
+{
+  *mutex = new Mutex ();
+  return 0;
+}
+
+static int gcry_destroy (void **mutex)
+{
+  delete (Mutex *) *mutex;
+  return 0;
+}
+
+static struct gcry_thread_cbs myserver_gcry_cbs =
+  {
+    GCRY_THREAD_OPTION_USER,
+    NULL,
+    gcry_init,
+    gcry_destroy,
+    gcry_lock,
+    gcry_unlock
+  };
+
+#endif
+
 void initializeSSL ()
 {
   static bool initialized = false;
@@ -108,6 +145,9 @@ void initializeSSL ()
     {
 #if HAVE_LIBGCRYPT && HAVE_PTHREAD
       gcry_control (GCRYCTL_SET_THREAD_CBS, &gcry_threads_pthread);
+      gcry_control (GCRYCTL_INITIALIZATION_FINISHED);
+#else
+      gcry_control (GCRYCTL_SET_THREAD_CBS, &myserver_gcry_cbs);
       gcry_control (GCRYCTL_INITIALIZATION_FINISHED);
 #endif
       gnutls_global_init ();
