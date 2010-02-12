@@ -24,9 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 extern "C"
 {
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <sys/ioctl.h>
+#include <errno.h>
 
 #ifndef WIN32
 # include <unistd.h>
@@ -34,9 +33,6 @@ extern "C"
 # include <netinet/in.h>
 # include <arpa/inet.h>
 #endif
-
-#include <sys/select.h>
-#include <errno.h>
 }
 
 #include <sstream>
@@ -535,7 +531,12 @@ int Socket::connect (MYSERVER_SOCKADDR* sa, int na)
  */
 int Socket::recv (char* buffer, int len, int flags, u_long timeout)
 {
-  if (dataOnRead (timeout / 1000, timeout % 1000))
+  int ret = dataOnRead (timeout / 1000, timeout % 1000);
+
+  if (ret < 0)
+    return ret;
+
+  if (ret)
     return recv (buffer, len, flags);
 
   return 0;
@@ -661,7 +662,6 @@ int Socket::dataOnRead (int sec, int usec)
   FD_SET (fd, &readfds);
 
   ret = ::select (fd + 1, &readfds, NULL, NULL, &tv);
-
   if (ret <= 0)
     return 0;
 
