@@ -1,3 +1,4 @@
+AM_CXXFLAGS="-I$(top_srcdir)/lib"
 bin_PROGRAMS = test_suite
 test_suite_SOURCES =  	main.cpp				\
 			memory_socket.h			\
