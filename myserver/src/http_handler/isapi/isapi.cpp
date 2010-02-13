@@ -277,13 +277,13 @@ BOOL WINAPI ISAPI_WriteClientExport (HCONN hConn, LPVOID Buffer, LPDWORD lpdwByt
               if (keepalive)
                 {
                   HttpResponseHeader::Entry *e;
-                  e = ConnInfo->td->response.other.get ("Transfer-Encoding");
+                  e = ConnInfo->td->response.other.get ("Transfer-encoding");
                   if (e)
                     e->value->assign ("chunked");
                   else
                     {
                       e = new HttpResponseHeader::Entry ();
-                      e->name->assign ("Transfer-Encoding");
+                      e->name->assign ("Transfer-encoding");
                       e->value->assign ("chunked");
                       ConnInfo->td->response.other.put (*(e->name), e);
                     }

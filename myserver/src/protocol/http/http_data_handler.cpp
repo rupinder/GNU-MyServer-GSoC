@@ -204,13 +204,13 @@ HttpDataHandler::checkDataChunks (HttpThreadContext* td, bool* keepalive,
   if (*keepalive)
     {
       HttpResponseHeader::Entry *e;
-      e = td->response.other.get ("Transfer-Encoding");
+      e = td->response.other.get ("Transfer-encoding");
       if (e)
         e->value->assign ("chunked");
       else
         {
           e = new HttpResponseHeader::Entry ();
-          e->name->assign ("Transfer-Encoding");
+          e->name->assign ("Transfer-encoding");
           e->value->assign ("chunked");
           td->response.other.put (*(e->name), e);
         }

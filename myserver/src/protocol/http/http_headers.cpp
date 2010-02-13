@@ -73,9 +73,9 @@ u_long HttpHeaders::buildHTTPResponseHeader (char *str,
     {
       /*
        * Do not specify the Content-length field if it is used
-       * the chunked Transfer-Encoding.
+       * the chunked Transfer-encoding.
        */
-      HttpResponseHeader::Entry *e = response->other.get ("Transfer-Encoding");
+      HttpResponseHeader::Entry *e = response->other.get ("Transfer-encoding");
 
       if (!e || (e && e->value->find ("chunked", 0) == string::npos ))
         {

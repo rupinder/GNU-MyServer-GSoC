@@ -179,7 +179,7 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
 
   string transferEncoding;
   bool hasTransferEncoding = false;
-  tmp = td->response.getValue ("Transfer-Encoding", NULL);
+  tmp = td->response.getValue ("Transfer-encoding", NULL);
   if (tmp)
     {
       hasTransferEncoding = false;
@@ -187,7 +187,7 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
     }
 
   if (useChunks)
-    td->response.setValue ("Transfer-Encoding", "chunked");
+    td->response.setValue ("Transfer-encoding", "chunked");
 
 
   u_long hdrLen = HttpHeaders::buildHTTPResponseHeader (td->buffer->getBuffer (),
@@ -231,7 +231,7 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
   \param useChunks Use chunked transfer encoding
   with the client.
   \param keepalive The connection is keep-alive.
-  \param serverTransferEncoding Transfer-Encoding
+  \param serverTransferEncoding Transfer-encoding
   used by the server.
 
   \return -1 on error.

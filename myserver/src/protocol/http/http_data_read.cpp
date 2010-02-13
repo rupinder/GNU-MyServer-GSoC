@@ -246,7 +246,7 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
     td->request.other.get ("Content-type");
 
   HttpRequestHeader::Entry *encoding =
-    td->request.other.get ("Transfer-Encoding");
+    td->request.other.get ("Transfer-encoding");
 
   /* Specify a type if it not specified by the client.  */
   if (contentType == 0)
