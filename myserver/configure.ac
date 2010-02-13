@@ -325,8 +325,7 @@ fi
 
 LDFLAGS="$LDFLAGS $LIBS $pic_flag"
 CFLAGS="$pic_flag $CFLAGS"
-# FIXME: Define in every Makefile.am
-CXXFLAGS="-I$(pwd)/lib $pic_flag $CXXFLAGS"
+CXXFLAGS="$pic_flag $CXXFLAGS"
 
 AC_SUBST(CFLAGS)
 AC_SUBST(CXXFLAGS)

@@ -1,3 +1,4 @@
+AM_CXXFLAGS="-I$(top_srcdir)/lib"
 lib_LIBRARIES = libfile.a
 libfile_a_SOURCES = file.cpp files_utility.cpp
 SUBDIRS =

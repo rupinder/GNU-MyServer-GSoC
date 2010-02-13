@@ -1,4 +1,4 @@
-# Makefile for MyServer (./src)
+AM_CXXFLAGS="-I$(top_srcdir)/lib"
 SUBDIRS = base conf connection connections_scheduler filter http_handler \
 	log plugin protocol server GUI
 AM_CPPFLAGS = $(all_includes)

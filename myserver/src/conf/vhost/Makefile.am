@@ -1,3 +1,4 @@
+AM_CXXFLAGS="-I$(top_srcdir)/lib"
 lib_LIBRARIES = libvhost.a
 libvhost_a_SOURCES = vhost.cpp vhost_manager.cpp ip.cpp xml_vhost_handler.cpp
 SUBDIRS =

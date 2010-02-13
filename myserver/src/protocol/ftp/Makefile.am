@@ -1,3 +1,4 @@
+AM_CXXFLAGS="-I$(top_srcdir)/lib"
 lib_LIBRARIES = libftp.a
 libftp_a_SOURCES = ftp.cpp ftp_lexer.cpp ftp_parser.cpp
 EXTRA_DIST = ftp_lexer.out.cpp  ftp_parser.ypp  ftp_lexer.lpp

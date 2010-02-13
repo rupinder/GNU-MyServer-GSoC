@@ -1,4 +1,5 @@
 # Makefile for math_sum
+AM_CXXFLAGS="-I$(top_srcdir)/lib"
 lib_LIBRARIES = libmath_sum.a
 libmath_sum_a_SOURCES = math_sum.cpp
 

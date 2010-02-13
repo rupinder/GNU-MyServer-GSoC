@@ -1,3 +1,4 @@
+AM_CXXFLAGS="-I$(top_srcdir)/lib"
 lib_LIBRARIES = libfastcgi.a
 libfastcgi_a_SOURCES = fastcgi.cpp
 SUBDIRS =

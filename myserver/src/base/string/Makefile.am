@@ -1,3 +1,4 @@
+AM_CXXFLAGS="-I$(top_srcdir)/lib"
 lib_LIBRARIES = libstring.a
 libstring_a_SOURCES = securestr.cpp stringutils.cpp
 SUBDIRS =

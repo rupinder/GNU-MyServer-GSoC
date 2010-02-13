@@ -1,3 +1,4 @@
+AM_CXXFLAGS="-I$(top_srcdir)/lib"
 lib_LIBRARIES = libbase.a
 libbase_a_SOURCES = utility.cpp
 SUBDIRS = base64 bitvec crypt dynamic_lib file files_cache read_directory \

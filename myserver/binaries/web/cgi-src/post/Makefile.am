@@ -1,4 +1,5 @@
 # Makefile for post
+AM_CXXFLAGS="-I$(top_srcdir)/lib"
 lib_LIBRARIES = libpost.a
 libpost_a_SOURCES = post.cpp
 

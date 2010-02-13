@@ -1,3 +1,4 @@
+AM_CXXFLAGS="-I$(top_srcdir)/lib"
 lib_LIBRARIES = libstream.a
 libstream_a_SOURCES = console_stream.cpp file_stream.cpp \
 		log_stream.cpp log_stream_factory.cpp \

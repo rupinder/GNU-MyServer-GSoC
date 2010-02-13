@@ -1,3 +1,4 @@
+AM_CXXFLAGS="-I$(top_srcdir)/lib"
 install:
 if BUILD_GUI
 	cp ../../COPYING MyServer/GUI/

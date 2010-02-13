@@ -1,3 +1,4 @@
+AM_CXXFLAGS="-I$(top_srcdir)/lib"
 lib_LIBRARIES = libconf.a
 libconf_a_SOURCES = nodetree.cpp xml_conf.cpp
 SUBDIRS = main mime security vhost
