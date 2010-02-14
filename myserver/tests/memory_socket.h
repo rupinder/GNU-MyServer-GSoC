@@ -36,7 +36,7 @@ public:
   virtual int recv (char*, int, int) {return 0;}
   virtual u_long bytesToRead () {return 0;}
 
-  virtual int dataOnRead (int sec = 0, int usec = 500){return 0;}
+  virtual int dataAvailable (int sec = 0, int usec = 500){return 0;}
 
   int read (char* buffer, u_long len, u_long *nbr)
   {

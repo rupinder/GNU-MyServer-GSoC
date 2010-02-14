@@ -98,7 +98,7 @@ public:
   int getsockname (MYSERVER_SOCKADDR*,int*);
   int setNonBlocking (int);
   bool getNonBlocking () {return isNonBlocking;}
-  virtual int dataOnRead (int sec = 0, int usec = 500);
+  virtual int dataAvailable (int sec = 0, int usec = 500);
 
   u_long getThrottling ();
   void setThrottling (u_long);

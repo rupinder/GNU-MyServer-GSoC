@@ -531,7 +531,7 @@ int Socket::connect (MYSERVER_SOCKADDR* sa, int na)
  */
 int Socket::recv (char* buffer, int len, int flags, u_long timeout)
 {
-  int ret = dataOnRead (timeout / 1000, timeout % 1000);
+  int ret = dataAvailable (timeout / 1000, timeout % 1000);
 
   if (ret < 0)
     return ret;
@@ -650,7 +650,7 @@ Socket* Socket::getServerSocket ()
  *Check if there is data ready to be read.
  *Returns 1 if there is data to read, 0 if not.
  */
-int Socket::dataOnRead (int sec, int usec)
+int Socket::dataAvailable (int sec, int usec)
 {
   struct timeval tv;
   fd_set readfds;

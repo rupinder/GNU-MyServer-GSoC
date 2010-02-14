@@ -54,9 +54,9 @@ public:
   virtual u_long bytesToRead ();
 
 # ifdef __HURD__
-  virtual int dataOnRead (int sec = 1, int usec = 500);
+  virtual int dataAvailable (int sec = 1, int usec = 500);
 # else
-  virtual int dataOnRead (int sec = 0, int usec = 500);
+  virtual int dataAvailable (int sec = 0, int usec = 500);
 # endif
 
   SslSocket ();

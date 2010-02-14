@@ -121,7 +121,7 @@ public:
 
     CPPUNIT_ASSERT_EQUAL (Thread::create (&tid, testRecvClient, &arg), 0);
 
-    CPPUNIT_ASSERT (obj->dataOnRead (5));
+    CPPUNIT_ASSERT (obj->dataAvailable (5));
 
     Socket s = obj->accept (&sockIn, &sockInLen);
 

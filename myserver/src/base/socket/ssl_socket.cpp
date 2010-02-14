@@ -306,11 +306,11 @@ u_long SslSocket::bytesToRead ()
 /*!
  *Check if there is data ready to be read.
  */
-int SslSocket::dataOnRead (int sec, int usec)
+int SslSocket::dataAvailable (int sec, int usec)
 {
   if (bytesToRead ())
     return 1;
 
-  return Socket::dataOnRead (sec, usec);
+  return Socket::dataAvailable (sec, usec);
 }
 

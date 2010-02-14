@@ -537,7 +537,7 @@ void Ftp::pasv ()
   MYSERVER_SOCKADDRIN asockIn;
   socklen_t asockInLen = 0;
   Socket *asock;
-  if (pFtpuserData->m_pDataConnection->socket->dataOnRead (timeoutvalue, 0)
+  if (pFtpuserData->m_pDataConnection->socket->dataAvailable (timeoutvalue, 0)
       == 1)
     {
       asockInLen = sizeof (sockaddr_in);
