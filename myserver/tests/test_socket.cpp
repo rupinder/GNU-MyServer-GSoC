@@ -178,7 +178,7 @@ static DEFINE_THREAD (testRecvClient, pParam)
     {
       int ret;
       Socket *obj2 = new Socket;
-      char host[] = "localhost";
+      char host[] = "127.0.0.1";
 
       ret = obj2->socket (AF_INET, SOCK_STREAM, 0);
       CPPUNIT_ASSERT (ret != -1);
