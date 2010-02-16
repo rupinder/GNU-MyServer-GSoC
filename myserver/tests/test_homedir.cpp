@@ -76,7 +76,7 @@ public:
                 || errno == EPERM))
       return;
 #elif !WIN32
-    if (! FilesUtility::fileExists ("/etc/passwd") || dir.length ())
+    if (! FilesUtility::fileExists ("/etc/passwd") || !dir.length ())
       return;
 #endif
 
