@@ -33,7 +33,7 @@ extern "C"
 # include <sys/types.h>
 # include <sys/wait.h>
 
-# ifdef GETPWNAM
+# ifdef HAVE_GETPWNAM
 #  include <pwd.h>
 # endif
 
@@ -335,7 +335,7 @@ uid_t Process::getUid (const char *user)
         return uid;
     }
 
-# ifdef GETPWNAM
+# ifdef HAVE_GETPWNAM
   struct passwd *u = getpwnam (user);
   if (u != NULL)
     return u->pw_uid;

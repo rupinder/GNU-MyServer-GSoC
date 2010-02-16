@@ -70,7 +70,7 @@ public:
     int ret = homeDir->getHomeDir (username, dir);
 
     /* FIXME: handle this case in homeDir::getHomeDir.  */
-#if GETPWNAM
+#if HAVE_GETPWNAM
     /* If the user could not be found, silently return.  */
     if (ret && (errno == ENOENT || errno == ESRCH || errno == EBADF
                 || errno == EPERM))

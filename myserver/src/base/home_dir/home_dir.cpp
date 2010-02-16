@@ -34,7 +34,7 @@ extern "C"
 #include <stdarg.h>
 #include <stdio.h>
 
-#ifdef GETPWNAM
+#ifdef HAVE_GETPWNAM
 # include <pwd.h>
 #endif
 
@@ -64,7 +64,7 @@ HomeDir::HomeDir ()
 {
 #ifdef WIN32
   data.assign ("");
-#elif !GETPWNAM
+#elif !HAVE_GETPWNAM
   data.clear ();
 #endif
   timestamp = 0;
@@ -89,7 +89,7 @@ void HomeDir::clear ()
 {
 #ifdef WIN32
   data.assign ("");
-#elif !GETPWNAM
+#elif !HAVE_GETPWNAM
   HashMap<string, string*>::Iterator i = data.begin ();
   for (; i != data.end (); i++)
     {
@@ -138,7 +138,7 @@ int HomeDir::loadImpl ()
         }
     }
   data.assign (buf);
-#elif !GETPWNAM
+#elif !HAVE_GETPWNAM
   File usersFile;
   u_long size;
   char* buffer;
@@ -235,7 +235,7 @@ int HomeDir::getHomeDir (string& userName, string& out)
   out.assign (data);
   out.append ("/");
   out.append (userName);
-#elif GETPWNAM
+#elif HAVE_GETPWNAM
   struct passwd *p;
   int ret = 0;
 

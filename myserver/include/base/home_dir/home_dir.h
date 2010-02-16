@@ -47,7 +47,7 @@ private:
 
 # ifdef WIN32
   string data;
-# elif !GETPWNAM
+# elif !HAVE_GETPWNAM
   HashMap<string, string*> data;
 # endif
   time_t timestamp;
