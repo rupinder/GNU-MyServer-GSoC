@@ -40,10 +40,7 @@ public:
     return open (filename.c_str ());
   };
 
-  virtual const char *getValue (const char* field)
-  {
-    return xmlParser.getValue (field);
-  }
+  virtual const char *getValue (const char* field);
 
   virtual const char *getValue (string const &field)
   {

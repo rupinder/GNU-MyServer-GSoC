@@ -23,36 +23,80 @@
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <include/base/file/files_utility.h>
+
+#define KEY "foo.bar"
+#define VALUE "value"
+#define XML_FILE "foo.xml"
+#define XML_CONTENT "<?xml version=\"1.0\"?>\n<MYSERVER>"   \
+  "<DEFINE name=\"" KEY "\" value=\"garbage\" />"             \
+  "<DEFINE name=\"" KEY "\" value=\"" VALUE "\" />"             \
+  "</MYSERVER>\n"
+
 class TestXmlMainConfiguration : public CppUnit::TestFixture
 {
-  /* FIXME: Actually these tests don't really check if things work, simply they
-     check that they don't work when they shouldn't.  */
-	CPPUNIT_TEST_SUITE (TestXmlMainConfiguration);
-	CPPUNIT_TEST (testOpen);
-	CPPUNIT_TEST (testGetDoc);
-	CPPUNIT_TEST (testClose);
-	CPPUNIT_TEST_SUITE_END ();
+  CPPUNIT_TEST_SUITE (TestXmlMainConfiguration);
+  CPPUNIT_TEST (testOpen);
+  CPPUNIT_TEST (testGetDoc);
+  CPPUNIT_TEST (testGetValue);
+  CPPUNIT_TEST (testClose);
+  CPPUNIT_TEST_SUITE_END ();
 
+  File xmlFile;
+  XmlMainConfiguration xmlConf;
 public:
-	void setUp () {}
-	void tearDown () {}
-	void testOpen ()
-	{
-    XmlMainConfiguration xmlConf;
-		CPPUNIT_ASSERT (xmlConf.open ("bla/bla/bla"));
-	}
+  void setUp ()
+  {
+    u_long nbw;
+    xmlFile.openFile (XML_FILE, File::WRITE | File::READ
+                      | File::FILE_CREATE_ALWAYS);
+    CPPUNIT_ASSERT_EQUAL (xmlFile.write (XML_CONTENT, strlen (XML_CONTENT),
+                                           &nbw), 0);
+    CPPUNIT_ASSERT_EQUAL (nbw, static_cast<u_long> (strlen (XML_CONTENT)));
 
-	void testGetDoc ()
-	{
-    XmlMainConfiguration xmlConf;
-		CPPUNIT_ASSERT_EQUAL (xmlConf.getDoc (), (xmlDocPtr)NULL);
-	}
+    CPPUNIT_ASSERT_EQUAL (xmlConf.open (XML_FILE), 0);
+  }
+  void tearDown ()
+  {
+    CPPUNIT_ASSERT_EQUAL (xmlConf.close (), 0);
+    FilesUtility::deleteFile (XML_FILE);
+  }
 
-	void testClose ()
-	{
-    XmlMainConfiguration xmlConf;
-		CPPUNIT_ASSERT (xmlConf.close ());
-	}
+  void testOpen ()
+  {
+    XmlMainConfiguration tmpXmlConf;
+
+    /* These files don't exist.  */
+    CPPUNIT_ASSERT (tmpXmlConf.open ("foo/bar/baz.xml"));
+    CPPUNIT_ASSERT (tmpXmlConf.open ("baz.xml"));
+
+    CPPUNIT_ASSERT_EQUAL (tmpXmlConf.open (XML_FILE), 0);
+    CPPUNIT_ASSERT_EQUAL (tmpXmlConf.close (), 0);
+  }
+
+  void testGetDoc ()
+  {
+    XmlMainConfiguration tmpXmlConf;
+    CPPUNIT_ASSERT_EQUAL (tmpXmlConf.getDoc (), static_cast <xmlDocPtr> (NULL));
+    CPPUNIT_ASSERT (xmlConf.getDoc ());
+  }
+
+  void testGetValue ()
+  {
+    const char *ret = xmlConf.getValue (KEY);
+    CPPUNIT_ASSERT (ret);
+    CPPUNIT_ASSERT (! strcmp (ret, VALUE));
+    CPPUNIT_ASSERT_EQUAL (strcmp (ret, VALUE), 0);
+  }
+
+  void testClose ()
+  {
+    XmlMainConfiguration tmpXmlConf;
+
+    CPPUNIT_ASSERT (tmpXmlConf.close ());
+    CPPUNIT_ASSERT_EQUAL (tmpXmlConf.open (XML_FILE), 0);
+    CPPUNIT_ASSERT_EQUAL (tmpXmlConf.close (), 0);
+  }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION (TestXmlMainConfiguration);

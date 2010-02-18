@@ -36,3 +36,35 @@ void XmlMainConfiguration::readData (list<NodeTree<string>*> *hashedDataTrees,
   xmlNodePtr root = xmlDocGetRootElement (xmlParser.getDoc ())->xmlChildrenNode;
   XmlConf::build (root, hashedDataTrees, hashedData);
 }
+
+/*!
+ * Return the last value defined as <DEFINE name="FIELD" value="VALUE" /> in the
+ * xml file.
+ */
+const char *XmlMainConfiguration::getValue (const char* field)
+{
+  const char *ret = NULL;
+  xmlNodePtr lcur = xmlDocGetRootElement (xmlParser.getDoc ())->xmlChildrenNode;
+  xmlAttr *attrs;
+  for (; lcur; lcur = lcur->next)
+    if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *) "DEFINE"))
+      {
+        NodeTree<string> *node = new NodeTree<string> ();
+        const char *name = NULL;
+        const char *value = NULL;
+
+        for (attrs = lcur->properties; attrs; attrs = attrs->next)
+          {
+            if (!xmlStrcmp (attrs->name, (const xmlChar *) "name") &&
+                attrs->children && attrs->children->content)
+              name = (const char*)attrs->children->content;
+            else if (!xmlStrcmp (attrs->name, (const xmlChar *) "value") &&
+                attrs->children && attrs->children->content)
+              value = (const char*)attrs->children->content;
+          }
+        if (! strcmp (name, field))
+          ret = value;
+      }
+
+  return ret;
+}
