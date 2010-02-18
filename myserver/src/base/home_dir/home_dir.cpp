@@ -228,6 +228,8 @@ int HomeDir::loadImpl ()
  * \param userName The user name.
  * \param out The buffer where write.
  * \return 0 on success.
+ * \return < 0 on error.
+ * \return > 0 if the user home directory does not exist.
  */
 int HomeDir::getHomeDir (string& userName, string& out)
 {
@@ -235,6 +237,7 @@ int HomeDir::getHomeDir (string& userName, string& out)
   out.assign (data);
   out.append ("/");
   out.append (userName);
+  return FilesUtility::fileExists (out.c_str ()) ? 0 : 1;
 #elif HAVE_GETPWNAM
   struct passwd *p;
   int ret = 0;
@@ -249,13 +252,18 @@ int HomeDir::getHomeDir (string& userName, string& out)
 
   loadMutex.unlock ();
 
-  return ret;
+  /* The user was not found.  */
+  if (p == NULL && (errno == ENOENT || errno == ESRCH || errno == EBADF
+                    || errno == EPERM))
+    return 1;
+
+  return p ? 0 : -1;
 #else
   static u_long lastCheckTime = 0;
   string *res = 0;
 
   if (!loaded)
-    return 1;
+    return -1;
 
   if (getTicks () - lastCheckTime > MYSERVER_SEC (1))
     {
@@ -265,9 +273,13 @@ int HomeDir::getHomeDir (string& userName, string& out)
     }
   res = data.get (userName);
   if (res)
+    {
       out.assign (*res);
+      return 0;
+    }
   else
-    out.assign ("");
+    return 1;
 #endif
-  return 0;
+
+  return -1;
 }

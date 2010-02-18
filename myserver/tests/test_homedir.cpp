@@ -17,13 +17,10 @@
 
 #include "myserver.h"
 #include <include/base/home_dir/home_dir.h>
-#include <include/base/file/files_utility.h>
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
-
-#include <errno.h>
 
 class TestHomeDir : public CppUnit::TestFixture
 {
@@ -62,28 +59,14 @@ public:
     username.assign ("root");
 #endif
     string dir;
-
-#if !WIN32
-    errno = 0;
-#endif
-
     int ret = homeDir->getHomeDir (username, dir);
 
-    /* FIXME: handle this case in homeDir::getHomeDir.  */
-#if HAVE_GETPWNAM
     /* If the user could not be found, silently return.  */
-    if (ret && (errno == ENOENT || errno == ESRCH || errno == EBADF
-                || errno == EPERM))
+    if (ret > 0)
       return;
-#elif !WIN32
-    if (! FilesUtility::fileExists ("/etc/passwd") || !dir.length ())
-      return;
-#endif
 
     CPPUNIT_ASSERT_EQUAL (ret, 0);
-
     CPPUNIT_ASSERT (dir.length ());
-
     homeDir->clear ();
   }
 
