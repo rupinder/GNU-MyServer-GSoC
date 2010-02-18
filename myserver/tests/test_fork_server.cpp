@@ -89,7 +89,7 @@ public:
         spi.stdError = -1;
         spi.stdOut =  pipe.getWriteHandle ();
 
-        if (!FilesUtility::fileExists ("/bin/echo"))
+        if (!FilesUtility::nodeExists ("/bin/echo"))
           return;
 
         spi.cmd.assign ("/bin/echo");

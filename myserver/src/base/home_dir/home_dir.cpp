@@ -237,7 +237,7 @@ int HomeDir::getHomeDir (string& userName, string& out)
   out.assign (data);
   out.append ("/");
   out.append (userName);
-  return FilesUtility::fileExists (out.c_str ()) ? 0 : 1;
+  return FilesUtility::nodeExists (out.c_str ()) ? 0 : 1;
 #elif HAVE_GETPWNAM
   struct passwd *p;
   int ret = 0;

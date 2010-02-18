@@ -520,7 +520,7 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped, int* permissio
           if (next >= filenamePathLen)
             break;
 
-          if (mimeLoc || (FilesUtility::fileExists (curr.c_str ())
+          if (mimeLoc || (FilesUtility::nodeExists (curr.c_str ())
                           && !FilesUtility::isDirectory (curr.c_str ())))
             {
               td->pathInfo.assign (&(td->filenamePath.c_str ()[next]));
@@ -1425,7 +1425,7 @@ int Http::raiseHTTPError (int ID)
           HttpErrors::getErrorPage (ID, page);
           errorFile << td->getVhostSys () << "/" << page;
 
-          if (FilesUtility::fileExists (errorFile.str ().c_str ()))
+          if (FilesUtility::nodeExists (errorFile.str ().c_str ()))
             {
               string errorFileStr = errorFile.str ();
               return sendHTTPResource (errorFileStr, 1, td->onlyHeader);
@@ -1645,7 +1645,7 @@ int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
           defaultFileName.clear ();
           defaultFileName << td->filenamePath << "/" << *file;
 
-          if (FilesUtility::fileExists (defaultFileName.str ().c_str ()))
+          if (FilesUtility::nodeExists (defaultFileName.str ().c_str ()))
             {
               ostringstream nUrl;
 

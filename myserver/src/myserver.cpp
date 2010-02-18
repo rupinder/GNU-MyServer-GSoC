@@ -230,7 +230,7 @@ int loadExternalPath (string &externalPath)
 #ifdef WIN32
       externalPath.assign ("plugins");
 #else
-      if (FilesUtility::fileExists ("plugins"))
+      if (FilesUtility::nodeExists ("plugins"))
         externalPath.assign ("plugins");
       else
         {
@@ -263,7 +263,7 @@ int loadConfFileLocation (string &outFile, string fileName, const char *dir)
 
 #ifdef WIN32
       outFile = fileName;
-      return FilesUtility::fileExists (fileName) ? 0 : -1;
+      return FilesUtility::nodeExists (fileName) ? 0 : -1;
 #else
 
       if (dir)
@@ -273,7 +273,7 @@ int loadConfFileLocation (string &outFile, string fileName, const char *dir)
             outFile += "/";
 
           outFile += fileName;
-          return !FilesUtility::fileExists (outFile);
+          return !FilesUtility::nodeExists (outFile);
         }
 
       /* Look for .xml files in the following order:
@@ -282,18 +282,18 @@ int loadConfFileLocation (string &outFile, string fileName, const char *dir)
          2) ~/.myserver/
          3) /etc/myserver/
       */
-      if (FilesUtility::fileExists (fileName))
+      if (FilesUtility::nodeExists (fileName))
         {
           outFile = fileName;
           return 0;
         }
 
       outFile = "~/.myserver/" + fileName;
-      if (FilesUtility::fileExists (outFile))
+      if (FilesUtility::nodeExists (outFile))
         return 0;
 
       outFile = "/etc/myserver/" + fileName;
-      if (FilesUtility::fileExists (outFile))
+      if (FilesUtility::nodeExists (outFile))
         return 0;
 #endif
     }

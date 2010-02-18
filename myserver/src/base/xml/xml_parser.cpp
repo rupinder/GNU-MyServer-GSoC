@@ -86,7 +86,7 @@ int XmlParser::open (const char* filename, bool useXpath)
   cur = NULL;
   this->useXpath = useXpath;
 
-  if (!FilesUtility::fileExists (filename))
+  if (!FilesUtility::nodeExists (filename))
     return -1;
 
   if (doc!= NULL)

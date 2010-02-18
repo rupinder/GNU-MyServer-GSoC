@@ -89,7 +89,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
   if (!(td->permissions & MYSERVER_PERMISSION_EXECUTE))
     return td->http->sendAuth ();
 
-  if (!FilesUtility::fileExists (scriptpath))
+  if (!FilesUtility::nodeExists (scriptpath))
     return td->http->raiseHTTPError (404);
 
   FilesUtility::splitPath (scriptpath, pathname, execname);
@@ -260,7 +260,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
   /*
    *Create the out file.
    */
-  if (!FilesUtility::fileExists (outFilePath))
+  if (!FilesUtility::nodeExists (outFilePath))
     {
       ret = OutFileHandle.openFile (outFilePath, File::FILE_CREATE_ALWAYS);
       if (ret)

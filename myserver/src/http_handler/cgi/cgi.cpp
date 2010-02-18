@@ -87,7 +87,7 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
 
   td->scriptPath.assign (scriptpath);
 
-  if (!FilesUtility::fileExists (scriptpath))
+  if (!FilesUtility::nodeExists (scriptpath))
     return td->http->raiseHTTPError (404);
 
   int subString = cgipath[0] == '"';
@@ -174,7 +174,7 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
     }
   else
     {
-      if (!FilesUtility::fileExists (tmpCgiPath.c_str ()))
+      if (!FilesUtility::nodeExists (tmpCgiPath.c_str ()))
         {
           if (tmpCgiPath.length () > 0)
             td->connection->host->warningsLogWrite (_("Cgi: cannot find the %s file")),

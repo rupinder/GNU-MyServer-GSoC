@@ -259,7 +259,7 @@ int FilesUtility::isLink (const char* filename)
   if (ret < 0)
     return 0;
 
-  return (S_ISLNK (F_Stats.st_mode))? 1 : 0;
+  return S_ISLNK (F_Stats.st_mode) ? 1 : 0;
 #endif
 
 }
@@ -268,7 +268,7 @@ int FilesUtility::isLink (const char* filename)
  * Returns a non-null value if the given path is a valid file.
  * \param filename The path to check.
  */
-int FilesUtility::fileExists (const char* filename)
+int FilesUtility::nodeExists (const char* filename)
 {
 #ifdef WIN32
   HANDLE hFile = CreateFile (filename, GENERIC_READ, FILE_SHARE_READ,
@@ -283,8 +283,8 @@ int FilesUtility::fileExists (const char* filename)
   int ret = stat (filename, &fstats);
   if (ret < 0)
     return 0;
-  /*! Return 1 if it is a regular file or a directory.  */
-  return (S_ISREG (fstats.st_mode) | S_ISDIR (fstats.st_mode))? 1 : 0;
+
+  return 1;
 #endif
 }
 

@@ -107,7 +107,7 @@ int SecurityCache::getSecurityFile (const string& dir,
   secFile.append (secFileName);
 
   /* The security file exists in the directory.  */
-  if (FilesUtility::fileExists (secFile))
+  if (FilesUtility::nodeExists (secFile))
   {
     out.assign (secFile);
     return 0;
@@ -136,14 +136,14 @@ int SecurityCache::getSecurityFile (const string& dir,
       out.assign (sys);
       out.append ("/");
       out.append (secFileName);
-      return !FilesUtility::fileExists (out);
+      return !FilesUtility::nodeExists (out);
     }
 
     secFile.assign (file);
     secFile.append ("/");
     secFile.append (secFileName);
 
-    found = FilesUtility::fileExists (secFile);
+    found = FilesUtility::nodeExists (secFile);
   }
 
   out.assign (secFile);

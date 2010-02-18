@@ -229,7 +229,7 @@ const char *File::getFilename ()
  */
 int File::createTemporaryFile (const char* filename)
 {
-  if (FilesUtility::fileExists (filename))
+  if (FilesUtility::nodeExists (filename))
     FilesUtility::deleteFile (filename);
 
   return openFile (filename, File::READ

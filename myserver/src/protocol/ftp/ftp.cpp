@@ -1463,7 +1463,7 @@ bool Ftp::getLocalPath (const std::string & sPath, std::string & sOutPath)
     return false;
 
   if (sOutPath.empty () ||
-      !FilesUtility::fileExists (sOutPath) ||
+      !FilesUtility::nodeExists (sOutPath) ||
       FilesUtility::isLink (sOutPath.c_str ()))
     {
       ftpReply (550);
@@ -2194,7 +2194,7 @@ void Ftp::stou (const std::string & sPath)
         return;
       nCount++;
     }
-  while (FilesUtility::fileExists (sOutPath));
+  while (FilesUtility::nodeExists (sOutPath));
   retrstor (false, false, sOutPath);
 }
 

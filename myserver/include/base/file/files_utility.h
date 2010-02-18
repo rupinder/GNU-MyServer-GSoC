@@ -65,9 +65,9 @@ public:
 
   static int getShortFileName (char*,char*,int);
 
-  static int fileExists (const char * );
-  static int fileExists (string const &file)
-  {return fileExists (file.c_str ());}
+  static int nodeExists (const char * );
+  static int nodeExists (string const &file)
+  {return nodeExists (file.c_str ());}
 
   static int deleteFile (const char * );
   static int deleteFile (string const &file)

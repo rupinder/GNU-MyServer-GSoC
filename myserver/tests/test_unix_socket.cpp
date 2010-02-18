@@ -91,26 +91,22 @@ public:
     string path;
     FilesUtility::temporaryFileName (0, path);
 
-
     CPPUNIT_ASSERT (sock->socket ());
 
-    //FIXME: find a better place inside FilesUtility.
-    struct stat F_Stats;
-    ret = stat (path.c_str (), &F_Stats);
-    CPPUNIT_ASSERT (ret);
-    /////////////////////////////////////////////////
+    ret = FilesUtility::nodeExists (path.c_str ());
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
 
     CPPUNIT_ASSERT_EQUAL (sock->bind (path.c_str ()), 0);
 
-    ret = stat (path.c_str (), &F_Stats);
-    CPPUNIT_ASSERT_EQUAL (ret, 0);
+    ret = FilesUtility::nodeExists (path.c_str ());
+    CPPUNIT_ASSERT (ret);
 
     CPPUNIT_ASSERT_EQUAL (sock->shutdown (), 0);
 
     CPPUNIT_ASSERT_EQUAL (sock->close (), 0);
 
-    ret = stat (path.c_str (), &F_Stats);
-    CPPUNIT_ASSERT (ret);
+    ret = FilesUtility::nodeExists (path.c_str ());
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
   }
 
   void testClient ()

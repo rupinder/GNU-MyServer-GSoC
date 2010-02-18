@@ -54,7 +54,7 @@ int HttpFile::putFile (HttpThreadContext* td, string& filename)
     if (!(td->permissions & MYSERVER_PERMISSION_WRITE))
       return td->http->sendAuth ();
 
-    if (FilesUtility::fileExists (td->filenamePath.c_str ()))
+    if (FilesUtility::nodeExists (td->filenamePath.c_str ()))
       {
         File file;
         if (file.openFile (td->filenamePath.c_str (), File::OPEN_IF_EXISTS
@@ -156,7 +156,7 @@ int HttpFile::deleteFile (HttpThreadContext* td,
       if (!(td->permissions & MYSERVER_PERMISSION_DELETE))
         return td->http->sendAuth ();
 
-      if (FilesUtility::fileExists (td->filenamePath))
+      if (FilesUtility::nodeExists (td->filenamePath))
         {
           FilesUtility::deleteFile (td->filenamePath.c_str ());
           return td->http->raiseHTTPError (202);
@@ -232,7 +232,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
       if (!(td->permissions & MYSERVER_PERMISSION_READ))
         return td->http->sendAuth ();
 
-      if (!FilesUtility::fileExists (filenamePath))
+      if (!FilesUtility::nodeExists (filenamePath))
         return td->http->raiseHTTPError (404);
 
       lastMT = FilesUtility::getLastModTime (td->filenamePath.c_str ());
