@@ -38,8 +38,8 @@ class TestFile : public CppUnit::TestFixture
   string fname;
 
   CPPUNIT_TEST_SUITE (TestFile);
-
   CPPUNIT_TEST (testCreateTemporaryFile);
+  CPPUNIT_TEST (testCreateTemporaryDelayedFile);
   CPPUNIT_TEST (testOnFile);
   CPPUNIT_TEST (testBinary);
   CPPUNIT_TEST (testTruncate);
@@ -68,11 +68,36 @@ public:
     FilesUtility::deleteFile (fname);
   }
 
+  void testCreateTemporaryDelayedFile ()
+  {
+    int ret = tfile->createTemporaryFile (fname.c_str (), false);
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
+
+    /* The unlink is done just before the close, the file can be stat'ed. */
+    ret = FilesUtility::nodeExists (fname.c_str ());
+    CPPUNIT_ASSERT (ret);
+
+    ret = tfile->close ();
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
+
+    ret = FilesUtility::nodeExists (fname.c_str ());
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
+  }
+
   void testCreateTemporaryFile ()
   {
-    CPPUNIT_ASSERT_EQUAL (tfile->createTemporaryFile (fname.c_str ()), 0);
+    int ret = tfile->createTemporaryFile (fname.c_str (), true);
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
 
-    CPPUNIT_ASSERT_EQUAL (tfile->close (), 0);
+    /* Using unlink the file can't be stat'ed at this point.  */
+    ret = FilesUtility::nodeExists (fname.c_str ());
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
+
+    ret = tfile->close ();
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
+
+    ret = FilesUtility::nodeExists (fname.c_str ());
+    CPPUNIT_ASSERT_EQUAL (ret, 0);
   }
 
   void testOnFile ()

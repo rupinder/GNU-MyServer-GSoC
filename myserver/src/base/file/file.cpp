@@ -52,15 +52,16 @@ extern "C"
 
 using namespace std;
 
-const u_long File::READ = (1<<0);
-const u_long File::WRITE = (1<<1);
-const u_long File::TEMPORARY = (1<<2);
-const u_long File::HIDDEN = (1<<3);
-const u_long File::FILE_OPEN_ALWAYS = (1<<4);
-const u_long File::OPEN_IF_EXISTS = (1<<5);
-const u_long File::APPEND = (1<<6);
-const u_long File::FILE_CREATE_ALWAYS = (1<<7);
-const u_long File::NO_INHERIT = (1<<8);
+const u_long File::READ = (1 << 0);
+const u_long File::WRITE = (1 << 1);
+const u_long File::TEMPORARY = (1 << 2);
+const u_long File::TEMPORARY_DELAYED = (1 << 3);
+const u_long File::HIDDEN = (1 << 4);
+const u_long File::FILE_OPEN_ALWAYS = (1 << 5);
+const u_long File::OPEN_IF_EXISTS = (1 << 6);
+const u_long File::APPEND = (1 << 7);
+const u_long File::FILE_CREATE_ALWAYS = (1 << 8);
+const u_long File::NO_INHERIT = (1 << 9);
 
 
 /*!
@@ -137,7 +138,7 @@ int File::truncate (u_long size)
  *\param opt Specify how open the file.
  *openFile returns 0 if the call was successful, any other value on errors.
  */
-int File::openFile (const char* nfilename,u_long opt)
+int File::openFile (const char* nfilename, u_long opt)
 {
   struct stat fStats;
   int flags;
@@ -166,11 +167,20 @@ int File::openFile (const char* nfilename,u_long opt)
     handle = open (filename.c_str (), O_CREAT | flags, S_IRUSR | S_IWUSR);
 
   if (opt & File::FILE_CREATE_ALWAYS)
-    truncate ();
-
+    if (truncate ())
+      {
+        close ();
+        return -1;
+      }
+ 
   if (opt & File::TEMPORARY)
-    unlink (filename.c_str ()); /* It will be removed on close.  */
+    if (unlink (filename.c_str ()))
+      {
+        close ();
+        return -1;
+      }
 
+  this->opt = opt;
   return handle < 0;
 }
 
@@ -224,19 +234,19 @@ const char *File::getFilename ()
 }
 
 /*!
- *Create a temporary file.
- *\param filename The new temporary file name.
+ * Create a temporary file.
+ * \param filename The new temporary file name.
+ * \param unlink Unlink the inode immediately, not before close.
  */
-int File::createTemporaryFile (const char* filename)
+int File::createTemporaryFile (const char* filename, bool unlink)
 {
   if (FilesUtility::nodeExists (filename))
     FilesUtility::deleteFile (filename);
 
-  return openFile (filename, File::READ
-                  | File::WRITE
-                  | File::FILE_CREATE_ALWAYS
-                  | File::TEMPORARY
-                  | File::NO_INHERIT);
+  u_long temporaryOpt = unlink ? File::TEMPORARY : File::TEMPORARY_DELAYED;
+
+  return openFile (filename, File::READ | File::WRITE | File::NO_INHERIT
+                   | File::FILE_CREATE_ALWAYS | temporaryOpt);
 }
 
 /*!
@@ -247,11 +257,15 @@ int File::close ()
   int ret = 0;
   if (handle != -1)
     {
+      if (opt & File::TEMPORARY_DELAYED)
+        unlink (filename.c_str ());
       ret = fsync (handle);
       ret |= ::close (handle);
     }
+
   filename.clear ();
   handle = -1;
+
   return ret;
 }
 

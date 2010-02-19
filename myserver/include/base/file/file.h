@@ -34,6 +34,7 @@ class File : public Stream
 public:
   static const u_long READ;
   static const u_long WRITE;
+  static const u_long TEMPORARY_DELAYED;
   static const u_long TEMPORARY;
   static const u_long HIDDEN;
   static const u_long FILE_OPEN_ALWAYS;
@@ -48,10 +49,10 @@ public:
 
   virtual Handle getHandle ();
   virtual int setHandle (Handle);
-  virtual int writeToFile (const char* ,u_long ,u_long* );
-  virtual int createTemporaryFile (const char* );
+  virtual int writeToFile (const char *, u_long , u_long *);
+  virtual int createTemporaryFile (const char *, bool unlink = true);
 
-  virtual int openFile (const char*, u_long );
+  virtual int openFile (const char *, u_long);
   virtual int openFile (string const &file, u_long opt)
   {return openFile (file.c_str (), opt);}
 
@@ -70,7 +71,7 @@ public:
   virtual int operator =(File);
   virtual int close ();
 
-  /*! Inherithed from Stream. */
+  /* Inherithed from Stream.  */
   virtual int read (char* buffer, u_long len, u_long *nbr);
   virtual int write (const char* buffer, u_long len, u_long *nbw);
 
@@ -78,7 +79,12 @@ public:
                                 MemBuf *buf, u_long *nbw);
 
   int truncate (u_long size = 0);
+
+  /*! Get the options mask used with openFile.  */
+  u_long getOpenOptions (){return opt;}
 protected:
+  /* Options used by open.  */
+  u_long opt;
   FileHandle handle;
   string filename;
 };
