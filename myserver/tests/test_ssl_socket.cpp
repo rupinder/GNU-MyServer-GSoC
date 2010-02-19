@@ -25,11 +25,12 @@
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "../include/base/socket/ssl_socket.h"
-#include "../include/base/file/file.h"
-#include "../include/base/file/files_utility.h"
-#include "../include/base/thread/thread.h"
-#include "../include/base/utility.h"
+#include <include/base/socket/socket.h>
+#include <include/base/socket/ssl_socket.h>
+#include <include/base/file/file.h>
+#include <include/base/file/files_utility.h>
+#include <include/base/thread/thread.h>
+#include <include/base/utility.h>
 
 extern "C"
 {
@@ -144,7 +145,7 @@ public:
     int status;
 
     ((sockaddr_in*) (&sockIn))->sin_family = AF_INET;
-    ((sockaddr_in*) (&sockIn))->sin_addr.s_addr = inet_addr ("127.0.0.1");
+    ((sockaddr_in*) (&sockIn))->sin_addr.s_addr = inet_addr (LOCALHOST_ADDRESS);
     ((sockaddr_in*) (&sockIn))->sin_port = htons (port);
 
     socklen_t sockInLen = sizeof (sockaddr_in);
@@ -234,7 +235,7 @@ static DEFINE_THREAD (testSslRecvClient, pParam)
   MYSERVER_SOCKADDRIN sockIn = { 0 };
 
   ((sockaddr_in*) (&sockIn))->sin_family = AF_INET;
-  ((sockaddr_in*) (&sockIn))->sin_addr.s_addr = inet_addr ("127.0.0.1");
+  ((sockaddr_in*) (&sockIn))->sin_addr.s_addr = inet_addr (LOCALHOST_ADDRESS);
   ((sockaddr_in*) (&sockIn))->sin_port = htons (arg->port);
 
   int sockInLen = sizeof (struct sockaddr_in);

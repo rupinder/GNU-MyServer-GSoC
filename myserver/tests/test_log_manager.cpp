@@ -32,6 +32,7 @@
 #include <include/log/log_manager.h>
 #include <include/filter/filters_factory.h>
 #include <include/base/file/files_utility.h>
+#include <include/base/socket/socket.h>
 #include <include/base/file/file.h>
 #include <include/base/utility.h>
 #include <include/filter/gzip/gzip.h>
@@ -509,7 +510,8 @@ public:
 
     filters.push_back ("not_existing_filter");
 
-    CPPUNIT_ASSERT (lm->add (this, "test", "socket://127.0.0.1:6666", filters, 0));
+    CPPUNIT_ASSERT (lm->add (this, "test", "socket://" LOCALHOST_ADDRESS ":6666",
+                             filters, 0));
   }
 
   void testConsoleStreamAddWithNotExistingFilter ()

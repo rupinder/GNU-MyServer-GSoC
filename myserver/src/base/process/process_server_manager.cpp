@@ -18,7 +18,7 @@
 #include "myserver.h"
 
 #include <include/base/process/process_server_manager.h>
-
+#include <include/base/socket/socket.h>
 #include <include/server/server.h>
 #include <include/base/process/process.h>
 #include <string>
@@ -401,7 +401,7 @@ int ProcessServerManager::runServer (ProcessServerManager::Server* server,
   MYSERVER_SOCKADDRIN serverSockAddrIn;
   int addrLen = sizeof (serverSockAddrIn);
 
-  server->host.assign ("127.0.0.1");
+  server->host.assign (LOCALHOST_ADDRESS);
   server->isLocal = true;
 
   if (nServers >= maxServers)

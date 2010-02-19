@@ -95,7 +95,7 @@ public:
     int status;
 
     ((sockaddr_in*) (&sockIn))->sin_family = AF_INET;
-    ((sockaddr_in*) (&sockIn))->sin_addr.s_addr = inet_addr ("127.0.0.1");
+    ((sockaddr_in*) (&sockIn))->sin_addr.s_addr = inet_addr (LOCALHOST_ADDRESS);
     ((sockaddr_in*) (&sockIn))->sin_port = htons (arg.port);
 
     socklen_t sockInLen = sizeof (sockaddr_in);
@@ -178,7 +178,7 @@ static DEFINE_THREAD (testRecvClient, pParam)
     {
       int ret;
       Socket *obj2 = new Socket;
-      char host[] = "127.0.0.1";
+      char host[] = LOCALHOST_ADDRESS;
 
       ret = obj2->socket (AF_INET, SOCK_STREAM, 0);
       CPPUNIT_ASSERT (ret != -1);

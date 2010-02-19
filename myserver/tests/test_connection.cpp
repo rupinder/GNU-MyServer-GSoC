@@ -18,6 +18,7 @@
 #include "myserver.h"
 #include <ctype.h>
 
+#include "../include/base/socket/socket.h"
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
@@ -87,8 +88,8 @@ public:
 
   void testIpAddress ()
   {
-    connection->setIpAddr ("127.0.0.1");
-    CPPUNIT_ASSERT (strcmp (connection->getIpAddr (), "127.0.0.1") == 0);
+    connection->setIpAddr (LOCALHOST_ADDRESS);
+    CPPUNIT_ASSERT (strcmp (connection->getIpAddr (), LOCALHOST_ADDRESS) == 0);
   }
 
   void testActiveThread ()
@@ -104,8 +105,8 @@ public:
 
   void testLocalIpAddress ()
   {
-    connection->setLocalIpAddr ("127.0.0.1");
-    CPPUNIT_ASSERT (strcmp (connection->getLocalIpAddr (), "127.0.0.1") == 0);
+    connection->setLocalIpAddr (LOCALHOST_ADDRESS);
+    CPPUNIT_ASSERT (strcmp (connection->getLocalIpAddr (), LOCALHOST_ADDRESS) == 0);
   }
 
   void testTries ()

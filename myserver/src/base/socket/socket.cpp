@@ -296,11 +296,11 @@ int Socket::getLocalIPsList (string &out)
       for (i = 0; (localhe->h_addr_list[i]); i++)
         {
 # ifdef WIN32
-          ia.S_un.S_addr = *((u_long FAR*) (localhe->h_addr_list[i]));
+          ia.S_un.S_addr = *((u_long FAR *) (localhe->h_addr_list[i]));
 # else
           ia.s_addr = *((u_long *) (localhe->h_addr_list[i]));
 # endif
-          stream << ( (i != 0) ? ", " : "") << inet_ntoa (ia);
+          stream << ((i != 0) ? ", " : "") << inet_ntoa (ia);
         }
 
       out.assign (stream.str ());
@@ -308,7 +308,7 @@ int Socket::getLocalIPsList (string &out)
     }
   else
     {
-      out.assign ("127.0.0.1");
+      out.assign (LOCALHOST_ADDRESS);
       return 0;
     }
 #endif//HAVE_IPV6
@@ -353,7 +353,7 @@ int Socket::send (const char* buffer, int len, int flags)
         /*! On errors returns directly -1.  */
         if (ret < 0)
           return -1;
-        toSend -= (u_long)ret;
+        toSend -= (u_long) ret;
         /*!
          *If there are other bytes to send wait before cycle again.
          */

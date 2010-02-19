@@ -55,6 +55,12 @@ typedef int SocketHandle;
 #  define MAX_IP_STRING_LEN  32
 # endif
 
+# if HAVE_IPV6
+#  define LOCALHOST_ADDRESS "::1"
+# else
+#  define LOCALHOST_ADDRESS "127.0.0.1"
+# endif
+
 typedef struct sockaddr_storage MYSERVER_SOCKADDR_STORAGE;
 typedef struct sockaddr_storage MYSERVER_SOCKADDRIN;
 typedef struct sockaddr_storage MYSERVER_SOCKADDR;

@@ -24,6 +24,7 @@
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <include/base/socket/socket.h>
 #include <include/log/stream/log_stream_factory.h>
 #include <include/filter/filters_factory.h>
 
@@ -54,7 +55,7 @@ public:
   {
     CPPUNIT_ASSERT (!lsf->getPath ("foo:bla").size ());
     CPPUNIT_ASSERT (!lsf->getPath ("foo://bar").size ());
-    CPPUNIT_ASSERT (lsf->getPath ("socket://127.0.0.1:0").size ());
+    CPPUNIT_ASSERT (lsf->getPath ("socket://" LOCALHOST_ADDRESS ":0").size ());
   }
 
   void testCreation ()
@@ -68,7 +69,8 @@ public:
     CPPUNIT_ASSERT (!ls);
     ls = lsf->create (&ff, "console://stdout", filters, 0);
     CPPUNIT_ASSERT (ls);
-    CPPUNIT_ASSERT (!lsf->create (&ff, "socket://127.0.0.1:0", filters, 0));
+    CPPUNIT_ASSERT (!lsf->create (&ff, "socket://" LOCALHOST_ADDRESS ":0",
+                                  filters, 0));
     delete ls;
   }
 

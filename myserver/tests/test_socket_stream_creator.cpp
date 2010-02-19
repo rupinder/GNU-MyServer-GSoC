@@ -46,7 +46,7 @@ public:
   void testCreation ()
   {
     list<string> filters;
-    LogStream* ls = ssc->create (ff, "127.0.0.1:0", filters, 0);
+    LogStream* ls = ssc->create (ff, LOCALHOST_ADDRESS ":0", filters, 0);
     CPPUNIT_ASSERT (!ls);
   }
 
