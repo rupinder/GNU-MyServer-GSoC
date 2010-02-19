@@ -401,7 +401,7 @@ int ProcessServerManager::runServer (ProcessServerManager::Server* server,
   MYSERVER_SOCKADDRIN serverSockAddrIn;
   int addrLen = sizeof (serverSockAddrIn);
 
-  server->host.assign ("localhost");
+  server->host.assign ("127.0.0.1");
   server->isLocal = true;
 
   if (nServers >= maxServers)
@@ -461,13 +461,12 @@ int ProcessServerManager::runServer (ProcessServerManager::Server* server,
   spi.uid = uid;
   spi.gid = gid;
 
-  if (Process::getForkServer ()->isInitialized ())
+  ForkServer *forkServer = Process::getForkServer ();
+  if (forkServer->isInitialized ())
     {
       int ret, port, pid;
-      ret = Process::getForkServer ()->executeProcess (&spi,
-                                                       ForkServer::FLAG_STDIN_SOCKET,
-                                                       &pid,
-                                                       &port);
+      ret = forkServer->executeProcess (&spi, ForkServer::FLAG_STDIN_SOCKET,
+                                        &pid, &port);
 
       if (ret == 0)
         {
@@ -500,12 +499,12 @@ int ProcessServerManager::runServer (ProcessServerManager::Server* server,
     }
 
   server->DESCRIPTOR.fileHandle = (unsigned long) server->socket.getHandle ();
-  spi.stdIn = (FileHandle)server->DESCRIPTOR.fileHandle;
+  spi.stdIn = (FileHandle) server->DESCRIPTOR.fileHandle;
 
   if (server->socket.getsockname (&serverSockAddrIn, &addrLen))
     return -1;
 
-  server->port = ntohs (((sockaddr_in *)&serverSockAddrIn)->sin_port);
+  server->port = ntohs (((sockaddr_in *) &serverSockAddrIn)->sin_port);
 
   server->process.exec (&spi);
   server->socket.close ();
@@ -525,7 +524,7 @@ int ProcessServerManager::connect (Socket* sock,
   socklen_t nLength = sizeof (MYSERVER_SOCKADDRIN);
 
   if (server->socket.getHandle ())
-    server->socket.getsockname ((MYSERVER_SOCKADDR*)&serverSock, (int*)&nLength);
+    server->socket.getsockname ((MYSERVER_SOCKADDR*) &serverSock, (int*) &nLength);
 
   if (!serverSock.ss_family || serverSock.ss_family == AF_INET || !server->isLocal)
   {
@@ -539,7 +538,6 @@ int ProcessServerManager::connect (Socket* sock,
       sock->close ();
       return -1;
     }
-
   }
 #if ( HAVE_IPV6 && false )/* IPv6 communication not implemented yet by php.  */
   else if ( serverSock.ss_family == AF_INET6 )
@@ -554,7 +552,7 @@ int ProcessServerManager::connect (Socket* sock,
       return -1;
     }
   }
-#endif // HAVE_IPV6
+#endif /* HAVE_IPV6  */
   sock->setNonBlocking (1);
 
   return 0;
