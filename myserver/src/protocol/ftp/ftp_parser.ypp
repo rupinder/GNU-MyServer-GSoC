@@ -12,11 +12,12 @@
 %parse-param { Ftp *pContext }
 %locations
 
-%union {
-	int		m_nInt;
-	char		m_nChar;
-	char		m_szStr[PARSER_STR_LEN];
-	FtpHost 	m_host;
+%union
+{
+  int		m_nInt;
+  char		m_nChar;
+  char		m_szStr[PARSER_STR_LEN];
+  FtpHost 	m_host;
 }
 
 %{
@@ -361,85 +362,91 @@ format_control_code : 'n'
 
 int Ftp::parseControlConnection()
 {
-	if ( td.buffer == NULL || td.buffer->getBuffer() == NULL )
-		return ClientsThread::DELETE_CONNECTION;
-	FtpuserData *pFtpuserData = static_cast<FtpuserData *>(td.pConnection->protocolBuffer);
-	if ( pFtpuserData == NULL )
-		return ClientsThread::DELETE_CONNECTION;
+  if (td.buffer == NULL || td.buffer->getBuffer() == NULL)
+    return ClientsThread::DELETE_CONNECTION;
 
-	// awaiting commands reply
-	if ( pFtpuserData->m_nFtpstate <= FtpuserData::NO_CONTROL_CONNECTION )
-	{
-		ftpReply(220);
-		pFtpuserData->m_nFtpstate = FtpuserData::CONTROL_CONNECTION_UP;
-	}
+  FtpuserData *pFtpuserData = static_cast<FtpuserData *> (td.pConnection->protocolBuffer);
+  if (pFtpuserData == NULL)
+    return ClientsThread::DELETE_CONNECTION;
 
-	MemBuf out;
-	escapeTelnet(*td.buffer, out);
-	if ( !m_bEnablePipelining )
-	{
-		MemBuf tmpBuff(out);
-		removePipelinedCmds(tmpBuff, out);
-	}
-	char *pBuffToParse = out.getBuffer();
+  /* awaiting commands reply.  */
+  if (pFtpuserData->m_nFtpstate <= FtpuserData::NO_CONTROL_CONNECTION)
+    {
+      ftpReply (220);
+      pFtpuserData->m_nFtpstate = FtpuserData::CONTROL_CONNECTION_UP;
+    }
 
-	if ( pBuffToParse == NULL || td.buffersize <= td.m_nParseLength )// nothing to parse ...
-		return ClientsThread::KEEP_CONNECTION;
-	else
-		pBuffToParse += td.m_nParseLength;
+  MemBuf out;
+  escapeTelnet (*td.buffer, out);
+  if (! m_bEnablePipelining)
+    {
+      MemBuf tmpBuff (out);
+      removePipelinedCmds (tmpBuff, out);
+    }
+  char *pBuffToParse = out.getBuffer ();
 
-	yylex_init(&m_scanner);
-	yy_buffer_state *bufstate = yy_scan_string (pBuffToParse, m_scanner);
-	int nParserRet = yyparse(this);
-	yy_delete_buffer(bufstate, m_scanner);
-	yylex_destroy(m_scanner);
-	switch ( nParserRet )
-	{
-		case 0:
-			if ( pFtpuserData->m_nFtpstate == FtpuserData::NO_CONTROL_CONNECTION )
-				return ClientsThread::DELETE_CONNECTION;
-			else
-				return ClientsThread::KEEP_CONNECTION;
-		case 1:
-			// parsing failed because of invalid input!
-			return ClientsThread::DELETE_CONNECTION;
-		case 2:
-			// memory exhaustion!
-			return ClientsThread::DELETE_CONNECTION;
-	}//TODO: handle INCOMPLETE_REQUEST
-	return ClientsThread::DELETE_CONNECTION;
+  if (pBuffToParse == NULL || td.buffersize <= td.m_nParseLength )
+    return ClientsThread::KEEP_CONNECTION;
+  else
+    pBuffToParse += td.m_nParseLength;
+
+  yylex_init (&m_scanner);
+  yy_buffer_state *bufstate = yy_scan_string (pBuffToParse, m_scanner);
+  int nParserRet = yyparse (this);
+  yy_delete_buffer (bufstate, m_scanner);
+  yylex_destroy (m_scanner);
+
+  switch (nParserRet)
+    {
+    case 0:
+      if (pFtpuserData->m_nFtpstate == FtpuserData::NO_CONTROL_CONNECTION )
+        return ClientsThread::DELETE_CONNECTION;
+      else
+        return ClientsThread::KEEP_CONNECTION;
+
+    case 1:
+      /* Invalid input.  */
+      return ClientsThread::DELETE_CONNECTION;
+
+    case 2:
+      /* memory exhaustion!  */
+      return ClientsThread::DELETE_CONNECTION;
+    }
+  /*TODO: handle INCOMPLETE_REQUEST */
+  return ClientsThread::DELETE_CONNECTION;
 }
 
-u_long Ftp::computeParseLength(const YYLTYPE &location)
+u_long Ftp::computeParseLength (const YYLTYPE &location)
 {
-	if ( td.buffer == NULL )
-		return 1;
-	int nBuffLine = 1, nBuffCol = 0;
-	char *pszBuff = td.buffer->getBuffer();
-	for ( u_long i = 0; i < td.buffersize; i++ )
-	{
-		if ( pszBuff[i] == '\n' )
-		{
-			nBuffLine++;
-			nBuffCol = 0;
-		}
-		else
-			nBuffCol++;
-		if ( nBuffLine == location.last_line && nBuffCol == location.last_column )
-		{
-			td.m_nParseLength = i;
-			return 0;
-		}
-	}
-	return 1;//error
+  if (td.buffer == NULL)
+    return 1;
+
+  int nBuffLine = 1, nBuffCol = 0;
+  char *pszBuff = td.buffer->getBuffer ();
+  for (u_long i = 0; i < td.buffersize; i++)
+    {
+      if (pszBuff[i] == '\n')
+        {
+          nBuffLine++;
+          nBuffCol = 0;
+        }
+      else
+        nBuffCol++;
+      if (nBuffLine == location.last_line && nBuffCol == location.last_column)
+        {
+          td.m_nParseLength = i;
+          return 0;
+        }
+    }
+
+  return 1;
 }
 
-///////////////////////////////////////////////////////////
-// global fncs
+/* Global functions.  */
 
-void yyerror(YYLTYPE *pLoc, Ftp *pContext, const char *msg)
+void yyerror (YYLTYPE *pLoc, Ftp *pContext, const char *msg)
 {
-	if ( pContext == NULL )
-		return;
-	pContext->printError(msg);
+  if (pContext == NULL)
+    return;
+  pContext->printError (msg);
 }
