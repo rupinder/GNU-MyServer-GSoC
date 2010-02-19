@@ -271,7 +271,7 @@ int ClientsThread::controlConnections ()
   if (err == -1 && !server->deleteConnection (c))
     return 0;
 
-  buffer.setRealLength (dataRead + err);
+  buffer.setLength (dataRead + err);
   c->setForceControl (0);
 
   /* Refresh with the right value.  */
@@ -295,26 +295,25 @@ int ClientsThread::controlConnections ()
   c->setActiveThread (this);
   try
   {
+    retcode = ClientsThread::DELETE_CONNECTION;
     if (c->hasContinuation ())
       {
-        retcode = c->getContinuation ()(c, (char*)buffer.getBuffer (),
-                                   (char*)auxiliaryBuffer.getBuffer (),
-                                   buffer.getRealLength (),
-                                   auxiliaryBuffer.getRealLength (),
-                                   nBytesToRead, id);
+        retcode = c->getContinuation ()(c, (char*) buffer.getBuffer (),
+                                   (char*) auxiliaryBuffer.getBuffer (),
+                                        buffer.getRealLength (),
+                                        auxiliaryBuffer.getRealLength (),
+                                        nBytesToRead, id);
         c->setContinuation (NULL);
       }
     else
       {
         protocol = server->getProtocol (c->host->getProtocolName ());
         if (protocol)
-          retcode = protocol->controlConnection (c, (char*)buffer.getBuffer (),
-                                           (char*)auxiliaryBuffer.getBuffer (),
-                                           buffer.getRealLength (),
-                                           auxiliaryBuffer.getRealLength (),
-                                           nBytesToRead, id);
-        else
-          retcode = ClientsThread::DELETE_CONNECTION;
+          retcode = protocol->controlConnection (c, (char*) buffer.getBuffer (),
+                                                 (char*) auxiliaryBuffer.getBuffer (),
+                                                 buffer.getRealLength (),
+                                                 auxiliaryBuffer.getRealLength (),
+                                                 nBytesToRead, id);
       }
   }
   catch (...)
