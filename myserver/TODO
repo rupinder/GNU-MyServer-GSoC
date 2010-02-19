@@ -1,11 +1,9 @@
 GNU MyServer
 
 This file is not used anymore.  The tasks are handled dynamically
-trough the:
+trough the webpage:
 
 https://savannah.gnu.org/task/?group=myserver 
-
-web page.
 
 Please consider to ask on the bug-myserver@gnu.org mailing list before
 start to work on any task listed there.
