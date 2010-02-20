@@ -166,19 +166,29 @@ int File::openFile (const char* nfilename, u_long opt)
   else
     handle = open (filename.c_str (), O_CREAT | flags, S_IRUSR | S_IWUSR);
 
-  if (opt & File::FILE_CREATE_ALWAYS)
-    if (truncate ())
-      {
-        close ();
-        return -1;
-      }
+  try
+    {
+      if (opt & File::FILE_CREATE_ALWAYS)
+        if (truncate ())
+          {
+            close ();
+            return -1;
+          }
  
-  if (opt & File::TEMPORARY)
-    if (unlink (filename.c_str ()))
-      {
-        close ();
-        return -1;
-      }
+      if (opt & File::TEMPORARY)
+        if (unlink (filename.c_str ()))
+          {
+            close ();
+            return -1;
+          }
+    }
+  catch (exception &e)
+    {
+      /* Ensure the file is closed if something went wrong and don't leave
+         open descriptors around.  */
+      close ();
+      throw;
+    }
 
   this->opt = opt;
   return handle < 0;
