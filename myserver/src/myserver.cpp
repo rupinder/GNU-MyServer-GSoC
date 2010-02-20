@@ -341,7 +341,7 @@ static MainConfiguration *genMainConf (Server *server, const char *arg)
 
 const char *program_name = NULL;
 
-int main  (int argn, char **argv)
+int main (int argn, char **argv)
 {
   program_name = argv[0];
   int runas = MYSERVER_RUNAS_CONSOLE;
@@ -365,10 +365,14 @@ int main  (int argn, char **argv)
     {
       Server::createInstance ();
     }
+  catch (exception & e)
+    {
+      cerr << e.what () << endl;
+      return 1;
+    }
   catch (...)
     {
-      /* Die if we get exceptions here.  */
-      return (1);
+      return 1;
     };
 
   u_int pathLen = 0;
@@ -435,6 +439,7 @@ int main  (int argn, char **argv)
            << "http://www.gnu.org/software/myserver" << endl;
       return 0;
     }
+
   if (input.useForkServer)
     {
       FilesUtility::resetTmpPath ();
@@ -446,13 +451,15 @@ int main  (int argn, char **argv)
    */
   try
     {
-      if (loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath,
+      const char *confFileDir;
 #ifdef WIN32
-                                 "."
+      confFileDir = ".";
 #else
-                                 input.confFilesLocation
+      confFileDir = input.confFilesLocation;
 #endif
-                                 ))
+
+      if (loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath,
+                                 confFileDir))
         {
           cout << _("Cannot find the configuration files, be sure they exist")
                << endl;
@@ -476,9 +483,7 @@ int main  (int argn, char **argv)
            * An error happened, return with errors.
            */
           if (pid < 0)
-            {
-              return 1;
-            }
+            return 1;
 
           if (pid)
             {
@@ -488,6 +493,7 @@ int main  (int argn, char **argv)
                 writePidfile ();
               return 0;
             }
+
           /*
            * Create a SID for the new process.
            */
