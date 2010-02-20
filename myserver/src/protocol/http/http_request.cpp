@@ -98,56 +98,56 @@ bool HttpRequestHeader::isKeepAlive ()
  */
 string* HttpRequestHeader::getValue (const char* name, string* out)
 {
-  if (!strcmpi (name, "cmd"))
+  if (! strcasecmp (name, "cmd"))
   {
     if (out)
       out->assign (cmd.c_str ());
     return &cmd;
   }
 
-  if (!strcmpi (name, "ver"))
+  if (! strcasecmp (name, "ver"))
   {
     if (out)
       out->assign (ver.c_str ());
     return &ver;
   }
 
-  if (!strcmpi (name, "uri"))
+  if (! strcasecmp (name, "uri"))
   {
     if (out)
       out->assign (uri.c_str ());
     return &uri;
   }
 
-  if (!strcmpi (name, "uriOpts"))
+  if (! strcasecmp (name, "uriOpts"))
   {
     if (out)
       out->assign (uriOpts.c_str ());
     return &uriOpts;
   }
 
- if (!strcmpi (name, "Authorization"))
+ if (! strcasecmp (name, "Authorization"))
  {
    if (out)
      out->assign (auth.c_str ());
    return &auth;
  }
 
- if (!strcmpi (name, "Content-length"))
+ if (! strcasecmp (name, "Content-length"))
  {
    if (out)
      out->assign (contentLength.c_str ());
    return &contentLength;
  }
 
- if (!strcmpi (name, "rangeType"))
+ if (! strcasecmp (name, "rangeType"))
  {
    if (out)
      out->assign (rangeType.c_str ());
    return &rangeType;
  }
 
- if (!strcmpi (name, "rangeByteBegin"))
+ if (! strcasecmp (name, "rangeByteBegin"))
  {
    ostringstream s;
    s << rangeByteBegin;
@@ -156,7 +156,7 @@ string* HttpRequestHeader::getValue (const char* name, string* out)
    return 0;
  }
 
- if (!strcmpi (name, "rangeByteEnd"))
+ if (! strcasecmp (name, "rangeByteEnd"))
  {
    ostringstream s;
    s << rangeByteEnd;
@@ -185,55 +185,55 @@ string* HttpRequestHeader::getValue (const char* name, string* out)
  */
 string* HttpRequestHeader::setValue (const char* name, const char* in)
 {
-  if (!strcmpi (name, "cmd"))
+  if (! strcasecmp (name, "cmd"))
   {
     cmd.assign (in);
     return &cmd;
   }
 
-  if (!strcmpi (name, "ver"))
+  if (! strcasecmp (name, "ver"))
   {
     ver.assign (in);
     return &ver;
   }
 
-  if (!strcmpi (name, "uri"))
+  if (! strcasecmp (name, "uri"))
   {
     uri.assign (in);
     return &uri;
   }
 
-  if (!strcmpi (name, "uriOpts"))
+  if (! strcasecmp (name, "uriOpts"))
   {
     uriOpts.assign (in);
     return &uriOpts;
   }
 
- if (!strcmpi (name, "Authorization"))
+ if (! strcasecmp (name, "Authorization"))
  {
    auth.assign (in);
    return &auth;
  }
 
- if (!strcmpi (name, "Content-length"))
+ if (! strcasecmp (name, "Content-length"))
  {
    contentLength.assign (in);
    return &contentLength;
  }
 
- if (!strcmpi (name, "rangeType"))
+ if (! strcasecmp (name, "rangeType"))
  {
    rangeType.assign (in);
    return &rangeType;
  }
 
- if (!strcmpi (name, "rangeByteBegin"))
+ if (! strcasecmp (name, "rangeByteBegin"))
  {
    rangeByteBegin = atoi (in);
    return 0;
  }
 
- if (!strcmpi (name, "rangeByteEnd"))
+ if (! strcasecmp (name, "rangeByteEnd"))
  {
    rangeByteEnd = atoi (in);
    return 0;

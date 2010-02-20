@@ -548,14 +548,14 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
           request->uri=trimRight (request->uri, " /");
           request->uriOpts=trim (request->uriOpts, " ");
         }
-      else if (!strcmpi (command, "Authorization"))
+      else if (! strcasecmp (command, "Authorization"))
         {
           int ret = readReqAuthLine (request, connection, token, &tokenOff);
           if (ret)
             return ret;
           lineControlled = 1;
         }
-      else if (!strcmpi (command, "Content-length"))
+      else if (! strcasecmp (command, "Content-length"))
         {
           tokenOff = getEndLine (token, HTTP_REQUEST_CONTENT_LENGTH_DIM);
           if (tokenOff == -1)
@@ -563,7 +563,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
           lineControlled = 1;
           request->contentLength.assign (token,tokenOff);
         }
-      else if (!strcmpi (command, "Range"))
+      else if (! strcasecmp (command, "Range"))
         {
           int ret = readReqRangeLine (request, connection, token, &tokenOff);
           if (ret)
@@ -785,104 +785,104 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
         return 400;
       do
         {
-          trim (digestToken, (char*)" ");
-          if (!strcmpi (digestToken, (char*)"nonce"))
+          trim (digestToken, " ");
+          if (! strcasecmp (digestToken, "nonce"))
             {
-              digestToken = strtok (NULL, (char*)"," );
+              digestToken = strtok (NULL, "," );
               if (digestToken)
                 {
-                  trim (digestToken, (char*)"\" ");
+                  trim (digestToken, "\" ");
                   myserver_strlcpy (request->digestNonce,digestToken,48 + 1);
                 }
             }
-          else if (!strcmpi (digestToken, (char*)"opaque"))
+          else if (! strcasecmp (digestToken, "opaque"))
             {
-              digestToken = strtok (NULL, (char*)"," );
+              digestToken = strtok (NULL, "," );
               if (digestToken)
                 {
-                  trim (digestToken, (char*)"\" ");
+                  trim (digestToken, "\" ");
                   myserver_strlcpy (request->digestOpaque,digestToken,48 + 1);
                 }
             }
-          else if (!strcmpi (digestToken, (char*)"uri"))
-            {
-              digestToken = strtok (NULL, (char*)"\r\n," );
-              if (digestToken)
-                {
-                  trim (digestToken, (char*)"\" ");
-                  myserver_strlcpy (request->digestUri,digestToken,1024 + 1);
-                }
-            }
-          else if (!strcmpi (digestToken, (char*)"method"))
-            {
-              digestToken = strtok (NULL, (char*)"\r\n," );
-              if (digestToken)
-                {
-                  trim (digestToken, (char*)"\" ");
-                  myserver_strlcpy (request->digestMethod,digestToken,16 + 1);
-                }
-            }
-          else if (!strcmpi (digestToken, (char*)"qop"))
-            {
-              digestToken = strtok (NULL, (char*)"\r\n," );
-              if (digestToken)
-                {
-                  trim (digestToken,(char*)"\" ");
-                  myserver_strlcpy (request->digestQop,digestToken,16 + 1);
-                }
-            }
-          else if (!strcmpi (digestToken, (char*)"realm"))
-            {
-              digestToken = strtok (NULL, (char*)"\r\n," );
-              if (digestToken)
-                {
-                  trim (digestToken, (char*)"\" ");
-                  myserver_strlcpy (request->digestRealm,digestToken,48 + 1);
-                }
-            }
-          else if (!strcmpi (digestToken, (char*)"cnonce"))
-            {
-              digestToken = strtok (NULL, (char*)"\r\n," );
-              if (digestToken)
-                {
-                  trim (digestToken, (char*)" \"");
-                  myserver_strlcpy (request->digestCnonce, digestToken, 48 + 1);
-                }
-            }
-          else if (!strcmpi (digestToken, (char*)"username"))
-            {
-              digestToken = strtok (NULL, (char*)"\r\n," );
-              if (digestToken)
-                {
-                  trim (digestToken, (char*)"\" ");
-                  myserver_strlcpy (request->digestUsername, digestToken, 48 + 1);
-                  connection->setLogin (digestToken);
-                }
-            }
-          else if (!strcmpi (digestToken, (char*)"response"))
+          else if (! strcasecmp (digestToken, "uri"))
             {
               digestToken = strtok (NULL, "\r\n," );
               if (digestToken)
                 {
-                  trim (digestToken, (char*)"\" ");
+                  trim (digestToken, "\" ");
+                  myserver_strlcpy (request->digestUri,digestToken,1024 + 1);
+                }
+            }
+          else if (! strcasecmp (digestToken, "method"))
+            {
+              digestToken = strtok (NULL, "\r\n," );
+              if (digestToken)
+                {
+                  trim (digestToken, "\" ");
+                  myserver_strlcpy (request->digestMethod,digestToken,16 + 1);
+                }
+            }
+          else if (! strcasecmp (digestToken, "qop"))
+            {
+              digestToken = strtok (NULL, "\r\n," );
+              if (digestToken)
+                {
+                  trim (digestToken,"\" ");
+                  myserver_strlcpy (request->digestQop,digestToken,16 + 1);
+                }
+            }
+          else if (! strcasecmp (digestToken, "realm"))
+            {
+              digestToken = strtok (NULL, "\r\n," );
+              if (digestToken)
+                {
+                  trim (digestToken, "\" ");
+                  myserver_strlcpy (request->digestRealm,digestToken,48 + 1);
+                }
+            }
+          else if (! strcasecmp (digestToken, "cnonce"))
+            {
+              digestToken = strtok (NULL, "\r\n," );
+              if (digestToken)
+                {
+                  trim (digestToken, " \"");
+                  myserver_strlcpy (request->digestCnonce, digestToken, 48 + 1);
+                }
+            }
+          else if (! strcasecmp (digestToken, "username"))
+            {
+              digestToken = strtok (NULL, "\r\n," );
+              if (digestToken)
+                {
+                  trim (digestToken, "\" ");
+                  myserver_strlcpy (request->digestUsername, digestToken, 48 + 1);
+                  connection->setLogin (digestToken);
+                }
+            }
+          else if (! strcasecmp (digestToken, "response"))
+            {
+              digestToken = strtok (NULL, "\r\n," );
+              if (digestToken)
+                {
+                  trim (digestToken, "\" ");
                   myserver_strlcpy (request->digestResponse,digestToken,48 + 1);
                 }
             }
-          else if (!strcmpi (digestToken, (char*)"nc"))
+          else if (! strcasecmp (digestToken, "nc"))
             {
-              digestToken = strtok (NULL, (char*)"\r\n," );
+              digestToken = strtok (NULL, "\r\n," );
               if (digestToken)
                 {
-                  trim (digestToken, (char*)"\" ");
+                  trim (digestToken, "\" ");
                   myserver_strlcpy (request->digestNc, digestToken, 10 + 1);
                 }
             }
           else
             {
-              digestToken = strtok (NULL, (char*)"\r\n," );
+              digestToken = strtok (NULL, "\r\n," );
             }
           /* Update digestToken.  */
-          digestToken = strtok (NULL, (char*)"=" );
+          digestToken = strtok (NULL, "=" );
         }while (digestToken);
       delete  [] digestBuff;
     }
@@ -1014,7 +1014,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct (const char *input,
         if (token)
           response->errorType.assign (token);
       }
-    else if (!strcmpi (command,"Status"))
+    else if (! strcasecmp (command,"Status"))
       {
         token = strtok (NULL, "\r\n\0" );
         lineControlled = 1;
@@ -1027,7 +1027,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct (const char *input,
           if (token)
             response->httpStatus = atoi (token);
       }
-    else if (!strcmpi (command, "Content-length"))
+    else if (! strcasecmp (command, "Content-length"))
       {
         token = strtok (NULL, "\r\n\0" );
         lineControlled = 1;
@@ -1060,7 +1060,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct (const char *input,
                 break;
               }
 
-            if (!strcmpi (command, "Content-type"))
+            if (! strcasecmp (command, "Content-type"))
               append = false;
 
             HttpResponseHeader::Entry *old = NULL;

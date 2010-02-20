@@ -110,7 +110,7 @@ int ControlProtocol::loadProtocol ()
   const char *data = 0;
 
   data = Server::getInstance ()->getData ("control.enabled");
-  if (data && (!strcmpi (data, "YES")))
+  if (data && (! strcasecmp (data, "YES")))
     controlEnabled = 1;
   else
     controlEnabled = 0;
@@ -125,12 +125,12 @@ int ControlProtocol::loadProtocol ()
 
   data = Server::getInstance ()->getData ("control.admin.md5");
   if (data)
-    if (strcmpi (data, "YES") == 0)
+    if (strcasecmp (data, "YES") == 0)
       adminNameMD5ized = 1;
 
   data = Server::getInstance ()->getData ("control.password.md5");
   if (data)
-    if (strcmpi (data, "YES") == 0)
+    if (strcasecmp (data, "YES") == 0)
       adminPasswordMD5ized = 1;
 
   if (adminNameMD5ized)
@@ -179,8 +179,8 @@ int ControlProtocol::checkAuth (ControlHeader& header)
   md5.update (headerPassword, (unsigned int)strlen (headerPassword));
   md5.end (authPasswordHeaderMD5);
 
-  if ((!strcmpi (adminLogin, authLoginHeaderMD5)) &&
-     (!strcmpi (adminPassword, authPasswordHeaderMD5)))
+  if ((! strcasecmp (adminLogin, authLoginHeaderMD5)) &&
+     (! strcasecmp (adminPassword, authPasswordHeaderMD5)))
     return 1;
   else
     return 0;
@@ -351,7 +351,7 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
       inFile->seek (0);
     }
 
-  if (strcmpi (version, "CONTROL/1.0"))
+  if (strcasecmp (version, "CONTROL/1.0"))
     {
       a->host->warningsLogWrite (_("Control: specified version not supported"));
       if (inFile)
@@ -506,7 +506,7 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
        * If the Keep-Alive was specified keep the connection in the
        * active connections list.
        */
-      if (!strcmpi (connection, "keep-alive"))
+      if (! strcasecmp (connection, "keep-alive"))
         return ClientsThread::KEEP_CONNECTION;
       else
         return ClientsThread::DELETE_CONNECTION;

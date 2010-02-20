@@ -735,7 +735,7 @@ int FastCgi::handleHeader (FcgiContext* con, FiltersChain* chain, bool* response
                                               &(con->td->nBytesToRead));
 
   bool allowSendfile =
-    !strcmpi (con->td->securityToken.getData ("fastcgi.sendfile.allow",
+    ! strcasecmp (con->td->securityToken.getData ("fastcgi.sendfile.allow",
                                               MYSERVER_VHOST_CONF
                                               | MYSERVER_SERVER_CONF, "NO"),
               "YES");

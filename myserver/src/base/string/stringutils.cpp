@@ -591,10 +591,10 @@ string trim (string const &s,  string const &t)
  *attached to the head or tail of the string
  */
 
-void trim (char* str, char* trimchars)
+void trim (char* str, char const* trimchars)
 {
   char *strptr = str;
-  char *trimptr = trimchars;
+  const char *trimptr = trimchars;
 
   while (*trimptr && *strptr)
     {
@@ -826,7 +826,7 @@ int getEndLine (const char* str, int max)
  */
 int stringcmpi (string const &a, string const &b)
 {
-  return strcmpi (a.c_str (), b.c_str ());
+  return strcasecmp (a.c_str (), b.c_str ());
 }
 
 /*!
@@ -838,7 +838,7 @@ int stringcmpi (string const &a, string const &b)
  */
 int stringcmpi (string const &a, const char* b)
 {
-  return strcmpi (a.c_str (), b);
+  return strcasecmp (a.c_str (), b);
 }
 
 /*!

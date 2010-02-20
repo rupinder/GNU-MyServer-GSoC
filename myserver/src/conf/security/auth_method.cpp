@@ -47,7 +47,7 @@ bool AuthMethod::comparePassword (const char *password,
                                   const char *algorithm)
 {
   if (!algorithm)
-    return  strcmpi (password, savedPassword) == 0;
+    return  strcasecmp (password, savedPassword) == 0;
 
   if (cryptAlgoManager)
     {

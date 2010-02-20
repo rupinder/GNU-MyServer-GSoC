@@ -181,9 +181,9 @@ static error_t parseOpt (int key, char *arg, struct argp_state *state)
     case 'r':
       if (arg)
         {
-          if (!strcmpi (arg, "CONSOLE"))
+          if (! strcasecmp (arg, "CONSOLE"))
             in->runas = MYSERVER_RUNAS_CONSOLE;
-          else if (!strcmpi (arg, "SERVICE"))
+          else if (! strcasecmp (arg, "SERVICE"))
             in->runas = MYSERVER_RUNAS_SERVICE;
         }
       else

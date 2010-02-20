@@ -23,6 +23,11 @@
 # include "myserver.h"
 # include <string>
 
+extern "C"
+{
+# include <string.h>
+}
+
 using namespace std;
 
 const char *getRFC822GMTTime (char* out,int len);
@@ -50,7 +55,7 @@ const char* getGMTLogFormatDate (string& out, int len);
 time_t getTime (const char* str);
 inline time_t getTime (string const& str){ return getTime (str.c_str ()); }
 
-void trim (char* str, char* trimChars);
+void trim (char* str, char const* trimChars);
 
 void gotoNextLine (char** cmd);
 
@@ -80,12 +85,7 @@ int stringcmp (string const &a, const char* b);
 extern "C"
 {
   char* strupr (char * string);
-#  include <string.h>
 }
-# endif
-
-# ifndef strcmpi
-#  define strcmpi strcasecmp
 # endif
 
 #endif

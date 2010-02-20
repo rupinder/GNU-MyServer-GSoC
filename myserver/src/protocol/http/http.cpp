@@ -101,7 +101,7 @@ int HttpProtocol::loadProtocol ()
   if (data)
     {
 
-      if (!strcmpi (data, "YES"))
+      if (! strcasecmp (data, "YES"))
         allowVhostMime = 1;
       else
         allowVhostMime = 0;
@@ -251,7 +251,7 @@ bool Http::allowMethod (const char *method)
                                                  MYSERVER_VHOST_CONF |
                                                  MYSERVER_SERVER_CONF, "YES");
 
-  return strcmpi (allow, "NO");
+  return strcasecmp (allow, "NO");
 }
 
 /*!
@@ -329,7 +329,7 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
           const char *perm = td->securityToken.getData ("symlinks.follow",
                               MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, "NO");
 
-          if (!perm || strcmpi (perm, "YES"))
+          if (!perm || strcasecmp (perm, "YES"))
             return raiseHTTPError (401);
         }
 
@@ -390,7 +390,7 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
       *permissions = td->securityToken.getMask ();
 
       /* Check if we have to use digest for the current directory.  */
-      if (authType && !strcmpi (authType, "Digest"))
+      if (authType && ! strcasecmp (authType, "Digest"))
         {
           HttpUserData* hud = static_cast<HttpUserData*>
                                                (td->connection->protocolBuffer);
@@ -1076,7 +1076,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                     ("http.home_directory", MYSERVER_VHOST_CONF
                      | MYSERVER_SERVER_CONF, "public_html");
 
-                  if (strcmpi (useHomeDir, "YES"))
+                  if (strcasecmp (useHomeDir, "YES"))
                     return raiseHTTPError (404);
 
                   td->vhostDir.assign (documentRoot);
@@ -1359,7 +1359,7 @@ int Http::raiseHTTPError (int ID)
                                                               NULL);
       if (useMessagesVal)
         {
-          if (!strcmpi (useMessagesVal, "YES"))
+          if (! strcasecmp (useMessagesVal, "YES"))
             useMessagesFiles = 1;
           else
             useMessagesFiles = 0;
@@ -1444,7 +1444,7 @@ int Http::raiseHTTPError (int ID)
                                                              MYSERVER_VHOST_CONF |
                                                              MYSERVER_SERVER_CONF, NULL);
 
-        if (value && !strcmpi (value, "NO"))
+        if (value && ! strcasecmp (value, "NO"))
           {
             errorBodyLength = 0;
             td->response.contentLength.assign ("0");

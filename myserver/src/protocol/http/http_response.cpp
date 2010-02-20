@@ -63,14 +63,14 @@ void HttpResponseHeader::free ()
  */
 string* HttpResponseHeader::getValue (const char* name, string* out)
 {
-  if (!strcmpi (name, "Ver"))
+  if (! strcasecmp (name, "Ver"))
     {
       if (out)
         out->assign (ver.c_str ());
       return &ver;
     }
 
-  if (!strcmpi (name, "Content-length"))
+  if (! strcasecmp (name, "Content-length"))
     {
       if (out)
         out->assign (contentLength.c_str ());
@@ -92,13 +92,13 @@ string* HttpResponseHeader::getValue (const char* name, string* out)
  */
 string* HttpResponseHeader::setValue (const char* name, const char* in)
 {
-  if (!strcmpi (name, "Ver"))
+  if (! strcasecmp (name, "Ver"))
     {
       ver.assign (in);
       return &ver;
     }
 
-  if (!strcmpi (name, "Content-length"))
+  if (! strcasecmp (name, "Content-length"))
     {
       contentLength.assign (in);
       return &contentLength;

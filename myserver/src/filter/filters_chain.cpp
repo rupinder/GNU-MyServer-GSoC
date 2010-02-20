@@ -234,7 +234,7 @@ int FiltersChain::isFilterPresent (const char* name)
   list<Filter*>::iterator i = filters.begin ();
 
   for ( ; i != filters.end (); ++i )
-    if (!strcmpi ((*i)->getName (0, 0), name))
+    if (! strcasecmp ((*i)->getName (0, 0), name))
       return 1;
   return 0;
 }

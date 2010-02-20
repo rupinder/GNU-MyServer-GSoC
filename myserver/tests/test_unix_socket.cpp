@@ -57,7 +57,7 @@ void* test_unix_socket_server (void* pParam)
     }
 
 
-  server->result = !strcmpi (buffer, TEST_STRING);
+  server->result = ! strcasecmp (buffer, TEST_STRING);
 
   client.close ();
   return NULL;

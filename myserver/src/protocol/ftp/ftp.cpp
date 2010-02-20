@@ -376,23 +376,23 @@ int Ftp::loadProtocolstatic ()
 
   const char *pData = server->getData ("ftp.allow_anonymous");
   if (pData != NULL)
-    m_ballowAnonymous = strcmpi ("Yes", pData) == 0 ? true : false;
+    m_ballowAnonymous = strcasecmp ("Yes", pData) == 0 ? true : false;
 
   pData = server->getData ("ftp.anonymous_need_pass");
   if (pData != NULL)
-    m_bAnonymousNeedPass = strcmpi ("Yes", pData) == 0 ? true : false;
+    m_bAnonymousNeedPass = strcasecmp ("Yes", pData) == 0 ? true : false;
 
   pData = server->getData ("ftp.allow_asynchronous_cmds");
   if (pData != NULL)
-    m_ballowAsynchronousCmds = strcmpi ("Yes", pData) == 0 ? true : false;
+    m_ballowAsynchronousCmds = strcasecmp ("Yes", pData) == 0 ? true : false;
 
   pData = server->getData ("ftp.allow_pipelining");
   if (pData != NULL)
-    m_bEnablePipelining = strcmpi ("Yes", pData) == 0 ? true : false;
+    m_bEnablePipelining = strcasecmp ("Yes", pData) == 0 ? true : false;
 
   pData = server->getData ("ftp.allow_store");
   if (pData != NULL)
-    m_bEnablestoreCmds = strcmpi ("Yes", pData) == 0 ? true : false;
+    m_bEnablestoreCmds = strcasecmp ("Yes", pData) == 0 ? true : false;
 
   return 1;
 }
@@ -449,7 +449,7 @@ Ftp::user (const std::string & sParam)
     static_cast < FtpuserData * >(td.pConnection->protocolBuffer);
 
   if (!m_ballowAnonymous
-      && strcmpi (pFtpuserData->m_suserName.c_str (), "anonymous") == 0)
+      && strcasecmp (pFtpuserData->m_suserName.c_str (), "anonymous") == 0)
     {
       ftpReply (530);
       return;
@@ -465,7 +465,7 @@ void Ftp::password (const std::string & sParam)
     static_cast < FtpuserData * >(td.pConnection->protocolBuffer);
 
   if (!m_ballowAnonymous
-      && strcmpi (pFtpuserData->m_suserName.c_str (), "anonymous") == 0)
+      && strcasecmp (pFtpuserData->m_suserName.c_str (), "anonymous") == 0)
     {
       ftpReply (530);
       return;
@@ -573,7 +573,7 @@ void Ftp::retrstor (bool bretr, bool bappend, const std::string & sPath)
                                        MYSERVER_VHOST_CONF |
                                        MYSERVER_SERVER_CONF,
                                        ".security.xml");
-  if (!strcmpi (sLocalFileName.c_str (), secName))
+  if (! strcasecmp (sLocalFileName.c_str (), secName))
     {
       ftpReply (550);
       return;
@@ -1717,7 +1717,7 @@ Ftp::list (const std::string & sParam /*= ""*/ )
                                            ".security.xml");
       do
         {
-          if (fd.name[0] == '.' || !strcmpi (fd.name.c_str (), secName))
+          if (fd.name[0] == '.' || ! strcasecmp (fd.name.c_str (), secName))
             continue;
 
           perm[10] = '\0';
@@ -1934,7 +1934,7 @@ Ftp::nlst (const std::string & sParam /* = "" */ )
                                        ".security.xml");
   do
     {
-      if (fd.name[0] == '.' || !strcmpi (fd.name.c_str (), secName))
+      if (fd.name[0] == '.' || ! strcasecmp (fd.name.c_str (), secName))
         continue;
 
       if (!sParam.empty ())
@@ -2217,7 +2217,7 @@ void Ftp::dele (const std::string & sPath)
                                        MYSERVER_VHOST_CONF |
                                        MYSERVER_SERVER_CONF,
                                        ".security.xml");
-  if (!strcmpi (sLocalFileName.c_str (), secName))
+  if (! strcasecmp (sLocalFileName.c_str (), secName))
     {
       ftpReply (550);
       closeDataConnection ();
@@ -2226,7 +2226,7 @@ void Ftp::dele (const std::string & sPath)
   FtpuserData *pFtpuserData =
     static_cast < FtpuserData * >(td.pConnection->protocolBuffer);
 
-  if (strcmpi (pFtpuserData->m_suserName.c_str (), "anonymous") == 0)
+  if (strcasecmp (pFtpuserData->m_suserName.c_str (), "anonymous") == 0)
     {
       if (checkRights ("Guest", "", sLocalFileName, MYSERVER_PERMISSION_WRITE)
           == 0)
@@ -2348,7 +2348,7 @@ void Ftp::rnfr (const std::string & sPath)
                                        ".security.xml");
 
   /* The security file doesn't exist in any case.  */
-  if (!strcmpi (sLocalFileName.c_str (), secName))
+  if (! strcasecmp (sLocalFileName.c_str (), secName))
     {
       ftpReply (550);
       return;
@@ -2393,7 +2393,7 @@ void Ftp::Rnto (const std::string & sPath)
                                        ".security.xml");
 
   /* The security file doesn't exist in any case.  */
-  if (!strcmpi (sLocalFileName.c_str (), secName))
+  if (! strcasecmp (sLocalFileName.c_str (), secName))
     {
       ftpReply (550);
       return;
@@ -2418,7 +2418,7 @@ int Ftp::checkRights (const std::string & suser, const std::string & sPass,
 
   string user;
   string password;
-  if (strcmpi (suser.c_str (), "anonymous") == 0)
+  if (strcasecmp (suser.c_str (), "anonymous") == 0)
     {
       user.assign ("Guest");
       password.assign ("");
@@ -2469,7 +2469,7 @@ void Ftp::size (const std::string & sPath)
                                        MYSERVER_SERVER_CONF,
                                        ".security.xml");
 
-  if (!strcmpi (sLocalFileName.c_str (), secName))
+  if (! strcasecmp (sLocalFileName.c_str (), secName))
     {
       ftpReply (550);
       closeDataConnection ();

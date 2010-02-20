@@ -425,7 +425,7 @@ int Scgi::buildScgiEnvironmentString (HttpThreadContext* td, char* src,
       if (max == 0)
         return -1;
 
-      if (!strcmpi (varName, "CONTENT_LENGTH") || !strcmpi (varName, "SCGI") ||
+      if (! strcasecmp (varName, "CONTENT_LENGTH") || ! strcasecmp (varName, "SCGI") ||
           !varNameLen || !varValueLen)
         continue;
 
