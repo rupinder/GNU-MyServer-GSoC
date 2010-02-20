@@ -42,6 +42,7 @@ class TestHttpRequest : public CppUnit::TestFixture
   CPPUNIT_TEST (testIncompleteHeader);
   CPPUNIT_TEST (testDefaultHttpRequest);
   CPPUNIT_TEST (testValidRequest);
+  CPPUNIT_TEST (testKeepAlive);
   CPPUNIT_TEST (testResetHttpRequest);
   CPPUNIT_TEST_SUITE_END ();
 
@@ -54,6 +55,50 @@ public:
   void tearDown ()
   {
 
+  }
+
+
+  void testKeepAlive ()
+  {
+    HttpRequestHeader header;
+    Connection connection;
+    u_long requestLength;
+    const char * requestStr;
+    int ret;
+#define BUILD_KEEPALIVE_REQ(X) "GET / HTTP/1.1\r\n" \
+      "Connection: " X "\r\n"                       \
+      "Host: localhost\r\n\r\n"
+
+    requestStr = BUILD_KEEPALIVE_REQ ("Keep-Alive");
+    ret = HttpHeaders::buildHTTPRequestHeaderStruct (requestStr,
+                                                     strlen (requestStr),
+                                                     &requestLength,
+                                                     &header,
+                                                     &connection);
+
+    CPPUNIT_ASSERT (header.isKeepAlive ());
+
+    requestStr = BUILD_KEEPALIVE_REQ ("close");
+    HttpHeaders::resetHTTPRequest (&header);
+    ret = HttpHeaders::buildHTTPRequestHeaderStruct (requestStr,
+                                                     strlen (requestStr),
+                                                     &requestLength,
+                                                     &header,
+                                                     &connection);
+
+    CPPUNIT_ASSERT (! header.isKeepAlive ());
+
+    requestStr = BUILD_KEEPALIVE_REQ ("keep-Alive");
+    HttpHeaders::resetHTTPRequest (&header);
+    ret = HttpHeaders::buildHTTPRequestHeaderStruct (requestStr,
+                                                     strlen (requestStr),
+                                                     &requestLength,
+                                                     &header,
+                                                     &connection);
+
+    CPPUNIT_ASSERT (header.isKeepAlive ());
+
+#undef BUILD_KEEPALIVE_REQ
   }
 
   void testSimpleHeader ()

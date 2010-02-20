@@ -85,11 +85,9 @@ bool HttpRequestHeader::isKeepAlive ()
 {
     Entry *connection = other.get ("Connection");
     if (connection)
-    {
-      string value (*connection->value);
-      std::transform (value.begin (), value.end (), value.begin (), (int (*)(int)) tolower);
-      return value.find ("keep-alive") != string::npos;
-    }
+      return (! stringcmpi (*connection->value,
+                            "keep-alive"));
+
     return false;
 }
 
