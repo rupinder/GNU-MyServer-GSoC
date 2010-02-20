@@ -570,7 +570,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
             return ret;
           lineControlled = 1;
         }
-      else if (!lineControlled)
+      else if (! lineControlled)
         {
           tokenOff = getEndLine (token, maxTotchars);
           if (tokenOff==-1)
@@ -621,7 +621,7 @@ int HttpHeaders::readReqRangeLine (HttpRequestHeader *request,
   char rangeByteBegin[13];
   char rangeByteEnd[13];
   const char *localToken = token;
-  int i = 0;
+  size_t i = 0;
   rangeByteBegin[0] = '\0';
   rangeByteEnd[0] = '\0';
 
@@ -656,22 +656,22 @@ int HttpHeaders::readReqRangeLine (HttpRequestHeader *request,
       rangeByteEnd[i++] = *localToken;
       rangeByteEnd[i] = '\0';
     }
-  while ((*(++localToken) != '\r' )&&(i<12));
+  while ((*(++localToken) != '\r') && (i < 12));
 
-  for (i = 0; i < static_cast<int>(request->rangeType.length ()); i++)
+  for (i = 0; i < request->rangeType.length (); i++)
     if (request->rangeType[i] == '=')
       request->rangeType[i] = '\0';
 
-  for (i = 0; i < static_cast<int>(strlen (rangeByteBegin)); i++)
+  for (i = 0; i < strlen (rangeByteBegin); i++)
     if (rangeByteBegin[i] == '=')
       rangeByteBegin[i] = '\0';
 
-  for (i = 0; i < static_cast<int>(strlen (rangeByteEnd)); i++)
-    if (rangeByteEnd[i]== '=')
-      rangeByteEnd[i]='\0';
+  for (i = 0; i < strlen (rangeByteEnd); i++)
+    if (rangeByteEnd[i] == '=')
+      rangeByteEnd[i] = '\0';
 
   if (rangeByteBegin[0] == 0)
-    request->rangeByteBegin=0;
+    request->rangeByteBegin = 0;
   else
     request->rangeByteBegin = (u_long) atol (rangeByteBegin);
 
@@ -696,8 +696,7 @@ int HttpHeaders::readReqRangeLine (HttpRequestHeader *request,
  * \return 0 on success, any other value is the HTTP error.
  */
 int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
-                                  Connection *connection,
-                                  const char *token,
+                                  Connection *connection, const char *token,
                                   int *lenOut)
 {
   const char *origToken = token;
@@ -713,7 +712,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
   connection->setLogin ("");
   connection->setPassword ("");
 
-  if (!request->auth.compare ("Basic"))
+  if (! request->auth.compare ("Basic"))
     {
       u_long i;
       const char *base64 = &token[6];
@@ -759,7 +758,7 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
         return 400;
       *lenOut += token - origToken;
     }
-  else if (!request->auth.compare ("Digest"))
+  else if (! request->auth.compare ("Digest"))
     {
       char *digestBuff;
       char *digestToken;
@@ -775,13 +774,13 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
 
 
       digestBuff = new char[tokenOff + 1];
-      if (!digestBuff)
+      if (! digestBuff)
         return 500;
 
       memcpy (digestBuff, token, tokenOff);
       digestBuff[tokenOff] = '\0';
       digestToken = strtok (digestBuff, "=" );
-      if (!digestToken)
+      if (! digestToken)
         return 400;
       do
         {
@@ -961,7 +960,7 @@ int HttpHeaders::buildHTTPResponseHeaderStruct (const char *input,
   if (validResponse)
   {
     newInput = new char[maxTotchars + 1];
-    if (!newInput)
+    if (! newInput)
       return 0;
     /*
      * FIXME:
