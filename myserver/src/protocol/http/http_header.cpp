@@ -31,9 +31,9 @@ using namespace std;
 string* HttpHeader::getValue (const char *name, string *out)
 {
   string key (name);
-  transform (key.begin (), str.end (), str.begin (), ::tolower);
+  transform (key.begin (), key.end (), key.begin (), ::tolower);
 
-  Entry *e = other.get (str);
+  Entry *e = other.get (key);
   if (e)
     {
       if (out)
