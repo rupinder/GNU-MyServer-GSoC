@@ -15,9 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
-bin_PROGRAMS = test_suite
+noinst_PROGRAMS = test_suite
 test_suite_SOURCES =  	main.cpp				\
-			memory_socket.h			\
+			memory_socket.h			        \
 			test_auth_domain.cpp			\
 			test_auth_method.cpp			\
 			test_base64.cpp				\
@@ -35,7 +35,7 @@ test_suite_SOURCES =  	main.cpp				\
 			test_filter_chain.cpp			\
 			test_fork_server.cpp			\
 			test_ftp.cpp				\
-			test_gopher_content.cpp				\
+			test_gopher_content.cpp			\
 			test_gzip.cpp				\
 			test_hashmap.cpp			\
 			test_homedir.cpp			\
