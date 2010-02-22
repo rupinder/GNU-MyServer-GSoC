@@ -864,13 +864,3 @@ int stringcmp (string const &a, const char* b)
 {
   return strcmp (a.c_str (), b);
 }
-
-#ifndef WIN32
-char* strupr (char * s)
-{
-  unsigned int len = strlen (s);
-  for (register unsigned int i = 0; i < len; i++)
-    s[i] = toupper (s[i]);
-  return s;
-}
-#endif

@@ -81,11 +81,4 @@ int stringcmp (string const &a, string const &b);
 int stringcmpi (string const &a, const char* b);
 int stringcmp (string const &a, const char* b);
 
-# ifndef WIN32
-extern "C"
-{
-  char* strupr (char * string);
-}
-# endif
-
 #endif

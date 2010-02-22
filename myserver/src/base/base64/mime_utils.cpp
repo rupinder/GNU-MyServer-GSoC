@@ -33,6 +33,14 @@ extern "C"
 #include <include/base/string/stringutils.h>
 #include <include/base/string/securestr.h>
 
+static char* myserver_strupr (char * s)
+{
+  unsigned int len = strlen (s);
+  for (register unsigned int i = 0; i < len; i++)
+    s[i] = toupper (s[i]);
+  return s;
+}
+
 #define strupos(x, y) (strustr (x, y) != NULL ? strustr (x, y) - x : -1)
 
 static char* strustr (char *source, char *s)
@@ -49,8 +57,8 @@ static char* strustr (char *source, char *s)
   }
   strncpy (csource, source, (strlen (source) + 2));
   strncpy (cs, s, (strlen (s) + 2));
-  strupr (csource);
-  strupr (cs);
+  myserver_strupr (csource);
+  myserver_strupr (cs);
   char *result = strstr (csource, cs);
   if (result != NULL)
   {
@@ -574,7 +582,7 @@ char* CQPUtils::encode (char *input)
 
       snprintf (mids, 3, "%X", mid);
 
-      strupr (mids);
+      myserver_strupr (mids);
       *(fresult++) = '=';
       *(fresult++) = mids[0];
       *(fresult++) = mids[1];
