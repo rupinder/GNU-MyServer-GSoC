@@ -49,7 +49,7 @@ int HttpFile::putFile (HttpThreadContext* td, string& filename)
   try
   {
     if (td->request.isKeepAlive ())
-      td->response.setValue ("Connection", "keep-alive");
+      td->response.setValue ("connection", "keep-alive");
 
     if (!(td->permissions & MYSERVER_PERMISSION_WRITE))
       return td->http->sendAuth ();
@@ -241,10 +241,10 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         return td->http->raiseHTTPError (500);
 
       getRFC822GMTTime (lastMT, tmpTime, 32);
-      td->response.setValue ("Last-Modified", tmpTime.c_str ());
+      td->response.setValue ("last-modified", tmpTime.c_str ());
 
       HttpRequestHeader::Entry *ifModifiedSince =
-        td->request.other.get ("Last-Modified");
+        td->request.other.get ("last-modified");
 
       if (ifModifiedSince && ifModifiedSince->value->length () &&
           !ifModifiedSince->value->compare (tmpTime))
@@ -262,18 +262,18 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     string etag;
     generateEtag (etag, lastMT, filesize);
 
-    HttpRequestHeader::Entry *etagHeader = td->request.other.get ("ETag");
+    HttpRequestHeader::Entry *etagHeader = td->request.other.get ("etag");
     if (etagHeader &&  !etagHeader->value->compare (etag))
       return td->http->sendHTTPNonModified ();
     else
       {
-        HttpResponseHeader::Entry *e = td->response.other.get ("Etag");
+        HttpResponseHeader::Entry *e = td->response.other.get ("etag");
         if (e)
           e->value->assign (etag);
         else
           {
             e = new HttpResponseHeader::Entry ();
-            e->name->assign ("Etag");
+            e->name->assign ("etag");
             e->value->assign (etag);
             td->response.other.put (*(e->name), e);
           }
@@ -320,13 +320,13 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         buffer << "bytes "<< (u_long)firstByte << "-"
                << (u_long) (lastByte - 1) << "/" << (u_long)filesize;
 
-        e = td->response.other.get ("Content-range");
+        e = td->response.other.get ("content-range");
         if (e)
           e->value->assign (buffer.str ());
         else
           {
             e = new HttpResponseHeader::Entry ();
-            e->name->assign ("Content-range");
+            e->name->assign ("content-range");
             e->value->assign (buffer.str ());
             td->response.other.put (*(e->name), e);
           }
@@ -336,7 +336,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     chain.setStream (&memStream);
     if (td->mime)
       {
-        HttpRequestHeader::Entry* e = td->request.other.get ("Accept-encoding");
+        HttpRequestHeader::Entry* e = td->request.other.get ("accept-encoding");
         if (td->mime &&
             Server::getInstance ()->getFiltersFactory ()->chain (&chain,
                                                                  td->mime->filters,
@@ -363,23 +363,23 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
       }
 
     if (keepalive)
-      td->response.setValue ("Connection", "keep-alive");
+      td->response.setValue ("connection", "keep-alive");
     else
-      td->response.setValue ("Connection", "close");
+      td->response.setValue ("connection", "close");
 
     if (useModifiers)
       {
         string s;
         HttpResponseHeader::Entry *e;
         chain.getName (s);
-        e = td->response.other.get ("Content-encoding");
+        e = td->response.other.get ("content-encoding");
 
         if (e)
           e->value->assign (s);
         else
           {
             e = new HttpResponseHeader::Entry ();
-            e->name->assign ("Content-encoding");
+            e->name->assign ("content-encoding");
             e->value->assign (s);
             td->response.other.put (*(e->name), e);
           }
@@ -391,20 +391,20 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     if (useChunks)
       {
         HttpResponseHeader::Entry *e;
-        e = td->response.other.get ("Transfer-encoding");
+        e = td->response.other.get ("transfer-encoding");
         if (e)
           e->value->assign ("chunked");
         else
           {
             e = new HttpResponseHeader::Entry ();
-            e->name->assign ("Transfer-encoding");
+            e->name->assign ("transfer-encoding");
             e->value->assign ("chunked");
             td->response.other.put (*(e->name), e);
           }
       }
     else
       {	HttpResponseHeader::Entry *e;
-        e = td->response.other.remove ("Transfer-encoding");
+        e = td->response.other.remove ("transfer-encoding");
         if (e)
           delete e;
       }

@@ -28,9 +28,40 @@ using namespace std;
 
 struct HttpHeader
 {
-  virtual string* getValue (const char* name, string* out) = 0;
-  virtual string* setValue (const char* name, const char* in) = 0;
+  struct Entry
+  {
+    string *name;
+    string *value;
+    Entry ()
+    {
+      name = new string ();
+      value = new string ();
+    }
+
+    Entry (string& n, string& v)
+    {
+      name = new string ();
+      value = new string ();
+
+      name->assign (n);
+      value->assign (v);
+    }
+
+    ~Entry ()
+    {
+      delete name;
+      delete value;
+
+    }
+
+  };
+
+  virtual string* getValue (const char *name, string *out);
+  virtual string* setValue (const char *name, const char *in);
   virtual ~HttpHeader (){}
+
+  /* Key are stored lower-case.  */
+  HashMap<string, struct Entry *> other;
 };
 
 #endif

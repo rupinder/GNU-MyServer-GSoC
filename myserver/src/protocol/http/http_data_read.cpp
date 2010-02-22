@@ -243,16 +243,16 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
   u_long length;
 
   HttpRequestHeader::Entry *contentType =
-    td->request.other.get ("Content-type");
+    td->request.other.get ("content-type");
 
   HttpRequestHeader::Entry *encoding =
-    td->request.other.get ("Transfer-encoding");
+    td->request.other.get ("transfer-encoding");
 
   /* Specify a type if it not specified by the client.  */
   if (contentType == 0)
   {
     contentType = new HttpRequestHeader::Entry ();
-    contentType->name->assign ("Content-type");
+    contentType->name->assign ("content-type");
     contentType->value->assign ("application/x-www-form-urlencoded");
   }
   else if (contentType->value->length () == 0)
@@ -284,7 +284,7 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
   if (!contentLengthSpecified && td->request.isKeepAlive ())
   {
     HttpRequestHeader::Entry *content =
-      td->request.other.get ("Content-Encoding");
+      td->request.other.get ("content-encoding");
 
     if (content && (content->value->length () == '\0')
            && (td->request.contentLength.length () == 0))

@@ -1,19 +1,19 @@
 /*
-MyServer
-Copyright (C) 2005, 2006, 2007, 2009, 2010 Free Software Foundation,
-Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2005, 2006, 2007, 2009, 2010 Free Software Foundation,
+  Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "myserver.h"
@@ -79,16 +79,16 @@ void HttpRequestHeader::free ()
 }
 
 /*!
- *Check if this request is keep-alive.
+ * Check if this request is keep-alive.
  */
 bool HttpRequestHeader::isKeepAlive ()
 {
-    Entry *connection = other.get ("Connection");
-    if (connection)
-      return (! stringcmpi (*connection->value,
-                            "keep-alive"));
+  Entry *connection = other.get ("connection");
+  if (connection)
+    return (! stringcmpi (*connection->value,
+                          "keep-alive"));
 
-    return false;
+  return false;
 }
 
 /*!
@@ -97,161 +97,134 @@ bool HttpRequestHeader::isKeepAlive ()
 string* HttpRequestHeader::getValue (const char* name, string* out)
 {
   if (! strcasecmp (name, "cmd"))
-  {
-    if (out)
-      out->assign (cmd.c_str ());
-    return &cmd;
-  }
+    {
+      if (out)
+        out->assign (cmd.c_str ());
+      return &cmd;
+    }
 
   if (! strcasecmp (name, "ver"))
-  {
-    if (out)
-      out->assign (ver.c_str ());
-    return &ver;
-  }
+    {
+      if (out)
+        out->assign (ver.c_str ());
+      return &ver;
+    }
 
   if (! strcasecmp (name, "uri"))
-  {
-    if (out)
-      out->assign (uri.c_str ());
-    return &uri;
-  }
+    {
+      if (out)
+        out->assign (uri.c_str ());
+      return &uri;
+    }
 
   if (! strcasecmp (name, "uriOpts"))
-  {
-    if (out)
-      out->assign (uriOpts.c_str ());
-    return &uriOpts;
-  }
+    {
+      if (out)
+        out->assign (uriOpts.c_str ());
+      return &uriOpts;
+    }
 
- if (! strcasecmp (name, "Authorization"))
- {
-   if (out)
-     out->assign (auth.c_str ());
-   return &auth;
- }
+  if (! strcasecmp (name, "Authorization"))
+    {
+      if (out)
+        out->assign (auth.c_str ());
+      return &auth;
+    }
 
- if (! strcasecmp (name, "Content-length"))
- {
-   if (out)
-     out->assign (contentLength.c_str ());
-   return &contentLength;
- }
+  if (! strcasecmp (name, "Content-length"))
+    {
+      if (out)
+        out->assign (contentLength.c_str ());
+      return &contentLength;
+    }
 
- if (! strcasecmp (name, "rangeType"))
- {
-   if (out)
-     out->assign (rangeType.c_str ());
-   return &rangeType;
- }
+  if (! strcasecmp (name, "rangeType"))
+    {
+      if (out)
+        out->assign (rangeType.c_str ());
+      return &rangeType;
+    }
 
- if (! strcasecmp (name, "rangeByteBegin"))
- {
-   ostringstream s;
-   s << rangeByteBegin;
-   if (out)
-     out->assign (s.str ());
-   return 0;
- }
+  if (! strcasecmp (name, "rangeByteBegin"))
+    {
+      ostringstream s;
+      s << rangeByteBegin;
+      if (out)
+        out->assign (s.str ());
+      return 0;
+    }
 
- if (! strcasecmp (name, "rangeByteEnd"))
- {
-   ostringstream s;
-   s << rangeByteEnd;
-   if (out)
-     out->assign (s.str ());
-   return 0;
- }
+  if (! strcasecmp (name, "rangeByteEnd"))
+    {
+      ostringstream s;
+      s << rangeByteEnd;
+      if (out)
+        out->assign (s.str ());
+      return 0;
+    }
 
- {
-   HttpRequestHeader::Entry *e = other.get (name);
-   if (e)
-   {
-     if (out)
-       out->assign (*(e->value));
-     return (e->value);
-   }
-   return 0;
- }
-
+  return HttpHeader::getValue (name, out);
 }
-
 
 
 /*!
  *Set the value of the [name] field to [in].
  */
-string* HttpRequestHeader::setValue (const char* name, const char* in)
+string* HttpRequestHeader::setValue (const char *name, const char *in)
 {
   if (! strcasecmp (name, "cmd"))
-  {
-    cmd.assign (in);
-    return &cmd;
-  }
+    {
+      cmd.assign (in);
+      return &cmd;
+    }
 
   if (! strcasecmp (name, "ver"))
-  {
-    ver.assign (in);
-    return &ver;
-  }
+    {
+      ver.assign (in);
+      return &ver;
+    }
 
   if (! strcasecmp (name, "uri"))
-  {
-    uri.assign (in);
-    return &uri;
-  }
+    {
+      uri.assign (in);
+      return &uri;
+    }
 
   if (! strcasecmp (name, "uriOpts"))
-  {
-    uriOpts.assign (in);
-    return &uriOpts;
-  }
+    {
+      uriOpts.assign (in);
+      return &uriOpts;
+    }
 
- if (! strcasecmp (name, "Authorization"))
- {
-   auth.assign (in);
-   return &auth;
- }
+  if (! strcasecmp (name, "Authorization"))
+    {
+      auth.assign (in);
+      return &auth;
+    }
 
- if (! strcasecmp (name, "Content-length"))
- {
-   contentLength.assign (in);
-   return &contentLength;
- }
+  if (! strcasecmp (name, "Content-length"))
+    {
+      contentLength.assign (in);
+      return &contentLength;
+    }
 
- if (! strcasecmp (name, "rangeType"))
- {
-   rangeType.assign (in);
-   return &rangeType;
- }
+  if (! strcasecmp (name, "rangeType"))
+    {
+      rangeType.assign (in);
+      return &rangeType;
+    }
 
- if (! strcasecmp (name, "rangeByteBegin"))
- {
-   rangeByteBegin = atoi (in);
-   return 0;
- }
+  if (! strcasecmp (name, "rangeByteBegin"))
+    {
+      rangeByteBegin = atoi (in);
+      return 0;
+    }
 
- if (! strcasecmp (name, "rangeByteEnd"))
- {
-   rangeByteEnd = atoi (in);
-   return 0;
- }
+  if (! strcasecmp (name, "rangeByteEnd"))
+    {
+      rangeByteEnd = atoi (in);
+      return 0;
+    }
 
- {
-   HttpRequestHeader::Entry *e = other.get (name);
-   if (e)
-   {
-     e->value->assign (in);
-     return (e->value);
-   }
-   else
-   {
-     e = new HttpRequestHeader::Entry;
-     e->name->assign (name);
-     e->value->assign (in);
-     other.put (*e->name, e);
-   }
-   return 0;
- }
-
+  return HttpHeader::setValue (name, in);
 }

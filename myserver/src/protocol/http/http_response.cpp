@@ -77,14 +77,7 @@ string* HttpResponseHeader::getValue (const char* name, string* out)
       return &contentLength;
     }
 
-  HttpResponseHeader::Entry *e = other.get (name);
-  if (e)
-    {
-      if (out)
-        out->assign (*(e->value));
-      return e->value;
-    }
-  return 0;
+  return HttpHeader::getValue (name, out);
 }
 
 /*!
@@ -104,23 +97,7 @@ string* HttpResponseHeader::setValue (const char* name, const char* in)
       return &contentLength;
     }
 
-  {
-    HttpResponseHeader::Entry *e = other.get (name);
-    if (e)
-      {
-        e->value->assign (in);
-        return (e->value);
-      }
-    else
-      {
-        e = new HttpResponseHeader::Entry;
-        e->name->assign (name);
-        e->value->assign (in);
-        other.put (*e->name, e);
-      }
-
-    return 0;
-  }
+  return HttpHeader::setValue (name, in);
 }
 
 /*!

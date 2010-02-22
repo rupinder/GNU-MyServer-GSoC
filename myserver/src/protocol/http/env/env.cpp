@@ -204,7 +204,7 @@ void Env::buildEnvironmentString (HttpThreadContext* td, char *cgiEnv,
   memCgi << td->request.auth.c_str ();
 
 
-  reqEntry = td->request.other.get ("Content-type");
+  reqEntry = td->request.other.get ("content-type");
 
   if (reqEntry)
   {

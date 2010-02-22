@@ -75,7 +75,7 @@ u_long HttpHeaders::buildHTTPResponseHeader (char *str,
        * Do not specify the Content-length field if it is used
        * the chunked Transfer-encoding.
        */
-      HttpResponseHeader::Entry *e = response->other.get ("Transfer-encoding");
+      HttpResponseHeader::Entry *e = response->other.get ("transfer-encoding");
 
       if (!e || (e && e->value->find ("chunked", 0) == string::npos ))
         {
@@ -206,7 +206,7 @@ void HttpHeaders::buildDefaultHTTPResponseHeader (HttpResponseHeader* response)
 {
   resetHTTPResponse (response);
 
-  response->setValue ("Content-type", "text/html");
+  response->setValue ("content-type", "text/html");
   response->ver.assign ("HTTP/1.1");
   response->setValue ("Server", "GNU MyServer " MYSERVER_VERSION);
 }
@@ -223,7 +223,7 @@ void HttpHeaders::buildDefaultHTTPRequestHeader (HttpRequestHeader* request)
   request->uri.assign ("/");
 
   /* HTTP/1.1 MUST specify a host.  */
-  request->setValue ("Host", "localhost");
+  request->setValue ("host", "localhost");
   request->uriOpts.assign ("");
   request->uriOptsPtr = 0;
 }
@@ -577,6 +577,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
             return 400;
 
           string cmdStr (command);
+          transform (cmdStr.begin (), cmdStr.end (), cmdStr.begin (),
+                     ::tolower);
           HttpRequestHeader::Entry *old = request->other.get (cmdStr);
           if (old)
             {
@@ -589,8 +591,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
           else
             {
               HttpRequestHeader::Entry *e = new HttpRequestHeader::Entry ();
-              e->name->assign (command, std::min (HTTP_RESPONSE_OTHER_DIM,
-                                                  tokenOff));
+              e->name->assign (cmdStr.c_str (),
+                               std::min (HTTP_RESPONSE_OTHER_DIM, tokenOff));
               e->value->assign (token, std::min (HTTP_RESPONSE_OTHER_DIM,
                                                  tokenOff));
               request->other.put (cmdStr, e);
@@ -1059,14 +1061,15 @@ int HttpHeaders::buildHTTPResponseHeaderStruct (const char *input,
                 break;
               }
 
-            if (! strcasecmp (command, "Content-type"))
+            if (! strcasecmp (command, "content-type"))
               append = false;
 
             HttpResponseHeader::Entry *old = NULL;
             HttpResponseHeader::Entry *e = new HttpResponseHeader::Entry ();
             e->name->assign (command);
-            string cmdString (command);
-            old = response->other.put (cmdString, e);
+            transform (e->name->begin (), e->name->end (), e->name->begin (),
+                       ::tolower);
+            old = response->other.put (*e->name, e);
             if (old)
               {
                 if (append)

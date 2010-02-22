@@ -134,7 +134,7 @@ int Http::optionsHTTPRESOURCE (string& filename, int yetmapped)
 
   try
     {
-      HttpRequestHeader::Entry *connection = td->request.other.get ("Connection");
+      HttpRequestHeader::Entry *connection = td->request.other.get ("connection");
       string methods ("OPTIONS, GET, POST, HEAD, DELETE, PUT, TRACE");
 
       HashMap<string, DynamicHttpCommand*>::Iterator it =
@@ -204,7 +204,7 @@ int Http::traceHTTPRESOURCE (string& filename, int yetmapped)
       *td->auxiliaryBuffer << "HTTP/1.1 200 OK\r\n";
       *td->auxiliaryBuffer << "Date: " << time << "\r\n";
       *td->auxiliaryBuffer << "Server: GNU MyServer " << MYSERVER_VERSION << "\r\n";
-      connection = td->request.other.get ("Connection");
+      connection = td->request.other.get ("connection");
       if (connection && connection->value->length ())
         *td->auxiliaryBuffer << "Connection:" << connection->value->c_str () << "\r\n";
 
@@ -466,7 +466,7 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped, int* permissio
   try
     {
       if (td->request.isKeepAlive ())
-        td->response.setValue ("Connection", "keep-alive");
+        td->response.setValue ("connection", "keep-alive");
 
       ret = getFilePermissions (filename, directory, file,
                                 td->filenamePath, yetmapped, permissions);
@@ -715,12 +715,12 @@ Http::sendHTTPResource (string& uri, int systemrequest, int onlyHeader,
       /* If not specified differently, set the default content type to text/html.  */
       if (td->mime)
         {
-          td->response.setValue ("Content-type", td->mime->mimeType.c_str ());
+          td->response.setValue ("content-type", td->mime->mimeType.c_str ());
           cgiManager = td->mime->cgiManager.c_str ();
         }
       else
         {
-          td->response.setValue ("Content-type", "text/html");
+          td->response.setValue ("content-type", "text/html");
           cgiManager = "";
         }
 
@@ -808,8 +808,8 @@ int Http::logHTTPaccess ()
 
       if (td->connection->host)
         {
-          HttpRequestHeader::Entry *userAgent = td->request.other.get ("User-Agent");
-          HttpRequestHeader::Entry *referer = td->request.other.get ("Refer");
+          HttpRequestHeader::Entry *userAgent = td->request.other.get ("user-agent");
+          HttpRequestHeader::Entry *referer = td->request.other.get ("refer");
 
           if (strstr ((td->connection->host)->getAccessLogOpt (), "type=combined"))
             *td->auxiliaryBuffer << " " << (referer ? referer->value->c_str () : "")
@@ -934,7 +934,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
       if (td->request.ver.compare ("HTTP/1.1"))
         {
           HttpRequestHeader::Entry *connection =
-                  td->request.other.get ("Connection");
+                  td->request.other.get ("connection");
 
           if (connection && connection->value->length ())
             connection->value->assign ("close");
@@ -994,7 +994,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
            * Servers MUST reports a 400 (Bad request) error if an HTTP/1.1
            * request does not include a Host request-header.
            */
-          HttpRequestHeader::Entry *host = td->request.other.get ("Host");
+          HttpRequestHeader::Entry *host = td->request.other.get ("host");
 
           if (host == NULL || (!td->request.ver.compare ("HTTP/1.1")
                                && host->value->length () == 0))
@@ -1207,7 +1207,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
 
       bool keepalive = false;
       HttpRequestHeader::Entry *connection = td->request.other.get
-                                                       ("Connection");
+                                                       ("connection");
       if (connection)
         keepalive = !stringcmpi (connection->value->c_str (), "keep-alive");
 
@@ -1254,8 +1254,8 @@ int Http::requestAuthorization ()
 {
   Md5 md5;
   string time;
-  HttpRequestHeader::Entry *connection = td->request.other.get ("Connection");
-  HttpRequestHeader::Entry *host = td->request.other.get ("Host");
+  HttpRequestHeader::Entry *connection = td->request.other.get ("connection");
+  HttpRequestHeader::Entry *host = td->request.other.get ("host");
   td->response.httpStatus = 401;
   td->auxiliaryBuffer->setLength (0);
   *td->auxiliaryBuffer << "HTTP/1.1 401 Unauthorized\r\n"
@@ -1351,8 +1351,8 @@ int Http::raiseHTTPError (int ID)
       ostringstream errorBodyMessage;
       int errorBodyLength = 0;
       int useMessagesFiles = 1;
-      HttpRequestHeader::Entry *host = td->request.other.get ("Host");
-      HttpRequestHeader::Entry *connection = td->request.other.get ("Connection");
+      HttpRequestHeader::Entry *host = td->request.other.get ("host");
+      HttpRequestHeader::Entry *connection = td->request.other.get ("connection");
       const char *useMessagesVal = td->securityToken.getData ("http.use_error_file",
                                                               MYSERVER_VHOST_CONF
                                                               | MYSERVER_SERVER_CONF,
@@ -1376,7 +1376,7 @@ int Http::raiseHTTPError (int ID)
       HttpHeaders::buildDefaultHTTPResponseHeader (&(td->response));
 
       if (connection && !stringcmpi (connection->value->c_str (), "keep-alive"))
-        td->response.setValue ("Connection", "keep-alive");
+        td->response.setValue ("connection", "keep-alive");
 
       td->response.httpStatus = ID;
 
@@ -1691,7 +1691,7 @@ int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
 int Http::sendHTTPRedirect (const char *newURL)
 {
   string time;
-  HttpRequestHeader::Entry *connection = td->request.other.get ("Connection");
+  HttpRequestHeader::Entry *connection = td->request.other.get ("connection");
 
   td->response.httpStatus = 302;
   td->auxiliaryBuffer->setLength (0);
@@ -1726,7 +1726,7 @@ int Http::sendHTTPRedirect (const char *newURL)
 int Http::sendHTTPNonModified ()
 {
   string time;
-  HttpRequestHeader::Entry *connection = td->request.other.get ("Connection");
+  HttpRequestHeader::Entry *connection = td->request.other.get ("connection");
 
   td->response.httpStatus = 304;
   td->auxiliaryBuffer->setLength (0);

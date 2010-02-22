@@ -316,7 +316,7 @@ int HttpDir::send (HttpThreadContext* td,
                                                         "%f%t%s");
 
 
-  HttpRequestHeader::Entry *host = td->request.other.get ("Host");
+  HttpRequestHeader::Entry *host = td->request.other.get ("host");
 
   chain.setStream (td->connection->socket);
   if ( !(td->permissions & MYSERVER_PERMISSION_BROWSE))
@@ -337,7 +337,7 @@ int HttpDir::send (HttpThreadContext* td,
 
   checkDataChunks (td, &keepalive, &useChunks);
 
-  td->response.setValue ("Content-type", "text/html");
+  td->response.setValue ("content-type", "text/html");
 
   ignPattern = td->securityToken.getData ("http.dir.ignore",
                                           MYSERVER_SECURITY_CONF

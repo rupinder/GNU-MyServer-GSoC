@@ -44,37 +44,11 @@ struct HttpResponseHeader : public HttpHeader
   const static int CLIENT_ERROR = 400;
   const static int SERVER_ERROR = 500;
 
-  struct Entry
-  {
-    string *name;
-    string *value;
-    Entry ()
-    {
-      name = new string ();
-      value = new string ();
-    }
-
-    Entry (string& n, string& v)
-    {
-      name = new string ();
-      value = new string ();
-
-      name->assign (n);
-      value->assign (v);
-    }
-    ~Entry ()
-    {
-      delete name;
-      delete value;
-
-    }
-  };
   int httpStatus;
   string ver;
   string contentLength;
   string errorType;
 
-  HashMap<string,HttpResponseHeader::Entry*> other;
   HttpResponseHeader ();
   ~HttpResponseHeader ();
 

@@ -215,7 +215,7 @@ BOOL WINAPI ISAPI_WriteClientExport (HCONN hConn, LPVOID Buffer, LPDWORD lpdwByt
     return HttpDataHandler::RET_FAILURE;
 
   buffer= (char*)ConnInfo->td->buffer->getBuffer ();
-  HttpRequestHeader::Entry *connection = ConnInfo->td->request.other.get ("Connection");
+  HttpRequestHeader::Entry *connection = ConnInfo->td->request.other.get ("connection");
 
   if (ConnInfo == NULL)
   {
@@ -277,19 +277,19 @@ BOOL WINAPI ISAPI_WriteClientExport (HCONN hConn, LPVOID Buffer, LPDWORD lpdwByt
               if (keepalive)
                 {
                   HttpResponseHeader::Entry *e;
-                  e = ConnInfo->td->response.other.get ("Transfer-encoding");
+                  e = ConnInfo->td->response.other.get ("transfer-encoding");
                   if (e)
                     e->value->assign ("chunked");
                   else
                     {
                       e = new HttpResponseHeader::Entry ();
-                      e->name->assign ("Transfer-encoding");
+                      e->name->assign ("transfer-encoding");
                       e->value->assign ("chunked");
                       ConnInfo->td->response.other.put (*(e->name), e);
                     }
                 }
               else
-                ConnInfo->td->response.setValue ("Connection", "Close");
+                ConnInfo->td->response.setValue ("connection", "Close");
 
               if (HttpHeaders::sendHeader (ConnInfo->td->response,
                                            *ConnInfo->td->connection->socket,
@@ -493,8 +493,8 @@ BOOL Isapi::buildAllHttpHeaders (HttpThreadContext* td, ConnectionPtr /*!a*/,
   DWORD valLen = 0;
   DWORD maxLen = *dwMaxLen;
   char *ValStr=(char*)output;
-  HttpRequestHeader::Entry *accept = td->request.other.get ("Accept");
-  HttpRequestHeader::Entry *cache = td->request.other.get ("Cache-Control");
+  HttpRequestHeader::Entry *accept = td->request.other.get ("accept");
+  HttpRequestHeader::Entry *cache = td->request.other.get ("cache-control");
 
   if (accept && accept->value->length () && (valLen+30<maxLen))
     valLen += sprintf (&ValStr[valLen],"HTTP_ACCEPT:%s\n",
@@ -524,7 +524,7 @@ BOOL Isapi::buildAllHttpHeaders (HttpThreadContext* td, ConnectionPtr /*!a*/,
     }
 
   {
-    HttpRequestHeader::Entry* e = td->request.other.get ("Accept-Encoding");
+    HttpRequestHeader::Entry* e = td->request.other.get ("accept-encoding");
     if (e && (valLen + 30 < maxLen))
       valLen += sprintf (&ValStr[valLen], "HTTP_ACCEPT_ENCODING:%s\n",
                          e->value->c_str ());
@@ -533,7 +533,7 @@ BOOL Isapi::buildAllHttpHeaders (HttpThreadContext* td, ConnectionPtr /*!a*/,
   }
 
   {
-    HttpRequestHeader::Entry* e = td->request.other.get ("Accept-Language");
+    HttpRequestHeader::Entry* e = td->request.other.get ("accept-language");
     if (e && (valLen + 30 < maxLen))
       valLen += sprintf (&ValStr[valLen],"HTTP_ACCEPT_LANGUAGE:%s\n",
                          e->value->c_str ());
@@ -543,7 +543,7 @@ BOOL Isapi::buildAllHttpHeaders (HttpThreadContext* td, ConnectionPtr /*!a*/,
 
 
   {
-    HttpRequestHeader::Entry* e = td->request.other.get ("Accept-Charset");
+    HttpRequestHeader::Entry* e = td->request.other.get ("accept-charset");
     if (e && (valLen + 30 < maxLen))
       valLen += sprintf (&ValStr[valLen],"HTTP_ACCEPT_CHARSET:%s\n",
                          e->value->c_str ());
@@ -552,7 +552,7 @@ BOOL Isapi::buildAllHttpHeaders (HttpThreadContext* td, ConnectionPtr /*!a*/,
   }
 
   {
-    HttpRequestHeader::Entry* e = td->request.other.get ("Pragma");
+    HttpRequestHeader::Entry* e = td->request.other.get ("pragma");
     if (e && (valLen + 30 < maxLen))
       valLen += sprintf (&ValStr[valLen],"HTTP_PRAGMA:%s\n",
                          e->value->c_str ());
@@ -561,7 +561,7 @@ BOOL Isapi::buildAllHttpHeaders (HttpThreadContext* td, ConnectionPtr /*!a*/,
   }
 
   {
-    HttpRequestHeader::Entry* e = td->request.other.get ("Connection");
+    HttpRequestHeader::Entry* e = td->request.other.get ("connection");
     if (e && (valLen + 30< maxLen))
       valLen += sprintf (&ValStr[valLen],"HTTP_CONNECTION:%s\n",
                          e->value->c_str ());
@@ -570,7 +570,7 @@ BOOL Isapi::buildAllHttpHeaders (HttpThreadContext* td, ConnectionPtr /*!a*/,
   }
 
   {
-    HttpRequestHeader::Entry* e = td->request.other.get ("Cookie");
+    HttpRequestHeader::Entry* e = td->request.other.get ("cookie");
     if (e && (valLen + 30 < maxLen))
       valLen += sprintf (&ValStr[valLen],"HTTP_COOKIE:%s\n",
                          e->value->c_str ());
@@ -579,7 +579,7 @@ BOOL Isapi::buildAllHttpHeaders (HttpThreadContext* td, ConnectionPtr /*!a*/,
   }
 
   {
-    HttpRequestHeader::Entry* e = td->request.other.get ("Host");
+    HttpRequestHeader::Entry* e = td->request.other.get ("host");
     if (e && (valLen + 30 < maxLen))
       valLen += sprintf (&ValStr[valLen],"HTTP_HOST:%s\n",
                          e->value->c_str ());
@@ -588,7 +588,7 @@ BOOL Isapi::buildAllHttpHeaders (HttpThreadContext* td, ConnectionPtr /*!a*/,
   }
 
   {
-    HttpRequestHeader::Entry* e = td->request.other.get ("Date");
+    HttpRequestHeader::Entry* e = td->request.other.get ("date");
     if (e && (valLen + 30 < maxLen))
       valLen += sprintf (&ValStr[valLen],"HTTP_DATE:%s\n",
                          e->value->c_str ());
@@ -597,7 +597,7 @@ BOOL Isapi::buildAllHttpHeaders (HttpThreadContext* td, ConnectionPtr /*!a*/,
   }
 
   {
-    HttpRequestHeader::Entry* e = td->request.other.get ("If-Modified-Since");
+    HttpRequestHeader::Entry* e = td->request.other.get ("if-modified-since");
     if (e && (valLen + 30 < maxLen))
       valLen += sprintf (&ValStr[valLen],"HTTP_IF_MODIFIED_SINCE:%s\n",
                          e->value->c_str ());
@@ -606,7 +606,7 @@ BOOL Isapi::buildAllHttpHeaders (HttpThreadContext* td, ConnectionPtr /*!a*/,
   }
 
   {
-    HttpRequestHeader::Entry* e = td->request.other.get ("Referer");
+    HttpRequestHeader::Entry* e = td->request.other.get ("referer");
     if (e && (valLen + 30 < maxLen))
       valLen += sprintf (&ValStr[valLen],"HTTP_REFERER:%s\n",
                          e->value->c_str ());
@@ -615,7 +615,7 @@ BOOL Isapi::buildAllHttpHeaders (HttpThreadContext* td, ConnectionPtr /*!a*/,
   }
 
   {
-    HttpRequestHeader::Entry* e = td->request.other.get ("User-Agent");
+    HttpRequestHeader::Entry* e = td->request.other.get ("user-agent");
     if (e && (valLen + 30 < maxLen))
       valLen += sprintf (&ValStr[valLen],"HTTP_USER_AGENT:%s\n",
                          e->value->c_str ());
@@ -624,7 +624,7 @@ BOOL Isapi::buildAllHttpHeaders (HttpThreadContext* td, ConnectionPtr /*!a*/,
   }
 
   {
-    HttpRequestHeader::Entry* e = td->request.other.get ("From");
+    HttpRequestHeader::Entry* e = td->request.other.get ("from");
     if (e && (valLen + 30 < maxLen))
       valLen += sprintf (&ValStr[valLen],"HTTP_FROM:%s\n",
                          e->value->c_str ());
@@ -883,7 +883,7 @@ int Isapi::send (HttpThreadContext* td,
   ExtCtrlBlk.lpbData = 0;
 
 
-  HttpRequestHeader::Entry *content = td->request.other.get ("Content-type");
+  HttpRequestHeader::Entry *content = td->request.other.get ("content-type");
   ExtCtrlBlk.lpszContentType = content ? (char*)content->value->c_str () : NULL;
 
   connTable[connIndex].td->buffer->setLength (0);
@@ -903,7 +903,7 @@ int Isapi::send (HttpThreadContext* td,
 
   {
     u_long nbw = 0;
-    HttpRequestHeader::Entry *connection = connTable[connIndex].td->request.other.get ("Connection");
+    HttpRequestHeader::Entry *connection = connTable[connIndex].td->request.other.get ("connection");
 
     if (connection && !stringcmpi (connection->value->c_str (), "keep-alive"))
       Ret = connTable[connIndex].chain.getStream ()->write ("0\r\n\r\n", 5, &nbw);

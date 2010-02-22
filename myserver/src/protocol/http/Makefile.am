@@ -16,7 +16,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
 lib_LIBRARIES = libhttp.a
-libhttp_a_SOURCES = http.cpp http_data_handler.cpp http_data_read.cpp http_errors.cpp http_headers.cpp http_request.cpp http_req_security_domain.cpp http_response.cpp http_thread_context.cpp dyn_http_manager.cpp dyn_http_manager_list.cpp dyn_http_command.cpp dyn_http_command_manager.cpp
+libhttp_a_SOURCES = http.cpp http_data_handler.cpp http_data_read.cpp \
+	           http_errors.cpp  http_header.cpp http_headers.cpp \
+		   http_request.cpp http_req_security_domain.cpp \
+		   http_response.cpp http_thread_context.cpp \
+		   dyn_http_manager.cpp dyn_http_manager_list.cpp \
+		   dyn_http_command.cpp dyn_http_command_manager.cpp
 SUBDIRS = env
 AM_CPPFLAGS = $(all_includes)
 

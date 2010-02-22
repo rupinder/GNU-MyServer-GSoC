@@ -171,7 +171,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
     }
 
   {
-    HttpRequestHeader::Entry *referer = td->request.other.get ("Referer");
+    HttpRequestHeader::Entry *referer = td->request.other.get ("referer");
 
     if (referer && referer->value->length ())
       {
@@ -181,7 +181,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
   }
 
   {
-    HttpRequestHeader::Entry *contentType = td->request.other.get ("Content-type");
+    HttpRequestHeader::Entry *contentType = td->request.other.get ("content-type");
 
     if (contentType && contentType->value->length ())
       {
@@ -191,7 +191,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
   }
 
   {
-    HttpRequestHeader::Entry *userAgent = td->request.other.get ("User-Agent");
+    HttpRequestHeader::Entry *userAgent = td->request.other.get ("user-agent");
 
     if (userAgent && userAgent->value->length ())
       {
@@ -225,7 +225,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
   DataFileHandle.writeToFile (buffer, (u_long)strlen (buffer), &nbr);
 
   {
-    HttpRequestHeader::Entry *host = td->request.other.get ("Host");
+    HttpRequestHeader::Entry *host = td->request.other.get ("host");
     if (host)
       sprintf (buffer, "Server Name=%s\r\n", host->value->c_str ());
     DataFileHandle.writeToFile (buffer, (u_long)strlen (buffer), &nbr);
@@ -330,7 +330,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
     }
 
   if (td->request.isKeepAlive ())
-    td->response.setValue ("Connection", "keep-alive");
+    td->response.setValue ("connection", "keep-alive");
 
   HttpHeaders::buildHTTPResponseHeaderStruct (buffer, &td->response, &(td->nBytesToRead));
 

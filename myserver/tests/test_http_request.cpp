@@ -120,6 +120,8 @@ public:
     CPPUNIT_ASSERT (header.ver.compare ("HTTP/1.1") == 0);
     CPPUNIT_ASSERT (header.uri.compare ("/resource") == 0);
     CPPUNIT_ASSERT (header.uriOpts.compare ("args") == 0);
+
+    CPPUNIT_ASSERT (header.getValue ("Host", 0));
     CPPUNIT_ASSERT (header.getValue ("Host", 0)->compare ("localhost") == 0);
   }
 

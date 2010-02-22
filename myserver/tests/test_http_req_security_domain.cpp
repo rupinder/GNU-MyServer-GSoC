@@ -72,6 +72,7 @@ public:
 
     string *ret = dom->getValue (nameStr);
 
+    CPPUNIT_ASSERT (ret);
     CPPUNIT_ASSERT_EQUAL (ret->compare (value), 0);
 
     delete dom;

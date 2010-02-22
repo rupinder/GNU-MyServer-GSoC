@@ -44,33 +44,6 @@ using namespace std;
  */
 struct HttpRequestHeader : public HttpHeader
 {
-  struct Entry
-  {
-    string *name;
-    string *value;
-    Entry ()
-    {
-      name = new string ();
-      value = new string ();
-    }
-
-    Entry (string& n, string& v)
-    {
-      name = new string ();
-      value = new string ();
-
-      name->assign (n);
-      value->assign (v);
-    }
-
-    ~Entry ()
-    {
-      delete name;
-      delete value;
-
-    }
-
-  };
   string cmd;
   string ver;
   string auth;
@@ -95,8 +68,6 @@ struct HttpRequestHeader : public HttpHeader
   char digestQop[16+1];
   char digestNc[10+1];
 
-
-  HashMap<string, HttpRequestHeader::Entry*> other;
   virtual string* getValue (const char* name, string* out);
   virtual string* setValue (const char* name, const char* in);
 
