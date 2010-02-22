@@ -22,6 +22,6 @@ EXTRA_DIST = myserver-daemon MIMEtypes.default.xml myserver.default.xml \
 configdir = $(DESTDIR)$(prefix)/etc/myserver
 
 install: install-recursive
-	$(install_sh_DATA) MIMEtypes.default.xml $(configdir)/MIMEtypes.xml
-	$(install_sh_DATA) myserver.default.xml $(configdir)/myserver.xml
-	$(install_sh_DATA) virtualhosts.default.xml $(configdir)/virtualhosts.xml
+	$(install_sh_DATA) MIMEtypes.default.xml $(configdir)/MIMEtypes.default.xml
+	$(install_sh_DATA) myserver.default.xml $(configdir)/myserver.default.xml
+	$(install_sh_DATA) virtualhosts.default.xml $(configdir)/virtualhosts.default.xml
