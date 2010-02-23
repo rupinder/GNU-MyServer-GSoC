@@ -61,7 +61,7 @@ public:
   void setEnabled (bool enabled);
   pair<int,int>* getDependence (string name);
 
-  static int convertVersion (string* s);
+  static int convertVersion (const string& s);
 
 private:
   string name;

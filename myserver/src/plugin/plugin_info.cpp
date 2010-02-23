@@ -39,9 +39,6 @@ PluginInfo::PluginInfo (string& name, bool enabled, bool global)
   this->plugin = NULL;
 }
 
-
-
-
 /*!
  *Destroy the object.
  */
@@ -75,7 +72,7 @@ bool PluginInfo::isGlobal ()
  */
 void PluginInfo::addDependence (string name, int minVersion, int maxVersion)
 {
-  dependences.put (name, new pair<int,int>(minVersion,maxVersion));
+  dependences.put (name, new pair<int, int> (minVersion, maxVersion));
 }
 
 /*!
@@ -188,9 +185,9 @@ Plugin* PluginInfo::removePlugin ()
 
 /*!
  * Converts a string in the format "a.b.c.d" in an int in the format abcd where
- * each number takes 8 bit.
+ * each number takes 8 bits.
  */
-int PluginInfo::convertVersion (string* s)
+int PluginInfo::convertVersion (const string & s)
 {
   int ret;
 
@@ -198,54 +195,51 @@ int PluginInfo::convertVersion (string* s)
     regex = new Regex ("^[1-2]?[1-9]?[0-9](\\.[1-2]?[0-9]?[0-9](\\.[1-2]?[0-9]?[0-9](\\.[1-2]?[0-9]?[0-9])?)?)?$",
                        REG_EXTENDED | REG_NOSUB);
 
-  ret = regex->exec (s->c_str (), 0, NULL, 0);
+  ret = regex->exec (s.c_str (), 0, NULL, 0);
 
   if (ret)
     return -1;
 
-  string::size_type pos = s->find (".",0);
+  string::size_type pos = s.find (".", 0);
   if (pos == string::npos)
-    return atoi (s->c_str ())  <<  24;
+    return atoi (s.c_str ())  <<  24;
 
   int n1 = 0;
   int n2 = 0;
   int n3 = 0;
   int n4 = 0;
 
-  string sa = s->substr (0, pos);
+  string sa = s.substr (0, pos);
   n1 = atoi (sa.c_str ());
   if (n1>255)
     return -1;
 
   string::size_type oldpos = pos;
 
-
-  if (oldpos!=string::npos)
+  if (oldpos != string::npos)
     {
-      pos = s->find (".",oldpos + 1);
-      string sa = s->substr (oldpos + 1, pos - oldpos);
+      pos = s.find (".", oldpos + 1);
+      string sa = s.substr (oldpos + 1, pos - oldpos);
       n2 = atoi (sa.c_str ());
-      if (n2>255)
+      if (n2 > 255)
         return -1;
     }
-
-
-  oldpos = pos;
-  if (oldpos!=string::npos)
-    {
-      pos = s->find (".",oldpos + 1);
-      string sa = s->substr (oldpos + 1, pos - oldpos);
-      n3 = atoi (sa.c_str ());
-      if (n3>255)
-        return -1;
-    }
-
 
   oldpos = pos;
   if (oldpos != string::npos)
     {
-      pos = s->find (".",oldpos + 1);
-      string sa = s->substr (oldpos + 1, pos - oldpos);
+      pos = s.find (".",oldpos + 1);
+      string sa = s.substr (oldpos + 1, pos - oldpos);
+      n3 = atoi (sa.c_str ());
+      if (n3 > 255)
+        return -1;
+    }
+
+  oldpos = pos;
+  if (oldpos != string::npos)
+    {
+      pos = s.find (".",oldpos + 1);
+      string sa = s.substr (oldpos + 1, pos - oldpos);
       n4 = atoi (sa.c_str ());
       if (n4 > 255)
         return -1;

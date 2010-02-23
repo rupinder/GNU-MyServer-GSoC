@@ -46,14 +46,16 @@ public:
     return pluginsInfos.end ();
   }
 
-  Plugin* getPlugin (string& name);
+  Plugin* getPlugin (string &name);
 
-  int preLoad (Server *server, string& resource);
+  int preLoad (Server *server, string &resource);
   int load (Server *server);
   int postLoad (Server *server);
   int unLoad ();
 
-  virtual void removePlugin (string& name);
+  int quickLoad (Server *server, const string &plugins);
+
+  virtual void removePlugin (string &name);
 
   virtual int addPluginInfo (string&, PluginInfo*);
   virtual PluginInfo* getPluginInfo (string&);
@@ -63,13 +65,16 @@ public:
   PluginsManager ();
   ~PluginsManager ();
 
-private:
+protected:
+  virtual int loadFile (Server* server, string &name, string &file, PluginInfo* pinfo);
   HashMap<string, PluginInfo*> pluginsInfos;
   int loadOptions (Server *server);
-  void recursiveDependencesFallDown (Server* server, string &name, HashMap<string, bool> &remove, HashMap<string, list<string>*> &dependsOn);
-  Plugin* preLoadPlugin (string& file, Server* server, bool global);
+  void recursiveDependencesFallDown (Server* server, string &name,
+                                     HashMap<string, bool> &remove,
+                                     HashMap<string, list<string>*> &dependsOn);
+  virtual Plugin* preLoadPlugin (string &file, Server* server, bool global);
 
-  PluginInfo* loadInfo (Server* server, string& name, string& path);
+  virtual PluginInfo* loadInfo (Server* server, string &name, string &path);
 };
 
 #endif

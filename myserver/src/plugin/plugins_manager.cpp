@@ -51,7 +51,7 @@ PluginsManager::~PluginsManager () { }
  * \param name The plugin name.
  */
 Plugin*
-PluginsManager::getPlugin (string& name)
+PluginsManager::getPlugin (string &name)
 {
   PluginInfo* info = pluginsInfos.get (name);
   if (info)
@@ -126,7 +126,7 @@ PluginsManager::loadOptions (Server *server)
  * implementation it is a directory name.
  */
 int
-PluginsManager::preLoad (Server* server, string& resource)
+PluginsManager::preLoad (Server* server, string &resource)
 {
   ReadDirectory fdir;
   ReadDirectory flib;
@@ -168,7 +168,6 @@ PluginsManager::preLoad (Server* server, string& resource)
           if (flib.name[0] == '.')
             continue;
 
-
           if (!strstr (flib.name.c_str (), "plugin.xml"))
             continue;
           completeFileName.assign (filename);
@@ -203,31 +202,50 @@ PluginsManager::preLoad (Server* server, string& resource)
 #else
           libname.append (".so");
 #endif
-          if (pinfo->isEnabled ())
-            {
-              Plugin* plugin = preLoadPlugin (libname, server,
-                                              pinfo->isGlobal ());
-              if (plugin)
-                pinfo->setPlugin (plugin);
-              else
-                {
-                  ret |= 1;
-                  server->log (MYSERVER_LOG_MSG_ERROR,
-                              _("Error loading plugin `%s'"), libname.c_str ());
-                }
-            }
-          addPluginInfo (pname, pinfo);
+
+          ret |= loadFile (server, pname, libname, pinfo);
         }
-      while (!flib.findnext ());
+      while (! flib.findnext ());
     }
-  while (!fdir.findnext ());
+  while (! fdir.findnext ());
+
   fdir.findclose ();
   flib.findclose ();
   return ret;
 }
 
 /*!
- *Create the appropriate object to keep a plugin.
+ * Load the specified plugin file.
+ * \param server The server object to use.
+ * \param name Plugin name.
+ * \param file Plugin file.
+ * \param pinfo Plugin information.
+ */
+int
+PluginsManager::loadFile (Server* server, string &name, string &file,
+                          PluginInfo* pinfo)
+{
+  int ret = 0;
+  if (pinfo->isEnabled ())
+    {
+      Plugin* plugin = preLoadPlugin (file, server,
+                                      pinfo->isGlobal ());
+      if (plugin)
+        pinfo->setPlugin (plugin);
+      else
+        {
+          ret = 1;
+          server->log (MYSERVER_LOG_MSG_ERROR,
+                       _("Error loading plugin `%s'"), file.c_str ());
+        }
+    }
+
+  addPluginInfo (name, pinfo);
+  return ret;
+}
+
+/*!
+ * Create the appropriate object to keep a plugin.
  */
 Plugin*
 PluginsManager::createPluginObject ()
@@ -236,12 +254,70 @@ PluginsManager::createPluginObject ()
 }
 
 /*!
+ * Quick load a plugin, doing all phases {pre,,post}Load.
+ * \param server The server object to use.
+ * \param plugins comma separed list of plugins to load as:
+ * "name1:pluginfile1.so,name2:pluginfile2.so"
+*/
+int
+PluginsManager::quickLoad (Server *server, const string &plugins)
+{
+  size_t start = 0;
+  int ret = 0;
+  while (1)
+    {
+      size_t commaPos = plugins.find (",", start);
+
+      size_t sep = plugins.find (":", start);
+      if (sep > commaPos || sep == string::npos)
+        {
+          server->log (MYSERVER_LOG_MSG_ERROR,
+                       _("Invalid plugins data specified"));
+          return -1;
+        }
+
+      string name = plugins.substr (start, sep - start);
+      string file = plugins.substr (sep + 1, commaPos == string::npos
+                                    ? string::npos
+                                    : commaPos - sep - 1);
+
+      PluginInfo *pinfo = new PluginInfo (name);
+      auto_ptr<PluginInfo> pinfoAutoPtr (pinfo);
+
+      ret |= loadFile (server, name, file, pinfo);
+
+      pinfoAutoPtr.release ();
+
+      Plugin *plugin = preLoadPlugin (file, server, true);
+      if (! plugin)
+        {
+          server->log (MYSERVER_LOG_MSG_ERROR,
+                       _("Cannot load plugin %s"), file.c_str ());
+          return -1;
+        }
+
+      pinfo->setPlugin (plugin);
+      addPluginInfo (name, pinfo);
+
+      ret |= plugin->load (server);
+      ret |= plugin->postLoad (server);
+
+      if (commaPos == string::npos)
+        break;
+
+      start = commaPos + 1;
+    }
+
+  return ret;
+}
+
+/*!
  *Loads the plugin info.
  *\param name The plugin name.
  *\param path the plugin xml descriptor path.
  */
 PluginInfo*
-PluginsManager::loadInfo (Server* server, string& name, string& path)
+PluginsManager::loadInfo (Server* server, string &name, string &path)
 {
   PluginInfo* pinfo = getPluginInfo (name);
   auto_ptr<PluginInfo> pinfoAutoPtr (NULL);
@@ -277,8 +353,8 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
       xmlChar *minVersion = xmlGetProp (nodes->nodeTab[0],
                                         (const xmlChar*) "min-version");
 
-      string sMinVer ((char*)minVersion);
-      pinfo->setMyServerMinVersion (PluginInfo::convertVersion (&sMinVer));
+      string sMinVer ((char*) minVersion);
+      pinfo->setMyServerMinVersion (PluginInfo::convertVersion (sMinVer));
     }
   else
     {
@@ -294,7 +370,7 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
                                         (const xmlChar*) "max-version");
 
       string sMaxVer ((char*)maxVersion);
-      pinfo->setMyServerMaxVersion (PluginInfo::convertVersion (&sMaxVer));
+      pinfo->setMyServerMaxVersion (PluginInfo::convertVersion (sMaxVer));
     }
   else
     {
@@ -335,7 +411,7 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
     }
 
   string verStr ((char*) nodes->nodeTab[0]->content);
-  int version = PluginInfo::convertVersion (&verStr);
+  int version = PluginInfo::convertVersion (verStr);
 
   if (version != -1)
     pinfo->setVersion (version);
@@ -372,8 +448,8 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
       string maxVerStr = ((char*) xmlGetProp (nodes->nodeTab[i],
                                               (const xmlChar*) "max-version"));
 
-      int minVersion = PluginInfo::convertVersion (&minVerStr);
-      int maxVersion = PluginInfo::convertVersion (&maxVerStr);
+      int minVersion = PluginInfo::convertVersion (minVerStr);
+      int maxVersion = PluginInfo::convertVersion (maxVerStr);
 
       if (minVersion == -1 || maxVersion == -1)
         {
@@ -398,7 +474,7 @@ PluginsManager::loadInfo (Server* server, string& name, string& path)
  * \param global Specify if the library should be loaded globally.
  */
 Plugin*
-PluginsManager::preLoadPlugin (string& file, Server* server, bool global)
+PluginsManager::preLoadPlugin (string &file, Server* server, bool global)
 {
   Plugin *plugin = createPluginObject ();
 
@@ -459,8 +535,6 @@ PluginsManager::recursiveDependencesFallDown (Server* server, string &name,
 int
 PluginsManager::load (Server *server)
 {
-
-
   list<string*> toRemove;
   HashMap<string, list<string>*> dependsOn;
   HashMap<string, PluginInfo*>::Iterator it = pluginsInfos.begin ();
@@ -476,7 +550,7 @@ PluginsManager::load (Server *server)
       if (i != string::npos)
         msversion = msversion.substr (0, i);
 
-      int msVersion = PluginInfo::convertVersion (&msversion);
+      int msVersion = PluginInfo::convertVersion (msversion);
       if (msVersion < pinfo->getMyServerMinVersion ()
           || msVersion > pinfo->getMyServerMaxVersion ())
         server->log (MYSERVER_LOG_MSG_WARNING,
@@ -499,7 +573,6 @@ PluginsManager::load (Server *server)
           deps->push_front (name);
         }
 
-
       it++;
     }
 
@@ -507,8 +580,6 @@ PluginsManager::load (Server *server)
   for (; tRIt != toRemove.end (); tRIt++)
     removePlugin (**tRIt);
   toRemove.clear ();
-
-
 
   HashMap<string, list<string>*>::Iterator dIt = dependsOn.begin ();
   for (; dIt != dependsOn.end (); dIt++)
@@ -621,7 +692,7 @@ PluginsManager::unLoad ()
  * \param name The plugin to remove.
  */
 void
-PluginsManager::removePlugin (string& name)
+PluginsManager::removePlugin (string &name)
 {
   PluginInfo* info = pluginsInfos.remove (name);
 
@@ -634,7 +705,7 @@ PluginsManager::removePlugin (string& name)
  * \param pi The options for the plugin.
  */
 int
-PluginsManager::addPluginInfo (string& plugin, PluginInfo* pi)
+PluginsManager::addPluginInfo (string &plugin, PluginInfo* pi)
 {
   PluginInfo* oldPi = pluginsInfos.put (plugin, pi);
 
@@ -649,7 +720,7 @@ PluginsManager::addPluginInfo (string& plugin, PluginInfo* pi)
  * \param plugin The plugin name.
  */
 PluginInfo*
-PluginsManager::getPluginInfo (string& plugin)
+PluginsManager::getPluginInfo (string &plugin)
 {
   return pluginsInfos.get (plugin);
 }

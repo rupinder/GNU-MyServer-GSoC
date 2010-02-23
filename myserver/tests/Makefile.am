@@ -56,6 +56,7 @@ test_suite_SOURCES =  	main.cpp				\
 			test_nodetree.cpp			\
 			test_pipe.cpp				\
 			test_plugin_info.cpp			\
+			test_plugins_manager.cpp		\
 			test_read_directory.cpp			\
 			test_recursive_mutex.cpp		\
 			test_regex.cpp				\
