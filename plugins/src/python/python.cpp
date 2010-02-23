@@ -1,6 +1,6 @@
 /*
   MyServer
-  Copyright (C) 2007, 2008, 2009 Free Software Foundation, Inc.
+  Copyright (C) 2007, 2008, 2009, 2010 Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -22,16 +22,7 @@ HashMap<ThreadID, PythonData*> pythonThreadData;
 
 static Server *serverInstance;
 
-char* name (char* name, u_long len)
-{
-	char* str = (char*)"python";
-
-	if (name)
-		strncpy (name, str, len);
-
-	return str;
-}
-
+PLUGIN_NAME ("python");
 
 PyInterpreterState* PythonData::getInterpreter ()
 {
@@ -43,29 +34,29 @@ PyInterpreterState* PythonData::getInterpreter ()
 
 PythonData::PythonData ()
 {
-	clear ();
+  clear ();
 }
 
 void PythonData::clear ()
 {
-	interp = 0;
+  interp = 0;
 }
 
 
 
 int load (void* server)
 {
-	serverInstance = (Server*)server;
-	const char* pathData = serverInstance->getData("PYTHON_PATH");
-	PyThreadState * mainThreadState;
-	if (pathData)
+  serverInstance = (Server*)server;
+  const char* pathData = serverInstance->getData("PYTHON_PATH");
+  PyThreadState * mainThreadState;
+  if (pathData)
     {
       string path (pathData);
       FilesUtility::completePath (path);
 
       setenv ("PYTHONPATH", path.c_str(), 1);
     }
-	else
+  else
     {
       string path (".");
       FilesUtility::completePath (path);
@@ -74,54 +65,54 @@ int load (void* server)
     }
 
   Py_SetProgramName ((char *)("python"));
-	Py_Initialize ();
-	PyEval_InitThreads ();
+  Py_Initialize ();
+  PyEval_InitThreads ();
 
-	mainThreadState = PyThreadState_Get ();
+  mainThreadState = PyThreadState_Get ();
 
-	pythonMainInterpreterState = mainThreadState->interp;
+  pythonMainInterpreterState = mainThreadState->interp;
 
-	PyEval_ReleaseLock ();
+  PyEval_ReleaseLock ();
 
-	return 0;
+  return 0;
 }
 
 /*! Unload the plugin.  Called once.  Returns 0 on success.  */
 int unLoad (void* p)
 {
-	PyInterpreterState *interpreter = NULL;
-	PyThreadState *threadState = NULL;
-	PythonData* data = NULL;
-	ThreadID tid = Thread::threadID ();
+  PyInterpreterState *interpreter = NULL;
+  PyThreadState *threadState = NULL;
+  PythonData* data = NULL;
+  ThreadID tid = Thread::threadID ();
 
-	PyEval_AcquireLock ();
+  PyEval_AcquireLock ();
 
 
-	data = pythonThreadData.get (tid);
-	if(data == 0)
+  data = pythonThreadData.get (tid);
+  if(data == 0)
     {
       data = new PythonData ();
       pythonThreadData.put (tid, data);
     }
 
-	interpreter = data->getInterpreter ();
-	threadState = PyThreadState_New (interpreter);
+  interpreter = data->getInterpreter ();
+  threadState = PyThreadState_New (interpreter);
 
-	PyThreadState_Swap (threadState);
-
-
-	Py_Finalize ();
+  PyThreadState_Swap (threadState);
 
 
-	PyThreadState_Swap (NULL);
+  Py_Finalize ();
 
 
-	PyEval_ReleaseLock ();
+  PyThreadState_Swap (NULL);
 
-	HashMap<ThreadID, PythonData*>::Iterator it = pythonThreadData.begin ();
-	while (it != pythonThreadData.end ())
-		delete *it++;
-	return 0;
+
+  PyEval_ReleaseLock ();
+
+  HashMap<ThreadID, PythonData*>::Iterator it = pythonThreadData.begin ();
+  while (it != pythonThreadData.end ())
+    delete *it++;
+  return 0;
 }
 
 int execute (char* code, u_long length)
@@ -132,30 +123,30 @@ int execute (char* code, u_long length)
 int executeImpl (char* code, u_long length, PyThreadState *threadState,
                  int newThreadState)
 {
-	PyInterpreterState *interpreter = NULL;
-	PythonData* data = NULL;
-	ThreadID tid = Thread::threadID ();
+  PyInterpreterState *interpreter = NULL;
+  PythonData* data = NULL;
+  ThreadID tid = Thread::threadID ();
 
-	PyEval_AcquireLock ();
+  PyEval_AcquireLock ();
 
-	data = pythonThreadData.get (tid);
-	if (data == 0)
+  data = pythonThreadData.get (tid);
+  if (data == 0)
     {
       data = new PythonData();
       pythonThreadData.put(tid, data);
     }
 
-	interpreter = data->getInterpreter ();
+  interpreter = data->getInterpreter ();
 
   if (newThreadState)
     threadState = PyThreadState_New (interpreter);
 
-	PyThreadState_Swap (threadState);
+  PyThreadState_Swap (threadState);
 
 
-	PyRun_SimpleString (code);
+  PyRun_SimpleString (code);
 
-	PyThreadState_Swap (NULL);
+  PyThreadState_Swap (NULL);
 
   if (newThreadState)
     {
@@ -163,7 +154,7 @@ int executeImpl (char* code, u_long length, PyThreadState *threadState,
       PyThreadState_Delete (threadState);
     }
 
-	PyEval_ReleaseLock ();
+  PyEval_ReleaseLock ();
 
   return 0;
 
@@ -178,41 +169,41 @@ int executeFromFile (char* filename)
 int executeFromFileImpl(char* filename, PyThreadState *threadState,
                         int newThreadState)
 {
-	PyInterpreterState *interpreter = NULL;
-	int ret = 0;
-	FILE *file = NULL;
-	PythonData* data = NULL;
-	ThreadID tid = Thread::threadID ();
+  PyInterpreterState *interpreter = NULL;
+  int ret = 0;
+  FILE *file = NULL;
+  PythonData* data = NULL;
+  ThreadID tid = Thread::threadID ();
 
-	PyEval_AcquireLock ();
+  PyEval_AcquireLock ();
 
-	data = pythonThreadData.get (tid);
-	if(data == 0)
+  data = pythonThreadData.get (tid);
+  if(data == 0)
     {
       data = new PythonData ();
       pythonThreadData.put (tid, data);
     }
 
-	interpreter = data->getInterpreter ();
+  interpreter = data->getInterpreter ();
 
   if (newThreadState)
     threadState = PyThreadState_New (interpreter);
 
-	PyThreadState_Swap (threadState);
+  PyThreadState_Swap (threadState);
 
-	file = fopen (filename, "r");
+  file = fopen (filename, "r");
 
-	if(file == 0)
+  if(file == 0)
     {
       serverInstance->log (MYSERVER_LOG_MSG_ERROR,
                            _("Python: cannot load file %s"), filename);
       ret = -1;
     }
-	else
-		ret = PyRun_AnyFileEx (file, filename, 1);
+  else
+    ret = PyRun_AnyFileEx (file, filename, 1);
 
 
-	PyThreadState_Swap (NULL);
+  PyThreadState_Swap (NULL);
 
   if (newThreadState)
     {
@@ -220,7 +211,7 @@ int executeFromFileImpl(char* filename, PyThreadState *threadState,
       PyThreadState_Delete(threadState);
     }
 
-	PyEval_ReleaseLock ();
+  PyEval_ReleaseLock ();
 
   return ret;
 
@@ -235,32 +226,32 @@ PyObject* callObject(PyObject *obj, PyObject *args)
 PyObject* callObjectImpl(PyObject *obj, PyObject *args,
                          PyThreadState *threadState, int newThreadState)
 {
-	PyInterpreterState *interpreter = NULL;
-	PythonData* data = NULL;
-	ThreadID tid = Thread::threadID();
+  PyInterpreterState *interpreter = NULL;
+  PythonData* data = NULL;
+  ThreadID tid = Thread::threadID();
   PyObject *result;
 
-	PyEval_AcquireLock ();
+  PyEval_AcquireLock ();
 
-	data = pythonThreadData.get (tid);
-	if(data == 0)
+  data = pythonThreadData.get (tid);
+  if(data == 0)
     {
       data = new PythonData ();
       pythonThreadData.put (tid, data);
     }
 
-	interpreter = data->getInterpreter();
+  interpreter = data->getInterpreter();
 
   if (newThreadState)
     threadState = PyThreadState_New(interpreter);
 
-	PyThreadState_Swap (threadState);
+  PyThreadState_Swap (threadState);
 
 
   result = PyEval_CallObject (obj, args);
 
 
-	PyThreadState_Swap (NULL);
+  PyThreadState_Swap (NULL);
 
   if (newThreadState)
     {
@@ -268,7 +259,7 @@ PyObject* callObjectImpl(PyObject *obj, PyObject *args,
       PyThreadState_Delete (threadState);
     }
 
-	PyEval_ReleaseLock ();
+  PyEval_ReleaseLock ();
 
   return result;
 }
@@ -276,33 +267,33 @@ PyObject* callObjectImpl(PyObject *obj, PyObject *args,
 
 int initModule (char* name, PyMethodDef methods[])
 {
-	PyInterpreterState *interpreter = NULL;
-	PyThreadState *threadState = NULL;
-	PythonData* data = NULL;
-	ThreadID tid = Thread::threadID ();
+  PyInterpreterState *interpreter = NULL;
+  PyThreadState *threadState = NULL;
+  PythonData* data = NULL;
+  ThreadID tid = Thread::threadID ();
 
-	PyEval_AcquireLock ();
+  PyEval_AcquireLock ();
 
-	data = pythonThreadData.get (tid);
-	if (data == 0)
+  data = pythonThreadData.get (tid);
+  if (data == 0)
     {
       data = new PythonData ();
       pythonThreadData.put (tid, data);
     }
 
-	interpreter = data->getInterpreter ();
-	threadState = PyThreadState_New (interpreter);
+  interpreter = data->getInterpreter ();
+  threadState = PyThreadState_New (interpreter);
 
-	PyThreadState_Swap (threadState);
-
-
-	Py_InitModule (name, methods);
-
-	PyThreadState_Swap (NULL);
+  PyThreadState_Swap (threadState);
 
 
-	PyEval_ReleaseLock ();
+  Py_InitModule (name, methods);
 
-	return 0;
+  PyThreadState_Swap (NULL);
+
+
+  PyEval_ReleaseLock ();
+
+  return 0;
 }
 

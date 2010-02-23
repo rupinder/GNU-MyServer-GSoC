@@ -24,7 +24,7 @@ typedef int (*loadPROC)(Server*);
 typedef int (*postLoadPROC)(Server*);
 typedef int (*unLoadPROC)();
 typedef int (*versionPROC)();
-typedef const char* (*getNamePROC)(char*, u_long);
+typedef const char* (*getNamePROC)();
 
 /*!
  * Construct a plugin object.
@@ -106,19 +106,18 @@ int Plugin::unLoad ()
 
 /*!
  * Get the plugin name.
- * \param buffer The buffer where write the plugin name.
- * \param len The buffer length in bytes.
  */
-const char* Plugin::getName (char* buffer, u_long len)
+const char* Plugin::getName ()
 {
   getNamePROC proc;
   if (!hinstLib.validHandle ())
-    return 0;
-  proc = (getNamePROC)hinstLib.getProc ("name");
-  if (proc)
-    return proc (buffer, len);
+    return NULL;
 
-  return 0;
+  proc = (getNamePROC) hinstLib.getProc ("name");
+  if (proc)
+    return proc ();
+
+  return NULL;
 }
 
 /*!

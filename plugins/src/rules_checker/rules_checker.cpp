@@ -23,6 +23,8 @@
 #include "heading.h"
 #include <include/plugin/plugin.h>
 
+PLUGIN_NAME ("rules_checker");
+
 class RulesCheckerObserver : public Multicast<string, void*, int>
 {
   struct Item
@@ -78,15 +80,6 @@ private:
 };
 
 static RulesCheckerObserver observer;
-
-
-EXPORTABLE(char*) name (char* name, u_long len)
-{
-  char* str = (char*)"rules_checker";
-  if(name)
-    strncpy(name, str, len);
-  return str;
-}
 
 EXPORTABLE(int) load (void* server)
 {

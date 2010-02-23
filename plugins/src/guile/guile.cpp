@@ -1,6 +1,6 @@
 /*
   MyServer
-  Copyright (C) 2009 The Free Software Foundation Inc.
+  Copyright (C) 2009, 2010 The Free Software Foundation Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -19,13 +19,8 @@
 #include <libguile.h>
 #include <include/plugin/plugin.h>
 
-EXPORTABLE(char*) name (char* name, u_long len)
-{
-  char* str = (char*) "guile";
-  if(name)
-    strncpy(name, str, len);
-  return str;
-}
+
+PLUGIN_NAME ("guile");
 
 EXPORTABLE(int) eval (char *const string)
 {
@@ -33,12 +28,12 @@ EXPORTABLE(int) eval (char *const string)
   return 0;
 }
 
-EXPORTABLE(int) load (void* server,void* parser)
+EXPORTABLE(int) load (void* server, void* parser)
 {
   return 0;
 }
 
-EXPORTABLE(int) postLoad (void* server,void* parser)
+EXPORTABLE(int) postLoad (void* server, void* parser)
 {
   return 0;
 }

@@ -26,6 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <magic.h>
 #include <include/plugin/plugin.h>
 
+PLUGIN_NAME ("mime_magic");
+
 class MagicHandler : public MimeManagerHandler
 {
 public:
@@ -54,7 +56,7 @@ public:
     close ();
   }
 
-	virtual MimeRecord *getMIME (const char *file)
+  virtual MimeRecord *getMIME (const char *file)
   {
     MimeRecord *rec = NULL;
     lock.lock ();
@@ -95,18 +97,10 @@ private:
 
 static MagicHandler *handler;
 
-EXPORTABLE(char*) name (char* name, u_long len)
-{
-	char* str = (char*) "mime_magic";
-	if (name)
-		strncpy (name, str, len);
-	return str;
-}
-
 EXPORTABLE(int) load (void* server)
 {
   handler = NULL;
-	return 0;
+  return 0;
 }
 
 static MimeManagerHandler *builder ()
@@ -121,20 +115,20 @@ void XmlMimeHandler::registerBuilder (MimeManager& manager)
 EXPORTABLE(int) postLoad (void* server)
 {
   string name ("mime_magic");
-	Server *serverInstance = (Server*)server;
+  Server *serverInstance = (Server*)server;
   MimeManager *mimeManager = serverInstance->getMimeManager ();
 
   MagicHandler *handler = new MagicHandler;
   if (handler->load (NULL))
     {
       serverInstance->log (MYSERVER_LOG_MSG_ERROR,
-                                  _("cannot load mime magic configuration"));
+                           _("cannot load mime magic configuration"));
       return 1;
     }
 
   mimeManager->registerHandler (name, handler);
   mimeManager->registerBuilder (name, builder);
-	return 0;
+  return 0;
 }
 
 EXPORTABLE(int) unLoad()
@@ -142,5 +136,5 @@ EXPORTABLE(int) unLoad()
   if (handler)
     delete handler;
 
-	return 0;
+  return 0;
 }

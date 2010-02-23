@@ -84,6 +84,13 @@ public:
   }
 
 protected:
+  virtual PluginInfo* loadInfo (Server* server, string &name, string &path)
+  {
+    PluginInfo *pinfo = new PluginInfo (name);
+    pinfo->setPlugin (new MockPlugin ());
+    return pinfo;
+  }
+
   virtual int loadFile (Server* server, string &name, string &file,
                         PluginInfo* pinfo)
   {
@@ -95,7 +102,7 @@ protected:
 
   virtual Plugin* preLoadPlugin (string &file, Server* server, bool global)
   {
-    new MockPlugin ();
+
   }
 };
 

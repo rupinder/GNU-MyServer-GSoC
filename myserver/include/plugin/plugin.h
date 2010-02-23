@@ -25,6 +25,9 @@
 # define EXPORTABLE(x) extern "C" x
 # endif
 
+#define PLUGIN_NAME(X) static const char * __name = X; \
+        EXPORTABLE(const char*) name (){return X;}
+
 # include "myserver.h"
 # include <include/base/dynamic_lib/dynamiclib.h>
 # include <include/base/hash_map/hash_map.h>
@@ -44,7 +47,7 @@ public:
   virtual int preLoad (string& file, bool global);
   virtual int postLoad (Server* server);
   virtual int unLoad ();
-  virtual const char* getName (char* buffer, u_long len);
+  virtual const char* getName ();
   virtual void* getDirectMethod (char* name);
 protected:
   DynamicLibrary hinstLib;

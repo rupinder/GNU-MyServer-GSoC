@@ -492,7 +492,7 @@ PluginsManager::preLoadPlugin (string &file, Server* server, bool global)
       delete plugin;
       return NULL;
     }
-  namePtr = plugin->getName (0, 0);
+  namePtr = plugin->getName ();
 
   if (namePtr)
     name.assign (namePtr);
