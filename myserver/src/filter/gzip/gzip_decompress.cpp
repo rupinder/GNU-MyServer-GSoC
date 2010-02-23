@@ -318,12 +318,8 @@ Filter* GzipDecompress::factory (const char* name)
  * \param name Buffer where write the filter name.
  * \param len Buffer size.
  */
-const char* GzipDecompress::getName (char* name, u_long len)
+const char* GzipDecompress::getName ()
 {
-  /*! No name by default. */
-  if (name)
-    myserver_strlcpy (name, "gzip", len);
-
   return "gzip";
 }
 

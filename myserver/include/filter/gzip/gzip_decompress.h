@@ -67,7 +67,7 @@ public:
   virtual int write (const char* buffer, u_long len, u_long*);
   virtual int flush (u_long*);
   virtual int modifyData ();
-  virtual const char* getName (char* name, u_long len);
+  virtual const char* getName ();
 private:
   int active;
   GzipData data;

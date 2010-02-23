@@ -363,16 +363,9 @@ Filter* Gzip::factory (const char* name)
 
 /*!
  * Return a string with the filter name.
- * If an external buffer is provided write the name there too.
- * \param name Buffer where write the filter name.
- * \param len Buffer size.
  */
-const char* Gzip::getName (char* name, u_long len)
+const char* Gzip::getName ()
 {
-  /*! No name by default. */
-  if (name)
-    myserver_strlcpy (name, "gzip", len);
-
   return "gzip";
 }
 

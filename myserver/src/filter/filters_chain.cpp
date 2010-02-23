@@ -234,7 +234,7 @@ int FiltersChain::isFilterPresent (const char* name)
   list<Filter*>::iterator i = filters.begin ();
 
   for ( ; i != filters.end (); ++i )
-    if (! strcasecmp ((*i)->getName (0, 0), name))
+    if (! strcasecmp ((*i)->getName (), name))
       return 1;
   return 0;
 }
@@ -340,7 +340,7 @@ void FiltersChain::getName (string& out)
   {
     if (i != filters.end () && (*i)->modifyData ())
     {
-      const char* name = (*i)->getName (0, 0);
+      const char* name = (*i)->getName ();
       if (name)
         out.append (name);
     }
@@ -359,6 +359,6 @@ FiltersChain::getFilters ()
   list<Filter*>::iterator it;
   list<string> filters;
   for (it = this->filters.begin (); it != this->filters.end (); it++)
-    filters.push_back (string ((*it)->getName (0, 0)));
+    filters.push_back (string ((*it)->getName ()));
   return filters;
 }

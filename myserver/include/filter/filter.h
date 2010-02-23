@@ -42,7 +42,7 @@ public:
   virtual int write (const char* buffer, u_long len, u_long*);
   virtual int flush (u_long*);
   virtual int modifyData ();
-  virtual const char* getName (char*, u_long);
+  virtual const char* getName ();
   void setParent (Stream*);
   Stream* getParent ();
   Filter ();

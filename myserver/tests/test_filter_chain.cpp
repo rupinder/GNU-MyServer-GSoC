@@ -123,23 +123,21 @@ public:
     u_long nbw;
     Filter* filter = Gzip::factory ("GzipFilter");
     MemBuf mb;
-    char name[32];
     MemoryStream ms (&mb);
 
     fc->setStream (&ms);
 
     CPPUNIT_ASSERT_EQUAL (fc->isFilterPresent (filter), 0);
-    CPPUNIT_ASSERT_EQUAL (fc->isFilterPresent (filter->getName (name, 32)), 0);
+    CPPUNIT_ASSERT_EQUAL (fc->isFilterPresent (filter->getName ()), 0);
 
     fc->addFilter (filter, &nbw);
 
     CPPUNIT_ASSERT (fc->isFilterPresent (filter) != 0);
-    CPPUNIT_ASSERT (fc->isFilterPresent (filter->getName (name, 32)) != 0);
+    CPPUNIT_ASSERT (fc->isFilterPresent (filter->getName ()) != 0);
   }
 
   void testRemoveFilter ()
   {
-    char name[32];
     MemBuf mb;
     u_long nbw;
     Filter* filter = Gzip::factory ("GzipFilter");
@@ -150,12 +148,12 @@ public:
     fc->addFilter (filter, &nbw);
 
     CPPUNIT_ASSERT (fc->isFilterPresent (filter) != 0);
-    CPPUNIT_ASSERT (fc->isFilterPresent (filter->getName (name, 32)) != 0);
+    CPPUNIT_ASSERT (fc->isFilterPresent (filter->getName ()) != 0);
 
     fc->removeFilter (filter);
 
     CPPUNIT_ASSERT_EQUAL (fc->isFilterPresent (filter), 0);
-    CPPUNIT_ASSERT_EQUAL (fc->isFilterPresent (filter->getName (name, 32)), 0);
+    CPPUNIT_ASSERT_EQUAL (fc->isFilterPresent (filter->getName ()), 0);
   }
 
 };

@@ -127,15 +127,9 @@ int Filter::modifyData ()
 
 /*!
  * Return a string with the filter name.
- * If an external buffer is provided write the name there too.
- * \param name The buffer where write the filter name.
- * \param len The buffer length.
  */
-const char* Filter::getName (char* name, u_long len)
+const char* Filter::getName ()
 {
   /* No name by default.  */
-  if (name)
-    name[0] = '\0';
-
-  return "\0";
+  return "";
 }
