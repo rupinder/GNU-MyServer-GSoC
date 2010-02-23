@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<PLUGIN min-version="0.9" max-version="0.9">
+<PLUGIN min-version="0.9" max-version="0.10">
 <NAME>python</NAME>
 <VERSION>0.1</VERSION>
 <AUTHOR>The MyServer Team</AUTHOR>
