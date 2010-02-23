@@ -26,12 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/file/files_utility.h>
 #include <include/protocol/http/http.h>
 #include <include/protocol/http/dyn_http_manager.h>
-
-#ifdef WIN32
-#define EXPORTABLE(x) x _declspec(dllexport);
-#else
-#define EXPORTABLE(x) extern "C" x
-#endif
+#include <include/plugin/plugin.h>
 
 EXPORTABLE(char*) name(char* name, u_long len);
 

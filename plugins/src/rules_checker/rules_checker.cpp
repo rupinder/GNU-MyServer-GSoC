@@ -21,12 +21,7 @@
 #include <include/protocol/http/http.h>
 #include <include/conf/main/xml_main_configuration.h>
 #include "heading.h"
-
-#ifdef WIN32
-# define EXPORTABLE(x) x _declspec(dllexport)
-#else
-# define EXPORTABLE(x) extern "C" x
-#endif
+#include <include/plugin/plugin.h>
 
 class RulesCheckerObserver : public Multicast<string, void*, int>
 {

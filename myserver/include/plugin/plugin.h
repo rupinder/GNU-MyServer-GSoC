@@ -19,6 +19,12 @@
 #ifndef PLUGIN_H
 # define PLUGIN_H
 
+#ifdef WIN32
+# define EXPORTABLE(x) x _declspec(dllexport)
+#else
+# define EXPORTABLE(x) extern "C" x
+# endif
+
 # include "myserver.h"
 # include <include/base/dynamic_lib/dynamiclib.h>
 # include <include/base/hash_map/hash_map.h>

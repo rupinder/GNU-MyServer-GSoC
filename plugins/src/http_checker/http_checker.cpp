@@ -24,12 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/http/http.h>
 #include <include/plugin/plugin.h>
 #include <include/conf/main/xml_main_configuration.h>
-
-#ifdef WIN32
-# define EXPORTABLE(x) x _declspec(dllexport)
-#else
-# define EXPORTABLE(x) extern "C" x
-#endif
+#include <include/plugin/plugin.h>
 
 typedef int (*executePROC)(char*, u_long);
 typedef int (*executeFromFilePROC)(char*);

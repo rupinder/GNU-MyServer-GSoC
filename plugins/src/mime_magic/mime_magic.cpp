@@ -24,12 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/conf/mime/mime_manager.h>
 #include <include/base/hash_map/hash_map.h>
 #include <magic.h>
-
-#ifdef WIN32
-#define EXPORTABLE(x) x _declspec(dllexport)
-#else
-#define EXPORTABLE(x) extern "C" x
-#endif
+#include <include/plugin/plugin.h>
 
 class MagicHandler : public MimeManagerHandler
 {

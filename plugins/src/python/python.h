@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/sync/mutex.h>
 #include <include/base/file/file.h>
 #include <include/base/file/files_utility.h>
-
+#include <include/plugin/plugin.h>
 
 struct PythonData
 {
@@ -35,15 +35,6 @@ struct PythonData
 };
 
 extern HashMap<ThreadID, PythonData*> pythonThreadData;
-
-
-
-#ifdef WIN32
-#define EXPORTABLE(x) x _declspec(dllexport)
-#else
-#define EXPORTABLE(x) extern "C" x
-#endif
-
 
 EXPORTABLE(char*) name(char* name, u_long len);
 
