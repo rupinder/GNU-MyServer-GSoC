@@ -436,7 +436,7 @@ int main (int argn, char **argv)
   if (input.logFileName
       && Server::getInstance ()->setLogLocation (input.logFileName))
     {
-      cout << "Error setting the location for the MyServer's main log" << endl;
+      cerr << "Error setting the location for the MyServer's main log" << endl;
       return 1;
     }
 
@@ -464,7 +464,7 @@ int main (int argn, char **argv)
     PluginsManager *pluginsManager = Server::getInstance ()->getPluginsManager ();
     if (pluginsManager->quickLoad (Server::getInstance (), input.plugins))
       {
-        cout << _("Cannot load specified plugins") << endl;
+        cerr << _("Cannot load specified plugins") << endl;
         return 1;
       }
   }
@@ -484,7 +484,7 @@ int main (int argn, char **argv)
       if (loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath,
                                  confFileDir))
         {
-          cout << _("Cannot find the configuration files, be sure they exist")
+          cerr << _("Cannot find the configuration files, be sure they exist")
                << endl;
           return 1;
         }

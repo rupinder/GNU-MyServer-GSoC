@@ -94,7 +94,7 @@ void
 Server::initLogManager ()
 {
   if (!logLocation.size ())
-    logLocation.assign ("console://stdout");
+    logLocation.assign ("console://stderr");
 
   if (!logManager->containsOwner (this))
     {
