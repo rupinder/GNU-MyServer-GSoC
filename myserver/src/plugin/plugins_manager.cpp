@@ -281,7 +281,13 @@ PluginsManager::quickLoad (Server *server, const string &plugins)
                                     ? string::npos
                                     : commaPos - sep - 1);
 
-      PluginInfo *pinfo = new PluginInfo (name);
+      string dir;
+      string filename;
+      FilesUtility::splitPath (file, dir, filename);
+
+      string xmlDescriptor = dir + "/plugin.xml";
+      PluginInfo *pinfo = loadInfo (server, name, xmlDescriptor);
+
       auto_ptr<PluginInfo> pinfoAutoPtr (pinfo);
 
       ret |= loadFile (server, name, file, pinfo);
