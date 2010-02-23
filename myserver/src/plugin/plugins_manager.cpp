@@ -288,16 +288,13 @@ PluginsManager::quickLoad (Server *server, const string &plugins)
 
       pinfoAutoPtr.release ();
 
-      Plugin *plugin = preLoadPlugin (file, server, true);
+      Plugin *plugin = pinfo->getPlugin ();
       if (! plugin)
         {
           server->log (MYSERVER_LOG_MSG_ERROR,
                        _("Cannot load plugin %s"), file.c_str ());
           return -1;
         }
-
-      pinfo->setPlugin (plugin);
-      addPluginInfo (name, pinfo);
 
       ret |= plugin->load (server);
       ret |= plugin->postLoad (server);
