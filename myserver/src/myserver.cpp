@@ -122,6 +122,17 @@ void registerSignals ()
 
 struct argp_input
 {
+  argp_input ()
+  {
+    version = 0;
+    confFilesLocation = NULL;
+    logFileName = NULL;
+    runas = MYSERVER_RUNAS_CONSOLE;
+    pidFileName = NULL;
+    useForkServer = 0;
+    plugins = NULL;
+  }
+
   /* Print the version for MyServer?  */
   int version;
 
@@ -139,6 +150,9 @@ struct argp_input
 
   /* Specify if the fork server is used.  */
   int useForkServer;
+
+  /* Plugins to load at startup before the server starts.  */
+  const char *plugins;
 };
 
 static char doc[] = "GNU MyServer ";
@@ -146,7 +160,8 @@ static char argsDoc[] = "";
 
 enum
 {
- CONFIG_OPT = UCHAR_MAX + 1
+  CONFIG_OPT = UCHAR_MAX + 1,
+  CONFIG_PLUGINS
 };
 
 /* Use the GNU C argp parser under not windows environments.  */
@@ -166,6 +181,8 @@ static struct argp_option options[] =
      _("Specify if use a fork server")},
     {"cfgdir", CONFIG_OPT, "dir", 0,
      _("Specify an alternative directory where look for configuration files")},
+    {"plugins", CONFIG_PLUGINS, "name1:plugin1,name2:plugin2", 0,
+     _("Specify which plugins must be loaded before the server starts.")},
     {0}
   };
 
@@ -176,6 +193,10 @@ static error_t parseOpt (int key, char *arg, struct argp_state *state)
     {
     case 'v':
       in->version = 1;
+      break;
+
+    case CONFIG_PLUGINS:
+      in->plugins = arg;
       break;
 
     case 'r':
@@ -408,14 +429,6 @@ int main (int argn, char **argv)
   /* We can free path memory now.  */
   delete [] path;
 
-  /* Reset the struct.  */
-  input.version = 0;
-  input.confFilesLocation = NULL;
-  input.logFileName = NULL;
-  input.runas = MYSERVER_RUNAS_CONSOLE;
-  input.pidFileName = NULL;
-  input.useForkServer = 0;
-
   /* Call the parser.  */
   argp_parse (&myserverArgp, argn, argv, 0, 0, &input);
   runas = input.runas;
@@ -445,6 +458,16 @@ int main (int argn, char **argv)
       FilesUtility::resetTmpPath ();
       Process::getForkServer ()->startForkServer ();
     }
+
+  if (input.plugins)
+  {
+    PluginsManager *pluginsManager = Server::getInstance ()->getPluginsManager ();
+    if (pluginsManager->quickLoad (Server::getInstance (), input.plugins))
+      {
+        cout << _("Cannot load specified plugins") << endl;
+        return 1;
+      }
+  }
 
   /*
    * Start here the MyServer execution.
