@@ -1,18 +1,18 @@
 /*
-MyServer
-Copyright (C) 2007, 2009 The Free Software Foundation Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2007, 2009, 2010 The Free Software Foundation Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <myserver.h>
 
@@ -120,7 +120,7 @@ static PyObject *raise_error(PyObject *self, PyObject *args)
 
   ThreadData* data = getThreadData();
 
-  if(data->ret)
+  if (data->ret)
     return NULL;
 
   data->td->http->raiseHTTPError(error);
@@ -138,7 +138,7 @@ static PyObject *send_redirect(PyObject *self, PyObject *args)
 
   ThreadData* data = getThreadData();
 
-  if(data->ret)
+  if (data->ret)
     return NULL;
 
   data->td->http->sendHTTPRedirect(dest);
@@ -182,9 +182,9 @@ public:
 
     init((char*)"http_checker", httpCheckerMethods);
 
-    for(it = rules.begin(); it != rules.end(); it++)
+    for (it = rules.begin(); it != rules.end(); it++)
       {
-	if((*it).file) 
+	if ((*it).file) 
 	  {
 	    executeFromFilePROC execute = ((executeFromFilePROC)python->getDirectMethod((char*)"executeFromFile"));
 	    if (execute)
@@ -200,7 +200,7 @@ public:
     return threadData.ret;
   }
 
-  void addRule(const char* rule, bool file)
+  void addRule (const char* rule, bool file)
   {
     Item it;
     it.data.assign(rule);
@@ -220,7 +220,7 @@ static HttpObserver observer;
 EXPORTABLE(char*) name(char* name, u_long len)
 {
   char* str = (char*)"http_checker";
-  if(name)
+  if (name)
     strncpy(name, str, len);
   return str;
 }
@@ -235,7 +235,7 @@ EXPORTABLE(int) load(void* server,void* parser)
   xmlDocPtr xmlDoc;
 
   python = serverInstance->getPluginsManager()->getPlugin(pythonName);
-  if(!python)
+  if (!python)
     {
       serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("HttpChecker: cannot find executors::python"));
       return -1;
@@ -248,30 +248,30 @@ EXPORTABLE(int) load(void* server,void* parser)
 
   init = (INIT_MODULE) python->getDirectMethod((char*)"initModule");
 
-  if(!init)
+  if (!init)
     {
       serverInstance->log (MYSERVER_LOG_MSG_ERROR,
-         _("HttpChecker: cannot find method initModule in executors::python"));
+                           _("HttpChecker: cannot find method initModule in executors::python"));
       return -1;
     }
 
   configuration = serverInstance->getConfiguration ();
 
   /* FIXME: DON'T DO THIS.  */
-  xmlDoc = ((XmlMainConfiguration*)configuration)->getDoc ();
+  xmlDoc = ((XmlMainConfiguration *) configuration)->getDoc ();
 
-  for(xmlNodePtr ptr = xmlDoc->children->next->children; ptr; ptr = ptr->next)
+  for (xmlNodePtr ptr = xmlDoc->children->next->children; ptr; ptr = ptr->next)
     {
-      if(!xmlStrcmp(ptr->name, (const xmlChar *)"HTTP_CHECKER_RULE"))
+      if (!xmlStrcmp (ptr->name, (const xmlChar *)"HTTP_CHECKER_RULE"))
 	{
 	  bool file = false;
 	  xmlAttrPtr properties = ptr->properties;
 	  char* data = 0;
-	  while(properties)
+	  while (properties)
 	    {
-	      if(!xmlStrcmp(properties->name, (const xmlChar *)"file"))
+	      if (!xmlStrcmp (properties->name, (const xmlChar *)"file"))
 		{
-		  if(properties->children && properties->children->content)
+		  if (properties->children && properties->children->content)
 		    data = (char*)properties->children->content;
 
 		  file = true;
@@ -279,16 +279,16 @@ EXPORTABLE(int) load(void* server,void* parser)
 	      properties = properties->next;
 	    }
 
-	  if(!file && ptr->children && ptr->children->next && ptr->children->next->content)
+	  if (!file && ptr->children && ptr->children->next && ptr->children->next->content)
 	    data = (char*)ptr->children->next->content;
 
-	  if(!data)
+	  if (!data)
 	    {
-        serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("HttpChecker: invalid rule"));
+              serverInstance->log (MYSERVER_LOG_MSG_ERROR, _("HttpChecker: invalid rule"));
 	      return -1;
 	    }
 
-	  observer.addRule(data, file);
+	  observer.addRule (data, file);
 	}
 
     }
@@ -297,11 +297,11 @@ EXPORTABLE(int) load(void* server,void* parser)
 
   return 0;
 }
-EXPORTABLE(int) postLoad(void* server,void* parser)
+EXPORTABLE(int) postLoad (void* server,void* parser)
 {
   return 0;
 }
-EXPORTABLE(int) unLoad(void* parser)
+EXPORTABLE(int) unLoad ()
 {
   mutex.destroy();
   return 0;

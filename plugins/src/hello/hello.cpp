@@ -1,6 +1,6 @@
 /*
   MyServer
-  Copyright (C) 2009, 2010 The Free Software Foundation Inc.
+  Copyright (C) 2010 The Free Software Foundation Inc.
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 3 of the License, or
@@ -18,7 +18,6 @@
 
 #include <include/plugin/plugin.h>
 
-
 PLUGIN_NAME ("hello");
 
 EXPORTABLE(int) load (void* server, void* parser)
@@ -33,7 +32,7 @@ EXPORTABLE(int) postLoad (void* server, void* parser)
   return 0;
 }
 
-EXPORTABLE(int) unLoad (void* parser)
+EXPORTABLE(int) unLoad ()
 {
   printf ("unLoad: bye world!\n");
   return 0;

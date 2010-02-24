@@ -78,7 +78,7 @@ int load (void* server)
 }
 
 /*! Unload the plugin.  Called once.  Returns 0 on success.  */
-int unLoad (void* p)
+int unLoad ()
 {
   PyInterpreterState *interpreter = NULL;
   PyThreadState *threadState = NULL;
@@ -100,12 +100,9 @@ int unLoad (void* p)
 
   PyThreadState_Swap (threadState);
 
-
   Py_Finalize ();
 
-
   PyThreadState_Swap (NULL);
-
 
   PyEval_ReleaseLock ();
 

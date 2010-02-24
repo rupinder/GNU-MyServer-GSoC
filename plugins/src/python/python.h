@@ -37,7 +37,7 @@ struct PythonData
 extern HashMap<ThreadID, PythonData*> pythonThreadData;
 
 EXPORTABLE(int) load (void* server,void* parser);
-EXPORTABLE(int) unLoad (void* p);
+EXPORTABLE(int) unLoad ();
 
 
 EXPORTABLE(int) execute (char* code, u_long length);
