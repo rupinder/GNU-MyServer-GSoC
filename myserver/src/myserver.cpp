@@ -349,7 +349,7 @@ int loadConfFilesLocation (string &mainConfigurationFile,
   return 0;
 }
 
-static MainConfiguration *genMainConf (Server *server, const char *arg)
+static MainConfiguration *_genMainConf (Server *server, const char *arg)
 {
   XmlMainConfiguration *conf = new XmlMainConfiguration ();
   if (conf->open (arg))
@@ -359,6 +359,8 @@ static MainConfiguration *genMainConf (Server *server, const char *arg)
     }
   return conf;
 }
+
+MainConfiguration* (*genMainConf) (Server *server, const char *arg) = &_genMainConf;
 
 const char *program_name = NULL;
 
@@ -525,7 +527,7 @@ int main (int argn, char **argv)
             return 1;
 #endif
         case MYSERVER_RUNAS_CONSOLE:
-          consoleService (mainConf, mimeConf, vhostConf, externPath, &genMainConf);
+          consoleService (mainConf, mimeConf, vhostConf, externPath, genMainConf);
         }
     }
   catch (...)
