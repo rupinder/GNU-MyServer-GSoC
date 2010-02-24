@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<PLUGIN min-version="0.9" max-version="0.10">
+  <NAME>guile_conf</NAME>
+  <VERSION>0.1</VERSION>
+  <AUTHOR>The Free Software Foundation Inc.</AUTHOR>
+  <MAINTAINER>The Free Software Foundation Inc.</MAINTAINER>
+  <DESCRIPTION>Handle the configuration file written in guile</DESCRIPTION>
+</PLUGIN>

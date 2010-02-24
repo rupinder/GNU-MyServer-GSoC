@@ -22,16 +22,14 @@
 
 PLUGIN_NAME ("guile");
 
-EXPORTABLE(int) eval (char *const string)
+EXPORTABLE(SCM) eval (char *const string)
 {
-  scm_c_eval_string (string);
-  return 0;
+  return scm_c_eval_string (string);
 }
 
-EXPORTABLE(int) eval_file (char *const file)
+EXPORTABLE(SCM) eval_file (char *const file)
 {
-  gh_eval_file (file);
-  return 0;
+  return gh_eval_file (file);
 }
 
 EXPORTABLE(int) load (void* server)

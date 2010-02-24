@@ -1,0 +1,20 @@
+This plugin enables to use a configuration file written in scheme.
+
+The plugin MUST be specified on the command line, before any
+configuration file is loaded:
+
+$ ./myserver  \
+  --plugins=guile_conf:../../plugins/bin/guile_conf/guile_conf.so 
+
+
+It looks for the `configuration' symbol in the `myserver.sch' file.
+The configuration looks like:
+
+A node can have an arbitrary number of attributes, and they are
+specified as a list of cons cells, the remaining non-cons cells
+contain the children of the node or the value.
+
+  (define configuration 
+    '(((name . "foo") (bar . "baz")
+       ("value1" "value2" "value3" "value4"))
+      ((name . "foo") "10")))
