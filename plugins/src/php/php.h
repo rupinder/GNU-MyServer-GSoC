@@ -31,9 +31,9 @@
 EXPORTABLE(char*) name(char* name, u_long len);
 
 
-EXPORTABLE(int) load(void* server, void* parser);
+EXPORTABLE(int) load(void* server);
 
-EXPORTABLE(int) postLoad(void* server,void* parser)
+EXPORTABLE(int) postLoad(void* server);
 
 EXPORTABLE(int) unLoad();
 

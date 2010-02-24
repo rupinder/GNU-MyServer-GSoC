@@ -20,13 +20,13 @@
 
 PLUGIN_NAME ("hello");
 
-EXPORTABLE(int) load (void* server, void* parser)
+EXPORTABLE(int) load (void* server)
 {
   printf ("load: hello world!\n");
   return 0;
 }
 
-EXPORTABLE(int) postLoad (void* server, void* parser)
+EXPORTABLE(int) postLoad (void* server)
 {
   printf ("postLoad: hello world!\n");
   return 0;

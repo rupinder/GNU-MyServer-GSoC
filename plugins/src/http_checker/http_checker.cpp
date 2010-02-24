@@ -29,6 +29,7 @@
 typedef int (*executePROC)(char*, u_long);
 typedef int (*executeFromFilePROC)(char*);
 
+PLUGIN_NAME ("http_checker");
 
 struct ThreadData
 {
@@ -217,15 +218,7 @@ private:
 
 static HttpObserver observer;
 
-EXPORTABLE(char*) name(char* name, u_long len)
-{
-  char* str = (char*)"http_checker";
-  if (name)
-    strncpy(name, str, len);
-  return str;
-}
-
-EXPORTABLE(int) load(void* server,void* parser)
+EXPORTABLE(int) load(void* server)
 {
   Server* serverInstance = (Server*)server;
   string msg("new-http-request");
@@ -297,7 +290,7 @@ EXPORTABLE(int) load(void* server,void* parser)
 
   return 0;
 }
-EXPORTABLE(int) postLoad (void* server,void* parser)
+EXPORTABLE(int) postLoad (void* server)
 {
   return 0;
 }

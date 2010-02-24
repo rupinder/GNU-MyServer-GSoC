@@ -28,13 +28,13 @@ EXPORTABLE(int) eval (char *const string)
   return 0;
 }
 
-EXPORTABLE(int) load (void* server, void* parser)
+EXPORTABLE(int) load (void* server)
 {
   scm_init_guile ();
   return 0;
 }
 
-EXPORTABLE(int) postLoad (void* server, void* parser)
+EXPORTABLE(int) postLoad (void* server)
 {
   return 0;
 }
