@@ -28,6 +28,12 @@ EXPORTABLE(int) eval (char *const string)
   return 0;
 }
 
+EXPORTABLE(int) eval_file (char *const file)
+{
+  gh_eval_file (file);
+  return 0;
+}
+
 EXPORTABLE(int) load (void* server)
 {
   scm_init_guile ();
