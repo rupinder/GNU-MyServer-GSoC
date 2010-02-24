@@ -288,6 +288,14 @@ PluginsManager::quickLoad (Server *server, const string &plugins)
       string xmlDescriptor = dir + "/plugin.xml";
       PluginInfo *pinfo = loadInfo (server, name, xmlDescriptor);
 
+      if (! pinfo)
+        {
+          server->log (MYSERVER_LOG_MSG_ERROR,
+                       _("Cannot find the plugin data, please check "
+                         "that the specified name and path are correct"));
+          return -1;
+        }
+
       auto_ptr<PluginInfo> pinfoAutoPtr (pinfo);
 
       ret |= loadFile (server, name, file, pinfo);
