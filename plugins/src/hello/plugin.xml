@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<PLUGIN min-version="0.9" max-version="0.10">
+  <NAME>hello</NAME>
+  <VERSION>0.1</VERSION>
+  <AUTHOR>The Free Software Foundation Inc.</AUTHOR>
+  <MAINTAINER>The Free Software Foundation Inc.</MAINTAINER>
+  <DESCRIPTION>This plugin produces a familiar greeting.  It can be used as a base for new plugins.</DESCRIPTION>
+</PLUGIN>

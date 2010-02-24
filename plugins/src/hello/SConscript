@@ -1,0 +1,25 @@
+#-*- mode: python -*-
+Import('dest_dir','listinc')
+
+local_listinc=[
+      GetLaunchDir(),
+      '../../../',
+      '/usr/local/include',
+      '/usr/include/',
+      '/usr/local/include/guile',
+      '/usr/local/include/libxml2',
+      '/usr/include/libxml2',
+      '.'
+      ]
+
+local_listinc.extend(listinc)
+
+env = Environment(CPPPATH=local_listinc)
+
+conf = Configure(env, config_h="config.h")
+
+env = conf.Finish()
+
+env.SharedLibrary(GetLaunchDir() + "/" + dest_dir + "/hello", ["hello.cpp" ], SHLIBPREFIX="")
+
+
