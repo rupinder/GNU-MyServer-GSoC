@@ -19,7 +19,7 @@ env = Environment(CPPPATH=local_listinc)
 
 conf = Configure(env, config_h="config.h")
 
-if conf.CheckHeader("libguile.h"):
+if conf.CheckHeader("libguile.h") and conf.CheckLib("guile"):
     conf.Define('GUILE', 1)
 
 env = conf.Finish()
