@@ -80,7 +80,7 @@ int Plugin::postLoad (Server* server)
 {
   if (hinstLib.validHandle ())
     {
-      postLoadPROC proc = (postLoadPROC)hinstLib.getProc ("postLoad");
+      postLoadPROC proc = (postLoadPROC) hinstLib.getProc ("postLoad");
       if (proc)
         return proc (server);
     }
@@ -97,7 +97,7 @@ int Plugin::unLoad ()
 {
   if (hinstLib.validHandle ())
     {
-      unLoadPROC proc = (unLoadPROC)hinstLib.getProc ("unLoad");
+      unLoadPROC proc = (unLoadPROC) hinstLib.getProc ("unLoad");
       if (proc)
         return proc ();
     }

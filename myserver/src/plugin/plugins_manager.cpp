@@ -644,8 +644,13 @@ PluginsManager::load (Server *server)
       if (*rIt)
         removePlugin (name);
     }
-  return 0;
 
+  for (it = pluginsInfos.begin (); it != pluginsInfos.end (); it++)
+    {
+      (*it)->getPlugin ()->load (server);
+    }
+
+  return 0;
 }
 
 /*!
@@ -682,6 +687,7 @@ PluginsManager::unLoad ()
 
   while (poit != pluginsInfos.end ())
     {
+      (*poit)->getPlugin ()->unLoad ();
       delete *poit;
       poit++;
     }
