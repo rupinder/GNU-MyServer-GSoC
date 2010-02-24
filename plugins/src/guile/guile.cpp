@@ -30,6 +30,7 @@ EXPORTABLE(int) eval (char *const string)
 
 EXPORTABLE(int) load (void* server, void* parser)
 {
+  scm_init_guile ();
   return 0;
 }
 
