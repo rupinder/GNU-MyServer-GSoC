@@ -15,9 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
-install:
+
+all: copy_files
+
+
+copy_files:
 if BUILD_GUI
 	cp ../../COPYING MyServer/GUI/
 	cp ../../version MyServer/GUI/
+endif
+
+install:
+if BUILD_GUI
 	python setup.py install --prefix=${prefix} --install-scripts=${bindir}
 endif
