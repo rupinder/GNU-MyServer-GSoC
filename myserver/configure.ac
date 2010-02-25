@@ -153,10 +153,13 @@ else
 fi
 AC_SUBST(XNET_LIB)
 
-AC_SEARCH_LIBS([event_add], [event event_core event_extra])
+AC_SEARCH_LIBS([event_add], [event event_core event_extra],,
+                            [AC_MSG_ERROR([*** Cannot find libevent
+*** libevent is required for MyServer])])
 
-AC_CHECK_FUNCS(event_loopbreak, AC_DEFINE(EVENT_LOOPBREAK, 1,
-                         [Define if the event_loopbreak function is present]))
+AC_CHECK_FUNCS(event_loopbreak,
+        AC_DEFINE(EVENT_LOOPBREAK, 1,
+        [Define if the event_loopbreak function is present]))
 
 # Libidn checks
 # -------------
