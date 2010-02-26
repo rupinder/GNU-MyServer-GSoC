@@ -44,11 +44,6 @@ Vhost* VhostManagerHandler::getVHostByNumber (int n)
   return 0;
 }
 
-int VhostManagerHandler::addVHost (Vhost*)
-{
-  return 0;
-}
-
 /*!
  * C'tor.
  */
@@ -101,9 +96,10 @@ Vhost* VhostManager::getVHostByNumber (int n)
  * \param name manager name.
  * \param builder Builder routine.
  */
-void VhostManager::registerBuilder (string &name, MAKE_HANDLER builder)
+void VhostManager::registerBuilder (const string &name, MAKE_HANDLER builder)
 {
-  builders.put (name, builder);
+  string nameStr (name);
+  builders.put (nameStr, builder);
 }
 
 /*!
@@ -112,7 +108,7 @@ void VhostManager::registerBuilder (string &name, MAKE_HANDLER builder)
  * \param name handler name.
  * \return an instance of the requested handler type.
  */
-VhostManagerHandler *VhostManager::buildHandler (string &name,
+VhostManagerHandler *VhostManager::buildHandler (const string &name,
                                                  ListenThreads *lt,
                                                  LogManager *lm)
 {

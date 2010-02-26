@@ -30,7 +30,6 @@ public:
   virtual ~VhostManagerHandler ();
   virtual Vhost* getVHost (const char*, const char*, u_short);
   virtual Vhost* getVHostByNumber (int n);
-  virtual int addVHost (Vhost*);
   virtual int load (const char *resource){return 0;}
 };
 
@@ -49,8 +48,8 @@ public:
   /*! Get a pointer to a vhost.  */
   Vhost* getVHost (const char*,const char*, u_short);
   Vhost* getVHostByNumber (int n);
-  void registerBuilder (string &name, MAKE_HANDLER builder);
-  VhostManagerHandler *buildHandler (string &name, ListenThreads *lt,
+  void registerBuilder (const string &name, MAKE_HANDLER builder);
+  VhostManagerHandler *buildHandler (const string &name, ListenThreads *lt,
                                      LogManager *lm);
 
 protected:
