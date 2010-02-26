@@ -27,5 +27,6 @@ endif
 
 install:
 if BUILD_GUI
-	python setup.py install --prefix=${prefix} --install-scripts=${bindir}
+	python setup.py install --prefix=${DESTDIR}${prefix} \
+                 --install-scripts=${DESTDIR}${bindir}
 endif
