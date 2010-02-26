@@ -868,7 +868,7 @@ int Server::initialize ()
 
   initLogManager ();
 
-  data = getData ("server.buffer_size");
+  data = getData ("server.buffer_size", "102400");
   if (data)
     buffersize = (atol (data) > 81920) ?  atol (data) :  81920 ;
 
