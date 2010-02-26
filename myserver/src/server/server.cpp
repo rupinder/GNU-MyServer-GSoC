@@ -360,8 +360,11 @@ int Server::loadVHostConf ()
 
   vhostManager.setHandler (vhostHandler);
 
+  const char *vhostLocation = getData ("server.vhost_location",
+                                       vhostConfigurationFile.c_str ());
+
   /* Load the virtual hosts configuration.  */
-  if (vhostHandler->load (vhostConfigurationFile.c_str ()))
+  if (vhostHandler->load (vhostLocation))
     {
       log (MYSERVER_LOG_MSG_ERROR,
            _("Error loading the vhost configuration file %s"),
