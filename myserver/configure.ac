@@ -155,7 +155,7 @@ AC_SUBST(XNET_LIB)
 
 AC_SEARCH_LIBS([event_add], [event event_core event_extra],,
                             [AC_MSG_ERROR([*** Cannot find libevent
-*** libevent is required for MyServer])])
+                            *** libevent is required for MyServer])])
 
 AC_CHECK_FUNCS(event_loopbreak,
         AC_DEFINE(EVENT_LOOPBREAK, 1,
@@ -193,8 +193,8 @@ dnl Looking for LibXL2
 AM_PATH_XML2(2.6.0, have_xml2=yes)
 if test x$have_xml2 != xyes; then
     AC_MSG_ERROR([
-*** Cannot find libXML2
-*** libXML2 is required for MyServer
+*** Cannot find libxml2
+*** libxml2 is required
 ])
 
 else
@@ -207,7 +207,7 @@ AC_CHECK_LIB(gnutls, main)
 AC_CHECK_LIB(gnutls-openssl, main)
 
 if test x$ac_cv_lib_gnutls_openssl_main != xyes; then
-   AC_MSG_ERROR(Cannot find ssl libraries)
+   AC_MSG_ERROR([Cannot find ssl libraries, gnutls is required])
 fi
 
 dnl Looking for zlib
