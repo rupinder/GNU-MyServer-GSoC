@@ -122,6 +122,110 @@ GuileConfiguration::readData (list<NodeTree<string>*> *hashedDataTrees,
     }
 }
 
+class GuileVhostManagerHandler : public VhostManagerHandler
+{
+  vector<Vhost*> vhosts;
+  ListenThreads* lt;
+  LogManager* lm;
+public:
+  GuileVhostManagerHandler (ListenThreads* lt, LogManager* lm)
+  {
+    this->lm = lm;
+    this->lt = lt;
+  }
+
+  virtual Vhost* getVHost (const char *host, const char *ip, u_short port)
+  {
+    vector<Vhost*>::iterator it;
+
+      try
+        {
+          it = vhosts.begin ();
+
+          /*Do a linear search here. We have to use the first full-matching
+           *virtual host.
+           */
+          for (; it != vhosts.end (); it++)
+            {
+              Vhost* vh = *it;
+              /* Control if the host port is the correct one.  */
+              if (vh->getPort () != port)
+                continue;
+              /* If ip is defined check that it is allowed to connect to the host.  */
+              if (ip && !vh->isIPAllowed (ip))
+                continue;
+              /* If host is defined check if it is allowed to connect to the host.  */
+              if (host && !vh->isHostAllowed (host))
+                continue;
+              /* We find a valid host.  */
+              /* Add a reference.  */
+              vh->addRef ();
+              return vh;
+            }
+          return 0;
+        }
+      catch (...)
+        {
+          return 0;
+        };
+    }
+
+  virtual Vhost* getVHostByNumber (int n)
+  {
+    return vhosts[n];
+  }
+
+  virtual int load (const char *resource)
+  {
+    gh_eval_file (serverInstance->getData ("server.vhost_location",
+                                           "virtualhosts.sch"));
+    SCM list = gh_lookup ("vhosts");
+
+    while (! gh_null_p (list))
+      {
+        size_t len;
+        SCM v = gh_car (list);
+        Vhost *vh = new Vhost (lm);
+        char *name = gh_scm2newstr (gh_car (v), &len);
+        vh->setName (name);
+        free (name);
+
+        char *portS = gh_scm2newstr (gh_cadr (v), &len);
+        u_short port = atoi (portS);
+        vh->setPort (port);
+        free (portS);
+
+        char *docroot = gh_scm2newstr (gh_caddr (v), &len);
+        vh->setDocumentRoot (docroot);
+        free (docroot);
+
+        char *sysroot = gh_scm2newstr (gh_caddr (gh_cdr (v)), &len);
+        vh->setSystemRoot (sysroot);
+        free (sysroot);
+
+        char *protocol = gh_scm2newstr (gh_caddr (gh_cddr (v)), &len);
+        vh->setProtocolName (protocol);
+        free (protocol);
+
+        list = gh_cdr (list);
+
+
+        /* TODO: read other information!!!  */
+        lt->addListeningThread (port);
+        vhosts.push_back (vh);
+      }
+    return 0;
+  }
+};
+
+
+static VhostManagerHandler* guile_vhost_builder (ListenThreads* lt,
+                                                 LogManager* lm)
+{
+
+  return new GuileVhostManagerHandler (lt, lm);
+}
+
 EXPORTABLE(int) load (void* server)
 {
   /* TODO: This plugin can be loaded only with --plugins.  Fail otherwise.  */
@@ -134,6 +238,10 @@ EXPORTABLE(int) load (void* server)
                            _("GuileConf: cannot find file %s"), CONF_FILE_NAME);
       return 1;
     }
+  VhostManager *vhostManager = serverInstance->getVhosts ();
+
+  vhostManager->registerBuilder ("guile", guile_vhost_builder);
+
 
   genMainConf = &genGuileMainConf;
   return 0;

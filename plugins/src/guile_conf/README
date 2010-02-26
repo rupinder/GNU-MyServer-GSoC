@@ -18,3 +18,20 @@ contain the children of the node or the value.
     '(((name . "foo") (bar . "baz")
        ("value1" "value2" "value3" "value4"))
       ((name . "foo") "10")))
+
+
+it is possible to use Scheme for virtual hosts definitions too:
+
+having these values in the main configuration file:
+
+  ((name . "server.vhost_handler")
+   "guile")
+  ((name . "server.vhost_location")
+   "virtualhosts.sch")
+
+
+And a new file "virtualhosts.sch" is read, containing for example this
+data:
+
+(define vhosts
+  '(("example" "8080" "web" "system" "http")))
