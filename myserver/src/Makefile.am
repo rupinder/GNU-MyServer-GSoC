@@ -14,10 +14,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-AM_CXXFLAGS="-I$(top_srcdir)/lib"
 SUBDIRS = base conf connection connections_scheduler filter http_handler \
 	log plugin protocol server GUI
-AM_CPPFLAGS = $(all_includes)
+AM_CPPFLAGS = $(all_includes) -I$(top_builddir)/lib -I$(top_srcdir)/lib
+AM_CXXFLAGS="-I$(top_srcdir)/lib"
 bin_PROGRAMS = myserver
 myserver_SOURCES = myserver.cpp
 myserver_CXXFLAGS = $(CXXFLAGS) -DHOST_STR=\"$(build)\" -DPREFIX=\"$(prefix)\"
