@@ -39,7 +39,7 @@ Vhost* VhostManagerHandler::getVHost (const char*, const char*, u_short)
   return NULL;
 }
 
-Vhost* VhostManagerHandler::getVHostByNumber (int n)
+Vhost* VhostManagerHandler::getVHost (int n)
 {
   return 0;
 }
@@ -83,10 +83,10 @@ Vhost* VhostManager::getVHost (const char *host, const char *ip, u_short port)
  *Zero based list.
  *\param n The virtual host id.
  */
-Vhost* VhostManager::getVHostByNumber (int n)
+Vhost* VhostManager::getVHost (int n)
 {
   if (handler)
-    return handler->getVHostByNumber (n);
+    return handler->getVHost (n);
 
   return NULL;
 }

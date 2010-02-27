@@ -28,7 +28,7 @@ public:
   XmlVhostHandler (ListenThreads* lt, LogManager* lm);
   ~XmlVhostHandler ();
   int getHostsNumber ();
-  Vhost* getVHostByNumber (int n);
+  Vhost* getVHost (int n);
   void clean ();
   int removeVHost (int n);
   int switchVhosts (int n1,int n2);

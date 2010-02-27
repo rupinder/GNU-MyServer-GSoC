@@ -559,9 +559,9 @@ int XmlVhostHandler::load (const char *filename)
 }
 
 /*!
- *\see VhostManager#getVHostByNumber
+ *\see VhostManager#getVHost
  */
-Vhost* XmlVhostHandler::getVHostByNumber (int n)
+Vhost* XmlVhostHandler::getVHost (int n)
 {
   Vhost* ret = 0;
   mutex.lock ();

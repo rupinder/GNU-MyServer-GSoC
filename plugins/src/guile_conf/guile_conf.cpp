@@ -170,7 +170,7 @@ public:
         };
     }
 
-  virtual Vhost* getVHostByNumber (int n)
+  virtual Vhost* getVHost (int n)
   {
     return vhosts[n];
   }
