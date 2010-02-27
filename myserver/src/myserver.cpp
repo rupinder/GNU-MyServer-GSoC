@@ -637,7 +637,7 @@ void  __stdcall myServerMainNT (u_long, LPTSTR*)
 
       loadConfFilesLocation (mainConf, mimeConf, vhostConf, externPath, NULL);
       Server::getInstance ()->start (mainConf, mimeConf, vhostConf, externPath,
-                                     &genMainConf);
+                                     genMainConf);
 
       MyServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
       SetServiceStatus (MyServiceStatusHandle, &MyServiceStatus);
