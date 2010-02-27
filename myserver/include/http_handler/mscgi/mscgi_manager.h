@@ -20,10 +20,6 @@
 #ifndef CGI_MANAGER_H
 # define CGI_MANAGER_H
 
-# ifdef WIN32
-#  define EXPORTABLE _declspec (dllexport)
-# endif
-
 # include "myserver.h"
 
 # include <include/server/server.h>
@@ -33,13 +29,11 @@
 # include <include/protocol/http/http_request.h>
 # include <include/protocol/http/http_response.h>
 # include <include/base/string/stringutils.h>
+# include <include/plugin/plugin.h>
+
 # define LOCAL_BUFFER_DIM 150
 
-# ifdef WIN32
-class EXPORTABLE MscgiManager
-# else
 class MscgiManager
-# endif
 {
  public:
   Server *getServer ();
