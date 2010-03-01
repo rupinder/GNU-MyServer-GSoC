@@ -243,7 +243,7 @@ int HomeDir::getHomeDir (string& userName, string& out)
   int ret = 0;
 
   loadMutex.lock ();
-
+  errno = 0;
   p = ::getpwnam (userName.c_str ());
   if (p == NULL)
     ret = 1;
@@ -253,8 +253,8 @@ int HomeDir::getHomeDir (string& userName, string& out)
   loadMutex.unlock ();
 
   /* The user was not found.  */
-  if (p == NULL && (errno == ENOENT || errno == ESRCH || errno == EBADF
-                    || errno == EPERM))
+  if (p == NULL && (errno == 0 || errno == ENOENT || errno == ESRCH
+                    || errno == EBADF || errno == EPERM))
     return 1;
 
   return p ? 0 : -1;

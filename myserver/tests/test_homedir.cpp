@@ -24,9 +24,10 @@
 
 class TestHomeDir : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE ( TestHomeDir );
-  CPPUNIT_TEST ( testLoadClear );
-  CPPUNIT_TEST ( testGetAdmin );
+  CPPUNIT_TEST_SUITE (TestHomeDir);
+  CPPUNIT_TEST (testLoadClear);
+  CPPUNIT_TEST (testGetAdmin);
+  CPPUNIT_TEST (testUserDoesNotExist);
   CPPUNIT_TEST_SUITE_END ();
   HomeDir *homeDir;
 public:
@@ -44,6 +45,17 @@ public:
     homeDir->clear ();
 
     CPPUNIT_ASSERT (!homeDir->isLoaded ());
+  }
+
+
+  void testUserDoesNotExist ()
+  {
+    homeDir->load ();
+    string username = "ShoUlDnTExist";
+    string dir;
+    int ret = homeDir->getHomeDir (username, dir);
+    CPPUNIT_ASSERT (ret > 0);
+    homeDir->clear ();
   }
 
   void testGetAdmin ()
