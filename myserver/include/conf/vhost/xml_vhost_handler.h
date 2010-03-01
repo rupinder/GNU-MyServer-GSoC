@@ -39,7 +39,7 @@ public:
   vector<Vhost*>* getVHostList ();
 
   /*! Get a pointer to a vhost.  */
-  Vhost* getVHost (const char*, const char*, u_short);
+  virtual Vhost* getVHost (const char*, const char*, u_short);
 
   /*! Add an element to the vhost list.  */
   int addVHost (Vhost*);

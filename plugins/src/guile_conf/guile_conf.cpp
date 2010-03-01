@@ -20,6 +20,7 @@
 #include <guile/gh.h>
 #include <include/plugin/plugin.h>
 #include <include/conf/main/main_configuration.h>
+#include <include/conf/vhost/xml_vhost_handler.h>
 #include <include/server/server.h>
 
 #include <string.h>
@@ -122,57 +123,12 @@ GuileConfiguration::readData (list<NodeTree<string>*> *hashedDataTrees,
     }
 }
 
-class GuileVhostManagerHandler : public VhostManagerHandler
+class GuileVhostManagerHandler : public XmlVhostHandler
 {
-  vector<Vhost*> vhosts;
-  ListenThreads* lt;
-  LogManager* lm;
 public:
-  GuileVhostManagerHandler (ListenThreads* lt, LogManager* lm)
+  GuileVhostManagerHandler (ListenThreads* lt, LogManager* lm) :
+    XmlVhostHandler (lt, lm)
   {
-    this->lm = lm;
-    this->lt = lt;
-  }
-
-  virtual Vhost* getVHost (const char *host, const char *ip, u_short port)
-  {
-    vector<Vhost*>::iterator it;
-
-      try
-        {
-          it = vhosts.begin ();
-
-          /*Do a linear search here. We have to use the first full-matching
-           *virtual host.
-           */
-          for (; it != vhosts.end (); it++)
-            {
-              Vhost* vh = *it;
-              /* Control if the host port is the correct one.  */
-              if (vh->getPort () != port)
-                continue;
-              /* If ip is defined check that it is allowed to connect to the host.  */
-              if (ip && !vh->isIPAllowed (ip))
-                continue;
-              /* If host is defined check if it is allowed to connect to the host.  */
-              if (host && !vh->isHostAllowed (host))
-                continue;
-              /* We find a valid host.  */
-              /* Add a reference.  */
-              vh->addRef ();
-              return vh;
-            }
-          return 0;
-        }
-      catch (...)
-        {
-          return 0;
-        };
-    }
-
-  virtual Vhost* getVHost (int n)
-  {
-    return vhosts[n];
   }
 
   virtual int load (const char *resource)
@@ -185,7 +141,7 @@ public:
       {
         size_t len;
         SCM v = gh_car (list);
-        Vhost *vh = new Vhost (lm);
+        Vhost *vh = new Vhost (logManager);
         char *name = gh_scm2newstr (gh_car (v), &len);
         vh->setName (name);
         free (name);
@@ -211,9 +167,10 @@ public:
 
 
         /* TODO: read other information!!!  */
-        lt->addListeningThread (port);
-        vhosts.push_back (vh);
+        listenThreads->addListeningThread (port);
+        addVHost (vh);
       }
+
     return 0;
   }
 };
