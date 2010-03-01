@@ -19,8 +19,9 @@ env = Environment(CPPPATH=local_listinc)
 
 conf = Configure(env, config_h="config.h")
 
-if conf.CheckHeader("libguile.h") and conf.CheckLib("guile"):
-    conf.Define('GUILE', 1)
+if not conf.CheckHeader("libguile.h") or not conf.CheckLib("guile"):
+    print "unable to find lib guile"
+    Exit(1)
 
 env = conf.Finish()
 
