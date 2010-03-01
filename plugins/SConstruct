@@ -4,7 +4,7 @@
 # MyServer
 # http://www.gnu.org/software/myserver/
 #
-# Copyright (C) 2002-2009 Free Software Foundation, Inc.
+# Copyright (C) 2002-2010 Free Software Foundation, Inc.
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 3 of the License, or
@@ -39,7 +39,7 @@ command = ARGUMENTS.get('command', "build")
 arch = ""
 import os
 if os.name=="nt":
-    arch = "win32"
+    arch = "w32"
 else:
     arch = string.lower(os.uname()[0])
     if string.find(os.uname()[4],"64")==-1:
@@ -135,6 +135,3 @@ elif command=='source':
 
 #if command == "tests":
 #    AddPostAction('tests/tests_suite', env.Execute('tests/tests_suite'))
-
-
-
