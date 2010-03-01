@@ -22,6 +22,10 @@
 # include "myserver.h"
 # include <include/conf/vhost/vhost_manager.h>
 
+# include <vector>
+
+using namespace std;
+
 class XmlVhostHandler : public VhostManagerHandler
 {
 public:
@@ -32,7 +36,7 @@ public:
   void clean ();
   int removeVHost (int n);
   int switchVhosts (int n1,int n2);
-  list<Vhost*>* getVHostList ();
+  vector<Vhost*>* getVHostList ();
 
   /*! Get a pointer to a vhost.  */
   Vhost* getVHost (const char*,const char*,u_short);
@@ -52,7 +56,7 @@ private:
   ListenThreads* listenThreads;
 
   /*! List of virtual hosts. */
-  list<Vhost*> hostList;
+  vector<Vhost*> hosts;
   LogManager* logManager;
 };
 

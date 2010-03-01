@@ -49,12 +49,12 @@ void XmlVhostHandler::registerBuilder (VhostManager& manager)
  */
 int XmlVhostHandler::addVHost (Vhost* vh)
 {
-  list<Vhost*>::iterator it;
+  vector<Vhost*>::iterator it;
 
   /* Be sure there is a listening thread on the specified port.  */
   listenThreads->addListeningThread (vh->getPort ());
 
-  it = hostList.begin ();
+  it = hosts.begin ();
 
   try
     {
@@ -72,7 +72,7 @@ int XmlVhostHandler::addVHost (Vhost* vh)
                                 _("The protocol \"%s\" is used but not loaded"),
                                     protocol.c_str ());
 
-      hostList.push_back (vh);
+      hosts.push_back (vh);
       return 0;
     }
   catch (...)
@@ -86,12 +86,12 @@ int XmlVhostHandler::addVHost (Vhost* vh)
  */
 Vhost* XmlVhostHandler::getVHost (const char* host, const char* ip, u_short port)
 {
-  list<Vhost*>::iterator it;
+  vector<Vhost*>::iterator it;
   /*
     Do a linear search here. We have to use the first full-matching
     virtual host.
   */
-  for (it = hostList.begin (); it != hostList.end (); it++)
+  for (it = hosts.begin (); it != hosts.end (); it++)
     {
       Vhost* vh = *it;
 
@@ -124,7 +124,6 @@ Vhost* XmlVhostHandler::getVHost (const char* host, const char* ip, u_short port
 XmlVhostHandler::XmlVhostHandler (ListenThreads* lt, LogManager* lm)
 {
   listenThreads = lt;
-  hostList.clear ();
   logManager = lm;
 }
 
@@ -133,16 +132,15 @@ XmlVhostHandler::XmlVhostHandler (ListenThreads* lt, LogManager* lm)
  */
 void XmlVhostHandler::clean ()
 {
-  list<Vhost*>::iterator it;
+  vector<Vhost*>::iterator it;
 
-  it = hostList.begin ();
-
+  it = hosts.begin ();
   try
     {
-      for (;it != hostList.end (); it++)
+      for (;it != hosts.end (); it++)
         delete *it;
 
-      hostList.clear ();
+      hosts.clear ();
     }
   catch (...)
     {
@@ -161,9 +159,9 @@ XmlVhostHandler::~XmlVhostHandler ()
 /*!
  *Returns the entire virtual hosts list.
  */
-list<Vhost*>* XmlVhostHandler::getVHostList ()
+vector<Vhost*>* XmlVhostHandler::getVHostList ()
 {
-  return &(this->hostList);
+  return &(this->hosts);
 }
 
 /*!
@@ -181,7 +179,7 @@ void XmlVhostHandler::changeLocationsOwner ()
        *Change the log files owner if a different user or group
        *identifier is specified.
        */
-      for (list<Vhost*>::iterator it = hostList.begin (); it != hostList.end (); it++)
+      for (vector<Vhost*>::iterator it = hosts.begin (); it != hosts.end (); it++)
         {
           int err;
           Vhost* vh = *it;
@@ -206,7 +204,7 @@ void XmlVhostHandler::changeLocationsOwner ()
  */
 int XmlVhostHandler::getHostsNumber ()
 {
-  return hostList.size ();
+  return hosts.size ();
 }
 
 
@@ -237,7 +235,7 @@ XmlVhostHandler::loadXMLlogData (string name, Vhost* vh, xmlNode* lcur)
   for (; stream; stream = stream->next, location.assign (""), cycle = 0, filters.clear ())
     {
       if (stream->type == XML_ELEMENT_NODE &&
-          !xmlStrcmp (stream->name, (xmlChar const*)"STREAM"))
+          !xmlStrcmp (stream->name, (xmlChar const*) "STREAM"))
         {
           xmlAttr* streamAttr = stream->properties;
           while (streamAttr)
@@ -256,7 +254,7 @@ XmlVhostHandler::loadXMLlogData (string name, Vhost* vh, xmlNode* lcur)
           for (; filterList; filterList = filterList->next)
             {
               if (filterList->type == XML_ELEMENT_NODE &&
-                  !xmlStrcmp (filterList->name, (xmlChar const*)"FILTER"))
+                  !xmlStrcmp (filterList->name, (xmlChar const*) "FILTER"))
                 {
                   if (filterList->children && filterList->children->content)
                     {
@@ -314,7 +312,7 @@ int XmlVhostHandler::load (const char *filename)
     {
       xmlNodePtr lcur;
       Vhost *vh;
-      if (xmlStrcmp (node->name, (const xmlChar *)"VHOST"))
+      if (xmlStrcmp (node->name, (const xmlChar *) "VHOST"))
         continue;
       lcur = node->children;
       vh = new Vhost (logManager);
@@ -340,31 +338,31 @@ int XmlVhostHandler::load (const char *filename)
               continue;
             }
 
-          if (!xmlStrcmp (lcur->name, (const xmlChar *)"HOST"))
+          if (!xmlStrcmp (lcur->name, (const xmlChar *) "HOST"))
             {
               int useRegex = 0;
               for (xmlAttr *attrs = lcur->properties; attrs; attrs = attrs->next)
                 {
-                  if (!xmlStrcmp (attrs->name, (const xmlChar *)"isRegex")
+                  if (!xmlStrcmp (attrs->name, (const xmlChar *) "isRegex")
                       && attrs->children && attrs->children->content
                       && (!xmlStrcmp (attrs->children->content,
-                                     (const xmlChar *)"YES")))
+                                     (const xmlChar *) "YES")))
                         useRegex = 1;
                 }
 
               vh->addHost ((const char*)lcur->children->content, useRegex);
             }
-          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"NAME"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *) "NAME"))
             {
               vh->setName ((char*)lcur->children->content);
             }
-          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"LOCATION"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *) "LOCATION"))
             {
               string loc (vh->getDocumentRoot ());
               loc.append ("/");
 
               for (xmlAttr *attrs = lcur->properties; attrs; attrs = attrs->next)
-                if (!xmlStrcmp (attrs->name, (const xmlChar *)"path"))
+                if (!xmlStrcmp (attrs->name, (const xmlChar *) "path"))
                   loc.append ((const char*) attrs->children->content);
 
               MimeRecord *record = XmlMimeHandler::readRecord (lcur);
@@ -380,35 +378,35 @@ int XmlVhostHandler::load (const char *filename)
 
               vh->getLocationsMime ()->put (loc, record);
             }
-          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"SSL_PRIVATEKEY"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *) "SSL_PRIVATEKEY"))
             {
               string pk ((char*)lcur->children->content);
               sslContext->setPrivateKeyFile (pk);
             }
-          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"SSL_CERTIFICATE"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *) "SSL_CERTIFICATE"))
             {
               string certificate ((char*)lcur->children->content);
               sslContext->setCertificateFile (certificate);
             }
-          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"CONNECTIONS_PRIORITY"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *) "CONNECTIONS_PRIORITY"))
             {
               vh->setDefaultPriority (atoi ((const char*)lcur->children->content));
             }
-          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"SSL_PASSWORD"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *) "SSL_PASSWORD"))
             {
               string pw ((char*)lcur->children->content);
               sslContext->setPassword (pw);
             }
-          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"IP"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *) "IP"))
             {
               int useRegex = 0;
               xmlAttr *attrs = lcur->properties;
 
               while (attrs)
                 {
-                  if (!xmlStrcmp (attrs->name, (const xmlChar *)"isRegex")
+                  if (!xmlStrcmp (attrs->name, (const xmlChar *) "isRegex")
                       && !xmlStrcmp (attrs->children->content,
-                                     (const xmlChar *)"YES"))
+                                     (const xmlChar *) "YES"))
                     useRegex = 1;
 
                   attrs = attrs->next;
@@ -416,7 +414,7 @@ int XmlVhostHandler::load (const char *filename)
 
               vh->addIP ((char*)lcur->children->content, useRegex);
             }
-          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"PORT"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *) "PORT"))
             {
               int val = atoi ((char*)lcur->children->content);
               if (val > (1 << 16) || val <= 0)
@@ -424,7 +422,7 @@ int XmlVhostHandler::load (const char *filename)
                       _("Specified invalid port %s"), lcur->children->content);
               vh->setPort ((u_short)val);
             }
-          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"PROTOCOL"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *) "PROTOCOL"))
             {
               char* lastChar = (char*)lcur->children->content;
               while (*lastChar != '\0')
@@ -434,7 +432,7 @@ int XmlVhostHandler::load (const char *filename)
                 }
               vh->setProtocolName ((char*)lcur->children->content);
             }
-          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"DOCROOT"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *) "DOCROOT"))
             {
               char* lastChar = (char*)lcur->children->content;
               while (*(lastChar+1) != '\0')
@@ -445,7 +443,7 @@ int XmlVhostHandler::load (const char *filename)
 
               vh->setDocumentRoot ((const char*)lcur->children->content);
             }
-          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"SYSROOT"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *) "SYSROOT"))
             {
               char* lastChar = (char*)lcur->children->content;
 
@@ -457,25 +455,25 @@ int XmlVhostHandler::load (const char *filename)
 
               vh->setSystemRoot ((const char*)lcur->children->content);
             }
-          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"ACCESSLOG"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *) "ACCESSLOG"))
             {
               loadXMLlogData ("ACCESSLOG", vh, lcur);
             }
-          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"WARNINGLOG"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *) "WARNINGLOG"))
             {
               loadXMLlogData ("WARNINGLOG", vh, lcur);
             }
-          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"MIME_FILE"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *) "MIME_FILE"))
             {
               string hnd ("xml");
               for (xmlAttr *attrs = lcur->properties; attrs; attrs = attrs->next)
                 {
-                  if (!xmlStrcmp (attrs->name, (const xmlChar *)"name")
+                  if (!xmlStrcmp (attrs->name, (const xmlChar *) "name")
                       && attrs->children && attrs->children->content)
                     hnd.assign((const char*) attrs->children->content);
                 }
 
-              const char *filename = (const char*)lcur->children->content;
+              const char *filename = (const char*) lcur->children->content;
               MimeManagerHandler *handler =
                 Server::getInstance ()->getMimeManager ()->buildHandler (hnd);
 
@@ -494,7 +492,7 @@ int XmlVhostHandler::load (const char *filename)
                 }
               vh->setMimeHandler (handler);
             }
-          else if (!xmlStrcmp (lcur->name, (const xmlChar *)"THROTTLING_RATE"))
+          else if (!xmlStrcmp (lcur->name, (const xmlChar *) "THROTTLING_RATE"))
             {
               u_long rate = (u_long)atoi ((char*)lcur->children->content);
               vh->setThrottlingRate (rate);
@@ -543,18 +541,10 @@ int XmlVhostHandler::load (const char *filename)
  */
 Vhost* XmlVhostHandler::getVHost (int n)
 {
-  Vhost* ret = NULL;
-  list<Vhost*>::iterator i = hostList.begin ();
-  for ( ; i != hostList.end (); i++)
-    {
-      if (!(n--))
-        {
-          ret = *i;
-          ret->addRef ();
-          break;
-        }
-    }
-  return ret;
+  if (n > hosts.size ())
+    return NULL;
+
+  return hosts.at (n - 1);
 }
 
 /*!
@@ -564,15 +554,7 @@ Vhost* XmlVhostHandler::getVHost (int n)
  */
 int XmlVhostHandler::removeVHost (int n)
 {
-  list<Vhost*>::iterator i = hostList.begin ();
-
-  for ( ;i != hostList.end (); i++)
-    {
-      if (!(n--))
-        {
-          delete *i;
-          return 1;
-        }
-    }
+  vector<Vhost*>::iterator it = hosts.erase (hosts.begin () + n - 1);
+  delete *it;
   return 0;
 }
