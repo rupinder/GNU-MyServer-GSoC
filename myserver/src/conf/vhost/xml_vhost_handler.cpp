@@ -51,8 +51,6 @@ int XmlVhostHandler::addVHost (Vhost* vh)
 {
   list<Vhost*>::iterator it;
 
-  mutex.lock ();
-
   /* Be sure there is a listening thread on the specified port.  */
   listenThreads->addListeningThread (vh->getPort ());
 
@@ -75,12 +73,10 @@ int XmlVhostHandler::addVHost (Vhost* vh)
                                     protocol.c_str ());
 
       hostList.push_back (vh);
-      mutex.unlock ();
       return 0;
     }
   catch (...)
     {
-      mutex.unlock ();
       return -1;
     };
 }
@@ -91,54 +87,44 @@ int XmlVhostHandler::addVHost (Vhost* vh)
 Vhost* XmlVhostHandler::getVHost (const char* host, const char* ip, u_short port)
 {
   list<Vhost*>::iterator it;
-
-  mutex.lock ();
-
-  try
+  /*
+    Do a linear search here. We have to use the first full-matching
+    virtual host.
+  */
+  for (it = hostList.begin (); it != hostList.end (); it++)
     {
-      it = hostList.begin ();
+      Vhost* vh = *it;
 
-      /*Do a linear search here. We have to use the first full-matching
-       *virtual host.
-       */
-      for (; it != hostList.end (); it++)
-        {
-          Vhost* vh = *it;
-          /* Control if the host port is the correct one.  */
-          if (vh->getPort () != port)
-            continue;
-          /* If ip is defined check that it is allowed to connect to the host.  */
-          if (ip && !vh->isIPAllowed (ip))
-            continue;
-          /* If host is defined check if it is allowed to connect to the host.  */
-          if (host && !vh->isHostAllowed (host))
-            continue;
-          /* We find a valid host.  */
-          mutex.unlock ();
-          /* Add a reference.  */
-          vh->addRef ();
-          return vh;
-        }
-      mutex.unlock ();
-      return 0;
+      /* Control if the host port is the correct one.  */
+      if (vh->getPort () != port)
+        continue;
+
+      /* If ip is defined check that it is allowed to connect to the host.  */
+      if (ip && !vh->isIPAllowed (ip))
+        continue;
+
+      /* If host is defined check if it is allowed to connect to the host.  */
+      if (host && !vh->isHostAllowed (host))
+        continue;
+
+      /* Add a reference.  */
+      vh->addRef ();
+      return vh;
     }
-  catch (...)
-    {
-      mutex.unlock ();
-      return 0;
-    };
+  return 0;
+
+  return 0;
 }
 
 /*!
- *XmlVhostHandler costructor.
- *\param lt A ListenThreads object to use to create new threads.
- *\param lm The log manager to use.
+ * XmlVhostHandler costructor.
+ * \param lt A ListenThreads object to use to create new threads.
+ * \param lm The log manager to use.
  */
 XmlVhostHandler::XmlVhostHandler (ListenThreads* lt, LogManager* lm)
 {
   listenThreads = lt;
   hostList.clear ();
-  mutex.init ();
   logManager = lm;
 }
 
@@ -149,8 +135,6 @@ void XmlVhostHandler::clean ()
 {
   list<Vhost*>::iterator it;
 
-  mutex.lock ();
-
   it = hostList.begin ();
 
   try
@@ -159,12 +143,9 @@ void XmlVhostHandler::clean ()
         delete *it;
 
       hostList.clear ();
-
-      mutex.unlock ();
     }
   catch (...)
     {
-      mutex.unlock ();
       return;
     };
 }
@@ -175,7 +156,6 @@ void XmlVhostHandler::clean ()
 XmlVhostHandler::~XmlVhostHandler ()
 {
   clean ();
-  mutex.destroy ();
 }
 
 /*!
@@ -563,58 +543,36 @@ int XmlVhostHandler::load (const char *filename)
  */
 Vhost* XmlVhostHandler::getVHost (int n)
 {
-  Vhost* ret = 0;
-  mutex.lock ();
-  try
+  Vhost* ret = NULL;
+  list<Vhost*>::iterator i = hostList.begin ();
+  for ( ; i != hostList.end (); i++)
     {
-      list<Vhost*>::iterator i = hostList.begin ();
-      for ( ; i != hostList.end (); i++)
+      if (!(n--))
         {
-          if (!(n--))
-            {
-              ret = *i;
-              ret->addRef ();
-              break;
-            }
+          ret = *i;
+          ret->addRef ();
+          break;
         }
-      mutex.unlock ();
-
-      return ret;
     }
-  catch (...)
-    {
-      mutex.unlock ();
-      return ret;
-    };
+  return ret;
 }
 
 /*!
- *Remove a virtual host by its position in the list
- *First position is zero.
- *\param n The virtual host identifier in the list.
+ * Remove a virtual host by its position in the list
+ * First position is zero.
+ * \param n The virtual host identifier in the list.
  */
 int XmlVhostHandler::removeVHost (int n)
 {
-  mutex.lock ();
-  try
-    {
-      list<Vhost*>::iterator i = hostList.begin ();
+  list<Vhost*>::iterator i = hostList.begin ();
 
-      for ( ;i != hostList.end (); i++)
-        {
-          if (!(n--))
-            {
-              delete *i;
-              mutex.unlock ();
-              return 1;
-            }
-        }
-      mutex.unlock ();
-      return 0;
-    }
-  catch (...)
+  for ( ;i != hostList.end (); i++)
     {
-      mutex.unlock ();
-      return 0;
-    };
+      if (!(n--))
+        {
+          delete *i;
+          return 1;
+        }
+    }
+  return 0;
 }

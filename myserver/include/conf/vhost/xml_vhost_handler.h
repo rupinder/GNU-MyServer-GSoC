@@ -50,7 +50,6 @@ public:
 private:
   void loadXMLlogData (string, Vhost*, xmlNode*);
   ListenThreads* listenThreads;
-  Mutex mutex;
 
   /*! List of virtual hosts. */
   list<Vhost*> hostList;
