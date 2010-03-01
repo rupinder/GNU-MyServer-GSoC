@@ -35,11 +35,11 @@ public:
   Vhost* getVHost (int n);
   void clean ();
   int removeVHost (int n);
-  int switchVhosts (int n1,int n2);
+  int switchVhosts (int n1, int n2);
   vector<Vhost*>* getVHostList ();
 
   /*! Get a pointer to a vhost.  */
-  Vhost* getVHost (const char*,const char*,u_short);
+  Vhost* getVHost (const char*, const char*, u_short);
 
   /*! Add an element to the vhost list.  */
   int addVHost (Vhost*);
@@ -51,7 +51,8 @@ public:
   void changeLocationsOwner ();
 
   static void registerBuilder (VhostManager& manager);
-private:
+
+protected:
   void loadXMLlogData (string, Vhost*, xmlNode*);
   ListenThreads* listenThreads;
 
