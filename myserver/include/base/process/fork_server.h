@@ -20,11 +20,11 @@
 
 # include "myserver.h"
 
-#ifndef WIN32
-# include <unistd.h>
-#endif
+# ifndef WIN32
+#  include <unistd.h>
+# endif
 
-#include <include/base/unix_socket/unix_socket.h>
+# include <include/base/unix_socket/unix_socket.h>
 
 
 struct StartProcInfo;

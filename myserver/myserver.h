@@ -17,35 +17,35 @@
 */
 
 #ifndef STDAFX_H
-#define STDAFX_H
+# define STDAFX_H
 
 extern "C"
 {
-#include "config.h"
+# include "config.h"
 
-#ifdef HAVE_PTHREAD
-# include <pthread.h>
-#endif
+# ifdef HAVE_PTHREAD
+#  include <pthread.h>
+# endif
 }
 
 extern "C"
 {
-#include <stdlib.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <math.h>
-#include "time.h"
-#include <ctype.h>
-#include <stdint.h>
+# include <stdlib.h>
+# include <stdio.h>
+# include <fcntl.h>
+# include <math.h>
+# include "time.h"
+# include <ctype.h>
+# include <stdint.h>
 
-#ifdef WIN32
-# include <tchar.h>
-# include <process.h>
-#else
-# include <sys/types.h>
-# include <sys/stat.h>
-# include <limits.h>
-#endif
+# ifdef WIN32
+#  include <tchar.h>
+#  include <process.h>
+# else
+#  include <sys/types.h>
+#  include <sys/stat.h>
+#  include <limits.h>
+# endif
 }
 
 typedef void* HANDLE;

@@ -129,7 +129,7 @@ typedef union YYSTYPE
 {
 
   /* Line 1676 of yacc.c  */
-#line 15 "ftp_parser.ypp"
+# line 15 "ftp_parser.ypp"
 
   int           m_nInt;
   char          m_nChar;
@@ -139,7 +139,7 @@ typedef union YYSTYPE
 
 
   /* Line 1676 of yacc.c  */
-#line 143 "../../../include/protocol/ftp/ftp_parser.h"
+# line 143 "../../../include/protocol/ftp/ftp_parser.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

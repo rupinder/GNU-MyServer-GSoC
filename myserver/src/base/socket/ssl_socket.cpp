@@ -31,10 +31,10 @@ extern "C"
 #ifdef WIN32
 # include <w32sock.h>
 #else
-#include <netdb.h>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+# include <netdb.h>
+# include <unistd.h>
+# include <netinet/in.h>
+# include <arpa/inet.h>
 #endif
 }
 

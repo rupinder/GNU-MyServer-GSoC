@@ -67,7 +67,7 @@ public:
   u_long st_nlink;
 # else
   nlink_t st_nlink;
-#endif
+# endif
 
   int findfirst (const char *directory);
   int findfirst (string &directory) {return findfirst (directory.c_str ());};

@@ -19,13 +19,13 @@
 #ifndef PLUGIN_H
 # define PLUGIN_H
 
-#ifdef WIN32
-# define EXPORTABLE(x) x _declspec(dllexport)
-#else
-# define EXPORTABLE(x) extern "C" x
+# ifdef WIN32
+#  define EXPORTABLE(x) x _declspec(dllexport)
+# else
+#  define EXPORTABLE(x) extern "C" x
 # endif
 
-#define PLUGIN_NAME(X) static const char * __name = X; \
+# define PLUGIN_NAME(X) static const char * __name = X; \
         EXPORTABLE(const char*) name (){return X;}
 
 # include "myserver.h"

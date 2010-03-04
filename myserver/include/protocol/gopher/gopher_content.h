@@ -18,15 +18,15 @@
 */
 
 #ifndef GOPHER_CONTENT_H
-#define GOPHER_CONTENT_H
+# define GOPHER_CONTENT_H
 
-#include "myserver.h"
-#include <include/base/socket/socket.h>
-#include <include/base/mem_buff/mem_buff.h>
-#include <include/base/file/file.h>
-#include <include/connection/connection.h>
-#include <vector>
-#include <string>
+# include "myserver.h"
+# include <include/base/socket/socket.h>
+# include <include/base/mem_buff/mem_buff.h>
+# include <include/base/file/file.h>
+# include <include/connection/connection.h>
+# include <vector>
+# include <string>
 
 using namespace std;
 
