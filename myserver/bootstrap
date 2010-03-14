@@ -240,11 +240,6 @@ do
   esac
 done
 
-if test -n "$checkout_only_file" && test ! -r "$checkout_only_file"; then
-  echo "$0: Bootstrapping from a non-checked-out distribution is risky." >&2
-  exit 1
-fi
-
 # If $STR is not already on a line by itself in $FILE, insert it,
 # sorting the new contents of the file and replacing $FILE with the result.
 insert_sorted_if_absent() {
