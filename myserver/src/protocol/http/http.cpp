@@ -20,6 +20,7 @@
 
 #include <include/protocol/http/http.h>
 #include <include/protocol/http/http_headers.h>
+#include <include/protocol/http/http_internal_exception.h>
 #include <include/protocol/http/http_req_security_domain.h>
 #include <include/server/server.h>
 #include <include/conf/security/security_manager.h>
@@ -62,25 +63,6 @@ extern "C"
 # include <errno.h>
 #endif
 }
-
-/*FIXME: Move somewhere else.  */
-class HttpInternalException : public exception
-{
-public:
-  virtual const char *what () const throw ()
-  {
-    return message;
-  }
-
-  HttpInternalException (string & str)
-  {
-    this->message = str.c_str ();
-  }
-
-private:
-  const char *message;
-};
-
 
 int HttpProtocol::loadProtocol ()
 {
