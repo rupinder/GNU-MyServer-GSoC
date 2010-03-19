@@ -58,7 +58,7 @@ void setFtpHost (FtpHost & out, const FtpHost & in)
 void setFtpHost (FtpHost & out, const char *szIn)
 {
   std::stringstream ss;
-  char *szLocalIn = strdup (szIn);
+  char *szLocalIn = gnulib::strdup (szIn);
   char *tok = strtok (szLocalIn, ",.");
   while (tok != NULL)
     {

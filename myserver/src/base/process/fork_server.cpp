@@ -207,13 +207,13 @@ int ForkServer::handleRequest (Socket *sock)
   delete [] chroot;
 
   if (flags & FLAG_USE_IN)
-    close (stdIn);
+    gnulib::close (stdIn);
 
   if (flags & FLAG_USE_OUT)
-    close (stdOut);
+    gnulib::close (stdOut);
 
   if (flags & FLAG_USE_ERR)
-    close (stdErr);
+    gnulib::close (stdErr);
 #endif
 
   return 0;

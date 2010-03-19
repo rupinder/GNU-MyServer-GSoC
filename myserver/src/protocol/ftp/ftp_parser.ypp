@@ -21,6 +21,7 @@
 }
 
 %{
+#define YYSTACK_ALLOC gnulib::malloc
 #define yyscanner pContext->getScanner()
 %}
 

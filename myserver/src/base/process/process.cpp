@@ -267,29 +267,28 @@ int Process::exec (StartProcInfo* spi, bool waitEnd)
         exit (1);
 
       if ((long)spi->stdOut == -1)
-        spi->stdOut = (FileHandle)open ("/dev/null", O_WRONLY);
+        spi->stdOut = gnulib::open ("/dev/null", O_WRONLY);
 
       if ((long)spi->stdError == -1)
-        spi->stdError = (FileHandle)open ("/dev/null", O_WRONLY);
+        spi->stdError = gnulib::open ("/dev/null", O_WRONLY);
 
-      close (0);
+      gnulib::close (0);
 
       if (spi->stdIn != -1)
         {
-          if (dup2 (spi->stdIn, 0) == -1)
+          if (gnulib::dup2 (spi->stdIn, 0) == -1)
             exit (1);
-          close (spi->stdIn);
+          gnulib::close (spi->stdIn);
         }
 
-      close (1);
+      gnulib::close (1);
 
-      if (dup2 (spi->stdOut, 1) == -1)
+      if (gnulib::dup2 (spi->stdOut, 1) == -1)
         exit (1);
 
+      gnulib::close (2);
 
-      close (2);
-
-      if (dup2 (spi->stdError, 2) == -1)
+      if (gnulib::dup2 (spi->stdError, 2) == -1)
         exit (1);
 
       if (spi->handlesToClose)
@@ -297,7 +296,7 @@ int Process::exec (StartProcInfo* spi, bool waitEnd)
           FileHandle* h = spi->handlesToClose;
           while (*h)
             {
-              close (*h);
+              gnulib::close (*h);
               h++;
             }
         }

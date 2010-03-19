@@ -69,7 +69,7 @@ struct tm *myserver_localtime (const time_t *timep, tm* res)
   memcpy (res, localtime (timep), sizeof (tm));
   return res;
 #elif HAVE_LOCALTIME_R
-  return localtime_r (timep, res);
+  return gnulib::localtime_r (timep, res);
 #else
 
   mutex.lock ();
@@ -91,7 +91,7 @@ struct tm *myserver_gmtime (const time_t *timep, tm* res)
   return res;
 
 #elif HAVE_LOCALTIME_R
-  return gmtime_r (timep, res);
+  return gnulib::gmtime_r (timep, res);
 #else
 
   mutex.lock ();

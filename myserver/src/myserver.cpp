@@ -107,13 +107,12 @@ void registerSignals ()
   sig1.sa_handler = SIG_IGN;
   sig2.sa_handler = Sig_Quit;
   sig3.sa_handler = Sig_Hup;
-  sigaction (SIGPIPE, &sig1, NULL);
-  sigaction (SIGINT, &sig2, NULL);
-  sigaction (SIGTERM, &sig2, NULL);
-  sigaction (SIGHUP, &sig3, NULL);
-
+  gnulib::sigaction (SIGPIPE, &sig1, NULL);
+  gnulib::sigaction (SIGINT, &sig2, NULL);
+  gnulib::sigaction (SIGTERM, &sig2, NULL);
+  gnulib::sigaction (SIGHUP, &sig3, NULL);
   /* Avoid zombie processes.  */
-  sigaction (SIGCHLD, &sa, (struct sigaction *)NULL);
+  gnulib::sigaction (SIGCHLD, &sa, (struct sigaction *)NULL);
 #else
   SetConsoleMode (GetStdHandle (STD_INPUT_HANDLE), ENABLE_PROCESSED_INPUT);
   SetConsoleCtrlHandler ((PHANDLER_ROUTINE) SignalHandler, TRUE);
@@ -563,18 +562,18 @@ int writePidfile (const char* filename)
       file.append ("/var/run/myserver.pid");
     }
 
-  pidfile = open (filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+  pidfile = gnulib::open (filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
   if (pidfile == -1)
     return -1;
 
   sprintf (buff,"%i\n", pid);
-  ret = write (pidfile, buff, strlen (buff));
+  ret = gnulib::write (pidfile, buff, strlen (buff));
   if (ret == -1)
     {
-      close (pidfile);
+      gnulib::close (pidfile);
       return -1;
     }
-  return close (pidfile);
+  return gnulib::close (pidfile);
 }
 #endif
 

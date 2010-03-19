@@ -96,7 +96,7 @@ int Event::wait (u_long id, u_long timeout)
   {
     struct timespec ts;
     struct timeval tp;
-    gettimeofday (&tp, NULL);
+    gnulib::gettimeofday (&tp, NULL);
     ts.tv_sec = tp.tv_sec + tp.tv_usec / 1000000 + timeout / 1000;
     ts.tv_nsec = (tp.tv_usec * 1000 + timeout * 1000000) % 1000000000;
 

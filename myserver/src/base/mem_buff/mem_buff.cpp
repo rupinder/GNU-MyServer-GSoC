@@ -126,7 +126,7 @@ MemBuf::MemBuf (const void* pAdr, u_int size)
 
 /*!
  * Direct copy constructor (should only be used by the operators to
- * avoid reallocations).
+ * avoid gnulib::reallocations).
  */
 MemBuf::MemBuf (const MemBuf& srcBuf)
 {
@@ -158,7 +158,7 @@ u_int MemBuf::find (char c, u_int start)
 {
   if (start >= nSize)
     return (u_int) -1;
-  void* pFound = memchr (buffer + start, c, nSize - start);
+  void* pFound = gnulib::memchr (buffer + start, c, nSize - start);
 
   return (pFound == NULL) ? (u_int) -1 : ((char*) pFound - buffer);
 }
@@ -174,7 +174,7 @@ u_int MemBuf::find (const void* pAdr, u_int size, u_int start)
   const char* pPrev = buffer + start;
   u_int size_buf = nSize - start;
   const char* pEnd = buffer + nSize + 1;
-  while ((pLast = (char*) memchr (pPrev, first, size_buf)) != NULL)
+  while ((pLast = (char*) gnulib::memchr (pPrev, first, size_buf)) != NULL)
     {
       size_buf -= (u_int)(pLast - pPrev);
       pPrev = pLast + 1;
@@ -202,9 +202,9 @@ void MemBuf::replace (char what, char by)
 
 /*!
  * Add a buffer at the end of the internal buffer.
- * If the internal buffer isn't large enough, a reallocation is done
+ * If the internal buffer isn't large enough, a gnulib::reallocation is done
  * until nSizeLimit is reached.
- * If nSizeLimit is equal to 0, reallocation are always done.
+ * If nSizeLimit is equal to 0, gnulib::reallocation are always done.
  */
 void MemBuf::addBuffer (const void* pAdr, u_int size)
 {
@@ -330,8 +330,8 @@ int MemBuf::getPartAsString (u_int nStart, u_int nEnd, MemBuf& result)
  * at least newSize bytes, if this value is bigger than nSizeLimit
  * then the latter is used.
  *
- * If the length is smallest than the existing one, no reallocation is done.
- * if it's biggest, a reallocation is done until nSizeLimit is reached.
+ * If the length is smallest than the existing one, no gnulib::reallocation is done.
+ * if it's biggest, a gnulib::reallocation is done until nSizeLimit is reached.
  */
 void MemBuf::setRealLength (u_int newSize)
 {
@@ -361,7 +361,7 @@ void MemBuf::setRealLength (u_int newSize)
 
 /*!
  * Set the cursor in the internal buffer.
- * If the specified position is bigger than the buffer size then a reallocation
+ * If the specified position is bigger than the buffer size then a gnulib::reallocation
  * is done.
  */
 void MemBuf::setLength (u_int newSize)

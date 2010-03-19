@@ -134,7 +134,7 @@ int ReadDirectory::find (const char *filename)
        if (dirName[dirName.length () - 1] == '/')
          dirName.erase (dirName.length () - 1);
 
-       dh = opendir (dirName.c_str ());
+       dh = gnulib::opendir (dirName.c_str ());
 
        if (dh == NULL)
          return -1;
@@ -158,7 +158,7 @@ int ReadDirectory::find (const char *filename)
 # endif
 
 # ifdef HAVE_FSTATAT
-   if (fstatat (dirfd (dh), name.c_str (), &stats, 0))
+   if (gnulib::fstatat (dirfd (dh), name.c_str (), &stats, 0))
      return -1;
 # else
    string tempName;
@@ -198,7 +198,7 @@ int ReadDirectory::findclose ()
   if (!dh)
     return -1;
 
-  closedir (dh);
+  gnulib::closedir (dh);
   dh = NULL;
   return 0;
 #endif

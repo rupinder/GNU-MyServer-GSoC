@@ -36,7 +36,11 @@ extern "C"
 # endif
 # include <gcrypt.h>
 # if HAVE_PTHREAD
+  /* Hack.  */
+# undef malloc
+# define malloc gnulib::malloc
 GCRY_THREAD_OPTION_PTHREAD_IMPL;
+# undef malloc
 # endif
 #endif
 }

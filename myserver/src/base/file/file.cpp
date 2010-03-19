@@ -99,7 +99,7 @@ int File::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
     return -1;
   }
 
-  ret = ::write (handle, buffer, buffersize);
+  ret = gnulib::write (handle, buffer, buffersize);
   if (ret < 0)
     return ret;
 
@@ -162,9 +162,9 @@ int File::openFile (const char* nfilename, u_long opt)
     flags |= O_APPEND;
 
   if (exists)
-    handle = open (filename.c_str (), O_APPEND | flags);
+    handle = gnulib::open (filename.c_str (), O_APPEND | flags);
   else
-    handle = open (filename.c_str (), O_CREAT | flags, S_IRUSR | S_IWUSR);
+    handle = gnulib::open (filename.c_str (), O_CREAT | flags, S_IRUSR | S_IWUSR);
 
   try
     {
@@ -176,7 +176,7 @@ int File::openFile (const char* nfilename, u_long opt)
           }
  
       if (opt & File::TEMPORARY)
-        if (unlink (filename.c_str ()))
+        if (gnulib::unlink (filename.c_str ()))
           {
             close ();
             return -1;
@@ -268,9 +268,9 @@ int File::close ()
   if (handle != -1)
     {
       if (opt & File::TEMPORARY_DELAYED)
-        unlink (filename.c_str ());
-      ret = fsync (handle);
-      ret |= ::close (handle);
+        gnulib::unlink (filename.c_str ());
+      ret = gnulib::fsync (handle);
+      ret |= gnulib::close (handle);
     }
 
   filename.clear ();
@@ -287,7 +287,7 @@ u_long File::getFileSize ()
 {
   u_long ret;
   struct stat fStats;
-  ret = fstat (handle, &fStats);
+  ret = gnulib::fstat (handle, &fStats);
   if (ret)
     return (u_long)(-1);
   else
@@ -357,7 +357,7 @@ int File::write (const char* buffer, u_long len, u_long *nbw)
  */
 int File::read (char* buffer, u_long buffersize, u_long* nbr)
 {
-  int ret  = ::read (handle, buffer, buffersize);
+  int ret = ::read (handle, buffer, buffersize);
   if (ret < 0)
     return ret;
 

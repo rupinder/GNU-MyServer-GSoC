@@ -142,7 +142,7 @@ int FilesUtility::getPathRecursionLevel (const char* path)
  */
 int FilesUtility::renameFile (const char* before, const char* after)
 {
-  return rename (before, after);
+  return gnulib::rename (before, after);
 }
 
 /*!
@@ -215,7 +215,7 @@ int FilesUtility::copyFile (File& src, File& dest)
 int FilesUtility::deleteFile (const char *filename)
 {
   int ret;
-  ret = remove (filename);
+  ret = gnulib::remove (filename);
 
   if (ret && errno == ENOENT)
     ret = 0;
@@ -255,7 +255,7 @@ int FilesUtility::isLink (const char* filename)
   return 0;
 #else
   struct stat F_Stats;
-  int ret = lstat (filename, &F_Stats);
+  int ret = gnulib::lstat (filename, &F_Stats);
   if (ret < 0)
     return 0;
 
@@ -362,8 +362,8 @@ time_t FilesUtility::getLastAccTime (const char *filename)
 int FilesUtility::chown (const char* filename, string &uid, string &gid)
 {
 #ifndef WIN32
-  return ::chown (filename, Process::getUid (uid.c_str ()),
-                  Process::getGid (gid.c_str ())) ? 1 : 0;
+  return gnulib::chown (filename, Process::getUid (uid.c_str ()),
+                        Process::getGid (gid.c_str ())) ? 1 : 0;
 #endif
   return 0;
 }
@@ -574,7 +574,7 @@ int FilesUtility::getShortFileName (char *filePath, char *out, int buffersize)
  * Return non-zero on errors.
  * \param fileName The buffer to use.
  * \param size The new buffer size.
- * \param dontRealloc Don't realloc a new buffer.
+ * \param dontRealloc Don't gnulib::realloc a new buffer.
  */
 int FilesUtility::completePath (char **fileName, int *size, int dontRealloc)
 {
@@ -695,7 +695,7 @@ int FilesUtility::mkdir (const char *path)
 #ifdef WIN32
   return CreateDirectory (path, NULL) ? 0 : -1;
 #else
-  return ::mkdir (path, S_IRUSR | S_IWUSR);
+  return gnulib::mkdir (path, S_IRUSR | S_IWUSR);
 #endif
 }
 
@@ -709,7 +709,7 @@ int FilesUtility::rmdir (const char *path)
 #ifdef WIN32
   return RemoveDirectory (path) ? 0 : -1;
 #else
-  return ::rmdir (path);
+  return gnulib::rmdir (path);
 #endif
 }
 

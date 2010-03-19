@@ -23,10 +23,7 @@
 # include "myserver.h"
 # include <string>
 
-extern "C"
-{
 # include <string.h>
-}
 
 using namespace std;
 

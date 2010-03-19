@@ -20,6 +20,16 @@
 #include <include/base/unix_socket/unix_socket.h>
 #include <include/base/utility.h>
 
+#ifdef AF_UNIX
+void UnixSocket::makeAddrInfo (sockaddr_un *info, const char *path)
+{
+  memset (info, 0, sizeof (struct sockaddr_un));
+  info->sun_family = AF_UNIX;
+  strcpy (info->sun_path, path);
+}
+#endif
+
+
 UnixSocket::UnixSocket ()
 {
 
@@ -42,7 +52,7 @@ int UnixSocket::bind (const char* path)
 
 #ifdef AF_UNIX
   makeAddrInfo (&addr, path);
-  unlink (path);
+  gnulib::unlink (path);
 
   return Socket::bind ((MYSERVER_SOCKADDR*) &addr, sizeof (sockaddr_un));
 #else
@@ -58,7 +68,7 @@ int UnixSocket::shutdown ()
 {
 #ifdef AF_UNIX
   Socket::shutdown (2);
-  return unlink (addr.sun_path);
+  return gnulib::unlink (addr.sun_path);
 #else
   return -1;
 #endif

@@ -89,7 +89,7 @@ int SslSocket::shutdown (int how)
   if (sslConnection)
     SSL_shutdown (sslConnection);
 
-  return ::shutdown (fd, how);
+  return gnulib::shutdown (fd, how);
 }
 
 /*!
@@ -133,7 +133,7 @@ int SslSocket::connect (MYSERVER_SOCKADDR* sa, int na)
     return -1;
 
   /*! Do the TCP connection.  */
-  if (::connect (fd, (sockaddr *) sa, na))
+  if (gnulib::connect (fd, (sockaddr *) sa, na))
     {
       SSL_CTX_free (sslContext);
       sslContext = 0;

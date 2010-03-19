@@ -102,11 +102,11 @@ DEFINE_THREAD (clients_thread, pParam)
 #ifndef WIN32
   /* Block SigTerm, SigInt, and SigPipe in threads.  */
   sigset_t sigmask;
-  sigemptyset (&sigmask);
-  sigaddset (&sigmask, SIGPIPE);
-  sigaddset (&sigmask, SIGINT);
-  sigaddset (&sigmask, SIGTERM);
-  sigprocmask (SIG_SETMASK, &sigmask, NULL);
+  gnulib::sigemptyset (&sigmask);
+  gnulib::sigaddset (&sigmask, SIGPIPE);
+  gnulib::sigaddset (&sigmask, SIGINT);
+  gnulib::sigaddset (&sigmask, SIGTERM);
+  gnulib::sigprocmask (SIG_SETMASK, &sigmask, NULL);
 #endif
   ClientsThread *ct = (ClientsThread*)pParam;
 

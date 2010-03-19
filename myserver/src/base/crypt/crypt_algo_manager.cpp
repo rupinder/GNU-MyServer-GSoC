@@ -106,7 +106,7 @@ CryptAlgoManager::check (const char *value, size_t valueLen, const char *result,
   CryptAlgo *f = make (algo);
   if (!f)
     {
-      snprintf (buffer, bufferLen, _("%s is not a registered algorithm"),
+      gnulib::snprintf (buffer, bufferLen, _("%s is not a registered algorithm"),
                 algo);
       throw CryptAlgoManagerException (buffer);
     }

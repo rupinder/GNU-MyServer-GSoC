@@ -22,16 +22,12 @@
 # include "myserver.h"
 # include <include/base/socket/socket.h>
 
-
-extern "C"
-{
 # ifdef WIN32
-#  undef AF_UNIX //This shouldn't happen, but better be sure.
+#  undef AF_UNIX /* This shouldn't happen, but better be sure.  */
 # else
+#  include <string.h>
 #  include <sys/un.h>
 # endif
-}
-
 
 class UnixSocket: public Socket
 {
@@ -55,12 +51,7 @@ protected:
 
 private:
 # ifdef AF_UNIX
-  void makeAddrInfo (sockaddr_un *info, const char *path)
-  {
-    memset (info, 0, sizeof (struct sockaddr_un));
-    info->sun_family = AF_UNIX;
-    strcpy (info->sun_path, path);
-  }
+  void makeAddrInfo (sockaddr_un *info, const char *path);
 # endif
 };
 

@@ -69,7 +69,7 @@ static int initializeCwd ()
   if (currentPath)
     return 0;
 
-  currentPath = getcwd (NULL, 0);
+  currentPath = gnulib::getcwd (NULL, 0);
   if (!currentPath)
     return -1;
 
@@ -144,7 +144,7 @@ char *getdefaultwd (char *path, int len)
 int setcwd (const char *dir)
 {
   int ret;
-  char *tmp = strdup (dir);
+  char *tmp = gnulib::strdup (dir);
   if (!tmp)
     return -1;
 
@@ -203,7 +203,7 @@ u_long getTicks ()
   return GetTickCount ();
 #else
   struct timeval tval;
-  int ret = gettimeofday (&tval, 0);
+  int ret = gnulib::gettimeofday (&tval, 0);
   if (ret == -1)
     return 0;
   return  (tval.tv_sec * 1000) + (tval.tv_usec / 1000);

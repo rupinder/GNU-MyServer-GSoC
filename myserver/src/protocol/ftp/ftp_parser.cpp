@@ -195,12 +195,12 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 15 "ftp_parser.ypp"
+#line 16 "ftp_parser.ypp"
 
-	int		m_nInt;
-	char		m_nChar;
-	char		m_szStr[PARSER_STR_LEN];
-	FtpHost 	m_host;
+  int		m_nInt;
+  char		m_nChar;
+  char		m_szStr[PARSER_STR_LEN];
+  FtpHost 	m_host;
 
 
 
@@ -229,13 +229,14 @@ typedef struct YYLTYPE
 /* Copy the second part of user declarations.  */
 
 /* Line 264 of yacc.c  */
-#line 22 "ftp_parser.ypp"
+#line 23 "ftp_parser.ypp"
 
+#define YYSTACK_ALLOC gnulib::malloc
 #define yyscanner pContext->getScanner()
 
 
 /* Line 264 of yacc.c  */
-#line 239 "ftp_parser.cpp"
+#line 240 "ftp_parser.cpp"
 
 #ifdef short
 # undef short
@@ -551,13 +552,13 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    92,    92,    93,    99,   103,   107,   111,   115,   119,
-     126,   133,   137,   141,   145,   149,   153,   157,   161,   165,
-     169,   173,   177,   181,   185,   189,   193,   197,   201,   205,
-     209,   213,   217,   221,   225,   229,   233,   237,   241,   245,
-     249,   253,   256,   261,   267,   274,   285,   294,   301,   305,
-     309,   315,   319,   323,   329,   333,   337,   341,   347,   351,
-     355
+       0,    94,    94,    95,   101,   105,   109,   113,   117,   121,
+     128,   135,   139,   143,   147,   151,   155,   159,   163,   167,
+     171,   175,   179,   183,   187,   191,   195,   199,   203,   207,
+     211,   215,   219,   223,   227,   231,   235,   239,   243,   247,
+     251,   255,   258,   263,   269,   276,   287,   296,   303,   307,
+     311,   317,   321,   325,   331,   335,   339,   343,   349,   353,
+     357
 };
 #endif
 
@@ -1615,7 +1616,7 @@ yyreduce:
         case 3:
 
 /* Line 1455 of yacc.c  */
-#line 94 "ftp_parser.ypp"
+#line 96 "ftp_parser.ypp"
     {
 			pContext->computeParseLength((yyloc));
 		}
@@ -1624,7 +1625,7 @@ yyreduce:
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 100 "ftp_parser.ypp"
+#line 102 "ftp_parser.ypp"
     {
 			pContext->user((yyvsp[(3) - (4)].m_szStr));
 		}
@@ -1633,7 +1634,7 @@ yyreduce:
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 104 "ftp_parser.ypp"
+#line 106 "ftp_parser.ypp"
     {
 			pContext->password((yyvsp[(3) - (4)].m_szStr));
 		}
@@ -1642,7 +1643,7 @@ yyreduce:
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 108 "ftp_parser.ypp"
+#line 110 "ftp_parser.ypp"
     {
 		  pContext->port((yyvsp[(3) - (4)].m_host));
 		}
@@ -1651,7 +1652,7 @@ yyreduce:
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 112 "ftp_parser.ypp"
+#line 114 "ftp_parser.ypp"
     {
 		  pContext->pasv();
 		}
@@ -1660,7 +1661,7 @@ yyreduce:
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 116 "ftp_parser.ypp"
+#line 118 "ftp_parser.ypp"
     {
 		  pContext->mode((yyvsp[(3) - (4)].m_nInt));
 		}
@@ -1669,7 +1670,7 @@ yyreduce:
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 120 "ftp_parser.ypp"
+#line 122 "ftp_parser.ypp"
     {
       if ((yyvsp[(3) - (4)].m_nInt) == -1)
         pContext->ftpReply(504);
@@ -1681,7 +1682,7 @@ yyreduce:
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 127 "ftp_parser.ypp"
+#line 129 "ftp_parser.ypp"
     {
       if ((yyvsp[(3) - (6)].m_nInt) == -1 || (yyvsp[(5) - (6)].m_nInt) == -1)
         pContext->ftpReply(504);
@@ -1693,7 +1694,7 @@ yyreduce:
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 134 "ftp_parser.ypp"
+#line 136 "ftp_parser.ypp"
     {
 		  pContext->stru((yyvsp[(3) - (4)].m_nInt));
 		}
@@ -1702,7 +1703,7 @@ yyreduce:
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 138 "ftp_parser.ypp"
+#line 140 "ftp_parser.ypp"
     {
 		  pContext->rest((yyvsp[(3) - (4)].m_szStr));
 		}
@@ -1711,7 +1712,7 @@ yyreduce:
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 142 "ftp_parser.ypp"
+#line 144 "ftp_parser.ypp"
     {
 		  pContext->allo((yyvsp[(3) - (4)].m_nInt));
 		}
@@ -1720,7 +1721,7 @@ yyreduce:
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 146 "ftp_parser.ypp"
+#line 148 "ftp_parser.ypp"
     {
 		  pContext->allo((yyvsp[(3) - (8)].m_nInt), (yyvsp[(7) - (8)].m_nInt));
 		}
@@ -1729,7 +1730,7 @@ yyreduce:
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 150 "ftp_parser.ypp"
+#line 152 "ftp_parser.ypp"
     {
 		  pContext->retr((yyvsp[(3) - (4)].m_szStr));
 		}
@@ -1738,7 +1739,7 @@ yyreduce:
   case 16:
 
 /* Line 1455 of yacc.c  */
-#line 154 "ftp_parser.ypp"
+#line 156 "ftp_parser.ypp"
     {
 			pContext->abor();
 		}
@@ -1747,7 +1748,7 @@ yyreduce:
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 158 "ftp_parser.ypp"
+#line 160 "ftp_parser.ypp"
     {
 		  pContext->list();
 		}
@@ -1756,7 +1757,7 @@ yyreduce:
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 162 "ftp_parser.ypp"
+#line 164 "ftp_parser.ypp"
     {
 		  pContext->list((yyvsp[(3) - (4)].m_szStr));
 		}
@@ -1765,7 +1766,7 @@ yyreduce:
   case 19:
 
 /* Line 1455 of yacc.c  */
-#line 166 "ftp_parser.ypp"
+#line 168 "ftp_parser.ypp"
     {
 		  pContext->nlst();
 		}
@@ -1774,7 +1775,7 @@ yyreduce:
   case 20:
 
 /* Line 1455 of yacc.c  */
-#line 170 "ftp_parser.ypp"
+#line 172 "ftp_parser.ypp"
     {
 		  pContext->nlst((yyvsp[(3) - (4)].m_szStr));
 		}
@@ -1783,7 +1784,7 @@ yyreduce:
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 174 "ftp_parser.ypp"
+#line 176 "ftp_parser.ypp"
     {
 			pContext->cwd((yyvsp[(3) - (4)].m_szStr));
 		}
@@ -1792,7 +1793,7 @@ yyreduce:
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 178 "ftp_parser.ypp"
+#line 180 "ftp_parser.ypp"
     {
 			pContext->cwd("..");
 		}
@@ -1801,7 +1802,7 @@ yyreduce:
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 182 "ftp_parser.ypp"
+#line 184 "ftp_parser.ypp"
     {
 			pContext->pwd();
 		}
@@ -1810,7 +1811,7 @@ yyreduce:
   case 24:
 
 /* Line 1455 of yacc.c  */
-#line 186 "ftp_parser.ypp"
+#line 188 "ftp_parser.ypp"
     {
 			pContext->help((yyvsp[(3) - (4)].m_szStr));
 		}
@@ -1819,7 +1820,7 @@ yyreduce:
   case 25:
 
 /* Line 1455 of yacc.c  */
-#line 190 "ftp_parser.ypp"
+#line 192 "ftp_parser.ypp"
     {
 			pContext->help();
 		}
@@ -1828,7 +1829,7 @@ yyreduce:
   case 26:
 
 /* Line 1455 of yacc.c  */
-#line 194 "ftp_parser.ypp"
+#line 196 "ftp_parser.ypp"
     {
 			pContext->syst();
 		}
@@ -1837,7 +1838,7 @@ yyreduce:
   case 27:
 
 /* Line 1455 of yacc.c  */
-#line 198 "ftp_parser.ypp"
+#line 200 "ftp_parser.ypp"
     {
 			pContext->statCmd();
 		}
@@ -1846,7 +1847,7 @@ yyreduce:
   case 28:
 
 /* Line 1455 of yacc.c  */
-#line 202 "ftp_parser.ypp"
+#line 204 "ftp_parser.ypp"
     {
 			pContext->quit();
 		}
@@ -1855,7 +1856,7 @@ yyreduce:
   case 29:
 
 /* Line 1455 of yacc.c  */
-#line 206 "ftp_parser.ypp"
+#line 208 "ftp_parser.ypp"
     {
 			pContext->noop();
 		}
@@ -1864,7 +1865,7 @@ yyreduce:
   case 30:
 
 /* Line 1455 of yacc.c  */
-#line 210 "ftp_parser.ypp"
+#line 212 "ftp_parser.ypp"
     {
 			pContext->ftpReply(502);//any new commands
 		}
@@ -1873,7 +1874,7 @@ yyreduce:
   case 31:
 
 /* Line 1455 of yacc.c  */
-#line 214 "ftp_parser.ypp"
+#line 216 "ftp_parser.ypp"
     {
 			pContext->ftpReply(502);//any new commands
 		}
@@ -1882,7 +1883,7 @@ yyreduce:
   case 32:
 
 /* Line 1455 of yacc.c  */
-#line 218 "ftp_parser.ypp"
+#line 220 "ftp_parser.ypp"
     {
 			// ignore empty lines
 		}
@@ -1891,7 +1892,7 @@ yyreduce:
   case 33:
 
 /* Line 1455 of yacc.c  */
-#line 222 "ftp_parser.ypp"
+#line 224 "ftp_parser.ypp"
     {
 		  pContext->stor((yyvsp[(3) - (4)].m_szStr));
 		}
@@ -1900,7 +1901,7 @@ yyreduce:
   case 34:
 
 /* Line 1455 of yacc.c  */
-#line 226 "ftp_parser.ypp"
+#line 228 "ftp_parser.ypp"
     {
 		  pContext->stou((yyvsp[(3) - (4)].m_szStr));
 		}
@@ -1909,7 +1910,7 @@ yyreduce:
   case 35:
 
 /* Line 1455 of yacc.c  */
-#line 230 "ftp_parser.ypp"
+#line 232 "ftp_parser.ypp"
     {
 		  pContext->dele((yyvsp[(3) - (4)].m_szStr));
 		}
@@ -1918,7 +1919,7 @@ yyreduce:
   case 36:
 
 /* Line 1455 of yacc.c  */
-#line 234 "ftp_parser.ypp"
+#line 236 "ftp_parser.ypp"
     {
 		  pContext->appe((yyvsp[(3) - (4)].m_szStr));
 		}
@@ -1927,7 +1928,7 @@ yyreduce:
   case 37:
 
 /* Line 1455 of yacc.c  */
-#line 238 "ftp_parser.ypp"
+#line 240 "ftp_parser.ypp"
     {
 		  pContext->mkd((yyvsp[(3) - (4)].m_szStr));
 		}
@@ -1936,7 +1937,7 @@ yyreduce:
   case 38:
 
 /* Line 1455 of yacc.c  */
-#line 242 "ftp_parser.ypp"
+#line 244 "ftp_parser.ypp"
     {
 		  pContext->rmd((yyvsp[(3) - (4)].m_szStr));
 		}
@@ -1945,7 +1946,7 @@ yyreduce:
   case 39:
 
 /* Line 1455 of yacc.c  */
-#line 246 "ftp_parser.ypp"
+#line 248 "ftp_parser.ypp"
     {
 		  pContext->rnfr((yyvsp[(3) - (4)].m_szStr));
 		}
@@ -1954,7 +1955,7 @@ yyreduce:
   case 40:
 
 /* Line 1455 of yacc.c  */
-#line 250 "ftp_parser.ypp"
+#line 252 "ftp_parser.ypp"
     {
 		  pContext->Rnto((yyvsp[(3) - (4)].m_szStr));
 		}
@@ -1963,7 +1964,7 @@ yyreduce:
   case 41:
 
 /* Line 1455 of yacc.c  */
-#line 254 "ftp_parser.ypp"
+#line 256 "ftp_parser.ypp"
     {
 		}
     break;
@@ -1971,7 +1972,7 @@ yyreduce:
   case 42:
 
 /* Line 1455 of yacc.c  */
-#line 257 "ftp_parser.ypp"
+#line 259 "ftp_parser.ypp"
     {
 			//pContext->Chmod($3, $5);
 			pContext->ftpReply(502);
@@ -1981,7 +1982,7 @@ yyreduce:
   case 43:
 
 /* Line 1455 of yacc.c  */
-#line 262 "ftp_parser.ypp"
+#line 264 "ftp_parser.ypp"
     {
 			//pContext->Utime($3, $5);
 			pContext->ftpReply(502);
@@ -1991,7 +1992,7 @@ yyreduce:
   case 44:
 
 /* Line 1455 of yacc.c  */
-#line 268 "ftp_parser.ypp"
+#line 270 "ftp_parser.ypp"
     {
 			pContext->size((yyvsp[(3) - (4)].m_szStr));
 		}
@@ -2000,7 +2001,7 @@ yyreduce:
   case 45:
 
 /* Line 1455 of yacc.c  */
-#line 275 "ftp_parser.ypp"
+#line 277 "ftp_parser.ypp"
     {
 		  (yyval.m_host).h1 = (yyvsp[(1) - (3)].m_host).h1;
 		  (yyval.m_host).h2 = (yyvsp[(1) - (3)].m_host).h2;
@@ -2014,7 +2015,7 @@ yyreduce:
   case 46:
 
 /* Line 1455 of yacc.c  */
-#line 286 "ftp_parser.ypp"
+#line 288 "ftp_parser.ypp"
     {
 		  (yyval.m_host).h1 = (yyvsp[(1) - (7)].m_nInt);
 		  (yyval.m_host).h2 = (yyvsp[(3) - (7)].m_nInt);
@@ -2026,7 +2027,7 @@ yyreduce:
   case 47:
 
 /* Line 1455 of yacc.c  */
-#line 295 "ftp_parser.ypp"
+#line 297 "ftp_parser.ypp"
     {
 		  (yyval.m_host).p1 = (yyvsp[(1) - (3)].m_nInt);
 		  (yyval.m_host).p2 = (yyvsp[(3) - (3)].m_nInt);
@@ -2036,7 +2037,7 @@ yyreduce:
   case 48:
 
 /* Line 1455 of yacc.c  */
-#line 302 "ftp_parser.ypp"
+#line 304 "ftp_parser.ypp"
     {
 		  (yyval.m_nInt) = FtpuserData::MODE_STREAM;
 		}
@@ -2045,7 +2046,7 @@ yyreduce:
   case 49:
 
 /* Line 1455 of yacc.c  */
-#line 306 "ftp_parser.ypp"
+#line 308 "ftp_parser.ypp"
     {
 		  (yyval.m_nInt) = -1;
 		}
@@ -2054,7 +2055,7 @@ yyreduce:
   case 50:
 
 /* Line 1455 of yacc.c  */
-#line 310 "ftp_parser.ypp"
+#line 312 "ftp_parser.ypp"
     {
 		  (yyval.m_nInt) = -1;
 		}
@@ -2063,7 +2064,7 @@ yyreduce:
   case 51:
 
 /* Line 1455 of yacc.c  */
-#line 316 "ftp_parser.ypp"
+#line 318 "ftp_parser.ypp"
     {
 			(yyval.m_nInt) = FtpuserData::STRU_FILE;
 		}
@@ -2072,7 +2073,7 @@ yyreduce:
   case 52:
 
 /* Line 1455 of yacc.c  */
-#line 320 "ftp_parser.ypp"
+#line 322 "ftp_parser.ypp"
     {
 		  (yyval.m_nInt) = -1;
 		}
@@ -2081,7 +2082,7 @@ yyreduce:
   case 53:
 
 /* Line 1455 of yacc.c  */
-#line 324 "ftp_parser.ypp"
+#line 326 "ftp_parser.ypp"
     {
 		  (yyval.m_nInt) = -1;
 		}
@@ -2090,7 +2091,7 @@ yyreduce:
   case 54:
 
 /* Line 1455 of yacc.c  */
-#line 330 "ftp_parser.ypp"
+#line 332 "ftp_parser.ypp"
     {
 		  (yyval.m_nInt) = FtpuserData::REPR_ASCII;
 		}
@@ -2099,7 +2100,7 @@ yyreduce:
   case 55:
 
 /* Line 1455 of yacc.c  */
-#line 334 "ftp_parser.ypp"
+#line 336 "ftp_parser.ypp"
     {
 		  (yyval.m_nInt) = FtpuserData::REPR_IMAGE;
 		}
@@ -2108,7 +2109,7 @@ yyreduce:
   case 56:
 
 /* Line 1455 of yacc.c  */
-#line 338 "ftp_parser.ypp"
+#line 340 "ftp_parser.ypp"
     {
       (yyval.m_nInt) = -1;
 		}
@@ -2117,7 +2118,7 @@ yyreduce:
   case 57:
 
 /* Line 1455 of yacc.c  */
-#line 342 "ftp_parser.ypp"
+#line 344 "ftp_parser.ypp"
     {
       (yyval.m_nInt) = -1;
 		}
@@ -2126,7 +2127,7 @@ yyreduce:
   case 58:
 
 /* Line 1455 of yacc.c  */
-#line 348 "ftp_parser.ypp"
+#line 350 "ftp_parser.ypp"
     {
 		  (yyval.m_nInt) = FtpuserData::NON_PRINT;
 		}
@@ -2135,7 +2136,7 @@ yyreduce:
   case 59:
 
 /* Line 1455 of yacc.c  */
-#line 352 "ftp_parser.ypp"
+#line 354 "ftp_parser.ypp"
     {
 		  (yyval.m_nInt) = -1;
 		}
@@ -2144,7 +2145,7 @@ yyreduce:
   case 60:
 
 /* Line 1455 of yacc.c  */
-#line 356 "ftp_parser.ypp"
+#line 358 "ftp_parser.ypp"
     {
       (yyval.m_nInt) = -1;
 		}
@@ -2153,7 +2154,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 2157 "ftp_parser.cpp"
+#line 2158 "ftp_parser.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2372,91 +2373,97 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 360 "ftp_parser.ypp"
+#line 362 "ftp_parser.ypp"
 
 
 int Ftp::parseControlConnection()
 {
-	if ( td.buffer == NULL || td.buffer->getBuffer() == NULL )
-		return ClientsThread::DELETE_CONNECTION;
-	FtpuserData *pFtpuserData = static_cast<FtpuserData *>(td.pConnection->protocolBuffer);
-	if ( pFtpuserData == NULL )
-		return ClientsThread::DELETE_CONNECTION;
+  if (td.buffer == NULL || td.buffer->getBuffer() == NULL)
+    return ClientsThread::DELETE_CONNECTION;
 
-	// awaiting commands reply
-	if ( pFtpuserData->m_nFtpstate <= FtpuserData::NO_CONTROL_CONNECTION )
-	{
-		ftpReply(220);
-		pFtpuserData->m_nFtpstate = FtpuserData::CONTROL_CONNECTION_UP;
-	}
+  FtpuserData *pFtpuserData = static_cast<FtpuserData *> (td.pConnection->protocolBuffer);
+  if (pFtpuserData == NULL)
+    return ClientsThread::DELETE_CONNECTION;
 
-	MemBuf out;
-	escapeTelnet(*td.buffer, out);
-	if ( !m_bEnablePipelining )
-	{
-		MemBuf tmpBuff(out);
-		removePipelinedCmds(tmpBuff, out);
-	}
-	char *pBuffToParse = out.getBuffer();
+  /* awaiting commands reply.  */
+  if (pFtpuserData->m_nFtpstate <= FtpuserData::NO_CONTROL_CONNECTION)
+    {
+      ftpReply (220);
+      pFtpuserData->m_nFtpstate = FtpuserData::CONTROL_CONNECTION_UP;
+    }
 
-	if ( pBuffToParse == NULL || td.buffersize <= td.m_nParseLength )// nothing to parse ...
-		return ClientsThread::KEEP_CONNECTION;
-	else
-		pBuffToParse += td.m_nParseLength;
+  MemBuf out;
+  escapeTelnet (*td.buffer, out);
+  if (! m_bEnablePipelining)
+    {
+      MemBuf tmpBuff (out);
+      removePipelinedCmds (tmpBuff, out);
+    }
+  char *pBuffToParse = out.getBuffer ();
 
-	yylex_init(&m_scanner);
-	yy_buffer_state *bufstate = yy_scan_string (pBuffToParse, m_scanner);
-	int nParserRet = yyparse(this);
-	yy_delete_buffer(bufstate, m_scanner);
-	yylex_destroy(m_scanner);
-	switch ( nParserRet )
-	{
-		case 0:
-			if ( pFtpuserData->m_nFtpstate == FtpuserData::NO_CONTROL_CONNECTION )
-				return ClientsThread::DELETE_CONNECTION;
-			else
-				return ClientsThread::KEEP_CONNECTION;
-		case 1:
-			// parsing failed because of invalid input!
-			return ClientsThread::DELETE_CONNECTION;
-		case 2:
-			// memory exhaustion!
-			return ClientsThread::DELETE_CONNECTION;
-	}//TODO: handle INCOMPLETE_REQUEST
-	return ClientsThread::DELETE_CONNECTION;
+  if (pBuffToParse == NULL || td.buffersize <= td.m_nParseLength )
+    return ClientsThread::KEEP_CONNECTION;
+  else
+    pBuffToParse += td.m_nParseLength;
+
+  yylex_init (&m_scanner);
+  yy_buffer_state *bufstate = yy_scan_string (pBuffToParse, m_scanner);
+  int nParserRet = yyparse (this);
+  yy_delete_buffer (bufstate, m_scanner);
+  yylex_destroy (m_scanner);
+
+  switch (nParserRet)
+    {
+    case 0:
+      if (pFtpuserData->m_nFtpstate == FtpuserData::NO_CONTROL_CONNECTION )
+        return ClientsThread::DELETE_CONNECTION;
+      else
+        return ClientsThread::KEEP_CONNECTION;
+
+    case 1:
+      /* Invalid input.  */
+      return ClientsThread::DELETE_CONNECTION;
+
+    case 2:
+      /* memory exhaustion!  */
+      return ClientsThread::DELETE_CONNECTION;
+    }
+  /*TODO: handle INCOMPLETE_REQUEST */
+  return ClientsThread::DELETE_CONNECTION;
 }
 
-u_long Ftp::computeParseLength(const YYLTYPE &location)
+u_long Ftp::computeParseLength (const YYLTYPE &location)
 {
-	if ( td.buffer == NULL )
-		return 1;
-	int nBuffLine = 1, nBuffCol = 0;
-	char *pszBuff = td.buffer->getBuffer();
-	for ( u_long i = 0; i < td.buffersize; i++ )
-	{
-		if ( pszBuff[i] == '\n' )
-		{
-			nBuffLine++;
-			nBuffCol = 0;
-		}
-		else
-			nBuffCol++;
-		if ( nBuffLine == location.last_line && nBuffCol == location.last_column )
-		{
-			td.m_nParseLength = i;
-			return 0;
-		}
-	}
-	return 1;//error
+  if (td.buffer == NULL)
+    return 1;
+
+  int nBuffLine = 1, nBuffCol = 0;
+  char *pszBuff = td.buffer->getBuffer ();
+  for (u_long i = 0; i < td.buffersize; i++)
+    {
+      if (pszBuff[i] == '\n')
+        {
+          nBuffLine++;
+          nBuffCol = 0;
+        }
+      else
+        nBuffCol++;
+      if (nBuffLine == location.last_line && nBuffCol == location.last_column)
+        {
+          td.m_nParseLength = i;
+          return 0;
+        }
+    }
+
+  return 1;
 }
 
-///////////////////////////////////////////////////////////
-// global fncs
+/* Global functions.  */
 
-void yyerror(YYLTYPE *pLoc, Ftp *pContext, const char *msg)
+void yyerror (YYLTYPE *pLoc, Ftp *pContext, const char *msg)
 {
-	if ( pContext == NULL )
-		return;
-	pContext->printError(msg);
+  if (pContext == NULL)
+    return;
+  pContext->printError (msg);
 }
 

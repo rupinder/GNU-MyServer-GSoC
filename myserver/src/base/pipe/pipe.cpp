@@ -146,7 +146,7 @@ int Pipe::write (const char* buffer, u_long len, u_long *nbw)
 {
   *nbw = 0;
 #ifndef WIN32
-  int ret = ::write (handles[1], buffer, len);
+  int ret = gnulib::write (handles[1], buffer, len);
   if (ret == -1)
     {
       terminated = true;
@@ -193,9 +193,9 @@ int Pipe::close ()
   terminated = true;
 #ifndef WIN32
   if (handles[0] >= 0)
-    ::close (handles[0]);
+    gnulib::close (handles[0]);
   if (handles[1] >= 0)
-    ::close (handles[1]);
+    gnulib::close (handles[1]);
 
   handles[0] = handles[1] = -1;
 #else
@@ -234,8 +234,8 @@ private:
 void Pipe::inverted (Pipe& pipe)
 {
 #ifndef WIN32
-  pipe.handles[0] = dup (handles[1]);
-  pipe.handles[1] = dup (handles[0]);
+  pipe.handles[0] = gnulib::dup (handles[1]);
+  pipe.handles[1] = gnulib::dup (handles[0]);
   if (pipe.handles[0] < 0 || pipe.handles[1] < 0)
     {
       string err (_("Internal error"));
@@ -277,7 +277,7 @@ void Pipe::closeRead ()
   terminated = true;
 #ifndef WIN32
   if (handles[0] >= 0)
-    ::close (handles[0]);
+    gnulib::close (handles[0]);
   handles[0] = -1;
 #else
   if (readHandle >= 0)
@@ -294,7 +294,7 @@ void Pipe::closeWrite ()
   terminated = true;
 #ifndef WIN32
   if (handles[1] >= 0)
-    ::close (handles[1]);
+    gnulib::close (handles[1]);
   handles[1] = -1;
 #else
   if (writeHandle >= 0)
@@ -343,7 +343,7 @@ int Pipe::waitForData (int sec, int usec)
 
   FD_SET (handles[0], &readfds);
 
-  ret = ::select (handles[0] + 1, &readfds, NULL, NULL, &tv);
+  ret = gnulib::select (handles[0] + 1, &readfds, NULL, NULL, &tv);
 
   if (ret == -1 || ret == 0)
     return 0;

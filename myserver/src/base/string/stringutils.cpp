@@ -311,7 +311,7 @@ time_t getTime (const char* str)
 
   t.tm_isdst = -1;
 
-  return mktime (&t);
+  return gnulib::mktime (&t);
 }
 
 /*!

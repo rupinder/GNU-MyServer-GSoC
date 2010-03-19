@@ -27,8 +27,9 @@ extern "C"
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 }
+
+#include <string.h>
 
 #include <include/base/string/stringutils.h>
 #include <include/base/string/securestr.h>
@@ -258,7 +259,7 @@ char* CBase64Utils::mimeDecodeMailHeaderField (char *s)
     if (start != NULL) alloclen +=static_cast<int>(strlen (start));
     if (rest != NULL) alloclen +=static_cast<int>(strlen (rest));
     alloclen *= sizeof (char);
-    s = (char*)realloc (s, alloclen);
+    s = (char*)gnulib::realloc (s, alloclen);
     s[0] = '\0';
     if (start != NULL)
     {
@@ -547,7 +548,7 @@ char* CQPUtils::expandBuffer (char *buffer, int UsedSize, int *BufSize,
   if (UsedSize >= *BufSize - AddVal)
   {
     *BufSize += BufAdd;
-    return (char*)realloc (buffer, *BufSize * sizeof (char));
+    return (char*)gnulib::realloc (buffer, *BufSize * sizeof (char));
   }
   return buffer;
 }
@@ -580,7 +581,7 @@ char* CQPUtils::encode (char *input)
       }
       finalresult = expandBuffer (finalresult, UsedSize, &BufSize, 0);
 
-      snprintf (mids, 3, "%X", mid);
+      gnulib::snprintf (mids, 3, "%X", mid);
 
       myserver_strupr (mids);
       *(fresult++) = '=';
