@@ -26,6 +26,7 @@ from MyServer.pycontrollib.mimetypes import MIMETypes
 from MyServer.pycontrollib.vhost import VHosts
 from MyServer.GUI import GUIConfig
 from MyServer.GUI.AboutWindow import About
+from MyServer.GUI.AboutWindow import logo
 from MyServer.GUI.ConnectionWindow import Connection
 from MyServer.GUI.DefinitionWidgets import DefinitionTable, DefinitionTreeView
 from MyServer.GUI.MIMEWidgets import MimeTable, MimeTreeView
@@ -42,6 +43,7 @@ class PyGTKControl():
         self.statusbar = gtk.Statusbar()
         self.menubar = gtk.MenuBar()
 
+        # Class for Menu Item
         class MenuItemWithStockImage(gtk.ImageMenuItem):
             '''ImageMenuItem with custom label and stock image.'''
             def __init__(self, label, stock_id):
@@ -51,6 +53,11 @@ class PyGTKControl():
                 self.set_image(gtk.image_new_from_stock(
                         stock_id, gtk.ICON_SIZE_MENU))
 
+
+        # Set logo for Main Window
+        self.window.set_icon_list(logo)
+
+        # Set up Menu Items
         file_menu_item = gtk.MenuItem('_File')
         self.menubar.append(file_menu_item)
         file_menu = gtk.Menu()
@@ -59,15 +66,15 @@ class PyGTKControl():
         file_menu.append(new_menu_item)
         new_menu = gtk.Menu()
         new_menu_item.set_submenu(new_menu)
-        new_config_menu_item = gtk.MenuItem('New server configuration')
+        new_config_menu_item = gtk.MenuItem('Server Configuration')
         new_config_menu_item.connect('activate',
                                      self.on_new_config_menu_item_activate)
         new_menu.append(new_config_menu_item)
-        new_mime_menu_item = gtk.MenuItem('New MIME configuration')
+        new_mime_menu_item = gtk.MenuItem('MIME Configuration')
         new_mime_menu_item.connect('activate',
                                    self.on_new_mime_menu_item_activate)
         new_menu.append(new_mime_menu_item)
-        new_vhost_menu_item = gtk.MenuItem('New VHost configuration')
+        new_vhost_menu_item = gtk.MenuItem('VHost Configuration')
         new_vhost_menu_item.connect('activate',
                                     self.on_new_vhost_menu_item_activate)
         new_menu.append(new_vhost_menu_item)
@@ -75,15 +82,15 @@ class PyGTKControl():
         file_menu.append(open_menu_item)
         open_menu = gtk.Menu()
         open_menu_item.set_submenu(open_menu)
-        open_config_menu_item = gtk.MenuItem('Open server configuration')
+        open_config_menu_item = gtk.MenuItem('Server Configuration')
         open_config_menu_item.connect('activate',
                                       self.on_open_config_menu_item_activate)
         open_menu.append(open_config_menu_item)
-        open_mime_menu_item = gtk.MenuItem('Open MIME configuration')
+        open_mime_menu_item = gtk.MenuItem('MIME Configuration')
         open_mime_menu_item.connect('activate',
                                     self.on_open_mime_menu_item_activate)
         open_menu.append(open_mime_menu_item)
-        open_vhost_menu_item = gtk.MenuItem('Open VHost configuration')
+        open_vhost_menu_item = gtk.MenuItem('VHost Configuration')
         open_vhost_menu_item.connect('activate',
                                      self.on_open_vhost_menu_item_activate)
         open_menu.append(open_vhost_menu_item)
@@ -91,15 +98,15 @@ class PyGTKControl():
         file_menu.append(save_menu_item)
         save_menu = gtk.Menu()
         save_menu_item.set_submenu(save_menu)
-        save_config_menu_item = gtk.MenuItem('Save server configuration')
+        save_config_menu_item = gtk.MenuItem('Save Server Configuration')
         save_config_menu_item.connect('activate',
                                       self.on_save_config_menu_item_activate)
         save_menu.append(save_config_menu_item)
-        save_mime_menu_item = gtk.MenuItem('Save MIME configuration')
+        save_mime_menu_item = gtk.MenuItem('Save MIME Configuration')
         save_mime_menu_item.connect('activate',
                                     self.on_save_mime_menu_item_activate)
         save_menu.append(save_mime_menu_item)
-        save_vhost_menu_item = gtk.MenuItem('Save VHost configuration')
+        save_vhost_menu_item = gtk.MenuItem('Save VHost Configuration')
         save_vhost_menu_item.connect('activate',
                                      self.on_save_vhost_menu_item_activate)
         save_menu.append(save_vhost_menu_item)
@@ -107,15 +114,15 @@ class PyGTKControl():
         file_menu.append(save_as_menu_item)
         save_as_menu = gtk.Menu()
         save_as_menu_item.set_submenu(save_as_menu)
-        save_as_config_menu_item = gtk.MenuItem('Save server configuration')
+        save_as_config_menu_item = gtk.MenuItem('Save server Configuration')
         save_as_config_menu_item.connect('activate',
                                          self.on_save_as_config_menu_item_activate)
         save_as_menu.append(save_as_config_menu_item)
-        save_as_mime_menu_item = gtk.MenuItem('Save MIME configuration')
+        save_as_mime_menu_item = gtk.MenuItem('Save MIME Configuration')
         save_as_mime_menu_item.connect('activate',
                                        self.on_save_as_mime_menu_item_activate)
         save_as_menu.append(save_as_mime_menu_item)
-        save_as_vhost_menu_item = gtk.MenuItem('Save VHost configuration')
+        save_as_vhost_menu_item = gtk.MenuItem('Save VHost Configuration')
         save_as_vhost_menu_item.connect('activate',
                                         self.on_save_as_vhost_menu_item_activate)
         save_as_menu.append(save_as_vhost_menu_item)
@@ -143,15 +150,15 @@ class PyGTKControl():
         remote_menu.append(get_menu_item)
         get_menu = gtk.Menu()
         get_menu_item.set_submenu(get_menu)
-        get_config_menu_item = gtk.MenuItem('Get server configuration')
+        get_config_menu_item = gtk.MenuItem('Server configuration')
         get_config_menu_item.connect('activate',
                                      self.on_get_config_menu_item_activate)
         get_menu.append(get_config_menu_item)
-        get_mime_menu_item = gtk.MenuItem('Get MIME configuration')
+        get_mime_menu_item = gtk.MenuItem('MIME configuration')
         get_mime_menu_item.connect('activate',
                                    self.on_get_mime_menu_item_activate)
         get_menu.append(get_mime_menu_item)
-        get_vhost_menu_item = gtk.MenuItem('Get VHost configuration')
+        get_vhost_menu_item = gtk.MenuItem('VHost configuration')
         get_vhost_menu_item.connect('activate',
                                     self.on_get_vhost_menu_item_activate)
         get_menu.append(get_vhost_menu_item)
@@ -159,15 +166,15 @@ class PyGTKControl():
         remote_menu.append(put_menu_item)
         put_menu = gtk.Menu()
         put_menu_item.set_submenu(put_menu)
-        put_config_menu_item = gtk.MenuItem('Put server configuration')
+        put_config_menu_item = gtk.MenuItem('Server configuration')
         put_config_menu_item.connect('activate',
                                      self.on_put_config_menu_item_activate)
         put_menu.append(put_config_menu_item)
-        put_mime_menu_item = gtk.MenuItem('Put MIME configuration')
+        put_mime_menu_item = gtk.MenuItem('MIME configuration')
         put_mime_menu_item.connect('activate',
                                    self.on_put_mime_menu_item_activate)
         put_menu.append(put_mime_menu_item)
-        put_vhost_menu_item = gtk.MenuItem('Put VHost configuration')
+        put_vhost_menu_item = gtk.MenuItem('VHost configuration')
         put_vhost_menu_item.connect('activate',
                                     self.on_put_vhost_menu_item_activate)
         put_menu.append(put_vhost_menu_item)
@@ -177,30 +184,30 @@ class PyGTKControl():
         definitions_menu = gtk.Menu()
         definitions_menu_item.set_submenu(definitions_menu)
         add_unknown_definition_menu_item = \
-            MenuItemWithStockImage('Add unknown definition', gtk.STOCK_ADD)
+            MenuItemWithStockImage('Add Unknown Definition', gtk.STOCK_ADD)
         add_unknown_definition_menu_item.connect(
             'activate',
             self.on_add_unknown_definition_menu_item_activate)
         definitions_menu.append(add_unknown_definition_menu_item)
 
-        mime_types_menu_item = gtk.MenuItem('_MIME types')
+        mime_types_menu_item = gtk.MenuItem('_MIME Types')
         self.menubar.append(mime_types_menu_item)
         mime_types_menu = gtk.Menu()
         mime_types_menu_item.set_submenu(mime_types_menu)
         add_mime_type_menu_item = MenuItemWithStockImage(
-            'Add MIME type', gtk.STOCK_ADD)
+            'Add MIME Type', gtk.STOCK_ADD)
         add_mime_type_menu_item.connect(
             'activate',
             self.on_add_mime_type_menu_item_activate)
         mime_types_menu.append(add_mime_type_menu_item)
         remove_mime_type_menu_item = MenuItemWithStockImage(
-            'Remove MIME type', gtk.STOCK_DELETE)
+            'Remove MIME Type', gtk.STOCK_DELETE)
         remove_mime_type_menu_item.connect(
             'activate',
             self.on_remove_mime_type_menu_item_activate)
         mime_types_menu.append(remove_mime_type_menu_item)
         add_definition_to_mime_menu_item = MenuItemWithStockImage(
-            'Add definition MIME type', gtk.STOCK_ADD)
+            'Add Definition MIME Type', gtk.STOCK_ADD)
         add_definition_to_mime_menu_item.connect(
             'activate',
             self.on_add_definition_to_mime_menu_item_activate)
@@ -238,7 +245,7 @@ class PyGTKControl():
         security_menu = gtk.Menu()
         security_menu_item.set_submenu(security_menu)
         save_security_menu_item = MenuItemWithStockImage(
-            'Save security', gtk.STOCK_SAVE)
+            'Save Security', gtk.STOCK_SAVE)
         save_security_menu_item.connect(
             'activate',
             self.on_save_security_menu_item_activate)
@@ -678,7 +685,7 @@ class PyGTKControl():
         panels.pack2(self.security_table, True, False)
         self.browser_table = BrowserTable(self.security_table.read_from_file)
         panels.pack1(self.browser_table, True, False)
-        
+
         self.notebook.append_page(panels, gtk.Label('File browser'))
 
         self.notebook.show_all()

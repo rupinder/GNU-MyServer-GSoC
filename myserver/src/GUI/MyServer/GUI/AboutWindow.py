@@ -24,6 +24,9 @@ with open(os.path.join(os.path.dirname(__file__), 'COPYING')) as file:
 with open(os.path.join(os.path.dirname(__file__), 'version')) as file:
     version = 'v' + file.read()
 
+logo = gtk.gdk.pixbuf_new_from_file(os.path.join(os.path.dirname(__file__), 'myserverlogo.png'))
+
+
 class About():
     '''GNU MyServer Control about window.'''
 

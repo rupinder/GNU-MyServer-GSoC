@@ -23,6 +23,7 @@ copy_files:
 if BUILD_GUI
 	cp ../../COPYING MyServer/GUI/
 	cp ../../version MyServer/GUI/
+	cp ../../images/myserverlogo.png MyServer/GUI/
 endif
 
 install:
