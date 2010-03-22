@@ -404,6 +404,9 @@ git_modules_config () {
 }
 
 gnulib_path=`git_modules_config submodule.gnulib.path`
+if test -z $gnulib_path ; then
+    gnulib_path="gnulib"
+fi
 
 # Get gnulib files.
 
@@ -425,6 +428,7 @@ case ${GNULIB_SRCDIR--} in
 
     trap - 1 2 13 15
   fi
+
   GNULIB_SRCDIR=$gnulib_path
   ;;
 *)
