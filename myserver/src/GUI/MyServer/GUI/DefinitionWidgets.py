@@ -167,15 +167,25 @@ class DefinitionTable(gtk.Table):
         self.string_value_field.hide()
         self.int_value_field.hide()
         self.bool_value_field.hide()
+
         if var_type == 'string':
             self.string_value_field.set_text(row[4])
             self.string_value_field.show()
+            self.set_col_spacing(1,0)
+            self.set_row_spacing(1,4)
+
         elif var_type == 'integer':
             self.int_value_field.set_value(int(row[4]))
             self.int_value_field.show()
+            self.set_col_spacing(1,66)
+            self.set_row_spacing(1,4)
+
         elif var_type == 'bool':
             self.bool_value_field.set_active(int(row[4] == 'NO'))
             self.bool_value_field.show()
+            self.set_col_spacing(1,103)
+            self.set_row_spacing(1,0)
+
         self.value_check_field.set_active(row[5])
         for attribute in row[6]:
             self.attributes_field.append((attribute, row[6][attribute], ))

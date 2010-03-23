@@ -25,8 +25,7 @@ from MyServer.pycontrollib.config import MyServerConfig
 from MyServer.pycontrollib.mimetypes import MIMETypes
 from MyServer.pycontrollib.vhost import VHosts
 from MyServer.GUI import GUIConfig
-from MyServer.GUI.AboutWindow import About
-from MyServer.GUI.AboutWindow import logo
+from MyServer.GUI.AboutWindow import About, logo
 from MyServer.GUI.ConnectionWindow import Connection
 from MyServer.GUI.DefinitionWidgets import DefinitionTable, DefinitionTreeView
 from MyServer.GUI.MIMEWidgets import MimeTable, MimeTreeView

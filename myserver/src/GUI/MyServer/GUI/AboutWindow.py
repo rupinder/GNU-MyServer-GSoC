@@ -34,6 +34,7 @@ class About():
         self.window = gtk.AboutDialog()
         self.window.connect('response', self.on_aboutdialog_response)
         self.window.set_program_name('GNU MyServer Control')
+        self.window.set_icon_list(logo)
         self.window.set_version(version)
         self.window.set_copyright(copyright_notice)
         self.window.set_license(gpl_v3)

@@ -28,7 +28,8 @@ class SecurityTree(gtk.TreeView):
                 gobject.TYPE_STRING, # tag
                 gobject.TYPE_PYOBJECT)) # object
         renderer = gtk.CellRendererText()
-        column = gtk.TreeViewColumn('tag')
+        column = gtk.TreeViewColumn('Tag')
+        column.set_resizable(True)
         column.pack_start(renderer)
         column.add_attribute(renderer, 'text', 0)
         self.append_column(column)

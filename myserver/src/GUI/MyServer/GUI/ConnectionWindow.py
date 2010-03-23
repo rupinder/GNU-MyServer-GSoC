@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import gtk
 from MyServer.pycontrollib.controller import Controller
+from MyServer.GUI.AboutWindow import logo
 
 class Connection():
     def __init__(self, parent):
@@ -28,13 +29,16 @@ class Connection():
                                      gtk.DIALOG_DESTROY_WITH_PARENT,
                                  (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
                                   gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-        self.host_label = gtk.Label('host:')
+
+        self.window.set_icon_list(logo)
+
+        self.host_label = gtk.Label('Host:')
         self.host_entry = gtk.Entry()
-        self.port_label = gtk.Label('port:')
+        self.port_label = gtk.Label('Port:')
         self.port_entry = gtk.Entry()
-        self.username_label = gtk.Label('username:')
+        self.username_label = gtk.Label('Username:')
         self.username_entry = gtk.Entry()
-        self.password_label = gtk.Label('password:')
+        self.password_label = gtk.Label('Password:')
         self.password_entry = gtk.Entry()
         table = gtk.Table(4, 2)
         table.attach(self.host_label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
