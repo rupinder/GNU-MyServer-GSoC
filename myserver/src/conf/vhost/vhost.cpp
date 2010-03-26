@@ -389,7 +389,7 @@ Vhost::warningsLogWrite (const char* fmt, ...)
   va_list argptr;
   va_start (argptr, fmt);
   int ret = logManager->log (this, warningLogType, MYSERVER_LOG_MSG_INFO, true,
-                             false, fmt, argptr);
+                             true, fmt, argptr);
   va_end (argptr);
   return ret;
 }
