@@ -33,7 +33,6 @@ public:
   ~CBase64Utils ();
   char* decode (const char *in, int *bufsize);
   char* encode (const char *in, int bufsize);
-  char* mimeDecodeMailHeaderField (char *s);
 };
 
 class CQPUtils
