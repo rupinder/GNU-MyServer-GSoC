@@ -15,24 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # Makefile for math_sum
+
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
-lib_LIBRARIES = libmath_sum.a
-libmath_sum_a_SOURCES = math_sum.cpp
+lib_LTLIBRARIES = libmath_sum.la
+libmath_sum_la_SOURCES = math_sum.cpp
+libmath_sum_la_LDFLAGS = -avoid-version -module -shared
+libmath_sum_la_LIBADD = ../../../../src/libmyserver.a ../../../../lib/libgnu.a
+SO_EXT=`$(LIBTOOL) --config | $(SED) -e"y/'/\"/" -e '/^shrext_cmds/ !d; s/^.*="\(.*\)"/\1/'`
 
 all : all-am math_sum.mscgi
-	cp math_sum.mscgi ../../cgi-bin/
+	cp libmath_sum$(SO_EXT) ../../cgi-bin/math_sum.mscgi
 
-
-math_sum.mscgi : $(libmath_sum_a_OBJECTS) $(libmath_sum_a_DEPENDENCIES)
-	-rm -f math_sum.mscgi
-	$(CXX) $(libmath_sum_a_OBJECTS) ../../../../src/libmyserver.a  ../../../../lib/libgnu.a \
-	 $(libmath_sum_a_LIBADD) $(PTHREAD_LIB) $(IDN_LIB) $(XNET_LIB) $(DL_LIB) $(ZLIB_LIB)\
-	 $(XML_LIBS) $(INTLLIBS) $(LDFLAGS) -o math_sum.mscgi -shared $(CXXFLAGS) $(XML_CFLAGS)
-
-install : math_sum.mscgi
-	$(INSTALL) -D 'math_sum.mscgi' '$(DESTDIR)$(prefix)/var/web/cgi-bin/math_sum.mscgi'
-
+math_sum.mscgi:
+	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) \
+		$(INSTALL_STRIP_FLAG) libmath_sum.la $(abs_builddir)
 
 clean-local:
-	rm -f math_sum.mscgi
-	rm -f *.o
+	test \! -e libmath_sum.la || \
+	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall libmath_sum.la

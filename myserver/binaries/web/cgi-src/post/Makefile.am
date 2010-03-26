@@ -15,24 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # Makefile for post
+
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
-lib_LIBRARIES = libpost.a
-libpost_a_SOURCES = post.cpp
+lib_LTLIBRARIES = libpost.la
+libpost_la_SOURCES = post.cpp
+libpost_la_LDFLAGS = -avoid-version -module -shared
+libpost_la_LIBADD = ../../../../src/libmyserver.a ../../../../lib/libgnu.a
+SO_EXT=`$(LIBTOOL) --config | $(SED) -e"y/'/\"/" -e '/^shrext_cmds/ !d; s/^.*="\(.*\)"/\1/'`
 
-all : all-am post.mscgi
-	cp post.mscgi ../../cgi-bin/
+all: all-am post.mscgi
+	cp libpost$(SO_EXT) ../../cgi-bin/post.mscgi
 
-
-post.mscgi : $(libpost_a_OBJECTS) $(libpost_a_DEPENDENCIES)
-	-rm -f post.mscgi
-	$(CXX) $(libpost_a_OBJECTS) ../../../../src/libmyserver.a  ../../../../lib/libgnu.a \
-	 $(libpost_a_LIBADD) $(PTHREAD_LIB) $(IDN_LIB) $(XNET_LIB) $(DL_LIB) $(ZLIB_LIB)\
-	 $(XML_LIBS) $(INTLLIBS) $(LDFLAGS) -o post.mscgi -shared $(CXXFLAGS) $(XML_CFLAGS)
-
-install : post.mscgi
-	$(INSTALL) -D 'post.mscgi' '$(DESTDIR)$(prefix)/var/web/cgi-bin/post.mscgi'
-
+post.mscgi:
+	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) \
+		$(INSTALL_STRIP_FLAG) libpost.la $(abs_builddir)
 
 clean-local:
-	rm -f post.mscgi
-	rm -f *.o
+	test \! -e libpost.la || \
+	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall libpost.la
