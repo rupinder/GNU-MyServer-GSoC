@@ -23,13 +23,16 @@ libmath_sum_la_LDFLAGS = -avoid-version -module -shared
 libmath_sum_la_LIBADD = ../../../../src/libmyserver.a ../../../../lib/libgnu.a
 SO_EXT=`$(LIBTOOL) --config | $(SED) -e"y/'/\"/" -e '/^shrext_cmds/ !d; s/^.*="\(.*\)"/\1/'`
 
-all : all-am math_sum.mscgi
-	cp libmath_sum$(SO_EXT) ../../cgi-bin/math_sum.mscgi
+all: all-am math_sum.mscgi
 
-math_sum.mscgi:
+math_sum.mscgi: libmath_sum.la
 	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) \
 		$(INSTALL_STRIP_FLAG) libmath_sum.la $(abs_builddir)
+	cp libmath_sum$(SO_EXT) ../../cgi-bin/math_sum.mscgi
 
 clean-local:
 	test \! -e libmath_sum.la || \
 	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall libmath_sum.la
+
+
+.phony : math_sum.mscgi

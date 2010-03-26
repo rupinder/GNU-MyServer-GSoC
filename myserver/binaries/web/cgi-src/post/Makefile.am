@@ -24,12 +24,15 @@ libpost_la_LIBADD = ../../../../src/libmyserver.a ../../../../lib/libgnu.a
 SO_EXT=`$(LIBTOOL) --config | $(SED) -e"y/'/\"/" -e '/^shrext_cmds/ !d; s/^.*="\(.*\)"/\1/'`
 
 all: all-am post.mscgi
-	cp libpost$(SO_EXT) ../../cgi-bin/post.mscgi
 
-post.mscgi:
+post.mscgi: libpost.la
 	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) \
 		$(INSTALL_STRIP_FLAG) libpost.la $(abs_builddir)
+	cp libpost$(SO_EXT) ../../cgi-bin/post.mscgi
 
 clean-local:
 	test \! -e libpost.la || \
 	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall libpost.la
+
+
+.phony : post.mscgi
