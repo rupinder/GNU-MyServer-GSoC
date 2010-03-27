@@ -60,7 +60,7 @@ FilesUtility::FilesUtility ()
 }
 
 /*!
- * This funtion iterates through every character of the path
+ * This function iterates through every character of the path
  * The first IF tries to clear out the bars, if it finds one,
  * just advances one character and starts the cycle again
  * The second IF tries to find at least two dots.
@@ -275,7 +275,7 @@ int FilesUtility::nodeExists (const char* filename)
                              NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL
                              | FILE_FLAG_BACKUP_SEMANTICS, NULL);
 
-  int nRet = hFile != INVALID_HANDLE_VALUE ? 1 : 0;
+  int nRet = (hFile != INVALID_HANDLE_VALUE) ? 1 : 0;
   CloseHandle (hFile);
   return nRet;
 #else
@@ -366,49 +366,6 @@ int FilesUtility::chown (const char* filename, string &uid, string &gid)
                         Process::getGid (gid.c_str ())) ? 1 : 0;
 #endif
   return 0;
-}
-
-/*!
- *Get the length of the file in the path.
- *\param path The full path where get the filename length.
- *\param filename A pointer to the start of the file name.
- */
-int FilesUtility::getFilenameLength (const char *path, int *filename)
-{
-  int splitpoint = static_cast<int> (strlen (path) - 1);
-  while ((splitpoint > 0) && (path[splitpoint] != '/'))
-    splitpoint--;
-  *filename = splitpoint + 1;
-  return *filename;
-}
-
-/*!
- * Get the filename from a path.
- * Be sure that the filename buffer is at least getFilenameLength (...) bytes
- * before call this function.
- * \param path The full path to the file.
- * \param filename A buffer to fullfill with the file name.
- */
-void FilesUtility::getFilename (const char *path, char *filename)
-{
-  int splitpoint, i = 0, j = 0;
-  splitpoint = static_cast<int>(strlen (path) - 1);
-  while ((splitpoint > 0) && (path[splitpoint] != '/'))
-    splitpoint--;
-  if ((splitpoint == 0) && (path[splitpoint] != '/'))
-    strcpy (filename, path);
-  else
-    {
-      splitpoint++;
-      i=splitpoint;
-      while (path[i] != 0)
-        {
-          filename[j] = path[i];
-          j++;
-          i++;
-        }
-      filename[j] = 0;
-    }
 }
 
 /*!

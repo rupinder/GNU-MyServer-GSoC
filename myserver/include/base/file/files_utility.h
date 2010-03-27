@@ -89,8 +89,6 @@ public:
   static void splitPath (const char* path, char* dir, char*filename);
   static void splitPath (string const &path, string& dir, string& filename);
 
-  static int getFilenameLength (const char*, int *);
-  static void getFilename (const char* path, char* filename);
   static void getFilename (string const &path, string& filename);
 
   static int rmdir (const char *path);
