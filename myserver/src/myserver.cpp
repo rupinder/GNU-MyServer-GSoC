@@ -348,6 +348,24 @@ int loadConfFilesLocation (string &mainConfigurationFile,
   return 0;
 }
 
+static void updateWorkingDirectory (const char *firstArgument)
+{
+  string path (firstArgument);
+  size_t index;
+
+#ifdef WIN32
+  index = path.find_last_of ('\\');
+#else
+  index = path.find_last_of ('/');
+#endif
+
+  if (index != string::npos)
+    {
+      string newdir (path, 0, index);
+      setcwd (newdir.c_str ());
+    }
+}
+
 static MainConfiguration *_genMainConf (Server *server, const char *arg)
 {
   XmlMainConfiguration *conf = new XmlMainConfiguration ();
@@ -397,38 +415,8 @@ int main (int argn, char **argv)
       return 1;
     };
 
-  u_int pathLen = 0;
-  u_int len = 0;
-  bool differentCwd = false;
-  char *path;
-
-  pathLen = strlen (argv[0]);
-  path = new char[pathLen + 1];
-  if (path == 0)
-    return 1;
-  strncpy (path, argv[0], pathLen);
-
-  for (len = 0; len < pathLen; len++)
-    {
-      if (path[len] == '/' || path[len] == '\\')
-        {
-          differentCwd = true;
-          break;
-        }
-    }
-
-  if (differentCwd)
-    {
-      len = pathLen;
-      while ((path[len] != '\\') && (path[len] != '/'))
-        len--;
-      path[len] = '\0';
-
-      setcwd (path);
-    }
-
-  /* We can free path memory now.  */
-  delete [] path;
+  /* Move to a different working directory, if necessary.  */
+  updateWorkingDirectory (argv[0]);
 
   /* Call the parser.  */
   argp_parse (&myserverArgp, argn, argv, 0, 0, &input);
