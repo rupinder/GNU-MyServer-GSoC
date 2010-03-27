@@ -568,8 +568,11 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
   }
   catch (...)
     {
-      file->close ();
-      delete file;
+      if (file)
+        {
+          file->close ();
+          delete file;
+        }
       td->connection->host->warningsLogWrite (_("HttpFile: internal error"));
       chain.clearAllFilters ();
       return td->http->raiseHTTPError (500);

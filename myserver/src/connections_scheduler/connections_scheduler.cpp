@@ -169,18 +169,26 @@ static void listenerHandler (int fd, short event, void *arg)
       MYSERVER_SOCKADDRIN asockIn;
       socklen_t asockInLen = sizeof (asockIn);
       Socket *clientSock;
-      do
+      try
         {
-          clientSock = s->serverSocket->accept (&asockIn, &asockInLen);
-          if (s->server && clientSock
-              && s->server->addConnection (clientSock, &asockIn))
+          do
             {
-              clientSock->shutdown (2);
-              clientSock->close ();
-              delete clientSock;
+              clientSock = s->serverSocket->accept (&asockIn, &asockInLen);
+              if (s->server && clientSock
+                  && s->server->addConnection (clientSock, &asockIn))
+                {
+                  clientSock->shutdown (2);
+                  clientSock->close ();
+                  delete clientSock;
+                }
             }
+          while (clientSock);
         }
-      while (clientSock);
+      catch (std::exception & e)
+        {
+          s->server->log (MYSERVER_LOG_MSG_ERROR, _("Error listening on socket %s"),
+                          e.what ());
+        }
     }
 
   event_add (&(s->ev), &tv);
