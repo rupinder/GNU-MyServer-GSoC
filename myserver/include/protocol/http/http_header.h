@@ -32,13 +32,13 @@ struct HttpHeader
   {
     string *name;
     string *value;
-    Entry ()
+    Entry () : name (NULL), value (NULL)
     {
       name = new string ();
       value = new string ();
     }
 
-    Entry (string& n, string& v)
+    Entry (string& n, string& v) : name (NULL), value (NULL)
     {
       name = new string ();
       value = new string ();
@@ -51,7 +51,6 @@ struct HttpHeader
     {
       delete name;
       delete value;
-
     }
 
   };
