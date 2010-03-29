@@ -23,18 +23,22 @@ from MyServer.GUI import GUIConfig
 
 class DefinitionTable(gtk.Table):
     def __init__(self, tree):
+        
+        # 7 rows and 3 columns
         gtk.Table.__init__(self, 7, 3)
 
         tree.connect('cursor-changed', self.cursor_changed)
         self.last_selected = None
-
-        enabled_label = gtk.Label('enabled:')
+        
+        # Enabled checkbutton
+        enabled_label = gtk.Label('Enabled:')
         self.enabled_field = enabled_checkbutton = gtk.CheckButton()
-        enabled_checkbutton.set_tooltip_text('If not active, definition won\'t be included in saved configuration.')
+        enabled_checkbutton.set_tooltip_text('If not checked, Definition won\'t be included in Saved Configuration.')
         self.attach(enabled_label, 0, 1, 0, 1, gtk.FILL, gtk.FILL)
         self.attach(enabled_checkbutton, 1, 3, 0, 1, yoptions = gtk.FILL)
 
-        value_label = gtk.Label('value:')
+        #Value Field
+        value_label = gtk.Label('Value:')
         self.string_value_field = gtk.Entry()
         self.int_value_field = gtk.SpinButton()
         self.int_value_field.set_adjustment(
@@ -49,14 +53,15 @@ class DefinitionTable(gtk.Table):
         value_box.add(self.int_value_field)
         value_box.add(self.bool_value_field)
         self.value_check_field = value_checkbutton = gtk.CheckButton()
-        value_checkbutton.set_tooltip_text('If not active value won\'t be saved in configuration.')
+        value_checkbutton.set_tooltip_text('If not checked, Value won\'t be included in Saved Configuration.')
         value_checkbutton.set_active(True)
 
         self.attach(value_label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
         self.attach(value_box, 1, 2, 1, 2, yoptions = gtk.FILL)
         self.attach(value_checkbutton, 2, 3, 1, 2, gtk.FILL, gtk.FILL)
 
-        add_definition_button = gtk.Button('add sub-definition')
+        # Add Sub-Definition button
+        add_definition_button = gtk.Button('Add Sub-Definition')
         def add_sub_definition(button):
             model, selected = tree.get_selection().get_selected()
             if selected is not None:
@@ -65,7 +70,8 @@ class DefinitionTable(gtk.Table):
         add_definition_button.connect('clicked', add_sub_definition)
         self.attach(add_definition_button, 0, 3, 2, 3, yoptions = gtk.FILL)
 
-        remove_definition_button = gtk.Button('remove this definition')
+        # Remove Sub-Definition button
+        remove_definition_button = gtk.Button('Remove Definition')
         def remove_definition(button):
             model, selected = tree.get_selection().get_selected()
             if selected is not None and not model[selected][2]:
@@ -74,9 +80,10 @@ class DefinitionTable(gtk.Table):
         remove_definition_button.connect('clicked', remove_definition)
         self.attach(remove_definition_button, 0, 3, 3, 4, yoptions = gtk.FILL)
 
-        add_attribute_button = gtk.Button('add attribute')
-        remove_attribute_button = gtk.Button('remove attribute')
-        button_table = gtk.Table(1, 2)
+        # Add/Remove Attribute Buttons
+        add_attribute_button = gtk.Button('Add Attribute')
+        remove_attribute_button = gtk.Button('Remove Attribute')
+        button_table = gtk.Table(1, 3)
         add_attribute_button.connect(
             'clicked',
             lambda button: attributes_model.append(('', '', )))
@@ -85,11 +92,12 @@ class DefinitionTable(gtk.Table):
             if selected is not None:
                 model.remove(selected)
         remove_attribute_button.connect('clicked', remove_attribute)
-        button_table.attach(add_attribute_button, 0, 1, 0, 1)
-        button_table.attach(remove_attribute_button, 1, 2, 0, 1)
+        button_table.attach(add_attribute_button, 0, 2, 0, 1)
+        button_table.attach(remove_attribute_button, 2, 3, 0, 1)
         self.attach(button_table, 0, 3, 4, 5, yoptions = gtk.FILL)
 
-        attributes_label = gtk.Label('attributes:')
+        # Attributes TreeView
+        attributes_label = gtk.Label('Attributes:')
         attributes_list = gtk.TreeView(gtk.ListStore(gobject.TYPE_STRING,
                                                      gobject.TYPE_STRING))
         attributes_scroll = gtk.ScrolledWindow()
@@ -102,7 +110,7 @@ class DefinitionTable(gtk.Table):
         def edited_handler(cell, path, text, data):
             model, col = data
             model[path][col] = text
-        variable_column = gtk.TreeViewColumn('variable')
+        variable_column = gtk.TreeViewColumn('Variable')
         variable_renderer = gtk.CellRendererText()
         variable_renderer.set_property('editable', True)
         variable_renderer.connect('edited', edited_handler,
@@ -110,7 +118,7 @@ class DefinitionTable(gtk.Table):
         variable_column.pack_start(variable_renderer)
         variable_column.add_attribute(variable_renderer, 'text', 0)
 
-        value_column = gtk.TreeViewColumn('value')
+        value_column = gtk.TreeViewColumn('Value')
         value_renderer = gtk.CellRendererText()
         value_renderer.set_property('editable', True)
         value_renderer.connect('edited', edited_handler,
@@ -218,21 +226,22 @@ class DefinitionTreeView(gtk.TreeView):
                 gobject.TYPE_STRING, # value
                 gobject.TYPE_BOOLEAN, # value_check
                 gobject.TYPE_PYOBJECT)) # attributes dict
+        
         model = self.get_model()
+        
         def name_edited_handler(cell, path, text, data):
             model = data
             row = model[path]
             if not row[2]: # don't edit names of known options
                 row[0] = text
+        
         name_renderer = gtk.CellRendererText()
-        name_renderer.set_property('editable', True)
-        name_renderer.connect('edited', name_edited_handler, model)
-        name_column = gtk.TreeViewColumn('name')
+        name_column = gtk.TreeViewColumn('Name')
         name_column.pack_start(name_renderer)
         name_column.add_attribute(name_renderer, 'text', 0)
         self.append_column(name_column)
         value_renderer = gtk.CellRendererText()
-        value_column = gtk.TreeViewColumn('value')
+        value_column = gtk.TreeViewColumn('Value')
         value_column.pack_start(value_renderer)
         value_column.add_attribute(value_renderer, 'text', 4)
         self.append_column(value_column)
