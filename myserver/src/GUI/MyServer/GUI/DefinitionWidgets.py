@@ -23,13 +23,13 @@ from MyServer.GUI import GUIConfig
 
 class DefinitionTable(gtk.Table):
     def __init__(self, tree):
-        
+
         # 7 rows and 3 columns
         gtk.Table.__init__(self, 7, 3)
 
         tree.connect('cursor-changed', self.cursor_changed)
         self.last_selected = None
-        
+
         # Enabled checkbutton
         enabled_label = gtk.Label('Enabled:')
         self.enabled_field = enabled_checkbutton = gtk.CheckButton()
@@ -226,15 +226,15 @@ class DefinitionTreeView(gtk.TreeView):
                 gobject.TYPE_STRING, # value
                 gobject.TYPE_BOOLEAN, # value_check
                 gobject.TYPE_PYOBJECT)) # attributes dict
-        
+
         model = self.get_model()
-        
+
         def name_edited_handler(cell, path, text, data):
             model = data
             row = model[path]
             if not row[2]: # don't edit names of known options
                 row[0] = text
-        
+
         name_renderer = gtk.CellRendererText()
         name_column = gtk.TreeViewColumn('Name')
         name_column.pack_start(name_renderer)
