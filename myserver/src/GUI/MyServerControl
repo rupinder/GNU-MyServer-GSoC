@@ -41,6 +41,7 @@ class PyGTKControl():
         self.notebook = gtk.Notebook()
         self.statusbar = gtk.Statusbar()
         self.menubar = gtk.MenuBar()
+        self.screen = gtk.gdk.Screen()
 
         # Class for Menu Item
         class MenuItemWithStockImage(gtk.ImageMenuItem):
@@ -54,7 +55,9 @@ class PyGTKControl():
 
 
         # Set logo for Main Window
-        self.window.set_icon_list(logo)
+        self.window.set_icon_list (logo)
+        # Set default size for Main Window
+        self.window.set_default_size ((67*self.screen.get_width()) / 127, -1)
 
         # Set up Menu Items
         file_menu_item = gtk.MenuItem('_File')
@@ -685,7 +688,7 @@ class PyGTKControl():
         self.browser_table = BrowserTable(self.security_table.read_from_file)
         panels.pack1(self.browser_table, True, False)
 
-        self.notebook.append_page(panels, gtk.Label('File browser'))
+        self.notebook.append_page(panels, gtk.Label('File Browser'))
 
         self.notebook.show_all()
 
