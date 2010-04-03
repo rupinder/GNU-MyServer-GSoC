@@ -128,7 +128,7 @@ case "${host}" in
     dnl Looking for dl
     AC_SEARCH_LIBS([dlopen], [dl c], have_dl=yes)
 
-    if test x$have_dl == xyes; then
+    if test "x$have_dl" = xyes; then
         AC_DEFINE(HAVE_DL, 1, [LibDL support, define to 1 to enable])
         MAKE_MSCGI=yes
     else
@@ -278,7 +278,7 @@ else
     AC_DEFINE(HAVE_IPV6, 0, [Disable IPv6 support])
 fi
 
-if test x$enable_tests == xyes; then
+if test "x$enable_tests" = xyes; then
   dnl Looking for cppunit
   AM_PATH_CPPUNIT(1.12.0, have_cppunit=yes)
   if test x$have_cppunit != xyes; then
@@ -296,7 +296,7 @@ else
   MAKE_TESTS=no
 fi
 
-if test x$enable_gui == xyes; then
+if test "x$enable_gui" = xyes; then
   dnl Checking Python version
   AM_PYTHON(2.6.0, have_python=yes)
   if test x$have_python != xyes; then
