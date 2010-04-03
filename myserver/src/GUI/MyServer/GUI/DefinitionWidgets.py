@@ -86,7 +86,7 @@ class DefinitionTable(gtk.Table):
         button_table = gtk.Table(1, 3)
         add_attribute_button.connect(
             'clicked',
-            lambda button: attributes_model.append(('', '', )))
+            lambda button: attributes_model.append(('var', '0', )))
         def remove_attribute(button):
             model, selected = attributes_list.get_selection().get_selected()
             if selected is not None:

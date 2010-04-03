@@ -80,11 +80,11 @@ vhost_name = 'name'
 vhost_attributes = ['port', 'protocol', 'doc_root', 'sys_root', 'private_key', 'certificate']
 vhost_lists = [
     ('ip', (
-            ('ip', TYPE_STRING, '', ),
+            ('ip', TYPE_STRING, 'IP', ),
             ),
      ),
      ('host', (
-            ('host name', TYPE_STRING, '', ),
+            ('host name', TYPE_STRING, 'HOST', ),
             ('use regexp', TYPE_BOOLEAN, False, ),
             ),
       ),

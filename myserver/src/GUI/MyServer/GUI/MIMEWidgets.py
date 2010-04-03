@@ -109,7 +109,7 @@ class MimeTable(gtk.Table):
             tree_scroll.add(tree)
 
             def add_to_tree(button, model):
-                model.append(('', ))
+                model.append(('ext', ))
             add_button = gtk.Button('Add')
             add_button.connect('clicked', add_to_tree, tree_model)
             def remove_from_tree(button, tree):
