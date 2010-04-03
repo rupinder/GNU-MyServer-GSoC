@@ -372,13 +372,14 @@ class VHostTable(gtk.Table):
         self.log_model = self.log_tree.get_model()
 
         def add_stream(button, model):
-            model.append(('', [], (0, False, ), False, [], {}, ))
-        add_stream_button = gtk.Button('Add stream')
+            model.append(('stream', [], (0, False, ), False, [], {}, ))
+        add_stream_button = gtk.Button('Add Stream')
         add_stream_button.connect(
             'clicked', add_stream, stream_tree.get_model())
+
         def add_filter(button, model):
-            model.append(('', ))
-        add_filter_button = gtk.Button('Add filter')
+            model.append(('ext', ))
+        add_filter_button = gtk.Button('Add Filter')
         add_filter_button.connect(
             'clicked', add_filter, filter_tree.get_model())
 
@@ -387,9 +388,9 @@ class VHostTable(gtk.Table):
             if selected is not None:
                 model.remove(selected)
                 tree.last_selected = None
-        remove_stream_button = gtk.Button('Remove stream')
+        remove_stream_button = gtk.Button('Remove Stream')
         remove_stream_button.connect('clicked', remove_selected, stream_tree)
-        remove_filter_button = gtk.Button('Remove filter')
+        remove_filter_button = gtk.Button('Remove Filter')
         remove_filter_button.connect('clicked', remove_selected, filter_tree)
 
         button_grid = gtk.Table(2, 2)
