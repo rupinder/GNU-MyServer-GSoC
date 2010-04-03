@@ -73,7 +73,7 @@ class BrowserTable(gtk.Table):
         def set_show_hidden(button):
             self.browser_tree.browser.show_hidden(button.get_active())
             self.browser_tree.update()
-        hide_check = gtk.CheckButton('Show hidden directories.')
+        hide_check = gtk.CheckButton ('Show Hidden Directories')
         hide_check.connect('toggled', set_show_hidden)
 
         self.attach(hide_check, 0, 1, 0, 1, yoptions = gtk.FILL)

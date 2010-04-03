@@ -57,7 +57,7 @@ class DefinitionTable(gtk.Table):
         value_checkbutton.set_active(True)
 
         self.attach(value_label, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
-        self.attach(value_box, 1, 2, 1, 2, yoptions = gtk.FILL)
+        self.attach(value_box, 1, 2, 1, 2, gtk.FILL, gtk.FILL)
         self.attach(value_checkbutton, 2, 3, 1, 2, gtk.FILL, gtk.FILL)
 
         # Add Sub-Definition button
@@ -111,6 +111,7 @@ class DefinitionTable(gtk.Table):
             model, col = data
             model[path][col] = text
         variable_column = gtk.TreeViewColumn('Variable')
+        variable_column.set_min_width(gtk.gdk.Screen().get_width() / 11)
         variable_renderer = gtk.CellRendererText()
         variable_renderer.set_property('editable', True)
         variable_renderer.connect('edited', edited_handler,
@@ -237,6 +238,7 @@ class DefinitionTreeView(gtk.TreeView):
 
         name_renderer = gtk.CellRendererText()
         name_column = gtk.TreeViewColumn('Name')
+        name_column.set_min_width(gtk.gdk.Screen().get_width() / 5)
         name_column.pack_start(name_renderer)
         name_column.add_attribute(name_renderer, 'text', 0)
         self.append_column(name_column)

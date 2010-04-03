@@ -38,7 +38,7 @@ class SecurityTree(gtk.TreeView):
 
         self.last_selected = None
         self.connect('cursor-changed', self.cursor_changed)
-        
+
         self.enable_model_drag_source(gtk.gdk.BUTTON1_MASK,
                                       [('text/plain', 0, 0)],
                                       gtk.gdk.ACTION_MOVE)
@@ -472,7 +472,7 @@ class ConditionTable(gtk.Table):
         def add_sub_element(button, combo, tree):
             tag = combo.get_model()[combo.get_active()][0]
             tree.add_sub_element(tag)
-        self.add_sub_element_button = gtk.Button('Add sub-element')
+        self.add_sub_element_button = gtk.Button('Add Sub-Element')
         self.attach(self.add_sub_element_button, 0, 1, 5, 6, gtk.FILL, gtk.FILL)
         self.add_sub_element_combo = gtk.combo_box_new_text()
         self.add_sub_element_combo.append_text('USER')
@@ -550,14 +550,14 @@ class DefinitionTable(gtk.Table):
 
         def remove_element(button, tree):
             tree.remove_element()
-        button = gtk.Button('Remove this element')
+        button = gtk.Button('Remove This Element')
         button.connect('clicked', remove_element, security_tree)
         self.attach(button, 0, 2, 0, 1, yoptions = gtk.FILL)
 
         def add_sub_element(button, combo, tree):
             tag = combo.get_model()[combo.get_active()][0]
             tree.add_sub_element(tag)
-        self.add_sub_element_button = gtk.Button('Add sub-element')
+        self.add_sub_element_button = gtk.Button('Add Sub-Element')
         self.attach(self.add_sub_element_button, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
         self.add_sub_element_combo = gtk.combo_box_new_text()
         self.add_sub_element_combo.append_text('DEFINE element')
@@ -568,13 +568,13 @@ class DefinitionTable(gtk.Table):
                                             self.add_sub_element_combo,
                                             security_tree)
 
-        self.attach(gtk.Label('name'), 0, 1, 2, 3, gtk.FILL, gtk.FILL)
+        self.attach(gtk.Label('Name'), 0, 1, 2, 3, gtk.SHRINK, gtk.SHRINK)
         self.name_entry = gtk.Entry()
         self.attach(self.name_entry, 1, 2, 2, 3, yoptions = gtk.FILL)
         self.name_check = gtk.CheckButton()
         self.attach(self.name_check, 2, 3, 2, 3, gtk.FILL, gtk.FILL)
 
-        self.value_label = gtk.Label('value')
+        self.value_label = gtk.Label('Value')
         self.attach(self.value_label, 0, 1, 3, 4, gtk.FILL, gtk.FILL)
         self.value_entry = gtk.Entry()
         self.attach(self.value_entry, 1, 2, 3, 4, yoptions = gtk.FILL)
@@ -641,15 +641,15 @@ class EmptyTable(gtk.Table):
     def __init__(self, security_tree):
         gtk.Table.__init__(self, 2, 2)
 
-        self.attach(gtk.Label('Use security file'), 0, 1, 0, 1, gtk.FILL, gtk.FILL)
+        self.attach(gtk.Label('Use Security File'), 0, 1, 0, 1, gtk.FILL, gtk.FILL)
         self.security_check = gtk.CheckButton()
         self.attach(self.security_check, 1, 2, 0, 1, yoptions = gtk.FILL)
 
         def add_sub_element(button, combo, tree):
             tag = combo.get_model()[combo.get_active()][0]
             tree.add_sub_element(tag)
-        self.add_sub_element_button = gtk.Button('Add sub-element')
-        self.attach(self.add_sub_element_button, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
+        self.add_sub_element_button = gtk.Button('Add Sub-Element')
+        self.attach(self.add_sub_element_button, 0, 1, 2, 3, gtk.FILL, gtk.FILL)
         self.add_sub_element_combo = gtk.combo_box_new_text()
         self.add_sub_element_combo.append_text('USER')
         self.add_sub_element_combo.append_text('CONDITION')
@@ -658,7 +658,7 @@ class EmptyTable(gtk.Table):
         self.add_sub_element_combo.append_text('DEFINE element')
         self.add_sub_element_combo.append_text('DEFINE tree')
         self.add_sub_element_combo.set_active(0)
-        self.attach(self.add_sub_element_combo, 1, 2, 1, 2, gtk.FILL, gtk.FILL)
+        self.attach(self.add_sub_element_combo, 0, 1, 1, 2, gtk.FILL, gtk.FILL)
         self.add_sub_element_button.connect('clicked', add_sub_element,
                                             self.add_sub_element_combo,
                                             security_tree)
