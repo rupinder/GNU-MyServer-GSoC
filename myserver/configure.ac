@@ -99,7 +99,7 @@ AC_CHECK_HEADER([sys/sendfile.h], AC_DEFINE(SENDFILE, 1,
 gl_INIT
 
 AC_CHECK_FUNCS(regcomp setgroups localtime_r posix_fallocate \
-		           openat fstatat getpwnam ffsl readdir_r)
+		           openat fstatat getpwnam ffsl readdir_r backtrace backtrace_symbols)
 
 case "${host}" in
     *-*-mingw32*)
@@ -400,6 +400,7 @@ AC_CONFIG_FILES([ po/Makefile.in
     include/base/Makefile
     include/base/bitvec/Makefile
     include/base/read_directory/Makefile
+    include/base/exceptions/Makefile
     include/base/file/Makefile
     include/base/pipe/Makefile
     include/base/base64/Makefile
@@ -457,6 +458,7 @@ AC_CONFIG_FILES([ po/Makefile.in
     src/base/Makefile
     src/base/bitvec/Makefile
     src/base/read_directory/Makefile
+    src/base/exceptions/Makefile
     src/base/file/Makefile
     src/base/pipe/Makefile
     src/base/base64/Makefile

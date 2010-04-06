@@ -59,6 +59,8 @@ libmyserver_la_LIBADD =  \
     base/slab/slab.lo  \
     base/unix_socket/unix_socket.lo  \
     base/mem_buff/mem_buff.lo  \
+    base/exceptions/checked.lo  \
+    base/exceptions/exceptions.lo  \
     base/crypt/sha1.lo  \
     base/crypt/crypt_algo_manager.lo  \
     base/crypt/crypt_algo.lo  \
