@@ -20,8 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "myserver.h"
 #include <include/base/utility.h>
 
-extern "C"
-{
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
@@ -42,7 +40,7 @@ extern "C"
 # endif
 
 #endif
-}
+
 
 #ifndef UID_T_MAX
 # define UID_T_MAX (1<<31)

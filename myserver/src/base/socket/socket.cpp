@@ -22,8 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/socket/socket.h>
 #include <include/base/utility.h>
 
-extern "C"
-{
 #include <sys/ioctl.h>
 #include <errno.h>
 
@@ -33,7 +31,7 @@ extern "C"
 # include <netinet/in.h>
 # include <arpa/inet.h>
 #endif
-}
+
 
 #include <sstream>
 

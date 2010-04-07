@@ -24,8 +24,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/filter/filters_chain.h>
 #include <include/base/file/files_utility.h>
 
-extern "C"
-{
 #include <errno.h>
 
 #ifdef WIN32
@@ -33,7 +31,7 @@ extern "C"
 #else
 # include <string.h>
 #endif
-}
+
 
 #include <include/base/read_directory/read_directory.h>
 #include <include/base/string/stringutils.h>

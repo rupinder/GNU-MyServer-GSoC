@@ -19,17 +19,13 @@
 #ifndef STDAFX_H
 # define STDAFX_H
 
-extern "C"
-{
 # include "config.h"
 
 # ifdef HAVE_PTHREAD
 #  include <pthread.h>
 # endif
-}
 
-extern "C"
-{
+
 # include <stdlib.h>
 # include <stdio.h>
 # include <fcntl.h>
@@ -46,18 +42,16 @@ extern "C"
 #  include <sys/stat.h>
 #  include <limits.h>
 # endif
-}
+
 
 typedef void* HANDLE;
 
 #endif
 
-extern "C"
-{
 #ifdef HAVE_GETTEXT
 # include <libintl.h>
 # define _(X) gettext (X)
 #else
 # define _(X) X
 #endif
-}
+

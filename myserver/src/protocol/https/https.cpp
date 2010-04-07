@@ -21,8 +21,6 @@
 #include <include/protocol/protocol.h>
 #include <include/protocol/https/https.h>
 
-extern "C"
-{
 #ifdef WIN32
 # include <direct.h>
 # include <errno.h>
@@ -31,7 +29,7 @@ extern "C"
 # include <string.h>
 # include <errno.h>
 #endif
-}
+
 
 /*!
   Returns the name of the protocol. If an out buffer is defined

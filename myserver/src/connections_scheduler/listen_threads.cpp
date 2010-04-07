@@ -23,8 +23,6 @@
 #include <include/base/sync/semaphore.h>
 #include <include/base/sync/event.h>
 
-extern "C"
-{
 #ifdef WIN32
 # include <direct.h>
 #endif
@@ -40,7 +38,7 @@ extern "C"
 #  include <pthread.h>
 # endif
 #endif
-}
+
 
 #include <set>
 #include <algorithm>

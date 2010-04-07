@@ -20,10 +20,8 @@
 #undef remove
 
 #ifdef WIN32
-extern "C"
-{
 # include <w32sock.h>
-}
+
 #endif
 
 #include <include/connections_scheduler/connections_scheduler.h>

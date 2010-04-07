@@ -22,11 +22,9 @@
 #include <include/base/utility.h>
 
 #ifndef WIN32
-extern "C"
-{
 # include <unistd.h>
 # include <sys/wait.h>
-}
+
 #endif
 /*!
  *Write a string to the socket.

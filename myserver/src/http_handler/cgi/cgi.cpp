@@ -36,13 +36,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <sstream>
 
-extern "C"
-{
 #ifdef WIN32
 # include <direct.h>
 #endif
 #include <string.h>
-}
+
 
 using namespace std;
 

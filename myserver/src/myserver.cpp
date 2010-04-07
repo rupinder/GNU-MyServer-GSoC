@@ -23,8 +23,6 @@
 #include <include/base/process/process.h>
 #include <include/conf/main/xml_main_configuration.h>
 
-extern "C"
-{
 #ifdef WIN32
 # include <direct.h>
 #endif
@@ -36,7 +34,7 @@ extern "C"
 # include <unistd.h>
 # include <signal.h>
 #endif
-}
+
 
 #ifdef HAVE_GETTEXT
 # include "localedir.h"

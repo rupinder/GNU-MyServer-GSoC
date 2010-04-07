@@ -21,8 +21,6 @@
 
 # include "myserver.h"
 
-extern "C"
-{
 # ifdef WIN32
 #  include <io.h>
 # endif
@@ -35,7 +33,7 @@ extern "C"
 #  include <dirent.h>
 # endif
 # include <limits.h>
-}
+
 
 # include <string>
 # include <include/base/sync/mutex.h>

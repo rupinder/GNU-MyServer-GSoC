@@ -24,12 +24,10 @@
 
 # include "myserver.h"
 
-extern "C"
-{
 # include <sys/types.h>
 # include <sys/select.h>
 # include <sys/socket.h>
-}
+
 
 # include <include/filter/stream.h>
 
@@ -37,14 +35,12 @@ extern "C"
 using namespace std;
 
 # ifndef WIN32
-extern "C"
-{
 #  include <sys/ioctl.h>
 #  include <netinet/in.h>
 #  include <netdb.h>
 #  include <stdio.h>
 #  include <unistd.h>
-}
+
 # endif
 
 typedef int SocketHandle;

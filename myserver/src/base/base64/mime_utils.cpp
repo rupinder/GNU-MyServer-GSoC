@@ -19,15 +19,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "myserver.h"
 #include <include/base/base64/mime_utils.h>
 
-extern "C"
-{
 #ifndef WIN32
 # include <ctype.h>
 #endif
 
 #include <stdio.h>
 #include <stdlib.h>
-}
+
 
 #include <string.h>
 

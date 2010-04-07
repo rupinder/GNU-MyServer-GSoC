@@ -22,10 +22,8 @@
 
 # include "myserver.h"
 
-extern "C"
-{
 # include <sys/time.h>
-}
+
 
 # include <include/base/socket/socket.h>
 # include <include/protocol/protocol_buffer.h>

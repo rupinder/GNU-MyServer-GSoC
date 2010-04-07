@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "myserver.h"
 #include <include/base/sync/event.h>
 
-extern "C" {
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -37,7 +36,7 @@ extern "C" {
 # endif
 # include <sys/wait.h>
 #endif
-}
+
 
 #include <sys/types.h>
 

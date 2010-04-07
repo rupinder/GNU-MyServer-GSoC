@@ -20,8 +20,6 @@
 
 #include <include/base/read_directory/read_directory.h>
 
-extern "C"
-{
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
@@ -29,7 +27,7 @@ extern "C"
 #ifdef HAVE_OPENAT
 # include <fcntl.h>
 #endif
-}
+
 
 using namespace std;
 

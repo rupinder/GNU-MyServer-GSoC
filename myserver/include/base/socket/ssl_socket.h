@@ -22,11 +22,9 @@
 
 # include "myserver.h"
 
-extern "C"
-{
 # include <sys/types.h>
 # include <sys/socket.h>
-}
+
 
 # include <include/base/socket/socket.h>
 # include <include/base/ssl/ssl.h>

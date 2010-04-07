@@ -23,8 +23,6 @@
 
 #include <string.h>
 
-extern "C"
-{
 #if HAVE_PTHREAD
 # include <pthread.h>
 #endif
@@ -43,7 +41,7 @@ GCRY_THREAD_OPTION_PTHREAD_IMPL;
 # undef malloc
 # endif
 #endif
-}
+
 
 SslContext::SslContext ()
 {

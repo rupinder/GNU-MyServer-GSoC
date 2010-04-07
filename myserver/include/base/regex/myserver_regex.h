@@ -22,11 +22,9 @@
 
 # include "myserver.h"
 
-extern "C"
-{
 # include <stdio.h>
 # include "regex.h"
-}
+
 
 # include <string>
 using namespace std;

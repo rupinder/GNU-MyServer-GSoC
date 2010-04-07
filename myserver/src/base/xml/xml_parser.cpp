@@ -22,10 +22,8 @@
 #include <include/base/utility.h>
 #include <include/base/file/files_utility.h>
 
-extern "C"
-{
 #include <string.h>
-}
+
 
 /**
  * Internal call back functions for saveMemBuf

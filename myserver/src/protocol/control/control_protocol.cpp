@@ -30,8 +30,6 @@
 #include <include/base/file/files_utility.h>
 #include <string.h>
 
-extern "C"
-{
 #include <stdio.h>
 
 #ifdef WIN32
@@ -41,7 +39,7 @@ extern "C"
 # include <string.h>
 # include <errno.h>
 #endif
-}
+
 #include <string>
 #include <sstream>
 

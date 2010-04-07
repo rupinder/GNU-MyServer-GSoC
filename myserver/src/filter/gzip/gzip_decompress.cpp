@@ -20,8 +20,6 @@
 #include <include/filter/gzip/gzip_decompress.h>
 #include <include/base/string/securestr.h>
 
-extern "C"
-{
 #ifdef WIN32
 # include <direct.h>
 # include <errno.h>
@@ -29,7 +27,7 @@ extern "C"
 # include <string.h>
 # include <errno.h>
 #endif
-}
+
 #ifdef WIN32
 # include <algorithm>
 #endif

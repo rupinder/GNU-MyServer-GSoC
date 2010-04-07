@@ -22,14 +22,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/utility.h>
 #include <include/base/string/stringutils.h>
 
-extern "C"
-{
 #include <sys/stat.h>
-}
+
 
 #ifndef WIN32
-extern "C"
-{
 # include <fcntl.h>
 # include <unistd.h>
 # include <sys/types.h>
@@ -40,7 +36,7 @@ extern "C"
 # include <string.h>
 # include <math.h>
 # include <time.h>
-}
+
 #endif
 
 #include <string>

@@ -22,8 +22,6 @@
 #include <include/base/pipe/pipe.h>
 
 #ifndef WIN32
-extern "C"
-{
 # include <fcntl.h>
 # include <unistd.h>
 # include <sys/types.h>
@@ -35,7 +33,7 @@ extern "C"
 # include <string.h>
 # include <math.h>
 # include <time.h>
-}
+
 #else
 # include <windows.h>
 #endif

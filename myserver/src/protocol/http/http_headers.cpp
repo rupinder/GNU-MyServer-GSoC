@@ -28,8 +28,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/http/http_errors.h>
 #include <include/conf/vhost/vhost.h>
 
-extern "C"
-{
 #ifdef WIN32
 # include <direct.h>
 # include <errno.h>
@@ -37,7 +35,7 @@ extern "C"
 # include <string.h>
 # include <errno.h>
 #endif
-}
+
 
 /*!
  * Builds an HTTP header string starting from an HttpResponseHeader structure.

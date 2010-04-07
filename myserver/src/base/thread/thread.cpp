@@ -21,8 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/utility.h>
 #include <include/base/thread/thread.h>
 
-extern "C"
-{
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -37,7 +35,7 @@ extern "C"
 # endif
 # include <sys/wait.h>
 #endif
-}
+
 
 #include <sys/types.h>
 

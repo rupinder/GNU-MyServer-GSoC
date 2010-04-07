@@ -21,8 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/socket_pair/socket_pair.h>
 
 #ifndef WIN32
-extern "C"
-{
 # include <fcntl.h>
 # include <unistd.h>
 # include <sys/types.h>
@@ -37,7 +35,7 @@ extern "C"
 
 # include <sys/socket.h>
 # include <sys/uio.h>
-}
+
 #else
 # include <windows.h>
 #endif

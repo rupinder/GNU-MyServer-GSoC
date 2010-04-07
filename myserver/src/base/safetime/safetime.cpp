@@ -20,14 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/safetime/safetime.h>
 #include <include/base/sync/mutex.h>
 
-extern "C" {
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #ifndef WIN32
 # include <stdio.h>
 #endif
-}
+
 
 #ifndef WIN32
 # if !HAVE_LOCALTIME_R

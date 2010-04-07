@@ -31,8 +31,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/ftp/ftp.h>
 
 #ifndef WIN32
-extern "C"
-{
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
@@ -45,7 +43,7 @@ extern "C"
 # endif
 # include <sys/types.h>
 # include <sys/wait.h>
-}
+
 #endif
 
 /*!

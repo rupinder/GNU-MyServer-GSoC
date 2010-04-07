@@ -20,15 +20,13 @@
 #include <include/base/string/stringutils.h>
 #include <include/base/safetime/safetime.h>
 
-extern "C"
-{
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #ifndef WIN32
 # include <stdio.h>
 #endif
-}
+
 
 #ifdef GETTIMEOFDAY
 # include <sys/time.h>

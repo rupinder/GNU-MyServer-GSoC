@@ -41,8 +41,6 @@
 #include <cstdarg>
 
 
-extern "C"
-{
 #ifdef WIN32
 # include <direct.h>
 #else
@@ -59,7 +57,7 @@ extern "C"
 # endif
 
 #endif
-}
+
 #include <sstream>
 
 Server* Server::instance = NULL;

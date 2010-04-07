@@ -21,8 +21,6 @@
 #include <include/base/utility.h>
 #include "include/base/socket/ssl_socket.h"
 
-extern "C"
-{
 #include <string.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -36,7 +34,7 @@ extern "C"
 # include <netinet/in.h>
 # include <arpa/inet.h>
 #endif
-}
+
 
 #include <sstream>
 

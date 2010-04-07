@@ -23,8 +23,6 @@
 #include <include/protocol/control/control_header.h>
 #include <include/base/xml/xml_parser.h>
 #include <include/protocol/control/control_errors.h>
-extern "C"
-{
 #ifdef WIN32
 # include <direct.h>
 # include <errno.h>
@@ -33,7 +31,7 @@ extern "C"
 # include <string.h>
 # include <errno.h>
 #endif
-}
+
 
 /*!
  *Return a string containing options specified by the client.

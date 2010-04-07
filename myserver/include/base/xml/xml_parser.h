@@ -23,14 +23,12 @@
 # include "myserver.h"
 # include <include/base/file/file.h>
 # include <include/base/mem_buff/mem_buff.h>
-extern "C"
-{
 # include <libxml/xmlmemory.h>
 # include <libxml/parser.h>
 # include <libxml/tree.h>
 # include <libxml/xpath.h>
 # include <libxml/xpathInternals.h>
-}
+
 # include <string>
 
 using namespace std;

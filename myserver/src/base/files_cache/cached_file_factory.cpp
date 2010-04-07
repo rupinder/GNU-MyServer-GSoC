@@ -24,8 +24,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/files_cache/cached_file_factory.h>
 
 #ifndef WIN32
-extern "C"
-{
 # include <fcntl.h>
 # include <unistd.h>
 # include <sys/types.h>
@@ -37,7 +35,7 @@ extern "C"
 # include <string.h>
 # include <math.h>
 # include <time.h>
-}
+
 #endif
 
 /*!

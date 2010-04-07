@@ -23,8 +23,6 @@
 # include "myserver.h"
 # include <include/connection/connection.h>
 
-extern "C"
-{
 # ifdef WIN32
 #  include <direct.h>
 #  include <errno.h>
@@ -32,7 +30,7 @@ extern "C"
 #  include <string.h>
 #  include <errno.h>
 # endif
-}
+
 
 # include <string>
 using namespace std;

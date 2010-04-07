@@ -30,8 +30,6 @@
 # include <include/conf/mime/mime_manager.h>
 # include <include/conf/security/security_token.h>
 
-extern "C"
-{
 # ifdef WIN32
 #  include <direct.h>
 #  include <errno.h>
@@ -39,7 +37,7 @@ extern "C"
 #  include <string.h>
 #  include <errno.h>
 # endif
-}
+
 # include <string>
 using namespace std;
 

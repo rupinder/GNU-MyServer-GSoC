@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 extern "C"
 {
 #include <chdir-long.h>
+}
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -39,7 +40,7 @@ extern "C"
 #  include <error.h>
 # endif
 #endif
-}
+
 
 #ifdef WIN32
 # include <direct.h>

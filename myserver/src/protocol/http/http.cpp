@@ -51,8 +51,6 @@
 
 using namespace std;
 
-extern "C"
-{
 #ifdef WIN32
 # include <direct.h>
 # include <errno.h>
@@ -62,7 +60,7 @@ extern "C"
 # include <string.h>
 # include <errno.h>
 #endif
-}
+
 
 int HttpProtocol::loadProtocol ()
 {

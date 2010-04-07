@@ -21,10 +21,8 @@
 #ifndef SHA1_CRYPT_H
 # define SHA1_CRYPT_H
 
-extern "C"
-{
 # include <sha1.h>
-}
+
 
 # include "myserver.h"
 

@@ -29,14 +29,12 @@
 #include <include/filter/filters_chain.h>
 #include <include/base/safetime/safetime.h>
 
-extern "C"
-{
 #ifdef WIN32
 # include <direct.h>
 #endif
 
 #include <string.h>
-}
+
 
 #include <string>
 #include <sstream>

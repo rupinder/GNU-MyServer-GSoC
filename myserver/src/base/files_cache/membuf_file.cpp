@@ -23,8 +23,6 @@
 #include <include/base/files_cache/membuf_file.h>
 
 #ifndef WIN32
-extern "C"
-{
 # include <fcntl.h>
 # include <unistd.h>
 # include <sys/types.h>
@@ -36,7 +34,7 @@ extern "C"
 # include <string.h>
 # include <math.h>
 # include <time.h>
-}
+
 #endif
 
 #include <string>

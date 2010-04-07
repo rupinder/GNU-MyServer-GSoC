@@ -33,8 +33,6 @@
 #  include <windows.h>
 # endif
 
-extern "C"
-{
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
@@ -44,7 +42,7 @@ extern "C"
 #  include <tchar.h>
 #  include <io.h>
 # endif
-}
+
 
 # include <string>
 # include <map>
