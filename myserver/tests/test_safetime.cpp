@@ -50,7 +50,7 @@ public:
   void testLocalTime ()
   {
     tm res;
-    time_t timep = 60 * 60 *4 + 10;
+    time_t timep = 60 * 60 * 24 + 10;
     tm *outRes = myserver_localtime (&timep, &res);
 
     CPPUNIT_ASSERT (outRes);
