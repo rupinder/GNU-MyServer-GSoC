@@ -27,6 +27,7 @@
 #include <include/base/file/files_utility.h>
 #include <include/base/unix_socket/unix_socket.h>
 #include <include/base/thread/thread.h>
+#include <include/base/pipe/pipe.h>
 #include <string.h>
 
 #ifdef AF_UNIX
@@ -70,6 +71,7 @@ class TestUnixSocket : public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE ( TestUnixSocket );
   CPPUNIT_TEST ( testBind );
   CPPUNIT_TEST ( testClient );
+  CPPUNIT_TEST ( testReadWriteHandle );
   CPPUNIT_TEST_SUITE_END ();
 
   UnixSocket *sock;
@@ -136,6 +138,45 @@ public:
 
     CPPUNIT_ASSERT_EQUAL (data.result, true);
   }
+
+
+  void testReadWriteHandle ()
+  {
+# ifndef WIN32
+    const char *msg = "hello world";
+    ThreadID tid;
+    Pipe pipe;
+    u_long nbw;
+    char buffer[64];
+    string path;
+    FilesUtility::temporaryFileName (0, path);
+    sock->socket ();
+    sock->bind (path.c_str ());
+    CPPUNIT_ASSERT_EQUAL (sock->listen (1), 0);
+
+    pipe.create ();
+    CPPUNIT_ASSERT (! pipe.write (msg, strlen (msg), &nbw));
+
+    UnixSocket client;
+    client.socket ();
+    CPPUNIT_ASSERT_EQUAL (client.connect (path.c_str ()), 0);
+
+    Socket clientRecv = sock->accept ();
+    Handle fd;
+
+    CPPUNIT_ASSERT (writeFileHandle (client.getHandle (), pipe.getReadHandle ()) >= 0);
+    CPPUNIT_ASSERT (readFileHandle (clientRecv.getHandle (), &fd) >= 0);
+
+    CPPUNIT_ASSERT (read (fd, buffer, 64) > 0);
+
+    CPPUNIT_ASSERT_EQUAL (strcmp (buffer, msg), 0);
+
+    clientRecv.close ();
+    client.shutdown ();
+    client.close ();
+# endif
+  }
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION ( TestUnixSocket );
