@@ -21,7 +21,6 @@
 #include <include/base/utility.h>
 #include <include/base/pipe/pipe.h>
 
-#ifndef WIN32
 # include <fcntl.h>
 # include <unistd.h>
 # include <sys/types.h>
@@ -33,10 +32,6 @@
 # include <string.h>
 # include <math.h>
 # include <time.h>
-
-#else
-# include <windows.h>
-#endif
 
 #include <string>
 #include <sstream>
@@ -52,7 +47,6 @@ using namespace std;
 int Pipe::read (char* buffer, u_long len, u_long *nbr)
 {
   *nbr = 0;
-#ifndef WIN32
   int ret = ::read (handles[0], buffer, len);
   if (ret == -1)
     {
@@ -69,22 +63,6 @@ int Pipe::read (char* buffer, u_long len, u_long *nbr)
       *nbr = (u_long)ret;
     }
   return 0;
-#else
-  if ( !ReadFile (readHandle, buffer, len, nbr, NULL) || !nbr)
-    {
-      *nbr = 0;
-      if (GetLastError () != ERROR_BROKEN_PIPE)
-        return 1;
-      else
-        {
-          terminated = true;
-          return 0;
-        }
-    }
-  return 0;
-#endif
-
-  return 0;
 }
 
 
@@ -95,43 +73,7 @@ int Pipe::read (char* buffer, u_long len, u_long *nbr)
  */
 int Pipe::create (bool readPipe)
 {
-#ifndef WIN32
   return pipe (handles);
-#else
-  HANDLE tmp;
-  SECURITY_ATTRIBUTES sa;
-  sa.nLength = sizeof (SECURITY_ATTRIBUTES);
-  sa.bInheritHandle = TRUE;
-  sa.lpSecurityDescriptor = NULL;
-  if (!CreatePipe (&readHandle, &writeHandle, &sa, 0))
-    return 1;
-
-  if (readPipe)
-    {
-      if (!DuplicateHandle (GetCurrentProcess (), readHandle,
-                            GetCurrentProcess (), &tmp, 0,
-                            FALSE, DUPLICATE_SAME_ACCESS))
-        {
-          close ();
-          return 1;
-        }
-      CloseHandle (readHandle);
-      readHandle = tmp;
-    }
-  else
-    {
-      if (!DuplicateHandle (GetCurrentProcess (), writeHandle,
-                            GetCurrentProcess (), &tmp, 0,
-                            FALSE, DUPLICATE_SAME_ACCESS))
-        {
-          close ();
-          return 1;
-        }
-      CloseHandle (writeHandle);
-      writeHandle = tmp;
-    }
-  return 0;
-#endif
 }
 
 /*!
@@ -143,7 +85,6 @@ int Pipe::create (bool readPipe)
 int Pipe::write (const char* buffer, u_long len, u_long *nbw)
 {
   *nbw = 0;
-#ifndef WIN32
   int ret = gnulib::write (handles[1], buffer, len);
   if (ret == -1)
     {
@@ -152,9 +93,7 @@ int Pipe::write (const char* buffer, u_long len, u_long *nbw)
     }
   else
     *nbw = (u_long) ret;
-#else
-  return !WriteFile (writeHandle, buffer, len, nbw, NULL);
-#endif
+
   return 0;
 }
 
@@ -163,11 +102,7 @@ int Pipe::write (const char* buffer, u_long len, u_long *nbw)
  */
 long Pipe::getReadHandle ()
 {
-#ifndef WIN32
   return handles[0];
-#else
-  return (long)readHandle;
-#endif
 }
 
 /*!
@@ -175,11 +110,7 @@ long Pipe::getReadHandle ()
  */
 long Pipe::getWriteHandle ()
 {
-#ifndef WIN32
   return handles[1];
-#else
-  return (long)writeHandle;
-#endif
 }
 
 
@@ -189,21 +120,13 @@ long Pipe::getWriteHandle ()
 int Pipe::close ()
 {
   terminated = true;
-#ifndef WIN32
   if (handles[0] >= 0)
     gnulib::close (handles[0]);
   if (handles[1] >= 0)
     gnulib::close (handles[1]);
 
   handles[0] = handles[1] = -1;
-#else
-  if (readHandle >= 0)
-    CloseHandle (readHandle);
-  if (writeHandle >= 0)
-    CloseHandle (writeHandle);
 
-  readHandle = writeHandle = 0;
-#endif
   return 0;
 }
 
@@ -231,7 +154,6 @@ private:
  */
 void Pipe::inverted (Pipe& pipe)
 {
-#ifndef WIN32
   pipe.handles[0] = gnulib::dup (handles[1]);
   pipe.handles[1] = gnulib::dup (handles[0]);
   if (pipe.handles[0] < 0 || pipe.handles[1] < 0)
@@ -239,27 +161,12 @@ void Pipe::inverted (Pipe& pipe)
       string err (_("Internal error"));
       throw PipeException (err);
     }
-#else
-  if ((! DuplicateHandle (GetCurrentProcess(), writeHandle, GetCurrentProcess(),
-                          &pipe.readHandle, 0, FALSE, DUPLICATE_SAME_ACCESS))
-      || (! DuplicateHandle (GetCurrentProcess(), readHandle,
-                             GetCurrentProcess(), &pipe.writeHandle, 0, FALSE,
-                             DUPLICATE_SAME_ACCESS)))
-    {
-      string err (_("Internal error"));
-      throw PipeException (err);
-    }
-#endif
 }
 
 Pipe::Pipe ()
 {
   terminated = false;
-#ifndef WIN32
   handles[0] = handles[1] = -1;
-#else
-  readHandle = writeHandle = (HANDLE) -1;
-#endif
 }
 
 Pipe::~Pipe ()
@@ -273,15 +180,9 @@ Pipe::~Pipe ()
 void Pipe::closeRead ()
 {
   terminated = true;
-#ifndef WIN32
   if (handles[0] >= 0)
     gnulib::close (handles[0]);
   handles[0] = -1;
-#else
-  if (readHandle >= 0)
-    CloseHandle (readHandle);
-  readHandle = (HANDLE) -1;
-#endif
 }
 
 /*!
@@ -290,15 +191,9 @@ void Pipe::closeRead ()
 void Pipe::closeWrite ()
 {
   terminated = true;
-#ifndef WIN32
   if (handles[1] >= 0)
     gnulib::close (handles[1]);
   handles[1] = -1;
-#else
-  if (writeHandle >= 0)
-    CloseHandle (writeHandle);
-  writeHandle = (HANDLE) -1;
-#endif
 }
 
 /*!
@@ -309,28 +204,6 @@ void Pipe::closeWrite ()
  */
 int Pipe::waitForData (int sec, int usec)
 {
-#ifdef WIN32
-  /*FIXME: avoid polling.  */
-  u_long limit = getTicks () + sec * 1000 + usec/1000;
-  char buffer[1];
-  DWORD bytesRead;
-
-  do
-    {
-      bytesRead = 0;
-      if (PeekNamedPipe (readHandle, buffer, 1, &bytesRead, NULL, NULL) == 0)
-        return 0;
-
-      if (bytesRead)
-        return 1;
-
-      Thread::wait (1000);
-    }
-  while (getTicks () < limit);
-
-  return 0;
-
-#else
   struct timeval tv;
   fd_set readfds;
   int ret;
@@ -349,7 +222,5 @@ int Pipe::waitForData (int sec, int usec)
   if (FD_ISSET (handles[0], &readfds))
     return 1;
 
-  return 0;
-#endif
   return 0;
 }

@@ -45,11 +45,6 @@ public:
   int waitForData (int sec, int usec);
 private:
   bool terminated;
-# ifndef WIN32
   int handles[2];
-# else
-  HANDLE readHandle;
-  HANDLE writeHandle;
-# endif
 };
 #endif
