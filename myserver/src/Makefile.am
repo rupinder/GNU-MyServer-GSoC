@@ -27,7 +27,7 @@ myserver_SOURCES = myserver.cpp
 
 lib_LTLIBRARIES = libmyserver.la
 
-libmyserver_la_SOURCES = dummy.cpp
+libmyserver_la_SOURCES =
 libmyserver_la_LIBADD =  \
     http_handler/proxy/proxy.lo  \
     http_handler/scgi/scgi.lo  \
