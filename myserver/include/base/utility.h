@@ -32,7 +32,7 @@ using namespace std;
 
 # define MYSERVER_KB(x) (x << 10)
 # define MYSERVER_MB(x) (x << 20)
-# define MYSERVER_SEC(x) (x * 1000)
+# define MYSERVER_SEC(x) (x * 1000000)
 
 int preparePrintError ();
 int endPrintError ();
