@@ -73,7 +73,7 @@ int Pipe::read (char* buffer, u_long len, u_long *nbr)
  */
 int Pipe::create (bool readPipe)
 {
-  return pipe (handles);
+  return gnulib::pipe2 (handles, 0);
 }
 
 /*!

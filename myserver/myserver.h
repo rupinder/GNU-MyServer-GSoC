@@ -25,7 +25,6 @@
 #  include <pthread.h>
 # endif
 
-
 # include <stdlib.h>
 # include <stdio.h>
 # include <fcntl.h>
@@ -54,4 +53,3 @@ typedef void* HANDLE;
 #else
 # define _(X) X
 #endif
-

@@ -26,7 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include <stdlib.h>
 
-
 #include <string.h>
 
 #include <include/base/string/stringutils.h>
@@ -44,7 +43,6 @@ static char* myserver_strupr (char * s)
 
 static char* strustr (char *source, char *s)
 {
-
   char *csource = new char[strlen (source) + 1];
   if (csource == 0)
     return 0;
@@ -449,8 +447,6 @@ char* CQPUtils::decode (char *input)
 
 #define BufAdd 10
 
-
-
 char* CQPUtils::expandBuffer (char *buffer, int UsedSize, int *BufSize,
                              int Singlechar)
 {
@@ -493,7 +489,7 @@ char* CQPUtils::encode (char *input)
       }
       finalresult = expandBuffer (finalresult, UsedSize, &BufSize, 0);
 
-      gnulib::snprintf (mids, 3, "%X", mid);
+      snprintf (mids, 3, "%X", mid);
 
       myserver_strupr (mids);
       *(fresult++) = '=';

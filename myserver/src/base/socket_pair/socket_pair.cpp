@@ -75,7 +75,7 @@ int SocketPair::create ()
     return -1;
 
   handles[0] = handles[1] = -1;
-  listener = ::socket (AF_INET, SOCK_STREAM, 0);
+  listener = gnulib::socket (AF_INET, SOCK_STREAM, 0);
 
   if (listener < 0)
     return -1;
@@ -85,46 +85,47 @@ int SocketPair::create ()
   addr.sin_addr.s_addr = htonl (0x7f000001);
   addr.sin_port = 0;
 
-  if (::bind (listener, (struct sockaddr*) &addr, sizeof (addr)) < 0)
+  if (gnulib::bind (listener, (struct sockaddr*) &addr, sizeof (addr)) < 0)
     {
-      ::close (listener);
+      gnulib::close (listener);
       return -1;
     }
 
-  if (::getsockname (listener, (struct sockaddr*) &addr, &addrlen) < 0)
+  if (gnulib::getsockname (listener, (struct sockaddr*) &addr, &addrlen) < 0)
     {
-      ::close (listener);
+      gnulib::close (listener);
       return -1;
     }
 
   do
     {
-      if (::listen (listener, 1) < 0)
+      if (gnulib::listen (listener, 1) < 0)
         break;
 
-      if ((handles[0] = ::socket (AF_INET, SOCK_STREAM, 0)) < 0)
+      if ((handles[0] = gnulib::socket (AF_INET, SOCK_STREAM, 0)) < 0)
         break;
 
-      if (::connect (handles[0], (struct sockaddr*) &addr, sizeof (addr)) < 0)
+      if (gnulib::connect (handles[0], (struct sockaddr*) &addr,
+                           sizeof (addr)) < 0)
         break;
 
-      if ((handles[1] = ::accept (listener, NULL, NULL)) < 0)
+      if ((handles[1] = gnulib::accept (listener, NULL, NULL)) < 0)
         break;
 
       fd = handles[0];
 
-      ::close (listener);
+      gnulib::close (listener);
       return 0;
     } while (0);
 
-  ::close (listener);
+  gnulib::close (listener);
 
   if (handles[0] != -1)
-    ::close (handles[0]);
+    gnulib::close (handles[0]);
 
 
   if (handles[1] != -1)
-    ::close (handles[1]);
+    gnulib::close (handles[1]);
 
   return -1;
 #endif
