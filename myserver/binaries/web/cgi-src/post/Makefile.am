@@ -29,7 +29,6 @@ post.mscgi: libpost.la
 #	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) \
 #		 $(INSTALL_STRIP_FLAG) libpost.la $(abs_builddir)
 #	cp libpost$(SO_EXT) ../../cgi-bin/post.mscgi
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
 	$(CXX) $(libpost_a_OBJECTS) $(libpost_la_LIBADD)  $(CXXFLAGS) \
 	$(XML_CFLAGS) $(libpost_a_LIBADD) $(PTHREAD_LIB) \
 	$(IDN_LIB) $(XNET_LIB) $(EVENT_LIB) $(DL_LIB) $(SSL_LIB)  $(ZLIB_LIB) \

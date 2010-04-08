@@ -29,7 +29,6 @@ math_sum.mscgi: libmath_sum.la
 #	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) \
 #		 $(INSTALL_STRIP_FLAG) libmath_sum.la $(abs_builddir)
 #	cp libmath_sum$(SO_EXT) ../../cgi-bin/math_sum.mscgi
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
 	$(CXX) $(libmath_sum_a_OBJECTS) $(libmath_sum_la_LIBADD)  $(CXXFLAGS) \
 	$(XML_CFLAGS) $(libmath_sum_a_LIBADD) $(PTHREAD_LIB) \
 	$(IDN_LIB) $(XNET_LIB) $(EVENT_LIB) $(DL_LIB) $(SSL_LIB)  $(ZLIB_LIB) \
