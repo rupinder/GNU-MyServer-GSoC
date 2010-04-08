@@ -231,22 +231,22 @@ int readFileHandle (SocketHandle s, Handle* fd)
   char tbuf[4];
   struct iovec iov;
   int ret;
-  mh.msg_name = 0;
-  mh.msg_namelen = 0;
+  struct cmsghdr *cmsg;
+
+  memset (&mh, 0, sizeof (mh));
   mh.msg_iov = &iov;
   mh.msg_iovlen = 1;
   mh.msg_control = (caddr_t) &cmh;
   mh.msg_controllen = sizeof (cmh);
   iov.iov_base = tbuf;
   iov.iov_len = 4;
-  cmh.cmh.cmsg_len = sizeof (cmh);
 
   ret = recvmsg (s, &mh, 0);
   if (ret < 0)
     return ret;
 
-  *fd = *((int *) CMSG_DATA (CMSG_FIRSTHDR (&mh)));
-
+  cmsg = CMSG_FIRSTHDR (&mh);
+  *fd = *((int *) CMSG_DATA (cmsg));
   return 0;
 #endif
 }
@@ -268,22 +268,23 @@ int writeFileHandle (SocketHandle s, Handle fd)
     struct cmsghdr cmh;
     char buffer[CMSG_SPACE (sizeof (int))];
   } cmh;
+  struct cmsghdr *cmsg;
   char tbuf[4];
   struct iovec iov;
+  iov.iov_base = tbuf;
+  iov.iov_len = 4;
+
   memset (&mh, 0, sizeof (mh));
-  mh.msg_name = 0;
-  mh.msg_namelen = 0;
   mh.msg_iov = &iov;
   mh.msg_iovlen = 1;
   mh.msg_control = (caddr_t) &cmh;
   mh.msg_controllen = sizeof (cmh);
-  mh.msg_flags = 0;
-  iov.iov_base = tbuf;
-  iov.iov_len = 4;
-  cmh.cmh.cmsg_level = SOL_SOCKET;
-  cmh.cmh.cmsg_type = SCM_RIGHTS;
-  cmh.cmh.cmsg_len = sizeof (cmh);
-  *((int *) CMSG_DATA (&cmh.cmh)) = fd;
+
+  cmsg = CMSG_FIRSTHDR (&mh);
+  cmsg->cmsg_len = CMSG_LEN (sizeof (int));
+  cmsg->cmsg_level = SOL_SOCKET;
+  cmsg->cmsg_type = SCM_RIGHTS;
+  *(int *)CMSG_DATA (cmsg) = fd;
 
   return sendmsg (s, &mh, 0);
 #endif
