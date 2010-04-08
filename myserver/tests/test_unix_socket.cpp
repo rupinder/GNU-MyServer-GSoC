@@ -155,7 +155,7 @@ public:
     CPPUNIT_ASSERT_EQUAL (sock->listen (1), 0);
 
     pipe.create ();
-    CPPUNIT_ASSERT (! pipe.write (msg, strlen (msg), &nbw));
+    CPPUNIT_ASSERT (! pipe.write (msg, strlen (msg) + 1, &nbw));
 
     UnixSocket client;
     client.socket ();
