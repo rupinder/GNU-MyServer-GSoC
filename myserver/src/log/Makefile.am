@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
-lib_LIBRARIES = liblog.a
-liblog_a_SOURCES = log_manager.cpp
+lib_LTLIBRARIES = liblog.la
+liblog_la_SOURCES = log_manager.cpp
 SUBDIRS = stream
 AM_CPPFLAGS = $(all_includes)
 

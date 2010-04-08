@@ -15,6 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
-lib_LIBRARIES = libgopher.a
-libgopher_a_SOURCES = gopher.cpp gopher_content.cpp engine.cpp
+lib_LTLIBRARIES = libgopher.la
+libgopher_la_SOURCES = gopher.cpp gopher_content.cpp engine.cpp
 AM_CPPFLAGS = $(all_includes)

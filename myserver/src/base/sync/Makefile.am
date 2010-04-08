@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
-lib_LIBRARIES = libsync.a
-libsync_a_SOURCES = event.cpp mutex.cpp read_write_lock.cpp recursive_mutex.cpp semaphore.cpp
+lib_LTLIBRARIES = libsync.la
+libsync_la_SOURCES = event.cpp mutex.cpp read_write_lock.cpp recursive_mutex.cpp semaphore.cpp
 SUBDIRS =
 AM_CPPFLAGS = $(all_includes)
 

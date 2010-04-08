@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
-lib_LIBRARIES = libmem_buff.a
-libmem_buff_a_SOURCES = mem_buff.cpp
+lib_LTLIBRARIES = libmem_buff.la
+libmem_buff_la_SOURCES = mem_buff.cpp
 SUBDIRS =
 AM_CPPFLAGS = $(all_includes)
 

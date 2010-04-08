@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
-lib_LIBRARIES = libprocess.a
-libprocess_a_SOURCES = fork_server.cpp process.cpp process_server_manager.cpp
+lib_LTLIBRARIES = libprocess.la
+libprocess_la_SOURCES = fork_server.cpp process.cpp process_server_manager.cpp
 SUBDIRS =
 AM_CPPFLAGS = $(all_includes)
 

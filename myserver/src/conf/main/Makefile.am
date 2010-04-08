@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
-lib_LIBRARIES = libmain.a
-libmain_a_SOURCES = main_configuration.cpp xml_main_configuration.cpp
+lib_LTLIBRARIES = libmain.la
+libmain_la_SOURCES = main_configuration.cpp xml_main_configuration.cpp
 SUBDIRS =
 AM_CPPFLAGS = $(all_includes)

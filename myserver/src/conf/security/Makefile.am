@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
-lib_LIBRARIES = libsecurity.a
-libsecurity_a_SOURCES = auth_domain.cpp auth_method.cpp auth_method_factory.cpp security_cache.cpp security_domain.cpp security_manager.cpp security_token.cpp validator.cpp validator_factory.cpp xml_validator.cpp
+lib_LTLIBRARIES = libsecurity.la
+libsecurity_la_SOURCES = auth_domain.cpp auth_method.cpp auth_method_factory.cpp security_cache.cpp security_domain.cpp security_manager.cpp security_token.cpp validator.cpp validator_factory.cpp xml_validator.cpp
 SUBDIRS =
 AM_CPPFLAGS = $(all_includes)

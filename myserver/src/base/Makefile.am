@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
-lib_LIBRARIES = libbase.a
-libbase_a_SOURCES = utility.cpp
+lib_LTLIBRARIES = libbase.la
+libbase_la_SOURCES = utility.cpp
 SUBDIRS = base64 bitvec crypt dynamic_lib file files_cache read_directory \
 	  hash_map home_dir mem_buff multicast pipe process regex safetime slab \
 	  socket socket_pair ssl string sync thread xml unix_socket

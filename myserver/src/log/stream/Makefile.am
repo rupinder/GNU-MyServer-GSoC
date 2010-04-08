@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
-lib_LIBRARIES = libstream.a
-libstream_a_SOURCES = console_stream.cpp file_stream.cpp \
+lib_LTLIBRARIES = libstream.la
+libstream_la_SOURCES = console_stream.cpp file_stream.cpp \
 		log_stream.cpp log_stream_factory.cpp \
 		log_stream_creator.cpp file_stream_creator.cpp \
 		console_stream_creator.cpp socket_stream.cpp \

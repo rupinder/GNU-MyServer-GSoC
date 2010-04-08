@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
-lib_LIBRARIES = libconnections_scheduler.a
-libconnections_scheduler_a_SOURCES = connections_scheduler.cpp listen_threads.cpp
+lib_LTLIBRARIES = libconnections_scheduler.la
+libconnections_scheduler_la_SOURCES = connections_scheduler.cpp listen_threads.cpp
 SUBDIRS =
 AM_CPPFLAGS = $(all_includes)
 

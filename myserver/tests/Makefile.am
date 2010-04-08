@@ -82,7 +82,7 @@ test_suite_SOURCES =  	main.cpp				\
 			test_xml_main_configuration.cpp		\
 			test_xml_validator.cpp
 
-test_suite_LDADD = ../src/libmyserver.a  ../lib/libgnu.a $(CPPUNIT_LDFLAGS) \
+test_suite_LDADD = ../src/libmyserver.la  ../lib/libgnu.la $(CPPUNIT_LDFLAGS) \
 	$(PTHREAD_LIB) 	$(IDN_LIB) $(XNET_LIB) $(DL_LIB) $(ZLIB_LIB) \
 	$(XML_LIBS) $(INTLLIBS) $(LDFLAGS)
 

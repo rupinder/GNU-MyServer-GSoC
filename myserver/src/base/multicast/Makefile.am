@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
-lib_LIBRARIES = libmulticast.a
-libmulticast_a_SOURCES = multicast.cpp
+lib_LTLIBRARIES = libmulticast.la
+libmulticast_la_SOURCES = multicast.cpp
 SUBDIRS =
 AM_CPPFLAGS = $(all_includes)
 

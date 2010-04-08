@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
-lib_LIBRARIES = libread_directory.a
-libread_directory_a_SOURCES = read_directory.cpp
+lib_LTLIBRARIES = libread_directory.la
+libread_directory_la_SOURCES = read_directory.cpp
 SUBDIRS =
 AM_CPPFLAGS = $(all_includes)
 

@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
-lib_LIBRARIES = libfilter.a
-libfilter_a_SOURCES = filter.cpp filters_chain.cpp filters_factory.cpp memory_stream.cpp stream.cpp \
+lib_LTLIBRARIES = libfilter.la
+libfilter_la_SOURCES = filter.cpp filters_chain.cpp filters_factory.cpp memory_stream.cpp stream.cpp \
 			console.cpp
 SUBDIRS = gzip
 AM_CPPFLAGS = $(all_includes)

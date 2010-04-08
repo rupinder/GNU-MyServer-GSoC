@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
-lib_LIBRARIES = libhash_map.a
-libhash_map_a_SOURCES = hash_map.cpp
+lib_LTLIBRARIES = libhash_map.la
+libhash_map_la_SOURCES = hash_map.cpp
 SUBDIRS =
 AM_CPPFLAGS = $(all_includes)
 

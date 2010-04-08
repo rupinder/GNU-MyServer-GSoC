@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
-lib_LIBRARIES = libbase64.a
-libbase64_a_SOURCES = mime_utils.cpp
+lib_LTLIBRARIES = libbase64.la
+libbase64_la_SOURCES = mime_utils.cpp
 SUBDIRS =
 AM_CPPFLAGS = $(all_includes)
 

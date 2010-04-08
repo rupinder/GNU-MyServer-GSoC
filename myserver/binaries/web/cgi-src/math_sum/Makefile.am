@@ -19,21 +19,14 @@
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
 lib_LTLIBRARIES = libmath_sum.la
 libmath_sum_la_SOURCES = math_sum.cpp
-libmath_sum_la_LDFLAGS = -no-undefined -avoid-version -module -shared
-libmath_sum_la_LIBADD = ../../../../src/libmyserver.a ../../../../lib/libgnu.a
+libmath_sum_la_LDFLAGS = -avoid-version -module -shared
+libmath_sum_la_LIBADD = ../../../../src/libmyserver.la ../../../../lib/libgnu.la
 SO_EXT=`$(LIBTOOL) --config | $(SED) -e"y/'/\"/" -e '/^shrext_cmds/ !d; s/^.*="\(.*\)"/\1/'`
 
 all: all-am math_sum.mscgi
 
 math_sum.mscgi: libmath_sum.la
-#	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) \
-#		 $(INSTALL_STRIP_FLAG) libmath_sum.la $(abs_builddir)
-#	cp libmath_sum$(SO_EXT) ../../cgi-bin/math_sum.mscgi
-	$(CXX) $(libmath_sum_a_OBJECTS) $(libmath_sum_la_LIBADD)  $(CXXFLAGS) \
-	$(XML_CFLAGS) $(libmath_sum_a_LIBADD) $(PTHREAD_LIB) \
-	$(IDN_LIB) $(XNET_LIB) $(EVENT_LIB) $(DL_LIB) $(SSL_LIB)  $(ZLIB_LIB) \
-	$(XML_LIBS) $(LDFLAGS) $(LIBINTL) -shared -o ../../cgi-bin/math_sum.mscgi
-
+	cp .libs/libmath_sum$(SO_EXT) ../../cgi-bin/math_sum.mscgi
 
 clean-local:
 	test \! -e libmath_sum.la || \
