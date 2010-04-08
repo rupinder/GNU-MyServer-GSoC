@@ -19,16 +19,22 @@
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
 lib_LTLIBRARIES = libpost.la
 libpost_la_SOURCES = post.cpp
-libpost_la_LDFLAGS = -avoid-version -module -shared
+libpost_la_LDFLAGS = -no-undefined -avoid-version -module -shared
 libpost_la_LIBADD = ../../../../src/libmyserver.a ../../../../lib/libgnu.a
 SO_EXT=`$(LIBTOOL) --config | $(SED) -e"y/'/\"/" -e '/^shrext_cmds/ !d; s/^.*="\(.*\)"/\1/'`
 
 all: all-am post.mscgi
 
 post.mscgi: libpost.la
-	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) \
-		$(INSTALL_STRIP_FLAG) libpost.la $(abs_builddir)
-	cp libpost$(SO_EXT) ../../cgi-bin/post.mscgi
+#	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) \
+#		 $(INSTALL_STRIP_FLAG) libpost.la $(abs_builddir)
+#	cp libpost$(SO_EXT) ../../cgi-bin/post.mscgi
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
+	$(CXX) $(libpost_a_OBJECTS) $(libpost_la_LIBADD)  $(CXXFLAGS) \
+	$(XML_CFLAGS) $(libpost_a_LIBADD) $(PTHREAD_LIB) \
+	$(IDN_LIB) $(XNET_LIB) $(EVENT_LIB) $(DL_LIB) $(SSL_LIB)  $(ZLIB_LIB) \
+	$(XML_LIBS) $(LDFLAGS) $(LIBINTL) -shared -o ../../cgi-bin/post.mscgi
+
 
 clean-local:
 	test \! -e libpost.la || \
