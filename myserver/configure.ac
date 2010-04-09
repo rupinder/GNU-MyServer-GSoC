@@ -68,6 +68,7 @@ AC_DEFINE_UNQUOTED([MYSERVER_VERSION], ["${MYSERVER_VERSION}"],
 				       [The software version])
 
 AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION([0.16])
 
 AC_CHECK_PROG(make_info, makeinfo, yes, no)
 if test x$make_info = xno ; then
