@@ -48,8 +48,15 @@ typedef void* HANDLE;
 #endif
 
 #ifdef HAVE_GETTEXT
+
+/*XXX: Fix me.  */
+# undef sprintf
+# undef snprintf
+
 # include <libintl.h>
+
 # define _(X) gettext (X)
+
 #else
 # define _(X) X
 #endif
