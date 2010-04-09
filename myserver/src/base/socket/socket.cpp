@@ -409,7 +409,7 @@ int Socket::connect (const char* host, u_short port)
     }
 
   memset (szPort, 0, sizeof (char)*10);
-  snprintf (szPort, 10, "%d", port);
+  gnulib::snprintf (szPort, 10, "%d", port);
 
   if (aiHints.ai_family != 0)
     nGetaddrinfoRet = getaddrinfo (host, NULL, &aiHints, &pHostInfo);

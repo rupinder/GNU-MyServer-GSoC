@@ -541,7 +541,7 @@ int ControlProtocol::addToLog (int retCode, ConnectionPtr con, char *buffer,
 {
   string time;
   getRFC822GMTTime (time, 32);
-  snprintf (buffer, bufferSize, "%s [%s] %s:%s:%s - %s - %i", con->getIpAddr (),
+  gnulib::snprintf (buffer, bufferSize, "%s [%s] %s:%s:%s - %s - %i", con->getIpAddr (),
             time.c_str (), header.getCommand (), header.getVersion (),
             header.getOptions (), header.getAuthLogin (), retCode);
   con->host->accessesLogWrite ("%s", buffer);
@@ -565,14 +565,14 @@ int ControlProtocol::sendResponse (char *buffer, int buffersize,
     dataLength = outFile->getFileSize ();
 
   /* Build and send the first line.  */
-  snprintf (buffer, buffersize, "/%i\r\n", errID);
+  gnulib::snprintf (buffer, buffersize, "/%i\r\n", errID);
   if (a->socket->send (buffer, strlen (buffer), 0) < 0)
     {
       a->host->warningsLogWrite (_("Control: socket error"));
       return -1;
     }
 
-  snprintf (buffer, buffersize, "/LEN %u\r\n", (u_int)dataLength);
+  gnulib::snprintf (buffer, buffersize, "/LEN %u\r\n", (u_int)dataLength);
   if (a->socket->send (buffer, strlen (buffer), 0) < 0)
     {
       a->host->warningsLogWrite (_("Control: socket error"));
@@ -669,7 +669,7 @@ int ControlProtocol::visitConnection (ConnectionPtr con, void *argP)
 
   if (arg->command == ControlProtocolVisitorArg::SHOW_CONNECTIONS)
   {
-    snprintf (arg->buffer, arg->bufferSize, "%i - %s - %i - %s - %i - %s - %s\r\n",
+    gnulib::snprintf (arg->buffer, arg->bufferSize, "%i - %s - %i - %s - %i - %s - %s\r\n",
               static_cast<int>(con->getID ()),  con->getIpAddr (),
               static_cast<int>(con->getPort ()),
               con->getLocalIpAddr (),  static_cast<int>(con->getLocalPort ()),

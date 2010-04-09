@@ -489,7 +489,7 @@ char* CQPUtils::encode (char *input)
       }
       finalresult = expandBuffer (finalresult, UsedSize, &BufSize, 0);
 
-      snprintf (mids, 3, "%X", mid);
+      gnulib::snprintf (mids, 3, "%X", mid);
 
       myserver_strupr (mids);
       *(fresult++) = '=';
