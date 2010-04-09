@@ -51,7 +51,6 @@ libmyserver_la_LIBADD =  \
     log/stream/log_stream_factory.lo  \
     connections_scheduler/connections_scheduler.lo  \
     connections_scheduler/listen_threads.lo  \
-    dummy.lo  \
     server/clients_thread.lo  \
     server/server.lo  \
     base/multicast/multicast.lo  \
