@@ -199,6 +199,7 @@ if test "x$IDN_LIB" = "x"; then
 
 AC_SUBST(IDN_LIB)
 
+enable_xmltest=no
 dnl Looking for LibXL2
 AM_PATH_XML2(2.6.0, have_xml2=yes)
 if test x$have_xml2 != xyes; then
