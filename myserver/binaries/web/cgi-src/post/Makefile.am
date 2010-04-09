@@ -26,7 +26,8 @@ SO_EXT=`$(LIBTOOL) --config | $(SED) -e"y/'/\"/" -e '/^shrext_cmds/ !d; s/^.*="\
 all: all-am post.mscgi
 
 post.mscgi: libpost.la
-	cp .libs/libpost$(SO_EXT) ../../cgi-bin/post.mscgi
+	test -e .libs/libpost$(SO_EXT)
+	|| cp .libs/libpost$(SO_EXT) ../../cgi-bin/post.mscgi
 
 clean-local:
 	test \! -e libpost.la || \

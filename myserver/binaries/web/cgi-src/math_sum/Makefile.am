@@ -26,7 +26,8 @@ SO_EXT=`$(LIBTOOL) --config | $(SED) -e"y/'/\"/" -e '/^shrext_cmds/ !d; s/^.*="\
 all: all-am math_sum.mscgi
 
 math_sum.mscgi: libmath_sum.la
-	cp .libs/libmath_sum$(SO_EXT) ../../cgi-bin/math_sum.mscgi
+	test -e .libs/libmath_sum$(SO_EXT) \
+	|| cp .libs/libmath_sum$(SO_EXT) ../../cgi-bin/math_sum.mscgi
 
 clean-local:
 	test \! -e libmath_sum.la || \
