@@ -28,6 +28,7 @@ test_suite_SOURCES =  	main.cpp				\
 			test_connection.cpp			\
 			test_connections_scheduler.cpp		\
 			test_crypt_algo_manager.cpp		\
+			test_exceptions.cpp	\
 			test_file.cpp				\
 			test_file_stream.cpp			\
 			test_file_stream_creator.cpp		\
