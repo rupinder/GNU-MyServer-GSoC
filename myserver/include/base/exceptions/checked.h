@@ -72,6 +72,7 @@ namespace checked
   time_t mktime (struct tm *__tp);
   int open (const char *filename, int flags);
   DIR *opendir (const char *);
+  int fsync (int fd);
   ssize_t read (int fd, void *buf, size_t count);
   void *realloc (void *ptr, size_t size);
   ssize_t recv (int fd, void *buf, size_t len, int flags);

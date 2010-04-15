@@ -164,6 +164,12 @@ namespace checked
     return checkError (::read (fd, buf, count));
   }
 
+  int fsync (int fd)
+  {
+    return checkError (gnulib::fsync (fd));
+  }
+
+
   void *realloc (void *ptr, size_t size)
   {
     return (void *) checkErrorNull (gnulib::realloc (ptr, size));
