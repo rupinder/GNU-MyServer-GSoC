@@ -84,6 +84,11 @@ namespace checked
     return checkError (gnulib::dup2 (oldfd, newfd));
   }
 
+  int pipe2 (int pipefd[2], int flags)
+  {
+    return checkError (pipe2 (pipefd, flags));
+  }
+
   int fstat (int fd, struct stat *buf)
   {
     return checkError (gnulib::fstat (fd, buf));

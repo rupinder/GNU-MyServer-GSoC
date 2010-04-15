@@ -57,6 +57,7 @@ namespace checked
   int connect (int fd, const struct sockaddr *addr, socklen_t addrlen);
   int dup (int oldfd);
   int dup2 (int oldfd, int newfd);
+  int pipe2 (int pipefd[2], int flags);
   int fstat (int fd, struct stat *buf);
   int fstatat (int fd, char const *name, struct stat *st, int flags);
   char *getcwd (char *buf, size_t size);
