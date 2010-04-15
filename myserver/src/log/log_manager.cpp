@@ -22,6 +22,8 @@
 #include <include/log/log_manager.h>
 #include <include/server/server.h>
 
+#include <include/base/exceptions/exceptions.h>
+
 #include <cstdarg>
 
 /*!
@@ -667,11 +669,11 @@ LogManager::log (const void* owner, const string & type, LoggingLevel level,
               switch (*fmt)
                 {
                 case 's':
-                  oss << static_cast<const char*> (va_arg (args, const char*));
+                  oss << static_cast<const char *> (va_arg (args, const char *));
                   break;
 
                 case 'S':
-                  oss << static_cast<string*> (va_arg (args, string*));
+                  oss << static_cast<string *> (va_arg (args, string *));
                   break;
 
                 case '%':
@@ -680,6 +682,11 @@ LogManager::log (const void* owner, const string & type, LoggingLevel level,
 
                 case 'i':
                   oss << static_cast<int> (va_arg (args, int));
+                  break;
+
+                case 'e':
+                  oss << (static_cast<exception *> (va_arg (args,
+                                                     exception *)))->what ();
                   break;
 
                 default:
