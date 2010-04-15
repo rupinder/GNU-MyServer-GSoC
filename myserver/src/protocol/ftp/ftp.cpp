@@ -111,13 +111,6 @@ FtpuserData::FtpuserData ()
 
 bool FtpuserData::allowdelete (bool wait)
 {
-  if (wait)
-    {
-      /* Wait for data connection to finish.  */
-      m_DataConnBusy.lock ();
-      m_DataConnBusy.unlock ();
-
-    }
   if (m_pDataConnection != NULL)
     return !m_pDataConnection->isScheduled ();
   else
@@ -633,6 +626,7 @@ void Ftp::retrstor (bool bretr, bool bappend, const std::string & sPath)
 static
 DEFINE_THREAD (SendAsciiFile, pParam)
 {
+  File *file = NULL;
   DataConnectionWorkerThreadData *pWt =
     reinterpret_cast < DataConnectionWorkerThreadData * >(pParam);
   if (pWt == NULL)
@@ -670,27 +664,11 @@ DEFINE_THREAD (SendAsciiFile, pParam)
     }
 
   pFtpuserData->m_DataConnBusy.lock ();
-
-  if (pWt->m_pFtp == NULL)
+  try
     {
-      pFtpuserData->closeDataConnection ();
-      pFtpuserData->m_DataConnBusy.unlock ();
-      delete pWt;
-#ifdef WIN32
-      return 0;
-#elif HAVE_PTHREAD
-      return (void *) 0;
-#endif
-    }
 
-  if (pFtpuserData->m_nFtpstate == FtpuserData::DATA_CONNECTION_UP)
-    ftpReply (pConnection, 125);
-  else
-    {
-      ftpReply (pConnection, 150);
-      if (pWt->m_pFtp->OpenDataConnection () == 0)
+      if (pWt->m_pFtp == NULL)
         {
-          ftpReply (pConnection, 425);
           pFtpuserData->closeDataConnection ();
           pFtpuserData->m_DataConnBusy.unlock ();
           delete pWt;
@@ -700,24 +678,40 @@ DEFINE_THREAD (SendAsciiFile, pParam)
           return (void *) 0;
 #endif
         }
-    }
 
-  if (pFtpuserData->m_pDataConnection == NULL ||
-      pFtpuserData->m_pDataConnection->socket == NULL)
-    {
-      ftpReply (pConnection, 451);
-      pFtpuserData->closeDataConnection ();
-      pFtpuserData->m_DataConnBusy.unlock ();
-      delete pWt;
+      if (pFtpuserData->m_nFtpstate == FtpuserData::DATA_CONNECTION_UP)
+        ftpReply (pConnection, 125);
+      else
+        {
+          ftpReply (pConnection, 150);
+          if (pWt->m_pFtp->OpenDataConnection () == 0)
+            {
+              ftpReply (pConnection, 425);
+              pFtpuserData->closeDataConnection ();
+              pFtpuserData->m_DataConnBusy.unlock ();
+              delete pWt;
 #ifdef WIN32
-      return 0;
+              return 0;
 #elif HAVE_PTHREAD
-      return (void *) 0;
+              return (void *) 0;
 #endif
-    }
-  File *file = NULL;
-  try
-    {
+            }
+        }
+
+      if (pFtpuserData->m_pDataConnection == NULL ||
+          pFtpuserData->m_pDataConnection->socket == NULL)
+        {
+          ftpReply (pConnection, 451);
+          pFtpuserData->closeDataConnection ();
+          pFtpuserData->m_DataConnBusy.unlock ();
+          delete pWt;
+#ifdef WIN32
+          return 0;
+#elif HAVE_PTHREAD
+          return (void *) 0;
+#endif
+        }
+
       file =
         Server::getInstance ()->getCachedFiles ()->open (pWt->m_sFilePath.
                                                          c_str ());
@@ -841,21 +835,23 @@ DEFINE_THREAD (SendAsciiFile, pParam)
         }
       file->close ();
       delete file;
+
+      pFtpuserData->m_sCurrentFileName = "";
+      pFtpuserData->m_nFileSize = 0;
+      pFtpuserData->m_nBytesSent = 0;
+      pFtpuserData->m_nrestartOffset = 0;
+      ftpReply (pConnection, 226);
+      pFtpuserData->closeDataConnection ();
+      pFtpuserData->m_DataConnBusy.unlock ();
     }
   catch (bad_alloc & ba)
     {
       if (file != NULL)
         file->close ();
       delete file;
+      pFtpuserData->m_DataConnBusy.unlock ();
     }
 
-  pFtpuserData->m_sCurrentFileName = "";
-  pFtpuserData->m_nFileSize = 0;
-  pFtpuserData->m_nBytesSent = 0;
-  pFtpuserData->m_nrestartOffset = 0;
-  ftpReply (pConnection, 226);
-  pFtpuserData->closeDataConnection ();
-  pFtpuserData->m_DataConnBusy.unlock ();
   delete pWt;
 #ifdef WIN32
   return 1;
@@ -906,27 +902,11 @@ DEFINE_THREAD (SendImageFile, pParam)
     }
 
   pFtpuserData->m_DataConnBusy.lock ();
-
-  if (pWt->m_pFtp == NULL)
+  File *file = NULL;
+  try
     {
-      pFtpuserData->closeDataConnection ();
-      pFtpuserData->m_DataConnBusy.unlock ();
-      delete pWt;
-#ifdef WIN32
-      return 0;
-#elif HAVE_PTHREAD
-      return (void *) 0;
-#endif
-    }
-
-  if (pFtpuserData->m_nFtpstate == FtpuserData::DATA_CONNECTION_UP)
-    ftpReply (pConnection, 125);
-  else
-    {
-      ftpReply (pConnection, 150);
-      if (pWt->m_pFtp->OpenDataConnection () == 0)
+      if (pWt->m_pFtp == NULL)
         {
-          ftpReply (pConnection, 425);
           pFtpuserData->closeDataConnection ();
           pFtpuserData->m_DataConnBusy.unlock ();
           delete pWt;
@@ -936,25 +916,40 @@ DEFINE_THREAD (SendImageFile, pParam)
           return (void *) 0;
 #endif
         }
-    }
 
-  if (pFtpuserData->m_pDataConnection == NULL ||
-      pFtpuserData->m_pDataConnection->socket == NULL)
-    {
-      ftpReply (pConnection, 451);
-      pFtpuserData->closeDataConnection ();
-      pFtpuserData->m_DataConnBusy.unlock ();
-      delete pWt;
+      if (pFtpuserData->m_nFtpstate == FtpuserData::DATA_CONNECTION_UP)
+        ftpReply (pConnection, 125);
+      else
+        {
+          ftpReply (pConnection, 150);
+          if (pWt->m_pFtp->OpenDataConnection () == 0)
+            {
+              ftpReply (pConnection, 425);
+              pFtpuserData->closeDataConnection ();
+              pFtpuserData->m_DataConnBusy.unlock ();
+              delete pWt;
 #ifdef WIN32
-      return 0;
+              return 0;
 #elif HAVE_PTHREAD
-      return (void *) 0;
+              return (void *) 0;
 #endif
-    }
+            }
+        }
 
-  File *file = NULL;
-  try
-    {
+      if (pFtpuserData->m_pDataConnection == NULL ||
+          pFtpuserData->m_pDataConnection->socket == NULL)
+        {
+          ftpReply (pConnection, 451);
+          pFtpuserData->closeDataConnection ();
+          pFtpuserData->m_DataConnBusy.unlock ();
+          delete pWt;
+#ifdef WIN32
+          return 0;
+#elif HAVE_PTHREAD
+          return (void *) 0;
+#endif
+        }
+
       file =
         Server::getInstance ()->getCachedFiles ()->open (pWt->m_sFilePath.
                                                          c_str ());
@@ -1033,6 +1028,7 @@ DEFINE_THREAD (SendImageFile, pParam)
       if (file != NULL)
         file->close ();
       delete file;
+      pFtpuserData->m_DataConnBusy.unlock ();
     }
 
   pFtpuserData->m_sCurrentFileName = "";
@@ -1042,6 +1038,7 @@ DEFINE_THREAD (SendImageFile, pParam)
   ftpReply (pConnection, 226);
   pFtpuserData->closeDataConnection ();
   pFtpuserData->m_DataConnBusy.unlock ();
+
   delete pWt;
 #ifdef WIN32
   return 1;

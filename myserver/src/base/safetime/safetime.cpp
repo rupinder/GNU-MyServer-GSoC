@@ -73,8 +73,16 @@ struct tm *myserver_localtime (const time_t *timep, tm* res)
 #else
 
   mutex.lock ();
-  memcpy (res, localtime (timep), sizeof (tm));
-  mutex.unlock ();
+  try
+    {
+      memcpy (res, localtime (timep), sizeof (tm));
+      mutex.unlock ();
+    }
+  catch (...)
+    {
+      mutex.unlock ();
+      throw;
+    }
 
   return res;
 #endif

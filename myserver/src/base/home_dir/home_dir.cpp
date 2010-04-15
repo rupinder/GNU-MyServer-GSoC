@@ -109,9 +109,16 @@ int HomeDir::load ()
   int ret;
   loadMutex.lock ();
 
-  ret = loadImpl ();
-
-  loadMutex.unlock ();
+  try
+    {
+      ret = loadImpl ();
+      loadMutex.unlock ();
+    }
+  catch (...)
+    {
+      loadMutex.unlock ();
+      throw;
+    }
   return ret;
 }
 

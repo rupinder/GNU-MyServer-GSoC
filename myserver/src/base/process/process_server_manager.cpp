@@ -145,10 +145,18 @@ void ProcessServerManager::load ()
 ProcessServerManager::ServerDomain*
 ProcessServerManager::getDomain (const char* name)
 {
-  ServerDomain* ret;
+  ServerDomain* ret = NULL;
   mutex.lock ();
-  ret = domains.get (name);
-  mutex.unlock ();
+  try
+    {
+      ret = domains.get (name);
+      mutex.unlock ();
+    }
+  catch (...)
+    {
+      mutex.unlock ();
+      throw;
+    }
   return ret;
 }
 
@@ -159,19 +167,26 @@ ProcessServerManager::getDomain (const char* name)
 ProcessServerManager::ServerDomain*
 ProcessServerManager::createDomain (const char* name)
 {
-  ServerDomain* ret;
+  ServerDomain* ret = NULL;
 
   mutex.lock ();
 
-  ret = domains.get (name);
-  if (!ret)
-  {
-    string str (name);
-    ret = new ServerDomain ();
-    domains.put (str, ret);
-  }
-
-  mutex.unlock ();
+  try
+    {
+      ret = domains.get (name);
+      if (!ret)
+        {
+          string str (name);
+          ret = new ServerDomain ();
+          domains.put (str, ret);
+        }
+      mutex.unlock ();
+    }
+  catch (...)
+    {
+      mutex.unlock ();
+      throw;
+    }
 
   return ret;
 }
@@ -184,37 +199,44 @@ void ProcessServerManager::clear ()
   HashMap<string, ServerDomain*>::Iterator it;
 
   mutex.lock ();
-
-  it = domains.begin ();
-
-  for (;it != domains.end (); it++)
+  try
     {
-      ServerDomain *sd = *it;
-      HashMap<string, vector<Server*>*>::Iterator server = sd->servers.begin ();
+      it = domains.begin ();
 
-      for (; server != sd->servers.end (); server++)
+      for (;it != domains.end (); it++)
         {
-          for (vector<Server*>::iterator it = (*server)->begin ();
-               it != (*server)->end ();
-               it++)
+          ServerDomain *sd = *it;
+          HashMap<string, vector<Server*>*>::Iterator server = sd->servers.begin ();
+
+          for (; server != sd->servers.end (); server++)
             {
-              Server *s = *it;
+              for (vector<Server*>::iterator it = (*server)->begin ();
+                   it != (*server)->end ();
+                   it++)
+                {
+                  Server *s = *it;
 
-              if (s->isLocal)
-                nServers--;
+                  if (s->isLocal)
+                    nServers--;
 
-              if (sd->clear)
-                sd->clear (s);
+                  if (sd->clear)
+                    sd->clear (s);
 
-              s->terminate ();
-              delete s;
+                  s->terminate ();
+                  delete s;
+                }
+              delete (*server);
             }
-          delete (*server);
+          delete (*it);
         }
-      delete (*it);
-  }
-  domains.clear ();
-  mutex.unlock ();
+      domains.clear ();
+      mutex.unlock ();
+    }
+  catch (...)
+    {
+      mutex.unlock ();
+      throw;
+    }
 }
 
 /*!
@@ -226,37 +248,45 @@ void ProcessServerManager::clear ()
 ProcessServerManager::Server*
 ProcessServerManager::getServer (const char* domain, const char* name, int seed)
 {
-  ServerDomain* sd;
+  ServerDomain* sd = NULL;
   Server* s = NULL;
 
   mutex.lock ();
-  sd = domains.get (domain);
-
-  if (sd)
+  try
     {
-      vector<Server*> *slist = sd->servers.get (name);
-      if (slist)
-        s = slist->at (seed % slist->size ());
+      sd = domains.get (domain);
+      if (sd)
+        {
+          vector<Server*> *slist = sd->servers.get (name);
+          if (slist)
+            s = slist->at (seed % slist->size ());
+        }
+
+      if (s && s->isLocal && !s->process.isProcessAlive ())
+        {
+          s->socket.close ();
+          s->process.terminateProcess ();
+          if (!s->path.length ())
+            s->path.assign (name);
+
+          s->port = 0;
+
+          if (runServer (s, s->path.c_str (), s->port))
+            {
+              sd->servers.remove (name);
+              delete s;
+              s = 0;
+            }
+        }
+
+      mutex.unlock ();
+    }
+  catch (...)
+    {
+      mutex.unlock ();
+      throw;
     }
 
-  if (s && s->isLocal && !s->process.isProcessAlive ())
-  {
-    s->socket.close ();
-    s->process.terminateProcess ();
-    if (!s->path.length ())
-      s->path.assign (name);
-
-    s->port = 0;
-
-    if (runServer (s, s->path.c_str (), s->port))
-      {
-        sd->servers.remove (name);
-        delete s;
-        s = 0;
-      }
-  }
-
-  mutex.unlock ();
   return s;
 }
 
@@ -273,17 +303,25 @@ void ProcessServerManager::addServer (ProcessServerManager::Server* server,
   string strName (name);
 
   mutex.lock ();
-  vector<Server*>* slist = sd->servers.get (strName);
-
-  if (slist == NULL)
+  try
     {
-      slist = new vector<Server*> ();
-      sd->servers.put (strName, slist);
+      vector<Server*>* slist = sd->servers.get (strName);
+
+      if (slist == NULL)
+        {
+          slist = new vector<Server*> ();
+          sd->servers.put (strName, slist);
+        }
+
+      slist->push_back (server);
+
+      mutex.unlock ();
     }
-
-  slist->push_back (server);
-
-  mutex.unlock ();
+  catch (...)
+    {
+      mutex.unlock ();
+      throw;
+    }
 }
 
 /*!
@@ -317,36 +355,42 @@ void ProcessServerManager::removeDomain (const char* domain)
   HashMap<string, Server*>::Iterator server;
 
   mutex.lock ();
-
-  sd = getDomain (domain);
-
-  if (sd)
+  try
     {
-      HashMap<string, vector<Server*>*>::Iterator server = sd->servers.begin ();
-
-      for (; server != sd->servers.end (); server++)
+      sd = getDomain (domain);
+      if (sd)
         {
-          for (vector<Server*>::iterator it = (*server)->begin ();
-               it != (*server)->end ();
-               it++)
+          HashMap<string, vector<Server*>*>::Iterator server
+            = sd->servers.begin ();
+          for (; server != sd->servers.end (); server++)
             {
-              Server *s = *it;
+              for (vector<Server*>::iterator it = (*server)->begin ();
+                   it != (*server)->end ();
+                   it++)
+                {
+                  Server *s = *it;
 
-              if (s->isLocal)
-                nServers--;
+                  if (s->isLocal)
+                    nServers--;
 
-              if (sd->clear)
-                sd->clear (s);
+                  if (sd->clear)
+                    sd->clear (s);
 
-              s->terminate ();
-              delete s;
+                  s->terminate ();
+                  delete s;
+                }
+              delete (*server);
             }
-          delete (*server);
+          delete sd;
         }
-      delete sd;
-    }
 
-  mutex.unlock ();
+      mutex.unlock ();
+    }
+  catch (...)
+    {
+      mutex.unlock ();
+      throw;
+    }
 }
 
 /*!
@@ -376,10 +420,10 @@ ProcessServerManager::runAndAddServer (const char *domain, const char *path,
   Server* server = new Server;
 
   if (runServer (server, path, port, chroot, uid, gid))
-  {
-    delete server;
-    return 0;
-  }
+    {
+      delete server;
+      return 0;
+    }
   addServer (server, domain, path);
   return server;
 }

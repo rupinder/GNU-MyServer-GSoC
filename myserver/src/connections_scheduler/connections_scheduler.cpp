@@ -197,15 +197,8 @@ static void listenerHandler (int fd, short event, void *arg)
             }
           while (clientSock);
         }
-      catch (std::exception & e)
-        {
-          s->server->log (MYSERVER_LOG_MSG_ERROR, _("Error listening on socket %s"),
-                          e.what ());
-          throw;
-        }
       catch (...)
         {
-          throw;
         }
     }
 

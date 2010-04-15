@@ -55,9 +55,18 @@ int HttpFile::putFile (HttpThreadContext* td, string& filename)
     if (FilesUtility::nodeExists (td->filenamePath.c_str ()))
       {
         File file;
-        if (file.openFile (td->filenamePath.c_str (), File::OPEN_IF_EXISTS
-                           | File::WRITE))
-          return td->http->raiseHTTPError (500);
+        try
+          {
+            file.openFile (td->filenamePath.c_str (), File::OPEN_IF_EXISTS
+                           | File::WRITE);
+          }
+        catch (exception & e)
+          {
+            td->connection->host->warningsLogWrite
+              (_("HttpFile: error accessing file %s : %e"),
+               td->filenamePath.c_str (), &e);
+            return td->http->raiseHTTPError (500);
+          }
 
         file.seek (firstByte);
 
@@ -97,10 +106,18 @@ int HttpFile::putFile (HttpThreadContext* td, string& filename)
       {
         /* The file doesn't exist.  */
         File file;
-        if (file.openFile (td->filenamePath.c_str (),
-                           File::FILE_CREATE_ALWAYS
-                           | File::WRITE))
-          return td->http->raiseHTTPError (500);
+        try
+          {
+            file.openFile (td->filenamePath.c_str (), File::FILE_CREATE_ALWAYS
+                           | File::WRITE);
+          }
+        catch (exception & e)
+          {
+            td->connection->host->warningsLogWrite
+              (_("HttpFile: error accessing file %s : %e"),
+               td->filenamePath.c_str (), &e);
+            return td->http->raiseHTTPError (500);
+          }
 
         for (;;)
           {
@@ -248,7 +265,18 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
           !ifModifiedSince->value->compare (tmpTime))
         return td->http->sendHTTPNonModified ();
 
-      file = Server::getInstance ()->getCachedFiles ()->open (filenamePath);
+      try
+        {
+          file = Server::getInstance ()->getCachedFiles ()->open (filenamePath);
+        }
+      catch (exception & e)
+        {
+          td->connection->host->warningsLogWrite
+            (_("HttpFile: error accessing file %s : %e"),
+             td->filenamePath.c_str (), &e);
+          return td->http->raiseHTTPError (500);
+        }
+
       if (!file)
         return td->http->raiseHTTPError (500);
 

@@ -49,17 +49,22 @@ LogStream::resetFilters ()
 int
 LogStream::log (const string & message)
 {
-  mutex->lock ();
   int success = 0;
-  if (needToCycle ())
+  mutex->lock ();
+  try
     {
-      success = doCycle () || write (message);
+      if (needToCycle ())
+        success = doCycle () || write (message);
+      else
+        success = write (message);
+
+      mutex->unlock ();
     }
-  else
+  catch (...)
     {
-      success = write (message);
+      mutex->unlock ();
+      throw;
     }
-  mutex->unlock ();
   return success;
 }
 
@@ -111,14 +116,23 @@ LogStream::getFiltersChain ()
 int
 LogStream::close ()
 {
+  int success = 0;
   mutex->lock ();
-  int success = 1;
-  isOpened = fc->flush (&nbw) || out->close ();
-  if (!isOpened)
+  try
     {
-      success = 0;
+      success = 1;
+      isOpened = fc->flush (&nbw) || out->close ();
+      if (! isOpened)
+        success = 0;
+
+      mutex->unlock ();
     }
-  mutex->unlock ();
+  catch (...)
+    {
+      mutex->unlock ();
+      throw;
+    }
+
   return success;
 }
 
@@ -156,18 +170,42 @@ LogStream::update (LogStreamEvent evt, void* message, void* reply)
 int
 LogStream::addFilter (Filter* filter)
 {
+  int success = 0;
   mutex->lock ();
-  int success = fc->addFilter (filter, &nbw);
+  try
+  {
+    success = fc->addFilter (filter, &nbw);
+    mutex->unlock ();
+  }
+  catch (...)
+    {
+      mutex->unlock ();
+      throw;
+    }
+
   mutex->unlock ();
+
   return success;
 }
 
 int
 LogStream::removeFilter (Filter* filter)
 {
+  int success = 0;
   mutex->lock ();
-  int success = fc->removeFilter (filter);
+  try
+  {
+    success = fc->removeFilter (filter);
+    mutex->unlock ();
+  }
+  catch (...)
+    {
+      mutex->unlock ();
+      throw;
+    }
+
   mutex->unlock ();
+
   return success;
 }
 

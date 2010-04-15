@@ -439,10 +439,17 @@ int ListenThreads::terminate ()
             continue;
 
           serverSocket->shutdown (SHUT_RDWR);
-          do
+          for (;;)
             {
-              err = serverSocket->recv (buffer, 256, 0);
-            }while (err != -1);
+              try
+                {
+                  err = serverSocket->recv (buffer, 256, 0);
+                }
+              catch (...)
+                {
+                  break;
+                }
+            }
 
           serverSocket->close ();
           delete serverSocket;
