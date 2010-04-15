@@ -92,7 +92,7 @@ namespace checked
   char *getcwd (char *buf, size_t size);
   int gethostname (char *name, size_t len);
   int getsockname (int fd, struct sockaddr *addr, socklen_t *addrlen);
-  int gettimeofday (struct timeval *, void *);
+  int gettimeofday (struct timeval *tv, struct timezone *tz);
   struct tm *gmtime_r (time_t const *__timer, struct tm *__result);
   int listen (int fd, int backlog);
   struct tm *localtime_r (time_t const *__timer, struct tm *__result);
