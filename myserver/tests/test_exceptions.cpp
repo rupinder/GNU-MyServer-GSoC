@@ -31,8 +31,9 @@ using namespace std;
 class TestExceptions : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE ( TestExceptions );
-  CPPUNIT_TEST (testCatch1);
-  CPPUNIT_TEST (testCatch2);
+  CPPUNIT_TEST (testWrongCloseDir);
+  CPPUNIT_TEST (testWrongCwd);
+  CPPUNIT_TEST (testErrno);
   CPPUNIT_TEST_SUITE_END ();
 
   DIR *foodir;
@@ -47,12 +48,12 @@ public:
 
   void tearDown () {}
 
-  void testCatch1 ()
+  void testWrongCloseDir ()
   {
     try
       {
         checked::closedir (foodir);
-        CPPUNIT_FAIL ("The exception in testCatch1 wasn't thrown or caught");
+        CPPUNIT_FAIL ("The exception in testWrongCloseDir wasn't thrown or caught");
       }
     catch (ArgumentListException& e)
       {
@@ -60,16 +61,32 @@ public:
       }
     catch (...)
       {
-        CPPUNIT_FAIL ("The wrong exception in testCatch1 was thrown");
+        CPPUNIT_FAIL ("The wrong exception in testWrongCloseDir was thrown");
       }
   }
 
-  void testCatch2 ()
+  void testErrno ()
+  {
+    bool success = false;
+    errno = EINVAL;
+    try
+      {
+        checked::raiseException ();
+      }
+    catch (AbstractServerException & ase)
+      {
+        success = ase.getErrno () == EINVAL;
+      }
+
+    CPPUNIT_ASSERT (success);
+  }
+
+  void testWrongCwd ()
   {
     try
       {
         char *p = checked::getcwd (buf, 1);
-        CPPUNIT_FAIL ("The exception in testCatch2 wasn't thrown or caught");
+        CPPUNIT_FAIL ("The exception in testWrongCwd wasn't thrown or caught");
       }
     catch (OverflowException& e)
       {
@@ -77,7 +94,7 @@ public:
       }
     catch (...)
       {
-        CPPUNIT_FAIL ("The wrong exception in testCatch2 was thrown");
+        CPPUNIT_FAIL ("The wrong exception in testWrongCwd was thrown");
       }
   }
 };
