@@ -87,6 +87,8 @@ test_suite_LDADD = ../src/libmyserver.la  ../lib/libgnu.la $(CPPUNIT_LDFLAGS) \
 	$(PTHREAD_LIB) 	$(IDN_LIB) $(XNET_LIB) $(DL_LIB) $(ZLIB_LIB) \
 	$(XML_LIBS) $(INTLLIBS) $(LDFLAGS)
 
+test_suite_LDFLAGS = -static
+
 install:
 
 check-am:
