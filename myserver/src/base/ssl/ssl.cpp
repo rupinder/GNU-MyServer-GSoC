@@ -23,6 +23,8 @@
 
 #include <string.h>
 
+#include <include/base/exceptions/checked.h>
+
 #if HAVE_PTHREAD
 # include <pthread.h>
 #endif

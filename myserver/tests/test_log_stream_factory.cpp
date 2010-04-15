@@ -69,8 +69,20 @@ public:
     CPPUNIT_ASSERT (!ls);
     ls = lsf->create (&ff, "console://stdout", filters, 0);
     CPPUNIT_ASSERT (ls);
-    CPPUNIT_ASSERT (!lsf->create (&ff, "socket://" LOCALHOST_ADDRESS ":0",
-                                  filters, 0));
+
+    bool success = false;
+    try
+      {
+        lsf->create (&ff, "socket://" LOCALHOST_ADDRESS ":0",
+                     filters, 0);
+      }
+    catch (...)
+      {
+        success = true;
+      }
+
+    CPPUNIT_ASSERT (success);
+
     delete ls;
   }
 

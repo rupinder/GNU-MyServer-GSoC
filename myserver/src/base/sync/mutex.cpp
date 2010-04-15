@@ -104,15 +104,7 @@ int Mutex::destroy ()
 int Mutex::lock (u_long /*id*/)
 {
 #ifdef HAVE_PTHREAD
-# ifdef PTHREAD_ALTERNATE_LOCK
   pthread_mutex_lock (&mutex);
-# else
-  while (pthread_mutex_trylock (&mutex) == EBUSY)
-  {
-    Thread::wait (1);
-  }
-# endif
-
 #else
   WaitForSingleObject (mutex, INFINITE);
 #endif

@@ -45,6 +45,7 @@
 #include <include/http_handler/proxy/proxy.h>
 #include <include/http_handler/http_dir/http_dir.h>
 #include <include/protocol/http/http_data_read.h>
+#include <include/base/exceptions/checked.h>
 
 #include <string>
 #include <ostream>
@@ -1171,18 +1172,24 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
             }
         }
 
-      /* If the inputData file was not closed close it.  */
-      if (td->inputData.getHandle ())
+      try
         {
-          td->inputData.close ();
-          FilesUtility::deleteFile (td->inputDataPath);
-        }
+          /* If the inputData file was not closed close it.  */
+          if (td->inputData.getHandle ())
+            {
+              td->inputData.close ();
+              FilesUtility::deleteFile (td->inputDataPath);
+            }
 
-       /* If the outputData file was not closed close it.  */
-      if (td->outputData.getHandle ())
+          /* If the outputData file was not closed close it.  */
+          if (td->outputData.getHandle ())
+            {
+              td->outputData.close ();
+              FilesUtility::deleteFile (td->outputDataPath);
+            }
+        }
+      catch (GenericFileException & e)
         {
-          td->outputData.close ();
-          FilesUtility::deleteFile (td->outputDataPath);
         }
 
       bool keepalive = false;

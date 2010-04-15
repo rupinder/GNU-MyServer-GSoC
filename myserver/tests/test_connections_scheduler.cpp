@@ -27,47 +27,47 @@
 
 class MockSocket : public Socket
 {
-  FileHandle handle;
+  Socket s;
 public:
 
   /*
    * BE SURE TO USE VALID HANDLES.
    * 0, 1, 2 are valid ones.
    */
-  MockSocket (FileHandle handle)
+  MockSocket ()
   {
-    this->handle = handle;
+    s.socket (AF_INET, SOCK_STREAM, 0);
   }
 
   virtual int connect (MYSERVER_SOCKADDR*, int)
   {
     return 0;
   }
-	virtual int closesocket ()
+  virtual int closesocket ()
   {
     return 0;
   }
 
-	virtual int shutdown (int how)
+  virtual int shutdown (int how)
   {
     return 0;
   }
-	virtual int recv (char*, int, int, u_long)
+  virtual int recv (char*, int, int, u_long)
   {
     return 0;
   }
-	virtual int recv (char*, int, int)
+  virtual int recv (char*, int, int)
   {
     return 0;
   }
-	virtual u_long bytesToRead ()
+  virtual u_long bytesToRead ()
   {
     return 0;
   }
 
-	virtual Handle getHandle ()
+  virtual Handle getHandle ()
   {
-    return (Handle) handle;
+    return (Handle) s.getHandle ();
   }
 
 };
@@ -132,7 +132,7 @@ public:
     for (u_long i = 0; i < max; i++)
       {
         ConnectionPtr conn = new Connection;
-        conn->socket = new MockSocket ((FileHandle) i);
+        conn->socket = new MockSocket ();
         scheduler->addWaitingConnection (conn);
       }
 
@@ -145,28 +145,28 @@ public:
   void testGetConnections ()
   {
     ConnectionPtr conn = new Connection;
-    conn->socket = new MockSocket ((FileHandle) 1);
+    conn->socket = new MockSocket ();
 
     list<ConnectionPtr> out;
 
     scheduler->getConnections (out);
 
-    CPPUNIT_ASSERT_EQUAL (out.size (), (size_t)0);
+    CPPUNIT_ASSERT_EQUAL (out.size (), (size_t) 0);
 
     conn = new Connection;
-    conn->socket = new MockSocket ((FileHandle) 2);
+    conn->socket = new MockSocket ();
 
     scheduler->addWaitingConnection (conn);
 
     scheduler->getConnections (out);
 
-    CPPUNIT_ASSERT_EQUAL (out.size (), (size_t)1);
+    CPPUNIT_ASSERT_EQUAL (out.size (), (size_t) 1);
   }
 
   void testGetNumTotalConnections ()
   {
     ConnectionPtr conn = new Connection;
-    conn->socket = new MockSocket ((FileHandle) 1);
+    conn->socket = new MockSocket ();
 
     CPPUNIT_ASSERT_EQUAL (scheduler->getNumTotalConnections (), 0ul);
 
@@ -190,7 +190,7 @@ public:
     ConnectionPtr gotConn;
 
     ConnectionPtr conn = new Connection;
-    conn->socket = new MockSocket ((FileHandle) 1);
+    conn->socket = new MockSocket ();
 
     CPPUNIT_ASSERT_EQUAL (scheduler->getNumTotalConnections (), 0ul);
 
@@ -210,7 +210,7 @@ public:
   void testAddNewConnection ()
   {
     ConnectionPtr conn = new Connection;
-    conn->socket = new MockSocket ((FileHandle) 1);
+    conn->socket = new MockSocket ();
 
     CPPUNIT_ASSERT_EQUAL (scheduler->getNumTotalConnections (), 0ul);
 
@@ -228,6 +228,5 @@ public:
 
 
 };
-
 
 CPPUNIT_TEST_SUITE_REGISTRATION ( TestConnectionsScheduler );

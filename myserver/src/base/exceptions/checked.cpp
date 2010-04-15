@@ -63,7 +63,7 @@ namespace checked
 
   int pipe2 (int pipefd[2], int flags)
   {
-    return checkError (pipe2 (pipefd, flags));
+    return checkError (gnulib::pipe2 (pipefd, flags));
   }
 
   int fstat (int fd, struct stat *buf)

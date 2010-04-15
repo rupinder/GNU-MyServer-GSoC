@@ -77,14 +77,21 @@ int
 LogManager::clear ()
 {
   mutex->lock ();
-  map<string, LogStream*>::iterator it;
-  for (it = logStreams.begin (); it != logStreams.end (); it++)
+  try
     {
-      delete it->second;
+      map<string, LogStream*>::iterator it;
+      for (it = logStreams.begin (); it != logStreams.end (); it++)
+        {
+          delete it->second;
+        }
+      logStreams.clear ();
+      owners.clear ();
+      logStreamOwners.clear ();
     }
-  logStreams.clear ();
-  owners.clear ();
-  logStreamOwners.clear ();
+  catch (...)
+    {
+      mutex->unlock ();
+    }
   mutex->unlock ();
   return !empty ();
 }
@@ -108,36 +115,44 @@ int
 LogManager::add (const void *owner, string type, string location,
                  list<string>& filters, u_long cycle)
 {
-  mutex->lock ();
   int failure = 1;
-  if (!contains (location))
-    {
-      LogStream* ls = lsf->create (ff, location, filters, cycle);
-      if (ls)
-        {
-          failure = add (owner) || add (owner, type) ||
-            add (owner, type, location, ls);
-        }
-      mutex->unlock ();
-      return failure;
-    }
-
   int oldSize;
   int newSize;
-  ostringstream oss;
 
-  oldSize = logStreamOwners[location].size ();
-  if (!containsOwner (owner))
+  mutex->lock ();
+  try
     {
-      failure = add (owner) || add (owner, type) ||
-        add (owner, type, location, logStreams[location]);
+      if (! contains (location))
+        {
+          LogStream* ls = lsf->create (ff, location, filters, cycle);
+          if (ls)
+            {
+              failure = add (owner) || add (owner, type)
+                || add (owner, type, location, ls);
+            }
+          mutex->unlock ();
+          return failure;
+        }
+
+      ostringstream oss;
+
+      oldSize = logStreamOwners[location].size ();
+      if (!containsOwner (owner))
+        {
+          failure = add (owner) || add (owner, type) ||
+            add (owner, type, location, logStreams[location]);
+        }
+      else if (!contains (owner, type))
+        {
+          failure = add (owner, type) ||
+            add (owner, type, location, logStreams[location]);
+        }
+      newSize = logStreamOwners[location].size ();
     }
-  else if (!contains (owner, type))
+  catch (...)
     {
-      failure = add (owner, type) ||
-        add (owner, type, location, logStreams[location]);
+      mutex->unlock ();
     }
-  newSize = logStreamOwners[location].size ();
 
   mutex->unlock ();
 
@@ -244,34 +259,40 @@ LogManager::remove (const void *owner)
 
 
   mutex->lock ();
+  try
+    {
+      if (!containsOwner (owner))
+        {
+          mutex->unlock ();
+          return 1;
+        }
 
-  if (!containsOwner (owner))
+      map<string, map<string, LogStream*> >* m = &owners[owner];
+      map<string, map<string, LogStream*> >::iterator it_1;
+      for (it_1 = m->begin (); it_1 != m->end (); it_1++)
+        {
+          map<string, LogStream*> *t = &it_1->second;
+          map<string, LogStream*>::iterator it_2;
+          for (it_2 = t->begin (); it_2 != t->end (); it_2++)
+            {
+              logStreamOwners[it_2->first].remove (owner);
+              if (!logStreamOwners[it_2->first].size ())
+                {
+                  delete it_2->second;
+                  logStreams.erase (it_2->first);
+                  logStreamOwners.erase (it_2->first);
+                }
+            }
+          t->clear ();
+        }
+      m->clear ();
+      owners.erase (owner);
+      failure = 0;
+    }
+  catch (...)
     {
       mutex->unlock ();
-      return 1;
     }
-
-  map<string, map<string, LogStream*> >* m = &owners[owner];
-  map<string, map<string, LogStream*> >::iterator it_1;
-  for (it_1 = m->begin (); it_1 != m->end (); it_1++)
-    {
-      map<string, LogStream*> *t = &it_1->second;
-      map<string, LogStream*>::iterator it_2;
-      for (it_2 = t->begin (); it_2 != t->end (); it_2++)
-        {
-          logStreamOwners[it_2->first].remove (owner);
-          if (!logStreamOwners[it_2->first].size ())
-            {
-              delete it_2->second;
-              logStreams.erase (it_2->first);
-              logStreamOwners.erase (it_2->first);
-            }
-        }
-      t->clear ();
-    }
-  m->clear ();
-  owners.erase (owner);
-  failure = 0;
 
   mutex->unlock ();
   return failure;
@@ -534,7 +555,6 @@ LogManager::log (const void* owner, const string & type, const string & location
     return 1;
 
   mutex->lock ();
-
   try
     {
       failure = notify (owner, type, MYSERVER_LOG_EVT_SET_MODE, &level)
@@ -612,14 +632,12 @@ LogManager::log (const void* owner, const string & type, LoggingLevel level,
                  bool ts, bool appendNL, const char *fmt, va_list args)
 {
   int failure = 0;
+  ostringstream oss;
 
   if (level < this->level)
     return 1;
 
   mutex->lock ();
-
-  ostringstream oss;
-
   try
     {
       if (ts)

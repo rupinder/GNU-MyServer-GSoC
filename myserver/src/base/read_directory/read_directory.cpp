@@ -28,6 +28,7 @@
 # include <fcntl.h>
 #endif
 
+#include <include/base/exceptions/checked.h>
 
 using namespace std;
 
@@ -132,7 +133,7 @@ int ReadDirectory::find (const char *filename)
        if (dirName[dirName.length () - 1] == '/')
          dirName.erase (dirName.length () - 1);
 
-       dh = gnulib::opendir (dirName.c_str ());
+       dh = checked::opendir (dirName.c_str ());
 
        if (dh == NULL)
          return -1;
@@ -156,7 +157,7 @@ int ReadDirectory::find (const char *filename)
 # endif
 
 # ifdef HAVE_FSTATAT
-   if (gnulib::fstatat (dirfd (dh), name.c_str (), &stats, 0))
+   if (checked::fstatat (dirfd (dh), name.c_str (), &stats, 0))
      return -1;
 # else
    string tempName;
@@ -196,7 +197,7 @@ int ReadDirectory::findclose ()
   if (!dh)
     return -1;
 
-  gnulib::closedir (dh);
+  checked::closedir (dh);
   dh = NULL;
   return 0;
 #endif

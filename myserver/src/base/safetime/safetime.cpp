@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # include <stdio.h>
 #endif
 
+#include <include/base/exceptions/checked.h>
 
 #ifndef WIN32
 # if !HAVE_LOCALTIME_R
@@ -68,7 +69,7 @@ struct tm *myserver_localtime (const time_t *timep, tm* res)
   memcpy (res, localtime (timep), sizeof (tm));
   return res;
 #elif HAVE_LOCALTIME_R
-  return gnulib::localtime_r (timep, res);
+  return checked::localtime_r (timep, res);
 #else
 
   mutex.lock ();
@@ -90,7 +91,7 @@ struct tm *myserver_gmtime (const time_t *timep, tm* res)
   return res;
 
 #elif HAVE_LOCALTIME_R
-  return gnulib::gmtime_r (timep, res);
+  return checked::gmtime_r (timep, res);
 #else
 
   mutex.lock ();

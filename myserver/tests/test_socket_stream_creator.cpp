@@ -46,8 +46,18 @@ public:
   void testCreation ()
   {
     list<string> filters;
-    LogStream* ls = ssc->create (ff, LOCALHOST_ADDRESS ":0", filters, 0);
-    CPPUNIT_ASSERT (!ls);
+    bool success = false;
+
+    try
+      {
+        LogStream* ls = ssc->create (ff, LOCALHOST_ADDRESS ":0", filters, 0);
+      }
+    catch (...)
+      {
+        success = true;
+      }
+
+    CPPUNIT_ASSERT (success);
   }
 
   void testGetPort ()

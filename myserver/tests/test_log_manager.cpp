@@ -94,6 +94,21 @@ public:
     lm = new LogManager (ff);
   }
 
+  void tearDown ()
+  {
+    lm->close (this, "test", "file://foo");
+    delete lm;
+    delete ff;
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
+  }
+
+
   void testEmpty ()
   {
     CPPUNIT_ASSERT (lm->empty ());
@@ -151,8 +166,13 @@ public:
     File f;
     char buf[message.size () + 1];
     u_long nbr;
-    FilesUtility::deleteFile ("foo");
-
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
     lm->add (this, "test", "file://foo", filters, 0);
     lm->log (this, "test", "file://foo", message);
     lm->close (this);
@@ -167,7 +187,13 @@ public:
   void testFileStreamClose ()
   {
     list<string> filters;
-    FilesUtility::deleteFile ("foo");
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
 
     lm->add (this, "test", "file://foo", filters, 0);
 
@@ -177,7 +203,13 @@ public:
   void testCloseAnAlreadyClosedFileStream ()
   {
     list<string> filters;
-    FilesUtility::deleteFile ("foo");
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
 
     lm->add (this, "test", "file://foo", filters, 0);
     lm->close (this, "test", "file://foo");
@@ -198,7 +230,13 @@ public:
     LogStream* ls;
     list<string> cs;
     list<string>::iterator it;
-    FilesUtility::deleteFile ("foobar");
+    try
+      {
+        FilesUtility::deleteFile ("foobar");
+      }
+    catch (...)
+      {
+      }
 
     lm->add (this, "test", "file://foobar", filters, 10);
     lm->log (this, "test", "file://foobar", message);
@@ -220,11 +258,24 @@ public:
         buf[nbr] = '\0';
         f.close ();
         gotMessage.assign (buf);
-        FilesUtility::deleteFile (*it);
+        try
+          {
+            FilesUtility::deleteFile (*it);
+          }
+        catch (...)
+          {
+          }
       }
 
     lm->close (this);
-    FilesUtility::deleteFile ("foobar");
+
+    try
+      {
+        FilesUtility::deleteFile ("foobar");
+      }
+    catch (...)
+      {
+      }
 
     CPPUNIT_ASSERT (!message1.compare (gotMessage1));
     CPPUNIT_ASSERT (!message.compare (gotMessage));
@@ -244,7 +295,14 @@ public:
   void testMessageLevelLessThanLogManagerOne ()
   {
     list<string> filters;
-    FilesUtility::deleteFile ("foo");
+
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
 
     lm->add (this, "test", "file://foo", filters, 0);
     lm->setLevel (MYSERVER_LOG_MSG_WARNING);
@@ -256,7 +314,14 @@ public:
   void testMessageLevelEqualToLogManagerOne ()
   {
     list<string> filters;
-    FilesUtility::deleteFile ("foo");
+
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
 
     lm->add (this, "test", "file://foo", filters, 0);
     lm->setLevel (MYSERVER_LOG_MSG_WARNING);
@@ -268,7 +333,14 @@ public:
   void testClear ()
   {
     list<string> filters;
-    FilesUtility::deleteFile ("foo");
+
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
 
     lm->add (this, "test", "file://foo", filters, 0);
     lm->add (this, "test", "console://stdout", filters, 0);
@@ -288,7 +360,13 @@ public:
     u_long nbr;
     GzipDecompress gzdc;
 
-    FilesUtility::deleteFile ("fooz");
+    try
+      {
+        FilesUtility::deleteFile ("fooz");
+      }
+    catch (...)
+      {
+      }
 
     filters.push_back ("gzip");
     lm->add (this, "test", "file://fooz", filters, 0);
@@ -302,7 +380,13 @@ public:
                      gzipChainDecomp, 64);
     gzipChainDecomp[message.size ()] = '\0';
 
-    FilesUtility::deleteFile ("fooz");
+    try
+      {
+        FilesUtility::deleteFile ("fooz");
+      }
+    catch (...)
+      {
+      }
 
     CPPUNIT_ASSERT (!message.compare (gzipChainDecomp));
   }
@@ -323,7 +407,14 @@ public:
     list<string> cs;
     list<string>::iterator it;
     LogStream* ls;
-    FilesUtility::deleteFile ("fooc");
+
+    try
+      {
+        FilesUtility::deleteFile ("fooc");
+      }
+    catch (...)
+      {
+      }
 
     filters.push_back ("gzip");
     lm->add (this, "test", "file://fooc", filters, cycleLog);
@@ -349,10 +440,24 @@ public:
                          gzipDecomp, 128);
         gzipDecomp[message.size ()] = '\0';
         gotMessage.assign (gzipDecomp);
-        FilesUtility::deleteFile (*it);
+
+        try
+          {
+            FilesUtility::deleteFile (*it);
+          }
+        catch (...)
+          {
+          }
       }
     lm->close (this);
-    FilesUtility::deleteFile ("fooc");
+
+    try
+      {
+        FilesUtility::deleteFile ("fooc");
+      }
+    catch (...)
+      {
+      }
 
     CPPUNIT_ASSERT (!message1.compare (gotMessage1));
     CPPUNIT_ASSERT (!message.compare (gotMessage));
@@ -361,7 +466,14 @@ public:
   void testCountSingleLogStream ()
   {
     list<string> filters;
-    FilesUtility::deleteFile ("foo");
+
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
 
     lm->add (this, "test", "console://stdout", filters, 0);
     lm->add (this, "test_1", "console://stderr", filters, 0);
@@ -373,7 +485,14 @@ public:
   void testCountSameTypeLogStreams ()
   {
     list<string> filters;
-    FilesUtility::deleteFile ("foo");
+
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
 
     lm->add (this, "test", "console://stdout", filters, 0);
     lm->add (this, "test_1", "console://stderr", filters, 0);
@@ -385,7 +504,14 @@ public:
   void testCountAllLogStreamsOwnedByAnObject ()
   {
     list<string> filters;
-    FilesUtility::deleteFile ("foo");
+
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
 
     lm->add (this, "test", "console://stdout", filters, 0);
     lm->add (this, "test_1", "console://stderr", filters, 0);
@@ -406,7 +532,14 @@ public:
     list<string> filters;
     list<string> tmp;
     list<string> l;
-    FilesUtility::deleteFile ("foo");
+
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
 
     lm->add (this, "test", "file://foo", filters, 0);
     lm->add (this, "test", "console://stdout", filters, 0);
@@ -426,7 +559,14 @@ public:
     list<string> filters;
     list<string> tmp;
     list<string> l;
-    FilesUtility::deleteFile ("foo");
+
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
 
     lm->add (this, "test", "file://foo", filters, 0);
     lm->add (this, "test", "console://stdout", filters, 0);
@@ -444,7 +584,14 @@ public:
   {
     list<string> filters;
     LogStream* ls;
-    FilesUtility::deleteFile ("foo");
+
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
 
     lm->add (this, "test", "file://foo", filters, 0);
 
@@ -455,7 +602,14 @@ public:
   {
     list<string> filters;
     LogStream* ls;
-    FilesUtility::deleteFile ("foo");
+
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
 
     lm->add (this, "test", "file://foo", filters, 0);
 
@@ -472,7 +626,13 @@ public:
     u_long nbr;
     ostringstream oss;
 
-    FilesUtility::deleteFile ("fooa");
+    try
+      {
+        FilesUtility::deleteFile ("fooa");
+      }
+    catch (...)
+      {
+      }
 
     oss << "message1" << endl;
     message1.assign (oss.str ());
@@ -490,7 +650,13 @@ public:
     f.close ();
     buf[nbr] = '\0';
 
-    FilesUtility::deleteFile ("fooa");
+    try
+      {
+        FilesUtility::deleteFile ("fooa");
+      }
+    catch (...)
+      {
+      }
 
     CPPUNIT_ASSERT (!string (buf).compare (message1.append (message2)));
   }
@@ -498,7 +664,14 @@ public:
   void testFileStreamAddWithNotExistingFilter ()
   {
     list<string> filters;
-    FilesUtility::deleteFile ("foo");
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
+
     filters.push_back ("not_existing_filter");
 
     CPPUNIT_ASSERT (lm->add (this, "test", "file://foo", filters, 0));
@@ -533,7 +706,14 @@ public:
   void testAddMultipleTimesTheSameKey ()
   {
     list<string> filters;
-    FilesUtility::deleteFile ("foo");
+
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
 
     lm->add (this, "test", "file://foo", filters, 0);
 
@@ -544,7 +724,14 @@ public:
   {
     list<string> filters;
     AnObject anObject;
-    FilesUtility::deleteFile ("foo");
+
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
 
     lm->add (this, "test", "file://foo", filters, 0);
 
@@ -554,10 +741,17 @@ public:
   void testAddLogStreamSharedByTheSameObject ()
   {
     list<string> filters;
+    try
+      {
     FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
+
     lm->add (this, "test", "file://foo", filters, 0);
 
-    CPPUNIT_ASSERT (!lm->add (this, "test1", "file://foo", filters, 0));
+    CPPUNIT_ASSERT (! lm->add (this, "test1", "file://foo", filters, 0));
   }
 
   void testGetLogStreamSharedByDistinctObjects ()
@@ -567,7 +761,14 @@ public:
     list<const void*> l;
     LogStream* ls;
     LogStream* ls1;
-    FilesUtility::deleteFile ("foo");
+
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
 
     lm->add (this, "test", "file://foo", filters, 0);
     lm->add (&anObject, "test", "file://foo", filters, 0);
@@ -584,7 +785,14 @@ public:
     list<const void*> l;
     LogStream* ls;
     LogStream* ls1;
-    FilesUtility::deleteFile ("foo");
+
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
 
     lm->add (this, "test", "file://foo", filters, 0);
     lm->add (this, "test1", "file://foo", filters, 0);
@@ -601,7 +809,14 @@ public:
     AnObject anObject;
     AnObject anotherObject;
     list<const void*> l;
-    FilesUtility::deleteFile ("foo");
+
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
 
     lm->add (this, "test", "file://foo", filters, 0);
     lm->add (&anObject, "test1", "file://foo", filters, 0);
@@ -632,7 +847,14 @@ public:
   void testLogOnAClosedLogStream ()
   {
     list<string> filters;
-    FilesUtility::deleteFile ("foo");
+
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
 
     lm->add (this, "test", "file://foo", filters, 0);
     lm->close (this, "test", "file://foo");
@@ -644,7 +866,15 @@ public:
   {
 #ifndef WIN32
     list<string> filters;
-    FilesUtility::deleteFile ("foo");
+
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
+
 
     lm->add (this, "test", "file://foo", filters, 0);
     ostringstream uidOss;
@@ -657,14 +887,6 @@ public:
 
     CPPUNIT_ASSERT (!lm->chown (this, "test", "file://foo", uid, gid));
 #endif
-  }
-
-  void tearDown ()
-  {
-    lm->close (this, "test", "file://foo");
-    delete lm;
-    delete ff;
-    FilesUtility::deleteFile ("foo");
   }
 
 private:

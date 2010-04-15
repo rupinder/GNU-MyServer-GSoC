@@ -44,6 +44,8 @@ public:
   int readHandle (Handle*);
   int writeHandle (Handle);
 
+  /* Reset the fd's without close them.  */
+  void resetHandles (){handles[0] = handles[1] = -1;}
 protected:
   SocketHandle handles[2];
 };

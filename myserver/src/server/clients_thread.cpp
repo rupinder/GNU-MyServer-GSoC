@@ -30,6 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/protocol/control/control_protocol.h>
 #include <include/protocol/ftp/ftp.h>
 
+#include <include/base/exceptions/checked.h>
+
 #ifndef WIN32
 # include <sys/socket.h>
 # include <netinet/in.h>
@@ -100,11 +102,11 @@ DEFINE_THREAD (clients_thread, pParam)
 #ifndef WIN32
   /* Block SigTerm, SigInt, and SigPipe in threads.  */
   sigset_t sigmask;
-  gnulib::sigemptyset (&sigmask);
-  gnulib::sigaddset (&sigmask, SIGPIPE);
-  gnulib::sigaddset (&sigmask, SIGINT);
-  gnulib::sigaddset (&sigmask, SIGTERM);
-  gnulib::sigprocmask (SIG_SETMASK, &sigmask, NULL);
+  checked::sigemptyset (&sigmask);
+  checked::sigaddset (&sigmask, SIGPIPE);
+  checked::sigaddset (&sigmask, SIGINT);
+  checked::sigaddset (&sigmask, SIGTERM);
+  checked::sigprocmask (SIG_SETMASK, &sigmask, NULL);
 #endif
   ClientsThread *ct = (ClientsThread*)pParam;
 

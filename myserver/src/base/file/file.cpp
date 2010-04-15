@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/utility.h>
 #include <include/base/string/stringutils.h>
 #include <include/base/file/files_utility.h>
+#include <include/base/exceptions/checked.h>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -97,7 +98,7 @@ int File::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
     return -1;
   }
 
-  ret = gnulib::write (handle, buffer, buffersize);
+  ret = checked::write (handle, buffer, buffersize);
   if (ret < 0)
     return ret;
 
@@ -160,9 +161,9 @@ int File::openFile (const char* nfilename, u_long opt)
     flags |= O_APPEND;
 
   if (exists)
-    handle = gnulib::open (filename.c_str (), O_APPEND | flags);
+    handle = checked::open (filename.c_str (), O_APPEND | flags);
   else
-    handle = gnulib::open (filename.c_str (), O_CREAT | flags, S_IRUSR | S_IWUSR);
+    handle = checked::open (filename.c_str (), O_CREAT | flags, S_IRUSR | S_IWUSR);
 
   try
     {
@@ -174,7 +175,7 @@ int File::openFile (const char* nfilename, u_long opt)
           }
  
       if (opt & File::TEMPORARY)
-        if (gnulib::unlink (filename.c_str ()))
+        if (checked::unlink (filename.c_str ()))
           {
             close ();
             return -1;
@@ -266,9 +267,9 @@ int File::close ()
   if (handle != -1)
     {
       if (opt & File::TEMPORARY_DELAYED)
-        gnulib::unlink (filename.c_str ());
-      ret = gnulib::fsync (handle);
-      ret |= gnulib::close (handle);
+        checked::unlink (filename.c_str ());
+      ret = checked::fsync (handle);
+      ret |= checked::close (handle);
     }
 
   filename.clear ();
@@ -285,7 +286,7 @@ u_long File::getFileSize ()
 {
   u_long ret;
   struct stat fStats;
-  ret = gnulib::fstat (handle, &fStats);
+  ret = checked::fstat (handle, &fStats);
   if (ret)
     return (u_long)(-1);
   else

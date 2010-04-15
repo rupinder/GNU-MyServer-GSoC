@@ -31,6 +31,8 @@
 #include <include/base/string/stringutils.h>
 #include <include/base/mem_buff/mem_buff.h>
 
+#include <include/base/exceptions/checked.h>
+
 #include <include/conf/security/auth_domain.h>
 
 #ifndef WIN32
@@ -58,7 +60,7 @@ void setFtpHost (FtpHost & out, const FtpHost & in)
 void setFtpHost (FtpHost & out, const char *szIn)
 {
   std::stringstream ss;
-  char *szLocalIn = gnulib::strdup (szIn);
+  char *szLocalIn = checked::strdup (szIn);
   char *tok = strtok (szLocalIn, ",.");
   while (tok != NULL)
     {

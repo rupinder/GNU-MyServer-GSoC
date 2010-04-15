@@ -47,13 +47,33 @@ public:
     ff->insert ("gzip", Gzip::factory);
   }
 
+  void tearDown ()
+  {
+    delete ff;
+    delete fsc;
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
+  }
+
   void testCycleLog ()
   {
     list<string> filters;
     string message;
     string message2;
     LogStream* ls;
-    FilesUtility::deleteFile ("foo");
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
+
     ostringstream oss;
 
     oss << "thisisaverylongmessage" << endl;
@@ -87,7 +107,7 @@ public:
         CPPUNIT_ASSERT_EQUAL (nbr, (u_long) message.length ());
         CPPUNIT_ASSERT (!message.compare (buf));
         f.close ();
-        CPPUNIT_ASSERT (!FilesUtility::deleteFile (*it));
+        CPPUNIT_ASSERT (! FilesUtility::deleteFile (*it));
       }
     delete ls;
   }
@@ -109,7 +129,13 @@ public:
     oss << endl;
     message2.assign (oss.str ());
 
-    FilesUtility::deleteFile ("foo");
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
     ls = fsc->create (ff, "foo", filters, 0);
     CPPUNIT_ASSERT (ls);
     ls->log (message1);
@@ -128,13 +154,6 @@ public:
     buf[nbr] = '\0';
     CPPUNIT_ASSERT_EQUAL (nbr, (u_long)(message1.length () + message2.length ()));
     CPPUNIT_ASSERT (!string (buf).compare (message1.append (message2)));
-  }
-
-  void tearDown ()
-  {
-    delete ff;
-    delete fsc;
-    FilesUtility::deleteFile ("foo");
   }
 
 private:

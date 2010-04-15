@@ -26,6 +26,9 @@
 #include "../include/base/file/file.h"
 #include "../include/base/file/files_utility.h"
 
+#include "../include/base/exceptions/exceptions.h"
+
+
 #include <string.h>
 
 using namespace std;
@@ -58,7 +61,7 @@ public:
     CPPUNIT_ASSERT_EQUAL (sp.getFirstHandle (), inverted.getSecondHandle ());
     CPPUNIT_ASSERT_EQUAL (sp.getSecondHandle (), inverted.getFirstHandle ());
 
-    sp.close ();
+    inverted.resetHandles ();
   }
   /* FIXME: generalize for other classes that inherit from File.  */
   void testFastCopyToSocket ()
@@ -127,7 +130,6 @@ public:
     writeSock.create ();
     writeSock.inverted (readSock);
 
-
     ret = writeSock.write (inBuffer, strlen (inBuffer) + 1, &nbw);
 
     CPPUNIT_ASSERT_EQUAL (ret, 0);
@@ -139,7 +141,7 @@ public:
 
     CPPUNIT_ASSERT_EQUAL (strcmp (inBuffer, outBuffer), 0);
 
-    writeSock.close ();
+    readSock.resetHandles ();
   }
 
 };

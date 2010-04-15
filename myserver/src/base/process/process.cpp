@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <include/base/exceptions/checked.h>
+
 #ifndef WIN32
 # include <unistd.h>
 # include <signal.h>
@@ -265,28 +267,28 @@ int Process::exec (StartProcInfo* spi, bool waitEnd)
         exit (1);
 
       if ((long)spi->stdOut == -1)
-        spi->stdOut = gnulib::open ("/dev/null", O_WRONLY);
+        spi->stdOut = checked::open ("/dev/null", O_WRONLY);
 
       if ((long)spi->stdError == -1)
-        spi->stdError = gnulib::open ("/dev/null", O_WRONLY);
+        spi->stdError = checked::open ("/dev/null", O_WRONLY);
 
-      gnulib::close (0);
+      checked::close (0);
 
       if (spi->stdIn != -1)
         {
-          if (gnulib::dup2 (spi->stdIn, 0) == -1)
+          if (checked::dup2 (spi->stdIn, 0) == -1)
             exit (1);
-          gnulib::close (spi->stdIn);
+          checked::close (spi->stdIn);
         }
 
-      gnulib::close (1);
+      checked::close (1);
 
-      if (gnulib::dup2 (spi->stdOut, 1) == -1)
+      if (checked::dup2 (spi->stdOut, 1) == -1)
         exit (1);
 
-      gnulib::close (2);
+      checked::close (2);
 
-      if (gnulib::dup2 (spi->stdError, 2) == -1)
+      if (checked::dup2 (spi->stdError, 2) == -1)
         exit (1);
 
       if (spi->handlesToClose)
@@ -294,16 +296,15 @@ int Process::exec (StartProcInfo* spi, bool waitEnd)
           FileHandle* h = spi->handlesToClose;
           while (*h)
             {
-              gnulib::close (*h);
+              checked::close (*h);
               h++;
             }
         }
 
-      execve ((const char*)args[0],
-              (char* const*)args, (char* const*) envp);
+      execve ((const char*) args[0],
+              (char* const*) args, (char* const*) envp);
 
     exit (1);
-
   }
 
   if (waitEnd)
@@ -534,11 +535,11 @@ int Process::setAdditionalGroups (u_long len, u_long *groups)
 
   for (i = 0; i < len; i++)
     if (groups)
-      gids[i] = (gid_t)groups[i];
+      gids[i] = (gid_t) groups[i];
     else
-      gids[i] = (gid_t)0;
+      gids[i] = (gid_t) 0;
 
-  ret = setgroups ((size_t)0, gids) == -1;
+  ret = setgroups ((size_t) 0, gids) == -1;
 
   delete [] gids;
 

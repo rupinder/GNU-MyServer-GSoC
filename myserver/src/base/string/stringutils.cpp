@@ -20,6 +20,8 @@
 #include <include/base/string/stringutils.h>
 #include <include/base/safetime/safetime.h>
 
+#include <include/base/exceptions/checked.h>
+
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -309,7 +311,7 @@ time_t getTime (const char* str)
 
   t.tm_isdst = -1;
 
-  return gnulib::mktime (&t);
+  return checked::mktime (&t);
 }
 
 /*!
