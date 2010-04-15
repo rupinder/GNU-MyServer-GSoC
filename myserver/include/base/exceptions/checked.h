@@ -49,6 +49,35 @@
  */
 namespace checked
 {
+  void raiseException ();
+
+  /*!
+   * Check if the last operation was successful, the operation is consider
+   * successful if the return value is >= 0.
+   *
+   * \param x The function's return value
+   */
+  static inline int checkError (int x)
+  {
+    if (x < 0)
+      checked::raiseException ();
+
+    return x;
+  }
+
+  /*!
+   * Check if the last operation was successful, the operation is consider
+   * successful if the return value is != NULL.
+   *
+   * \param x The function's return value
+   */
+  static inline const void *checkErrorNull (const void *x)
+  {
+    if (x == NULL)
+      checked::raiseException ();
+
+    return x;
+  }
   int accept (int fd, struct sockaddr *addr, socklen_t *addrlen);
   int bind (int fd, const struct sockaddr *addr, socklen_t addrlen);
   int chown (const char *file, uid_t uid, gid_t gid);
@@ -92,8 +121,6 @@ namespace checked
   char *strdup (char const *__s);
   int unlink (char const *file);
   ssize_t write (int fd, const void *buf, size_t count);
-
-  void raiseException ();
 }
 
 #endif

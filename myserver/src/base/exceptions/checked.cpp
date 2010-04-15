@@ -19,29 +19,6 @@
 */
 #include <include/base/exceptions/checked.h>
 
-/*!
- * Check if the last operation was successful
- * \param x The function's return value
- */
-static inline int checkError (int x)
-{
-  if (x < 0)
-    checked::raiseException ();
-
-  return x;
-}
-
-/*!
- * \see checkError
- */
-static inline const void *checkErrorNull (const void *x)
-{
-  if (x == NULL)
-    checked::raiseException ();
-
-  return x;
-}
-
 namespace checked
 {
   int accept (int fd, struct sockaddr *addr, socklen_t *addrlen)
