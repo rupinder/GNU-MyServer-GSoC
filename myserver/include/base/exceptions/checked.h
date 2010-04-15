@@ -70,7 +70,7 @@ namespace checked
   void *memchr (void const *__s, int __c, size_t __n);
   int mkdir (char const *name, mode_t mode);
   time_t mktime (struct tm *__tp);
-  int open (const char *filename, int flags);
+  int open (const char *filename, int flags, int mask = 0);
   DIR *opendir (const char *);
   int fsync (int fd);
   ssize_t read (int fd, void *buf, size_t count);

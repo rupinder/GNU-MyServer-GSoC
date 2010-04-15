@@ -149,9 +149,9 @@ namespace checked
     return checkError (gnulib::mktime (__tp));
   }
 
-  int open (const char *filename, int flags)
+  int open (const char *filename, int flags, int mask)
   {
-    return checkError (gnulib::open (filename, flags, 0));
+    return checkError (gnulib::open (filename, flags, mask));
   }
 
   DIR *opendir (const char *name)
