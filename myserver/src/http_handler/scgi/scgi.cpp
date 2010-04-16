@@ -47,8 +47,6 @@ int Scgi::send (HttpThreadContext* td, const char* scriptpath,
   ScgiContext con;
   FiltersChain chain;
 
-  int ret;
-
   string outDataPath;
 
   int sizeEnvString;
@@ -60,159 +58,153 @@ int Scgi::send (HttpThreadContext* td, const char* scriptpath,
 
   td->scriptPath.assign (scriptpath);
 
-  if (!(td->permissions & MYSERVER_PERMISSION_EXECUTE))
-    return td->http->sendAuth ();
-
-  {
-    string tmp;
-    tmp.assign (cgipath);
-    FilesUtility::splitPath (tmp, td->cgiRoot, td->cgiFile);
-    tmp.assign (scriptpath);
-    FilesUtility::splitPath (tmp, td->scriptDir, td->scriptFile);
-  }
-
-  chain.setStream (td->connection->socket);
-  if (td->mime)
-  {
-    u_long nbw;
-    if (td->mime && Server::getInstance ()->getFiltersFactory ()->chain (&chain,
-                                                    td->mime->filters,
-                                                    td->connection->socket,
-                                                    &nbw,
-                                                    1))
+  try
     {
-      td->connection->host->warningsLogWrite (_("SCGI: internal error"));
-      chain.clearAllFilters ();
-      return td->http->raiseHTTPError (500);
-    }
-  }
+      string tmp;
+      if (!(td->permissions & MYSERVER_PERMISSION_EXECUTE))
+        return td->http->sendAuth ();
 
-  td->buffer->setLength (0);
-  td->auxiliaryBuffer->getAt (0) = '\0';
+      tmp.assign (cgipath);
+      FilesUtility::splitPath (tmp, td->cgiRoot, td->cgiFile);
+      tmp.assign (scriptpath);
+      FilesUtility::splitPath (tmp, td->scriptDir, td->scriptFile);
 
-  {
-    /* Do not modify the text between " and ".  */
-    int i;
-    int subString = cgipath[0] == '"';
-    int len = strlen (cgipath);
-    string tmpCgiPath;
-    for (i = 1; i < len; i++)
-    {
-      if (!subString && cgipath[i]==' ')
-        break;
-      if (cgipath[i] == '"' && cgipath[i - 1] != '\\')
-        subString = !subString;
-    }
-    /*!
-      Save the cgi path and the possible arguments.
-      the (x < len) case is when additional arguments are specified.
-      If the cgipath is enclosed between " and " do not consider them
-      when splitting directory and file name.
-     */
-    if (len)
-    {
-      if (i < len)
+      chain.setStream (td->connection->socket);
+      if (td->mime)
+        {
+          u_long nbw;
+          if (td->mime)
+            Server::getInstance ()->getFiltersFactory ()->chain (&chain,
+                                                                 td->mime->filters,
+                                                                 td->connection->socket,
+                                                                 &nbw,
+                                                                 1);
+        }
+
+      td->buffer->setLength (0);
+      td->auxiliaryBuffer->getAt (0) = '\0';
+
       {
-        string tmpString (cgipath);
-        int begin = tmpString[0]=='"' ? 1: 0;
-        int end = tmpString[i] == '"' ? i - 1: i;
-        tmpCgiPath.assign (tmpString.substr (begin, end - begin));
-        moreArg.assign (tmpString.substr (i, len - 1));
-      }
-      else
-      {
-        int begin = (cgipath[0] == '"') ? 1 : 0;
-        int end   = (cgipath[len] == '"') ? len - 1 : len;
-        tmpCgiPath.assign (&cgipath[begin], end - begin);
-        moreArg.assign ("");
-      }
-      FilesUtility::splitPath (tmpCgiPath, td->cgiRoot, td->cgiFile);
-    }
-    tmpCgiPath.assign (scriptpath);
-    FilesUtility::splitPath (tmpCgiPath, td->scriptDir, td->scriptFile);
-  }
-
-  if (execute)
-  {
-    if (cgipath && strlen (cgipath))
-    {
-#ifdef WIN32
-      {
-        int x;
-        string cgipathString (cgipath);
-        int len = strlen (cgipath);
+        /* Do not modify the text between " and ".  */
+        int i;
         int subString = cgipath[0] == '"';
+        int len = strlen (cgipath);
+        string tmpCgiPath;
+        for (i = 1; i < len; i++)
+          {
+            if (!subString && cgipath[i]==' ')
+              break;
+            if (cgipath[i] == '"' && cgipath[i - 1] != '\\')
+              subString = !subString;
+          }
 
-        cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" "
-                << moreArg << " \"" <<  td->filenamePath << "\"";
+        /*
+          Save the cgi path and the possible arguments.
+          the (x < len) case is when additional arguments are specified.
+          If the cgipath is enclosed between " and " do not consider them
+          when splitting directory and file name.
+        */
+        if (len)
+          {
+            if (i < len)
+              {
+                string tmpString (cgipath);
+                int begin = tmpString[0]=='"' ? 1: 0;
+                int end = tmpString[i] == '"' ? i - 1: i;
+                tmpCgiPath.assign (tmpString.substr (begin, end - begin));
+                moreArg.assign (tmpString.substr (i, len - 1));
+              }
+            else
+              {
+                int begin = (cgipath[0] == '"') ? 1 : 0;
+                int end   = (cgipath[len] == '"') ? len - 1 : len;
+                tmpCgiPath.assign (&cgipath[begin], end - begin);
+                moreArg.assign ("");
+              }
+            FilesUtility::splitPath (tmpCgiPath, td->cgiRoot, td->cgiFile);
+          }
+        tmpCgiPath.assign (scriptpath);
+        FilesUtility::splitPath (tmpCgiPath, td->scriptDir, td->scriptFile);
       }
-#else
-       cmdLine << cgipath << " " << td->filenamePath;
-#endif
-    }/*if (execute).  */
-    else
-    {
-      cmdLine << scriptpath;
-    }
-  }
-  else
-  {
+
+      if (execute)
+        {
+          if (cgipath && strlen (cgipath))
+            {
 #ifdef WIN32
-    cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile
-            << "\" " << moreArg;
+              {
+                int x;
+                string cgipathString (cgipath);
+                int len = strlen (cgipath);
+                int subString = cgipath[0] == '"';
+
+                cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" "
+                        << moreArg << " \"" <<  td->filenamePath << "\"";
+              }
 #else
-    cmdLine << cgipath;
+              cmdLine << cgipath << " " << td->filenamePath;
 #endif
-  }
+            }/*if (execute).  */
+          else
+            {
+              cmdLine << scriptpath;
+            }
+        }
+      else
+        {
+#ifdef WIN32
+          cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile
+                  << "\" " << moreArg;
+#else
+          cmdLine << cgipath;
+#endif
+        }
 
-  Env::buildEnvironmentString (td, td->buffer->getBuffer ());
-  sizeEnvString = buildScgiEnvironmentString (td,td->buffer->getBuffer (),
-                                             td->auxiliaryBuffer->getBuffer ());
-  if (sizeEnvString == -1)
-  {
-    td->connection->host->warningsLogWrite (_("SCGI: internal error"));
-    chain.clearAllFilters ();
-    return td->http->raiseHTTPError (500);
-  }
-  td->inputData.close ();
-  if (td->inputData.openFile (td->inputDataPath, File::READ |
-                            File::FILE_OPEN_ALWAYS |
-                            File::NO_INHERIT))
-  {
-    td->connection->host->warningsLogWrite (_("SCGI: internal error"));
-    chain.clearAllFilters ();
-    return td->http->raiseHTTPError (500);
-  }
+      Env::buildEnvironmentString (td, td->buffer->getBuffer ());
+      sizeEnvString = buildScgiEnvironmentString (td,td->buffer->getBuffer (),
+                                                  td->auxiliaryBuffer->getBuffer ());
+      if (sizeEnvString == -1)
+        {
+          td->connection->host->warningsLogWrite (_("SCGI: internal error"));
+          chain.clearAllFilters ();
+          return td->http->raiseHTTPError (500);
+        }
+      td->inputData.close ();
+      td->inputData.openFile (td->inputDataPath, File::READ
+                              | File::FILE_OPEN_ALWAYS | File::NO_INHERIT);
 
-  server = connect (&con, cmdLine.str ().c_str ());
+      try
+        {
+          server = connect (&con, cmdLine.str ().c_str ());
+        }
+      catch (exception & e)
+        {
+          td->connection->host->warningsLogWrite
+            (_E ("SCGI: error connecting to the process %s"),
+             cmdLine.str ().c_str (), &e);
+          chain.clearAllFilters ();
+          return td->http->raiseHTTPError (500);
+        }
 
-  if (server == 0)
-  {
-    td->connection->host->warningsLogWrite (_("SCGI: error connecting to the process %s"),
-                                           cmdLine.str ().c_str ());
-    chain.clearAllFilters ();
-    return td->http->raiseHTTPError (500);
-  }
-  ret = sendNetString (&con, td->auxiliaryBuffer->getBuffer (), sizeEnvString);
+      sendNetString (&con, td->auxiliaryBuffer->getBuffer (), sizeEnvString);
+      if (td->request.contentLength.size ()
+          && !td->request.contentLength.compare ("0"))
+        sendPostData (&con);
 
-  if (td->request.contentLength.size () &&
-     !td->request.contentLength.compare ("0"))
-  {
-    if (sendPostData (&con))
-     {
+      sendResponse (&con, onlyHeader, &chain);
+
+      chain.clearAllFilters ();
+      con.tempOut.close ();
+      con.sock.close ();
+    }
+  catch (exception & e)
+    {
+      td->connection->host->warningsLogWrite (_E ("SCGI: internal error"), &e);
       chain.clearAllFilters ();
       return td->http->raiseHTTPError (500);
     }
-  }
 
-  ret = sendResponse (&con, onlyHeader, &chain);
-
-
-  chain.clearAllFilters ();
-  con.tempOut.close ();
-
-  con.sock.close ();
-  return ret;
+  return HttpDataHandler::RET_OK;
 }
 
 
@@ -272,21 +264,19 @@ int Scgi::sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
                                                 &td->response,
                                                 &(td->nBytesToRead));
 
-  if (HttpHeaders::sendHeader (td->response, *td->connection->socket,
-                               *td->auxiliaryBuffer, td))
-    return HttpDataHandler::RET_FAILURE;
+  HttpHeaders::sendHeader (td->response, *td->connection->socket,
+                           *td->auxiliaryBuffer, td);
 
   if (onlyHeader)
     return HttpDataHandler::RET_OK;
 
   if (read - headerSize)
-    if (appendDataToHTTPChannel (td, td->auxiliaryBuffer->getBuffer () + headerSize,
-                                 read - headerSize,
-                                 &(td->outputData),
-                                 chain,
-                                 td->appendOutputs,
-                                 useChunks))
-      return HttpDataHandler::RET_FAILURE;
+    appendDataToHTTPChannel (td, td->auxiliaryBuffer->getBuffer () + headerSize,
+                             read - headerSize,
+                             &(td->outputData),
+                             chain,
+                             td->appendOutputs,
+                             useChunks);
 
   sentData += read - headerSize;
 
@@ -301,22 +291,18 @@ int Scgi::sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
           if (!nbr || (nbr == (u_long)-1))
             break;
 
-          if (appendDataToHTTPChannel (td, td->auxiliaryBuffer->getBuffer (),
-                                       nbr,
-                                       &(td->outputData),
-                                       chain,
-                                       td->appendOutputs,
-                                       useChunks))
-            return HttpDataHandler::RET_FAILURE;
+          appendDataToHTTPChannel (td, td->auxiliaryBuffer->getBuffer (),
+                                   nbr,
+                                   &(td->outputData),
+                                   chain,
+                                   td->appendOutputs,
+                                   useChunks);
 
           sentData += nbr;
         }
 
       if (!td->appendOutputs && useChunks)
-        {
-          if (chain->getStream ()->write ("0\r\n\r\n", 5, &nbw))
-            return HttpDataHandler::RET_FAILURE;
-        }
+        chain->getStream ()->write ("0\r\n\r\n", 5, &nbw);
     }
   /* For logging activity.  */
   td->sentData += sentData;
@@ -332,14 +318,9 @@ int Scgi::sendNetString (ScgiContext* ctx, const char* data, int len)
   char header[7];
   int headerLen = sprintf (header, "%i:", len);
 
-  if (ctx->sock.send (header, headerLen, 0) == -1)
-    return -1;
-
-  if (ctx->sock.send (data, len, 0) == -1)
-    return -1;
-
-  if (ctx->sock.send (",", 1, 0) == -1)
-    return -1;
+  ctx->sock.send (header, headerLen, 0);
+  ctx->sock.send (data, len, 0);
+  ctx->sock.send (",", 1, 0);
 
   return 0;
 }
@@ -352,15 +333,15 @@ int Scgi::sendPostData (ScgiContext* ctx)
   u_long nbr;
   do
     {
-      if (ctx->td->inputData.read (ctx->td->auxiliaryBuffer->getBuffer (),
-                                   ctx->td->auxiliaryBuffer->getRealLength (),
-                                   &nbr))
-        return -1;
+      ctx->td->inputData.read (ctx->td->auxiliaryBuffer->getBuffer (),
+                               ctx->td->auxiliaryBuffer->getRealLength (),
+                               &nbr);
 
-      if (nbr && (ctx->sock.send (ctx->td->auxiliaryBuffer->getBuffer (), nbr, 0) == -1))
-        return -1;
+      if (nbr)
+        ctx->sock.send (ctx->td->auxiliaryBuffer->getBuffer (), nbr, 0);
     }
   while (nbr);
+
   return 0;
 }
 
@@ -425,8 +406,9 @@ int Scgi::buildScgiEnvironmentString (HttpThreadContext* td, char* src,
       if (max == 0)
         return -1;
 
-      if (! strcasecmp (varName, "CONTENT_LENGTH") || ! strcasecmp (varName, "SCGI") ||
-          !varNameLen || !varValueLen)
+      if (! strcasecmp (varName, "CONTENT_LENGTH")
+          || ! strcasecmp (varName, "SCGI")
+          || !varNameLen || !varValueLen)
         continue;
 
       for (i = 0; i < varNameLen; i++)
@@ -440,7 +422,7 @@ int Scgi::buildScgiEnvironmentString (HttpThreadContext* td, char* src,
       if (*(++sptr) == '\0')
         break;
     }
-  return static_cast<int>(ptr - dest);
+  return static_cast<int> (ptr - dest);
 }
 
 /*!
