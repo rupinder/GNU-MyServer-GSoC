@@ -63,7 +63,7 @@ int HttpFile::putFile (HttpThreadContext* td, string& filename)
         catch (exception & e)
           {
             td->connection->host->warningsLogWrite
-              (_("HttpFile: error accessing file %s : %e"),
+              (_E ("HttpFile: error accessing file %s"),
                td->filenamePath.c_str (), &e);
             return td->http->raiseHTTPError (500);
           }
@@ -114,7 +114,7 @@ int HttpFile::putFile (HttpThreadContext* td, string& filename)
         catch (exception & e)
           {
             td->connection->host->warningsLogWrite
-              (_("HttpFile: error accessing file %s : %e"),
+              (_E ("HttpFile: error accessing file %s"),
                td->filenamePath.c_str (), &e);
             return td->http->raiseHTTPError (500);
           }
@@ -152,8 +152,10 @@ int HttpFile::putFile (HttpThreadContext* td, string& filename)
         return HttpDataHandler::RET_OK;
       }
   }
-  catch (...)
+  catch (exception & e)
     {
+      td->connection->host->warningsLogWrite (_E ("HttpFile: internal error"),
+                                              &e);
       return td->http->raiseHTTPError (500);
     };
 }
@@ -168,7 +170,7 @@ int HttpFile::deleteFile (HttpThreadContext* td,
   string file;
   try
     {
-      if (!(td->permissions & MYSERVER_PERMISSION_DELETE))
+      if (! (td->permissions & MYSERVER_PERMISSION_DELETE))
         return td->http->sendAuth ();
 
       if (FilesUtility::nodeExists (td->filenamePath))
@@ -179,8 +181,11 @@ int HttpFile::deleteFile (HttpThreadContext* td,
       else
         return td->http->raiseHTTPError (204);
     }
-  catch (...)
+  catch (exception & e)
     {
+      td->connection->host->warningsLogWrite
+        (_E ("HttpFile: cannot delete file %s"),
+         td->filenamePath.c_str (), &e);
       return td->http->raiseHTTPError (500);
     };
 }
@@ -268,17 +273,16 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
       try
         {
           file = Server::getInstance ()->getCachedFiles ()->open (filenamePath);
+          if (! file)
+            return td->http->raiseHTTPError (500);
         }
       catch (exception & e)
         {
           td->connection->host->warningsLogWrite
-            (_("HttpFile: error accessing file %s : %e"),
+            (_E ("HttpFile: error accessing file %s"),
              td->filenamePath.c_str (), &e);
           return td->http->raiseHTTPError (500);
         }
-
-      if (!file)
-        return td->http->raiseHTTPError (500);
 
     /*
      * Check how many bytes are ready to be send.
@@ -289,7 +293,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     generateEtag (etag, lastMT, filesize);
 
     HttpRequestHeader::Entry *etagHeader = td->request.other.get ("etag");
-    if (etagHeader &&  !etagHeader->value->compare (etag))
+    if (etagHeader && !etagHeader->value->compare (etag))
       return td->http->sendHTTPNonModified ();
     else
       {
@@ -325,13 +329,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     /*
      * If fail to set the file pointer returns an internal server error.
      */
-    ret = file->seek (firstByte);
-    if (ret)
-      {
-        file->close ();
-        delete file;
-        return td->http->raiseHTTPError (500);
-      }
+    file->seek (firstByte);
 
     keepalive = td->request.isKeepAlive ();
 
@@ -363,18 +361,12 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     if (td->mime)
       {
         HttpRequestHeader::Entry* e = td->request.other.get ("accept-encoding");
-        if (td->mime &&
-            Server::getInstance ()->getFiltersFactory ()->chain (&chain,
-                                                                 td->mime->filters,
-                                                                 &memStream,
-                                                                 &nbw, 0,
-                                                                 e ? e->value : NULL))
-          {
-            file->close ();
-            delete file;
-            chain.clearAllFilters ();
-            return HttpDataHandler::RET_FAILURE;
-          }
+        if (td->mime)
+          Server::getInstance ()->getFiltersFactory ()->chain (&chain,
+                                                               td->mime->filters,
+                                                               &memStream,
+                                                               &nbw, 0,
+                                                               e ? e->value : NULL);
         memStream.refresh ();
         dataSent += nbw;
       }
@@ -384,7 +376,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     if (!useModifiers)
       {
         ostringstream buffer;
-        buffer << (u_int)bytesToSend;
+        buffer << (u_int) bytesToSend;
         td->response.contentLength.assign (buffer.str ());
       }
 
@@ -435,14 +427,8 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
           delete e;
       }
 
-    if (HttpHeaders::sendHeader (td->response, *td->connection->socket,
-                                 *td->buffer, td))
-      {
-        file->close ();
-        delete file;
-        chain.clearAllFilters ();
-        return HttpDataHandler::RET_FAILURE;
-      }
+    HttpHeaders::sendHeader (td->response, *td->connection->socket,
+                             *td->buffer, td);
 
     /*
       If is requested only the header exit from the function;
@@ -464,8 +450,8 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         && !(td->http->getProtocolOptions () & Protocol::SSL))
       {
         u_long nbw = 0;
-        int ret = file->fastCopyToSocket (td->connection->socket, firstByte,
-                                          td->buffer, &nbw);
+        file->fastCopyToSocket (td->connection->socket, firstByte,
+                                td->buffer, &nbw);
 
         file->close ();
         delete file;
@@ -474,10 +460,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
 
         td->sentData += nbw;
 
-        if (ret)
-          return HttpDataHandler::RET_FAILURE;
-        else
-          return HttpDataHandler::RET_OK;
+        return HttpDataHandler::RET_OK;
       }
 
     if (td->appendOutputs)
@@ -492,29 +475,16 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     */
     if (memStream.availableToRead ())
       {
-        if (memStream.read (td->buffer->getBuffer (),
-                            td->buffer->getRealLength (), &nbr))
-          {
-            file->close ();
-            delete file;
-            chain.clearAllFilters ();
-            return HttpDataHandler::RET_FAILURE;
-          }
+        memStream.read (td->buffer->getBuffer (),
+                        td->buffer->getRealLength (), &nbr);
 
         memStream.refresh ();
-        if (nbr
-            && HttpDataHandler::appendDataToHTTPChannel (td,
-                                                      td->buffer->getBuffer (),
-                                                     nbr, &(td->outputData),
-                                                     &chain, td->appendOutputs,
-                                                         useChunks))
-          {
-            file->close ();
-            delete file;
-            chain.clearAllFilters ();
-            dataSent += nbw;
-            return HttpDataHandler::RET_FAILURE;
-          }
+        if (nbr)
+          HttpDataHandler::appendDataToHTTPChannel (td,
+                                                    td->buffer->getBuffer (),
+                                                    nbr, &(td->outputData),
+                                                    &chain, td->appendOutputs,
+                                                    useChunks);
       } /* memStream.availableToRead ().  */
 
     /* Flush the rest of the file.  */
@@ -527,11 +497,10 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         if (bytesToSend)
           {
             /* Read from the file the bytes to send.  */
-            if ((ret = file->read (td->buffer->getBuffer (),
+            file->read (td->buffer->getBuffer (),
                                   std::min (static_cast<u_long> (bytesToSend),
                       static_cast<u_long> (td->buffer->getRealLength () / 2)),
-                                  &nbr)))
-              break;
+                        &nbr);
 
             if (nbr == 0)
               {
@@ -541,11 +510,9 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
 
             bytesToSend -= nbr;
 
-            if ((ret = appendDataToHTTPChannel (td, td->buffer->getBuffer (),
+            appendDataToHTTPChannel (td, td->buffer->getBuffer (),
                            nbr, &(td->outputData), &chain, td->appendOutputs,
-                        useChunks, td->buffer->getRealLength (), &memStream)))
-              break;
-
+                               useChunks, td->buffer->getRealLength (), &memStream);
             dataSent += nbr;
           }
         else /* if (bytesToSend) */
@@ -553,7 +520,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
             /* If we don't use chunks we can flush directly.  */
             if (!useChunks)
               {
-                ret = chain.flush (&nbw);
+                chain.flush (&nbw);
                 break;
               }
             else
@@ -567,22 +534,21 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
                 Stream* tmpStream = chain.getStream ();
                 chain.setStream (&memStream);
                 memStream.refresh ();
-                if ((ret = chain.flush (&nbw)))
-                  break;
+                chain.flush (&nbw);
 
                 chain.setStream (tmpStream);
-                if ((ret = memStream.read (td->buffer->getBuffer (),
-                                          td->buffer->getRealLength (), &nbr)))
-                  break;
+                memStream.read (td->buffer->getBuffer (),
+                                td->buffer->getRealLength (), &nbr);
 
-                if ((ret = HttpDataHandler::appendDataToHTTPChannel (td,
-                        td->buffer->getBuffer (), nbr, &(td->outputData),
-                                   &chain, td->appendOutputs, useChunks)))
-                  break;
+                HttpDataHandler::appendDataToHTTPChannel (td,
+                                                       td->buffer->getBuffer (),
+                                                       nbr, &(td->outputData),
+                                                       &chain, td->appendOutputs,
+                                                          useChunks);
 
-                ret = HttpDataHandler::appendDataToHTTPChannel (td, 0, 0,
-                                               &(td->outputData), &chain,
-                                            td->appendOutputs, useChunks);
+                HttpDataHandler::appendDataToHTTPChannel (td, 0, 0,
+                                                     &(td->outputData), &chain,
+                                                 td->appendOutputs, useChunks);
                 break;
               }
           }
@@ -592,15 +558,16 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     file->close ();
     delete file;
   }
-  catch (...)
+  catch (exception & e)
     {
       if (file)
         {
           file->close ();
           delete file;
         }
-      td->connection->host->warningsLogWrite (_("HttpFile: internal error"));
       chain.clearAllFilters ();
+      td->connection->host->warningsLogWrite (_E ("HttpFile: internal error"),
+                                              &e);
       return td->http->raiseHTTPError (500);
     }
 
@@ -608,10 +575,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
   td->sentData += dataSent;
   chain.clearAllFilters ();
 
-  if (ret)
-    return HttpDataHandler::RET_FAILURE;
-  else
-    return HttpDataHandler::RET_OK;
+  return HttpDataHandler::RET_OK;
 }
 
 /*!
