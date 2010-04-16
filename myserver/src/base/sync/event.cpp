@@ -64,10 +64,10 @@ int Event::init (bool broadcast)
 {
   int ret = 0;
   if (initialized)
-  {
-    destroy ();
-    initialized = false;
-  }
+    {
+      destroy ();
+      initialized = false;
+    }
   this->broadcast = broadcast;
 #ifdef HAVE_PTHREAD
   ret = pthread_mutex_init (&mutex,(pthread_mutexattr_t*) NULL);

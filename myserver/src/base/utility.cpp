@@ -231,7 +231,6 @@ int readFileHandle (SocketHandle s, Handle* fd)
   } cmh;
   char tbuf[4];
   struct iovec iov;
-  int ret;
   struct cmsghdr *cmsg;
 
   memset (&mh, 0, sizeof (mh));
@@ -242,10 +241,8 @@ int readFileHandle (SocketHandle s, Handle* fd)
   iov.iov_base = tbuf;
   iov.iov_len = 4;
 
-  ret = recvmsg (s, &mh, 0);
-  if (ret < 0)
-    return ret;
-
+  /* FIXME:  add recvmsg to checked.  */
+  checked::checkError (recvmsg (s, &mh, 0));
   cmsg = CMSG_FIRSTHDR (&mh);
   *fd = *((int *) CMSG_DATA (cmsg));
   return 0;
@@ -285,8 +282,9 @@ int writeFileHandle (SocketHandle s, Handle fd)
   cmsg->cmsg_len = CMSG_LEN (sizeof (int));
   cmsg->cmsg_level = SOL_SOCKET;
   cmsg->cmsg_type = SCM_RIGHTS;
-  *(int *)CMSG_DATA (cmsg) = fd;
+  *(int *) CMSG_DATA (cmsg) = fd;
 
-  return sendmsg (s, &mh, 0);
+  /* FIXME: add sendmsg to checked.  */
+  return checked::checkError (sendmsg (s, &mh, 0));
 #endif
 }

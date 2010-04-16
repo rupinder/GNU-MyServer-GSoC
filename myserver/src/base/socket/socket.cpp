@@ -344,26 +344,21 @@ int Socket::send (const char* buffer, int len, int flags)
   {
     while (1)
       {
-        /*! When we can send data again?  */
+        /* When we can send data again?  */
         u_long time = getTicks () + (1000 * 1024 / throttlingRate) ;
-        /*! If a throttling rate is specified, send chunks of 1024 bytes.  */
+        /* If a throttling rate is specified, send chunks of 1024 bytes.  */
         ret = rawSend (buffer + (len - toSend), toSend < 1024 ?
                        toSend : 1024, flags);
-        /*! On errors returns directly -1.  */
-        if (ret < 0)
-          return -1;
+
         toSend -= (u_long) ret;
-        /*!
-         *If there are other bytes to send wait before cycle again.
-         */
+
+        /* If there are other bytes to send wait before cycle again.  */
         if (toSend)
-          {
-            Thread::wait (getTicks () - time);
-          }
+          Thread::wait (getTicks () - time);
         else
           break;
       }
-    /*! Return the number of sent bytes. */
+    /* Return the number of sent bytes.  */
     return len - toSend;
   }
   return 0;
@@ -532,9 +527,6 @@ int Socket::recv (char* buffer, int len, int flags, u_long timeout)
 {
   int ret = dataAvailable (timeout / 1000, timeout % 1000);
 
-  if (ret < 0)
-    return ret;
-
   if (ret)
     return recv (buffer, len, flags);
 
@@ -665,7 +657,7 @@ int Socket::dataAvailable (int sec, int usec)
   FD_SET (fd, &readfds);
 
   ret = checked::select (fd + 1, &readfds, NULL, NULL, &tv);
-  if (ret <= 0)
+  if (ret == 0)
     return 0;
 
   if (FD_ISSET (fd, &readfds))
@@ -680,11 +672,7 @@ int Socket::dataAvailable (int sec, int usec)
  */
 int Socket::read (char* buffer, u_long len, u_long *nbr)
 {
-  int ret = recv (buffer, len, 0);
-  if (ret < 0)
-    return ret;
-
-  *nbr = static_cast<u_long> (ret);
+  *nbr = static_cast<u_long> (recv (buffer, len, 0));
   return 0;
 }
 
@@ -694,10 +682,6 @@ int Socket::read (char* buffer, u_long len, u_long *nbr)
  */
 int Socket::write (const char* buffer, u_long len, u_long *nbw)
 {
-  int ret = send (buffer, len, 0);
-  if (ret < 0)
-    return ret;
-
-  *nbw = static_cast<u_long> (ret);
+  *nbw = static_cast<u_long> (send (buffer, len, 0));
   return 0;
 }

@@ -263,26 +263,26 @@ u_long Gzip::getHeader (char *buffer,u_long buffersize)
 int Gzip::read (char* buffer, u_long len, u_long *nbr)
 {
   char *tmp_buff;
-  int ret;
   u_long nbr_parent;
   if (!parent)
-    return -1;
-  tmp_buff = new char[len/2];
-  if (!tmp_buff)
     return -1;
 
   if (!active)
     return parent->read (buffer, len, nbr);
 
-  ret = parent->read (tmp_buff, len/2, &nbr_parent);
+  tmp_buff = new char[len/2];
 
-  if (ret == -1)
+  try
+    {
+      parent->read (tmp_buff, len/2, &nbr_parent);
+      *nbr = compress (tmp_buff, nbr_parent, buffer, len);
+    }
+  catch (...)
     {
       delete [] tmp_buff;
-      return -1;
+      throw;
     }
 
-  *nbr = compress (tmp_buff, nbr_parent, buffer, len);
   delete [] tmp_buff;
   return 0;
 }
@@ -310,10 +310,10 @@ int Gzip::write (const char* buffer, u_long len, u_long *nbw)
     {
       u_long nbw_parent;
       u_long size=std::min (len, 512UL);
-      u_long ret=compress (buffer, size, tmpBuffer, 1024);
+      u_long ret = compress (buffer, size, tmpBuffer, 1024);
 
-      if (ret && parent->write (tmpBuffer, ret, &nbw_parent) == -1)
-        return -1;
+      if (ret)
+        parent->write (tmpBuffer, ret, &nbw_parent);
 
       written += ret;
       buffer += size;
@@ -341,10 +341,9 @@ int Gzip::flush (u_long *nbw)
       u_long nbwParentFlush;
       if (!parent)
         return -1;
-      if (parent->write (buffer, *nbw, &nbwParent) != 0)
-        return -1;
-      if (parent->flush (&nbwParentFlush) != 0)
-        return -1;
+
+      parent->write (buffer, *nbw, &nbwParent);
+      parent->flush (&nbwParentFlush);
       *nbw = nbwParentFlush + nbwParent;
     }
   return 0;

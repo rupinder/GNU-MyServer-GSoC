@@ -181,7 +181,6 @@ int FilesUtility::copyFile (File& src, File& dest)
 {
   char buffer[4096];
   u_long nbr, nbw;
-  int ret;
 
 #ifdef HAVE_POSIX_FALLOCATE
   if (posix_fallocate (dest.getHandle (), dest.getSeek (),
@@ -191,34 +190,24 @@ int FilesUtility::copyFile (File& src, File& dest)
 
   for (;;)
   {
-    ret = src.read (buffer, 4096, &nbr);
-    if (ret)
-      return -1;
+    src.read (buffer, 4096, &nbr);
 
     if (!nbr)
       break;
 
-    ret = dest.writeToFile (buffer, nbr, &nbw);
-    if (ret)
-      return -1;
+    dest.writeToFile (buffer, nbr, &nbw);
   }
   return 0;
 }
 
 /*!
  * Delete an existing file passing the path.
- * Return a non-null value on errors.
  * \param filename The file to delete.
  */
 int FilesUtility::deleteFile (const char *filename)
 {
-  int ret;
-  ret = checked::remove (filename);
-
-  if (ret && errno == ENOENT)
-    ret = 0;
-
-  return ret;
+  checked::remove (filename);
+  return 0;
 }
 
 /*!
@@ -227,20 +216,9 @@ int FilesUtility::deleteFile (const char *filename)
  */
 int FilesUtility::isDirectory (const char *filename)
 {
-#ifdef WIN32
-  u_long fa = GetFileAttributes (filename);
-  if (fa != INVALID_FILE_ATTRIBUTES)
-    return (fa & FILE_ATTRIBUTE_DIRECTORY)?1:0;
-  else
-    return 0;
-#else
   struct stat F_Stats;
-  int ret = stat (filename, &F_Stats);
-  if (ret < 0)
-    return 0;
-
-  return (S_ISDIR (F_Stats.st_mode))? 1 : 0;
-#endif
+  checked::stat (filename, &F_Stats);
+  return (S_ISDIR (F_Stats.st_mode)) ? 1 : 0;
 }
 
 /*!
@@ -253,10 +231,7 @@ int FilesUtility::isLink (const char* filename)
   return 0;
 #else
   struct stat F_Stats;
-  int ret = checked::lstat (filename, &F_Stats);
-  if (ret < 0)
-    return 0;
-
+  checked::lstat (filename, &F_Stats);
   return S_ISLNK (F_Stats.st_mode) ? 1 : 0;
 #endif
 
@@ -268,22 +243,17 @@ int FilesUtility::isLink (const char* filename)
  */
 int FilesUtility::nodeExists (const char* filename)
 {
-#ifdef WIN32
-  HANDLE hFile = CreateFile (filename, GENERIC_READ, FILE_SHARE_READ,
-                             NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL
-                             | FILE_FLAG_BACKUP_SEMANTICS, NULL);
-
-  int nRet = (hFile != INVALID_HANDLE_VALUE) ? 1 : 0;
-  CloseHandle (hFile);
-  return nRet;
-#else
   struct stat fstats;
-  int ret = stat (filename, &fstats);
-  if (ret < 0)
-    return 0;
+  try
+    {
+      checked::stat (filename, &fstats);
+    }
+  catch (...)
+    {
+      return 0;
+    }
 
   return 1;
-#endif
 }
 
 /*!
@@ -294,13 +264,8 @@ int FilesUtility::nodeExists (const char* filename)
 time_t FilesUtility::getLastModTime (const char *filename)
 {
   int res;
-#ifdef WIN32
-  struct _stat sf;
-  res = _stat (filename, &sf);
-#else
   struct stat sf;
   res = stat (filename,&sf);
-#endif
 
   if (res == 0)
     return sf.st_mtime;
@@ -316,13 +281,9 @@ time_t FilesUtility::getLastModTime (const char *filename)
 time_t FilesUtility::getCreationTime (const char *filename)
 {
   int res;
-#ifdef WIN32
-  struct _stat sf;
-  res = _stat (filename, &sf);
-#else
   struct stat sf;
   res = stat (filename, &sf);
-#endif
+
   if (res == 0)
     return sf.st_ctime;
   else
@@ -337,13 +298,8 @@ time_t FilesUtility::getCreationTime (const char *filename)
 time_t FilesUtility::getLastAccTime (const char *filename)
 {
   int res;
-#ifdef WIN32
-  struct _stat sf;
-  res = _stat (filename, &sf);
-#else
   struct stat sf;
   res = stat (filename, &sf);
-#endif
   if (res == 0)
     return sf.st_atime;
   else
