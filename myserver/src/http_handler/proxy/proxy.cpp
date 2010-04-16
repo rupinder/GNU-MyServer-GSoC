@@ -68,68 +68,63 @@ int Proxy::send (HttpThreadContext *td,
       return td->http->raiseHTTPError (500);
     }
 
-  req.ver.assign ("HTTP/1.1");
-  req.cmd.assign (td->request.cmd);
-  req.uri.assign ("/");
-  req.uri.append (destUrl.getResource ());
-  req.uri.append (td->pathInfo);
-  req.setValue ("Connection", "Close");
+  try
+    {
+      req.ver.assign ("HTTP/1.1");
+      req.cmd.assign (td->request.cmd);
+      req.uri.assign ("/");
+      req.uri.append (destUrl.getResource ());
+      req.uri.append (td->pathInfo);
+      req.setValue ("Connection", "Close");
 
-  ostringstream host;
-  host << destUrl.getHost ();
-  if (destUrl.getPort () != 80 )
-    host << ":" << destUrl.getPort ();
+      ostringstream host;
+      host << destUrl.getHost ();
+      if (destUrl.getPort () != 80 )
+        host << ":" << destUrl.getPort ();
 
-  req.setValue ("Host", host.str ().c_str ());
+      req.setValue ("Host", host.str ().c_str ());
 
-  string xForwardedFor;
-  td->request.getValue ("X-Forwarded-For", &xForwardedFor);
-  if (xForwardedFor.size ())
-    xForwardedFor.append (", ");
-  xForwardedFor.append (td->connection->getIpAddr ());
-  req.setValue ("X-Forwarded-For", xForwardedFor.c_str ());
+      string xForwardedFor;
+      td->request.getValue ("X-Forwarded-For", &xForwardedFor);
+      if (xForwardedFor.size ())
+        xForwardedFor.append (", ");
+      xForwardedFor.append (td->connection->getIpAddr ());
+      req.setValue ("X-Forwarded-For", xForwardedFor.c_str ());
 
-  if (sock.connect (destUrl.getHost ().c_str (), destUrl.getPort ()))
-    return td->http->raiseHTTPError (500);
+      sock.connect (destUrl.getHost ().c_str (), destUrl.getPort ());
 
-  u_long hdrLen =
-    HttpHeaders::buildHTTPRequestHeader (td->auxiliaryBuffer->getBuffer (),
-                                         &req);
+      u_long hdrLen =
+        HttpHeaders::buildHTTPRequestHeader (td->auxiliaryBuffer->getBuffer (),
+                                             &req);
 
 
-  if (sock.write (td->auxiliaryBuffer->getBuffer (), hdrLen, &nbw))
+      sock.write (td->auxiliaryBuffer->getBuffer (), hdrLen, &nbw);
+
+      if (td->request.uriOptsPtr)
+        td->inputData.fastCopyToSocket (&sock, 0, td->auxiliaryBuffer, &nbw);
+
+      chain.setStream (td->connection->socket);
+      if (td->mime)
+        Server::getInstance ()->getFiltersFactory ()->chain (&chain,
+                                                             td->mime->filters,
+                                                             td->connection->socket,
+                                                             &nbw,
+                                                             1);
+
+
+      flushToClient (td, sock, chain, onlyHeader);
+
+      chain.clearAllFilters ();
+      sock.close ();
+      req.free ();
+    }
+  catch (exception & e)
     {
       chain.clearAllFilters ();
-      return HttpDataHandler::RET_FAILURE;
-    }
-
-  if (td->request.uriOptsPtr &&
-      td->inputData.fastCopyToSocket (&sock, 0, td->auxiliaryBuffer, &nbw))
-    {
-      sock.close ();
       return td->http->raiseHTTPError (500);
     }
 
-  chain.setStream (td->connection->socket);
-
-  if (td->mime
-      && Server::getInstance ()->getFiltersFactory ()->chain (&chain,
-                                                              td->mime->filters,
-                                                         td->connection->socket,
-                                                              &nbw,
-                                                              1))
-    {
-      sock.close ();
-      return td->http->raiseHTTPError (500);
-    }
-
-  int ret = flushToClient (td, sock, chain, onlyHeader);
-
-  chain.clearAllFilters ();
-  sock.close ();
-  req.free ();
-
-  return ret;
+  return HttpDataHandler::RET_OK;
 }
 
 /*!
@@ -151,8 +146,6 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
                          td->auxiliaryBuffer->getRealLength () - read,
                          0,
                          td->http->getTimeout ());
-      if (ret < 0)
-        return td->http->raiseHTTPError (500);
 
       read += ret;
 
@@ -193,27 +186,16 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
   u_long hdrLen = HttpHeaders::buildHTTPResponseHeader (td->buffer->getBuffer (),
                                                         &td->response);
 
-  if (out.getStream ()->write (td->buffer->getBuffer (),
-                               hdrLen,
-                               &nbw))
-    return HttpDataHandler::RET_FAILURE;
+  out.getStream ()->write (td->buffer->getBuffer (), hdrLen, &nbw);
 
   if (onlyHeader)
     return HttpDataHandler::RET_OK;
 
-  ret = readPayLoad (td,
-                     &td->response,
-                     &out,
-                     &client,
-                     td->auxiliaryBuffer->getBuffer () + headerLength,
-                     read - headerLength,
-                     td->http->getTimeout (),
-                     useChunks,
-                     keepalive,
-                     hasTransferEncoding ? &transferEncoding : NULL);
-
-  if (ret == -1)
-    return HttpDataHandler::RET_FAILURE;
+  readPayLoad (td, &td->response, &out, &client,
+               td->auxiliaryBuffer->getBuffer () + headerLength,
+               read - headerLength, td->http->getTimeout (),
+               useChunks, keepalive,
+               hasTransferEncoding ? &transferEncoding : NULL);
 
   td->sentData += ret;
   return HttpDataHandler::RET_OK;
@@ -273,84 +255,63 @@ int Proxy::readPayLoad (HttpThreadContext* td,
 
   /* If it is specified a transfer encoding read data using it.  */
   if (serverTransferEncoding)
-  {
-    if (!serverTransferEncoding->compare ("chunked"))
     {
-      for (;;)
+      if (!serverTransferEncoding->compare ("chunked"))
         {
-          if (HttpDataRead::readChunkedPostData (initBuffer,
-                                                 &inPos,
-                                                 initBufferSize,
-                                                 client,
-                                                 td->buffer->getBuffer (),
+          for (;;)
+            {
+              HttpDataRead::readChunkedPostData (initBuffer, &inPos, initBufferSize,
+                                                 client, td->buffer->getBuffer (),
                                                  td->buffer->getRealLength () - 1,
-                                                 &nbr,
-                                                 timeout,
-                                                 NULL,
-                                                 1))
-            return HttpDataHandler::RET_FAILURE;
+                                                 &nbr, timeout, NULL, 1);
 
-          if (!nbr)
-            break;
+              if (!nbr)
+                break;
 
-          if (HttpDataHandler::appendDataToHTTPChannel (td,
+              HttpDataHandler::appendDataToHTTPChannel (td,
                                                         td->buffer->getBuffer (),
-                                                        nbr,
-                                                        &(td->outputData),
-                                                        out,
-                                                        td->appendOutputs,
-                                                        useChunks))
-            return HttpDataHandler::RET_FAILURE;
-
-          written += nbr;
+                                                        nbr, &(td->outputData),
+                                                        out, td->appendOutputs,
+                                                        useChunks);
+              written += nbr;
+            }
         }
     }
-  }
-  /* If it is not specified an encoding, read the data as it is.  */
-  else for (;;)
-  {
+  else
+    {
+      /* If it is not specified an encoding, read the data as it is.  */
+      for (;;)
+        {
+          u_long len = td->buffer->getRealLength () - 1;
 
-    u_long len = td->buffer->getRealLength () - 1;
+          if (contentLength && length < len)
+            len = length;
 
-    if (contentLength && length < len)
-      len = length;
+          if (len == 0)
+            break;
 
-    if (len == 0)
-      break;
-
-    if (HttpDataRead::readContiguousPrimitivePostData (initBuffer,
-                                                      &inPos,
-                                                      initBufferSize,
-                                                      client,
-                                                      td->buffer->getBuffer (),
-                                                      len,
-                                                      &nbr,
-                                                      timeout))
-      return HttpDataHandler::RET_FAILURE;
-
-    if (contentLength == 0 && nbr == 0)
-      break;
-
-    if (length)
-      length -= nbr;
-
-    if (nbr && HttpDataHandler::appendDataToHTTPChannel (td,
+          HttpDataRead::readContiguousPrimitivePostData (initBuffer, &inPos,
+                                                         initBufferSize, client,
                                                          td->buffer->getBuffer (),
-                                                         nbr,
-                                                         &(td->outputData),
-                                                         out,
-                                                         td->appendOutputs,
-                                                         useChunks))
-      return HttpDataHandler::RET_FAILURE;
+                                                         len, &nbr, timeout);
 
-    written += nbr;
+          if (contentLength == 0 && nbr == 0)
+            break;
 
-    if (contentLength && length == 0)
-      break;
-  }
+          if (length)
+            length -= nbr;
 
-  if (useChunks && out->getStream ()->write ("0\r\n\r\n", 5, &nbw))
-    return HttpDataHandler::RET_FAILURE;
+          HttpDataHandler::appendDataToHTTPChannel (td, td->buffer->getBuffer (),
+                                                    nbr, &(td->outputData), out,
+                                                    td->appendOutputs, useChunks);
+          written += nbr;
 
-  return written;
+          if (contentLength && length == 0)
+            break;
+        }
+    }
+  if (useChunks)
+    out->getStream ()->write ("0\r\n\r\n", 5, &nbw);
+
+  return HttpDataHandler::RET_OK;
 }
