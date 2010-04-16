@@ -333,7 +333,7 @@ int Ftp::controlConnection (ConnectionPtr pConnection, char *request,
     {
       pFtpuserData->m_nFtpstate = FtpuserData::UNAVAILABLE;
       ftpReply (421);
-      return 0;
+      return ClientsThread::DELETE_CONNECTION;
     }
 
   m_nLocalControlport = pConnection->getLocalPort ();
@@ -350,7 +350,16 @@ int Ftp::controlConnection (ConnectionPtr pConnection, char *request,
   td.pProtocolInterpreter = this;
   td.m_nParseLength = 0;
 
-  return parseControlConnection ();
+  try
+    {
+      return parseControlConnection ();
+    }
+  catch (exception & e)
+    {
+      return ClientsThread::DELETE_CONNECTION;
+    }
+
+  return ClientsThread::DELETE_CONNECTION;
 }
 
 
@@ -844,7 +853,7 @@ DEFINE_THREAD (SendAsciiFile, pParam)
       pFtpuserData->closeDataConnection ();
       pFtpuserData->m_DataConnBusy.unlock ();
     }
-  catch (bad_alloc & ba)
+  catch (exception & e)
     {
       if (file != NULL)
         file->close ();
@@ -1023,7 +1032,7 @@ DEFINE_THREAD (SendImageFile, pParam)
       file->close ();
       delete file;
     }
-  catch (bad_alloc & ba)
+  catch (exception & e)
     {
       if (file != NULL)
         file->close ();
@@ -1229,7 +1238,7 @@ DEFINE_THREAD (ReceiveAsciiFile, pParam)
         }
       file.close ();
     }
-  catch (bad_alloc & ba)
+  catch (exception & e)
     {
       file.close ();
     }
@@ -1378,7 +1387,7 @@ DEFINE_THREAD (ReceiveImageFile, pParam)
         }
       file.close ();
     }
-  catch (bad_alloc & ba)
+  catch (exception & e)
     {
       file.close ();
     }
