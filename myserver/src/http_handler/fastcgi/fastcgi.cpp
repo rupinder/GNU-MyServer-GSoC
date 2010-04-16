@@ -89,239 +89,229 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
   if (!(td->permissions & MYSERVER_PERMISSION_EXECUTE))
     return td->http->sendAuth ();
 
-  string tmp;
-  tmp.assign (cgipath);
-  FilesUtility::splitPath (tmp, td->cgiRoot, td->cgiFile);
-  tmp.assign (scriptpath);
-  FilesUtility::splitPath (tmp, td->scriptDir, td->scriptFile);
-  chain.setStream (td->connection->socket);
-
-  if (td->mime
-      && Server::getInstance ()->getFiltersFactory ()->chain (&chain,
-                                                              td->mime->filters,
-                                                              td->connection->socket,
-                                                              &nbw,
-                                                              1))
+  try
     {
-      td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
-      chain.clearAllFilters ();
-      return td->http->raiseHTTPError (500);
-    }
+      string tmp;
+      tmp.assign (cgipath);
+      FilesUtility::splitPath (tmp, td->cgiRoot, td->cgiFile);
+      tmp.assign (scriptpath);
+      FilesUtility::splitPath (tmp, td->scriptDir, td->scriptFile);
+      chain.setStream (td->connection->socket);
 
-  td->buffer->setLength (0);
-  td->auxiliaryBuffer->getAt (0) = '\0';
+      if (td->mime)
+        Server::getInstance ()->getFiltersFactory ()->chain (&chain,
+                                                             td->mime->filters,
+                                                             td->connection->socket,
+                                                             &nbw,
+                                                             1);
+
+      td->buffer->setLength (0);
+      td->auxiliaryBuffer->getAt (0) = '\0';
 
 
-  /*! Do not modify the text between " and ".  */
-  int i;
-  int subString = cgipath[0] == '"';
-  int len = strlen (cgipath);
-  string tmpCgiPath;
-  for (i = 1; i < len; i++)
-    {
-      if (!subString && cgipath[i]==' ')
-        break;
-      if (cgipath[i] == '"' && cgipath[i - 1] != '\\')
-        subString = !subString;
-    }
-  /*!
-    Save the cgi path and the possible arguments.
-    the (x < len) case is when additional arguments are specified.
-    If the cgipath is enclosed between " and " do not consider them
-    when splitting directory and file name.
-   */
-  if (len)
-    {
-      if (i < len)
+      /* Do not modify the text between " and ".  */
+      int i;
+      int subString = cgipath[0] == '"';
+      int len = strlen (cgipath);
+      string tmpCgiPath;
+      for (i = 1; i < len; i++)
         {
-          string tmpString (cgipath);
-          int begin = tmpString[0]=='"' ? 1: 0;
-          int end = tmpString[i] == '"' ? i - 1: i;
-          tmpCgiPath.assign (tmpString.substr (begin, end - begin));
-          moreArg.assign (tmpString.substr (i, len - 1));
+          if (!subString && cgipath[i]==' ')
+            break;
+          if (cgipath[i] == '"' && cgipath[i - 1] != '\\')
+            subString = !subString;
+        }
+
+      /*
+        Save the cgi path and the possible arguments.
+        the (x < len) case is when additional arguments are specified.
+        If the cgipath is enclosed between " and " do not consider them
+        when splitting directory and file name.
+      */
+      if (len)
+        {
+          if (i < len)
+            {
+              string tmpString (cgipath);
+              int begin = tmpString[0]=='"' ? 1: 0;
+              int end = tmpString[i] == '"' ? i - 1: i;
+              tmpCgiPath.assign (tmpString.substr (begin, end - begin));
+              moreArg.assign (tmpString.substr (i, len - 1));
+            }
+          else
+            {
+              int begin = (cgipath[0] == '"') ? 1 : 0;
+              int end   = (cgipath[len] == '"') ? len - 1 : len;
+              tmpCgiPath.assign (&cgipath[begin], end - begin);
+              moreArg.assign ("");
+            }
+          FilesUtility::splitPath (tmpCgiPath, td->cgiRoot, td->cgiFile);
+        }
+      tmpCgiPath.assign (scriptpath);
+      FilesUtility::splitPath (tmpCgiPath, td->scriptDir, td->scriptFile);
+
+      if (execute)
+        {
+          if (cgipath && strlen (cgipath))
+            {
+#ifdef WIN32
+              {
+                int x;
+                string cgipathString (cgipath);
+                int len = strlen (cgipath);
+                int subString = cgipath[0] == '"';
+
+                cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" "
+                        << moreArg << " \"" <<  td->filenamePath << "\"";
+              }
+#else
+              cmdLine << cgipath << " " << td->filenamePath;
+#endif
+            }/*if (execute).  */
+          else
+            cmdLine << scriptpath;
         }
       else
-        {
-          int begin = (cgipath[0] == '"') ? 1 : 0;
-          int end   = (cgipath[len] == '"') ? len - 1 : len;
-          tmpCgiPath.assign (&cgipath[begin], end - begin);
-          moreArg.assign ("");
-        }
-      FilesUtility::splitPath (tmpCgiPath, td->cgiRoot, td->cgiFile);
-    }
-  tmpCgiPath.assign (scriptpath);
-  FilesUtility::splitPath (tmpCgiPath, td->scriptDir, td->scriptFile);
-
-
-  if (execute)
-    {
-      if (cgipath && strlen (cgipath))
         {
 #ifdef WIN32
-          {
-            int x;
-            string cgipathString (cgipath);
-            int len = strlen (cgipath);
-            int subString = cgipath[0] == '"';
-
-            cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" "
-                    << moreArg << " \"" <<  td->filenamePath << "\"";
-          }
+          cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile
+                  << "\" " << moreArg;
 #else
-          cmdLine << cgipath << " " << td->filenamePath;
+          cmdLine << cgipath;
 #endif
-        }/*if (execute).  */
-      else
-        cmdLine << scriptpath;
-    }
-  else
-    {
-#ifdef WIN32
-      cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile
-              << "\" " << moreArg;
-#else
-      cmdLine << cgipath;
-#endif
-    }
-
-  td->inputData.close ();
-  if (td->inputData.openFile (td->inputDataPath, File::READ |
-                              File::FILE_OPEN_ALWAYS |
-                              File::NO_INHERIT))
-    {
-      td->buffer->setLength (0);
-      td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
-      chain.clearAllFilters ();
-      return td->http->raiseHTTPError (500);
-    }
-
-  server = connect (&con, cmdLine.str ().c_str ());
-
-  if (server == NULL)
-    {
-      td->buffer->setLength (0);
-      td->connection->host->warningsLogWrite (_("FastCGI: cannot connect to the %s process"),
-                                              cmdLine.str ().c_str ());
-      chain.clearAllFilters ();
-      return td->http->raiseHTTPError (500);
-    }
-
-  id = td->id + 1;
-
-  if (fastCgiRequest (&con, id))
-    return td->http->raiseHTTPError (500);
-
-  /*! Now read the output. This flag is used by the external loop.  */
-  exit = 0;
-
-  /*! Return 1 if keep the connection. A nonzero value also mean no errors. */
-  ret = HttpDataHandler::RET_OK;
-
-  initialTicks = getTicks ();
-
-  td->buffer->setLength (0);
-  checkDataChunks (td, &con.keepalive, &con.useChunks);
-
-  do
-    {
-      u_long dim;
-      u_long timeout = td->http->getTimeout ();
-
-      if (readHeader (&con, &header, initialTicks, timeout, id))
-        {
-          exit = 1;
-          ret = td->http->raiseHTTPError (500);
-          break;
         }
 
-      /*!
-       *contentLengthB1 is the high word of the content length value
-       *while contentLengthB0 is the low one.
-       *To retrieve the value of content length push left contentLengthB1
-       *of eight byte then do an or with contentLengthB0.
-       */
-      dim = (header.contentLengthB1 << 8) | header.contentLengthB0;
+      td->inputData.close ();
+      td->inputData.openFile (td->inputDataPath, File::READ
+                              | File::FILE_OPEN_ALWAYS
+                              | File::NO_INHERIT);
 
-      if (dim == 0)
+      server = connect (&con, cmdLine.str ().c_str ());
+      if (server == NULL)
         {
-          exit = 1;
-          ret = HttpDataHandler::RET_FAILURE;
+          td->buffer->setLength (0);
+          td->connection->host->warningsLogWrite
+              (_("FastCGI: cannot connect to the %s process"),
+               cmdLine.str ().c_str ());
+          chain.clearAllFilters ();
+          return td->http->raiseHTTPError (500);
         }
-      else
+
+      id = td->id + 1;
+      if (fastCgiRequest (&con, id))
+        return td->http->raiseHTTPError (500);
+
+      /* Now read the output. This flag is used by the external loop.  */
+      exit = 0;
+
+      /* Return 1 if keep the connection. A nonzero value also mean no errors.  */
+      ret = HttpDataHandler::RET_OK;
+
+      initialTicks = getTicks ();
+
+      td->buffer->setLength (0);
+      checkDataChunks (td, &con.keepalive, &con.useChunks);
+
+      do
         {
-          bool headerCompleted = false;
+          u_long dim;
           u_long timeout = td->http->getTimeout ();
 
-          switch (header.type)
+          readHeader (&con, &header, initialTicks, timeout, id);
+
+          /*
+           *contentLengthB1 is the high word of the content length value
+           *while contentLengthB0 is the low one.
+           *To retrieve the value of content length push left contentLengthB1
+           *of eight byte then do an or with contentLengthB0.
+           */
+          dim = (header.contentLengthB1 << 8) | header.contentLengthB0;
+
+          if (dim == 0)
             {
-            case FCGISTDERR:
-              con.sock.close ();
-              td->http->raiseHTTPError (501);
               exit = 1;
               ret = HttpDataHandler::RET_FAILURE;
-              break;
-            case FCGISTDOUT:
-              headerCompleted = false;
-              ret = sendData (&con, dim, static_cast<u_long>(timeout),
-                              &chain, &headerCompleted, onlyHeader);
-
-              if (ret)
-                {
-                  exit = 1;
-                  if (ret == 1)
-                    responseCompleted = true;
-                  else
-                    ret = HttpDataHandler::RET_FAILURE;
-
-                  break;
-                }
-
-              if (headerCompleted)
-                {
-                  exit = 1;
-                  break;
-                }
-
-              break;
-            case FCGIEND_REQUEST:
-              exit = 1;
-              break;
-            case FCGIGET_VALUES_RESULT:
-            case FCGIUNKNOWN_TYPE:
-            default:
-              break;
             }
-        }
-
-      if (header.paddingLength)
-        {
-          u_long toPad = header.paddingLength;
-          u_long timeout = td->http->getTimeout ();
-          while (toPad)
+          else
             {
-              if (td->buffer->getRealLength () < toPad)
-                toPad =  td->buffer->getRealLength ();
+              bool headerCompleted = false;
+              u_long timeout = td->http->getTimeout ();
 
-              nbr = con.sock.recv (td->buffer->getBuffer (), toPad,
-                                   0, static_cast<u_long>(timeout));
-              if (nbr == (u_long)-1)
+              switch (header.type)
                 {
+                case FCGISTDERR:
+                  con.sock.close ();
+                  td->http->raiseHTTPError (501);
                   exit = 1;
                   ret = HttpDataHandler::RET_FAILURE;
                   break;
+
+                case FCGISTDOUT:
+                  headerCompleted = false;
+                  ret = sendData (&con, dim, static_cast<u_long>(timeout),
+                                  &chain, &headerCompleted, onlyHeader);
+
+                  if (ret)
+                    {
+                      exit = 1;
+                      if (ret == 1)
+                        responseCompleted = true;
+                      else
+                        ret = HttpDataHandler::RET_FAILURE;
+
+                      break;
+                    }
+
+                  if (headerCompleted)
+                    {
+                      exit = 1;
+                      break;
+                    }
+
+                  break;
+
+                case FCGIEND_REQUEST:
+                  exit = 1;
+                  break;
+
+                case FCGIGET_VALUES_RESULT:
+                case FCGIUNKNOWN_TYPE:
+                default:
+                  break;
                 }
-              toPad -= nbr;
             }
-        }
-    }while (!exit);
 
-  /* Send the last null chunk if needed.  */
-  if (!responseCompleted && con.useChunks &&
-      (td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL))
-    chain.getStream ()->write ("0\r\n\r\n", 5, &nbw);
+          if (header.paddingLength)
+            {
+              u_long toPad = header.paddingLength;
+              u_long timeout = td->http->getTimeout ();
+              while (toPad)
+                {
+                  if (td->buffer->getRealLength () < toPad)
+                    toPad =  td->buffer->getRealLength ();
 
-  chain.clearAllFilters ();
-  con.sock.close ();
+                  nbr = con.sock.recv (td->buffer->getBuffer (), toPad,
+                                       0, static_cast<u_long> (timeout));
+                  toPad -= nbr;
+                }
+            }
+        }while (!exit);
+
+      /* Send the last null chunk if needed.  */
+      if (!responseCompleted && con.useChunks &&
+          (td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL))
+        chain.getStream ()->write ("0\r\n\r\n", 5, &nbw);
+
+      chain.clearAllFilters ();
+      con.sock.close ();
+    }
+  catch (exception & e)
+    {
+      td->connection->host->warningsLogWrite (_E ("FastCGI: internal error"),
+                                              &e);
+      chain.clearAllFilters ();
+      return td->http->raiseHTTPError (500);
+    }
 
   return ret;
 }
@@ -336,10 +326,8 @@ int FastCgi::sendFcgiBody (FcgiContext* con, char* buffer, int len, int type,
   FcgiHeader header;
   generateFcgiHeader ( header, type, id, len );
 
-  if (con->sock.send ((char*)&header, sizeof (header), 0) == -1)
-    return -1;
-  if (con->sock.send ((char*)buffer, len, 0) == -1)
-    return -1;
+  con->sock.send ((char*) &header, sizeof (header), 0);
+  con->sock.send ((char*) buffer, len, 0);
   return 0;
 }
 
@@ -416,7 +404,7 @@ int FastCgi::buildFASTCGIEnvironmentString (HttpThreadContext*, char* src,
     if (*(++sptr) == '\0')
       break;
   }
-  return static_cast<int>(ptr - dest);
+  return static_cast<int> (ptr - dest);
 }
 
 /*!
@@ -487,7 +475,6 @@ FastCgiServer* FastCgi::connect (FcgiContext* con, const char* path)
   if (server)
   {
     int ret = processServerManager->connect (&(con->sock), server);
-
     if (ret == -1)
       return 0;
   }
@@ -568,74 +555,33 @@ int FastCgi::fastCgiRequest (FcgiContext* con, int id)
   tBody.flags = 0;
   memset ( tBody.reserved, 0, sizeof ( tBody.reserved ) );
 
-  if (sendFcgiBody (con, (char*)&tBody, sizeof (tBody), FCGIBEGIN_REQUEST, id))
-  {
-    td->buffer->setLength (0);
-    td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
-    return 1;
-  }
-
-  if (sendFcgiBody (con, td->auxiliaryBuffer->getBuffer (), sizeEnvString,
-                  FCGIPARAMS, id))
-  {
-    td->buffer->setLength (0);
-    td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
-    return 1;
-  }
-
-  if (sendFcgiBody (con, 0, 0, FCGIPARAMS, id))
-  {
-    td->buffer->setLength (0);
-    td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
-    return 1;
-  }
+  sendFcgiBody (con, (char*)&tBody, sizeof (tBody), FCGIBEGIN_REQUEST, id);
+  sendFcgiBody (con, td->auxiliaryBuffer->getBuffer (), sizeEnvString,
+                FCGIPARAMS, id);
+  sendFcgiBody (con, 0, 0, FCGIPARAMS, id);
 
   if (atoi (td->request.contentLength.c_str ()))
   {
     td->buffer->setLength (0);
+    td->inputData.seek (0);
 
-
-    if (td->inputData.seek (0))
-      {
-        td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
-        return 1;
-      }
-
-    /*! Send the STDIN data.  */
+    /* Send the STDIN data.  */
     do
     {
-      if (td->inputData.read (td->buffer->getBuffer (),
-                                    maxStdinChunk, &nbr))
-      {
-        td->buffer->setLength (0);
-        td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
-        return 1;
-      }
+      td->inputData.read (td->buffer->getBuffer (), maxStdinChunk, &nbr);
 
       if (!nbr)
         break;
 
       generateFcgiHeader (header, FCGISTDIN, id, nbr);
-      if (con->sock.send ((char*)&header, sizeof (header), 0) == -1)
-        return 1;
-
-      if (con->sock.send (td->buffer->getBuffer (), nbr, 0) == -1)
-        {
-          td->buffer->setLength (0);
-          td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
-          return 1;
-        }
+      con->sock.send ((char*) &header, sizeof (header), 0);
+      con->sock.send (td->buffer->getBuffer (), nbr, 0);
     }
     while (nbr == maxStdinChunk);
   }
 
-  /*! Final stdin chunk.  */
-  if (sendFcgiBody (con, 0, 0, FCGISTDIN, id))
-    {
-      td->buffer->setLength (0);
-      td->connection->host->warningsLogWrite (_("FastCGI: internal error"));
-      return 1;
-    }
+  /* Final stdin chunk.  */
+  sendFcgiBody (con, 0, 0, FCGISTDIN, id);
 
   return 0;
 }
@@ -677,8 +623,6 @@ int FastCgi::sendData (FcgiContext* con, u_long dim, u_long timeout,
                                 std::min ((u_long) td->buffer->getRealLength (),
                                              dim - td->buffer->getLength ()),
                                    0, timeout);
-      if (nbr == (u_long)-1 || nbr == 0)
-        return -1;
 
       td->buffer->setLength (td->buffer->getLength () + nbr);
 
@@ -691,14 +635,13 @@ int FastCgi::sendData (FcgiContext* con, u_long dim, u_long timeout,
   if (onlyHeader || con->td->response.getStatusType () != HttpResponseHeader::SUCCESSFUL)
     return 1;
 
-  if (HttpDataHandler::appendDataToHTTPChannel (con->td,
-                                                con->td->buffer->getBuffer (),
-                                                con->td->buffer->getLength (),
-                                                &(con->td->outputData),
-                                                chain,
-                                                con->td->appendOutputs,
-                                                con->useChunks))
-    return -1;
+  HttpDataHandler::appendDataToHTTPChannel (con->td,
+                                            con->td->buffer->getBuffer (),
+                                            con->td->buffer->getLength (),
+                                            &(con->td->outputData),
+                                            chain,
+                                            con->td->appendOutputs,
+                                            con->useChunks);
 
   con->td->sentData += con->td->buffer->getLength ();
 
@@ -738,7 +681,7 @@ int FastCgi::handleHeader (FcgiContext* con, FiltersChain* chain, bool* response
     ! strcasecmp (con->td->securityToken.getData ("fastcgi.sendfile.allow",
                                               MYSERVER_VHOST_CONF
                                               | MYSERVER_SERVER_CONF, "NO"),
-              "YES");
+                  "YES");
   if (allowSendfile)
     {
       string *sendfile = con->td->response.getValue ("X-Sendfile", NULL);
@@ -785,15 +728,13 @@ int FastCgi::handleHeader (FcgiContext* con, FiltersChain* chain, bool* response
   if (con->td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL &&
       size - headerSize)
     {
-      if (HttpDataHandler::appendDataToHTTPChannel (con->td,
-                                                    con->td->buffer->getBuffer () + headerSize,
-                                                    size - headerSize,
-                                                    &(con->td->outputData),
-                                                    chain,
-                                                    con->td->appendOutputs,
-                                                    con->useChunks))
-        return 1;
-
+      HttpDataHandler::appendDataToHTTPChannel (con->td,
+                                                con->td->buffer->getBuffer () + headerSize,
+                                                size - headerSize,
+                                                &(con->td->outputData),
+                                                chain,
+                                                con->td->appendOutputs,
+                                                con->useChunks);
       con->td->sentData += size - headerSize;
     }
 
