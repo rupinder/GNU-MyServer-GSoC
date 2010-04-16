@@ -545,7 +545,7 @@ int Socket::recv (char* buffer, int len, int flags, u_long timeout)
  *Receive data from the socket.
  *Returns -1 on errors.
  */
-int Socket::recv (char* buffer,int len,int flags)
+int Socket::recv (char* buffer, int len, int flags)
 {
   int err = 0;
 
