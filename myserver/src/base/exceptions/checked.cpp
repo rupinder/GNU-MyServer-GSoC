@@ -86,6 +86,11 @@ namespace checked
     return checkError (gnulib::gethostname (name, len));
   }
 
+  int stat (const char *path, struct stat *buf)
+  {
+    return checkError (::stat (path, buf));
+  }
+
   int getsockname (int fd, struct sockaddr *addr, socklen_t *addrlen)
   {
     return checkError (gnulib::getsockname (fd, addr, addrlen));
