@@ -549,13 +549,17 @@ int Socket::recv (char* buffer, int len, int flags)
 {
   int err = 0;
 
-  err = checked::recv (fd, buffer, len, flags);
-
-  if ( err < 0 && errno == EAGAIN && isNonBlocking)
-    return 0;
-
-  if (err == 0)
-    err = -1;
+  try
+    {
+      err = checked::recv (fd, buffer, len, flags);
+    }
+  catch (InvalidResourceException & e)
+    {
+      if (isNonBlocking)
+        return 0;
+      else
+        throw;
+    }
 
   return err;
 }
