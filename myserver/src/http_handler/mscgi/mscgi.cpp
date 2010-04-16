@@ -81,72 +81,77 @@ int MsCgi::send (HttpThreadContext* td, const char* exec, const char* cmdLine,
   if (!(td->permissions & MYSERVER_PERMISSION_EXECUTE))
     return td->http->sendAuth ();
 
-  td->scriptPath.assign (exec);
-
-  {
-    string tmp;
-    tmp.assign (exec);
-    FilesUtility::splitPath (tmp, td->cgiRoot, td->cgiFile);
-    FilesUtility::splitPath (exec, td->scriptDir, td->scriptFile);
-  }
-
-  Env::buildEnvironmentString (td,data.envString);
-  chain.setStream (td->connection->socket);
-
-  if (td->mime && Server::getInstance ()->getFiltersFactory ()->chain (&chain,
-                                                                      td->mime->filters,
-                                                                      td->connection->socket,
-                                                                      &nbw,
-                                                                      1))
+  try
     {
-      td->connection->host->warningsLogWrite (_("MSCGI: internal error"));
+      td->scriptPath.assign (exec);
+
+      {
+        string tmp;
+        tmp.assign (exec);
+        FilesUtility::splitPath (tmp, td->cgiRoot, td->cgiFile);
+        FilesUtility::splitPath (exec, td->scriptDir, td->scriptFile);
+      }
+
+      Env::buildEnvironmentString (td,data.envString);
+      chain.setStream (td->connection->socket);
+
+      if (td->mime)
+        Server::getInstance ()->getFiltersFactory ()->chain (&chain,
+                                                             td->mime->filters,
+                                                             td->connection->socket,
+                                                             &nbw, 1);
+
+      checkDataChunks (td, &(data.keepAlive), &(data.useChunks));
+      try
+        {
+          hinstLib.loadLibrary (exec, 0);
+        }
+      catch (exception & e)
+        {
+          td->connection->host->warningsLogWrite (_E ("MSCGI: cannot load %s"),
+                                                  exec, &e);
+          chain.clearAllFilters ();
+          /* Internal server error.  */
+          return td->http->raiseHTTPError (500);
+        }
+
+      td->auxiliaryBuffer->getAt (0) = '\0';
+      ProcMain = (CGIMAIN) hinstLib.getProc ( "myserver_main");
+      if (ProcMain)
+        (ProcMain)(td->request.uriOpts.c_str (), &data);
+      else
+        {
+          td->connection->host->warningsLogWrite
+            (_("MSCGI: cannot find entry-point for %s"),exec);
+          return td->http->raiseHTTPError (500);
+        }
+      hinstLib.close ();
+
+      if (data.errorPage)
+        {
+          chain.clearAllFilters ();
+          return td->http->raiseHTTPError (data.errorPage);
+        }
+
+      if (!td->appendOutputs && data.useChunks && !data.error)
+        chain.getStream ()->write ("0\r\n\r\n", 5, &nbw);
+
+      if (!data.error)
+        return HttpDataHandler::RET_FAILURE;
+
+      ostringstream tmp;
+      tmp << td->sentData;
+      td->response.contentLength.assign (tmp.str ());
+
       chain.clearAllFilters ();
+
+    }
+  catch (exception & e)
+    {
+      td->connection->host->warningsLogWrite (_E ("Cgi: internal error"), &e);
       return td->http->raiseHTTPError (500);
     }
 
-  checkDataChunks (td, &(data.keepAlive), &(data.useChunks));
-
-  ret = hinstLib.loadLibrary (exec, 0);
-
-  if (ret)
-    {
-      td->connection->host->warningsLogWrite (_("MSCGI: cannot load %s"), exec);
-      chain.clearAllFilters ();
-      /* Internal server error.  */
-      return td->http->raiseHTTPError (500);
-    }
-
-  td->auxiliaryBuffer->getAt (0) = '\0';
-
-  ProcMain = (CGIMAIN) hinstLib.getProc ( "myserver_main");
-  if (ProcMain)
-    (ProcMain)(td->request.uriOpts.c_str (), &data);
-  else
-    {
-      td->connection->host->warningsLogWrite (_("MSCGI: cannot find entry-point for %s"), exec);
-      return td->http->raiseHTTPError (500);
-    }
-  hinstLib.close ();
-
-
-  if (data.errorPage)
-    {
-      chain.clearAllFilters ();
-      return td->http->raiseHTTPError (data.errorPage);
-    }
-
-  if (!td->appendOutputs && data.useChunks && !data.error
-      && chain.getStream ()->write ("0\r\n\r\n", 5, &nbw))
-    return HttpDataHandler::RET_FAILURE;
-
-  if (!data.error)
-    return HttpDataHandler::RET_FAILURE;
-
-  ostringstream tmp;
-  tmp << td->sentData;
-  td->response.contentLength.assign (tmp.str ());
-
-  chain.clearAllFilters ();
   return HttpDataHandler::RET_OK;
 }
 
@@ -164,14 +169,13 @@ int MsCgi::write (const char* data, u_long len, MsCgiData* mcd)
   if (mcd->onlyHeader)
     return 0;
 
-  if (HttpDataHandler::appendDataToHTTPChannel (mcd->td,
-                                                (char*) data,
-                                                len,
-                                                &(mcd->td->outputData),
-                                                mcd->filtersChain,
-                                                mcd->td->appendOutputs,
-                                                mcd->useChunks))
-    return 1;
+  HttpDataHandler::appendDataToHTTPChannel (mcd->td,
+                                            (char*) data,
+                                            len,
+                                            &(mcd->td->outputData),
+                                            mcd->filtersChain,
+                                            mcd->td->appendOutputs,
+                                            mcd->useChunks);
 
   mcd->td->sentData +=len;
   return 0;
@@ -190,9 +194,8 @@ int MsCgi::sendHeader (MsCgiData* mcd)
   if (mcd->headerSent)
     return 0;
 
-  if (HttpHeaders::sendHeader (td->response, *td->connection->socket,
-                               *td->auxiliaryBuffer, td))
-    return 1;
+  HttpHeaders::sendHeader (td->response, *td->connection->socket,
+                           *td->auxiliaryBuffer, td);
 
   mcd->headerSent = true;
   return 0;
