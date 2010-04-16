@@ -48,13 +48,26 @@ string& Url::getProtocol ()
   return protocol;
 }
 
-
 /*!
  *Get the query part of the URL.
  */
 string& Url::getQuery ()
 {
   return query;
+}
+
+/*!
+ *Get the number of fields in the query
+ */
+int Url::getNumFields ()
+{
+  int l = query.length ();
+  int numFields = (l != 0);
+
+  for (int i = 0; i < l; i++)
+   numFields += (query[i] == '&');
+
+  return numFields;
 }
 
 /*!

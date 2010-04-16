@@ -60,20 +60,21 @@ public:
     CPPUNIT_ASSERT (!url.getResource ().compare ("what/i/want"));
     CPPUNIT_ASSERT (!url.getProtocol ().compare ("http"));
     CPPUNIT_ASSERT (!url.getQuery ().compare (""));
-    CPPUNIT_ASSERT_EQUAL (url.getPort (), (u_short)8080);
+    CPPUNIT_ASSERT_EQUAL (url.getPort (), (u_short) 8080);
   }
 
   void testUrlWithQuery ()
   {
-    const char *urlStr = "http://foo.bar:8080/what/i/want?my_query";
+    const char *urlStr = "http://foo.bar:8080/what/i/want?my_query1&my_query2";
     Url url (urlStr, 80);
 
     CPPUNIT_ASSERT (!url.getCredentials ().compare (""));
     CPPUNIT_ASSERT (!url.getHost ().compare ("foo.bar"));
     CPPUNIT_ASSERT (!url.getResource ().compare ("what/i/want"));
     CPPUNIT_ASSERT (!url.getProtocol ().compare ("http"));
-    CPPUNIT_ASSERT (!url.getQuery ().compare ("my_query"));
-    CPPUNIT_ASSERT_EQUAL (url.getPort (), (u_short)8080);
+    CPPUNIT_ASSERT (!url.getQuery ().compare ("my_query1&my_query2"));
+    CPPUNIT_ASSERT_EQUAL (url.getNumFields (), 2);
+    CPPUNIT_ASSERT_EQUAL (url.getPort (), (u_short) 8080);
   }
 
   void testUrl ()
@@ -86,7 +87,7 @@ public:
     CPPUNIT_ASSERT (!url.getResource ().compare ("what/i/want"));
     CPPUNIT_ASSERT (!url.getProtocol ().compare ("http"));
     CPPUNIT_ASSERT (!url.getQuery ().compare (""));
-    CPPUNIT_ASSERT_EQUAL (url.getPort (), (u_short)8080);
+    CPPUNIT_ASSERT_EQUAL (url.getPort (), (u_short) 8080);
   }
 
   void testUrlWithoutPort ()
@@ -98,7 +99,7 @@ public:
     CPPUNIT_ASSERT (!url.getHost ().compare ("foo.bar"));
     CPPUNIT_ASSERT (!url.getResource ().compare ("what/i/want"));
     CPPUNIT_ASSERT (!url.getProtocol ().compare ("http"));
-    CPPUNIT_ASSERT_EQUAL (url.getPort (), (u_short)80);
+    CPPUNIT_ASSERT_EQUAL (url.getPort (), (u_short) 80);
   }
 
 };
