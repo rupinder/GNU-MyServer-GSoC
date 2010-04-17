@@ -19,18 +19,14 @@
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
 lib_LTLIBRARIES = libmath_sum.la
 libmath_sum_la_SOURCES = math_sum.cpp
-libmath_sum_la_LDFLAGS = -avoid-version -module -shared
+libmath_sum_la_LDFLAGS = -shared -export-dynamic -no-install -no-undefined -module \
+										 -avoid-version -shrext .mscgi
 libmath_sum_la_LIBADD = ../../../../src/libmyserver.la ../../../../lib/libgnu.la
-SO_EXT=`$(LIBTOOL) --config | $(SED) -e"y/'/\"/" -e '/^shrext_cmds/ !d; s/^.*="\(.*\)"/\1/'`
 
 all: all-am math_sum.mscgi
 
 math_sum.mscgi: libmath_sum.la
-	test \! -e .libs/libmath_sum$(SO_EXT) || cp .libs/libmath_sum$(SO_EXT) ../../cgi-bin/math_sum.mscgi
-
-clean-local:
-	test \! -e libmath_sum.la || \
-	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall libmath_sum.la
-
+	test \! -e .libs/libmath_sum.mscgi \
+		|| cp .libs/libmath_sum.mscgi ../../cgi-bin/math_sum.mscgi
 
 .phony : math_sum.mscgi

@@ -19,18 +19,14 @@
 AM_CXXFLAGS="-I$(top_srcdir)/lib"
 lib_LTLIBRARIES = libpost.la
 libpost_la_SOURCES = post.cpp
-libpost_la_LDFLAGS = -avoid-version -module -shared
+libpost_la_LDFLAGS = -shared -export-dynamic -no-install -no-undefined -module \
+										 -avoid-version -shrext .mscgi
 libpost_la_LIBADD = ../../../../src/libmyserver.la ../../../../lib/libgnu.la
-SO_EXT=`$(LIBTOOL) --config | $(SED) -e"y/'/\"/" -e '/^shrext_cmds/ !d; s/^.*="\(.*\)"/\1/'`
 
 all: all-am post.mscgi
 
 post.mscgi: libpost.la
-	test \! -e .libs/libpost$(SO_EXT) || cp .libs/libpost$(SO_EXT) ../../cgi-bin/post.mscgi
-
-clean-local:
-	test \! -e libpost.la \
-	|| $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall libpost.la
-
+	test \! -e .libs/libpost.mscgi \
+		|| cp .libs/libpost.mscgi ../../cgi-bin/post.mscgi
 
 .phony : post.mscgi
