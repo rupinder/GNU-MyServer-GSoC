@@ -148,7 +148,7 @@ int MsCgi::send (HttpThreadContext* td, const char* exec, const char* cmdLine,
     }
   catch (exception & e)
     {
-      td->connection->host->warningsLogWrite (_E ("Cgi: internal error"), &e);
+      td->connection->host->warningsLogWrite (_E ("Msgi: internal error"), &e);
       return td->http->raiseHTTPError (500);
     }
 
