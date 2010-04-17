@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "myserver.h"
 #include <include/connection/connection.h>
 #include <include/conf/vhost/vhost.h>
+#include <include/base/exceptions/exceptions.h>
 
 /*!
  * Initialize the structure.
@@ -51,12 +52,18 @@ void Connection::init ()
 void Connection::destroy ()
 {
   if (socket)
-  {
-    socket->shutdown (SHUT_RDWR);
-    socket->close ();
-    delete socket;
-    socket = NULL;
-  }
+    {
+      try
+        {
+          socket->shutdown (SHUT_RDWR);
+          socket->close ();
+          delete socket;
+          socket = NULL;
+        }
+      catch (SocketException & e)
+        {
+        }
+    }
 
   if (login)
     delete login;
@@ -78,7 +85,7 @@ void Connection::destroy ()
 
   /*! Remove the reference for the vhost. */
   if (host)
-    ((Vhost*)host)->removeRef ();
+    ((Vhost*) host)->removeRef ();
 
   login = NULL;
   password = NULL;
