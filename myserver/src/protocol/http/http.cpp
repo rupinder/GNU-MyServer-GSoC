@@ -408,6 +408,10 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
       else
         td->authScheme = HTTP_AUTH_SCHEME_BASIC;
     }
+  catch (FileNotFoundException & e)
+    {
+      return raiseHTTPError (404);
+    }
   catch (...)
     {
       td->connection->host->warningsLogWrite (
@@ -532,6 +536,10 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped, int* permissio
       FilesUtility::completePath (td->filenamePath);
 
       td->mime = mimeLoc ? mimeLoc : getMIME (td->filenamePath);
+    }
+  catch (FileNotFoundException & e)
+    {
+      return 404;
     }
   catch (...)
     {
@@ -1415,7 +1423,7 @@ int Http::raiseHTTPError (int ID)
           if (FilesUtility::nodeExists (errorFile.str ().c_str ()))
             {
               string errorFileStr = errorFile.str ();
-              return sendHTTPResource (errorFileStr, 1, td->onlyHeader);
+              return sendHTTPResource (errorFileStr, 1, td->onlyHeader, 1);
             }
           else
             td->connection->host->warningsLogWrite (
