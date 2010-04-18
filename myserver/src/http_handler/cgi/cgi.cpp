@@ -256,26 +256,20 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
         }
 
       /* Execute the CGI process. */
-      {
-        int ret;
-        if (Process::getForkServer ()->isInitialized ())
-          {
-            int pid;
-            int port;
+      if (Process::getForkServer ()->isInitialized ())
+        {
+          int pid;
+          int port;
+          int flags = ForkServer::FLAG_USE_IN | ForkServer::FLAG_USE_OUT
+                                              | ForkServer::FLAG_USE_ERR;
+          Process::getForkServer ()->executeProcess (&spi, flags, &pid, &port);
+          cgiProc.setPid (pid);
+        }
+      else
+        cgiProc.exec (&spi);
 
-            Process::getForkServer ()->executeProcess (&spi,
-                                                       ForkServer::FLAG_USE_IN
-                                                       | ForkServer::FLAG_USE_OUT
-                                                       | ForkServer::FLAG_USE_ERR,
-                                                       &pid, &port);
-            cgiProc.setPid (pid);
-          }
-        else
-          cgiProc.exec (&spi);
-
-        /* Close the write stream of the pipe on the server.  */
-        stdOutFile.closeWrite ();
-      }
+      /* Close the write stream of the pipe on the server.  */
+      stdOutFile.closeWrite ();
 
       sendData (td, stdOutFile, chain, cgiProc, onlyHeader, nph);
 
@@ -330,63 +324,56 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
     return HttpDataHandler::RET_OK;
 
   /* Create the output filters chain.  */
-  if (td->mime
-      && Server::getInstance ()->getFiltersFactory ()->chain (&chain,
-                                                       td->mime->filters,
-                                                       td->connection->socket,
-                                                              &nbw,
-                                                              1))
+  if (td->mime)
     {
-      td->connection->host->warningsLogWrite (_("Cgi: internal error"));
-      return td->http->raiseHTTPError (500);
+      FiltersFactory *ff = Server::getInstance ()->getFiltersFactory ();
+      ff->chain (&chain, td->mime->filters, td->connection->socket, &nbw, 1);
     }
 
   if (td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL)
-  {
-    /* Send the rest of the data until we can read from the pipe.  */
-    for (;;)
     {
-      nBytesRead = 0;
-      int aliveProcess = 0;
-      u_long ticks = getTicks () - procStartTime;
-      u_long timeout = td->http->getTimeout ();
-      if (timeout <= ticks
-          || stdOutFile.waitForData ((timeout - ticks) / 1000,
-                                     (timeout - ticks) % 1000) == 0)
+      /* Send the rest of the data until we can read from the pipe.  */
+      for (;;)
         {
-          td->connection->host->warningsLogWrite (_("Cgi: process %i timeout"),
-                                                  cgiProc.getPid ());
-          break;
+          nBytesRead = 0;
+          int aliveProcess = 0;
+          u_long ticks = getTicks () - procStartTime;
+          u_long timeout = td->http->getTimeout ();
+          if (timeout <= ticks
+              || stdOutFile.waitForData ((timeout - ticks) / 1000,
+                                         (timeout - ticks) % 1000) == 0)
+            {
+              td->connection->host->warningsLogWrite (_("Cgi: process %i timeout"),
+                                                      cgiProc.getPid ());
+              break;
+            }
+
+          aliveProcess = !stdOutFile.pipeTerminated ();
+
+          /* Read data from the process standard output file.  */
+          stdOutFile.read (td->auxiliaryBuffer->getBuffer (),
+                           td->auxiliaryBuffer->getRealLength (),
+                           &nBytesRead);
+
+          if (!aliveProcess && !nBytesRead)
+            break;
+
+          if (nBytesRead)
+            HttpDataHandler::appendDataToHTTPChannel (td,
+                                             td->auxiliaryBuffer->getBuffer (),
+                                                      nBytesRead,
+                                                      &(td->outputData),
+                                                      &chain,
+                                                      td->appendOutputs,
+                                                      useChunks);
+
+          nbw += nBytesRead;
         }
 
-      aliveProcess = !stdOutFile.pipeTerminated ();
-
-      /* Read data from the process standard output file.  */
-      if (stdOutFile.read (td->auxiliaryBuffer->getBuffer (),
-                           td->auxiliaryBuffer->getRealLength (),
-                           &nBytesRead))
+      /* Send the last null chunk if needed.  */
+      if (useChunks && chain.getStream ()->write ("0\r\n\r\n", 5, &nbw2))
         return HttpDataHandler::RET_FAILURE;
-
-      if (!aliveProcess && !nBytesRead)
-        break;
-
-      if (nBytesRead &&
-          HttpDataHandler::appendDataToHTTPChannel (td,
-                                                    td->auxiliaryBuffer->getBuffer (),
-                                                    nBytesRead,
-                                                    &(td->outputData),
-                                                    &chain,
-                                                    td->appendOutputs,
-                                                    useChunks))
-        return HttpDataHandler::RET_FAILURE;
-
-      nbw += nBytesRead;
     }
-
-    /* Send the last null chunk if needed.  */
-    if (useChunks && chain.getStream ()->write ("0\r\n\r\n", 5, &nbw2))
-        return HttpDataHandler::RET_FAILURE;
-  }
 
   /* Update the Content-length field for logging activity.  */
   td->sentData += nbw;
@@ -398,9 +385,10 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
  *Send the HTTP header.
  *\return nonzero if the reply is already complete.
  */
-int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
-                     Process& cgiProc, int onlyHeader, bool nph, u_long procStartTime,
-                     bool keepalive, bool useChunks, int *ret)
+int Cgi::sendHeader (HttpThreadContext *td, Pipe &stdOutFile, FiltersChain &chain,
+                     Process &cgiProc, int onlyHeader, bool nph,
+                     u_long procStartTime, bool keepalive, bool useChunks,
+                     int *ret)
 {
   u_long headerSize = 0;
   bool headerCompleted = false;
@@ -409,80 +397,70 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
 
   /* Parse initial chunks of data looking for the HTTP header.  */
   while (!headerCompleted && !nph)
-  {
-    u_long timeout = td->http->getTimeout ();
-    u_long ticks = getTicks () - procStartTime;
-    bool term;
+    {
+      u_long timeout = td->http->getTimeout ();
+      u_long ticks = getTicks () - procStartTime;
+      bool term;
 
-    nBytesRead = 0;
+      nBytesRead = 0;
 
-    /* Do not try to read using a small buffer as this has some
-       bad influence on the performances.  */
-    if (td->auxiliaryBuffer->getRealLength () - headerOffset - 1 < 512)
-      break;
-
-    term = stdOutFile.pipeTerminated ();
-    if (!term
-        && stdOutFile.waitForData ((timeout - ticks) / 1000,
-                                   (timeout - ticks) % 1000) == 0)
-      {
-        td->connection->host->warningsLogWrite (_("Cgi: process %i timeout"),
-                                                cgiProc.getPid ());
+      /* Do not try to read using a small buffer as this has some
+         bad influence on the performances.  */
+      if (td->auxiliaryBuffer->getRealLength () - headerOffset - 1 < 512)
         break;
-      }
 
-    if (stdOutFile.read (td->auxiliaryBuffer->getBuffer () + headerOffset,
-                         td->auxiliaryBuffer->getRealLength () - headerOffset - 1,
-                         &nBytesRead))
-      {
-        *ret = td->http->raiseHTTPError (500);
-        return 1;
-      }
+      term = stdOutFile.pipeTerminated ();
+      if (!term
+          && stdOutFile.waitForData ((timeout - ticks) / 1000,
+                                     (timeout - ticks) % 1000) == 0)
+        {
+          td->connection->host->warningsLogWrite (_("Cgi: process %i timeout"),
+                                                  cgiProc.getPid ());
+          break;
+        }
 
-    if (nBytesRead == 0 && term)
-      {
-        headerCompleted = true;
-        headerSize = 0;
-        break;
-      }
+      if (stdOutFile.read (td->auxiliaryBuffer->getBuffer () + headerOffset,
+                           td->auxiliaryBuffer->getRealLength () - headerOffset - 1,
+                           &nBytesRead))
+        {
+          *ret = td->http->raiseHTTPError (500);
+          return 1;
+        }
 
-    headerOffset += nBytesRead;
-    if (headerOffset > td->buffersize - 5)
-      (td->auxiliaryBuffer->getBuffer ())[headerOffset] = '\0';
+      if (nBytesRead == 0 && term)
+        {
+          headerCompleted = true;
+          headerSize = 0;
+          break;
+        }
 
-    if (headerOffset == 0)
-      {
-        *ret = td->http->raiseHTTPError (500);
-        return 1;
-      }
+      headerOffset += nBytesRead;
 
-    for (u_long i = std::max (0UL, headerOffset - nBytesRead - 10);
-         i < headerOffset; i++)
-      {
-        char *buff = td->auxiliaryBuffer->getBuffer ();
-        if ((buff[i] == '\r') && (buff[i+1] == '\n')
-            && (buff[i+2] == '\r') && (buff[i+3] == '\n'))
-          {
-            /*
-             * The HTTP header ends with a \r\n\r\n sequence so
-             * determine where it ends and set the header size
-             * to i + 4.
-             */
-            headerSize = i + 4 ;
-            headerCompleted = true;
-            break;
-          }
-        else if ((buff[i] == '\n') && (buff[i+1] == '\n'))
-          {
-            /*
-             *\n\n case.
-             */
-            headerSize = i + 2;
-            headerCompleted = true;
-            break;
-          }
-      }
-  }
+      if (headerOffset == 0)
+        {
+          *ret = td->http->raiseHTTPError (500);
+          return 1;
+        }
+
+      for (int i = std::max (0, (int) (headerOffset - nBytesRead - 10));
+           i < headerOffset; i++)
+        {
+          char *buff = td->auxiliaryBuffer->getBuffer ();
+          if ((buff[i] == '\r') && (buff[i+1] == '\n')
+              && (buff[i+2] == '\r') && (buff[i+3] == '\n'))
+            {
+              headerSize = i + 4;
+              headerCompleted = true;
+              break;
+            }
+          else if ((buff[i] == '\n') && (buff[i+1] == '\n'))
+            {
+              headerSize = i + 2;
+              headerCompleted = true;
+              break;
+            }
+        }
+    }
 
   /* Send the header.  */
   if (!nph)
@@ -511,30 +489,21 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
               return 1;
             }
 
-          if (HttpHeaders::sendHeader (td->response, *chain.getStream (),
-                                       *td->buffer, td))
-            {
-              *ret = HttpDataHandler::RET_FAILURE;
-              return 1;
-            }
-
+          HttpHeaders::sendHeader (td->response, *chain.getStream (),
+                                   *td->buffer, td);
         }
     }
 
   if (headerOffset - headerSize)
     {
       /* Flush the buffer.  Data from the header parsing can be present.  */
-      if (HttpDataHandler::appendDataToHTTPChannel (td,
-                             td->auxiliaryBuffer->getBuffer () + headerSize,
+      HttpDataHandler::appendDataToHTTPChannel (td,
+                               td->auxiliaryBuffer->getBuffer () + headerSize,
                                                     headerOffset - headerSize,
                                                     &(td->outputData),
                                                     &chain,
                                                     td->appendOutputs,
-                                                    useChunks))
-        {
-          *ret = HttpDataHandler::RET_FAILURE;
-          return 1;
-        }
+                                                useChunks);
 
       td->sentData += headerOffset - headerSize;
     }
