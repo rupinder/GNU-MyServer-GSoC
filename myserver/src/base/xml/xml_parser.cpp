@@ -21,6 +21,7 @@
 #include <include/base/xml/xml_parser.h>
 #include <include/base/utility.h>
 #include <include/base/file/files_utility.h>
+#include <include/base/exceptions/checked.h>
 
 #include <string.h>
 
@@ -257,7 +258,10 @@ int XmlParser::setValue (const char* vName, const char *value)
       lastNode = lcur;
 
       if (lcur->children->content)
-        strcpy ((char*)lcur->children->content, value);
+        xmlFree (lcur->children->content);
+
+      lcur->children->content = (xmlChar *)
+        checked::checkErrorNull (xmlStrdup ((const xmlChar *) value));
 
       return 0;
     }
