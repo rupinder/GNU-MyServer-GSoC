@@ -1536,38 +1536,41 @@ Ftp::openDataPassive ()
     static_cast < FtpuserData * >(td.pConnection->protocolBuffer);
 
   Socket *pSocket = new Socket ();
-  pSocket->socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (pSocket->getHandle () < 0)
-    return 0;
 
-  int nReuseAddr = 1;
-  MYSERVER_SOCKADDR_STORAGE storage = { 0 };
-  ((sockaddr_in *) (&storage))->sin_family = AF_INET;
-  char szIpAddr[16];
-  memset (szIpAddr, 0, 16);
-  getIpAddr (pFtpuserData->m_cdh, szIpAddr, 16);
+  try
+    {
+      pSocket->socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
+      MYSERVER_SOCKADDR_STORAGE storage = { 0 };
+      ((sockaddr_in *) (&storage))->sin_family = AF_INET;
+      char szIpAddr[16];
+      memset (szIpAddr, 0, 16);
+      getIpAddr (pFtpuserData->m_cdh, szIpAddr, 16);
 #ifdef WIN32
-  ((sockaddr_in *) (&storage))->sin_addr.s_addr = inet_addr (szIpAddr);
+      ((sockaddr_in *) (&storage))->sin_addr.s_addr = inet_addr (szIpAddr);
 #else
-  inet_aton (szIpAddr, &((sockaddr_in *) (&storage))->sin_addr);
+      inet_aton (szIpAddr, &((sockaddr_in *) (&storage))->sin_addr);
 #endif
-  ((sockaddr_in *) (&storage))->sin_port =
-    htons (getPortNo (pFtpuserData->m_cdh));
-  if (pSocket->setsockopt (SOL_SOCKET, SO_REUSEADDR, (const char *) &nReuseAddr,
-                           sizeof (nReuseAddr)) < 0)
-    return 0;
+      ((sockaddr_in *) (&storage))->sin_port =
+        htons (getPortNo (pFtpuserData->m_cdh));
+      pSocket->reuseAddress (true);
 
-  if (pSocket->bind (&storage, sizeof (sockaddr_in)) != 0
-      || pSocket->listen (SOMAXCONN) != 0)
-    return 0;
+      pSocket->bind (&storage, sizeof (sockaddr_in));
+      pSocket->listen (SOMAXCONN);
 
-  pFtpuserData->m_pDataConnection->setPort (getPortNo (pFtpuserData->m_cdh));
-  pFtpuserData->m_pDataConnection->setLocalPort (pFtpuserData->m_nLocalDataport);
-  pFtpuserData->m_pDataConnection->setIpAddr (td.pConnection->getIpAddr ());
-  pFtpuserData->m_pDataConnection->setLocalIpAddr (td.pConnection->getLocalIpAddr ());
-  pFtpuserData->m_pDataConnection->host = td.pConnection->host;
-  pFtpuserData->m_pDataConnection->socket = pSocket;
-  pFtpuserData->m_pDataConnection->setScheduled (1);
+      pFtpuserData->m_pDataConnection->setPort (getPortNo (pFtpuserData->m_cdh));
+      pFtpuserData->m_pDataConnection->setLocalPort (pFtpuserData->m_nLocalDataport);
+      pFtpuserData->m_pDataConnection->setIpAddr (td.pConnection->getIpAddr ());
+      pFtpuserData->m_pDataConnection->setLocalIpAddr (td.pConnection->getLocalIpAddr ());
+      pFtpuserData->m_pDataConnection->host = td.pConnection->host;
+      pFtpuserData->m_pDataConnection->socket = pSocket;
+      pFtpuserData->m_pDataConnection->setScheduled (1);
+    }
+  catch (...)
+    {
+      delete pSocket;
+      return 0;
+    }
+
   return 1;
 }
 

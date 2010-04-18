@@ -364,6 +364,23 @@ int Socket::send (const char* buffer, int len, int flags)
   return 0;
 }
 
+
+/*!
+  Specify if the ip address can be re-used.
+
+  \value reuseAddr Specify if re-use the address.
+ */
+void Socket::reuseAddress (bool reuseAddr)
+{
+#ifndef WIN32
+  int optvalReuseAddr = reuseAddr ? 1 : 0;
+
+  setsockopt (SOL_SOCKET, SO_REUSEADDR,
+              (const char *) &optvalReuseAddr,
+              sizeof (optvalReuseAddr));
+#endif
+}
+
 /*!
  *Connect to the specified host:port.
  *Returns zero on success.
