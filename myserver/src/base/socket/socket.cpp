@@ -365,14 +365,6 @@ int Socket::send (const char* buffer, int len, int flags)
 }
 
 /*!
- *Function used to control the socket.
- */
-int Socket::ioctlsocket (long cmd, unsigned long* argp)
-{
-  return checked::checkError (gnulib::ioctl (fd, cmd, argp));
-}
-
-/*!
  *Connect to the specified host:port.
  *Returns zero on success.
  */
@@ -564,10 +556,10 @@ u_long Socket::bytesToRead ()
   u_long nBytesToRead = 0;
 
 #ifdef FIONREAD
-  ioctlsocket (FIONREAD,&nBytesToRead);
+  checked::checkError (gnulib::ioctl (fd, FIONREAD, &nBytesToRead));
 #else
 # ifdef I_NREAD
-  ::ioctlsocket ( I_NREAD, &nBytesToRead ) ;
+  checked::checkError (gnulib::ioctl (fd, I_NREAD, &nBytesToRead));
 # endif
 #endif
   return nBytesToRead;
@@ -588,7 +580,7 @@ int Socket::setNonBlocking (int nonBlocking)
 
 #ifdef WIN32
   u_long nonblock = nonBlocking ? 1 : 0;
-  ret = ioctlsocket (FIONBIO, &nonblock);
+  ret = checked::checkError (gnulib::ioctl (fd, FIONBIO, &nonblock));
 #else
   flags = checked::checkError (gnulib::fcntl (fd, F_GETFL, 0));
   if (flags < 0)

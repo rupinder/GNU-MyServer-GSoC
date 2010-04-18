@@ -92,7 +92,6 @@ public:
   virtual int recv (char*, int, int);
   virtual u_long bytesToRead ();
 
-  int ioctlsocket (long, unsigned long*);
   int send (const char*, int, int);
   int connect (const char* host, u_short port);
   int operator==(Socket*);
