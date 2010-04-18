@@ -45,7 +45,7 @@ SecurityDomain::~SecurityDomain ()
 /*!
  *Get the stored value for [name].
  */
-string *SecurityDomain::getValue (string &name)
+const string *SecurityDomain::getValue (string &name)
 {
   return NULL;
 }

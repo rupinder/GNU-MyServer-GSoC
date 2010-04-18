@@ -32,7 +32,7 @@ public:
   SecurityDomain (const char* name);
   SecurityDomain (string &name);
   virtual ~SecurityDomain ();
-  virtual string *getValue (string &name);
+  virtual const string *getValue (string &name);
   string& getName (){return name;}
 protected:
   string name;

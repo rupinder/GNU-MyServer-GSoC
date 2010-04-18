@@ -59,7 +59,8 @@ public:
   void testGetValue ()
   {
     string val ("value");
-    CPPUNIT_ASSERT_EQUAL (securityDomain->getValue (val), (string*)NULL);
+    CPPUNIT_ASSERT_EQUAL (securityDomain->getValue (val),
+                          (const string *) NULL);
   }
 
 };

@@ -86,21 +86,21 @@ public:
 
   void testDirectory ()
   {
-    string dir ("foo");
+    const string dir ("foo");
     securityToken->setDirectory (&dir);
     CPPUNIT_ASSERT_EQUAL (securityToken->getDirectory (), &dir);
   }
 
   void testSysDirectory ()
   {
-    string sysDir ("foo");
+    const string sysDir ("foo");
     securityToken->setSysDirectory (&sysDir);
     CPPUNIT_ASSERT_EQUAL (securityToken->getSysDirectory (), &sysDir);
   }
 
   void testResource ()
   {
-    string resource ("foo");
+    const string resource ("foo");
     securityToken->setResource (&resource);
     CPPUNIT_ASSERT_EQUAL (securityToken->getResource (), &resource);
   }

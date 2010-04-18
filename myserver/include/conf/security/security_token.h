@@ -73,17 +73,17 @@ public:
     return &values;
   }
 
-  string *getDirectory ()
+  const string *getDirectory ()
   {
     return directory;
   }
 
-  string *getSysDirectory ()
+  const string *getSysDirectory ()
   {
     return sysdirectory;
   }
 
-  string *getResource ()
+  const string *getResource ()
   {
     return resource;
   }
@@ -139,17 +139,17 @@ public:
     password.assign (pw);
   }
 
-  void setDirectory (string *d)
+  void setDirectory (const string *d)
   {
     directory = d;
   }
 
-  void setSysDirectory (string *sd)
+  void setSysDirectory (const string *sd)
   {
     sysdirectory = sd;
   }
 
-  void setResource (string *r)
+  void setResource (const string *r)
   {
     resource = r;
   }
@@ -222,13 +222,13 @@ private:
   string password;
 
   /*! Directory that the user is in.  */
-  string *directory;
+  const string *directory;
 
   /*! System directory for the host.  */
-  string *sysdirectory;
+  const string *sysdirectory;
 
   /*! Resource that the user tried to access.  */
-  string *resource;
+  const string *resource;
 
   /*! Permission mask.  */
   int mask;

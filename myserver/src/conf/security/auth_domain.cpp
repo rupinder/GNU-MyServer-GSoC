@@ -36,7 +36,7 @@ AuthDomain::~AuthDomain ()
 /*!
  *\see SecurityDomain::getValue.
  */
-string *AuthDomain::getValue (string &name)
+const string *AuthDomain::getValue (string &name)
 {
   if (!name.compare ("user"))
     return &(securityToken->getUser ());

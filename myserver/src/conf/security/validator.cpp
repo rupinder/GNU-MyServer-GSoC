@@ -87,7 +87,8 @@ int Validator::getPermissionMask (SecurityToken* st,
  *Decorate getPermissionMaskImpl.
  */
 int Validator::getPermissionMaskInt (SecurityToken* st,
-                                     HashMap<string, SecurityDomain*> *hashedDomains,
+                                     HashMap<string,
+                                             SecurityDomain*> *hashedDomains,
                                      AuthMethod* authMethod)
 {
   int ret = 0;
@@ -108,7 +109,8 @@ int Validator::getPermissionMaskInt (SecurityToken* st,
  *Get the permission mask for the requested resource.
  */
 int Validator::getPermissionMaskImpl (SecurityToken* st,
-                                      HashMap<string, SecurityDomain*> *hashedDomains,
+                                      HashMap<string,
+                                      SecurityDomain*> *hashedDomains,
                                       AuthMethod* authMethod)
 {
   return 0;
@@ -120,7 +122,9 @@ int Validator::getPermissionMaskImpl (SecurityToken* st,
  *\param name Variable name.
  *\return The value of the requested variable.
  */
-string *Validator::getValue (HashMap<string, SecurityDomain*> *hashedDomains, string &name)
+const string *Validator::getValue (HashMap<string,
+                                           SecurityDomain*> *hashedDomains,
+                                   string &name)
 {
   string domain;
   string var;
