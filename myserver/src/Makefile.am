@@ -161,10 +161,10 @@ libmyserver_la_LIBADD =  \
 
 myserver_CXXFLAGS = $(CXXFLAGS) -DHOST_STR=\"$(build)\" -DPREFIX=\"$(prefix)\"
 
-myserver_LDFLAGS = -static
+myserver_LDFLAGS = -static -no-install
 myserver_LDADD = libmyserver.la $(PTHREAD_LIB) $(IDN_LIB) \
 	$(XNET_LIB) $(DL_LIB) $(ZLIB_LIB) \
 	$(XML_LIBS) $(INTLLIBS) $(LDFLAGS)
 
 all-local: libmyserver.la myserver${EXEEXT}
-	$(LIBTOOL) --mode=install cp libmyserver.la myserver $(abs_top_srcdir)/binaries/
+	$(LIBTOOL) --mode=install cp myserver $(abs_top_srcdir)/binaries/
