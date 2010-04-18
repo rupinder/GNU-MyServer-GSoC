@@ -141,20 +141,13 @@ int Http::optionsHTTPRESOURCE (string& filename, int yetmapped)
         *td->auxiliaryBuffer << "\r\nConnection:" << connection->value->c_str () << "\r\n";
       *td->auxiliaryBuffer << "Content-length: 0\r\nAccept-Ranges: bytes\r\n";
       *td->auxiliaryBuffer << "Allow: " << methods << "\r\n\r\n";
-
-      /* Send the HTTP header. */
-      ret = td->connection->socket->send (td->auxiliaryBuffer->getBuffer (),
-                                          td->auxiliaryBuffer->getLength (), 0);
-      if (ret < 0)
-        {
-          td->connection->host->warningsLogWrite (_("HTTP: socket error"));
-          return 0;
-        }
+      td->connection->socket->send (td->auxiliaryBuffer->getBuffer (),
+                                    td->auxiliaryBuffer->getLength (), 0);
       return 1;
     }
-  catch (...)
+  catch (exception & e)
     {
-      td->connection->host->warningsLogWrite (_("HTTP: internal error"));
+      td->connection->host->warningsLogWrite (_E ("HTTP: internal error"), &e);
       return raiseHTTPError (500);
     };
 }
@@ -202,19 +195,13 @@ int Http::traceHTTPRESOURCE (string& filename, int yetmapped)
           return 0;
         }
 
-      /* Send the client request header as the HTTP body.  */
-      ret = td->connection->socket->send (td->buffer->getBuffer (),
-                                          contentLength, 0);
-      if (ret < 0)
-        {
-          td->connection->host->warningsLogWrite (_("HTTP: socket error"));
-          return 0;
-        }
+      /* Send the client request header as the HTTP payload.  */
+      td->connection->socket->send (td->buffer->getBuffer (), contentLength, 0);
       return 1;
     }
-  catch (...)
+  catch (exception & e)
     {
-      td->connection->host->warningsLogWrite (_("HTTP: internal error"));
+      td->connection->host->warningsLogWrite (_E ("HTTP: internal error"), &e);
       return raiseHTTPError (500);
     };
 }
@@ -268,8 +255,9 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
 {
   try
     {
+      const string *sysdir = &td->connection->host->getSystemRoot ();
       td->securityToken.setServer (Server::getInstance ());
-      td->securityToken.setSysDirectory ((string*)&(td->connection->host->getSystemRoot ()));
+      td->securityToken.setSysDirectory (sysdir);
 
       td->securityToken.setVhost (td->connection->host);
 
@@ -412,11 +400,11 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
     {
       return raiseHTTPError (404);
     }
-  catch (...)
+  catch (exception & e)
     {
       td->connection->host->warningsLogWrite (
-                                 _("HTTP: cannot get permissions for %s"),
-                                 filename.c_str ());
+                                 _E ("HTTP: cannot get permissions for %s"),
+                                 filename.c_str (), &e);
       return 500;
     }
 
@@ -440,7 +428,8 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
  * \return Return 200 on success.
  * \return Any other value is the HTTP error code.
  */
-int Http::preprocessHttpRequest (string& filename, int yetmapped, int* permissions)
+int Http::preprocessHttpRequest (string& filename, int yetmapped,
+                                 int* permissions)
 {
   string directory;
   string file;
@@ -483,7 +472,6 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped, int* permissio
            */
 
           u_long next = td->filenamePath.find ('/', i + 1);
-
           string curr = td->filenamePath.substr (0, next);
 
           mimeLoc = td->connection->host
@@ -519,7 +507,9 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped, int* permissio
       /*
        * PATH_TRANSLATED is the local filesystem mapped version of PATH_INFO.
        */
-      if (td->pathInfo.length () > 1)
+      if (td->pathInfo.length () <= 1)
+        td->pathTranslated.assign ("");
+      else
         {
           int ret;
           /* Omit the first slash character.  */
@@ -529,16 +519,18 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped, int* permissio
           else
             FilesUtility::completePath (td->pathTranslated);
         }
-      else
-        {
-          td->pathTranslated.assign ("");
-        }
+
       FilesUtility::completePath (td->filenamePath);
 
       td->mime = mimeLoc ? mimeLoc : getMIME (td->filenamePath);
     }
   catch (FileNotFoundException & e)
     {
+      return 404;
+    }
+  catch (exception & e)
+    {
+      td->connection->host->warningsLogWrite (_E ("HTTP: internal error"), &e);
       return 404;
     }
   catch (...)
@@ -730,11 +722,11 @@ Http::sendHTTPResource (string& uri, int systemrequest, int onlyHeader,
 
       return manager->send (td, td->filenamePath.c_str (), 0, onlyHeader);
     }
-  catch (...)
+  catch (exception & e)
     {
-      td->connection->host->warningsLogWrite (_("HTTP: internal error"));
+      td->connection->host->warningsLogWrite (_E ("HTTP: internal error"), &e);
       return raiseHTTPError (500);
-    };
+    }
 
   return HttpDataHandler::RET_OK;
 }
@@ -811,14 +803,17 @@ int Http::logHTTPaccess ()
        * Request the access to the log file then append the message.
        */
       if (td->connection->host)
-        td->connection->host->accessesLogWrite ("%s", td->auxiliaryBuffer->getBuffer ());
+        {
+          const char *msg = td->auxiliaryBuffer->getBuffer ();
+          td->connection->host->accessesLogWrite ("%s", msg);
+        }
 
       td->auxiliaryBuffer->setLength (0);
     }
   catch (...)
     {
       return HttpDataHandler::RET_FAILURE;
-    };
+    }
   return 0;
 }
 
