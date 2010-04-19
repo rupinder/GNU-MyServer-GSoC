@@ -300,7 +300,7 @@ u_long File::getFileSize ()
 int File::seek (u_long initialByte)
 {
   u_long ret;
-  ret = lseek (handle, initialByte, SEEK_SET);
+  ret = checked::checkError (lseek (handle, initialByte, SEEK_SET));
   return (ret != initialByte ) ? 1 : 0;
 }
 
