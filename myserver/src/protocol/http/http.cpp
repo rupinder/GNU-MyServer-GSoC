@@ -830,6 +830,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
   int contentLength = -1;
   DynamicHttpCommand *dynamicCommand;
   bool keepalive = false;
+  bool pipelineData = false;
 
   try
     {
@@ -1067,7 +1068,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                   u_long toCopy = nbtr - td->nHeaderChars;
 
                   a->getConnectionBuffer ()->setBuffer (data, toCopy);
-                  return ClientsThread::INCOMPLETE_REQUEST_NO_WAIT;
+                  pipelineData = true;
                 }
             }
 
@@ -1161,7 +1162,12 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
       /* Map the HttpDataHandler return value to codes understood by
          ClientsThread.  */
       if (ret == HttpDataHandler::RET_OK && keepalive)
-        return ClientsThread::KEEP_CONNECTION;
+        {
+          if (pipelineData)
+            return ClientsThread::INCOMPLETE_REQUEST_NO_WAIT;
+
+          return ClientsThread::KEEP_CONNECTION;
+        }
       else
         return ClientsThread::DELETE_CONNECTION;
 
@@ -1173,6 +1179,8 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
       logHTTPaccess ();
       return ClientsThread::DELETE_CONNECTION;
     }
+
+  return ClientsThread::KEEP_CONNECTION;
 }
 
 /*!
