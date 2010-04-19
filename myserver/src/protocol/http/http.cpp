@@ -1308,11 +1308,12 @@ int Http::raiseHTTPError (int ID)
       int errorBodyLength = 0;
       int useMessagesFiles = 1;
       HttpRequestHeader::Entry *host = td->request.other.get ("host");
-      HttpRequestHeader::Entry *connection = td->request.other.get ("connection");
-      const char *useMessagesVal = td->securityToken.getData ("http.use_error_file",
-                                                              MYSERVER_VHOST_CONF
-                                                              | MYSERVER_SERVER_CONF,
-                                                              NULL);
+      HttpRequestHeader::Entry *connection
+        = td->request.other.get ("connection");
+      const char *useMessagesVal =
+        td->securityToken.getData ("http.use_error_file", MYSERVER_VHOST_CONF
+                                   | MYSERVER_SERVER_CONF,
+                                   NULL);
       if (useMessagesVal)
         {
           if (! strcasecmp (useMessagesVal, "YES"))
@@ -1396,9 +1397,9 @@ int Http::raiseHTTPError (int ID)
 
       /* Send only the header (and the body if specified).  */
       {
-        const char* value = td->securityToken.getData ("http.error_body",
-                                                             MYSERVER_VHOST_CONF |
-                                                             MYSERVER_SERVER_CONF, NULL);
+        const char* value
+          = td->securityToken.getData ("http.error_body", MYSERVER_VHOST_CONF
+                                       | MYSERVER_SERVER_CONF, NULL);
 
         if (value && ! strcasecmp (value, "NO"))
           {
@@ -1419,19 +1420,14 @@ int Http::raiseHTTPError (int ID)
                                    *td->buffer, td))
         return 1;
 
-      if (errorBodyLength
-          && (td->connection->socket->send (errorBodyMessage.str ().c_str (),
-                                            errorBodyLength, 0) < 0))
-        {
-          td->connection->host->warningsLogWrite (_("HTTP: socket error"));
-          return HttpDataHandler::RET_FAILURE;
-        }
-
+      if (errorBodyLength)
+          td->connection->socket->send (errorBodyMessage.str ().c_str (),
+                                        errorBodyLength, 0);
       return HttpDataHandler::RET_OK;
     }
-  catch (...)
+  catch (exception &e)
     {
-      td->connection->host->warningsLogWrite (_("HTTP: internal error"));
+      td->connection->host->warningsLogWrite (_E ("HTTP: internal error"), &e);
       return HttpDataHandler::RET_FAILURE;
     }
 }
@@ -1482,10 +1478,9 @@ Internal Server Error\n\
   *td->auxiliaryBuffer << time;
   *td->auxiliaryBuffer << "\r\n\r\n";
 
-  if (td->connection->socket->send (td->auxiliaryBuffer->getBuffer (),
-                                    (u_long) td->auxiliaryBuffer->getLength (),
-                                    0) < 0)
-    return HttpDataHandler::RET_FAILURE;
+  td->connection->socket->send (td->auxiliaryBuffer->getBuffer (),
+                                (u_long) td->auxiliaryBuffer->getLength (),
+                                0);
 
   if (!td->onlyHeader)
     td->connection->socket->send (hardHTML, (u_long) strlen (hardHTML), 0);
@@ -1666,13 +1661,8 @@ int Http::sendHTTPRedirect (const char *newURL)
   getRFC822GMTTime (time, 32);
   *td->auxiliaryBuffer << time
           << "\r\n\r\n";
-  if (td->connection->socket->send (td->auxiliaryBuffer->getBuffer (),
-                                    (int) td->auxiliaryBuffer->getLength (), 0) < 0)
-    {
-      td->connection->host->warningsLogWrite (_("HTTP: socket error"));
-      return HttpDataHandler::RET_FAILURE;
-    }
-
+  td->connection->socket->send (td->auxiliaryBuffer->getBuffer (),
+                                (int) td->auxiliaryBuffer->getLength (), 0);
   return HttpDataHandler::RET_OK;
 }
 
@@ -1698,12 +1688,8 @@ int Http::sendHTTPNonModified ()
 
   *td->auxiliaryBuffer << "Date: " << time << "\r\n\r\n";
 
-  if (td->connection->socket->send (td->auxiliaryBuffer->getBuffer (),
-                                    (int) td->auxiliaryBuffer->getLength (), 0) < 0)
-    {
-      td->connection->host->warningsLogWrite (_("HTTP: socket error"));
-      return HttpDataHandler::RET_FAILURE;
-    }
+  td->connection->socket->send (td->auxiliaryBuffer->getBuffer (),
+                                (int) td->auxiliaryBuffer->getLength (), 0);
 
   return HttpDataHandler::RET_OK;
 }
