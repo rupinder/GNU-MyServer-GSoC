@@ -55,15 +55,15 @@ u_long HttpHeaders::buildHTTPResponseHeader (char *str,
   char *pos = str;
   const int MAX = MYSERVER_KB (8);
   if (response->httpStatus != 200)
-  {
-    if (response->errorType.length () == 0)
     {
-      HttpErrors::getErrorMessage (response->httpStatus, response->errorType);
+      if (response->errorType.length () == 0)
+        HttpErrors::getErrorMessage (response->httpStatus, response->errorType);
+
+      pos += sprintf (pos, "%s %i %s\r\n", response->ver.c_str (),
+                      response->httpStatus, response->errorType.c_str ());
+      if (response->errorType.c_str ()[0])
+        pos += sprintf (pos, "Status: %s\r\n", response->errorType.c_str ());
     }
-    pos += sprintf (str, "%s %i %s\r\nStatus: %s\r\n", response->ver.c_str (),
-                    response->httpStatus, response->errorType.c_str (),
-                    response->errorType.c_str () );
-  }
   else
     pos += sprintf (str,"%s 200 OK\r\n",response->ver.c_str ());
 
