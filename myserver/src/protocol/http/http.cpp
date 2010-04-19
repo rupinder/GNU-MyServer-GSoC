@@ -980,61 +980,27 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
            */
           HttpRequestHeader::Entry *host = td->request.other.get ("host");
 
-          if (host == NULL || (!td->request.ver.compare ("HTTP/1.1")
-                               && host->value->length () == 0))
+          if (! td->request.ver.compare ("HTTP/1.1")
+              && (host == NULL || host->value->length () == 0))
             {
-              raiseHTTPError (400);
-              /* If the inputData file was not closed close it.  */
-              if (td->inputData.getHandle ())
-                {
-                  td->inputData.close ();
-                  FilesUtility::deleteFile (td->inputDataPath);
-                }
-
-              /* If the outputData file was not closed close it.  */
-              if (td->outputData.getHandle ())
-                {
-                  td->outputData.close ();
-                  FilesUtility::deleteFile (td->outputDataPath);
-                }
+              int ret = raiseHTTPError (400);
               logHTTPaccess ();
-              return ClientsThread::DELETE_CONNECTION;
+              return ret;
             }
-          else
+
+          /* Find the virtual host to check both host name and IP value.  */
+          Vhost* newHost = Server::getInstance ()->getVhosts ()->getVHost (host ?
+                                                       host->value->c_str () : "",
+                                         a->getLocalIpAddr (), a->getLocalPort ());
+          if (a->host)
+            a->host->removeRef ();
+
+          a->host = newHost;
+          if (a->host == NULL)
             {
-              /* Find the virtual host to check both host name and IP value.  */
-              Vhost* newHost = Server::getInstance ()->getVhosts ()->getVHost (host ?
-                                                           host->value->c_str () : "",
-                                            a->getLocalIpAddr (), a->getLocalPort ());
-              if (a->host)
-                a->host->removeRef ();
-
-              a->host = newHost;
-              if (a->host == NULL)
-                {
-                  Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
-                                    _("Invalid virtual host requested from %s"),
-                                               a->getIpAddr ());
-
-                  raiseHTTPError (400);
-                  /*
-                   *If the inputData file was not closed close it.
-                   */
-                  if (td->inputData.getHandle ())
-                    {
-                      td->inputData.close ();
-                      FilesUtility::deleteFile (td->inputDataPath);
-                    }
-
-                   /* If the outputData file was not closed close it.  */
-                  if (td->outputData.getHandle ())
-                    {
-                      td->outputData.close ();
-                      FilesUtility::deleteFile (td->outputDataPath);
-                    }
-                  logHTTPaccess ();
-                  return ClientsThread::DELETE_CONNECTION;
-                }
+              int ret = raiseHTTPError (400);
+              logHTTPaccess ();
+              return ret;
             }
 
           if (td->request.uri.length () > 2 && td->request.uri[1] == '~')
