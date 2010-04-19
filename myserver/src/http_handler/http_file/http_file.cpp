@@ -309,27 +309,12 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
           }
       }
 
-    bytesToSend = filesize;
     if (lastByte == 0)
-      lastByte = bytesToSend;
+      lastByte = filesize;
     else
-      {
-        /*
-         * If the client use ranges set the right value
-         * for the last byte number.
-         */
-        lastByte = std::min (lastByte + 1, bytesToSend);
-      }
+      lastByte = std::min (lastByte + 1, filesize);
 
-    /*
-     * bytesToSend is the interval between the first and the last byte.
-     */
     bytesToSend = lastByte - firstByte;
-
-    /*
-     * If fail to set the file pointer returns an internal server error.
-     */
-    file->seek (firstByte);
 
     keepalive = td->request.isKeepAlive ();
 
@@ -341,8 +326,8 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         HttpResponseHeader::Entry *e;
         ostringstream buffer;
         td->response.httpStatus = 206;
-        buffer << "bytes "<< (u_long)firstByte << "-"
-               << (u_long) (lastByte - 1) << "/" << (u_long)filesize;
+        buffer << "bytes "<< (u_long) firstByte << "-"
+               << (u_long) (lastByte - 1) << "/" << (u_long) filesize;
 
         e = td->response.other.get ("content-range");
         if (e)
@@ -354,8 +339,6 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
             e->value->assign (buffer.str ());
             td->response.other.put (*(e->name), e);
           }
-
-        useChunks = true;
       }
     chain.setStream (&memStream);
     if (td->mime)
@@ -372,7 +355,6 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
       }
 
     useModifiers = chain.hasModifiersFilters ();
-
     if (!useModifiers)
       {
         ostringstream buffer;
@@ -463,6 +445,8 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         return HttpDataHandler::RET_OK;
       }
 
+    file->seek (firstByte);
+
     if (td->appendOutputs)
       chain.setStream (&(td->outputData));
     else
@@ -545,10 +529,6 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
                                                        nbr, &(td->outputData),
                                                        &chain, td->appendOutputs,
                                                           useChunks);
-
-                HttpDataHandler::appendDataToHTTPChannel (td, 0, 0,
-                                                     &(td->outputData), &chain,
-                                                 td->appendOutputs, useChunks);
                 break;
               }
           }
