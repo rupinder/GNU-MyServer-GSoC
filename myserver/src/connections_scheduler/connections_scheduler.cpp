@@ -101,8 +101,7 @@ void ConnectionsScheduler::newData (short event, SocketHandle handle)
         return;
 
       server->notifyDeleteConnection (connection);
-
-      removeConnection (connection);
+      server->deleteConnection (connection);
     }
 }
 
@@ -468,7 +467,7 @@ void ConnectionsScheduler::addWaitingConnectionImpl (ConnectionPtr c, int lock)
 #endif
 
   if (server)
-    tv.tv_sec = server->getTimeout () / 1000;
+    tv.tv_sec = server->getTimeout () / 1000000;
   else
     tv.tv_sec = 30;
 
