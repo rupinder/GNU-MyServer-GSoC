@@ -829,6 +829,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
   /* Dimension of the POST data. */
   int contentLength = -1;
   DynamicHttpCommand *dynamicCommand;
+  bool keepalive = false;
 
   try
     {
@@ -891,7 +892,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
         return ClientsThread::INCOMPLETE_REQUEST;
 
       if (a->protocolBuffer)
-        ((HttpUserData*) a->protocolBuffer)->digestChecked = 0;
+        ((HttpUserData *) a->protocolBuffer)->digestChecked = 0;
 
       /* If the validRequest cointains an error code send it to the user.  */
       if (validRequest != 200)
@@ -947,10 +948,8 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
             {
               const char* msg = "HTTP/1.1 100 Continue\r\n\r\n";
               if (a->socket->bytesToRead () == 0)
-                {
-                  if (a->socket->send (msg, (int) strlen (msg), 0) == -1)
-                    return ClientsThread::DELETE_CONNECTION;
-                }
+                a->socket->send (msg, (int) strlen (msg), 0);
+
               return ClientsThread::INCOMPLETE_REQUEST;
             }
 
@@ -979,13 +978,20 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
            * request does not include a Host request-header.
            */
           HttpRequestHeader::Entry *host = td->request.other.get ("host");
+          HttpRequestHeader::Entry *connection
+            = td->request.other.get ("connection");
+          if (connection)
+            keepalive = !stringcmpi (connection->value->c_str (), "keep-alive");
 
           if (! td->request.ver.compare ("HTTP/1.1")
               && (host == NULL || host->value->length () == 0))
             {
               int ret = raiseHTTPError (400);
               logHTTPaccess ();
-              return ret;
+              if (ret == HttpDataHandler::RET_OK && keepalive)
+                return ClientsThread::KEEP_CONNECTION;
+              else
+                return ClientsThread::DELETE_CONNECTION;
             }
 
           /* Find the virtual host to check both host name and IP value.  */
@@ -1000,7 +1006,10 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
             {
               int ret = raiseHTTPError (400);
               logHTTPaccess ();
-              return ret;
+              if (ret == HttpDataHandler::RET_OK && keepalive)
+                return ClientsThread::KEEP_CONNECTION;
+              else
+                return ClientsThread::DELETE_CONNECTION;
             }
 
           if (td->request.uri.length () > 2 && td->request.uri[1] == '~')
@@ -1092,12 +1101,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                                                                       msg, td);
                     if (handlerRet == ClientsThread::DELETE_CONNECTION)
                       {
-                        ret = ClientsThread::DELETE_CONNECTION;
-                        break;
-                      }
-                    else if (handlerRet == ClientsThread::KEEP_CONNECTION)
-                      {
-                        ret = ClientsThread::KEEP_CONNECTION;
+                        ret = HttpDataHandler::RET_FAILURE;
                         break;
                       }
                   }
@@ -1160,12 +1164,6 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
       catch (GenericFileException & e)
         {
         }
-
-      bool keepalive = false;
-      HttpRequestHeader::Entry *connection = td->request.other.get
-                                                       ("connection");
-      if (connection)
-        keepalive = !stringcmpi (connection->value->c_str (), "keep-alive");
 
       logHTTPaccess ();
 
