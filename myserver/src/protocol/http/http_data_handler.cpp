@@ -200,7 +200,8 @@ HttpDataHandler::checkDataChunks (HttpThreadContext* td, bool* keepalive,
   *keepalive = td->request.isKeepAlive ();
   *useChunks = false;
 
-  /* Do not use chunked transfer with old HTTP/1.0 clients.  */
+  *keepalive &= !td->request.ver.compare ("HTTP/1.1");
+
   if (*keepalive)
     {
       HttpResponseHeader::Entry *e;

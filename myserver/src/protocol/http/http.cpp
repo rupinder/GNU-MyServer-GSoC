@@ -398,7 +398,7 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
     }
   catch (FileNotFoundException & e)
     {
-      return raiseHTTPError (404);
+      return 404;
     }
   catch (exception & e)
     {
@@ -915,16 +915,6 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
 
       td->response.ver.assign (td->request.ver.c_str ());
 
-      /* Do not use Keep-Alive with HTTP version older than 1.1.  */
-      if (td->request.ver.compare ("HTTP/1.1"))
-        {
-          HttpRequestHeader::Entry *connection =
-                  td->request.other.get ("connection");
-
-          if (connection && connection->value->length ())
-            connection->value->assign ("close");
-        }
-
       /*
        * For methods that accept data after the HTTP header set the correct
        * pointer and create a file containing the informations after the header.
@@ -981,7 +971,8 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
           HttpRequestHeader::Entry *connection
             = td->request.other.get ("connection");
           if (connection)
-            keepalive = !stringcmpi (connection->value->c_str (), "keep-alive");
+            keepalive = !stringcmpi (connection->value->c_str (), "keep-alive")
+              && !td->request.ver.compare ("HTTP/1.1");
 
           if (! td->request.ver.compare ("HTTP/1.1")
               && (host == NULL || host->value->length () == 0))
@@ -1393,41 +1384,37 @@ int Http::raiseHTTPError (int ID)
 
       HttpErrors::getErrorMessage (ID, errorMessage);
 
-      /* Send only the header (and the body if specified).  */
-      {
-        const char* value
-          = td->securityToken.getData ("http.error_body", MYSERVER_VHOST_CONF
-                                       | MYSERVER_SERVER_CONF, NULL);
+      const char* value
+        = td->securityToken.getData ("http.error_body", MYSERVER_VHOST_CONF
+                                     | MYSERVER_SERVER_CONF, NULL);
 
-        if (value && ! strcasecmp (value, "NO"))
-          {
-            errorBodyLength = 0;
-            td->response.contentLength.assign ("0");
-          }
-        else
-          {
-            ostringstream size;
-            errorBodyMessage << ID << " - " << errorMessage << "\r\n";
-            errorBodyLength = errorBodyMessage.str ().length ();
-            size << errorBodyLength;
-            td->response.contentLength.assign (size.str ());
-          }
-      }
+      if (value && ! strcasecmp (value, "NO"))
+        {
+          errorBodyLength = 0;
+          td->response.contentLength.assign ("0");
+        }
+      else
+        {
+          ostringstream size;
+          errorBodyMessage << ID << " - " << errorMessage << "\r\n";
+          errorBodyLength = errorBodyMessage.str ().length ();
+          size << errorBodyLength;
+          td->response.contentLength.assign (size.str ());
+        }
 
-      if (HttpHeaders::sendHeader (td->response, *td->connection->socket,
-                                   *td->buffer, td))
-        return 1;
+      HttpHeaders::sendHeader (td->response, *td->connection->socket,
+                               *td->buffer, td);
 
       if (errorBodyLength)
           td->connection->socket->send (errorBodyMessage.str ().c_str (),
                                         errorBodyLength, 0);
-      return HttpDataHandler::RET_OK;
     }
   catch (exception &e)
     {
       td->connection->host->warningsLogWrite (_E ("HTTP: internal error"), &e);
       return HttpDataHandler::RET_FAILURE;
     }
+  return HttpDataHandler::RET_OK;
 }
 
 /*!
