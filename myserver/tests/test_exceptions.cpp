@@ -34,6 +34,7 @@ class TestExceptions : public CppUnit::TestFixture
   CPPUNIT_TEST (testWrongCloseDir);
   CPPUNIT_TEST (testWrongCwd);
   CPPUNIT_TEST (testErrno);
+  CPPUNIT_TEST (testGetBacktrace);
   CPPUNIT_TEST_SUITE_END ();
 
   DIR *foodir;
@@ -62,6 +63,22 @@ public:
     catch (...)
       {
         CPPUNIT_FAIL ("The wrong exception in testWrongCloseDir was thrown");
+      }
+  }
+
+  void testGetBacktrace ()
+  {
+    try
+      {
+        errno = EINVAL;
+        checked::raiseException ();
+
+        CPPUNIT_FAIL ("Exception not raised");
+      }
+    catch (AbstractServerException & e)
+      {
+        char **bt = e.getBacktrace ();
+        CPPUNIT_ASSERT (bt);
       }
   }
 
