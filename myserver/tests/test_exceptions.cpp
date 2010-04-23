@@ -78,7 +78,9 @@ public:
     catch (AbstractServerException & e)
       {
         char **bt = e.getBacktrace ();
+#ifdef HAVE_BACKTRACE_SYMBOLS
         CPPUNIT_ASSERT (bt);
+#endif
       }
   }
 
