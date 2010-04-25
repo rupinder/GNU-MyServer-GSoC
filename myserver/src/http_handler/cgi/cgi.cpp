@@ -281,7 +281,7 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
       cgiProc.terminateProcess ();
 
       /* Delete the file only if it was created by the CGI module.  */
-      if (!td->inputData.getHandle ())
+      if (td->inputData.getHandle () >= 0)
         FilesUtility::deleteFile (td->inputDataPath.c_str ());
     }
   catch (exception & e)

@@ -1140,14 +1140,14 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
       try
         {
           /* If the inputData file was not closed close it.  */
-          if (td->inputData.getHandle ())
+          if (td->inputData.getHandle () >= 0)
             {
               td->inputData.close ();
               FilesUtility::deleteFile (td->inputDataPath);
             }
 
           /* If the outputData file was not closed close it.  */
-          if (td->outputData.getHandle ())
+          if (td->outputData.getHandle () >= 0)
             {
               td->outputData.close ();
               FilesUtility::deleteFile (td->outputDataPath);
