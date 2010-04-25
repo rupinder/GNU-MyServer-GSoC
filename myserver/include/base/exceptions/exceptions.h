@@ -71,7 +71,7 @@ class AbstractServerException: public exception
 
 # ifdef HAVE_BACKTRACE_SYMBOLS
           btString = (char **) gnulib::malloc (sizeof(char *) *w);
-          btString = backtrace_symbols(buffer, w);
+          btString = backtrace_symbols (buffer, w);
 # endif
         }
 
