@@ -43,7 +43,7 @@ public:
   ~LogManager ();
   int add (const void *owner, string type, string location,
            list<string>& filters, u_long cycle, 
-           int sharedStreamWarningOn = 1);
+           int suppressWarnings = 0);
   int remove (const void *owner);
 
   int log (const void* owner, string & message, bool appendNL = false,

@@ -735,7 +735,7 @@ public:
 
     lm->add (this, "test", "file://foo", filters, 0);
 
-    CPPUNIT_ASSERT (!lm->add (&anObject, "test", "file://foo", filters, 0, 0));
+    CPPUNIT_ASSERT (!lm->add (&anObject, "test", "file://foo", filters, 0, 1));
   }
 
   void testAddLogStreamSharedByTheSameObject ()
@@ -751,7 +751,7 @@ public:
 
     lm->add (this, "test", "file://foo", filters, 0);
 
-    CPPUNIT_ASSERT (! lm->add (this, "test1", "file://foo", filters, 0, 0));
+    CPPUNIT_ASSERT (! lm->add (this, "test1", "file://foo", filters, 0, 1));
   }
 
   void testGetLogStreamSharedByDistinctObjects ()
@@ -771,7 +771,7 @@ public:
       }
 
     lm->add (this, "test", "file://foo", filters, 0);
-    lm->add (&anObject, "test", "file://foo", filters, 0, 0);
+    lm->add (&anObject, "test", "file://foo", filters, 0, 1);
     lm->getOwnersList ("file://foo", &l);
     lm->get (this, "test", "file://foo", &ls);
     lm->get (&anObject, "test", "file://foo", &ls1);
@@ -819,8 +819,8 @@ public:
       }
 
     lm->add (this, "test", "file://foo", filters, 0);
-    lm->add (&anObject, "test1", "file://foo", filters, 0, 0);
-    lm->add (&anotherObject, "test2", "file://foo", filters, 0, 0);
+    lm->add (&anObject, "test1", "file://foo", filters, 0, 1);
+    lm->add (&anotherObject, "test2", "file://foo", filters, 0, 1);
     lm->remove (this);
     lm->remove (&anObject);
 
