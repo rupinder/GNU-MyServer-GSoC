@@ -115,7 +115,8 @@ LogManager::clear ()
  */
 int
 LogManager::add (const void *owner, string type, string location,
-                 list<string>& filters, u_long cycle)
+                 list<string>& filters, u_long cycle, 
+                 int sharedStreamWarningOn)
 {
   int failure = 1;
   int oldSize;
@@ -158,7 +159,8 @@ LogManager::add (const void *owner, string type, string location,
 
   mutex->unlock ();
 
-  if (!failure && newSize > oldSize && Server::getInstance ())
+  if (!failure && newSize > oldSize && Server::getInstance () &&
+      sharedStreamWarningOn)
     return Server::getInstance ()->log (MYSERVER_LOG_MSG_WARNING,
                                      _("The %s log is shared among %i objects"),
                                         location.c_str (), newSize);
