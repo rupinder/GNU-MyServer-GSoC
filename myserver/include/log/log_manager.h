@@ -23,6 +23,7 @@
 
 # include <map>
 # include <string>
+# include <set>
 
 # include <include/base/sync/mutex.h>
 # include <include/filter/filters_factory.h>

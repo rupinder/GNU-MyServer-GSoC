@@ -137,8 +137,6 @@ LogManager::add (const void *owner, string type, string location,
           return failure;
         }
 
-      ostringstream oss;
-
       oldSize = logStreamOwners[location].size ();
       if (!containsOwner (owner))
         {
@@ -271,26 +269,37 @@ LogManager::remove (const void *owner)
           return 1;
         }
 
+      set<string> toRemove;
+
       map<string, map<string, LogStream*> >* m = &owners[owner];
       map<string, map<string, LogStream*> >::iterator it_1;
+
       for (it_1 = m->begin (); it_1 != m->end (); it_1++)
         {
           map<string, LogStream*> *t = &it_1->second;
           map<string, LogStream*>::iterator it_2;
           for (it_2 = t->begin (); it_2 != t->end (); it_2++)
             {
-              logStreamOwners[it_2->first].remove (owner);
-              if (!logStreamOwners[it_2->first].size ())
-                {
-                  delete it_2->second;
-                  logStreams.erase (it_2->first);
-                  logStreamOwners.erase (it_2->first);
-                }
+              toRemove.insert (it_2->first);
             }
           t->clear ();
         }
+
       m->clear ();
       owners.erase (owner);
+
+      set<string>::iterator i;
+      for (i = toRemove.begin (); i != toRemove.end (); i++)
+        {
+          logStreamOwners[*i].remove (owner);
+          if (!logStreamOwners[*i].size ())
+            {
+              delete logStreams[*i];
+              logStreams.erase (*i);
+              logStreamOwners.erase (*i);
+            }
+        }
+
       failure = 0;
     }
   catch (...)
