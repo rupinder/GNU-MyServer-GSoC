@@ -20,14 +20,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "myserver.h"
 #include <include/base/utility.h>
 #include <include/base/string/securestr.h>
+
 extern "C"
 {
 #include <chdir-long.h>
 }
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "nproc.h"
+
 #ifndef WIN32
 # include <unistd.h>
 # include <signal.h>
@@ -35,10 +38,6 @@ extern "C"
 # include <sys/wait.h>
 # include <sys/time.h>
 # include <errno.h>
-
-# ifdef ERRORH
-#  include <error.h>
-# endif
 #endif
 
 #include <include/base/exceptions/checked.h>

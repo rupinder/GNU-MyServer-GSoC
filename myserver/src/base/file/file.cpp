@@ -35,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <math.h>
 #include <time.h>
 
-#ifdef SENDFILE
+#ifdef HAVE_SYS_SENDFILE_H
 # include <fcntl.h>
 # include <stdlib.h>
 # include <stdio.h>
@@ -44,7 +44,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # include <sys/types.h>
 # include <unistd.h>
 #endif
-
 
 #include <string>
 #include <sstream>
@@ -376,7 +375,7 @@ int File::read (char* buffer, u_long buffersize, u_long* nbr)
 int File::fastCopyToSocket (Socket *dest, u_long firstByte, MemBuf *buf, u_long *nbw)
 {
   *nbw = 0;
-#ifdef SENDFILE
+#ifdef HAVE_SYS_SENDFILE_H
   off_t offset = firstByte;
   size_t fileSize = getFileSize ();
   while (1)

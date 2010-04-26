@@ -23,7 +23,11 @@
 
 # include <exception>
 # include <errno.h>
-# include <execinfo.h>
+
+# ifdef HAVE_EXECINFO_H
+#  include <execinfo.h>
+# endif
+
 # include <stdlib.h>
 # include <string.h>
 
