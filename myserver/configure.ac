@@ -87,14 +87,7 @@ AC_ARG_ENABLE([tests], [--disable-tests Disable the tests suite],
 AC_ARG_ENABLE([gui], [--enable-gui Build and install GUI application],
 		     enable_gui="yes", enable_gui="")
 
-
-AC_CHECK_HEADER([argp.h], AC_DEFINE(ARGP, 1,
-			  [Define if GNU argp tools are available]))
-AC_CHECK_HEADER([error.h], AC_DEFINE(ERRORH, 1,
-			   [Define if the error.h file is present]))
-AC_CHECK_HEADER([grp.h], AC_DEFINE(GRP, 1, [Define if grp.h is available]))
-AC_CHECK_HEADER([sys/sendfile.h], AC_DEFINE(SENDFILE, 1,
-				  [Define if the sendfile syscall is present]))
+AC_CHECK_HEADERS([execinfo.h grp.h sys/sendfile.h])
 
 gl_INIT
 

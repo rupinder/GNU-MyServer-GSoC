@@ -37,7 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #  include <pwd.h>
 # endif
 
-# ifdef GRP
+# ifdef HAVE_GRP_H
 #  include <grp.h>
 # endif
 
@@ -359,7 +359,7 @@ gid_t Process::getGid (const char *grp)
         return gid;
     }
 
-# ifdef GRP
+# ifdef HAVE_GRP_H
   struct group *g = getgrnam (grp);
   if (g != NULL)
     return g->gr_gid;

@@ -19,6 +19,8 @@
 */
 #include <include/base/exceptions/checked.h>
 
+#include <errno.h>
+
 namespace checked
 {
   int accept (int fd, struct sockaddr *addr, socklen_t *addrlen)
@@ -250,441 +252,659 @@ namespace checked
   {
     switch(errno)
       {
+#ifdef E2BIG
       case E2BIG:
         throw ArgumentListException ();
         break;
+#endif
 
+#ifdef EACCES
       case EACCES:
         throw PermissionDeniedException ();
         break;
+#endif
 
+#ifdef EADDRINUSE
       case EADDRINUSE:
         throw AddressException ();
         break;
+#endif
 
+#ifdef EADDRNOTAVAIL
       case EADDRNOTAVAIL:
         throw AddressException ();
         break;
+#endif
 
+#ifdef EAFNOSUPPORT
       case EAFNOSUPPORT:
         throw ProtocolException ();
         break;
+#endif
 
+#ifdef EAGAIN
       case EAGAIN:
         throw InvalidResourceException ();
         break;
+#endif
 
+#ifdef EALREADY
       case EALREADY:
         throw ProgressException ();
         break;
+#endif
 
+#ifdef EBADE
       case EBADE:
         throw InvalidExchangeException ();
         break;
+#endif
 
+#ifdef EBADF
       case EBADF:
         throw BadDescriptorException ();
         break;
+#endif
 
+#ifdef EBADFD
       case EBADFD:
         throw BadDescriptorException ();
         break;
+#endif
 
+#ifdef EBADMSG
       case EBADMSG:
         throw MessageException ();
         break;
+#endif
 
+#ifdef EBADR
       case EBADR:
         throw RequestCodeException ();
         break;
+#endif
 
+#ifdef EBADRQC
       case EBADRQC:
         throw RequestCodeException ();
         break;
+#endif
 
+#ifdef EBADSLT
       case EBADSLT:
         throw SlotException ();
         break;
+#endif
 
+#ifdef EBUSY
       case EBUSY:
         throw BusyResourceException ();
         break;
+#endif
 
+#ifdef ECANCELED
       case ECANCELED:
         throw CancelException ();
         break;
+#endif
 
+#ifdef ECHILD
       case ECHILD:
         throw ProcessException ();
         break;
+#endif
 
+#ifdef ECHRNG
       case ECHRNG:
         throw ChannelOutOfRangeException ();
         break;
+#endif
 
+#ifdef ECOMM
       case ECOMM:
         throw SendException ();
         break;
+#endif
 
+#ifdef ECONNABORTED
       case ECONNABORTED:
         throw AbortedConnectionException ();
         break;
+#endif
 
+#ifdef ECONNREFUSED
       case ECONNREFUSED:
         throw RefusedConnectionException ();
         break;
+#endif
 
+#ifdef ECONNRESET
       case ECONNRESET:
         throw ResetException ();
         break;
+#endif
 
+#ifdef EDEADLK
       case EDEADLK:
         throw DeadlockException ();
         break;
+#endif
 
+#ifdef EDESTADDRREQ
       case EDESTADDRREQ:
         throw AddressException ();
         break;
+#endif
 
+#ifdef EDOM
       case EDOM:
         throw MathException ();
         break;
+#endif
 
+#ifdef EDQUOT
       case EDQUOT:
         throw DiskQuotaException ();
         break;
+#endif
 
+#ifdef EEXIST
       case EEXIST:
         throw FileExistsException ();
         break;
+#endif
 
+#ifdef EFAULT
       case EFAULT:
         throw FaultException ();
         break;
+#endif
 
+#ifdef EFBIG
       case EFBIG:
         throw FileTooLargeException ();
         break;
+#endif
 
+#ifdef EHOSTDOWN
       case EHOSTDOWN:
         throw HostDownException ();
         break;
+#endif
 
+#ifdef EHOSTUNREACH
       case EHOSTUNREACH:
         throw UnreachHostException ();
         break;
+#endif
 
+#ifdef EIDRM
       case EIDRM:
         throw IdentifierException ();
         break;
+#endif
 
+#ifdef EILSEQ
       case EILSEQ:
         throw ByteException ();
         break;
+#endif
 
+#ifdef EINPROGRESS
       case EINPROGRESS:
         throw ProgressException ();
         break;
+#endif
 
+#ifdef EINTR
       case EINTR:
         throw FunctionException ();
         break;
+#endif
 
+#ifdef EINVAL
       case EINVAL:
         throw ArgumentListException ();
         break;
+#endif
 
+#ifdef EIO
       case EIO:
         throw IOException ();
         break;
+#endif
 
+#ifdef EISCONN
       case EISCONN:
         throw SocketException ();
         break;
+#endif
 
+#ifdef EISDIR
       case EISDIR:
         throw DirectoryException ();
         break;
+#endif
 
+#ifdef EISNAM
       case EISNAM:
         throw NamedFileException ();
         break;
+#endif
 
+#ifdef EKEYEXPIRED
       case EKEYEXPIRED:
         throw KeyException ();
         break;
+#endif
 
+#ifdef EKEYREJECTED
       case EKEYREJECTED:
         throw KeyException ();
         break;
+#endif
 
+#ifdef EKEYREVOKED
       case EKEYREVOKED:
         throw KeyException ();
         break;
+#endif
 
+#ifdef EL2HLT
       case EL2HLT:
         throw HaltException ();
         break;
+#endif
 
+#ifdef EL2NSYNC
       case EL2NSYNC:
         throw HaltException ();
         break;
+#endif
 
+#ifdef EL3HLT
       case EL3HLT:
         throw HaltException ();
         break;
+#endif
 
+#ifdef ELIBACC
       case ELIBACC:
         throw LibraryException ();
         break;
+#endif
 
+#ifdef ELIBBAD
       case ELIBBAD:
         throw LibraryException ();
         break;
+#endif
 
+#ifdef ELIBMAX
       case ELIBMAX:
         throw LibraryException ();
         break;
+#endif
 
+#ifdef ELIBSCN
       case ELIBSCN:
         throw LibraryException ();
         break;
+#endif
 
+#ifdef ELIBEXEC
       case ELIBEXEC:
         throw LibraryException ();
         break;
+#endif
 
+#ifdef ELOOP
       case ELOOP:
         throw LinkException ();
         break;
+#endif
 
+#ifdef EMEDIUMTYPE
       case EMEDIUMTYPE:
         throw MediaException ();
         break;
+#endif
 
+#ifdef EMFILE
       case EMFILE:
         throw TooManyFileException ();
         break;
+#endif
 
+#ifdef EMLINK
       case EMLINK:
         throw LinkException ();
         break;
+#endif
 
+#ifdef EMSGSIZE
       case EMSGSIZE:
         throw MessageException ();
         break;
+#endif
 
+#ifdef EMULTIHOP
       case EMULTIHOP:
         throw MultihopException ();
         break;
+#endif
 
+#ifdef ENAMETOOLONG
       case ENAMETOOLONG:
         throw FileTooLongException ();
         break;
+#endif
 
+#ifdef ENETRESET
       case ENETRESET:
         throw NetworkException ();
         break;
+#endif
 
+#ifdef ENETUNREACH
       case ENETUNREACH:
         throw NetworkException ();
         break;
+#endif
 
+#ifdef ENFILE
       case ENFILE:
         throw FilesystemException ();
         break;
+#endif
 
+#ifdef ENOBUFS
       case ENOBUFS:
         throw BufferOverflowException ();
         break;
+#endif
 
+#ifdef ENODATA
       case ENODATA:
         throw StreamException ();
         break;
+#endif
 
+#ifdef ENODEV
       case ENODEV:
         throw DeviceException ();
         break;
+#endif
 
+#ifdef ENOENT
       case ENOENT:
         throw FileNotFoundException ();
         break;
+#endif
 
+#ifdef ENOEXEC
       case ENOEXEC:
         throw ExecFormatException ();
         break;
+#endif
 
+#ifdef ENOKEY
       case ENOKEY:
         throw KeyException ();
         break;
+#endif
 
+#ifdef ENOLINK
       case ENOLINK:
         throw LinkException ();
         break;
+#endif
 
+#ifdef ENOMEDIUM
       case ENOMEDIUM:
         throw MediaException ();
         break;
+#endif
 
+#ifdef ENOMEM
       case ENOMEM:
         throw MemoryOverflowException ();
         break;
+#endif
 
+#ifdef ENOMSG
       case ENOMSG:
         throw MessageException ();
         break;
+#endif
 
+#ifdef ENONET
       case ENONET:
         throw NetworkException ();
         break;
+#endif
 
+#ifdef ENOSPC
       case ENOSPC:
         throw OverflowException ();
         break;
+#endif
 
+#ifdef ENOSR
       case ENOSR:
         throw StreamException ();
         break;
+#endif
 
+#ifdef ENOSTR
       case ENOSTR:
         throw StreamException ();
         break;
+#endif
 
+#ifdef ENOSYS
       case ENOSYS:
         throw FunctionException ();
         break;
+#endif
 
+#ifdef ENOTBLK
       case ENOTBLK:
         throw BlockingException ();
         break;
+#endif
 
+#ifdef ENOTCONN
       case ENOTCONN:
         throw SocketException ();
         break;
+#endif
 
+#ifdef ENOTDIR
       case ENOTDIR:
         throw DirectoryException ();
         break;
+#endif
 
+#ifdef ENOTEMPTY
       case ENOTEMPTY:
         throw DirectoryException ();
         break;
+#endif
 
+#ifdef ENOTSOCK
       case ENOTSOCK:
         throw SocketException ();
         break;
+#endif
 
+#ifdef ENOTTY
       case ENOTTY:
         throw IOException ();
         break;
+#endif
 
+#ifdef ENOTUNIQ
       case ENOTUNIQ:
         throw NetworkException ();
         break;
+#endif
 
+#ifdef ENXIO
       case ENXIO:
         throw DeviceException ();
         break;
+#endif
 
+#ifdef EOVERFLOW
       case EOVERFLOW:
         throw OverflowException ();
         break;
+#endif
 
+#ifdef EPERM
       case EPERM:
         throw PermissionDeniedException ();
         break;
+#endif
 
+#ifdef EPFNOSUPPORT
       case EPFNOSUPPORT:
         throw ProtocolException ();
         break;
+#endif
 
+#ifdef EPIPE
       case EPIPE:
         throw PipeException ();
         break;
+#endif
 
+#ifdef EPROTO
       case EPROTO:
         throw ProtocolException ();
         break;
+#endif
 
+#ifdef EPROTONOSUPPORT
       case EPROTONOSUPPORT:
         throw ProtocolException ();
         break;
+#endif
 
+#ifdef EPROTOTYPE
       case EPROTOTYPE:
         throw ProtocolException ();
         break;
+#endif
 
+#ifdef ERANGE
       case ERANGE:
         throw OverflowException ();
         break;
+#endif
 
+#ifdef EREMCHG
       case EREMCHG:
         throw AddressException ();
         break;
+#endif
 
+#ifdef EREMOTEIO
       case EREMOTEIO:
         throw IOException ();
         break;
+#endif
 
+#ifdef ERESTART
       case ERESTART:
         throw FunctionException ();
         break;
+#endif
 
+#ifdef EROFS
       case EROFS:
         throw FilesystemException ();
         break;
+#endif
 
+#ifdef ESHUTDOWN
       case ESHUTDOWN:
         throw SendException ();
         break;
+#endif
 
+#ifdef ESPIPE
       case ESPIPE:
         throw PipeException ();
         break;
+#endif
 
+#ifdef ESOCKTNOSUPPORT
       case ESOCKTNOSUPPORT:
         throw SocketException ();
         break;
+#endif
 
+#ifdef ESRCH
       case ESRCH:
         throw ProcessException ();
         break;
+#endif
 
+#ifdef ESTALE
       case ESTALE:
         throw GenericFileException ();
         break;
+#endif
 
+#ifdef ESTRPIPE
       case ESTRPIPE:
         throw PipeException ();
         break;
+#endif
 
+#ifdef ETIME
       case ETIME:
         throw TimerException ();
         break;
+#endif
 
+#ifdef ETIMEDOUT
       case ETIMEDOUT:
         throw TimerException ();
         break;
+#endif
 
+#ifdef ETXTBSY
       case ETXTBSY:
         throw BusyResourceException ();
         break;
+#endif
 
+#ifdef EUNATCH
       case EUNATCH:
         throw ProtocolException ();
         break;
+#endif
 
+#ifdef EUSERS
       case EUSERS:
         throw UserException ();
         break;
+#endif
 
+#ifdef EXDEV
       case EXDEV:
         throw LinkException ();
         break;
+#endif
 
+#ifdef EXFULL
       case EXFULL:
         throw InvalidExchangeException ();
         break;
+#endif
 
       default:
         throw UnknownException ();

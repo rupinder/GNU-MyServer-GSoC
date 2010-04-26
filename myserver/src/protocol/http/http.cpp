@@ -128,7 +128,6 @@ int Http::optionsHTTPRESOURCE (string& filename, int yetmapped)
         }
 
       ret = Http::preprocessHttpRequest (filename, yetmapped, &permissions);
-
       if (ret != 200)
         return raiseHTTPError (ret);
 
@@ -293,16 +292,24 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
             return ret;
         }
 
-      if (FilesUtility::isLink (td->filenamePath.c_str ()))
+      bool isDirectory = false;
+      try
         {
-          const char *perm = td->securityToken.getData ("symlinks.follow",
+          if (FilesUtility::isLink (td->filenamePath.c_str ()))
+            {
+              const char *perm = td->securityToken.getData ("symlinks.follow",
                               MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, "NO");
 
-          if (!perm || strcasecmp (perm, "YES"))
-            return raiseHTTPError (401);
-        }
+              if (!perm || strcasecmp (perm, "YES"))
+                return 401;
+            }
 
-      if (FilesUtility::isDirectory (filenamePath.c_str ()))
+          isDirectory = FilesUtility::isDirectory (filenamePath.c_str ());
+        }
+      catch (FileNotFoundException & e)
+        {}
+
+      if (isDirectory)
         directory.assign (filenamePath);
       else
         FilesUtility::splitPath (filenamePath, directory, file);
@@ -524,14 +531,10 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped,
 
       td->mime = mimeLoc ? mimeLoc : getMIME (td->filenamePath);
     }
-  catch (FileNotFoundException & e)
-    {
-      return 404;
-    }
   catch (exception & e)
     {
       td->connection->host->warningsLogWrite (_E ("HTTP: internal error"), &e);
-      return 404;
+      return 500;
     }
   catch (...)
     {
@@ -690,7 +693,16 @@ Http::sendHTTPResource (string& uri, int systemrequest, int onlyHeader,
       if (systemrequest)
         td->filenamePath.assign (uri);
 
-      if (!td->mime && FilesUtility::isDirectory (td->filenamePath.c_str ()))
+      bool isDirectory = false;
+
+      try
+        {
+          isDirectory = FilesUtility::isDirectory (td->filenamePath.c_str ());
+        }
+      catch (FileNotFoundException & e)
+        {}
+
+      if (!td->mime && isDirectory)
         return processDefaultFile (uri, td->permissions, onlyHeader);
 
       /* If not specified differently, set the default content type to text/html.  */
@@ -1140,14 +1152,14 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
       try
         {
           /* If the inputData file was not closed close it.  */
-          if (td->inputData.getHandle ())
+          if (td->inputData.getHandle () >= 0)
             {
               td->inputData.close ();
               FilesUtility::deleteFile (td->inputDataPath);
             }
 
           /* If the outputData file was not closed close it.  */
-          if (td->outputData.getHandle ())
+          if (td->outputData.getHandle () >= 0)
             {
               td->outputData.close ();
               FilesUtility::deleteFile (td->outputDataPath);

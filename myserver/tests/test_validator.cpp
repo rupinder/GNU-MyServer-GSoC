@@ -65,7 +65,7 @@ public:
     string val ("value");
     SecurityToken secToken;
     CPPUNIT_ASSERT_EQUAL (validator->getPermissionMaskImpl (&secToken, NULL,
-                                                            NULL), NULL);
+                                                            NULL), 0);
 
   }
 
