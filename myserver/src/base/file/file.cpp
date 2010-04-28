@@ -131,6 +131,15 @@ int File::truncate (u_long size)
 }
 
 /*!
+ Do a fstat on the file.
+ \param fstat stat structure to fill.
+*/
+void File::fstat (struct stat *fstat)
+{
+  checked::fstat (handle, fstat);
+}
+
+/*!
  *Open (or create if not exists) a file, but must explicitly use read and/or
  *write flags and open flag.
  *\param nfilename Filename to open.
