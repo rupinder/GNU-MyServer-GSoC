@@ -30,6 +30,8 @@
 # include <string>
 # include <list>
 
+# include <sys/stat.h>
+
 using namespace std;
 
 class CachedFileFactory
@@ -45,7 +47,7 @@ public:
   u_long getUsedSize (){return usedSize;}
   u_long getUsed (){return used;}
 
-  File *open (const char* file);
+  File *open (const char* file, int flags = 0);
   void nullReferences (CachedFileBuffer* cfb);
 
   void setMaxSize (u_long maxSize);
@@ -78,7 +80,8 @@ protected:
 
   struct CachedFileFactoryRecord
   {
-    CachedFileBuffer* buffer;
+    struct stat fstat;
+
     /*! Number of times the cache record was used.  */
     u_long used;
 
@@ -93,6 +96,8 @@ protected:
 
     /*! This entry is not valid and will be removed when refCount = 0.  */
     bool invalidCache;
+
+    CachedFileBuffer* buffer;
   };
 
   list<CachedFileFactoryRecord*> buffersToRemove;

@@ -129,11 +129,13 @@ void CachedFileFactory::initialize (u_long size)
 }
 
 /*!
- *Open a new file in read-only mode, if the file is present in the cache then
- *use the cache instead of a real file.
- *\param filename The file name.
- */
-File* CachedFileFactory::open (const char* filename)
+  Open a new file in read-only mode, if the file is present in the cache then
+  use the cache instead of a real file.
+  \param filename The file name.
+  \param flags Additional flags, actually only File::NO_FOLLOW_SYMLINK is
+  supported.
+*/
+File* CachedFileFactory::open (const char* filename, int flags)
 {
   CachedFileFactoryRecord *record;
   CachedFileBuffer *buffer;
@@ -144,34 +146,33 @@ File* CachedFileFactory::open (const char* filename)
 
   try
     {
-
-      ticks = getTicks ();
       record = buffers.get (filename);
       buffer = record ? record->buffer : 0;
 
       used++;
 
-      /*!
-       * If the file on the file system has a different mtime then don't use
-       * the cache, in this way when opened instance of this file will be closed
-       * the null reference callback can be called and the file reloaded.
-       */
+      /*
+        If the file on the file system has a different mtime then don't use
+        the cache, in this way when opened instance of this file will be closed
+        the null reference callback can be called and the file reloaded.
+      */
       if (record)
         {
-          if (ticks - record->lastModTimeCheck > MYSERVER_SEC (5))
-            {
-              record->invalidCache = FilesUtility::getLastModTime (filename)
-                != record->mtime;
-              record->lastModTimeCheck = ticks;
-            }
+          record->invalidCache = FilesUtility::getLastModTime (filename)
+            != record->mtime;
+          record->lastModTimeCheck = ticks;
 
-          if (record->invalidCache)
+          bool noSymlink = (! (flags & File::NO_FOLLOW_SYMLINK))
+            && S_ISLNK (record->fstat.st_mode);
+
+          if (record->invalidCache || noSymlink)
             {
               mutex.unlock ();
 
               File *file = new File ();
-              if (file->openFile (filename, File::OPEN_IF_EXISTS |
-                                  File::READ))
+              flags = flags & File::NO_FOLLOW_SYMLINK;
+              if (file->openFile (filename, File::OPEN_IF_EXISTS | flags
+                                  | File::READ))
                 {
                   delete file;
                   return NULL;
@@ -184,7 +185,9 @@ File* CachedFileFactory::open (const char* filename)
         {
           u_long fileSize;
           File *file = new File ();
-          if (file->openFile (filename, File::OPEN_IF_EXISTS | File::READ))
+          flags = flags & File::NO_FOLLOW_SYMLINK;
+          if (file->openFile (filename, File::OPEN_IF_EXISTS | flags
+                              | File::READ))
             {
               mutex.unlock ();
               delete file;
@@ -202,30 +205,16 @@ File* CachedFileFactory::open (const char* filename)
           else
             {
               record = new CachedFileFactoryRecord ();
-              if (!record)
-                {
-                  delete record;
-                  file->close ();
-                  delete file;
-                  mutex.unlock ();
-                  return 0;
-                }
-
               buffer = new CachedFileBuffer (file);
               record->mtime = file->getLastModTime ();
+              file->fstat (&record->fstat);
               file->close  ();
               delete file;
 
-              if (!buffer)
-                {
-                  delete record;
-                  mutex.unlock ();
-                  return 0;
-                }
               buffer->setFactoryToNotify (this);
               record->created = ticks;
               record->buffer = buffer;
-              buffers.put ((char *)filename, record);
+              buffers.put ((char *) filename, record);
               usedSize += fileSize;
             }
         }
