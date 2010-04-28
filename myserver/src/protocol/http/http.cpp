@@ -295,15 +295,6 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
       bool isDirectory = false;
       try
         {
-          if (FilesUtility::isLink (td->filenamePath.c_str ()))
-            {
-              const char *perm = td->securityToken.getData ("symlinks.follow",
-                              MYSERVER_VHOST_CONF | MYSERVER_SERVER_CONF, "NO");
-
-              if (!perm || strcasecmp (perm, "YES"))
-                return 401;
-            }
-
           isDirectory = FilesUtility::isDirectory (filenamePath.c_str ());
         }
       catch (FileNotFoundException & e)
