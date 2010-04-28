@@ -47,6 +47,19 @@ static DEFINE_THREAD (SendImageFile, pParam);
 static DEFINE_THREAD (ReceiveAsciiFile, pParam);
 static DEFINE_THREAD (ReceiveImageFile, pParam);
 
+
+/* FIXME: move somewhere else, duplicated in http_file.cpp.  */
+static bool
+areSymlinkAllowed (SecurityToken *st)
+{
+  const char *perm = st->getData ("symlinks.follow",
+                                  MYSERVER_VHOST_CONF
+                                  | MYSERVER_SERVER_CONF,
+                                  "NO");
+  return strcasecmp (perm, "YES") == 0;
+}
+
+
 void setFtpHost (FtpHost & out, const FtpHost & in)
 {
   out.h1 = in.h1;
@@ -614,6 +627,7 @@ void Ftp::retrstor (bool bretr, bool bappend, const std::string & sPath)
   pData->m_bappend = bappend || pFtpuserData->m_nrestartOffset > 0;
   pData->m_sFilePath = sLocalPath;
   pData->m_pFtp = this;
+  pData->st = &td.st;
 
   pFtpuserData->m_sCurrentFileName = "";
   pFtpuserData->m_nFileSize = 0;
@@ -721,9 +735,11 @@ DEFINE_THREAD (SendAsciiFile, pParam)
 #endif
         }
 
+      int symFlags = areSymlinkAllowed (pWt->st) ? 0
+                                                 : File::NO_FOLLOW_SYMLINK;
       file =
         Server::getInstance ()->getCachedFiles ()->open (pWt->m_sFilePath.
-                                                         c_str ());
+                                                         c_str (), symFlags);
       if (file == NULL)
         {
           ftpReply (pConnection, 451);
@@ -959,9 +975,11 @@ DEFINE_THREAD (SendImageFile, pParam)
 #endif
         }
 
+      int symFlags = areSymlinkAllowed (pWt->st) ? 0
+                                                 : File::NO_FOLLOW_SYMLINK;
       file =
         Server::getInstance ()->getCachedFiles ()->open (pWt->m_sFilePath.
-                                                         c_str ());
+                                                         c_str (), symFlags);
       if (file == NULL)
         {
           ftpReply (pConnection, 451);
@@ -1151,6 +1169,8 @@ DEFINE_THREAD (ReceiveAsciiFile, pParam)
         flags = File::APPEND | File::WRITE;
       else
         flags = File::FILE_CREATE_ALWAYS | File::WRITE;
+      flags |= areSymlinkAllowed (pWt->st) ? 0 : File::NO_FOLLOW_SYMLINK;
+
       if (file.openFile (pWt->m_sFilePath.c_str (), flags))
         {
           ftpReply (pConnection, 451);
@@ -1349,6 +1369,8 @@ DEFINE_THREAD (ReceiveImageFile, pParam)
         flags = File::APPEND | File::WRITE;
       else
         flags = File::FILE_CREATE_ALWAYS | File::WRITE;
+      flags |= areSymlinkAllowed (pWt->st) ? 0 : File::NO_FOLLOW_SYMLINK;
+
       if (file.openFile (pWt->m_sFilePath.c_str (), flags))
         {
           ftpReply (pConnection, 451);
@@ -2500,7 +2522,9 @@ void Ftp::size (const std::string & sPath)
     }
 
   File f;
-  if (f.openFile (sLocalPath.c_str (), File::OPEN_IF_EXISTS | File::READ))
+  int flags = File::OPEN_IF_EXISTS | File::READ;
+  flags |= areSymlinkAllowed (&td.st) ? 0 : File::NO_FOLLOW_SYMLINK;
+  if (f.openFile (sLocalPath.c_str (), flags))
     {
       ftpReply (550);
       return;
