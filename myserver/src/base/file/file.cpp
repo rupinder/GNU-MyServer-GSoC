@@ -60,6 +60,7 @@ const u_long File::OPEN_IF_EXISTS = (1 << 6);
 const u_long File::APPEND = (1 << 7);
 const u_long File::FILE_CREATE_ALWAYS = (1 << 8);
 const u_long File::NO_INHERIT = (1 << 9);
+const u_long File::NO_FOLLOW_SYMLINK = (1 << 10);
 
 
 /*!
@@ -150,9 +151,11 @@ int File::openFile (const char* nfilename, u_long opt)
   else if (opt & File::WRITE)
     flags = O_WRONLY;
 
+  if (opt & File::NO_FOLLOW_SYMLINK)
+    flags = O_NOFOLLOW;
+
   /* FIXME: how avoid a stat?  */
   bool exists = stat (filename.c_str (), &fStats) == 0;
-
   if (opt & File::OPEN_IF_EXISTS && !exists)
     return 1;
 
@@ -162,7 +165,8 @@ int File::openFile (const char* nfilename, u_long opt)
   if (exists)
     handle = checked::open (filename.c_str (), O_APPEND | flags);
   else
-    handle = checked::open (filename.c_str (), O_CREAT | flags, S_IRUSR | S_IWUSR);
+    handle = checked::open (filename.c_str (), O_CREAT | flags,
+                            S_IRUSR | S_IWUSR);
 
   try
     {

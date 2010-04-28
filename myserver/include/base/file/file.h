@@ -42,6 +42,7 @@ public:
   static const u_long APPEND;
   static const u_long FILE_CREATE_ALWAYS;
   static const u_long NO_INHERIT;
+  static const u_long NO_FOLLOW_SYMLINK;
 
   File ();
   File (char *,int);
