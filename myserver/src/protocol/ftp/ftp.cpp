@@ -48,7 +48,7 @@ static DEFINE_THREAD (ReceiveAsciiFile, pParam);
 static DEFINE_THREAD (ReceiveImageFile, pParam);
 
 
-/* FIXME: move somewhere else, duplicated in http_file.cpp.  */
+/* FIXME: move somewhere else.  */
 static bool
 areSymlinkAllowed (SecurityToken *st)
 {

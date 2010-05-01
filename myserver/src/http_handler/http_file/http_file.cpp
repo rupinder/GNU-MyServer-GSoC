@@ -36,18 +36,6 @@ using namespace std;
 # include <errno.h>
 #endif
 
-
-/* FIXME: move somewhere else, duplicated in ftp.cpp.  */
-static bool
-areSymlinkAllowed (HttpThreadContext *td)
-{
-  const char *perm = td->securityToken.getData ("symlinks.follow",
-                                                MYSERVER_VHOST_CONF
-                                                | MYSERVER_SERVER_CONF,
-                                                "NO");
-  return strcasecmp (perm, "YES") == 0;
-}
-
 /*!
   Main function to handle the HTTP PUT command.
  */
@@ -68,7 +56,8 @@ int HttpFile::putFile (HttpThreadContext* td, string& filename)
         File file;
         try
           {
-            int symFlags = areSymlinkAllowed (td) ? 0 : File::NO_FOLLOW_SYMLINK;
+            int symFlags = td->http->areSymlinksAllowed () ? 0
+              : File::NO_FOLLOW_SYMLINK;
             file.openFile (td->filenamePath.c_str (), File::OPEN_IF_EXISTS
                            | File::WRITE | symFlags);
           }
@@ -120,7 +109,8 @@ int HttpFile::putFile (HttpThreadContext* td, string& filename)
         File file;
         try
           {
-            int symFlags = areSymlinkAllowed (td) ? 0 : File::NO_FOLLOW_SYMLINK;
+            int symFlags = td->http->areSymlinksAllowed () ? 0
+              : File::NO_FOLLOW_SYMLINK;
             file.openFile (td->filenamePath.c_str (), File::FILE_CREATE_ALWAYS
                            | File::WRITE | symFlags);
           }
@@ -285,7 +275,8 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
 
       try
         {
-          int symFlags = areSymlinkAllowed (td) ? 0 : File::NO_FOLLOW_SYMLINK;
+          int symFlags = td->http->areSymlinksAllowed () ? 0
+            : File::NO_FOLLOW_SYMLINK;
           file = Server::getInstance ()->getCachedFiles ()->open (filenamePath,
                                                                   symFlags);
           if (! file)
