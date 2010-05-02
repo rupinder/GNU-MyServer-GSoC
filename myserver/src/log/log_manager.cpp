@@ -110,6 +110,7 @@ LogManager::clear ()
  * \param location The location string for the new LogStream.
  * \param filters A list of strings, each representing a valid filter name.
  * \param cycle The cycle value for the LogStream.
+ * \param suppressWarnings by default it is 0, meaning don't suppress warnings.
  *
  * \return 0 on success, 1 on error.
  */
