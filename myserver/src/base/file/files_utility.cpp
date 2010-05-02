@@ -210,6 +210,30 @@ int FilesUtility::deleteFile (const char *filename)
   return 0;
 }
 
+
+/*!
+  Return the result of `nodeExists (PATH) && !isDirectory (PATH)' using a
+  single stat.
+
+  \param path Parameter to `stat'.
+ */
+bool FilesUtility::notDirectory (const char *path)
+{
+  struct stat F_Stats;
+  int err = ::stat (path, &F_Stats);
+  if (err < 0)
+    {
+      if (errno == ENOENT || errno == ENOTDIR)
+        return true;
+
+      /* Raise an exception.  */
+      checked::checkError (err);
+    }
+
+  return (S_ISDIR (F_Stats.st_mode)) ? 0 : 1;
+}
+
+
 /*!
  * Returns a non-null value if the path is a directory.
  * \param filename The path to check.

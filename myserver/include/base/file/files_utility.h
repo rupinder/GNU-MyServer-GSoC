@@ -58,7 +58,12 @@ public:
   static int completePath (string &fileName);
 
   static int isDirectory (const char*);
-  static int isDirectory (const string& dir){return isDirectory (dir.c_str ());}
+  static int isDirectory (const string& dir)
+  {return isDirectory (dir.c_str ());}
+
+  static bool notDirectory (const char *path);
+  static bool notDirectory (const string &path)
+  {return notDirectory (path.c_str ());}
 
   static int isLink (const char*);
   static int isLink (const string& dir){return isLink (dir.c_str ());}
