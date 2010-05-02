@@ -154,7 +154,8 @@ line in the @file{myserver.xml} file.
 	<DEFINE name="symlinks.follow" value="YES" />
 @end example
 
-By default MyServer doesn't follow symbolic links.
+By default MyServer doesn't follow symbolic links.  Symbolic links are
+still followed when they are not the last component of the path.
 
 @section Different MIME type handlers
 It is possible to use different handlers to determine the file MIME
