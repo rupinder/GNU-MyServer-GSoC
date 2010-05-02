@@ -47,24 +47,28 @@ LogStream::resetFilters ()
 }
 
 int
-LogStream::log (const string & message)
+LogStream::log (const string & message, LoggingLevel level)
 {
   int success = 0;
+
   mutex->lock ();
+
   try
     {
       if (needToCycle ())
-        success = doCycle () || write (message);
+        success = doCycle () || initialize (level) || write (message) ||
+          finalize ();
       else
-        success = write (message);
-
-      mutex->unlock ();
+        success = initialize (level) || write (message) || finalize ();
     }
   catch (...)
     {
       mutex->unlock ();
       throw;
     }
+
+  mutex->unlock ();
+
   return success;
 }
 
@@ -122,7 +126,7 @@ LogStream::close ()
     {
       success = 1;
       isOpened = fc->flush (&nbw) || out->close ();
-      if (! isOpened)
+      if (!isOpened)
         success = 0;
 
       mutex->unlock ();
@@ -145,7 +149,11 @@ LogStream::update (LogStreamEvent evt, void* message, void* reply)
       return !isOpened || setCycle (*static_cast<u_long*>(message));
 
     case MYSERVER_LOG_EVT_LOG:
-      return !isOpened || log (*static_cast<string*>(message));
+      {
+        string& logMsg = *static_cast<string*>(static_cast<void**>(message)[0]);
+        LoggingLevel lvl = *static_cast<LoggingLevel*>(static_cast<void**>(message)[1]);
+        return !isOpened || log (logMsg, lvl);
+      }
 
     case MYSERVER_LOG_EVT_CLOSE:
       return !isOpened || close ();
@@ -157,11 +165,6 @@ LogStream::update (LogStreamEvent evt, void* message, void* reply)
     case MYSERVER_LOG_EVT_CHOWN:
         return !isOpened || chown (static_cast<int*>(message)[0],
                                    static_cast<int*>(message)[1]);
-
-    case MYSERVER_LOG_EVT_SET_MODE:
-        return !isOpened
-          || setMode (*static_cast<LoggingLevel*>(message));
-
     }
 
   return 1;
@@ -252,7 +255,13 @@ LogStream::chown (int uid, int gid)
 }
 
 int
-LogStream::setMode (LoggingLevel level)
+LogStream::initialize (LoggingLevel level)
+{
+  return 0;
+}
+
+int 
+LogStream::finalize ()
 {
   return 0;
 }

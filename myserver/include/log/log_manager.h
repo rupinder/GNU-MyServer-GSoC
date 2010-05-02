@@ -16,7 +16,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LOG_MANAGER_H
+# ifndef LOG_MANAGER_H
 # define LOG_MANAGER_H
 
 # include "myserver.h"

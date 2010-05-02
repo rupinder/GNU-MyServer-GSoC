@@ -32,7 +32,8 @@ class ConsoleStream : public LogStream
 {
 public:
   ConsoleStream (FiltersFactory*, u_long, Stream*, FiltersChain*);
-  virtual int setMode (LoggingLevel level);
+  virtual int initialize (LoggingLevel);
+  virtual int finalize ();
 };
 
 #endif

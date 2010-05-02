@@ -475,17 +475,15 @@ LogManager::log (const void* owner, string & message, bool appendNL,
   mutex->lock ();
   try
     {
-      failure = notify (owner, MYSERVER_LOG_EVT_SET_MODE,
-                        static_cast<void*>(&level))
-        || notify (owner,MYSERVER_LOG_EVT_LOG, &message);
       if (appendNL)
         {
-          LoggingLevel l = MYSERVER_LOG_MSG_PLAIN;
-          failure |= (notify (owner, MYSERVER_LOG_EVT_SET_MODE,
-                              (static_cast<void*>(&l)))
-                      || notify (owner, MYSERVER_LOG_EVT_LOG,
-                                 (static_cast<void*>(&newline))));
+          message.append (newline);
         }
+
+      void* params[2];
+      params[0] = static_cast<void*>(&message);
+      params[1] = static_cast<void*>(&level);
+      failure = notify (owner, MYSERVER_LOG_EVT_LOG, params);
     }
   catch (...)
     {
@@ -521,19 +519,15 @@ LogManager::log (const void* owner, const string & type, string & message,
   mutex->lock ();
   try
     {
-      failure = notify (owner, type, MYSERVER_LOG_EVT_SET_MODE,
-                        static_cast<void*>(&level))
-        || notify (owner, type, MYSERVER_LOG_EVT_LOG,
-                   static_cast<void*>(&message));
-
       if (appendNL)
         {
-          LoggingLevel l = MYSERVER_LOG_MSG_PLAIN;
-          failure |= (notify (owner, MYSERVER_LOG_EVT_SET_MODE,
-                              (static_cast<void*>(&l)))
-                      || notify (owner, MYSERVER_LOG_EVT_LOG,
-                                 (static_cast<void*>(&newline))));
+          message.append (newline);
         }
+
+      void* params[2];
+      params[0] = static_cast<void*>(&message);
+      params[1] = static_cast<void*>(&level);
+      failure = notify (owner, type, MYSERVER_LOG_EVT_LOG, params);
     }
   catch (...)
     {
@@ -571,17 +565,15 @@ LogManager::log (const void* owner, const string & type, const string & location
   mutex->lock ();
   try
     {
-      failure = notify (owner, type, MYSERVER_LOG_EVT_SET_MODE, &level)
-        || notify (owner, type, MYSERVER_LOG_EVT_LOG, &message);
-
       if (appendNL)
         {
-          LoggingLevel l = MYSERVER_LOG_MSG_PLAIN;
-          failure |= notify (owner, MYSERVER_LOG_EVT_SET_MODE,
-                             (static_cast<void*>(&l)))
-            || notify (owner, MYSERVER_LOG_EVT_LOG,
-                       static_cast<void*>(&newline));
+          message.append (newline);
         }
+
+      void* params[2];
+      params[0] = static_cast<void*>(&message);
+      params[1] = static_cast<void*>(&level);
+      failure = notify (owner, type, location, MYSERVER_LOG_EVT_LOG, params);
     }
   catch (...)
     {
@@ -647,6 +639,7 @@ LogManager::log (const void* owner, const string & type, LoggingLevel level,
 {
   int failure = 0;
   ostringstream oss;
+  string message;
 
   if (level < this->level)
     return 1;
@@ -667,8 +660,7 @@ LogManager::log (const void* owner, const string & type, LoggingLevel level,
           time[len + 3] = '-';
           time[len + 4] = ' ';
           time[len + 5] = '\0';
-          string timestr (time);
-          failure |= notify (owner, MYSERVER_LOG_EVT_LOG, &timestr);
+          message.append (time);
         }
 
       while (*fmt)
@@ -709,14 +701,18 @@ LogManager::log (const void* owner, const string & type, LoggingLevel level,
           fmt++;
         }
 
-      string message = oss.str ();
-
-      failure = notify (owner, type, MYSERVER_LOG_EVT_SET_MODE,
-                        static_cast<void*>(&level))
-             || notify (owner, type, MYSERVER_LOG_EVT_LOG, &message);
+      message.append (oss.str ());
 
       if (appendNL)
-        failure |= notify (owner, type, MYSERVER_LOG_EVT_LOG, &newline);
+        {
+          message.append (newline);
+        }
+
+      void* params[2];
+      params[0] = static_cast<void*>(&message);
+      params[1] = static_cast<void*>(&level);
+
+      failure |= notify (owner, type, MYSERVER_LOG_EVT_LOG, params);
     }
   catch (...)
     {

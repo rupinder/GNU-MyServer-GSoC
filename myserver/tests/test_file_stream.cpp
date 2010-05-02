@@ -66,6 +66,7 @@ public:
     string message;
     string message2;
     LogStream* ls;
+    LoggingLevel level = MYSERVER_LOG_MSG_INFO;
     try
       {
         FilesUtility::deleteFile ("foo");
@@ -84,8 +85,8 @@ public:
 
     ls = fsc->create (ff, "foo", filters, 10);
     CPPUNIT_ASSERT (ls);
-    CPPUNIT_ASSERT (!ls->log (message));
-    CPPUNIT_ASSERT (!ls->log (message2));
+    CPPUNIT_ASSERT (!ls->log (message, level));
+    CPPUNIT_ASSERT (!ls->log (message2, level));
     ls->close ();
     File f;
     f.openFile ("foo", File::READ | File::OPEN_IF_EXISTS);
@@ -122,6 +123,7 @@ public:
     string message1;
     string message2;
     ostringstream oss;
+    LoggingLevel level = MYSERVER_LOG_MSG_INFO;
 
     oss << "message1" << endl;
     message1.assign (oss.str ());
@@ -138,13 +140,13 @@ public:
       }
     ls = fsc->create (ff, "foo", filters, 0);
     CPPUNIT_ASSERT (ls);
-    ls->log (message1);
+    ls->log (message1, level);
     ls->close ();
     delete ls;
 
     ls = fsc->create (ff, "foo", filters, 0);
     CPPUNIT_ASSERT (ls);
-    ls->log (message2);
+    ls->log (message2, level);
     ls->close ();
     delete ls;
 
