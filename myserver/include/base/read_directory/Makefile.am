@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-read_directoryincludedir=$(includedir)/myserver/include/base/read_directory
-read_directoryinclude_HEADERS = read_directory.h
+includedir=@includedir@/myserver/include/base/read_directory
+include_HEADERS = read_directory.h
 SUBDIRS =
 

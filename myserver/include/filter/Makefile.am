@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-filterincludedir=$(includedir)/myserver/include/filter
-filterinclude_HEADERS = console.h filter.h filters_chain.h filters_factory.h memory_stream.h stream.h
+includedir=@includedir@/myserver/include/filter
+include_HEADERS = console.h filter.h filters_chain.h filters_factory.h memory_stream.h stream.h
 SUBDIRS = gzip
 

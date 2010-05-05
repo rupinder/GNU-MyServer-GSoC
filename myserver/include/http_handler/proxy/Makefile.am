@@ -14,6 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-proxyincludedir=$(includedir)/myserver/include/http_handler/proxy
-proxyinclude_HEADERS = proxy.h
+includedir=@includedir@/myserver/include/http_handler/proxy
+include_HEADERS = proxy.h
 SUBDIRS =

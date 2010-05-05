@@ -15,8 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-AM_CPPFLAGS = $(all_includes) -I$(top_builddir)/lib -I$(top_srcdir)/lib
-AM_CXXFLAGS="-I$(top_srcdir)/lib"
+AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 
 SUBDIRS = base conf connection connections_scheduler filter http_handler \
 	log plugin protocol server GUI
@@ -159,7 +158,7 @@ libmyserver_la_LIBADD =  \
 		$(ZLIB_LIB) $(XML_LIBS) \
 		$(INTLLIBS) $(LDFLAGS)
 
-myserver_CXXFLAGS = $(CXXFLAGS) -DHOST_STR=\"$(build)\" -DPREFIX=\"$(prefix)\"
+myserver_CXXFLAGS = $(AM_CXXFLAGS) $(CXXFLAGS) -DHOST_STR=\"$(build)\" -DPREFIX=\"$(prefix)\"
 
 myserver_LDFLAGS = -static -no-install
 myserver_LDADD = libmyserver.la $(PTHREAD_LIB) $(IDN_LIB) \
@@ -167,4 +166,7 @@ myserver_LDADD = libmyserver.la $(PTHREAD_LIB) $(IDN_LIB) \
 	$(XML_LIBS) $(INTLLIBS) $(LDFLAGS)
 
 all-local: libmyserver.la myserver${EXEEXT}
-	$(LIBTOOL) --mode=install cp myserver $(abs_top_srcdir)/binaries/
+	$(LIBTOOL) --mode=install cp myserver $(abs_top_builddir)/binaries/
+
+generic-clean:
+	$(LIBTOOL) --mode=uninstall rm -f $(abs_top_builddir)/binaries/myserver

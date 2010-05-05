@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # Makefile for post
 
-AM_CXXFLAGS="-I$(top_srcdir)/lib"
+AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libpost.la
 libpost_la_SOURCES = post.cpp
 libpost_la_LDFLAGS = -shared -export-dynamic -no-install -no-undefined -module \
@@ -28,5 +28,8 @@ all: all-am post.mscgi
 post.mscgi: libpost.la
 	test \! -e .libs/libpost.mscgi \
 		|| cp .libs/libpost.mscgi ../../cgi-bin/post.mscgi
+
+clean-generic:
+	rm -f  ../../cgi-bin/post.mscgi
 
 .phony : post.mscgi

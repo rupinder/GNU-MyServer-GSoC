@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-connectionincludedir=$(includedir)/myserver/include/connection
-connectioninclude_HEADERS = connection.h
+includedir=@includedir@/myserver/include/connection
+include_HEADERS = connection.h
 SUBDIRS =
 

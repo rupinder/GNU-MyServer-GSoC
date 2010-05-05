@@ -14,6 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-socket_pair_includedir=$(includedir)/myserver/include/base/socket_pair
-socket_pair_include_HEADERS = socket_pair.h
+includedir=@includedir@/myserver/include/base/socket_pair
+include_HEADERS = socket_pair.h
 SUBDIRS =

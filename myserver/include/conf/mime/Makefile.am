@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-mimeincludedir=$(includedir)/myserver/include/conf/mime
-mimeinclude_HEADERS = mime_manager.h xml_mime_handler.h
+includedir=@includedir@/myserver/include/conf/mime
+include_HEADERS = mime_manager.h xml_mime_handler.h
 SUBDIRS =
 

@@ -14,8 +14,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-baseincludedir=$(includedir)/myserver/include/base
-baseinclude_HEADERS = utility.h
+
+includedir=@includedir@/myserver/include/base
+include_HEADERS = utility.h
+
 SUBDIRS = base64 bitvec crypt dynamic_lib file files_cache read_directory \
-					hash_map home_dir mem_buff multicast pipe process regex safetime \
-					slab socket socket_pair ssl string sync thread unix_socket xml exceptions
+	hash_map home_dir mem_buff multicast pipe process regex safetime \
+	slab socket socket_pair ssl string sync thread unix_socket xml \
+	exceptions

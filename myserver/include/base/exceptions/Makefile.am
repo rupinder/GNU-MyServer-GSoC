@@ -1,3 +1,3 @@
-exceptionsincludedir=$(includedir)/myserver/include/base/exceptions
-exceptionsinclude_HEADERS = checked.h exceptions.h
+includedir=@includedir@/myserver/include/base/exceptions
+include_HEADERS = checked.h exceptions.h
 SUBDIRS =

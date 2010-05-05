@@ -14,6 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-slabincludedir=$(includedir)/myserver/include/base/slab
-slabinclude_HEADERS = slab.h
+includedir=@includedir@/myserver/include/base/slab
+include_HEADERS = slab.h
 SUBDIRS =

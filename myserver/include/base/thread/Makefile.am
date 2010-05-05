@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-threadincludedir=$(includedir)/myserver/include/base/thread
-threadinclude_HEADERS = thread.h
+includedir=@includedir@/myserver/include/base/thread
+include_HEADERS = thread.h
 SUBDIRS =
 

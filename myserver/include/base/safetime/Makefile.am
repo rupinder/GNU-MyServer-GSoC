@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-safetimeincludedir=$(includedir)/myserver/include/base/safetime
-safetimeinclude_HEADERS = safetime.h
+includedir=@includedir@/myserver/include/base/safetime
+include_HEADERS = safetime.h
 SUBDIRS =
 

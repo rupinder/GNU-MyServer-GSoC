@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-cryptincludedir=$(includedir)/myserver/include/base/crypt
-cryptinclude_HEADERS = crypt_algo.h crypt_algo_manager.h md5.h sha1.h
+includedir=@includedir@/myserver/include/base/crypt
+include_HEADERS = crypt_algo.h crypt_algo_manager.h md5.h sha1.h
 SUBDIRS =
 

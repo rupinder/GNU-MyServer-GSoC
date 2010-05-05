@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-sslincludedir=$(includedir)/myserver/include/base/ssl
-sslinclude_HEADERS = ssl.h
+includedir=@includedir@/myserver/include/base/ssl
+include_HEADERS = ssl.h
 SUBDIRS =
 

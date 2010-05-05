@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-wincgiincludedir=$(includedir)/myserver/include/http_handler/wincgi
-wincgiinclude_HEADERS = wincgi.h
+includedir=@includedir@/myserver/include/http_handler/wincgi
+include_HEADERS = wincgi.h
 SUBDIRS =
 

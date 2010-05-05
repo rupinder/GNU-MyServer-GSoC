@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-socketincludedir=$(includedir)/myserver/include/base/socket
-socketinclude_HEADERS = socket.h ssl_socket.h
+includedir=@includedir@/myserver/include/base/socket
+include_HEADERS = socket.h ssl_socket.h
 SUBDIRS =
 

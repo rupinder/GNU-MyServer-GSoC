@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-mem_buffincludedir=$(includedir)/myserver/include/base/mem_buff
-mem_buffinclude_HEADERS = mem_buff.h
+includedir=@includedir@/myserver/include/base/mem_buff
+include_HEADERS = mem_buff.h
 SUBDIRS =
 

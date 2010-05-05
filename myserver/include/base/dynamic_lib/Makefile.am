@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-dynamic_libincludedir=$(includedir)/myserver/include/base/dynamic_lib
-dynamic_libinclude_HEADERS = dynamiclib.h
+includedir=@includedir@/myserver/include/base/dynamic_lib
+include_HEADERS = dynamiclib.h
 SUBDIRS =
 

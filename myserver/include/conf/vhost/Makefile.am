@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-vhostincludedir=$(includedir)/myserver/include/conf/vhost
-vhostinclude_HEADERS = vhost.h vhost_manager.h ip.h xml_vhost_handler.h
+includedir=@includedir@/myserver/include/conf/vhost
+include_HEADERS = vhost.h vhost_manager.h ip.h xml_vhost_handler.h
 SUBDIRS =
 

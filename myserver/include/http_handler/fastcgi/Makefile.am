@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-fastcgiincludedir=$(includedir)/myserver/include/http_handler/fastcgi
-fastcgiinclude_HEADERS = fastcgi.h
+includedir=@includedir@/myserver/include/http_handler/fastcgi
+include_HEADERS = fastcgi.h
 SUBDIRS =
 

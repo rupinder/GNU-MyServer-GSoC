@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-gopherincludedir=$(includedir)/myserver/include/protocol/gopher
-gopherinclude_HEADERS = gopher.h gopher_content.h engine.h
+includedir=@includedir@/myserver/include/protocol/gopher
+include_HEADERS = gopher.h gopher_content.h engine.h
 
 
