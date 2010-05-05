@@ -19,7 +19,6 @@ lib_LTLIBRARIES = libprotocol.la
 libprotocol_la_SOURCES = protocol_buffer.cpp protocol.cpp protocols_manager.cpp \
 			url.cpp
 SUBDIRS = control ftp gopher http https
-AM_CPPFLAGS = $(all_includes)
 
 install:
 # Do not do anything.

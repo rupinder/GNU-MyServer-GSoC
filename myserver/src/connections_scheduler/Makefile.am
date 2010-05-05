@@ -18,7 +18,6 @@ AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libconnections_scheduler.la
 libconnections_scheduler_la_SOURCES = connections_scheduler.cpp listen_threads.cpp
 SUBDIRS =
-AM_CPPFLAGS = $(all_includes)
 
 install:
 # Do not do anything.

@@ -18,5 +18,4 @@ AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libsocket_pair.la
 libsocket_pair_la_SOURCES = socket_pair.cpp
 SUBDIRS =
-AM_CPPFLAGS = $(all_includes)
 

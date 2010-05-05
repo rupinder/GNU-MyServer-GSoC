@@ -18,5 +18,4 @@ AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libisapi.la
 libisapi_la_SOURCES = isapi.cpp
 SUBDIRS =
-AM_CPPFLAGS = $(all_includes)
 

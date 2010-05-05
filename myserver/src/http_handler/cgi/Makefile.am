@@ -18,5 +18,4 @@ AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libcgi.la
 libcgi_la_SOURCES = cgi.cpp
 SUBDIRS =
-AM_CPPFLAGS = $(all_includes)
 

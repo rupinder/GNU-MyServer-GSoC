@@ -18,5 +18,4 @@ AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libfastcgi.la
 libfastcgi_la_SOURCES = fastcgi.cpp
 SUBDIRS =
-AM_CPPFLAGS = $(all_includes)
 

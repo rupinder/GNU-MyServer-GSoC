@@ -18,5 +18,4 @@ AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libhash_map.la
 libhash_map_la_SOURCES = hash_map.cpp
 SUBDIRS =
-AM_CPPFLAGS = $(all_includes)
 

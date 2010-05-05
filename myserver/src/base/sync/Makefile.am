@@ -18,5 +18,4 @@ AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libsync.la
 libsync_la_SOURCES = event.cpp mutex.cpp read_write_lock.cpp recursive_mutex.cpp semaphore.cpp
 SUBDIRS =
-AM_CPPFLAGS = $(all_includes)
 

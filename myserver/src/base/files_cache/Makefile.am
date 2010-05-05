@@ -19,5 +19,4 @@ lib_LTLIBRARIES = libfiles_cache.la
 libfiles_cache_la_SOURCES = cached_file_buffer.cpp cached_file.cpp \
 			   cached_file_factory.cpp membuf_file.cpp
 SUBDIRS =
-AM_CPPFLAGS = $(all_includes)
 

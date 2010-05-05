@@ -18,4 +18,3 @@ AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libexceptions.la
 libexceptions_la_SOURCES = checked.cpp exceptions.cpp
 SUBDIRS =
-AM_CPPFLAGS = $(all_includes)

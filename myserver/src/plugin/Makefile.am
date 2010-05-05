@@ -17,7 +17,6 @@
 AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libplugin.la
 libplugin_la_SOURCES =  plugin.cpp plugin_info.cpp plugins_manager.cpp 
-AM_CPPFLAGS = $(all_includes)
 
 install:
 # Do not do anything.

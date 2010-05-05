@@ -17,4 +17,3 @@
 AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libgopher.la
 libgopher_la_SOURCES = gopher.cpp gopher_content.cpp engine.cpp
-AM_CPPFLAGS = $(all_includes)

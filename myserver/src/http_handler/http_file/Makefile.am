@@ -18,5 +18,4 @@ AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libhttp_file.la
 libhttp_file_la_SOURCES = http_file.cpp
 SUBDIRS =
-AM_CPPFLAGS = $(all_includes)
 

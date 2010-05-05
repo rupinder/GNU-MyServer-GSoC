@@ -22,4 +22,3 @@ libstream_la_SOURCES = console_stream.cpp file_stream.cpp \
 		console_stream_creator.cpp socket_stream.cpp \
 		socket_stream_creator.cpp
 SUBDIRS = 
-INCLUDE = $(all_includes)

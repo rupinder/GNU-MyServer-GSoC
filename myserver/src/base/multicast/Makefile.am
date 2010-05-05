@@ -18,5 +18,4 @@ AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libmulticast.la
 libmulticast_la_SOURCES = multicast.cpp
 SUBDIRS =
-AM_CPPFLAGS = $(all_includes)
 

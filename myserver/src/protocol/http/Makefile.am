@@ -23,5 +23,4 @@ libhttp_la_SOURCES = http.cpp http_data_handler.cpp http_data_read.cpp \
 		   dyn_http_manager.cpp dyn_http_manager_list.cpp \
 		   dyn_http_command.cpp dyn_http_command_manager.cpp
 SUBDIRS = env
-AM_CPPFLAGS = $(all_includes)
 

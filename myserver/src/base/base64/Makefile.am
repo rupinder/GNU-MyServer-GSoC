@@ -18,5 +18,4 @@ AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libbase64.la
 libbase64_la_SOURCES = mime_utils.cpp
 SUBDIRS =
-AM_CPPFLAGS = $(all_includes)
 

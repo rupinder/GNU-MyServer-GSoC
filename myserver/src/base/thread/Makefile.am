@@ -18,5 +18,4 @@ AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libthread.la
 libthread_la_SOURCES = thread.cpp
 SUBDIRS =
-AM_CPPFLAGS = $(all_includes)
 

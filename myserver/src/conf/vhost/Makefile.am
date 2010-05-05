@@ -18,5 +18,4 @@ AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libvhost.la
 libvhost_la_SOURCES = vhost.cpp vhost_manager.cpp ip.cpp xml_vhost_handler.cpp
 SUBDIRS =
-AM_CPPFLAGS = $(all_includes)
 

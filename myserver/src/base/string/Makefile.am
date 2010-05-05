@@ -18,5 +18,4 @@ AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libstring.la
 libstring_la_SOURCES = securestr.cpp stringutils.cpp
 SUBDIRS =
-AM_CPPFLAGS = $(all_includes)
 

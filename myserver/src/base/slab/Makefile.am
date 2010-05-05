@@ -18,4 +18,3 @@ AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libslab.la
 libslab_la_SOURCES = slab.cpp
 SUBDIRS =
-AM_CPPFLAGS = $(all_includes)

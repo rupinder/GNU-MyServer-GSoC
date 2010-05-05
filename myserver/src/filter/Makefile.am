@@ -19,7 +19,6 @@ lib_LTLIBRARIES = libfilter.la
 libfilter_la_SOURCES = filter.cpp filters_chain.cpp filters_factory.cpp memory_stream.cpp stream.cpp \
 			console.cpp
 SUBDIRS = gzip
-AM_CPPFLAGS = $(all_includes)
 
 install:
 # Do not do anything.

@@ -18,5 +18,4 @@ AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libmem_buff.la
 libmem_buff_la_SOURCES = mem_buff.cpp
 SUBDIRS =
-AM_CPPFLAGS = $(all_includes)
 

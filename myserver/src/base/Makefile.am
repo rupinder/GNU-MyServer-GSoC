@@ -21,7 +21,6 @@ SUBDIRS = base64 bitvec crypt dynamic_lib file exceptions files_cache \
 	  read_directory hash_map home_dir mem_buff multicast pipe process \
           regex safetime slab socket socket_pair ssl string sync thread xml \
 	  unix_socket
-AM_CPPFLAGS = $(all_includes) -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
 install:
 # Do not do anything.
