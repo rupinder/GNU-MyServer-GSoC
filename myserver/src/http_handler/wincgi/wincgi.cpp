@@ -366,8 +366,8 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
     }
   catch (exception & e)
     {
-      td->connection->host->warningsLogWrite (_E ("WinCGI: internal error",
-                                                  &e));
+      td->connection->host->warningsLogWrite (_E ("WinCGI: internal error"),
+                                              &e);
       chain.clearAllFilters ();
       return td->http->raiseHTTPError (500);
     }
