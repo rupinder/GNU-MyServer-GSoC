@@ -166,7 +166,7 @@ myserver_LDADD = libmyserver.la $(PTHREAD_LIB) $(IDN_LIB) \
 	$(XML_LIBS) $(INTLLIBS) $(LDFLAGS)
 
 all-local: libmyserver.la myserver${EXEEXT}
-	$(LIBTOOL) --mode=install cp myserver $(abs_top_builddir)/binaries/
+	$(LIBTOOL) --mode=install cp myserver$(EXEEXT) $(abs_top_builddir)/binaries/
 
 clean-local:
-	$(LIBTOOL) --mode=uninstall rm -f $(abs_top_builddir)/binaries/myserver
+	$(LIBTOOL) --mode=uninstall rm -f $(abs_top_builddir)/binaries/myserver$(EXEEXT)
