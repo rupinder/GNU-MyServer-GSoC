@@ -96,7 +96,7 @@ AC_CHECK_FUNCS(regcomp setgroups localtime_r posix_fallocate \
 
 case "${host}" in
     *-*-mingw32*)
-     LIBS="$LIBS -lwsock32 -lws2_32"
+     LIBS="$LIBS -lwsock32 -lws2_32 -luserenv"
      MAKE_MSCGI=yes
      LTCFLAGS=""
      ;;
