@@ -80,235 +80,219 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
   int len = strlen (cgipath);
   int i;
 
-  if (!(td->permissions & MYSERVER_PERMISSION_EXECUTE))
-    return td->http->sendAuth ();
-
-  td->scriptPath.assign (scriptpath);
-
-  if (!FilesUtility::nodeExists (scriptpath))
-    return td->http->raiseHTTPError (404);
-
-  int subString = cgipath[0] == '"';
-  /* Do not modify the text between " and ".  */
-  for (i = 1; i < len; i++)
+  try
     {
-      if (!subString && cgipath[i] == ' ')
-        break;
-      if (cgipath[i] == '"' && cgipath[i - 1] != '\\')
-        subString = !subString;
-    }
+      if (! (td->permissions & MYSERVER_PERMISSION_EXECUTE))
+        return td->http->sendAuth ();
 
-  /*
-   *Save the cgi path and the possible arguments.
-   *the (x < len) case is when additional arguments are specified.
-   *If the cgipath is enclosed between " and " do not consider them
-   *when splitting directory and file name.
-   */
-  if (i < len)
-    {
-      string tmpString (cgipath);
-      int begin = tmpString[0] == '"' ? 1 : 0;
-      int end   = tmpString[i] == '"' ? i : i - 1;
-      tmpCgiPath.assign (tmpString.substr (begin, end - 1));
-      moreArg.assign (tmpString.substr (i, len - 1));
-    }
-  else
-    {
-      int begin = (cgipath[0] == '"') ? 1 : 0;
-      int end   = (cgipath[len] == '"') ? len-1 : len;
-      tmpCgiPath.assign (&cgipath[begin], end-begin);
-      moreArg.assign ("");
-    }
-  FilesUtility::splitPath (tmpCgiPath, td->cgiRoot, td->cgiFile);
+      td->scriptPath.assign (scriptpath);
 
-  tmpScriptPath.assign (scriptpath);
-  FilesUtility::splitPath (tmpScriptPath, td->scriptDir, td->scriptFile);
+      if (!FilesUtility::nodeExists (scriptpath))
+        return td->http->raiseHTTPError (404);
 
-  chain.setStream (td->connection->socket);
-
-  if (execute)
-    {
-      const char *args = 0;
-      if (td->request.uriOpts.length ())
-        args = td->request.uriOpts.c_str ();
-      else if (td->pathInfo.length ())
-        args = &td->pathInfo[1];
-
-    if (cgipath && strlen (cgipath))
-      cmdLine << tmpCgiPath << " " << moreArg << " "
-              << td->scriptFile <<  (args ? args : "" ) ;
-    else
-      cmdLine << tmpScriptPath << moreArg << " " << (args ? args : "" );
-
-    nph = td->scriptFile.length () > 4 && td->scriptFile[0] == 'n'
-      && td->scriptFile[1] == 'p' && td->scriptFile[2] == 'h'
-      && td->scriptFile[3] == '-' ;
-
-    if (cgipath && strlen (cgipath))
-      {
-        spi.cmd.assign (tmpCgiPath);
-        spi.arg.append (" ");
-        spi.arg.assign (moreArg);
-        spi.arg.append (" ");
-        spi.arg.append (td->scriptFile);
-
-        if (args)
-          {
-            spi.arg.append (" ");
-            spi.arg.append (args);
-          }
-      }
-    else
-      {
-      spi.cmd.assign (scriptpath);
-      spi.arg.assign (moreArg);
-
-      if (args)
+      int subString = cgipath[0] == '"';
+      /* Do not modify the text between " and ".  */
+      for (i = 1; i < len; i++)
         {
-          spi.arg.append (" ");
-          spi.arg.append (args);
+          if (!subString && cgipath[i] == ' ')
+            break;
+          if (cgipath[i] == '"' && cgipath[i - 1] != '\\')
+            subString = !subString;
         }
-    }
-    }
-  else
-    {
-      if (!FilesUtility::nodeExists (tmpCgiPath.c_str ()))
-        {
-          if (tmpCgiPath.length () > 0)
-            td->connection->host->warningsLogWrite (_("Cgi: cannot find the %s file")),
-              tmpCgiPath.c_str ();
-          else
-            td->connection->host->warningsLogWrite (_("Cgi: Executable file not specified"));
 
-          td->scriptPath.assign ("");
-          td->scriptFile.assign ("");
-          td->scriptDir.assign ("");
+      /*
+        Save the cgi path and the possible arguments.
+        the (x < len) case is when additional arguments are specified.
+        If the cgipath is enclosed between " and " do not consider them
+        when splitting directory and file name.
+      */
+      if (i < len)
+        {
+          string tmpString (cgipath);
+          int begin = tmpString[0] == '"' ? 1 : 0;
+          int end   = tmpString[i] == '"' ? i : i - 1;
+          tmpCgiPath.assign (tmpString.substr (begin, end - 1));
+          moreArg.assign (tmpString.substr (i, len - 1));
+        }
+      else
+        {
+          int begin = (cgipath[0] == '"') ? 1 : 0;
+          int end   = (cgipath[len] == '"') ? len-1 : len;
+          tmpCgiPath.assign (&cgipath[begin], end-begin);
+          moreArg.assign ("");
+        }
+      FilesUtility::splitPath (tmpCgiPath, td->cgiRoot, td->cgiFile);
+
+      tmpScriptPath.assign (scriptpath);
+      FilesUtility::splitPath (tmpScriptPath, td->scriptDir, td->scriptFile);
+
+      chain.setStream (td->connection->socket);
+
+      if (execute)
+        {
+          const char *args = 0;
+          if (td->request.uriOpts.length ())
+            args = td->request.uriOpts.c_str ();
+          else if (td->pathInfo.length ())
+            args = &td->pathInfo[1];
+
+          if (cgipath && strlen (cgipath))
+            cmdLine << tmpCgiPath << " " << moreArg << " "
+                    << td->scriptFile <<  (args ? args : "" ) ;
+          else
+            cmdLine << tmpScriptPath << moreArg << " " << (args ? args : "" );
+
+          nph = td->scriptFile.length () > 4 && td->scriptFile[0] == 'n'
+            && td->scriptFile[1] == 'p' && td->scriptFile[2] == 'h'
+            && td->scriptFile[3] == '-' ;
+
+          if (cgipath && strlen (cgipath))
+            {
+              spi.cmd.assign (tmpCgiPath);
+              spi.arg.append (" ");
+              spi.arg.assign (moreArg);
+              spi.arg.append (" ");
+              spi.arg.append (td->scriptFile);
+              if (args)
+                {
+                  spi.arg.append (" ");
+                  spi.arg.append (args);
+                }
+            }
+          else
+            {
+              spi.cmd.assign (scriptpath);
+              spi.arg.assign (moreArg);
+              if (args)
+                {
+                  spi.arg.append (" ");
+                  spi.arg.append (args);
+                }
+            }
+        }
+      else
+        {
+          if (! FilesUtility::nodeExists (tmpCgiPath.c_str ()))
+            {
+              if (tmpCgiPath.length () > 0)
+                td->connection->host->warningsLogWrite
+                         (_("Cgi: cannot find the %s file")),
+                         tmpCgiPath.c_str ();
+              else
+                td->connection->host->warningsLogWrite
+                           (_("Cgi: Executable file not specified"));
+
+              td->scriptPath.assign ("");
+              td->scriptFile.assign ("");
+              td->scriptDir.assign ("");
+              chain.clearAllFilters ();
+              return td->http->raiseHTTPError (500);
+            }
+
+          spi.arg.assign (moreArg);
+          spi.arg.append (" ");
+          spi.arg.append (td->scriptFile);
+
+          cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" "
+                  << moreArg << " " << td->scriptFile;
+
+          spi.cmd.assign (td->cgiRoot);
+          spi.cmd.append ("/");
+          spi.cmd.append (td->cgiFile);
+
+          if (td->cgiFile.length () > 4 && td->cgiFile[0] == 'n'
+              && td->cgiFile[1] == 'p' && td->cgiFile[2] == 'h'
+              && td->cgiFile[3] == '-' )
+            nph = true;
+          else
+            nph = false;
+        }
+
+      /*
+        Open the stdout file for the new CGI process.
+      */
+      stdOutFile.create ();
+
+      /* Open the stdin file for the new CGI process.  */
+      stdInFile.openFile (td->inputDataPath,
+                          File::READ | File::FILE_OPEN_ALWAYS);
+
+      /*
+        Build the environment string used by the CGI process.
+        Use the td->auxiliaryBuffer to build the environment string.
+      */
+      (td->auxiliaryBuffer->getBuffer ())[0] = '\0';
+      Env::buildEnvironmentString (td, td->auxiliaryBuffer->getBuffer ());
+
+      spi.cmdLine = cmdLine.str ();
+      spi.cwd.assign (td->scriptDir);
+
+      spi.gid = atoi (td->securityToken.getData ("cgi.gid", MYSERVER_VHOST_CONF |
+                                                 MYSERVER_MIME_CONF |
+                                                 MYSERVER_SECURITY_CONF |
+                                                 MYSERVER_SERVER_CONF, "0"));
+      spi.uid = atoi (td->securityToken.getData ("cgi.uid", MYSERVER_VHOST_CONF |
+                                                 MYSERVER_MIME_CONF |
+                                                 MYSERVER_SECURITY_CONF |
+                                                 MYSERVER_SERVER_CONF, "0"));
+      spi.chroot.assign (td->securityToken.getData ("cgi.chroot", MYSERVER_VHOST_CONF |
+                                                    MYSERVER_MIME_CONF |
+                                                    MYSERVER_SECURITY_CONF |
+                                                    MYSERVER_SERVER_CONF, ""));
+
+      spi.stdError = (FileHandle) stdOutFile.getWriteHandle ();
+      spi.stdIn = (FileHandle) stdInFile.getHandle ();
+      spi.stdOut = (FileHandle) stdOutFile.getWriteHandle ();
+      spi.envString = td->auxiliaryBuffer->getBuffer ();
+
+      if (spi.stdError == (FileHandle) -1 ||
+          spi.stdIn == (FileHandle) -1 ||
+          spi.stdOut == (FileHandle) -1)
+        {
+          td->connection->host->warningsLogWrite (_("Cgi: internal error"));
+          stdOutFile.close ();
           chain.clearAllFilters ();
           return td->http->raiseHTTPError (500);
         }
 
-      spi.arg.assign (moreArg);
-      spi.arg.append (" ");
-      spi.arg.append (td->scriptFile);
+      /* Execute the CGI process. */
+      if (Process::getForkServer ()->isInitialized ())
+        {
+          int pid;
+          int port;
+          int flags = ForkServer::FLAG_USE_IN | ForkServer::FLAG_USE_OUT
+                                              | ForkServer::FLAG_USE_ERR;
+          Process::getForkServer ()->executeProcess (&spi, flags, &pid, &port);
+          cgiProc.setPid (pid);
+        }
+      else
+        cgiProc.exec (&spi);
 
-    cmdLine << "\"" << td->cgiRoot << "/" << td->cgiFile << "\" "
-            << moreArg << " " << td->scriptFile;
+      /* Close the write stream of the pipe on the server.  */
+      stdOutFile.closeWrite ();
 
-    spi.cmd.assign (td->cgiRoot);
-    spi.cmd.append ("/");
-    spi.cmd.append (td->cgiFile);
+      sendData (td, stdOutFile, chain, cgiProc, onlyHeader, nph);
 
-    if (td->cgiFile.length () > 4 && td->cgiFile[0] == 'n'
-        && td->cgiFile[1] == 'p' && td->cgiFile[2] == 'h'
-        && td->cgiFile[3] == '-' )
-      nph = true;
-    else
-      nph = false;
-    }
-
-  /*
-   *Open the stdout file for the new CGI process.
-   */
-  if (stdOutFile.create ())
-    {
-      td->connection->host->warningsLogWrite (_("Cgi: internal error"));
-      chain.clearAllFilters ();
-      return td->http->raiseHTTPError (500);
-    }
-
-  /* Open the stdin file for the new CGI process. */
-  if (stdInFile.openFile (td->inputDataPath,
-                         File::READ | File::FILE_OPEN_ALWAYS))
-    {
-      td->connection->host->warningsLogWrite (_("Cgi: internal error"));
       stdOutFile.close ();
-      chain.clearAllFilters ();
-      return td->http->raiseHTTPError (500);
-    }
-
-  /*
-   *Build the environment string used by the CGI process.
-   *Use the td->auxiliaryBuffer to build the environment string.
-   */
-  (td->auxiliaryBuffer->getBuffer ())[0] = '\0';
-  Env::buildEnvironmentString (td, td->auxiliaryBuffer->getBuffer ());
-
-  spi.cmdLine = cmdLine.str ();
-  spi.cwd.assign (td->scriptDir);
-
-  spi.gid = atoi (td->securityToken.getData ("cgi.gid", MYSERVER_VHOST_CONF |
-                                             MYSERVER_MIME_CONF |
-                                             MYSERVER_SECURITY_CONF |
-                                             MYSERVER_SERVER_CONF, "0"));
-  spi.uid = atoi (td->securityToken.getData ("cgi.uid", MYSERVER_VHOST_CONF |
-                                             MYSERVER_MIME_CONF |
-                                             MYSERVER_SECURITY_CONF |
-                                             MYSERVER_SERVER_CONF, "0"));
-  spi.chroot.assign (td->securityToken.getData ("cgi.chroot", MYSERVER_VHOST_CONF |
-                                                MYSERVER_MIME_CONF |
-                                                MYSERVER_SECURITY_CONF |
-                                                MYSERVER_SERVER_CONF, ""));
-
-  spi.stdError = (FileHandle) stdOutFile.getWriteHandle ();
-  spi.stdIn = (FileHandle) stdInFile.getHandle ();
-  spi.stdOut = (FileHandle) stdOutFile.getWriteHandle ();
-  spi.envString = td->auxiliaryBuffer->getBuffer ();
-
-  if (spi.stdError == (FileHandle) -1 ||
-      spi.stdIn == (FileHandle) -1 ||
-      spi.stdOut == (FileHandle) -1)
-    {
-      td->connection->host->warningsLogWrite (_("Cgi: internal error"));
-      stdOutFile.close ();
-      chain.clearAllFilters ();
-      return td->http->raiseHTTPError (500);
-    }
-
-  /* Execute the CGI process. */
-  {
-    int ret;
-    if (Process::getForkServer ()->isInitialized ())
-      {
-        int pid;
-        int port;
-
-        ret = Process::getForkServer ()->executeProcess (&spi,
-                                                         ForkServer::FLAG_USE_IN |
-                                                         ForkServer::FLAG_USE_OUT |
-                                                         ForkServer::FLAG_USE_ERR,
-                                                         &pid,
-                                                         &port);
-        cgiProc.setPid (pid);
-      }
-    else
-      ret = cgiProc.exec (&spi);
-
-    if ( ret == -1)
-    {
       stdInFile.close ();
+      cgiProc.terminateProcess ();
+      chain.clearAllFilters ();
+
+      cgiProc.terminateProcess ();
+
+      /* Delete the file only if it was created by the CGI module.  */
+      if (td->inputData.getHandle () >= 0)
+        FilesUtility::deleteFile (td->inputDataPath.c_str ());
+    }
+  catch (exception & e)
+    {
+      td->connection->host->warningsLogWrite (_E ("Cgi: internal error"), &e);
       stdOutFile.close ();
-      td->connection->host->warningsLogWrite (_("Cgi: internal error"));
       chain.clearAllFilters ();
       return td->http->raiseHTTPError (500);
-      }
-    /* Close the write stream of the pipe on the server.  */
-    stdOutFile.closeWrite ();
-  }
+    }
 
-  int ret = sendData (td, stdOutFile, chain, cgiProc, onlyHeader, nph);
-
-  stdOutFile.close ();
-  stdInFile.close ();
-  cgiProc.terminateProcess ();
-  chain.clearAllFilters ();
-
-  cgiProc.terminateProcess ();
-
-  /* Delete the file only if it was created by the CGI module.  */
-  if (!td->inputData.getHandle ())
-    FilesUtility::deleteFile (td->inputDataPath.c_str ());
-
-  return ret;
+  return HttpDataHandler::RET_OK;
 }
 
 /*
@@ -340,63 +324,56 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
     return HttpDataHandler::RET_OK;
 
   /* Create the output filters chain.  */
-  if (td->mime
-      && Server::getInstance ()->getFiltersFactory ()->chain (&chain,
-                                                       td->mime->filters,
-                                                       td->connection->socket,
-                                                              &nbw,
-                                                              1))
+  if (td->mime)
     {
-      td->connection->host->warningsLogWrite (_("Cgi: internal error"));
-      return td->http->raiseHTTPError (500);
+      FiltersFactory *ff = Server::getInstance ()->getFiltersFactory ();
+      ff->chain (&chain, td->mime->filters, td->connection->socket, &nbw, 1);
     }
 
   if (td->response.getStatusType () == HttpResponseHeader::SUCCESSFUL)
-  {
-    /* Send the rest of the data until we can read from the pipe.  */
-    for (;;)
     {
-      nBytesRead = 0;
-      int aliveProcess = 0;
-      u_long ticks = getTicks () - procStartTime;
-      u_long timeout = td->http->getTimeout ();
-      if (timeout <= ticks
-          || stdOutFile.waitForData ((timeout - ticks) / 1000,
-                                     (timeout - ticks) % 1000) == 0)
+      /* Send the rest of the data until we can read from the pipe.  */
+      for (;;)
         {
-          td->connection->host->warningsLogWrite (_("Cgi: process %i timeout"),
-                                                  cgiProc.getPid ());
-          break;
+          nBytesRead = 0;
+          int aliveProcess = 0;
+          u_long ticks = getTicks () - procStartTime;
+          u_long timeout = td->http->getTimeout ();
+          if (timeout <= ticks
+              || stdOutFile.waitForData ((timeout - ticks) / 1000,
+                                         (timeout - ticks) % 1000) == 0)
+            {
+              td->connection->host->warningsLogWrite (_("Cgi: process %i timeout"),
+                                                      cgiProc.getPid ());
+              break;
+            }
+
+          aliveProcess = !stdOutFile.pipeTerminated ();
+
+          /* Read data from the process standard output file.  */
+          stdOutFile.read (td->auxiliaryBuffer->getBuffer (),
+                           td->auxiliaryBuffer->getRealLength (),
+                           &nBytesRead);
+
+          if (!aliveProcess && !nBytesRead)
+            break;
+
+          if (nBytesRead)
+            HttpDataHandler::appendDataToHTTPChannel (td,
+                                             td->auxiliaryBuffer->getBuffer (),
+                                                      nBytesRead,
+                                                      &(td->outputData),
+                                                      &chain,
+                                                      td->appendOutputs,
+                                                      useChunks);
+
+          nbw += nBytesRead;
         }
 
-      aliveProcess = !stdOutFile.pipeTerminated ();
-
-      /* Read data from the process standard output file.  */
-      if (stdOutFile.read (td->auxiliaryBuffer->getBuffer (),
-                           td->auxiliaryBuffer->getRealLength (),
-                           &nBytesRead))
+      /* Send the last null chunk if needed.  */
+      if (useChunks && chain.getStream ()->write ("0\r\n\r\n", 5, &nbw2))
         return HttpDataHandler::RET_FAILURE;
-
-      if (!aliveProcess && !nBytesRead)
-        break;
-
-      if (nBytesRead &&
-          HttpDataHandler::appendDataToHTTPChannel (td,
-                                                    td->auxiliaryBuffer->getBuffer (),
-                                                    nBytesRead,
-                                                    &(td->outputData),
-                                                    &chain,
-                                                    td->appendOutputs,
-                                                    useChunks))
-        return HttpDataHandler::RET_FAILURE;
-
-      nbw += nBytesRead;
     }
-
-    /* Send the last null chunk if needed.  */
-    if (useChunks && chain.getStream ()->write ("0\r\n\r\n", 5, &nbw2))
-        return HttpDataHandler::RET_FAILURE;
-  }
 
   /* Update the Content-length field for logging activity.  */
   td->sentData += nbw;
@@ -408,9 +385,10 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
  *Send the HTTP header.
  *\return nonzero if the reply is already complete.
  */
-int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
-                     Process& cgiProc, int onlyHeader, bool nph, u_long procStartTime,
-                     bool keepalive, bool useChunks, int *ret)
+int Cgi::sendHeader (HttpThreadContext *td, Pipe &stdOutFile, FiltersChain &chain,
+                     Process &cgiProc, int onlyHeader, bool nph,
+                     u_long procStartTime, bool keepalive, bool useChunks,
+                     int *ret)
 {
   u_long headerSize = 0;
   bool headerCompleted = false;
@@ -419,80 +397,70 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
 
   /* Parse initial chunks of data looking for the HTTP header.  */
   while (!headerCompleted && !nph)
-  {
-    u_long timeout = td->http->getTimeout ();
-    u_long ticks = getTicks () - procStartTime;
-    bool term;
+    {
+      u_long timeout = td->http->getTimeout ();
+      u_long ticks = getTicks () - procStartTime;
+      bool term;
 
-    nBytesRead = 0;
+      nBytesRead = 0;
 
-    /* Do not try to read using a small buffer as this has some
-       bad influence on the performances.  */
-    if (td->auxiliaryBuffer->getRealLength () - headerOffset - 1 < 512)
-      break;
-
-    term = stdOutFile.pipeTerminated ();
-    if (!term
-        && stdOutFile.waitForData ((timeout - ticks) / 1000,
-                                   (timeout - ticks) % 1000) == 0)
-      {
-        td->connection->host->warningsLogWrite (_("Cgi: process %i timeout"),
-                                                cgiProc.getPid ());
+      /* Do not try to read using a small buffer as this has some
+         bad influence on the performances.  */
+      if (td->auxiliaryBuffer->getRealLength () - headerOffset - 1 < 512)
         break;
-      }
 
-    if (stdOutFile.read (td->auxiliaryBuffer->getBuffer () + headerOffset,
-                         td->auxiliaryBuffer->getRealLength () - headerOffset - 1,
-                         &nBytesRead))
-      {
-        *ret = td->http->raiseHTTPError (500);
-        return 1;
-      }
+      term = stdOutFile.pipeTerminated ();
+      if (!term
+          && stdOutFile.waitForData ((timeout - ticks) / 1000,
+                                     (timeout - ticks) % 1000) == 0)
+        {
+          td->connection->host->warningsLogWrite (_("Cgi: process %i timeout"),
+                                                  cgiProc.getPid ());
+          break;
+        }
 
-    if (nBytesRead == 0 && term)
-      {
-        headerCompleted = true;
-        headerSize = 0;
-        break;
-      }
+      if (stdOutFile.read (td->auxiliaryBuffer->getBuffer () + headerOffset,
+                           td->auxiliaryBuffer->getRealLength () - headerOffset - 1,
+                           &nBytesRead))
+        {
+          *ret = td->http->raiseHTTPError (500);
+          return 1;
+        }
 
-    headerOffset += nBytesRead;
-    if (headerOffset > td->buffersize - 5)
-      (td->auxiliaryBuffer->getBuffer ())[headerOffset] = '\0';
+      if (nBytesRead == 0 && term)
+        {
+          headerCompleted = true;
+          headerSize = 0;
+          break;
+        }
 
-    if (headerOffset == 0)
-      {
-        *ret = td->http->raiseHTTPError (500);
-        return 1;
-      }
+      headerOffset += nBytesRead;
 
-    for (u_long i = std::max (0UL, headerOffset - nBytesRead - 10);
-         i < headerOffset; i++)
-      {
-        char *buff = td->auxiliaryBuffer->getBuffer ();
-        if ((buff[i] == '\r') && (buff[i+1] == '\n')
-            && (buff[i+2] == '\r') && (buff[i+3] == '\n'))
-          {
-            /*
-             * The HTTP header ends with a \r\n\r\n sequence so
-             * determine where it ends and set the header size
-             * to i + 4.
-             */
-            headerSize = i + 4 ;
-            headerCompleted = true;
-            break;
-          }
-        else if ((buff[i] == '\n') && (buff[i+1] == '\n'))
-          {
-            /*
-             *\n\n case.
-             */
-            headerSize = i + 2;
-            headerCompleted = true;
-            break;
-          }
-      }
-  }
+      if (headerOffset == 0)
+        {
+          *ret = td->http->raiseHTTPError (500);
+          return 1;
+        }
+
+      for (int i = std::max (0, (int) (headerOffset - nBytesRead - 10));
+           i < headerOffset; i++)
+        {
+          char *buff = td->auxiliaryBuffer->getBuffer ();
+          if ((buff[i] == '\r') && (buff[i+1] == '\n')
+              && (buff[i+2] == '\r') && (buff[i+3] == '\n'))
+            {
+              headerSize = i + 4;
+              headerCompleted = true;
+              break;
+            }
+          else if ((buff[i] == '\n') && (buff[i+1] == '\n'))
+            {
+              headerSize = i + 2;
+              headerCompleted = true;
+              break;
+            }
+        }
+    }
 
   /* Send the header.  */
   if (!nph)
@@ -521,30 +489,21 @@ int Cgi::sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chai
               return 1;
             }
 
-          if (HttpHeaders::sendHeader (td->response, *chain.getStream (),
-                                       *td->buffer, td))
-            {
-              *ret = HttpDataHandler::RET_FAILURE;
-              return 1;
-            }
-
+          HttpHeaders::sendHeader (td->response, *chain.getStream (),
+                                   *td->buffer, td);
         }
     }
 
   if (headerOffset - headerSize)
     {
       /* Flush the buffer.  Data from the header parsing can be present.  */
-      if (HttpDataHandler::appendDataToHTTPChannel (td,
-                             td->auxiliaryBuffer->getBuffer () + headerSize,
+      HttpDataHandler::appendDataToHTTPChannel (td,
+                               td->auxiliaryBuffer->getBuffer () + headerSize,
                                                     headerOffset - headerSize,
                                                     &(td->outputData),
                                                     &chain,
                                                     td->appendOutputs,
-                                                    useChunks))
-        {
-          *ret = HttpDataHandler::RET_FAILURE;
-          return 1;
-        }
+                                                useChunks);
 
       td->sentData += headerOffset - headerSize;
     }

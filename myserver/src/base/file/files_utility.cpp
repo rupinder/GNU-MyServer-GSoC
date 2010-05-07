@@ -43,6 +43,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <memory>
 
+#include <include/base/exceptions/checked.h>
+
 using namespace std;
 
 string FilesUtility::tmpPath;
@@ -138,7 +140,7 @@ int FilesUtility::getPathRecursionLevel (const char* path)
  */
 int FilesUtility::renameFile (const char* before, const char* after)
 {
-  return gnulib::rename (before, after);
+  return checked::rename (before, after);
 }
 
 /*!
@@ -179,7 +181,6 @@ int FilesUtility::copyFile (File& src, File& dest)
 {
   char buffer[4096];
   u_long nbr, nbw;
-  int ret;
 
 #ifdef HAVE_POSIX_FALLOCATE
   if (posix_fallocate (dest.getHandle (), dest.getSeek (),
@@ -189,35 +190,49 @@ int FilesUtility::copyFile (File& src, File& dest)
 
   for (;;)
   {
-    ret = src.read (buffer, 4096, &nbr);
-    if (ret)
-      return -1;
+    src.read (buffer, 4096, &nbr);
 
     if (!nbr)
       break;
 
-    ret = dest.writeToFile (buffer, nbr, &nbw);
-    if (ret)
-      return -1;
+    dest.writeToFile (buffer, nbr, &nbw);
   }
   return 0;
 }
 
 /*!
  * Delete an existing file passing the path.
- * Return a non-null value on errors.
  * \param filename The file to delete.
  */
 int FilesUtility::deleteFile (const char *filename)
 {
-  int ret;
-  ret = gnulib::remove (filename);
-
-  if (ret && errno == ENOENT)
-    ret = 0;
-
-  return ret;
+  checked::remove (filename);
+  return 0;
 }
+
+
+/*!
+  Return the result of `nodeExists (PATH) && !isDirectory (PATH)' using a
+  single stat.
+
+  \param path Parameter to `stat'.
+ */
+bool FilesUtility::notDirectory (const char *path)
+{
+  struct stat F_Stats;
+  int err = ::stat (path, &F_Stats);
+  if (err < 0)
+    {
+      if (errno == ENOENT || errno == ENOTDIR)
+        return true;
+
+      /* Raise an exception.  */
+      checked::checkError (err);
+    }
+
+  return (S_ISDIR (F_Stats.st_mode)) ? 0 : 1;
+}
+
 
 /*!
  * Returns a non-null value if the path is a directory.
@@ -225,20 +240,9 @@ int FilesUtility::deleteFile (const char *filename)
  */
 int FilesUtility::isDirectory (const char *filename)
 {
-#ifdef WIN32
-  u_long fa = GetFileAttributes (filename);
-  if (fa != INVALID_FILE_ATTRIBUTES)
-    return (fa & FILE_ATTRIBUTE_DIRECTORY)?1:0;
-  else
-    return 0;
-#else
   struct stat F_Stats;
-  int ret = stat (filename, &F_Stats);
-  if (ret < 0)
-    return 0;
-
-  return (S_ISDIR (F_Stats.st_mode))? 1 : 0;
-#endif
+  checked::stat (filename, &F_Stats);
+  return (S_ISDIR (F_Stats.st_mode)) ? 1 : 0;
 }
 
 /*!
@@ -251,10 +255,7 @@ int FilesUtility::isLink (const char* filename)
   return 0;
 #else
   struct stat F_Stats;
-  int ret = gnulib::lstat (filename, &F_Stats);
-  if (ret < 0)
-    return 0;
-
+  checked::lstat (filename, &F_Stats);
   return S_ISLNK (F_Stats.st_mode) ? 1 : 0;
 #endif
 
@@ -266,22 +267,17 @@ int FilesUtility::isLink (const char* filename)
  */
 int FilesUtility::nodeExists (const char* filename)
 {
-#ifdef WIN32
-  HANDLE hFile = CreateFile (filename, GENERIC_READ, FILE_SHARE_READ,
-                             NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL
-                             | FILE_FLAG_BACKUP_SEMANTICS, NULL);
-
-  int nRet = (hFile != INVALID_HANDLE_VALUE) ? 1 : 0;
-  CloseHandle (hFile);
-  return nRet;
-#else
   struct stat fstats;
-  int ret = stat (filename, &fstats);
-  if (ret < 0)
-    return 0;
+  try
+    {
+      checked::stat (filename, &fstats);
+    }
+  catch (...)
+    {
+      return 0;
+    }
 
   return 1;
-#endif
 }
 
 /*!
@@ -292,13 +288,8 @@ int FilesUtility::nodeExists (const char* filename)
 time_t FilesUtility::getLastModTime (const char *filename)
 {
   int res;
-#ifdef WIN32
-  struct _stat sf;
-  res = _stat (filename, &sf);
-#else
   struct stat sf;
   res = stat (filename,&sf);
-#endif
 
   if (res == 0)
     return sf.st_mtime;
@@ -314,13 +305,9 @@ time_t FilesUtility::getLastModTime (const char *filename)
 time_t FilesUtility::getCreationTime (const char *filename)
 {
   int res;
-#ifdef WIN32
-  struct _stat sf;
-  res = _stat (filename, &sf);
-#else
   struct stat sf;
   res = stat (filename, &sf);
-#endif
+
   if (res == 0)
     return sf.st_ctime;
   else
@@ -335,13 +322,8 @@ time_t FilesUtility::getCreationTime (const char *filename)
 time_t FilesUtility::getLastAccTime (const char *filename)
 {
   int res;
-#ifdef WIN32
-  struct _stat sf;
-  res = _stat (filename, &sf);
-#else
   struct stat sf;
   res = stat (filename, &sf);
-#endif
   if (res == 0)
     return sf.st_atime;
   else
@@ -358,7 +340,7 @@ time_t FilesUtility::getLastAccTime (const char *filename)
 int FilesUtility::chown (const char* filename, string &uid, string &gid)
 {
 #ifndef WIN32
-  return gnulib::chown (filename, Process::getUid (uid.c_str ()),
+  return checked::chown (filename, Process::getUid (uid.c_str ()),
                         Process::getGid (gid.c_str ())) ? 1 : 0;
 #endif
   return 0;
@@ -527,7 +509,7 @@ int FilesUtility::getShortFileName (char *filePath, char *out, int buffersize)
  * Return non-zero on errors.
  * \param fileName The buffer to use.
  * \param size The new buffer size.
- * \param dontRealloc Don't gnulib::realloc a new buffer.
+ * \param dontRealloc Don't checked::realloc a new buffer.
  */
 int FilesUtility::completePath (char **fileName, int *size, int dontRealloc)
 {
@@ -648,7 +630,7 @@ int FilesUtility::mkdir (const char *path)
 #ifdef WIN32
   return CreateDirectory (path, NULL) ? 0 : -1;
 #else
-  return gnulib::mkdir (path, S_IRUSR | S_IWUSR);
+  return checked::mkdir (path, S_IRUSR | S_IWUSR);
 #endif
 }
 
@@ -662,7 +644,7 @@ int FilesUtility::rmdir (const char *path)
 #ifdef WIN32
   return RemoveDirectory (path) ? 0 : -1;
 #else
-  return gnulib::rmdir (path);
+  return checked::rmdir (path);
 #endif
 }
 

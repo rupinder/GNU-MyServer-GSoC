@@ -14,12 +14,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-AM_CXXFLAGS="-I$(top_srcdir)/lib"
+AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libftp.la
 libftp_la_SOURCES = ftp.cpp ftp_lexer.cpp ftp_parser.cpp
 EXTRA_DIST = ftp_lexer.out.cpp  ftp_parser.ypp  ftp_lexer.lpp
 SUBDIRS =
-AM_CPPFLAGS = $(all_includes)
 
 build_parser: ftp_lexer.lpp ftp_parser.ypp
 	$(YACC) $(YFLAGS) --defines=../../../include/protocol/ftp/ftp_parser.h \

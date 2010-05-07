@@ -332,12 +332,6 @@ int XmlVhostHandler::load (const char *filename)
           XmlConf::build (lcur, vh->getHashedDataTrees (),
                           vh->getHashedData ());
 
-          if (!lcur->children || !lcur->children->content)
-            {
-              lcur = lcur->next;
-              continue;
-            }
-
           if (!xmlStrcmp (lcur->name, (const xmlChar *) "HOST"))
             {
               int useRegex = 0;

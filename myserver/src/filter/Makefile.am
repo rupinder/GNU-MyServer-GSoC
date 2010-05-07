@@ -14,12 +14,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-AM_CXXFLAGS="-I$(top_srcdir)/lib"
+AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libfilter.la
 libfilter_la_SOURCES = filter.cpp filters_chain.cpp filters_factory.cpp memory_stream.cpp stream.cpp \
 			console.cpp
 SUBDIRS = gzip
-AM_CPPFLAGS = $(all_includes)
 
 install:
 # Do not do anything.

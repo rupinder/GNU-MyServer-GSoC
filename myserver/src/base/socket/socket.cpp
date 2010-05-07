@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # include <arpa/inet.h>
 #endif
 
+#include <include/base/exceptions/checked.h>
 
 #include <sstream>
 
@@ -94,7 +95,7 @@ int Socket::operator=(Socket* s)
  */
 int Socket::socket (int af, int type, int protocol)
 {
-  fd = gnulib::socket (af, type, protocol);
+  fd = checked::socket (af, type, protocol);
   return fd;
 }
 
@@ -168,7 +169,7 @@ int Socket::bind (MYSERVER_SOCKADDR* sa, int namelen)
       )
     return -1;
 
-  return gnulib::bind (fd, (struct sockaddr*) sa, namelen);
+  return checked::bind (fd, (struct sockaddr*) sa, namelen);
 }
 
 /*!
@@ -176,7 +177,7 @@ int Socket::bind (MYSERVER_SOCKADDR* sa, int namelen)
  */
 int Socket::listen (int max)
 {
-  return gnulib::listen (fd, max);
+  return checked::listen (fd, max);
 }
 
 /*!
@@ -184,7 +185,7 @@ int Socket::listen (int max)
  */
 Socket* Socket::accept (MYSERVER_SOCKADDR* sa, socklen_t* sockaddrlen)
 {
-  int acceptedHandle = gnulib::accept (fd, (struct sockaddr *)sa,
+  int acceptedHandle = checked::accept (fd, (struct sockaddr *)sa,
                                        sockaddrlen);
 
   if (acceptedHandle >= 0)
@@ -200,7 +201,7 @@ int Socket::close ()
 {
   int ret = -1;
   if (fd >= 0)
-    ret = gnulib::close (fd);
+    ret = checked::close (fd);
 
   fd = -1;
   return ret;
@@ -227,7 +228,7 @@ MYSERVER_HOSTENT *Socket::gethostbyname (const char *hostname)
  */
 int Socket::shutdown (int how)
 {
-  return gnulib::shutdown (fd, how);
+  return checked::shutdown (fd, how);
 }
 
 /*!
@@ -236,7 +237,7 @@ int Socket::shutdown (int how)
 int  Socket::setsockopt (int level, int optname,
                        const char *optval, int optlen)
 {
-  return gnulib::setsockopt (fd, level, optname, optval, optlen);
+  return checked::setsockopt (fd, level, optname, optval, optlen);
 }
 
 /*!
@@ -320,7 +321,7 @@ int Socket::getLocalIPsList (string &out)
  */
 int Socket::rawSend (const char* buffer, int len, int flags)
 {
-  return gnulib::send (fd, buffer, len, flags);
+  return checked::send (fd, buffer, len, flags);
 }
 
 /*!
@@ -343,37 +344,41 @@ int Socket::send (const char* buffer, int len, int flags)
   {
     while (1)
       {
-        /*! When we can send data again?  */
+        /* When we can send data again?  */
         u_long time = getTicks () + (1000 * 1024 / throttlingRate) ;
-        /*! If a throttling rate is specified, send chunks of 1024 bytes.  */
+        /* If a throttling rate is specified, send chunks of 1024 bytes.  */
         ret = rawSend (buffer + (len - toSend), toSend < 1024 ?
                        toSend : 1024, flags);
-        /*! On errors returns directly -1.  */
-        if (ret < 0)
-          return -1;
+
         toSend -= (u_long) ret;
-        /*!
-         *If there are other bytes to send wait before cycle again.
-         */
+
+        /* If there are other bytes to send wait before cycle again.  */
         if (toSend)
-          {
-            Thread::wait (getTicks () - time);
-          }
+          Thread::wait (getTicks () - time);
         else
           break;
       }
-    /*! Return the number of sent bytes. */
+    /* Return the number of sent bytes.  */
     return len - toSend;
   }
   return 0;
 }
 
+
 /*!
- *Function used to control the socket.
+  Specify if the ip address can be re-used.
+
+  \value reuseAddr Specify if re-use the address.
  */
-int Socket::ioctlsocket (long cmd, unsigned long* argp)
+void Socket::reuseAddress (bool reuseAddr)
 {
-  return gnulib::ioctl (fd, cmd, argp);
+#ifndef WIN32
+  int optvalReuseAddr = reuseAddr ? 1 : 0;
+
+  setsockopt (SOL_SOCKET, SO_REUSEADDR,
+              (const char *) &optvalReuseAddr,
+              sizeof (optvalReuseAddr));
+#endif
 }
 
 /*!
@@ -409,7 +414,7 @@ int Socket::connect (const char* host, u_short port)
     }
 
   memset (szPort, 0, sizeof (char)*10);
-  gnulib::snprintf (szPort, 10, "%d", port);
+  checked::snprintf (szPort, 10, "%d", port);
 
   if (aiHints.ai_family != 0)
     nGetaddrinfoRet = getaddrinfo (host, NULL, &aiHints, &pHostInfo);
@@ -521,7 +526,7 @@ int Socket::connect (MYSERVER_SOCKADDR* sa, int na)
  )
     return -1;
 
-  return gnulib::connect (fd, (sockaddr *) sa, na);
+  return checked::connect (fd, (sockaddr *) sa, na);
 }
 
 /*!
@@ -530,9 +535,6 @@ int Socket::connect (MYSERVER_SOCKADDR* sa, int na)
 int Socket::recv (char* buffer, int len, int flags, u_long timeout)
 {
   int ret = dataAvailable (timeout / 1000, timeout % 1000);
-
-  if (ret < 0)
-    return ret;
 
   if (ret)
     return recv (buffer, len, flags);
@@ -544,17 +546,21 @@ int Socket::recv (char* buffer, int len, int flags, u_long timeout)
  *Receive data from the socket.
  *Returns -1 on errors.
  */
-int Socket::recv (char* buffer,int len,int flags)
+int Socket::recv (char* buffer, int len, int flags)
 {
   int err = 0;
 
-  err = gnulib::recv (fd, buffer, len, flags);
-
-  if ( err < 0 && errno == EAGAIN && isNonBlocking)
-    return 0;
-
-  if (err == 0)
-    err = -1;
+  try
+    {
+      err = checked::recv (fd, buffer, len, flags);
+    }
+  catch (InvalidResourceException & e)
+    {
+      if (isNonBlocking)
+        return 0;
+      else
+        throw;
+    }
 
   return err;
 }
@@ -567,10 +573,10 @@ u_long Socket::bytesToRead ()
   u_long nBytesToRead = 0;
 
 #ifdef FIONREAD
-  ioctlsocket (FIONREAD,&nBytesToRead);
+  checked::checkError (gnulib::ioctl (fd, FIONREAD, &nBytesToRead));
 #else
 # ifdef I_NREAD
-  ::ioctlsocket ( I_NREAD, &nBytesToRead ) ;
+  checked::checkError (gnulib::ioctl (fd, I_NREAD, &nBytesToRead));
 # endif
 #endif
   return nBytesToRead;
@@ -591,9 +597,9 @@ int Socket::setNonBlocking (int nonBlocking)
 
 #ifdef WIN32
   u_long nonblock = nonBlocking ? 1 : 0;
-  ret = ioctlsocket (FIONBIO, &nonblock);
+  ret = checked::checkError (gnulib::ioctl (fd, FIONBIO, &nonblock));
 #else
-  flags = gnulib::fcntl (fd, F_GETFL, 0);
+  flags = checked::checkError (gnulib::fcntl (fd, F_GETFL, 0));
   if (flags < 0)
     return -1;
 
@@ -602,7 +608,7 @@ int Socket::setNonBlocking (int nonBlocking)
   else
     flags &= ~O_NONBLOCK;
 
-  ret = gnulib::fcntl (fd, F_SETFL, flags);
+  ret = checked::checkError (gnulib::fcntl (fd, F_SETFL, flags));
 
   isNonBlocking = nonBlocking ? true : false;
 #endif
@@ -615,7 +621,7 @@ int Socket::setNonBlocking (int nonBlocking)
  */
 int Socket::gethostname (char *name, int namelen)
 {
-  return gnulib::gethostname (name,namelen);
+  return checked::gethostname (name,namelen);
 }
 
 /*!
@@ -624,7 +630,7 @@ int Socket::gethostname (char *name, int namelen)
 int Socket::getsockname (MYSERVER_SOCKADDR *ad, int *namelen)
 {
   socklen_t len =(socklen_t) *namelen;
-  int ret = gnulib::getsockname (fd, (struct sockaddr *)ad, &len);
+  int ret = checked::getsockname (fd, (struct sockaddr *)ad, &len);
   *namelen = (int)len;
   return ret;
 }
@@ -659,8 +665,8 @@ int Socket::dataAvailable (int sec, int usec)
   FD_ZERO (&readfds);
   FD_SET (fd, &readfds);
 
-  ret = gnulib::select (fd + 1, &readfds, NULL, NULL, &tv);
-  if (ret <= 0)
+  ret = checked::select (fd + 1, &readfds, NULL, NULL, &tv);
+  if (ret == 0)
     return 0;
 
   if (FD_ISSET (fd, &readfds))
@@ -675,11 +681,7 @@ int Socket::dataAvailable (int sec, int usec)
  */
 int Socket::read (char* buffer, u_long len, u_long *nbr)
 {
-  int ret = recv (buffer, len, 0);
-  if (ret < 0)
-    return ret;
-
-  *nbr = static_cast<u_long> (ret);
+  *nbr = static_cast<u_long> (recv (buffer, len, 0));
   return 0;
 }
 
@@ -689,10 +691,6 @@ int Socket::read (char* buffer, u_long len, u_long *nbr)
  */
 int Socket::write (const char* buffer, u_long len, u_long *nbw)
 {
-  int ret = send (buffer, len, 0);
-  if (ret < 0)
-    return ret;
-
-  *nbw = static_cast<u_long> (ret);
+  *nbw = static_cast<u_long> (send (buffer, len, 0));
   return 0;
 }

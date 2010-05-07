@@ -33,7 +33,7 @@ using namespace std;
  */
 int MscgiManager::write (const char* str)
 {
-  return cgidata->mscgi->write (str, (u_long)strlen (str), cgidata);
+  return cgidata->mscgi->write (str, (u_long) strlen (str), cgidata);
 }
 
 /*!
@@ -41,7 +41,7 @@ int MscgiManager::write (const char* str)
  */
 int MscgiManager::write (const void* data, int len)
 {
-  return cgidata->mscgi->write ((const char*)data, len, cgidata);
+  return cgidata->mscgi->write ((const char*) data, len, cgidata);
 }
 
 Server* MscgiManager::getServer ()
@@ -148,7 +148,10 @@ char* MscgiManager::postParam (const char* param)
   u_long nbr = 0;
   char c;
 
-  u_long toRead = td->inputData.getFileSize ();
+  u_long toRead = 0;
+
+  if (td->inputData.getHandle () >= 0)
+    toRead = td->inputData.getFileSize ();
 
   buffer[0] = '\0';
   localbuffer[0] = '\0';
@@ -164,7 +167,8 @@ char* MscgiManager::postParam (const char* param)
     {
       if (!strncmp (param, buffer, strlen (param)))
       {
-        myserver_strlcpy (localbuffer, &buffer[strlen (param)], LOCAL_BUFFER_DIM);
+        myserver_strlcpy (localbuffer, &buffer[strlen (param)],
+                          LOCAL_BUFFER_DIM);
         break;
       }
       buffer[0] = '\0';

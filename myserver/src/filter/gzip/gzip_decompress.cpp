@@ -89,7 +89,6 @@ u_long GzipDecompress::free ()
 {
   u_long ret = 0;
 #ifdef HAVE_ZLIB
-
   if (data.initialized == 0)
     return 0;
   data.initialized = 0;
@@ -196,10 +195,14 @@ u_long GzipDecompress::getFooter (char *str, int /*size*/)
  */
 u_long GzipDecompress::getHeader (char *buffer, u_long buffersize)
 {
+#ifdef HAVE_ZLIB
   if (buffersize < GZIP_HEADER_LENGTH)
     return 0;
   memcpy (buffer, GZIP_HEADER, GZIP_HEADER_LENGTH);
   return GZIP_HEADER_LENGTH;
+#else
+  return 0;
+#endif
 }
 
 /*!
@@ -217,22 +220,22 @@ int GzipDecompress::read (char* buffer, u_long len, u_long *nbr)
   u_long nbr_parent;
   if (!parent)
     return -1;
-  tmp_buff = new char[len/2];
-  if (!tmp_buff)
-    return -1;
 
   if (!active)
     return parent->read (buffer, len, nbr);
 
-  ret = parent->read (tmp_buff, len/2, &nbr_parent);
-
-  if (ret == -1)
+  tmp_buff = new char[len/2];
+  try
+    {
+      parent->read (tmp_buff, len/2, &nbr_parent);
+      *nbr = decompress (tmp_buff, nbr_parent, buffer, len);
+    }
+  catch (...)
     {
       delete [] tmp_buff;
-      return -1;
+      throw;
     }
 
-  *nbr = decompress (tmp_buff, nbr_parent, buffer, len);
 
   delete [] tmp_buff;
   return 0;

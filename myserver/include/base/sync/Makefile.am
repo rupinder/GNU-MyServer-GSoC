@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-syncincludedir=$(includedir)/myserver/include/base/sync
-syncinclude_HEADERS = event.h mutex.h read_write_lock.h recursive_mutex.h semaphore.h
+includedir=@includedir@/myserver/include/base/sync
+include_HEADERS = event.h mutex.h read_write_lock.h recursive_mutex.h semaphore.h
 SUBDIRS =
 

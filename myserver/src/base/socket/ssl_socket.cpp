@@ -21,6 +21,8 @@
 #include <include/base/utility.h>
 #include "include/base/socket/ssl_socket.h"
 
+#include <include/base/exceptions/checked.h>
+
 #include <string.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -68,6 +70,7 @@ SslSocket::SslSocket ()
 SslSocket::~SslSocket ()
 {
   freeSSL ();
+  fd = -1;
 }
 
 /*!
@@ -75,8 +78,7 @@ SslSocket::~SslSocket ()
  */
 int SslSocket::close ()
 {
-  freeSSL ();
-  return Socket::close ();
+  return freeSSL ();
 }
 
 /*!
@@ -87,7 +89,7 @@ int SslSocket::shutdown (int how)
   if (sslConnection)
     SSL_shutdown (sslConnection);
 
-  return gnulib::shutdown (fd, how);
+  return checked::shutdown (fd, how);
 }
 
 /*!
@@ -131,7 +133,7 @@ int SslSocket::connect (MYSERVER_SOCKADDR* sa, int na)
     return -1;
 
   /*! Do the TCP connection.  */
-  if (gnulib::connect (fd, (sockaddr *) sa, na))
+  if (checked::connect (fd, (sockaddr *) sa, na))
     {
       SSL_CTX_free (sslContext);
       sslContext = 0;

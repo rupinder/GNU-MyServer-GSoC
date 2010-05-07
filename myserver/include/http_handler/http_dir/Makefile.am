@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-http_dirincludedir=$(includedir)/myserver/include/http_handler/http_dir
-http_dirinclude_HEADERS = http_dir.h
+includedir=@includedir@/myserver/include/http_handler/http_dir
+include_HEADERS = http_dir.h
 SUBDIRS =
 

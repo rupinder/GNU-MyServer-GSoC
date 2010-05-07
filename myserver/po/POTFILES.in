@@ -5,6 +5,8 @@ src/base/crypt/crypt_algo_manager.cpp
 src/base/crypt/md5.cpp
 src/base/crypt/sha1.cpp
 src/base/dynamic_lib/dynamiclib.cpp
+src/base/exceptions/checked.cpp
+src/base/exceptions/exceptions.cpp
 src/base/file/file.cpp
 src/base/file/files_utility.cpp
 src/base/files_cache/cached_file_buffer.cpp
@@ -111,6 +113,7 @@ src/protocol/http/http.cpp
 src/protocol/http/http_data_handler.cpp
 src/protocol/http/http_data_read.cpp
 src/protocol/http/http_errors.cpp
+src/protocol/http/http_header.cpp
 src/protocol/http/http_headers.cpp
 src/protocol/http/http_req_security_domain.cpp
 src/protocol/http/http_request.cpp

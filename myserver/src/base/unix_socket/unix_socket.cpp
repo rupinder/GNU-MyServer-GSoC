@@ -20,6 +20,8 @@
 #include <include/base/unix_socket/unix_socket.h>
 #include <include/base/utility.h>
 
+#include <include/base/exceptions/checked.h>
+
 #ifdef AF_UNIX
 void UnixSocket::makeAddrInfo (sockaddr_un *info, const char *path)
 {
@@ -52,7 +54,13 @@ int UnixSocket::bind (const char* path)
 
 #ifdef AF_UNIX
   makeAddrInfo (&addr, path);
-  gnulib::unlink (path);
+  try
+    {
+      checked::unlink (path);
+    }
+  catch (...)
+    {
+    }
 
   return Socket::bind ((MYSERVER_SOCKADDR*) &addr, sizeof (sockaddr_un));
 #else
@@ -68,7 +76,7 @@ int UnixSocket::shutdown ()
 {
 #ifdef AF_UNIX
   Socket::shutdown (2);
-  return gnulib::unlink (addr.sun_path);
+  return checked::unlink (addr.sun_path);
 #else
   return -1;
 #endif

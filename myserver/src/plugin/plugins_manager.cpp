@@ -154,11 +154,14 @@ PluginsManager::preLoad (Server* server, string &resource)
       if (fdir.name[0] == '.')
         continue;
 
-
-      ret = flib.findfirst (dirname.c_str ());
-
-      if (ret == -1)
-        continue;
+      try
+        {
+          ret = flib.findfirst (dirname.c_str ());
+        }
+      catch (...)
+        {
+          continue;
+        }
 
       do
         {

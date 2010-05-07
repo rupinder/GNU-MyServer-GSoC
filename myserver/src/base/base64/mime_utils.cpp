@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "myserver.h"
 #include <include/base/base64/mime_utils.h>
+#include <include/base/exceptions/checked.h>
 
 #ifndef WIN32
 # include <ctype.h>
@@ -456,7 +457,7 @@ char* CQPUtils::expandBuffer (char *buffer, int UsedSize, int *BufSize,
   if (UsedSize >= *BufSize - AddVal)
   {
     *BufSize += BufAdd;
-    return (char*)gnulib::realloc (buffer, *BufSize * sizeof (char));
+    return (char*) checked::realloc (buffer, *BufSize * sizeof (char));
   }
   return buffer;
 }

@@ -106,7 +106,7 @@ void Env::buildEnvironmentString (HttpThreadContext* td, char *cgiEnv,
     u_long fs = 0;
     ostringstream stream;
 
-    if (td->inputData.getHandle ())
+    if (td->inputData.getHandle () >= 0)
       fs = td->inputData.getFileSize ();
 
     stream << fs;

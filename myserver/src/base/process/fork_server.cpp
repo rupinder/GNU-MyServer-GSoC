@@ -21,6 +21,8 @@
 #include <include/base/file/files_utility.h>
 #include <include/base/utility.h>
 
+#include <include/base/exceptions/checked.h>
+
 #ifndef WIN32
 # include <unistd.h>
 # include <sys/wait.h>
@@ -205,13 +207,13 @@ int ForkServer::handleRequest (Socket *sock)
   delete [] chroot;
 
   if (flags & FLAG_USE_IN)
-    gnulib::close (stdIn);
+    checked::close (stdIn);
 
   if (flags & FLAG_USE_OUT)
-    gnulib::close (stdOut);
+    checked::close (stdOut);
 
   if (flags & FLAG_USE_ERR)
-    gnulib::close (stdErr);
+    checked::close (stdErr);
 #endif
 
   return 0;
@@ -349,10 +351,17 @@ void ForkServer::killServer ()
 {
   u_long nbw;
   UnixSocket s;
-  s.socket ();
-  s.connect (socketPath.c_str ());
-  s.write ("e", 1, &nbw);
-  s.close ();
+  try
+    {
+      s.socket ();
+      s.connect (socketPath.c_str ());
+      s.write ("e", 1, &nbw);
+      s.close ();
+    }
+  catch (...)
+    {
+
+    }
 }
 
 /*!

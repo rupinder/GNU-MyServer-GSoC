@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-ftpincludedir=$(includedir)/myserver/include/protocol/ftp
-ftpinclude_HEADERS = ftp_common.h ftp.h ftp_lexer.h ftp_parser.h
+includedir=@includedir@/myserver/include/protocol/ftp
+include_HEADERS = ftp_common.h ftp.h ftp_lexer.h ftp_parser.h
 SUBDIRS =
 

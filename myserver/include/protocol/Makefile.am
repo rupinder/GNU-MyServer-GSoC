@@ -14,6 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-protocolincludedir=$(includedir)/myserver/include/protocol
-protocolinclude_HEADERS = protocol_buffer.h protocol.h protocols_manager.h url.h
+includedir=@includedir@/myserver/include/protocol
+include_HEADERS = protocol_buffer.h protocol.h protocols_manager.h url.h
 SUBDIRS = control ftp gopher http https

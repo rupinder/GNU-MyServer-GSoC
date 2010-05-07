@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-AM_CXXFLAGS="-I$(top_srcdir)/lib"
+AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 noinst_PROGRAMS = test_suite
 test_suite_SOURCES =  	main.cpp				\
 			memory_socket.h			        \
@@ -28,6 +28,7 @@ test_suite_SOURCES =  	main.cpp				\
 			test_connection.cpp			\
 			test_connections_scheduler.cpp		\
 			test_crypt_algo_manager.cpp		\
+			test_exceptions.cpp	\
 			test_file.cpp				\
 			test_file_stream.cpp			\
 			test_file_stream_creator.cpp		\
@@ -85,6 +86,8 @@ test_suite_SOURCES =  	main.cpp				\
 test_suite_LDADD = ../src/libmyserver.la  ../lib/libgnu.la $(CPPUNIT_LDFLAGS) \
 	$(PTHREAD_LIB) 	$(IDN_LIB) $(XNET_LIB) $(DL_LIB) $(ZLIB_LIB) \
 	$(XML_LIBS) $(INTLLIBS) $(LDFLAGS)
+
+test_suite_LDFLAGS = -static
 
 install:
 

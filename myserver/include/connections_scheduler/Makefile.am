@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-connections_schedulerincludedir=$(includedir)/myserver/include/connections_scheduler
-connections_schedulerinclude_HEADERS = connections_scheduler.h listen_threads.h
+includedir=@includedir@/myserver/include/connections_scheduler
+include_HEADERS = connections_scheduler.h listen_threads.h
 SUBDIRS =
 

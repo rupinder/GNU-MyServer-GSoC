@@ -63,7 +63,6 @@ ListenThreads::ListenThreads (ConnectionsScheduler* scheduler, Server* server)
  */
 int ListenThreads::createServerAndListener (u_short port)
 {
-  int optvalReuseAddr = 1;
   string listenPortMsg;
 
   if (fastRebooting)
@@ -87,170 +86,81 @@ int ListenThreads::createServerAndListener (u_short port)
    */
   try
     {
-      if (serverSocketIPv4 != NULL)
-        {
-          serverSocketIPv4->socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
-          if (serverSocketIPv4->getHandle () < 0)
-            {
-              server->log (MYSERVER_LOG_MSG_ERROR,
-                            _("Error while creating the server socket"));
-              delete serverSocketIPv4;
-              serverSocketIPv4 = NULL;
-            }
-          else
-            {
-              MYSERVER_SOCKADDR_STORAGE sockServerSocketIPv4 = { 0 };
-              ((sockaddr_in*)(&sockServerSocketIPv4))->sin_family = AF_INET;
-              ((sockaddr_in*)(&sockServerSocketIPv4))->sin_addr.s_addr =
-                htonl (INADDR_ANY);
-              ((sockaddr_in*)(&sockServerSocketIPv4))->sin_port =
-                htons ((u_short)port);
+      MYSERVER_SOCKADDR_STORAGE sockServerSocketIPv4 = { 0 };
+      sockaddr_in* sai = (sockaddr_in *) &sockServerSocketIPv4;
+      serverSocketIPv4->socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
+      sai->sin_family = AF_INET;
+      sai->sin_addr.s_addr = htonl (INADDR_ANY);
+      sai->sin_port = htons ((u_short) port);
+      serverSocketIPv4->reuseAddress (true);
+      server->log (MYSERVER_LOG_MSG_INFO, _("Binding the port"));
+      serverSocketIPv4->bind (&sockServerSocketIPv4, sizeof (sockaddr_in));
+      server->log (MYSERVER_LOG_MSG_INFO, _("Port was bound"));
 
-#ifndef WIN32
-              if (serverSocketIPv4->setsockopt (SOL_SOCKET, SO_REUSEADDR,
-                                                (const char *)&optvalReuseAddr,
-                                                sizeof (optvalReuseAddr)) < 0)
-                {
-                  server->log (MYSERVER_LOG_MSG_ERROR,
-                                 _("Error while creating the server socket"));
-
-                  delete serverSocketIPv4;
-                  serverSocketIPv4 = NULL;
-                }
-#endif
-              if (serverSocketIPv4)
-                {
-                  server->log (MYSERVER_LOG_MSG_INFO,
-                                      _("Binding the port"));
-
-                  if (!serverSocketIPv4->bind (&sockServerSocketIPv4,
-                                              sizeof (sockaddr_in)))
-                    server->log (MYSERVER_LOG_MSG_INFO, _("Port was bound"));
-                  else
-                    {
-                      server->log (MYSERVER_LOG_MSG_ERROR,
-                                          _("Error while creating the server socket"));
-                      delete serverSocketIPv4;
-                      serverSocketIPv4 = NULL;
-                    }
-
-                }
-            }
-        }
+      serverSocketIPv4->listen (SOMAXCONN);
+    }
+  catch (exception & e)
+    {
+      server->log (MYSERVER_LOG_MSG_ERROR,
+                   _E ("Error while creating the server socket"), &e);
+      delete serverSocketIPv4;
+      serverSocketIPv4 = NULL;
+    }
 
 #if HAVE_IPV6
-      serverSocketIPv6 = new Socket ();
+  serverSocketIPv6 = new Socket ();
+  try
+    {
+      MYSERVER_SOCKADDR_STORAGE sockServerSocketIPv6 = { 0 };
+      sockaddr_in6 *sai = (sockaddr_in6 *)(&sockServerSocketIPv6);
+      serverSocketIPv6->socket (AF_INET6, SOCK_STREAM, IPPROTO_TCP);
+      sai->sin6_family = AF_INET6;
+      sai->sin6_addr = in6addr_any;
+      sai->sin6_port = htons ((u_short) port);
+      serverSocketIPv6->reuseAddress (true);
 
-      if (serverSocketIPv6 != NULL)
-        {
-          serverSocketIPv6->socket (AF_INET6, SOCK_STREAM, IPPROTO_TCP);
-          if (serverSocketIPv6->getHandle () < 0)
-            {
-              server->log (MYSERVER_LOG_MSG_ERROR,
-                                 _("Error while creating the server socket"));
-              delete serverSocketIPv6;
-              serverSocketIPv6 = NULL;
-            }
-          else
-            {
-              MYSERVER_SOCKADDR_STORAGE sockServerSocketIPv6 = { 0 };
-              ((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_family = AF_INET6;
-              ((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_addr = in6addr_any;
-              ((sockaddr_in6*)(&sockServerSocketIPv6))->sin6_port =
-                htons ((u_short)port);
 # ifndef WIN32
-              if (serverSocketIPv6->setsockopt (SOL_SOCKET, SO_REUSEADDR,
-                                                (const char *)&optvalReuseAddr,
-                                                sizeof (optvalReuseAddr)) < 0)
-                {
-                  server->log (MYSERVER_LOG_MSG_ERROR,
-                                 _("Error while creating the server socket"));
-                  delete serverSocketIPv6;
-                  serverSocketIPv6 = NULL;
-                }
-
-              if (serverSocketIPv6->setsockopt (IPPROTO_IPV6, IPV6_V6ONLY,
-                                              (const char *)&optvalReuseAddr,
-                                              sizeof (optvalReuseAddr)) < 0)
-                {
-                  server->log (MYSERVER_LOG_MSG_ERROR,
-                                 _("Error while creating the server socket"));
-                  delete serverSocketIPv6;
-                  serverSocketIPv6 = NULL;
-                }
+      int one = 1;
+      serverSocketIPv6->setsockopt (IPPROTO_IPV6, IPV6_V6ONLY,
+                                    (const char *) &one,
+                                    sizeof (one));
 # endif
-              if (serverSocketIPv6)
-                {
-                  server->log (MYSERVER_LOG_MSG_INFO,
-                                      _("Binding the port"));
-
-                  if (!serverSocketIPv6->bind (&sockServerSocketIPv6,
-                                               sizeof (sockaddr_in6)))
-                    server->log (MYSERVER_LOG_MSG_INFO,
-                                        _("Port was bound"));
-                  else
-                    {
-                      server->log (MYSERVER_LOG_MSG_ERROR,
-                                 _("Error while creating the server socket"));
-                      delete serverSocketIPv6;
-                      serverSocketIPv6 = NULL;
-                    }
-                }
-            }
-        }
-#endif // HAVE_IPV6
-
-      if (serverSocketIPv4 == NULL && serverSocketIPv6 == NULL)
-        {
-          delete si;
-          return 1;
-        }
-
-      if (serverSocketIPv4 != NULL && serverSocketIPv4->listen (SOMAXCONN))
-        {
-          server->log (MYSERVER_LOG_MSG_ERROR,
-                             _("Error while creating the server socket"));
-          delete serverSocketIPv4;
-          serverSocketIPv4 = NULL;
-        }
-
-      if (serverSocketIPv6 != NULL && serverSocketIPv6->listen (SOMAXCONN))
-        {
-          server->log (MYSERVER_LOG_MSG_ERROR,
-                             _("Error while creating the server socket"));
-          delete serverSocketIPv6;
-          serverSocketIPv6 = NULL;
-        }
-
-      if (serverSocketIPv4 == NULL && serverSocketIPv6 == NULL)
-        {
-          delete si;
-          return 1;
-        }
-
-      server->log (MYSERVER_LOG_MSG_INFO,
-                          _("Listening on the port: %i"), port);
-
-      si->ipv4 = serverSocketIPv4;
-      si->ipv6 = serverSocketIPv6;
-
-      usedPorts.put (port, si);
-
-      registerListener (si);
-
-      return 0;
+      server->log (MYSERVER_LOG_MSG_INFO, _("Binding the port"));
+      serverSocketIPv6->bind (&sockServerSocketIPv6,  sizeof (sockaddr_in6));
+      server->log (MYSERVER_LOG_MSG_INFO, _("Port was bound"));
+      serverSocketIPv6->listen (SOMAXCONN);
     }
-  catch (bad_alloc &ba)
+  catch (exception & e)
     {
-      server->log (MYSERVER_LOG_MSG_ERROR, _("Bad alloc: %s"),
-                          ba.what ());
+      server->log (MYSERVER_LOG_MSG_ERROR,
+                   _("Error while creating the server socket"));
+      delete serverSocketIPv6;
+      serverSocketIPv6 = NULL;
     }
-  catch (exception &e)
+#endif
+
+  if (serverSocketIPv4 == NULL && serverSocketIPv6 == NULL)
     {
-      server->log (MYSERVER_LOG_MSG_ERROR, _("Error: %s"),
-                          e.what ());
-    };
-  return 1;
+      delete si;
+      return 1;
+    }
+
+  if (serverSocketIPv4 == NULL && serverSocketIPv6 == NULL)
+    {
+      delete si;
+      return 1;
+    }
+
+  server->log (MYSERVER_LOG_MSG_INFO, _("Listening on the port: %i"), port);
+
+  si->ipv4 = serverSocketIPv4;
+  si->ipv6 = serverSocketIPv6;
+
+  usedPorts.put (port, si);
+
+  registerListener (si);
+
+  return 0;
 }
 
 /*!
@@ -264,11 +174,11 @@ void ListenThreads::registerListener (SocketInformation* si)
       scheduler->listener (&(si->laIpv4));
     }
 
-    if (si->ipv6)
-      {
-        si->laIpv6.reset (si->ipv6, si->port, server);
-        scheduler->listener (&(si->laIpv6));
-      }
+  if (si->ipv6)
+    {
+      si->laIpv6.reset (si->ipv6, si->port, server);
+      scheduler->listener (&(si->laIpv6));
+    }
 }
 
 /*!
@@ -439,10 +349,17 @@ int ListenThreads::terminate ()
             continue;
 
           serverSocket->shutdown (SHUT_RDWR);
-          do
+          for (;;)
             {
-              err = serverSocket->recv (buffer, 256, 0);
-            }while (err != -1);
+              try
+                {
+                  err = serverSocket->recv (buffer, 256, 0);
+                }
+              catch (...)
+                {
+                  break;
+                }
+            }
 
           serverSocket->close ();
           delete serverSocket;

@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-xmlincludedir=$(includedir)/myserver/include/base/xml
-xmlinclude_HEADERS = xml_parser.h
+includedir=@includedir@/myserver/include/base/xml
+include_HEADERS = xml_parser.h
 SUBDIRS =
 

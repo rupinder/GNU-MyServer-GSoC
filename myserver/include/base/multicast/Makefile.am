@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-multicastincludedir=$(includedir)/myserver/include/base/multicast
-multicastinclude_HEADERS = multicast.h
+includedir=@includedir@/myserver/include/base/multicast
+include_HEADERS = multicast.h
 SUBDIRS =
 

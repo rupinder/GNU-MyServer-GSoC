@@ -14,8 +14,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-files_cacheincludedir=$(includedir)/myserver/include/base/files_cache
-files_cacheinclude_HEADERS = cached_file_buffer.h cached_file_factory.h \
+includedir=@includedir@/myserver/include/base/files_cache
+include_HEADERS = cached_file_buffer.h cached_file_factory.h \
 			     cached_file.h membuf_file.h
 SUBDIRS =
 

@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-serverincludedir=$(includedir)/myserver/include/server
-serverinclude_HEADERS = clients_thread.h server.h
+includedir=@includedir@/myserver/include/server
+include_HEADERS = clients_thread.h server.h
 SUBDIRS =
 

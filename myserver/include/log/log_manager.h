@@ -16,13 +16,14 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LOG_MANAGER_H
+# ifndef LOG_MANAGER_H
 # define LOG_MANAGER_H
 
 # include "myserver.h"
 
 # include <map>
 # include <string>
+# include <set>
 
 # include <include/base/sync/mutex.h>
 # include <include/filter/filters_factory.h>
@@ -42,7 +43,8 @@ public:
   LogManager (FiltersFactory* ff, LoggingLevel level = MYSERVER_LOG_MSG_INFO);
   ~LogManager ();
   int add (const void *owner, string type, string location,
-           list<string>& filters, u_long cycle);
+           list<string>& filters, u_long cycle, 
+           int suppressWarnings = 0);
   int remove (const void *owner);
 
   int log (const void* owner, string & message, bool appendNL = false,

@@ -57,7 +57,8 @@ public:
     string val ("value");
     HashMap<string, SecurityDomain*> hashedDomains;
 
-    CPPUNIT_ASSERT_EQUAL (xmlValidator->getValue (&hashedDomains, val), (string*)NULL);
+    CPPUNIT_ASSERT_EQUAL (xmlValidator->getValue (&hashedDomains, val),
+                          (const string *) NULL);
 
   }
 
@@ -69,7 +70,8 @@ public:
     secToken.setResource (&val);
     secToken.setDirectory (&val);
     secToken.setSysDirectory (&val);
-    CPPUNIT_ASSERT_EQUAL (xmlValidator->getPermissionMaskImpl (&secToken, NULL, NULL), 0);
+    CPPUNIT_ASSERT_EQUAL (xmlValidator->getPermissionMaskImpl (&secToken, NULL,
+                                                               NULL), 0);
 
   }
 

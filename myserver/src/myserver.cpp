@@ -16,12 +16,14 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "myserver.h"
+#include <myserver.h>
 #include <include/server/server.h>
 #include <include/base/file/files_utility.h>
 #include <include/base/string/stringutils.h>
 #include <include/base/process/process.h>
 #include <include/conf/main/xml_main_configuration.h>
+
+#include <include/base/exceptions/checked.h>
 
 #ifdef WIN32
 # include <direct.h>
@@ -105,12 +107,12 @@ void registerSignals ()
   sig1.sa_handler = SIG_IGN;
   sig2.sa_handler = Sig_Quit;
   sig3.sa_handler = Sig_Hup;
-  gnulib::sigaction (SIGPIPE, &sig1, NULL);
-  gnulib::sigaction (SIGINT, &sig2, NULL);
-  gnulib::sigaction (SIGTERM, &sig2, NULL);
-  gnulib::sigaction (SIGHUP, &sig3, NULL);
+  checked::sigaction (SIGPIPE, &sig1, NULL);
+  checked::sigaction (SIGINT, &sig2, NULL);
+  checked::sigaction (SIGTERM, &sig2, NULL);
+  checked::sigaction (SIGHUP, &sig3, NULL);
   /* Avoid zombie processes.  */
-  gnulib::sigaction (SIGCHLD, &sa, (struct sigaction *)NULL);
+  checked::sigaction (SIGCHLD, &sa, (struct sigaction *)NULL);
 #else
   SetConsoleMode (GetStdHandle (STD_INPUT_HANDLE), ENABLE_PROCESSED_INPUT);
   SetConsoleCtrlHandler ((PHANDLER_ROUTINE) SignalHandler, TRUE);
@@ -548,18 +550,18 @@ int writePidfile (const char* filename)
       file.append ("/var/run/myserver.pid");
     }
 
-  pidfile = gnulib::open (filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+  pidfile = checked::open (filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
   if (pidfile == -1)
     return -1;
 
   sprintf (buff,"%i\n", pid);
-  ret = gnulib::write (pidfile, buff, strlen (buff));
+  ret = checked::write (pidfile, buff, strlen (buff));
   if (ret == -1)
     {
-      gnulib::close (pidfile);
+      checked::close (pidfile);
       return -1;
     }
-  return gnulib::close (pidfile);
+  return checked::close (pidfile);
 }
 #endif
 

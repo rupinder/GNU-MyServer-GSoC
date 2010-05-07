@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-http_handlerincludedir=$(includedir)/myserver/include/http_handler
-http_handlerinclude_HEADERS =
+includedir=@includedir@/myserver/include/http_handler
+include_HEADERS =
 SUBDIRS = cgi fastcgi http_dir http_file isapi mscgi proxy scgi wincgi
 

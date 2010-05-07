@@ -14,6 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-mainincludedir=$(includedir)/myserver/include/conf/main
-maininclude_HEADERS = main_configuration.h xml_main_configuration.h
+includedir=@includedir@/myserver/include/conf/main
+include_HEADERS = main_configuration.h xml_main_configuration.h
 SUBDIRS =

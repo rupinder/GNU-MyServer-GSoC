@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-pluginincludedir=$(includedir)/myserver/include/plugin
-plugininclude_HEADERS =  plugin.h plugin_info.h plugins_manager.h 
+includedir=@includedir@/myserver/include/plugin
+include_HEADERS =  plugin.h plugin_info.h plugins_manager.h 
 
 

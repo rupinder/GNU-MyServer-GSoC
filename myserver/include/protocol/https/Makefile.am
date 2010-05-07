@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-httpsincludedir=$(includedir)/myserver/include/protocol/https
-httpsinclude_HEADERS = https.h
+includedir=@includedir@/myserver/include/protocol/https
+include_HEADERS = https.h
 SUBDIRS =
 

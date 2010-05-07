@@ -33,7 +33,7 @@ class AuthDomain : public SecurityDomain
 public:
   AuthDomain (SecurityToken*);
   virtual ~AuthDomain ();
-  virtual string *getValue (string &name);
+  virtual const string *getValue (string &name);
 protected:
   string name;
   SecurityToken *securityToken;

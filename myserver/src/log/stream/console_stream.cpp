@@ -25,31 +25,21 @@ ConsoleStream::ConsoleStream (FiltersFactory* ff, u_long cycle, Stream* out,
 {
 }
 
-/*!
- * Change the console text attributes according to the logging level.
- * \param level The logging level.
- * \return 0 on success, 1 on error.
- */
 int
-ConsoleStream::setMode (LoggingLevel level)
+ConsoleStream::initialize (LoggingLevel level)
 {
-  mutex->lock ();
-  int success = 1;
   Console* c = dynamic_cast<Console*>(out);
-  if (level == MYSERVER_LOG_MSG_PLAIN)
-    {
-      success = c->setColor ("reset", "reset");
-    }
-  else
-    {
-      Server* server = Server::getInstance ();
-      LogManager* lm = server->getLogManager ();
-      map<string, string> userColors = server->getConsoleColors ();
-      map<LoggingLevel, string> levels = lm->getLoggingLevels ();
-      string fg_color = userColors[levels[level] + "_fg"];
-      string bg_color = userColors[levels[level] + "_bg"];
-      success = c->setColor (fg_color, bg_color);
-    }
-  mutex->unlock ();
-  return success;
+  Server* server = Server::getInstance ();
+  LogManager* lm = server->getLogManager ();
+  map<string, string> userColors = server->getConsoleColors ();
+  map<LoggingLevel, string> levels = lm->getLoggingLevels ();
+  string fg_color = userColors[levels[level] + "_fg"];
+  string bg_color = userColors[levels[level] + "_bg"];
+  return c->setColor (fg_color, bg_color);
+}
+
+int
+ConsoleStream::finalize ()
+{
+  return static_cast<Console*>(out)->reset ();
 }

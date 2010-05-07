@@ -14,6 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-bitvecincludedir=$(includedir)/myserver/include/base/bitvec
-bitvecinclude_HEADERS = bitvec.h
+includedir=@includedir@/myserver/include/base/bitvec
+include_HEADERS = bitvec.h
 SUBDIRS =

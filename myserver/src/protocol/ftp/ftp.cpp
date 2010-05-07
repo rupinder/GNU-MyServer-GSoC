@@ -31,6 +31,8 @@
 #include <include/base/string/stringutils.h>
 #include <include/base/mem_buff/mem_buff.h>
 
+#include <include/base/exceptions/checked.h>
+
 #include <include/conf/security/auth_domain.h>
 
 #ifndef WIN32
@@ -45,6 +47,19 @@ static DEFINE_THREAD (SendImageFile, pParam);
 static DEFINE_THREAD (ReceiveAsciiFile, pParam);
 static DEFINE_THREAD (ReceiveImageFile, pParam);
 
+
+/* FIXME: move somewhere else.  */
+static bool
+areSymlinkAllowed (SecurityToken *st)
+{
+  const char *perm = st->getData ("symlinks.follow",
+                                  MYSERVER_VHOST_CONF
+                                  | MYSERVER_SERVER_CONF,
+                                  "NO");
+  return strcasecmp (perm, "YES") == 0;
+}
+
+
 void setFtpHost (FtpHost & out, const FtpHost & in)
 {
   out.h1 = in.h1;
@@ -58,7 +73,7 @@ void setFtpHost (FtpHost & out, const FtpHost & in)
 void setFtpHost (FtpHost & out, const char *szIn)
 {
   std::stringstream ss;
-  char *szLocalIn = gnulib::strdup (szIn);
+  char *szLocalIn = checked::strdup (szIn);
   char *tok = strtok (szLocalIn, ",.");
   while (tok != NULL)
     {
@@ -109,13 +124,6 @@ FtpuserData::FtpuserData ()
 
 bool FtpuserData::allowdelete (bool wait)
 {
-  if (wait)
-    {
-      /* Wait for data connection to finish.  */
-      m_DataConnBusy.lock ();
-      m_DataConnBusy.unlock ();
-
-    }
   if (m_pDataConnection != NULL)
     return !m_pDataConnection->isScheduled ();
   else
@@ -338,7 +346,7 @@ int Ftp::controlConnection (ConnectionPtr pConnection, char *request,
     {
       pFtpuserData->m_nFtpstate = FtpuserData::UNAVAILABLE;
       ftpReply (421);
-      return 0;
+      return ClientsThread::DELETE_CONNECTION;
     }
 
   m_nLocalControlport = pConnection->getLocalPort ();
@@ -355,7 +363,16 @@ int Ftp::controlConnection (ConnectionPtr pConnection, char *request,
   td.pProtocolInterpreter = this;
   td.m_nParseLength = 0;
 
-  return parseControlConnection ();
+  try
+    {
+      return parseControlConnection ();
+    }
+  catch (exception & e)
+    {
+      return ClientsThread::DELETE_CONNECTION;
+    }
+
+  return ClientsThread::DELETE_CONNECTION;
 }
 
 
@@ -610,6 +627,7 @@ void Ftp::retrstor (bool bretr, bool bappend, const std::string & sPath)
   pData->m_bappend = bappend || pFtpuserData->m_nrestartOffset > 0;
   pData->m_sFilePath = sLocalPath;
   pData->m_pFtp = this;
+  pData->st = &td.st;
 
   pFtpuserData->m_sCurrentFileName = "";
   pFtpuserData->m_nFileSize = 0;
@@ -631,6 +649,7 @@ void Ftp::retrstor (bool bretr, bool bappend, const std::string & sPath)
 static
 DEFINE_THREAD (SendAsciiFile, pParam)
 {
+  File *file = NULL;
   DataConnectionWorkerThreadData *pWt =
     reinterpret_cast < DataConnectionWorkerThreadData * >(pParam);
   if (pWt == NULL)
@@ -668,27 +687,11 @@ DEFINE_THREAD (SendAsciiFile, pParam)
     }
 
   pFtpuserData->m_DataConnBusy.lock ();
-
-  if (pWt->m_pFtp == NULL)
+  try
     {
-      pFtpuserData->closeDataConnection ();
-      pFtpuserData->m_DataConnBusy.unlock ();
-      delete pWt;
-#ifdef WIN32
-      return 0;
-#elif HAVE_PTHREAD
-      return (void *) 0;
-#endif
-    }
 
-  if (pFtpuserData->m_nFtpstate == FtpuserData::DATA_CONNECTION_UP)
-    ftpReply (pConnection, 125);
-  else
-    {
-      ftpReply (pConnection, 150);
-      if (pWt->m_pFtp->OpenDataConnection () == 0)
+      if (pWt->m_pFtp == NULL)
         {
-          ftpReply (pConnection, 425);
           pFtpuserData->closeDataConnection ();
           pFtpuserData->m_DataConnBusy.unlock ();
           delete pWt;
@@ -698,27 +701,45 @@ DEFINE_THREAD (SendAsciiFile, pParam)
           return (void *) 0;
 #endif
         }
-    }
 
-  if (pFtpuserData->m_pDataConnection == NULL ||
-      pFtpuserData->m_pDataConnection->socket == NULL)
-    {
-      ftpReply (pConnection, 451);
-      pFtpuserData->closeDataConnection ();
-      pFtpuserData->m_DataConnBusy.unlock ();
-      delete pWt;
+      if (pFtpuserData->m_nFtpstate == FtpuserData::DATA_CONNECTION_UP)
+        ftpReply (pConnection, 125);
+      else
+        {
+          ftpReply (pConnection, 150);
+          if (pWt->m_pFtp->OpenDataConnection () == 0)
+            {
+              ftpReply (pConnection, 425);
+              pFtpuserData->closeDataConnection ();
+              pFtpuserData->m_DataConnBusy.unlock ();
+              delete pWt;
 #ifdef WIN32
-      return 0;
+              return 0;
 #elif HAVE_PTHREAD
-      return (void *) 0;
+              return (void *) 0;
 #endif
-    }
-  File *file = NULL;
-  try
-    {
+            }
+        }
+
+      if (pFtpuserData->m_pDataConnection == NULL ||
+          pFtpuserData->m_pDataConnection->socket == NULL)
+        {
+          ftpReply (pConnection, 451);
+          pFtpuserData->closeDataConnection ();
+          pFtpuserData->m_DataConnBusy.unlock ();
+          delete pWt;
+#ifdef WIN32
+          return 0;
+#elif HAVE_PTHREAD
+          return (void *) 0;
+#endif
+        }
+
+      int symFlags = areSymlinkAllowed (pWt->st) ? 0
+                                                 : File::NO_FOLLOW_SYMLINK;
       file =
         Server::getInstance ()->getCachedFiles ()->open (pWt->m_sFilePath.
-                                                         c_str ());
+                                                         c_str (), symFlags);
       if (file == NULL)
         {
           ftpReply (pConnection, 451);
@@ -839,21 +860,23 @@ DEFINE_THREAD (SendAsciiFile, pParam)
         }
       file->close ();
       delete file;
+
+      pFtpuserData->m_sCurrentFileName = "";
+      pFtpuserData->m_nFileSize = 0;
+      pFtpuserData->m_nBytesSent = 0;
+      pFtpuserData->m_nrestartOffset = 0;
+      ftpReply (pConnection, 226);
+      pFtpuserData->closeDataConnection ();
+      pFtpuserData->m_DataConnBusy.unlock ();
     }
-  catch (bad_alloc & ba)
+  catch (exception & e)
     {
       if (file != NULL)
         file->close ();
       delete file;
+      pFtpuserData->m_DataConnBusy.unlock ();
     }
 
-  pFtpuserData->m_sCurrentFileName = "";
-  pFtpuserData->m_nFileSize = 0;
-  pFtpuserData->m_nBytesSent = 0;
-  pFtpuserData->m_nrestartOffset = 0;
-  ftpReply (pConnection, 226);
-  pFtpuserData->closeDataConnection ();
-  pFtpuserData->m_DataConnBusy.unlock ();
   delete pWt;
 #ifdef WIN32
   return 1;
@@ -904,27 +927,11 @@ DEFINE_THREAD (SendImageFile, pParam)
     }
 
   pFtpuserData->m_DataConnBusy.lock ();
-
-  if (pWt->m_pFtp == NULL)
+  File *file = NULL;
+  try
     {
-      pFtpuserData->closeDataConnection ();
-      pFtpuserData->m_DataConnBusy.unlock ();
-      delete pWt;
-#ifdef WIN32
-      return 0;
-#elif HAVE_PTHREAD
-      return (void *) 0;
-#endif
-    }
-
-  if (pFtpuserData->m_nFtpstate == FtpuserData::DATA_CONNECTION_UP)
-    ftpReply (pConnection, 125);
-  else
-    {
-      ftpReply (pConnection, 150);
-      if (pWt->m_pFtp->OpenDataConnection () == 0)
+      if (pWt->m_pFtp == NULL)
         {
-          ftpReply (pConnection, 425);
           pFtpuserData->closeDataConnection ();
           pFtpuserData->m_DataConnBusy.unlock ();
           delete pWt;
@@ -934,28 +941,45 @@ DEFINE_THREAD (SendImageFile, pParam)
           return (void *) 0;
 #endif
         }
-    }
 
-  if (pFtpuserData->m_pDataConnection == NULL ||
-      pFtpuserData->m_pDataConnection->socket == NULL)
-    {
-      ftpReply (pConnection, 451);
-      pFtpuserData->closeDataConnection ();
-      pFtpuserData->m_DataConnBusy.unlock ();
-      delete pWt;
+      if (pFtpuserData->m_nFtpstate == FtpuserData::DATA_CONNECTION_UP)
+        ftpReply (pConnection, 125);
+      else
+        {
+          ftpReply (pConnection, 150);
+          if (pWt->m_pFtp->OpenDataConnection () == 0)
+            {
+              ftpReply (pConnection, 425);
+              pFtpuserData->closeDataConnection ();
+              pFtpuserData->m_DataConnBusy.unlock ();
+              delete pWt;
 #ifdef WIN32
-      return 0;
+              return 0;
 #elif HAVE_PTHREAD
-      return (void *) 0;
+              return (void *) 0;
 #endif
-    }
+            }
+        }
 
-  File *file = NULL;
-  try
-    {
+      if (pFtpuserData->m_pDataConnection == NULL ||
+          pFtpuserData->m_pDataConnection->socket == NULL)
+        {
+          ftpReply (pConnection, 451);
+          pFtpuserData->closeDataConnection ();
+          pFtpuserData->m_DataConnBusy.unlock ();
+          delete pWt;
+#ifdef WIN32
+          return 0;
+#elif HAVE_PTHREAD
+          return (void *) 0;
+#endif
+        }
+
+      int symFlags = areSymlinkAllowed (pWt->st) ? 0
+                                                 : File::NO_FOLLOW_SYMLINK;
       file =
         Server::getInstance ()->getCachedFiles ()->open (pWt->m_sFilePath.
-                                                         c_str ());
+                                                         c_str (), symFlags);
       if (file == NULL)
         {
           ftpReply (pConnection, 451);
@@ -1026,11 +1050,12 @@ DEFINE_THREAD (SendImageFile, pParam)
       file->close ();
       delete file;
     }
-  catch (bad_alloc & ba)
+  catch (exception & e)
     {
       if (file != NULL)
         file->close ();
       delete file;
+      pFtpuserData->m_DataConnBusy.unlock ();
     }
 
   pFtpuserData->m_sCurrentFileName = "";
@@ -1040,6 +1065,7 @@ DEFINE_THREAD (SendImageFile, pParam)
   ftpReply (pConnection, 226);
   pFtpuserData->closeDataConnection ();
   pFtpuserData->m_DataConnBusy.unlock ();
+
   delete pWt;
 #ifdef WIN32
   return 1;
@@ -1143,6 +1169,8 @@ DEFINE_THREAD (ReceiveAsciiFile, pParam)
         flags = File::APPEND | File::WRITE;
       else
         flags = File::FILE_CREATE_ALWAYS | File::WRITE;
+      flags |= areSymlinkAllowed (pWt->st) ? 0 : File::NO_FOLLOW_SYMLINK;
+
       if (file.openFile (pWt->m_sFilePath.c_str (), flags))
         {
           ftpReply (pConnection, 451);
@@ -1230,7 +1258,7 @@ DEFINE_THREAD (ReceiveAsciiFile, pParam)
         }
       file.close ();
     }
-  catch (bad_alloc & ba)
+  catch (exception & e)
     {
       file.close ();
     }
@@ -1341,6 +1369,8 @@ DEFINE_THREAD (ReceiveImageFile, pParam)
         flags = File::APPEND | File::WRITE;
       else
         flags = File::FILE_CREATE_ALWAYS | File::WRITE;
+      flags |= areSymlinkAllowed (pWt->st) ? 0 : File::NO_FOLLOW_SYMLINK;
+
       if (file.openFile (pWt->m_sFilePath.c_str (), flags))
         {
           ftpReply (pConnection, 451);
@@ -1379,7 +1409,7 @@ DEFINE_THREAD (ReceiveImageFile, pParam)
         }
       file.close ();
     }
-  catch (bad_alloc & ba)
+  catch (exception & e)
     {
       file.close ();
     }
@@ -1528,38 +1558,41 @@ Ftp::openDataPassive ()
     static_cast < FtpuserData * >(td.pConnection->protocolBuffer);
 
   Socket *pSocket = new Socket ();
-  pSocket->socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (pSocket->getHandle () < 0)
-    return 0;
 
-  int nReuseAddr = 1;
-  MYSERVER_SOCKADDR_STORAGE storage = { 0 };
-  ((sockaddr_in *) (&storage))->sin_family = AF_INET;
-  char szIpAddr[16];
-  memset (szIpAddr, 0, 16);
-  getIpAddr (pFtpuserData->m_cdh, szIpAddr, 16);
+  try
+    {
+      pSocket->socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
+      MYSERVER_SOCKADDR_STORAGE storage = { 0 };
+      ((sockaddr_in *) (&storage))->sin_family = AF_INET;
+      char szIpAddr[16];
+      memset (szIpAddr, 0, 16);
+      getIpAddr (pFtpuserData->m_cdh, szIpAddr, 16);
 #ifdef WIN32
-  ((sockaddr_in *) (&storage))->sin_addr.s_addr = inet_addr (szIpAddr);
+      ((sockaddr_in *) (&storage))->sin_addr.s_addr = inet_addr (szIpAddr);
 #else
-  inet_aton (szIpAddr, &((sockaddr_in *) (&storage))->sin_addr);
+      inet_aton (szIpAddr, &((sockaddr_in *) (&storage))->sin_addr);
 #endif
-  ((sockaddr_in *) (&storage))->sin_port =
-    htons (getPortNo (pFtpuserData->m_cdh));
-  if (pSocket->setsockopt (SOL_SOCKET, SO_REUSEADDR, (const char *) &nReuseAddr,
-                           sizeof (nReuseAddr)) < 0)
-    return 0;
+      ((sockaddr_in *) (&storage))->sin_port =
+        htons (getPortNo (pFtpuserData->m_cdh));
+      pSocket->reuseAddress (true);
 
-  if (pSocket->bind (&storage, sizeof (sockaddr_in)) != 0
-      || pSocket->listen (SOMAXCONN) != 0)
-    return 0;
+      pSocket->bind (&storage, sizeof (sockaddr_in));
+      pSocket->listen (SOMAXCONN);
 
-  pFtpuserData->m_pDataConnection->setPort (getPortNo (pFtpuserData->m_cdh));
-  pFtpuserData->m_pDataConnection->setLocalPort (pFtpuserData->m_nLocalDataport);
-  pFtpuserData->m_pDataConnection->setIpAddr (td.pConnection->getIpAddr ());
-  pFtpuserData->m_pDataConnection->setLocalIpAddr (td.pConnection->getLocalIpAddr ());
-  pFtpuserData->m_pDataConnection->host = td.pConnection->host;
-  pFtpuserData->m_pDataConnection->socket = pSocket;
-  pFtpuserData->m_pDataConnection->setScheduled (1);
+      pFtpuserData->m_pDataConnection->setPort (getPortNo (pFtpuserData->m_cdh));
+      pFtpuserData->m_pDataConnection->setLocalPort (pFtpuserData->m_nLocalDataport);
+      pFtpuserData->m_pDataConnection->setIpAddr (td.pConnection->getIpAddr ());
+      pFtpuserData->m_pDataConnection->setLocalIpAddr (td.pConnection->getLocalIpAddr ());
+      pFtpuserData->m_pDataConnection->host = td.pConnection->host;
+      pFtpuserData->m_pDataConnection->socket = pSocket;
+      pFtpuserData->m_pDataConnection->setScheduled (1);
+    }
+  catch (...)
+    {
+      delete pSocket;
+      return 0;
+    }
+
   return 1;
 }
 
@@ -2489,7 +2522,9 @@ void Ftp::size (const std::string & sPath)
     }
 
   File f;
-  if (f.openFile (sLocalPath.c_str (), File::OPEN_IF_EXISTS | File::READ))
+  int flags = File::OPEN_IF_EXISTS | File::READ;
+  flags |= areSymlinkAllowed (&td.st) ? 0 : File::NO_FOLLOW_SYMLINK;
+  if (f.openFile (sLocalPath.c_str (), flags))
     {
       ftpReply (550);
       return;

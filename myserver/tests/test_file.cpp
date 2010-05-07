@@ -65,7 +65,13 @@ public:
   void tearDown ()
   {
     delete tfile;
-    FilesUtility::deleteFile (fname);
+    try
+      {
+        FilesUtility::deleteFile (fname);
+      }
+    catch (...)
+      {
+      }
   }
 
   void testCreateTemporaryDelayedFile ()
@@ -126,7 +132,13 @@ public:
     CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), nbr);
     CPPUNIT_ASSERT_EQUAL (tfile->close (), 0);
 
-    FilesUtility::deleteFile (fname.c_str ());
+    try
+      {
+        FilesUtility::deleteFile (fname.c_str ());
+      }
+    catch (...)
+      {
+      }
   }
 
   void testCreationTime ()
@@ -173,8 +185,14 @@ public:
   void testTruncate ()
   {
     u_long nbw;
-
-    CPPUNIT_ASSERT_EQUAL (FilesUtility::deleteFile (fname.c_str ()), 0);
+    
+    try
+      {
+        FilesUtility::deleteFile (fname.c_str ());
+      }
+    catch (...)
+      {
+      }
 
     CPPUNIT_ASSERT_EQUAL (openHelper (), 0);
 
@@ -195,7 +213,13 @@ public:
 
     CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), dataLen + dataLen / 2);
 
-    FilesUtility::deleteFile (fname.c_str ());
+    try
+      {
+        FilesUtility::deleteFile (fname.c_str ());
+      }
+    catch (...)
+      {
+      }
   }
 
 };

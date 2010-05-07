@@ -56,14 +56,16 @@ public:
   {
     string val ("value");
     HashMap<string, SecurityDomain*> hashedDomains;
-    CPPUNIT_ASSERT_EQUAL (validator->getValue (&hashedDomains, val), (string*)NULL);
+    CPPUNIT_ASSERT_EQUAL (validator->getValue (&hashedDomains, val),
+                          (const string*) NULL);
   }
 
   void testGetPermissionMaskImpl ()
   {
     string val ("value");
     SecurityToken secToken;
-    CPPUNIT_ASSERT_EQUAL (validator->getPermissionMaskImpl (&secToken, NULL, NULL), 0);
+    CPPUNIT_ASSERT_EQUAL (validator->getPermissionMaskImpl (&secToken, NULL,
+                                                            NULL), 0);
 
   }
 

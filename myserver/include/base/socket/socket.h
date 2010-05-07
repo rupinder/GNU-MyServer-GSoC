@@ -83,7 +83,8 @@ public:
   Socket (SocketHandle);
   virtual ~Socket ();
   Socket* accept (MYSERVER_SOCKADDR*, socklen_t*);
-  int setsockopt (int,int, const char*,int);
+  void reuseAddress (bool);
+  int setsockopt (int, int, const char*, int);
 
   virtual int connect (MYSERVER_SOCKADDR*, int);
   virtual int close ();
@@ -92,7 +93,6 @@ public:
   virtual int recv (char*, int, int);
   virtual u_long bytesToRead ();
 
-  int ioctlsocket (long, unsigned long*);
   int send (const char*, int, int);
   int connect (const char* host, u_short port);
   int operator==(Socket*);

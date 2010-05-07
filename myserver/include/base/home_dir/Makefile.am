@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-home_dirincludedir=$(includedir)/myserver/include/base/home_dir
-home_dirinclude_HEADERS = home_dir.h
+includedir=@includedir@/myserver/include/base/home_dir
+include_HEADERS = home_dir.h
 SUBDIRS =
 

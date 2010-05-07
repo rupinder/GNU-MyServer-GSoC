@@ -327,8 +327,7 @@ bool XmlValidator::doCondition (xmlNodePtr node,
       attrs = attrs->next;
     }
 
-  string *storedValue = getValue (hashedDomains, name);
-
+  const string *storedValue = getValue (hashedDomains, name);
   if (!storedValue)
     return false;
 

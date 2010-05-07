@@ -31,6 +31,7 @@ public:
   Url (const char*, u_short port);
   string& getProtocol ();
   u_short getPort ();
+  int getNumFields ();
   string& getResource ();
   string& getHost ();
   string& getQuery ();

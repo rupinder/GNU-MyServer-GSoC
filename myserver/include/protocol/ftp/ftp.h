@@ -98,7 +98,7 @@ struct FtpThreadContext
   SecurityToken st;
 };
 
-class Ftp:public Protocol
+class Ftp : public Protocol
 {
 public:
   Ftp ();
@@ -197,6 +197,7 @@ public:
   std::string m_sFilePath;
   bool m_bappend;
   Ftp *m_pFtp;
+  SecurityToken *st;
 };
 
 int getFtpReply (int nReplyCode, std::string & sReply);
@@ -209,7 +210,7 @@ void yyerror (YYLTYPE * pLoc, Ftp * pContext, const char *msg);
 /*!
  *Adapter class to make Ftp reentrant.
  */
-class FtpProtocol:public Protocol
+class FtpProtocol : public Protocol
 {
 public:
   FtpProtocol ()

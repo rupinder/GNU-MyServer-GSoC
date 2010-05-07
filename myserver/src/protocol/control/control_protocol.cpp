@@ -136,7 +136,7 @@ int ControlProtocol::loadProtocol ()
   else
   {
     md5.init ();
-    md5.update (tmpName, (unsigned int)strlen (tmpName));
+    md5.update (tmpName, (unsigned int) strlen (tmpName));
     md5.end ( adminLogin);
   }
 
@@ -145,7 +145,7 @@ int ControlProtocol::loadProtocol ()
   else
   {
     md5.init ();
-    md5.update (tmpPassword,(unsigned int)strlen (tmpPassword));
+    md5.update (tmpPassword,(unsigned int) strlen (tmpPassword));
     md5.end (adminPassword);
   }
 
@@ -174,7 +174,7 @@ int ControlProtocol::checkAuth (ControlHeader& header)
   md5.end (authLoginHeaderMD5);
 
   md5.init ();
-  md5.update (headerPassword, (unsigned int)strlen (headerPassword));
+  md5.update (headerPassword, (unsigned int) strlen (headerPassword));
   md5.end (authPasswordHeaderMD5);
 
   if ((! strcasecmp (adminLogin, authLoginHeaderMD5)) &&
@@ -204,333 +204,239 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
   char *command = 0;
   char *opt = 0 ;
   int bufferSize = a->getActiveThread ()->getBufferSize ();
-  /* Input file. */
-  File *inFile = 0;
-  /* Output file. */
-  File *outFile = 0;
+  File inFile;
+  File outFile;
 
   /* Use control_header to parse the request. */
   ControlHeader header;
 
   /* Is the specified command a know one? */
   int knownCommand;
-  if (a->getToRemove ())
-  {
-    switch (a->getToRemove ())
+
+  try
     {
-      /* Remove the connection from the list. */
-    case Connection::REMOVE_OVERLOAD:
-      sendResponse (auxBuffer, bufferSize, a, CONTROL_SERVER_BUSY, header, 0);
-      return 0;
-    default:
-      return 0;
-    }
-  }
-
-  ret = header.parse_header (request, nbtr, &realHeaderLength);
-
-  /*
-   *On errors remove the connection from the connections list.
-   *For return values look at protocol/control/control_errors.h.
-   *Returning 0 from the controlConnection we will remove the connection
-   *from the active connections list.
-   */
-  if (ret != CONTROL_OK)
-  {
-    /* parse_header returns -1 on an incomplete header.  */
-    if (ret == -1)
-    {
-      return 2;
-    }
-    sendResponse (auxBuffer, bufferSize, a, ret, header, 0);
-    return 0;
-  }
-  specifiedLength = header.getLength ();
-  version = header.getVersion ();
-  timeout=getTicks ();
-  if (specifiedLength)
-  {
-    inFile = new File ();
-    if (inFile == 0)
-    {
-      a->host->warningsLogWrite (_("Control: internal error"));
-      return 0;
-    }
-
-    inFilePath << getdefaultwd (0,0) << "/ControlInput_" << (u_int) id;
-
-    ret = inFile->createTemporaryFile (inFilePath.str ().c_str ());
-    if (ret)
-      {
-        a->host->warningsLogWrite (_("Control: internal error"));
-        sendResponse (auxBuffer, bufferSize, a, CONTROL_INTERNAL, header, 0);
-        inFile->close ();
-        FilesUtility::deleteFile (inFilePath.str ().c_str ());
-        delete inFile;
-        return 0;
-      }
-    if (nbtr - realHeaderLength)
-      {
-        ret = inFile->writeToFile (request + realHeaderLength,
-                                   nbtr - realHeaderLength,
-                                   &nbw);
-        dataWritten += nbw;
-        if (ret)
-          {
-            a->host->warningsLogWrite (_("Control: internal error"));
-            sendResponse (auxBuffer, bufferSize, a, CONTROL_INTERNAL, header,
-                          0);
-            inFile->close ();
-            FilesUtility::deleteFile (inFilePath.str ().c_str ());
-            delete inFile;
-            inFile=0;
-            return 0;
-          }
-      }
-  }
-
-  /* Check if there are other bytes waiting to be read. */
-  if (specifiedLength && (specifiedLength
-                          != static_cast<int>(nbtr - realHeaderLength)))
-    {
-      /* Check if we can read all the specified data. */
-      while (specifiedLength != static_cast<int>(nbtr - realHeaderLength))
+      if (a->getToRemove ())
         {
-          if (a->socket->bytesToRead ())
+          switch (a->getToRemove ())
             {
-              ret = a->socket->recv (auxBuffer, bufferSize, 0);
-              if (ret == -1)
-                {
-                  a->host->warningsLogWrite (_("Control: internal error"));
-                  sendResponse (auxBuffer, bufferSize, a, CONTROL_INTERNAL, header,
-                                0);
-                  inFile->close ();
-                  FilesUtility::deleteFile (inFilePath.str ().c_str ());
-                  delete inFile;
-                  inFile=0;
-                  return -1;
-                }
-              ret = inFile->writeToFile (auxBuffer, ret, &nbw);
-              dataWritten += nbw;
-              if (ret)
-                {
-                  a->host->warningsLogWrite (_("Control: internal error"));
-                  sendResponse (auxBuffer, bufferSize, a, CONTROL_INTERNAL,
-                                header, 0);
-                  inFile->close ();
-                  FilesUtility::deleteFile (inFilePath.str ().c_str ());
-                  delete inFile;
-                  inFile=0;
-                }
-
-              if (dataWritten >=  specifiedLength)
-                break;
-              timeout = getTicks ();
-            }
-          else if (getTicks () - timeout > MYSERVER_SEC (5))
-            {
-              sendResponse (auxBuffer, bufferSize, a, CONTROL_BAD_LEN, header,
-                            0);
-              inFile->close ();
-              FilesUtility::deleteFile (inFilePath.str ().c_str ());
-              delete inFile;
-              inFile=0;
+              /* Remove the connection from the list. */
+            case Connection::REMOVE_OVERLOAD:
+              sendResponse (auxBuffer, bufferSize, a, CONTROL_SERVER_BUSY,
+                            header, 0);
+              return 0;
+            default:
               return 0;
             }
-          else
-            {
-              /* Wait a bit.  */
-              Thread::wait (2);
-            }
         }
-    }
-  if (inFile)
-    {
-      inFile->seek (0);
-    }
-
-  if (strcasecmp (version, "CONTROL/1.0"))
-    {
-      a->host->warningsLogWrite (_("Control: specified version not supported"));
-      if (inFile)
-        {
-          inFile->close ();
-          FilesUtility::deleteFile (inFilePath.str ().c_str ());
-          delete inFile;
-          inFile = 0;
-        }
-      sendResponse (auxBuffer, bufferSize, a, CONTROL_BAD_VERSION, header, 0);
-      return 0;
-    }
-
-  authorized = checkAuth (header);
-
-  /*
-   * If the client is not authorized remove the connection.
-   */
-  if (authorized == 0)
-    {
-      if (inFile)
-        {
-          inFile->close ();
-          FilesUtility::deleteFile (inFilePath.str ().c_str ());
-          delete inFile;
-          inFile=0;
-        }
-      sendResponse (auxBuffer, bufferSize, a, CONTROL_AUTH, header, 0);
-      return 0;
-    }
-  /*
-   * If the specified length is different from the length that the
-   * server can read, remove the connection.
-   */
-  if (dataWritten != specifiedLength)
-    {
-      if (inFile)
-        {
-          inFile->close ();
-          FilesUtility::deleteFile (inFilePath.str ().c_str ());
-          delete inFile;
-          inFile = 0;
-        }
-      sendResponse (auxBuffer, bufferSize, a, CONTROL_BAD_LEN, header, 0);
-      return 0;
-    }
-
-  command = header.getCommand ();
-  opt     = header.getOptions ();
-
-  knownCommand = 0;
-
-  /* Create an out file. This can be used by commands needing it. */
-    outFile = new File ();
-  outFilePath << getdefaultwd (0, 0) << "/ControlOutput_" << (u_int) id;
-
-  ret = outFile->createTemporaryFile (outFilePath.str ().c_str ());
-  if (ret)
-    {
-      a->host->warningsLogWrite (_("Control: internal error"));
-      sendResponse (auxBuffer, bufferSize, a, CONTROL_INTERNAL, header, 0);
-      delete outFile;
-      inFile->close ();
-      delete inFile;
-
-      FilesUtility::deleteFile (inFilePath.str ().c_str ());
-      FilesUtility::deleteFile (outFilePath.str ().c_str ());
-
-      inFile=0;
-      outFile=0;
-      return 0;
-    }
-  if (!strcmp (command, "SHOWCONNECTIONS"))
-    {
-      knownCommand = 1;
-      ret = showConnections (a, outFile, request, bufferSize, header);
-    }
-  else if (!strcmp (command, "KILLCONNECTION"))
-    {
-      char buff[11];
-      u_long id;
-      knownCommand = 1;
-      strncpy (buff, header.getOptions (), 10 );
-      buff[10] = '\0';
-      id = header.getOptions () ? atol (buff) : 0;
-      ret = killConnection (a, id, outFile, request, bufferSize, header);
-    }
-  else if (!strcmp (command, "REBOOT"))
-    {
-      knownCommand = 1;
-      Server::getInstance ()->delayedReboot ();
-      ret = 0;
-    }
-  else if (!strcmp (command, "GETFILE"))
-    {
-      knownCommand = 1;
-      ret = getFile (a, header.getOptions (), inFile, outFile, request,
-                     bufferSize, header);
-    }
-  else if (!strcmp (command, "PUTFILE"))
-    {
-      knownCommand = 1;
-      ret = putFile (a,header.getOptions (), inFile, outFile, request,
-                     bufferSize, header);
-    }
-  else if (!strcmp (command, "DISABLEREBOOT"))
-    {
-      Server::getInstance ()->disableAutoReboot ();
-      knownCommand = 1;
-
-    }
-  else if (!strcmp (command, "ENABLEREBOOT"))
-    {
-      Server::getInstance ()->enableAutoReboot ();
-      knownCommand = 1;
-
-    }
-  else if (!strcmp (command, "VERSION"))
-    {
-      knownCommand = 1;
-      ret = getVersion (a, outFile, request, bufferSize, header);
-    }
-
-  if (knownCommand)
-    {
-      char *connection;
-      outFile->seek (0);
-      if (ret)
-        sendResponse (auxBuffer, bufferSize, a, CONTROL_INTERNAL, header, 0);
-      else
-        sendResponse (auxBuffer, bufferSize, a, CONTROL_OK, header, outFile);
-
-      if (inFile)
-        {
-          inFile->close ();
-          delete inFile;
-          inFile = NULL;
-        }
-
-      if (outFile)
-        {
-          outFile->close ();
-          delete outFile;
-          outFile = NULL;
-        }
-
-      FilesUtility::deleteFile (inFilePath.str ().c_str ());
-      FilesUtility::deleteFile (outFilePath.str ().c_str ());
-      connection = header.getConnection ();
 
       /*
-       * If the Keep-Alive was specified keep the connection in the
-       * active connections list.
+       *On errors remove the connection from the connections list.
+       *For return values look at protocol/control/control_errors.h.
+       *Returning 0 from the controlConnection we will remove the connection
+       *from the active connections list.
        */
-      if (! strcasecmp (connection, "keep-alive"))
-        return ClientsThread::KEEP_CONNECTION;
+      if (header.parse_header (request, nbtr, &realHeaderLength) != CONTROL_OK)
+        {
+          /* parse_header returns -1 on an incomplete header.  */
+          if (ret == -1)
+            return 2;
+
+          sendResponse (auxBuffer, bufferSize, a, ret, header, 0);
+          return 0;
+        }
+
+      specifiedLength = header.getLength ();
+      version = header.getVersion ();
+      timeout = getTicks ();
+      if (specifiedLength)
+        {
+          inFilePath << getdefaultwd (0,0) << "/ControlInput_" << (u_int) id;
+
+          inFile.createTemporaryFile (inFilePath.str ().c_str ());
+
+          if (nbtr - realHeaderLength)
+            {
+              inFile.writeToFile (request + realHeaderLength,
+                                  nbtr - realHeaderLength, &nbw);
+              dataWritten += nbw;
+            }
+        }
+
+      /* Check if there are other bytes waiting to be read. */
+      if (specifiedLength && (specifiedLength
+                              != static_cast<int>(nbtr - realHeaderLength)))
+        {
+          /* Check if we can read all the specified data. */
+          while (specifiedLength != static_cast<int>(nbtr - realHeaderLength))
+            {
+              if (a->socket->bytesToRead ())
+                {
+                  u_long ret;
+                  ret = a->socket->recv (auxBuffer, bufferSize, 0);
+                  inFile.writeToFile (auxBuffer, ret, &nbw);
+                  dataWritten += nbw;
+                  if (dataWritten >=  specifiedLength)
+                    break;
+                  timeout = getTicks ();
+                }
+              else if (getTicks () - timeout > MYSERVER_SEC (5))
+                {
+                  sendResponse (auxBuffer, bufferSize, a, CONTROL_BAD_LEN, header,
+                                0);
+                  inFile.close ();
+                  FilesUtility::deleteFile (inFilePath.str ().c_str ());
+                  return 0;
+                }
+              else
+                Thread::wait (2);
+            }
+        }
+
+      inFile.seek (0);
+
+      if (strcasecmp (version, "CONTROL/1.0"))
+        {
+          a->host->warningsLogWrite (_("Control: specified version not supported"));
+          inFile.close ();
+          FilesUtility::deleteFile (inFilePath.str ().c_str ());
+          sendResponse (auxBuffer, bufferSize, a, CONTROL_BAD_VERSION, header, 0);
+          return 0;
+        }
+
+      authorized = checkAuth (header);
+
+      /*
+       * If the client is not authorized remove the connection.
+       */
+      if (authorized == 0)
+        {
+          inFile.close ();
+          FilesUtility::deleteFile (inFilePath.str ().c_str ());
+          sendResponse (auxBuffer, bufferSize, a, CONTROL_AUTH, header, 0);
+          return 0;
+        }
+      /*
+       * If the specified length is different from the length that the
+       * server can read, remove the connection.
+       */
+      if (dataWritten != specifiedLength)
+        {
+          inFile.close ();
+          FilesUtility::deleteFile (inFilePath.str ().c_str ());
+          sendResponse (auxBuffer, bufferSize, a, CONTROL_BAD_LEN, header, 0);
+          return 0;
+        }
+
+      command = header.getCommand ();
+      opt = header.getOptions ();
+
+      knownCommand = 0;
+
+      /* Create an out file. This can be used by commands needing it. */
+      outFilePath << getdefaultwd (0, 0) << "/ControlOutput_" << (u_int) id;
+
+      outFile.createTemporaryFile (outFilePath.str ().c_str ());
+
+      if (!strcmp (command, "SHOWCONNECTIONS"))
+        {
+          knownCommand = 1;
+          ret = showConnections (a, &outFile, request, bufferSize, header);
+        }
+      else if (!strcmp (command, "KILLCONNECTION"))
+        {
+          char buff[11];
+          u_long id;
+          knownCommand = 1;
+          strncpy (buff, header.getOptions (), 10 );
+          buff[10] = '\0';
+          id = header.getOptions () ? atol (buff) : 0;
+          ret = killConnection (a, id, &outFile, request, bufferSize, header);
+        }
+      else if (!strcmp (command, "REBOOT"))
+        {
+          knownCommand = 1;
+          Server::getInstance ()->delayedReboot ();
+          ret = 0;
+        }
+      else if (!strcmp (command, "GETFILE"))
+        {
+          knownCommand = 1;
+          ret = getFile (a, header.getOptions (), &inFile, &outFile, request,
+                         bufferSize, header);
+        }
+      else if (!strcmp (command, "PUTFILE"))
+        {
+          knownCommand = 1;
+          ret = putFile (a,header.getOptions (), &inFile, &outFile, request,
+                         bufferSize, header);
+        }
+      else if (!strcmp (command, "DISABLEREBOOT"))
+        {
+          Server::getInstance ()->disableAutoReboot ();
+          knownCommand = 1;
+
+        }
+      else if (!strcmp (command, "ENABLEREBOOT"))
+        {
+          Server::getInstance ()->enableAutoReboot ();
+          knownCommand = 1;
+
+        }
+      else if (!strcmp (command, "VERSION"))
+        {
+          knownCommand = 1;
+          ret = getVersion (a, &outFile, request, bufferSize, header);
+        }
+
+      if (knownCommand)
+        {
+          char *connection;
+          outFile.seek (0);
+          if (ret)
+            sendResponse (auxBuffer, bufferSize, a, CONTROL_INTERNAL, header, 0);
+          else
+            sendResponse (auxBuffer, bufferSize, a, CONTROL_OK, header, &outFile);
+
+          inFile.close ();
+          outFile.close ();
+
+          FilesUtility::deleteFile (inFilePath.str ().c_str ());
+          FilesUtility::deleteFile (outFilePath.str ().c_str ());
+          connection = header.getConnection ();
+
+          /*
+           * If the Keep-Alive was specified keep the connection in the
+           * active connections list.
+           */
+          if (! strcasecmp (connection, "keep-alive"))
+            return ClientsThread::KEEP_CONNECTION;
+          else
+            return ClientsThread::DELETE_CONNECTION;
+        }
       else
-        return ClientsThread::DELETE_CONNECTION;
+        {
+          sendResponse (auxBuffer, bufferSize, a, CONTROL_CMD_NOT_FOUND,
+                        header, 0);
+
+          inFile.close ();
+          outFile.close ();
+          FilesUtility::deleteFile (inFilePath.str ().c_str ());
+          FilesUtility::deleteFile (outFilePath.str ().c_str ());
+
+          return ClientsThread::DELETE_CONNECTION;
+        }
     }
-  else
+  catch (exception & e)
     {
-      sendResponse (auxBuffer, bufferSize, a, CONTROL_CMD_NOT_FOUND, header, 0);
-
-      if (inFile)
-        {
-          inFile->close ();
-          delete inFile;
-          inFile = NULL;
-        }
-
-      if (outFile)
-        {
-          outFile->close ();
-          delete outFile;
-          outFile = NULL;
-        }
+      inFile.close ();
+      outFile.close ();
       FilesUtility::deleteFile (inFilePath.str ().c_str ());
       FilesUtility::deleteFile (outFilePath.str ().c_str ());
-
+      a->host->warningsLogWrite (_E ("Control: internal error"), &e);
       return ClientsThread::DELETE_CONNECTION;
     }
+
+  return ClientsThread::DELETE_CONNECTION;
 }
 
 /*!
@@ -541,9 +447,10 @@ int ControlProtocol::addToLog (int retCode, ConnectionPtr con, char *buffer,
 {
   string time;
   getRFC822GMTTime (time, 32);
-  gnulib::snprintf (buffer, bufferSize, "%s [%s] %s:%s:%s - %s - %i", con->getIpAddr (),
-            time.c_str (), header.getCommand (), header.getVersion (),
-            header.getOptions (), header.getAuthLogin (), retCode);
+  gnulib::snprintf (buffer, bufferSize, "%s [%s] %s:%s:%s - %s - %i",
+                    con->getIpAddr (), time.c_str (), header.getCommand (),
+                    header.getVersion (), header.getOptions (),
+                    header.getAuthLogin (), retCode);
   con->host->accessesLogWrite ("%s", buffer);
   return 0;
 }
@@ -566,25 +473,13 @@ int ControlProtocol::sendResponse (char *buffer, int buffersize,
 
   /* Build and send the first line.  */
   gnulib::snprintf (buffer, buffersize, "/%i\r\n", errID);
-  if (a->socket->send (buffer, strlen (buffer), 0) < 0)
-    {
-      a->host->warningsLogWrite (_("Control: socket error"));
-      return -1;
-    }
+  a->socket->send (buffer, strlen (buffer), 0);
 
-  gnulib::snprintf (buffer, buffersize, "/LEN %u\r\n", (u_int)dataLength);
-  if (a->socket->send (buffer, strlen (buffer), 0) < 0)
-    {
-      a->host->warningsLogWrite (_("Control: socket error"));
-      return -1;
-    }
+  gnulib::snprintf (buffer, buffersize, "/LEN %u\r\n", (u_int) dataLength);
+  a->socket->send (buffer, strlen (buffer), 0);
 
   /* Send the end of the header.  */
-  if (a->socket->send ("\r\n", 2, 0) < 0)
-    {
-      a->host->warningsLogWrite (_("Control: socket error"));
-      return -1;
-    }
+  a->socket->send ("\r\n", 2, 0);
 
   /* Flush the content of the file if any.  */
   if (dataLength)
@@ -593,24 +488,13 @@ int ControlProtocol::sendResponse (char *buffer, int buffersize,
       u_long nbr;
       for ( ; ; )
         {
-          int err;
-          if (outFile->read (buffer, min (dataToSend, buffersize), &nbr))
-            {
-              a->host->warningsLogWrite (_("Control: internal error"));
-              return -1;
-            }
+          outFile->read (buffer, min (dataToSend, buffersize), &nbr);
 
           dataToSend -= nbr;
-          err = a->socket->send (buffer, nbr, 0);
+          a->socket->send (buffer, nbr, 0);
 
           if (dataToSend == 0)
             break;
-
-          if (err == -1)
-            {
-              a->host->warningsLogWrite (_("Control: socket error"));
-              return -1;
-            }
         }
     }
 

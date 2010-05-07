@@ -68,8 +68,6 @@ CachedFileFactory::CachedFileFactory (u_long size)
  */
 void CachedFileFactory::clean ()
 {
-  mutex.lock ();
-
   HashMap<char*, CachedFileFactoryRecord*>::Iterator it = buffers.begin ();
   for (; it != buffers.end (); it++)
     {
@@ -77,8 +75,6 @@ void CachedFileFactory::clean ()
       delete (*it);
     }
   buffers.clear ();
-
-  mutex.unlock ();
   mutex.destroy ();
 }
 
@@ -133,11 +129,13 @@ void CachedFileFactory::initialize (u_long size)
 }
 
 /*!
- *Open a new file in read-only mode, if the file is present in the cache then
- *use the cache instead of a real file.
- *\param filename The file name.
- */
-File* CachedFileFactory::open (const char* filename)
+  Open a new file in read-only mode, if the file is present in the cache then
+  use the cache instead of a real file.
+  \param filename The file name.
+  \param flags Additional flags, actually only File::NO_FOLLOW_SYMLINK is
+  supported.
+*/
+File* CachedFileFactory::open (const char* filename, int flags)
 {
   CachedFileFactoryRecord *record;
   CachedFileBuffer *buffer;
@@ -146,95 +144,91 @@ File* CachedFileFactory::open (const char* filename)
 
   mutex.lock ();
 
-  ticks = getTicks ();
-  record = buffers.get (filename);
-  buffer = record ? record->buffer : 0;
-
-  used++;
-
-  /*!
-   * If the file on the file system has a different mtime then don't use
-   * the cache, in this way when opened instance of this file will be closed
-   * the null reference callback can be called and the file reloaded.
-   */
-  if (record)
+  try
     {
-      if (ticks - record->lastModTimeCheck > MYSERVER_SEC (5))
+      record = buffers.get (filename);
+      buffer = record ? record->buffer : 0;
+
+      used++;
+
+      /*
+        If the file on the file system has a different mtime then don't use
+        the cache, in this way when opened instance of this file will be closed
+        the null reference callback can be called and the file reloaded.
+      */
+      if (record)
         {
           record->invalidCache = FilesUtility::getLastModTime (filename)
-                                 != record->mtime;
+            != record->mtime;
           record->lastModTimeCheck = ticks;
+
+          bool noSymlink = (! (flags & File::NO_FOLLOW_SYMLINK))
+            && S_ISLNK (record->fstat.st_mode);
+
+          if (record->invalidCache || noSymlink)
+            {
+              mutex.unlock ();
+
+              File *file = new File ();
+              flags = flags & File::NO_FOLLOW_SYMLINK;
+              if (file->openFile (filename, File::OPEN_IF_EXISTS | flags
+                                  | File::READ))
+                {
+                  delete file;
+                  return NULL;
+                }
+              return file;
+            }
         }
 
-      if (record->invalidCache)
+      if (buffer == NULL)
         {
-          mutex.unlock ();
-
+          u_long fileSize;
           File *file = new File ();
-          if (file->openFile (filename, File::OPEN_IF_EXISTS |
-                              File::READ))
+          flags = flags & File::NO_FOLLOW_SYMLINK;
+          if (file->openFile (filename, File::OPEN_IF_EXISTS | flags
+                              | File::READ))
             {
+              mutex.unlock ();
               delete file;
               return NULL;
             }
-          return file;
-        }
-    }
-
-  if (buffer == NULL)
-    {
-      u_long fileSize;
-      File *file = new File ();
-      if (file->openFile (filename, File::OPEN_IF_EXISTS | File::READ))
-        {
-          mutex.unlock ();
-          delete file;
-          return NULL;
-        }
-      fileSize = file->getFileSize ();
-      purgeRecords ();
-      if ((minSize != 0 && fileSize < minSize) ||
-          (maxSize != 0 && fileSize > maxSize)  ||
-          (fileSize > size - usedSize))
-        {
-          mutex.unlock ();
-          return file;
-        }
-      else
-        {
-          record = new CachedFileFactoryRecord ();
-          if (!record)
+          fileSize = file->getFileSize ();
+          purgeRecords ();
+          if ((minSize != 0 && fileSize < minSize) ||
+              (maxSize != 0 && fileSize > maxSize)  ||
+              (fileSize > size - usedSize))
             {
-              delete record;
-              file->close ();
+              mutex.unlock ();
+              return file;
+            }
+          else
+            {
+              record = new CachedFileFactoryRecord ();
+              buffer = new CachedFileBuffer (file);
+              record->mtime = file->getLastModTime ();
+              file->fstat (&record->fstat);
+              file->close  ();
               delete file;
-              mutex.unlock ();
-              return 0;
-            }
 
-          buffer = new CachedFileBuffer (file);
-          record->mtime = file->getLastModTime ();
-          file->close  ();
-          delete file;
-
-          if (!buffer)
-            {
-              delete record;
-              mutex.unlock ();
-              return 0;
+              buffer->setFactoryToNotify (this);
+              record->created = ticks;
+              record->buffer = buffer;
+              buffers.put ((char *) filename, record);
+              usedSize += fileSize;
             }
-          buffer->setFactoryToNotify (this);
-          record->created = ticks;
-          record->buffer = buffer;
-          buffers.put ((char *)filename, record);
-          usedSize += fileSize;
         }
+      record->used++;
+
+      cachedFile = new CachedFile (buffer);
+
+      mutex.unlock ();
     }
-  record->used++;
-
-  cachedFile = new CachedFile (buffer);
-
-  mutex.unlock ();
+  catch (...)
+    {
+      mutex.unlock ();
+      throw;
+    }
 
   return cachedFile;
 }
@@ -252,29 +246,37 @@ void CachedFileFactory::nullReferences (CachedFileBuffer* cfb)
   u_long ticks;
   mutex.lock ();
 
-  ticks = getTicks ();
-  record = buffers.get (cfb->getFilename ());
-  if (!record)
+  try
+    {
+      ticks = getTicks ();
+      record = buffers.get (cfb->getFilename ());
+      if (!record)
+        {
+          mutex.unlock ();
+          return;
+        }
+
+      spaceUsage = (float)usedSize / size;
+      averageUsage = (float)used * 1000.0f / (ticks - created);
+      bufferAverageUsage = (float)record->used * 1000.0f /
+        (getTicks () - record->created);
+
+      if (((spaceUsage > 0.65f) && (bufferAverageUsage < averageUsage)
+           && ((ticks - record->created) > 10000))
+          || (spaceUsage > 0.9f)
+          || record->invalidCache)
+        {
+          record = buffers.remove (cfb->getFilename ());
+          if (record)
+            buffersToRemove.push_back (record);
+        }
+      mutex.unlock ();
+    }
+  catch (...)
     {
       mutex.unlock ();
-      return;
+      throw;
     }
-
-  spaceUsage = (float)usedSize / size;
-  averageUsage = (float)used * 1000.0f / (ticks - created);
-  bufferAverageUsage = (float)record->used * 1000.0f /
-    (getTicks () - record->created);
-
-  if (((spaceUsage > 0.65f) && (bufferAverageUsage < averageUsage)
-       && ((ticks - record->created) > 10000))
-      || (spaceUsage > 0.9f)
-      || record->invalidCache)
-    {
-      record = buffers.remove (cfb->getFilename ());
-      if (record)
-        buffersToRemove.push_back (record);
-    }
-  mutex.unlock ();
 }
 
 /*!

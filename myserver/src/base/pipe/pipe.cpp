@@ -36,6 +36,9 @@
 #include <string>
 #include <sstream>
 
+
+#include <include/base/exceptions/checked.h>
+
 using namespace std;
 
 /*!
@@ -73,7 +76,7 @@ int Pipe::read (char* buffer, u_long len, u_long *nbr)
  */
 int Pipe::create (bool readPipe)
 {
-  return gnulib::pipe2 (handles, 0);
+  return checked::pipe2 (handles, 0);
 }
 
 /*!
@@ -85,7 +88,7 @@ int Pipe::create (bool readPipe)
 int Pipe::write (const char* buffer, u_long len, u_long *nbw)
 {
   *nbw = 0;
-  int ret = gnulib::write (handles[1], buffer, len);
+  int ret = checked::write (handles[1], buffer, len);
   if (ret == -1)
     {
       terminated = true;
@@ -121,16 +124,16 @@ int Pipe::close ()
 {
   terminated = true;
   if (handles[0] >= 0)
-    gnulib::close (handles[0]);
+    checked::close (handles[0]);
   if (handles[1] >= 0)
-    gnulib::close (handles[1]);
+    checked::close (handles[1]);
 
   handles[0] = handles[1] = -1;
 
   return 0;
 }
 
-class PipeException : public exception
+class PipeExceptionInt : public exception
 {
 public:
   virtual const char *what () const throw ()
@@ -138,7 +141,7 @@ public:
     return message;
   }
 
-  PipeException (string & str)
+  PipeExceptionInt (string & str)
   {
     this->message = str.c_str ();
   }
@@ -154,12 +157,12 @@ private:
  */
 void Pipe::inverted (Pipe& pipe)
 {
-  pipe.handles[0] = gnulib::dup (handles[1]);
-  pipe.handles[1] = gnulib::dup (handles[0]);
+  pipe.handles[0] = checked::dup (handles[1]);
+  pipe.handles[1] = checked::dup (handles[0]);
   if (pipe.handles[0] < 0 || pipe.handles[1] < 0)
     {
       string err (_("Internal error"));
-      throw PipeException (err);
+      throw PipeExceptionInt (err);
     }
 }
 
@@ -181,7 +184,7 @@ void Pipe::closeRead ()
 {
   terminated = true;
   if (handles[0] >= 0)
-    gnulib::close (handles[0]);
+    checked::close (handles[0]);
   handles[0] = -1;
 }
 
@@ -192,7 +195,7 @@ void Pipe::closeWrite ()
 {
   terminated = true;
   if (handles[1] >= 0)
-    gnulib::close (handles[1]);
+    checked::close (handles[1]);
   handles[1] = -1;
 }
 
@@ -214,7 +217,7 @@ int Pipe::waitForData (int sec, int usec)
 
   FD_SET (handles[0], &readfds);
 
-  ret = gnulib::select (handles[0] + 1, &readfds, NULL, NULL, &tv);
+  ret = checked::select (handles[0] + 1, &readfds, NULL, NULL, &tv);
 
   if (ret == -1 || ret == 0)
     return 0;

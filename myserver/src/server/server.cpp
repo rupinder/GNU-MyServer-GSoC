@@ -870,7 +870,7 @@ int Server::initialize ()
   if (data)
     buffersize = (atol (data) > 81920) ?  atol (data) :  81920 ;
 
-  data = getData ("server.connection_timeout");
+  data = getData ("connection.timeout");
   if (data)
     connectionTimeout = MYSERVER_SEC ((u_long) atol (data));
 

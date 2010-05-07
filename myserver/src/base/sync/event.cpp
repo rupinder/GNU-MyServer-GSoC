@@ -37,6 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # include <sys/wait.h>
 #endif
 
+#include <include/base/exceptions/checked.h>
 
 #include <sys/types.h>
 
@@ -63,10 +64,10 @@ int Event::init (bool broadcast)
 {
   int ret = 0;
   if (initialized)
-  {
-    destroy ();
-    initialized = false;
-  }
+    {
+      destroy ();
+      initialized = false;
+    }
   this->broadcast = broadcast;
 #ifdef HAVE_PTHREAD
   ret = pthread_mutex_init (&mutex,(pthread_mutexattr_t*) NULL);
@@ -95,7 +96,7 @@ int Event::wait (u_long id, u_long timeout)
   {
     struct timespec ts;
     struct timeval tp;
-    gnulib::gettimeofday (&tp, NULL);
+    checked::gettimeofday (&tp, NULL);
     ts.tv_sec = tp.tv_sec + tp.tv_usec / 1000000 + timeout / 1000;
     ts.tv_nsec = (tp.tv_usec * 1000 + timeout * 1000000) % 1000000000;
 

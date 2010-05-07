@@ -14,9 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-includeincludedir=$(includedir)/myserver/include/find_data
-includeinclude_HEADERS =
-SUBDIRS = base conf connection connections_scheduler filter http_handler log plugin protocol server
 
-install:
-# Do not do anything.
+SUBDIRS = base conf connection connections_scheduler filter http_handler \
+	  log plugin protocol server

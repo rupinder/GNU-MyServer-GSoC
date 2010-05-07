@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/utility.h>
 #include <include/base/string/stringutils.h>
 #include <include/base/file/files_utility.h>
+#include <include/base/exceptions/checked.h>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -34,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <math.h>
 #include <time.h>
 
-#ifdef SENDFILE
+#ifdef HAVE_SYS_SENDFILE_H
 # include <fcntl.h>
 # include <stdlib.h>
 # include <stdio.h>
@@ -43,7 +44,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # include <sys/types.h>
 # include <unistd.h>
 #endif
-
 
 #include <string>
 #include <sstream>
@@ -60,6 +60,7 @@ const u_long File::OPEN_IF_EXISTS = (1 << 6);
 const u_long File::APPEND = (1 << 7);
 const u_long File::FILE_CREATE_ALWAYS = (1 << 8);
 const u_long File::NO_INHERIT = (1 << 9);
+const u_long File::NO_FOLLOW_SYMLINK = (1 << 10);
 
 
 /*!
@@ -97,7 +98,7 @@ int File::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
     return -1;
   }
 
-  ret = gnulib::write (handle, buffer, buffersize);
+  ret = checked::write (handle, buffer, buffersize);
   if (ret < 0)
     return ret;
 
@@ -130,6 +131,15 @@ int File::truncate (u_long size)
 }
 
 /*!
+ Do a fstat on the file.
+ \param fstat stat structure to fill.
+*/
+void File::fstat (struct stat *fstat)
+{
+  checked::fstat (handle, fstat);
+}
+
+/*!
  *Open (or create if not exists) a file, but must explicitly use read and/or
  *write flags and open flag.
  *\param nfilename Filename to open.
@@ -150,9 +160,11 @@ int File::openFile (const char* nfilename, u_long opt)
   else if (opt & File::WRITE)
     flags = O_WRONLY;
 
+  if (opt & File::NO_FOLLOW_SYMLINK)
+    flags = O_NOFOLLOW;
+
   /* FIXME: how avoid a stat?  */
   bool exists = stat (filename.c_str (), &fStats) == 0;
-
   if (opt & File::OPEN_IF_EXISTS && !exists)
     return 1;
 
@@ -160,9 +172,10 @@ int File::openFile (const char* nfilename, u_long opt)
     flags |= O_APPEND;
 
   if (exists)
-    handle = gnulib::open (filename.c_str (), O_APPEND | flags);
+    handle = checked::open (filename.c_str (), O_APPEND | flags);
   else
-    handle = gnulib::open (filename.c_str (), O_CREAT | flags, S_IRUSR | S_IWUSR);
+    handle = checked::open (filename.c_str (), O_CREAT | flags,
+                            S_IRUSR | S_IWUSR);
 
   try
     {
@@ -174,7 +187,7 @@ int File::openFile (const char* nfilename, u_long opt)
           }
  
       if (opt & File::TEMPORARY)
-        if (gnulib::unlink (filename.c_str ()))
+        if (checked::unlink (filename.c_str ()))
           {
             close ();
             return -1;
@@ -266,9 +279,9 @@ int File::close ()
   if (handle != -1)
     {
       if (opt & File::TEMPORARY_DELAYED)
-        gnulib::unlink (filename.c_str ());
-      ret = gnulib::fsync (handle);
-      ret |= gnulib::close (handle);
+        checked::unlink (filename.c_str ());
+      ret = checked::fsync (handle);
+      ret |= checked::close (handle);
     }
 
   filename.clear ();
@@ -285,7 +298,7 @@ u_long File::getFileSize ()
 {
   u_long ret;
   struct stat fStats;
-  ret = gnulib::fstat (handle, &fStats);
+  ret = checked::fstat (handle, &fStats);
   if (ret)
     return (u_long)(-1);
   else
@@ -299,7 +312,7 @@ u_long File::getFileSize ()
 int File::seek (u_long initialByte)
 {
   u_long ret;
-  ret = lseek (handle, initialByte, SEEK_SET);
+  ret = checked::checkError (lseek (handle, initialByte, SEEK_SET));
   return (ret != initialByte ) ? 1 : 0;
 }
 
@@ -375,7 +388,7 @@ int File::read (char* buffer, u_long buffersize, u_long* nbr)
 int File::fastCopyToSocket (Socket *dest, u_long firstByte, MemBuf *buf, u_long *nbw)
 {
   *nbw = 0;
-#ifdef SENDFILE
+#ifdef HAVE_SYS_SENDFILE_H
   off_t offset = firstByte;
   size_t fileSize = getFileSize ();
   while (1)

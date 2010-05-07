@@ -20,14 +20,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "myserver.h"
 #include <include/base/utility.h>
 #include <include/base/string/securestr.h>
+
 extern "C"
 {
 #include <chdir-long.h>
 }
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "nproc.h"
+
 #ifndef WIN32
 # include <unistd.h>
 # include <signal.h>
@@ -35,12 +38,9 @@ extern "C"
 # include <sys/wait.h>
 # include <sys/time.h>
 # include <errno.h>
-
-# ifdef ERRORH
-#  include <error.h>
-# endif
 #endif
 
+#include <include/base/exceptions/checked.h>
 
 #ifdef WIN32
 # include <direct.h>
@@ -70,7 +70,7 @@ static int initializeCwd ()
   if (currentPath)
     return 0;
 
-  currentPath = gnulib::getcwd (NULL, 0);
+  currentPath = checked::getcwd (NULL, 0);
   if (!currentPath)
     return -1;
 
@@ -145,7 +145,7 @@ char *getdefaultwd (char *path, int len)
 int setcwd (const char *dir)
 {
   int ret;
-  char *tmp = gnulib::strdup (dir);
+  char *tmp = checked::strdup (dir);
   if (!tmp)
     return -1;
 
@@ -204,7 +204,7 @@ u_long getTicks ()
   return GetTickCount ();
 #else
   struct timeval tval;
-  int ret = gnulib::gettimeofday (&tval, 0);
+  int ret = checked::gettimeofday (&tval, 0);
   if (ret == -1)
     return 0;
   return  (tval.tv_sec * 1000) + (tval.tv_usec / 1000);
@@ -230,7 +230,6 @@ int readFileHandle (SocketHandle s, Handle* fd)
   } cmh;
   char tbuf[4];
   struct iovec iov;
-  int ret;
   struct cmsghdr *cmsg;
 
   memset (&mh, 0, sizeof (mh));
@@ -241,10 +240,8 @@ int readFileHandle (SocketHandle s, Handle* fd)
   iov.iov_base = tbuf;
   iov.iov_len = 4;
 
-  ret = recvmsg (s, &mh, 0);
-  if (ret < 0)
-    return ret;
-
+  /* FIXME:  add recvmsg to checked.  */
+  checked::checkError (recvmsg (s, &mh, 0));
   cmsg = CMSG_FIRSTHDR (&mh);
   *fd = *((int *) CMSG_DATA (cmsg));
   return 0;
@@ -284,8 +281,9 @@ int writeFileHandle (SocketHandle s, Handle fd)
   cmsg->cmsg_len = CMSG_LEN (sizeof (int));
   cmsg->cmsg_level = SOL_SOCKET;
   cmsg->cmsg_type = SCM_RIGHTS;
-  *(int *)CMSG_DATA (cmsg) = fd;
+  *(int *) CMSG_DATA (cmsg) = fd;
 
-  return sendmsg (s, &mh, 0);
+  /* FIXME: add sendmsg to checked.  */
+  return checked::checkError (sendmsg (s, &mh, 0));
 #endif
 }

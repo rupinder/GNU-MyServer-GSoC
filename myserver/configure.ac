@@ -28,6 +28,8 @@ AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([gnu])
 
+AC_CONFIG_SRCDIR([src/myserver.cpp])
+
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 AC_CONFIG_MACRO_DIR([m4])
@@ -54,8 +56,6 @@ LT_INIT
 AC_DEFINE([WINVER], [0x0501], [WINVER])
 AC_DEFINE([DEPENDS_ON_LIBINTL], [1], [DEPENDS_ON_LIBINTL])
 AC_DEFINE([GNULIB_NAMESPACE], [gnulib], [GNULIB_NAMESPACE])
-
-LT_INIT
 
 AC_CANONICAL_HOST
 
@@ -87,23 +87,16 @@ AC_ARG_ENABLE([tests], [--disable-tests Disable the tests suite],
 AC_ARG_ENABLE([gui], [--enable-gui Build and install GUI application],
 		     enable_gui="yes", enable_gui="")
 
-
-AC_CHECK_HEADER([argp.h], AC_DEFINE(ARGP, 1,
-			  [Define if GNU argp tools are available]))
-AC_CHECK_HEADER([error.h], AC_DEFINE(ERRORH, 1,
-			   [Define if the error.h file is present]))
-AC_CHECK_HEADER([grp.h], AC_DEFINE(GRP, 1, [Define if grp.h is available]))
-AC_CHECK_HEADER([sys/sendfile.h], AC_DEFINE(SENDFILE, 1,
-				  [Define if the sendfile syscall is present]))
+AC_CHECK_HEADERS([execinfo.h grp.h sys/sendfile.h])
 
 gl_INIT
 
 AC_CHECK_FUNCS(regcomp setgroups localtime_r posix_fallocate \
-		           openat fstatat getpwnam ffsl readdir_r)
+		           openat fstatat getpwnam ffsl readdir_r backtrace backtrace_symbols)
 
 case "${host}" in
     *-*-mingw32*)
-     LIBS="$LIBS -lwsock32 -lws2_32 -lgdi32 -lole32  -luuid -luserenv"
+     LIBS="$LIBS -lwsock32 -lws2_32"
      MAKE_MSCGI=yes
      LTCFLAGS=""
      ;;
@@ -400,6 +393,7 @@ AC_CONFIG_FILES([ po/Makefile.in
     include/base/Makefile
     include/base/bitvec/Makefile
     include/base/read_directory/Makefile
+    include/base/exceptions/Makefile
     include/base/file/Makefile
     include/base/pipe/Makefile
     include/base/base64/Makefile
@@ -457,6 +451,7 @@ AC_CONFIG_FILES([ po/Makefile.in
     src/base/Makefile
     src/base/bitvec/Makefile
     src/base/read_directory/Makefile
+    src/base/exceptions/Makefile
     src/base/file/Makefile
     src/base/pipe/Makefile
     src/base/base64/Makefile

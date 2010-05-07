@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-gzipincludedir=$(includedir)/myserver/include/filter/gzip
-gzipinclude_HEADERS = gzip_decompress.h gzip.h
+includedir=@includedir@/myserver/include/filter/gzip
+include_HEADERS = gzip_decompress.h gzip.h
 SUBDIRS =
 

@@ -158,6 +158,18 @@ public:
 
   SecurityToken *getSecurityToken (){return &(td->securityToken);}
   HttpProtocol *getStaticData () {return staticData;}
+
+  /* Helper function used in different places.  Probably this is not
+     the best place for it.  */
+  bool areSymlinksAllowed ()
+  {
+    const char *perm = td->securityToken.getData ("symlinks.follow",
+                                                  MYSERVER_VHOST_CONF
+                                                  | MYSERVER_SERVER_CONF,
+                                                  "NO");
+    return strcasecmp (perm, "YES") == 0;
+  }
+
 protected:
   int processDefaultFile (string& uri, int permissions, int onlyHeader);
 

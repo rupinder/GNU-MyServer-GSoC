@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-controlincludedir=$(includedir)/myserver/include/protocol/control
-controlinclude_HEADERS = control_errors.h control_header.h control_protocol.h
+includedir=@includedir@/myserver/include/protocol/control
+include_HEADERS = control_errors.h control_header.h control_protocol.h
 SUBDIRS =
 

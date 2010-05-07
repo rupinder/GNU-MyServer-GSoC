@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-logincludedir=$(includedir)/myserver/include/log
-loginclude_HEADERS = log_manager.h
+includedir=@includedir@/myserver/include/log
+include_HEADERS = log_manager.h
 SUBDIRS = stream
 

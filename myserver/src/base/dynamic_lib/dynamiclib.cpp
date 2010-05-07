@@ -18,6 +18,25 @@
 
 #include "myserver.h"
 #include <include/base/dynamic_lib/dynamiclib.h>
+#include <include/base/exceptions/exceptions.h>
+
+
+class DynError : public AbstractServerException
+{
+public:
+  DynError (const char *err)
+  {
+    this->err = err;
+  }
+
+  virtual const char *what () const throw ()
+  {
+    return err;
+  }
+private:
+  const char *err;
+};
+
 
 /*!
  * Initialize class internal data.
@@ -45,6 +64,9 @@ int DynamicLibrary::loadLibrary (const char* filename, int globally)
   fileName.assign (filename);
 #ifdef WIN32
   handle = LoadLibrary (filename);
+  /* FIXME: use a real error message.  */
+  if (handle == NULL)
+    throw DynError ("");
 #endif
 
 #ifdef HAVE_DL
@@ -59,6 +81,9 @@ int DynamicLibrary::loadLibrary (const char* filename, int globally)
 # endif
 
   handle = dlopen (filename, flag);
+  if (handle == NULL)
+    throw DynError (dlerror ());
+
 #endif
   return handle ? 0 : 1;
 }
@@ -73,7 +98,7 @@ void* DynamicLibrary::getProc (const char* fnName)
   if (!handle)
     return 0;
 #ifdef WIN32
-    return (void*) GetProcAddress ((HMODULE)handle, fnName);
+    return (void*) GetProcAddress ((HMODULE) handle, fnName);
 #endif
 #ifdef HAVE_DL
     return (void*) dlsym (handle, fnName);
@@ -89,10 +114,15 @@ int DynamicLibrary::close ()
   if (!handle)
     return 1;
 #ifdef WIN32
-    ret = FreeLibrary ((HMODULE)handle) ? 0 : 1;
+    ret = FreeLibrary ((HMODULE) handle) ? 0 : 1;
+    /* FIXME: use a real error message.  */
+    if (! ret)
+      throw DynError ("");
 #endif
 #ifdef HAVE_DL
     ret = dlclose (handle);
+    if (ret)
+      throw DynError (dlerror ());
 #endif
     handle = 0;
     fileName.assign ("");

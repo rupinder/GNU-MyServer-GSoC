@@ -23,9 +23,9 @@
 # include "myserver.h"
 # include <include/filter/stream.h>
 # include <string>
-
 # include <include/base/socket/socket.h>
 # include <include/base/mem_buff/mem_buff.h>
+# include <sys/stat.h>
 
 using namespace std;
 
@@ -42,6 +42,7 @@ public:
   static const u_long APPEND;
   static const u_long FILE_CREATE_ALWAYS;
   static const u_long NO_INHERIT;
+  static const u_long NO_FOLLOW_SYMLINK;
 
   File ();
   File (char *,int);
@@ -79,6 +80,8 @@ public:
                                 MemBuf *buf, u_long *nbw);
 
   int truncate (u_long size = 0);
+
+  void fstat (struct stat *fstat);
 
   /*! Get the options mask used with openFile.  */
   u_long getOpenOptions (){return opt;}

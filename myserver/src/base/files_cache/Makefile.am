@@ -14,10 +14,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-AM_CXXFLAGS="-I$(top_srcdir)/lib"
+AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libfiles_cache.la
 libfiles_cache_la_SOURCES = cached_file_buffer.cpp cached_file.cpp \
 			   cached_file_factory.cpp membuf_file.cpp
 SUBDIRS =
-AM_CPPFLAGS = $(all_includes)
 

@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-pipeincludedir=$(includedir)/myserver/include/base/pipe
-pipeinclude_HEADERS = pipe.h
+includedir=@includedir@/myserver/include/base/pipe
+include_HEADERS = pipe.h
 SUBDIRS =
 

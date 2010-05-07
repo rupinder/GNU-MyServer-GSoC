@@ -43,6 +43,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <sstream>
 
+#include <include/base/exceptions/checked.h>
+
 using namespace std;
 
 
@@ -75,7 +77,7 @@ int SocketPair::create ()
     return -1;
 
   handles[0] = handles[1] = -1;
-  listener = gnulib::socket (AF_INET, SOCK_STREAM, 0);
+  listener = checked::socket (AF_INET, SOCK_STREAM, 0);
 
   if (listener < 0)
     return -1;
@@ -85,47 +87,47 @@ int SocketPair::create ()
   addr.sin_addr.s_addr = htonl (0x7f000001);
   addr.sin_port = 0;
 
-  if (gnulib::bind (listener, (struct sockaddr*) &addr, sizeof (addr)) < 0)
+  if (checked::bind (listener, (struct sockaddr*) &addr, sizeof (addr)) < 0)
     {
-      gnulib::close (listener);
+      checked::close (listener);
       return -1;
     }
 
-  if (gnulib::getsockname (listener, (struct sockaddr*) &addr, &addrlen) < 0)
+  if (checked::getsockname (listener, (struct sockaddr*) &addr, &addrlen) < 0)
     {
-      gnulib::close (listener);
+      checked::close (listener);
       return -1;
     }
 
   do
     {
-      if (gnulib::listen (listener, 1) < 0)
+      if (checked::listen (listener, 1) < 0)
         break;
 
-      if ((handles[0] = gnulib::socket (AF_INET, SOCK_STREAM, 0)) < 0)
+      if ((handles[0] = checked::socket (AF_INET, SOCK_STREAM, 0)) < 0)
         break;
 
-      if (gnulib::connect (handles[0], (struct sockaddr*) &addr,
+      if (checked::connect (handles[0], (struct sockaddr*) &addr,
                            sizeof (addr)) < 0)
         break;
 
-      if ((handles[1] = gnulib::accept (listener, NULL, NULL)) < 0)
+      if ((handles[1] = checked::accept (listener, NULL, NULL)) < 0)
         break;
 
       fd = handles[0];
 
-      gnulib::close (listener);
+      checked::close (listener);
       return 0;
     } while (0);
 
-  gnulib::close (listener);
+  checked::close (listener);
 
   if (handles[0] != -1)
-    gnulib::close (handles[0]);
+    checked::close (handles[0]);
 
 
   if (handles[1] != -1)
-    gnulib::close (handles[1]);
+    checked::close (handles[1]);
 
   return -1;
 #endif
@@ -180,8 +182,11 @@ int SocketPair::close ()
  */
 void SocketPair::closeFirstHandle ()
 {
-  Socket sock (handles[0]);
-  sock.close ();
+  if (handles[0] < 0)
+    return;
+
+  checked::close (handles[0]);
+  fd = handles[0] = -1;
 }
 
 /*!
@@ -189,8 +194,11 @@ void SocketPair::closeFirstHandle ()
  */
 void SocketPair::closeSecondHandle ()
 {
-  Socket sock (handles[1]);
-  sock.close ();
+  if (handles[1] < 0)
+    return;
+
+  checked::close (handles[1]);
+  handles[1] = -1;
 }
 
 /*!

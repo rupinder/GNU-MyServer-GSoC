@@ -172,8 +172,8 @@ if  not env.GetOption('clean'):
     if conf.CheckFunc("localtime_r"):
         conf.Define('LOCALTIME_R', 1)
 
-    if conf.CheckFunc("sendfile"):
-        conf.Define('SENDFILE', 1)
+    if conf.CheckHeader("sys/sendfile.h"):
+        conf.Define('HAVE_SYS_SENDFILE_H', 1)
 
     if conf.CheckFunc("setgroups"):
         conf.Define('SETGROUPS', 1)
@@ -188,12 +188,6 @@ if  not env.GetOption('clean'):
 
     if conf.CheckHeader("stdint.h"):
         conf.Define('STDINT_H', 1)
-
-    if conf.CheckHeader("argp.h"):
-        conf.Define('ARGP', 1)
-
-    if conf.CheckHeader("error.h"):
-        conf.Define('ERROR_H', 1)
 
     if conf.CheckHeader("stdlib.h"):
         conf.Define('STDLIB_H', 1)
@@ -220,7 +214,7 @@ if  not env.GetOption('clean'):
         conf.Define('UNISTD_H', 1)
 
     if conf.CheckHeader("grp.h"):
-        conf.Define('GRP', 1)
+        conf.Define('HAVE_GRP_H', 1)
 
     if conf.CheckHeader("dlfcn.h"):
         conf.Define('DLFCN_H', 1)

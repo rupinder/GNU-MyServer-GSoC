@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-mscgiincludedir=$(includedir)/myserver/include/http_handler/mscgi
-mscgiinclude_HEADERS = mscgi.h mscgi_manager.h
+includedir=@includedir@/myserver/include/http_handler/mscgi
+include_HEADERS = mscgi.h mscgi_manager.h
 SUBDIRS =
 

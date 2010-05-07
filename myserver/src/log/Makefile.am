@@ -14,11 +14,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-AM_CXXFLAGS="-I$(top_srcdir)/lib"
+AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = liblog.la
 liblog_la_SOURCES = log_manager.cpp
 SUBDIRS = stream
-AM_CPPFLAGS = $(all_includes)
 
 install:
 # Do not do anything.

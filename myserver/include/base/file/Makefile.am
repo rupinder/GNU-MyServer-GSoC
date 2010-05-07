@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-fileincludedir=$(includedir)/myserver/include/base/file
-fileinclude_HEADERS = file.h files_utility.h
+includedir=@includedir@/myserver/include/base/file
+include_HEADERS = file.h files_utility.h
 SUBDIRS =
 

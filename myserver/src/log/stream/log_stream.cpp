@@ -47,19 +47,28 @@ LogStream::resetFilters ()
 }
 
 int
-LogStream::log (const string & message)
+LogStream::log (const string & message, LoggingLevel level)
 {
-  mutex->lock ();
   int success = 0;
-  if (needToCycle ())
+
+  mutex->lock ();
+
+  try
     {
-      success = doCycle () || write (message);
+      if (needToCycle ())
+        success = doCycle () || initialize (level) || write (message) ||
+          finalize ();
+      else
+        success = initialize (level) || write (message) || finalize ();
     }
-  else
+  catch (...)
     {
-      success = write (message);
+      mutex->unlock ();
+      throw;
     }
+
   mutex->unlock ();
+
   return success;
 }
 
@@ -111,14 +120,23 @@ LogStream::getFiltersChain ()
 int
 LogStream::close ()
 {
+  int success = 0;
   mutex->lock ();
-  int success = 1;
-  isOpened = fc->flush (&nbw) || out->close ();
-  if (!isOpened)
+  try
     {
-      success = 0;
+      success = 1;
+      isOpened = fc->flush (&nbw) || out->close ();
+      if (!isOpened)
+        success = 0;
+
+      mutex->unlock ();
     }
-  mutex->unlock ();
+  catch (...)
+    {
+      mutex->unlock ();
+      throw;
+    }
+
   return success;
 }
 
@@ -131,7 +149,11 @@ LogStream::update (LogStreamEvent evt, void* message, void* reply)
       return !isOpened || setCycle (*static_cast<u_long*>(message));
 
     case MYSERVER_LOG_EVT_LOG:
-      return !isOpened || log (*static_cast<string*>(message));
+      {
+        string& logMsg = *static_cast<string*>(static_cast<void**>(message)[0]);
+        LoggingLevel lvl = *static_cast<LoggingLevel*>(static_cast<void**>(message)[1]);
+        return !isOpened || log (logMsg, lvl);
+      }
 
     case MYSERVER_LOG_EVT_CLOSE:
       return !isOpened || close ();
@@ -143,11 +165,6 @@ LogStream::update (LogStreamEvent evt, void* message, void* reply)
     case MYSERVER_LOG_EVT_CHOWN:
         return !isOpened || chown (static_cast<int*>(message)[0],
                                    static_cast<int*>(message)[1]);
-
-    case MYSERVER_LOG_EVT_SET_MODE:
-        return !isOpened
-          || setMode (*static_cast<LoggingLevel*>(message));
-
     }
 
   return 1;
@@ -156,18 +173,42 @@ LogStream::update (LogStreamEvent evt, void* message, void* reply)
 int
 LogStream::addFilter (Filter* filter)
 {
+  int success = 0;
   mutex->lock ();
-  int success = fc->addFilter (filter, &nbw);
+  try
+  {
+    success = fc->addFilter (filter, &nbw);
+    mutex->unlock ();
+  }
+  catch (...)
+    {
+      mutex->unlock ();
+      throw;
+    }
+
   mutex->unlock ();
+
   return success;
 }
 
 int
 LogStream::removeFilter (Filter* filter)
 {
+  int success = 0;
   mutex->lock ();
-  int success = fc->removeFilter (filter);
+  try
+  {
+    success = fc->removeFilter (filter);
+    mutex->unlock ();
+  }
+  catch (...)
+    {
+      mutex->unlock ();
+      throw;
+    }
+
   mutex->unlock ();
+
   return success;
 }
 
@@ -214,7 +255,13 @@ LogStream::chown (int uid, int gid)
 }
 
 int
-LogStream::setMode (LoggingLevel level)
+LogStream::initialize (LoggingLevel level)
+{
+  return 0;
+}
+
+int 
+LogStream::finalize ()
 {
   return 0;
 }

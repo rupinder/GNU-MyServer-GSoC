@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-isapiincludedir=$(includedir)/myserver/include/http_handler/isapi
-isapiinclude_HEADERS = isapi.h
+includedir=@includedir@/myserver/include/http_handler/isapi
+include_HEADERS = isapi.h
 SUBDIRS =
 

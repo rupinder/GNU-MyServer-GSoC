@@ -47,13 +47,34 @@ public:
     ff->insert ("gzip", Gzip::factory);
   }
 
+  void tearDown ()
+  {
+    delete ff;
+    delete fsc;
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
+  }
+
   void testCycleLog ()
   {
     list<string> filters;
     string message;
     string message2;
     LogStream* ls;
-    FilesUtility::deleteFile ("foo");
+    LoggingLevel level = MYSERVER_LOG_MSG_INFO;
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
+
     ostringstream oss;
 
     oss << "thisisaverylongmessage" << endl;
@@ -64,8 +85,8 @@ public:
 
     ls = fsc->create (ff, "foo", filters, 10);
     CPPUNIT_ASSERT (ls);
-    CPPUNIT_ASSERT (!ls->log (message));
-    CPPUNIT_ASSERT (!ls->log (message2));
+    CPPUNIT_ASSERT (!ls->log (message, level));
+    CPPUNIT_ASSERT (!ls->log (message2, level));
     ls->close ();
     File f;
     f.openFile ("foo", File::READ | File::OPEN_IF_EXISTS);
@@ -87,7 +108,7 @@ public:
         CPPUNIT_ASSERT_EQUAL (nbr, (u_long) message.length ());
         CPPUNIT_ASSERT (!message.compare (buf));
         f.close ();
-        CPPUNIT_ASSERT (!FilesUtility::deleteFile (*it));
+        CPPUNIT_ASSERT (! FilesUtility::deleteFile (*it));
       }
     delete ls;
   }
@@ -102,6 +123,7 @@ public:
     string message1;
     string message2;
     ostringstream oss;
+    LoggingLevel level = MYSERVER_LOG_MSG_INFO;
 
     oss << "message1" << endl;
     message1.assign (oss.str ());
@@ -109,16 +131,22 @@ public:
     oss << endl;
     message2.assign (oss.str ());
 
-    FilesUtility::deleteFile ("foo");
+    try
+      {
+        FilesUtility::deleteFile ("foo");
+      }
+    catch (...)
+      {
+      }
     ls = fsc->create (ff, "foo", filters, 0);
     CPPUNIT_ASSERT (ls);
-    ls->log (message1);
+    ls->log (message1, level);
     ls->close ();
     delete ls;
 
     ls = fsc->create (ff, "foo", filters, 0);
     CPPUNIT_ASSERT (ls);
-    ls->log (message2);
+    ls->log (message2, level);
     ls->close ();
     delete ls;
 
@@ -128,13 +156,6 @@ public:
     buf[nbr] = '\0';
     CPPUNIT_ASSERT_EQUAL (nbr, (u_long)(message1.length () + message2.length ()));
     CPPUNIT_ASSERT (!string (buf).compare (message1.append (message2)));
-  }
-
-  void tearDown ()
-  {
-    delete ff;
-    delete fsc;
-    FilesUtility::deleteFile ("foo");
   }
 
 private:

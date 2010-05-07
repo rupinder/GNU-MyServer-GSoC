@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-envincludedir=$(includedir)/myserver/include/protocol/http/env
-envinclude_HEADERS = env.h
+includedir=@includedir@/myserver/include/protocol/http/env
+include_HEADERS = env.h
 SUBDIRS =
 

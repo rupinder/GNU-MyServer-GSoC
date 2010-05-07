@@ -50,7 +50,7 @@ public:
                                      AuthMethod* authMethod);
 
 
-  string *getValue (HashMap<string, SecurityDomain*> *hashedDomains,
+  const string *getValue (HashMap<string, SecurityDomain*> *hashedDomains,
                     string &name);
 protected:
   bool comparePassword (const char *password, const char *savedPassword,
