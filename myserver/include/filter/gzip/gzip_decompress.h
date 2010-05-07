@@ -25,9 +25,7 @@
 # include <include/filter/gzip/gzip.h>
 
 # ifdef HAVE_ZLIB
-#  include "zlib.h"
-# else
-#  define z_stream (void*)
+#  include <zlib.h>
 # endif
 
 
@@ -36,7 +34,9 @@ class GzipDecompress : public Filter
 public:
   struct GzipData
   {
+# ifdef HAVE_ZLIB
     z_stream stream;
+# endif
     u_long crc;
     u_long data_size;
     u_long initialized;

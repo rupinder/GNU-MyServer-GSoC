@@ -23,9 +23,7 @@
 # include <include/filter/filter.h>
 
 # ifdef HAVE_ZLIB
-#  include "zlib.h"
-# else
-#  define z_stream (void*)
+#  include <zlib.h>
 # endif
 
 # define GZIP_HEADER_LENGTH             10
@@ -38,10 +36,12 @@ class Gzip : public Filter
 public:
   struct GzipData
   {
+# ifdef HAVE_ZLIB
     z_stream stream;
     u_long crc;
     u_long data_size;
     u_long initialized;
+# endif
   };
   static u_long compressBound (int size);
 

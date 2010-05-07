@@ -35,9 +35,10 @@
 # include <algorithm>
 #endif
 
+#ifdef HAVE_ZLIB
 char GZIP_HEADER[] = {(char)0x1f, (char)0x8b, Z_DEFLATED,
                                  0, 0, 0, 0, 0, 0, 0x03};
-
+#endif
 
 /*!
  * Initialize the gzip structure value.
@@ -244,12 +245,16 @@ u_long Gzip::getFooter (char *footer, int /*size*/)
  * \param buffer Buffer where write.
  * \param buffersize Buffer length.
  */
-u_long Gzip::getHeader (char *buffer,u_long buffersize)
+u_long Gzip::getHeader (char *buffer, u_long buffersize)
 {
+#if HAVE_ZLIB
   if (buffersize < GZIP_HEADER_LENGTH)
     return 0;
   memcpy (buffer, GZIP_HEADER, GZIP_HEADER_LENGTH);
   return GZIP_HEADER_LENGTH;
+#else
+  return 0;
+#endif
 }
 
 /*!

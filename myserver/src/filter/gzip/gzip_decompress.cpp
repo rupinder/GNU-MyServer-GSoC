@@ -195,10 +195,14 @@ u_long GzipDecompress::getFooter (char *str, int /*size*/)
  */
 u_long GzipDecompress::getHeader (char *buffer, u_long buffersize)
 {
+#ifdef HAVE_ZLIB
   if (buffersize < GZIP_HEADER_LENGTH)
     return 0;
   memcpy (buffer, GZIP_HEADER, GZIP_HEADER_LENGTH);
   return GZIP_HEADER_LENGTH;
+#else
+  return 0;
+#endif
 }
 
 /*!
