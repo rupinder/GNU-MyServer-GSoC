@@ -151,7 +151,7 @@ PluginsManager::preLoad (Server* server, string &resource)
 
       dirname.append ("/");
       dirname.append (fdir.name);
-      if (fdir.name[0] == '.')
+      if (fdir.name[0] == '.' || !FilesUtility::isDirectory (dirname.c_str ()))
         continue;
 
       try
