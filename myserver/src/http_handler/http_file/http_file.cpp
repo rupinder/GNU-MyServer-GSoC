@@ -42,6 +42,10 @@ using namespace std;
 int HttpFile::putFile (HttpThreadContext* td, string& filename)
 {
   u_long firstByte = td->request.rangeByteBegin;
+  int successCode = 500;
+  File file;
+  int symFlags = td->http->areSymlinksAllowed () ? 0
+    : File::NO_FOLLOW_SYMLINK;
 
   try
   {
@@ -53,11 +57,8 @@ int HttpFile::putFile (HttpThreadContext* td, string& filename)
 
     if (FilesUtility::nodeExists (td->filenamePath.c_str ()))
       {
-        File file;
         try
           {
-            int symFlags = td->http->areSymlinksAllowed () ? 0
-              : File::NO_FOLLOW_SYMLINK;
             file.openFile (td->filenamePath.c_str (), File::OPEN_IF_EXISTS
                            | File::WRITE | symFlags);
           }
@@ -69,48 +70,13 @@ int HttpFile::putFile (HttpThreadContext* td, string& filename)
             return td->http->raiseHTTPError (500);
           }
 
-        file.seek (firstByte);
-
-        for (;;)
-          {
-            u_long nbr = 0, nbw = 0;
-            if (td->inputData.read (td->buffer->getBuffer (),
-                                   td->buffer->getRealLength (), &nbr))
-              {
-                file.close ();
-                return td->http->raiseHTTPError (500);
-              }
-
-            if (nbr)
-              {
-                if (file.writeToFile (td->buffer->getBuffer (), nbr, &nbw))
-                  {
-                    file.close ();
-                    return td->http->raiseHTTPError (500);
-                  }
-              }
-            else
-              break;
-
-          if (nbw != nbr)
-            {
-              file.close ();
-              return td->http->raiseHTTPError (500);
-            }
-        }
-        file.close ();
-
-        td->http->raiseHTTPError (200);
-        return HttpDataHandler::RET_OK;
+        successCode = 200;
       }
     else
       {
         /* The file doesn't exist.  */
-        File file;
         try
           {
-            int symFlags = td->http->areSymlinksAllowed () ? 0
-              : File::NO_FOLLOW_SYMLINK;
             file.openFile (td->filenamePath.c_str (), File::FILE_CREATE_ALWAYS
                            | File::WRITE | symFlags);
           }
@@ -122,38 +88,45 @@ int HttpFile::putFile (HttpThreadContext* td, string& filename)
             return td->http->raiseHTTPError (500);
           }
 
-        for (;;)
+        successCode = 201;
+      }
+
+    if (firstByte)
+      file.seek (firstByte);
+
+    for (;;)
+      {
+        u_long nbr = 0, nbw = 0;
+        if (td->inputData.read (td->buffer->getBuffer (),
+                                td->buffer->getRealLength (), &nbr))
           {
-            u_long nbr = 0, nbw = 0;
-            if (td->inputData.read (td->buffer->getBuffer (),
-                                    td->buffer->getRealLength (), &nbr))
-              {
-                file.close ();
-                return td->http->raiseHTTPError (500);
-              }
+            file.close ();
+            return td->http->raiseHTTPError (500);
+          }
 
-            if (nbr)
-              {
-                if (file.writeToFile (td->buffer->getBuffer (), nbr, &nbw))
-                  {
-                    file.close ();
-                    return td->http->raiseHTTPError (500);
-                  }
-              }
-            else
-              break;
-
-            if (nbw != nbr)
+        if (! nbr)
+          break;
+        else
+          {
+            if (file.writeToFile (td->buffer->getBuffer (), nbr, &nbw))
               {
                 file.close ();
                 return td->http->raiseHTTPError (500);
               }
           }
-        file.close ();
 
-        td->http->raiseHTTPError (201);
-        return HttpDataHandler::RET_OK;
+        if (nbw != nbr)
+          {
+            file.close ();
+            return td->http->raiseHTTPError (500);
+          }
       }
+
+    file.close ();
+
+    td->http->raiseHTTPError (successCode);
+    return HttpDataHandler::RET_OK;
+
   }
   catch (exception & e)
     {
