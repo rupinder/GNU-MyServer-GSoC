@@ -85,7 +85,7 @@ bool HttpRequestHeader::isKeepAlive ()
 {
   Entry *connection = other.get ("connection");
   if (connection)
-    return (! stringcmpi (*connection->value,
+    return (! stringcmpi (connection->value,
                           "keep-alive"));
 
   return false;

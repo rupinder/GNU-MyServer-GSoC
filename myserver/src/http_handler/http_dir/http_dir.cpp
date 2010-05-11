@@ -557,15 +557,15 @@ int HttpDir::send (HttpThreadContext* td,
       *td->auxiliaryBuffer << "</table>\r\n<hr />\r\n<address>"
                            << MYSERVER_VERSION;
 
-      if (host && host->value->length ())
+      if (host && host->value.length ())
         {
           ostringstream portBuff;
-          size_t portSeparator = host->value->find (':');
+          size_t portSeparator = host->value.find (':');
           *td->auxiliaryBuffer << " on ";
           if (portSeparator != string::npos)
-            *td->auxiliaryBuffer << host->value->substr (0, portSeparator).c_str () ;
+            *td->auxiliaryBuffer << host->value.substr (0, portSeparator).c_str () ;
           else
-            *td->auxiliaryBuffer << host->value->c_str () ;
+            *td->auxiliaryBuffer << host->value.c_str () ;
 
           *td->auxiliaryBuffer << " Port ";
           portBuff << td->connection->getLocalPort ();

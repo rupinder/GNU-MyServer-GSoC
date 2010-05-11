@@ -136,8 +136,8 @@ int Http::optionsHTTPRESOURCE (string& filename, int yetmapped)
       *td->auxiliaryBuffer << "HTTP/1.1 200 OK\r\n";
       *td->auxiliaryBuffer << "Date: " << time;
       *td->auxiliaryBuffer << "\r\nServer: GNU MyServer " << MYSERVER_VERSION;
-      if (connection && connection->value->length ())
-        *td->auxiliaryBuffer << "\r\nConnection:" << connection->value->c_str () << "\r\n";
+      if (connection && connection->value.length ())
+        *td->auxiliaryBuffer << "\r\nConnection:" << connection->value.c_str () << "\r\n";
       *td->auxiliaryBuffer << "Content-length: 0\r\nAccept-Ranges: bytes\r\n";
       *td->auxiliaryBuffer << "Allow: " << methods << "\r\n\r\n";
       td->connection->socket->send (td->auxiliaryBuffer->getBuffer (),
@@ -178,8 +178,8 @@ int Http::traceHTTPRESOURCE (string& filename, int yetmapped)
       *td->auxiliaryBuffer << "Date: " << time << "\r\n";
       *td->auxiliaryBuffer << "Server: GNU MyServer " << MYSERVER_VERSION << "\r\n";
       connection = td->request.other.get ("connection");
-      if (connection && connection->value->length ())
-        *td->auxiliaryBuffer << "Connection:" << connection->value->c_str () << "\r\n";
+      if (connection && connection->value.length ())
+        *td->auxiliaryBuffer << "Connection:" << connection->value.c_str () << "\r\n";
 
       *td->auxiliaryBuffer << "Content-length:" << tmp << "\r\n"
               << "Content-type: message/http\r\n"
@@ -795,8 +795,8 @@ int Http::logHTTPaccess ()
           HttpRequestHeader::Entry *referer = td->request.other.get ("refer");
 
           if (strstr ((td->connection->host)->getAccessLogOpt (), "type=combined"))
-            *td->auxiliaryBuffer << " " << (referer ? referer->value->c_str () : "")
-            << " " << (userAgent ? userAgent->value->c_str () : "");
+            *td->auxiliaryBuffer << " " << (referer ? referer->value.c_str () : "")
+            << " " << (userAgent ? userAgent->value.c_str () : "");
         }
 
       *td->auxiliaryBuffer << end_str;
@@ -974,11 +974,11 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
           HttpRequestHeader::Entry *connection
             = td->request.other.get ("connection");
           if (connection)
-            keepalive = !stringcmpi (connection->value->c_str (), "keep-alive")
+            keepalive = !stringcmpi (connection->value.c_str (), "keep-alive")
               && !td->request.ver.compare ("HTTP/1.1");
 
           if (! td->request.ver.compare ("HTTP/1.1")
-              && (host == NULL || host->value->length () == 0))
+              && (host == NULL || host->value.length () == 0))
             {
               int ret = raiseHTTPError (400);
               logHTTPaccess ();
@@ -990,7 +990,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
 
           /* Find the virtual host to check both host name and IP value.  */
           Vhost* newHost = Server::getInstance ()->getVhosts ()->getVHost (host ?
-                                                       host->value->c_str () : "",
+                                                       host->value.c_str () : "",
                                          a->getLocalIpAddr (), a->getLocalPort ());
           if (a->host)
             a->host->removeRef ();
@@ -1218,13 +1218,13 @@ int Http::requestAuthorization ()
   *td->auxiliaryBuffer << "Server: GNU MyServer " << MYSERVER_VERSION << "\r\n";
   *td->auxiliaryBuffer << "Content-type: text/html\r\n"
           << "Connection: ";
-  *td->auxiliaryBuffer << (connection ? connection->value->c_str () : "");
+  *td->auxiliaryBuffer << (connection ? connection->value.c_str () : "");
   *td->auxiliaryBuffer << "\r\nContent-length: 0\r\n";
 
   if (td->authScheme == HTTP_AUTH_SCHEME_BASIC)
     {
       *td->auxiliaryBuffer << "WWW-Authenticate: Basic realm=\""
-                           << (host ? host->value->c_str () : "")
+                           << (host ? host->value.c_str () : "")
                            << "\"\r\n";
     }
   else if (td->authScheme == HTTP_AUTH_SCHEME_DIGEST)
@@ -1242,7 +1242,7 @@ int Http::requestAuthorization ()
           hud->reset ();
         }
 
-      myserver_strlcpy (hud->realm, host ? host->value->c_str () : "", 48);
+      myserver_strlcpy (hud->realm, host ? host->value.c_str () : "", 48);
 
       /* Just a random string.  */
       md5Str[0] = (char) td->id;
@@ -1331,7 +1331,7 @@ int Http::raiseHTTPError (int ID)
 
       HttpHeaders::buildDefaultHTTPResponseHeader (&(td->response));
 
-      if (connection && !stringcmpi (connection->value->c_str (), "keep-alive"))
+      if (connection && !stringcmpi (connection->value.c_str (), "keep-alive"))
         td->response.setValue ("connection", "keep-alive");
 
       td->response.httpStatus = ID;
@@ -1346,7 +1346,7 @@ int Http::raiseHTTPError (int ID)
         {
           ostringstream nURL;
           int isPortSpecified = 0;
-          const char* hostStr = host ? host->value->c_str () : "";
+          const char* hostStr = host ? host->value.c_str () : "";
           /* Change the URI to reflect the default file name.  */
           nURL << protocolPrefix << hostStr;
           for (int i = 0; hostStr[i]; i++)
@@ -1647,7 +1647,7 @@ int Http::sendHTTPRedirect (const char *newURL)
           << "Location: " << newURL << "\r\n"
           << "Content-length: 0\r\n";
 
-  if (connection && !stringcmpi (connection->value->c_str (), "keep-alive"))
+  if (connection && !stringcmpi (connection->value.c_str (), "keep-alive"))
     *td->auxiliaryBuffer << "Connection: keep-alive\r\n";
   else
     *td->auxiliaryBuffer << "Connection: close\r\n";
@@ -1674,7 +1674,7 @@ int Http::sendHTTPNonModified ()
   *td->auxiliaryBuffer << "HTTP/1.1 304 Not Modified\r\nAccept-Ranges: bytes\r\n"
           << "Server: GNU MyServer " << MYSERVER_VERSION << "\r\n";
 
-  if (connection && !stringcmpi (connection->value->c_str (), "keep-alive"))
+  if (connection && !stringcmpi (connection->value.c_str (), "keep-alive"))
     *td->auxiliaryBuffer << "Connection: keep-alive\r\n";
   else
     *td->auxiliaryBuffer << "Connection: close\r\n";

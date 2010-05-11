@@ -228,7 +228,7 @@ BOOL WINAPI ISAPI_WriteClientExport (HCONN hConn, LPVOID Buffer, LPDWORD lpdwByt
     ((Vhost*)(ConnInfo->td->connection->host))->warningsLogWrite (_("ISAPI: internal error"));
     return HttpDataHandler::RET_FAILURE;
   }
-  keepalive = connection && (!stringcmpi (connection->value->c_str (), "keep-alive")) ;
+  keepalive = connection && (!stringcmpi (connection->value.c_str (), "keep-alive")) ;
 
   /*If the HTTP header was sent do not send it again. */
   if (!ConnInfo->headerSent)
@@ -286,12 +286,12 @@ BOOL WINAPI ISAPI_WriteClientExport (HCONN hConn, LPVOID Buffer, LPDWORD lpdwByt
                   HttpResponseHeader::Entry *e;
                   e = ConnInfo->td->response.other.get ("transfer-encoding");
                   if (e)
-                    e->value->assign ("chunked");
+                    e->value.assign ("chunked");
                   else
                     {
                       e = new HttpResponseHeader::Entry ();
-                      e->name->assign ("transfer-encoding");
-                      e->value->assign ("chunked");
+                      e->name.assign ("transfer-encoding");
+                      e->value.assign ("chunked");
                       ConnInfo->td->response.other.put (*(e->name), e);
                     }
                 }
@@ -501,15 +501,15 @@ BOOL Isapi::buildAllHttpHeaders (HttpThreadContext* td, ConnectionPtr /*!a*/,
   HttpRequestHeader::Entry *accept = td->request.other.get ("accept");
   HttpRequestHeader::Entry *cache = td->request.other.get ("cache-control");
 
-  if (accept && accept->value->length () && (valLen+30<maxLen))
+  if (accept && accept->value.length () && (valLen+30<maxLen))
     valLen += sprintf (&ValStr[valLen],"HTTP_ACCEPT:%s\n",
-                       accept->value->c_str ());
+                       accept->value.c_str ());
   else if (valLen + 30 < maxLen)
     return 1;
 
-  if (cache && cache->value->length () && (valLen+30<maxLen))
+  if (cache && cache->value.length () && (valLen+30<maxLen))
     valLen += sprintf (&ValStr[valLen], "HTTP_CACHE_CONTROL:%s\n",
-                       cache->value->c_str ());
+                       cache->value.c_str ());
   else if (valLen + 30 < maxLen)
     return 1;
 
@@ -529,84 +529,84 @@ BOOL Isapi::buildAllHttpHeaders (HttpThreadContext* td, ConnectionPtr /*!a*/,
   HttpRequestHeader::Entry* e = td->request.other.get ("accept-encoding");
   if (e && (valLen + 30 < maxLen))
     valLen += sprintf (&ValStr[valLen], "HTTP_ACCEPT_ENCODING:%s\n",
-                       e->value->c_str ());
+                       e->value.c_str ());
   else if (valLen + 30 < maxLen)
     return 1;
 
   e = td->request.other.get ("accept-language");
   if (e && (valLen + 30 < maxLen))
     valLen += sprintf (&ValStr[valLen],"HTTP_ACCEPT_LANGUAGE:%s\n",
-                       e->value->c_str ());
+                       e->value.c_str ());
   else if (valLen + 30 < maxLen)
     return 1;
 
   e = td->request.other.get ("accept-charset");
   if (e && (valLen + 30 < maxLen))
     valLen += sprintf (&ValStr[valLen],"HTTP_ACCEPT_CHARSET:%s\n",
-                       e->value->c_str ());
+                       e->value.c_str ());
   else if (valLen + 30 < maxLen)
     return 1;
 
   e = td->request.other.get ("pragma");
   if (e && (valLen + 30 < maxLen))
     valLen += sprintf (&ValStr[valLen],"HTTP_PRAGMA:%s\n",
-                       e->value->c_str ());
+                       e->value.c_str ());
   else if (valLen + 30 < maxLen)
     return 1;
 
   e = td->request.other.get ("connection");
   if (e && (valLen + 30< maxLen))
     valLen += sprintf (&ValStr[valLen],"HTTP_CONNECTION:%s\n",
-                       e->value->c_str ());
+                       e->value.c_str ());
   else if (valLen + 30 < maxLen)
     return 1;
 
   e = td->request.other.get ("cookie");
   if (e && (valLen + 30 < maxLen))
     valLen += sprintf (&ValStr[valLen],"HTTP_COOKIE:%s\n",
-                       e->value->c_str ());
+                       e->value.c_str ());
   else if (valLen + 30 < maxLen)
     return 1;
 
   e = td->request.other.get ("host");
   if (e && (valLen + 30 < maxLen))
     valLen += sprintf (&ValStr[valLen],"HTTP_HOST:%s\n",
-                       e->value->c_str ());
+                       e->value.c_str ());
   else if (valLen + 30 < maxLen)
     return 1;
 
   e = td->request.other.get ("date");
   if (e && (valLen + 30 < maxLen))
     valLen += sprintf (&ValStr[valLen],"HTTP_DATE:%s\n",
-                       e->value->c_str ());
+                       e->value.c_str ());
   else if (valLen + 30 < maxLen)
     return 1;
 
   e = td->request.other.get ("if-modified-since");
   if (e && (valLen + 30 < maxLen))
     valLen += sprintf (&ValStr[valLen],"HTTP_IF_MODIFIED_SINCE:%s\n",
-                       e->value->c_str ());
+                       e->value.c_str ());
   else if (valLen + 30 < maxLen)
     return 1;
 
   e = td->request.other.get ("referer");
   if (e && (valLen + 30 < maxLen))
     valLen += sprintf (&ValStr[valLen],"HTTP_REFERER:%s\n",
-                       e->value->c_str ());
+                       e->value.c_str ());
   else if (valLen + 30 < maxLen)
     return 1;
 
   e = td->request.other.get ("user-agent");
   if (e && (valLen + 30 < maxLen))
     valLen += sprintf (&ValStr[valLen],"HTTP_USER_AGENT:%s\n",
-                       e->value->c_str ());
+                       e->value.c_str ());
   else if (valLen + 30 < maxLen)
     return 1;
 
   e = td->request.other.get ("from");
   if (e && (valLen + 30 < maxLen))
     valLen += sprintf (&ValStr[valLen],"HTTP_FROM:%s\n",
-                       e->value->c_str ());
+                       e->value.c_str ());
   else if (valLen + 30 < maxLen)
     return 1;
 
@@ -862,7 +862,7 @@ int Isapi::send (HttpThreadContext* td,
 
 
       HttpRequestHeader::Entry *content = td->request.other.get ("content-type");
-      ExtCtrlBlk.lpszContentType = content ? (char*)content->value->c_str () : NULL;
+      ExtCtrlBlk.lpszContentType = content ? (char*)content->value.c_str () : NULL;
 
       connTable[connIndex].td->buffer->setLength (0);
       connTable[connIndex].td->buffer->getAt (0)='\0';
@@ -883,7 +883,7 @@ int Isapi::send (HttpThreadContext* td,
       HttpRequestHeader::Entry *connection
         = connTable[connIndex].td->request.other.get ("connection");
 
-      if (connection && !stringcmpi (connection->value->c_str (), "keep-alive"))
+      if (connection && !stringcmpi (connection->value.c_str (), "keep-alive"))
         connTable[connIndex].chain.getStream ()->write ("0\r\n\r\n", 5, &nbw);
 
       switch (ret)

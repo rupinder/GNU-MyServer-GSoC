@@ -37,8 +37,8 @@ string* HttpHeader::getValue (const char *name, string *out)
   if (e)
     {
       if (out)
-        out->assign (*(e->value));
-      return e->value;
+        out->assign (e->value);
+      return &(e->value);
     }
 
   return NULL;
@@ -55,14 +55,14 @@ string* HttpHeader::setValue (const char *name, const char *in)
   Entry *e = other.get (key);
   if (e)
     {
-      e->value->assign (in);
-      return (e->value);
+      e->value.assign (in);
+      return &(e->value);
     }
   else
     {
       e = new Entry;
-      e->name->assign (name);
-      e->value->assign (in);
+      e->name.assign (name);
+      e->value.assign (in);
       other.put (key, e);
     }
 

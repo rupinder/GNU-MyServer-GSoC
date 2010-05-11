@@ -159,23 +159,23 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
         }
 
       HttpRequestHeader::Entry *referer = td->request.other.get ("referer");
-      if (referer && referer->value->length ())
+      if (referer && referer->value.length ())
         {
-          sprintf (buffer,"Referer=%s\r\n", referer->value->c_str ());
+          sprintf (buffer,"Referer=%s\r\n", referer->value.c_str ());
           DataFileHandle.writeToFile (buffer,(u_long) strlen (buffer),&nbr);
         }
 
       HttpRequestHeader::Entry *contentType = td->request.other.get ("content-type");
-      if (contentType && contentType->value->length ())
+      if (contentType && contentType->value.length ())
         {
-          sprintf (buffer, "Content Type=%s\r\n", contentType->value->c_str ());
+          sprintf (buffer, "Content Type=%s\r\n", contentType->value.c_str ());
           DataFileHandle.writeToFile (buffer, (u_long) strlen (buffer), &nbr);
         }
 
       HttpRequestHeader::Entry *userAgent = td->request.other.get ("user-agent");
-      if (userAgent && userAgent->value->length ())
+      if (userAgent && userAgent->value.length ())
         {
-          sprintf (buffer,"User Agent=%s\r\n", userAgent->value->c_str ());
+          sprintf (buffer,"User Agent=%s\r\n", userAgent->value.c_str ());
           DataFileHandle.writeToFile (buffer, (u_long) strlen (buffer), &nbr);
         }
 
@@ -205,7 +205,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
 
       HttpRequestHeader::Entry *host = td->request.other.get ("host");
       if (host)
-        sprintf (buffer, "Server Name=%s\r\n", host->value->c_str ());
+        sprintf (buffer, "Server Name=%s\r\n", host->value.c_str ());
       DataFileHandle.writeToFile (buffer, (u_long) strlen (buffer), &nbr);
 
       strcpy (buffer, "[System]\r\n");

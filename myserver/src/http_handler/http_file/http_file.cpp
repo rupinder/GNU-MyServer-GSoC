@@ -242,8 +242,8 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
       HttpRequestHeader::Entry *ifModifiedSince =
         td->request.other.get ("last-modified");
 
-      if (ifModifiedSince && ifModifiedSince->value->length () &&
-          !ifModifiedSince->value->compare (tmpTime))
+      if (ifModifiedSince && ifModifiedSince->value.length () &&
+          !ifModifiedSince->value.compare (tmpTime))
         return td->http->sendHTTPNonModified ();
 
       try
@@ -272,19 +272,19 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     generateEtag (etag, lastMT, filesize);
 
     HttpRequestHeader::Entry *etagHeader = td->request.other.get ("etag");
-    if (etagHeader && !etagHeader->value->compare (etag))
+    if (etagHeader && !etagHeader->value.compare (etag))
       return td->http->sendHTTPNonModified ();
     else
       {
         HttpResponseHeader::Entry *e = td->response.other.get ("etag");
         if (e)
-          e->value->assign (etag);
+          e->value.assign (etag);
         else
           {
             e = new HttpResponseHeader::Entry ();
-            e->name->assign ("etag");
-            e->value->assign (etag);
-            td->response.other.put (*(e->name), e);
+            e->name.assign ("etag");
+            e->value.assign (etag);
+            td->response.other.put (e->name, e);
           }
       }
 
@@ -310,13 +310,13 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
 
         e = td->response.other.get ("content-range");
         if (e)
-          e->value->assign (buffer.str ());
+          e->value.assign (buffer.str ());
         else
           {
             e = new HttpResponseHeader::Entry ();
-            e->name->assign ("content-range");
-            e->value->assign (buffer.str ());
-            td->response.other.put (*(e->name), e);
+            e->name.assign ("content-range");
+            e->value.assign (buffer.str ());
+            td->response.other.put (e->name, e);
           }
       }
     chain.setStream (&memStream);
@@ -328,7 +328,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
                                                                td->mime->filters,
                                                                &memStream,
                                                                &nbw, 0,
-                                                               e ? e->value : NULL);
+                                                               e ? &e->value : NULL);
         memStream.refresh ();
         dataSent += nbw;
       }
@@ -354,13 +354,13 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         e = td->response.other.get ("content-encoding");
 
         if (e)
-          e->value->assign (s);
+          e->value.assign (s);
         else
           {
             e = new HttpResponseHeader::Entry ();
-            e->name->assign ("content-encoding");
-            e->value->assign (s);
-            td->response.other.put (*(e->name), e);
+            e->name.assign ("content-encoding");
+            e->value.assign (s);
+            td->response.other.put (e->name, e);
           }
         /* Do not use chunked transfer with old HTTP/1.0 clients.  */
         if (keepalive)
@@ -372,13 +372,13 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         HttpResponseHeader::Entry *e;
         e = td->response.other.get ("transfer-encoding");
         if (e)
-          e->value->assign ("chunked");
+          e->value.assign ("chunked");
         else
           {
             e = new HttpResponseHeader::Entry ();
-            e->name->assign ("transfer-encoding");
-            e->value->assign ("chunked");
-            td->response.other.put (*(e->name), e);
+            e->name.assign ("transfer-encoding");
+            e->value.assign ("chunked");
+            td->response.other.put (e->name, e);
           }
       }
     else

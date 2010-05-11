@@ -207,7 +207,7 @@ void Env::buildEnvironmentString (HttpThreadContext* td, char *cgiEnv,
   if (reqEntry)
   {
     memCgi << end_str << "CONTENT_TYPE=";
-    memCgi << reqEntry->value->c_str ();
+    memCgi << reqEntry->value.c_str ();
   }
 
   buildHttpHeaderEnvString (memCgi, td->request);
@@ -232,13 +232,13 @@ void Env::buildHttpHeaderEnvString (MemBuf& memCgi, HttpRequestHeader & req)
     string name;
 
     name.assign ("HTTP_");
-    name.append (en->name->c_str ());
+    name.append (en->name.c_str ());
     transform (name.begin ()+5, name.end (), name.begin ()+5, ::toupper);
     for (int i = name.length (); i > 5; i--)
       if (name[i] == '-')
         name[i] = '_';
 
-    memCgi  << end_str << name.c_str () << "=" << en->value->c_str ();
+    memCgi  << end_str << name.c_str () << "=" << en->value.c_str ();
   }
 }
 

@@ -75,7 +75,7 @@ u_long HttpHeaders::buildHTTPResponseHeader (char *str,
        */
       HttpResponseHeader::Entry *e = response->other.get ("transfer-encoding");
 
-      if (!e || (e && e->value->find ("chunked", 0) == string::npos ))
+      if (!e || (e && e->value.find ("chunked", 0) == string::npos ))
         {
           pos += myserver_strlcpy (pos, "Content-length: ", MAX - (long)(pos - str));
           pos += myserver_strlcpy (pos, response->contentLength.c_str (),
@@ -89,9 +89,9 @@ u_long HttpHeaders::buildHTTPResponseHeader (char *str,
   for (; it != response->other.end (); it++)
     {
       HttpResponseHeader::Entry *e = *it;
-      pos += myserver_strlcpy (pos, e->name->c_str (), MAX - (long)(pos - str));
+      pos += myserver_strlcpy (pos, e->name.c_str (), MAX - (long)(pos - str));
       pos += myserver_strlcpy (pos, ": ", MAX - (long)(pos - str));
-      pos += myserver_strlcpy (pos, e->value->c_str (), MAX - (long)(pos - str));
+      pos += myserver_strlcpy (pos, e->value.c_str (), MAX - (long)(pos - str));
       pos += myserver_strlcpy (pos, "\r\n", MAX - (long)(pos - str));
     }
 
@@ -181,10 +181,10 @@ u_long HttpHeaders::buildHTTPRequestHeader (char * str,
         HttpRequestHeader::Entry *e = *it;
         if (e)
           {
-            pos += myserver_strlcpy (pos, e->name->c_str (),
+            pos += myserver_strlcpy (pos, e->name.c_str (),
                                      MAX - (long)(pos - str));
             pos += myserver_strlcpy (pos, ": ", MAX - (long)(pos - str));
-            pos += myserver_strlcpy (pos, e->value->c_str (),
+            pos += myserver_strlcpy (pos, e->value.c_str (),
                                      MAX - (long)(pos - str));
             pos += myserver_strlcpy (pos, "\r\n", MAX - (long)(pos - str));
           }
@@ -580,18 +580,18 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
           HttpRequestHeader::Entry *old = request->other.get (cmdStr);
           if (old)
             {
-              old->value->append (", ");
-              old->value->append (token,
+              old->value.append (", ");
+              old->value.append (token,
                              std::min (static_cast<int>(HTTP_RESPONSE_OTHER_DIM
-                                                        - old->value->length ()),
+                                                        - old->value.length ()),
                                        static_cast<int>(tokenOff)));
             }
           else
             {
               HttpRequestHeader::Entry *e = new HttpRequestHeader::Entry ();
-              e->name->assign (cmdStr.c_str (),
+              e->name.assign (cmdStr.c_str (),
                                std::min (HTTP_RESPONSE_OTHER_DIM, tokenOff));
-              e->value->assign (token, std::min (HTTP_RESPONSE_OTHER_DIM,
+              e->value.assign (token, std::min (HTTP_RESPONSE_OTHER_DIM,
                                                  tokenOff));
               request->other.put (cmdStr, e);
             }
@@ -1064,23 +1064,23 @@ int HttpHeaders::buildHTTPResponseHeaderStruct (const char *input,
 
             HttpResponseHeader::Entry *old = NULL;
             HttpResponseHeader::Entry *e = new HttpResponseHeader::Entry ();
-            e->name->assign (command);
-            transform (e->name->begin (), e->name->end (), e->name->begin (),
+            e->name.assign (command);
+            transform (e->name.begin (), e->name.end (), e->name.begin (),
                        ::tolower);
-            old = response->other.put (*e->name, e);
+            old = response->other.put (e->name, e);
             if (old)
               {
                 if (append)
                   {
-                    e->value->assign (*old->value);
-                    e->value->append (", ");
+                    e->value.assign (old->value);
+                    e->value.append (", ");
                   }
 
-                e->value->append (token);
+                e->value.append (token);
                 delete old;
               }
             else
-              e->value->assign (token);
+              e->value.assign (token);
           }
       }
     token = strtok (NULL, cmdSeps);

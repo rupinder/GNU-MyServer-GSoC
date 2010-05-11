@@ -252,12 +252,12 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
   if (contentType == 0)
   {
     contentType = new HttpRequestHeader::Entry ();
-    contentType->name->assign ("content-type");
-    contentType->value->assign ("application/x-www-form-urlencoded");
+    contentType->name.assign ("content-type");
+    contentType->value.assign ("application/x-www-form-urlencoded");
   }
-  else if (contentType->value->length () == 0)
+  else if (contentType->value.length () == 0)
   {
-    contentType->value->assign ("application/x-www-form-urlencoded");
+    contentType->value.assign ("application/x-www-form-urlencoded");
   }
 
   td->request.uriOptsPtr = &(td->buffer->getBuffer ())[td->nHeaderChars];
@@ -286,7 +286,7 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
     HttpRequestHeader::Entry *content =
       td->request.other.get ("content-encoding");
 
-    if (content && (content->value->length () == '\0')
+    if (content && (content->value.length () == '\0')
            && (td->request.contentLength.length () == 0))
     {
       *httpRetCode = 400;
@@ -315,7 +315,7 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
   /* If it is specified a transfer encoding read data using it.  */
   if (encoding)
   {
-    if (!encoding->value->compare ("chunked"))
+    if (!encoding->value.compare ("chunked"))
     {
       int ret = readChunkedPostData (td->request.uriOptsPtr,
                                      &inPos,

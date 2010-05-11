@@ -40,11 +40,8 @@
   \param execute Not used.
   \param onlyHeader Specify if send only the HTTP header.
  */
-int Proxy::send (HttpThreadContext *td,
-                 const char* scriptpath,
-                 const char* exec,
-                 bool execute,
-                 bool onlyHeader)
+int Proxy::send (HttpThreadContext *td, const char* scriptpath,
+                 const char* exec, bool execute, bool onlyHeader)
 {
   Url destUrl (exec, 80);
   Socket sock;
@@ -56,7 +53,7 @@ int Proxy::send (HttpThreadContext *td,
          td->request.begin (); it != td->request.end (); it++)
     {
       HttpRequestHeader::Entry *e = *it;
-      req.setValue (e->name->c_str (), e->value->c_str ());
+      req.setValue (e->name.c_str (), e->value.c_str ());
     }
 
   if (destUrl.getProtocol ().compare ("http")
