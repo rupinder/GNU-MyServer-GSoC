@@ -81,41 +81,69 @@ bool XmlParser::cleanXML ()
  */
 int XmlParser::open (const char* filename, bool useXpath)
 {
+  File xmlFile;
+
   cur = NULL;
   this->useXpath = useXpath;
-
-  if (!FilesUtility::nodeExists (filename))
-    return -1;
 
   if (doc!= NULL)
     close ();
 
-  doc = xmlParseFile (filename);
-  if (doc == NULL)
+  if (xmlFile.openFile (filename, File::READ | File::OPEN_IF_EXISTS))
     return -1;
 
-  cur = xmlDocGetRootElement (doc);
-  if (!cur)
+  u_long size = xmlFile.getFileSize ();
+  char *buffer = new char [size];
+  try
     {
-      close ();
-      return -1;
-    }
+      u_long nbr;
+      xmlFile.read (buffer, size, &nbr);
 
-  mtime = FilesUtility::getLastModTime (filename);
-  if (mtime == static_cast<time_t>(-1))
-    {
-      close ();
-      return -1;
-    }
+      doc = xmlParseMemory (buffer, nbr);
 
-  if (useXpath)
-    {
-      xpathCtx = xmlXPathNewContext (doc);
-      if (xpathCtx == NULL)
+      delete [] buffer;
+      buffer = NULL;
+
+      if (doc == NULL)
+        return -1;
+
+      if (nbr != size)
         {
           close ();
           return -1;
         }
+
+      cur = xmlDocGetRootElement (doc);
+      if (!cur)
+        {
+          close ();
+          return -1;
+        }
+
+      mtime = xmlFile.getLastModTime ();
+      if (mtime == static_cast<time_t> (-1))
+        {
+          close ();
+          return -1;
+        }
+
+      if (useXpath)
+        {
+          xpathCtx = xmlXPathNewContext (doc);
+          if (xpathCtx == NULL)
+            {
+              close ();
+              return -1;
+            }
+        }
+      xmlFile.close ();
+    }
+  catch (exception & e)
+    {
+      if (buffer)
+        delete [] buffer;
+
+      throw e;
     }
   return 0;
 }
@@ -350,7 +378,7 @@ int XmlParser::close ()
  */
 int XmlParser::save (const char *filename, int *nbytes)
 {
-  int err = xmlSaveFile (filename,doc);
+  int err = xmlSaveFile (filename, doc);
   if (nbytes)
     *nbytes = err;
 
