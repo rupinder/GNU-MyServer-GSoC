@@ -28,10 +28,6 @@ void Connection::init ()
 {
   thread = 0;
   scheduled = 0;
-  login = new string ();
-  password = new string ();
-  ipAddr = new string ();
-  localIpAddr = new string ();
   nTries = 0;
   port = 0;
   localPort = 0;
@@ -43,7 +39,6 @@ void Connection::init ()
   socket = NULL;
   priority = -1;
   continuation = NULL;
-	connectionBuffer = new MemBuf ();
 }
 
 /*!
@@ -65,21 +60,6 @@ void Connection::destroy ()
         }
     }
 
-  if (login)
-    delete login;
-
-  if (password)
-    delete password;
-
-  if (ipAddr)
-    delete ipAddr;
-
-  if (localIpAddr)
-    delete localIpAddr;
-
-  if (connectionBuffer)
-    delete connectionBuffer;
-
   if (protocolBuffer)
     delete protocolBuffer;
 
@@ -87,12 +67,7 @@ void Connection::destroy ()
   if (host)
     ((Vhost*) host)->removeRef ();
 
-  login = NULL;
-  password = NULL;
-  ipAddr = NULL;
-  localIpAddr = NULL;
   protocolBuffer = NULL;
-  connectionBuffer = NULL;
 
   host = NULL;
 }
@@ -167,7 +142,7 @@ void Connection::setPort (u_short newPort)
  */
 const char* Connection::getLogin ()
 {
-  return login->c_str ();
+  return login.c_str ();
 }
 
 /*!
@@ -176,7 +151,7 @@ const char* Connection::getLogin ()
  */
 void Connection::setLogin (const char* loginName)
 {
-  login->assign (loginName);
+  login.assign (loginName);
 }
 
 /*!
@@ -208,7 +183,7 @@ void Connection::incnTries ()
  */
 const char* Connection::getIpAddr ()
 {
-  return ipAddr->c_str ();
+  return ipAddr.c_str ();
 }
 
 /*!
@@ -217,7 +192,7 @@ const char* Connection::getIpAddr ()
  */
 void Connection::setIpAddr (const char* na)
 {
-  ipAddr->assign (na);
+  ipAddr.assign (na);
 }
 
 /*!
@@ -225,7 +200,7 @@ void Connection::setIpAddr (const char* na)
  */
 const char* Connection::getLocalIpAddr ()
 {
-  return localIpAddr->c_str ();
+  return localIpAddr.c_str ();
 }
 
 /*!
@@ -234,7 +209,7 @@ const char* Connection::getLocalIpAddr ()
  */
 void Connection::setLocalIpAddr (const char* na)
 {
-  localIpAddr->assign (na);
+  localIpAddr.assign (na);
 }
 
 /*!
@@ -309,7 +284,7 @@ void Connection::setForceControl (int fp)
  */
 const char* Connection::getPassword ()
 {
-  return password->c_str ();
+  return password.c_str ();
 }
 
 /*!
@@ -318,7 +293,7 @@ const char* Connection::getPassword ()
  */
 void Connection::setPassword (const char* p)
 {
-  password->assign (p);
+  password.assign (p);
 }
 
 /*!
