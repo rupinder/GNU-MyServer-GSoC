@@ -589,8 +589,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
           else
             {
               HttpRequestHeader::Entry *e = new HttpRequestHeader::Entry ();
-              e->name.assign (cmdStr.c_str (),
-                               std::min (HTTP_RESPONSE_OTHER_DIM, tokenOff));
+              e->name = cmdStr;
               e->value.assign (token, std::min (HTTP_RESPONSE_OTHER_DIM,
                                                  tokenOff));
               request->other.put (cmdStr, e);
