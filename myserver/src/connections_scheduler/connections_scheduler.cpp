@@ -168,6 +168,9 @@ static void listenerHandler (int fd, short event, void *arg)
   ConnectionsScheduler::ListenerArg* s
     = (ConnectionsScheduler::ListenerArg*) arg;
 
+  if (event == EV_TIMEOUT)
+    s->scheduler->getReadySemaphore ()->unlock ();
+
   if (event == EV_READ)
     {
       MYSERVER_SOCKADDRIN asockIn;
@@ -575,14 +578,15 @@ ConnectionPtr ConnectionsScheduler::getConnection ()
 void ConnectionsScheduler::release ()
 {
   u_long nbw;
-  u_long max = 0;
+  u_long threads = 0;
   releasing = true;
   dispatcherArg.terminate = true;
 
   if (server)
-    max = server->getNumThreads () * 2;
+    server->getThreadsNumberInformation (&threads);
+  threads *= 2;
 
-  for (u_long i = 0; i < max; i++)
+  for (u_long i = 0; i < threads; i++)
     readySemaphore->unlock ();
 
   eventsSocketMutex.lock ();

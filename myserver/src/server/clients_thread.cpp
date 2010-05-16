@@ -147,22 +147,19 @@ DEFINE_THREAD (clients_thread, pParam)
       int ret;
       try
         {
-          /* If the thread can be destroyed don't use it.  */
-          if ((!ct->isStatic ()) && ct->isToDestroy ())
-            {
-              Thread::wait (1000);
-              break;
-            }
-
           ret = ct->controlConnections ();
           ct->server->increaseFreeThread ();
           ct->busy = false;
 
-          /*
-            The thread served the connection, so update the timeout value.
-           */
+          /* The thread served the connection, so update the timeout value.  */
           if (ret != 1)
             ct->setTimeout (getTicks ());
+
+          if ((!ct->isStatic ()) && ct->isToDestroy ())
+            {
+              Thread::wait (MYSERVER_SEC (60));
+              break;
+            }
         }
       catch (bad_alloc &ba)
         {
@@ -257,7 +254,7 @@ int ClientsThread::controlConnections ()
 
   server->decreaseFreeThread ();
 
-  if (!c)
+  if (! c)
     return 1;
 
   busy = true;
@@ -284,12 +281,12 @@ int ClientsThread::controlConnections ()
       return 0;
     }
 
-  if (getTicks () - c->getTimeout () > 5000)
+  if (getTicks () - c->getTimeout () > MYSERVER_SEC (5))
     c->setnTries (0);
 
   if (dataRead)
-    memcpy ((char*)buffer.getBuffer (), c->getConnectionBuffer ()->getBuffer (),
-            dataRead);
+    memcpy ((char*) buffer.getBuffer (),
+            c->getConnectionBuffer ()->getBuffer (), dataRead);
 
   c->setActiveThread (this);
   try
@@ -326,7 +323,6 @@ int ClientsThread::controlConnections ()
   if (retcode == DELETE_CONNECTION)
     {
       server->deleteConnection (c);
-      return 0;
     }
   /* Keep the connection.  */
   else if (retcode == KEEP_CONNECTION)

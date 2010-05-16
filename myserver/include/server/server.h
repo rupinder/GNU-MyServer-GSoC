@@ -110,7 +110,8 @@ public:
   u_long getTimeout ();
   const char *getAddresses ();
   const char *getPath ();
-  u_long getNumThreads ();
+  void getThreadsNumberInformation (u_long *num, u_long *max = NULL,
+                                    u_long *staticThreads = NULL);
 
   NodeTree<string>* getNodeTree (string& key)
   {

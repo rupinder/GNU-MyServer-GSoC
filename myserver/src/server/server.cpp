@@ -443,10 +443,9 @@ void Server::mainLoop ()
    */
   while (!endServer)
     {
-      Thread::wait (1000000);
+      Thread::wait (MYSERVER_SEC (1));
 
-      /* Check threads.  */
-      if (purgeThreadsCounter++ >= 10)
+      if (purgeThreadsCounter++ >= 120)
         {
           purgeThreadsCounter = 0;
           purgeThreads ();
@@ -462,8 +461,8 @@ void Server::mainLoop ()
             FilesUtility::getLastModTime (mimeConfigurationFile.c_str ());
 
           /* If a configuration file was modified reboot the server. */
-          if (((mainConfTimeNow != -1) && (hostsConfTimeNow != -1)  &&
-               (mimeConfNow != -1)) || toReboot)
+          if (((mainConfTimeNow != -1) && (hostsConfTimeNow != -1)
+               && (mimeConfNow != -1)) || toReboot)
             {
               if ( (mainConfTimeNow  != mainConfTime) || toReboot)
                 {
@@ -596,7 +595,7 @@ int Server::purgeThreads ()
   u_long ticks = getTicks ();
   u_long destroyed = 0;
 
-  purgeThreadsThreshold = std::min (purgeThreadsThreshold << 1,
+  purgeThreadsThreshold = std::min (purgeThreadsThreshold * 3 / 2,
                                     nMaxThreads);
   threadsMutex->lock ();
   for (list<ClientsThread*>::iterator it = threads.begin ();
@@ -610,11 +609,8 @@ int Server::purgeThreads ()
           list<ClientsThread*>::iterator next = it;
           next++;
 
-          thread->join ();
           threads.erase (it);
           delete thread;
-
-          destroyed++;
           it = next;
         }
       else if (thread->isToDestroy ())
@@ -622,14 +618,17 @@ int Server::purgeThreads ()
           if (destroyed < purgeThreadsThreshold)
             thread->stop ();
 
+          destroyed++;
           it++;
         }
       else
         {
-          if (!thread->isStatic ())
-            if (ticks - thread->getTimeout () > MYSERVER_SEC (15))
-              thread->setToDestroy (1);
-
+          if (! thread->isStatic ())
+            if (ticks - thread->getTimeout () > MYSERVER_SEC (20))
+              {
+                thread->setToDestroy (1);
+                destroyed++;
+              }
           it++;
         }
     }
@@ -1315,15 +1314,23 @@ const char *Server::getServerName ()
 }
 
 /*!
-  Gets the number of threads.
- */
-u_long Server::getNumThreads ()
+  Get Information on the number of threads.
+  \param num if not NULL will contain the number of active threads.
+  \param max if not NULL will contain the maximum number of threads.
+  \param staticThreads if not NULL will contain the maximum number of always
+  active threads.
+*/
+void Server::getThreadsNumberInformation (u_long *num, u_long *max,
+                                          u_long *staticThreads)
 {
-  u_long ret;
-  threadsMutex->lock ();
-  ret = threads.size ();
-  threadsMutex->unlock ();
-  return ret;
+  if (num)
+    *num = threads.size ();
+
+  if (max)
+    *max = nMaxThreads;
+
+  if (staticThreads)
+    *staticThreads = nStaticThreads;
 }
 
 /*!
@@ -1588,7 +1595,6 @@ int Server::addThread (bool staticThread)
   newThread = new ClientsThread (this);
 
   handlers = getHandlers (msg);
-
   if (handlers)
     {
       for (size_t i = 0; i < handlers->size (); i++)

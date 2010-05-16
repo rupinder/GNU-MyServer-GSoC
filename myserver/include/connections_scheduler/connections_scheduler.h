@@ -109,7 +109,8 @@ public:
 
   void newData (short event, SocketHandle handle);
 
-private:
+  Semaphore *getReadySemaphore () {return readySemaphore;}
+protected:
   Server* server;
   void addWaitingConnectionImpl (ConnectionPtr, int lock);
   void addReadyConnectionImpl (ConnectionPtr);
