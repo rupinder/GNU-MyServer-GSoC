@@ -53,7 +53,7 @@ class TestFile : public CppUnit::TestFixture
   {
    return  tfile->openFile (fname.c_str (), File::WRITE
                             | File::READ
-                            | File::FILE_CREATE_ALWAYS);
+                            | File::FILE_OPEN_ALWAYS);
   }
 public:
   void setUp ()

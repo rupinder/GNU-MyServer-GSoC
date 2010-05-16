@@ -298,7 +298,7 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
    *Create the file that contains the posted data.
    *This data is the stdin file in the CGI.
    */
-  if (td->inputData.openFile (td->inputDataPath, File::FILE_CREATE_ALWAYS |
+  if (td->inputData.openFile (td->inputDataPath, File::FILE_OPEN_ALWAYS |
                             File::READ |
                             File::WRITE))
   {

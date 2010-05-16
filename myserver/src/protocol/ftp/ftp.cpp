@@ -1168,7 +1168,7 @@ DEFINE_THREAD (ReceiveAsciiFile, pParam)
       if (pWt->m_bappend)
         flags = File::APPEND | File::WRITE;
       else
-        flags = File::FILE_CREATE_ALWAYS | File::WRITE;
+        flags = File::FILE_OPEN_ALWAYS | File::WRITE;
       flags |= areSymlinkAllowed (pWt->st) ? 0 : File::NO_FOLLOW_SYMLINK;
 
       if (file.openFile (pWt->m_sFilePath.c_str (), flags))
@@ -1368,7 +1368,7 @@ DEFINE_THREAD (ReceiveImageFile, pParam)
       if (pWt->m_bappend)
         flags = File::APPEND | File::WRITE;
       else
-        flags = File::FILE_CREATE_ALWAYS | File::WRITE;
+        flags = File::FILE_OPEN_ALWAYS | File::WRITE;
       flags |= areSymlinkAllowed (pWt->st) ? 0 : File::NO_FOLLOW_SYMLINK;
 
       if (file.openFile (pWt->m_sFilePath.c_str (), flags))

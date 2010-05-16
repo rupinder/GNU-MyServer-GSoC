@@ -135,7 +135,6 @@ void File::fstat (struct stat *fstat)
  */
 int File::openFile (const char* nfilename, u_long opt)
 {
-  struct stat fStats;
   int flags;
 
   filename.assign (nfilename);
@@ -150,43 +149,21 @@ int File::openFile (const char* nfilename, u_long opt)
   if (opt & File::NO_FOLLOW_SYMLINK)
     flags = O_NOFOLLOW;
 
-  /* FIXME: how avoid a stat?  */
-  bool exists = stat (filename.c_str (), &fStats) == 0;
-  if (opt & File::OPEN_IF_EXISTS && !exists)
-    return 1;
-
-  if (exists && (opt & File::APPEND))
+  if (opt & File::APPEND)
     flags |= O_APPEND;
 
-  if (exists)
-    handle = checked::open (filename.c_str (), O_APPEND | flags);
-  else
-    handle = checked::open (filename.c_str (), O_CREAT | flags,
-                            S_IRUSR | S_IWUSR);
+  handle = gnulib::open (filename.c_str (), flags);
+  if (handle < 0)
+    {
+      if (! ((errno == ENOENT) && (opt & File::FILE_OPEN_ALWAYS)))
+        checked::raiseException ();
 
-  try
-    {
-      if (opt & File::FILE_CREATE_ALWAYS)
-        if (truncate ())
-          {
-            close ();
-            return -1;
-          }
- 
-      if (opt & File::TEMPORARY)
-        if (checked::unlink (filename.c_str ()))
-          {
-            close ();
-            return -1;
-          }
+      flags |= O_CREAT;
+      handle = checked::open (filename.c_str (), flags, S_IRUSR | S_IWUSR);
     }
-  catch (exception &e)
-    {
-      /* Ensure the file is closed if something went wrong and don't leave
-         open descriptors around.  */
-      close ();
-      throw;
-    }
+
+  if (opt & File::TEMPORARY)
+    checked::unlink (filename.c_str ());
 
   this->opt = opt;
   return handle < 0;
@@ -254,7 +231,7 @@ int File::createTemporaryFile (const char* filename, bool unlink)
   u_long temporaryOpt = unlink ? File::TEMPORARY : File::TEMPORARY_DELAYED;
 
   return openFile (filename, File::READ | File::WRITE | File::NO_INHERIT
-                   | File::FILE_CREATE_ALWAYS | temporaryOpt);
+                   | File::FILE_OPEN_ALWAYS | temporaryOpt);
 }
 
 /*!

@@ -42,9 +42,8 @@ public:
       FILE_OPEN_ALWAYS = (1 << 5),
       OPEN_IF_EXISTS = (1 << 6),
       APPEND = (1 << 7),
-      FILE_CREATE_ALWAYS = (1 << 8),
-      NO_INHERIT = (1 << 9),
-      NO_FOLLOW_SYMLINK = (1 << 10)
+      NO_INHERIT = (1 << 8),
+      NO_FOLLOW_SYMLINK = (1 << 9)
     };
 
   File ();

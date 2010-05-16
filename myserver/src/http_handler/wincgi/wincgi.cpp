@@ -112,7 +112,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
         }
 
       /* The WinCGI protocol uses a .ini file to send data to the new process.  */
-      DataFileHandle.openFile (dataFilePath, File::FILE_CREATE_ALWAYS
+      DataFileHandle.openFile (dataFilePath, File::FILE_OPEN_ALWAYS
                                | File::WRITE);
 
       td->auxiliaryBuffer->setLength (0);
@@ -237,7 +237,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
        *Create the out file.
        */
       if (! FilesUtility::nodeExists (outFilePath))
-        OutFileHandle.openFile (outFilePath, File::FILE_CREATE_ALWAYS
+        OutFileHandle.openFile (outFilePath, File::FILE_OPEN_ALWAYS
                                 | File::WRITE);
 
       OutFileHandle.close ();

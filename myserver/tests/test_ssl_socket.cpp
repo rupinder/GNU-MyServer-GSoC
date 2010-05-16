@@ -115,11 +115,11 @@ public:
     u_long nbw;
     File f;
 
-    f.openFile (TESTSERVERKEY,  File::WRITE | File::FILE_CREATE_ALWAYS);
+    f.openFile (TESTSERVERKEY,  File::WRITE | File::FILE_OPEN_ALWAYS);
     f.writeToFile (serverKey, strlen (serverKey), &nbw);
     f.close ();
 
-    f.openFile (TESTSERVERPEM,  File::WRITE | File::FILE_CREATE_ALWAYS);
+    f.openFile (TESTSERVERPEM,  File::WRITE | File::FILE_OPEN_ALWAYS);
     f.writeToFile (serverPem, strlen (serverPem), &nbw);
     f.close ();
   }

@@ -84,7 +84,7 @@ public:
     const char *file = "tmp.dat";
     CPPUNIT_ASSERT_EQUAL (tfile->openFile (file, File::WRITE
                                            | File::READ
-                                           | File::FILE_CREATE_ALWAYS), -1);
+                                           | File::FILE_OPEN_ALWAYS), -1);
   }
 
   void testWrite ()

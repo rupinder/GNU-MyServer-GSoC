@@ -86,7 +86,7 @@ public:
 
     FilesUtility::temporaryFileName (0, fname);
     file.openFile (fname.c_str (), File::WRITE | File::READ
-                   | File::FILE_CREATE_ALWAYS);
+                   | File::FILE_OPEN_ALWAYS);
     file.writeToFile (outputBuffer, bsize, &nbw);
     file.seek (0);
 

@@ -32,7 +32,7 @@
  * \param ff The FiltersFactory object.
  * \param level The default level of logging.
  */
-LogManager::LogManager (FiltersFactory* ff,LoggingLevel level) : level (level)
+LogManager::LogManager (FiltersFactory* ff, LoggingLevel level) : level (level)
 {
   this->ff = ff;
   lsf = new LogStreamFactory ();

@@ -49,7 +49,7 @@ public:
   {
     u_long nbw;
     xmlFile.openFile (XML_FILE, File::WRITE | File::READ
-                      | File::FILE_CREATE_ALWAYS);
+                      | File::FILE_OPEN_ALWAYS);
     CPPUNIT_ASSERT_EQUAL (xmlFile.write (XML_CONTENT, strlen (XML_CONTENT),
                                            &nbw), 0);
     CPPUNIT_ASSERT_EQUAL (nbw, static_cast<u_long> (strlen (XML_CONTENT)));
@@ -65,10 +65,25 @@ public:
   void testOpen ()
   {
     XmlMainConfiguration tmpXmlConf;
+    int exceptions = 0;
+    try
+      {
+        tmpXmlConf.open ("baz.xml");
+      }
+    catch (exception & e)
+      {
+        exceptions++;
+      }
+    try
+      {
+        tmpXmlConf.open ("foo/bar/baz.xml");
+      }
+    catch (exception & e)
+      {
+        exceptions++;
+      }
 
-    /* These files don't exist.  */
-    CPPUNIT_ASSERT (tmpXmlConf.open ("foo/bar/baz.xml"));
-    CPPUNIT_ASSERT (tmpXmlConf.open ("baz.xml"));
+    CPPUNIT_ASSERT_EQUAL (exceptions, 2);
 
     CPPUNIT_ASSERT_EQUAL (tmpXmlConf.open (XML_FILE), 0);
     CPPUNIT_ASSERT_EQUAL (tmpXmlConf.close (), 0);

@@ -227,7 +227,7 @@ public:
     File f;
     char buf[64];
     u_long nbr;
-    LogStream* ls;
+    LogStream* ls = NULL;
     list<string> cs;
     list<string>::iterator it;
     try
@@ -250,6 +250,7 @@ public:
     gotMessage1.assign (buf);
 
     lm->get (this, "test", "file://foobar", &ls);
+    CPPUNIT_ASSERT (ls);
     cs = ls->getCycledStreams ();
     for (it = cs.begin (); it != cs.end (); it++)
       {
@@ -406,7 +407,7 @@ public:
     u_long nbr = 0;
     list<string> cs;
     list<string>::iterator it;
-    LogStream* ls;
+    LogStream* ls = NULL;
 
     try
       {
@@ -429,6 +430,7 @@ public:
     gzipDecomp[message1.size ()] = '\0';
     gotMessage1.assign (gzipDecomp);
     lm->get (this, "test", "file://fooc", &ls);
+    CPPUNIT_ASSERT (ls);
     cs = ls->getCycledStreams ();
     for (it = cs.begin (); it != cs.end (); it++)
       {

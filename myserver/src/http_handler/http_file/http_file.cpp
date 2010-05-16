@@ -77,7 +77,7 @@ int HttpFile::putFile (HttpThreadContext* td, string& filename)
         /* The file doesn't exist.  */
         try
           {
-            file.openFile (td->filenamePath.c_str (), File::FILE_CREATE_ALWAYS
+            file.openFile (td->filenamePath.c_str (), File::FILE_OPEN_ALWAYS
                            | File::WRITE | symFlags);
           }
         catch (exception & e)
