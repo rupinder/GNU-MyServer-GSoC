@@ -32,17 +32,20 @@ using namespace std;
 class File : public Stream
 {
 public:
-  static const u_long READ;
-  static const u_long WRITE;
-  static const u_long TEMPORARY_DELAYED;
-  static const u_long TEMPORARY;
-  static const u_long HIDDEN;
-  static const u_long FILE_OPEN_ALWAYS;
-  static const u_long OPEN_IF_EXISTS;
-  static const u_long APPEND;
-  static const u_long FILE_CREATE_ALWAYS;
-  static const u_long NO_INHERIT;
-  static const u_long NO_FOLLOW_SYMLINK;
+  enum
+    {
+      READ = (1 << 0),
+      WRITE = (1 << 1),
+      TEMPORARY = (1 << 2),
+      TEMPORARY_DELAYED = (1 << 3),
+      HIDDEN = (1 << 4),
+      FILE_OPEN_ALWAYS = (1 << 5),
+      OPEN_IF_EXISTS = (1 << 6),
+      APPEND = (1 << 7),
+      FILE_CREATE_ALWAYS = (1 << 8),
+      NO_INHERIT = (1 << 9),
+      NO_FOLLOW_SYMLINK = (1 << 10)
+    };
 
   File ();
   File (char *,int);

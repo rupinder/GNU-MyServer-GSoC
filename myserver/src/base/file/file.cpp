@@ -50,19 +50,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-const u_long File::READ = (1 << 0);
-const u_long File::WRITE = (1 << 1);
-const u_long File::TEMPORARY = (1 << 2);
-const u_long File::TEMPORARY_DELAYED = (1 << 3);
-const u_long File::HIDDEN = (1 << 4);
-const u_long File::FILE_OPEN_ALWAYS = (1 << 5);
-const u_long File::OPEN_IF_EXISTS = (1 << 6);
-const u_long File::APPEND = (1 << 7);
-const u_long File::FILE_CREATE_ALWAYS = (1 << 8);
-const u_long File::NO_INHERIT = (1 << 9);
-const u_long File::NO_FOLLOW_SYMLINK = (1 << 10);
-
-
 /*!
  *Costructor of the class.
  */
