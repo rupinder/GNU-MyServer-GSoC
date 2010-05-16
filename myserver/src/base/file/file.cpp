@@ -127,13 +127,14 @@ void File::fstat (struct stat *fstat)
 }
 
 /*!
- *Open (or create if not exists) a file, but must explicitly use read and/or
- *write flags and open flag.
- *\param nfilename Filename to open.
- *\param opt Specify how open the file.
- *openFile returns 0 if the call was successful, any other value on errors.
+  Open (or create if not exists) a file, but must explicitly use read and/or
+  write flags and open flag.
+  \param nfilename Filename to open.
+  \param opt Specify how open the file.
+  \param mask Creation mode when a new file is created.
+  openFile returns 0 if the call was successful, any other value on errors.
  */
-int File::openFile (const char* nfilename, u_long opt)
+int File::openFile (const char* nfilename, u_long opt, mode_t mask)
 {
   int flags;
 

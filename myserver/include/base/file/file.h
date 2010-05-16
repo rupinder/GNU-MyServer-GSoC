@@ -55,9 +55,9 @@ public:
   virtual int writeToFile (const char *, u_long , u_long *);
   virtual int createTemporaryFile (const char *, bool unlink = true);
 
-  virtual int openFile (const char *, u_long);
-  virtual int openFile (string const &file, u_long opt)
-  {return openFile (file.c_str (), opt);}
+  virtual int openFile (const char *, u_long, mode_t mask = 00700);
+  virtual int openFile (string const &file, u_long opt, mode_t mask = 00700)
+  {return openFile (file.c_str (), opt, mask);}
 
   virtual u_long getFileSize ();
   virtual int seek (u_long);
