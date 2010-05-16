@@ -195,20 +195,16 @@ int endPrintError ()
 }
 
 /*!
-  Return the ticks count in milliseconds.
+  Return the ticks count in microseconds.
   Return 0 on errors.
  */
 u_long getTicks ()
 {
-#ifdef WIN32
-  return GetTickCount ();
-#else
   struct timeval tval;
   int ret = checked::gettimeofday (&tval, 0);
   if (ret == -1)
     return 0;
-  return  (tval.tv_sec * 1000) + (tval.tv_usec / 1000);
-#endif
+  return  (tval.tv_sec * 1000000) + tval.tv_usec;
 }
 
 /*!
