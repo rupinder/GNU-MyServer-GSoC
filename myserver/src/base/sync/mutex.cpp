@@ -44,7 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 /*!
- *Constructor for the mutex class.
+  Constructor for the mutex class.
  */
 Mutex::Mutex ()
 {
@@ -52,7 +52,7 @@ Mutex::Mutex ()
   init ();
 }
 /*!
- *Initialize a mutex.
+  Initialize a mutex.
  */
 int Mutex::init ()
 {
@@ -83,7 +83,7 @@ int Mutex::init ()
 }
 
 /*!
- *Destroy a mutex.
+  Destroy a mutex.
  */
 int Mutex::destroy ()
 {
@@ -99,7 +99,7 @@ int Mutex::destroy ()
 }
 
 /*!
- *Lock the mutex.
+  Lock the mutex.
  */
 int Mutex::lock (u_long /*id*/)
 {
@@ -113,9 +113,9 @@ int Mutex::lock (u_long /*id*/)
 }
 
 /*!
- *Check if the mutex is already locked.
- *
- *\return Return true if the mutex is currently locked.
+  Check if the mutex is already locked.
+
+  \return Return true if the mutex is currently locked.
  */
 bool Mutex::isLocked ()
 {
@@ -146,7 +146,7 @@ Mutex::~Mutex ()
 }
 
 /*!
- *Get the handle for the mutex.
+  Get the handle for the mutex.
  */
 MutexHandle Mutex::getHandle ()
 {

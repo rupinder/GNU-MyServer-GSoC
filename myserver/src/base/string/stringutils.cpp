@@ -40,8 +40,8 @@
 #endif
 
 /*!
- * This function format current time to the RFC 822 format and output
- * it to a string.
+  This function format current time to the RFC 822 format and output
+  it to a string.
  */
 const char *getRFC822GMTTime (string& out,int len)
 {
@@ -51,8 +51,8 @@ const char *getRFC822GMTTime (string& out,int len)
 }
 
 /*!
- * This function format current time to the RFC 822 format and output
- * it to a string.
+  This function format current time to the RFC 822 format and output
+  it to a string.
  */
 const char *getRFC822GMTTime (const time_t t, string& out, int len)
 {
@@ -63,8 +63,8 @@ const char *getRFC822GMTTime (const time_t t, string& out, int len)
 }
 
 /*!
- * This function format current time to the RFC 822 format and output
- * it to a string.
+  This function format current time to the RFC 822 format and output
+  it to a string.
  */
 const char *getRFC822LocalTime (string& out,int len)
 {
@@ -74,8 +74,8 @@ const char *getRFC822LocalTime (string& out,int len)
 }
 
 /*!
- * This function format current time to the RFC 822 format and output
- * it to a string.
+  This function format current time to the RFC 822 format and output
+  it to a string.
  */
 const char *getRFC822LocalTime (const time_t t, string &out,int len)
 {
@@ -86,7 +86,7 @@ const char *getRFC822LocalTime (const time_t t, string &out,int len)
 }
 
 /*!
- * This function format current time to the RFC 822 format.
+  This function format current time to the RFC 822 format.
  */
 const char *getRFC822GMTTime (char* out, int len)
 {
@@ -96,7 +96,7 @@ const char *getRFC822GMTTime (char* out, int len)
 }
 
 /*!
- * This function formats a time to the RFC 822 format.
+  This function formats a time to the RFC 822 format.
  */
 const char *getRFC822GMTTime (const time_t ltime, char* out, int /*!len*/)
 {
@@ -144,7 +144,7 @@ const char *getRFC822GMTTime (const time_t ltime, char* out, int /*!len*/)
 }
 
 /*!
- * This function convert from a RFC 822 format to a time_t.
+  This function convert from a RFC 822 format to a time_t.
  */
 time_t getTime (const char* str)
 {
@@ -315,7 +315,7 @@ time_t getTime (const char* str)
 }
 
 /*!
- * This function format current time to the RFC 822 format.
+  This function format current time to the RFC 822 format.
  */
 const char *getRFC822LocalTime (char* out, int len)
 {
@@ -324,7 +324,7 @@ const char *getRFC822LocalTime (char* out, int len)
   return getRFC822LocalTime (ltime, out, len);
 }
 /*!
- * This function formats a time to the RFC 822 format.
+  This function formats a time to the RFC 822 format.
  */
 const char *getRFC822LocalTime (const time_t ltime, char* out, int /*!len*/)
 {
@@ -375,7 +375,7 @@ const char *getRFC822LocalTime (const time_t ltime, char* out, int /*!len*/)
 }
 
 /*!
- * Get the local time string.
+  Get the local time string.
  */
 const char* getLocalLogFormatDate (char* out, int len)
 {
@@ -385,7 +385,7 @@ const char* getLocalLogFormatDate (char* out, int len)
 }
 
 /*!
- * Get the GMT time string.
+  Get the GMT time string.
  */
 const char* getGMTLogFormatDate (char* out, int len)
 {
@@ -396,7 +396,7 @@ const char* getGMTLogFormatDate (char* out, int len)
 
 
 /*!
- * Get the local time string.
+  Get the local time string.
  */
 const char* getLocalLogFormatDate (const time_t t, string& out, int len)
 {
@@ -407,7 +407,7 @@ const char* getLocalLogFormatDate (const time_t t, string& out, int len)
 }
 
 /*!
- * Get the GMT time string.
+  Get the GMT time string.
  */
 const char* getGMTLogFormatDate (const time_t t, string& out, int len)
 {
@@ -417,7 +417,7 @@ const char* getGMTLogFormatDate (const time_t t, string& out, int len)
   return out.c_str ();
 }
 /*!
- * Get the local time string.
+  Get the local time string.
  */
 const char* getLocalLogFormatDate (string& out, int len)
 {
@@ -428,7 +428,7 @@ const char* getLocalLogFormatDate (string& out, int len)
 }
 
 /*!
- * Get the GMT time string.
+  Get the GMT time string.
  */
 const char* getGMTLogFormatDate (string& out, int len)
 {
@@ -439,8 +439,8 @@ const char* getGMTLogFormatDate (string& out, int len)
 }
 
 /*!
- * Get a string in the format "day/month/year:hour:minute:second offset"
- * for the local zone.
+  Get a string in the format "day/month/year:hour:minute:second offset"
+  for the local zone.
  */
 const char* getLocalLogFormatDate (const time_t t, char* out, int len)
 {
@@ -508,8 +508,8 @@ const char* getLocalLogFormatDate (const time_t t, char* out, int len)
 
 
 /*!
- *Get a string in the format "day/month/year:hour:minute:second offset"
- *for the GMT zone.
+  Get a string in the format "day/month/year:hour:minute:second offset"
+  for the GMT zone.
  */
 const char* getGMTLogFormatDate (const time_t t, char* out, int len)
 {
@@ -553,7 +553,7 @@ const char* getGMTLogFormatDate (const time_t t, char* out, int len)
 }
 
 /*!
- *Trim a string from the right side.
+  Trim a string from the right side.
  */
 string trimRight (string const &s, string const &t)
 {
@@ -563,7 +563,7 @@ string trimRight (string const &s, string const &t)
 
 
 /*!
- *Trim a string from the left side.
+  Trim a string from the left side.
  */
 string trimLeft (string const &s, string const &t )
 {
@@ -572,7 +572,7 @@ string trimLeft (string const &s, string const &t )
 }
 
 /*!
- *Trim a string.
+  Trim a string.
  */
 string trim (string const &s,  string const &t)
 {
@@ -580,15 +580,15 @@ string trim (string const &s,  string const &t)
 }
 
 /*!
- *This funtions takes two strings, first the str we're going to work on,
- *and second a list of characters that the funtion is going to remove
- *from the head and tail of the first string.
- *Ex:       char str[16]="Hellow World!!!";
- *          char trim[7]="e!HlwW";
- *          StrTrim (str,trim);
- *result:    str="ow World"
- *'w', 'W' and the last 'l' aren't removed because they aren't
- *attached to the head or tail of the string
+  This funtions takes two strings, first the str we're going to work on,
+  and second a list of characters that the funtion is going to remove
+  from the head and tail of the first string.
+  Ex:       char str[16]="Hellow World!!!";
+           char trim[7]="e!HlwW";
+           StrTrim (str,trim);
+  result:    str="ow World"
+  'w', 'W' and the last 'l' aren't removed because they aren't
+  attached to the head or tail of the string
  */
 
 void trim (char* str, char const* trimchars)
@@ -644,8 +644,8 @@ void trim (char* str, char const* trimchars)
 }
 
 /*!
- * Set the buffer passed to the next line.
- * A new line is the first character after \n.
+  Set the buffer passed to the next line.
+  A new line is the first character after \n.
  */
 void gotoNextLine (char** cmd)
 {
@@ -656,7 +656,7 @@ void gotoNextLine (char** cmd)
 }
 
 /*!
- *Translates HTTP escape sequences.
+  Translates HTTP escape sequences.
  */
 void translateEscapeString (char *str)
 {
@@ -681,7 +681,7 @@ void translateEscapeString (char *str)
 }
 
 /*!
- *Translates HTTP escape sequences.
+  Translates HTTP escape sequences.
  */
 void translateEscapeString (string& str)
 {
@@ -707,7 +707,7 @@ void translateEscapeString (string& str)
 }
 
 /*!
- *This function converts a hexadecimal number to a decimal number.
+  This function converts a hexadecimal number to a decimal number.
  */
 int hexVal (char ch)
 {
@@ -728,7 +728,7 @@ int hexVal (char ch)
 }
 
 /*!
- *Convert from an hex string to an int
+  Convert from an hex string to an int
  */
 int hexToInt (const char *str)
 {
@@ -759,7 +759,7 @@ int hexToInt (const char *str)
   return u;
 }
 /*!
- *Get the offset from string start of a character.
+  Get the offset from string start of a character.
  */
 int getCharInString (const char* str, const char* characters, int max)
 {
@@ -791,8 +791,8 @@ int getCharInString (const char* str, const char* characters, int max)
 }
 
 /*!
- *Get the offset to the first '\\r' or '\\n'.
- *Returns -1 on errors.
+  Get the offset to the first '\\r' or '\\n'.
+  Returns -1 on errors.
  */
 int getEndLine (const char* str, int max)
 {
@@ -818,11 +818,11 @@ int getEndLine (const char* str, int max)
 }
 
 /*!
- *Compares two strings and returns a value indicating their relationship.
- *This function ignores case.
- *Returns = 0 if [A] is identical to [B].
- *Returns < 0 if [A] is less than [B].
- *Returns > 0 if [A] is greater than [B].
+  Compares two strings and returns a value indicating their relationship.
+  This function ignores case.
+  Returns = 0 if [A] is identical to [B].
+  Returns < 0 if [A] is less than [B].
+  Returns > 0 if [A] is greater than [B].
  */
 int stringcmpi (string const &a, string const &b)
 {
@@ -830,11 +830,11 @@ int stringcmpi (string const &a, string const &b)
 }
 
 /*!
- *Compares two strings and returns a value indicating their relationship.
- *This function ignores case.
- *Returns = 0 if [A] is identical to [B].
- *Returns < 0 if [A] is less than [B].
- *Returns > 0 if [A] is greater than [B].
+  Compares two strings and returns a value indicating their relationship.
+  This function ignores case.
+  Returns = 0 if [A] is identical to [B].
+  Returns < 0 if [A] is less than [B].
+  Returns > 0 if [A] is greater than [B].
  */
 int stringcmpi (string const &a, const char* b)
 {
@@ -842,11 +842,11 @@ int stringcmpi (string const &a, const char* b)
 }
 
 /*!
- *Compares two strings and returns a value indicating their relationship.
- *This function values the strings case too.
- *Returns = 0 if [A] is identical to [B].
- *Returns < 0 if [A] is less than [B].
- *Returns > 0 if [A] is greater than [B].
+  Compares two strings and returns a value indicating their relationship.
+  This function values the strings case too.
+  Returns = 0 if [A] is identical to [B].
+  Returns < 0 if [A] is less than [B].
+  Returns > 0 if [A] is greater than [B].
  */
 int stringcmp (const string& a, const string& b)
 {
@@ -854,11 +854,11 @@ int stringcmp (const string& a, const string& b)
 }
 
 /*!
- *Compares two strings and returns a value indicating their relationship.
- *This function values the strings case too.
- *Returns = 0 if [A] is identical to [B].
- *Returns < 0 if [A] is less than [B].
- *Returns > 0 if [A] is greater than [B].
+  Compares two strings and returns a value indicating their relationship.
+  This function values the strings case too.
+  Returns = 0 if [A] is identical to [B].
+  Returns < 0 if [A] is less than [B].
+  Returns > 0 if [A] is greater than [B].
  */
 int stringcmp (string const &a, const char* b)
 {

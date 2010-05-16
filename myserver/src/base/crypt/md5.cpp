@@ -20,8 +20,8 @@
 #include <include/base/crypt/md5.h>
 
 /*!
- * Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious
- * initialization constants.
+  Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious
+  initialization constants.
  */
 void Md5::init ()
 {
@@ -29,8 +29,8 @@ void Md5::init ()
 }
 
 /*!
- * Update context to reflect the concatenation of another buffer full
- * of bytes.
+  Update context to reflect the concatenation of another buffer full
+  of bytes.
  */
 void Md5::update (char const *buf, u_long len)
 {
@@ -38,7 +38,7 @@ void Md5::update (char const *buf, u_long len)
 }
 
 /*!
- * Initialize the object via a constructor.
+  Initialize the object via a constructor.
  */
 Md5::Md5 ()
 {
@@ -46,14 +46,14 @@ Md5::Md5 ()
 }
 
 /*!
- * Destroy the object.
+  Destroy the object.
  */
 Md5::~Md5 ()
 {
 }
 
 /*!
- * Write the final hash to the buffer.
+  Write the final hash to the buffer.
  */
 char* Md5::end (char *buf)
 {
@@ -83,9 +83,9 @@ CryptAlgo *Md5::md5Builder ()
 }
 
 /*!
- * Register the algorithm on the specified manager.
- *
- * \param manager The manager where register MD5.
+  Register the algorithm on the specified manager.
+
+  \param manager The manager where register MD5.
  */
 void Md5::initialize (CryptAlgoManager *manager)
 {

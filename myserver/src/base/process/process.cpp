@@ -71,11 +71,11 @@ Mutex Process::forkMutex;
 ForkServer Process::forkServer;
 
 /*!
- * Generate the arguments vector for execve.
- * \param args The output arguments vector to fill.
- * \param size Size of the args vector.
- * \param proc The executable.
- * \param additionalArgs additional arguments.
+  Generate the arguments vector for execve.
+  \param args The output arguments vector to fill.
+  \param size Size of the args vector.
+  \param proc The executable.
+  \param additionalArgs additional arguments.
  */
 int Process::generateArgList (const char **args, size_t size, const char *proc,
                               string &additionalArgs)
@@ -137,9 +137,9 @@ int Process::generateArgList (const char **args, size_t size, const char *proc,
 }
 
 /*!
- * Change the process root directory to the specified one.
- * \param root The new root directory.
- * On success 0 is returned.
+  Change the process root directory to the specified one.
+  \param root The new root directory.
+  On success 0 is returned.
  */
 int Process::chroot (const char *root)
 {
@@ -152,10 +152,10 @@ int Process::chroot (const char *root)
 
 
 /*!
- * Generate the env array for execve.
- * \param envp Enviroment variables array.
- * \param size Size of the args vector.
- * \param envString Enviroment values separed by the NULL character.
+  Generate the env array for execve.
+  \param envp Enviroment variables array.
+  \param size Size of the args vector.
+  \param envString Enviroment values separed by the NULL character.
  */
 int Process::generateEnvString (const char **envp, size_t size, char *envString)
 {
@@ -182,13 +182,13 @@ int Process::generateEnvString (const char **envp, size_t size, char *envString)
 }
 
 /*!
- * Spawn a new process.
- *
- * \param spi new process information.
- * \param waitEnd Specify if wait until the process finishes.
- *
- * \return -1 on failure.
- * \return the new process identifier on success.
+  Spawn a new process.
+
+  \param spi new process information.
+  \param waitEnd Specify if wait until the process finishes.
+
+  \return -1 on failure.
+  \return the new process identifier on success.
  */
 int Process::exec (StartProcInfo* spi, bool waitEnd)
 {
@@ -318,8 +318,8 @@ int Process::exec (StartProcInfo* spi, bool waitEnd)
 }
 
 /*!
- * Get an uid given a username.
- * \param the user name to convert.
+  Get an uid given a username.
+  \param the user name to convert.
  */
 uid_t Process::getUid (const char *user)
 {
@@ -345,8 +345,8 @@ uid_t Process::getUid (const char *user)
 }
 
 /*!
- * Get an uid given a username.
- * \param the user name to convert.
+  Get an uid given a username.
+  \param the user name to convert.
  */
 gid_t Process::getGid (const char *grp)
 {
@@ -371,8 +371,8 @@ gid_t Process::getGid (const char *grp)
 }
 
 /*!
- * Return a nonzero value if the process is still alive. A return value of zero
- * means the process is a zombie.
+  Return a nonzero value if the process is still alive. A return value of zero
+  means the process is a zombie.
  */
 int Process::isProcessAlive ()
 {
@@ -424,7 +424,7 @@ int Process::isProcessAlive ()
 #ifdef HAVE_PTHREAD
 
 /*!
- * Called in the parent before do a fork.
+  Called in the parent before do a fork.
  */
 void Process::forkPrepare ()
 {
@@ -432,7 +432,7 @@ void Process::forkPrepare ()
 }
 
 /*!
- * Called in the parent after the fork.
+  Called in the parent after the fork.
  */
 void Process::forkParent ()
 {
@@ -440,7 +440,7 @@ void Process::forkParent ()
 }
 
 /*!
- * Called in the child process after the fork.
+  Called in the child process after the fork.
  */
 void Process::forkChild ()
 {
@@ -449,7 +449,7 @@ void Process::forkChild ()
 #endif
 
 /*!
- * Initialize the static process data.
+  Initialize the static process data.
  */
 void Process::initialize ()
 {
@@ -460,7 +460,7 @@ void Process::initialize ()
 }
 
 /*!
- * Create the object.
+  Create the object.
  */
 Process::Process ()
 {
@@ -468,7 +468,7 @@ Process::Process ()
 }
 
 /*!
- * Destroy the object.
+  Destroy the object.
  */
 Process::~Process ()
 {
@@ -476,9 +476,9 @@ Process::~Process ()
 }
 
 /*!
- * Terminate a process.
- * Return 0 on success.
- * Return nonzero on fails.
+  Terminate a process.
+  Return 0 on success.
+  Return nonzero on fails.
  */
 int Process::terminateProcess ()
 {
@@ -498,7 +498,7 @@ int Process::terminateProcess ()
 }
 
 /*!
- * Set the user identity for the process. Returns 0 on success.
+  Set the user identity for the process. Returns 0 on success.
  */
 int Process::setuid (const char *uid)
 {
@@ -510,7 +510,7 @@ int Process::setuid (const char *uid)
 }
 
 /*!
- * Set the group identity for the process. Returns 0 on success.
+  Set the group identity for the process. Returns 0 on success.
  */
 int Process::setgid (const char *gid)
 {
@@ -522,7 +522,7 @@ int Process::setgid (const char *gid)
 }
 
 /*!
- * Set the additional groups list for the process.
+  Set the additional groups list for the process.
  */
 int Process::setAdditionalGroups (u_long len, u_long *groups)
 {

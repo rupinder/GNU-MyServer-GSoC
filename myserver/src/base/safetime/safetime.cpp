@@ -36,7 +36,7 @@ static Mutex mutex;
 #endif
 
 /*!
- *Initialize the localtime function.
+  Initialize the localtime function.
  */
 void myserver_safetime_init ()
 {
@@ -48,7 +48,7 @@ void myserver_safetime_init ()
 }
 
 /*!
- *Clean all the data used by the localtime function.
+  Clean all the data used by the localtime function.
  */
 void myserver_safetime_destroy ()
 {
@@ -60,7 +60,7 @@ void myserver_safetime_destroy ()
 }
 
 /*!
- *Thread-safe wrap function for localtime.
+  Thread-safe wrap function for localtime.
  */
 struct tm *myserver_localtime (const time_t *timep, tm* res)
 {
@@ -89,7 +89,7 @@ struct tm *myserver_localtime (const time_t *timep, tm* res)
 }
 
 /*!
- *Thread-safe wrap function for gmtime.
+  Thread-safe wrap function for gmtime.
  */
 struct tm *myserver_gmtime (const time_t *timep, tm* res)
 {

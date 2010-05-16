@@ -39,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 /*!
- * Default constructor.
+  Default constructor.
  */
 CachedFileFactory::CachedFileFactory ()
 {
@@ -47,7 +47,7 @@ CachedFileFactory::CachedFileFactory ()
 }
 
 /*!
- * Destructor.
+  Destructor.
  */
 CachedFileFactory::~CachedFileFactory ()
 {
@@ -55,8 +55,8 @@ CachedFileFactory::~CachedFileFactory ()
 }
 
 /*!
- * Class constructor.
- *\param size Max size to use for the cache.
+  Class constructor.
+  \param size Max size to use for the cache.
  */
 CachedFileFactory::CachedFileFactory (u_long size)
 {
@@ -64,7 +64,7 @@ CachedFileFactory::CachedFileFactory (u_long size)
 }
 
 /*!
- * Clean the used resources.
+  Clean the used resources.
  */
 void CachedFileFactory::clean ()
 {
@@ -79,8 +79,8 @@ void CachedFileFactory::clean ()
 }
 
 /*!
- * Set the max dimension for a file in the cache.
- * \param maxSize The new value.
+  Set the max dimension for a file in the cache.
+  \param maxSize The new value.
  */
 void CachedFileFactory::setMaxSize (u_long maxSize)
 {
@@ -88,8 +88,8 @@ void CachedFileFactory::setMaxSize (u_long maxSize)
 }
 
 /*!
- * Set the min dimension for a file in the cache.
- * \param minSize The new value.
+  Set the min dimension for a file in the cache.
+  \param minSize The new value.
  */
 void CachedFileFactory::setMinSize (u_long minSize)
 {
@@ -97,8 +97,8 @@ void CachedFileFactory::setMinSize (u_long minSize)
 }
 
 /*!
- * Get the max dimension for a file in the cache.
- * \return The current max value.
+  Get the max dimension for a file in the cache.
+  \return The current max value.
  */
 u_long CachedFileFactory::getMaxSize ()
 {
@@ -106,8 +106,8 @@ u_long CachedFileFactory::getMaxSize ()
 }
 
 /*!
- * Get the min dimension for a file in the cache.
- * \return The current min value.
+  Get the min dimension for a file in the cache.
+  \return The current min value.
  */
 u_long CachedFileFactory::getMinSize ()
 {
@@ -115,7 +115,7 @@ u_long CachedFileFactory::getMinSize ()
 }
 
 /*!
- * Initialize the structure.
+  Initialize the structure.
  */
 void CachedFileFactory::initialize (u_long size)
 {
@@ -234,8 +234,8 @@ File* CachedFileFactory::open (const char* filename, int flags)
 }
 
 /*!
- * Called by CachedFileBuffer when its counter reaches zero references.
- * \param cfb A pointer to the source CachedFileBuffer object.
+  Called by CachedFileBuffer when its counter reaches zero references.
+  \param cfb A pointer to the source CachedFileBuffer object.
  */
 void CachedFileFactory::nullReferences (CachedFileBuffer* cfb)
 {
@@ -280,7 +280,7 @@ void CachedFileFactory::nullReferences (CachedFileBuffer* cfb)
 }
 
 /*!
- * Remove pending records from the list.
+  Remove pending records from the list.
  */
 u_long CachedFileFactory::purgeRecords ()
 {

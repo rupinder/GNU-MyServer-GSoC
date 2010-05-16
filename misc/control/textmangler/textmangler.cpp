@@ -5,12 +5,12 @@
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 3 of the License, or
  (at your option) any later version.
- 
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
@@ -25,8 +25,8 @@
 #include <cstdio>
 #include <cstring>
 
-extern "C" 
-{   
+extern "C"
+{
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <libxml/xmlmemory.h>
@@ -42,25 +42,25 @@ int main(int argn, char * argv[])
    char Bufferout[255];
    int val;
    int i, len;
-   
+
    xmlDocPtr doc;
    xmlNodePtr cur;
-   
+
    if(argn < 3)
      return -1;
-   
+
    fstream filein, fileout;
-   
+
    filein.open(argv[1], ios::in);
    if(!filein)
      return -1;
 
    xmlInitParser();
-   
+
    doc = xmlNewDoc((const xmlChar*)"1.0");
    cur = xmlNewDocNode(doc, NULL, (const xmlChar*)"MYSERVER_LANGUAGE_FILE", NULL);
    xmlDocSetRootElement(doc, cur);
-   
+
    filein.getline(Bufferin, 255);
    while(!filein.eof())
      {
@@ -84,9 +84,9 @@ int main(int argn, char * argv[])
 	       val -= 255;
 	  }
 	snprintf(Bufferout, 255, Buffer, val);
-	
+
 	xmlNewTextChild(cur, NULL, (const xmlChar*)Bufferout, (const xmlChar*)Bufferin);
-	
+
 	filein.getline(Bufferin, 255);
      }
    filein.close();

@@ -40,7 +40,7 @@ using namespace std;
 
 
 /*!
- *Structure to describe an HTTP request.
+  Structure to describe an HTTP request.
  */
 struct HttpRequestHeader : public HttpHeader
 {

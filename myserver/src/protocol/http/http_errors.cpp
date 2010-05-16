@@ -29,9 +29,9 @@ bool HttpErrors::loaded = false;
 
 
 /*!
- * Get an error page from its error code.
- * \param statusCode The HTTP error.
- * \param out Output string where write the error page name.
+  Get an error page from its error code.
+  \param statusCode The HTTP error.
+  \param out Output string where write the error page name.
  */
 void HttpErrors::getErrorPage (int statusCode, string& out)
 {
@@ -41,9 +41,9 @@ void HttpErrors::getErrorPage (int statusCode, string& out)
 }
 
 /*!
- *Get an error message from its error code.
- *\param statusCode The HTTP error.
- *\param out Output string where write the error message.
+  Get an error message from its error code.
+  \param statusCode The HTTP error.
+  \param out Output string where write the error message.
  */
 void HttpErrors::getErrorMessage (int statusCode, string& out)
 {
@@ -56,7 +56,7 @@ void HttpErrors::getErrorMessage (int statusCode, string& out)
 }
 
 /*!
- * Unload the allocated resources.
+  Unload the allocated resources.
  */
 void HttpErrors::unLoad ()
 {
@@ -64,9 +64,9 @@ void HttpErrors::unLoad ()
 }
 
 /*!
- * Put a new message in the map.
- * \param id The HTTP error code.
- * \param msg The message associated to the error code.
+  Put a new message in the map.
+  \param id The HTTP error code.
+  \param msg The message associated to the error code.
  */
 void HttpErrors::putMessage (int id, const char* msg)
 {
@@ -74,7 +74,7 @@ void HttpErrors::putMessage (int id, const char* msg)
 }
 
 /*!
- * Load the HTTP errors.
+  Load the HTTP errors.
  */
 void HttpErrors::load ()
 {

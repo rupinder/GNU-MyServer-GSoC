@@ -34,7 +34,7 @@
 
 
 /*!
- *Return a string containing options specified by the client.
+  Return a string containing options specified by the client.
  */
 char* ControlHeader::getOptions ()
 {
@@ -42,7 +42,7 @@ char* ControlHeader::getOptions ()
 }
 
 /*!
- *Return a string containing the auth login name in the MD5 format.
+  Return a string containing the auth login name in the MD5 format.
  */
 char* ControlHeader::getAuthLogin ()
 {
@@ -50,7 +50,7 @@ char* ControlHeader::getAuthLogin ()
 }
 
 /*!
- *Return a string containing the auth login password in the MD5 format.
+  Return a string containing the auth login password in the MD5 format.
  */
 char* ControlHeader::getAuthPassword ()
 {
@@ -58,7 +58,7 @@ char* ControlHeader::getAuthPassword ()
 }
 
 /*!
- *Return a string containing the command specified in the request.
+  Return a string containing the command specified in the request.
  */
 char* ControlHeader::getCommand ()
 {
@@ -66,8 +66,8 @@ char* ControlHeader::getCommand ()
 }
 
 /*!
- *Return a string containing the connection type.
- *Connection can be Closed or Keep-Alive.
+  Return a string containing the connection type.
+  Connection can be Closed or Keep-Alive.
  */
 char* ControlHeader::getConnection ()
 {
@@ -75,7 +75,7 @@ char* ControlHeader::getConnection ()
 }
 
 /*!
- *Return the version of protocol used.
+  Return the version of protocol used.
  */
 char *ControlHeader::getVersion ()
 {
@@ -83,7 +83,7 @@ char *ControlHeader::getVersion ()
 }
 
 /*!
- *Return the data length specified in the client header.
+  Return the data length specified in the client header.
  */
 int ControlHeader::getLength ()
 {
@@ -92,7 +92,7 @@ int ControlHeader::getLength ()
 
 
 /*!
- *Costructor for the class.
+  Costructor for the class.
  */
 ControlHeader::ControlHeader ()
 {
@@ -100,7 +100,7 @@ ControlHeader::ControlHeader ()
 }
 
 /*!
- *Reset everything.
+  Reset everything.
  */
 void ControlHeader::reset ()
 {
@@ -114,7 +114,7 @@ void ControlHeader::reset ()
 }
 
 /*!
- *Destructor for the ControlHeader class.
+  Destructor for the ControlHeader class.
  */
 ControlHeader::~ControlHeader ()
 {
@@ -122,20 +122,20 @@ ControlHeader::~ControlHeader ()
 }
 
 /*!
- *Parse the header in buffer. Put the effective length of the header in len.
- *Return a control_error. See protocol/control/control_errors.h to have a list of all errors.
- *Return -1 on an incomplete header.
- *
- *The header has this form (where CR is carriage return and NL a newline):
- *
- *"_/CMD VERSION more_optionsCRNL"
- *"_/AUTH name:passwordCRNL"
- *"_/LEN length of dataCRNL"
- *_***
- *_Additional fields.(Not used now)
- *_***
- *_"CRNL"        -> Header ends with a "CRNL".
- *_Data...
+  Parse the header in buffer. Put the effective length of the header in len.
+  Return a control_error. See protocol/control/control_errors.h to have a list of all errors.
+  Return -1 on an incomplete header.
+
+  The header has this form (where CR is carriage return and NL a newline):
+
+  "_/CMD VERSION more_optionsCRNL"
+  "_/AUTH name:passwordCRNL"
+  "_/LEN length of dataCRNL"
+  _***
+  _Additional fields.(Not used now)
+  _***
+  _"CRNL"        -> Header ends with a "CRNL".
+  _Data...
  */
 int ControlHeader::parse_header (char *buffer, int bufferlen, int *len)
 {

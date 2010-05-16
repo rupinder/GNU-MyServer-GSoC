@@ -185,7 +185,7 @@ public:
 
     for (it = rules.begin(); it != rules.end(); it++)
       {
-	if ((*it).file) 
+	if ((*it).file)
 	  {
 	    executeFromFilePROC execute = ((executeFromFilePROC)python->getDirectMethod((char*)"executeFromFile"));
 	    if (execute)
@@ -193,7 +193,7 @@ public:
 	  }else
 	  {
 	    executePROC execute = ((executePROC)python->getDirectMethod((char*)"execute"));
-				
+
 	    if (execute)
 	      execute((char*)(*it).data.c_str(), (*it).data.length());
 	  }

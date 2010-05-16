@@ -33,8 +33,8 @@ public:
   int find ();
 
   /*!
-   * Set the value of a bit to 1.
-   * \param i index of the bit to set.
+    Set the value of a bit to 1.
+    \param i index of the bit to set.
    */
   void set (u_long i)
   {
@@ -42,8 +42,8 @@ public:
   }
 
   /*!
-   * Set the value of a bit to 1.
-   * \param i index of the bit to set.
+    Set the value of a bit to 1.
+    \param i index of the bit to set.
    */
   void unset (u_long i)
   {
@@ -51,8 +51,8 @@ public:
   }
 
   /*!
-   * Get the value of the specified bit.
-   * \param i index of the bit to get.
+    Get the value of the specified bit.
+    \param i index of the bit to get.
    */
   bool get (u_long i)
   {

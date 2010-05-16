@@ -260,7 +260,7 @@ LogStream::initialize (LoggingLevel level)
   return 0;
 }
 
-int 
+int
 LogStream::finalize ()
 {
   return 0;

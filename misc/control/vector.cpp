@@ -115,7 +115,7 @@ int Vector::size()
 
 // q_sort example from Michael Lamont (GPL)
 // http://linux.wku.edu/~lamonml/algor/sort/quick.c
-// 
+//
 // Modifed to work with Vector class
 static void q_sort(VectorNode ** Array, int left, int right)
 {
@@ -123,7 +123,7 @@ static void q_sort(VectorNode ** Array, int left, int right)
    int index, l_hold, r_hold;
 
    VectorNode * pivot;
-   
+
    l_hold = left;
    r_hold = right;
    pivot = Array[left];
@@ -161,9 +161,9 @@ void Vector::sort()
      return;
    if(VectorSize < 2)
      return;
-   
+
    q_sort(Array, 0, VectorSize - 1);
-   
+
    ReCount();
    Sorted = true;
 }

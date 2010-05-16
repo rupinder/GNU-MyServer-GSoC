@@ -33,7 +33,7 @@ public:
 };
 
 /*!
- *Adapter class to make Https reentrant.
+  Adapter class to make Https reentrant.
  */
 class HttpsProtocol : public Protocol
 {

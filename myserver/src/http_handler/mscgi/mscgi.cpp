@@ -156,7 +156,7 @@ int MsCgi::send (HttpThreadContext* td, const char* exec, const char* cmdLine,
 }
 
 /*!
- * Send a chunk of data to the client.
+  Send a chunk of data to the client.
  */
 int MsCgi::write (const char* data, u_long len, MsCgiData* mcd)
 {
@@ -182,7 +182,7 @@ int MsCgi::write (const char* data, u_long len, MsCgiData* mcd)
 }
 
 /*!
- * Send the HTTP header.
+  Send the HTTP header.
  */
 int MsCgi::sendHeader (MsCgiData* mcd)
 {

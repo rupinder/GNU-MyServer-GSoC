@@ -59,7 +59,7 @@ public:
 
 
 /*!
- *Adapter class to make Gopher reentrant.
+  Adapter class to make Gopher reentrant.
  */
 
 class GopherProtocol : public Protocol

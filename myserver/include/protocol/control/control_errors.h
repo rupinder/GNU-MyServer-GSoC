@@ -22,8 +22,8 @@
 # include "myserver.h"
 
 /*!
- * These are all the errors that the control server can return to a client.
- * Use these definitions instead of hardly-code the value.
+  These are all the errors that the control server can return to a client.
+  Use these definitions instead of hardly-code the value.
  */
 
 enum

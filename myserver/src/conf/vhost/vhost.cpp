@@ -40,7 +40,7 @@ const string Vhost::warningLogType ("WARNINGLOG");
 
 
 /*!
- * Vhost costructor
+  Vhost costructor
  */
 Vhost::Vhost (LogManager* lm)
 {
@@ -52,9 +52,9 @@ Vhost::Vhost (LogManager* lm)
   protocolData = 0;
 
   /*
-   * By default use a non specified value for the throttling rate. -1 means
-   * that the throttling rate was not specified, while 0 means it was
-   * specified but there is not a limit.
+    By default use a non specified value for the throttling rate. -1 means
+    that the throttling rate was not specified, while 0 means it was
+    specified but there is not a limit.
    */
   throttlingRate = (u_long) -1;
   refCount = 0;
@@ -66,7 +66,7 @@ Vhost::Vhost (LogManager* lm)
 
 
 /*!
- * Destroy the vhost.
+  Destroy the vhost.
  */
 Vhost::~Vhost ()
 {
@@ -93,8 +93,8 @@ Vhost::~Vhost ()
 }
 
 /*!
- * Clear the data dictionary.
- * Returns zero on success.
+  Clear the data dictionary.
+  Returns zero on success.
  */
 int Vhost::freeHashedData ()
 {
@@ -118,7 +118,7 @@ int Vhost::freeHashedData ()
 }
 
 /*!
- * Check if a MIME type file is defined for the virtual host.
+  Check if a MIME type file is defined for the virtual host.
  */
 int Vhost::isMIME ()
 {
@@ -126,7 +126,7 @@ int Vhost::isMIME ()
 }
 
 /*!
- * Get the MIME handler for the virtual host.
+  Get the MIME handler for the virtual host.
  */
 MimeManagerHandler* Vhost::getMIME ()
 {
@@ -134,7 +134,7 @@ MimeManagerHandler* Vhost::getMIME ()
 }
 
 /*!
- * Clear the list of the hosts.
+  Clear the list of the hosts.
  */
 void Vhost::clearHostList ()
 {
@@ -149,7 +149,7 @@ void Vhost::clearHostList ()
 }
 
 /*!
- * Clear the list of IPs.
+  Clear the list of IPs.
  */
 void Vhost::clearIPList ()
 {
@@ -190,9 +190,9 @@ Vhost::openLogFiles ()
 }
 
 /*!
- * Add an IP address to the list.
- * \param ip The ip to add.
- * \param isRegex Specify if the ip is specified as a regex.
+  Add an IP address to the list.
+  \param ip The ip to add.
+  \param isRegex Specify if the ip is specified as a regex.
  */
 void Vhost::addIP (const char *ip, int isRegex)
 {
@@ -203,8 +203,8 @@ void Vhost::addIP (const char *ip, int isRegex)
 }
 
 /*!
- * Remove the IP address to the list.
- * \param ip The ip to remove.
+  Remove the IP address to the list.
+  \param ip The ip to remove.
  */
 void Vhost::removeIP (const char *ip)
 {
@@ -213,8 +213,8 @@ void Vhost::removeIP (const char *ip)
 }
 
 /*!
- * Remove the host address to the list.
- * \param host The hostname to remove.
+  Remove the host address to the list.
+  \param host The hostname to remove.
  */
 void Vhost::removeHost (const char *host)
 {
@@ -224,7 +224,7 @@ void Vhost::removeHost (const char *host)
     {
       StringRegex* sr = *i;
       /*
-       * If this is the virtual host with the right IP.
+        If this is the virtual host with the right IP.
        */
       if (!stringcmp (sr->name, host))
         {
@@ -235,8 +235,8 @@ void Vhost::removeHost (const char *host)
     }
 }
 /*!
- * Check if an host is allowed to the connection
- * \param host hostname to check.
+  Check if an host is allowed to the connection
+  \param host hostname to check.
  */
 int Vhost::isHostAllowed (const char* host)
 {
@@ -261,7 +261,7 @@ int Vhost::isHostAllowed (const char* host)
 }
 
 /*!
- * Check if all the host are allowed to the connection.
+  Check if all the host are allowed to the connection.
  */
 int Vhost::areAllHostAllowed ()
 {
@@ -271,7 +271,7 @@ int Vhost::areAllHostAllowed ()
 }
 
 /*!
- * Check if all the IPs are allowed to the connection.
+  Check if all the IPs are allowed to the connection.
  */
 int Vhost::areAllIPAllowed ()
 {
@@ -279,9 +279,9 @@ int Vhost::areAllIPAllowed ()
 }
 
 /*!
- * Check if the network is allowed to the connection (control the network
- * by the local IP).
- * \param ip The IP to check.
+  Check if the network is allowed to the connection (control the network
+  by the local IP).
+  \param ip The IP to check.
  */
 int Vhost::isIPAllowed (const char* ip)
 {
@@ -315,9 +315,9 @@ int Vhost::isIPAllowed (const char* ip)
 }
 
 /*!
- * Add an host to the allowed host list.
- * \param host hostname to add.
- * \param isRegex Is the host a regex?
+  Add an host to the allowed host list.
+  \param host hostname to add.
+  \param isRegex Is the host a regex?
  */
 void Vhost::addHost (const char *host, int isRegex)
 {
@@ -363,9 +363,9 @@ void Vhost::addHost (const char *host, int isRegex)
 }
 
 /*!
- * Write to the accesses log.
- * \param fmt The log format string.
- * \param ... Arguments.
+  Write to the accesses log.
+  \param fmt The log format string.
+  \param ... Arguments.
  */
 int
 Vhost::accessesLogWrite (const char* fmt, ...)
@@ -379,9 +379,9 @@ Vhost::accessesLogWrite (const char* fmt, ...)
 }
 
 /*!
- * Write a line to the warnings log.
- * \param fmt The log format string.
- * \param ... Arguments.
+  Write a line to the warnings log.
+  \param fmt The log format string.
+  \param ... Arguments.
  */
 int
 Vhost::warningsLogWrite (const char* fmt, ...)
@@ -395,9 +395,9 @@ Vhost::warningsLogWrite (const char* fmt, ...)
 }
 
 /*!
- * Set the null reference callback function. It is called when the reference
- * counter for the virtual host is zero.
- * \param cb The null references callback function.
+  Set the null reference callback function. It is called when the reference
+  counter for the virtual host is zero.
+  \param cb The null references callback function.
  */
 void Vhost::setNullRefCB (NULL_REFERENCECB cb)
 {
@@ -405,7 +405,7 @@ void Vhost::setNullRefCB (NULL_REFERENCECB cb)
 }
 
 /*!
- * Get the null reference callback function used by the virtual host.
+  Get the null reference callback function used by the virtual host.
  */
 NULL_REFERENCECB Vhost::getNullRefCB ()
 {
@@ -413,7 +413,7 @@ NULL_REFERENCECB Vhost::getNullRefCB ()
 }
 
 /*!
- * Increment current references counter by 1.
+  Increment current references counter by 1.
  */
 void Vhost::addRef ()
 {
@@ -423,15 +423,15 @@ void Vhost::addRef ()
 }
 
 /*!
- * Decrement current references counter by 1.
+  Decrement current references counter by 1.
  */
 void Vhost::removeRef ()
 {
   refMutex.lock (0);
   refCount--;
   /*!
-   * If the reference count reaches zero and a callback
-   * function is defined call it.
+    If the reference count reaches zero and a callback
+    function is defined call it.
    */
   if (refCount == 0 && nullReferenceCb)
     nullReferenceCb (this);
@@ -439,7 +439,7 @@ void Vhost::removeRef ()
 }
 
 /*!
- * Get the references counter.
+  Get the references counter.
  */
 int Vhost::getRef ()
 {
@@ -447,8 +447,8 @@ int Vhost::getRef ()
 }
 
 /*!
- * Set the reference counter for the virtual host.
- * \param n The new reference counter.
+  Set the reference counter for the virtual host.
+  \param n The new reference counter.
  */
 void Vhost::setRef (int n)
 {
@@ -456,8 +456,8 @@ void Vhost::setRef (int n)
 }
 
 /*!
- * Get the value for name in the hash dictionary.
- * \param name The hashed entry key.
+  Get the value for name in the hash dictionary.
+  \param name The hashed entry key.
  */
 const char* Vhost::getData (const char* name)
 {
@@ -467,7 +467,7 @@ const char* Vhost::getData (const char* name)
 }
 
 /*!
- * Initialize SSL on the virtual host.
+  Initialize SSL on the virtual host.
  */
 int Vhost::initializeSSL ()
 {
@@ -484,7 +484,7 @@ int Vhost::initializeSSL ()
 }
 
 /*!
- * Get the SSL context.
+  Get the SSL context.
  */
 SSL_CTX* Vhost::getSSLContext ()
 {
@@ -492,7 +492,7 @@ SSL_CTX* Vhost::getSSLContext ()
 }
 
 /*!
- * Clean the memory used by the SSL context.
+  Clean the memory used by the SSL context.
  */
 int Vhost::freeSSL ()
 {
@@ -500,11 +500,11 @@ int Vhost::freeSSL ()
 }
 
 /*!
- * Add a new location->mime association.
- *
- * \param location Location where use the specified mime type.
- * \param record The MIME type to use.
- * \return The MIME record previously registered on the location, if any.
+  Add a new location->mime association.
+
+  \param location Location where use the specified mime type.
+  \param record The MIME type to use.
+  \return The MIME record previously registered on the location, if any.
  */
 MimeRecord *Vhost::addLocationMime (string &location, MimeRecord *record)
 {

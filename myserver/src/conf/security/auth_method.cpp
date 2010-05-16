@@ -31,7 +31,7 @@ AuthMethod::~AuthMethod ()
 }
 
 /*!
- *Get the permission mask for the specified user/password.
+  Get the permission mask for the specified user/password.
  */
 int AuthMethod::getPermissionMask (SecurityToken* st)
 {
@@ -40,7 +40,7 @@ int AuthMethod::getPermissionMask (SecurityToken* st)
 
 
 /*!
- * Check if ALGORITHM (SAVED_PASSWORD) = PASSWORD.
+  Check if ALGORITHM (SAVED_PASSWORD) = PASSWORD.
  */
 bool AuthMethod::comparePassword (const char *password,
                                   const char *savedPassword,

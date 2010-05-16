@@ -114,7 +114,7 @@ protected:
   u_int nSizeLimit;
 
   /* Minimum size of new allocated blocks during addings.
-   * We assume that nBlockLength < nSizeLimit.  */
+    We assume that nBlockLength < nSizeLimit.  */
   u_int nBlockLength;
 
   void xIntToStr (u_int i, int bNegative);

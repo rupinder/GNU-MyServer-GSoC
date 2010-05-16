@@ -42,10 +42,10 @@
 using namespace std;
 
 /*!
- *Read from the pipe.
- *\param buffer Where write.
- *\param len Buffer size.
- *\param nbr Get how many bytes were read.
+  Read from the pipe.
+  \param buffer Where write.
+  \param len Buffer size.
+  \param nbr Get how many bytes were read.
  */
 int Pipe::read (char* buffer, u_long len, u_long *nbr)
 {
@@ -70,9 +70,9 @@ int Pipe::read (char* buffer, u_long len, u_long *nbr)
 
 
 /*!
- *Create the pipe descriptors.  Return 0 on success.
- *\param readPipe Specify if the current process uses it for read.  A false
- *value means the process uses it to write.
+  Create the pipe descriptors.  Return 0 on success.
+  \param readPipe Specify if the current process uses it for read.  A false
+  value means the process uses it to write.
  */
 int Pipe::create (bool readPipe)
 {
@@ -80,10 +80,10 @@ int Pipe::create (bool readPipe)
 }
 
 /*!
- *Write from the pipe.
- *\param buffer What write.
- *\param len Buffer size.
- *\param nbw Get how many bytes were written.
+  Write from the pipe.
+  \param buffer What write.
+  \param len Buffer size.
+  \param nbw Get how many bytes were written.
  */
 int Pipe::write (const char* buffer, u_long len, u_long *nbw)
 {
@@ -101,7 +101,7 @@ int Pipe::write (const char* buffer, u_long len, u_long *nbw)
 }
 
 /*!
- *Get the handle to use to read from the pipe.
+  Get the handle to use to read from the pipe.
  */
 long Pipe::getReadHandle ()
 {
@@ -109,7 +109,7 @@ long Pipe::getReadHandle ()
 }
 
 /*!
- *Get the handle used to write to the pipe.
+  Get the handle used to write to the pipe.
  */
 long Pipe::getWriteHandle ()
 {
@@ -118,7 +118,7 @@ long Pipe::getWriteHandle ()
 
 
 /*!
- *Close the pipe.
+  Close the pipe.
  */
 int Pipe::close ()
 {
@@ -151,9 +151,9 @@ private:
 };
 
 /*!
- * Invert the current pipe on another instance of the class.
- * The input stream will be used as output and viceversa.
- * \param pipe The pipe where write.
+  Invert the current pipe on another instance of the class.
+  The input stream will be used as output and viceversa.
+  \param pipe The pipe where write.
  */
 void Pipe::inverted (Pipe& pipe)
 {
@@ -178,7 +178,7 @@ Pipe::~Pipe ()
 }
 
 /*!
- *Close the read stream of the pipe.
+  Close the read stream of the pipe.
  */
 void Pipe::closeRead ()
 {
@@ -189,7 +189,7 @@ void Pipe::closeRead ()
 }
 
 /*!
- * Close the write stream of the pipe.
+  Close the write stream of the pipe.
  */
 void Pipe::closeWrite ()
 {
@@ -200,10 +200,10 @@ void Pipe::closeWrite ()
 }
 
 /*!
- * Wait until new data is ready.  Do not wait more
- * than the specified timeout.
- * \param sec Seconds part of the timeout.
- * \param usec Micro seconds part of the timeout.
+  Wait until new data is ready.  Do not wait more
+  than the specified timeout.
+  \param sec Seconds part of the timeout.
+  \param usec Micro seconds part of the timeout.
  */
 int Pipe::waitForData (int sec, int usec)
 {

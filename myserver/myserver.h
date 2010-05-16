@@ -62,7 +62,7 @@ typedef void* HANDLE;
 #endif
 
 /*
- * Automatically append an exception to the formatting string.
- * Don't forget to pass as last parameter a pointer to an exception.
+  Automatically append an exception to the formatting string.
+  Don't forget to pass as last parameter a pointer to an exception.
  */
 #define _E(X) _(X " : %e")

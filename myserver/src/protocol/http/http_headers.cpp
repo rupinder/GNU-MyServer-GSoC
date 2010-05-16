@@ -1,19 +1,19 @@
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009, 2010 Free Software
-Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009, 2010 Free Software
+  Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "myserver.h"
@@ -38,19 +38,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /*!
- * Builds an HTTP header string starting from an HttpResponseHeader structure.
- * \param str The buffer where write the HTTP header.
- * \param response the HttpResponseHeader where the HTTP data is.
- *
- * \return The number of bytes written to STR.
+  Builds an HTTP header string starting from an HttpResponseHeader structure.
+  \param str The buffer where write the HTTP header.
+  \param response the HttpResponseHeader where the HTTP data is.
+
+  \return The number of bytes written to STR.
  */
 u_long HttpHeaders::buildHTTPResponseHeader (char *str,
                                              HttpResponseHeader* response)
 {
   /*
-   * Here we build the HTTP response header.
-   * Passing a HttpResponseHeader struct this builds an header string.
-   * Every directive ends with a \r\n sequence.
+    Here we build the HTTP response header.
+    Passing a HttpResponseHeader struct this builds an header string.
+    Every directive ends with a \r\n sequence.
    */
   char *pos = str;
   const int MAX = MYSERVER_KB (8);
@@ -70,8 +70,8 @@ u_long HttpHeaders::buildHTTPResponseHeader (char *str,
   if (response->contentLength.length ())
     {
       /*
-       * Do not specify the Content-length field if it is used
-       * the chunked Transfer-encoding.
+        Do not specify the Content-length field if it is used
+        the chunked Transfer-encoding.
        */
       HttpResponseHeader::Entry *e = response->other.get ("transfer-encoding");
 
@@ -104,11 +104,11 @@ u_long HttpHeaders::buildHTTPResponseHeader (char *str,
 }
 
 /*!
- * Builds an HTTP header string starting from an HttpRequestHeader structure.
- * \param str The buffer where write the HTTP header.
- * \param request the HttpRequestHeader where the HTTP data is.
- *
- * \return The number of bytes written to STR.
+  Builds an HTTP header string starting from an HttpRequestHeader structure.
+  \param str The buffer where write the HTTP header.
+  \param request the HttpRequestHeader where the HTTP data is.
+
+  \return The number of bytes written to STR.
  */
 u_long HttpHeaders::buildHTTPRequestHeader (char * str,
                                             HttpRequestHeader* request)
@@ -196,9 +196,9 @@ u_long HttpHeaders::buildHTTPRequestHeader (char * str,
 
 
 /*!
- * Set the defaults value for a HttpResponseHeader structure.
- * \param response The HTTP response header structure to fullfill with
- * the default data.
+  Set the defaults value for a HttpResponseHeader structure.
+  \param response The HTTP response header structure to fullfill with
+  the default data.
  */
 void HttpHeaders::buildDefaultHTTPResponseHeader (HttpResponseHeader* response)
 {
@@ -210,9 +210,9 @@ void HttpHeaders::buildDefaultHTTPResponseHeader (HttpResponseHeader* response)
 }
 
 /*!
- * Set the defaults value for a HttpResponseHeader structure.
- * \param request The HTTP response header structure to fullfill with
- * the default data.
+  Set the defaults value for a HttpResponseHeader structure.
+  \param request The HTTP response header structure to fullfill with
+  the default data.
  */
 void HttpHeaders::buildDefaultHTTPRequestHeader (HttpRequestHeader* request)
 {
@@ -227,8 +227,8 @@ void HttpHeaders::buildDefaultHTTPRequestHeader (HttpRequestHeader* request)
 }
 
 /*!
- * Reset all the HTTP_REQUEST_HEADER structure members.
- * \param request the HTTP request header to free.
+  Reset all the HTTP_REQUEST_HEADER structure members.
+  \param request the HTTP request header to free.
  */
 void HttpHeaders::resetHTTPRequest (HttpRequestHeader *request)
 {
@@ -236,8 +236,8 @@ void HttpHeaders::resetHTTPRequest (HttpRequestHeader *request)
 }
 
 /*!
- * Reset all the HttpResponseHeader structure members.
- * \param response the HTTP response header to free.
+  Reset all the HttpResponseHeader structure members.
+  \param response the HTTP response header to free.
  */
 void HttpHeaders::resetHTTPResponse (HttpResponseHeader *response)
 {
@@ -245,11 +245,11 @@ void HttpHeaders::resetHTTPResponse (HttpResponseHeader *response)
 }
 
 /*!
- * Controls if the req string is a valid HTTP response header.
- * Returns 0 if req is an invalid header, a non-zero value if is a valid header.
- * \param res the buffer with the HTTP header.
- * \param nLinesptr is a value of the lines number in the HEADER.
- * \param ncharsptr is a value of the characters number in the HEADER.
+  Controls if the req string is a valid HTTP response header.
+  Returns 0 if req is an invalid header, a non-zero value if is a valid header.
+  \param res the buffer with the HTTP header.
+  \param nLinesptr is a value of the lines number in the HEADER.
+  \param ncharsptr is a value of the characters number in the HEADER.
  */
 int HttpHeaders::validHTTPResponse (const char *res, u_long *nLinesptr,
                                     u_long *ncharsptr)
@@ -261,7 +261,7 @@ int HttpHeaders::validHTTPResponse (const char *res, u_long *nLinesptr,
   if (res == 0)
     return 0;
   /*
-   * Count the number of lines in the header.
+    Count the number of lines in the header.
    */
   for (i = 0; res[i]; i++)
   {
@@ -274,8 +274,8 @@ int HttpHeaders::validHTTPResponse (const char *res, u_long *nLinesptr,
     else
     {
       /*
-       * If a line contains more than 4160 characters we consider the
-       * header invalid.
+        If a line contains more than 4160 characters we consider the
+        header invalid.
        */
       if (nLinechars >= 4160)
           return 0;
@@ -296,34 +296,34 @@ int HttpHeaders::validHTTPResponse (const char *res, u_long *nLinesptr,
 
 
 /*!
- * Build the HTTP REQUEST HEADER string.
- * If no input is setted the input is the main buffer of the
- * HttpThreadContext structure.
- * Returns 200 if is a valid request.
- * Returns -1 if the request is incomplete.
- * Any other returned value is the HTTP error.
- * \param input buffer with the HTTP header.
- * \param inputSize Size of the buffer
- * \param nHeaderChars Real size of the header.
- * \param request HTTP request structure to fullfill with data.
- * \param connection The current connection.
- */
+  Build the HTTP REQUEST HEADER string.
+  If no input is setted the input is the main buffer of the
+  HttpThreadContext structure.
+  Returns 200 if is a valid request.
+  Returns -1 if the request is incomplete.
+  Any other returned value is the HTTP error.
+  \param input buffer with the HTTP header.
+  \param inputSize Size of the buffer
+  \param nHeaderChars Real size of the header.
+  \param request HTTP request structure to fullfill with data.
+  \param connection The current connection.
+*/
 int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
-                                              u_long inputSize,
-                                              u_long *nHeaderChars,
-                                              HttpRequestHeader *request,
-                                              Connection *connection)
+                                               u_long inputSize,
+                                               u_long *nHeaderChars,
+                                               HttpRequestHeader *request,
+                                               Connection *connection)
 {
   /*
-   *In this function there is the HTTP protocol parse.
-   *The request is mapped into a HttpRequestHeader structure
-   *And at the end of this each command is treated
-   *differently. We use this mode to parse the HTTP
-   *cause especially in the CGI is requested a continous
-   *access to HTTP header data.
-   *Before mapping the header in the structure
-   *control if this is a regular request.
-   *The HTTP header ends with a \r\n\r\n sequence.
+    In this function there is the HTTP protocol parse.
+    The request is mapped into a HttpRequestHeader structure
+    And at the end of this each command is treated
+    differently. We use this mode to parse the HTTP
+    cause especially in the CGI is requested a continous
+    access to HTTP header data.
+    Before mapping the header in the structure
+    control if this is a regular request.
+    The HTTP header ends with a \r\n\r\n sequence.
    */
   u_long i = 0,j = 0;
   int max = 0;
@@ -340,14 +340,12 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
   int lineControlled = 0;
 
   /*
-   *TokenOff is the length of the token starting from
-   *the location token.
+    tokenOff is the length of the token starting from
+    the location token.
    */
   int tokenOff;
 
-  /*
-   *Control if the HTTP header is a valid header.
-   */
+  /* Control if the HTTP header is a valid header.  */
   validRequest = validHTTPRequest (input, inputSize, &nLines, &maxTotchars);
 
   /* Invalid header.  */
@@ -400,8 +398,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
           int containOpts = 0;
           u_long lenToken = tokenOff;
           /*
-           *The first line has the form:
-           *GET /index.html HTTP/1.1
+            The first line has the form:
+            GET /index.html HTTP/1.1
            */
           lineControlled = 1;
 
@@ -448,8 +446,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
             }
 
           /*
-           * If a uri was specified store it. If it wasn't specified
-           * return an invalid header value.
+            If a uri was specified store it. If it wasn't specified
+            return an invalid header value.
            */
           if (i)
             request->uri.assign (token, i);
@@ -475,15 +473,15 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
             }
 
           /*
-           * Save the query data and seek the cursor at the end of it. Start copying
-           * from the second byte (do not store the  ? character).
+            Save the query data and seek the cursor at the end of it. Start copying
+            from the second byte (do not store the  ? character).
            */
           request->uriOpts.assign (&token[i + 1], j);
           i += j + 1;
 
           /*
-           * Seek the cursor at the end of the spaces. Do not allow more than
-           * 10 spaces character between the uri token and the HTTP version.
+            Seek the cursor at the end of the spaces. Do not allow more than
+            10 spaces character between the uri token and the HTTP version.
            */
           for (j = 0; j < 10; j++)
             {
@@ -493,8 +491,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
                 break;
             }
           /*
-           * If there are more than 10 black spaces store the entire line
-           * for logging then return an invalid header value.
+            If there are more than 10 black spaces store the entire line
+            for logging then return an invalid header value.
            */
           if (j == 10)
             {
@@ -519,8 +517,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
             request->ver.assign (&token[j], i - j);
 
           /*
-           * If the version is not specified or it is too long store
-           * some information for logging then return an invalid header value.
+            If the version is not specified or it is too long store
+            some information for logging then return an invalid header value.
            */
           if (!j || ((i-j) == HTTP_REQUEST_VER_DIM))
             {
@@ -540,8 +538,8 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
             request->uri[(request->uri.length ())-1] == '/';
 
           /*
-           * Do not maintain any slash character if the uri has them at
-           * the begin or at the end.
+            Do not maintain any slash character if the uri has them at
+            the begin or at the end.
            */
           request->uri=trimRight (request->uri, " /");
           request->uriOpts=trim (request->uriOpts, " ");
@@ -605,12 +603,12 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
 }
 
 /*!
- * Parse the range line in a HTTP request.
- * \param request HttpRequest object to fill.
- * \param connection Pointer to a connection structure.
- * \param token Pointer to the beginning of the authorization line.
- * \param lenOut Pointer to an itneger to keep the line length.
- * \return 0 on success, any other value is the HTTP error.
+  Parse the range line in a HTTP request.
+  \param request HttpRequest object to fill.
+  \param connection Pointer to a connection structure.
+  \param token Pointer to the beginning of the authorization line.
+  \param lenOut Pointer to an itneger to keep the line length.
+  \return 0 on success, any other value is the HTTP error.
  */
 int HttpHeaders::readReqRangeLine (HttpRequestHeader *request,
                                    Connection *connection,
@@ -687,12 +685,12 @@ int HttpHeaders::readReqRangeLine (HttpRequestHeader *request,
 }
 
 /*!
- * Parse the authorization line in a HTTP request.
- * \param request HttpRequest object to fill.
- * \param connection Pointer to a connection structure.
- * \param token Pointer to the beginning of the authorization line.
- * \param lenOut Pointer to an integer to keep the line length.
- * \return 0 on success, any other value is the HTTP error.
+  Parse the authorization line in a HTTP request.
+  \param request HttpRequest object to fill.
+  \param connection Pointer to a connection structure.
+  \param token Pointer to the beginning of the authorization line.
+  \param lenOut Pointer to an integer to keep the line length.
+  \return 0 on success, any other value is the HTTP error.
  */
 int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
                                   Connection *connection, const char *token,
@@ -888,14 +886,14 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
 }
 
 /*!
- * Flush a HTTP response to the specified stream.
- *
- * \param response Response object to flush.
- * \param stream Destination stream.
- * \param memBuf Temporary mem buffer to use, it is used internally.
- * \param ctx Http Context object, it can be NULL.
- *
- * \return 0 on success.
+  Flush a HTTP response to the specified stream.
+
+  \param response Response object to flush.
+  \param stream Destination stream.
+  \param memBuf Temporary mem buffer to use, it is used internally.
+  \param ctx Http Context object, it can be NULL.
+
+  \return 0 on success.
  */
 int HttpHeaders::sendHeader (HttpResponseHeader &response, Stream &stream,
                              MemBuf &memBuf, HttpThreadContext *ctx)
@@ -916,28 +914,28 @@ int HttpHeaders::sendHeader (HttpResponseHeader &response, Stream &stream,
 
 
 /*!
- *Build the HTTP RESPONSE HEADER string.
- *If no input is specified the input is the main buffer of the
- *HttpThreadContext structure.
- *Return 0 on invalid input or internal errors.
- *\param input The buffer with the HTTP header data.
- *\param response The HTTP response structure to fullfill.
- *\param nbtr Bytes of the header.
- */
+  Build the HTTP RESPONSE HEADER string.
+  If no input is specified the input is the main buffer of the
+  HttpThreadContext structure.
+  Return 0 on invalid input or internal errors.
+  \param input The buffer with the HTTP header data.
+  \param response The HTTP response structure to fullfill.
+  \param nbtr Bytes of the header.
+*/
 int HttpHeaders::buildHTTPResponseHeaderStruct (const char *input,
-                                               HttpResponseHeader *response,
-                                               u_long *nbtr)
+                                                HttpResponseHeader *response,
+                                                u_long *nbtr)
 {
-  /*!
-   *Brief description.
-   *In this function there is the HTTP protocol parse.
-   *The request is mapped into a HttpRequestHeader structure
-   *And at the end of this every command is treated
-   *differently. We use this mode for parse the HTTP
-   *cause especially in the CGI is requested a continous
-   *HTTP header access.
-   *Before mapping the header in the structure
-   *control if this is a regular response.
+  /*
+    Brief description.
+    In this function there is the HTTP protocol parse.
+    The request is mapped into a HttpRequestHeader structure
+    And at the end of this every command is treated
+    differently. We use this mode for parse the HTTP
+    cause especially in the CGI is requested a continous
+    HTTP header access.
+    Before mapping the header in the structure
+    control if this is a regular response.
    */
   char *newInput;
   u_long nLines,maxTotchars;
@@ -962,8 +960,8 @@ int HttpHeaders::buildHTTPResponseHeaderStruct (const char *input,
     if (! newInput)
       return 0;
     /*
-     * FIXME:
-     * Don't alloc new memory but simply use a no-destructive parsing.
+      FIXME:
+      Don't alloc new memory but simply use a no-destructive parsing.
      */
     memcpy (newInput, input, maxTotchars);
     newInput[maxTotchars] = '\0';
@@ -1037,8 +1035,8 @@ int HttpHeaders::buildHTTPResponseHeaderStruct (const char *input,
       }
 
     /*
-     *If the line is not controlled arrive with the token
-     *at the end of the line.
+      If the line is not controlled arrive with the token at the end of the
+      line.
      */
     if ( (!lineControlled) &&  ((!containStatusLine) || (nLineControlled != 1)))
       {
@@ -1092,14 +1090,14 @@ int HttpHeaders::buildHTTPResponseHeaderStruct (const char *input,
 }
 
 /*!
- * Controls if the req string is a valid HTTP request header.
- * Returns 200 if is a valid request.
- * Returns -1 if the request is incomplete.
- * Any other returned value is the HTTP error.
- * \param req The buffer with the HTTP request.
- * \param size Size of the request buffer.
- * \param nLinesptr Lines in the header.
- * \param ncharsptr Characters in the header.
+  Controls if the req string is a valid HTTP request header.
+  Returns 200 if is a valid request.
+  Returns -1 if the request is incomplete.
+  Any other returned value is the HTTP error.
+  \param req The buffer with the HTTP request.
+  \param size Size of the request buffer.
+  \param nLinesptr Lines in the header.
+  \param ncharsptr Characters in the header.
  */
 int HttpHeaders::validHTTPRequest (const char *req, u_long size,
                                   u_long* nLinesptr, u_long* ncharsptr)
@@ -1123,8 +1121,8 @@ int HttpHeaders::validHTTPRequest (const char *req, u_long size,
         break;
       }
       /*
-       * If the lines number is greater than 25 we consider
-       * the header invalid.
+        If the lines number is greater than 25 we consider
+        the header invalid.
       */
       if (nLines >= 25)
         return 400;
@@ -1135,8 +1133,8 @@ int HttpHeaders::validHTTPRequest (const char *req, u_long size,
       return -1;
 
     /*
-    * If a line contains more than 2048 characters then the
-    * header is considered invalid.
+      If a line contains more than 2048 characters then the
+      header is considered invalid.
     */
     if (nLinechars >= 2048)
     {

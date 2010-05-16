@@ -197,7 +197,7 @@ CBase64Utils::~CBase64Utils ()
 
 }
 /*!
- *Decode a string using the Base64 codification
+  Decode a string using the Base64 codification
  */
 char* CBase64Utils::encode (const char *input, int bufsize)
 {
@@ -308,7 +308,7 @@ char* CBase64Utils::encode (const char *input, int bufsize)
 }
 
 /*!
- *Decode a Base64 coded string.
+  Decode a Base64 coded string.
  */
 char* CBase64Utils::decode (const char *input, int *bufsize)
 {

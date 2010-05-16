@@ -5,12 +5,12 @@
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
  version 2.1 of the License, or (at your option) any later version.
- 
+
  This library is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  Lesser General Public License for more details.
- 
+
  You should have received a copy of the GNU Lesser General Public
  License along with this library; if not, write to the Free Software
   */
@@ -79,7 +79,7 @@ int ControlClient::Login(const char * address, const int port,
    sockAddr.sin_family = AF_INET;
    memcpy(&sockAddr.sin_addr, hp->h_addr, hp->h_length);
    sockAddr.sin_port = htons(port);
-   
+
    /*! Try to create the socket. */
    if(tcpSocket->socket(AF_INET, SOCK_STREAM, 0) == -1)
      {
@@ -391,7 +391,7 @@ int ControlClient::sendRequest(const char * cmd, const char * opt)
    ret = socket->send((const char *)Buffer.getBuffer(), Buffer.getLength(), 0);
 #ifdef DEBUG
    write(1, (const char *)Buffer.getBuffer(), Buffer.getLength());
-#endif   
+#endif
    Buffer.setLength(0);
    return (ret == -1 ? -1 : 0);
 }
@@ -474,7 +474,7 @@ int ControlClient::getResponse()
 	  }
 
 	Buffer.addBuffer((const void *)cBuffer, ret);
-	
+
 	if(Buffer.getLength() > MAXHEADERLEN)
 	  {
 	     HeaderGetReturn(); // get the code if any
@@ -488,7 +488,7 @@ int ControlClient::getResponse()
 #ifdef DEBUG
    write(1, "\nDone\n", strlen("\nDone\n"));
 #endif
-   
+
    // get header len
    hLen = Buffer.find("\r\n\r\n", 4, 0) + 4;
 
@@ -511,7 +511,7 @@ int ControlClient::getResponse()
      }
 
    returnLEN = HeaderGetLEN();
-   
+
    if(returnLEN == -1)
      return -1;
 
@@ -531,10 +531,10 @@ int ControlClient::getResponse()
 	     write(1, cBuffer, ret);
 #endif
 	     Buffer.addBuffer((const void *)cBuffer, ret);
-	     
+
 	     // Callback function
 	     if(Progress)
-	       Progress(Object, returnLEN, Buffer.getLength() - hLen); 
+	       Progress(Object, returnLEN, Buffer.getLength() - hLen);
 	  } // while
 #ifdef DEBUG
    write(1, "\nDone\n", strlen("\nDone\n"));
@@ -552,25 +552,25 @@ int ControlClient::HeaderGetReturn()
    int end = pos;
    int len = Buffer.getLength();
    int ret;
-   
+
    if(pos == -1)
      return -1;
-   
+
    while(Buffer[end] != '\r')
      {
 	end++;
 	if(end > len)
 	  return -1;
      }
-   
+
    char temp[end - pos];
    memcpy(temp, &Buffer.getAt(pos), end - pos);
    temp[end - pos] = '\0';
-   
+
    ret = atoi(&temp[1]);
-   
+
    strncpy(LastCode, &temp[1], 4);
-   
+
    return ret;
 }
 
@@ -579,22 +579,22 @@ int ControlClient::HeaderGetLEN()
    int pos = Buffer.find((const void *)"/LEN", 4);
    int end = pos;
    int len = Buffer.getLength();
-   
+
    if(pos == -1)
      return -1;
-   
+
    while(Buffer[end] != '\r')
-     {  
+     {
 	end++;
 	if(end > len)
 	  return -1;
      }
-   
+
    char temp[end - pos];
    memcpy(temp, &Buffer.getAt(pos), end - pos);
    temp[end - pos] = '\0';
-   
+
    return atoi(&temp[4]);
 }
 
-   
+

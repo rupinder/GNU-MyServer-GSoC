@@ -1,19 +1,19 @@
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2008, 2009, 2010 Free Software
-Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2008, 2009, 2010 Free Software
+  Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 /*!
- *Read data from the chain. Returns 0 on success.
+  Read data from the chain. Returns 0 on success.
  */
 int FiltersChain::read (char* buffer, u_long len, u_long* nbr)
 {
@@ -40,7 +40,7 @@ int FiltersChain::read (char* buffer, u_long len, u_long* nbr)
 }
 
 /*!
- *Set the stream where apply the filters.
+  Set the stream where apply the filters.
  */
 void FiltersChain::setStream (Stream* s)
 {
@@ -55,7 +55,7 @@ void FiltersChain::setStream (Stream* s)
 }
 
 /*!
- *Get the stream usedby the chain.
+  Get the stream usedby the chain.
  */
 Stream* FiltersChain::getStream ()
 {
@@ -63,7 +63,7 @@ Stream* FiltersChain::getStream ()
 }
 
 /*!
- *Write data using the chain. Returns 0 on success.
+  Write data using the chain. Returns 0 on success.
  */
 int FiltersChain::write (const char* buffer, u_long len, u_long* nbw)
 {
@@ -76,7 +76,7 @@ int FiltersChain::write (const char* buffer, u_long len, u_long* nbw)
 }
 
 /*!
- *Initialize the chain object.
+  Initialize the chain object.
  */
 FiltersChain::FiltersChain ()
 {
@@ -86,7 +86,7 @@ FiltersChain::FiltersChain ()
 }
 
 /*!
- *Set if the chain can cointain duplicates of the same filter on different levels.
+  Set if the chain can cointain duplicates of the same filter on different levels.
  */
 void FiltersChain::setAcceptDuplicates (int v)
 {
@@ -94,7 +94,7 @@ void FiltersChain::setAcceptDuplicates (int v)
 }
 
 /*!
- *Return if the chain can have the same filter in multiple places.
+  Return if the chain can have the same filter in multiple places.
  */
 int FiltersChain::getAcceptDuplicates ()
 {
@@ -102,7 +102,7 @@ int FiltersChain::getAcceptDuplicates ()
 }
 
 /*!
- *Destroy the chain.
+  Destroy the chain.
  */
 FiltersChain::~FiltersChain ()
 {
@@ -110,9 +110,9 @@ FiltersChain::~FiltersChain ()
 }
 
 /*!
- *Add a filter to the chain.
- *Returns 0 on success.
- *the number of bytes written to initialize the filter.
+  Add a filter to the chain.
+  Returns 0 on success.
+  the number of bytes written to initialize the filter.
  */
 int FiltersChain::addFilter (Filter* f, u_long *nbw, int sendData)
 {
@@ -140,7 +140,7 @@ int FiltersChain::addFilter (Filter* f, u_long *nbw, int sendData)
 
   if (sendData)
   {
-    /*! Write the filter/filter.header (if any) using the upper chain. */
+    /* Write the filter/filter.header (if any) using the upper chain. */
     if (!f->getHeader (buffer, 512, &nbw2))
     {
       if (nbw2 && f->getParent ()->write (buffer, nbw2, &nbwFirstFilter))
@@ -153,21 +153,21 @@ int FiltersChain::addFilter (Filter* f, u_long *nbw, int sendData)
     }
   }
 
-  /*!
-   *Add the new filter at the end of the list.
-   *The new filter will write directly the old firstFilter.
-   */
+  /*
+    Add the new filter at the end of the list.
+    The new filter will write directly the old firstFilter.
+  */
   firstFilter = f;
 
-  /*! Add the filters in the list in the same order they are used. */
+  /* Add the filters in the list in the same order they are used. */
   filters.push_front (f);
   return ret;
 }
 
 /*!
- *Flush remaining data.
- *Additional footer data for filters is added at the end.
- *Returns 0 on success.
+  Flush remaining data.
+  Additional footer data for filters is added at the end.
+  Returns 0 on success.
  */
 int FiltersChain::flush (u_long* nbw)
 {
@@ -188,9 +188,7 @@ int FiltersChain::flush (u_long* nbw)
   written = *nbw;
 
   ;
-  /*!
-   *Position on the last element.
-   */
+  /* Position on the last element.  */
   i = filters.end ();
 
   while (i != filters.begin ())
@@ -207,13 +205,13 @@ int FiltersChain::flush (u_long* nbw)
     written += (*nbw);
   }
 
-  /*! Set the final value. */
+  /* Set the final value.  */
   *nbw = written;
   return 0;
 }
 
 /*!
- *Check if a filter is present in the chain.
+  Check if a filter is present in the chain.
  */
 int FiltersChain::isFilterPresent (Filter* f)
 {
@@ -227,7 +225,7 @@ int FiltersChain::isFilterPresent (Filter* f)
 }
 
 /*!
- *Check if a filter is present in the chain by its name.
+  Check if a filter is present in the chain by its name.
  */
 int FiltersChain::isFilterPresent (const char* name)
 {
@@ -240,7 +238,7 @@ int FiltersChain::isFilterPresent (const char* name)
 }
 
 /*!
- *Remove the first occurrence of the specified filter from the chain.
+  Remove the first occurrence of the specified filter from the chain.
  */
 int FiltersChain::removeFilter (Filter* f)
 {
@@ -256,9 +254,9 @@ int FiltersChain::removeFilter (Filter* f)
       }
       else
       {
-        /*!
-         *It is the first filter according to the linked list.
-         *Do not use the getParent function here as it can be a Stream.
+        /*
+          It is the first filter according to the linked list.
+          Do not use the getParent function here as it can be a Stream.
          */
         if (i == filters.end ())
           firstFilter = NULL;
@@ -283,7 +281,7 @@ int FiltersChain::removeFilter (Filter* f)
 }
 
 /*!
- *Returns a nonzero value if the chain is empty.
+  Returns a nonzero value if the chain is empty.
  */
 int FiltersChain::isEmpty ()
 {
@@ -291,7 +289,7 @@ int FiltersChain::isEmpty ()
 }
 
 /*!
- *Destroy filters objects. This destroys all the filters objects in the list.
+  Destroy filters objects. This destroys all the filters objects in the list.
  */
 void FiltersChain::clearAllFilters ()
 {
@@ -305,7 +303,7 @@ void FiltersChain::clearAllFilters ()
 }
 
 /*!
- *Returns a nonzero value if the chain contains any modifier filter.
+  Returns a nonzero value if the chain contains any modifier filter.
  */
 int FiltersChain::hasModifiersFilters ()
 {
@@ -319,7 +317,7 @@ int FiltersChain::hasModifiersFilters ()
 }
 
 /*!
- *Get the first filter of the chain.
+  Get the first filter of the chain.
  */
 Filter* FiltersChain::getFirstFilter ()
 {
@@ -328,8 +326,8 @@ Filter* FiltersChain::getFirstFilter ()
 
 
 /*!
- *Fullfill the out string with a comma separated list of the filters
- *present in the chain.
+  Fullfill the out string with a comma separated list of the filters
+  present in the chain.
  */
 void FiltersChain::getName (string& out)
 {

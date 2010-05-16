@@ -1,19 +1,19 @@
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010 Free
-Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010 Free
+  Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "myserver.h"
@@ -36,12 +36,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 /*!
- *Write the string that contain the CGI environment to cgiEnvString.
- *This function is used by other server side protocols too.
- *\param td The HTTP thread context.
- *\param cgiEnv The zero terminated list of environment string.
- *\param processEnv Specify if add current process environment
- *variables too.
+  Write the string that contain the CGI environment to cgiEnvString.
+  This function is used by other server side protocols too.
+  \param td The HTTP thread context.
+  \param cgiEnv The zero terminated list of environment string.
+  \param processEnv Specify if add current process environment
+  variables too.
  */
 void Env::buildEnvironmentString (HttpThreadContext* td, char *cgiEnv,
                                  int processEnv)
@@ -169,8 +169,8 @@ void Env::buildEnvironmentString (HttpThreadContext* td, char *cgiEnv,
   memCgi << td->filenamePath;
 
   /*
-   *For the DOCUMENT_URI and SCRIPT_NAME copy the
-   *requested uri without the pathInfo.
+    For the DOCUMENT_URI and SCRIPT_NAME copy the
+    requested uri without the pathInfo.
    */
   memCgi << end_str << "SCRIPT_NAME=";
   memCgi << td->request.uri.c_str ();
@@ -220,7 +220,7 @@ void Env::buildEnvironmentString (HttpThreadContext* td, char *cgiEnv,
 }
 
 /*!
- *Append to the environment string variables from the HTTP request header.
+  Append to the environment string variables from the HTTP request header.
  */
 void Env::buildHttpHeaderEnvString (MemBuf& memCgi, HttpRequestHeader & req)
 {
@@ -243,7 +243,7 @@ void Env::buildHttpHeaderEnvString (MemBuf& memCgi, HttpRequestHeader & req)
 }
 
 /*!
- *Append to the environment string process env variables.
+  Append to the environment string process env variables.
  */
 void Env::buildProcessEnvString (MemBuf& memCgi)
 {

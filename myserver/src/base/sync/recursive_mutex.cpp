@@ -43,7 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 /*!
- *Constructor for the recursive mutex class.
+  Constructor for the recursive mutex class.
  */
 RecursiveMutex::RecursiveMutex () : Mutex ()
 {
@@ -52,7 +52,7 @@ RecursiveMutex::RecursiveMutex () : Mutex ()
 }
 
 /*!
- *Initialize a recursive mutex.
+  Initialize a recursive mutex.
  */
 int RecursiveMutex::init ()
 {

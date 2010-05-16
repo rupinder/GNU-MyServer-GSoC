@@ -27,7 +27,7 @@ using namespace std;
 #include <string.h>
 
 /*!
- *Inherited from Stream.
+  Inherited from Stream.
  */
 int MemoryStream::read (char* buffer, u_long len, u_long *nbr)
 {
@@ -43,7 +43,7 @@ int MemoryStream::read (char* buffer, u_long len, u_long *nbr)
 }
 
 /*!
- *Read directly on the stream.
+  Read directly on the stream.
  */
 int MemoryStream::read (Stream* s, u_long len, u_long *nbr)
 {
@@ -54,7 +54,7 @@ int MemoryStream::read (Stream* s, u_long len, u_long *nbr)
 }
 
 /*!
- *Inherited from Stream.
+  Inherited from Stream.
  */
 int MemoryStream::write (const char* buffer, u_long len, u_long *nbw)
 {
@@ -64,7 +64,7 @@ int MemoryStream::write (const char* buffer, u_long len, u_long *nbw)
 }
 
 /*!
- *Inherited from Stream.
+  Inherited from Stream.
  */
 int MemoryStream::flush (u_long* nbw)
 {
@@ -73,7 +73,7 @@ int MemoryStream::flush (u_long* nbw)
 }
 
 /*!
- *Use an external buffer to store data.
+  Use an external buffer to store data.
  */
 MemoryStream::MemoryStream (MemBuf* out)
 {
@@ -84,7 +84,7 @@ MemoryStream::MemoryStream (MemBuf* out)
 }
 
 /*!
- *Return how many bytes can be read.
+  Return how many bytes can be read.
  */
 int MemoryStream::availableToRead ()
 {
@@ -92,7 +92,7 @@ int MemoryStream::availableToRead ()
 }
 
 /*!
- *Construct the object.
+  Construct the object.
  */
 MemoryStream::MemoryStream ()
 {
@@ -103,7 +103,7 @@ MemoryStream::MemoryStream ()
 }
 
 /*!
- *Inherited from Stream.
+  Inherited from Stream.
  */
 MemoryStream::~MemoryStream ()
 {
@@ -112,7 +112,7 @@ MemoryStream::~MemoryStream ()
 }
 
 /*!
- *Recycle the buffer.
+  Recycle the buffer.
  */
 int MemoryStream::refresh ()
 {

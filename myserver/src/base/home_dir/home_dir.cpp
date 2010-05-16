@@ -56,7 +56,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/types.h>
 
 /*!
- * Class constructor.
+  Class constructor.
  */
 HomeDir::HomeDir ()
 {
@@ -72,7 +72,7 @@ HomeDir::HomeDir ()
 }
 
 /*!
- * D'tor.
+  D'tor.
  */
 HomeDir::~HomeDir ()
 {
@@ -81,7 +81,7 @@ HomeDir::~HomeDir ()
 }
 
 /*!
- *Clear the used memory.
+  Clear the used memory.
  */
 void HomeDir::clear ()
 {
@@ -102,7 +102,7 @@ void HomeDir::clear ()
 }
 
 /*!
- *Public wrapper to loadImpl.
+  Public wrapper to loadImpl.
  */
 int HomeDir::load ()
 {
@@ -123,7 +123,7 @@ int HomeDir::load ()
 }
 
 /*!
- * Load the internal buffer.
+  Load the internal buffer.
  */
 int HomeDir::loadImpl ()
 {
@@ -228,13 +228,13 @@ int HomeDir::loadImpl ()
 }
 
 /*!
- * Get the home directory for a specified user and write
- * it directly to the supplied buffer.
- * \param userName The user name.
- * \param out The buffer where write.
- * \return 0 on success.
- * \return < 0 on error.
- * \return > 0 if the user home directory does not exist.
+  Get the home directory for a specified user and write
+  it directly to the supplied buffer.
+  \param userName The user name.
+  \param out The buffer where write.
+  \return 0 on success.
+  \return < 0 on error.
+  \return > 0 if the user home directory does not exist.
  */
 int HomeDir::getHomeDir (string& userName, string& out)
 {

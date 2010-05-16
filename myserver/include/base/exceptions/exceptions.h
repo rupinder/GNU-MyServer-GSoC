@@ -36,13 +36,13 @@
 using namespace std;
 
 /*!
- * This class describes an abstract MyServer exception
+  This class describes an abstract MyServer exception
  */
 class AbstractServerException: public exception
 {
   public:
     /*!
-     * Constructor of the class
+      Constructor of the class
      */
     AbstractServerException ()
     {
@@ -57,8 +57,8 @@ class AbstractServerException: public exception
     }
 
     /*!
-     * Returns the process backtrace of the application
-     * at the moment of the error
+      Returns the process backtrace of the application
+      at the moment of the error
      */
     char **getBacktrace ()
     {
@@ -83,7 +83,7 @@ class AbstractServerException: public exception
     }
 
     /*!
-     * Returns a string representing the error
+      Returns a string representing the error
      */
     virtual const char *what () const throw ()
     {
@@ -120,7 +120,7 @@ class AbstractServerException: public exception
 };
 
 /*
- * Generic categories to group together more exceptions of the same type
+  Generic categories to group together more exceptions of the same type
  */
 class GenericFileException : public AbstractServerException
 {
@@ -141,7 +141,7 @@ class GenericMemoryException : public AbstractServerException
 };
 
 /*
- * Exceptions
+  Exceptions
  */
 class AbortedConnectionException : public GenericSocketException
 {
@@ -666,7 +666,7 @@ class TooManyFileException : public GenericMemoryException
 };
 
 /*
- * Thrown if an unknown error occurs
+  Thrown if an unknown error occurs
  */
 class UnknownException : public AbstractServerException
 {

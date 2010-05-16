@@ -39,7 +39,7 @@ private:
 
 
 /*!
- * Initialize class internal data.
+  Initialize class internal data.
  */
 DynamicLibrary::DynamicLibrary ()
 {
@@ -47,7 +47,7 @@ DynamicLibrary::DynamicLibrary ()
 }
 
 /*!
- * Destroy the object.
+  Destroy the object.
  */
 DynamicLibrary::~DynamicLibrary ()
 {
@@ -55,9 +55,9 @@ DynamicLibrary::~DynamicLibrary ()
 }
 
 /*!
- * Load the specified dynamic library. It returns 0 on success.
- * \param filename Name of the file to load.
- * \param globally Set if the library is loaded globally.
+  Load the specified dynamic library. It returns 0 on success.
+  \param filename Name of the file to load.
+  \param globally Set if the library is loaded globally.
  */
 int DynamicLibrary::loadLibrary (const char* filename, int globally)
 {
@@ -89,9 +89,9 @@ int DynamicLibrary::loadLibrary (const char* filename, int globally)
 }
 
 /*!
- *Get a pointer to the specified function. Returns 0 on errors or
- *the function address.
- *\param fnName Function name to find.
+  Get a pointer to the specified function. Returns 0 on errors or
+  the function address.
+  \param fnName Function name to find.
  */
 void* DynamicLibrary::getProc (const char* fnName)
 {
@@ -106,7 +106,7 @@ void* DynamicLibrary::getProc (const char* fnName)
 }
 
 /*!
- *Close the library. Returns 0 on success.
+  Close the library. Returns 0 on success.
  */
 int DynamicLibrary::close ()
 {
@@ -130,7 +130,7 @@ int DynamicLibrary::close ()
 }
 
 /*!
- * Return if the object has a valid handle.
+  Return if the object has a valid handle.
  */
 int DynamicLibrary::validHandle ()
 {

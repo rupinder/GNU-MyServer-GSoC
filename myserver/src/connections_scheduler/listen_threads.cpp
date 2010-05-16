@@ -47,7 +47,7 @@
 using namespace std;
 
 /*!
- * C'tor.
+  C'tor.
  */
 ListenThreads::ListenThreads (ConnectionsScheduler* scheduler, Server* server)
 {
@@ -58,8 +58,8 @@ ListenThreads::ListenThreads (ConnectionsScheduler* scheduler, Server* server)
 }
 
 /*!
- * This function is used to create a socket server and a thread listener
- * for a port.
+  This function is used to create a socket server and a thread listener
+  for a port.
  */
 int ListenThreads::createServerAndListener (u_short port)
 {
@@ -72,8 +72,8 @@ int ListenThreads::createServerAndListener (u_short port)
     }
 
   /*
-   * Create the server sockets:
-   * one server socket for IPv4 and another one for IPv6
+    Create the server sockets:
+    one server socket for IPv4 and another one for IPv6
    */
   Socket *serverSocketIPv4 = new Socket ();
   Socket *serverSocketIPv6 = NULL;
@@ -82,7 +82,7 @@ int ListenThreads::createServerAndListener (u_short port)
   si->port = port;
 
   /*
-   * Create the server socket.
+    Create the server socket.
    */
   try
     {
@@ -164,7 +164,7 @@ int ListenThreads::createServerAndListener (u_short port)
 }
 
 /*!
- * Register the sockets on the events listener.
+  Register the sockets on the events listener.
  */
 void ListenThreads::registerListener (SocketInformation* si)
 {
@@ -182,8 +182,8 @@ void ListenThreads::registerListener (SocketInformation* si)
 }
 
 /*!
- * Add a listening thread on a specific port.
- * \param port Port to listen on.
+  Add a listening thread on a specific port.
+  \param port Port to listen on.
  */
 void ListenThreads::addListeningThread (u_short port)
 {
@@ -194,8 +194,8 @@ void ListenThreads::addListeningThread (u_short port)
 }
 
 /*!
- * Initialize the listen threads manager.
- * \param parser Xml data to use for error messages.
+  Initialize the listen threads manager.
+  \param parser Xml data to use for error messages.
  */
 int ListenThreads::initialize ()
 {
@@ -204,7 +204,7 @@ int ListenThreads::initialize ()
 }
 
 /*!
- * Complete the fast reboot.
+  Complete the fast reboot.
  */
 void ListenThreads::commitFastReboot ()
 {
@@ -281,7 +281,7 @@ void ListenThreads::commitFastReboot ()
 
 
 /*!
- * Restore the previous situation without do anything.
+  Restore the previous situation without do anything.
  */
 void ListenThreads::rollbackFastReboot ()
 {
@@ -297,7 +297,7 @@ void ListenThreads::rollbackFastReboot ()
 }
 
 /*!
- * Prepare the listen threads manager for a fast reboot.
+  Prepare the listen threads manager for a fast reboot.
  */
 void ListenThreads::beginFastReboot ()
 {
@@ -305,7 +305,7 @@ void ListenThreads::beginFastReboot ()
 }
 
 /*!
- * Unload the listen threads manager.
+  Unload the listen threads manager.
  */
 int ListenThreads::terminate ()
 {

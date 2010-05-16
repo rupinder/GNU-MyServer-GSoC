@@ -50,7 +50,7 @@ using namespace std;
 string FilesUtility::tmpPath;
 
 /*!
- * Constructor body.
+  Constructor body.
  */
 FilesUtility::FilesUtility ()
 {
@@ -58,19 +58,19 @@ FilesUtility::FilesUtility ()
 }
 
 /*!
- * This function iterates through every character of the path
- * The first IF tries to clear out the bars, if it finds one,
- * just advances one character and starts the cycle again
- * The second IF tries to find at least two dots.
- * if it finds only 1, does nothing,
- * WIN32 if it finds 2 or more rec=rec-(number of dots -1)
- * *NIX if it finds 2, decrements rec, if it finds more,
- * increments it considering it's a name if it ends with
- * something else other then a bar of a NULL,
- * then it's a path of the form "/...qwerty/" that should be considered rec++
- * The last ELSE, catches the rest and advances to the next bar.
- * Return the recursion of the path.
- * \param path The file name.
+  This function iterates through every character of the path
+  The first IF tries to clear out the bars, if it finds one,
+  just advances one character and starts the cycle again
+  The second IF tries to find at least two dots.
+  if it finds only 1, does nothing,
+  WIN32 if it finds 2 or more rec=rec-(number of dots -1)
+  *NIX if it finds 2, decrements rec, if it finds more,
+  increments it considering it's a name if it ends with
+  something else other then a bar of a NULL,
+  then it's a path of the form "/...qwerty/" that should be considered rec++
+  The last ELSE, catches the rest and advances to the next bar.
+  Return the recursion of the path.
+  \param path The file name.
  */
 int FilesUtility::getPathRecursionLevel (const char* path)
 {
@@ -134,9 +134,9 @@ int FilesUtility::getPathRecursionLevel (const char* path)
 
 
 /*!
- * Rename the file [BEFORE] to [AFTER]. Returns 0 on success.
- * \param before The old file name.
- * \param after The new file name.
+  Rename the file [BEFORE] to [AFTER]. Returns 0 on success.
+  \param before The old file name.
+  \param after The new file name.
  */
 int FilesUtility::renameFile (const char* before, const char* after)
 {
@@ -144,10 +144,10 @@ int FilesUtility::renameFile (const char* before, const char* after)
 }
 
 /*!
- * Copy the file from [SRC] to [DEST]. Returns 0 on success.
- * \param src The source file name.
- * \param dest The destination file name.
- * \param overwrite Overwrite the dest file if already exists?
+  Copy the file from [SRC] to [DEST]. Returns 0 on success.
+  \param src The source file name.
+  \param dest The destination file name.
+  \param overwrite Overwrite the dest file if already exists?
  */
 int FilesUtility::copyFile (const char* src, const char* dest, int overwrite)
 {
@@ -173,9 +173,9 @@ int FilesUtility::copyFile (const char* src, const char* dest, int overwrite)
 }
 
 /*!
- * Copy the file from [SRC] to [DEST]. Returns 0 on success.
- * \param src The source File.
- * \param dest The destination File.
+  Copy the file from [SRC] to [DEST]. Returns 0 on success.
+  \param src The source File.
+  \param dest The destination File.
  */
 int FilesUtility::copyFile (File& src, File& dest)
 {
@@ -201,8 +201,8 @@ int FilesUtility::copyFile (File& src, File& dest)
 }
 
 /*!
- * Delete an existing file passing the path.
- * \param filename The file to delete.
+  Delete an existing file passing the path.
+  \param filename The file to delete.
  */
 int FilesUtility::deleteFile (const char *filename)
 {
@@ -235,8 +235,8 @@ bool FilesUtility::notDirectory (const char *path)
 
 
 /*!
- * Returns a non-null value if the path is a directory.
- * \param filename The path to check.
+  Returns a non-null value if the path is a directory.
+  \param filename The path to check.
  */
 int FilesUtility::isDirectory (const char *filename)
 {
@@ -246,8 +246,8 @@ int FilesUtility::isDirectory (const char *filename)
 }
 
 /*!
- * Returns a non-null value if the given path is a link.
- * \param filename The path to check.
+  Returns a non-null value if the given path is a link.
+  \param filename The path to check.
  */
 int FilesUtility::isLink (const char* filename)
 {
@@ -262,8 +262,8 @@ int FilesUtility::isLink (const char* filename)
 }
 
 /*!
- * Returns a non-null value if the given path is a valid file.
- * \param filename The path to check.
+  Returns a non-null value if the given path is a valid file.
+  \param filename The path to check.
  */
 int FilesUtility::nodeExists (const char* filename)
 {
@@ -281,9 +281,9 @@ int FilesUtility::nodeExists (const char* filename)
 }
 
 /*!
- * Returns the time of the last modify to the file.
- * Returns -1 on errors.
- * \param filename The path to check.
+  Returns the time of the last modify to the file.
+  Returns -1 on errors.
+  \param filename The path to check.
  */
 time_t FilesUtility::getLastModTime (const char *filename)
 {
@@ -298,9 +298,9 @@ time_t FilesUtility::getLastModTime (const char *filename)
 }
 
 /*!
- * Returns the time of the file creation.
- * Returns -1 on errors.
- * \param filename The path to check.
+  Returns the time of the file creation.
+  Returns -1 on errors.
+  \param filename The path to check.
  */
 time_t FilesUtility::getCreationTime (const char *filename)
 {
@@ -315,9 +315,9 @@ time_t FilesUtility::getCreationTime (const char *filename)
 }
 
 /*!
- * Returns the time of the last access to the file.
- * Returns -1 on errors.
- * \param filename The path to check.
+  Returns the time of the last access to the file.
+  Returns -1 on errors.
+  \param filename The path to check.
  */
 time_t FilesUtility::getLastAccTime (const char *filename)
 {
@@ -331,11 +331,11 @@ time_t FilesUtility::getLastAccTime (const char *filename)
 }
 
 /*!
- * Change the owner of the current file, use the value -1 for uid or gid
- * to do not change the value. Return 0 on success.
- * \param filename The path to the file to chown.
- * \param uid The user id.
- * \param gid the group id.
+  Change the owner of the current file, use the value -1 for uid or gid
+  to do not change the value. Return 0 on success.
+  \param filename The path to the file to chown.
+  \param uid The user id.
+  \param gid the group id.
  */
 int FilesUtility::chown (const char* filename, string &uid, string &gid)
 {
@@ -347,9 +347,9 @@ int FilesUtility::chown (const char* filename, string &uid, string &gid)
 }
 
 /*!
- * Get the filename from a path.
- * \param path The full path to the file.
- * \param filename A buffer to fullfill with the file name.
+  Get the filename from a path.
+  \param path The full path to the file.
+  \param filename A buffer to fullfill with the file name.
  */
 void FilesUtility::getFilename (string const &path, string& filename)
 {
@@ -361,11 +361,11 @@ void FilesUtility::getFilename (string const &path, string& filename)
 }
 
 /*!
- * Use this function before call splitPath to be sure that the buffers
- * dir and filename are bigger enough to contain the data.
- * \param path The full path to the file.
- * \param dir The directory part length of the path.
- * \param filename The length of the buffer needed to contain the file name.
+  Use this function before call splitPath to be sure that the buffers
+  dir and filename are bigger enough to contain the data.
+  \param path The full path to the file.
+  \param dir The directory part length of the path.
+  \param filename The length of the buffer needed to contain the file name.
  */
 void FilesUtility::splitPathLength (const char *path, int *dir, int *filename)
 {
@@ -384,11 +384,11 @@ void FilesUtility::splitPathLength (const char *path, int *dir, int *filename)
 }
 
 /*!
- * Splits a file path into a directory and filename.
- * Path is an input value while dir and filename are the output values.
- * \param path The full path to the file.
- * \param dir The directory part of the path.
- * \param filename A buffer to fullfill with the file name.
+  Splits a file path into a directory and filename.
+  Path is an input value while dir and filename are the output values.
+  \param path The full path to the file.
+  \param dir The directory part of the path.
+  \param filename A buffer to fullfill with the file name.
  */
 void FilesUtility::splitPath (const char *path, char *dir, char *filename)
 {
@@ -420,10 +420,10 @@ void FilesUtility::splitPath (const char *path, char *dir, char *filename)
 }
 
 /*!
- * Split a path in a dir and a filename.
- * \param path The full path to the file.
- * \param dir The directory part of the path.
- * \param filename A buffer to fullfill with the file name.
+  Split a path in a dir and a filename.
+  \param path The full path to the file.
+  \param dir The directory part of the path.
+  \param filename A buffer to fullfill with the file name.
  */
 void FilesUtility::splitPath (string const &path, string& dir, string& filename)
 {
@@ -450,10 +450,10 @@ void FilesUtility::splitPath (string const &path, string& dir, string& filename)
 }
 
 /*!
- * Get the file extension passing its path.
- * Save in ext all the bytes afer the last dot (.) in filename.
- * \param ext The buffer to fullfill with the file extension.
- * \param filename The path to the file.
+  Get the file extension passing its path.
+  Save in ext all the bytes afer the last dot (.) in filename.
+  \param ext The buffer to fullfill with the file extension.
+  \param filename The path to the file.
  */
 void FilesUtility::getFileExt (char* ext, const char* filename)
 {
@@ -470,10 +470,10 @@ void FilesUtility::getFileExt (char* ext, const char* filename)
 }
 
 /*!
- * Get the file extension passing its path.
- * Save in ext all the bytes afer the last dot (.) in filename.
- * \param ext The buffer to fullfill with the file extension.
- * \param filename The path to the file.
+  Get the file extension passing its path.
+  Save in ext all the bytes afer the last dot (.) in filename.
+  \param ext The buffer to fullfill with the file extension.
+  \param filename The path to the file.
  */
 void FilesUtility::getFileExt (string& ext, string const &filename)
 {
@@ -485,11 +485,11 @@ void FilesUtility::getFileExt (string& ext, string const &filename)
 }
 
 /*!
- * Get the file path in the short form of the specified file.
- * Return -1 on errors.
- * \param filePath The path to use.
- * \param out The buffer where write.
- * \param buffersize The buffer length.
+  Get the file path in the short form of the specified file.
+  Return -1 on errors.
+  \param filePath The path to use.
+  \param out The buffer where write.
+  \param buffersize The buffer length.
  */
 int FilesUtility::getShortFileName (char *filePath, char *out, int buffersize)
 {
@@ -505,11 +505,11 @@ int FilesUtility::getShortFileName (char *filePath, char *out, int buffersize)
 }
 
 /*!
- * Complete the path of the file.
- * Return non-zero on errors.
- * \param fileName The buffer to use.
- * \param size The new buffer size.
- * \param dontRealloc Don't checked::realloc a new buffer.
+  Complete the path of the file.
+  Return non-zero on errors.
+  \param fileName The buffer to use.
+  \param size The new buffer size.
+  \param dontRealloc Don't checked::realloc a new buffer.
  */
 int FilesUtility::completePath (char **fileName, int *size, int dontRealloc)
 {
@@ -584,9 +584,9 @@ int FilesUtility::completePath (char **fileName, int *size, int dontRealloc)
 }
 
 /*!
- * Complete the path of the file.
- * Return non-zero on errors.
- * \param fileName The file name to complete.
+  Complete the path of the file.
+  Return non-zero on errors.
+  \param fileName The file name to complete.
  */
 int FilesUtility::completePath (string &fileName)
 {
@@ -621,9 +621,9 @@ int FilesUtility::completePath (string &fileName)
 }
 
 /*!
- * Create a new directory.
- * Return non-zero on errors.
- * \param path The path to the directory to create.
+  Create a new directory.
+  Return non-zero on errors.
+  \param path The path to the directory to create.
  */
 int FilesUtility::mkdir (const char *path)
 {
@@ -635,9 +635,9 @@ int FilesUtility::mkdir (const char *path)
 }
 
 /*!
- * Delete a directory.
- * Return non-zero on errors.
- * \param path The directory to remove.
+  Delete a directory.
+  Return non-zero on errors.
+  \param path The directory to remove.
  */
 int FilesUtility::rmdir (const char *path)
 {
@@ -649,7 +649,7 @@ int FilesUtility::rmdir (const char *path)
 }
 
 /*!
- * Set the temporary path to a default one.
+  Set the temporary path to a default one.
  */
 void FilesUtility::resetTmpPath ()
 {
@@ -679,10 +679,10 @@ void FilesUtility::resetTmpPath ()
 
 
 /*!
- *Create an unique temporary file name.  This function doesn't create
- *or open the file but generates only its name.
- *\param tid Caller thread id.
- *\param out Output string.
+  Create an unique temporary file name.  This function doesn't create
+  or open the file but generates only its name.
+  \param tid Caller thread id.
+  \param out Output string.
  */
 void FilesUtility::temporaryFileName (u_long tid, string &out)
 {

@@ -27,10 +27,10 @@
 #include <cstdarg>
 
 /*!
- * The constructor.
- *
- * \param ff The FiltersFactory object.
- * \param level The default level of logging.
+  The constructor.
+
+  \param ff The FiltersFactory object.
+  \param level The default level of logging.
  */
 LogManager::LogManager (FiltersFactory* ff, LoggingLevel level) : level (level)
 {
@@ -43,7 +43,7 @@ LogManager::LogManager (FiltersFactory* ff, LoggingLevel level) : level (level)
 }
 
 /*!
- * The destructor. Deallocates all the LogStream objects.
+  The destructor. Deallocates all the LogStream objects.
  */
 LogManager::~LogManager ()
 {
@@ -54,9 +54,9 @@ LogManager::~LogManager ()
 }
 
 /*!
- * Precalculate the newline string for the host operating system.
- *
- * \return 0 on success, 1 on error.
+  Precalculate the newline string for the host operating system.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::computeNewLine ()
@@ -71,9 +71,9 @@ LogManager::computeNewLine ()
 }
 
 /*!
- * Empty the LogManager.
- *
- * \return 0 on success, 1 on error.
+  Empty the LogManager.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::clear ()
@@ -99,24 +99,24 @@ LogManager::clear ()
 }
 
 /*!
- * Add a new LogStream element to the LogManager. The same LogStream can be
- * shared between different owner objects. This means that you can pass
- * multiple times the same string as `location' parameter, as well as `owner'
- * and `type', but you can't pass more than one time the same
- * <owner, type, location> tuple.
- *
- * \param owner The object that will own the LogStream that is being added.
- * \param type The category which the LogStream that is being added belongs to.
- * \param location The location string for the new LogStream.
- * \param filters A list of strings, each representing a valid filter name.
- * \param cycle The cycle value for the LogStream.
- * \param suppressWarnings by default it is 0, meaning don't suppress warnings.
- *
- * \return 0 on success, 1 on error.
+  Add a new LogStream element to the LogManager. The same LogStream can be
+  shared between different owner objects. This means that you can pass
+  multiple times the same string as `location' parameter, as well as `owner'
+  and `type', but you can't pass more than one time the same
+  <owner, type, location> tuple.
+
+  \param owner The object that will own the LogStream that is being added.
+  \param type The category which the LogStream that is being added belongs to.
+  \param location The location string for the new LogStream.
+  \param filters A list of strings, each representing a valid filter name.
+  \param cycle The cycle value for the LogStream.
+  \param suppressWarnings by default it is 0, meaning don't suppress warnings.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::add (const void *owner, string type, string location,
-                 list<string>& filters, u_long cycle, 
+                 list<string>& filters, u_long cycle,
                  int suppressWarnings)
 {
   int failure = 1;
@@ -167,12 +167,12 @@ LogManager::add (const void *owner, string type, string location,
 }
 
 /*!
- * Helper method that inserts a new owner within the LogManager
- * data structures.
- *
- * \param owner The new owner.
- *
- * \return 0 on success, 1 on error.
+  Helper method that inserts a new owner within the LogManager
+  data structures.
+
+  \param owner The new owner.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::add (const void *owner)
@@ -191,12 +191,12 @@ LogManager::add (const void *owner)
 }
 
 /*!
- * Helper method that associates a new log category to an object.
- *
- * \param owner The owner of the new log category.
- * \param type The name of the new log category.
- *
- * \return 0 on success, 1 on error.
+  Helper method that associates a new log category to an object.
+
+  \param owner The owner of the new log category.
+  \param type The name of the new log category.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::add (const void *owner, string type)
@@ -215,15 +215,15 @@ LogManager::add (const void *owner, string type)
 }
 
 /*!
- * Helper method, that physically adds a LogStream to the
- * LogManager data structures.
- *
- * \param owner The owner object.
- * \param type The log category.
- * \param location The location string.
- * \param ls The LogStream object to add.
- *
- * \return 0 on success, 1 on error.
+  Helper method, that physically adds a LogStream to the
+  LogManager data structures.
+
+  \param owner The owner object.
+  \param type The log category.
+  \param location The location string.
+  \param ls The LogStream object to add.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::add (const void *owner, string type, string location, LogStream* ls)
@@ -245,15 +245,15 @@ LogManager::add (const void *owner, string type, string location, LogStream* ls)
 }
 
 /*
- * Remove all the logs owned by `owner' and `owner' as well.
- * After the call to this method, a call to contains (owner)
- * must return false. If `owner' owns some LogStream shared with
- * another object, that LogStream will be left within the LogManager
- * until all its owners willn't be removed.
- *
- * \param owner The object whose LogStream objects will be removed.
- *
- * \return 0 on success, 1 on error.
+  Remove all the logs owned by `owner' and `owner' as well.
+  After the call to this method, a call to contains (owner)
+  must return false. If `owner' owns some LogStream shared with
+  another object, that LogStream will be left within the LogManager
+  until all its owners willn't be removed.
+
+  \param owner The object whose LogStream objects will be removed.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::remove (const void *owner)
@@ -313,18 +313,18 @@ LogManager::remove (const void *owner)
 }
 
 /*!
- * Deliver a message to a single LogStream object specified by the tuple
- * <owner, type, location>.
- *
- * \param owner The object which owns the target stream.
- * \param type The log category which the target stream belongs.
- * \param location The target stream.
- * \param evt The event of interest for the target stream. For the list
- * of all events that can be notified, check the `log_stream.h' header.
- * \param message The message to deliver.
- * \param reply The recipient reply.
- *
- * \return 0 on success, 1 on error.
+  Deliver a message to a single LogStream object specified by the tuple
+  <owner, type, location>.
+
+  \param owner The object which owns the target stream.
+  \param type The log category which the target stream belongs.
+  \param location The target stream.
+  \param evt The event of interest for the target stream. For the list
+  of all events that can be notified, check the `log_stream.h' header.
+  \param message The message to deliver.
+  \param reply The recipient reply.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::notify (const void* owner, const string & type, const string &
@@ -339,17 +339,17 @@ LogManager::notify (const void* owner, const string & type, const string &
 }
 
 /*!
- * Deliver a message to all the LogStream objects belonging to the `type'
- * log category of the `owner' object.
- *
- * \param owner The object which owns the target stream.
- * \param type The log category which the target stream belongs.
- * \param evt The event of interest for the target stream. For the list
- * of all events that can be notified, check the `log_stream.h' header.
- * \param message The message to deliver.
- * \param reply The recipient reply.
- *
- * \return 0 on success, 1 on error.
+  Deliver a message to all the LogStream objects belonging to the `type'
+  log category of the `owner' object.
+
+  \param owner The object which owns the target stream.
+  \param type The log category which the target stream belongs.
+  \param evt The event of interest for the target stream. For the list
+  of all events that can be notified, check the `log_stream.h' header.
+  \param message The message to deliver.
+  \param reply The recipient reply.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::notify (const void* owner, const string & type, LogStreamEvent evt,
@@ -368,15 +368,15 @@ LogManager::notify (const void* owner, const string & type, LogStreamEvent evt,
 }
 
 /*!
- * Deliver a message to all the LogStream objects owned by `owner'.
- *
- * \param owner The object which owns the target stream.
- * \param evt The event of interest for the target stream. For the list
- * of all events that can be notified, check the `log_stream.h' header.
- * \param message The message to deliver.
- * \param reply The recipient reply.
- *
- * \return 0 on success, 1 on error.
+  Deliver a message to all the LogStream objects owned by `owner'.
+
+  \param owner The object which owns the target stream.
+  \param evt The event of interest for the target stream. For the list
+  of all events that can be notified, check the `log_stream.h' header.
+  \param message The message to deliver.
+  \param reply The recipient reply.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::notify (const void* owner, LogStreamEvent evt, void* message,
@@ -395,13 +395,13 @@ LogManager::notify (const void* owner, LogStreamEvent evt, void* message,
 }
 
 /*!
- * Change the owner for all the LogStream objects owned by `owner'.
- *
- * \param owner The object which owns the target stream.
- * \param uid The new uid for the stream.
- * \param gid The new gid for the stream.
- *
- * \return 0 on success, 1 on error.
+  Change the owner for all the LogStream objects owned by `owner'.
+
+  \param owner The object which owns the target stream.
+  \param uid The new uid for the stream.
+  \param gid The new gid for the stream.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::chown (const void *owner, string &uid, string &gid)
@@ -413,15 +413,15 @@ LogManager::chown (const void *owner, string &uid, string &gid)
 }
 
 /*!
- * Change the owner for a group of LogStream objects specified by the tuple
- * <owner, type>.
- *
- * \param owner The object which owns the target stream.
- * \param type The category where the target stream can be found.
- * \param uid The new uid for the stream.
- * \param gid The new gid for the stream.
- *
- * \return 0 on success, 1 on error.
+  Change the owner for a group of LogStream objects specified by the tuple
+  <owner, type>.
+
+  \param owner The object which owns the target stream.
+  \param type The category where the target stream can be found.
+  \param uid The new uid for the stream.
+  \param gid The new gid for the stream.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::chown (const void *owner, string type, string &uid, string &gid)
@@ -433,15 +433,15 @@ LogManager::chown (const void *owner, string type, string &uid, string &gid)
 }
 
 /*!
- * Change the owner for a LogStream specified by the tuple <owner, type, location>.
- *
- * \param owner The object which owns the target stream.
- * \param type The category where the target stream can be found.
- * \param location The target stream.
- * \param uid The new uid for the stream.
- * \param gid The new gid for the stream.
- *
- * \return 0 on success, 1 on error.
+  Change the owner for a LogStream specified by the tuple <owner, type, location>.
+
+  \param owner The object which owns the target stream.
+  \param type The category where the target stream can be found.
+  \param location The target stream.
+  \param uid The new uid for the stream.
+  \param gid The new gid for the stream.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::chown (const void *owner, string type, string location, string &uid, string &gid)
@@ -453,16 +453,16 @@ LogManager::chown (const void *owner, string type, string location, string &uid,
 }
 
 /*!
- * Write a message on all the LogStream objects owned by the `owner' object.
- *
- * \param owner The object that owns the category.
- * \param message The message to write.
- * \param appendNL If set, tells the LogManager to append a newline sequence
- * to the message.
- * \param level If less than the LogManager's logging level, the message
- * will be discarded.
- *
- * \return 0 on success, 1 on error.
+  Write a message on all the LogStream objects owned by the `owner' object.
+
+  \param owner The object that owns the category.
+  \param message The message to write.
+  \param appendNL If set, tells the LogManager to append a newline sequence
+  to the message.
+  \param level If less than the LogManager's logging level, the message
+  will be discarded.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::log (const void* owner, string & message, bool appendNL,
@@ -495,18 +495,18 @@ LogManager::log (const void* owner, string & message, bool appendNL,
 }
 
 /*!
- * Write a message on all the LogStream objects belonging to the `type'
- * category of the `owner' object.
- *
- * \param owner The object that owns the category.
- * \param type The log category where to write.
- * \param message The message to write.
- * \param appendNL If set, tells the LogManager to append a newline sequence
- * to the message.
- * \param level If less than the LogManager's logging level, the message
- * will be discarded.
- *
- * \return 0 on success, 1 on error.
+  Write a message on all the LogStream objects belonging to the `type'
+  category of the `owner' object.
+
+  \param owner The object that owns the category.
+  \param type The log category where to write.
+  \param message The message to write.
+  \param appendNL If set, tells the LogManager to append a newline sequence
+  to the message.
+  \param level If less than the LogManager's logging level, the message
+  will be discarded.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::log (const void* owner, const string & type, string & message,
@@ -539,20 +539,20 @@ LogManager::log (const void* owner, const string & type, string & message,
 }
 
 /*!
- * Write a message on a single LogStream, specified by the unique tuple
- * <owner, type, location>.
- *
- * \param owner The object that owns the LogStream.
- * \param type The log category where we want to write.
- * \param location The target LogStream.
- * \param message The message we want to write.
- * \param appendNL a flag that, if set, tells the LogManager to append
- * a new line sequence to the message, according to the host operating system
- * convention.
- * \param level The level of logging of this message. If it is less than
- * the LogManager's level of logging, the message will be discarded.
- *
- * \return 0 on success, 1 on error.
+  Write a message on a single LogStream, specified by the unique tuple
+  <owner, type, location>.
+
+  \param owner The object that owns the LogStream.
+  \param type The log category where we want to write.
+  \param location The target LogStream.
+  \param message The message we want to write.
+  \param appendNL a flag that, if set, tells the LogManager to append
+  a new line sequence to the message, according to the host operating system
+  convention.
+  \param level The level of logging of this message. If it is less than
+  the LogManager's level of logging, the message will be discarded.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::log (const void* owner, const string & type, const string & location,
@@ -586,10 +586,10 @@ LogManager::log (const void* owner, const string & type, const string & location
 
 
 /*!
- * Write a message on a single LogStream specifying a formatting string.
- *
- * \see LogManager#log (void*, string, LoggingLevel, bool, bool, va_list)
- * \return 0 on success, 1 on error.
+  Write a message on a single LogStream specifying a formatting string.
+
+  \see LogManager#log (void*, string, LoggingLevel, bool, bool, va_list)
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::log (const void* owner, const string & type, LoggingLevel level,
@@ -612,26 +612,26 @@ LogManager::log (const void* owner, const string & type, LoggingLevel level,
 }
 
 /*!
- * Write a message on a single LogStream specifying a formatting string.
- *
- * \param owner The object that owns the LogStream.
- * \param type The log category where we want to write.
- * \param message The message we want to write.
- * \param level The level of logging of this message. If it is less than
- * the LogManager's level of logging, the message will be discarded.
- * \param ts Specify if a timestamp should be added before the message.
- * \param appendNL a flag that, if set, tells the LogManager to append
- * a new line sequence to the message, according to the host operating system
- * convention.
- * \param fmt Specify the message to log, accepting an additional parameters
- * list, codes accepted are:
- * %s An const char* string.
- * %S A string*
- * %% A '%'.
- * %i An integer.
- *\param args Additional args used by fmt.
- *
- * \return 0 on success, 1 on error.
+  Write a message on a single LogStream specifying a formatting string.
+
+  \param owner The object that owns the LogStream.
+  \param type The log category where we want to write.
+  \param message The message we want to write.
+  \param level The level of logging of this message. If it is less than
+  the LogManager's level of logging, the message will be discarded.
+  \param ts Specify if a timestamp should be added before the message.
+  \param appendNL a flag that, if set, tells the LogManager to append
+  a new line sequence to the message, according to the host operating system
+  convention.
+  \param fmt Specify the message to log, accepting an additional parameters
+  list, codes accepted are:
+  %s An const char* string.
+  %S A string*
+  %% A '%'.
+  %i An integer.
+  \param args Additional args used by fmt.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::log (const void* owner, const string & type, LoggingLevel level,
@@ -725,12 +725,12 @@ LogManager::log (const void* owner, const string & type, LoggingLevel level,
 }
 
 /*!
- * Close all the LogStream objects owned by `owner'.
- *
- * \param owner The object about which we want to close all the LogStream
- * objects.
- *
- * \return 0 on success, 1 on error.
+  Close all the LogStream objects owned by `owner'.
+
+  \param owner The object about which we want to close all the LogStream
+  objects.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::close (const void *owner)
@@ -739,13 +739,13 @@ LogManager::close (const void *owner)
 }
 
 /*!
- * Close all the LogStream objects belonging to the `type'
- * category of the `owner' object.
- *
- * \param owner The object that owns the `type' category.
- * \param type The log category to close.
- *
- * \return 0 on success, 1 on error.
+  Close all the LogStream objects belonging to the `type'
+  category of the `owner' object.
+
+  \param owner The object that owns the `type' category.
+  \param type The log category to close.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::close (const void *owner, string type)
@@ -754,13 +754,13 @@ LogManager::close (const void *owner, string type)
 }
 
 /*!
- * Close the LogStream specified by the unique tuple <owner, type, location>.
- *
- * \param owner The object that owns the LogStream.
- * \param type The log category.
- * \param location The LogStream location.
- *
- * \return 0 on success, 1 on error.
+  Close the LogStream specified by the unique tuple <owner, type, location>.
+
+  \param owner The object that owns the LogStream.
+  \param type The log category.
+  \param location The LogStream location.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::close (const void *owner, string type, string location)
@@ -769,13 +769,13 @@ LogManager::close (const void *owner, string type, string location)
 }
 
 /*!
- * Set the cycle value for all the LogStream objects owned by `owner'.
- *
- * \param owner The object that wants to modify the cycle value for its
- * LogStream objects.
- * \param cycle The new cycle value.
- *
- * \return 0 on success, 1 on error.
+  Set the cycle value for all the LogStream objects owned by `owner'.
+
+  \param owner The object that wants to modify the cycle value for its
+  LogStream objects.
+  \param cycle The new cycle value.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::setCycle (const void *owner, u_long cycle)
@@ -784,14 +784,14 @@ LogManager::setCycle (const void *owner, u_long cycle)
 }
 
 /*!
- * Set the cycle value for all the LogStream objects belonging to the
- * log category `type' of the `owner' object.
- *
- * \param owner The object which owns the `type' category.
- * \param type The log category to modify.
- * \param cycle The new cycle value.
- *
- * \return 0 on success, 1 on error.
+  Set the cycle value for all the LogStream objects belonging to the
+  log category `type' of the `owner' object.
+
+  \param owner The object which owns the `type' category.
+  \param type The log category to modify.
+  \param cycle The new cycle value.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::setCycle (const void *owner, string type, u_long cycle)
@@ -800,15 +800,15 @@ LogManager::setCycle (const void *owner, string type, u_long cycle)
 }
 
 /*!
- * Set the cycle value for the LogStream specified by the unique tuple
- * <owner, type, location>.
- *
- * \param owner The object that owns the LogStream.
- * \param type The log category which the LogStream belongs.
- * \param location The LogStream location.
- * \param cycle The new cycle value.
- *
- * \return 0 on success, 1 on error.
+  Set the cycle value for the LogStream specified by the unique tuple
+  <owner, type, location>.
+
+  \param owner The object that owns the LogStream.
+  \param type The log category which the LogStream belongs.
+  \param location The LogStream location.
+  \param cycle The new cycle value.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::setCycle (const void *owner, string type, string location, u_long cycle)
@@ -818,14 +818,14 @@ LogManager::setCycle (const void *owner, string type, string location, u_long cy
 }
 
 /*!
- * Return the cycle value for the `location' LogStream.
- *
- * \param location The LogStream about which we want to retrieve the cycle
- * value.
- * \param cycle On a successful method execution, the cycle value will be
- * placed here.
- *
- * \return 0 on success, 1 on error.
+  Return the cycle value for the `location' LogStream.
+
+  \param location The LogStream about which we want to retrieve the cycle
+  value.
+  \param cycle On a successful method execution, the cycle value will be
+  placed here.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::getCycle (string location, u_long* cycle)
@@ -839,14 +839,14 @@ LogManager::getCycle (string location, u_long* cycle)
 }
 
 /*!
- * Retrieve a list of strings each representing a LogStream location
- * of all the LogStreams owned by the owner object.
- *
- * \param owner The object about which we want to get all LogStream
- * object.
- * \param l The list that will be filled on successful method execution.
- *
- * \return 0 on success, 1 on error.
+  Retrieve a list of strings each representing a LogStream location
+  of all the LogStreams owned by the owner object.
+
+  \param owner The object about which we want to get all LogStream
+  object.
+  \param l The list that will be filled on successful method execution.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::get (const void *owner, list<string>* l)
@@ -871,14 +871,14 @@ LogManager::get (const void *owner, list<string>* l)
 }
 
 /*!
- * Retrieve a list of strings each representing the location of
- * a LogStream belonging to the `type' category of the `owner' object.
- *
- * \param owner The object that should own the wanted information.
- * \param type The log category where the wanted information can be found.
- * \param l The list that will be filled on a successful method execution.
- *
- * \return 0 on success, 1 on error.
+  Retrieve a list of strings each representing the location of
+  a LogStream belonging to the `type' category of the `owner' object.
+
+  \param owner The object that should own the wanted information.
+  \param type The log category where the wanted information can be found.
+  \param l The list that will be filled on a successful method execution.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::get (const void *owner, string type, list<string>* l)
@@ -898,17 +898,17 @@ LogManager::get (const void *owner, string type, list<string>* l)
 }
 
 /*!
- * Get a LogStream object by its location, the log category which it belongs
- * and its owner.
- *
- * \param owner The object that should own the LogStream.
- * \param type The log category which the LogStream that will be retrieved should
- * belong.
- * \param location The LogStream location.
- * \param ls On a successful method execution, the LogStream object will be
- * placed here.
- *
- * \return 0 on success, 1 on error.
+  Get a LogStream object by its location, the log category which it belongs
+  and its owner.
+
+  \param owner The object that should own the LogStream.
+  \param type The log category which the LogStream that will be retrieved should
+  belong.
+  \param location The LogStream location.
+  \param ls On a successful method execution, the LogStream object will be
+  placed here.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::get (const void *owner, string type, string location, LogStream** ls)
@@ -922,13 +922,13 @@ LogManager::get (const void *owner, string type, string location, LogStream** ls
 }
 
 /*!
- * Retrieve the filters list used by the `location' LogStream.
- *
- * \param location The LogStream about which we want to retrieve the
- * filters list.
- * \param l A list that will be filled by a successful method execution.
- *
- * \return 0 on success, 1 on error.
+  Retrieve the filters list used by the `location' LogStream.
+
+  \param location The LogStream about which we want to retrieve the
+  filters list.
+  \param l A list that will be filled by a successful method execution.
+
+  \return 0 on success, 1 on error.
  */
 int
 LogManager::getFilters (string location, list<string>* l)
@@ -942,13 +942,13 @@ LogManager::getFilters (string location, list<string>* l)
 }
 
 /*!
- * Set the logging level for the LogManager. Check
- * the `log_stream.h' header file for more information about
- * the LoggingLevel enumeration.
- *
- * \param level the new level of logging.
- *
- * \return the old level of logging.
+  Set the logging level for the LogManager. Check
+  the `log_stream.h' header file for more information about
+  the LoggingLevel enumeration.
+
+  \param level the new level of logging.
+
+  \return the old level of logging.
  */
 LoggingLevel
 LogManager::setLevel (LoggingLevel level)
@@ -961,11 +961,11 @@ LogManager::setLevel (LoggingLevel level)
 }
 
 /*!
- * Return the level of logging used by the LogManager. Check
- * the `log_stream.h' header file for more information about
- * the LoggingLevel enumeration.
- *
- * \return the level of logging used by the LogManager
+  Return the level of logging used by the LogManager. Check
+  the `log_stream.h' header file for more information about
+  the LoggingLevel enumeration.
+
+  \return the level of logging used by the LogManager
  */
 LoggingLevel
 LogManager::getLevel ()
@@ -974,9 +974,9 @@ LogManager::getLevel ()
 }
 
 /*!
- * Set the FiltersFactory used by the LogManager.
- *
- * \param ff The FiltersFactory object that will be used by the LogManager.
+  Set the FiltersFactory used by the LogManager.
+
+  \param ff The FiltersFactory object that will be used by the LogManager.
  */
 void
 LogManager::setFiltersFactory (FiltersFactory* ff)
@@ -987,9 +987,9 @@ LogManager::setFiltersFactory (FiltersFactory* ff)
 }
 
 /*!
- * Get the FiltersFactory used by the LogManager.
- *
- * \return the FiltersFactory object used by the LogManager.
+  Get the FiltersFactory used by the LogManager.
+
+  \return the FiltersFactory object used by the LogManager.
  */
 FiltersFactory*
 LogManager::getFiltersFactory ()
@@ -998,9 +998,9 @@ LogManager::getFiltersFactory ()
 }
 
 /*!
- * Check if the LogManager is empty.
- *
- * \return true if the LogManager is empty.
+  Check if the LogManager is empty.
+
+  \return true if the LogManager is empty.
  */
 bool
 LogManager::empty ()
@@ -1012,13 +1012,13 @@ LogManager::empty ()
 }
 
 /*!
- * Check if a LogStream which points to `location' is already
- * present in the LogManager.
- *
- * \param location The `location' about which we want to know the
- * existence.
- *
- * \return true if `location' is already present within the LogManager.
+  Check if a LogStream which points to `location' is already
+  present in the LogManager.
+
+  \param location The `location' about which we want to know the
+  existence.
+
+  \return true if `location' is already present within the LogManager.
  */
 bool
 LogManager::contains (const string & location)
@@ -1028,13 +1028,13 @@ LogManager::contains (const string & location)
 }
 
 /*!
- * Query the LogManager to ask it if the `owner' object is actually
- * present within it.
- *
- * \param owner The object about which we want to know the existence within
- * the LogManager.
- *
- * \return true if `owner' is actually present within the LogManager.
+  Query the LogManager to ask it if the `owner' object is actually
+  present within it.
+
+  \param owner The object about which we want to know the existence within
+  the LogManager.
+
+  \return true if `owner' is actually present within the LogManager.
  */
 bool
 LogManager::containsOwner (const void* owner)
@@ -1043,13 +1043,13 @@ LogManager::containsOwner (const void* owner)
 }
 
 /*!
- * Query the LogManager to ask if the category `type' belongs to
- * the `owner' object.
- *
- * \param owner An object that may own some log category.
- * \param type The category we are interested in.
- *
- * \return true if the tupe <owner, type> exists.
+  Query the LogManager to ask if the category `type' belongs to
+  the `owner' object.
+
+  \param owner An object that may own some log category.
+  \param type The category we are interested in.
+
+  \return true if the tupe <owner, type> exists.
  */
 bool
 LogManager::contains (const void* owner, const string & type)
@@ -1058,14 +1058,14 @@ LogManager::contains (const void* owner, const string & type)
 }
 
 /*!
- * Query the LogManager to ask it if `location' belongs to the `type'
- * log category of the `owner' object.
- *
- * \param owner An object that may own some LogStream object.
- * \param type The log category that we are interested to query.
- * \param location The target of the query.
- *
- * \return true if the unique <owner, type, location> tuple exists.
+  Query the LogManager to ask it if `location' belongs to the `type'
+  log category of the `owner' object.
+
+  \param owner An object that may own some LogStream object.
+  \param type The log category that we are interested to query.
+  \param location The target of the query.
+
+  \return true if the unique <owner, type, location> tuple exists.
  */
 bool
 LogManager::contains (const void* owner, const string & type, const string &
@@ -1077,13 +1077,13 @@ LogManager::contains (const void* owner, const string & type, const string &
 }
 
 /*!
- * Given an owner object, get the number of LogStream objects that
- * belong to all its log categories.
- *
- * \param owner A pointer to an object that may own some LogStream.
- *
- * \return The total number of LogStream objects belonging to all
- * its log categories.
+  Given an owner object, get the number of LogStream objects that
+  belong to all its log categories.
+
+  \param owner A pointer to an object that may own some LogStream.
+
+  \return The total number of LogStream objects belonging to all
+  its log categories.
  */
 int
 LogManager::count (const void* owner)
@@ -1099,13 +1099,13 @@ LogManager::count (const void* owner)
 }
 
 /*!
- * Given an owner and one of its log categories, retrieve the
- * number of LogStream objects which belongs to that category.
- *
- * \param owner A pointer to an object which may own some LogStream.
- * \param type A log category owned by `owner'.
- *
- * \return The number of LogStream objects that belong to `type'.
+  Given an owner and one of its log categories, retrieve the
+  number of LogStream objects which belongs to that category.
+
+  \param owner A pointer to an object which may own some LogStream.
+  \param type A log category owned by `owner'.
+
+  \return The number of LogStream objects that belong to `type'.
  */
 int
 LogManager::count (const void* owner, const string & type)
@@ -1114,15 +1114,15 @@ LogManager::count (const void* owner, const string & type)
 }
 
 /*!
- * Given an owner object, one of its log categories and
- * a location, returns the number of occurrences of `location'.
- *
- * \param owner A pointer to an object that may own `location'.
- * \param type The category of logs which `location' should belong.
- * \param location The location string.
- *
- * \return The number of occurrences of `location'. This number should never
- * be greater than 1, since the tuple <owner, type, location> is a key.
+  Given an owner object, one of its log categories and
+  a location, returns the number of occurrences of `location'.
+
+  \param owner A pointer to an object that may own `location'.
+  \param type The category of logs which `location' should belong.
+  \param location The location string.
+
+  \return The number of occurrences of `location'. This number should never
+  be greater than 1, since the tuple <owner, type, location> is a key.
  */
 int
 LogManager::count (const void* owner, const string & type, const string &
@@ -1132,12 +1132,12 @@ LogManager::count (const void* owner, const string & type, const string &
 }
 
 /*!
- * Retrieve a list of objects that are currently using `location'.
- *
- * \param location We want to know which objects are using it.
- * \param l The location owners will be inserted here.
- *
- * \return 0 if location is owned at least by an object, 1 else.
+  Retrieve a list of objects that are currently using `location'.
+
+  \param location We want to know which objects are using it.
+  \param l The location owners will be inserted here.
+
+  \return 0 if location is owned at least by an object, 1 else.
  */
 int
 LogManager::getOwnersList (string location, list<const void*>* l)
@@ -1151,8 +1151,8 @@ LogManager::getOwnersList (string location, list<const void*>* l)
 }
 
 /*!
- * \return a list of strings each representing one of logging levels that
- * MyServer understands.
+  \return a list of strings each representing one of logging levels that
+  MyServer understands.
  */
 list<string>
 LogManager::getLoggingLevelsByNames ()

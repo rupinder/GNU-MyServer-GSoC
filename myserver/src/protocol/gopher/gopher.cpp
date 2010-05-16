@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 /*!
- * Constructor for the Gopher class
+  Constructor for the Gopher class
  */
 
 Gopher::Gopher ()
@@ -38,14 +38,14 @@ Gopher::Gopher ()
 }
 
 /*!
- * Destructor for the Gopher class.
+  Destructor for the Gopher class.
  */
 Gopher::~Gopher ()
 {
 }
 
 /*!
- * Service method
+  Service method
  */
 
 const char *Gopher::getNameImpl ()
@@ -54,7 +54,7 @@ const char *Gopher::getNameImpl ()
 }
 
 /*!
- * The loading unloading routine
+  The loading unloading routine
  */
 
 int Gopher::loadProtocolStatic ()
@@ -68,7 +68,7 @@ int Gopher::unLoadProtocolStatic ()
 }
 
 /*!
- * Main protocol implementation stuff
+  Main protocol implementation stuff
  */
 
 int Gopher::controlConnection (ConnectionPtr pConnection,

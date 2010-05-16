@@ -23,7 +23,7 @@
 # include <include/protocol/protocol.h>
 
 /*!
- * Abstract class to handle virtual data filters.
+  Abstract class to handle virtual data filters.
  */
 class Filter : public Stream
 {

@@ -209,7 +209,7 @@ int Scgi::send (HttpThreadContext* td, const char* scriptpath,
 
 
 /*!
- * Send the response to the client.
+  Send the response to the client.
  */
 int Scgi::sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
 {
@@ -311,7 +311,7 @@ int Scgi::sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
 }
 
 /*!
- *Send a netstring to the SCGI server.
+  Send a netstring to the SCGI server.
  */
 int Scgi::sendNetString (ScgiContext* ctx, const char* data, int len)
 {
@@ -326,7 +326,7 @@ int Scgi::sendNetString (ScgiContext* ctx, const char* data, int len)
 }
 
 /*!
- * Send the post data to the SCGI server.
+  Send the post data to the SCGI server.
  */
 int Scgi::sendPostData (ScgiContext* ctx)
 {
@@ -346,8 +346,8 @@ int Scgi::sendPostData (ScgiContext* ctx)
 }
 
 /*!
- *Trasform from a standard environment string to the SCGI environment
- *string.
+  Trasform from a standard environment string to the SCGI environment
+  string.
  */
 int Scgi::buildScgiEnvironmentString (HttpThreadContext* td, char* src,
                                       char* dest)
@@ -426,7 +426,7 @@ int Scgi::buildScgiEnvironmentString (HttpThreadContext* td, char* src,
 }
 
 /*!
- *Constructor for the FASTCGI class
+  Constructor for the FASTCGI class
  */
 Scgi::Scgi ()
 {
@@ -434,7 +434,7 @@ Scgi::Scgi ()
 }
 
 /*!
- *Initialize the SCGI protocol implementation
+  Initialize the SCGI protocol implementation
  */
 int Scgi::load ()
 {
@@ -447,7 +447,7 @@ int Scgi::load ()
 }
 
 /*!
- *Clean the memory and the processes occuped by the FastCGI servers
+  Clean the memory and the processes occuped by the FastCGI servers
  */
 int Scgi::unLoad ()
 {
@@ -456,8 +456,8 @@ int Scgi::unLoad ()
 }
 
 /*!
- *Return the the running server specified by path.
- *If the server is not running returns 0.
+  Return the the running server specified by path.
+  If the server is not running returns 0.
  */
 ScgiServer* Scgi::isScgiServerRunning (const char* path)
 {
@@ -466,7 +466,7 @@ ScgiServer* Scgi::isScgiServerRunning (const char* path)
 
 
 /*!
- *Get a connection to the FastCGI server.
+  Get a connection to the FastCGI server.
  */
 ScgiServer* Scgi::connect (ScgiContext* con, const char* path)
 {
@@ -485,15 +485,15 @@ ScgiServer* Scgi::connect (ScgiContext* con, const char* path)
 }
 
 /*!
- *Run the SCGI server.
- *If the path starts with a @ character, the path is handled as a
- *remote server.
+  Run the SCGI server.
+  If the path starts with a @ character, the path is handled as a
+  remote server.
  */
 ScgiServer* Scgi::runScgiServer (ScgiContext* context,
                                  const char* path)
 {
   /* This method needs a better home (and maybe better code).
-   * Compute a simple hash from the IP address.  */
+    Compute a simple hash from the IP address.  */
   const char *ip = context->td->connection->getIpAddr ();
   int seed = 13;
   for (const char *c = ip; *c; c++)

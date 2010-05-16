@@ -1442,10 +1442,10 @@ bool Ftp::userLoggedIn ()
 }
 
 /*!
- *Converts from relative client's path to local path (out path may not exist).
- *\param sPathIn client's relative path
- *\param sOutPath local path
- *\return Return true if path exist, file is a normal one and is into the ftp's root folder
+  Converts from relative client's path to local path (out path may not exist).
+  \param sPathIn client's relative path
+  \param sOutPath local path
+  \return Return true if path exist, file is a normal one and is into the ftp's root folder
  */
 bool
 Ftp::buildLocalPath (const std::string & sPathIn, std::string & sOutPath)
@@ -1482,10 +1482,10 @@ Ftp::buildLocalPath (const std::string & sPathIn, std::string & sOutPath)
 }
 
 /*!
- *Converts from relative client's path to local path and checks if the path is available.
- *\param sPath client's relative path
- *\param sOutPath local path
- *\return Return true if path exist, file is a normal one and is into the ftp's root folder
+  Converts from relative client's path to local path and checks if the path is available.
+  \param sPath client's relative path
+  \param sOutPath local path
+  \return Return true if path exist, file is a normal one and is into the ftp's root folder
  */
 bool Ftp::getLocalPath (const std::string & sPath, std::string & sOutPath)
 {
@@ -1788,7 +1788,7 @@ Ftp::list (const std::string & sParam /*= ""*/ )
           dateFtpFormat[2] = datePtr[9 + offset];
 
           /* If the file was modified in the last 6 months
-           * show the hour instead of the year.  */
+            show the hour instead of the year.  */
           if (now - fd.time_write < 60 * 60 * 183 && now > fd.time_write)
             {
               dateFtpFormat[7] = datePtr[16 + offset];
@@ -1874,7 +1874,7 @@ Ftp::list (const std::string & sParam /*= ""*/ )
           dateFtpFormat[2] = datePtr[9 + offset];
 
           /* If the file was modified in the last 6 months
-           * show the hour instead of the year.  */
+            show the hour instead of the year.  */
           if (now - fd.time_write < 60 * 60 * 183 && now > fd.time_write)
             {
               dateFtpFormat[7] = datePtr[16 + offset];
@@ -1988,15 +1988,15 @@ Ftp::nlst (const std::string & sParam /* = "" */ )
 }
 
 /*!
- *Handle telnet commands:
- * DOx      -> WONT
- * DONTx    -> ignore
- * WILLx    -> DONT
- * WONTx    -> ignore
- * IACx     -> ignore
- * IACIAC   -> IAC
- *\param In client's requests
- *\param Out client's requests without telnet codes
+  Handle telnet commands:
+  DOx      -> WONT
+  DONTx    -> ignore
+  WILLx    -> DONT
+  WONTx    -> ignore
+  IACx     -> ignore
+  IACIAC   -> IAC
+  \param In client's requests
+  \param Out client's requests without telnet codes
  */
 void
 Ftp::escapeTelnet (MemBuf & In, MemBuf & Out)
@@ -2046,9 +2046,9 @@ Ftp::escapeTelnet (MemBuf & In, MemBuf & Out)
 }
 
 /*!
- *Let only first cmd to be handled.
- *\param In client's requests
- *\param Out client's requests without telnet codes
+  Let only first cmd to be handled.
+  \param In client's requests
+  \param Out client's requests without telnet codes
  */
 void Ftp::removePipelinedCmds (MemBuf & In, MemBuf & Out)
 {

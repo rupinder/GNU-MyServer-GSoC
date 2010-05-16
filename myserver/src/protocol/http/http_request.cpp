@@ -26,7 +26,7 @@
 using namespace std;
 
 /*!
- *Create the object.
+  Create the object.
  */
 HttpRequestHeader::HttpRequestHeader ()
 {
@@ -34,7 +34,7 @@ HttpRequestHeader::HttpRequestHeader ()
 }
 
 /*!
- *Destroy the object.
+  Destroy the object.
  */
 HttpRequestHeader::~HttpRequestHeader ()
 {
@@ -44,7 +44,7 @@ HttpRequestHeader::~HttpRequestHeader ()
 }
 
 /*!
- *Free the structure.
+  Free the structure.
  */
 void HttpRequestHeader::free ()
 {
@@ -79,7 +79,7 @@ void HttpRequestHeader::free ()
 }
 
 /*!
- * Check if this request is keep-alive.
+  Check if this request is keep-alive.
  */
 bool HttpRequestHeader::isKeepAlive ()
 {
@@ -92,7 +92,7 @@ bool HttpRequestHeader::isKeepAlive ()
 }
 
 /*!
- *Get the value of the [name] field.
+  Get the value of the [name] field.
  */
 string* HttpRequestHeader::getValue (const char* name, string* out)
 {
@@ -168,7 +168,7 @@ string* HttpRequestHeader::getValue (const char* name, string* out)
 
 
 /*!
- *Set the value of the [name] field to [in].
+  Set the value of the [name] field to [in].
  */
 string* HttpRequestHeader::setValue (const char *name, const char *in)
 {

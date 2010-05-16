@@ -1,20 +1,20 @@
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010 Free
-Software Foundation, Inc.
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010 Free
+  Software Foundation, Inc.
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
 
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
 
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "myserver.h"
 #include <include/base/xml/xml_parser.h>
@@ -29,7 +29,7 @@ using namespace std;
 
 
 /*!
- *Write to the stdout.
+  Write to the stdout.
  */
 int MscgiManager::write (const char* str)
 {
@@ -37,7 +37,7 @@ int MscgiManager::write (const char* str)
 }
 
 /*!
- *Write binary to the stdout.
+  Write binary to the stdout.
  */
 int MscgiManager::write (const void* data, int len)
 {
@@ -50,7 +50,7 @@ Server* MscgiManager::getServer ()
 }
 
 /*!
- *Start the execution of the CGI.
+  Start the execution of the CGI.
  */
 int MscgiManager::start (MsCgiData* data)
 {
@@ -60,7 +60,7 @@ int MscgiManager::start (MsCgiData* data)
 }
 
 /*!
- *Clean the memory allocated by the CGI.
+  Clean the memory allocated by the CGI.
  */
 int MscgiManager::clean ()
 {
@@ -68,7 +68,7 @@ int MscgiManager::clean ()
 }
 
 /*!
- *Set the HTTP error identifier.
+  Set the HTTP error identifier.
  */
 int MscgiManager::setPageError (int ID)
 {
@@ -77,7 +77,7 @@ int MscgiManager::setPageError (int ID)
 }
 
 /*!
- *Raise an HTTP error
+  Raise an HTTP error
  */
 int MscgiManager::raiseError (int ID)
 {
@@ -86,7 +86,7 @@ int MscgiManager::raiseError (int ID)
 }
 
 /*!
- *Constructor of the class
+  Constructor of the class
  */
 MscgiManager::MscgiManager (MsCgiData* data)
 {
@@ -94,7 +94,7 @@ MscgiManager::MscgiManager (MsCgiData* data)
 }
 
 /*!
- *Destructor of the class
+  Destructor of the class
  */
 MscgiManager::~MscgiManager (void)
 {
@@ -102,7 +102,7 @@ MscgiManager::~MscgiManager (void)
 }
 
 /*!
- *Returns the value of a param passed through the URL.
+  Returns the value of a param passed through the URL.
  */
 char* MscgiManager::getParam (const char* param)
 {
@@ -140,7 +140,7 @@ char* MscgiManager::getParam (const char* param)
 }
 
 /*!
- *Returns the value of a param passed through a POST request.
+  Returns the value of a param passed through a POST request.
  */
 char* MscgiManager::postParam (const char* param)
 {
@@ -189,7 +189,7 @@ char* MscgiManager::postParam (const char* param)
 }
 
 /*!
- *Write to stdout.
+  Write to stdout.
  */
 int MscgiManager::operator <<(const char* str)
 {
@@ -197,13 +197,13 @@ int MscgiManager::operator <<(const char* str)
 }
 
 /*!
- *Read from the stdin.
+  Read from the stdin.
  */
 char *MscgiManager::operator >>(const char* str)
 {
-  /*!
-   *If it is a POST request return a param from the POST values
-   *else return a GET param.
+  /*
+    If it is a POST request return a param from the POST values
+    else return a GET param.
    */
   if (td->request.uriOptsPtr)
     return postParam (str);
@@ -212,7 +212,7 @@ char *MscgiManager::operator >>(const char* str)
 }
 
 /*!
- *Get the value of an environment variable.
+  Get the value of an environment variable.
  */
 void MscgiManager::getenv (const char* lpszVariableName, char *lpvBuffer,
                         u_long* lpdwSize)
@@ -242,8 +242,8 @@ void MscgiManager::getenv (const char* lpszVariableName, char *lpvBuffer,
 }
 
 /*!
- *Returns the CGI data structure.
- *This structure is shared with the MyServer core so use it carefully!
+  Returns the CGI data structure.
+  This structure is shared with the MyServer core so use it carefully!
  */
 MsCgiData* MscgiManager::getCgiData ()
 {
@@ -251,7 +251,7 @@ MsCgiData* MscgiManager::getCgiData ()
 }
 
 /*!
- *Specify the MIME type for the data.
+  Specify the MIME type for the data.
  */
 void MscgiManager::setContentType (const char * type)
 {
@@ -259,7 +259,7 @@ void MscgiManager::setContentType (const char * type)
 }
 
 /*!
- *Add an HTTP header to the response.
+  Add an HTTP header to the response.
  */
 void MscgiManager::addHeader (const char* name,  const char *value)
 {

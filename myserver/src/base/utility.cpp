@@ -53,7 +53,7 @@ static char *currentPath = NULL;
 static size_t currentPathLen;
 
 /*!
- * Returns the number of processors available on the local machine.
+  Returns the number of processors available on the local machine.
  */
 u_long getCPUCount ()
 {
@@ -61,9 +61,9 @@ u_long getCPUCount ()
 }
 
 /*!
- * Save the current working directory.
- * Return -1 on fails.
- * Return 0 on success.
+  Save the current working directory.
+  Return -1 on fails.
+  Return 0 on success.
  */
 static int initializeCwd ()
 {
@@ -79,9 +79,9 @@ static int initializeCwd ()
 }
 
 /*!
- * Get the defult directory using a string as output.
- * Return 0 on success.
- * \param out The string where write.
+  Get the defult directory using a string as output.
+  Return 0 on success.
+  \param out The string where write.
  */
 int getdefaultwd (string& out)
 {
@@ -94,7 +94,7 @@ int getdefaultwd (string& out)
 }
 
 /*!
- * Free the cwd buffer.
+  Free the cwd buffer.
  */
 int freecwd ()
 {
@@ -106,7 +106,7 @@ int freecwd ()
 }
 
 /*!
- *Get the default working directory length.
+  Get the default working directory length.
  */
 int getdefaultwdlen ()
 {
@@ -117,9 +117,9 @@ int getdefaultwdlen ()
 }
 
 /*!
- *Get the default working directory.
- *\param path The buffer where write.
- *\param len The length of the buffer.
+  Get the default working directory.
+  \param path The buffer where write.
+  \param len The length of the buffer.
  */
 char *getdefaultwd (char *path, int len)
 {
@@ -139,8 +139,8 @@ char *getdefaultwd (char *path, int len)
 }
 
 /*!
- * Set the current working directory. Returns Zero if successful.
- * \param dir The current working directory.
+  Set the current working directory. Returns Zero if successful.
+  \param dir The current working directory.
  */
 int setcwd (const char *dir)
 {
@@ -155,8 +155,8 @@ int setcwd (const char *dir)
 }
 
 /*!
- * Set the text color to red on black.
- * Return 0 on success.
+  Set the text color to red on black.
+  Return 0 on success.
  */
 int preparePrintError ()
 {
@@ -174,8 +174,8 @@ int preparePrintError ()
 }
 
 /*!
- * Set the text color to white on black.
- * Return 0 on success.
+  Set the text color to white on black.
+  Return 0 on success.
  */
 int endPrintError ()
 {
@@ -195,8 +195,8 @@ int endPrintError ()
 }
 
 /*!
- * Return the ticks count in milliseconds.
- * Return 0 on errors.
+  Return the ticks count in milliseconds.
+  Return 0 on errors.
  */
 u_long getTicks ()
 {
@@ -212,10 +212,10 @@ u_long getTicks ()
 }
 
 /*!
- * Read a file handle from a socket.
- * \param s Socket handle to read from.
- * \param File handle received.
- * \return 0 on success.
+  Read a file handle from a socket.
+  \param s Socket handle to read from.
+  \param File handle received.
+  \return 0 on success.
  */
 int readFileHandle (SocketHandle s, Handle* fd)
 {
@@ -249,10 +249,10 @@ int readFileHandle (SocketHandle s, Handle* fd)
 }
 
 /*!
- * Write a file handle to a socket.
- * \param s Socket handle to write to.
- * \param File handle received.
- * \return 0 on success.
+  Write a file handle to a socket.
+  \param s Socket handle to write to.
+  \param File handle received.
+  \return 0 on success.
  */
 int writeFileHandle (SocketHandle s, Handle fd)
 {

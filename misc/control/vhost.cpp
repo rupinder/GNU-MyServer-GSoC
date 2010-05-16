@@ -47,7 +47,7 @@ int VHostXML::load(const char * filename)
    XmlParser parser;
    if(parser.open((char *)filename))  // But I promis not to change filename
      return -1;
-   
+
    int ret = load_core(parser);
    parser.close();
    return ret;
@@ -58,7 +58,7 @@ int VHostXML::loadMemBuf(MemBuf & buffer)
    XmlParser parser;
    if(parser.openMemBuf(buffer))
      return -1;
-   
+
    int ret = load_core(parser);
    parser.close();
    return ret;
@@ -71,7 +71,7 @@ int VHostXML::load_core(XmlParser & parser)
    int NameNo = 0;
 
    clear();
-   
+
    xmlDocPtr doc = parser.getDoc();
    xmlNodePtr node=doc->children->children;
    for(;node;node=node->next )
@@ -272,9 +272,9 @@ int VHostXML::save_core(XmlParser & xmlFile)
 
    // New xml way...
    int i, i2;
-   
+
    xmlFile.newfile("VHOSTS");
-   
+
    for(i = 0; i < VHosts.size(); i++)
      {
 	xmlFile.addGroup("VHOST");
@@ -346,7 +346,7 @@ int VHostXML::save_core(XmlParser & xmlFile)
 	xmlFile.addChild("WARNINGLOG", getWarninglog(i));
 
 	if(!getService(i, ALLOW_CGI))
-	  xmlFile.addChild("ALLOW_CGI", "NO");	
+	  xmlFile.addChild("ALLOW_CGI", "NO");
 
 	if(!getService(i, ALLOW_ISAPI))
 	  xmlFile.addChild("ALLOW_ISAPI", "NO");
@@ -371,7 +371,7 @@ int VHostXML::save_core(XmlParser & xmlFile)
 
 	if(!getService(i, ALLOW_SEND_FILE))
 	  xmlFile.addChild("ALLOW_SEND_FILE", "NO");
-	
+
 	xmlFile.endGroup();
      }
    return 0;
@@ -482,7 +482,7 @@ void VHostXML::setService(int VHostNo, int serv, bool val)
 {
    if(VHosts.isempty())
      return;
-   
+
    if(((VHostNode *)(VHosts.at(VHostNo)->Data))->Service & serv)
      {
 	if(!val)
@@ -574,7 +574,7 @@ bool VHostXML::getService(int VHostNo, int serv)
      return 0;
    return ((VHostNode *)(VHosts.at(VHostNo)->Data))->Service & serv;
 }
-   
+
 const char * VHostXML::getSsl_Privatekey(int VHostNo)
 {
    if(VHosts.isempty())

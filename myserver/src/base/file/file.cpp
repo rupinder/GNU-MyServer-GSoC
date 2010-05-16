@@ -51,7 +51,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 /*!
- *Costructor of the class.
+  Costructor of the class.
  */
 File::File ()
 {
@@ -59,7 +59,7 @@ File::File ()
 }
 
 /*!
- *D'tor.
+  D'tor.
  */
 File::~File ()
 {
@@ -67,14 +67,14 @@ File::~File ()
 }
 
 /*!
- *Write data to a file.
- *buffer is the pointer to the data to write
- *buffersize is the number of byte to write
- *nbw is a pointer to an unsigned long that receive the number of the
- *bytes written correctly.
- *\param buffer The buffer where write.
- *\param buffersize The length of the buffer in bytes.
- *\param nbw How many bytes were written to the file.
+  Write data to a file.
+  buffer is the pointer to the data to write
+  buffersize is the number of byte to write
+  nbw is a pointer to an unsigned long that receive the number of the
+  bytes written correctly.
+  \param buffer The buffer where write.
+  \param buffersize The length of the buffer in bytes.
+  \param nbw How many bytes were written to the file.
  */
 int File::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
 {
@@ -94,9 +94,9 @@ int File::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
 }
 
 /*!
- *Constructor for the class.
- *\param nfilename Filename to open.
- *\param opt Specify how open the file.
+  Constructor for the class.
+  \param nfilename Filename to open.
+  \param opt Specify how open the file.
  */
 File::File (char *nfilename, int opt)
   : handle ((FileHandle) -1)
@@ -105,8 +105,8 @@ File::File (char *nfilename, int opt)
 }
 
 /*!
- * Truncate the file.
- *\param size Specify the new file size.
+  Truncate the file.
+  \param size Specify the new file size.
  */
 int File::truncate (u_long size)
 {
@@ -171,7 +171,7 @@ int File::openFile (const char* nfilename, u_long opt, mode_t mask)
 }
 
 /*!
- *Returns the file handle.
+  Returns the file handle.
  */
 Handle File::getHandle ()
 {
@@ -179,9 +179,9 @@ Handle File::getHandle ()
 }
 
 /*!
- *Set the base/file/file.handle.
- *Return a non null-value on errors.
- *\param hl The new base/file/file.handle.
+  Set the base/file/file.handle.
+  Return a non null-value on errors.
+  \param hl The new base/file/file.handle.
  */
 int File::setHandle (Handle hl)
 {
@@ -190,8 +190,8 @@ int File::setHandle (Handle hl)
 }
 
 /*!
- *define the operator =.
- *\param f The file to copy.
+  define the operator =.
+  \param f The file to copy.
  */
 int File::operator =(File f)
 {
@@ -201,9 +201,9 @@ int File::operator =(File f)
 }
 
 /*!
- *Set the name of the file
- *Return Non-zero on errors.
- *\param nfilename The new file name.
+  Set the name of the file
+  Return Non-zero on errors.
+  \param nfilename The new file name.
  */
 int File::setFilename (const char* nfilename)
 {
@@ -212,7 +212,7 @@ int File::setFilename (const char* nfilename)
 }
 
 /*!
- *Returns the file path.
+  Returns the file path.
  */
 const char *File::getFilename ()
 {
@@ -220,9 +220,9 @@ const char *File::getFilename ()
 }
 
 /*!
- * Create a temporary file.
- * \param filename The new temporary file name.
- * \param unlink Unlink the inode immediately, not before close.
+  Create a temporary file.
+  \param filename The new temporary file name.
+  \param unlink Unlink the inode immediately, not before close.
  */
 int File::createTemporaryFile (const char* filename, bool unlink)
 {
@@ -236,7 +236,7 @@ int File::createTemporaryFile (const char* filename, bool unlink)
 }
 
 /*!
- * Close the file.
+  Close the file.
  */
 int File::close ()
 {
@@ -256,8 +256,8 @@ int File::close ()
 }
 
 /*!
- * Returns the file size in bytes.
- * Returns -1 on errors.
+  Returns the file size in bytes.
+  Returns -1 on errors.
  */
 u_long File::getFileSize ()
 {
@@ -271,8 +271,8 @@ u_long File::getFileSize ()
 }
 
 /*!
- *Change the position of the pointer to the file.
- *\param initialByte The new file pointer position.
+  Change the position of the pointer to the file.
+  \param initialByte The new file pointer position.
  */
 int File::seek (u_long initialByte)
 {
@@ -282,9 +282,9 @@ int File::seek (u_long initialByte)
 }
 
 /*!
- * Get the current file pointer position.
- *
- *\return The current file pointer position.
+  Get the current file pointer position.
+
+  \return The current file pointer position.
  */
 u_long File::getSeek ()
 {
@@ -292,7 +292,7 @@ u_long File::getSeek ()
 }
 
 /*!
- *Get the time of the last modifify did to the file.
+  Get the time of the last modifify did to the file.
  */
 time_t File::getLastModTime ()
 {
@@ -300,7 +300,7 @@ time_t File::getLastModTime ()
 }
 
 /*!
- *This function returns the creation time of the file.
+  This function returns the creation time of the file.
  */
 time_t File::getCreationTime ()
 {
@@ -308,7 +308,7 @@ time_t File::getCreationTime ()
 }
 
 /*!
- *Returns the time of the last access to the file.
+  Returns the time of the last access to the file.
  */
 time_t File::getLastAccTime ()
 {
@@ -316,7 +316,7 @@ time_t File::getLastAccTime ()
 }
 
 /*!
- *Inherited from Stream.
+  Inherited from Stream.
  */
 int File::write (const char* buffer, u_long len, u_long *nbw)
 {
@@ -324,12 +324,12 @@ int File::write (const char* buffer, u_long len, u_long *nbw)
 }
 
 /*!
- *Read data from a file to a buffer.
- *Return a negative value on errors.
- *Return 0 on success.
- *\param buffer The buffer where write.
- *\param buffersize The length of the buffer in bytes.
- *\param nbr How many bytes were read to the buffer.
+  Read data from a file to a buffer.
+  Return a negative value on errors.
+  Return 0 on success.
+  \param buffer The buffer where write.
+  \param buffersize The length of the buffer in bytes.
+  \param nbr How many bytes were read to the buffer.
  */
 int File::read (char* buffer, u_long buffersize, u_long* nbr)
 {
@@ -342,13 +342,13 @@ int File::read (char* buffer, u_long buffersize, u_long* nbr)
 }
 
 /*!
- * Copy the file directly to the socket.
- * Return 0 on success.
- *
- * \param dest Destination socket.
- * \param firstByte File offset.
- * \param buf Temporary buffer that can be used by this function.
- * \param nbw Number of bytes sent.
+  Copy the file directly to the socket.
+  Return 0 on success.
+
+  \param dest Destination socket.
+  \param firstByte File offset.
+  \param buf Temporary buffer that can be used by this function.
+  \param nbw Number of bytes sent.
  */
 int File::fastCopyToSocket (Socket *dest, u_long firstByte, MemBuf *buf, u_long *nbw)
 {

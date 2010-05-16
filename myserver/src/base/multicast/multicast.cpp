@@ -23,7 +23,7 @@
 
 
 /*!
- *Register the handler for the specified message type.
+  Register the handler for the specified message type.
  */
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
 void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::addMulticast (MSG_TYPE msg, Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>* handler)
@@ -39,7 +39,7 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::addMulticast (MSG_TYPE msg
 
 
 /*!
- *Remove the handler from the vector for a message type.
+  Remove the handler from the vector for a message type.
  */
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
 void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticast (MSG_TYPE msg, Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>* handler)
@@ -60,7 +60,7 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticast (MSG_TYPE 
 }
 
 /*!
- *Remove all the handlers for a specified message.
+  Remove all the handlers for a specified message.
  */
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
 void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticasts (MSG_TYPE msg)
@@ -73,7 +73,7 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::removeMulticasts (MSG_TYPE
 }
 
 /*!
- *Notify the message to all the registered handlers passing an argument.
+  Notify the message to all the registered handlers passing an argument.
  */
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
 void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::notifyMulticast (MSG_TYPE& msg, ARG_TYPE arg)
@@ -92,7 +92,7 @@ void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::notifyMulticast (MSG_TYPE&
 }
 
 /*!
- *Get the vector of handlers for a specified message.
+  Get the vector of handlers for a specified message.
  */
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
 vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>* MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::getHandlers (MSG_TYPE& msg)
@@ -101,7 +101,7 @@ vector<Multicast<MSG_TYPE, ARG_TYPE, RET_TYPE>*>* MulticastRegistry<MSG_TYPE, AR
 }
 
 /*!
- *Clear the registry.
+  Clear the registry.
  */
 template<typename MSG_TYPE, typename ARG_TYPE, typename RET_TYPE>
 void MulticastRegistry<MSG_TYPE, ARG_TYPE, RET_TYPE>::clearMulticastRegistry ()

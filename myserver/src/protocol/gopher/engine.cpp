@@ -144,8 +144,8 @@ void GopherEngine::fileManagement (const string &fname, const string &path,Gophe
 }
 
 /*!
- * Returns the MIME type passing its extension.
- * Returns zero if the file is registered.
+  Returns the MIME type passing its extension.
+  Returns zero if the file is registered.
  */
 MimeRecord* GopherEngine::getMIME (string &filename)
 {

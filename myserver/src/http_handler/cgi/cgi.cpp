@@ -46,19 +46,19 @@ using namespace std;
 
 
 /*!
- *Run the standard CGI and send the result to the client.
- *\param td The HTTP thread context.
- *\param scriptpath The script path.
- *\param cgipath The CGI handler path as specified by the MIME type.
- *\param execute Specify if the script has to be executed.
- *\param onlyHeader Specify if send only the HTTP header.
+  Run the standard CGI and send the result to the client.
+  \param td The HTTP thread context.
+  \param scriptpath The script path.
+  \param cgipath The CGI handler path as specified by the MIME type.
+  \param execute Specify if the script has to be executed.
+  \param onlyHeader Specify if send only the HTTP header.
  */
 int Cgi::send (HttpThreadContext* td, const char* scriptpath,
                const char *cgipath, bool execute, bool onlyHeader)
 {
    /*
-   * Use this flag to check if the CGI executable is
-   * nph (Non Parsed Header).
+    Use this flag to check if the CGI executable is
+    nph (Non Parsed Header).
    */
   bool nph = false;
   ostringstream cmdLine;
@@ -71,10 +71,10 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
   string tmpCgiPath;
   string tmpScriptPath;
 
-  /*!
-   *Standard CGI uses STDOUT to output the result and the STDIN
-   *to get other params like in a POST request.
-   */
+  /*
+    Standard CGI uses STDOUT to output the result and the STDIN
+    to get other params like in a POST request.
+  */
   Pipe stdOutFile;
   File stdInFile;
   int len = strlen (cgipath);
@@ -296,7 +296,7 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
 }
 
 /*
- *Read data from the CGI process and send it back to the client.
+  Read data from the CGI process and send it back to the client.
  */
 int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
                    Process &cgiProc, int onlyHeader, bool nph)
@@ -382,8 +382,8 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
 }
 
 /*!
- *Send the HTTP header.
- *\return nonzero if the reply is already complete.
+  Send the HTTP header.
+  \return nonzero if the reply is already complete.
  */
 int Cgi::sendHeader (HttpThreadContext *td, Pipe &stdOutFile, FiltersChain &chain,
                      Process &cgiProc, int onlyHeader, bool nph,
@@ -482,7 +482,7 @@ int Cgi::sendHeader (HttpThreadContext *td, Pipe &stdOutFile, FiltersChain &chai
           string* location = td->response.getValue ("Location", NULL);
 
           /* If it is present "Location: foo" in the header then send a redirect
-           * to `foo'.  */
+            to `foo'.  */
           if (location && location->length ())
             {
               *ret = td->http->sendHTTPRedirect (location->c_str ());

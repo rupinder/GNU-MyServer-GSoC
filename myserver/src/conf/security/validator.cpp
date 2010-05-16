@@ -32,8 +32,8 @@ Validator::~Validator ()
 
 
 /*!
- *Get the permission mask for the requested resource.
- *Delegate the problem to getPermissionMaskInt.
+  Get the permission mask for the requested resource.
+  Delegate the problem to getPermissionMaskInt.
  */
 int Validator::getPermissionMask (SecurityToken* st,
                                   list<SecurityDomain*> *domains,
@@ -57,8 +57,8 @@ int Validator::getPermissionMask (SecurityToken* st,
 }
 
 /*!
- *Get the permission mask for the requested resource.
- *Delegate the problem to getPermissionMaskInt.
+  Get the permission mask for the requested resource.
+  Delegate the problem to getPermissionMaskInt.
  */
 int Validator::getPermissionMask (SecurityToken* st,
                                   SecurityDomain **domains,
@@ -83,8 +83,8 @@ int Validator::getPermissionMask (SecurityToken* st,
 
 
 /*!
- *Get the permission mask for the requested resource.
- *Decorate getPermissionMaskImpl.
+  Get the permission mask for the requested resource.
+  Decorate getPermissionMaskImpl.
  */
 int Validator::getPermissionMaskInt (SecurityToken* st,
                                      HashMap<string,
@@ -106,7 +106,7 @@ int Validator::getPermissionMaskInt (SecurityToken* st,
 
 
 /*!
- *Get the permission mask for the requested resource.
+  Get the permission mask for the requested resource.
  */
 int Validator::getPermissionMaskImpl (SecurityToken* st,
                                       HashMap<string,
@@ -117,10 +117,10 @@ int Validator::getPermissionMaskImpl (SecurityToken* st,
 }
 
 /*!
- *Get the value for [name] in the form domain.variable.
- *\param hashedDomains Registered security domains.
- *\param name Variable name.
- *\return The value of the requested variable.
+  Get the value for [name] in the form domain.variable.
+  \param hashedDomains Registered security domains.
+  \param name Variable name.
+  \return The value of the requested variable.
  */
 const string *Validator::getValue (HashMap<string,
                                            SecurityDomain*> *hashedDomains,

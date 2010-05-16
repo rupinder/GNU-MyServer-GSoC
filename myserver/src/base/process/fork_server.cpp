@@ -29,12 +29,12 @@
 
 #endif
 /*!
- *Write a string to the socket.
- *The string length is sent before the content.
- *
- *\param socket Socket where write.
- *\param str string to write.
- *\param len string length.
+  Write a string to the socket.
+  The string length is sent before the content.
+
+  \param socket Socket where write.
+  \param str string to write.
+  \param len string length.
  */
 int ForkServer::writeString (Socket *socket, const char* str, int len)
 {
@@ -53,9 +53,9 @@ int ForkServer::writeString (Socket *socket, const char* str, int len)
 }
 
 /*!
- *Write an integer on the specified socket.
- *\param socket Socket to use.
- *\param num Integer to write.
+  Write an integer on the specified socket.
+  \param socket Socket to use.
+  \param num Integer to write.
  */
 int ForkServer::writeInt (Socket *socket, int num)
 {
@@ -68,11 +68,11 @@ int ForkServer::writeInt (Socket *socket, int num)
 }
 
 /*!
- *Read an integer from the socket.
- *
- *\param sock Socket where read.
- *\param dest integer where write
- *\return 0 on success.
+  Read an integer from the socket.
+
+  \param sock Socket where read.
+  \param dest integer where write
+  \return 0 on success.
  */
 int ForkServer::readInt (Socket *sock, int *dest)
 {
@@ -87,13 +87,13 @@ int ForkServer::readInt (Socket *sock, int *dest)
 }
 
 /*!
- *Read a string from the socket.
- *The destination buffer is allocated here.
- *It must be freed by the caller.
- *
- *\param sock socket to use for read.
- *\param out destination buffer pointer.
- *\return 0 on success.
+  Read a string from the socket.
+  The destination buffer is allocated here.
+  It must be freed by the caller.
+
+  \param sock socket to use for read.
+  \param out destination buffer pointer.
+  \return 0 on success.
  */
 int ForkServer::readString (Socket *sock, char **out)
 {
@@ -118,7 +118,7 @@ int ForkServer::readString (Socket *sock, char **out)
 }
 
 /*!
- *Handle a request on the socket.
+  Handle a request on the socket.
  */
 int ForkServer::handleRequest (Socket *sock)
 {
@@ -220,11 +220,11 @@ int ForkServer::handleRequest (Socket *sock)
 }
 
 /*!
- *Entry point for the fork server.
- *Listen for new connections on the specified socket.
- *
- *\param serverSocket Socket where wait for new connections.
- *\return 0 on success.
+  Entry point for the fork server.
+  Listen for new connections on the specified socket.
+
+  \param serverSocket Socket where wait for new connections.
+  \return 0 on success.
  */
 int ForkServer::forkServerLoop (UnixSocket *serverSocket)
 {
@@ -274,13 +274,13 @@ int ForkServer::forkServerLoop (UnixSocket *serverSocket)
 }
 
 /*!
- *Execute a process using the fork server.
- *\param spi New process information.
- *\param flags Flags.
- *\param pid The new process ID.
- *\param port if FLAG_STDIN_SOCKET was specified.
- *\param waitEnd If true `executeProcess' will wait until
- *the process terminates.
+  Execute a process using the fork server.
+  \param spi New process information.
+  \param flags Flags.
+  \param pid The new process ID.
+  \param port if FLAG_STDIN_SOCKET was specified.
+  \param waitEnd If true `executeProcess' will wait until
+  the process terminates.
  */
 int ForkServer::executeProcess (StartProcInfo *spi,
                                 int flags,
@@ -345,7 +345,7 @@ int ForkServer::executeProcess (StartProcInfo *spi,
 }
 
 /*!
- *Terminate the fork server execution.
+  Terminate the fork server execution.
  */
 void ForkServer::killServer ()
 {
@@ -365,9 +365,9 @@ void ForkServer::killServer ()
 }
 
 /*!
- *Initialize the fork server.
- *
- *\return 0 on success.
+  Initialize the fork server.
+
+  \return 0 on success.
  */
 int ForkServer::startForkServer ()
 {
@@ -399,10 +399,10 @@ int ForkServer::startForkServer ()
 }
 
 /*!
- *Create a listener without specify a port.
- *
- *\param socket The socket to generate.
- *\param port the obtained port.
+  Create a listener without specify a port.
+
+  \param socket The socket to generate.
+  \param port the obtained port.
  */
 int ForkServer::generateListenerSocket (Socket &socket, u_short *port)
 {

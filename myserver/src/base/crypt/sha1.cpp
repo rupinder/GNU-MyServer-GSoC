@@ -20,8 +20,8 @@
 #include <include/base/crypt/sha1.h>
 
 /*!
- * Start SHA1 accumulation.  Set bit count to 0 and buffer to mysterious
- * initialization constants.
+  Start SHA1 accumulation.  Set bit count to 0 and buffer to mysterious
+  initialization constants.
  */
 void Sha1::init ()
 {
@@ -29,8 +29,8 @@ void Sha1::init ()
 }
 
 /*!
- * Update context to reflect the concatenation of another buffer full
- * of bytes.
+  Update context to reflect the concatenation of another buffer full
+  of bytes.
  */
 void Sha1::update (char const *buf, u_long len)
 {
@@ -38,7 +38,7 @@ void Sha1::update (char const *buf, u_long len)
 }
 
 /*!
- * Initialize the object via a constructor.
+  Initialize the object via a constructor.
  */
 Sha1::Sha1 ()
 {
@@ -46,14 +46,14 @@ Sha1::Sha1 ()
 }
 
 /*!
- * Destroy the object.
+  Destroy the object.
  */
 Sha1::~Sha1 ()
 {
 }
 
 /*!
- * Write the final hash to the buffer.
+  Write the final hash to the buffer.
  */
 char* Sha1::end (char *buf)
 {
@@ -83,9 +83,9 @@ CryptAlgo *Sha1::sha1Builder ()
 }
 
 /*!
- * Register the algorithm on the specified manager.
- *
- * \param manager The manager where register SHA1.
+  Register the algorithm on the specified manager.
+
+  \param manager The manager where register SHA1.
  */
 void Sha1::initialize (CryptAlgoManager *manager)
 {

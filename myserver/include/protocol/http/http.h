@@ -43,7 +43,7 @@
 using namespace std;
 
 /*!
- * Data used only by an HTTP user.
+  Data used only by an HTTP user.
  */
 class HttpUserData : public ProtocolBuffer
 {
@@ -184,7 +184,7 @@ protected:
 
 
 /*!
- *Adapter class to make Http reentrant.
+  Adapter class to make Http reentrant.
  */
 class HttpProtocol : public Protocol,
                      public MulticastRegistry<string, void*, int>

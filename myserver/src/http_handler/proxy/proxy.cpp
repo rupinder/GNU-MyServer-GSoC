@@ -125,7 +125,7 @@ int Proxy::send (HttpThreadContext *td, const char* scriptpath,
 }
 
 /*!
- *Flush the server reply to the client.
+  Flush the server reply to the client.
  */
 int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
                           FiltersChain &out, int onlyHeader)

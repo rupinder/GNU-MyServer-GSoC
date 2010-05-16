@@ -122,11 +122,11 @@ static void eventLoopHandler (int fd, short event, void *arg)
             {
             case 'c':
               /*
-               * Schedule a new connection.
-               * The 'c' command is followed by:
-               * SocketHandle  -> Socket to monitor for new data.
-               * ConnectionPtr -> Related Connection.
-               * timeval       -> Timeout.
+                Schedule a new connection.
+                The 'c' command is followed by:
+                SocketHandle  -> Socket to monitor for new data.
+                ConnectionPtr -> Related Connection.
+                timeval       -> Timeout.
                */
               SocketHandle handle;
               ConnectionPtr c;
@@ -137,7 +137,7 @@ static void eventLoopHandler (int fd, short event, void *arg)
 
               event_once (
 #ifdef WIN32
-              FD_TO_SOCKET (handle), 
+              FD_TO_SOCKET (handle),
 #else
               handle,
 #endif
@@ -205,10 +205,10 @@ static void listenerHandler (int fd, short event, void *arg)
 }
 
 /*!
- * Add a listener socket to the event queue.
- * This is used to renew the event after the listener thread is notified.
- *
- * \param la Structure containing an Event to be notified on new data.
+  Add a listener socket to the event queue.
+  This is used to renew the event after the listener thread is notified.
+
+  \param la Structure containing an Event to be notified on new data.
  */
 void ConnectionsScheduler::listener (ConnectionsScheduler::ListenerArg *la)
 {
@@ -246,7 +246,7 @@ void ConnectionsScheduler::listener (ConnectionsScheduler::ListenerArg *la)
 }
 
 /*!
- * Remove a listener thread from the list.
+  Remove a listener thread from the list.
  */
 void ConnectionsScheduler::removeListener (ConnectionsScheduler::ListenerArg* la)
 {
@@ -264,7 +264,7 @@ void ConnectionsScheduler::removeListener (ConnectionsScheduler::ListenerArg* la
 }
 
 /*!
- * C'tor.
+  C'tor.
  */
 ConnectionsScheduler::ConnectionsScheduler (Server* server)
 {
@@ -281,7 +281,7 @@ ConnectionsScheduler::ConnectionsScheduler (Server* server)
 }
 
 /*!
- * Get the number of all connections made to the server.
+  Get the number of all connections made to the server.
  */
 u_long ConnectionsScheduler::getNumTotalConnections ()
 {
@@ -289,8 +289,8 @@ u_long ConnectionsScheduler::getNumTotalConnections ()
 }
 
 /*!
- * Register the connection with a new ID.
- * \param connection The connection to register.
+  Register the connection with a new ID.
+  \param connection The connection to register.
  */
 void ConnectionsScheduler::registerConnectionID (ConnectionPtr connection)
 {
@@ -308,7 +308,7 @@ void ConnectionsScheduler::registerConnectionID (ConnectionPtr connection)
 }
 
 /*!
- * Restart the scheduler.
+  Restart the scheduler.
  */
 void ConnectionsScheduler::restart ()
 {
@@ -326,7 +326,7 @@ void ConnectionsScheduler::restart ()
 }
 
 /*!
- * Static initialization.
+  Static initialization.
  */
 void ConnectionsScheduler::initialize ()
 {
@@ -374,7 +374,7 @@ void ConnectionsScheduler::initialize ()
 }
 
 /*!
- * D'tor.
+  D'tor.
  */
 ConnectionsScheduler::~ConnectionsScheduler ()
 {
@@ -388,7 +388,7 @@ ConnectionsScheduler::~ConnectionsScheduler ()
 
 
 /*!
- * Add an existent connection to ready connections queue.
+  Add an existent connection to ready connections queue.
  */
 void ConnectionsScheduler::addReadyConnection (ConnectionPtr c)
 {
@@ -396,7 +396,7 @@ void ConnectionsScheduler::addReadyConnection (ConnectionPtr c)
 }
 
 /*!
- * Add a new connection to ready connections queue.
+  Add a new connection to ready connections queue.
  */
 void ConnectionsScheduler::addNewReadyConnection (ConnectionPtr c)
 {
@@ -404,7 +404,7 @@ void ConnectionsScheduler::addNewReadyConnection (ConnectionPtr c)
 }
 
 /*!
- * Add a connection to ready connections queue.
+  Add a connection to ready connections queue.
  */
 void ConnectionsScheduler::addReadyConnectionImpl (ConnectionPtr c)
 {
@@ -437,7 +437,7 @@ void ConnectionsScheduler::addReadyConnectionImpl (ConnectionPtr c)
 }
 
 /*!
- * Add a new connection to the scheduler.
+  Add a new connection to the scheduler.
  */
 void ConnectionsScheduler::addNewWaitingConnection (ConnectionPtr c)
 {
@@ -445,7 +445,7 @@ void ConnectionsScheduler::addNewWaitingConnection (ConnectionPtr c)
 }
 
 /*!
- * Reschedule a connection in the scheduler.
+  Reschedule a connection in the scheduler.
  */
 void ConnectionsScheduler::addWaitingConnection (ConnectionPtr c)
 {
@@ -453,7 +453,7 @@ void ConnectionsScheduler::addWaitingConnection (ConnectionPtr c)
 }
 
 /*!
- * Implementation to add a connection to waiting connections queue.
+  Implementation to add a connection to waiting connections queue.
  */
 void ConnectionsScheduler::addWaitingConnectionImpl (ConnectionPtr c, int lock)
 {
@@ -486,10 +486,10 @@ void ConnectionsScheduler::addWaitingConnectionImpl (ConnectionPtr c, int lock)
     }
 
   /*
-   * If there is need to obtain the events lock don't block the current
-   * thread but send the 'c' message to the eventLoopHandler function,
-   * it will reschedule the connection from its thread context while it
-   * owns the lock.
+    If there is need to obtain the events lock don't block the current
+    thread but send the 'c' message to the eventLoopHandler function,
+    it will reschedule the connection from its thread context while it
+    owns the lock.
    */
   if (lock)
     {
@@ -524,7 +524,7 @@ void ConnectionsScheduler::addWaitingConnectionImpl (ConnectionPtr c, int lock)
 }
 
 /*!
- * Get a connection from the active connections queue.
+  Get a connection from the active connections queue.
  */
 ConnectionPtr ConnectionsScheduler::getConnection ()
 {
@@ -570,7 +570,7 @@ ConnectionPtr ConnectionsScheduler::getConnection ()
 }
 
 /*!
- * Release all the blocking calls.
+  Release all the blocking calls.
  */
 void ConnectionsScheduler::release ()
 {
@@ -624,9 +624,9 @@ void ConnectionsScheduler::release ()
 }
 
 /*!
- * Fill a list with all the alive connections.
- * \param out A list that will receive all the connections alive on the
- * server.
+  Fill a list with all the alive connections.
+  \param out A list that will receive all the connections alive on the
+  server.
  */
 void ConnectionsScheduler::getConnections (list<ConnectionPtr> &out)
 {
@@ -648,7 +648,7 @@ void ConnectionsScheduler::getConnections (list<ConnectionPtr> &out)
 }
 
 /*!
- * Get the alive connections number.
+  Get the alive connections number.
  */
 u_long ConnectionsScheduler::getNumAliveConnections ()
 {
@@ -656,7 +656,7 @@ u_long ConnectionsScheduler::getNumAliveConnections ()
 }
 
 /*!
- * Remove a connection from the connections set.
+  Remove a connection from the connections set.
  */
 void ConnectionsScheduler::removeConnection (ConnectionPtr connection)
 {
@@ -675,7 +675,7 @@ void ConnectionsScheduler::removeConnection (ConnectionPtr connection)
 }
 
 /*!
- * Terminate any active connection.
+  Terminate any active connection.
  */
 void ConnectionsScheduler::terminateConnections ()
 {
@@ -716,7 +716,7 @@ void ConnectionsScheduler::terminateConnections ()
 }
 
 /*!
- * Accept a visitor on the connections.
+  Accept a visitor on the connections.
  */
 int ConnectionsScheduler::accept (ConnectionsSchedulerVisitor* visitor, void* args)
 {

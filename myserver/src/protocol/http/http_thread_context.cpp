@@ -22,10 +22,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/conf/vhost/vhost.h>
 
 /*!
- *Get the value for name in the hash dictionary.
- *If the key is not present in the hash map then the request
- *is propagated to the virtual host, if it is defined.
- *\param name The key name to look for in the hash map.
+  Get the value for name in the hash dictionary.
+  If the key is not present in the hash map then the request
+  is propagated to the virtual host, if it is defined.
+  \param name The key name to look for in the hash map.
  */
 const char* HttpThreadContext::getData (const char *name)
 {
@@ -40,7 +40,7 @@ const char* HttpThreadContext::getData (const char *name)
 }
 
 /*!
- *Get the current vhost doc directory for the environvment.
+  Get the current vhost doc directory for the environvment.
  */
 const char *HttpThreadContext::getVhostDir ()
 {
@@ -54,7 +54,7 @@ const char *HttpThreadContext::getVhostDir ()
 }
 
 /*!
- *Get the current vhost sys directory for the environvment.
+  Get the current vhost sys directory for the environvment.
  */
 const char *HttpThreadContext::getVhostSys ()
 {

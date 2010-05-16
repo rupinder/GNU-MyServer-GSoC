@@ -35,19 +35,19 @@
 using namespace std;
 
 /*!
- *Read primitive post data as it is sent by the client without apply any filter
- *in a contiguous manner, first read from the memory buffer and after from the
- *socket.
- *\param inBuffer Memory buffer with first part of POST data.
- *\param inBufferPos inBuffer size, this value is modified by the function,
- *has to be 0 on first call.
- *\param inBufferSize inBuffer size.
- *\param inSocket Connection socket to read from.
- *\param outBuffer Out buffer where write.
- *\param outBufferSize outBuffer size.
- *\param nbr Number of bytes read.
- *\param timeout Timeout value to use on the socket.
- *\return Return 0 on success.
+  Read primitive post data as it is sent by the client without apply any filter
+  in a contiguous manner, first read from the memory buffer and after from the
+  socket.
+  \param inBuffer Memory buffer with first part of POST data.
+  \param inBufferPos inBuffer size, this value is modified by the function,
+  has to be 0 on first call.
+  \param inBufferSize inBuffer size.
+  \param inSocket Connection socket to read from.
+  \param outBuffer Out buffer where write.
+  \param outBufferSize outBuffer size.
+  \param nbr Number of bytes read.
+  \param timeout Timeout value to use on the socket.
+  \return Return 0 on success.
  */
 int HttpDataRead::readContiguousPrimitivePostData (const char* inBuffer,
                                                   u_long *inBufferPos,
@@ -68,7 +68,7 @@ int HttpDataRead::readContiguousPrimitivePostData (const char* inBuffer,
   }
 
   /*
-   * No other space in the out buffer, return from the function with success.
+    No other space in the out buffer, return from the function with success.
    */
   if (outBufferSize == *nbr)
     return 0;
@@ -84,23 +84,23 @@ int HttpDataRead::readContiguousPrimitivePostData (const char* inBuffer,
 }
 
 /*!
- *Read post data using the chunked transfer encoding.
- *This function uses the same arguments of readContiguousPrimitivePostData with
- *the additional destination file.
- *\param inBuffer Memory buffer with first part of POST data.
- *\param inBufferPos inBuffer size, this value is modified by the function,
- *has to be 0 on first call.
- *\param inBufferSize inBuffer size.
- *\param inSocket Connection socket to read from.
- *\param outBuffer Out buffer where write.
- *\param outBufferSize outBuffer size.
- *\param outNbr Number of bytes read.
- *\param timeout Timeout value to use on the socket.
- *\param out Output file, may be  a NULL pointer.
- *\param maxChunks The maximum number of chunks to read.
- *\return Return 0 on success.
- *\return -1 on internal error.
- *\return Any other value is the HTTP error code.
+  Read post data using the chunked transfer encoding.
+  This function uses the same arguments of readContiguousPrimitivePostData with
+  the additional destination file.
+  \param inBuffer Memory buffer with first part of POST data.
+  \param inBufferPos inBuffer size, this value is modified by the function,
+  has to be 0 on first call.
+  \param inBufferSize inBuffer size.
+  \param inSocket Connection socket to read from.
+  \param outBuffer Out buffer where write.
+  \param outBufferSize outBuffer size.
+  \param outNbr Number of bytes read.
+  \param timeout Timeout value to use on the socket.
+  \param out Output file, may be  a NULL pointer.
+  \param maxChunks The maximum number of chunks to read.
+  \return Return 0 on success.
+  \return -1 on internal error.
+  \return Any other value is the HTTP error code.
  */
 int HttpDataRead::readChunkedPostData (const char* inBuffer,
                                       u_long *inBufferPos,
@@ -163,7 +163,7 @@ int HttpDataRead::readChunkedPostData (const char* inBuffer,
 
     dataToRead = (u_long) hexToInt (buffer);
 
-    /*! The last chunk length is 0.  */
+    /* The last chunk length is 0.  */
     if (dataToRead == 0)
       break;
 
@@ -221,13 +221,13 @@ int HttpDataRead::readChunkedPostData (const char* inBuffer,
 }
 
 /*!
- *Read POST data from the active connection.
- *\param td The Active thread context.
- *\param httpRetCode The HTTP error to report to the client.
- *\return Return 0 on success.
- *\return Return -1 on irreversible error and
- *        the connection should be removed immediately.
- *\return Any other value is a protocol error specified in HTTPRETCODE.
+  Read POST data from the active connection.
+  \param td The Active thread context.
+  \param httpRetCode The HTTP error to report to the client.
+  \return Return 0 on success.
+  \return Return -1 on irreversible error and
+         the connection should be removed immediately.
+  \return Any other value is a protocol error specified in HTTPRETCODE.
  */
 int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
 {
@@ -276,10 +276,10 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
   }
 
   /*!
-   *If the connection is Keep-Alive be sure that the client specify the
-   *HTTP CONTENT-LENGTH field.
-   *If a CONTENT-ENCODING is specified the CONTENT-LENGTH is not
-   *always needed.
+    If the connection is Keep-Alive be sure that the client specify the
+    HTTP CONTENT-LENGTH field.
+    If a CONTENT-ENCODING is specified the CONTENT-LENGTH is not
+    always needed.
    */
   if (!contentLengthSpecified && td->request.isKeepAlive ())
   {
@@ -294,9 +294,9 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
     }
   }
 
-  /*!
-   *Create the file that contains the posted data.
-   *This data is the stdin file in the CGI.
+  /*
+    Create the file that contains the posted data.
+    This data is the stdin file in the CGI.
    */
   if (td->inputData.openFile (td->inputDataPath, File::FILE_OPEN_ALWAYS |
                             File::READ |

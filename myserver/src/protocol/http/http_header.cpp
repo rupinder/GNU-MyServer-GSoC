@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 /*!
- * Get the value of the [name] field.
+  Get the value of the [name] field.
  */
 string* HttpHeader::getValue (const char *name, string *out)
 {
@@ -45,7 +45,7 @@ string* HttpHeader::getValue (const char *name, string *out)
 }
 
 /*!
- * Set the value of the [name] field to [in].
+  Set the value of the [name] field to [in].
  */
 string* HttpHeader::setValue (const char *name, const char *in)
 {

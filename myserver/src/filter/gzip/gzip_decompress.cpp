@@ -33,7 +33,7 @@
 #endif
 
 /*!
- * Initialize the gzip structure value.
+  Initialize the gzip structure value.
  */
 u_long GzipDecompress::initialize ()
 {
@@ -54,11 +54,11 @@ u_long GzipDecompress::initialize ()
 }
 
 /*!
- * Decompress the in buffer to the out buffer using the gzip compression.
- * \param in Buffer to decompress.
- * \param sizeIn The dimension of the buffer to decompress.
- * \param out Buffer where decompress.
- * \param sizeOut The dimension of the buffer where decompress.
+  Decompress the in buffer to the out buffer using the gzip compression.
+  \param in Buffer to decompress.
+  \param sizeIn The dimension of the buffer to decompress.
+  \param out Buffer where decompress.
+  \param sizeOut The dimension of the buffer where decompress.
  */
 u_long GzipDecompress::decompress (const char* in, u_long sizeIn,
                                    char *out, u_long sizeOut)
@@ -83,7 +83,7 @@ u_long GzipDecompress::decompress (const char* in, u_long sizeIn,
 }
 
 /*!
- * Close the gzip compression.
+  Close the gzip compression.
  */
 u_long GzipDecompress::free ()
 {
@@ -98,10 +98,10 @@ u_long GzipDecompress::free ()
 }
 
 /*!
- * Inherited from Filter.
- * \param buffer Buffer where write.
- * \param len Buffer length.
- * \param nbw Numbers of written bytes.
+  Inherited from Filter.
+  \param buffer Buffer where write.
+  \param len Buffer length.
+  \param nbw Numbers of written bytes.
  */
 int GzipDecompress::getHeader (char* buffer, u_long len, u_long* nbw)
 {
@@ -110,10 +110,10 @@ int GzipDecompress::getHeader (char* buffer, u_long len, u_long* nbw)
 }
 
 /*!
- * Inherited from Filter.
- * \param buffer Buffer where write.
- * \param len Buffer length.
- * \param nbw Numbers of written bytes.
+  Inherited from Filter.
+  \param buffer Buffer where write.
+  \param len Buffer length.
+  \param nbw Numbers of written bytes.
  */
 int GzipDecompress::getFooter (char* buffer, u_long len, u_long* nbw)
 {
@@ -125,7 +125,7 @@ int GzipDecompress::getFooter (char* buffer, u_long len, u_long* nbw)
 }
 
 /*!
- * The GzipDecompress filter modifies the data.
+  The GzipDecompress filter modifies the data.
  */
 int GzipDecompress::modifyData ()
 {
@@ -133,9 +133,9 @@ int GzipDecompress::modifyData ()
 }
 
 /*!
- * Flush all the remaining data.
- * \param out Buffer where write.
- * \param sizeOut Buffer length.
+  Flush all the remaining data.
+  \param out Buffer where write.
+  \param sizeOut Buffer length.
  */
 u_long GzipDecompress::flush (char *out, u_long sizeOut)
 {
@@ -158,7 +158,7 @@ u_long GzipDecompress::flush (char *out, u_long sizeOut)
 }
 
 /*!
- * Constructor for the class.
+  Constructor for the class.
  */
 GzipDecompress::GzipDecompress ()
 {
@@ -167,7 +167,7 @@ GzipDecompress::GzipDecompress ()
 }
 
 /*!
- * Destructor for the class.
+  Destructor for the class.
  */
 GzipDecompress::~GzipDecompress ()
 {
@@ -175,9 +175,9 @@ GzipDecompress::~GzipDecompress ()
 }
 
 /*!
- * Get the GZIP footer.
- * \param str Buffer where write.
- * \param size Buffer length.
+  Get the GZIP footer.
+  \param str Buffer where write.
+  \param size Buffer length.
  */
 u_long GzipDecompress::getFooter (char *str, int /*size*/)
 {
@@ -189,9 +189,9 @@ u_long GzipDecompress::getFooter (char *str, int /*size*/)
 }
 
 /*!
- * Copy the GZIP header in the buffer.
- * \param buffer Buffer where write.
- * \param buffersize Buffer length.
+  Copy the GZIP header in the buffer.
+  \param buffer Buffer where write.
+  \param buffersize Buffer length.
  */
 u_long GzipDecompress::getHeader (char *buffer, u_long buffersize)
 {
@@ -206,12 +206,12 @@ u_long GzipDecompress::getHeader (char *buffer, u_long buffersize)
 }
 
 /*!
- * Inherited from Filter.
- * This function uses an internal buffer slowing it.
- * It is better to use directly the GzipDecompress::compress routine where possible.
- * \param buffer Buffer where write.
- * \param len Buffer length.
- * \param nbr Number of read bytes.
+  Inherited from Filter.
+  This function uses an internal buffer slowing it.
+  It is better to use directly the GzipDecompress::compress routine where possible.
+  \param buffer Buffer where write.
+  \param len Buffer length.
+  \param nbr Number of read bytes.
  */
 int GzipDecompress::read (char* buffer, u_long len, u_long *nbr)
 {
@@ -242,10 +242,10 @@ int GzipDecompress::read (char* buffer, u_long len, u_long *nbr)
 }
 
 /*!
- * Inherited from Filter.
- * \param buffer Buffer where write.
- * \param len Buffer length.
- * \param nbw Number of written bytes.
+  Inherited from Filter.
+  \param buffer Buffer where write.
+  \param len Buffer length.
+  \param nbw Number of written bytes.
  */
 int GzipDecompress::write (const char* buffer, u_long len, u_long *nbw)
 {
@@ -278,8 +278,8 @@ int GzipDecompress::write (const char* buffer, u_long len, u_long *nbw)
 }
 
 /*!
- * Inherited from Filter.
- * \param nbw Number of flushed bytes.
+  Inherited from Filter.
+  \param nbw Number of flushed bytes.
  */
 int GzipDecompress::flush (u_long *nbw)
 {
@@ -305,8 +305,8 @@ int GzipDecompress::flush (u_long *nbw)
 }
 
 /*!
- * Returns a new GzipDecompress object.
- * \param name Filter name.
+  Returns a new GzipDecompress object.
+  \param name Filter name.
  */
 Filter* GzipDecompress::factory (const char* name)
 {
@@ -314,10 +314,10 @@ Filter* GzipDecompress::factory (const char* name)
 }
 
 /*!
- * Return a string with the filter name.
- * If an external buffer is provided write the name there too.
- * \param name Buffer where write the filter name.
- * \param len Buffer size.
+  Return a string with the filter name.
+  If an external buffer is provided write the name there too.
+  \param name Buffer where write the filter name.
+  \param len Buffer size.
  */
 const char* GzipDecompress::getName ()
 {
@@ -325,7 +325,7 @@ const char* GzipDecompress::getName ()
 }
 
 /*!
- * Get the GZIP header size.
+  Get the GZIP header size.
  */
 u_long GzipDecompress::headerSize ()
 {
@@ -333,7 +333,7 @@ u_long GzipDecompress::headerSize ()
 }
 
 /*!
- * Get the GZIP footer size.
+  Get the GZIP footer size.
  */
 u_long GzipDecompress::footerSize ()
 {

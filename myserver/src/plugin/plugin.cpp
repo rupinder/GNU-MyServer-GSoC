@@ -27,7 +27,7 @@ typedef int (*versionPROC)();
 typedef const char* (*getNamePROC)();
 
 /*!
- * Construct a plugin object.
+  Construct a plugin object.
  */
 Plugin::Plugin ()
 {
@@ -35,7 +35,7 @@ Plugin::Plugin ()
 }
 
 /*!
- * Destroy the object.
+  Destroy the object.
  */
 Plugin::~Plugin ()
 {
@@ -44,11 +44,11 @@ Plugin::~Plugin ()
 }
 
 /*!
- * Load the plugin.
- * \param file The filename to load.
- * \param server The server instance to use.
- * \param languageFile The language file to use to retrieve warnings/errors
- * messages.
+  Load the plugin.
+  \param file The filename to load.
+  \param server The server instance to use.
+  \param languageFile The language file to use to retrieve warnings/errors
+  messages.
  */
 int Plugin::load (Server* server)
 {
@@ -59,11 +59,11 @@ int Plugin::load (Server* server)
 }
 
 /*!
- * Preload the plugin.  This function doesn't ensure all other
- * plugins are yet loaded.
- * \param file The filename to load.
- * messages.
- * \param global Load the shared library globally.
+  Preload the plugin.  This function doesn't ensure all other
+  plugins are yet loaded.
+  \param file The filename to load.
+  messages.
+  \param global Load the shared library globally.
  */
 int Plugin::preLoad (string& file, bool global)
 {
@@ -71,10 +71,10 @@ int Plugin::preLoad (string& file, bool global)
 }
 
 /*!
- * Post load initialization.  This is called once all the plugins are loaded.
- * \param server The server instance to use.
- * \param languageFile The language file to use to retrieve warnings/errors
- * messages.
+  Post load initialization.  This is called once all the plugins are loaded.
+  \param server The server instance to use.
+  \param languageFile The language file to use to retrieve warnings/errors
+  messages.
  */
 int Plugin::postLoad (Server* server)
 {
@@ -89,9 +89,9 @@ int Plugin::postLoad (Server* server)
 }
 
 /*!
- * Unload the plugin.
- * \param languageFile The language file to use to retrieve warnings/errors
- * messages.
+  Unload the plugin.
+  \param languageFile The language file to use to retrieve warnings/errors
+  messages.
  */
 int Plugin::unLoad ()
 {
@@ -105,7 +105,7 @@ int Plugin::unLoad ()
 }
 
 /*!
- * Get the plugin name.
+  Get the plugin name.
  */
 const char* Plugin::getName ()
 {
@@ -121,8 +121,8 @@ const char* Plugin::getName ()
 }
 
 /*!
- *Get directly access to a method.
- *\param name The method name.
+  Get directly access to a method.
+  \param name The method name.
  */
 void* Plugin::getDirectMethod (char* name)
 {

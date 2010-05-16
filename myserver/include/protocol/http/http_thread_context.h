@@ -46,7 +46,7 @@ class Http;
 class MimeRecord;
 
 /*!
- *Structure used by the HTTP protocol parser to describe a thread.
+  Structure used by the HTTP protocol parser to describe a thread.
  */
 struct HttpThreadContext
 {

@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/base/exceptions/exceptions.h>
 
 /*!
- * Initialize the structure.
+  Initialize the structure.
  */
 void Connection::init ()
 {
@@ -42,7 +42,7 @@ void Connection::init ()
 }
 
 /*!
- * Destroy the object.
+  Destroy the object.
  */
 void Connection::destroy ()
 {
@@ -73,7 +73,7 @@ void Connection::destroy ()
 }
 
 /*!
- *Return the IDentifier for the connection.
+  Return the IDentifier for the connection.
  */
 u_long Connection::getID ()
 {
@@ -81,8 +81,8 @@ u_long Connection::getID ()
 }
 
 /*!
- *Set the IDentifier for the connection.
- *\param nID The new ID.
+  Set the IDentifier for the connection.
+  \param nID The new ID.
  */
 void Connection::setID (u_long nID)
 {
@@ -90,8 +90,8 @@ void Connection::setID (u_long nID)
 }
 
 /*!
- *Set if the connection is scheduled by the server.
- *\param np The new scheduled state.
+  Set if the connection is scheduled by the server.
+  \param np The new scheduled state.
  */
 void Connection::setScheduled (int np)
 {
@@ -99,7 +99,7 @@ void Connection::setScheduled (int np)
 }
 
 /*!
- *Return if the connection is scheduled.
+  Return if the connection is scheduled.
  */
 int Connection::isScheduled ()
 {
@@ -107,7 +107,7 @@ int Connection::isScheduled ()
 }
 
 /*!
- *Return if the connection may be deleted by the server.
+  Return if the connection may be deleted by the server.
  */
 int Connection::allowDelete (bool bWait/*= false*/)
 {
@@ -121,7 +121,7 @@ int Connection::allowDelete (bool bWait/*= false*/)
 }
 
 /*!
- *Get the port used by the connection.
+  Get the port used by the connection.
  */
 u_short Connection::getPort ()
 {
@@ -129,8 +129,8 @@ u_short Connection::getPort ()
 }
 
 /*!
- *Set the port used by the connection.
- *\param newPort The new port.
+  Set the port used by the connection.
+  \param newPort The new port.
  */
 void Connection::setPort (u_short newPort)
 {
@@ -138,7 +138,7 @@ void Connection::setPort (u_short newPort)
 }
 
 /*!
- *Get the login name used by the connection user.
+  Get the login name used by the connection user.
  */
 const char* Connection::getLogin ()
 {
@@ -146,8 +146,8 @@ const char* Connection::getLogin ()
 }
 
 /*!
- *Set the login name for the connection user.
- *\param loginName The login name.
+  Set the login name for the connection user.
+  \param loginName The login name.
  */
 void Connection::setLogin (const char* loginName)
 {
@@ -155,8 +155,8 @@ void Connection::setLogin (const char* loginName)
 }
 
 /*!
- *Set the # of attempts to authenticate the user.
- *\arg n The new number of tries.
+  Set the # of attempts to authenticate the user.
+  \arg n The new number of tries.
  */
 void Connection::setnTries (char n)
 {
@@ -164,14 +164,14 @@ void Connection::setnTries (char n)
 }
 
 /*!
- *Get the attempts number to authenticate the user.
+  Get the attempts number to authenticate the user.
  */
 char Connection::getnTries ()
 {
   return nTries;
 }
 /*!
- *Increment by 1 the # of attempts to authenticate the user.
+  Increment by 1 the # of attempts to authenticate the user.
  */
 void Connection::incnTries ()
 {
@@ -179,7 +179,7 @@ void Connection::incnTries ()
 }
 
 /*!
- *Get the IP address of the client.
+  Get the IP address of the client.
  */
 const char* Connection::getIpAddr ()
 {
@@ -187,8 +187,8 @@ const char* Connection::getIpAddr ()
 }
 
 /*!
- *Set the IP address of the client.
- *\param na The new IP address.
+  Set the IP address of the client.
+  \param na The new IP address.
  */
 void Connection::setIpAddr (const char* na)
 {
@@ -196,7 +196,7 @@ void Connection::setIpAddr (const char* na)
 }
 
 /*!
- *Get the IP address of the local interface used to connect to.
+  Get the IP address of the local interface used to connect to.
  */
 const char* Connection::getLocalIpAddr ()
 {
@@ -204,8 +204,8 @@ const char* Connection::getLocalIpAddr ()
 }
 
 /*!
- *Set the IP address of the local interface used to connect to.
- *\param na The new local IP address.
+  Set the IP address of the local interface used to connect to.
+  \param na The new local IP address.
  */
 void Connection::setLocalIpAddr (const char* na)
 {
@@ -213,7 +213,7 @@ void Connection::setLocalIpAddr (const char* na)
 }
 
 /*!
- *Get the local port used to connect to.
+  Get the local port used to connect to.
  */
 u_short Connection::getLocalPort ()
 {
@@ -221,8 +221,8 @@ u_short Connection::getLocalPort ()
 }
 
 /*!
- *Set the local port used to connect to.
- *\param np The new local port.
+  Set the local port used to connect to.
+  \param np The new local port.
  */
 void Connection::setLocalPort (u_short np)
 {
@@ -230,7 +230,7 @@ void Connection::setLocalPort (u_short np)
 }
 
 /*!
- *Get the timeout to use with the connection.
+  Get the timeout to use with the connection.
  */
 u_long Connection::getTimeout ()
 {
@@ -238,8 +238,8 @@ u_long Connection::getTimeout ()
 }
 
 /*!
- *Set the timeout to use with the connection.
- *\param nTimeout The new timeout value.
+  Set the timeout to use with the connection.
+  \param nTimeout The new timeout value.
  */
 void Connection::setTimeout (u_long nTimeout)
 {
@@ -247,7 +247,7 @@ void Connection::setTimeout (u_long nTimeout)
 }
 
 /*!
- *Return if the connection must be removed and why.
+  Return if the connection must be removed and why.
  */
 int Connection::getToRemove ()
 {
@@ -255,8 +255,8 @@ int Connection::getToRemove ()
 }
 
 /*!
- *Set the reason to remove the connection.
- *\param r Set if the connection/connection.has to be removed.
+  Set the reason to remove the connection.
+  \param r Set if the connection/connection.has to be removed.
  */
 void Connection::setToRemove (int r)
 {
@@ -264,15 +264,15 @@ void Connection::setToRemove (int r)
 }
 
 /*!
- *Get if the connection is forced to be parsed.
+  Get if the connection is forced to be parsed.
  */
 int Connection::isForceControl ()
 {
   return forceControl;
 }
 /*!
- *Force the control of this connection on next server loop.
- *\param fp The new force control value even if there is new data.
+  Force the control of this connection on next server loop.
+  \param fp The new force control value even if there is new data.
  */
 void Connection::setForceControl (int fp)
 {
@@ -280,7 +280,7 @@ void Connection::setForceControl (int fp)
 }
 
 /*!
- *Return the password submitted by the user.
+  Return the password submitted by the user.
  */
 const char* Connection::getPassword ()
 {
@@ -288,8 +288,8 @@ const char* Connection::getPassword ()
 }
 
 /*!
- *Set the password for the user.
- *\param p The new password.
+  Set the password for the user.
+  \param p The new password.
  */
 void Connection::setPassword (const char* p)
 {
@@ -297,7 +297,7 @@ void Connection::setPassword (const char* p)
 }
 
 /*!
- *Get the connection priority.
+  Get the connection priority.
  */
 int Connection::getPriority ()
 {
@@ -305,8 +305,8 @@ int Connection::getPriority ()
 }
 
 /*!
- *Set the connection priority.
- *\param p The new priority.
+  Set the connection priority.
+  \param p The new priority.
  */
 void Connection::setPriority (int p)
 {

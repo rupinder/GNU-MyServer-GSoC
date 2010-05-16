@@ -27,7 +27,7 @@
 
 
 /*!
- *Initialize the object.
+  Initialize the object.
  */
 DynHttpManagerList::DynHttpManagerList ()
 {
@@ -35,7 +35,7 @@ DynHttpManagerList::DynHttpManagerList ()
 }
 
 /*!
- *Destroy the object.
+  Destroy the object.
  */
 DynHttpManagerList::~DynHttpManagerList ()
 {
@@ -43,8 +43,8 @@ DynHttpManagerList::~DynHttpManagerList ()
 }
 
 /*!
- *Get the HttpDataHandlers.
- *\param name http manager name.
+  Get the HttpDataHandlers.
+  \param name http manager name.
  */
 HttpDataHandler* DynHttpManagerList::getHttpManager (string& name)
 {
@@ -52,9 +52,9 @@ HttpDataHandler* DynHttpManagerList::getHttpManager (string& name)
 }
 
 /*!
- *Add the HttpDataHandlers.
- *\param name http manager name.
- *\param httpManager http manager to add.
+  Add the HttpDataHandlers.
+  \param name http manager name.
+  \param httpManager http manager to add.
  */
 void DynHttpManagerList::addHttpManager (string& name, HttpDataHandler* httpManager)
 {
@@ -63,7 +63,7 @@ void DynHttpManagerList::addHttpManager (string& name, HttpDataHandler* httpMana
 }
 
 /*!
- *Free the used memory.
+  Free the used memory.
  */
 void DynHttpManagerList::clear ()
 {

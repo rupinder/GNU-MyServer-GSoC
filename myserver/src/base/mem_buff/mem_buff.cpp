@@ -109,9 +109,9 @@ MemBuf::MemBuf ()
 }
 
 /*!
- * Copy constructor
- * pAdr : pointer to the buffer to copy
- * size : size of pAdr
+  Copy constructor
+  pAdr : pointer to the buffer to copy
+  size : size of pAdr
  */
 MemBuf::MemBuf (const void* pAdr, u_int size)
 {
@@ -125,8 +125,8 @@ MemBuf::MemBuf (const void* pAdr, u_int size)
 }
 
 /*!
- * Direct copy constructor (should only be used by the operators to
- * avoid reallocations).
+  Direct copy constructor (should only be used by the operators to
+  avoid reallocations).
  */
 MemBuf::MemBuf (const MemBuf& srcBuf)
 {
@@ -151,8 +151,8 @@ MemBuf::MemBuf (MemBuf &srcBuf, int)
 }
 
 /*!
- * Find a specific character in the internal buffer from a specific
- * location.
+  Find a specific character in the internal buffer from a specific
+  location.
  */
 u_int MemBuf::find (char c, u_int start)
 {
@@ -201,10 +201,10 @@ void MemBuf::replace (char what, char by)
 }
 
 /*!
- * Add a buffer at the end of the internal buffer.
- * If the internal buffer isn't large enough, a reallocation is done
- * until nSizeLimit is reached.
- * If nSizeLimit is equal to 0, reallocation are always done.
+  Add a buffer at the end of the internal buffer.
+  If the internal buffer isn't large enough, a reallocation is done
+  until nSizeLimit is reached.
+  If nSizeLimit is equal to 0, reallocation are always done.
  */
 void MemBuf::addBuffer (const void* pAdr, u_int size)
 {
@@ -257,14 +257,14 @@ int MemBuf::setBuffer (const void* pAdr, u_int size)
 }
 
 /*!
- * Set an external buffer as the internal buffer.
- * No memory copy are done.
- * This can be useful to use variables from the stack.
- * Ex.:
- * unsigned char stackBuffer[10];
- * MemBuf buffer;
- * buffer.setExternalBuffer (stackBuffer, 10); // here, you'll use
- *                                             // the memory from stackBuffer.
+  Set an external buffer as the internal buffer.
+  No memory copy are done.
+  This can be useful to use variables from the stack.
+  Ex.:
+  unsigned char stackBuffer[10];
+  MemBuf buffer;
+  buffer.setExternalBuffer (stackBuffer, 10); // here, you'll use
+                                              // the memory from stackBuffer.
  */
 void MemBuf::setExternalBuffer (const void* pAdr, u_int size)
 {
@@ -283,8 +283,8 @@ char* MemBuf::getBuffersetLength (u_int newSize)
 }
 
 /*!
- * Copy a part of the internal buffer in "result".
- * Here, "result" is completly removed and replaced by this part.
+  Copy a part of the internal buffer in "result".
+  Here, "result" is completly removed and replaced by this part.
  */
 int MemBuf::getPart (u_int nStart, u_int nEnd, MemBuf& result)
 {
@@ -302,8 +302,8 @@ int MemBuf::getPart (u_int nStart, u_int nEnd, MemBuf& result)
 }
 
 /*!
- * Copy a part of the internal buffer in "result".
- * Here, "result" is completly removed and replaced by this part.
+  Copy a part of the internal buffer in "result".
+  Here, "result" is completly removed and replaced by this part.
  */
 int MemBuf::getPartAsString (u_int nStart, u_int nEnd, MemBuf& result)
 {
@@ -326,12 +326,12 @@ int MemBuf::getPartAsString (u_int nStart, u_int nEnd, MemBuf& result)
 }
 
 /*!
- * Set the real length of the internal buffer.  Ensure the buffer is
- * at least newSize bytes, if this value is bigger than nSizeLimit
- * then the latter is used.
- *
- * If the length is smallest than the existing one, no reallocation is done.
- * if it's biggest, a reallocation is done until nSizeLimit is reached.
+  Set the real length of the internal buffer.  Ensure the buffer is
+  at least newSize bytes, if this value is bigger than nSizeLimit
+  then the latter is used.
+
+  If the length is smallest than the existing one, no reallocation is done.
+  if it's biggest, a reallocation is done until nSizeLimit is reached.
  */
 void MemBuf::setRealLength (u_int newSize)
 {
@@ -360,9 +360,9 @@ void MemBuf::setRealLength (u_int newSize)
 }
 
 /*!
- * Set the cursor in the internal buffer.
- * If the specified position is bigger than the buffer size then a reallocation
- * is done.
+  Set the cursor in the internal buffer.
+  If the specified position is bigger than the buffer size then a reallocation
+  is done.
  */
 void MemBuf::setLength (u_int newSize)
 {
@@ -570,7 +570,7 @@ int MemBuf::free ()
   return 1;
 }
 /*!
- * Get the real allocated size.
+  Get the real allocated size.
  */
 u_int MemBuf::getRealLength ()
 {

@@ -33,9 +33,9 @@ static VhostManagerHandler *builder (ListenThreads* lt, LogManager* lm)
 }
 
 /*!
- * Register the builder on the vhost manager.
- *
- * \param manager Where register the builder.
+  Register the builder on the vhost manager.
+
+  \param manager Where register the builder.
  */
 void XmlVhostHandler::registerBuilder (VhostManager& manager)
 {
@@ -44,8 +44,8 @@ void XmlVhostHandler::registerBuilder (VhostManager& manager)
 }
 
 /*!
- *XmlVhostHandler add function.
- *\param vh The virtual host to add.
+  XmlVhostHandler add function.
+  \param vh The virtual host to add.
  */
 int XmlVhostHandler::addVHost (Vhost* vh)
 {
@@ -82,7 +82,7 @@ int XmlVhostHandler::addVHost (Vhost* vh)
 }
 
 /*!
- *\see VhostManager#getVHost
+  \see VhostManager#getVHost
  */
 Vhost* XmlVhostHandler::getVHost (const char* host, const char* ip, u_short port)
 {
@@ -117,9 +117,9 @@ Vhost* XmlVhostHandler::getVHost (const char* host, const char* ip, u_short port
 }
 
 /*!
- * XmlVhostHandler costructor.
- * \param lt A ListenThreads object to use to create new threads.
- * \param lm The log manager to use.
+  XmlVhostHandler costructor.
+  \param lt A ListenThreads object to use to create new threads.
+  \param lm The log manager to use.
  */
 XmlVhostHandler::XmlVhostHandler (ListenThreads* lt, LogManager* lm)
 {
@@ -128,7 +128,7 @@ XmlVhostHandler::XmlVhostHandler (ListenThreads* lt, LogManager* lm)
 }
 
 /*!
- *Clean the virtual hosts.
+  Clean the virtual hosts.
  */
 void XmlVhostHandler::clean ()
 {
@@ -149,7 +149,7 @@ void XmlVhostHandler::clean ()
 }
 
 /*!
- *vhostmanager destructor.
+  vhostmanager destructor.
  */
 XmlVhostHandler::~XmlVhostHandler ()
 {
@@ -157,7 +157,7 @@ XmlVhostHandler::~XmlVhostHandler ()
 }
 
 /*!
- *Returns the entire virtual hosts list.
+  Returns the entire virtual hosts list.
  */
 vector<Vhost*>* XmlVhostHandler::getVHostList ()
 {
@@ -165,7 +165,7 @@ vector<Vhost*>* XmlVhostHandler::getVHostList ()
 }
 
 /*!
- *Change the file owner for the log locations.
+  Change the file owner for the log locations.
  */
 void XmlVhostHandler::changeLocationsOwner ()
 {
@@ -200,7 +200,7 @@ void XmlVhostHandler::changeLocationsOwner ()
 
 
 /*!
- *Returns the number of hosts in the list
+  Returns the number of hosts in the list
  */
 int XmlVhostHandler::getHostsNumber ()
 {
@@ -209,7 +209,7 @@ int XmlVhostHandler::getHostsNumber ()
 
 
 /*!
- *Load a log XML node.
+  Load a log XML node.
  */
 void
 XmlVhostHandler::loadXMLlogData (string name, Vhost* vh, xmlNode* lcur)
@@ -290,9 +290,9 @@ XmlVhostHandler::loadXMLlogData (string name, Vhost* vh, xmlNode* lcur)
 }
 
 /*!
- *Load the virtual hosts from a XML configuration file
- *Returns non-null on errors.
- *\param filename The XML file to open.
+  Load the virtual hosts from a XML configuration file
+  Returns non-null on errors.
+  \param filename The XML file to open.
  */
 int XmlVhostHandler::load (const char *filename)
 {
@@ -531,7 +531,7 @@ int XmlVhostHandler::load (const char *filename)
 }
 
 /*!
- *\see VhostManager#getVHost
+  \see VhostManager#getVHost
  */
 Vhost* XmlVhostHandler::getVHost (int n)
 {
@@ -542,9 +542,9 @@ Vhost* XmlVhostHandler::getVHost (int n)
 }
 
 /*!
- * Remove a virtual host by its position in the list
- * First position is zero.
- * \param n The virtual host identifier in the list.
+  Remove a virtual host by its position in the list
+  First position is zero.
+  \param n The virtual host identifier in the list.
  */
 int XmlVhostHandler::removeVHost (int n)
 {

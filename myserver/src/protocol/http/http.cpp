@@ -105,7 +105,7 @@ int HttpProtocol::unLoadProtocol ()
 }
 
 /*!
- * Build a response for an OPTIONS request.
+  Build a response for an OPTIONS request.
  */
 int Http::optionsHTTPRESOURCE (string& filename, int yetmapped)
 {
@@ -152,7 +152,7 @@ int Http::optionsHTTPRESOURCE (string& filename, int yetmapped)
 }
 
 /*!
- * Handle the HTTP TRACE command.
+  Handle the HTTP TRACE command.
  */
 int Http::traceHTTPRESOURCE (string& filename, int yetmapped)
 {
@@ -206,9 +206,9 @@ int Http::traceHTTPRESOURCE (string& filename, int yetmapped)
 }
 
 /*!
- * Check if the method is allowed.
- * \param method The HTTP method name.
- * \return true if it is allowed.
+  Check if the method is allowed.
+  \param method The HTTP method name.
+  \return true if it is allowed.
  */
 bool Http::allowMethod (const char *method)
 {
@@ -222,7 +222,7 @@ bool Http::allowMethod (const char *method)
 }
 
 /*!
- * Get the timeout for the cgi.
+  Get the timeout for the cgi.
  */
 u_long Http::getTimeout ()
 {
@@ -230,7 +230,7 @@ u_long Http::getTimeout ()
 }
 
 /*!
- * Main function to handle the HTTP PUT command.
+  Main function to handle the HTTP PUT command.
  */
 int Http::putHTTPRESOURCE (string& filename, int sysReq, int onlyHeader,
                            int yetmapped)
@@ -239,15 +239,15 @@ int Http::putHTTPRESOURCE (string& filename, int sysReq, int onlyHeader,
 }
 
 /*!
- * Get the file permissions mask.
- * \param filename Resource to access.
- * \param directory Directory where the resource is.
- * \param file The file specified by the resource.
- * \param filenamePath Complete path to the file.
- * \param yetmapped Is the resource mapped to the localfilesystem?
- * \param permissions Permission mask for this resource.
- * \return Return 200 on success.
- * \return Any other value is the HTTP error code.
+  Get the file permissions mask.
+  \param filename Resource to access.
+  \param directory Directory where the resource is.
+  \param file The file specified by the resource.
+  \param filenamePath Complete path to the file.
+  \param yetmapped Is the resource mapped to the localfilesystem?
+  \param permissions Permission mask for this resource.
+  \return Return 200 on success.
+  \return Any other value is the HTTP error code.
  */
 int Http::getFilePermissions (string& filename, string& directory, string& file,
                               string &filenamePath, int yetmapped, int* permissions)
@@ -267,10 +267,10 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
       td->securityToken.setDirectory (&directory);
 
       /*
-       * td->filenamePath is the file system mapped path while filename
-       * is the uri requested.
-       * systemrequest is 1 if the file is in the system directory.
-       * If filename is already mapped on the file system don't map it again.
+        td->filenamePath is the file system mapped path while filename
+        is the uri requested.
+        systemrequest is 1 if the file is in the system directory.
+        If filename is already mapped on the file system don't map it again.
        */
       if (yetmapped)
         filenamePath.assign (filename);
@@ -278,8 +278,8 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
         {
           int ret;
           /*
-           * If the client tries to access files that aren't in the web directory
-           * send a HTTP 401 error page.
+            If the client tries to access files that aren't in the web directory
+            send a HTTP 401 error page.
            */
           translateEscapeString (filename);
           if ((filename[0] != '\0') &&
@@ -419,12 +419,12 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
 }
 
 /*!
- * Preprocess a HTTP request.
- * \param filename Resource to access.
- * \param yetmapped Is the resource mapped to the localfilesystem?
- * \param permissions Permission mask for this resource.
- * \return Return 200 on success.
- * \return Any other value is the HTTP error code.
+  Preprocess a HTTP request.
+  \param filename Resource to access.
+  \param yetmapped Is the resource mapped to the localfilesystem?
+  \param permissions Permission mask for this resource.
+  \return Return 200 on success.
+  \return Any other value is the HTTP error code.
  */
 int Http::preprocessHttpRequest (string& filename, int yetmapped,
                                  int* permissions)
@@ -446,10 +446,10 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped,
         return ret;
 
       /*
-       *Get the PATH_INFO value.
-       *Use dirscan as a buffer for put temporary directory scan.
-       *When an '/' character is present check if the path up to '/' character
-       *is a file. If it is a file send the rest of the uri as PATH_INFO.
+        Get the PATH_INFO value.
+        Use dirscan as a buffer for put temporary directory scan.
+        When an '/' character is present check if the path up to '/' character
+        is a file. If it is a file send the rest of the uri as PATH_INFO.
        */
       td->pathInfo.assign ("");
       td->pathTranslated.assign ("");
@@ -461,12 +461,12 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped,
       for (u_long i = 0;;)
         {
           /*
-           * http://host/path/to/file/file.txt/PATH_INFO_VALUE?QUERY_INFO_VALUE
-           * When a request has this form send the file file.txt with the
-           * environment string PATH_INFO equals to PATH_INFO_VALUE and QUERY_INFO
-           * to QUERY_INFO_VALUE.
+            http://host/path/to/file/file.txt/PATH_INFO_VALUE?QUERY_INFO_VALUE
+            When a request has this form send the file file.txt with the
+            environment string PATH_INFO equals to PATH_INFO_VALUE and QUERY_INFO
+            to QUERY_INFO_VALUE.
            *
-           * If there is the '/' character check if dirscan is a file.
+            If there is the '/' character check if dirscan is a file.
            */
 
           u_long next = td->filenamePath.find ('/', i + 1);
@@ -502,7 +502,7 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped,
         }
 
       /*
-       * PATH_TRANSLATED is the local filesystem mapped version of PATH_INFO.
+        PATH_TRANSLATED is the local filesystem mapped version of PATH_INFO.
        */
       if (td->pathInfo.length () <= 1)
         td->pathTranslated.assign ("");
@@ -536,7 +536,7 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped,
 }
 
 /*!
- * Delete the resource identified by filename.
+  Delete the resource identified by filename.
  */
 int Http::deleteHTTPRESOURCE (string& filename, int sysReq, int onlyHeader,
                           int yetmapped)
@@ -545,10 +545,10 @@ int Http::deleteHTTPRESOURCE (string& filename, int sysReq, int onlyHeader,
 }
 
 /*!
- * Check the Digest authorization
- *
- * \return 1 if the client credentials are OK.
- * \return 0 if the credentials are wrong.
+  Check the Digest authorization
+
+  \return 1 if the client credentials are OK.
+  \return 0 if the credentials are wrong.
  */
 u_long Http::checkDigest ()
 {
@@ -625,7 +625,7 @@ u_long Http::checkDigest ()
 }
 
 /*!
- * Create the buffer.
+  Create the buffer.
  */
 HttpUserData::HttpUserData ()
 {
@@ -633,12 +633,12 @@ HttpUserData::HttpUserData ()
 }
 
 /*!
- * Destroy the buffer.
+  Destroy the buffer.
  */
 HttpUserData::~HttpUserData () { }
 
 /*!
- * Reset the structure.
+  Reset the structure.
  */
 void
 HttpUserData::reset ()
@@ -653,15 +653,15 @@ HttpUserData::reset ()
 }
 
 /*!
- * Main function to send a resource to a client.
+  Main function to send a resource to a client.
  */
 int
 Http::sendHTTPResource (string& uri, int systemrequest, int onlyHeader,
                         int yetmapped)
 {
   /*
-   * With this code we manage a request of a file or a directory or anything
-   * that we must send over the HTTP.
+    With this code we manage a request of a file or a directory or anything
+    that we must send over the HTTP.
    */
   string filename;
   const char *cgiManager;
@@ -734,7 +734,7 @@ Http::sendHTTPResource (string& uri, int systemrequest, int onlyHeader,
 }
 
 /*!
- * Log the access using the Common Log Format or the Combined one.
+  Log the access using the Common Log Format or the Combined one.
  */
 int Http::logHTTPaccess ()
 {
@@ -802,7 +802,7 @@ int Http::logHTTPaccess ()
       *td->auxiliaryBuffer << end_str;
 
       /*
-       * Request the access to the log file then append the message.
+        Request the access to the log file then append the message.
        */
       if (td->connection->host)
         {
@@ -820,7 +820,7 @@ int Http::logHTTPaccess ()
 }
 
 /*!
- * This is the HTTP protocol main procedure to parse a request over HTTP.
+  This is the HTTP protocol main procedure to parse a request over HTTP.
  */
 int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                              u_long nbtr, u_long id)
@@ -919,8 +919,8 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
       td->response.ver.assign (td->request.ver.c_str ());
 
       /*
-       * For methods that accept data after the HTTP header set the correct
-       * pointer and create a file containing the informations after the header.
+        For methods that accept data after the HTTP header set the correct
+        pointer and create a file containing the informations after the header.
        */
       FilesUtility::temporaryFileName (td->id, td->inputDataPath);
       FilesUtility::temporaryFileName (td->id, td->outputDataPath);
@@ -965,10 +965,10 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
       if (ret < 0)
         {
           /*
-           * How is expressly said in the RFC2616 a client that sends an
-           * HTTP/1.1 request MUST sends a Host header.
-           * Servers MUST reports a 400 (Bad request) error if an HTTP/1.1
-           * request does not include a Host request-header.
+            How is expressly said in the RFC2616 a client that sends an
+            HTTP/1.1 request MUST sends a Host header.
+            Servers MUST reports a 400 (Bad request) error if an HTTP/1.1
+            request does not include a Host request-header.
            */
           HttpRequestHeader::Entry *host = td->request.other.get ("host");
           HttpRequestHeader::Entry *connection
@@ -1075,8 +1075,8 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
             }
 
           /*
-           * Set the throttling rate for the socket. This setting can be
-           * changed later.
+            Set the throttling rate for the socket. This setting can be
+            changed later.
            */
           if (a->host->getThrottlingRate () == (u_long) - 1)
             a->socket->setThrottling (Server::getInstance ()->getThrottlingRate ());
@@ -1127,8 +1127,8 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
               else
                 {
                   /*
-                   *Return Method not implemented (501) if there
-                   *is not a dynamic methods manager.
+                    Return Method not implemented (501) if there
+                    is not a dynamic methods manager.
                    */
                   if (!dynamicCommand)
                     ret = raiseHTTPError (501);
@@ -1186,7 +1186,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
 }
 
 /*!
- * Compute the Digest outputting it to a buffer.
+  Compute the Digest outputting it to a buffer.
  */
 void Http::computeDigest (char* out, char* buffer)
 {
@@ -1203,7 +1203,7 @@ void Http::computeDigest (char* out, char* buffer)
 }
 
 /*!
- * Send to the client an authorization request.
+  Send to the client an authorization request.
  */
 int Http::requestAuthorization ()
 {
@@ -1293,8 +1293,8 @@ int Http::requestAuthorization ()
 }
 
 /*!
- * Sends an error page to the client.
- * Nonzero to keep the connection.
+  Sends an error page to the client.
+  Nonzero to keep the connection.
  */
 int Http::raiseHTTPError (int ID)
 {
@@ -1428,7 +1428,7 @@ int Http::raiseHTTPError (int ID)
 }
 
 /*!
- * Send a hard wired 500 error when we have a system error
+  Send a hard wired 500 error when we have a system error
  */
 int Http::sendHTTPhardError500 ()
 {
@@ -1484,8 +1484,8 @@ Internal Server Error\n\
 }
 
 /*!
- * Returns the MIME type passing its extension.
- * Returns zero if the file is registered.
+  Returns the MIME type passing its extension.
+  Returns zero if the file is registered.
  */
 MimeRecord* Http::getMIME (string &filename)
 {
@@ -1499,8 +1499,8 @@ MimeRecord* Http::getMIME (string &filename)
 }
 
 /*!
- * Map an URL to the machine file system. Return 200 on success.
- * Any other return value is the HTTP error.
+  Map an URL to the machine file system. Return 200 on success.
+  Any other return value is the HTTP error.
  */
 int Http::getPath (HttpThreadContext* td, string& filenamePath,
                    const char *filename, int systemrequest)
@@ -1523,17 +1523,17 @@ int Http::getPath (HttpThreadContext* td, string& filenamePath,
         {
           const char *root;
           /*
-           * uri starting with a /sys/ will use the system directory as
-           * the root path. Be sure to don't allow access to the system root
-           * but only to subdirectories.
+            uri starting with a /sys/ will use the system directory as
+            the root path. Be sure to don't allow access to the system root
+            but only to subdirectories.
            */
           if (filename[0] == '/' && filename[1] == 's' && filename[2] == 'y'
               && filename[3] == 's' && filename[4] == '/')
             {
               root = td->getVhostSys ();
               /*
-               * Do not allow access to the system directory root but only
-               * to subdirectories.
+                Do not allow access to the system directory root but only
+                to subdirectories.
                */
               if (FilesUtility::getPathRecursionLevel (filename) < 2)
                 {
@@ -1562,15 +1562,15 @@ int Http::getPath (HttpThreadContext* td, string& filenamePath,
 }
 
 /*!
- * If a directory is accessed try in order:
- *
- * 1) The default files in order.
- * 2) The directory content.
- * 3) An error.
- *
- * \param uri The accessed URI.
- * \param permissions The permission mask for the client.
- * \param onlyHeader specify if the client requested only the header.
+  If a directory is accessed try in order:
+
+  1) The default files in order.
+  2) The directory content.
+  3) An error.
+
+  \param uri The accessed URI.
+  \param permissions The permission mask for the client.
+  \param onlyHeader specify if the client requested only the header.
  */
 int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
 {
@@ -1632,7 +1632,7 @@ int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
 }
 
 /*!
- * Send a redirect message to the client.
+  Send a redirect message to the client.
  */
 int Http::sendHTTPRedirect (const char *newURL)
 {
@@ -1662,7 +1662,7 @@ int Http::sendHTTPRedirect (const char *newURL)
 }
 
 /*!
- * Send a non-modified message to the client.
+  Send a non-modified message to the client.
  */
 int Http::sendHTTPNonModified ()
 {
@@ -1690,7 +1690,7 @@ int Http::sendHTTPNonModified ()
 }
 
 /*!
- * Send a 401 error.
+  Send a 401 error.
  */
 int Http::sendAuth ()
 {
@@ -1704,7 +1704,7 @@ int Http::sendAuth ()
 }
 
 /*!
- * Load the HTTP protocol.
+  Load the HTTP protocol.
  */
 int Http::loadProtocolStatic ()
 {
@@ -1712,8 +1712,8 @@ int Http::loadProtocolStatic ()
 }
 
 /*!
- * Returns the name of the protocol. If an out buffer
- * is defined fullfill it with the name too.
+  Returns the name of the protocol. If an out buffer
+  is defined fullfill it with the name too.
  */
 const char* Http::getNameImpl ()
 {
@@ -1721,7 +1721,7 @@ const char* Http::getNameImpl ()
 }
 
 /*!
- * Constructor for the class http.
+  Constructor for the class http.
  */
 Http::Http (HttpProtocol *staticData)
 {
@@ -1742,7 +1742,7 @@ Http::Http (HttpProtocol *staticData)
 }
 
 /*!
- * Destructor for the http class.
+  Destructor for the http class.
  */
 Http::~Http ()
 {
@@ -1750,7 +1750,7 @@ Http::~Http ()
 }
 
 /*!
- * Clean the used memory.
+  Clean the used memory.
  */
 void Http::clean ()
 {

@@ -123,12 +123,12 @@ Console::openConsole (string fd)
 }
 
 /*!
- * Set the attributes for the console text. If a not valid color is provided,
- * the console attribute for both background and foreground text will be
- * reset.
- * \param fg_color the foreground text attribute.
- * \param bg_color the background text attribute.
- * \return 0 on success, 1 on error.
+  Set the attributes for the console text. If a not valid color is provided,
+  the console attribute for both background and foreground text will be
+  reset.
+  \param fg_color the foreground text attribute.
+  \param bg_color the background text attribute.
+  \return 0 on success, 1 on error.
  */
 int
 Console::setColor (string fg_color, string bg_color)
@@ -169,9 +169,9 @@ Console::setColor (string fg_color, string bg_color)
 }
 
 /*!
- * Restore the original console colors (white text on black background on
- * WIN32).
- * \return 0 on success, 1 on error.
+  Restore the original console colors (white text on black background on
+  WIN32).
+  \return 0 on success, 1 on error.
  */
 int
 Console::reset ()

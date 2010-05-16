@@ -25,7 +25,7 @@
 
 
 /*!
- *Initialize the object.
+  Initialize the object.
  */
 DynHttpCommandManager::DynHttpCommandManager ()
 {
@@ -33,7 +33,7 @@ DynHttpCommandManager::DynHttpCommandManager ()
 }
 
 /*!
- *Destroy the object.
+  Destroy the object.
  */
 DynHttpCommandManager::~DynHttpCommandManager ()
 {
@@ -41,8 +41,8 @@ DynHttpCommandManager::~DynHttpCommandManager ()
 }
 
 /*!
- *Get the DynamicHttpCommand.
- *\param name http command name.
+  Get the DynamicHttpCommand.
+  \param name http command name.
  */
 DynamicHttpCommand* DynHttpCommandManager::getHttpCommand (string& name)
 {
@@ -50,9 +50,9 @@ DynamicHttpCommand* DynHttpCommandManager::getHttpCommand (string& name)
 }
 
 /*!
- *Add the DynamicHttpCommand.
- *\param name http command name.
- *\param httpCommand http command to add.
+  Add the DynamicHttpCommand.
+  \param name http command name.
+  \param httpCommand http command to add.
  */
 void DynHttpCommandManager::addHttpCommand (string& name, DynamicHttpCommand* httpCommand)
 {
@@ -60,7 +60,7 @@ void DynHttpCommandManager::addHttpCommand (string& name, DynamicHttpCommand* ht
 }
 
 /*!
- *Free the used memory.
+  Free the used memory.
  */
 void DynHttpCommandManager::clear ()
 {

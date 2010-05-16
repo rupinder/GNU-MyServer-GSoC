@@ -44,8 +44,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 
 /*!
- * Load a file in the buffer.
- * \param filename The name of the file.
+  Load a file in the buffer.
+  \param filename The name of the file.
  */
 CachedFileBuffer::CachedFileBuffer (const char* filename)
 {
@@ -67,7 +67,7 @@ CachedFileBuffer::CachedFileBuffer (const char* filename)
 }
 
 /*!
- * Increment the reference counter for this buffer.
+  Increment the reference counter for this buffer.
  */
 void CachedFileBuffer::addRef ()
 {
@@ -77,8 +77,8 @@ void CachedFileBuffer::addRef ()
 }
 
 /*!
- * Set the factory object to be notified when the object will have a reference
- * counter null.
+  Set the factory object to be notified when the object will have a reference
+  counter null.
  */
 void CachedFileBuffer::setFactoryToNotify (CachedFileFactory *cff)
 {
@@ -86,7 +86,7 @@ void CachedFileBuffer::setFactoryToNotify (CachedFileFactory *cff)
 }
 
 /*!
- * Decrement the reference counter for this buffer.
+  Decrement the reference counter for this buffer.
  */
 void CachedFileBuffer::decRef ()
 {
@@ -103,7 +103,7 @@ void CachedFileBuffer::decRef ()
 }
 
 /*!
- *Get the number of references to this object.
+  Get the number of references to this object.
  */
 u_long CachedFileBuffer::getReferenceCounter ()
 {
@@ -115,9 +115,9 @@ u_long CachedFileBuffer::getReferenceCounter ()
 }
 
 /*!
- * Load a file in the buffer from a memory location.
- * \param buffer The buffer to copy.
- * \param size The memory buffer size.
+  Load a file in the buffer from a memory location.
+  \param buffer The buffer to copy.
+  \param size The memory buffer size.
  */
 CachedFileBuffer::CachedFileBuffer (const char* buffer, u_long size)
 {
@@ -131,8 +131,8 @@ CachedFileBuffer::CachedFileBuffer (const char* buffer, u_long size)
 }
 
 /*!
- * Load a file in the buffer.
- * \param file The file object.
+  Load a file in the buffer.
+  \param file The file object.
  */
 CachedFileBuffer::CachedFileBuffer (File* file)
 {
@@ -147,7 +147,7 @@ CachedFileBuffer::CachedFileBuffer (File* file)
 }
 
 /*!
- * Destroy the object.
+  Destroy the object.
  */
 CachedFileBuffer::~CachedFileBuffer ()
 {

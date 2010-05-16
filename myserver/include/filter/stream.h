@@ -31,7 +31,7 @@ typedef int Handle;
 typedef int FileHandle;
 
 /*!
- *Abstract class to handle virtual data streams.
+  Abstract class to handle virtual data streams.
  */
 class Stream
 {

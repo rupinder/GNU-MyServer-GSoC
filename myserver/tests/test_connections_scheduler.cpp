@@ -31,8 +31,8 @@ class MockSocket : public Socket
 public:
 
   /*
-   * BE SURE TO USE VALID HANDLES.
-   * 0, 1, 2 are valid ones.
+    BE SURE TO USE VALID HANDLES.
+    0, 1, 2 are valid ones.
    */
   MockSocket ()
   {

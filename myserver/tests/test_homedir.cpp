@@ -67,7 +67,7 @@ public:
     username.assign ("Administrator");
 #else
     /* Under systems different than Windows, "root" should be present,
-     * if it doesn't handle this differently.  */
+      if it doesn't handle this differently.  */
     username.assign ("root");
 #endif
     string dir;

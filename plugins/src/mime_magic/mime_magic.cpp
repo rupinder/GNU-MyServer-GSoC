@@ -63,7 +63,7 @@ public:
     try
       {
         /* FIXME: is this line reentrant and can be moved outside of the
-         * critical section?  */
+          critical section?  */
         const char *type = magic_file (cookie, file);
 
         /* Do not handle directories.  */

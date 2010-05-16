@@ -41,7 +41,7 @@ char GZIP_HEADER[] = {(char)0x1f, (char)0x8b, Z_DEFLATED,
 #endif
 
 /*!
- * Initialize the gzip structure value.
+  Initialize the gzip structure value.
  */
 u_long Gzip::initialize ()
 {
@@ -75,11 +75,11 @@ u_long Gzip::compressBound (int size)
 }
 
 /*!
- * Compress the in buffer to the out buffer using the gzip compression.
- * \param in Buffer to compress.
- * \param sizeIn The dimension of the buffer to compress.
- * \param out Buffer where compress.
- * \param sizeOut The dimension of the buffer where compress.
+  Compress the in buffer to the out buffer using the gzip compression.
+  \param in Buffer to compress.
+  \param sizeIn The dimension of the buffer to compress.
+  \param out Buffer where compress.
+  \param sizeOut The dimension of the buffer where compress.
  */
 u_long Gzip::compress (const char* in, u_long sizeIn,
                        char *out, u_long sizeOut)
@@ -108,7 +108,7 @@ u_long Gzip::compress (const char* in, u_long sizeIn,
 }
 
 /*!
- * Close the gzip compression.
+  Close the gzip compression.
  */
 u_long Gzip::free ()
 {
@@ -124,10 +124,10 @@ u_long Gzip::free ()
 }
 
 /*!
- * Inherited from Filter.
- * \param buffer Buffer where write.
- * \param len Buffer length.
- * \param nbw Numbers of written bytes.
+  Inherited from Filter.
+  \param buffer Buffer where write.
+  \param len Buffer length.
+  \param nbw Numbers of written bytes.
  */
 int Gzip::getHeader (char* buffer, u_long len, u_long* nbw)
 {
@@ -136,10 +136,10 @@ int Gzip::getHeader (char* buffer, u_long len, u_long* nbw)
 }
 
 /*!
- * Inherited from Filter.
- * \param buffer Buffer where write.
- * \param len Buffer length.
- * \param nbw Numbers of written bytes.
+  Inherited from Filter.
+  \param buffer Buffer where write.
+  \param len Buffer length.
+  \param nbw Numbers of written bytes.
  */
 int Gzip::getFooter (char* buffer, u_long len, u_long* nbw)
 {
@@ -152,7 +152,7 @@ int Gzip::getFooter (char* buffer, u_long len, u_long* nbw)
 }
 
 /*!
- *The Gzip filter modifies the data.
+  The Gzip filter modifies the data.
  */
 int Gzip::modifyData ()
 {
@@ -160,9 +160,9 @@ int Gzip::modifyData ()
 }
 
 /*!
- *Flush all the remaining data.
- *\param out Buffer where write.
- *\param sizeOut Buffer length.
+  Flush all the remaining data.
+  \param out Buffer where write.
+  \param sizeOut Buffer length.
  */
 u_long Gzip::flush (char *out, u_long sizeOut)
 {
@@ -185,7 +185,7 @@ u_long Gzip::flush (char *out, u_long sizeOut)
 }
 
 /*!
- * Constructor for the class.
+  Constructor for the class.
  */
 Gzip::Gzip ()
 {
@@ -194,7 +194,7 @@ Gzip::Gzip ()
 }
 
 /*!
- * Destructor for the class.
+  Destructor for the class.
  */
 Gzip::~Gzip ()
 {
@@ -202,9 +202,9 @@ Gzip::~Gzip ()
 }
 
 /*!
- * Update the existent CRC.
- * \param buffer Buffer to look.
- * \param size Number of bytes to look.
+  Update the existent CRC.
+  \param buffer Buffer to look.
+  \param size Number of bytes to look.
  */
 u_long Gzip::updateCRC (char* buffer, int size)
 {
@@ -218,9 +218,9 @@ u_long Gzip::updateCRC (char* buffer, int size)
 }
 
 /*!
- *Get the GZIP footer.
- *\param footer Buffer where write.
- *\param size Buffer length.
+  Get the GZIP footer.
+  \param footer Buffer where write.
+  \param size Buffer length.
  */
 u_long Gzip::getFooter (char *footer, int /*size*/)
 {
@@ -241,9 +241,9 @@ u_long Gzip::getFooter (char *footer, int /*size*/)
 }
 
 /*!
- * Copy the GZIP header in the buffer.
- * \param buffer Buffer where write.
- * \param buffersize Buffer length.
+  Copy the GZIP header in the buffer.
+  \param buffer Buffer where write.
+  \param buffersize Buffer length.
  */
 u_long Gzip::getHeader (char *buffer, u_long buffersize)
 {
@@ -258,12 +258,12 @@ u_long Gzip::getHeader (char *buffer, u_long buffersize)
 }
 
 /*!
- *Inherited from Filter.
- *This function uses an internal buffer slowing it.
- *It is better to use directly the Gzip::compress routine where possible.
- *\param buffer Buffer where write.
- *\param len Buffer length.
- *\param nbr Number of read bytes.
+  Inherited from Filter.
+  This function uses an internal buffer slowing it.
+  It is better to use directly the Gzip::compress routine where possible.
+  \param buffer Buffer where write.
+  \param len Buffer length.
+  \param nbr Number of read bytes.
  */
 int Gzip::read (char* buffer, u_long len, u_long *nbr)
 {
@@ -293,10 +293,10 @@ int Gzip::read (char* buffer, u_long len, u_long *nbr)
 }
 
 /*!
- * Inherited from Filter.
- * \param buffer Buffer where write.
- * \param len Buffer length.
- * \param nbw Number of written bytes.
+  Inherited from Filter.
+  \param buffer Buffer where write.
+  \param len Buffer length.
+  \param nbw Number of written bytes.
  */
 int Gzip::write (const char* buffer, u_long len, u_long *nbw)
 {
@@ -329,8 +329,8 @@ int Gzip::write (const char* buffer, u_long len, u_long *nbw)
 }
 
 /*!
- * Inherited from Filter.
- * \param nbw Number of flushed bytes.
+  Inherited from Filter.
+  \param nbw Number of flushed bytes.
  */
 int Gzip::flush (u_long *nbw)
 {
@@ -355,8 +355,8 @@ int Gzip::flush (u_long *nbw)
 }
 
 /*!
- * Returns a new Gzip object.
- * \param name Filter name.
+  Returns a new Gzip object.
+  \param name Filter name.
  */
 Filter* Gzip::factory (const char* name)
 {
@@ -364,7 +364,7 @@ Filter* Gzip::factory (const char* name)
 }
 
 /*!
- * Return a string with the filter name.
+  Return a string with the filter name.
  */
 const char* Gzip::getName ()
 {
@@ -372,7 +372,7 @@ const char* Gzip::getName ()
 }
 
 /*!
- * Get the GZIP header size.
+  Get the GZIP header size.
  */
 u_long Gzip::headerSize ()
 {
@@ -380,7 +380,7 @@ u_long Gzip::headerSize ()
 }
 
 /*!
- *Get the GZIP footer size.
+  Get the GZIP footer size.
  */
 u_long Gzip::footerSize ()
 {

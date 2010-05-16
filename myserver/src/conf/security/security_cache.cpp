@@ -40,7 +40,7 @@ SecurityCache::SecurityCache ()
 }
 
 /*!
- *Destroy the security cache object.
+  Destroy the security cache object.
  */
 SecurityCache::~SecurityCache ()
 {
@@ -193,7 +193,7 @@ XmlParser* SecurityCache::getParser (const string &dir,
           parser->close ();
 
           /* FIXME:  Don't open the file twice, once to check
-           * and the second time to parse.  */
+            and the second time to parse.  */
           if (maxSize)
             {
               File parserFile;

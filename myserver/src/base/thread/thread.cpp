@@ -44,7 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 /*!
- * Sleep the caller thread for [TIME] microseconds.
+  Sleep the caller thread for [TIME] microseconds.
  */
 void Thread::wait (u_long time)
 {
@@ -57,10 +57,10 @@ void Thread::wait (u_long time)
 }
 
 /*!
- *Create a new thread.
- *\param ID Pointer to ThreadID to receive the new thread identifier.
- *\param startRoutine Start routine for the new thread.
- *\param arg Argument to pass to the new created thread.
+  Create a new thread.
+  \param ID Pointer to ThreadID to receive the new thread identifier.
+  \param startRoutine Start routine for the new thread.
+  \param arg Argument to pass to the new created thread.
  */
 #ifdef WIN32
 int Thread::create (ThreadID*  ID,
@@ -82,7 +82,7 @@ int Thread::create (ThreadID*  ID, void * (*startRoutine)(void *),
 }
 
 /*!
- *Get the calling thread ID.
+  Get the calling thread ID.
  */
 ThreadID Thread::threadID ()
 {
@@ -95,7 +95,7 @@ ThreadID Thread::threadID ()
 }
 
 /*!
- *Terminate the caller thread.
+  Terminate the caller thread.
  */
 void Thread::terminate ()
 {
@@ -108,7 +108,7 @@ void Thread::terminate ()
 }
 
 /*!
- *Sleep until the thread identified by tid complete its execution.
+  Sleep until the thread identified by tid complete its execution.
  */
 int Thread::join (ThreadID tid)
 {

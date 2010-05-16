@@ -45,7 +45,7 @@ void XmlMimeHandler::registerBuilder (MimeManager& manager)
 
 
 /*!
- * Get the name of the used file.
+  Get the name of the used file.
  */
 const char *XmlMimeHandler::getFilename ()
 {
@@ -53,7 +53,7 @@ const char *XmlMimeHandler::getFilename ()
 }
 
 /*!
- * Read a MIME record from a XML node.
+  Read a MIME record from a XML node.
  */
 MimeRecord *XmlMimeHandler::readRecord (xmlNodePtr node)
 {
@@ -157,7 +157,7 @@ MimeRecord *XmlMimeHandler::readRecord (xmlNodePtr node)
 }
 
 /*!
- * Reload using the same configuration file.
+  Reload using the same configuration file.
  */
 u_long XmlMimeHandler::reload ()
 {
@@ -168,8 +168,8 @@ u_long XmlMimeHandler::reload ()
 }
 
 /*!
- * Load the MIME types from a XML file. Returns the number of
- * MIME types loaded successfully.
+  Load the MIME types from a XML file. Returns the number of
+  MIME types loaded successfully.
  */
 u_long XmlMimeHandler::load (const char *fn)
 {
@@ -189,8 +189,8 @@ u_long XmlMimeHandler::load (const char *fn)
 }
 
 /*!
- * Load the MIME types from a XML parser object. Returns the number
- * of MIME types loaded successfully.
+  Load the MIME types from a XML parser object. Returns the number
+  of MIME types loaded successfully.
  */
 u_long XmlMimeHandler::load (XmlParser* parser)
 {
@@ -220,7 +220,7 @@ u_long XmlMimeHandler::load (XmlParser* parser)
 }
 
 /*!
- * Destroy the object.
+  Destroy the object.
  */
 XmlMimeHandler::~XmlMimeHandler ()
 {
@@ -228,7 +228,7 @@ XmlMimeHandler::~XmlMimeHandler ()
 }
 
 /*!
- * Clean the memory allocated by the structure.
+  Clean the memory allocated by the structure.
  */
 void XmlMimeHandler::clean ()
 {
@@ -241,7 +241,7 @@ void XmlMimeHandler::clean ()
 }
 
 /*!
- * Constructor of the class.
+  Constructor of the class.
  */
 XmlMimeHandler::XmlMimeHandler ()
 {
@@ -249,8 +249,8 @@ XmlMimeHandler::XmlMimeHandler ()
 }
 
 /*!
- * Add a new record.
- * \return Return the position for the new record.
+  Add a new record.
+  \return Return the position for the new record.
  */
 int XmlMimeHandler::addRecord (MimeRecord *mr)
 {
@@ -283,7 +283,7 @@ int XmlMimeHandler::addRecord (MimeRecord *mr)
 }
 
 /*!
- * Remove all the stored records.
+  Remove all the stored records.
  */
 void XmlMimeHandler::clearRecords ()
 {
@@ -311,10 +311,10 @@ void XmlMimeHandler::clearRecords ()
 }
 
 /*!
- * Get the MIME type to use on the specified file.
- * \param filename Find the MIME type for this file.
- * \param handler If specified, indicate an external handler to use
- * if the mime cannot be found locally.
+  Get the MIME type to use on the specified file.
+  \param filename Find the MIME type for this file.
+  \param handler If specified, indicate an external handler to use
+  if the mime cannot be found locally.
  */
 MimeRecord *XmlMimeHandler::getMIME (const char *filename)
 {
@@ -348,7 +348,7 @@ MimeRecord *XmlMimeHandler::getMIME (const char *filename)
 }
 
 /*!
- * Returns the number of MIME types loaded.
+  Returns the number of MIME types loaded.
  */
 u_long XmlMimeHandler::getNumMIMELoaded ()
 {

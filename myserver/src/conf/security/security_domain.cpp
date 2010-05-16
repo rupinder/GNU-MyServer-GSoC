@@ -43,7 +43,7 @@ SecurityDomain::~SecurityDomain ()
 }
 
 /*!
- *Get the stored value for [name].
+  Get the stored value for [name].
  */
 const string *SecurityDomain::getValue (string &name)
 {

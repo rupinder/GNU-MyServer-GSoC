@@ -225,12 +225,12 @@ public:
     CPPUNIT_ASSERT (!strcmp (header.digestNonce,
                              "88b29c4b136e2efee059647dbac10427"));
     CPPUNIT_ASSERT (!strcmp (header.digestUri, "/res/"));
-    CPPUNIT_ASSERT (!strcmp (header.digestUsername, "user")); 
-    CPPUNIT_ASSERT (!strcmp (header.digestNc, "00000001")); 
-    CPPUNIT_ASSERT (!strcmp (header.digestQop, "auth")); 
+    CPPUNIT_ASSERT (!strcmp (header.digestUsername, "user"));
+    CPPUNIT_ASSERT (!strcmp (header.digestNc, "00000001"));
+    CPPUNIT_ASSERT (!strcmp (header.digestQop, "auth"));
     CPPUNIT_ASSERT (!strcmp (header.digestResponse,
-                             "e979c020b57cc0e86e46d5c8cad8497e")); 
-    CPPUNIT_ASSERT (!strcmp (header.digestCnonce, "c40dc807904a2357")); 
+                             "e979c020b57cc0e86e46d5c8cad8497e"));
+    CPPUNIT_ASSERT (!strcmp (header.digestCnonce, "c40dc807904a2357"));
 
   }
 

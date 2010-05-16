@@ -41,7 +41,7 @@ ValidatorFactory::~ValidatorFactory ()
 }
 
 /*!
- *Return a validator given its name.
+  Return a validator given its name.
  */
 Validator* ValidatorFactory::getValidator (string &name)
 {
@@ -49,10 +49,10 @@ Validator* ValidatorFactory::getValidator (string &name)
 }
 
 /*!
- *Add a new validator to the factory.
- *\param name Validator name.
- *\param validator The validator to add.
- *\return The old validator registered with [name], in any.
+  Add a new validator to the factory.
+  \param name Validator name.
+  \param validator The validator to add.
+  \return The old validator registered with [name], in any.
  */
 Validator* ValidatorFactory::addValidator (string &name, Validator* validator)
 {
@@ -60,9 +60,9 @@ Validator* ValidatorFactory::addValidator (string &name, Validator* validator)
 }
 
 /*!
- *Check if the specified validator is present in the factory.
- *\param name The validator name.
- *\return a bool value to indicate if it is present or not.
+  Check if the specified validator is present in the factory.
+  \param name The validator name.
+  \return a bool value to indicate if it is present or not.
  */
 bool ValidatorFactory::isValidatorPresent (string &name)
 {

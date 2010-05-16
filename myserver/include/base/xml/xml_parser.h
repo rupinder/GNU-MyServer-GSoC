@@ -34,7 +34,7 @@
 using namespace std;
 
 /*!
- *Helper class to memorize a xpath result.
+  Helper class to memorize a xpath result.
  */
 class XmlXPathResult
 {
@@ -48,7 +48,7 @@ private:
 };
 
 /*!
- *This class is used to open a .xml file and read information from it.
+  This class is used to open a .xml file and read information from it.
  */
 class XmlParser
 {

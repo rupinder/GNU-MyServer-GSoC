@@ -50,17 +50,17 @@ typedef struct
 } FcgiHeader;
 
 /*!
- *Value for version component of FcgiHeader.
+  Value for version component of FcgiHeader.
  */
 # define FCGIVERSION_1           1
 
 /*!
- *Current version of the FastCGI protocol.
+  Current version of the FastCGI protocol.
  */
 # define FCGIVERSION FCGIVERSION_1
 
 /*!
- *Values for type component of FcgiHeader
+  Values for type component of FcgiHeader
  */
 # define FCGIBEGIN_REQUEST       1
 # define FCGIABORT_REQUEST       2
@@ -90,12 +90,12 @@ typedef struct
 } FcgiBeginRequestRecord;
 
 /*!
- *Mask for flags component of FcgiBeginRequestBody.
+  Mask for flags component of FcgiBeginRequestBody.
  */
 # define FCGIKEEP_CONN  1
 
 /*!
- *Values for role component of FcgiBeginRequestBody.
+  Values for role component of FcgiBeginRequestBody.
  */
 # define FCGIRESPONDER  1
 # define FCGIAUTHORIZER 2
@@ -118,7 +118,7 @@ typedef struct
 } FcgiEndRequestRecord;
 
 /*!
- *Values for protocolStatus component of FcgiEndRequestBody.
+  Values for protocolStatus component of FcgiEndRequestBody.
  */
 # define FCGIREQUEST_COMPLETE 0
 # define FCGICANT_MPX_CONN    1

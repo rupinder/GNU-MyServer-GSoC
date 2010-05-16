@@ -43,7 +43,7 @@
 using namespace std;
 
 /*!
- * Costructor of the class.
+  Costructor of the class.
  */
 CachedFile::CachedFile (CachedFileBuffer* cfb)
 {
@@ -54,9 +54,9 @@ CachedFile::CachedFile (CachedFileBuffer* cfb)
 }
 
 /*!
- * Write data to a file is not supported by a CachedFile, return immediately -1.
- * Inherithed by File.
- * \see File#writeToFile.
+  Write data to a file is not supported by a CachedFile, return immediately -1.
+  Inherithed by File.
+  \see File#writeToFile.
  */
 int CachedFile::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
 {
@@ -64,11 +64,11 @@ int CachedFile::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
 }
 
 /*!
- * A CachedFile can't be opened directly, use a factory instead.
- * If the function have success the return value is nonzero.
- * \param nfilename Filename to open.
- * \param opt Specify how open the file.
- * \return 0 if the call was successfull, any other value on errors.
+  A CachedFile can't be opened directly, use a factory instead.
+  If the function have success the return value is nonzero.
+  \param nfilename Filename to open.
+  \param opt Specify how open the file.
+  \return 0 if the call was successfull, any other value on errors.
  */
 int CachedFile::openFile (const char* nfilename, u_long opt)
 {
@@ -76,7 +76,7 @@ int CachedFile::openFile (const char* nfilename, u_long opt)
 }
 
 /*!
- * Returns the base/file/file.handle.
+  Returns the base/file/file.handle.
  */
 Handle CachedFile::getHandle ()
 {
@@ -84,9 +84,9 @@ Handle CachedFile::getHandle ()
 }
 
 /*!
- * Set the base/file/file.handle.
- * Return a non null-value on errors.
- * \param hl The new base/file/file.handle.
+  Set the base/file/file.handle.
+  Return a non null-value on errors.
+  \param hl The new base/file/file.handle.
  */
 int CachedFile::setHandle (Handle hl)
 {
@@ -94,8 +94,8 @@ int CachedFile::setHandle (Handle hl)
 }
 
 /*!
- * define the operator =.
- * \param f The file to copy.
+  define the operator =.
+  \param f The file to copy.
  */
 int CachedFile::operator =(CachedFile f)
 {
@@ -112,12 +112,12 @@ int CachedFile::operator =(CachedFile f)
 }
 
 /*!
- * Read data from a file to a buffer.
- * Return 1 on errors.
- * Return 0 on success.
- * \param buffer The buffer where write.
- * \param buffersize The length of the buffer in bytes.
- * \param nbr How many bytes were read to the buffer.
+  Read data from a file to a buffer.
+  Return 1 on errors.
+  Return 0 on success.
+  \param buffer The buffer where write.
+  \param buffersize The length of the buffer in bytes.
+  \param nbr How many bytes were read to the buffer.
  */
 int CachedFile::read (char* buffer, u_long buffersize, u_long* nbr)
 {
@@ -134,9 +134,9 @@ int CachedFile::read (char* buffer, u_long buffersize, u_long* nbr)
 }
 
 /*!
- *A CachedFile can't be temporary.
- *Create a temporary file.
- *\param filename The new temporary file name.
+  A CachedFile can't be temporary.
+  Create a temporary file.
+  \param filename The new temporary file name.
  */
 int CachedFile::createTemporaryFile (const char* filename)
 {
@@ -144,7 +144,7 @@ int CachedFile::createTemporaryFile (const char* filename)
 }
 
 /*!
- *Close an open base/file/file.handle.
+  Close an open base/file/file.handle.
  */
 int CachedFile::close ()
 {
@@ -153,8 +153,8 @@ int CachedFile::close ()
 }
 
 /*!
- *Returns the file size in bytes.
- *Returns -1 on errors.
+  Returns the file size in bytes.
+  Returns -1 on errors.
  */
 u_long CachedFile::getFileSize ()
 {
@@ -162,8 +162,8 @@ u_long CachedFile::getFileSize ()
 }
 
 /*!
- *Change the position of the pointer to the file.
- *\param initialByte The new file pointer position.
+  Change the position of the pointer to the file.
+  \param initialByte The new file pointer position.
  */
 int CachedFile::seek (u_long initialByte)
 {
@@ -175,7 +175,7 @@ int CachedFile::seek (u_long initialByte)
 }
 
 /*!
- *Inherited from Stream.
+  Inherited from Stream.
  */
 int CachedFile::write (const char* buffer, u_long len, u_long *nbw)
 {
@@ -183,11 +183,11 @@ int CachedFile::write (const char* buffer, u_long len, u_long *nbw)
 }
 
 /*!
- *Copy the file directly to the socket.
- *\param dest Destination socket.
- *\param firstByte File offset.
- *\param buf Temporary buffer that can be used by this function.
- *\param nbw Number of bytes sent.
+  Copy the file directly to the socket.
+  \param dest Destination socket.
+  \param firstByte File offset.
+  \param buf Temporary buffer that can be used by this function.
+  \param nbw Number of bytes sent.
  */
 int CachedFile::fastCopyToSocket (Socket *dest, u_long firstByte,
                                   MemBuf *buf, u_long *nbw)

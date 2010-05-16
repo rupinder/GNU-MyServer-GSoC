@@ -27,7 +27,7 @@
 using namespace std;
 
 /*!
- * Default constructor.
+  Default constructor.
  */
 ProcessServerManager::ProcessServerManager ()
 {
@@ -37,7 +37,7 @@ ProcessServerManager::ProcessServerManager ()
 }
 
 /*!
- * Default destructor.
+  Default destructor.
  */
 ProcessServerManager::~ProcessServerManager ()
 {
@@ -45,7 +45,7 @@ ProcessServerManager::~ProcessServerManager ()
 }
 
 /*!
- * Load the class.
+  Load the class.
  */
 void ProcessServerManager::load ()
 {
@@ -139,8 +139,8 @@ void ProcessServerManager::load ()
 }
 
 /*!
- *Get a servers process domain by its name.
- *\param name The domain name.
+  Get a servers process domain by its name.
+  \param name The domain name.
  */
 ProcessServerManager::ServerDomain*
 ProcessServerManager::getDomain (const char* name)
@@ -161,8 +161,8 @@ ProcessServerManager::getDomain (const char* name)
 }
 
 /*!
- *Create a new servers process domain by its name and return it.
- *\param name The domain name.
+  Create a new servers process domain by its name and return it.
+  \param name The domain name.
  */
 ProcessServerManager::ServerDomain*
 ProcessServerManager::createDomain (const char* name)
@@ -192,7 +192,7 @@ ProcessServerManager::createDomain (const char* name)
 }
 
 /*!
- * Clear the used memory.
+  Clear the used memory.
  */
 void ProcessServerManager::clear ()
 {
@@ -240,10 +240,10 @@ void ProcessServerManager::clear ()
 }
 
 /*!
- * Get a server is running by its domain and name.
- * \param domain The domain name.
- * \param name The server name name.
- * \param seed Random seed to use for choosing a server.
+  Get a server is running by its domain and name.
+  \param domain The domain name.
+  \param name The server name name.
+  \param seed Random seed to use for choosing a server.
  */
 ProcessServerManager::Server*
 ProcessServerManager::getServer (const char* domain, const char* name, int seed)
@@ -291,10 +291,10 @@ ProcessServerManager::getServer (const char* domain, const char* name, int seed)
 }
 
 /*!
- * Add a server to the manager.
- * \param server The server object.
- * \param domain The server's domain.
- * \param name The server's name.
+  Add a server to the manager.
+  \param server The server object.
+  \param domain The server's domain.
+  \param name The server's name.
  */
 void ProcessServerManager::addServer (ProcessServerManager::Server* server,
                                      const char* domain, const char* name)
@@ -325,11 +325,11 @@ void ProcessServerManager::addServer (ProcessServerManager::Server* server,
 }
 
 /*!
- * Add a remote server.
- * \param domain The server's domain name.
- * \param name The server name.
- * \param host The host name to connect to.
- * \param port The port number to use for the connection.
+  Add a remote server.
+  \param domain The server's domain name.
+  \param name The server name.
+  \param host The host name to connect to.
+  \param port The port number to use for the connection.
  */
 ProcessServerManager::Server*
 ProcessServerManager::addRemoteServer (const char* domain, const char* name,
@@ -346,8 +346,8 @@ ProcessServerManager::addRemoteServer (const char* domain, const char* name,
 }
 
 /*!
- * Remove a domain by its name.
- * \param domain The domain name.
+  Remove a domain by its name.
+  \param domain The domain name.
  */
 void ProcessServerManager::removeDomain (const char* domain)
 {
@@ -394,8 +394,8 @@ void ProcessServerManager::removeDomain (const char* domain)
 }
 
 /*!
- * Count how many servers are present in a domain.
- * \param domain The server domain.
+  Count how many servers are present in a domain.
+  \param domain The server domain.
  */
 int ProcessServerManager::domainServers (const char* domain)
 {
@@ -404,13 +404,13 @@ int ProcessServerManager::domainServers (const char* domain)
 }
 
 /*!
- * Run and add a server to the collection.
- * \param domain The server's domain.
- * \param path The path to the executable.
- * \param chroot The new process chroot.
- * \param uid User id to use for the new process.
- * \param gid Group id to use for the new process.
- * \param port Port to use for the server.
+  Run and add a server to the collection.
+  \param domain The server's domain.
+  \param path The path to the executable.
+  \param chroot The new process chroot.
+  \param uid User id to use for the new process.
+  \param gid Group id to use for the new process.
+  \param port Port to use for the server.
  */
 ProcessServerManager::Server*
 ProcessServerManager::runAndAddServer (const char *domain, const char *path,
@@ -429,13 +429,13 @@ ProcessServerManager::runAndAddServer (const char *domain, const char *path,
 }
 
 /*!
- * Run a new server.
- * \param server The server object.
- * \param path The path to the executable.
- * \param port The listening port.
- * \param chroot The new process chroot.
- * \param uid User id to use for the new process.
- * \param gid Group id to use for the new process.
+  Run a new server.
+  \param server The server object.
+  \param path The path to the executable.
+  \param port The listening port.
+  \param chroot The new process chroot.
+  \param uid User id to use for the new process.
+  \param gid Group id to use for the new process.
  */
 int ProcessServerManager::runServer (ProcessServerManager::Server* server,
                                      const char* path, u_short port,
@@ -557,9 +557,9 @@ int ProcessServerManager::runServer (ProcessServerManager::Server* server,
 }
 
 /*!
- * Get a client socket in the fCGI context structure
- * \param sock The socket to connect.
- * \param server The server to connect to.
+  Get a client socket in the fCGI context structure
+  \param sock The socket to connect.
+  \param server The server to connect to.
  */
 int ProcessServerManager::connect (Socket* sock,
                                   ProcessServerManager::Server* server )

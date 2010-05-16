@@ -20,7 +20,7 @@
 #include <include/base/crypt/crypt_algo.h>
 
 /*!
- * Initialize the algorithm.
+  Initialize the algorithm.
  */
 void CryptAlgo::init ()
 {
@@ -28,7 +28,7 @@ void CryptAlgo::init ()
 }
 
 /*!
- * Write new data.
+  Write new data.
  */
 void CryptAlgo::update (char const *buf, u_long len)
 {
@@ -36,21 +36,21 @@ void CryptAlgo::update (char const *buf, u_long len)
 }
 
 /*!
- * C'tor.
+  C'tor.
  */
 CryptAlgo::CryptAlgo ()
 {
 }
 
 /*!
- * D'tor.
+  D'tor.
  */
 CryptAlgo::~CryptAlgo ()
 {
 }
 
 /*!
- * Write the final hash to the buffer.
+  Write the final hash to the buffer.
  */
 char* CryptAlgo::end (char *buf)
 {

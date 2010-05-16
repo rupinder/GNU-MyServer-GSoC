@@ -137,7 +137,7 @@ int HttpFile::putFile (HttpThreadContext* td, string& filename)
 }
 
 /*!
- * Delete the resource identified by filename.
+  Delete the resource identified by filename.
  */
 int HttpFile::deleteFile (HttpThreadContext* td,
                           string& filename)
@@ -167,11 +167,11 @@ int HttpFile::deleteFile (HttpThreadContext* td,
 }
 
 /*!
- * Generate the E-Tag header given the resource atime and size.
- *
- * \param etag output the etag to this string.
- * \param atime Resource last modified time.
- * \param size Resource size.
+  Generate the E-Tag header given the resource atime and size.
+
+  \param etag output the etag to this string.
+  \param atime Resource last modified time.
+  \param size Resource size.
  */
 void HttpFile::generateEtag (string & etag, u_long mtime, u_long fsize)
 {
@@ -185,19 +185,19 @@ void HttpFile::generateEtag (string & etag, u_long mtime, u_long fsize)
 
 
 /*!
- * Send a file to the client using the HTTP protocol.
- * \param td The current HTTP thread context.
- * \param filenamePath The path of the static file to send.
- * \param exec Not used.
- * \param execute Not used.
- * \param onlyHeader Specify if send only the HTTP header.
+  Send a file to the client using the HTTP protocol.
+  \param td The current HTTP thread context.
+  \param filenamePath The path of the static file to send.
+  \param exec Not used.
+  \param execute Not used.
+  \param onlyHeader Specify if send only the HTTP header.
   */
 int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
                     const char* exec, bool execute, bool onlyHeader)
 {
   /*
-   * With this routine we send a file through the HTTP protocol.
-   * Open the file and save its handle.
+    With this routine we send a file through the HTTP protocol.
+    Open the file and save its handle.
    */
   int ret;
   u_long filesize = 0;
@@ -264,7 +264,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         }
 
     /*
-     * Check how many bytes are ready to be send.
+      Check how many bytes are ready to be send.
      */
     filesize = file->getFileSize ();
 

@@ -23,7 +23,7 @@
 # include "myserver.h"
 
 /*!
- * Base class to handle a buffer in the connection.
+  Base class to handle a buffer in the connection.
  */
 class ProtocolBuffer
 {

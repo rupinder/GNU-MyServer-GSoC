@@ -22,8 +22,8 @@
 #include <include/conf/security/security_domain.h>
 
 /*!
- *C'tor.
- *\param request The HTTP Request object to use.
+  C'tor.
+  \param request The HTTP Request object to use.
  */
 HttpReqSecurityDomain::HttpReqSecurityDomain (HttpRequestHeader *request)
   : SecurityDomain ("http_request")
@@ -37,7 +37,7 @@ HttpReqSecurityDomain::~HttpReqSecurityDomain ()
 }
 
 /*!
- *\see SecurityDomain#getValue.
+  \see SecurityDomain#getValue.
  */
 string *HttpReqSecurityDomain::getValue (string &name)
 {

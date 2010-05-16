@@ -48,7 +48,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PTHREAD_ALTERNATE_LOCK 1
 
 /*!
- *Constructor for the semaphore class.
+  Constructor for the semaphore class.
  */
 Semaphore::Semaphore (int n)
 {
@@ -57,7 +57,7 @@ Semaphore::Semaphore (int n)
 }
 
 /*!
- *Initialize the semaphore.
+  Initialize the semaphore.
  */
 int Semaphore::init (int n)
 {
@@ -78,7 +78,7 @@ int Semaphore::init (int n)
 }
 
 /*!
- *Destroy the semaphore.
+  Destroy the semaphore.
  */
 int Semaphore::destroy ()
 {
@@ -94,7 +94,7 @@ int Semaphore::destroy ()
 }
 
 /*!
- *Lock the semaphore (p).
+  Lock the semaphore (p).
  */
 int Semaphore::lock (u_long /*id*/)
 {

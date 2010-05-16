@@ -46,8 +46,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 /*!
- *Constructor for the event class.
- *\param broadcast If true a signal will be sent to all the waiting threads.
+  Constructor for the event class.
+  \param broadcast If true a signal will be sent to all the waiting threads.
  */
 Event::Event (bool broadcast)
 {
@@ -56,9 +56,9 @@ Event::Event (bool broadcast)
 }
 
 /*!
- *Initialize an event.
- *\param broadcast If true a signal will be sent to all the waiting threads.
- *\return nonzero on errors.
+  Initialize an event.
+  \param broadcast If true a signal will be sent to all the waiting threads.
+  \return nonzero on errors.
  */
 int Event::init (bool broadcast)
 {
@@ -82,9 +82,9 @@ int Event::init (bool broadcast)
 }
 
 /*!
- *Wait for the event.
- *\param id The calling thread id.
- *\param timeout Timeout value in milliseconds.
+  Wait for the event.
+  \param id The calling thread id.
+  \param timeout Timeout value in milliseconds.
  */
 int Event::wait (u_long id, u_long timeout)
 {
@@ -129,11 +129,11 @@ int Event::wait (u_long id, u_long timeout)
 }
 
 /*!
- *Signal the event.
- *The behaviour of this message is influenced by the broadcast flag, if this
- *is a broadcast event then the event will be signaled to all the waiting
- *threads otherwise only one thread will be signaled.
- *\param id The calling thread id.
+  Signal the event.
+  The behaviour of this message is influenced by the broadcast flag, if this
+  is a broadcast event then the event will be signaled to all the waiting
+  threads otherwise only one thread will be signaled.
+  \param id The calling thread id.
  */
 int Event::signal (u_long id)
 {
@@ -165,7 +165,7 @@ int Event::signal (u_long id)
 
 
 /*!
- *Clean all the used resources.
+  Clean all the used resources.
  */
 int Event::destroy ()
 {
@@ -189,7 +189,7 @@ int Event::destroy ()
 }
 
 /*!
- *Destroy the object.
+  Destroy the object.
  */
 Event::~Event ()
 {

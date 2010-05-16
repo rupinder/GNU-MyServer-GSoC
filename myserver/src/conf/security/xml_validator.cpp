@@ -38,7 +38,7 @@ XmlValidator::~XmlValidator ()
 }
 
 /*!
- *Get the security files cache.
+  Get the security files cache.
  */
 SecurityCache* XmlValidator::getCache (SecurityToken *st)
 {
@@ -111,7 +111,7 @@ int XmlValidator::getPermissionMask (SecurityToken* st)
 
       xmlChar *name = NULL;
       xmlChar *password = NULL;
-      xmlChar *algorithm = NULL; 
+      xmlChar *algorithm = NULL;
       int permissions =  getPermissions (attrs, &name, &password, &algorithm);
 
       if (!name || !password
@@ -243,7 +243,7 @@ XmlValidator::getPermissionMaskImpl (SecurityToken* st,
 }
 
 /*!
- *Compute the current XML node.
+  Compute the current XML node.
  */
 int
 XmlValidator::computeXmlNode (xmlNodePtr node,
@@ -354,7 +354,7 @@ bool XmlValidator::doCondition (xmlNodePtr node,
 }
 
 /*!
- *Handle a PERMISSION.
+  Handle a PERMISSION.
  */
 void XmlValidator::doPermission (xmlNodePtr node, SecurityToken *st,
                                HashMap<string, SecurityDomain*> *hashedDomains)
@@ -370,7 +370,7 @@ void XmlValidator::doPermission (xmlNodePtr node, SecurityToken *st,
 
 
 /*!
- *Handle a DEFINE.
+  Handle a DEFINE.
  */
 void XmlValidator::doDefine (xmlNodePtr node, SecurityToken *st,
                              HashMap<string, SecurityDomain*> *hashedDomains)
@@ -404,7 +404,7 @@ void XmlValidator::doDefine (xmlNodePtr node, SecurityToken *st,
 }
 
 /*!
- *Handle a RETURN.
+  Handle a RETURN.
  */
 void XmlValidator::doReturn (xmlNodePtr node, int *cmd,
                              HashMap<string, SecurityDomain*> *hashedDomains)

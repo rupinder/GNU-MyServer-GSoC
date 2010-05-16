@@ -43,7 +43,7 @@
 using namespace std;
 
 /*!
- *Constructor of the class.
+  Constructor of the class.
  */
 SslSocket::SslSocket (Socket* sock) : Socket (sock)
 {
@@ -74,7 +74,7 @@ SslSocket::~SslSocket ()
 }
 
 /*!
- *Close the socket.
+  Close the socket.
  */
 int SslSocket::close ()
 {
@@ -82,7 +82,7 @@ int SslSocket::close ()
 }
 
 /*!
- *Shutdown the socket.
+  Shutdown the socket.
  */
 int SslSocket::shutdown (int how)
 {
@@ -93,9 +93,9 @@ int SslSocket::shutdown (int how)
 }
 
 /*!
- *Send data over the socket.
- *Return -1 on error.
- *This routine is accessible only from the Socket class.
+  Send data over the socket.
+  Return -1 on error.
+  This routine is accessible only from the Socket class.
  */
 int SslSocket::rawSend (const char* buffer, int len, int flags)
 {
@@ -113,7 +113,7 @@ int SslSocket::rawSend (const char* buffer, int len, int flags)
 }
 
 /*!
- *Connect the socket.
+  Connect the socket.
  */
 int SslSocket::connect (MYSERVER_SOCKADDR* sa, int na)
 {
@@ -165,7 +165,7 @@ int SslSocket::connect (MYSERVER_SOCKADDR* sa, int na)
 }
 
 /*!
- *Set the SSL context.
+  Set the SSL context.
  */
 int SslSocket::setSSLContext (SSL_CTX* context)
 {
@@ -175,7 +175,7 @@ int SslSocket::setSSLContext (SSL_CTX* context)
 }
 
 /*!
- *Free the SSL connection.
+  Free the SSL connection.
  */
 int SslSocket::freeSSL ()
 {
@@ -196,7 +196,7 @@ int SslSocket::freeSSL ()
 
 
 /*!
- *Returns the SSL connection.
+  Returns the SSL connection.
  */
 SSL* SslSocket::getSSLConnection ()
 {
@@ -204,8 +204,8 @@ SSL* SslSocket::getSSLConnection ()
 }
 
 /*!
- * SSL handshake procedure.
- * Return nonzero on errors.
+  SSL handshake procedure.
+  Return nonzero on errors.
  */
 int SslSocket::sslAccept ()
 {
@@ -255,8 +255,8 @@ int SslSocket::sslAccept ()
 
 
 /*!
- *Receive data from the socket.
- *Returns -1 on errors.
+  Receive data from the socket.
+  Returns -1 on errors.
  */
 int SslSocket::recv (char* buffer, int len, int flags)
 {
@@ -289,7 +289,7 @@ int SslSocket::recv (char* buffer, int len, int flags)
 }
 
 /*!
- *Returns the number of bytes waiting to be read.
+  Returns the number of bytes waiting to be read.
  */
 u_long SslSocket::bytesToRead ()
 {
@@ -304,7 +304,7 @@ u_long SslSocket::bytesToRead ()
 }
 
 /*!
- *Check if there is data ready to be read.
+  Check if there is data ready to be read.
  */
 int SslSocket::dataAvailable (int sec, int usec)
 {

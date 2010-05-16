@@ -364,7 +364,7 @@ unLoad()
 
 
 /*!
- *Default constructor.
+  Default constructor.
  */
 PhpManager::PhpManager()
 {
@@ -372,7 +372,7 @@ PhpManager::PhpManager()
 }
 
 /*!
- *Destroy the object.
+  Destroy the object.
  */
 PhpManager::~PhpManager()
 {

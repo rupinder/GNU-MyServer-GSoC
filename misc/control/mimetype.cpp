@@ -82,7 +82,7 @@ int MIMEtypeXML::loadMemBuf(MemBuf & buffer)
 /// Copied and modified from mime_manager.cpp
 /// Only returns 0.
 //  TODO: Change to use libxml2 or XmlParser more "proper"
-// 
+//
 int MIMEtypeXML::load_core(XmlParser & parser)
 {
    int extNumber = 0;
@@ -164,7 +164,7 @@ int MIMEtypeXML::load_core(XmlParser & parser)
      }
    // for(;node;node=node->next )
    Mime.sort();
-   
+
    return 0;
 }
 
@@ -193,13 +193,13 @@ int MIMEtypeXML::saveMemBuf(MemBuf & buffer)
    xmlFile.close();
    return ret;
 }
-   
+
 ///
 /// Save the MIME types configuration to xml data.
 /// Returns negative on error.
 //  Copied and modified from mime_manager.cpp
 //  Old text way remove to make use of MemBuf
-// 
+//
 int MIMEtypeXML::save_core(XmlParser & xmlFile)
 {
    if(Ext.isempty())
@@ -207,9 +207,9 @@ int MIMEtypeXML::save_core(XmlParser & xmlFile)
 
    // New xml_parser way...
    int i;
-   
+
    xmlFile.newfile("MIMETYPES");
-   
+
    for(i = 0; i < Ext.size(); i++)
      {
 	xmlFile.addGroup("MIMETYPE");
@@ -261,7 +261,7 @@ int MIMEtypeXML::save_core(XmlParser & xmlFile)
 	xmlFile.addChild("MANAGER", getManager(i));
 	xmlFile.endGroup();
      }
-   
+
    return 0;
 }
 
@@ -388,7 +388,7 @@ void MIMEtypeXML::setManager(int extNumber, const char * name)
 
 ///
 /// Gets the MIME type of the ext.
-/// Takes the location number of the ext and returns the MIME 
+/// Takes the location number of the ext and returns the MIME
 /// location number.
 ///
 int MIMEtypeXML::getType(int extNumber)

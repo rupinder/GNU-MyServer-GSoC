@@ -151,7 +151,7 @@ BOOL WINAPI ISAPI_ServerSupportFunctionExport (HCONN hConn, DWORD dwHSERRequest,
 }
 
 /*!
- * Add a connection to the table.
+  Add a connection to the table.
  */
 ConnTableRecord *Isapi::HConnRecord (HCONN hConn)
 {
@@ -170,7 +170,7 @@ ConnTableRecord *Isapi::HConnRecord (HCONN hConn)
 }
 
 /*!
- *Send an HTTP redirect.
+  Send an HTTP redirect.
  */
 int Isapi::Redirect (HttpThreadContext* td, ConnectionPtr a, char *URL)
 {
@@ -178,7 +178,7 @@ int Isapi::Redirect (HttpThreadContext* td, ConnectionPtr a, char *URL)
 }
 
 /*!
- *Send an HTTP URI.
+  Send an HTTP URI.
  */
 int Isapi::Senduri (HttpThreadContext* td, ConnectionPtr a, char *URL)
 {
@@ -188,7 +188,7 @@ int Isapi::Senduri (HttpThreadContext* td, ConnectionPtr a, char *URL)
 }
 
 /*!
- *Send the ISAPI header.
+  Send the ISAPI header.
  */
 int Isapi::SendHeader (HttpThreadContext* td,ConnectionPtr a,char *data)
 {
@@ -199,7 +199,7 @@ int Isapi::SendHeader (HttpThreadContext* td,ConnectionPtr a,char *data)
 }
 
 /*!
- *Write directly to the output.
+  Write directly to the output.
  */
 BOOL WINAPI ISAPI_WriteClientExport (HCONN hConn, LPVOID Buffer, LPDWORD lpdwBytes,
                                     DWORD /*!dwReserved*/)
@@ -389,7 +389,7 @@ BOOL WINAPI ISAPI_WriteClientExport (HCONN hConn, LPVOID Buffer, LPDWORD lpdwByt
 }
 
 /*!
- *Read directly from the client.
+  Read directly from the client.
  */
 BOOL WINAPI ISAPI_ReadClientExport (HCONN hConn, LPVOID lpvBuffer,
                                    LPDWORD lpdwSize )
@@ -420,7 +420,7 @@ BOOL WINAPI ISAPI_ReadClientExport (HCONN hConn, LPVOID lpvBuffer,
 }
 
 /*!
- * Get server environment variable.
+  Get server environment variable.
  */
 BOOL WINAPI ISAPI_GetServerVariableExport (HCONN hConn,
                                            LPSTR lpszVariableName,
@@ -464,8 +464,8 @@ BOOL WINAPI ISAPI_GetServerVariableExport (HCONN hConn,
   else
     {
       /*!
-       * Find in ConnInfo->envString the value lpszVariableName
-       * and copy next string in lpvBuffer.
+        Find in ConnInfo->envString the value lpszVariableName
+        and copy next string in lpvBuffer.
        */
       char *localEnv;
       int variableNameLen;
@@ -490,7 +490,7 @@ BOOL WINAPI ISAPI_GetServerVariableExport (HCONN hConn,
 }
 
 /*!
- * Build the string that contains all the HTTP headers.
+  Build the string that contains all the HTTP headers.
  */
 BOOL Isapi::buildAllHttpHeaders (HttpThreadContext* td, ConnectionPtr /*!a*/,
                                  LPVOID output, LPDWORD dwMaxLen)
@@ -614,7 +614,7 @@ BOOL Isapi::buildAllHttpHeaders (HttpThreadContext* td, ConnectionPtr /*!a*/,
 }
 
 /*!
- * Build the string that contains all the headers.
+  Build the string that contains all the headers.
  */
 BOOL Isapi::buildAllRawHeaders (HttpThreadContext* td,ConnectionPtr a,
                                 LPVOID output,LPDWORD dwMaxLen)
@@ -705,7 +705,7 @@ BOOL Isapi::buildAllRawHeaders (HttpThreadContext* td,ConnectionPtr a,
 #endif
 
 /*!
- *Main procedure to call an ISAPI module.
+  Main procedure to call an ISAPI module.
  */
 int Isapi::send (HttpThreadContext* td,
                 const char* scriptpath, const char *cgipath,
@@ -920,7 +920,7 @@ int Isapi::send (HttpThreadContext* td,
   return retvalue;
 #else
   /*
-   * On other archs returns a non implemented error.
+    On other archs returns a non implemented error.
    */
   td->connection->host->warningsLogWrite (_("ISAPI: Not implemented"));
   return td->http->raiseHTTPError (501);
@@ -928,7 +928,7 @@ int Isapi::send (HttpThreadContext* td,
 }
 
 /*!
- * Constructor for the ISAPI class.
+  Constructor for the ISAPI class.
  */
 Isapi::Isapi ()
 {
@@ -936,7 +936,7 @@ Isapi::Isapi ()
 }
 
 /*!
- * Initialize the ISAPI engine under WIN32.
+  Initialize the ISAPI engine under WIN32.
  */
 int Isapi::load ()
 {

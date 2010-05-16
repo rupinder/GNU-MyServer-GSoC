@@ -21,8 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /*!
- *Initialize the read write lock.
- *\param maxReaders The max number of readers.
+  Initialize the read write lock.
+  \param maxReaders The max number of readers.
  */
 ReadWriteLock::ReadWriteLock (int maxReaders) : semaphore (maxReaders)
 {
@@ -30,7 +30,7 @@ ReadWriteLock::ReadWriteLock (int maxReaders) : semaphore (maxReaders)
 }
 
 /*!
- *Free the used resources.
+  Free the used resources.
  */
 ReadWriteLock::~ReadWriteLock ()
 {
@@ -38,7 +38,7 @@ ReadWriteLock::~ReadWriteLock ()
 }
 
 /*!
- *Reader access.
+  Reader access.
  */
 void ReadWriteLock::readLock ()
 {
@@ -46,7 +46,7 @@ void ReadWriteLock::readLock ()
 }
 
 /*!
- *Reader terminate access.
+  Reader terminate access.
  */
 void ReadWriteLock::readUnlock ()
 {
@@ -54,7 +54,7 @@ void ReadWriteLock::readUnlock ()
 }
 
 /*!
- *Writer access.
+  Writer access.
  */
 void ReadWriteLock::writeLock ()
 {
@@ -63,7 +63,7 @@ void ReadWriteLock::writeLock ()
 }
 
 /*!
- *Writer terminate access.
+  Writer terminate access.
  */
 void ReadWriteLock::writeUnlock ()
 {

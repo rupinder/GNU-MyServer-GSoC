@@ -21,7 +21,7 @@
 #include <include/protocol/protocol_buffer.h>
 
 /*!
- *Create the buffer.
+  Create the buffer.
  */
 ProtocolBuffer::ProtocolBuffer ()
 {
@@ -29,7 +29,7 @@ ProtocolBuffer::ProtocolBuffer ()
 }
 
 /*!
- *Destroy the protocol buffer object.
+  Destroy the protocol buffer object.
  */
 ProtocolBuffer::~ProtocolBuffer ()
 {
@@ -37,9 +37,9 @@ ProtocolBuffer::~ProtocolBuffer ()
 }
 
 /*!
- *Check if the protocol allows the connection to be removed.
- *\param wait Define if the protocol can wait that the current job is
- *finished before.
+  Check if the protocol allows the connection to be removed.
+  \param wait Define if the protocol can wait that the current job is
+  finished before.
  */
 bool ProtocolBuffer::allowDelete (bool wait)
 {

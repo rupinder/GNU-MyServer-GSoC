@@ -32,21 +32,21 @@ extern "C" int EXPORTABLE myserver_main (char *cmd, MsCgiData* data)
 #else
 extern "C" int myserver_main (char *cmd, MsCgiData* data)
 #endif
-{	   
-	lock.lock();	
+{
+	lock.lock();
 
 	CgiManager cm(data);
-	
+
 	Counter_Output counter;
-	
+
 	cm.setContentType("image/png");
-	
+
 	counter.setWrite(&cm); //set the png writer function
-	
+
 	// Lets count!
 	unsigned long int count;
 	u_long nbw;
-	
+
 	File msfile;
 
 	if(FilesUtility::fileExists("count.dat"))
@@ -59,12 +59,12 @@ extern "C" int myserver_main (char *cmd, MsCgiData* data)
     }
     else
       count = 0;
-		
+
 		count++; // add the hit
-		
+
 		if(count > ULONG_MAX - 5)
 			count = 1;
-			
+
 		//now save it
 		if(msfile.openFile("count.dat", File::MYSERVER_OPEN_WRITE|File::MYSERVER_OPEN_ALWAYS)==0)
     {
@@ -76,7 +76,7 @@ extern "C" int myserver_main (char *cmd, MsCgiData* data)
 	{
 		// never been counted so start
 		count = 1;
-		
+
 		//now save it
 		msfile.openFile("count.dat", File::MYSERVER_OPEN_WRITE|File::MYSERVER_CREATE_ALWAYS);
 		msfile.writeToFile((char *)&count, sizeof(count), &nbw);
@@ -86,26 +86,26 @@ extern "C" int myserver_main (char *cmd, MsCgiData* data)
 	counter.setNumber(count);
 
 	counter.run();
-	
+
 	cm.clean();
-	
+
 	lock.unlock();
-	
-	return 0; 
-}  
+
+	return 0;
+}
 
 #ifdef WIN32
-BOOL APIENTRY DllMain( HANDLE,DWORD ul_reason_for_call,LPVOID) 
-{ 	
-	switch (ul_reason_for_call) 	
-	{ 	
-		case DLL_PROCESS_ATTACH: 	
-		case DLL_THREAD_ATTACH: 	
-		case DLL_THREAD_DETACH: 	
-		case DLL_PROCESS_DETACH: 		
-			break; 	
-	}    
-	return TRUE; 
+BOOL APIENTRY DllMain( HANDLE,DWORD ul_reason_for_call,LPVOID)
+{
+	switch (ul_reason_for_call)
+	{
+		case DLL_PROCESS_ATTACH:
+		case DLL_THREAD_ATTACH:
+		case DLL_THREAD_DETACH:
+		case DLL_PROCESS_DETACH:
+			break;
+	}
+	return TRUE;
 }
 #endif
 

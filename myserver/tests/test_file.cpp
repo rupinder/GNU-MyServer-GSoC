@@ -185,7 +185,7 @@ public:
   void testTruncate ()
   {
     u_long nbw;
-    
+
     try
       {
         FilesUtility::deleteFile (fname.c_str ());

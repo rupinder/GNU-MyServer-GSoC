@@ -34,7 +34,7 @@ public:
 };
 
 /*!
- * Proxy class to a VhostManagerHandler object.
+  Proxy class to a VhostManagerHandler object.
  */
 class VhostManager
 {

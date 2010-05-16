@@ -30,7 +30,7 @@
 # include <string>
 
 /*!
- *Structure used for start a new process.
+  Structure used for start a new process.
  */
 struct StartProcInfo
 {
@@ -65,7 +65,7 @@ struct StartProcInfo
   void *envString;
 
   /*! Pointer to a NULL terminated array of
-   *  file pointers to close.  */
+     file pointers to close.  */
   FileHandle *handlesToClose;
 
   /* If the length > 0 then change the current root
