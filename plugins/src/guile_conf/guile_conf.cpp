@@ -28,6 +28,7 @@
 #define CONF_FILE_NAME "myserver.sch"
 
 PLUGIN_NAME ("guile_conf");
+DECLARE_LICENSE (gpl);
 
 /*! Define the interface to read from the main configuration file.  */
 class GuileConfiguration : public MainConfiguration

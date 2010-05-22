@@ -23,6 +23,7 @@ HashMap<ThreadID, PythonData*> pythonThreadData;
 static Server *serverInstance;
 
 PLUGIN_NAME ("python");
+DECLARE_LICENSE (gpl);
 
 PyInterpreterState* PythonData::getInterpreter ()
 {

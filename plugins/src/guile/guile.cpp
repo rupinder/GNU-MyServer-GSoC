@@ -21,6 +21,7 @@
 
 
 PLUGIN_NAME ("guile");
+DECLARE_LICENSE (gpl);
 
 EXPORTABLE(SCM) eval (char *const string)
 {

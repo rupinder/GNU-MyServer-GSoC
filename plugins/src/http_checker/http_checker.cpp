@@ -30,6 +30,7 @@ typedef int (*executePROC)(char*, u_long);
 typedef int (*executeFromFilePROC)(char*);
 
 PLUGIN_NAME ("http_checker");
+DECLARE_LICENSE (gpl);
 
 struct ThreadData
 {
