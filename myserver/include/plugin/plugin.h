@@ -25,7 +25,10 @@
 #  define EXPORTABLE(x) extern "C" x
 # endif
 
-# define PLUGIN_NAME(X) static const char * __name = X; \
+# define DECLARE_LICENSE(x) EXPORTABLE (const char *) __##x##_license;  \
+  const char *__##x##_license = "1";
+
+# define PLUGIN_NAME(X) static const char *__name = X; \
         EXPORTABLE(const char*) name (){return X;}
 
 # include "myserver.h"
@@ -48,7 +51,7 @@ public:
   virtual int postLoad (Server* server);
   virtual int unLoad ();
   virtual const char* getName ();
-  virtual void* getDirectMethod (char* name);
+  virtual void* findSymbol (const char *name);
 protected:
   DynamicLibrary hinstLib;
 };

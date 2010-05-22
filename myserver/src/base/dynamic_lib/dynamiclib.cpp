@@ -59,7 +59,7 @@ DynamicLibrary::~DynamicLibrary ()
   \param filename Name of the file to load.
   \param globally Set if the library is loaded globally.
  */
-int DynamicLibrary::loadLibrary (const char* filename, int globally)
+int DynamicLibrary::loadLibrary (const char *filename, int globally)
 {
   fileName.assign (filename);
 #ifdef WIN32
@@ -89,19 +89,19 @@ int DynamicLibrary::loadLibrary (const char* filename, int globally)
 }
 
 /*!
-  Get a pointer to the specified function. Returns 0 on errors or
-  the function address.
-  \param fnName Function name to find.
+  Get a pointer to the specified symbol. Returns 0 on errors or
+  the symbol address.
+  \param fnName Symbol to find.
  */
-void* DynamicLibrary::getProc (const char* fnName)
+void *DynamicLibrary::getProc (const char *sym)
 {
   if (!handle)
     return 0;
 #ifdef WIN32
-    return (void*) GetProcAddress ((HMODULE) handle, fnName);
+    return (void *) GetProcAddress ((HMODULE) handle, sym);
 #endif
 #ifdef HAVE_DL
-    return (void*) dlsym (handle, fnName);
+    return (void *) dlsym (handle, sym);
 #endif
 }
 

@@ -52,7 +52,7 @@ Plugin::~Plugin ()
  */
 int Plugin::load (Server* server)
 {
-  loadPROC proc = (loadPROC)hinstLib.getProc ("load");
+  loadPROC proc = (loadPROC) hinstLib.getProc ("load");
   if (proc)
     return proc (server);
   return 0;
@@ -124,9 +124,10 @@ const char* Plugin::getName ()
   Get directly access to a method.
   \param name The method name.
  */
-void* Plugin::getDirectMethod (char* name)
+void* Plugin::findSymbol (const char *name)
 {
   if (!hinstLib.validHandle ())
     return 0;
+
   return hinstLib.getProc (name);
 }

@@ -38,10 +38,10 @@ public:
   int validHandle ();
   DynamicLibrary ();
   ~DynamicLibrary ();
-  int loadLibrary (const char* filename, int globally=0);
-  void* getProc (const char*);
+  int loadLibrary (const char *filename, int globally = 0);
+  void *getProc (const char *sym);
   int close ();
-  const char* getFileName (){return fileName.c_str ();}
+  const char *getFileName (){return fileName.c_str ();}
 private:
   string fileName;
   void *handle;

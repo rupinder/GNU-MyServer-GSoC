@@ -58,12 +58,12 @@ public:
     return 0;
   }
 
-  virtual const char* getName (char* buffer, u_long len)
+  virtual const char *getName (char* buffer, u_long len)
   {
     return 0;
   }
 
-  virtual void* getDirectMethod (char* name)
+  virtual void *findSymbol (char* name)
   {
     return 0;
   }

@@ -223,25 +223,23 @@ PluginsManager::preLoad (Server* server, string &resource)
   \param pinfo Plugin information.
  */
 int
-PluginsManager::loadFile (Server* server, string &name, string &file,
-                          PluginInfo* pinfo)
+PluginsManager::loadFile (Server *server, string &name, string &file,
+                          PluginInfo *pinfo)
 {
   int ret = 0;
   if (pinfo->isEnabled ())
     {
       Plugin* plugin = preLoadPlugin (file, server,
                                       pinfo->isGlobal ());
-      if (plugin)
-        pinfo->setPlugin (plugin);
+      if (! plugin)
+        ret = 1;
       else
         {
-          ret = 1;
-          server->log (MYSERVER_LOG_MSG_ERROR,
-                       _("Error loading plugin `%s'"), file.c_str ());
+          pinfo->setPlugin (plugin);
+          addPluginInfo (name, pinfo);
         }
     }
 
-  addPluginInfo (name, pinfo);
   return ret;
 }
 
@@ -501,8 +499,8 @@ PluginsManager::preLoadPlugin (string &file, Server* server, bool global)
       delete plugin;
       return NULL;
     }
-  namePtr = plugin->getName ();
 
+  namePtr = plugin->getName ();
   if (namePtr)
     name.assign (namePtr);
   else
@@ -514,12 +512,21 @@ PluginsManager::preLoadPlugin (string &file, Server* server, bool global)
       return NULL;
     }
 
+  if (plugin->findSymbol ("__gpl_license") == NULL)
+    {
+      server->log (MYSERVER_LOG_MSG_ERROR,
+                   _("Error loading plugin `%s', the license is not GPL"),
+                   file.c_str ());
+      delete plugin;
+      return NULL;
+    }
+
   return plugin;
 }
 
 void
 PluginsManager::recursiveDependencesFallDown (Server* server, string &name,
-                                  HashMap<string, bool> &remove,
+                                              HashMap<string, bool> &remove,
                                   HashMap<string, list<string>*> &dependsOn)
 {
   remove.put (name, true);
@@ -655,9 +662,7 @@ PluginsManager::load (Server *server)
     }
 
   for (it = pluginsInfos.begin (); it != pluginsInfos.end (); it++)
-    {
-      (*it)->getPlugin ()->load (server);
-    }
+    (*it)->getPlugin ()->load (server);
 
   return 0;
 }
