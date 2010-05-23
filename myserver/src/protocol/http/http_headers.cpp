@@ -89,7 +89,13 @@ u_long HttpHeaders::buildHTTPResponseHeader (char *str,
   for (; it != response->other.end (); it++)
     {
       HttpResponseHeader::Entry *e = *it;
+      char *old_pos = pos;
       pos += myserver_strlcpy (pos, e->name.c_str (), MAX - (long)(pos - str));
+      *old_pos = toupper (*old_pos);
+      while (old_pos++ != pos)
+        if (*(old_pos - 1) == '-')
+          *old_pos = toupper (*old_pos);
+
       pos += myserver_strlcpy (pos, ": ", MAX - (long)(pos - str));
       pos += myserver_strlcpy (pos, e->value.c_str (), MAX - (long)(pos - str));
       pos += myserver_strlcpy (pos, "\r\n", MAX - (long)(pos - str));
@@ -349,19 +355,19 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
   validRequest = validHTTPRequest (input, inputSize, &nLines, &maxTotchars);
 
   /* Invalid header.  */
-  if (validRequest!=200)
-  {
-    /* Incomplete header.  */
-    if (validRequest==-1)
-      return -1;
-    /* Keep trace of first line for logging. */
-    tokenOff = getEndLine (input, HTTP_REQUEST_URI_DIM);
-    if (tokenOff > 0)
-      request->uri.assign ( input, min (HTTP_REQUEST_URI_DIM, tokenOff) );
-    else
-      request->uri.assign (input, HTTP_REQUEST_URI_DIM );
-    return validRequest;
-  }
+  if (validRequest != 200)
+    {
+      /* Incomplete header.  */
+      if (validRequest == -1)
+        return -1;
+      /* Keep trace of first line for logging. */
+      tokenOff = getEndLine (input, HTTP_REQUEST_URI_DIM);
+      if (tokenOff > 0)
+        request->uri.assign (input, min (HTTP_REQUEST_URI_DIM, tokenOff));
+      else
+        request->uri.assign (input, HTTP_REQUEST_URI_DIM);
+      return validRequest;
+    }
 
   /* Get the first token, this is the HTTP command.*/
   tokenOff = getCharInString (token, cmdSeps, HTTP_REQUEST_CMD_DIM);
@@ -371,9 +377,9 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
       /* Keep trace of first line for logging.  */
       tokenOff = getEndLine (token, HTTP_REQUEST_URI_DIM);
       if (tokenOff > 0)
-        request->uri.assign (input, min (HTTP_REQUEST_URI_DIM, tokenOff) );
+        request->uri.assign (input, min (HTTP_REQUEST_URI_DIM, tokenOff));
       else
-        request->uri.assign (input, HTTP_REQUEST_URI_DIM );
+        request->uri.assign (input, HTTP_REQUEST_URI_DIM);
     }
 
   do
@@ -416,7 +422,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
               if (tokenOff > 0)
                 request->uri.assign (input, min (HTTP_REQUEST_URI_DIM, tokenOff));
               else
-                request->uri.assign (input, HTTP_REQUEST_URI_DIM );
+                request->uri.assign (input, HTTP_REQUEST_URI_DIM);
               return 400;
             }
           if (tokenOff > maxUri)
@@ -425,12 +431,12 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
               request->cmd.clear ();
               tokenOff = getEndLine (input, HTTP_REQUEST_URI_DIM);
               if (tokenOff > 0)
-                request->uri.assign (input, min (HTTP_REQUEST_URI_DIM, tokenOff) );
+                request->uri.assign (input, min (HTTP_REQUEST_URI_DIM, tokenOff));
               else
-                request->uri.assign (input, HTTP_REQUEST_URI_DIM );
+                request->uri.assign (input, HTTP_REQUEST_URI_DIM);
               return 400;
             }
-          max = (int)tokenOff;
+          max = (int) tokenOff;
           while ((token[max] != ' ') && (lenToken - max < HTTP_REQUEST_VER_DIM))
             max--;
 
@@ -529,7 +535,7 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
                 request->uri.assign (input, min (HTTP_REQUEST_URI_DIM,
                                                  tokenOff));
               else
-                request->uri.assign (input, HTTP_REQUEST_URI_DIM );
+                request->uri.assign (input, HTTP_REQUEST_URI_DIM);
               return 400;
             }
 
