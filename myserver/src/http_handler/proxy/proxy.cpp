@@ -128,7 +128,7 @@ int Proxy::send (HttpThreadContext *td, const char* scriptpath,
   Flush the server reply to the client.
  */
 int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
-                          FiltersChain &out, int onlyHeader)
+                          FiltersChain &out, bool onlyHeader)
 {
   u_long read = 0;
   u_long headerLength;

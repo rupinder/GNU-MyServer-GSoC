@@ -40,7 +40,7 @@ public:
                     bool onlyHeader = false);
 protected:
   int flushToClient (HttpThreadContext* td, Socket& client,
-                     FiltersChain &out, int onlyHeader);
+                     FiltersChain &out, bool onlyHeader);
   int readPayLoad (HttpThreadContext* td,
                    HttpResponseHeader* res,
                    FiltersChain *out,

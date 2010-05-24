@@ -211,7 +211,7 @@ int Scgi::send (HttpThreadContext* td, const char* scriptpath,
 /*!
   Send the response to the client.
  */
-int Scgi::sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain* chain)
+int Scgi::sendResponse (ScgiContext* ctx, bool onlyHeader, FiltersChain* chain)
 {
   clock_t initialTicks = getTicks ();
   bool useChunks = false;

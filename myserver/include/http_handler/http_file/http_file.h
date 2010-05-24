@@ -31,7 +31,7 @@ public:
   virtual int unLoad ();
   virtual int send (HttpThreadContext* td,
                     const char *filenamePath, const char* cgi,
-                    bool execute = false, bool OnlyHeader = false);
+                    bool execute = false, bool onlyHeader = false);
   HttpFile ();
   virtual ~HttpFile ();
 

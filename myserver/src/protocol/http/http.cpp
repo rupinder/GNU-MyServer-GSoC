@@ -107,7 +107,7 @@ int HttpProtocol::unLoadProtocol ()
 /*!
   Build a response for an OPTIONS request.
  */
-int Http::optionsHTTPRESOURCE (string& filename, int yetmapped)
+int Http::optionsHTTPRESOURCE (string& filename, bool yetmapped)
 {
   int ret;
   string time;
@@ -154,7 +154,7 @@ int Http::optionsHTTPRESOURCE (string& filename, int yetmapped)
 /*!
   Handle the HTTP TRACE command.
  */
-int Http::traceHTTPRESOURCE (string& filename, int yetmapped)
+int Http::traceHTTPRESOURCE (string& filename, bool yetmapped)
 {
   int ret;
   char tmpStr[12];
@@ -232,8 +232,8 @@ u_long Http::getTimeout ()
 /*!
   Main function to handle the HTTP PUT command.
  */
-int Http::putHTTPRESOURCE (string& filename, int sysReq, int onlyHeader,
-                           int yetmapped)
+int Http::putHTTPRESOURCE (string& filename, bool sysReq, bool onlyHeader,
+                           bool yetmapped)
 {
   return sendHTTPResource (filename, sysReq, onlyHeader, yetmapped);
 }
@@ -250,7 +250,7 @@ int Http::putHTTPRESOURCE (string& filename, int sysReq, int onlyHeader,
   \return Any other value is the HTTP error code.
  */
 int Http::getFilePermissions (string& filename, string& directory, string& file,
-                              string &filenamePath, int yetmapped, int* permissions)
+                              string &filenamePath, bool yetmapped, int* permissions)
 {
   try
     {
@@ -426,7 +426,7 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
   \return Return 200 on success.
   \return Any other value is the HTTP error code.
  */
-int Http::preprocessHttpRequest (string& filename, int yetmapped,
+int Http::preprocessHttpRequest (string& filename, bool yetmapped,
                                  int* permissions)
 {
   string directory;
@@ -538,8 +538,8 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped,
 /*!
   Delete the resource identified by filename.
  */
-int Http::deleteHTTPRESOURCE (string& filename, int sysReq, int onlyHeader,
-                          int yetmapped)
+int Http::deleteHTTPRESOURCE (string& filename, bool sysReq, bool onlyHeader,
+                              bool yetmapped)
 {
   return sendHTTPResource (filename, sysReq, onlyHeader, yetmapped);
 }
@@ -656,8 +656,8 @@ HttpUserData::reset ()
   Main function to send a resource to a client.
  */
 int
-Http::sendHTTPResource (string& uri, int systemrequest, int onlyHeader,
-                        int yetmapped)
+Http::sendHTTPResource (string& uri, bool systemrequest, bool onlyHeader,
+                        bool yetmapped)
 {
   /*
     With this code we manage a request of a file or a directory or anything
@@ -722,7 +722,7 @@ Http::sendHTTPResource (string& uri, int systemrequest, int onlyHeader,
           return raiseHTTPError (500);
         }
 
-      return manager->send (td, td->filenamePath.c_str (), 0, onlyHeader);
+      return manager->send (td, td->filenamePath.c_str (), NULL, false, onlyHeader);
     }
   catch (exception & e)
     {
@@ -844,8 +844,8 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
       td->id = id;
       td->lastError = 0;
       td->http = this;
-      td->appendOutputs = 0;
-      td->onlyHeader = 0;
+      td->appendOutputs = false;
+      td->onlyHeader = false;
       td->filenamePath.assign ("");
       td->outputDataPath.assign ("");
       td->inputDataPath.assign ("");
@@ -1113,7 +1113,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                 ret = sendHTTPResource (td->request.uri);
               else if (!td->request.cmd.compare ("HEAD"))
                 {
-                  td->onlyHeader = 1;
+                  td->onlyHeader = true;
                   ret = sendHTTPResource (td->request.uri, 0, 1);
                 }
               else if (!td->request.cmd.compare ("DELETE"))
@@ -1134,7 +1134,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                     ret = raiseHTTPError (501);
                   else
                     ret = dynamicCommand->send (td, a, td->request.uri, 0,
-                                                0, 0);
+                                                false, false);
                 }
             }
         }
@@ -1503,7 +1503,7 @@ MimeRecord* Http::getMIME (string &filename)
   Any other return value is the HTTP error.
  */
 int Http::getPath (HttpThreadContext* td, string& filenamePath,
-                   const char *filename, int systemrequest)
+                   const char *filename, bool systemrequest)
 {
   if (systemrequest)
     {
@@ -1572,7 +1572,7 @@ int Http::getPath (HttpThreadContext* td, string& filenamePath,
   \param permissions The permission mask for the client.
   \param onlyHeader specify if the client requested only the header.
  */
-int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
+int Http::processDefaultFile (string& uri, int permissions, bool onlyHeader)
 {
   string key ("http.default_file");
   NodeTree<string> *node = td->securityToken.getNodeTree (key,
@@ -1628,7 +1628,7 @@ int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
       return raiseHTTPError (500);
     }
 
-  return handler->send (td, td->filenamePath.c_str (), 0, onlyHeader);
+  return handler->send (td, td->filenamePath.c_str (), NULL, 0, onlyHeader);
 }
 
 /*!

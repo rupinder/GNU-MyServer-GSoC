@@ -113,7 +113,7 @@ struct ConnTableRecord
 {
   FiltersChain chain;
   BOOL Allocated;
-  int onlyHeader;
+  bool onlyHeader;
   int headerSent;
   int headerSize;
   HttpThreadContext *td;

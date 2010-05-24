@@ -42,7 +42,7 @@ public:
   virtual int unLoad ();
   virtual int send (HttpThreadContext*,
                     const char *filenamePath, const char* cgi,
-                    bool execute = false, bool OnlyHeader = false);
+                    bool execute = false, bool onlyHeader = false);
   HttpDir ();
   virtual ~HttpDir ();
 private:

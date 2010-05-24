@@ -38,9 +38,9 @@ public:
                     bool onlyHeader = false);
 private:
   int sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
-                Process& cgiProc, int onlyHeader, bool nph);
+                Process& cgiProc, bool onlyHeader, bool nph);
   int sendHeader (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
-                  Process& cgiProc, int onlyHeader, bool nph, u_long procStartTime,
+                  Process& cgiProc, bool onlyHeader, bool nph, u_long procStartTime,
                   bool keepalive, bool useChunks, int *ret);
 };
 #endif

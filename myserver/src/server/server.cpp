@@ -960,8 +960,8 @@ void Server::checkThreadsNumber ()
   threadsMutex->lock ();
 
   /*
-   *Create a new thread if there are not available threads and
-   *we did not reach the limit.
+    Create a new thread if there are not available threads and
+    we did not reach the limit.
    */
   if ((threads.size () < nMaxThreads) && (freeThreads < 1))
     addThread (false);

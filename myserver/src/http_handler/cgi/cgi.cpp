@@ -299,7 +299,7 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
   Read data from the CGI process and send it back to the client.
  */
 int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
-                   Process &cgiProc, int onlyHeader, bool nph)
+                   Process &cgiProc, bool onlyHeader, bool nph)
 {
   u_long nbw = 0;
   u_long nbw2 = 0;
@@ -386,7 +386,7 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
   \return nonzero if the reply is already complete.
  */
 int Cgi::sendHeader (HttpThreadContext *td, Pipe &stdOutFile, FiltersChain &chain,
-                     Process &cgiProc, int onlyHeader, bool nph,
+                     Process &cgiProc, bool onlyHeader, bool nph,
                      u_long procStartTime, bool keepalive, bool useChunks,
                      int *ret)
 {

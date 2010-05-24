@@ -50,7 +50,7 @@ class MimeRecord;
  */
 struct HttpThreadContext
 {
-  int appendOutputs;
+  bool appendOutputs;
 
   /*! Set by raiseHTTPError.  */
   int lastError;

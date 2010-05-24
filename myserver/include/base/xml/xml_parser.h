@@ -58,9 +58,9 @@ public:
   XmlParser ();
   ~XmlParser ();
   xmlDocPtr getDoc ();
-  int open (const char* filename, bool useXpath = 0);
-  int open (string const &filename, bool useXpath = 0){return open (filename.c_str (), useXpath);};
-  int openMemBuf (MemBuf &, bool useXpath = 0);
+  int open (const char* filename, bool useXpath = false);
+  int open (string const &filename, bool useXpath = false){return open (filename.c_str (), useXpath);};
+  int openMemBuf (MemBuf &, bool useXpath = false);
 
   const char *getValue (const char* field);
   const char *getValue (string const &field){return getValue (field.c_str ());};
