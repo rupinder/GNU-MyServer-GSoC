@@ -168,9 +168,7 @@ DEFINE_THREAD (clients_thread, pParam)
         }
       catch (exception &e)
         {
-          ct->server->log (MYSERVER_LOG_MSG_ERROR, _("Error : %s"),
-                                  e.what ());
-        };
+        }
   }
 
   ct->server->decreaseFreeThread ();
