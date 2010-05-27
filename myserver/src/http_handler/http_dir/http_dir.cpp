@@ -616,22 +616,22 @@ void HttpDir::formatHtml (string& in, string& out)
   string::size_type pos = 0;
   out.assign (in);
   /*
-    Replace characters in the ranges 32-65 91-96 123-126 160-255
+    Replace characters in the ranges 32-47 58-64 123-126 160-255
     with "&#CODE;".
    */
   for (pos = 0; out[pos] != '\0'; pos++)
     {
-      if (((u_char)out[pos] >= 32
-           && (u_char)out[pos] <= 65)
-          || ((u_char)out[pos] >= 91
-              && (u_char)out[pos] <= 96)
-          || ((u_char)out[pos] >= 123
-              && (u_char)out[pos] <= 126)
-          || ((u_char)out[pos] >= 160
-              && (u_char)out[pos] < 255))
+      if (((u_char) out[pos] >= 32
+           && (u_char) out[pos] <= 47)
+          || ((u_char) out[pos] >= 58
+              && (u_char) out[pos] <= 64)
+          || ((u_char) out[pos] >= 123
+              && (u_char) out[pos] <= 126)
+          || ((u_char) out[pos] >= 160
+              && (u_char) out[pos] < 255))
         {
           ostringstream os;
-          os << "&#" << (int)((unsigned char)out[pos]) << ";";
+          os << "&#" << (int)((unsigned char) out[pos]) << ";";
           out.replace (pos, 1, os.str ());
           pos += os.str ().length () - 1;
         }
