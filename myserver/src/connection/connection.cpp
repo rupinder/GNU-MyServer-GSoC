@@ -51,6 +51,13 @@ void Connection::destroy ()
       try
         {
           socket->shutdown (SHUT_RDWR);
+        }
+      catch (std::exception & e)
+        {
+        }
+
+      try
+        {
           socket->close ();
           delete socket;
           socket = NULL;
@@ -58,6 +65,7 @@ void Connection::destroy ()
       catch (SocketException & e)
         {
         }
+
     }
 
   if (protocolBuffer)
