@@ -259,11 +259,16 @@ int ClientsThread::controlConnections ()
   dataRead = c->getConnectionBuffer ()->getLength ();
 
   if (! c->isForceControl ())
-    err = c->socket->recv (&((char*)(buffer.getBuffer ()))[dataRead],
-                           MYSERVER_KB (8) - dataRead - 1, 0);
+    {
+      err = c->socket->recv (&((char*)(buffer.getBuffer ()))[dataRead],
+                             MYSERVER_KB (8) - dataRead - 1, 0);
 
-  if (err == -1 && !server->deleteConnection (c))
-    return 0;
+      if (err <= 0)
+        {
+          server->deleteConnection (c);
+          return 0;
+        }
+    }
 
   buffer.setLength (dataRead + err);
   c->setForceControl (0);
