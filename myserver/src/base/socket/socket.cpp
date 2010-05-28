@@ -183,15 +183,20 @@ int Socket::listen (int max)
 /*!
   Accept a new connection.
  */
-Socket* Socket::accept (MYSERVER_SOCKADDR* sa, socklen_t* sockaddrlen)
+Socket* Socket::accept (MYSERVER_SOCKADDR *sa, socklen_t *sockaddrlen)
 {
-  int acceptedHandle = checked::accept (fd, (struct sockaddr *)sa,
+  int acceptedHandle = gnulib::accept (fd, (struct sockaddr *)sa,
                                        sockaddrlen);
 
-  if (acceptedHandle >= 0)
-    return new Socket ((SocketHandle) acceptedHandle);
-  else
-    return NULL;
+  if (acceptedHandle < 0)
+    {
+      if (errno == EAGAIN)
+        return NULL;
+      else
+        checked::raiseException ();
+    }
+
+  return new Socket (acceptedHandle);
 }
 
 /*!
