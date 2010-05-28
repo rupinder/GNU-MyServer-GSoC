@@ -268,14 +268,8 @@ int FilesUtility::isLink (const char* filename)
 int FilesUtility::nodeExists (const char* filename)
 {
   struct stat fstats;
-  try
-    {
-      checked::stat (filename, &fstats);
-    }
-  catch (...)
-    {
-      return 0;
-    }
+  if (::stat (filename, &fstats) < 0)
+    return 0;
 
   return 1;
 }
