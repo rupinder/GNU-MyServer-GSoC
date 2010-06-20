@@ -51,7 +51,7 @@ typedef int SocketHandle;
 #  define MAX_IP_STRING_LEN  32
 # endif
 
-# if HAVE_IPV6
+# if 0 && HAVE_IPV6
 #  define LOCALHOST_ADDRESS "::1"
 # else
 #  define LOCALHOST_ADDRESS "127.0.0.1"
