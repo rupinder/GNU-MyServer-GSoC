@@ -80,9 +80,6 @@ else
    MAKE_DOC=yes
 fi
 
-AC_ARG_ENABLE([ipv6], [--enable-ipv6 Build with IPv6 support],
-		      enable_ipv6="yes", enable_ipv6="")
-
 AC_ARG_ENABLE([tests], [--disable-tests Disable the tests suite],
                        enable_tests="$enableval", enable_tests="yes")
 
@@ -243,37 +240,6 @@ fi
 
 AC_SUBST(ZLIB_LIB)
 AC_SUBST(SSL_LIB)
-
-if test x$enable_ipv6 = xyes; then
-    dnl Check for IPv6
-    AC_MSG_CHECKING([for IPv6])
-    AC_RUN_IFELSE([AC_LANG_SOURCE([[ /* AF_INET6 available check */
-    #include <sys/types.h>
-    #include <sys/socket.h>
-    main()
-    {
-     if (socket(AF_INET6, SOCK_STREAM, 0) < 0)
-       exit(1);
-     else
-       exit(0);
-    }
-    ]])],[ AC_MSG_RESULT(yes)
-      AC_DEFINE(HAVE_IPV6, 1, [Enable IPv6 support])
-    ],[ AC_MSG_RESULT(no)
-      AC_DEFINE(HAVE_IPV6, 0, [Disable IPv6 support])
-      AC_MSG_ERROR([
-*** Cannot enable IPv6 support
-])
-    ],[ AC_MSG_RESULT(no)
-      AC_DEFINE(HAVE_IPV6, 0, [Disable IPv6 support])
-      AC_MSG_ERROR([
-*** Cannot enable IPv6 support
-])
-    
-    ])
-else
-    AC_DEFINE(HAVE_IPV6, 0, [Disable IPv6 support])
-fi
 
 if test "x$enable_tests" = xyes; then
   dnl Looking for cppunit
