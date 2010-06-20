@@ -1037,6 +1037,7 @@ int Server::addConnection (Socket *s, MYSERVER_SOCKADDRIN *asockIn)
     return -1;
 
 #if ( HAVE_IPV6 )
+  int ret;
   if ( asockIn->ss_family == AF_INET )
     ret = getnameinfo (reinterpret_cast<const sockaddr *>(asockIn),
                        sizeof (sockaddr_in),

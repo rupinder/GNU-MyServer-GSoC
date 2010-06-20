@@ -255,32 +255,30 @@ int Socket::getLocalIPsList (string &out)
 
   Socket::gethostname (serverName, HOST_NAME_MAX);
 #if HAVE_IPV6
-  addrinfo aiHints = { 0 }, *pHostInfo = NULL, *pCrtHostInfo = NULL;
+  addrinfo aiHints = {0}, *pHostInfo = NULL, *pCrtHostInfo = NULL;
   aiHints.ai_socktype = SOCK_STREAM;
-  if ( getaddrinfo (serverName, NULL, &aiHints, &pHostInfo) == 0 &&
-       pHostInfo != NULL )
+  if (getaddrinfo (serverName, NULL, &aiHints, &pHostInfo) == 0
+      && pHostInfo != NULL)
     {
       sockaddr_storage *pCurrentSockAddr = NULL;
       char straddr[NI_MAXHOST] = "";
       memset (straddr, 0, NI_MAXHOST);
       ostringstream stream;
-      for ( pCrtHostInfo = pHostInfo; pCrtHostInfo != NULL;
-            pCrtHostInfo = pCrtHostInfo->ai_next )
+      for (pCrtHostInfo = pHostInfo; pCrtHostInfo != NULL;
+           pCrtHostInfo = pCrtHostInfo->ai_next)
         {
-          pCurrentSockAddr =
-            reinterpret_cast<sockaddr_storage *>(pCrtHostInfo->ai_addr);
+          pCurrentSockAddr = (sockaddr_storage *)(pCrtHostInfo->ai_addr);
           if ( pCurrentSockAddr == NULL )
             continue;
 
-          if ( !getnameinfo (reinterpret_cast<sockaddr *>(pCurrentSockAddr),
-                             sizeof (sockaddr_storage), straddr, NI_MAXHOST,
-                             NULL, 0, NI_NUMERICHOST) )
-            {
-              stream << ( !stream.str ().empty () ? ", " : "" ) << straddr;
-            }
-          else
+          if (getnameinfo (pCrtHostInfo->ai_addr,
+                           sizeof (sockaddr_storage), straddr, NI_MAXHOST,
+                           NULL, 0, NI_NUMERICHOST))
             return -1;
+
+          stream << ( !stream.str ().empty () ? ", " : "" ) << straddr;
         }
+
       out.assign (stream.str ());
       freeaddrinfo (pHostInfo);
     }
@@ -289,12 +287,10 @@ int Socket::getLocalIPsList (string &out)
   MYSERVER_HOSTENT *localhe;
   in_addr ia;
   localhe = Socket::gethostbyname (serverName);
-
   if (localhe)
     {
       ostringstream stream;
       int i;
-      /*! Print all the interfaces IPs. */
       for (i = 0; (localhe->h_addr_list[i]); i++)
         {
 # ifdef WIN32
@@ -417,7 +413,7 @@ int Socket::connect (const char* host, u_short port)
     }
 
   memset (szPort, 0, sizeof (char)*10);
-  checked::snprintf (szPort, 10, "%d", port);
+  gnulib::snprintf (szPort, 10, "%d", port);
 
   if (aiHints.ai_family != 0)
     nGetaddrinfoRet = getaddrinfo (host, NULL, &aiHints, &pHostInfo);
