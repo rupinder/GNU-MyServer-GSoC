@@ -150,19 +150,20 @@ public:
 
   void testGetLocalIPsList ()
   {
-    int status = obj->socket (AF_INET, SOCK_STREAM, 0);
-
-    CPPUNIT_ASSERT (status != -1);
-
+    int err = 0;
     string out;
 
-    status = obj->getLocalIPsList (out);
-
-    CPPUNIT_ASSERT (status != -1);
-
-    status = obj->close ();
-
-    CPPUNIT_ASSERT (status != -1);
+    try
+      {
+        obj->socket (AF_INET, SOCK_STREAM, 0);
+        obj->getLocalIPsList (out);
+        obj->close ();
+      }
+    catch (exception & e)
+      {
+        CPPUNIT_FAIL (e.what ());
+        obj->close ();
+      }
   }
 };
 

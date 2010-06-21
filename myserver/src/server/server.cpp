@@ -269,7 +269,11 @@ int Server::postLoad ()
     delete ipAddresses;
   ipAddresses = new string ();
 
-  if (Socket::getLocalIPsList (*ipAddresses))
+  try
+    {
+      Socket::getLocalIPsList (*ipAddresses);
+    }
+  catch (exception & e)
     {
       log (MYSERVER_LOG_MSG_ERROR, _("Error reading IP list"));
       return -1;

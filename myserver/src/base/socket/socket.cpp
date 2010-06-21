@@ -248,7 +248,7 @@ int  Socket::setsockopt (int level, int optname,
 /*!
   Fill the out string with a list of the local IPs. Returns 0 on success.
  */
-int Socket::getLocalIPsList (string &out)
+void Socket::getLocalIPsList (string &out)
 {
   char serverName[HOST_NAME_MAX + 1];
   memset (serverName, 0, HOST_NAME_MAX + 1);
@@ -257,8 +257,9 @@ int Socket::getLocalIPsList (string &out)
 #if HAVE_IPV6
   addrinfo aiHints = {0}, *pHostInfo = NULL, *pCrtHostInfo = NULL;
   aiHints.ai_socktype = SOCK_STREAM;
-  if (getaddrinfo (serverName, NULL, &aiHints, &pHostInfo) == 0
-      && pHostInfo != NULL)
+
+  checked::checkError (getaddrinfo (serverName, NULL, &aiHints, &pHostInfo));
+  if (pHostInfo != NULL)
     {
       sockaddr_storage *pCurrentSockAddr = NULL;
       char straddr[NI_MAXHOST] = "";
@@ -271,10 +272,10 @@ int Socket::getLocalIPsList (string &out)
           if ( pCurrentSockAddr == NULL )
             continue;
 
-          if (getnameinfo (pCrtHostInfo->ai_addr,
-                           sizeof (sockaddr_storage), straddr, NI_MAXHOST,
-                           NULL, 0, NI_NUMERICHOST))
-            return -1;
+          checked::checkError (getnameinfo (pCrtHostInfo->ai_addr,
+                                            sizeof (sockaddr_storage), straddr,
+                                            NI_MAXHOST, NULL, 0,
+                                            NI_NUMERICHOST));
 
           stream << ( !stream.str ().empty () ? ", " : "" ) << straddr;
         }
@@ -282,7 +283,6 @@ int Socket::getLocalIPsList (string &out)
       out.assign (stream.str ());
       freeaddrinfo (pHostInfo);
     }
-  return 0;
 #else
   MYSERVER_HOSTENT *localhe;
   in_addr ia;
@@ -302,15 +302,12 @@ int Socket::getLocalIPsList (string &out)
         }
 
       out.assign (stream.str ());
-      return 0;
     }
   else
     {
       out.assign (LOCALHOST_ADDRESS);
-      return 0;
     }
 #endif
-  return -1;
 }
 
 /*!
