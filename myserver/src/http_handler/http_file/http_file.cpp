@@ -199,7 +199,6 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     With this routine we send a file through the HTTP protocol.
     Open the file and save its handle.
    */
-  int ret;
   u_long filesize = 0;
   File *file = NULL;
   u_long bytesToSend;
@@ -219,16 +218,16 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
   try
     {
 
-      if (!td->request.cmd.compare ("PUT"))
+      if (! td->request.cmd.compare ("PUT"))
         return putFile (td, td->filenamePath);
 
-      if (!td->request.cmd.compare ("DELETE"))
+      if (! td->request.cmd.compare ("DELETE"))
         return deleteFile (td, td->filenamePath);
 
-      if (!(td->permissions & MYSERVER_PERMISSION_READ))
+      if (! (td->permissions & MYSERVER_PERMISSION_READ))
         return td->http->sendAuth ();
 
-      if (!FilesUtility::nodeExists (filenamePath))
+      if (! FilesUtility::nodeExists (filenamePath))
         return td->http->raiseHTTPError (404);
 
       lastMT = FilesUtility::getLastModTime (td->filenamePath.c_str ());

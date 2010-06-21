@@ -150,9 +150,7 @@ public:
 
   void testGetLocalIPsList ()
   {
-    int err = 0;
     string out;
-
     try
       {
         obj->socket (AF_INET, SOCK_STREAM, 0);
@@ -215,4 +213,5 @@ static DEFINE_THREAD (testRecvClient, pParam)
   catch (...)
     {
     }
+  return 0;
 }

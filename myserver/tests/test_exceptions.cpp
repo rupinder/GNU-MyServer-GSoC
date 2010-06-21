@@ -87,7 +87,7 @@ public:
     bool success = false;
     try
       {
-        char *p = checked::getcwd (buf, 1);
+        checked::getcwd (buf, 1);
         CPPUNIT_FAIL ("The exception in testWrongCwd wasn't thrown or caught");
       }
     catch (...)

@@ -102,7 +102,7 @@ protected:
 
   virtual Plugin* preLoadPlugin (string &file, Server* server, bool global)
   {
-
+    return NULL;
   }
 };
 
@@ -116,6 +116,7 @@ private:
                         string &file, PluginInfo* pinfo)
   {
 
+    return 0;
   }
 
 public:

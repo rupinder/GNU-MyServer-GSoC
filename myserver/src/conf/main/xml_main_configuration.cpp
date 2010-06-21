@@ -49,7 +49,6 @@ const char *XmlMainConfiguration::getValue (const char* field)
   for (; lcur; lcur = lcur->next)
     if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *) "DEFINE"))
       {
-        NodeTree<string> *node = new NodeTree<string> ();
         const char *name = NULL;
         const char *value = NULL;
 

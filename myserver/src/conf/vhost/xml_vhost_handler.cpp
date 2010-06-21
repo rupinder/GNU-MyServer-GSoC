@@ -27,7 +27,7 @@
 #include <include/conf/xml_conf.h>
 
 
-static VhostManagerHandler *builder (ListenThreads* lt, LogManager* lm)
+static VhostManagerHandler *builder (ListenThreads *lt, LogManager *lm)
 {
   return new XmlVhostHandler (lt, lm);
 }
@@ -37,7 +37,7 @@ static VhostManagerHandler *builder (ListenThreads* lt, LogManager* lm)
 
   \param manager Where register the builder.
  */
-void XmlVhostHandler::registerBuilder (VhostManager& manager)
+void XmlVhostHandler::registerBuilder (VhostManager &manager)
 {
   string xml ("xml");
   manager.registerBuilder (xml, builder);
@@ -47,7 +47,7 @@ void XmlVhostHandler::registerBuilder (VhostManager& manager)
   XmlVhostHandler add function.
   \param vh The virtual host to add.
  */
-int XmlVhostHandler::addVHost (Vhost* vh)
+int XmlVhostHandler::addVHost (Vhost *vh)
 {
   vector<Vhost*>::iterator it;
 
@@ -84,7 +84,7 @@ int XmlVhostHandler::addVHost (Vhost* vh)
 /*!
   \see VhostManager#getVHost
  */
-Vhost* XmlVhostHandler::getVHost (const char* host, const char* ip, u_short port)
+Vhost* XmlVhostHandler::getVHost (const char *host, const char *ip, u_short port)
 {
   vector<Vhost*>::iterator it;
   /*
@@ -121,7 +121,7 @@ Vhost* XmlVhostHandler::getVHost (const char* host, const char* ip, u_short port
   \param lt A ListenThreads object to use to create new threads.
   \param lm The log manager to use.
  */
-XmlVhostHandler::XmlVhostHandler (ListenThreads* lt, LogManager* lm)
+XmlVhostHandler::XmlVhostHandler (ListenThreads *lt, LogManager *lm)
 {
   listenThreads = lt;
   logManager = lm;
@@ -533,7 +533,7 @@ int XmlVhostHandler::load (const char *filename)
 /*!
   \see VhostManager#getVHost
  */
-Vhost* XmlVhostHandler::getVHost (int n)
+Vhost* XmlVhostHandler::getVHost (u_long n)
 {
   if (n > hosts.size ())
     return NULL;
@@ -546,7 +546,7 @@ Vhost* XmlVhostHandler::getVHost (int n)
   First position is zero.
   \param n The virtual host identifier in the list.
  */
-int XmlVhostHandler::removeVHost (int n)
+int XmlVhostHandler::removeVHost (u_long n)
 {
   vector<Vhost*>::iterator it = hosts.erase (hosts.begin () + n - 1);
   delete *it;

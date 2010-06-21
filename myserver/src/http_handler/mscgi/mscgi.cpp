@@ -57,7 +57,6 @@ int MsCgi::send (HttpThreadContext* td, const char* exec, const char* cmdLine,
   u_long nbw;
   DynamicLibrary hinstLib;
   CGIMAIN ProcMain = 0;
-  int ret = 0;
 
 #if !(WIN32 | HAVE_DL)
   return td->http->raiseHTTPError (501);

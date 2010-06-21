@@ -140,10 +140,9 @@ File* CachedFileFactory::open (const char* filename, int flags)
   CachedFileFactoryRecord *record;
   CachedFileBuffer *buffer;
   CachedFile* cachedFile;
-  u_long ticks;
+  u_long ticks = getTicks ();
 
   mutex.lock ();
-
   try
     {
       record = buffers.get (filename);
@@ -243,14 +242,13 @@ void CachedFileFactory::nullReferences (CachedFileBuffer* cfb)
   float averageUsage;
   float bufferAverageUsage;
   float spaceUsage;
-  u_long ticks;
+  u_long ticks = getTicks ();
   mutex.lock ();
 
   try
     {
-      ticks = getTicks ();
       record = buffers.get (cfb->getFilename ());
-      if (!record)
+      if (! record)
         {
           mutex.unlock ();
           return;
@@ -259,7 +257,7 @@ void CachedFileFactory::nullReferences (CachedFileBuffer* cfb)
       spaceUsage = (float)usedSize / size;
       averageUsage = (float)used * 1000.0f / (ticks - created);
       bufferAverageUsage = (float)record->used * 1000.0f /
-        (getTicks () - record->created);
+        (ticks - record->created);
 
       if (((spaceUsage > 0.65f) && (bufferAverageUsage < averageUsage)
            && ((ticks - record->created) > 10000))

@@ -216,12 +216,11 @@ u_long GzipDecompress::getHeader (char *buffer, u_long buffersize)
 int GzipDecompress::read (char* buffer, u_long len, u_long *nbr)
 {
   char *tmp_buff;
-  int ret;
   u_long nbr_parent;
-  if (!parent)
+  if (! parent)
     return -1;
 
-  if (!active)
+  if (! active)
     return parent->read (buffer, len, nbr);
 
   tmp_buff = new char[len/2];
@@ -235,7 +234,6 @@ int GzipDecompress::read (char* buffer, u_long len, u_long *nbr)
       delete [] tmp_buff;
       throw;
     }
-
 
   delete [] tmp_buff;
   return 0;

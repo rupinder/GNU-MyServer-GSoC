@@ -51,6 +51,7 @@ public:
     try
       {
         LogStream* ls = ssc->create (ff, LOCALHOST_ADDRESS ":0", filters, 0);
+        CPPUNIT_ASSERT (ls);
       }
     catch (...)
       {

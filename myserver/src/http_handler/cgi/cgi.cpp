@@ -442,7 +442,7 @@ int Cgi::sendHeader (HttpThreadContext *td, Pipe &stdOutFile, FiltersChain &chai
           return 1;
         }
 
-      for (int i = std::max (0, (int) (headerOffset - nBytesRead - 10));
+      for (u_long i = std::max (0UL, (headerOffset - nBytesRead - 10));
            i < headerOffset; i++)
         {
           char *buff = td->auxiliaryBuffer->getBuffer ();

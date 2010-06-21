@@ -235,7 +235,8 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
         Returning 0 from the controlConnection we will remove the connection
         from the active connections list.
        */
-      if (header.parse_header (request, nbtr, &realHeaderLength) != CONTROL_OK)
+      ret = header.parse_header (request, nbtr, &realHeaderLength);
+      if (ret != CONTROL_OK)
         {
           /* parse_header returns -1 on an incomplete header.  */
           if (ret == -1)

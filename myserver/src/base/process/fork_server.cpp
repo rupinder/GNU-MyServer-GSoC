@@ -108,7 +108,7 @@ int ForkServer::readString (Socket *sock, char **out)
   *out = new char[len + 1];
   (*out)[len] = '\0';
 
-  if (len && (sock->read (*out, len, &nbr) || nbr < len))
+  if (len && (sock->read (*out, len, &nbr) || (int) nbr < len))
     {
       delete [] *out;
       return -1;

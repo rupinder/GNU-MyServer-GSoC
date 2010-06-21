@@ -144,7 +144,6 @@ public:
   {
 # ifndef WIN32
     const char *msg = "hello world";
-    ThreadID tid;
     Pipe pipe;
     u_long nbw;
     char buffer[64];
