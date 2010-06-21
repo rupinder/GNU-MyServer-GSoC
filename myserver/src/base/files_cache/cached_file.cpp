@@ -47,7 +47,7 @@ using namespace std;
  */
 CachedFile::CachedFile (CachedFileBuffer* cfb)
 {
-  File::File ();
+  handle = -1;
   buffer = cfb;
   fseek = 0;
   cfb->addRef ();
