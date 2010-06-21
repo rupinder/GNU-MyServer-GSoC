@@ -40,35 +40,6 @@ static char* myserver_strupr (char * s)
   return s;
 }
 
-#define strupos(x, y) (strustr (x, y) != NULL ? strustr (x, y) - x : -1)
-
-static char* strustr (char *source, char *s)
-{
-  char *csource = new char[strlen (source) + 1];
-  if (csource == 0)
-    return 0;
-  char *cs = new char[strlen (s) + 1];
-  if (cs == 0)
-  {
-    delete [] csource;
-    return 0;
-  }
-  strncpy (csource, source, (strlen (source) + 2));
-  strncpy (cs, s, (strlen (s) + 2));
-  myserver_strupr (csource);
-  myserver_strupr (cs);
-  char *result = strstr (csource, cs);
-  if (result != NULL)
-  {
-    int pos =static_cast<int>(result - csource);
-    result = source;
-    result += pos;
-  }
-  delete [] csource;
-  delete [] cs;
-  return result;
-}
-
 const char base64chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 #define SKIP '\202'
 #define NOSKIP 'A'
