@@ -350,13 +350,6 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
   }
   else
     {
-      /* If it is not specified an encoding, read the data as it is.  */
-      if (!contentLengthSpecified)
-        {
-          *httpRetCode = 400;
-          return 1;
-        }
-
       for (;;)
         {
 
