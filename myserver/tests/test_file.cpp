@@ -64,14 +64,14 @@ public:
 
   void tearDown ()
   {
-    delete tfile;
     try
       {
-        FilesUtility::deleteFile (fname);
+        FilesUtility::deleteFile (tfile->getFilename ());
       }
     catch (...)
       {
       }
+    delete tfile;
   }
 
   void testCreateTemporaryDelayedFile ()
@@ -80,13 +80,13 @@ public:
     CPPUNIT_ASSERT_EQUAL (ret, 0);
 
     /* The unlink is done just before the close, the file can be stat'ed. */
-    ret = FilesUtility::nodeExists (fname.c_str ());
+    ret = FilesUtility::nodeExists (tfile->getFilename ());
     CPPUNIT_ASSERT (ret);
 
     ret = tfile->close ();
     CPPUNIT_ASSERT_EQUAL (ret, 0);
 
-    ret = FilesUtility::nodeExists (fname.c_str ());
+    ret = FilesUtility::nodeExists (tfile->getFilename ());
     CPPUNIT_ASSERT_EQUAL (ret, 0);
   }
 
@@ -96,13 +96,13 @@ public:
     CPPUNIT_ASSERT_EQUAL (ret, 0);
 
     /* Using unlink the file can't be stat'ed at this point.  */
-    ret = FilesUtility::nodeExists (fname.c_str ());
+    ret = FilesUtility::nodeExists (tfile->getFilename ());
     CPPUNIT_ASSERT_EQUAL (ret, 0);
 
     ret = tfile->close ();
     CPPUNIT_ASSERT_EQUAL (ret, 0);
 
-    ret = FilesUtility::nodeExists (fname.c_str ());
+    ret = FilesUtility::nodeExists (tfile->getFilename ());
     CPPUNIT_ASSERT_EQUAL (ret, 0);
   }
 

@@ -847,8 +847,6 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
       td->appendOutputs = false;
       td->onlyHeader = false;
       td->filenamePath.assign ("");
-      td->outputDataPath.assign ("");
-      td->inputDataPath.assign ("");
       td->mime = NULL;
       td->headerSent = false;
       td->sentData = 0;
@@ -917,13 +915,6 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
         }
 
       td->response.ver.assign (td->request.ver.c_str ());
-
-      /*
-        For methods that accept data after the HTTP header set the correct
-        pointer and create a file containing the informations after the header.
-       */
-      FilesUtility::temporaryFileName (td->id, td->inputDataPath);
-      FilesUtility::temporaryFileName (td->id, td->outputDataPath);
 
       dynamicCommand =
         staticData->getDynCmdManager ()->getHttpCommand (td->request.cmd);
@@ -1141,19 +1132,8 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
 
       try
         {
-          /* If the inputData file was not closed close it.  */
-          if (td->inputData.getHandle () >= 0)
-            {
-              td->inputData.close ();
-              FilesUtility::deleteFile (td->inputDataPath);
-            }
-
-          /* If the outputData file was not closed close it.  */
-          if (td->outputData.getHandle () >= 0)
-            {
-              td->outputData.close ();
-              FilesUtility::deleteFile (td->outputDataPath);
-            }
+          td->inputData.close ();
+          td->outputData.close ();
         }
       catch (GenericFileException & e)
         {
@@ -1737,8 +1717,6 @@ Http::Http (HttpProtocol *staticData)
   td->scriptPath.assign ("");
   td->scriptDir.assign ("");
   td->scriptFile.assign ("");
-  td->inputDataPath.assign ("");
-  td->outputDataPath.assign ("");
 }
 
 /*!
@@ -1762,7 +1740,5 @@ void Http::clean ()
   td->scriptPath.assign ("");
   td->scriptDir.assign ("");
   td->scriptFile.assign ("");
-  td->inputDataPath.assign ("");
-  td->outputDataPath.assign ("");
   delete td;
 }

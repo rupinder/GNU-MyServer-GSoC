@@ -181,11 +181,6 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
 #endif
         }
 
-      td->inputData.close ();
-      td->inputData.openFile (td->inputDataPath, File::READ
-                              | File::FILE_OPEN_ALWAYS
-                              | File::NO_INHERIT);
-
       server = connect (&con, cmdLine.str ().c_str ());
       if (server == NULL)
         {

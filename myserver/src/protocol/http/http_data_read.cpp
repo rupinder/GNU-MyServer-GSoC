@@ -241,6 +241,10 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
   u_long inPos = 0;
   u_long nbr;
   u_long length;
+  string inputDataPath;
+
+  FilesUtility::temporaryFileName (td->id, inputDataPath);
+
 
   HttpRequestHeader::Entry *contentType =
     td->request.other.get ("content-type");
@@ -296,8 +300,8 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
     Create the file that contains the posted data.
     This data is the stdin file in the CGI.
   */
-  if (td->inputData.openFile (td->inputDataPath, File::READ
-                              | File::WRITE))
+  if (td->inputData.createTemporaryFile (inputDataPath.c_str (), File::READ
+                                         | File::WRITE))
     {
       *httpRetCode = 500;
       return 1;
@@ -327,8 +331,6 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
 
           if (ret == -1)
             {
-              td->inputDataPath.assign ("");
-              td->outputDataPath.assign ("");
               td->inputData.close ();
               return -1;
             }
@@ -364,7 +366,6 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
                                                timeout))
             {
               td->inputData.close ();
-              FilesUtility::deleteFile (td->inputDataPath);
               *httpRetCode = 400;
               return 1;
             }
@@ -374,7 +375,6 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
           else
             {
               td->inputData.close ();
-              FilesUtility::deleteFile (td->inputDataPath);
               *httpRetCode = 400;
               return 1;
             }
@@ -384,8 +384,6 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
           if (nbr && td->inputData.writeToFile (td->auxiliaryBuffer->getBuffer (),
                                                 nbr, &nbw))
             {
-              td->inputDataPath.assign ("");
-              td->outputDataPath.assign ("");
               td->inputData.close ();
               return -1;
             }

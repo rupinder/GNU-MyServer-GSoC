@@ -673,20 +673,15 @@ void FilesUtility::resetTmpPath ()
 
 
 /*!
-  Create an unique temporary file name.  This function doesn't create
-  or open the file but generates only its name.
+  Create an unique temporary file name mask that can be used by mkstemp.
   \param tid Caller thread id.
   \param out Output string.
  */
 void FilesUtility::temporaryFileName (u_long tid, string &out)
 {
-  ostringstream stream;
-  static u_long counter = 1;
-  counter++;
-
   if (tmpPath.length () == 0)
     tmpPath.assign (getdefaultwd (0, 0));
 
-  stream << tmpPath << "/myserver_" << counter  << "_" << tid << ".tmp";
-  out.assign (stream.str ());
+  out.assign (tmpPath);
+  out.append ("/myserver_XXXXXX");
 }

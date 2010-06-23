@@ -76,7 +76,6 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
     to get other params like in a POST request.
   */
   Pipe stdOutFile;
-  File stdInFile;
   int len = strlen (cgipath);
   int i;
 
@@ -213,10 +212,6 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
       */
       stdOutFile.create ();
 
-      /* Open the stdin file for the new CGI process.  */
-      stdInFile.openFile (td->inputDataPath,
-                          File::READ | File::FILE_OPEN_ALWAYS);
-
       /*
         Build the environment string used by the CGI process.
         Use the td->auxiliaryBuffer to build the environment string.
@@ -241,12 +236,11 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
                                                     MYSERVER_SERVER_CONF, ""));
 
       spi.stdError = (FileHandle) stdOutFile.getWriteHandle ();
-      spi.stdIn = (FileHandle) stdInFile.getHandle ();
+      spi.stdIn = (FileHandle) td->inputData.getHandle ();
       spi.stdOut = (FileHandle) stdOutFile.getWriteHandle ();
       spi.envString = td->auxiliaryBuffer->getBuffer ();
 
       if (spi.stdError == (FileHandle) -1 ||
-          spi.stdIn == (FileHandle) -1 ||
           spi.stdOut == (FileHandle) -1)
         {
           td->connection->host->warningsLogWrite (_("Cgi: internal error"));
@@ -274,15 +268,10 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
       sendData (td, stdOutFile, chain, cgiProc, onlyHeader, nph);
 
       stdOutFile.close ();
-      stdInFile.close ();
       cgiProc.terminateProcess ();
       chain.clearAllFilters ();
 
       cgiProc.terminateProcess ();
-
-      /* Delete the file only if it was created by the CGI module.  */
-      if (td->inputData.getHandle () >= 0)
-        FilesUtility::deleteFile (td->inputDataPath.c_str ());
     }
   catch (exception & e)
     {

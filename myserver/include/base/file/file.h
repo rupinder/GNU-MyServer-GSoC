@@ -52,7 +52,7 @@ public:
 
   virtual Handle getHandle ();
   virtual int setHandle (Handle);
-  virtual int writeToFile (const char *, u_long , u_long *);
+  virtual int writeToFile (const char *, u_long, u_long *);
   virtual int createTemporaryFile (const char *, bool unlink = true);
 
   virtual int openFile (const char *, u_long, mode_t mask = 00700);

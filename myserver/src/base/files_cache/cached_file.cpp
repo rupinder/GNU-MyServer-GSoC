@@ -136,9 +136,9 @@ int CachedFile::read (char* buffer, u_long buffersize, u_long* nbr)
 /*!
   A CachedFile can't be temporary.
   Create a temporary file.
-  \param filename The new temporary file name.
+  \see File#createTemporaryFile.
  */
-int CachedFile::createTemporaryFile (const char* filename)
+int CachedFile::createTemporaryFile (const char *, bool)
 {
   return -1;
 }

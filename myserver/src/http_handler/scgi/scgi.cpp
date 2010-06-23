@@ -169,9 +169,6 @@ int Scgi::send (HttpThreadContext* td, const char* scriptpath,
           chain.clearAllFilters ();
           return td->http->raiseHTTPError (500);
         }
-      td->inputData.close ();
-      td->inputData.openFile (td->inputDataPath, File::READ
-                              | File::FILE_OPEN_ALWAYS | File::NO_INHERIT);
 
       try
         {

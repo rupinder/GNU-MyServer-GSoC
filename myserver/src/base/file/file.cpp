@@ -47,6 +47,7 @@
 
 #include <string>
 #include <sstream>
+#include <memory>
 
 using namespace std;
 
@@ -129,7 +130,8 @@ void File::fstat (struct stat *fstat)
 /*!
   Open (or create if not exists) a file, but must explicitly use read and/or
   write flags and open flag.
-  \param nfilename Filename to open.
+  \param nfilename Filename to open.    If TEMPORARY or TEMPORARY_DELAYED is
+  used, then this parameter specifies the mask to use for mkostemp(3).
   \param opt Specify how open the file.
   \param mask Creation mode when a new file is created.
   openFile returns 0 if the call was successful, any other value on errors.
@@ -137,8 +139,6 @@ void File::fstat (struct stat *fstat)
 int File::openFile (const char* nfilename, u_long opt, mode_t mask)
 {
   int flags;
-
-  filename.assign (nfilename);
 
   if ((opt & File::READ) && (opt & File::WRITE))
     flags = O_RDWR;
@@ -153,18 +153,32 @@ int File::openFile (const char* nfilename, u_long opt, mode_t mask)
   if (opt & File::APPEND)
     flags |= O_APPEND;
 
-  handle = gnulib::open (filename.c_str (), flags);
-  if (handle < 0)
+
+  if (opt & (File::TEMPORARY_DELAYED | File::TEMPORARY))
     {
-      if (! ((errno == ENOENT) && (opt & File::FILE_OPEN_ALWAYS)))
+      auto_ptr <char> templatefn (checked::strdup (nfilename));
+      handle = mkostemp (templatefn.get (), flags);
+      if (handle < 0)
         checked::raiseException ();
 
-      flags |= O_CREAT;
-      handle = checked::open (filename.c_str (), flags, S_IRUSR | S_IWUSR);
-    }
+      setFilename (templatefn.get ());
 
-  if (opt & File::TEMPORARY)
-    checked::unlink (filename.c_str ());
+      if (opt & File::TEMPORARY)
+        checked::unlink (getFilename ());
+    }
+  else
+    {
+      setFilename (nfilename);
+      handle = gnulib::open (filename.c_str (), flags);
+      if (handle < 0)
+        {
+          if (! ((errno == ENOENT) && (opt & File::FILE_OPEN_ALWAYS)))
+            checked::raiseException ();
+
+          flags |= O_CREAT;
+          handle = checked::open (filename.c_str (), flags, S_IRUSR | S_IWUSR);
+        }
+    }
 
   this->opt = opt;
   return handle < 0;
@@ -244,8 +258,8 @@ int File::close ()
   if (handle != -1)
     {
       if (opt & File::TEMPORARY_DELAYED)
-        checked::unlink (filename.c_str ());
-      ret = checked::fsync (handle);
+        gnulib::unlink (filename.c_str ());
+
       ret |= checked::close (handle);
     }
 

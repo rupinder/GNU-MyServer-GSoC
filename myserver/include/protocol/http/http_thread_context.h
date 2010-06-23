@@ -78,8 +78,6 @@ struct HttpThreadContext
   string scriptPath;
   string scriptDir;
   string scriptFile;
-  string inputDataPath;
-  string outputDataPath;
   string vhostDir;
   string vhostSys;
   HashMap<string,string*> other;
