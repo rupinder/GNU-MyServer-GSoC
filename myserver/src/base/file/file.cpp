@@ -148,7 +148,7 @@ int File::openFile (const char* nfilename, u_long opt, mode_t mask)
     flags = O_WRONLY;
 
   if (opt & File::NO_FOLLOW_SYMLINK)
-    flags = O_NOFOLLOW;
+    flags |= O_NOFOLLOW;
 
   if (opt & File::APPEND)
     flags |= O_APPEND;
@@ -240,12 +240,9 @@ const char *File::getFilename ()
  */
 int File::createTemporaryFile (const char* filename, bool unlink)
 {
-  if (FilesUtility::nodeExists (filename))
-    FilesUtility::deleteFile (filename);
-
   u_long temporaryOpt = unlink ? File::TEMPORARY : File::TEMPORARY_DELAYED;
 
-  return openFile (filename, File::READ | File::WRITE | File::NO_INHERIT
+  return openFile (filename, File::READ | File::WRITE
                    | File::FILE_OPEN_ALWAYS | temporaryOpt);
 }
 
