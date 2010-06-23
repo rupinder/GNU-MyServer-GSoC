@@ -76,6 +76,7 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
     to get other params like in a POST request.
   */
   Pipe stdOutFile;
+  File stdInFile;
   int len = strlen (cgipath);
   int i;
 
@@ -222,34 +223,27 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
       spi.cmdLine = cmdLine.str ();
       spi.cwd.assign (td->scriptDir);
 
-      spi.gid = atoi (td->securityToken.getData ("cgi.gid", MYSERVER_VHOST_CONF |
-                                                 MYSERVER_MIME_CONF |
-                                                 MYSERVER_SECURITY_CONF |
-                                                 MYSERVER_SERVER_CONF, "0"));
-      spi.uid = atoi (td->securityToken.getData ("cgi.uid", MYSERVER_VHOST_CONF |
-                                                 MYSERVER_MIME_CONF |
-                                                 MYSERVER_SECURITY_CONF |
-                                                 MYSERVER_SERVER_CONF, "0"));
-      spi.chroot.assign (td->securityToken.getData ("cgi.chroot", MYSERVER_VHOST_CONF |
-                                                    MYSERVER_MIME_CONF |
-                                                    MYSERVER_SECURITY_CONF |
-                                                    MYSERVER_SERVER_CONF, ""));
+      spi.gid = atoi (td->securityToken.getData ("cgi.gid", MYSERVER_VHOST_CONF
+                                                 | MYSERVER_MIME_CONF
+                                                 | MYSERVER_SECURITY_CONF
+                                                 | MYSERVER_SERVER_CONF, "0"));
+      spi.uid = atoi (td->securityToken.getData ("cgi.uid", MYSERVER_VHOST_CONF
+                                                 | MYSERVER_MIME_CONF
+                                                 | MYSERVER_SECURITY_CONF
+                                                 | MYSERVER_SERVER_CONF, "0"));
+      spi.chroot.assign (td->securityToken.getData ("cgi.chroot", MYSERVER_VHOST_CONF
+                                                    | MYSERVER_MIME_CONF
+                                                    | MYSERVER_SECURITY_CONF
+                                                    | MYSERVER_SERVER_CONF, ""));
 
+      stdInFile.openFile (td->inputData.getFilename (), File::READ);
+
+      spi.stdIn = (FileHandle) stdInFile.getHandle ();
       spi.stdError = (FileHandle) stdOutFile.getWriteHandle ();
-      spi.stdIn = (FileHandle) td->inputData.getHandle ();
       spi.stdOut = (FileHandle) stdOutFile.getWriteHandle ();
       spi.envString = td->auxiliaryBuffer->getBuffer ();
 
-      if (spi.stdError == (FileHandle) -1 ||
-          spi.stdOut == (FileHandle) -1)
-        {
-          td->connection->host->warningsLogWrite (_("Cgi: internal error"));
-          stdOutFile.close ();
-          chain.clearAllFilters ();
-          return td->http->raiseHTTPError (500);
-        }
-
-      /* Execute the CGI process. */
+      /* Execute the CGI process.  */
       if (Process::getForkServer ()->isInitialized ())
         {
           int pid;
@@ -262,7 +256,7 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
       else
         cgiProc.exec (&spi);
 
-      /* Close the write stream of the pipe on the server.  */
+      stdInFile.close ();
       stdOutFile.closeWrite ();
 
       sendData (td, stdOutFile, chain, cgiProc, onlyHeader, nph);
@@ -270,13 +264,12 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
       stdOutFile.close ();
       cgiProc.terminateProcess ();
       chain.clearAllFilters ();
-
-      cgiProc.terminateProcess ();
     }
   catch (exception & e)
     {
       td->connection->host->warningsLogWrite (_E ("Cgi: internal error"), &e);
       stdOutFile.close ();
+      stdInFile.close ();
       chain.clearAllFilters ();
       return td->http->raiseHTTPError (500);
     }
