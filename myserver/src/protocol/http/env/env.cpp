@@ -42,9 +42,9 @@ using namespace std;
   \param cgiEnv The zero terminated list of environment string.
   \param processEnv Specify if add current process environment
   variables too.
- */
+*/
 void Env::buildEnvironmentString (HttpThreadContext* td, char *cgiEnv,
-                                 int processEnv)
+                                  int processEnv)
 {
   MemBuf memCgi;
   MemBuf portBuffer;
@@ -81,8 +81,8 @@ void Env::buildEnvironmentString (HttpThreadContext* td, char *cgiEnv,
 
   memCgi << end_str << "SERVER_ADMIN=";
   memCgi << td->securityToken.getData ("server.admin",
-                                             MYSERVER_VHOST_CONF |
-                                             MYSERVER_SERVER_CONF, "");
+                                       MYSERVER_VHOST_CONF |
+                                       MYSERVER_SERVER_CONF, "");
 
   memCgi << end_str << "REQUEST_METHOD=";
   memCgi << td->request.cmd.c_str ();
@@ -97,41 +97,39 @@ void Env::buildEnvironmentString (HttpThreadContext* td, char *cgiEnv,
   memCgi << end_str << "GATEWAY_INTERFACE=CGI/1.1";
 
   if (td->request.contentLength.length ())
-  {
-    memCgi << end_str << "CONTENT_LENGTH=";
-    memCgi << td->request.contentLength.c_str ();
-  }
+    {
+      memCgi << end_str << "CONTENT_LENGTH=";
+      memCgi << td->request.contentLength.c_str ();
+    }
   else
-  {
-    u_long fs = 0;
-    ostringstream stream;
+    {
+      u_long fs = 0;
+      ostringstream stream;
 
-    if (td->inputData.getHandle () >= 0)
-      fs = td->inputData.getFileSize ();
+      if (td->inputData.getHandle () >= 0)
+        fs = td->inputData.getFileSize ();
 
-    stream << fs;
-
-    memCgi << end_str << "CONTENT_LENGTH=" << stream.str ().c_str ();
-  }
-
+      stream << fs;
+      memCgi << end_str << "CONTENT_LENGTH=" << stream.str ().c_str ();
+    }
 
   if (td->request.rangeByteBegin || td->request.rangeByteEnd)
-  {
-    ostringstream rangeBuffer;
-    memCgi << end_str << "HTTP_RANGE=" << td->request.rangeType << "=" ;
-    if (td->request.rangeByteBegin)
     {
-      rangeBuffer << static_cast<int>(td->request.rangeByteBegin);
-      memCgi << rangeBuffer.str ();
-    }
-    memCgi << "-";
-    if (td->request.rangeByteEnd)
-    {
-      rangeBuffer << td->request.rangeByteEnd;
-      memCgi << rangeBuffer.str ();
-    }
+      ostringstream rangeBuffer;
+      memCgi << end_str << "HTTP_RANGE=" << td->request.rangeType << "=" ;
+      if (td->request.rangeByteBegin)
+        {
+          rangeBuffer << static_cast<int>(td->request.rangeByteBegin);
+          memCgi << rangeBuffer.str ();
+        }
+      memCgi << "-";
+      if (td->request.rangeByteEnd)
+        {
+          rangeBuffer << td->request.rangeByteEnd;
+          memCgi << rangeBuffer.str ();
+        }
 
-  }
+    }
 
   memCgi << end_str << "CGI_ROOT=";
   memCgi << td->cgiRoot;
@@ -152,18 +150,18 @@ void Env::buildEnvironmentString (HttpThreadContext* td, char *cgiEnv,
 
 
   if (td->pathInfo.length ())
-  {
-    memCgi << end_str << "PATH_INFO=";
-    memCgi << td->pathInfo;
+    {
+      memCgi << end_str << "PATH_INFO=";
+      memCgi << td->pathInfo;
 
-    memCgi << end_str << "PATH_TRANSLATED=";
-    memCgi << td->pathTranslated;
-  }
+      memCgi << end_str << "PATH_TRANSLATED=";
+      memCgi << td->pathTranslated;
+    }
   else
-  {
-    memCgi << end_str << "PATH_TRANSLATED=";
-    memCgi << td->filenamePath;
-  }
+    {
+      memCgi << end_str << "PATH_TRANSLATED=";
+      memCgi << td->filenamePath;
+    }
 
   memCgi << end_str << "SCRIPT_FILENAME=";
   memCgi << td->filenamePath;
@@ -171,7 +169,7 @@ void Env::buildEnvironmentString (HttpThreadContext* td, char *cgiEnv,
   /*
     For the DOCUMENT_URI and SCRIPT_NAME copy the
     requested uri without the pathInfo.
-   */
+  */
   memCgi << end_str << "SCRIPT_NAME=";
   memCgi << td->request.uri.c_str ();
 
@@ -205,10 +203,10 @@ void Env::buildEnvironmentString (HttpThreadContext* td, char *cgiEnv,
   reqEntry = td->request.other.get ("content-type");
 
   if (reqEntry)
-  {
-    memCgi << end_str << "CONTENT_TYPE=";
-    memCgi << reqEntry->value.c_str ();
-  }
+    {
+      memCgi << end_str << "CONTENT_TYPE=";
+      memCgi << reqEntry->value.c_str ();
+    }
 
   buildHttpHeaderEnvString (memCgi, td->request);
 
@@ -221,30 +219,30 @@ void Env::buildEnvironmentString (HttpThreadContext* td, char *cgiEnv,
 
 /*!
   Append to the environment string variables from the HTTP request header.
- */
+*/
 void Env::buildHttpHeaderEnvString (MemBuf& memCgi, HttpRequestHeader & req)
 {
 
   HashMap<string, HttpRequestHeader::Entry*>::Iterator it = req.begin ();
   for (; it != req.end (); it++)
-  {
-    HttpRequestHeader::Entry* en = *it;
-    string name;
+    {
+      HttpRequestHeader::Entry* en = *it;
+      string name;
 
-    name.assign ("HTTP_");
-    name.append (en->name.c_str ());
-    transform (name.begin ()+5, name.end (), name.begin ()+5, ::toupper);
-    for (int i = name.length (); i > 5; i--)
-      if (name[i] == '-')
-        name[i] = '_';
+      name.assign ("HTTP_");
+      name.append (en->name.c_str ());
+      transform (name.begin ()+5, name.end (), name.begin ()+5, ::toupper);
+      for (int i = name.length (); i > 5; i--)
+        if (name[i] == '-')
+          name[i] = '_';
 
-    memCgi  << end_str << name.c_str () << "=" << en->value.c_str ();
-  }
+      memCgi  << end_str << name.c_str () << "=" << en->value.c_str ();
+    }
 }
 
 /*!
   Append to the environment string process env variables.
- */
+*/
 void Env::buildProcessEnvString (MemBuf& memCgi)
 {
 #ifdef WIN32
@@ -254,13 +252,13 @@ void Env::buildProcessEnvString (MemBuf& memCgi)
   memCgi << end_str;
   if (lpvEnv)
     for (lpszVariable = (LPTSTR) lpvEnv; *lpszVariable; lpszVariable++)
-    {
-      if (((char*)lpszVariable)[0]  != '=' )
       {
-        memCgi << (char*)lpszVariable << end_str;
+        if (((char*)lpszVariable)[0]  != '=' )
+          {
+            memCgi << (char*)lpszVariable << end_str;
+          }
+        while (*lpszVariable)
+          *lpszVariable++;
       }
-      while (*lpszVariable)
-        *lpszVariable++;
-    }
 #endif
 }

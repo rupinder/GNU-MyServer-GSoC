@@ -74,7 +74,6 @@ int HttpDataRead::readContiguousPrimitivePostData (const char* inBuffer,
     return 0;
 
   ret = inSocket->recv (outBuffer + *nbr,  outBufferSize - *nbr, 0, timeout);
-
   if (ret == -1)
     return -1;
 
@@ -306,6 +305,7 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
       return 1;
     }
 
+  /* It is used only when content-length is specified.  */
   length = contentLength;
 
   bufferDataSize = (td->nBytesToRead < td->buffer->getRealLength () - 1
@@ -315,7 +315,7 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
   /* If it is specified a transfer encoding read data using it.  */
   if (encoding)
     {
-      if (!encoding->value.compare ("chunked"))
+      if (encoding->value.compare ("chunked") == 0)
         {
           int ret = readChunkedPostData (td->request.uriOptsPtr,
                                          &inPos,
@@ -328,7 +328,7 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
                                          &(td->inputData),
                                          0);
 
-          if (ret == -1)
+          if (ret < 0)
             {
               td->inputData.close ();
               return -1;
@@ -350,10 +350,11 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
     {
       for (;;)
         {
-
           /* Do not try to read more than what we expect.  */
-          u_long dimBuffer = std::min (td->auxiliaryBuffer->getRealLength () - 1ul,
-                                       length);
+          u_long dimBuffer = td->auxiliaryBuffer->getRealLength () - 1ul;
+
+          if (contentLengthSpecified && length < dimBuffer)
+            dimBuffer = length;
 
           if (readContiguousPrimitivePostData (td->request.uriOptsPtr,
                                                &inPos,
@@ -369,13 +370,16 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
               return 1;
             }
 
-          if (nbr <= length)
-            length -= nbr;
-          else
+          if (contentLengthSpecified)
             {
-              td->inputData.close ();
-              *httpRetCode = 400;
-              return 1;
+              if (nbr <= length)
+                length -= nbr;
+              else
+                {
+                  td->inputData.close ();
+                  *httpRetCode = 400;
+                  return 1;
+                }
             }
 
           td->auxiliaryBuffer->getBuffer ()[nbr] = '\0';
@@ -387,7 +391,8 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
               return -1;
             }
 
-          if (!length)
+          if ((contentLengthSpecified && length == 0)
+              || (!contentLengthSpecified && nbr == 0))
             break;
         }
     }
