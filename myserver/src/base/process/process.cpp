@@ -262,34 +262,31 @@ int Process::exec (StartProcInfo* spi, bool waitEnd)
       if (generateEnvString (envp, size, (char*) spi->envString))
         exit (1);
 
-      if (spi->cwd.length ()
-          && chdir (spi->cwd.c_str ()) == -1)
+      if (spi->cwd.length () && chdir (spi->cwd.c_str ()) == -1)
         exit (1);
 
-      if ((long)spi->stdOut == -1)
-        spi->stdOut = checked::open ("/dev/null", O_WRONLY);
+      if (spi->stdIn < 0)
+        gnulib::close (0);
+      else
+        checked::dup2 (spi->stdIn, 0);
 
-      if ((long)spi->stdError == -1)
-        spi->stdError = checked::open ("/dev/null", O_WRONLY);
+      if (spi->stdOut < 0)
+        gnulib::close (1);
+      else
+        checked::dup2 (spi->stdOut, 1);
 
-      checked::close (0);
+      if (spi->stdError < 0)
+        gnulib::close (2);
+      else
+        checked::dup2 (spi->stdError, 2);
 
-      if (spi->stdIn != -1)
-        {
-          if (checked::dup2 (spi->stdIn, 0) == -1)
-            exit (1);
-          checked::close (spi->stdIn);
-        }
 
-      checked::close (1);
-
-      if (checked::dup2 (spi->stdOut, 1) == -1)
-        exit (1);
-
-      checked::close (2);
-
-      if (checked::dup2 (spi->stdError, 2) == -1)
-        exit (1);
+      if (spi->stdIn < 0)
+        gnulib::close (spi->stdIn);
+      if (spi->stdOut < 0)
+        gnulib::close (spi->stdOut);
+      if (spi->stdError < 0)
+        gnulib::close (spi->stdError);
 
       if (spi->handlesToClose)
         {
@@ -304,7 +301,7 @@ int Process::exec (StartProcInfo* spi, bool waitEnd)
       execve ((const char*) args[0],
               (char* const*) args, (char* const*) envp);
 
-    exit (1);
+      exit (1);
   }
 
   if (waitEnd)
