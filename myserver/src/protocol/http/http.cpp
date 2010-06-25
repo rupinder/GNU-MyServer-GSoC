@@ -922,6 +922,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
       /* If the used method supports POST data, read it.  */
       if ((!td->request.cmd.compare ("POST")) ||
           (!td->request.cmd.compare ("PUT")) ||
+          (!td->request.cmd.compare ("PROPFIND")) ||
           (dynamicCommand && dynamicCommand->acceptData ()))
         {
           int httpErrorCode;
@@ -1115,6 +1116,15 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                 ret = optionsHTTPRESOURCE (td->request.uri, 0);
               else if (!td->request.cmd.compare ("TRACE"))
                 ret = traceHTTPRESOURCE (td->request.uri, 0);
+              else if (!td->request.cmd.compare ("MKCOL"))
+                ret = dav.mkcol (td);
+              else if (!td->request.cmd.compare ("PROPFIND"))
+                {
+                  dav.propfind (td);
+                  ret = 0;
+                }
+                
+
               else
                 {
                   /*

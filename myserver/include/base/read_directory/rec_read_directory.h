@@ -28,5 +28,13 @@ using namespace std;
 class RecReadDirectory : public ReadDirectory
 {
 public:
-  void generate (const char*);
+  FTS* fileTreeGenerate (const char*);
+  FTSENT* nextMember ();
+  short getInfo ();
+  char* getPath ();
+  void clearTree ();
+
+private:
+  FTS* fileTree;
+  FTSENT* fileTreeIter;
 };

@@ -28,14 +28,15 @@ using namespace std;
 
 class WebDAV
 {
-  int num_prop_req;
-  vector <const char*> prop_req;
-  
 public:
   int mkcol (HttpThreadContext*);
   xmlNodePtr generate (const char*);
-  xmlDocPtr generate_response (const char*);
-  void get_elements (xmlNode*);
-  char* get_prop_value (const char*, const char*); 
+  xmlDocPtr generateResponse (const char*);
+  void getElements (xmlNode*);
+  char* getPropValue (const char*, const char*); 
   void propfind (HttpThreadContext*);
+
+private:
+  int numPropReq;
+  vector <const char*> propReq;
 };

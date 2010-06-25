@@ -23,19 +23,49 @@
 
 using namespace std;
 
-
-void RecReadDirectory::generate (const char* path)
+/*!
+  Generate a file tree given a path string.
+  \param path The path to the root
+ */
+FTS* RecReadDirectory::fileTreeGenerate (const char* path)
 {
-  FTSENT *e;
   char *argv[2] = {(char *) path, NULL};
-    
-  FTS* mytrav = fts_open (argv, FTS_LOGICAL, NULL);
 
-  while (e = fts_read (mytrav))
-    {
-      if (e->fts_level == 6)
-        continue;
-      
-    }
-    
+  fileTree = fts_open (argv, FTS_LOGICAL, NULL);
+  
+  return fileTree;
+}
+
+/*!
+  Get the next member in the file tree.
+ */
+FTSENT* RecReadDirectory::nextMember ()
+{
+  fileTreeIter = fts_read (fileTree);
+  return fileTreeIter;
+}
+
+/*!
+  Clear the file tree.
+ */
+void RecReadDirectory::clearTree ()
+{
+  fileTree = NULL;
+  fileTreeIter = NULL;
+}
+
+/*!
+  Get info flag for particular member of the tree.
+ */
+short RecReadDirectory::getInfo ()
+{
+  return fileTreeIter->fts_level;
+}
+
+/*!
+  Get path for particular member of the tree.
+ */
+char* RecReadDirectory::getPath ()
+{
+  return fileTreeIter->fts_path;
 }

@@ -27,30 +27,30 @@ using namespace std;
 
 
 /*!
- *Retrieve the elements from the XML Tree in request and
- *and push them into properties request vector (prop_req).
- *\param a_node Pointer to root node.
+  Retrieve the elements from the XML Tree in request and
+  and push them into properties request vector (propReq).
+  \param aNode Pointer to root node.
  */
-void WebDAV::get_elements (xmlNode* a_node)
+void WebDAV::getElements (xmlNode* aNode)
 {
-  xmlNode *cur_node = NULL;
+  xmlNode *curNode = NULL;
   
-  for (cur_node = a_node; cur_node; cur_node = cur_node->next)
+  for (curNode = aNode; curNode; curNode = curNode->next)
   {
-    if (cur_node->type == XML_ELEMENT_NODE)
-      prop_req.push_back (reinterpret_cast <const char*> (cur_node->name));
+    if (curNode->type == XML_ELEMENT_NODE)
+      propReq.push_back (reinterpret_cast <const char*> (curNode->name));
       
-    get_elements (cur_node->children);
+    getElements (curNode->children);
   }
 }
 
 /*!
- *Retrieve the value of the property given the name 
- *of the property as a string.
- *\param prop The name of the Property.
- *\param path The path to the resource.
+  Retrieve the value of the property given the name 
+  of the property as a string.
+  \param prop The name of the Property.
+  \param path The path to the resource.
  */
-char* WebDAV::get_prop_value (const char* prop, const char* path)
+char* WebDAV::getPropValue (const char* prop, const char* path)
 {
   time_t value;
   
@@ -65,8 +65,8 @@ char* WebDAV::get_prop_value (const char* prop, const char* path)
 }
 
 /*!
- *Generate the response tag for a single resource.
- *\param path The path to the resource.
+  Generate the response tag for a single resource.
+  \param path The path to the resource.
  */
 xmlNodePtr WebDAV::generate (const char* path)
 {
@@ -77,9 +77,9 @@ xmlNodePtr WebDAV::generate (const char* path)
   xmlNodePtr prop = xmlNewNode (NULL, BAD_CAST "D:prop");
   xmlNewProp (prop, BAD_CAST "xmlns:R", BAD_CAST "http://www.myserverproject.net");
   
-  for (int i = 2; i < num_prop_req; i++)
+  for (int i = 2; i < numPropReq; i++)
   {
-    xmlNewChild (prop, NULL, BAD_CAST ((char*) prop_req[i]), BAD_CAST (get_prop_value (prop_req[i], path)));
+    xmlNewChild (prop, NULL, BAD_CAST ((char*) propReq[i]), BAD_CAST (getPropValue (propReq[i], path)));
     xmlAddChild (propstat, prop);
   }
   
@@ -88,50 +88,50 @@ xmlNodePtr WebDAV::generate (const char* path)
 }
 
 /*!
- *Generate the complete response.
- *\param path The path to the resource.
+  Generate the complete response.
+  \param path The path to the resource.
  */
-xmlDocPtr WebDAV::generate_response (const char* path)
+xmlDocPtr WebDAV::generateResponse (const char* path)
 {
   xmlDocPtr doc = xmlNewDoc ( BAD_CAST "1.0");
-  xmlNodePtr root_node = xmlNewNode (NULL, BAD_CAST "D:multistatus");
+  xmlNodePtr rootNode = xmlNewNode (NULL, BAD_CAST "D:multistatus");
 
-  xmlNewProp (root_node, BAD_CAST "xmlns:D", BAD_CAST "DAV:");
-  xmlDocSetRootElement (doc, root_node);
+  xmlNewProp (rootNode, BAD_CAST "xmlns:D", BAD_CAST "DAV:");
+  xmlDocSetRootElement (doc, rootNode);
   
-  FTSENT *e;
-  char *argv[2] = {(char *) path, NULL};
-    
-  FTS* mytrav = fts_open (argv, FTS_LOGICAL, NULL);
-
-  while (e = fts_read (mytrav))
+  RecReadDirectory recTree;
+  
+  recTree.clearTree ();
+  recTree.fileTreeGenerate (path);
+  
+  while (recTree.nextMember ())
     {
-      if (e->fts_level == 6)
+      if (recTree.getInfo () == 6)
         continue;
       
-      xmlNodePtr response = generate (e->fts_path);
-      xmlAddChild (root_node, response);
+      xmlNodePtr response = generate (recTree.getPath ());
+      xmlAddChild (rootNode, response);
     }
     
   return doc;
 }
 
 /*!
- *Execute PROPFIND command.
- *\param td Http Thread Context.
+  Execute PROPFIND command.
+  \param td Http Thread Context.
  */
 void WebDAV::propfind (HttpThreadContext* td)
 {
-  prop_req.clear ();
+  propReq.clear ();
   
   XmlParser p;
   p.open (td->inputData.getFilename (), 0);
   
-  get_elements (xmlDocGetRootElement (p.getDoc ()));
+  getElements (xmlDocGetRootElement (p.getDoc ()));
   
-  num_prop_req = prop_req.size ();
+  numPropReq = propReq.size ();
  
-  xmlDocPtr doc = generate_response (td->request.uri.c_str ());
+  xmlDocPtr doc = generateResponse (td->request.uri.c_str ());
   xmlSaveFormatFileEnc ("test.xml", doc, "UTF-8", 1);
 /*  
   MemBuf resp;
