@@ -69,7 +69,7 @@ struct HttpThreadContext
   u_long nBytesToRead;
   u_long nHeaderChars;
   HttpResponseHeader response;
-  HttpRequestHeader  request;
+  HttpRequestHeader request;
   string filenamePath;
   string pathInfo;
   string pathTranslated;

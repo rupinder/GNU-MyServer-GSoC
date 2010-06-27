@@ -20,5 +20,5 @@ include_HEADERS = dyn_http_command.h dyn_http_command_manager.h \
 	http_data_read.h http_errors.h http.h http_header.h http_headers.h \
 	http_internal_exception.h http_request.h http_req_security_domain.h	\
 	http_response.h http_thread_context.h
-SUBDIRS = env
+SUBDIRS = env webdav
 

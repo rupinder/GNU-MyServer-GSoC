@@ -235,7 +235,6 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
   u_long nbw = 0;
   u_long bufferDataSize = 0;
 
-
   u_long timeout = MYSERVER_SEC (10);
   u_long inPos = 0;
   u_long nbr;
@@ -243,7 +242,6 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
   string inputDataPath;
 
   FilesUtility::temporaryFileName (td->id, inputDataPath);
-
 
   HttpRequestHeader::Entry *contentType =
     td->request.other.get ("content-type");

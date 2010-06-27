@@ -109,6 +109,7 @@ src/protocol/http/dyn_http_command_manager.cpp
 src/protocol/http/dyn_http_manager.cpp
 src/protocol/http/dyn_http_manager_list.cpp
 src/protocol/http/env/env.cpp
+src/protocol/http/webdav/webdav.cpp
 src/protocol/http/http.cpp
 src/protocol/http/http_data_handler.cpp
 src/protocol/http/http_data_read.cpp

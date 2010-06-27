@@ -21,7 +21,6 @@
 # include <include/base/read_directory/read_directory.h>
 
 # include <string>
-# include <vector>
 
 using namespace std;
 

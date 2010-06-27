@@ -22,5 +22,5 @@ libhttp_la_SOURCES = http.cpp http_data_handler.cpp http_data_read.cpp \
 		   http_response.cpp http_thread_context.cpp \
 		   dyn_http_manager.cpp dyn_http_manager_list.cpp \
 		   dyn_http_command.cpp dyn_http_command_manager.cpp
-SUBDIRS = env
+SUBDIRS = env webdav
 
