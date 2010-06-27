@@ -83,5 +83,9 @@ protected:
                                Connection *connection,
                                const char *token,
                                int *lenOut);
+
+  static int readReqDestLine (HttpRequestHeader *request, const char *token);
+
+  static int readReqOverLine (HttpRequestHeader *request, const char *token);
 };
 #endif

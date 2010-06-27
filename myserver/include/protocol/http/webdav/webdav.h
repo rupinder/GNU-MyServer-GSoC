@@ -33,7 +33,7 @@ public:
   xmlNodePtr generate (const char*);
   xmlDocPtr generateResponse (const char*);
   void getElements (xmlNode*);
-  char* getPropValue (const char*, const char*); 
+  char* getPropValue (const char*, const char*);
   void propfind (HttpThreadContext*);
 
 private:

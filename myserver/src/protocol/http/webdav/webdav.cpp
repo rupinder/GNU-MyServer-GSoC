@@ -1,5 +1,5 @@
 /*
-  MyServer
+  Myserver
   Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
   Free Software Foundation, Inc.
   This program is free software; you can redistribute it and/or modify
@@ -34,18 +34,18 @@ using namespace std;
 void WebDAV::getElements (xmlNode* aNode)
 {
   xmlNode *curNode = NULL;
-  
+
   for (curNode = aNode; curNode; curNode = curNode->next)
   {
     if (curNode->type == XML_ELEMENT_NODE)
       propReq.push_back (reinterpret_cast <const char*> (curNode->name));
-      
+
     getElements (curNode->children);
   }
 }
 
 /*!
-  Retrieve the value of the property given the name 
+  Retrieve the value of the property given the name
   of the property as a string.
   \param prop The name of the Property.
   \param path The path to the resource.
@@ -53,14 +53,14 @@ void WebDAV::getElements (xmlNode* aNode)
 char* WebDAV::getPropValue (const char* prop, const char* path)
 {
   time_t value;
-  
+
   if (!strcmp (prop, "creationtime"))
     value = FilesUtility::getCreationTime (path);
   else if (!strcmp (prop, "lastmodifiedtime"))
     value = FilesUtility::getLastModTime (path);
   else if (!strcmp (prop, "lastaccesstime"))
     value = FilesUtility::getLastAccTime (path);
-    
+
   return ctime (&value);
 }
 
@@ -73,16 +73,16 @@ xmlNodePtr WebDAV::generate (const char* path)
   xmlNodePtr response = xmlNewNode (NULL, BAD_CAST "D:response");
   xmlNewChild (response, NULL, BAD_CAST "D:href", BAD_CAST (path));
   xmlNodePtr propstat = xmlNewNode (NULL, BAD_CAST "D:propstat");
-  
+
   xmlNodePtr prop = xmlNewNode (NULL, BAD_CAST "D:prop");
   xmlNewProp (prop, BAD_CAST "xmlns:R", BAD_CAST "http://www.myserverproject.net");
-  
+
   for (int i = 2; i < numPropReq; i++)
   {
     xmlNewChild (prop, NULL, BAD_CAST ((char*) propReq[i]), BAD_CAST (getPropValue (propReq[i], path)));
     xmlAddChild (propstat, prop);
   }
-  
+
   xmlAddChild (response, propstat);
   return response;
 }
@@ -98,21 +98,21 @@ xmlDocPtr WebDAV::generateResponse (const char* path)
 
   xmlNewProp (rootNode, BAD_CAST "xmlns:D", BAD_CAST "DAV:");
   xmlDocSetRootElement (doc, rootNode);
-  
+
   RecReadDirectory recTree;
-  
+
   recTree.clearTree ();
   recTree.fileTreeGenerate (path);
-  
+
   while (recTree.nextMember ())
     {
       if (recTree.getInfo () == 6)
         continue;
-      
+
       xmlNodePtr response = generate (recTree.getPath ());
       xmlAddChild (rootNode, response);
     }
-    
+
   return doc;
 }
 
@@ -123,26 +123,26 @@ xmlDocPtr WebDAV::generateResponse (const char* path)
 void WebDAV::propfind (HttpThreadContext* td)
 {
   propReq.clear ();
-  
+
   XmlParser p;
   p.open (td->inputData.getFilename (), 0);
-  
+
   getElements (xmlDocGetRootElement (p.getDoc ()));
-  
+
   numPropReq = propReq.size ();
- 
+
   xmlDocPtr doc = generateResponse (td->request.uri.c_str ());
   xmlSaveFormatFileEnc ("test.xml", doc, "UTF-8", 1);
-/*  
+/*
   MemBuf resp;
   int* LEN;
   *LEN = 4096;
-  
+
   p.open ("test.xml", 0);
   p.saveMemBuf (resp, LEN);
-  
+
   *td->auxiliaryBuffer << resp << "\r\n";
-      
+
   td->connection->socket->send (td->auxiliaryBuffer->getBuffer (),
                                 td->auxiliaryBuffer->getLength (), 0);
 */

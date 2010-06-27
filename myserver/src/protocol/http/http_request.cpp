@@ -51,10 +51,13 @@ void HttpRequestHeader::free ()
   ver.clear ();
   cmd.clear ();
   auth.clear ();
+  dest.clear ();
+  overwrite = 'T';
   contentLength.clear ();
   uri.clear ();
   uriOpts.clear ();
   uriOptsPtr = NULL;
+
 
   {
     HashMap<string, HttpRequestHeader::Entry*>::Iterator it = other.begin ();
