@@ -84,6 +84,7 @@ xmlNodePtr WebDAV::generate (const char* path)
     xmlAddChild (propstat, prop);
   }
 
+  xmlNewChild(propstat, NULL, BAD_CAST "D:status", BAD_CAST "HTTP/1.1 200 OK");
   xmlAddChild (response, propstat);
   return response;
 }
@@ -121,19 +122,41 @@ xmlDocPtr WebDAV::generateResponse (const char* path)
   Execute PROPFIND command.
   \param td Http Thread Context.
  */
-void WebDAV::propfind (HttpThreadContext* td)
+int WebDAV::propfind (HttpThreadContext* td)
 {
   propReq.clear ();
 
-  XmlParser p;
-  p.open (td->inputData.getFilename (), 0);
+  /* Not allowed in a directory super to Vhost Document Root.  */
+  if (FilesUtility::getPathRecursionLevel (td->request.uri.c_str ()) < 0)
+    return td->http->raiseHTTPError (403);
 
-  getElements (xmlDocGetRootElement (p.getDoc ()));
+  string loc = string (td->getVhostDir ()) + "/" + td->request.uri;
 
-  numPropReq = propReq.size ();
+  try
+    {
+      /* Obtain the payload.  */
+      XmlParser p;
+      p.open (td->inputData.getFilename (), 0);
 
-  xmlDocPtr doc = generateResponse (td->request.uri.c_str ());
-  xmlSaveFormatFileEnc ("test.xml", doc, "UTF-8", 1);
+      /* Obtain xml entities in the payload.  */
+      getElements (xmlDocGetRootElement (p.getDoc ()));
+
+      /* Number of entities (properties requested).  */
+      numPropReq = propReq.size ();
+
+      xmlDocPtr doc = generateResponse (loc.c_str ());
+      xmlSaveFormatFileEnc ("test.xml", doc, "UTF-8", 1);
+
+      /* 200 Success.  */
+      td->http->raiseHTTPError (200);
+      return HttpDataHandler::RET_OK;
+    }
+  catch (exception & e)
+    {
+      td->connection->host->warningsLogWrite ( _E ("WebDAV: Internal Error"), &e);
+      return td->http->raiseHTTPError (500);
+    }
+
 /*
   MemBuf resp;
   int* LEN;

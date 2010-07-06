@@ -1128,11 +1128,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                   ret = dav.davdelete (td);
                 }
               else if (!td->request.cmd.compare ("PROPFIND"))
-                {
-                  dav.propfind (td);
-                  ret = 0;
-                }
-
+                ret = dav.propfind (td);
 
               else
                 {

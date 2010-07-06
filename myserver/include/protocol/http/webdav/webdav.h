@@ -34,7 +34,7 @@ public:
   xmlDocPtr generateResponse (const char*);
   void getElements (xmlNode*);
   char* getPropValue (const char*, const char*);
-  void propfind (HttpThreadContext*);
+  int propfind (HttpThreadContext*);
   void copy (HttpThreadContext*);
   int davdelete (HttpThreadContext*);
 
