@@ -87,6 +87,8 @@ public:
   static int copyFile (string const &src, string const &dest, int overwrite)
   {return copyFile (src.c_str (), dest.c_str (), overwrite);}
 
+  static int copyDir (string, string, int overwrite);
+
   static void getFileExt (char* ext,const char* filename);
   static void getFileExt (string& ext, string const &filename);
 

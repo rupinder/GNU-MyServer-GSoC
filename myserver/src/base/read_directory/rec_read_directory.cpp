@@ -31,7 +31,7 @@ FTS* RecReadDirectory::fileTreeGenerate (const char* path)
 {
   char *argv[2] = {(char *) path, NULL};
 
-  fileTree = fts_open (argv, FTS_LOGICAL, NULL);
+  fileTree = fts_open (argv, (FTS_LOGICAL | FTS_NOSTAT | FTS_NOCHDIR), NULL);
 
   return fileTree;
 }

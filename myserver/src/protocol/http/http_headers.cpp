@@ -557,20 +557,6 @@ int HttpHeaders::buildHTTPRequestHeaderStruct (const char *input,
             return ret;
           lineControlled = 1;
         }
-      else if (! strcasecmp (command, "Destination"))
-        {
-          int ret = readReqDestLine (request, token);
-          if (ret)
-            return ret;
-          lineControlled = 1;
-        }
-      else if (! strcasecmp (command, "Overwrite"))
-        {
-          int ret = readReqOverLine (request, token);
-          if (ret)
-            return ret;
-          lineControlled = 1;
-        }
       else if (! strcasecmp (command, "Content-length"))
         {
           tokenOff = getEndLine (token, HTTP_REQUEST_CONTENT_LENGTH_DIM);
@@ -902,46 +888,6 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
         }while (digestToken);
       delete  [] digestBuff;
     }
-  return 0;
-}
-
-/*!
-  Parse the destination line in a HTTP request.
-  \param request HttpRequest object to fill.
-  \param token Pointer to the beginning of the destination line.
-  \return 0 on success, any other value is the HTTP error.
- */
-int HttpHeaders::readReqDestLine (HttpRequestHeader *request, const char *token)
-{
-  const char *origToken = token;
-
-  while (*token==' ')
-    token++;
-  int tokenOff = getCharInString (token, "\r\n", HTTP_REQUEST_DEST_DIM);
-
-  if (tokenOff==-1)
-    return 400;
-
-  request->dest.assign (token, tokenOff);
-
-  return 0;
-}
-
-/*!
-  Parse the overwrite line in a HTTP request.
-  \param request HttpRequest object to fill.
-  \param token Pointer to the beginning of the overwrite line.
-  \return 0 on success, any other value is the HTTP error.
- */
-int HttpHeaders::readReqOverLine (HttpRequestHeader *request, const char *token)
-{
-  const char *origToken = token;
-
-  while (*token==' ')
-    token++;
-
-  request->overwrite = *token;
-
   return 0;
 }
 

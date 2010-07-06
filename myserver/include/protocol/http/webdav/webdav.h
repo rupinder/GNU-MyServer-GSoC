@@ -35,6 +35,8 @@ public:
   void getElements (xmlNode*);
   char* getPropValue (const char*, const char*);
   void propfind (HttpThreadContext*);
+  void copy (HttpThreadContext*);
+  int davdelete (HttpThreadContext*);
 
 private:
   int numPropReq;

@@ -52,13 +52,11 @@ struct HttpRequestHeader : public HttpHeader
   string contentLength;
   string uri;
   string uriOpts;
-  string dest;
   char *uriOptsPtr;
   string rangeType;
   u_long rangeByteBegin;
   u_long rangeByteEnd;
   int uriEndsWithSlash;
-  char overwrite;
 
   /*! Digest authorization scheme stuff.  */
   char digestRealm[48+1];

@@ -19,6 +19,7 @@
 #include "myserver.h"
 #include <fts.h>
 #include <include/protocol/http/http.h>
+#include <include/http_handler/http_file/http_file.h>
 
 
 #include <string>
@@ -149,6 +150,69 @@ void WebDAV::propfind (HttpThreadContext* td)
 }
 
 /*!
+  Execute COPY command.
+  \param td Http Thread Context.
+ */
+void WebDAV::copy (HttpThreadContext* td)
+{
+  int overwrite = 1;
+  string dest = *td->request.getValue ("Destination", NULL);
+  string* over = td->request.getValue ("Overwrite", NULL);
+
+  if (over != NULL)
+  {
+    if ((*over).size() == 1 && (*over)[0] == 'F')
+      overwrite = 0;
+  }
+
+  if (!FilesUtility::isDirectory (td->request.uri.c_str ()))
+    FilesUtility::copyFile (td->request.uri.c_str (), dest.c_str (), overwrite);
+
+  else
+    {
+      string src = td->request.uri;
+
+      if (!dest.compare ("/"))
+        dest = td->getVhostDir ();
+
+      if (dest[dest.size () - 1] == '/')
+        dest.resize (dest.size () - 1);
+
+      FilesUtility::copyDir (td->request.uri, dest, overwrite);
+    }
+}
+
+/*!
+  Execute DELETE command.
+  \param td Http Thread Context.
+ */
+int WebDAV::davdelete (HttpThreadContext* td)
+{
+  string directory;
+  string file;
+  try
+    {
+      if (! (td->permissions & MYSERVER_PERMISSION_DELETE))
+        return td->http->sendAuth ();
+
+      if (FilesUtility::nodeExists (td->filenamePath))
+        {
+          FilesUtility::deleteFile (td->filenamePath.c_str ());
+          return td->http->raiseHTTPError (202);
+        }
+      else
+        return td->http->raiseHTTPError (204);
+    }
+  catch (exception & e)
+    {
+      td->connection->host->warningsLogWrite
+        (_E ("HttpFile: cannot delete file %s"),
+         td->filenamePath.c_str (), &e);
+      return td->http->raiseHTTPError (500);
+    };
+}
+
+/*!
  *Execute MKCOL command.
  *\param td Http Thread Context.
  */
@@ -160,8 +224,13 @@ int WebDAV::mkcol (HttpThreadContext* td)
 
   string loc = string (td->getVhostDir ()) + "/" + td->request.uri;
 
+  int pos = loc.rfind ("/");
+
+  /* Conflict if Ancestor doesn't exist.  */
+  if (!FilesUtility::nodeExists (loc.substr (0, pos).c_str ()))
+    return td->http->raiseHTTPError (409);
   /* Conflict if Collection exists already.  */
-  if (FilesUtility::nodeExists (loc.c_str ()))
+  else if (FilesUtility::nodeExists (loc.c_str ()))
     return td->http->raiseHTTPError (409);
   else
     {
