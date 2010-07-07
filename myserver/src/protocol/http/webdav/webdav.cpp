@@ -176,32 +176,60 @@ int WebDAV::propfind (HttpThreadContext* td)
   Execute COPY command.
   \param td Http Thread Context.
  */
-void WebDAV::copy (HttpThreadContext* td)
+int WebDAV::copy (HttpThreadContext* td)
 {
-  int overwrite = 1;
+  int ret, overwrite = 1;
   string dest = *td->request.getValue ("Destination", NULL);
   string* over = td->request.getValue ("Overwrite", NULL);
+  string source = string (td->getVhostDir ()) + "/" + td->request.uri;
+  string destination = string (td->getVhostDir ()) + "/" + dest;
+  string file, directory, filenamepath;
+  int permissions;
 
+  /* Determing Overwrite flag.  */
   if (over != NULL)
   {
-    if ((*over).size() == 1 && (*over)[0] == 'F')
+    if (over->size() == 1 && (*over)[0] == 'F')
       overwrite = 0;
   }
 
-  if (!FilesUtility::isDirectory (td->request.uri.c_str ()))
-    FilesUtility::copyFile (td->request.uri.c_str (), dest.c_str (), overwrite);
+  /* Check the permissions for destination.  */
+  ret = td->http->getFilePermissions (destination, directory, file,
+                                      filenamepath, false, &permissions);
+  if (ret != 200)
+    return ret;
+  else if (! (permissions & MYSERVER_PERMISSION_WRITE))
+    return td->http->sendAuth ();
 
+  /* If a file is to be copied.  */
+  if (!FilesUtility::isDirectory (source.c_str ()))
+    {
+        /* Conflict if Ancestor doesn't exist.  */
+      if (!FilesUtility::nodeExists (destination.substr (0, destination.rfind ("/")).c_str ()))
+        return td->http->raiseHTTPError (409);
+
+      /* Check if already exists.  */
+      if (!overwrite && FilesUtility::nodeExists (destination.c_str ()))
+        return td->http->raiseHTTPError (412);
+
+      FilesUtility::copyFile (source.c_str (), destination.c_str (), 1);
+      return td->http->raiseHTTPError (201);
+    }
   else
     {
-      string src = td->request.uri;
+      /* Remove trailing slash.  */
+      if (destination[destination.size () - 1] == '/')
+        destination.resize (destination.size () - 1);
 
-      if (!dest.compare ("/"))
-        dest = td->getVhostDir ();
+      /* Conflict if Ancestor doesn't exist.  */
+      if (!FilesUtility::nodeExists (destination.c_str ()))
+        return td->http->raiseHTTPError (409);
 
-      if (dest[dest.size () - 1] == '/')
-        dest.resize (dest.size () - 1);
+      ret = FilesUtility::copyDir (source, destination, 1);
+      if (ret != 0)
+        return td->http->raiseHTTPError (ret);
 
-      FilesUtility::copyDir (td->request.uri, dest, overwrite);
+      return td->http->raiseHTTPError (201);
     }
 }
 

@@ -179,7 +179,7 @@ int FilesUtility::copyFile (const char* src, const char* dest, int overwrite)
   \param dest The destination directory name.
   \param overwrite Overwrite the dest directory if already exists?
  */
-int FilesUtility::copyDir (string src, string dest, int overwrite)
+int FilesUtility::copyDir (string const & src, string const & dest, int overwrite)
 {
   string finaldest, srcpath;
   File srcFile, destFile;
@@ -198,6 +198,10 @@ int FilesUtility::copyDir (string src, string dest, int overwrite)
 
       srcpath = string (recTree.getPath ());
       finaldest = dest + "/" + srcpath.substr (loc);
+
+      /* Check if already exists.  */
+      if (FilesUtility::nodeExists (finaldest.c_str ()))
+        return 412;
 
       if (recTree.getInfo () == 8)
         {

@@ -35,7 +35,7 @@ public:
   void getElements (xmlNode*);
   char* getPropValue (const char*, const char*);
   int propfind (HttpThreadContext*);
-  void copy (HttpThreadContext*);
+  int copy (HttpThreadContext*);
   int davdelete (HttpThreadContext*);
 
 private:

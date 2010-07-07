@@ -1119,14 +1119,9 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
               else if (!td->request.cmd.compare ("MKCOL"))
                 ret = dav.mkcol (td);
               else if (!td->request.cmd.compare ("COPY"))
-                {
-                  dav.copy (td);
-                  ret = 0;
-                }
+                ret = dav.copy (td);
               else if (!td->request.cmd.compare ("DELETE"))
-                {
-                  ret = dav.davdelete (td);
-                }
+                ret = dav.davdelete (td);
               else if (!td->request.cmd.compare ("PROPFIND"))
                 ret = dav.propfind (td);
 
