@@ -182,11 +182,17 @@ int WebDAV::copy (HttpThreadContext* td)
   string dest = *td->request.getValue ("Destination", NULL);
   string* over = td->request.getValue ("Overwrite", NULL);
   string source = string (td->getVhostDir ()) + "/" + td->request.uri;
+  
+  /* Not allowed in a directory super to Vhost Document Root.  */
+  if (FilesUtility::getPathRecursionLevel (td->request.uri.c_str ()) <= 0 || 
+      FilesUtility::getPathRecursionLevel (dest.c_str ()) <= 0)
+    return td->http->raiseHTTPError (403);
+  
   string destination = string (td->getVhostDir ()) + "/" + dest;
   string file, directory, filenamepath;
   int permissions;
 
-  /* Determing Overwrite flag.  */
+  /* Determine Overwrite flag.  */
   if (over != NULL)
   {
     if (over->size() == 1 && (*over)[0] == 'F')
@@ -239,10 +245,14 @@ int WebDAV::copy (HttpThreadContext* td)
  */
 int WebDAV::davdelete (HttpThreadContext* td)
 {
+  /* Not allowed in a directory super to Vhost Document Root.  */
+  if (FilesUtility::getPathRecursionLevel (td->request.uri.c_str ()) <= 0)
+    return td->http->raiseHTTPError (403);
+
   int ret, permissions;
   string directory, file, filenamepath;
   string location = string (td->getVhostDir ()) + "/" + td->request.uri;
-
+  
   /* Check the permissions for location.  */
   ret = td->http->getFilePermissions (location, directory, file,
                                       filenamepath, false, &permissions);
@@ -250,9 +260,6 @@ int WebDAV::davdelete (HttpThreadContext* td)
     return ret;
   else if (! (permissions & MYSERVER_PERMISSION_WRITE))
     return td->http->sendAuth ();
-
-//      if (! (td->permissions & MYSERVER_PERMISSION_DELETE))
-//        return td->http->sendAuth ();
 
   if (!FilesUtility::isDirectory (location.c_str ()))
     {
