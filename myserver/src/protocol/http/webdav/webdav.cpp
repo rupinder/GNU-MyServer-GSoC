@@ -239,28 +239,31 @@ int WebDAV::copy (HttpThreadContext* td)
  */
 int WebDAV::davdelete (HttpThreadContext* td)
 {
-  string directory;
-  string file;
-  try
-    {
-      if (! (td->permissions & MYSERVER_PERMISSION_DELETE))
-        return td->http->sendAuth ();
+  int ret, permissions;
+  string directory, file, filenamepath;
+  string location = string (td->getVhostDir ()) + "/" + td->request.uri;
 
-      if (FilesUtility::nodeExists (td->filenamePath))
-        {
-          FilesUtility::deleteFile (td->filenamePath.c_str ());
-          return td->http->raiseHTTPError (202);
-        }
-      else
-        return td->http->raiseHTTPError (204);
-    }
-  catch (exception & e)
+  /* Check the permissions for location.  */
+  ret = td->http->getFilePermissions (location, directory, file,
+                                      filenamepath, false, &permissions);
+  if (ret != 200)
+    return ret;
+  else if (! (permissions & MYSERVER_PERMISSION_WRITE))
+    return td->http->sendAuth ();
+
+//      if (! (td->permissions & MYSERVER_PERMISSION_DELETE))
+//        return td->http->sendAuth ();
+
+  if (!FilesUtility::isDirectory (location.c_str ()))
     {
-      td->connection->host->warningsLogWrite
-        (_E ("HttpFile: cannot delete file %s"),
-         td->filenamePath.c_str (), &e);
-      return td->http->raiseHTTPError (500);
-    };
+      FilesUtility::deleteFile (location.c_str ());
+      return td->http->raiseHTTPError (202);
+    }
+  else
+    {
+      FilesUtility::deleteDir (location.c_str ());
+      return td->http->raiseHTTPError (202);
+    }
 }
 
 /*!

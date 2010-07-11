@@ -256,6 +256,28 @@ int FilesUtility::deleteFile (const char *filename)
 }
 
 /*!
+  Delete the directory [SRC]. Returns 0 on success.
+  \param src The source directory name.
+ */
+int FilesUtility::deleteDir (string const & src)
+{
+  string srcpath;
+  RecReadDirectory recTree;
+  recTree.clearTree ();
+  recTree.fileTreeGenerate (src.c_str ());
+
+  while (recTree.nextMember ())
+    {
+      if (recTree.getInfo () == 1)
+        continue;
+
+      FilesUtility::deleteFile (recTree.getPath ());
+    }
+
+  return 0;
+}
+
+/*!
   Return the result of `nodeExists (PATH) && !isDirectory (PATH)' using a
   single stat.
 

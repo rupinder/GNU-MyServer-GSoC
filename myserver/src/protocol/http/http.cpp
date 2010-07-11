@@ -1118,12 +1118,12 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                 ret = traceHTTPRESOURCE (td->request.uri, 0);
               else if (!td->request.cmd.compare ("MKCOL"))
                 ret = dav.mkcol (td);
-              else if (!td->request.cmd.compare ("COPY"))
-                ret = dav.copy (td);
-              else if (!td->request.cmd.compare ("DELETE"))
-                ret = dav.davdelete (td);
               else if (!td->request.cmd.compare ("PROPFIND"))
                 ret = dav.propfind (td);
+              else if (!td->request.cmd.compare ("COPY"))
+                ret = dav.copy (td);
+              else if (!td->request.cmd.compare ("DAVDELETE"))
+                ret = dav.davdelete (td);
 
               else
                 {

@@ -77,6 +77,7 @@ public:
   static int deleteFile (const char * );
   static int deleteFile (string const &file)
   {return deleteFile (file.c_str ());}
+  static int deleteDir (string const &);
 
   static int renameFile (const char*, const char*);
   static int renameFile (string const &before, string const &after)
