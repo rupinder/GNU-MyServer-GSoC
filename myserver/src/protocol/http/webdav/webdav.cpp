@@ -28,6 +28,22 @@ using namespace std;
 
 
 /*!
+  Constructor for WebDAV class.
+ */
+WebDAV::WebDAV ()
+{
+  const char* properties[3] = {"creationtime", "lastmodifiedtime", "lastaccesstime"};
+  numPropReq = 0;
+  propReq.clear ();
+  available.clear ();
+
+  for (int i = 0; i < 3; i++)
+    available.push_back (properties[i]);
+
+  numPropAvail = available.size ();
+}
+
+/*!
   Retrieve the elements from the XML Tree in request and
   and push them into properties request vector (propReq).
   \param aNode Pointer to root node.
@@ -78,11 +94,21 @@ xmlNodePtr WebDAV::generate (const char* path)
   xmlNodePtr prop = xmlNewNode (NULL, BAD_CAST "D:prop");
   xmlNewProp (prop, BAD_CAST "xmlns:R", BAD_CAST "http://www.myserverproject.net");
 
-  for (int i = 2; i < numPropReq; i++)
-  {
-    xmlNewChild (prop, NULL, BAD_CAST ((char*) propReq[i]), BAD_CAST (getPropValue (propReq[i], path)));
-    xmlAddChild (propstat, prop);
-  }
+  if (!strcmp (propReq[1], "propname"))
+    {
+      for (int i = 0; i < numPropAvail; i++)
+        xmlNewChild (prop, NULL, BAD_CAST (available[i]), NULL);
+
+      xmlAddChild (propstat, prop);
+    }
+  else
+    {
+      for (int i = 2; i < numPropReq; i++)
+      {
+        xmlNewChild (prop, NULL, BAD_CAST ((char*) propReq[i]), BAD_CAST (getPropValue (propReq[i], path)));
+        xmlAddChild (propstat, prop);
+      }
+    }
 
   xmlNewChild(propstat, NULL, BAD_CAST "D:status", BAD_CAST "HTTP/1.1 200 OK");
   xmlAddChild (response, propstat);
@@ -124,8 +150,6 @@ xmlDocPtr WebDAV::generateResponse (const char* path)
  */
 int WebDAV::propfind (HttpThreadContext* td)
 {
-  propReq.clear ();
-
   /* Not allowed in a directory super to Vhost Document Root.  */
   if (FilesUtility::getPathRecursionLevel (td->request.uri.c_str ()) < 0)
     return td->http->raiseHTTPError (403);
@@ -252,7 +276,7 @@ int WebDAV::davdelete (HttpThreadContext* td)
   int ret, permissions;
   string directory, file, filenamepath;
   string location = string (td->getVhostDir ()) + "/" + td->request.uri;
-  
+
   /* Check the permissions for location.  */
   ret = td->http->getFilePermissions (location, directory, file,
                                       filenamepath, false, &permissions);

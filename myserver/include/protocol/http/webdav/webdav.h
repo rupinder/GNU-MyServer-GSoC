@@ -29,6 +29,7 @@ using namespace std;
 class WebDAV
 {
 public:
+  WebDAV ();
   int mkcol (HttpThreadContext*);
   xmlNodePtr generate (const char*);
   xmlDocPtr generateResponse (const char*);
@@ -40,5 +41,7 @@ public:
 
 private:
   int numPropReq;
+  int numPropAvail;
   vector <const char*> propReq;
+  vector <const char*> available;
 };
