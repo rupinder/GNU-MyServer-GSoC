@@ -1124,6 +1124,8 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                 ret = dav.copy (td);
               else if (!td->request.cmd.compare ("DAVDELETE"))
                 ret = dav.davdelete (td);
+              else if (!td->request.cmd.compare ("MOVE"))
+                ret = dav.move (td);
 
               else
                 {

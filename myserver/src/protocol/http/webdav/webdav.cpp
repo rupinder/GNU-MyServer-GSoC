@@ -306,6 +306,49 @@ int WebDAV::davdelete (HttpThreadContext* td)
 }
 
 /*!
+  Execute MOVE command.
+  \param td Http Thread Context.
+ */
+int WebDAV::move (HttpThreadContext* td)
+{
+  int ret, overwrite;
+  string dest = *td->request.getValue ("Destination", NULL);
+  string* over = td->request.getValue ("Overwrite", NULL);
+  string source = string (td->getVhostDir ()) + "/" + td->request.uri;
+  string destination = string (td->getVhostDir ()) + "/" + dest;
+  string file, directory, filenamepath;
+  int permissions;
+
+  /* Determing Overwrite flag.  */
+  if (over != NULL)
+  {
+    if (over->size() == 1 && (*over)[0] == 'F')
+      overwrite = 0;
+  }
+
+  /* Check the permissions for destination.  */
+  ret = td->http->getFilePermissions (destination, directory, file,
+                                      filenamepath, false, &permissions);
+  if (ret != 200)
+    return ret;
+
+  /* Check if allowed.  */
+  else if (! (permissions & MYSERVER_PERMISSION_WRITE))
+    return td->http->sendAuth ();
+
+  /* Conflict if Ancestor doesn't exist.  */
+  if (!FilesUtility::nodeExists (destination.substr (0, destination.rfind ("/")).c_str ()))
+    return td->http->raiseHTTPError (409);
+
+  /* Check if already exists.  */
+  if (!overwrite && FilesUtility::nodeExists (destination.c_str ()))
+    return td->http->raiseHTTPError (412);
+
+  FilesUtility::renameFile (source.c_str (), destination.c_str ());
+  return td->http->raiseHTTPError (201);
+}
+
+/*!
  *Execute MKCOL command.
  *\param td Http Thread Context.
  */

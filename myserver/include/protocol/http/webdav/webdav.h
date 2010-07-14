@@ -38,6 +38,7 @@ public:
   int propfind (HttpThreadContext*);
   int copy (HttpThreadContext*);
   int davdelete (HttpThreadContext*);
+  int move (HttpThreadContext*);
 
 private:
   int numPropReq;
