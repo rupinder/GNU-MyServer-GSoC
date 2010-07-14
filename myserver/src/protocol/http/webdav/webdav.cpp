@@ -101,6 +101,14 @@ xmlNodePtr WebDAV::generate (const char* path)
 
       xmlAddChild (propstat, prop);
     }
+  else if (!strcmp (propReq[1], "allprop"))
+    {
+      for (int i = 0; i < numPropAvail; i++)
+      {
+        xmlNewChild (prop, NULL, BAD_CAST ((char*) available[i]), BAD_CAST (getPropValue (available[i], path)));
+        xmlAddChild (propstat, prop);
+      }
+    }
   else
     {
       for (int i = 2; i < numPropReq; i++)
