@@ -236,7 +236,8 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
                                                     | MYSERVER_SECURITY_CONF
                                                     | MYSERVER_SERVER_CONF, ""));
 
-      stdInFile.openFile (td->inputData.getFilename (), File::READ);
+      if (td->inputData.getFilename ()[0] != '\0')
+        stdInFile.openFile (td->inputData.getFilename (), File::READ);
 
       spi.stdIn = (FileHandle) stdInFile.getHandle ();
       spi.stdError = (FileHandle) stdOutFile.getWriteHandle ();
