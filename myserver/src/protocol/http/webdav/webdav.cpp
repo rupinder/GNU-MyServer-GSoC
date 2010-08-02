@@ -349,6 +349,79 @@ int WebDAV::move (HttpThreadContext* td)
 }
 
 /*!
+  Execute LOCK command.
+  \param td Http Thread Context.
+ */
+int WebDAV::lock (HttpThreadContext* td)
+{
+  if (FilesUtility::getPathRecursionLevel (td->request.uri.c_str ()) <= 0)
+    return td->http->raiseHTTPError (403);
+
+  string loc = string (td->getVhostDir ()) + "/" + td->request.uri;
+
+  char urn[48];
+  sha1.init ();
+  td->auxiliaryBuffer->setLength (0);
+  *td->auxiliaryBuffer << loc;
+
+  sha1.update (*td->auxiliaryBuffer);
+  sha1.end (urn);
+
+  string lockLoc = string (td->getVhostSys ()) + "/webdav/locks/" + string (urn);
+
+  if (!FilesUtility::nodeExists (lockLoc.substr (0, lockLoc.rfind ("/")).c_str ()))
+    {
+      string temp = string (td->getVhostSys ()) + "/webdav";
+      FilesUtility::mkdir (temp.c_str());
+      temp += "/locks";
+      FilesUtility::mkdir (temp.c_str());
+    }
+
+  File resLock;
+  return resLock.openFile (lockLoc.c_str (), File::WRITE | File::FILE_OPEN_ALWAYS);
+}
+
+/*!
+  Execute UNLOCK command.
+  \param td Http Thread Context.
+ */
+int WebDAV::unlock (HttpThreadContext* td)
+{
+  string loc = string (td->getVhostDir ()) + "/" + td->request.uri;
+
+  char urn[48];
+  sha1.init ();
+  td->auxiliaryBuffer->setLength (0);
+  *td->auxiliaryBuffer << loc;
+
+  sha1.update (*td->auxiliaryBuffer);
+  sha1.end (urn);
+
+  string lockLoc = string (td->getVhostSys ()) + "/webdav/locks/" + string (urn);
+
+  return FilesUtility::deleteFile (lockLoc.c_str ());
+}
+
+/*!
+  Check if a resource is locked.
+  \param path Path to the resource.
+ */
+bool WebDAV::isLocked (HttpThreadContext* td, string path)
+{
+  char urn[48];
+  sha1.init ();
+  td->auxiliaryBuffer->setLength (0);
+  *td->auxiliaryBuffer << string (path);
+
+  sha1.update (*td->auxiliaryBuffer);
+  sha1.end (urn);
+
+  string lockLoc = string (td->getVhostSys ()) + "/webdav/locks/" + string (urn);
+
+  return FilesUtility::nodeExists (lockLoc.c_str ());
+}
+
+/*!
  *Execute MKCOL command.
  *\param td Http Thread Context.
  */

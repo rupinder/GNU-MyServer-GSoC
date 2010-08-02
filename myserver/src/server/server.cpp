@@ -705,6 +705,7 @@ void Server::stop ()
  */
 int Server::terminate ()
 {
+  FilesUtility::deleteDir ("system/webdav");
   log (MYSERVER_LOG_MSG_INFO, _("Stopping threads"));
 
   listenThreads.terminate ();

@@ -17,6 +17,7 @@
 */
 
 #include "myserver.h"
+#include <include/base/crypt/sha1.h>
 #include <include/base/file/files_utility.h>
 #include <include/base/xml/xml_parser.h>
 #include <include/conf/vhost/vhost.h>
@@ -35,14 +36,18 @@ public:
   xmlDocPtr generateResponse (const char*);
   void getElements (xmlNode*);
   char* getPropValue (const char*, const char*);
+  bool isLocked (HttpThreadContext*, string);
   int propfind (HttpThreadContext*);
   int copy (HttpThreadContext*);
   int davdelete (HttpThreadContext*);
   int move (HttpThreadContext*);
+  int lock (HttpThreadContext*);
+  int unlock (HttpThreadContext*);
 
 private:
   int numPropReq;
   int numPropAvail;
   vector <const char*> propReq;
   vector <const char*> available;
+  Sha1 sha1;
 };
