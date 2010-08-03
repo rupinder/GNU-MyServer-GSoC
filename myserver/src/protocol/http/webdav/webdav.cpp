@@ -214,15 +214,20 @@ int WebDAV::copy (HttpThreadContext* td)
   string dest = *td->request.getValue ("Destination", NULL);
   string* over = td->request.getValue ("Overwrite", NULL);
   string source = string (td->getVhostDir ()) + "/" + td->request.uri;
-  
+
   /* Not allowed in a directory super to Vhost Document Root.  */
-  if (FilesUtility::getPathRecursionLevel (td->request.uri.c_str ()) <= 0 || 
+  if (FilesUtility::getPathRecursionLevel (td->request.uri.c_str ()) <= 0 ||
       FilesUtility::getPathRecursionLevel (dest.c_str ()) <= 0)
     return td->http->raiseHTTPError (403);
-  
+
   string destination = string (td->getVhostDir ()) + "/" + dest;
   string file, directory, filenamepath;
   int permissions;
+
+  /* Raise 423 if Locked.  */
+  if (isLocked (td, destination))
+    return td->http->raiseHTTPError (423);
+
 
   /* Determine Overwrite flag.  */
   if (over != NULL)
@@ -285,6 +290,10 @@ int WebDAV::davdelete (HttpThreadContext* td)
   string directory, file, filenamepath;
   string location = string (td->getVhostDir ()) + "/" + td->request.uri;
 
+  /* Raise 423 if Locked.  */
+  if (isLocked (td, location))
+    return td->http->raiseHTTPError (423);
+
   /* Check the permissions for location.  */
   ret = td->http->getFilePermissions (location, directory, file,
                                       filenamepath, false, &permissions);
@@ -318,6 +327,10 @@ int WebDAV::move (HttpThreadContext* td)
   string destination = string (td->getVhostDir ()) + "/" + dest;
   string file, directory, filenamepath;
   int permissions;
+
+  /* Raise 423 if Locked.  */
+  if (isLocked (td, destination))
+    return td->http->raiseHTTPError (423);
 
   /* Determing Overwrite flag.  */
   if (over != NULL)
@@ -432,6 +445,10 @@ int WebDAV::mkcol (HttpThreadContext* td)
     return td->http->raiseHTTPError (403);
 
   string loc = string (td->getVhostDir ()) + "/" + td->request.uri;
+
+  /* Raise 423 if Locked.  */
+  if (isLocked (td, loc))
+    return td->http->raiseHTTPError (423);
 
   int pos = loc.rfind ("/");
 
