@@ -204,7 +204,8 @@ void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
         return;
       }
 
-    log (MYSERVER_LOG_MSG_INFO, _("Loading server configuration..."));
+    log (MYSERVER_LOG_MSG_INFO, _("Loading server configuration from %s..."),
+         mainConf.c_str ());
 
     if (postLoad ())
       {
@@ -305,7 +306,8 @@ int Server::postLoad ()
     return -1;
 
   /* Load the MIME types.  */
-  log (MYSERVER_LOG_MSG_INFO, _("Loading MIME types..."));
+  log (MYSERVER_LOG_MSG_INFO, _("Loading MIME types from %s..."),
+       mimeConfigurationFile.c_str ());
 
   string handlerStr (getData ("server.mime_handler", "xml"));
   mimeManager.setDefaultHandler (handlerStr);
@@ -366,6 +368,9 @@ int Server::loadVHostConf ()
                                        vhostConfigurationFile.c_str ());
 
   /* Load the virtual hosts configuration.  */
+  log (MYSERVER_LOG_MSG_INFO, _("Loading virtual hosts from %s..."),
+       vhostLocation);
+
   if (vhostHandler->load (vhostLocation))
     {
       log (MYSERVER_LOG_MSG_ERROR,
