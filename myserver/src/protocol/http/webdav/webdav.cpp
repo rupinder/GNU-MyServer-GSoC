@@ -179,6 +179,34 @@ int WebDAV::propfind (HttpThreadContext* td)
       xmlDocPtr doc = generateResponse (loc.c_str ());
       xmlSaveFormatFileEnc ("test.xml", doc, "UTF-8", 1);
 
+      MemBuf resp;
+      int len;
+      bool keepalive, useChunks;
+      u_long nbw, nbw2;
+
+      p.open ("test.xml", 0);
+      p.saveMemBuf (resp, &len);
+
+      FiltersChain chain;
+      if (td->mime)
+        {
+          FiltersFactory *ff = Server::getInstance ()->getFiltersFactory ();
+          ff->chain (&chain, td->mime->filters, td->connection->socket, &nbw, 1);
+        }
+
+      HttpDataHandler::checkDataChunks (td, &keepalive, &useChunks);
+
+      HttpHeaders::sendHeader (td->response, *chain.getStream (), *td->buffer, td);
+
+      HttpDataHandler::appendDataToHTTPChannel (td,
+                                          resp.getBuffer (),
+                                          len, &(td->outputData),
+                                          &chain, td->appendOutputs,
+                                          useChunks);
+
+      if (useChunks && chain.getStream ()->write ("0\r\n\r\n", 5, &nbw2))
+        return HttpDataHandler::RET_FAILURE;
+
       /* 200 Success.  */
       td->http->raiseHTTPError (200);
       return HttpDataHandler::RET_OK;

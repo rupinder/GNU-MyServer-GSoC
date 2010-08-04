@@ -116,7 +116,8 @@ int Http::optionsHTTPRESOURCE (string& filename, bool yetmapped)
   try
     {
       HttpRequestHeader::Entry *connection = td->request.other.get ("connection");
-      string methods ("OPTIONS, GET, POST, HEAD, DELETE, PUT, TRACE");
+      string methods ("OPTIONS, GET, POST, HEAD, DELETE, PUT, TRACE, MKCOL, \
+                       PROPFIND, COPY, MOVE, DELETE, LOCK, UNLOCK");
 
       HashMap<string, DynamicHttpCommand*>::Iterator it =
         staticData->getDynCmdManager ()->begin ();
