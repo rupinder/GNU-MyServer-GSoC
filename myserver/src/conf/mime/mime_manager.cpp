@@ -53,18 +53,18 @@ MimeRecord::~MimeRecord ()
 /*!
   Add a filter to the list of filters to apply on this MIME type.
   Return zero if the filters was not added.
- */
+*/
 int MimeRecord::addFilter (const char* n, bool acceptDuplicate)
 {
   if (!acceptDuplicate)
-  {
-    list<string>::iterator i = filters.begin ();
-    for (; i != filters.end (); i++)
     {
-      if (!stringcmpi (*i, n))
-        return 0;
+      list<string>::iterator i = filters.begin ();
+      for (; i != filters.end (); i++)
+        {
+          if (!stringcmpi (*i, n))
+            return 0;
+        }
     }
-  }
 
   filters.push_back (n);
   return 1;
@@ -80,18 +80,14 @@ MimeRecord::MimeRecord (MimeRecord& m)
   filters.clear ();
 
   for ( ; i != m.filters.end (); i++)
-  {
     filters.push_back (*i);
-  }
 
   i = m.extensions.begin ();
 
   extensions.clear ();
 
   for ( ; i != m.extensions.end (); i++)
-  {
     filters.push_back (*i);
-  }
 
   selfExecuted = m.selfExecuted;
   mimeType.assign (m.mimeType);
@@ -111,15 +107,13 @@ void MimeRecord::clear ()
   cgiManager.assign ("");
 
   for (list<Regex*>::iterator it = pathRegex.begin ();
-       it != pathRegex.end ();
-       it++)
-  {
+       it != pathRegex.end (); it++)
     delete *it;
-  }
 
   HashMap<string, NodeTree<string>*>::Iterator it = hashedData.begin ();
   for (;it != hashedData.end (); it++)
     delete (*it);
+
   hashedData.clear ();
 
   pathRegex.clear ();
@@ -205,6 +199,7 @@ MimeRecord *MimeManager::getMIME (const char *filename, const char *handler)
 void MimeManager::registerHandler (string &name, MimeManagerHandler *handler)
 {
   MimeManagerHandler *old = handlers.put (name, handler);
+  handler->setLogger (getLogger ());
   if (old)
     delete old;
 }

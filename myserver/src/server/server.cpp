@@ -389,6 +389,7 @@ void Server::loadStaticComponents ()
 {
   string xml ("xml");
 
+  mimeManager.setLogger (this);
   mimeManager.registerHandler (xml, new XmlMimeHandler ());
 
   XmlVhostHandler::registerBuilder (vhostManager);

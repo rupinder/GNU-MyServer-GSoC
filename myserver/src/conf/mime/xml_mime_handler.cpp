@@ -46,7 +46,7 @@ void XmlMimeHandler::registerBuilder (MimeManager& manager)
 
 /*!
   Get the name of the used file.
- */
+*/
 const char *XmlMimeHandler::getFilename ()
 {
   return filename.c_str ();
@@ -54,7 +54,7 @@ const char *XmlMimeHandler::getFilename ()
 
 /*!
   Read a MIME record from a XML node.
- */
+*/
 MimeRecord *XmlMimeHandler::readRecord (xmlNodePtr node)
 {
   xmlNodePtr lcur = node->children;
@@ -63,102 +63,102 @@ MimeRecord *XmlMimeHandler::readRecord (xmlNodePtr node)
   MimeRecord *rc = new MimeRecord;
 
   for (attrs = node->properties; attrs; attrs = attrs->next)
-  {
-    if (!xmlStrcmp (attrs->name, (const xmlChar *)"handler") &&
-        attrs->children && attrs->children->content)
-      rc->cmdName.assign ((const char*)attrs->children->content);
+    {
+      if (!xmlStrcmp (attrs->name, (const xmlChar *)"handler") &&
+          attrs->children && attrs->children->content)
+        rc->cmdName.assign ((const char*)attrs->children->content);
 
-    if (!xmlStrcmp (attrs->name, (const xmlChar *)"self") &&
-        attrs->children && attrs->children->content)
-      rc->selfExecuted = xmlStrcmp (attrs->children->content,
-                                    (const xmlChar *)"YES");
+      if (!xmlStrcmp (attrs->name, (const xmlChar *)"self") &&
+          attrs->children && attrs->children->content)
+        rc->selfExecuted = xmlStrcmp (attrs->children->content,
+                                      (const xmlChar *)"YES");
 
-    if (!xmlStrcmp (attrs->name, (const xmlChar *)"mime") &&
-        attrs->children && attrs->children->content)
-      rc->mimeType.assign ((const char*)attrs->children->content);
+      if (!xmlStrcmp (attrs->name, (const xmlChar *)"mime") &&
+          attrs->children && attrs->children->content)
+        rc->mimeType.assign ((const char*)attrs->children->content);
 
-    if (!xmlStrcmp (attrs->name, (const xmlChar *)"param") &&
-        attrs->children && attrs->children->content)
-      rc->cgiManager.assign ((const char*)attrs->children->content);
-  }
+      if (!xmlStrcmp (attrs->name, (const xmlChar *)"param") &&
+          attrs->children && attrs->children->content)
+        rc->cgiManager.assign ((const char*)attrs->children->content);
+    }
 
   for ( ;lcur; lcur = lcur->next)
-  {
-    if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *)"EXTENSION"))
     {
-      for (attrs = lcur->properties; attrs; attrs = attrs->next)
-      {
-        if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") &&
-            attrs->children && attrs->children->content)
+      if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *)"EXTENSION"))
         {
-          string ext ((const char*)attrs->children->content);
-          rc->extensions.push_back (ext);
-        }
-      }
-    }
-
-    if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *)"DEFINE"))
-    {
-      const char *name = NULL;
-      const char *value = NULL;
-
-      for (attrs = lcur->properties; attrs; attrs = attrs->next)
-      {
-        if (!xmlStrcmp (attrs->name, (const xmlChar *)"name") &&
-            attrs->children && attrs->children->content)
-          name = (const char*)attrs->children->content;
-
-        if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") &&
-            attrs->children && attrs->children->content)
-          value = (const char*)attrs->children->content;
-      }
-
-      if (name && value)
-      {
-        string key (name);
-        string val (value);
-        NodeTree<string> *nt = new NodeTree<string> (val);
-        rc->hashedData.put (key, nt);
-      }
-    }
-
-    if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *)"PATH"))
-    {
-      for (attrs = lcur->properties; attrs; attrs = attrs->next)
-      {
-        if (!xmlStrcmp (attrs->name, (const xmlChar *)"regex") &&
-            attrs->children && attrs->children->content)
-        {
-          Regex *r = new Regex;
-
-          if (r->compile ((const char*)attrs->children->content, 0))
+          for (attrs = lcur->properties; attrs; attrs = attrs->next)
             {
-              delete r;
-              return NULL;
+              if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") &&
+                  attrs->children && attrs->children->content)
+                {
+                  string ext ((const char*)attrs->children->content);
+                  rc->extensions.push_back (ext);
+                }
+            }
+        }
+
+      if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *)"DEFINE"))
+        {
+          const char *name = NULL;
+          const char *value = NULL;
+
+          for (attrs = lcur->properties; attrs; attrs = attrs->next)
+            {
+              if (!xmlStrcmp (attrs->name, (const xmlChar *)"name") &&
+                  attrs->children && attrs->children->content)
+                name = (const char*)attrs->children->content;
+
+              if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") &&
+                  attrs->children && attrs->children->content)
+                value = (const char*)attrs->children->content;
             }
 
-          rc->pathRegex.push_back (r);
+          if (name && value)
+            {
+              string key (name);
+              string val (value);
+              NodeTree<string> *nt = new NodeTree<string> (val);
+              rc->hashedData.put (key, nt);
+            }
         }
-      }
-    }
 
-    if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *)"FILTER"))
-    {
-      for (attrs = lcur->properties; attrs; attrs = attrs->next)
-      {
-        if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") &&
-            attrs->children && attrs->children->content)
-          rc->addFilter ((const char*)attrs->children->content);
-      }
+      if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *)"PATH"))
+        {
+          for (attrs = lcur->properties; attrs; attrs = attrs->next)
+            {
+              if (!xmlStrcmp (attrs->name, (const xmlChar *)"regex") &&
+                  attrs->children && attrs->children->content)
+                {
+                  Regex *r = new Regex;
+
+                  if (r->compile ((const char*)attrs->children->content, 0))
+                    {
+                      delete r;
+                      return NULL;
+                    }
+
+                  rc->pathRegex.push_back (r);
+                }
+            }
+        }
+
+      if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *)"FILTER"))
+        {
+          for (attrs = lcur->properties; attrs; attrs = attrs->next)
+            {
+              if (!xmlStrcmp (attrs->name, (const xmlChar *)"value") &&
+                  attrs->children && attrs->children->content)
+                rc->addFilter ((const char*)attrs->children->content);
+            }
+        }
     }
-  }
 
   return rc;
 }
 
 /*!
   Reload using the same configuration file.
- */
+*/
 u_long XmlMimeHandler::reload ()
 {
   if (!filename.length ())
@@ -170,7 +170,7 @@ u_long XmlMimeHandler::reload ()
 /*!
   Load the MIME types from a XML file. Returns the number of
   MIME types loaded successfully.
- */
+*/
 u_long XmlMimeHandler::load (const char *fn)
 {
   XmlParser parser;
@@ -191,7 +191,7 @@ u_long XmlMimeHandler::load (const char *fn)
 /*!
   Load the MIME types from a XML parser object. Returns the number
   of MIME types loaded successfully.
- */
+*/
 u_long XmlMimeHandler::load (XmlParser* parser)
 {
   xmlNodePtr node;
@@ -203,15 +203,14 @@ u_long XmlMimeHandler::load (XmlParser* parser)
   node = doc->children->children;
 
   for (; node; node = node->next)
-  {
-    if (xmlStrcmp (node->name, (const xmlChar *)"MIME"))
-      continue;
+    {
+      if (xmlStrcmp (node->name, (const xmlChar *) "MIME"))
+        continue;
 
-    MimeRecord *rc = readRecord (node);
-
-    if (rc)
-      addRecord (rc);
-  }
+      MimeRecord *rc = readRecord (node);
+      if (rc)
+        addRecord (rc);
+    }
 
   /*! Store the loaded status. */
   loaded = true;
@@ -221,7 +220,7 @@ u_long XmlMimeHandler::load (XmlParser* parser)
 
 /*!
   Destroy the object.
- */
+*/
 XmlMimeHandler::~XmlMimeHandler ()
 {
   clean ();
@@ -229,29 +228,30 @@ XmlMimeHandler::~XmlMimeHandler ()
 
 /*!
   Clean the memory allocated by the structure.
- */
+*/
 void XmlMimeHandler::clean ()
 {
   if (loaded)
-  {
-    loaded = false;
-    filename = "";
-    clearRecords ();
-  }
+    {
+      loaded = false;
+      filename = "";
+      clearRecords ();
+    }
 }
 
 /*!
   Constructor of the class.
- */
+*/
 XmlMimeHandler::XmlMimeHandler ()
 {
+  logger = NULL;
   loaded = false;
 }
 
 /*!
   Add a new record.
   \return Return the position for the new record.
- */
+*/
 int XmlMimeHandler::addRecord (MimeRecord *mr)
 {
   u_long position = records.size ();
@@ -266,7 +266,14 @@ int XmlMimeHandler::addRecord (MimeRecord *mr)
 #ifdef MIME_LOWER_CASE
       transform (ext.begin (), ext.end (), ext.begin (), ::tolower);
 #endif
-      extIndex.put (ext, position);
+      if (extIndex.put (ext, position))
+        {
+          ServerLogger *sl = getLogger ();
+        if (sl)
+          sl->log (MYSERVER_LOG_MSG_WARNING,
+                   _("XmlMimeHandler: Duplicate extension: %s"), ext.c_str ());
+        }
+
     }
 
   for (list<Regex*>::iterator it = mr->pathRegex.begin ();
@@ -284,7 +291,7 @@ int XmlMimeHandler::addRecord (MimeRecord *mr)
 
 /*!
   Remove all the stored records.
- */
+*/
 void XmlMimeHandler::clearRecords ()
 {
   vector <MimeRecord*>::iterator i = records.begin ();
@@ -315,7 +322,7 @@ void XmlMimeHandler::clearRecords ()
   \param filename Find the MIME type for this file.
   \param handler If specified, indicate an external handler to use
   if the mime cannot be found locally.
- */
+*/
 MimeRecord *XmlMimeHandler::getMIME (const char *filename)
 {
   string ext;
@@ -324,16 +331,16 @@ MimeRecord *XmlMimeHandler::getMIME (const char *filename)
   for (list<PathRegex*>::iterator it = pathRegex.begin ();
        it != pathRegex.end ();
        it++)
-  {
-    PathRegex *pr = *it;
-    regmatch_t pm;
-
-    if (pr->regex->exec (filename, 1, &pm, 0) == 0)
     {
-      pos = pr->record;
-      break;
+      PathRegex *pr = *it;
+      regmatch_t pm;
+
+      if (pr->regex->exec (filename, 1, &pm, 0) == 0)
+        {
+          pos = pr->record;
+          break;
+        }
     }
-  }
 
   if (pos == 0)
     {
@@ -349,7 +356,7 @@ MimeRecord *XmlMimeHandler::getMIME (const char *filename)
 
 /*!
   Returns the number of MIME types loaded.
- */
+*/
 u_long XmlMimeHandler::getNumMIMELoaded ()
 {
   return records.size () -1;
