@@ -90,7 +90,7 @@ class AbstractServerException: public exception
       return gnulib::strerror (localErrno);
     }
 
-    enum LoggingLevel getLogLevel()
+    enum LoggingLevel getLogLevel ()
     {
       return logLevel;
     }

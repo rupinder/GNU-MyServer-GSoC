@@ -22,6 +22,8 @@
 #include <include/base/file/files_utility.h>
 #include <include/base/files_cache/cached_file.h>
 
+#include <include/base/exceptions/checked.h>
+
 #ifndef WIN32
 # include <fcntl.h>
 # include <unistd.h>
@@ -60,6 +62,8 @@ CachedFile::CachedFile (CachedFileBuffer* cfb)
  */
 int CachedFile::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
 {
+  errno = EBADF;
+  checked::raiseException ();
   return -1;
 }
 
@@ -72,6 +76,8 @@ int CachedFile::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
  */
 int CachedFile::openFile (const char* nfilename, u_long opt)
 {
+  errno = ENOENT;
+  checked::raiseException ();
   return -1;
 }
 
@@ -80,7 +86,7 @@ int CachedFile::openFile (const char* nfilename, u_long opt)
  */
 Handle CachedFile::getHandle ()
 {
-  return (Handle)-1;
+  return (Handle) -1;
 }
 
 /*!
@@ -140,6 +146,8 @@ int CachedFile::read (char* buffer, u_long buffersize, u_long* nbr)
  */
 int CachedFile::createTemporaryFile (const char *, bool)
 {
+  errno = EINVAL;
+  checked::raiseException ();
   return -1;
 }
 
@@ -179,6 +187,8 @@ int CachedFile::seek (u_long initialByte)
  */
 int CachedFile::write (const char* buffer, u_long len, u_long *nbw)
 {
+  errno = EBADF;
+  checked::raiseException ();
   return -1;
 }
 
