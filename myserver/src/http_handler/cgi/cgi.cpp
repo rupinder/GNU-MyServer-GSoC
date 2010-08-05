@@ -381,6 +381,7 @@ int Cgi::sendHeader (HttpThreadContext *td, Pipe &stdOutFile, FiltersChain &chai
   /* Parse initial chunks of data looking for the HTTP header.  */
   while (!headerCompleted && !nph)
     {
+      u_long headerChecked = 4;
       u_long timeout = td->http->getTimeout ();
       u_long ticks = getTicks () - procStartTime;
       bool term;
@@ -425,8 +426,7 @@ int Cgi::sendHeader (HttpThreadContext *td, Pipe &stdOutFile, FiltersChain &chai
           return 1;
         }
 
-      for (u_long i = std::max (0UL, (headerOffset - nBytesRead - 10));
-           i < headerOffset; i++)
+      for (u_long i = headerChecked; i < headerOffset; i++)
         {
           char *buff = td->auxiliaryBuffer->getBuffer ();
           if ((buff[i] == '\r') && (buff[i+1] == '\n')
@@ -443,6 +443,8 @@ int Cgi::sendHeader (HttpThreadContext *td, Pipe &stdOutFile, FiltersChain &chai
               break;
             }
         }
+
+      headerChecked = std::max (4UL, headerOffset);
     }
 
   /* Send the header.  */
