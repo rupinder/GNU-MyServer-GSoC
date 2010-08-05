@@ -79,7 +79,7 @@
   <DEFINE name="server.max_file_cache" value="1048576" />
 
   <!--MIN CACHE SIZE FOR SINGLE STATIC FILE-->
-  <DEFINE name="server.min_file_cache" value="1048576" />
+  <DEFINE name="server.min_file_cache" value="0" />
 
   <!-- ENABLE HOME DIRECTORY PER USER -->
   <DEFINE name="http.use_home_directory" value="NO" />
