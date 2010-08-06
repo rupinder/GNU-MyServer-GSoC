@@ -168,5 +168,12 @@ CachedFileBuffer::~CachedFileBuffer ()
  */
 bool CachedFileBuffer::revalidate (const char *res)
 {
-  return FilesUtility::getLastModTime (res) == getMtime ();
+  struct stat st;
+  int ret = stat (res, &st);
+  if (ret < 0)
+    return false;
+
+  return st.st_ino == fstat.st_ino
+    && st.st_dev == fstat.st_dev
+    && st.st_mtime == fstat.st_mtime;
 }
