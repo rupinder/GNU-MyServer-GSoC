@@ -23,6 +23,7 @@
 # include "myserver.h"
 # include <include/filter/stream.h>
 # include <include/base/file/file.h>
+# include <include/base/utility.h>
 # include <include/base/sync/mutex.h>
 # include <string>
 
