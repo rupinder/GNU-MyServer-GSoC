@@ -1129,6 +1129,9 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                 ret = dav.move (td);
               else if (!td->request.cmd.compare ("LOCK"))
                 ret = dav.lock (td);
+              else if (!td->request.cmd.compare ("UNLOCK"))
+                ret = dav.unlock (td);
+
 
               else
                 {

@@ -166,6 +166,12 @@ int WebDAV::propfind (HttpThreadContext* td)
 
   try
     {
+      bool keepalive, useChunks;
+      u_long nbw, nbw2;
+      FiltersChain chain;
+      list<string> filters;
+      FiltersFactory *ff = Server::getInstance ()->getFiltersFactory ();
+
       /* Obtain the payload.  */
       XmlParser p;
       p.open (td->inputData.getFilename (), 0);
@@ -176,39 +182,36 @@ int WebDAV::propfind (HttpThreadContext* td)
       /* Number of entities (properties requested).  */
       numPropReq = propReq.size ();
 
-      xmlDocPtr doc = generateResponse (loc.c_str ());
-      xmlSaveFormatFileEnc ("test.xml", doc, "UTF-8", 1);
-
-      MemBuf resp;
-      int len;
-      bool keepalive, useChunks;
-      u_long nbw, nbw2;
-
-      p.open ("test.xml", 0);
-      p.saveMemBuf (resp, &len);
-
-      FiltersChain chain;
-      if (td->mime)
-        {
-          FiltersFactory *ff = Server::getInstance ()->getFiltersFactory ();
-          ff->chain (&chain, td->mime->filters, td->connection->socket, &nbw, 1);
-        }
+      ff->chain (&chain, filters, td->connection->socket, &nbw, 1);
 
       HttpDataHandler::checkDataChunks (td, &keepalive, &useChunks);
 
+      HttpHeaders::buildDefaultHTTPResponseHeader (&(td->response));
       HttpHeaders::sendHeader (td->response, *chain.getStream (), *td->buffer, td);
 
-      HttpDataHandler::appendDataToHTTPChannel (td,
-                                          resp.getBuffer (),
-                                          len, &(td->outputData),
-                                          &chain, td->appendOutputs,
-                                          useChunks);
+      xmlDocPtr doc = generateResponse (loc.c_str ());
+      xmlSaveFormatFileEnc ("test.xml", doc, "UTF-8", 1);
+
+      File f;
+      f.openFile ("test.xml", File::READ);
+      for (;;)
+        {
+          u_long nbr;
+          f.read (td->buffer->getBuffer (), td->buffer->getRealLength (), &nbr);
+          if (nbr == 0)
+            break;
+
+          HttpDataHandler::appendDataToHTTPChannel (td, td->buffer->getBuffer (),
+                                                    nbr, &(td->outputData),
+                                                    &chain, td->appendOutputs,
+                                                    useChunks);
+          if (nbr != td->buffer->getRealLength ())
+            break;
+        }
 
       if (useChunks && chain.getStream ()->write ("0\r\n\r\n", 5, &nbw2))
         return HttpDataHandler::RET_FAILURE;
 
-      /* 200 Success.  */
-      td->http->raiseHTTPError (200);
       return HttpDataHandler::RET_OK;
     }
   catch (exception & e)
