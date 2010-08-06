@@ -55,7 +55,6 @@ public:
     cff->initialize (20);
 
     CPPUNIT_ASSERT_EQUAL (cff->getSize (), 20ul);
-    CPPUNIT_ASSERT_EQUAL (cff->getUsed (), 0ul);
     CPPUNIT_ASSERT_EQUAL (cff->getUsedSize (), 0ul);
     CPPUNIT_ASSERT_EQUAL (cff->getMaxSize (), 0ul);
     CPPUNIT_ASSERT_EQUAL (cff->getMinSize (), 0ul);
