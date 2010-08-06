@@ -64,11 +64,11 @@ CachedFileFactory::CachedFileFactory (u_long size)
 }
 
 /*!
-  Clean the used resources.
+  Clean the usedm resources.
  */
 void CachedFileFactory::clean ()
 {
-  HashMap<char*, CachedFileFactoryRecord*>::Iterator it = buffers.begin ();
+  HashMap<char *, CachedFileFactoryRecord*>::Iterator it = buffers.begin ();
   for (; it != buffers.end (); it++)
     {
       delete (*it)->buffer;
@@ -120,7 +120,6 @@ u_long CachedFileFactory::getMinSize ()
 void CachedFileFactory::initialize (u_long size)
 {
   setSize (size);
-  used = 0;
   maxSize = 0;
   minSize = 0;
   usedSize = 0;
@@ -146,23 +145,18 @@ File* CachedFileFactory::open (const char* filename, int flags)
   try
     {
       record = buffers.get (filename);
-      buffer = record ? record->buffer : 0;
+      buffer = record ? record->buffer : NULL;
 
-      used++;
-
-      /*
-        If the file on the file system has a different mtime then don't use
-        the cache, in this way when opened instance of this file will be closed
-        the null reference callback can be called and the file reloaded.
-      */
       if (record)
         {
-          record->invalidCache = FilesUtility::getLastModTime (filename)
-            != record->mtime;
-          record->lastModTimeCheck = ticks;
+          if (buffer->getExpireTime () <= ticks)
+            {
+              buffer->refreshExpireTime (ticks);
+              record->invalidCache = ! buffer->revalidate (filename);
+            }
 
           bool noSymlink = (! (flags & File::NO_FOLLOW_SYMLINK))
-            && S_ISLNK (record->fstat.st_mode);
+            && buffer->isSymlink ();
 
           if (record->invalidCache || noSymlink)
             {
@@ -192,11 +186,12 @@ File* CachedFileFactory::open (const char* filename, int flags)
               delete file;
               return NULL;
             }
+
           fileSize = file->getFileSize ();
           purgeRecords ();
-          if ((minSize != 0 && fileSize < minSize) ||
-              (maxSize != 0 && fileSize > maxSize)  ||
-              (fileSize > size - usedSize))
+          if (minSize && fileSize < minSize
+              || maxSize && fileSize > maxSize
+              || fileSize > size - usedSize)
             {
               mutex.unlock ();
               return file;
@@ -205,14 +200,13 @@ File* CachedFileFactory::open (const char* filename, int flags)
             {
               record = new CachedFileFactoryRecord ();
               buffer = new CachedFileBuffer (file);
-              record->mtime = file->getLastModTime ();
-              file->fstat (&record->fstat);
               file->close  ();
               delete file;
 
               buffer->setFactoryToNotify (this);
               record->created = ticks;
               record->buffer = buffer;
+              buffer->refreshExpireTime (ticks);
               buffers.put ((char *) filename, record);
               usedSize += fileSize;
             }
@@ -239,12 +233,15 @@ File* CachedFileFactory::open (const char* filename, int flags)
 void CachedFileFactory::nullReferences (CachedFileBuffer* cfb)
 {
   CachedFileFactoryRecord* record;
-  float averageUsage;
   float bufferAverageUsage;
   float spaceUsage;
   u_long ticks = getTicks ();
-  mutex.lock ();
 
+  spaceUsage = (float) usedSize / size;
+  if (spaceUsage < 0.65f)
+    return;
+
+  mutex.lock ();
   try
     {
       record = buffers.get (cfb->getFilename ());
@@ -254,14 +251,11 @@ void CachedFileFactory::nullReferences (CachedFileBuffer* cfb)
           return;
         }
 
-      spaceUsage = (float)usedSize / size;
-      averageUsage = (float)used * 1000.0f / (ticks - created);
       bufferAverageUsage = (float)record->used * 1000.0f /
         (ticks - record->created);
 
-      if (((spaceUsage > 0.65f) && (bufferAverageUsage < averageUsage)
-           && ((ticks - record->created) > 10000))
-          || (spaceUsage > 0.9f)
+      if ((spaceUsage > 0.65f && (ticks - record->created) > 10000)
+          || spaceUsage > 0.9f
           || record->invalidCache)
         {
           record = buffers.remove (cfb->getFilename ());
@@ -282,7 +276,7 @@ void CachedFileFactory::nullReferences (CachedFileBuffer* cfb)
  */
 u_long CachedFileFactory::purgeRecords ()
 {
-  list<CachedFileFactoryRecord*>::iterator it = buffersToRemove.begin ();
+  list<CachedFileFactoryRecord *>::iterator it = buffersToRemove.begin ();
   u_long ret = 0;
 
   while (it != buffersToRemove.end ())

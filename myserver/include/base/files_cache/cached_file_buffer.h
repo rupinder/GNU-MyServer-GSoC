@@ -48,7 +48,25 @@ public:
 
   const char* getFilename (){return filename.c_str ();}
   const char* getBuffer (){return buffer;}
+
+  time_t getMtime () {return mtime;}
+
+  bool isSymlink () {return S_ISLNK (fstat.st_mode);}
+
+  bool revalidate (const char *res);
+
+  void refreshExpireTime (u_long now) {expireTime = now + MYSERVER_SEC (5);}
+  u_long getExpireTime () {return expireTime;}
 protected:
+
+  /*! Last mtime for this file.  */
+  time_t mtime;
+
+  /*! Specify when to check again the entry validity.  */
+  u_long expireTime;
+
+  struct stat fstat;
+
   Mutex mutex;
   char *buffer;
   u_long refCounter;

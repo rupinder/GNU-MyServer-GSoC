@@ -45,6 +45,26 @@
 
 /*!
   Load a file in the buffer.
+  \param file The file object.
+ */
+CachedFileBuffer::CachedFileBuffer (File* file)
+{
+  u_long nbr;
+  factoryToNotify = 0;
+  refCounter = 0;
+  fileSize = file->getFileSize ();
+  buffer = new char[fileSize];
+  filename.assign (file->getFilename ());
+  file->seek (0);
+  file->read (buffer, fileSize, &nbr);
+
+  mtime = file->getLastModTime ();
+
+  file->fstat (&fstat);
+}
+
+/*!
+  Load a file in the buffer.
   \param filename The name of the file.
  */
 CachedFileBuffer::CachedFileBuffer (const char* filename)
@@ -62,6 +82,10 @@ CachedFileBuffer::CachedFileBuffer (const char* filename)
   buffer = new char[fileSize];
 
   file.read (buffer, fileSize, &nbw);
+
+  mtime = file.getLastModTime ();
+
+  file.fstat (&fstat);
 
   file.close ();
 }
@@ -131,26 +155,18 @@ CachedFileBuffer::CachedFileBuffer (const char* buffer, u_long size)
 }
 
 /*!
-  Load a file in the buffer.
-  \param file The file object.
- */
-CachedFileBuffer::CachedFileBuffer (File* file)
-{
-  u_long nbr;
-  factoryToNotify = 0;
-  refCounter = 0;
-  fileSize = file->getFileSize ();
-  buffer = new char[fileSize];
-  filename.assign (file->getFilename ());
-  file->seek (0);
-  file->read (buffer, fileSize, &nbr);
-}
-
-/*!
   Destroy the object.
  */
 CachedFileBuffer::~CachedFileBuffer ()
 {
   mutex.destroy ();
   delete [] buffer;
+}
+
+/*!
+  Check if the resource is still valid.
+ */
+bool CachedFileBuffer::revalidate (const char *res)
+{
+  return FilesUtility::getLastModTime (res) == getMtime ();
 }

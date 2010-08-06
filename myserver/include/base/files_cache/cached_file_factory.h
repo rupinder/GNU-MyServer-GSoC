@@ -45,7 +45,6 @@ public:
   void setSize (u_long m){size = m;}
   u_long getSize (){return size;}
   u_long getUsedSize (){return usedSize;}
-  u_long getUsed (){return used;}
 
   File *open (const char* file, int flags = 0);
   void nullReferences (CachedFileBuffer* cfb);
@@ -66,9 +65,6 @@ protected:
   /*! Size currently used.  */
   u_long usedSize;
 
-  /*! Number of times the cache was used.  */
-  u_long used;
-
   /*! Cache creation time.  */
   u_long created;
 
@@ -80,19 +76,11 @@ protected:
 
   struct CachedFileFactoryRecord
   {
-    struct stat fstat;
-
     /*! Number of times the cache record was used.  */
     u_long used;
 
     /*! Cache record creation time.  */
     u_long created;
-
-    /*! Last mtime for this file.  */
-    time_t mtime;
-
-    /*! Last time we checked for the mtime of the buffered file.  */
-    u_long lastModTimeCheck;
 
     /*! This entry is not valid and will be removed when refCount = 0.  */
     bool invalidCache;
@@ -100,8 +88,8 @@ protected:
     CachedFileBuffer* buffer;
   };
 
-  list<CachedFileFactoryRecord*> buffersToRemove;
-  HashMap<char*, CachedFileFactoryRecord*> buffers;
+  list<CachedFileFactoryRecord *> buffersToRemove;
+  HashMap<char *, CachedFileFactoryRecord *> buffers;
 };
 
 #endif
