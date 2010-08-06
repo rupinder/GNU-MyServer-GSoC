@@ -73,10 +73,20 @@ char* WebDAV::getPropValue (const char* prop, const char* path)
 
   if (!strcmp (prop, "creationtime"))
     value = FilesUtility::getCreationTime (path);
-  else if (!strcmp (prop, "lastmodifiedtime"))
+  else if (!strcmp (prop, "getlastmodified"))
     value = FilesUtility::getLastModTime (path);
   else if (!strcmp (prop, "lastaccesstime"))
     value = FilesUtility::getLastAccTime (path);
+  else if (!strcmp (prop, "getcontentlength"))
+      return "280";
+  else if (!strcmp (prop, "executable"))
+      return "no";
+  else if (!strcmp (prop, "resourcetype"))
+      return "folder";
+  else if (!strcmp (prop, "checked-in"))
+      return "yes";
+  else if (!strcmp (prop, "checked-out"))
+      return "yes";
 
   return ctime (&value);
 }
@@ -127,7 +137,7 @@ xmlNodePtr WebDAV::generate (const char* path)
   Generate the complete response.
   \param path The path to the resource.
  */
-xmlDocPtr WebDAV::generateResponse (const char* path)
+xmlDocPtr WebDAV::generateResponse (const char* path, unsigned int reqDepth)
 {
   xmlDocPtr doc = xmlNewDoc ( BAD_CAST "1.0");
   xmlNodePtr rootNode = xmlNewNode (NULL, BAD_CAST "D:multistatus");
@@ -135,6 +145,8 @@ xmlDocPtr WebDAV::generateResponse (const char* path)
   xmlNewProp (rootNode, BAD_CAST "xmlns:D", BAD_CAST "DAV:");
   xmlDocSetRootElement (doc, rootNode);
 
+  unsigned int d = 0;
+  bool f = 0;
   RecReadDirectory recTree;
 
   recTree.clearTree ();
@@ -142,11 +154,27 @@ xmlDocPtr WebDAV::generateResponse (const char* path)
 
   while (recTree.nextMember ())
     {
-      if (recTree.getInfo () == 6)
-        continue;
+      if (recTree.getInfo () == 1)
+        f = 1;
+      else if (recTree.getInfo () == 8)
+        {
+          if (f == 1)
+            {
+              d++;
+              f = 0;
+            }
+        }
+      else if (recTree.getInfo () == 6)
+        {
+          d--;
+          continue;
+        }
 
-      xmlNodePtr response = generate (recTree.getPath ());
-      xmlAddChild (rootNode, response);
+      if (d <= reqDepth)
+        {
+          xmlNodePtr response = generate (recTree.getPath ());
+          xmlAddChild (rootNode, response);
+        }
     }
 
   return doc;
@@ -189,7 +217,14 @@ int WebDAV::propfind (HttpThreadContext* td)
       HttpHeaders::buildDefaultHTTPResponseHeader (&(td->response));
       HttpHeaders::sendHeader (td->response, *chain.getStream (), *td->buffer, td);
 
-      xmlDocPtr doc = generateResponse (loc.c_str ());
+      /* Determine the Depth.  */
+      MemBuf tmp;
+      string* depth = td->request.getValue ("Depth", NULL);
+      unsigned int reqDepth = UINT_MAX;
+      if (depth->size () > 0)
+        reqDepth = tmp.strToUint ((*depth).c_str ());
+
+      xmlDocPtr doc = generateResponse (loc.c_str (), reqDepth);
       xmlSaveFormatFileEnc ("test.xml", doc, "UTF-8", 1);
 
       File f;
@@ -263,7 +298,7 @@ int WebDAV::copy (HttpThreadContext* td)
   /* Determine Overwrite flag.  */
   if (over != NULL)
   {
-    if (over->size() == 1 && (*over)[0] == 'F')
+    if (over->size () == 1 && (*over)[0] == 'F')
       overwrite = 0;
   }
 

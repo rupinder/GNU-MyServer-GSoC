@@ -33,7 +33,7 @@ public:
   WebDAV ();
   int mkcol (HttpThreadContext*);
   xmlNodePtr generate (const char*);
-  xmlDocPtr generateResponse (const char*);
+  xmlDocPtr generateResponse (const char*, unsigned int);
   void getElements (xmlNode*);
   char* getPropValue (const char*, const char*);
   bool isLocked (HttpThreadContext*, string);
