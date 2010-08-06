@@ -157,7 +157,7 @@ int ReadDirectory::find (const char *filename)
 # endif
 
 # ifdef HAVE_FSTATAT
-   if (checked::fstatat (dirfd (dh), name.c_str (), &stats, 0))
+   if (checked::fstatat (gnulib::dirfd (dh), name.c_str (), &stats, 0))
      return -1;
 # else
    string tempName;

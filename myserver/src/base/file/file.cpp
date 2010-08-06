@@ -157,7 +157,7 @@ int File::openFile (const char* nfilename, u_long opt, mode_t mask)
   if (opt & (File::TEMPORARY_DELAYED | File::TEMPORARY))
     {
       auto_ptr <char> templatefn (checked::strdup (nfilename));
-      handle = mkostemp (templatefn.get (), flags);
+      handle = gnulib::mkostemp (templatefn.get (), flags);
       if (handle < 0)
         checked::raiseException ();
 
