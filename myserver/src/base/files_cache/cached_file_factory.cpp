@@ -136,19 +136,35 @@ void CachedFileFactory::initialize (u_long size)
 */
 File* CachedFileFactory::open (const char* filename, int flags)
 {
-  CachedFileFactoryRecord *record;
+  CachedFileFactoryRecord *record = NULL;
   CachedFileBuffer *buffer;
   CachedFile* cachedFile;
   u_long ticks = getTicks ();
-
   mutex.lock ();
   try
     {
-      record = buffers.get (filename);
-      buffer = record ? record->buffer : NULL;
+      purgeRecords ();
 
+      record = buffers.get (filename);
+      if (record)
+        record->mutex.lock ();
+
+      mutex.unlock ();
+    }
+  catch (...)
+    {
+      mutex.unlock ();
+      throw;
+    }
+
+  try
+    {
+      buffer = NULL;
+
+      /* Check the record is valid.  */
       if (record)
         {
+          buffer = record->buffer;
           if (buffer->getExpireTime () <= ticks)
             {
               buffer->refreshExpireTime (ticks);
@@ -160,7 +176,7 @@ File* CachedFileFactory::open (const char* filename, int flags)
 
           if (record->invalidCache || noSymlink)
             {
-              mutex.unlock ();
+              record->mutex.unlock ();
 
               File *file = new File ();
               flags = flags & File::NO_FOLLOW_SYMLINK;
@@ -182,27 +198,22 @@ File* CachedFileFactory::open (const char* filename, int flags)
           if (file->openFile (filename, File::OPEN_IF_EXISTS | flags
                               | File::READ))
             {
-              mutex.unlock ();
               delete file;
               return NULL;
             }
 
           fileSize = file->getFileSize ();
-          purgeRecords ();
           if (minSize && fileSize < minSize
-              || maxSize && fileSize > maxSize
+               || maxSize && fileSize > maxSize
               || fileSize > size - usedSize)
-            {
-              mutex.unlock ();
-              return file;
-            }
+            return file;
           else
             {
               record = new CachedFileFactoryRecord ();
+              record->mutex.lock ();
               buffer = new CachedFileBuffer (file);
               file->close  ();
               delete file;
-
               buffer->setFactoryToNotify (this);
               record->created = ticks;
               record->buffer = buffer;
@@ -212,16 +223,16 @@ File* CachedFileFactory::open (const char* filename, int flags)
             }
         }
       record->used++;
-
       cachedFile = new CachedFile (buffer);
-
-      mutex.unlock ();
     }
   catch (...)
     {
-      mutex.unlock ();
+      if (record)
+        record->mutex.unlock ();
       throw;
     }
+
+  record->mutex.unlock ();
 
   return cachedFile;
 }
@@ -230,9 +241,9 @@ File* CachedFileFactory::open (const char* filename, int flags)
   Called by CachedFileBuffer when its counter reaches zero references.
   \param cfb A pointer to the source CachedFileBuffer object.
  */
-void CachedFileFactory::nullReferences (CachedFileBuffer* cfb)
+void CachedFileFactory::nullReferences (CachedFileBuffer *cfb)
 {
-  CachedFileFactoryRecord* record;
+  CachedFileFactoryRecord *record;
   float bufferAverageUsage;
   float spaceUsage;
   u_long ticks = getTicks ();
@@ -241,16 +252,13 @@ void CachedFileFactory::nullReferences (CachedFileBuffer* cfb)
   if (spaceUsage < 0.65f)
     return;
 
-  mutex.lock ();
+  record = buffers.get (cfb->getFilename ());
+  if (! record)
+    return;
+
+  record->mutex.lock ();
   try
     {
-      record = buffers.get (cfb->getFilename ());
-      if (! record)
-        {
-          mutex.unlock ();
-          return;
-        }
-
       bufferAverageUsage = (float)record->used * 1000.0f /
         (ticks - record->created);
 
@@ -262,11 +270,11 @@ void CachedFileFactory::nullReferences (CachedFileBuffer* cfb)
           if (record)
             buffersToRemove.push_back (record);
         }
-      mutex.unlock ();
+      record->mutex.unlock ();
     }
   catch (...)
     {
-      mutex.unlock ();
+      record->mutex.unlock ();
       throw;
     }
 }
@@ -292,6 +300,8 @@ u_long CachedFileFactory::purgeRecords ()
           delete rec;
         }
     }
+
   usedSize -= ret;
+
   return ret;
 }

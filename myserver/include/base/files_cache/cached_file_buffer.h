@@ -58,8 +58,8 @@ public:
 
   void refreshExpireTime (u_long now) {expireTime = now + MYSERVER_SEC (5);}
   u_long getExpireTime () {return expireTime;}
-protected:
 
+protected:
   /*! Last mtime for this file.  */
   time_t mtime;
 

@@ -76,6 +76,8 @@ protected:
 
   struct CachedFileFactoryRecord
   {
+    Mutex mutex;
+
     /*! Number of times the cache record was used.  */
     u_long used;
 
@@ -85,7 +87,7 @@ protected:
     /*! This entry is not valid and will be removed when refCount = 0.  */
     bool invalidCache;
 
-    CachedFileBuffer* buffer;
+    CachedFileBuffer *buffer;
   };
 
   list<CachedFileFactoryRecord *> buffersToRemove;
