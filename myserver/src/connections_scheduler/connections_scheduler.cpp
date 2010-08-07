@@ -17,8 +17,6 @@
 
 #include "myserver.h"
 
-#undef remove
-
 #ifdef WIN32
 # include <w32sock.h>
 
