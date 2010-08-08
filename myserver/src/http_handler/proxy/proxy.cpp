@@ -71,9 +71,11 @@ int Proxy::send (HttpThreadContext *td, const char* scriptpath,
     {
       req.ver.assign ("HTTP/1.1");
       req.cmd.assign (td->request.cmd);
-      req.uri.assign ("/");
+      if (destUrl.getResource ()[0] != '/')
+        req.uri.assign ("/");
       req.uri.append (destUrl.getResource ());
       req.uri.append (td->pathInfo);
+
       req.setValue ("Connection", "keep-alive");
       if (td->request.uriOptsPtr)
         {
