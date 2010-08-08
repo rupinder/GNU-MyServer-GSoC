@@ -349,7 +349,8 @@ void ConnectionsScheduler::initialize ()
   if (err == -1)
     {
       if (server)
-        server->log (MYSERVER_LOG_MSG_ERROR, _("Error initializing socket pair"));
+        server->log (MYSERVER_LOG_MSG_ERROR,
+                     _("Error initializing socket pair"));
       return;
     }
 
@@ -369,7 +370,7 @@ void ConnectionsScheduler::initialize ()
     {
       if (server)
         server->log (MYSERVER_LOG_MSG_ERROR,
-                            _("Error while initializing the dispatcher thread"));
+                     _("Error while initializing the dispatcher thread"));
 
       dispatchedThreadId = 0;
     }
@@ -692,6 +693,10 @@ void ConnectionsScheduler::terminateConnections ()
       for (; it != connections.end (); it++)
         {
           ConnectionPtr c = *it;
+
+          if (c->notifySchedulerHandler (-1))
+            continue;
+
           if (c->allowDelete (true) && c->socket)
             c->socket->close ();
         }

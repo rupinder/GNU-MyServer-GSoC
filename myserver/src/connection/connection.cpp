@@ -118,7 +118,7 @@ int Connection::isScheduled ()
 /*!
   Return if the connection may be deleted by the server.
  */
-int Connection::allowDelete (bool bWait/*= false*/)
+int Connection::allowDelete (bool bWait)
 {
   if (isScheduled ())
      return 0;

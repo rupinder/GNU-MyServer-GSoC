@@ -39,6 +39,7 @@ public:
                     const char* exec = 0, bool execute = false,
                     bool onlyHeader = false);
   virtual int load ();
+  virtual int unLoad ();
 
 protected:
   struct ConnectionRecord
@@ -65,7 +66,8 @@ protected:
   void removeConnection (Connection *c);
 
   ConnectionPtr getConnection (const char *host, u_short port);
-  void addConnection (ConnectionPtr con, const char *host, u_short port);
+  void addConnection (ConnectionPtr con, const char *host, u_short port,
+                      bool keepalive);
   Mutex connectionsLock;
   vector<ConnectionRecord> connections;
   size_t maxKeepAliveConnections;

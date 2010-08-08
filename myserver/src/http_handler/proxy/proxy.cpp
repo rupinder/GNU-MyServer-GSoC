@@ -126,17 +126,16 @@ int Proxy::send (HttpThreadContext *td, const char* scriptpath,
 
       chain.clearAllFilters ();
 
-      if (keepalive)
-        addConnection (con, destUrl.getHost ().c_str (), destUrl.getPort ());
-      else
-        delete con;
+      addConnection (con, destUrl.getHost ().c_str (), destUrl.getPort (),
+                     keepalive);
 
       req.free ();
     }
   catch (exception & e)
     {
       if (con)
-        delete con;
+        addConnection (con, destUrl.getHost ().c_str (), destUrl.getPort (),
+                       false);
       chain.clearAllFilters ();
       return td->http->raiseHTTPError (500);
     }
@@ -345,6 +344,8 @@ int Proxy::load ()
     = Server::getInstance ()->getData ("http.proxy.connections.keepalive",
                                        "64");
   maxKeepAliveConnections = atoi (data);
+
+  return 0;
 }
 
 ConnectionPtr Proxy::getConnection (const char *host, u_short port)
@@ -398,6 +399,12 @@ void Proxy::proxySchedulerHandler (void *p, Connection *c, int event)
 
 void Proxy::removeConnection (Connection *c)
 {
+  if (c->getToRemove ())
+    {
+      delete c;
+      return;
+    }
+
   connectionsLock.lock ();
   try
     {
@@ -422,17 +429,23 @@ void Proxy::removeConnection (Connection *c)
     }
 }
 
-void Proxy::addConnection (ConnectionPtr con, const char *host, u_short port)
+void Proxy::addConnection (ConnectionPtr con, const char *host, u_short port,
+                           bool keepalive)
 {
-  if (connections.size () >= maxKeepAliveConnections)
+  ConnectionsScheduler *cs  = Server::getInstance ()->getConnectionsScheduler ();
+
+  if (!keepalive || connections.size () >= maxKeepAliveConnections)
     {
-      delete con;
+      /* Do not destroy the connection immediately, it can be used by the
+         scheduler, so delay its destruction until we are sure it is not used
+         by the scheduler anymore.  */
+      con->setToRemove (1);
+      cs->addNewWaitingConnection (con);
       return;
     }
 
   con->setSchedulerHandler (Proxy::proxySchedulerHandler, this);
 
-  ConnectionsScheduler *cs  = Server::getInstance ()->getConnectionsScheduler ();
   cs->addNewWaitingConnection (con);
 
   ConnectionRecord cr;
@@ -441,4 +454,30 @@ void Proxy::addConnection (ConnectionPtr con, const char *host, u_short port)
   cr.connection = con;
 
   connections.push_back (cr);
+}
+
+int Proxy::unLoad ()
+{
+  ConnectionsScheduler *cs  = Server::getInstance ()->getConnectionsScheduler ();
+
+  connectionsLock.lock ();
+  try
+    {
+      vector<ConnectionRecord>::iterator it = connections.begin ();
+      for (; it != connections.end (); it++)
+        {
+          (*it).connection->setToRemove (1);
+          cs->addNewWaitingConnection ((*it).connection);
+        }
+
+      connections.clear ();
+      connectionsLock.unlock ();
+    }
+  catch (...)
+    {
+      connectionsLock.unlock ();
+      throw;
+    }
+
+  return 0;
 }
