@@ -118,7 +118,7 @@ int Http::optionsHTTPRESOURCE (string& filename, bool yetmapped)
   try
     {
       HttpRequestHeader::Entry *connection = td->request.other.get ("connection");
-      string methods ("OPTIONS, GET, POST, HEAD, DELETE, PUT, TRACE, MKCOL, PROPFIND, COPY, MOVE, DELETE, LOCK, UNLOCK");
+      string methods ("OPTIONS, GET, POST, HEAD, DELETE, PUT, TRACE, MKCOL, PROPFIND, COPY, MOVE, LOCK, UNLOCK");
 
       HashMap<string, DynamicHttpCommand*>::Iterator it =
         staticData->getDynCmdManager ()->begin ();
@@ -1111,7 +1111,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                   ret = sendHTTPResource (td->request.uri, 0, 1);
                 }
               else if (!td->request.cmd.compare ("DELETE"))
-                ret = deleteHTTPRESOURCE (td->request.uri, 0, 1);
+                ret = dav.davdelete (td);
               else if (!td->request.cmd.compare ("PUT"))
                 ret = putHTTPRESOURCE (td->request.uri, 0, 1);
               else if (!td->request.cmd.compare ("OPTIONS"))
@@ -1124,8 +1124,6 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                 ret = dav.propfind (td);
               else if (!td->request.cmd.compare ("COPY"))
                 ret = dav.copy (td);
-              else if (!td->request.cmd.compare ("DAVDELETE"))
-                ret = dav.davdelete (td);
               else if (!td->request.cmd.compare ("MOVE"))
                 ret = dav.move (td);
               else if (!td->request.cmd.compare ("LOCK"))

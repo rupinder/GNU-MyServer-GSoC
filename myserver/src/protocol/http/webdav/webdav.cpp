@@ -302,21 +302,21 @@ int WebDAV::propfind (HttpThreadContext* td)
 int WebDAV::copy (HttpThreadContext* td)
 {
   int ret, overwrite = 1;
-  string dest = *td->request.getValue ("Destination", NULL);
+  string destination = *td->request.getValue ("Destination", NULL);
   string* over = td->request.getValue ("Overwrite", NULL);
-  string source = string (td->getVhostDir ()) + "/" + td->request.uri;
+  string source = string (td->getVhostDir ()) + td->request.uri;
 
-  /* Not allowed in a directory super to Vhost Document Root.  */
-  if (FilesUtility::getPathRecursionLevel (td->request.uri.c_str ()) <= 0 ||
-      FilesUtility::getPathRecursionLevel (dest.c_str ()) <= 0)
-    return td->http->raiseHTTPError (403);
-
-  string destination = string (td->getVhostDir ()) + "/" + dest;
   string file, directory, filenamepath;
   int permissions;
 
+  string temp = "http://" + *td->request.getValue ("Host", NULL) + "/";
+  u_long endPos = temp.size ();
+
+  string target = string (td->getVhostDir ()) + "/" + destination.substr (endPos);
+
+
   /* Raise 423 if Locked.  */
-  if (isLocked (td, destination))
+  if (isLocked (td, target))
     return td->http->raiseHTTPError (423);
 
 
@@ -328,7 +328,7 @@ int WebDAV::copy (HttpThreadContext* td)
   }
 
   /* Check the permissions for destination.  */
-  ret = td->http->getFilePermissions (destination, directory, file,
+  ret = td->http->getFilePermissions (target, directory, file,
                                       filenamepath, false, &permissions);
   if (ret != 200)
     return ret;
@@ -338,29 +338,30 @@ int WebDAV::copy (HttpThreadContext* td)
   /* If a file is to be copied.  */
   if (!FilesUtility::isDirectory (source.c_str ()))
     {
-        /* Conflict if Ancestor doesn't exist.  */
-      u_long endPos = destination.rfind ("/");
-      if (!FilesUtility::nodeExists (destination.substr (0, endPos).c_str ()))
+      int pos = target.rfind ("/");
+
+      /* Conflict if Ancestor doesn't exist.  */
+      if (!FilesUtility::nodeExists (target.substr (0, pos).c_str ()))
         return td->http->raiseHTTPError (409);
 
       /* Check if already exists.  */
-      if (!overwrite && FilesUtility::nodeExists (destination.c_str ()))
+      if (!overwrite && FilesUtility::nodeExists (target.c_str ()))
         return td->http->raiseHTTPError (412);
 
-      FilesUtility::copyFile (source.c_str (), destination.c_str (), 1);
+      FilesUtility::copyFile (source.c_str (), target.c_str (), 1);
       return td->http->raiseHTTPError (201);
     }
   else
     {
       /* Remove trailing slash.  */
-      if (destination[destination.size () - 1] == '/')
-        destination.resize (destination.size () - 1);
+      if (target[target.size () - 1] == '/')
+        target.resize (target.size () - 1);
 
       /* Conflict if Ancestor doesn't exist.  */
-      if (!FilesUtility::nodeExists (destination.c_str ()))
+      if (!FilesUtility::nodeExists (target.c_str ()))
         return td->http->raiseHTTPError (409);
 
-      ret = FilesUtility::copyDir (source, destination, 1);
+      ret = FilesUtility::copyDir (source, target, 1);
       if (ret != 0)
         return td->http->raiseHTTPError (ret);
 
@@ -413,15 +414,20 @@ int WebDAV::davdelete (HttpThreadContext* td)
 int WebDAV::move (HttpThreadContext* td)
 {
   int ret, overwrite;
-  string dest = *td->request.getValue ("Destination", NULL);
+  string destination = *td->request.getValue ("Destination", NULL);
   string* over = td->request.getValue ("Overwrite", NULL);
   string source = string (td->getVhostDir ()) + "/" + td->request.uri;
-  string destination = string (td->getVhostDir ()) + "/" + dest;
+
   string file, directory, filenamepath;
   int permissions;
 
+  string temp = "http://" + *td->request.getValue ("Host", NULL) + "/";
+  u_long endPos = temp.size ();
+
+  string target = string (td->getVhostDir ()) + "/" + destination.substr (endPos);
+
   /* Raise 423 if Locked.  */
-  if (isLocked (td, destination))
+  if (isLocked (td, target))
     return td->http->raiseHTTPError (423);
 
   /* Determing Overwrite flag.  */
@@ -431,8 +437,8 @@ int WebDAV::move (HttpThreadContext* td)
       overwrite = 0;
   }
 
-  /* Check the permissions for destination.  */
-  ret = td->http->getFilePermissions (destination, directory, file,
+  /* Check the permissions for target.  */
+  ret = td->http->getFilePermissions (target, directory, file,
                                       filenamepath, false, &permissions);
   if (ret != 200)
     return ret;
@@ -442,14 +448,14 @@ int WebDAV::move (HttpThreadContext* td)
     return td->http->sendAuth ();
 
   /* Conflict if Ancestor doesn't exist.  */
-  if (!FilesUtility::nodeExists (destination.substr (0, destination.rfind ("/")).c_str ()))
+  if (!FilesUtility::nodeExists (target.substr (0, target.rfind ("/")).c_str ()))
     return td->http->raiseHTTPError (409);
 
   /* Check if already exists.  */
-  if (!overwrite && FilesUtility::nodeExists (destination.c_str ()))
+  if (!overwrite && FilesUtility::nodeExists (target.c_str ()))
     return td->http->raiseHTTPError (412);
 
-  FilesUtility::renameFile (source.c_str (), destination.c_str ());
+  FilesUtility::renameFile (source.c_str (), target.c_str ());
   return td->http->raiseHTTPError (201);
 }
 
