@@ -172,6 +172,9 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
     }
   while (ret);
 
+  if (read == 0)
+    return td->http->raiseHTTPError (500);
+
   checkDataChunks (td, &keepalive, &useChunks);
 
   string *tmp = td->request.getValue ("Host", NULL);
