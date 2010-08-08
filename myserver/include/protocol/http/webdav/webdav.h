@@ -35,7 +35,7 @@ public:
   xmlNodePtr generate (const char*);
   xmlDocPtr generateResponse (const char*, unsigned int);
   void getElements (xmlNode*);
-  char* getPropValue (const char*, const char*);
+  const char *getPropValue (const char*, const char*);
   bool isLocked (HttpThreadContext*, string);
   int propfind (HttpThreadContext*);
   int copy (HttpThreadContext*);

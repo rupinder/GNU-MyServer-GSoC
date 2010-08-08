@@ -17,10 +17,11 @@
 */
 
 #include "myserver.h"
-#include <fts.h>
 #include <include/protocol/http/http.h>
+#include <include/protocol/http/http_errors.h>
 #include <include/http_handler/http_file/http_file.h>
 
+#include <fts_.h>
 
 #include <string>
 
@@ -67,7 +68,7 @@ void WebDAV::getElements (xmlNode* aNode)
   \param prop The name of the Property.
   \param path The path to the resource.
  */
-char* WebDAV::getPropValue (const char* prop, const char* path)
+const char *WebDAV::getPropValue (const char* prop, const char* path)
 {
   time_t value;
 
@@ -81,28 +82,29 @@ char* WebDAV::getPropValue (const char* prop, const char* path)
       return "280";
   else if (!strcmp (prop, "executable"))
       return "no";
-  else if (!strcmp (prop, "resourcetype"))
-      return "folder";
   else if (!strcmp (prop, "checked-in"))
-      return "yes";
+      return "";
   else if (!strcmp (prop, "checked-out"))
-      return "yes";
+      return "";
 
-  return ctime (&value);
+  /* FIXME: this is not reentrant, use ctime_r instead.  */
+  char *out = new char[32];
+  return getRFC822GMTTime (value, out, NULL);
 }
 
 /*!
   Generate the response tag for a single resource.
   \param path The path to the resource.
  */
-xmlNodePtr WebDAV::generate (const char* path)
+xmlNodePtr WebDAV::generate (const char *path)
 {
   xmlNodePtr response = xmlNewNode (NULL, BAD_CAST "D:response");
+  xmlNewProp (response, BAD_CAST "xmlns:g0", BAD_CAST "DAV:");
+
   xmlNewChild (response, NULL, BAD_CAST "D:href", BAD_CAST (path));
   xmlNodePtr propstat = xmlNewNode (NULL, BAD_CAST "D:propstat");
 
   xmlNodePtr prop = xmlNewNode (NULL, BAD_CAST "D:prop");
-  xmlNewProp (prop, BAD_CAST "xmlns:R", BAD_CAST "http://www.myserverproject.net");
 
   if (!strcmp (propReq[1], "propname"))
     {
@@ -114,21 +116,48 @@ xmlNodePtr WebDAV::generate (const char* path)
   else if (!strcmp (propReq[1], "allprop"))
     {
       for (int i = 0; i < numPropAvail; i++)
-      {
-        xmlNewChild (prop, NULL, BAD_CAST ((char*) available[i]), BAD_CAST (getPropValue (available[i], path)));
-        xmlAddChild (propstat, prop);
-      }
+        {
+          if (strcmp (available[i], "resourcetype"))
+            {
+              char buffer[32];
+              sprintf (buffer, "g0:%s", available[i]);
+              xmlNewChild (prop, NULL, BAD_CAST (buffer),
+                           BAD_CAST (getPropValue (available[i], path)));
+            }
+          else
+            {
+              xmlNodePtr res = xmlNewNode (NULL, BAD_CAST "D:collection");
+              xmlAddChild (prop, res);
+            }
+        }
+
+      xmlAddChild (propstat, prop);
     }
   else
     {
       for (int i = 2; i < numPropReq; i++)
-      {
-        xmlNewChild (prop, NULL, BAD_CAST ((char*) propReq[i]), BAD_CAST (getPropValue (propReq[i], path)));
-        xmlAddChild (propstat, prop);
-      }
+        {
+          if (strcmp (propReq[i], "resourcetype"))
+            {
+              char buffer[32];
+              sprintf (buffer, "g0:%s", propReq[i]);
+
+              xmlNewChild (prop, NULL, BAD_CAST (buffer),
+                           BAD_CAST (getPropValue (propReq[i], path)));
+            }
+          else
+            {
+              xmlNodePtr content = xmlNewNode (NULL, BAD_CAST "D:collection");
+              xmlNodePtr res = xmlNewNode (NULL, BAD_CAST "g0:resourcetype");
+              xmlAddChild (res, content);
+              xmlAddChild (prop, res);
+            }
+        }
+
+      xmlAddChild (propstat, prop);
     }
 
-  xmlNewChild(propstat, NULL, BAD_CAST "D:status", BAD_CAST "HTTP/1.1 200 OK");
+  xmlNewChild (propstat, NULL, BAD_CAST "D:status", BAD_CAST "HTTP/1.1 200 OK");
   xmlAddChild (response, propstat);
   return response;
 }
@@ -143,36 +172,27 @@ xmlDocPtr WebDAV::generateResponse (const char* path, unsigned int reqDepth)
   xmlNodePtr rootNode = xmlNewNode (NULL, BAD_CAST "D:multistatus");
 
   xmlNewProp (rootNode, BAD_CAST "xmlns:D", BAD_CAST "DAV:");
+  xmlNewProp (rootNode, BAD_CAST "xmlns:ns0", BAD_CAST "DAV:");
+  xmlNewProp (rootNode, BAD_CAST "xmlns:ns1", BAD_CAST "http://apache.org/dav/props/");
+
   xmlDocSetRootElement (doc, rootNode);
 
-  unsigned int d = 0;
   bool f = 0;
   RecReadDirectory recTree;
-
+  size_t relOffset = strlen (path) - 1;
   recTree.clearTree ();
   recTree.fileTreeGenerate (path);
-
   while (recTree.nextMember ())
     {
-      if (recTree.getInfo () == 1)
-        f = 1;
-      else if (recTree.getInfo () == 8)
-        {
-          if (f == 1)
-            {
-              d++;
-              f = 0;
-            }
-        }
-      else if (recTree.getInfo () == 6)
-        {
-          d--;
-          continue;
-        }
+      if (recTree.getInfo () == FTS_DP)
+        continue;
 
-      if (d <= reqDepth)
+      if (recTree.getLevel () > reqDepth)
+        recTree.skip ();
+      else
         {
-          xmlNodePtr response = generate (recTree.getPath ());
+          const char *relPath = recTree.getPath () + relOffset;
+          xmlNodePtr response = generate (relPath);
           xmlAddChild (rootNode, response);
         }
     }
@@ -212,9 +232,14 @@ int WebDAV::propfind (HttpThreadContext* td)
 
       ff->chain (&chain, filters, td->connection->socket, &nbw, 1);
 
-      HttpDataHandler::checkDataChunks (td, &keepalive, &useChunks);
 
       HttpHeaders::buildDefaultHTTPResponseHeader (&(td->response));
+      HttpDataHandler::checkDataChunks (td, &keepalive, &useChunks);
+      td->response.httpStatus = 207;
+      if (keepalive)
+        td->response.setValue ("connection", "keep-alive");
+      else
+        td->response.setValue ("connection", "close");
       HttpHeaders::sendHeader (td->response, *chain.getStream (), *td->buffer, td);
 
       /* Determine the Depth.  */
@@ -314,7 +339,8 @@ int WebDAV::copy (HttpThreadContext* td)
   if (!FilesUtility::isDirectory (source.c_str ()))
     {
         /* Conflict if Ancestor doesn't exist.  */
-      if (!FilesUtility::nodeExists (destination.substr (0, destination.rfind ("/")).c_str ()))
+      u_long endPos = destination.rfind ("/");
+      if (!FilesUtility::nodeExists (destination.substr (0, endPos).c_str ()))
         return td->http->raiseHTTPError (409);
 
       /* Check if already exists.  */
