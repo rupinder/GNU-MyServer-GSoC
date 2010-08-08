@@ -530,7 +530,7 @@ int Socket::connect (MYSERVER_SOCKADDR* sa, int na)
  */
 int Socket::recv (char* buffer, int len, int flags, u_long timeout)
 {
-  int ret = dataAvailable (timeout / 1000, timeout % 1000);
+  int ret = dataAvailable (timeout / 1000000, timeout % 1000000);
 
   if (ret)
     return recv (buffer, len, flags);
