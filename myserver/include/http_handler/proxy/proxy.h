@@ -49,7 +49,7 @@ protected:
   };
 
   int flushToClient (HttpThreadContext* td, Socket& client,
-                     FiltersChain &out, bool onlyHeader);
+                     FiltersChain &out, bool onlyHeader, bool *kaClient);
   int readPayLoad (HttpThreadContext* td,
                    HttpResponseHeader* res,
                    FiltersChain *out,

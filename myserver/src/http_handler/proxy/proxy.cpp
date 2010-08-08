@@ -49,6 +49,7 @@ int Proxy::send (HttpThreadContext *td, const char* scriptpath,
   FiltersChain chain;
   HttpRequestHeader req;
   u_long nbw;
+  bool keepalive = false;
 
   for (HashMap<string, HttpRequestHeader::Entry*>::Iterator it =
          td->request.begin (); it != td->request.end (); it++)
@@ -121,10 +122,15 @@ int Proxy::send (HttpThreadContext *td, const char* scriptpath,
                                                              1);
 
 
-      flushToClient (td, *sock, chain, onlyHeader);
+      flushToClient (td, *sock, chain, onlyHeader, &keepalive);
 
       chain.clearAllFilters ();
-      addConnection (con, destUrl.getHost ().c_str (), destUrl.getPort ());
+
+      if (keepalive)
+        addConnection (con, destUrl.getHost ().c_str (), destUrl.getPort ());
+      else
+        delete con;
+
       req.free ();
     }
   catch (exception & e)
@@ -142,7 +148,7 @@ int Proxy::send (HttpThreadContext *td, const char* scriptpath,
   Flush the server reply to the client.
  */
 int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
-                          FiltersChain &out, bool onlyHeader)
+                          FiltersChain &out, bool onlyHeader, bool *kaClient)
 {
   u_long read = 0;
   u_long headerLength;
@@ -180,6 +186,9 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
     }
   else
     td->response.setValue ("Via", via);
+
+  tmp = td->response.getValue ("Connection", NULL);
+  *kaClient = tmp && !strcasecmp (tmp->c_str (), "keep-alive");
 
   string transferEncoding;
   bool hasTransferEncoding = false;
