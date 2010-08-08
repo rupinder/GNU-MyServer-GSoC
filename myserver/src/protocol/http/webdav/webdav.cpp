@@ -201,6 +201,39 @@ xmlDocPtr WebDAV::generateResponse (const char* path, unsigned int reqDepth)
 }
 
 /*!
+  Generate the response for a lock request.
+  \param path The path to the resource.
+ */
+xmlDocPtr WebDAV::generateLockResponse (string path)
+{
+  xmlDocPtr doc = xmlNewDoc ( BAD_CAST "1.0");
+
+  xmlNodePtr prop = xmlNewNode (NULL, BAD_CAST "D:prop");
+  xmlNewProp (prop, BAD_CAST "xmlns:D", BAD_CAST "DAV:");
+  xmlDocSetRootElement (doc, prop);
+
+  xmlNodePtr lockdiscovery = xmlNewNode (NULL, BAD_CAST "D:lockdiscovery");
+  xmlAddChild (prop, lockdiscovery);
+
+  xmlNodePtr activelock = xmlNewNode (NULL, BAD_CAST "D:activelock");
+  xmlAddChild (lockdiscovery, activelock);
+
+  xmlNodePtr locktype = xmlNewNode (NULL, BAD_CAST "D:locktype");
+  xmlNewChild (locktype, NULL, BAD_CAST "D:write", NULL);
+  xmlAddChild (activelock, locktype);
+
+  xmlNodePtr lockscope = xmlNewNode (NULL, BAD_CAST "D:lockscope");
+  xmlNewChild (lockscope, NULL, BAD_CAST "D:exclusive", NULL);
+  xmlAddChild (activelock, lockscope);
+
+  xmlNodePtr lockroot = xmlNewNode (NULL, BAD_CAST "D:lockroot");
+  xmlNewChild(lockroot, NULL, BAD_CAST "D:href", BAD_CAST (path.c_str ()));
+  xmlAddChild (activelock, lockroot);
+
+  return doc;
+}
+
+/*!
   Execute PROPFIND command.
   \param td Http Thread Context.
  */
@@ -279,20 +312,6 @@ int WebDAV::propfind (HttpThreadContext* td)
       td->connection->host->warningsLogWrite ( _E ("WebDAV: Internal Error"), &e);
       return td->http->raiseHTTPError (500);
     }
-
-/*
-  MemBuf resp;
-  int* LEN;
-  *LEN = 4096;
-
-  p.open ("test.xml", 0);
-  p.saveMemBuf (resp, LEN);
-
-  *td->auxiliaryBuffer << resp << "\r\n";
-
-  td->connection->socket->send (td->auxiliaryBuffer->getBuffer (),
-                                td->auxiliaryBuffer->getLength (), 0);
-*/
 }
 
 /*!
@@ -465,31 +484,91 @@ int WebDAV::move (HttpThreadContext* td)
  */
 int WebDAV::lock (HttpThreadContext* td)
 {
-  if (FilesUtility::getPathRecursionLevel (td->request.uri.c_str ()) <= 0)
-    return td->http->raiseHTTPError (403);
+  string loc = string (td->getVhostDir ()) + td->request.uri;
 
-  string loc = string (td->getVhostDir ()) + "/" + td->request.uri;
-
-  char urn[48];
-  sha1.init ();
-  td->auxiliaryBuffer->setLength (0);
-  *td->auxiliaryBuffer << loc;
-
-  sha1.update (*td->auxiliaryBuffer);
-  sha1.end (urn);
-
-  string lockLoc = string (td->getVhostSys ()) + "/webdav/locks/" + string (urn);
-
-  if (!FilesUtility::nodeExists (lockLoc.substr (0, lockLoc.rfind ("/")).c_str ()))
+  try
     {
-      string temp = string (td->getVhostSys ()) + "/webdav";
-      FilesUtility::mkdir (temp.c_str());
-      temp += "/locks";
-      FilesUtility::mkdir (temp.c_str());
-    }
+      bool keepalive, useChunks;
+      u_long nbw, nbw2;
+      FiltersChain chain;
+      list<string> filters;
+      FiltersFactory *ff = Server::getInstance ()->getFiltersFactory ();
 
-  File resLock;
-  return resLock.openFile (lockLoc.c_str (), File::WRITE | File::FILE_OPEN_ALWAYS);
+      /* Obtain the payload.  */
+      XmlParser p;
+      p.open (td->inputData.getFilename (), File::READ);
+
+      /* Obtain xml entities in the payload.  */
+      getElements (xmlDocGetRootElement (p.getDoc ()));
+
+      char urn[48];
+      sha1.init ();
+      td->auxiliaryBuffer->setLength (0);
+      *td->auxiliaryBuffer << loc;
+
+      sha1.update (*td->auxiliaryBuffer);
+      sha1.end (urn);
+
+      string lockLoc = string (td->getVhostSys ()) + "/webdav/locks/" + string (urn);
+
+      if (!FilesUtility::nodeExists (lockLoc.substr (0, lockLoc.rfind ("/")).c_str ()))
+        {
+          string temp = string (td->getVhostSys ()) + "/webdav";
+          FilesUtility::mkdir (temp.c_str());
+          temp += "/locks";
+          FilesUtility::mkdir (temp.c_str());
+        }
+
+      File resLock;
+      resLock.openFile (lockLoc.c_str (), File::WRITE | File::FILE_OPEN_ALWAYS);
+
+      ff->chain (&chain, filters, td->connection->socket, &nbw, 1);
+
+      HttpHeaders::buildDefaultHTTPResponseHeader (&(td->response));
+
+      HttpDataHandler::checkDataChunks (td, &keepalive, &useChunks);
+      td->response.httpStatus = 200;
+
+      if (keepalive)
+        td->response.setValue ("connection", "keep-alive");
+      else
+        td->response.setValue ("connection", "close");
+
+        td->response.setValue ("Lock-Token", urn);
+
+      HttpHeaders::sendHeader (td->response, *chain.getStream (), *td->buffer, td);
+
+      string lc = "http://" + *td->request.getValue ("Host", NULL) + td->request.uri;
+      xmlDocPtr doc = generateLockResponse (lc);
+      xmlSaveFormatFileEnc ("test.xml", doc, "UTF-8", 1);
+
+      File f;
+      f.openFile ("test.xml", File::READ);
+      for (;;)
+        {
+          u_long nbr;
+          f.read (td->buffer->getBuffer (), td->buffer->getRealLength (), &nbr);
+          if (nbr == 0)
+            break;
+
+          HttpDataHandler::appendDataToHTTPChannel (td, td->buffer->getBuffer (),
+                                                    nbr, &(td->outputData),
+                                                    &chain, td->appendOutputs,
+                                                    useChunks);
+          if (nbr != td->buffer->getRealLength ())
+            break;
+        }
+
+      if (useChunks && chain.getStream ()->write ("0\r\n\r\n", 5, &nbw2))
+        return HttpDataHandler::RET_FAILURE;
+
+      return HttpDataHandler::RET_OK;
+    }
+  catch (exception & e)
+    {
+      td->connection->host->warningsLogWrite ( _E ("WebDAV: Internal Error"), &e);
+      return td->http->raiseHTTPError (500);
+    }
 }
 
 /*!

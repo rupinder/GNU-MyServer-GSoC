@@ -924,6 +924,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
       /* If the used method supports POST data, read it.  */
       if ((!td->request.cmd.compare ("POST")) ||
           (!td->request.cmd.compare ("PUT")) ||
+          (!td->request.cmd.compare ("LOCK")) ||
           (!td->request.cmd.compare ("PROPFIND")) ||
           (dynamicCommand && dynamicCommand->acceptData ()))
         {

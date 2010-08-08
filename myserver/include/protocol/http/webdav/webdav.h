@@ -34,6 +34,7 @@ public:
   int mkcol (HttpThreadContext*);
   xmlNodePtr generate (const char*);
   xmlDocPtr generateResponse (const char*, unsigned int);
+  xmlDocPtr generateLockResponse (string);
   void getElements (xmlNode*);
   const char *getPropValue (const char*, const char*);
   bool isLocked (HttpThreadContext*, string);
