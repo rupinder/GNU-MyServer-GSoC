@@ -67,6 +67,8 @@ int HttpProtocol::loadProtocol ()
 {
   const char *data = NULL;
 
+  HttpErrors::load ();
+
   timeout = MYSERVER_SEC (15);
   dynManagerList.addHttpManager ("SEND", new HttpFile ());
   dynManagerList.addHttpManager ("DIR", new HttpDir ());
