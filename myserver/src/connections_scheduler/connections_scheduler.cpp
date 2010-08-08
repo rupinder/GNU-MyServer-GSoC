@@ -91,6 +91,9 @@ void ConnectionsScheduler::newData (short event, SocketHandle handle)
   if (connection == NULL || server == NULL)
     return;
 
+  if (connection->notifySchedulerHandler (event))
+    return;
+
   if (event == EV_READ)
     addReadyConnection (connection);
   else if (event == EV_TIMEOUT)

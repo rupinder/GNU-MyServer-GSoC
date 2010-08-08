@@ -39,6 +39,7 @@ void Connection::init ()
   socket = NULL;
   priority = -1;
   continuation = NULL;
+  setSchedulerHandler (NULL, NULL);
 }
 
 /*!
@@ -319,4 +320,32 @@ int Connection::getPriority ()
 void Connection::setPriority (int p)
 {
   priority = p;
+}
+
+/*!
+  Set the handler that the scheduler will call on new data.
+  \param schedulerHandler Handler to call.
+  \param schedulerHandlerArgument Argument for the handler.
+ */
+void
+Connection::setSchedulerHandler (void (*schedulerHandler) (void *,
+                                                           Connection *, int),
+                                 void *schedulerHandlerArgument)
+{
+  this->schedulerHandler = schedulerHandler;
+  this->schedulerHandlerArgument = schedulerHandlerArgument;
+}
+
+/*!
+  If a scheduler handler is configured.  Notify it.
+
+  \return 0 if there is not handler.
+*/
+int Connection::notifySchedulerHandler (int event)
+{
+  if (! schedulerHandler)
+    return 0;
+
+  schedulerHandler (schedulerHandlerArgument, this, event);
+  return 1;
 }

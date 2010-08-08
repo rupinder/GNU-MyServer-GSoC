@@ -132,7 +132,15 @@ public:
   bool hasContinuation (){return continuation ? true : false;}
 
   MemBuf *getConnectionBuffer (){return &connectionBuffer;}
+  void setSchedulerHandler (void (*schedulerHandler) (void *, Connection *,
+                                                      int),
+                            void *schedulerHandlerArgument);
+
+  int notifySchedulerHandler (int event);
 protected:
+
+  void (*schedulerHandler) (void *, Connection *, int event);
+  void *schedulerHandlerArgument;
 
   /*! This buffer must be used only by the ClientsTHREAD class.  */
   MemBuf connectionBuffer;
