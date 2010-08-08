@@ -38,7 +38,16 @@ public:
   virtual int send (HttpThreadContext*, const char* scriptpath,
                     const char* exec = 0, bool execute = false,
                     bool onlyHeader = false);
+  virtual int load ();
+
 protected:
+  struct ConnectionRecord
+  {
+    string host;
+    u_short port;
+    ConnectionPtr connection;
+  };
+
   int flushToClient (HttpThreadContext* td, Socket& client,
                      FiltersChain &out, bool onlyHeader);
   int readPayLoad (HttpThreadContext* td,
@@ -52,6 +61,14 @@ protected:
                    bool keepalive = false,
                    string *serverTransferEncoding = NULL);
 
+  static void proxySchedulerHandler (void *p, Connection *c, int event);
+  void removeConnection (Connection *c);
+
+  ConnectionPtr getConnection (const char *host, u_short port);
+  void addConnection (ConnectionPtr con, const char *host, u_short port);
+  Mutex connectionsLock;
+  vector<ConnectionRecord> connections;
+  size_t maxKeepAliveConnections;
   static int timeout;
 };
 #endif

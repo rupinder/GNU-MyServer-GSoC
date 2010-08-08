@@ -44,7 +44,8 @@ int Proxy::send (HttpThreadContext *td, const char* scriptpath,
                  const char* exec, bool execute, bool onlyHeader)
 {
   Url destUrl (exec, 80);
-  Socket sock;
+  ConnectionPtr con = NULL;
+  Socket *sock;
   FiltersChain chain;
   HttpRequestHeader req;
   u_long nbw;
@@ -72,7 +73,14 @@ int Proxy::send (HttpThreadContext *td, const char* scriptpath,
       req.uri.assign ("/");
       req.uri.append (destUrl.getResource ());
       req.uri.append (td->pathInfo);
-      req.setValue ("Connection", "Close");
+      req.setValue ("Connection", "keep-alive");
+      if (td->request.uriOptsPtr)
+        {
+          char buffer[32];
+          u_long size = td->inputData.getFileSize ();
+          sprintf (buffer, "%u", size);
+          req.setValue ("Content-Length", buffer);
+        }
 
       ostringstream host;
       host << destUrl.getHost ();
@@ -88,17 +96,21 @@ int Proxy::send (HttpThreadContext *td, const char* scriptpath,
       xForwardedFor.append (td->connection->getIpAddr ());
       req.setValue ("X-Forwarded-For", xForwardedFor.c_str ());
 
-      sock.connect (destUrl.getHost ().c_str (), destUrl.getPort ());
+      con = getConnection (destUrl.getHost ().c_str (), destUrl.getPort ());
+      if (! con)
+        return td->http->raiseHTTPError (500);
+
+      sock = con->socket;
 
       u_long hdrLen =
         HttpHeaders::buildHTTPRequestHeader (td->auxiliaryBuffer->getBuffer (),
                                              &req);
 
 
-      sock.write (td->auxiliaryBuffer->getBuffer (), hdrLen, &nbw);
+      sock->write (td->auxiliaryBuffer->getBuffer (), hdrLen, &nbw);
 
       if (td->request.uriOptsPtr)
-        td->inputData.fastCopyToSocket (&sock, 0, td->auxiliaryBuffer, &nbw);
+        td->inputData.fastCopyToSocket (sock, 0, td->auxiliaryBuffer, &nbw);
 
       chain.setStream (td->connection->socket);
       if (td->mime)
@@ -109,14 +121,16 @@ int Proxy::send (HttpThreadContext *td, const char* scriptpath,
                                                              1);
 
 
-      flushToClient (td, sock, chain, onlyHeader);
+      flushToClient (td, *sock, chain, onlyHeader);
 
       chain.clearAllFilters ();
-      sock.close ();
+      addConnection (con, destUrl.getHost ().c_str (), destUrl.getPort ());
       req.free ();
     }
   catch (exception & e)
     {
+      if (con)
+        delete con;
       chain.clearAllFilters ();
       return td->http->raiseHTTPError (500);
     }
@@ -311,4 +325,108 @@ int Proxy::readPayLoad (HttpThreadContext* td,
     out->getStream ()->write ("0\r\n\r\n", 5, &nbw);
 
   return HttpDataHandler::RET_OK;
+}
+
+int Proxy::load ()
+{
+  const char *data
+    = Server::getInstance ()->getData ("http.proxy.connections.keepalive",
+                                       "64");
+  maxKeepAliveConnections = atoi (data);
+}
+
+ConnectionPtr Proxy::getConnection (const char *host, u_short port)
+{
+  ConnectionPtr ret = NULL;
+
+  connectionsLock.lock ();
+  try
+    {
+      vector<ConnectionRecord>::iterator it = connections.begin ();
+      for (; it != connections.end (); it++)
+        {
+          if ((*it).port == port && (*it).host.compare (host) == 0)
+            {
+              ret = (*it).connection;
+              connections.erase (it);
+              break;
+            }
+        }
+      connectionsLock.unlock ();
+      if (ret)
+        return ret;
+    }
+  catch (...)
+    {
+      connectionsLock.unlock ();
+      throw;
+    }
+
+  ret = new Connection ();
+  ret->socket = new Socket ();
+  try
+    {
+      ret->socket->socket (AF_INET, SOCK_STREAM, 0);
+      ret->socket->connect (host, port);
+    }
+  catch (...)
+    {
+      delete ret;
+      throw;
+    }
+
+  return ret;
+}
+
+void Proxy::proxySchedulerHandler (void *p, Connection *c, int event)
+{
+  Proxy *proxy = (Proxy *) p;
+  proxy->removeConnection (c);
+}
+
+void Proxy::removeConnection (Connection *c)
+{
+  connectionsLock.lock ();
+  try
+    {
+      vector<ConnectionRecord>::iterator it = connections.begin ();
+      for (; it != connections.end (); it++)
+        {
+          /* Remove only if it is found in the buffer.  Otherwise it is
+             used at this time and we can't remove it.  */
+          if ((*it).connection == c)
+            {
+              connections.erase (it);
+              delete c;
+              break;
+            }
+        }
+
+      connectionsLock.unlock ();
+    }
+  catch (...)
+    {
+      connectionsLock.unlock ();
+    }
+}
+
+void Proxy::addConnection (ConnectionPtr con, const char *host, u_short port)
+{
+  if (connections.size () >= maxKeepAliveConnections)
+    {
+      delete con;
+      return;
+    }
+
+  con->setSchedulerHandler (Proxy::proxySchedulerHandler, this);
+
+  ConnectionsScheduler *cs  = Server::getInstance ()->getConnectionsScheduler ();
+  cs->addNewWaitingConnection (con);
+
+  ConnectionRecord cr;
+  cr.host = host;
+  cr.port = port;
+  cr.connection = con;
+
+  connections.push_back (cr);
 }

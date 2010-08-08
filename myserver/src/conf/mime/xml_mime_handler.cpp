@@ -320,7 +320,6 @@ void XmlMimeHandler::clearRecords ()
 /*!
   Get the MIME type to use on the specified file.
   \param filename Find the MIME type for this file.
-  \param handler If specified, indicate an external handler to use
   if the mime cannot be found locally.
 */
 MimeRecord *XmlMimeHandler::getMIME (const char *filename)
