@@ -16,24 +16,25 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-# include "myserver.h"
-# include <fts.h>
-# include <include/base/read_directory/read_directory.h>
+#include "myserver.h"
+#include <include/base/read_directory/read_directory.h>
 
-# include <string>
-
-using namespace std;
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 class RecReadDirectory : public ReadDirectory
 {
 public:
-  FTS* fileTreeGenerate (const char*);
-  FTSENT* nextMember ();
+  int fileTreeGenerate (const char*);
+  bool nextMember ();
   short getInfo ();
-  char* getPath ();
+  char *getPath ();
   void clearTree ();
-
+  short getLevel ();
+  void skip ();
+  struct stat *getStat ();
 private:
-  FTS* fileTree;
-  FTSENT* fileTreeIter;
+  void *fileTree;
+  void *fileTreeIter;
 };

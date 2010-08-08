@@ -16,10 +16,9 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "myserver.h"
+#include <fts_.h>
 #include <include/base/read_directory/rec_read_directory.h>
-
-#include <string>
+#include "myserver.h"
 
 using namespace std;
 
@@ -27,22 +26,31 @@ using namespace std;
   Generate a file tree given a path string.
   \param path The path to the root
  */
-FTS* RecReadDirectory::fileTreeGenerate (const char* path)
+int RecReadDirectory::fileTreeGenerate (const char* path)
 {
   char *argv[2] = {(char *) path, NULL};
 
-  fileTree = fts_open (argv, (FTS_LOGICAL | FTS_NOSTAT | FTS_NOCHDIR), NULL);
+  fileTree = fts_open (argv, (FTS_LOGICAL | FTS_NOCHDIR), NULL);
 
-  return fileTree;
+  return fileTree ? 0 : -1;
 }
+
+/*!
+  Get stat(2) information.
+ */
+struct stat *RecReadDirectory::getStat ()
+{
+  return ((FTSENT *) fileTreeIter)->fts_statp;
+}
+
 
 /*!
   Get the next member in the file tree.
  */
-FTSENT* RecReadDirectory::nextMember ()
+bool RecReadDirectory::nextMember ()
 {
-  fileTreeIter = fts_read (fileTree);
-  return fileTreeIter;
+  fileTreeIter = fts_read ((FTS *) fileTree);
+  return fileTreeIter ? true : false;
 }
 
 /*!
@@ -59,7 +67,24 @@ void RecReadDirectory::clearTree ()
  */
 short RecReadDirectory::getInfo ()
 {
-  return fileTreeIter->fts_level;
+  return ((FTSENT *) fileTreeIter)->fts_info;
+}
+
+/*!
+  Get the current recursion level.
+ */
+short RecReadDirectory::getLevel ()
+{
+  return ((FTSENT *) fileTreeIter)->fts_level;
+}
+
+/*!
+  Skip descent of the current directory.
+*/
+void RecReadDirectory::skip ()
+{
+  /*FIXME: check for errors.  */
+  fts_set ((FTS *) fileTree, (FTSENT *) fileTreeIter, FTS_SKIP);
 }
 
 /*!
@@ -67,5 +92,5 @@ short RecReadDirectory::getInfo ()
  */
 char* RecReadDirectory::getPath ()
 {
-  return fileTreeIter->fts_path;
+  return ((FTSENT *) fileTreeIter)->fts_path;
 }
