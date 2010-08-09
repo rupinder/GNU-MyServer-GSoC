@@ -43,13 +43,23 @@ FileStream::streamCycle ()
   File *currentFile = dynamic_cast<File*>(out);
   string filepath (currentFile->getFilename ());
   string newFileName (makeNewFileName (currentFile->getFilename ()));
+  u_long opts = currentFile->getOpenOptions ();
 
-  if (FilesUtility::copyFile (currentFile->getFilename (), newFileName.c_str (), 1))
-    return 1;
+  currentFile->close ();
+  try
+    {
+      FilesUtility::renameFile (filepath.c_str (),
+                                newFileName.c_str ());
+      cycledStreams.push_back (newFileName);
+    }
+  catch (...)
+    {
+      /* Whatever happens, try to don't leave the log file closed.  */
+      currentFile->openFile (filepath, opts);
+      throw;
+    }
 
-  cycledStreams.push_back (newFileName);
-
-  currentFile->truncate ();
+  currentFile->openFile (filepath, opts);
 
   return 0;
 }
