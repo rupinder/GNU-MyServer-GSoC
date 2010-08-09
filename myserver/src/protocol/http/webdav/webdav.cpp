@@ -341,11 +341,9 @@ int WebDAV::copy (HttpThreadContext* td)
 
   string target = string (td->getVhostDir ()) + "/" + destination.substr (endPos);
 
-
   /* Raise 423 if Locked.  */
   if (isLocked (td, target))
     return td->http->raiseHTTPError (423);
-
 
   /* Determine Overwrite flag.  */
   if (over != NULL)
@@ -408,7 +406,7 @@ int WebDAV::davdelete (HttpThreadContext* td)
 
   int ret, permissions;
   string directory, file, filenamepath;
-  string location = string (td->getVhostDir ()) + "/" + td->request.uri;
+  string location = string (td->getVhostDir ()) + td->request.uri;
 
   /* Raise 423 if Locked.  */
   if (isLocked (td, location))
@@ -443,21 +441,20 @@ int WebDAV::move (HttpThreadContext* td)
   int ret, overwrite;
   string destination = *td->request.getValue ("Destination", NULL);
   string* over = td->request.getValue ("Overwrite", NULL);
-  string source = string (td->getVhostDir ()) + "/" + td->request.uri;
+  string source = string (td->getVhostDir ()) + td->request.uri;
 
   string file, directory, filenamepath;
   int permissions;
 
   string temp = "http://" + *td->request.getValue ("Host", NULL) + "/";
-  u_long endPos = temp.size ();
-
-  string target = string (td->getVhostDir ()) + "/" + destination.substr (endPos);
+  string target = string (td->getVhostDir ()) + "/" + destination.substr (temp.size ());
+  string targetdir = target.substr (0, target.rfind ("/"));
 
   /* Raise 423 if Locked.  */
-  if (isLocked (td, target))
+  if (isLocked (td, targetdir) || isLocked (td, source))
     return td->http->raiseHTTPError (423);
 
-  /* Determing Overwrite flag.  */
+  /* Determine Overwrite flag.  */
   if (over != NULL)
   {
     if (over->size() == 1 && (*over)[0] == 'F')
@@ -493,6 +490,10 @@ int WebDAV::move (HttpThreadContext* td)
 int WebDAV::lock (HttpThreadContext* td)
 {
   string loc = string (td->getVhostDir ()) + td->request.uri;
+
+  /* Check if resource exists.  */
+  if (!FilesUtility::nodeExists (loc.c_str ()))
+    return td->http->raiseHTTPError (409);
 
   try
     {
@@ -542,7 +543,7 @@ int WebDAV::lock (HttpThreadContext* td)
         td->response.setValue ("connection", "close");
 
         td->response.setValue ("Lock-Token", urn);
-        
+
         td->response.setValue ("Content-Type", "text/xml");
 
       HttpHeaders::sendHeader (td->response, *chain.getStream (), *td->buffer, td);
@@ -598,7 +599,9 @@ int WebDAV::unlock (HttpThreadContext* td)
 
   string lockLoc = string (td->getVhostSys ()) + "/webdav/locks/" + string (urn);
 
-  return FilesUtility::deleteFile (lockLoc.c_str ());
+  FilesUtility::deleteFile (lockLoc.c_str ());
+
+  return td->http->raiseHTTPError (204);
 }
 
 /*!
