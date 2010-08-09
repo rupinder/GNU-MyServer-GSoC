@@ -206,8 +206,9 @@ xmlDocPtr WebDAV::generateResponse (const char* path, unsigned int reqDepth)
 /*!
   Generate the response for a lock request.
   \param path The path to the resource.
+  \param urn URN for the specified path.
  */
-xmlDocPtr WebDAV::generateLockResponse (string path)
+xmlDocPtr WebDAV::generateLockResponse (string & path, const char *urn)
 {
   xmlDocPtr doc = xmlNewDoc ( BAD_CAST "1.0");
 
@@ -224,6 +225,10 @@ xmlDocPtr WebDAV::generateLockResponse (string path)
   xmlNodePtr locktype = xmlNewNode (NULL, BAD_CAST "D:locktype");
   xmlNewChild (locktype, NULL, BAD_CAST "D:write", NULL);
   xmlAddChild (activelock, locktype);
+
+  xmlNodePtr locktoken = xmlNewNode (NULL, BAD_CAST "D:locktoken");
+  xmlNewChild (locktoken, NULL, BAD_CAST "D:href", BAD_CAST urn);
+  xmlAddChild (activelock, locktoken);
 
   xmlNodePtr lockscope = xmlNewNode (NULL, BAD_CAST "D:lockscope");
   xmlNewChild (lockscope, NULL, BAD_CAST "D:exclusive", NULL);
@@ -528,9 +533,8 @@ int WebDAV::lock (HttpThreadContext* td)
       ff->chain (&chain, filters, td->connection->socket, &nbw, 1);
 
       HttpHeaders::buildDefaultHTTPResponseHeader (&(td->response));
-
       HttpDataHandler::checkDataChunks (td, &keepalive, &useChunks);
-      td->response.httpStatus = 200;
+      td->response.httpStatus = 201;
 
       if (keepalive)
         td->response.setValue ("connection", "keep-alive");
@@ -538,11 +542,13 @@ int WebDAV::lock (HttpThreadContext* td)
         td->response.setValue ("connection", "close");
 
         td->response.setValue ("Lock-Token", urn);
+        
+        td->response.setValue ("Content-Type", "text/xml");
 
       HttpHeaders::sendHeader (td->response, *chain.getStream (), *td->buffer, td);
 
       string lc = "http://" + *td->request.getValue ("Host", NULL) + td->request.uri;
-      xmlDocPtr doc = generateLockResponse (lc);
+      xmlDocPtr doc = generateLockResponse (lc, urn);
       xmlSaveFormatFileEnc ("test.xml", doc, "UTF-8", 1);
 
       File f;
@@ -580,7 +586,7 @@ int WebDAV::lock (HttpThreadContext* td)
  */
 int WebDAV::unlock (HttpThreadContext* td)
 {
-  string loc = string (td->getVhostDir ()) + "/" + td->request.uri;
+  string loc = string (td->getVhostDir ()) + td->request.uri;
 
   char urn[48];
   sha1.init ();
@@ -599,7 +605,7 @@ int WebDAV::unlock (HttpThreadContext* td)
   Check if a resource is locked.
   \param path Path to the resource.
  */
-bool WebDAV::isLocked (HttpThreadContext* td, string path)
+bool WebDAV::isLocked (HttpThreadContext* td, string & path)
 {
   char urn[48];
   sha1.init ();

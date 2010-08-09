@@ -34,10 +34,10 @@ public:
   int mkcol (HttpThreadContext*);
   xmlNodePtr generate (const char*);
   xmlDocPtr generateResponse (const char*, unsigned int);
-  xmlDocPtr generateLockResponse (string);
+  xmlDocPtr generateLockResponse (string &, const char *urn);
   void getElements (xmlNode*);
   const char *getPropValue (const char*, const char*);
-  bool isLocked (HttpThreadContext*, string);
+  bool isLocked (HttpThreadContext*, string &);
   int propfind (HttpThreadContext*);
   int copy (HttpThreadContext*);
   int davdelete (HttpThreadContext*);
