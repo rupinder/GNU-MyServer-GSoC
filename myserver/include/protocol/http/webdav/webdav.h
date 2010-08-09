@@ -22,7 +22,6 @@
 #include <include/base/xml/xml_parser.h>
 #include <include/conf/vhost/vhost.h>
 
-
 #include <string>
 
 using namespace std;
@@ -32,11 +31,11 @@ class WebDAV
 public:
   WebDAV ();
   int mkcol (HttpThreadContext*);
-  xmlNodePtr generate (const char*);
+  xmlNodePtr generate (const char*, struct stat*);
   xmlDocPtr generateResponse (const char*, unsigned int);
   xmlDocPtr generateLockResponse (string &, const char *urn);
   void getElements (xmlNode*);
-  const char *getPropValue (const char*, const char*);
+  void getPropValue (const char*, struct stat*, char*);
   bool isLocked (HttpThreadContext*, string &);
   int propfind (HttpThreadContext*);
   int copy (HttpThreadContext*);

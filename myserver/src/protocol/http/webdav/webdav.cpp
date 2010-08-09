@@ -67,39 +67,55 @@ void WebDAV::getElements (xmlNode* aNode)
   Retrieve the value of the property given the name
   of the property as a string.
   \param prop The name of the Property.
-  \param path The path to the resource.
+  \param filestat The stat of the resource.
+  \param buffer The buffer to store the return value.
  */
-const char *WebDAV::getPropValue (const char* prop, const char* path)
+void WebDAV::getPropValue (const char* prop, struct stat* filestat,
+                           char* buffer)
 {
   time_t value;
 
   if (!strcmp (prop, "creationtime"))
-    value = FilesUtility::getCreationTime (path);
+    value = filestat->st_ctime;
   else if (!strcmp (prop, "getlastmodified"))
-    value = FilesUtility::getLastModTime (path);
+    value = filestat->st_mtime;
   else if (!strcmp (prop, "lastaccesstime"))
-    value = FilesUtility::getLastAccTime (path);
+    value = filestat->st_atime;
   else if (!strcmp (prop, "getcontentlength"))
-      return "280";
+    {
+      sprintf (buffer, "%d", (int) filestat->st_size);
+      return;
+    }
   else if (!strcmp (prop, "executable"))
-      return "no";
+    {
+      strcpy (buffer, "no");
+      return;
+    }
   else if (!strcmp (prop, "checked-in"))
-      return "";
+    {
+      strcpy (buffer, "");
+      return;
+    }
   else if (!strcmp (prop, "checked-out"))
-      return "";
+    {
+      strcpy (buffer, "");
+      return;
+    }
 
-  char *out = new char[32];
-  time_t* t = &value;
-  reinterpret_cast <const time_t*> (t);
+  struct tm ltime;
+  gnulib::gmtime_r (&value, &ltime);
+  setlocale (LC_TIME, "POSIX");
+	strftime (buffer, 32, "%a, %d %b %Y %H:%M:%S GMT", &ltime);
 
-  return ctime_r (t, out);
+	return;
 }
 
 /*!
   Generate the response tag for a single resource.
   \param path The path to the resource.
+  \param filestat The stat of the resource.
  */
-xmlNodePtr WebDAV::generate (const char *path)
+xmlNodePtr WebDAV::generate (const char *path, struct stat *filestat)
 {
   xmlNodePtr response = xmlNewNode (NULL, BAD_CAST "D:response");
   xmlNewProp (response, BAD_CAST "xmlns:g0", BAD_CAST "DAV:");
@@ -122,10 +138,12 @@ xmlNodePtr WebDAV::generate (const char *path)
         {
           if (strcmp (available[i], "resourcetype"))
             {
-              char buffer[32];
+              char buffer[32], buffer2[32];
               sprintf (buffer, "g0:%s", available[i]);
+
+              getPropValue (available[i], filestat, buffer2);
               xmlNewChild (prop, NULL, BAD_CAST (buffer),
-                           BAD_CAST (getPropValue (available[i], path)));
+                           BAD_CAST (buffer2));
             }
           else
             {
@@ -142,11 +160,12 @@ xmlNodePtr WebDAV::generate (const char *path)
         {
           if (strcmp (propReq[i], "resourcetype"))
             {
-              char buffer[32];
+              char buffer[32], buffer2[32];
               sprintf (buffer, "g0:%s", propReq[i]);
 
+              getPropValue (propReq[i], filestat, buffer2);
               xmlNewChild (prop, NULL, BAD_CAST (buffer),
-                           BAD_CAST (getPropValue (propReq[i], path)));
+                           BAD_CAST (buffer2));
             }
           else
             {
@@ -168,6 +187,7 @@ xmlNodePtr WebDAV::generate (const char *path)
 /*!
   Generate the complete response.
   \param path The path to the resource.
+  \param reqDepth The required depth.
  */
 xmlDocPtr WebDAV::generateResponse (const char* path, unsigned int reqDepth)
 {
@@ -195,7 +215,7 @@ xmlDocPtr WebDAV::generateResponse (const char* path, unsigned int reqDepth)
       else
         {
           const char *relPath = recTree.getPath () + relOffset;
-          xmlNodePtr response = generate (relPath);
+          xmlNodePtr response = generate (relPath, recTree.getStat ());
           xmlAddChild (rootNode, response);
         }
     }
