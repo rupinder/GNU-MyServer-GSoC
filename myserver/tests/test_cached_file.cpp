@@ -74,18 +74,56 @@ public:
   void testOpenFile ()
   {
     string filename;
-    CPPUNIT_ASSERT (cf->openFile (NULL, 0));
-    CPPUNIT_ASSERT (cf->openFile (filename, 0));
+    int success = 0;
+    try
+      {
+        cf->openFile (NULL, 0);
+      }
+    catch (...)
+      {
+        success++;
+      }
+
+    try
+      {
+        cf->openFile (filename, 0);
+      }
+    catch (...)
+      {
+        success++;
+      }
+
+    CPPUNIT_ASSERT_EQUAL (success, 2);
   }
 
   void testCreateTemporaryFile ()
   {
-    CPPUNIT_ASSERT (cf->createTemporaryFile (NULL));
+    int success = 0;
+    try
+      {
+        cf->createTemporaryFile (NULL);
+      }
+    catch (...)
+      {
+        success++;
+      }
+
+    CPPUNIT_ASSERT_EQUAL (success, 1);
   }
 
   void testWrite ()
   {
-    CPPUNIT_ASSERT (cf->writeToFile (NULL, 0, NULL));
+    int success = 0;
+    try
+      {
+        cf->writeToFile (NULL, 0, NULL);
+      }
+    catch (...)
+      {
+        success++;
+      }
+
+    CPPUNIT_ASSERT_EQUAL (success, 1);
   }
 
   void testRead ()
@@ -104,9 +142,6 @@ public:
 
     delete [] buffer;
   }
-
-
-
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION ( TestCachedFile );
