@@ -33,12 +33,13 @@ using namespace std;
  */
 WebDAV::WebDAV ()
 {
-  const char* properties[3] = {"creationtime", "lastmodifiedtime", "lastaccesstime"};
+  const char* properties[7] = {"creationtime", "getlastmodified", "lastaccesstime", "getcontentlength",
+                               "executable", "checked-in", "checked-out"};
   numPropReq = 0;
   propReq.clear ();
   available.clear ();
 
-  for (int i = 0; i < 3; i++)
+  for (int i = 0; i < 7; i++)
     available.push_back (properties[i]);
 
   numPropAvail = available.size ();
@@ -87,9 +88,11 @@ const char *WebDAV::getPropValue (const char* prop, const char* path)
   else if (!strcmp (prop, "checked-out"))
       return "";
 
-  /* FIXME: this is not reentrant, use ctime_r instead.  */
   char *out = new char[32];
-  return getRFC822GMTTime (value, out, NULL);
+  time_t* t = &value;
+  reinterpret_cast <const time_t*> (t);
+
+  return ctime_r (t, out);
 }
 
 /*!
