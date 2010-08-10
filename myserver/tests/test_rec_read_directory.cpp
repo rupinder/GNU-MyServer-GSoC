@@ -28,6 +28,7 @@ class TestRecReadDirectory : public CppUnit::TestFixture
   CPPUNIT_TEST ( testTreeGen );
   CPPUNIT_TEST ( testFileInfo );
   CPPUNIT_TEST ( testFilePath );
+  CPPUNIT_TEST ( testLevel );
   CPPUNIT_TEST_SUITE_END ();
 
 public:
@@ -39,9 +40,9 @@ public:
   void testTreeGen ()
   {
     RecReadDirectory rec;
-    rec.fileTreeGenerate ("web/cgi-bin");
+    rec.fileTreeGenerate (".");
 
-    CPPUNIT_ASSERT (rec.nextMember () != NULL);
+    CPPUNIT_ASSERT_EQUAL (rec.nextMember (), true);
   }
 
   /* Check file info.
@@ -49,9 +50,9 @@ public:
   void testFileInfo ()
   {
     RecReadDirectory rec;
-    rec.fileTreeGenerate ("web/cgi-bin");
+    rec.fileTreeGenerate (".");
 
-    CPPUNIT_ASSERT (rec.getInfo () <= 14 && rec.getInfo () >= 0);
+    CPPUNIT_ASSERT_EQUAL (rec.getInfo (), (short) 1);
   }
 
   /* Check file path.
@@ -59,10 +60,21 @@ public:
   void testFilePath ()
   {
     RecReadDirectory rec;
-    rec.fileTreeGenerate ("web/cgi-bin");
+    rec.fileTreeGenerate (".");
 
     CPPUNIT_ASSERT (strlen (rec.getPath ()) > 0);
   }
+
+  /* Check file depth.
+   */
+  void testLevel ()
+  {
+    RecReadDirectory rec;
+    rec.fileTreeGenerate (".");
+
+    CPPUNIT_ASSERT_EQUAL (rec.getLevel (), (short) 0);
+  }
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION ( TestRecReadDirectory );

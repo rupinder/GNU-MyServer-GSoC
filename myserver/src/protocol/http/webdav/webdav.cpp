@@ -33,12 +33,14 @@ using namespace std;
  */
 WebDAV::WebDAV ()
 {
+  /* The properties that are recognized.  */
   const char* properties[7] = {"creationtime", "getlastmodified", "lastaccesstime", "getcontentlength",
                                "executable", "checked-in", "checked-out"};
   numPropReq = 0;
   propReq.clear ();
   available.clear ();
 
+  /* Vector 'available' holds the available properties.  */
   for (int i = 0; i < 7; i++)
     available.push_back (properties[i]);
 
@@ -200,7 +202,6 @@ xmlDocPtr WebDAV::generateResponse (const char* path, unsigned int reqDepth)
 
   xmlDocSetRootElement (doc, rootNode);
 
-  bool f = 0;
   RecReadDirectory recTree;
   size_t relOffset = strlen (path) - 1;
   recTree.clearTree ();
@@ -293,7 +294,6 @@ int WebDAV::propfind (HttpThreadContext* td)
 
       ff->chain (&chain, filters, td->connection->socket, &nbw, 1);
 
-
       HttpHeaders::buildDefaultHTTPResponseHeader (&(td->response));
       HttpDataHandler::checkDataChunks (td, &keepalive, &useChunks);
       td->response.httpStatus = 207;
@@ -311,10 +311,16 @@ int WebDAV::propfind (HttpThreadContext* td)
         reqDepth = tmp.strToUint ((*depth).c_str ());
 
       xmlDocPtr doc = generateResponse (loc.c_str (), reqDepth);
-      xmlSaveFormatFileEnc ("test.xml", doc, "UTF-8", 1);
 
+      /* Create temporary file for the payload.  */
+      string xmlresponse;
+      FilesUtility::temporaryFileName (td->id, xmlresponse);
       File f;
-      f.openFile ("test.xml", File::READ);
+      f.createTemporaryFile (xmlresponse.c_str (), false);
+      xmlresponse = f.getFilename ();
+      xmlSaveFormatFileEnc (xmlresponse.c_str (), doc, "UTF-8", 1);
+
+      f.openFile (xmlresponse.c_str (), File::READ);
       for (;;)
         {
           u_long nbr;
@@ -394,6 +400,7 @@ int WebDAV::copy (HttpThreadContext* td)
         return td->http->raiseHTTPError (412);
 
       FilesUtility::copyFile (source.c_str (), target.c_str (), 1);
+      /* 201 Created.  */
       return td->http->raiseHTTPError (201);
     }
   else
@@ -410,6 +417,7 @@ int WebDAV::copy (HttpThreadContext* td)
       if (ret != 0)
         return td->http->raiseHTTPError (ret);
 
+      /* 201 Created.  */
       return td->http->raiseHTTPError (201);
     }
 }
@@ -500,6 +508,7 @@ int WebDAV::move (HttpThreadContext* td)
     return td->http->raiseHTTPError (412);
 
   FilesUtility::renameFile (source.c_str (), target.c_str ());
+  /* 201 Created.  */
   return td->http->raiseHTTPError (201);
 }
 
@@ -530,6 +539,7 @@ int WebDAV::lock (HttpThreadContext* td)
       /* Obtain xml entities in the payload.  */
       getElements (xmlDocGetRootElement (p.getDoc ()));
 
+      /* Generate URN.  */
       char urn[48];
       sha1.init ();
       td->auxiliaryBuffer->setLength (0);
@@ -540,6 +550,7 @@ int WebDAV::lock (HttpThreadContext* td)
 
       string lockLoc = string (td->getVhostSys ()) + "/webdav/locks/" + string (urn);
 
+      /* If first lock in the session.  */
       if (!FilesUtility::nodeExists (lockLoc.substr (0, lockLoc.rfind ("/")).c_str ()))
         {
           string temp = string (td->getVhostSys ()) + "/webdav";
@@ -549,6 +560,7 @@ int WebDAV::lock (HttpThreadContext* td)
         }
 
       File resLock;
+      /* Create the lock.  */
       resLock.openFile (lockLoc.c_str (), File::WRITE | File::FILE_OPEN_ALWAYS);
 
       ff->chain (&chain, filters, td->connection->socket, &nbw, 1);
@@ -570,10 +582,17 @@ int WebDAV::lock (HttpThreadContext* td)
 
       string lc = "http://" + *td->request.getValue ("Host", NULL) + td->request.uri;
       xmlDocPtr doc = generateLockResponse (lc, urn);
-      xmlSaveFormatFileEnc ("test.xml", doc, "UTF-8", 1);
 
+      /* Create temporary file for the payload.  */
+      string xmlresponse;
+      FilesUtility::temporaryFileName (td->id, xmlresponse);
       File f;
-      f.openFile ("test.xml", File::READ);
+      f.createTemporaryFile (xmlresponse.c_str (), false);
+      xmlresponse = f.getFilename ();
+      xmlSaveFormatFileEnc (xmlresponse.c_str (), doc, "UTF-8", 1);
+
+      /* Send payload through HTTP channel.  */
+      f.openFile (xmlresponse.c_str (), File::READ);
       for (;;)
         {
           u_long nbr;
@@ -609,6 +628,7 @@ int WebDAV::unlock (HttpThreadContext* td)
 {
   string loc = string (td->getVhostDir ()) + td->request.uri;
 
+  /* Generate URN.  */
   char urn[48];
   sha1.init ();
   td->auxiliaryBuffer->setLength (0);
@@ -621,6 +641,7 @@ int WebDAV::unlock (HttpThreadContext* td)
 
   FilesUtility::deleteFile (lockLoc.c_str ());
 
+  /* 204 No Content.  */
   return td->http->raiseHTTPError (204);
 }
 
@@ -630,6 +651,7 @@ int WebDAV::unlock (HttpThreadContext* td)
  */
 bool WebDAV::isLocked (HttpThreadContext* td, string & path)
 {
+  /* Generate URN.  */
   char urn[48];
   sha1.init ();
   td->auxiliaryBuffer->setLength (0);
