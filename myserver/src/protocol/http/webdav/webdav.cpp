@@ -268,6 +268,17 @@ xmlDocPtr WebDAV::generateLockResponse (string & path, const char *urn)
  */
 int WebDAV::propfind (HttpThreadContext* td)
 {
+  const char *enabled = td->connection->host->getData ("http.webdav.enable");
+
+	if (enabled == NULL)
+    enabled = Server::getInstance ()->getData ("http.webdav.enable");
+	if (enabled == NULL || strcasecmp (enabled, "YES"))
+    {
+      td->connection->host->warningsLogWrite (_
+                                      ("WebDAV is not enabled on this host"));
+      return td->http->raiseHTTPError (503);
+    }
+
   /* Not allowed in a directory super to Vhost Document Root.  */
   if (FilesUtility::getPathRecursionLevel (td->request.uri.c_str ()) < 0)
     return td->http->raiseHTTPError (403);
@@ -354,6 +365,17 @@ int WebDAV::propfind (HttpThreadContext* td)
  */
 int WebDAV::copy (HttpThreadContext* td)
 {
+  const char *enabled = td->connection->host->getData ("http.webdav.enable");
+
+	if (enabled == NULL)
+    enabled = Server::getInstance ()->getData ("http.webdav.enable");
+	if (enabled == NULL || strcasecmp (enabled, "YES"))
+    {
+      td->connection->host->warningsLogWrite (_
+                                      ("WebDAV is not enabled on this host"));
+      return td->http->raiseHTTPError (503);
+    }
+
   int ret, overwrite = 1;
   string destination = *td->request.getValue ("Destination", NULL);
   string* over = td->request.getValue ("Overwrite", NULL);
@@ -428,6 +450,17 @@ int WebDAV::copy (HttpThreadContext* td)
  */
 int WebDAV::davdelete (HttpThreadContext* td)
 {
+  const char *enabled = td->connection->host->getData ("http.webdav.enable");
+
+	if (enabled == NULL)
+    enabled = Server::getInstance ()->getData ("http.webdav.enable");
+	if (enabled == NULL || strcasecmp (enabled, "YES"))
+    {
+      td->connection->host->warningsLogWrite (_
+                                      ("WebDAV is not enabled on this host"));
+      return td->http->raiseHTTPError (503);
+    }
+
   /* Not allowed in a directory super to Vhost Document Root.  */
   if (FilesUtility::getPathRecursionLevel (td->request.uri.c_str ()) <= 0)
     return td->http->raiseHTTPError (403);
@@ -466,6 +499,17 @@ int WebDAV::davdelete (HttpThreadContext* td)
  */
 int WebDAV::move (HttpThreadContext* td)
 {
+  const char *enabled = td->connection->host->getData ("http.webdav.enable");
+
+	if (enabled == NULL)
+    enabled = Server::getInstance ()->getData ("http.webdav.enable");
+	if (enabled == NULL || strcasecmp (enabled, "YES"))
+    {
+      td->connection->host->warningsLogWrite (_
+                                      ("WebDAV is not enabled on this host"));
+      return td->http->raiseHTTPError (503);
+    }
+
   int ret, overwrite;
   string destination = *td->request.getValue ("Destination", NULL);
   string* over = td->request.getValue ("Overwrite", NULL);
@@ -518,6 +562,17 @@ int WebDAV::move (HttpThreadContext* td)
  */
 int WebDAV::lock (HttpThreadContext* td)
 {
+  const char *enabled = td->connection->host->getData ("http.webdav.enable");
+
+	if (enabled == NULL)
+    enabled = Server::getInstance ()->getData ("http.webdav.enable");
+	if (enabled == NULL || strcasecmp (enabled, "YES"))
+    {
+      td->connection->host->warningsLogWrite (_
+                                      ("WebDAV is not enabled on this host"));
+      return td->http->raiseHTTPError (503);
+    }
+
   string loc = string (td->getVhostDir ()) + td->request.uri;
 
   /* Check if resource exists.  */
@@ -626,6 +681,17 @@ int WebDAV::lock (HttpThreadContext* td)
  */
 int WebDAV::unlock (HttpThreadContext* td)
 {
+  const char *enabled = td->connection->host->getData ("http.webdav.enable");
+
+	if (enabled == NULL)
+    enabled = Server::getInstance ()->getData ("http.webdav.enable");
+	if (enabled == NULL || strcasecmp (enabled, "YES"))
+    {
+      td->connection->host->warningsLogWrite (_
+                                      ("WebDAV is not enabled on this host"));
+      return td->http->raiseHTTPError (503);
+    }
+
   string loc = string (td->getVhostDir ()) + td->request.uri;
 
   /* Generate URN.  */
@@ -671,6 +737,17 @@ bool WebDAV::isLocked (HttpThreadContext* td, string & path)
  */
 int WebDAV::mkcol (HttpThreadContext* td)
 {
+  const char *enabled = td->connection->host->getData ("http.webdav.enable");
+
+	if (enabled == NULL)
+    enabled = Server::getInstance ()->getData ("http.webdav.enable");
+	if (enabled == NULL || strcasecmp (enabled, "YES"))
+    {
+      td->connection->host->warningsLogWrite (_
+                                      ("WebDAV is not enabled on this host"));
+      return td->http->raiseHTTPError (503);
+    }
+
   /* Not allowed in a directory super to Vhost Document Root.  */
   if (FilesUtility::getPathRecursionLevel (td->request.uri.c_str ()) <= 0)
     return td->http->raiseHTTPError (403);
