@@ -288,7 +288,7 @@ u_long File::getFileSize ()
 int File::seek (u_long initialByte)
 {
   u_long ret;
-  ret = checked::checkError (lseek (handle, initialByte, SEEK_SET));
+  ret = checked::checkError (gnulib::lseek (handle, initialByte, SEEK_SET));
   return (ret != initialByte ) ? 1 : 0;
 }
 
@@ -299,7 +299,11 @@ int File::seek (u_long initialByte)
  */
 u_long File::getSeek ()
 {
-  return lseek (handle, 0, SEEK_CUR);
+  off_t ret = gnulib::lseek (handle, 0, SEEK_CUR);
+  if (ret < 0)
+    checked::raiseException ();
+
+  return ret;
 }
 
 /*!
