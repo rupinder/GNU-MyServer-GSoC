@@ -56,6 +56,7 @@ void HttpRequestHeader::free ()
   uriOpts.clear ();
   uriOptsPtr = NULL;
 
+
   {
     HashMap<string, HttpRequestHeader::Entry*>::Iterator it = other.begin ();
     for (; it != other.end (); it++)
@@ -86,7 +87,9 @@ bool HttpRequestHeader::isKeepAlive ()
   Entry *connection = other.get ("connection");
   if (connection)
     return (! stringcmpi (connection->value,
-                          "keep-alive"));
+                          "keep-alive"))
+      || (! stringcmpi (connection->value,
+                        "TE"));
 
   return false;
 }

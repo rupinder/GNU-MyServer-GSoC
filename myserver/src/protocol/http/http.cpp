@@ -67,6 +67,8 @@ int HttpProtocol::loadProtocol ()
 {
   const char *data = NULL;
 
+  HttpErrors::load ();
+
   timeout = MYSERVER_SEC (15);
   dynManagerList.addHttpManager ("SEND", new HttpFile ());
   dynManagerList.addHttpManager ("DIR", new HttpDir ());
@@ -116,7 +118,7 @@ int Http::optionsHTTPRESOURCE (string& filename, bool yetmapped)
   try
     {
       HttpRequestHeader::Entry *connection = td->request.other.get ("connection");
-      string methods ("OPTIONS, GET, POST, HEAD, DELETE, PUT, TRACE");
+      string methods ("OPTIONS, GET, POST, HEAD, DELETE, PUT, TRACE, MKCOL, PROPFIND, COPY, MOVE, LOCK, UNLOCK");
 
       HashMap<string, DynamicHttpCommand*>::Iterator it =
         staticData->getDynCmdManager ()->begin ();
@@ -922,6 +924,8 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
       /* If the used method supports POST data, read it.  */
       if ((!td->request.cmd.compare ("POST")) ||
           (!td->request.cmd.compare ("PUT")) ||
+          (!td->request.cmd.compare ("LOCK")) ||
+          (!td->request.cmd.compare ("PROPFIND")) ||
           (dynamicCommand && dynamicCommand->acceptData ()))
         {
           int httpErrorCode;
@@ -1108,13 +1112,27 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                   ret = sendHTTPResource (td->request.uri, 0, 1);
                 }
               else if (!td->request.cmd.compare ("DELETE"))
-                ret = deleteHTTPRESOURCE (td->request.uri, 0, 1);
+                ret = dav.davdelete (td);
               else if (!td->request.cmd.compare ("PUT"))
                 ret = putHTTPRESOURCE (td->request.uri, 0, 1);
               else if (!td->request.cmd.compare ("OPTIONS"))
                 ret = optionsHTTPRESOURCE (td->request.uri, 0);
               else if (!td->request.cmd.compare ("TRACE"))
                 ret = traceHTTPRESOURCE (td->request.uri, 0);
+              else if (!td->request.cmd.compare ("MKCOL"))
+                ret = dav.mkcol (td);
+              else if (!td->request.cmd.compare ("PROPFIND"))
+                ret = dav.propfind (td);
+              else if (!td->request.cmd.compare ("COPY"))
+                ret = dav.copy (td);
+              else if (!td->request.cmd.compare ("MOVE"))
+                ret = dav.move (td);
+              else if (!td->request.cmd.compare ("LOCK"))
+                ret = dav.lock (td);
+              else if (!td->request.cmd.compare ("UNLOCK"))
+                ret = dav.unlock (td);
+
+
               else
                 {
                   /*

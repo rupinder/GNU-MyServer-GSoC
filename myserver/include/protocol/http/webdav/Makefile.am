@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-includedir=@includedir@/myserver/include/base/read_directory
-include_HEADERS = read_directory.h rec_read_directory.h
+envincludedir=$(includedir)/myserver/include/protocol/http/webdav
+envinclude_HEADERS = webdav.h
 SUBDIRS =
 

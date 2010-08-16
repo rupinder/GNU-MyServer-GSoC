@@ -19,6 +19,7 @@
 
 #include "myserver.h"
 #include <include/base/file/files_utility.h>
+#include <include/base/read_directory/rec_read_directory.h>
 #include <include/base/utility.h>
 #include <include/base/string/stringutils.h>
 
@@ -173,6 +174,50 @@ int FilesUtility::copyFile (const char* src, const char* dest, int overwrite)
 }
 
 /*!
+  Copy the directory from [SRC] to [DEST]. Returns 0 on success.
+  \param src The source directory name.
+  \param dest The destination directory name.
+  \param overwrite Overwrite the dest directory if already exists?
+ */
+int FilesUtility::copyDir (string const & src, string const & dest, int overwrite)
+{
+  string finaldest, srcpath;
+  File srcFile, destFile;
+
+  int loc = src.rfind ("/");
+  loc++;
+
+  RecReadDirectory recTree;
+  recTree.clearTree ();
+  recTree.fileTreeGenerate (src.c_str ());
+
+  while (recTree.nextMember ())
+    {
+      if (recTree.getInfo () == 6)
+        continue;
+
+      srcpath = string (recTree.getPath ());
+      finaldest = dest + "/" + srcpath.substr (loc);
+
+      /* Check if already exists.  */
+      if (FilesUtility::nodeExists (finaldest.c_str ()))
+        return 412;
+
+      if (recTree.getInfo () == 8)
+        {
+          srcFile.openFile (srcpath.c_str (), File::READ);
+          destFile.openFile (finaldest.c_str (), File::WRITE | File::FILE_OPEN_ALWAYS);
+          copyFile (srcFile, destFile);
+        }
+
+      else if (recTree.getInfo () == 1)
+        mkdir (finaldest.c_str ());
+    }
+
+  return 0;
+}
+
+/*!
   Copy the file from [SRC] to [DEST]. Returns 0 on success.
   \param src The source File.
   \param dest The destination File.
@@ -210,6 +255,27 @@ int FilesUtility::deleteFile (const char *filename)
   return 0;
 }
 
+/*!
+  Delete the directory [SRC]. Returns 0 on success.
+  \param src The source directory name.
+ */
+int FilesUtility::deleteDir (string const & src)
+{
+  string srcpath;
+  RecReadDirectory recTree;
+  recTree.clearTree ();
+  recTree.fileTreeGenerate (src.c_str ());
+
+  while (recTree.nextMember ())
+    {
+      if (recTree.getInfo () == 1)
+        continue;
+
+      FilesUtility::deleteFile (recTree.getPath ());
+    }
+
+  return 0;
+}
 
 /*!
   Return the result of `nodeExists (PATH) && !isDirectory (PATH)' using a
@@ -624,7 +690,7 @@ int FilesUtility::mkdir (const char *path)
 #ifdef WIN32
   return CreateDirectory (path, NULL) ? 0 : -1;
 #else
-  return checked::mkdir (path, S_IRUSR | S_IWUSR);
+  return checked::mkdir (path, 0777);
 #endif
 }
 

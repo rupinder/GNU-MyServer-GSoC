@@ -82,6 +82,7 @@ libmyserver_la_LIBADD =  \
     base/socket/ssl_socket.lo  \
     base/xml/xml_parser.lo  \
     base/read_directory/read_directory.lo  \
+    base/read_directory/rec_read_directory.lo  \
     base/file/file.lo  \
     base/file/files_utility.lo  \
     base/bitvec/bitvec.lo  \
@@ -133,6 +134,7 @@ libmyserver_la_LIBADD =  \
     protocol/http/dyn_http_command_manager.lo  \
     protocol/http/http_errors.lo  \
     protocol/http/env/env.lo  \
+    protocol/http/webdav/webdav.lo  \
     protocol/http/http_header.lo  \
     protocol/http/http_data_handler.lo  \
     protocol/http/http_data_read.lo  \

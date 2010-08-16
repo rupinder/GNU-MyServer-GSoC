@@ -390,6 +390,7 @@ AC_CONFIG_FILES([ po/Makefile.in
     include/protocol/https/Makefile
     include/protocol/http/Makefile
     include/protocol/http/env/Makefile
+    include/protocol/http/webdav/Makefile
     include/protocol/gopher/Makefile
     include/filter/Makefile
     include/filter/gzip/Makefile
@@ -448,6 +449,7 @@ AC_CONFIG_FILES([ po/Makefile.in
     src/protocol/https/Makefile
     src/protocol/http/Makefile
     src/protocol/http/env/Makefile
+    src/protocol/http/webdav/Makefile
     src/protocol/gopher/Makefile
     src/filter/Makefile
     src/filter/gzip/Makefile

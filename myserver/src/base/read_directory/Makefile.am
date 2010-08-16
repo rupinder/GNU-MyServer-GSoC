@@ -16,6 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 AM_CXXFLAGS=-I"$(top_builddir)/lib" -I"$(top_srcdir)/lib" -I"$(top_srcdir)"
 lib_LTLIBRARIES = libread_directory.la
-libread_directory_la_SOURCES = read_directory.cpp
+libread_directory_la_SOURCES = read_directory.cpp rec_read_directory.cpp
 SUBDIRS =
 
