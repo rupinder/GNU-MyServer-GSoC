@@ -314,10 +314,11 @@ int Proxy::readPayLoad (HttpThreadContext* td,
           if (len == 0)
             break;
 
-          HttpDataRead::readContiguousPrimitivePostData (initBuffer, &inPos,
-                                                         initBufferSize, client,
-                                                         td->buffer->getBuffer (),
-                                                         len, &nbr, timeout);
+          int timedOut =
+            HttpDataRead::readContiguousPrimitivePostData (initBuffer, &inPos,
+                                                           initBufferSize, client,
+                                                           td->buffer->getBuffer (),
+                                                           len, &nbr, timeout);
 
           if (contentLength == 0 && nbr == 0)
             break;
@@ -330,7 +331,7 @@ int Proxy::readPayLoad (HttpThreadContext* td,
                                                     td->appendOutputs, useChunks);
           written += nbr;
 
-          if (contentLength && length == 0)
+          if (timedOut || contentLength && length == 0)
             break;
         }
     }

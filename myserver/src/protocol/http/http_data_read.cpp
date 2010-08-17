@@ -47,7 +47,7 @@ using namespace std;
   \param outBufferSize outBuffer size.
   \param nbr Number of bytes read.
   \param timeout Timeout value to use on the socket.
-  \return Return 0 on success.
+  \return Return non zero on timeout.
 */
 int HttpDataRead::readContiguousPrimitivePostData (const char* inBuffer,
                                                    u_long *inBufferPos,
@@ -127,16 +127,9 @@ int HttpDataRead::readChunkedPostData (const char* inBuffer,
       buffer[0] = '\0';
       for (;;)
         {
-          if (readContiguousPrimitivePostData (inBuffer,
-                                               inBufferPos,
-                                               inBufferSize,
-                                               inSocket,
-                                               &c,
-                                               1,
-                                               &nbr,
-                                               timeout))
-            return -1;
-
+          int timedOut = readContiguousPrimitivePostData (inBuffer, inBufferPos,
+                                                          inBufferSize, inSocket,
+                                                          &c, 1, &nbr, timeout);
           if (nbr != 1)
             return -1;
 
@@ -147,17 +140,14 @@ int HttpDataRead::readChunkedPostData (const char* inBuffer,
             }
           else
             break;
+
+          if (timedOut)
+            break;
         }
 
       /* Read the \n character too. */
-      if (readContiguousPrimitivePostData (inBuffer,
-                                           inBufferPos,
-                                           inBufferSize,
-                                           inSocket,
-                                           &c,
-                                           1,
-                                           &nbr,
-                                           timeout))
+      if (readContiguousPrimitivePostData (inBuffer, inBufferPos, inBufferSize,
+                                           inSocket, &c, 1, &nbr, timeout))
         return -1;
 
       dataToRead = (u_long) hexToInt (buffer);
@@ -172,17 +162,10 @@ int HttpDataRead::readChunkedPostData (const char* inBuffer,
         {
           u_long rs = min (outBufferSize , dataToRead - chunkNbr);
 
-          if (readContiguousPrimitivePostData (inBuffer,
-                                               inBufferPos,
-                                               inBufferSize,
-                                               inSocket,
-                                               outBuffer,
-                                               rs,
-                                               &nbr,
-                                               timeout))
-            {
-              return -1;
-            }
+          int timedOut = readContiguousPrimitivePostData (inBuffer, inBufferPos,
+                                                          inBufferSize,
+                                                          inSocket, outBuffer,
+                                                          rs, &nbr, timeout);
 
           if (nbr == 0)
             return -1;
@@ -200,7 +183,9 @@ int HttpDataRead::readChunkedPostData (const char* inBuffer,
           else
             *outNbr += nbr;
 
-          /* Read final chunk \r\n.  */
+          if (timedOut)
+            break;
+
           if (readContiguousPrimitivePostData (inBuffer,
                                                inBufferPos,
                                                inBufferSize,
@@ -209,10 +194,7 @@ int HttpDataRead::readChunkedPostData (const char* inBuffer,
                                                2,
                                                &nbr,
                                                timeout))
-            {
-              return -1;
-            }
-
+            return -1;
         }
 
     }
@@ -354,19 +336,13 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
           if (contentLengthSpecified && length < dimBuffer)
             dimBuffer = length;
 
-          if (readContiguousPrimitivePostData (td->request.uriOptsPtr,
-                                               &inPos,
-                                               bufferDataSize,
-                                               td->connection->socket,
-                                               td->auxiliaryBuffer->getBuffer (),
-                                               dimBuffer,
-                                               &nbr,
-                                               timeout))
-            {
-              td->inputData.close ();
-              *httpRetCode = 400;
-              return 1;
-            }
+          int timedOut =
+            readContiguousPrimitivePostData (td->request.uriOptsPtr,
+                                             &inPos, bufferDataSize,
+                                             td->connection->socket,
+                                             td->auxiliaryBuffer->getBuffer (),
+                                             dimBuffer,
+                                             &nbr, timeout);
 
           if (contentLengthSpecified)
             {
@@ -389,7 +365,7 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
               return -1;
             }
 
-          if (nbr == 0 || (contentLengthSpecified && length == 0))
+          if (timedOut || nbr == 0 || (contentLengthSpecified && length == 0))
             break;
         }
     }
