@@ -328,7 +328,6 @@ int WebDAV::propfind (HttpThreadContext* td)
       xmlresponse = f.getFilename ();
       xmlSaveFormatFileEnc (xmlresponse.c_str (), doc, "UTF-8", 1);
 
-      f.openFile (xmlresponse.c_str (), File::READ);
       for (;;)
         {
           u_long nbr;
@@ -646,8 +645,6 @@ int WebDAV::lock (HttpThreadContext* td)
       xmlresponse = f.getFilename ();
       xmlSaveFormatFileEnc (xmlresponse.c_str (), doc, "UTF-8", 1);
 
-      /* Send payload through HTTP channel.  */
-      f.openFile (xmlresponse.c_str (), File::READ);
       for (;;)
         {
           u_long nbr;
