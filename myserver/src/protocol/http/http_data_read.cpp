@@ -70,7 +70,7 @@ int HttpDataRead::readContiguousPrimitivePostData (const char* inBuffer,
   /*
     No other space in the out buffer, return from the function with success.
   */
-  if (outBufferSize == *nbr)
+  if (outBufferSize == *nbr || !nbr)
     return 0;
 
   ret = inSocket->recv (outBuffer + *nbr,  outBufferSize - *nbr, 0, timeout);
@@ -389,8 +389,7 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
               return -1;
             }
 
-          if ((contentLengthSpecified && length == 0)
-              || (!contentLengthSpecified && nbr == 0))
+          if (nbr == 0 || (contentLengthSpecified && length == 0))
             break;
         }
     }
