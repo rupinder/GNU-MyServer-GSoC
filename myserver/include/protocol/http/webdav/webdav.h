@@ -31,23 +31,21 @@ class WebDAV
 public:
   WebDAV ();
   int mkcol (HttpThreadContext*);
-  xmlNodePtr generate (const char*, struct stat*);
-  xmlDocPtr generateResponse (const char*, unsigned int);
+  xmlNodePtr generate (const char *, struct stat *m,
+                       vector <const char*> *propReq);
+  xmlDocPtr generateResponse (const char *, unsigned int,
+                              vector <const char*> *propReq);
   xmlDocPtr generateLockResponse (string &, const char *urn);
-  void getElements (xmlNode*);
-  void getPropValue (const char*, struct stat*, char*);
-  bool isLocked (HttpThreadContext*, string &);
-  int propfind (HttpThreadContext*);
-  int copy (HttpThreadContext*);
-  int davdelete (HttpThreadContext*);
-  int move (HttpThreadContext*);
-  int lock (HttpThreadContext*);
-  int unlock (HttpThreadContext*);
+  void getElements (xmlNode *, vector <const char*> *propReq);
+  void getPropValue (const char *, struct stat *, char *);
+  bool isLocked (HttpThreadContext *, string &);
+  int propfind (HttpThreadContext *);
+  int copy (HttpThreadContext *);
+  int davdelete (HttpThreadContext *);
+  int move (HttpThreadContext *);
+  int lock (HttpThreadContext *);
+  int unlock (HttpThreadContext *);
 
 private:
-  int numPropReq;
-  int numPropAvail;
-  vector <const char*> propReq;
   vector <const char*> available;
-  Sha1 sha1;
 };

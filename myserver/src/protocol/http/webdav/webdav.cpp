@@ -34,17 +34,13 @@ using namespace std;
 WebDAV::WebDAV ()
 {
   /* The properties that are recognized.  */
-  const char* properties[7] = {"creationtime", "getlastmodified", "lastaccesstime", "getcontentlength",
+  const char* properties[7] = {"creationtime", "getlastmodified",
+                               "lastaccesstime", "getcontentlength",
                                "executable", "checked-in", "checked-out"};
-  numPropReq = 0;
-  propReq.clear ();
-  available.clear ();
 
   /* Vector 'available' holds the available properties.  */
   for (int i = 0; i < 7; i++)
     available.push_back (properties[i]);
-
-  numPropAvail = available.size ();
 }
 
 /*!
@@ -52,16 +48,16 @@ WebDAV::WebDAV ()
   and push them into properties request vector (propReq).
   \param aNode Pointer to root node.
  */
-void WebDAV::getElements (xmlNode* aNode)
+void WebDAV::getElements (xmlNode* aNode, vector <const char*> *propReq)
 {
   xmlNode *curNode = NULL;
 
   for (curNode = aNode; curNode; curNode = curNode->next)
   {
     if (curNode->type == XML_ELEMENT_NODE)
-      propReq.push_back (reinterpret_cast <const char*> (curNode->name));
+      propReq->push_back (reinterpret_cast <const char*> (curNode->name));
 
-    getElements (curNode->children);
+    getElements (curNode->children, propReq);
   }
 }
 
@@ -117,7 +113,8 @@ void WebDAV::getPropValue (const char* prop, struct stat* filestat,
   \param path The path to the resource.
   \param filestat The stat of the resource.
  */
-xmlNodePtr WebDAV::generate (const char *path, struct stat *filestat)
+xmlNodePtr WebDAV::generate (const char *path, struct stat *filestat,
+                             vector <const char*> *propReq)
 {
   xmlNodePtr response = xmlNewNode (NULL, BAD_CAST "D:response");
   xmlNewProp (response, BAD_CAST "xmlns:g0", BAD_CAST "DAV:");
@@ -127,16 +124,16 @@ xmlNodePtr WebDAV::generate (const char *path, struct stat *filestat)
 
   xmlNodePtr prop = xmlNewNode (NULL, BAD_CAST "D:prop");
 
-  if (!strcmp (propReq[1], "propname"))
+  if (!strcmp (propReq->at (1), "propname"))
     {
-      for (int i = 0; i < numPropAvail; i++)
+      for (int i = 0; i < available.size (); i++)
         xmlNewChild (prop, NULL, BAD_CAST (available[i]), NULL);
 
       xmlAddChild (propstat, prop);
     }
-  else if (!strcmp (propReq[1], "allprop"))
+  else if (!strcmp (propReq->at (1), "allprop"))
     {
-      for (int i = 0; i < numPropAvail; i++)
+      for (int i = 0; i < available.size (); i++)
         {
           if (strcmp (available[i], "resourcetype"))
             {
@@ -158,14 +155,14 @@ xmlNodePtr WebDAV::generate (const char *path, struct stat *filestat)
     }
   else
     {
-      for (int i = 2; i < numPropReq; i++)
+      for (int i = 2; i < propReq->size (); i++)
         {
-          if (strcmp (propReq[i], "resourcetype"))
+          if (strcmp (propReq->at (i), "resourcetype"))
             {
               char buffer[32], buffer2[32];
-              sprintf (buffer, "g0:%s", propReq[i]);
+              sprintf (buffer, "g0:%s", propReq->at (i));
 
-              getPropValue (propReq[i], filestat, buffer2);
+              getPropValue (propReq->at (i), filestat, buffer2);
               xmlNewChild (prop, NULL, BAD_CAST (buffer),
                            BAD_CAST (buffer2));
             }
@@ -191,7 +188,8 @@ xmlNodePtr WebDAV::generate (const char *path, struct stat *filestat)
   \param path The path to the resource.
   \param reqDepth The required depth.
  */
-xmlDocPtr WebDAV::generateResponse (const char* path, unsigned int reqDepth)
+xmlDocPtr WebDAV::generateResponse (const char* path, unsigned int reqDepth,
+                                    vector <const char*> *propReq)
 {
   xmlDocPtr doc = xmlNewDoc ( BAD_CAST "1.0");
   xmlNodePtr rootNode = xmlNewNode (NULL, BAD_CAST "D:multistatus");
@@ -216,7 +214,7 @@ xmlDocPtr WebDAV::generateResponse (const char* path, unsigned int reqDepth)
       else
         {
           const char *relPath = recTree.getPath () + relOffset;
-          xmlNodePtr response = generate (relPath, recTree.getStat ());
+          xmlNodePtr response = generate (relPath, recTree.getStat (), propReq);
           xmlAddChild (rootNode, response);
         }
     }
@@ -292,16 +290,15 @@ int WebDAV::propfind (HttpThreadContext* td)
       FiltersChain chain;
       list<string> filters;
       FiltersFactory *ff = Server::getInstance ()->getFiltersFactory ();
+      vector <const char *> propReq;
 
       /* Obtain the payload.  */
       XmlParser p;
-      p.open (td->inputData.getFilename (), 0);
+      if (p.open (td->inputData.getFilename (), 0) < 0)
+        return td->http->raiseHTTPError (500);
 
       /* Obtain xml entities in the payload.  */
-      getElements (xmlDocGetRootElement (p.getDoc ()));
-
-      /* Number of entities (properties requested).  */
-      numPropReq = propReq.size ();
+      getElements (xmlDocGetRootElement (p.getDoc ()), &propReq);
 
       ff->chain (&chain, filters, td->connection->socket, &nbw, 1);
 
@@ -321,7 +318,7 @@ int WebDAV::propfind (HttpThreadContext* td)
       if (depth->size () > 0)
         reqDepth = tmp.strToUint ((*depth).c_str ());
 
-      xmlDocPtr doc = generateResponse (loc.c_str (), reqDepth);
+      xmlDocPtr doc = generateResponse (loc.c_str (), reqDepth, &propReq);
 
       /* Create temporary file for the payload.  */
       string xmlresponse;
@@ -581,6 +578,8 @@ int WebDAV::lock (HttpThreadContext* td)
 
   try
     {
+      Sha1 sha1;
+      vector <const char*> propReq;
       bool keepalive, useChunks;
       u_long nbw, nbw2;
       FiltersChain chain;
@@ -589,10 +588,11 @@ int WebDAV::lock (HttpThreadContext* td)
 
       /* Obtain the payload.  */
       XmlParser p;
-      p.open (td->inputData.getFilename (), File::READ);
+      if (p.open (td->inputData.getFilename (), File::READ) < 0)
+        return td->http->raiseHTTPError (500);
 
       /* Obtain xml entities in the payload.  */
-      getElements (xmlDocGetRootElement (p.getDoc ()));
+      getElements (xmlDocGetRootElement (p.getDoc ()), &propReq);
 
       /* Generate URN.  */
       char urn[48];
@@ -693,6 +693,7 @@ int WebDAV::unlock (HttpThreadContext* td)
     }
 
   string loc = string (td->getVhostDir ()) + td->request.uri;
+  Sha1 sha1;
 
   /* Generate URN.  */
   char urn[48];
@@ -719,6 +720,8 @@ bool WebDAV::isLocked (HttpThreadContext* td, string & path)
 {
   /* Generate URN.  */
   char urn[48];
+  Sha1 sha1;
+
   sha1.init ();
   td->auxiliaryBuffer->setLength (0);
   *td->auxiliaryBuffer << string (path);
