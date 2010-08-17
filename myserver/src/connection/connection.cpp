@@ -72,6 +72,8 @@ void Connection::destroy ()
   if (protocolBuffer)
     delete protocolBuffer;
 
+  getConnectionBuffer ()->setLength (0);
+
   /*! Remove the reference for the vhost. */
   if (host)
     ((Vhost*) host)->removeRef ();
