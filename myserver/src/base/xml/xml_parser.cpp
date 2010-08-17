@@ -86,11 +86,10 @@ int XmlParser::open (const char* filename, bool useXpath)
   cur = NULL;
   this->useXpath = useXpath;
 
-  if (doc!= NULL)
+  if (doc != NULL)
     close ();
 
-  if (xmlFile.openFile (filename, File::READ | File::OPEN_IF_EXISTS))
-    return -1;
+  xmlFile.openFile (filename, File::READ | File::OPEN_IF_EXISTS);
 
   u_long size = xmlFile.getFileSize ();
   char *buffer = new char [size];
@@ -98,7 +97,6 @@ int XmlParser::open (const char* filename, bool useXpath)
     {
       u_long nbr;
       xmlFile.read (buffer, size, &nbr);
-
       doc = xmlParseMemory (buffer, nbr);
 
       delete [] buffer;

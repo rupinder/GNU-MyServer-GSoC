@@ -1130,8 +1130,16 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
   vector<Multicast<string, void*, int>*>* handlers;
 
   connectionsPoolLock.lock ();
-  newConnection = connectionsPool.forcedGet ();
-  connectionsPoolLock.unlock ();
+  try
+    {
+      newConnection = connectionsPool.forcedGet ();
+      connectionsPoolLock.unlock ();
+    }
+  catch (...)
+    {
+      connectionsPoolLock.unlock ();
+      throw;
+    }
 
   if (!newConnection)
     return NULL;
@@ -1146,9 +1154,17 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
   newConnection->host = vhostManager.getVHost (0, localIpAddr, localPort);
   if (newConnection->host == NULL)
     {
-      connectionsPoolLock.lock ();
-      connectionsPool.put (newConnection);
-      connectionsPoolLock.unlock ();
+      try
+        {
+          connectionsPoolLock.lock ();
+          connectionsPool.put (newConnection);
+          connectionsPoolLock.unlock ();
+        }
+      catch (...)
+        {
+          connectionsPoolLock.unlock ();
+          throw;
+        }
       return 0;
     }
 
@@ -1170,8 +1186,17 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
         if ((*handlers)[i]->updateMulticast (this, msg, newConnection) == 1)
           {
             connectionsPoolLock.lock ();
-            connectionsPool.put (newConnection);
-            connectionsPoolLock.unlock ();
+            try
+              {
+                connectionsPool.put (newConnection);
+                connectionsPoolLock.unlock ();
+              }
+            catch (...)
+              {
+                connectionsPoolLock.unlock ();
+                throw;
+              }
+
             return 0;
           }
     }
@@ -1189,8 +1214,17 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
       if (ret < 0)
         {
           connectionsPoolLock.lock ();
-          connectionsPool.put (newConnection);
-          connectionsPoolLock.unlock ();
+          try
+            {
+              connectionsPool.put (newConnection);
+              connectionsPoolLock.unlock ();
+            }
+          catch (...)
+            {
+              connectionsPoolLock.unlock ();
+              throw;
+            }
+
           delete sslSocket;
           return 0;
         }
@@ -1234,8 +1268,16 @@ int Server::deleteConnection (ConnectionPtr s)
   s->destroy ();
 
   connectionsPoolLock.lock ();
-  connectionsPool.put (s);
-  connectionsPoolLock.unlock ();
+  try
+    {
+      connectionsPool.put (s);
+      connectionsPoolLock.unlock ();
+    }
+  catch (...)
+    {
+      connectionsPoolLock.unlock ();
+      throw;
+    }
 
   return 0;
 }

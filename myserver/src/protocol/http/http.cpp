@@ -1174,6 +1174,9 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
     }
   catch (...)
     {
+      td->inputData.close ();
+      td->outputData.close ();
+
       td->connection->host->warningsLogWrite (_("HTTP: internal error"));
       raiseHTTPError (500);
       logHTTPaccess ();

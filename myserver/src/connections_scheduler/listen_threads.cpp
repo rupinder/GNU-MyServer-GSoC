@@ -251,8 +251,6 @@ void ListenThreads::commitFastReboot ()
   set_difference (newPorts.begin (), newPorts.end (), presentPorts.begin (),
     presentPorts.end (), insert_iterator<set<u_short> >(toAdd, toAdd.begin ()));
 
-
-
   /* Ports in intersections need only to be registered on the event listener.  */
   for (set<u_short>::iterator it = intersection.begin ();
        it != intersection.end (); it++)
