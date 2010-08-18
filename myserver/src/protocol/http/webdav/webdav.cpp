@@ -327,6 +327,7 @@ int WebDAV::propfind (HttpThreadContext* td)
       f.createTemporaryFile (xmlresponse.c_str (), false);
       xmlresponse = f.getFilename ();
       xmlSaveFormatFileEnc (xmlresponse.c_str (), doc, "UTF-8", 1);
+      xmlFreeDoc (doc);
 
       for (;;)
         {
@@ -648,6 +649,7 @@ int WebDAV::lock (HttpThreadContext* td)
       f.createTemporaryFile (xmlresponse.c_str (), false);
       xmlresponse = f.getFilename ();
       xmlSaveFormatFileEnc (xmlresponse.c_str (), doc, "UTF-8", 1);
+      xmlFreeDoc (doc);
 
       for (;;)
         {
