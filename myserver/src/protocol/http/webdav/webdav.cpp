@@ -339,6 +339,9 @@ int WebDAV::propfind (HttpThreadContext* td)
                                                     nbr, &(td->outputData),
                                                     &chain, td->appendOutputs,
                                                     useChunks);
+
+          td->sentData += nbr;
+
           if (nbr != td->buffer->getRealLength ())
             break;
         }
@@ -391,10 +394,10 @@ int WebDAV::copy (HttpThreadContext* td)
 
   /* Determine Overwrite flag.  */
   if (over != NULL)
-  {
-    if (over->size () == 1 && (*over)[0] == 'F')
-      overwrite = 0;
-  }
+    {
+      if (over->size () == 1 && (*over)[0] == 'F')
+        overwrite = 0;
+    }
 
   /* Check the permissions for destination.  */
   ret = td->http->getFilePermissions (target, directory, file,
@@ -405,12 +408,12 @@ int WebDAV::copy (HttpThreadContext* td)
     return td->http->sendAuth ();
 
   /* If a file is to be copied.  */
-  if (!FilesUtility::isDirectory (source.c_str ()))
+  if (! FilesUtility::isDirectory (source.c_str ()))
     {
       int pos = target.rfind ("/");
 
       /* Conflict if Ancestor doesn't exist.  */
-      if (!FilesUtility::nodeExists (target.substr (0, pos).c_str ()))
+      if (! FilesUtility::nodeExists (target.substr (0, pos).c_str ()))
         return td->http->raiseHTTPError (409);
 
       /* Check if already exists.  */
@@ -524,10 +527,10 @@ int WebDAV::move (HttpThreadContext* td)
 
   /* Determine Overwrite flag.  */
   if (over != NULL)
-  {
-    if (over->size() == 1 && (*over)[0] == 'F')
-      overwrite = 0;
-  }
+    {
+      if (over->size() == 1 && (*over)[0] == 'F')
+        overwrite = 0;
+    }
 
   /* Check the permissions for target.  */
   ret = td->http->getFilePermissions (target, directory, file,
@@ -548,6 +551,7 @@ int WebDAV::move (HttpThreadContext* td)
     return td->http->raiseHTTPError (412);
 
   FilesUtility::renameFile (source.c_str (), target.c_str ());
+
   /* 201 Created.  */
   return td->http->raiseHTTPError (201);
 }
@@ -605,7 +609,7 @@ int WebDAV::lock (HttpThreadContext* td)
       string lockLoc = string (td->getVhostSys ()) + "/webdav/locks/" + string (urn);
 
       /* If first lock in the session.  */
-      if (!FilesUtility::nodeExists (lockLoc.substr (0, lockLoc.rfind ("/")).c_str ()))
+      if (! FilesUtility::nodeExists (lockLoc.substr (0, lockLoc.rfind ("/")).c_str ()))
         {
           string temp = string (td->getVhostSys ()) + "/webdav";
           FilesUtility::mkdir (temp.c_str());
@@ -656,6 +660,8 @@ int WebDAV::lock (HttpThreadContext* td)
                                                     nbr, &(td->outputData),
                                                     &chain, td->appendOutputs,
                                                     useChunks);
+          td->sentData += nbr;
+
           if (nbr != td->buffer->getRealLength ())
             break;
         }
@@ -771,13 +777,15 @@ int WebDAV::mkcol (HttpThreadContext* td)
       try
         {
           FilesUtility::mkdir (loc);
+
           /* 201 Created.  */
           td->http->raiseHTTPError (201);
           return HttpDataHandler::RET_OK;
         }
       catch (exception & e)
         {
-          td->connection->host->warningsLogWrite ( _E ("WebDAV: Internal Error"), &e);
+          td->connection->host->warningsLogWrite (_E ("WebDAV: Internal Error"),
+                                                  &e);
           return td->http->raiseHTTPError (500);
         }
     }
