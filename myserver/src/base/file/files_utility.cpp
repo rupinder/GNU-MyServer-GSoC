@@ -221,27 +221,41 @@ int FilesUtility::copyDir (string const & src, string const & dest, int overwrit
   Copy the file from [SRC] to [DEST]. Returns 0 on success.
   \param src The source File.
   \param dest The destination File.
- */
+*/
 int FilesUtility::copyFile (File& src, File& dest)
 {
-  char buffer[4096];
+  char *buffer = new char[4096];
   size_t nbr, nbw;
 
+  try
+    {
 #ifdef HAVE_POSIX_FALLOCATE
-  if (posix_fallocate (dest.getHandle (), dest.getSeek (),
-                       src.getFileSize () - src.getSeek ()))
-    return -1;
+      if (posix_fallocate (dest.getHandle (), dest.getSeek (),
+                           src.getFileSize () - src.getSeek ()))
+        {
+          delete [] buffer;
+          return -1;
+        }
 #endif
 
-  for (;;)
-  {
-    src.read (buffer, 4096, &nbr);
+      for (;;)
+        {
+          src.read (buffer, 4096, &nbr);
 
-    if (!nbr)
-      break;
+          if (! nbr)
+            break;
 
-    dest.writeToFile (buffer, nbr, &nbw);
-  }
+          dest.writeToFile (buffer, nbr, &nbw);
+        }
+
+      delete [] buffer;
+    }
+  catch (...)
+    {
+      delete [] buffer;
+      throw;
+    }
+
   return 0;
 }
 
