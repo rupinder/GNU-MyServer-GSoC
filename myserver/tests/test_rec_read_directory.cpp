@@ -41,8 +41,7 @@ public:
   {
     RecReadDirectory rec;
     rec.fileTreeGenerate (".");
-
-    CPPUNIT_ASSERT_EQUAL (rec.nextMember (), true);
+    CPPUNIT_ASSERT (rec.nextMember ());
   }
 
   /* Check file info.
@@ -51,6 +50,7 @@ public:
   {
     RecReadDirectory rec;
     rec.fileTreeGenerate (".");
+    CPPUNIT_ASSERT (rec.nextMember ());
 
     CPPUNIT_ASSERT_EQUAL (rec.getInfo (), (short) 1);
   }
@@ -61,6 +61,7 @@ public:
   {
     RecReadDirectory rec;
     rec.fileTreeGenerate (".");
+    CPPUNIT_ASSERT (rec.nextMember ());
 
     CPPUNIT_ASSERT (strlen (rec.getPath ()) > 0);
   }
@@ -71,7 +72,7 @@ public:
   {
     RecReadDirectory rec;
     rec.fileTreeGenerate (".");
-
+    CPPUNIT_ASSERT (rec.nextMember ());
     CPPUNIT_ASSERT_EQUAL (rec.getLevel (), (short) 0);
   }
 
