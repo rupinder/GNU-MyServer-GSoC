@@ -102,10 +102,9 @@ void WebDAV::getPropValue (const char* prop, struct stat* filestat,
 
   struct tm ltime;
   gnulib::gmtime_r (&value, &ltime);
-  setlocale (LC_TIME, "POSIX");
-	strftime (buffer, 32, "%a, %d %b %Y %H:%M:%S GMT", &ltime);
+  strftime (buffer, 32, "%a, %d %b %Y %H:%M:%S GMT", &ltime);
 
-	return;
+  return;
 }
 
 /*!
@@ -268,9 +267,9 @@ int WebDAV::propfind (HttpThreadContext* td)
 {
   const char *enabled = td->connection->host->getData ("http.webdav.enable");
 
-	if (enabled == NULL)
+  if (enabled == NULL)
     enabled = Server::getInstance ()->getData ("http.webdav.enable");
-	if (enabled == NULL || strcasecmp (enabled, "YES"))
+  if (enabled == NULL || strcasecmp (enabled, "YES"))
     {
       td->connection->host->warningsLogWrite (_
                                       ("WebDAV is not enabled on this host"));
@@ -367,9 +366,9 @@ int WebDAV::copy (HttpThreadContext* td)
 {
   const char *enabled = td->connection->host->getData ("http.webdav.enable");
 
-	if (enabled == NULL)
+  if (enabled == NULL)
     enabled = Server::getInstance ()->getData ("http.webdav.enable");
-	if (enabled == NULL || strcasecmp (enabled, "YES"))
+  if (enabled == NULL || strcasecmp (enabled, "YES"))
     {
       td->connection->host->warningsLogWrite (_
                                       ("WebDAV is not enabled on this host"));
@@ -452,9 +451,9 @@ int WebDAV::davdelete (HttpThreadContext* td)
 {
   const char *enabled = td->connection->host->getData ("http.webdav.enable");
 
-	if (enabled == NULL)
+  if (enabled == NULL)
     enabled = Server::getInstance ()->getData ("http.webdav.enable");
-	if (enabled == NULL || strcasecmp (enabled, "YES"))
+  if (enabled == NULL || strcasecmp (enabled, "YES"))
     {
       td->connection->host->warningsLogWrite (_
                                       ("WebDAV is not enabled on this host"));
@@ -501,9 +500,9 @@ int WebDAV::move (HttpThreadContext* td)
 {
   const char *enabled = td->connection->host->getData ("http.webdav.enable");
 
-	if (enabled == NULL)
+  if (enabled == NULL)
     enabled = Server::getInstance ()->getData ("http.webdav.enable");
-	if (enabled == NULL || strcasecmp (enabled, "YES"))
+  if (enabled == NULL || strcasecmp (enabled, "YES"))
     {
       td->connection->host->warningsLogWrite (_
                                       ("WebDAV is not enabled on this host"));
@@ -565,9 +564,9 @@ int WebDAV::lock (HttpThreadContext* td)
 {
   const char *enabled = td->connection->host->getData ("http.webdav.enable");
 
-	if (enabled == NULL)
+  if (enabled == NULL)
     enabled = Server::getInstance ()->getData ("http.webdav.enable");
-	if (enabled == NULL || strcasecmp (enabled, "YES"))
+  if (enabled == NULL || strcasecmp (enabled, "YES"))
     {
       td->connection->host->warningsLogWrite (_
                                       ("WebDAV is not enabled on this host"));
@@ -688,9 +687,9 @@ int WebDAV::unlock (HttpThreadContext* td)
 {
   const char *enabled = td->connection->host->getData ("http.webdav.enable");
 
-	if (enabled == NULL)
+  if (enabled == NULL)
     enabled = Server::getInstance ()->getData ("http.webdav.enable");
-	if (enabled == NULL || strcasecmp (enabled, "YES"))
+  if (enabled == NULL || strcasecmp (enabled, "YES"))
     {
       td->connection->host->warningsLogWrite (_
                                       ("WebDAV is not enabled on this host"));
@@ -747,9 +746,9 @@ int WebDAV::mkcol (HttpThreadContext* td)
 {
   const char *enabled = td->connection->host->getData ("http.webdav.enable");
 
-	if (enabled == NULL)
+  if (enabled == NULL)
     enabled = Server::getInstance ()->getData ("http.webdav.enable");
-	if (enabled == NULL || strcasecmp (enabled, "YES"))
+  if (enabled == NULL || strcasecmp (enabled, "YES"))
     {
       td->connection->host->warningsLogWrite (_
                                       ("WebDAV is not enabled on this host"));

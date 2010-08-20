@@ -395,11 +395,10 @@ int main (int argn, char **argv)
 
   registerSignals ();
 
-#if HAVE_GETTEXT
   setlocale (LC_ALL, "");
+  setlocale (LC_TIME, "POSIX");
   bindtextdomain (PACKAGE, LOCALEDIR);
   textdomain (PACKAGE);
-#endif
 
   try
     {
