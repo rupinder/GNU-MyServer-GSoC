@@ -52,8 +52,8 @@ struct HttpRequestHeader : public HttpHeader
   string uriOpts;
   char *uriOptsPtr;
   string rangeType;
-  u_long rangeByteBegin;
-  u_long rangeByteEnd;
+  off_t rangeByteBegin;
+  off_t rangeByteEnd;
   int uriEndsWithSlash;
 
   /*! Digest authorization scheme stuff.  */

@@ -85,7 +85,7 @@ struct HttpThreadContext
   File inputData;
   File outputData;
   int authScheme;
-  Http* http;
+  Http *http;
   MimeRecord *mime;
   int sentData;
   SecurityToken securityToken;

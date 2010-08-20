@@ -125,7 +125,8 @@ int CachedFile::operator =(CachedFile f)
  */
 int CachedFile::read (char* buffer, size_t buffersize, size_t* nbr)
 {
-  size_t toRead = std::min (buffersize, this->buffer->getFileSize () - fseek);
+  size_t toRead = std::min ((size_t) (this->buffer->getFileSize () - fseek),
+                            buffersize);
   const char* src = &(this->buffer->getBuffer ()[fseek]);
   if (nbr)
     *nbr = toRead;
@@ -162,7 +163,7 @@ int CachedFile::close ()
   Returns the file size in bytes.
   Returns -1 on errors.
  */
-size_t CachedFile::getFileSize ()
+off_t CachedFile::getFileSize ()
 {
   return buffer->getFileSize ();
 }
@@ -171,7 +172,7 @@ size_t CachedFile::getFileSize ()
   Change the position of the pointer to the file.
   \param initialByte The new file pointer position.
  */
-int CachedFile::seek (size_t initialByte)
+int CachedFile::seek (off_t initialByte)
 {
   if (initialByte > buffer->getFileSize ())
     return -1;
@@ -197,7 +198,7 @@ int CachedFile::write (const char* buffer, size_t len, size_t *nbw)
   \param buf Temporary buffer that can be used by this function.
   \param nbw Number of bytes sent.
  */
-int CachedFile::fastCopyToSocket (Socket *dest, size_t firstByte,
+int CachedFile::fastCopyToSocket (Socket *dest, off_t firstByte,
                                   MemBuf *buf, size_t *nbw)
 {
   return dest->write (&(this->buffer->getBuffer ()[firstByte]),

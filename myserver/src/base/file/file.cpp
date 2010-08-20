@@ -270,22 +270,20 @@ int File::close ()
   Returns the file size in bytes.
   Returns -1 on errors.
  */
-size_t File::getFileSize ()
+off_t File::getFileSize ()
 {
-  u_long ret;
   struct stat fStats;
-  ret = checked::fstat (handle, &fStats);
-  if (ret)
-    return (u_long)(-1);
-  else
-    return fStats.st_size;
+
+  checked::fstat (handle, &fStats);
+
+  return fStats.st_size;
 }
 
 /*!
   Change the position of the pointer to the file.
   \param initialByte The new file pointer position.
  */
-int File::seek (size_t initialByte)
+int File::seek (off_t initialByte)
 {
   u_long ret;
   ret = checked::checkError (gnulib::lseek (handle, initialByte, SEEK_SET));
@@ -297,7 +295,7 @@ int File::seek (size_t initialByte)
 
   \return The current file pointer position.
  */
-size_t File::getSeek ()
+off_t File::getSeek ()
 {
   off_t ret = gnulib::lseek (handle, 0, SEEK_CUR);
   if (ret < 0)
@@ -365,12 +363,12 @@ int File::read (char* buffer, size_t buffersize, size_t* nbr)
   \param buf Temporary buffer that can be used by this function.
   \param nbw Number of bytes sent.
  */
-int File::fastCopyToSocket (Socket *dest, size_t firstByte, MemBuf *buf, size_t *nbw)
+int File::fastCopyToSocket (Socket *dest, off_t firstByte, MemBuf *buf, size_t *nbw)
 {
   *nbw = 0;
 #ifdef HAVE_SYS_SENDFILE_H
   off_t offset = firstByte;
-  size_t fileSize = getFileSize ();
+  off_t fileSize = getFileSize ();
   while (1)
     {
       int ret = sendfile (dest->getHandle (), getHandle (), &offset,

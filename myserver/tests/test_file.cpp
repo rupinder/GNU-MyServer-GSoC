@@ -129,7 +129,7 @@ public:
     for (size_t i = 0; i < bufLen; i++)
       CPPUNIT_ASSERT_EQUAL (buf[i], readbuf[i]);
 
-    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), nbr);
+    CPPUNIT_ASSERT_EQUAL ((size_t) tfile->getFileSize (), nbr);
     CPPUNIT_ASSERT_EQUAL (tfile->close (), 0);
 
     try
@@ -163,7 +163,7 @@ public:
   {
     CPPUNIT_ASSERT_EQUAL (openHelper (), 0);
     CPPUNIT_ASSERT_EQUAL (tfile->seek (1), 0);
-    CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), (size_t) 1);
+    CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), (off_t) 1);
   }
 
   void testBinary ()
@@ -196,22 +196,22 @@ public:
 
     CPPUNIT_ASSERT_EQUAL (openHelper (), 0);
 
-    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), (size_t) 0);
+    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), (off_t) 0);
 
     const char *data = "Hello World!"; /* Something very original.  */
     const size_t dataLen = strlen (data);
 
     CPPUNIT_ASSERT_EQUAL (tfile->writeToFile (data, dataLen, &nbw), 0);
 
-    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), dataLen);
+    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), (off_t) dataLen);
 
     CPPUNIT_ASSERT_EQUAL (tfile->truncate (dataLen / 2), 0);
 
-    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), dataLen / 2);
+    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), (off_t) dataLen / 2);
 
     CPPUNIT_ASSERT_EQUAL (tfile->writeToFile (data, dataLen, &nbw), 0);
 
-    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), dataLen + dataLen / 2);
+    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), (off_t) (dataLen + dataLen / 2));
 
     try
       {

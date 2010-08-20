@@ -41,20 +41,20 @@ public:
   virtual int openFile (string const &file, u_long opt, mode_t mask = 00700)
   {return openFile (file.c_str (), opt, mask);}
 
-  virtual size_t getFileSize ();
-  virtual int seek (size_t);
+  virtual off_t getFileSize ();
+  virtual int seek (off_t);
 
   using File::operator =;
   virtual int operator =(CachedFile);
   virtual int close ();
 
-  virtual int fastCopyToSocket (Socket *dest, size_t offset,
+  virtual int fastCopyToSocket (Socket *dest, off_t offset,
                                 MemBuf *buf, size_t *nbw);
 
   virtual int write (const char *buffer, size_t len, size_t *nbw);
 
 protected:
-  size_t fseek;
+  off_t fseek;
   CachedFileBuffer *buffer;
 };
 #endif

@@ -41,7 +41,7 @@ using namespace std;
  */
 int HttpFile::putFile (HttpThreadContext* td, string& filename)
 {
-  u_long firstByte = td->request.rangeByteBegin;
+  off_t firstByte = td->request.rangeByteBegin;
   int successCode = 500;
   File file;
   int symFlags = td->http->areSymlinksAllowed () ? 0
@@ -173,7 +173,7 @@ int HttpFile::deleteFile (HttpThreadContext* td,
   \param atime Resource last modified time.
   \param size Resource size.
  */
-void HttpFile::generateEtag (string & etag, u_long mtime, u_long fsize)
+void HttpFile::generateEtag (string & etag, u_long mtime, off_t fsize)
 {
 #define ROL(x, y) ((x << y) | (x >> (32 - y)))
   /* Do a bit rotation to have less significative bits in the middle.  */
@@ -199,11 +199,11 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     With this routine we send a file through the HTTP protocol.
     Open the file and save its handle.
    */
-  size_t filesize = 0;
+  off_t filesize = 0;
   File *file = NULL;
   size_t bytesToSend;
-  size_t firstByte = td->request.rangeByteBegin;
-  size_t lastByte = td->request.rangeByteEnd;
+  off_t firstByte = td->request.rangeByteBegin;
+  off_t lastByte = td->request.rangeByteEnd;
   bool keepalive = false;
   bool useChunks = false;
   bool useModifiers = false;
@@ -336,7 +336,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     if (!useModifiers)
       {
         ostringstream buffer;
-        buffer << (u_int) bytesToSend;
+        buffer << bytesToSend;
         td->response.contentLength.assign (buffer.str ());
       }
 

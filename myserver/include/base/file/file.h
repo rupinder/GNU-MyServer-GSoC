@@ -59,11 +59,10 @@ public:
   virtual int openFile (string const &file, u_long opt, mode_t mask = 00700)
   {return openFile (file.c_str (), opt, mask);}
 
-  /* FIXME: use off_t.  */
-  virtual size_t getFileSize ();
+  virtual off_t getFileSize ();
 
-  virtual int seek (size_t);
-  virtual size_t getSeek ();
+  virtual int seek (off_t);
+  virtual off_t getSeek ();
 
   virtual time_t getLastModTime ();
   virtual time_t getCreationTime ();
@@ -80,7 +79,7 @@ public:
   virtual int read (char* buffer, size_t len, size_t *nbr);
   virtual int write (const char* buffer, size_t len, size_t *nbw);
 
-  virtual int fastCopyToSocket (Socket *dest, size_t offset,
+  virtual int fastCopyToSocket (Socket *dest, off_t offset,
                                 MemBuf *buf, size_t *nbw);
 
   int truncate (u_long size = 0);
@@ -89,6 +88,7 @@ public:
 
   /*! Get the options mask used with openFile.  */
   u_long getOpenOptions (){return opt;}
+
 protected:
   /* Options used by open.  */
   u_long opt;

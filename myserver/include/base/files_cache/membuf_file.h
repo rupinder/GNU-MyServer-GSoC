@@ -42,21 +42,21 @@ public:
   virtual int openFile (string const &file, u_long opt, mode_t mask = 00700)
   {return openFile (file.c_str (), opt, mask);}
 
-  virtual size_t getFileSize ();
-  virtual int seek (size_t);
+  virtual off_t getFileSize ();
+  virtual int seek (off_t);
 
   virtual int close ();
 
   using File::operator =;
 
-  virtual int fastCopyToSocket (Socket *dest, size_t offset,
+  virtual int fastCopyToSocket (Socket *dest, off_t offset,
                                 MemBuf *buf, size_t *nbw);
 
-  virtual size_t getSeek ();
+  virtual off_t getSeek ();
   virtual int write (const char* buffer, size_t len, size_t *nbw);
 
 protected:
-  size_t fseek;
+  off_t fseek;
   MemBuf *buffer;
 };
 #endif
