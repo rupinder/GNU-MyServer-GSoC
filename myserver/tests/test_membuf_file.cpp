@@ -90,10 +90,10 @@ public:
   void testWrite ()
   {
     const char *data = "hello dudes";
-    u_long len = strlen (data);
-    u_long nbw;
+    const size_t len = strlen (data);
+    size_t nbw;
 
-    CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), 0UL);
+    CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), (size_t) 0);
     CPPUNIT_ASSERT_EQUAL (tfile->write (data, len, &nbw), 0);
     CPPUNIT_ASSERT_EQUAL (len, nbw);
     CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), nbw);
@@ -104,10 +104,10 @@ public:
     char buffer[512];
     const char *data = "hello dudes";
     u_long len = strlen (data);
-    u_long nbw, nbr;
+    size_t nbw, nbr;
 
     tfile->read (buffer, len, &nbr);
-    CPPUNIT_ASSERT_EQUAL (nbr, 0UL);
+    CPPUNIT_ASSERT_EQUAL (nbr, (size_t) 0);
     CPPUNIT_ASSERT_EQUAL (tfile->write (data, len, &nbw), 0);
     CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), nbw);
 
@@ -118,8 +118,8 @@ public:
 
   void testSeek ()
   {
-    u_long seek = 12L;
-    CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), 0UL);
+    size_t seek = 12L;
+    CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), (size_t) 0);
     CPPUNIT_ASSERT_EQUAL (tfile->seek (seek), 0);
     CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), seek);
   }

@@ -145,7 +145,7 @@ char* MscgiManager::getParam (const char* param)
 char* MscgiManager::postParam (const char* param)
 {
   char buffer[LOCAL_BUFFER_DIM + 50];
-  u_long nbr = 0;
+  size_t nbr = 0;
   char c;
 
   u_long toRead = 0;

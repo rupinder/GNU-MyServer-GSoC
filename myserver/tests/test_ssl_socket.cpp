@@ -112,7 +112,7 @@ public:
   void setUp ()
   {
     initializeSSL ();
-    u_long nbw;
+    size_t nbw;
     File f;
 
     f.openFile (TESTSERVERKEY,  File::WRITE | File::FILE_OPEN_ALWAYS);

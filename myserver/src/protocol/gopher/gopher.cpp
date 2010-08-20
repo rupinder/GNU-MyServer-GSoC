@@ -80,7 +80,7 @@ int Gopher::controlConnection (ConnectionPtr pConnection,
                                u_long id)
 {
   char buffer[256];
-  u_long nbr;
+  size_t nbr;
   GopherEngine g;
 
   if (pConnection == NULL)

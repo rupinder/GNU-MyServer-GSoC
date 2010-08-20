@@ -47,7 +47,7 @@ using namespace std;
   \param len Buffer size.
   \param nbr Get how many bytes were read.
  */
-int Pipe::read (char* buffer, u_long len, u_long *nbr)
+int Pipe::read (char* buffer, size_t len, size_t *nbr)
 {
   *nbr = 0;
   int ret = ::read (handles[0], buffer, len);
@@ -63,7 +63,7 @@ int Pipe::read (char* buffer, u_long len, u_long *nbr)
     }
   else
     {
-      *nbr = (u_long)ret;
+      *nbr = (size_t)ret;
     }
   return 0;
 }
@@ -85,7 +85,7 @@ int Pipe::create (bool readPipe)
   \param len Buffer size.
   \param nbw Get how many bytes were written.
  */
-int Pipe::write (const char* buffer, u_long len, u_long *nbw)
+int Pipe::write (const char* buffer, size_t len, size_t *nbw)
 {
   *nbw = 0;
   int ret = checked::write (handles[1], buffer, len);
@@ -95,7 +95,7 @@ int Pipe::write (const char* buffer, u_long len, u_long *nbw)
       return 1;
     }
   else
-    *nbw = (u_long) ret;
+    *nbw = (size_t) ret;
 
   return 0;
 }

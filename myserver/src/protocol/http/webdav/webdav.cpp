@@ -285,7 +285,7 @@ int WebDAV::propfind (HttpThreadContext* td)
   try
     {
       bool keepalive, useChunks;
-      u_long nbw, nbw2;
+      size_t nbw, nbw2;
       FiltersChain chain;
       list<string> filters;
       FiltersFactory *ff = Server::getInstance ()->getFiltersFactory ();
@@ -330,7 +330,7 @@ int WebDAV::propfind (HttpThreadContext* td)
 
       for (;;)
         {
-          u_long nbr;
+          size_t nbr;
           f.read (td->buffer->getBuffer (), td->buffer->getRealLength (), &nbr);
           if (nbr == 0)
             break;
@@ -584,7 +584,7 @@ int WebDAV::lock (HttpThreadContext* td)
       Sha1 sha1;
       vector <const char*> propReq;
       bool keepalive, useChunks;
-      u_long nbw, nbw2;
+      size_t nbw, nbw2;
       FiltersChain chain;
       list<string> filters;
       FiltersFactory *ff = Server::getInstance ()->getFiltersFactory ();
@@ -652,7 +652,7 @@ int WebDAV::lock (HttpThreadContext* td)
 
       for (;;)
         {
-          u_long nbr;
+          size_t nbr;
           f.read (td->buffer->getBuffer (), td->buffer->getRealLength (), &nbr);
           if (nbr == 0)
             break;

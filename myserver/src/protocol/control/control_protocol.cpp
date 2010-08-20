@@ -196,7 +196,7 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
   int dataWritten = 0;
   ostringstream inFilePath;
   ostringstream outFilePath;
-  u_long nbw;
+  size_t nbw;
   int specifiedLength;
   char *version = 0;
   u_long timeout;
@@ -486,7 +486,7 @@ int ControlProtocol::sendResponse (char *buffer, int buffersize,
   if (dataLength)
     {
       int dataToSend = dataLength;
-      u_long nbr;
+      size_t nbr;
       for ( ; ; )
         {
           outFile->read (buffer, min (dataToSend, buffersize), &nbr);
@@ -549,7 +549,7 @@ int ControlProtocol::killConnection (ConnectionPtr a, u_long id, File *out,
 int ControlProtocol::visitConnection (ConnectionPtr con, void *argP)
 {
   int ret = 0;
-  u_long nbw;
+  size_t nbw;
   ControlProtocolVisitorArg* arg = static_cast<ControlProtocolVisitorArg*>(argP);
 
   if (arg->command == ControlProtocolVisitorArg::SHOW_CONNECTIONS)
@@ -595,10 +595,10 @@ int ControlProtocol::getFile (ConnectionPtr a, char *fn, File *in, File *out,
   int ret = 0;
 
   /* # of bytes read.  */
-  u_long nbr = 0;
+  size_t nbr = 0;
 
   /* # of bytes written.  */
-  u_long nbw = 0;
+  size_t nbw = 0;
 
   filename = fn;
 
@@ -648,9 +648,9 @@ int ControlProtocol::putFile (ConnectionPtr a, char *fn, File *in,
   File localfile;
   int ret = 0;
   /*! # of bytes read.  */
-  u_long nbr = 0;
+  size_t nbr = 0;
   /*! # of bytes written.  */
-  u_long nbw = 0;
+  size_t nbw = 0;
   Server::getInstance ()->disableAutoReboot ();
 
   filename = fn;
@@ -713,7 +713,7 @@ int ControlProtocol::putFile (ConnectionPtr a, char *fn, File *in,
 int ControlProtocol::getVersion (ConnectionPtr a, File *out, char *buffer,
                                  int bufferSize, ControlHeader &header)
 {
-  u_long nbw;
+  size_t nbw;
   myserver_strlcpy (buffer, MYSERVER_VERSION, bufferSize);
   return out->writeToFile (buffer, strlen (buffer), &nbw);
 }

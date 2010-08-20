@@ -53,7 +53,7 @@ public:
   /* Helper method.  */
   u_long addSomeData (MemoryStream* s)
   {
-    u_long nbw;
+    size_t nbw;
 
     char data[512] = "This program is free software; you can redistribute it and/or modify\n\
                       it under the terms of the GNU General Public License as published by\n\
@@ -74,7 +74,7 @@ public:
 
   void testRead ()
   {
-    u_long nbr;
+    size_t nbr;
     u_long size = addSomeData (stream);
 
     char buffer[20];
@@ -89,7 +89,7 @@ public:
 
   void testRefresh ()
   {
-    u_long nbr;
+    size_t nbr;
     u_long size = addSomeData (stream);
 
     char buffer[20];
@@ -105,7 +105,7 @@ public:
 
   void testWrite ()
   {
-    u_long nbw;
+    size_t nbw;
 
     int ret = stream->write ("hello world!", 12, &nbw);
 
@@ -116,7 +116,7 @@ public:
 
   void testFlush ()
   {
-    u_long nbw;
+    size_t nbw;
     addSomeData (stream);
     int ret = stream->flush (&nbw);
 

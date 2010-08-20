@@ -49,7 +49,7 @@
  */
 CachedFileBuffer::CachedFileBuffer (File* file)
 {
-  u_long nbr;
+  size_t nbr;
   factoryToNotify = 0;
   refCounter = 0;
   fileSize = file->getFileSize ();
@@ -70,7 +70,7 @@ CachedFileBuffer::CachedFileBuffer (File* file)
 CachedFileBuffer::CachedFileBuffer (const char* filename)
 {
   File file;
-  u_long nbw;
+  size_t nbw;
   mutex.init ();
   factoryToNotify = 0;
   refCounter = 0;

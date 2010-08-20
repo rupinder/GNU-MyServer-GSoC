@@ -274,12 +274,12 @@ void GopherEngine::infoFile (const string &fname, const string &path, GopherMenu
 
   File f;
   int state;
-  u_long fsize;
+  size_t fsize;
   state = f.openFile (file_path.c_str (), File::READ);
   if (!state)
     {
       MemBuf buff;
-      u_long real;
+      size_t real;
       fsize = f.getFileSize ();
       buff.setLength (fsize);
       f.read (buff.getBuffer (), fsize, &real);

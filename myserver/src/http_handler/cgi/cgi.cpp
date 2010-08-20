@@ -284,9 +284,9 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
 int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
                    Process &cgiProc, bool onlyHeader, bool nph)
 {
-  u_long nbw = 0;
-  u_long nbw2 = 0;
-  u_long nBytesRead = 0;
+  size_t nbw = 0;
+  size_t nbw2 = 0;
+  size_t nBytesRead = 0;
   u_long procStartTime;
   bool useChunks = false;
   bool keepalive = false;
@@ -375,8 +375,8 @@ int Cgi::sendHeader (HttpThreadContext *td, Pipe &stdOutFile, FiltersChain &chai
 {
   u_long headerSize = 0;
   bool headerCompleted = false;
-  u_long headerOffset = 0;
-  u_long nBytesRead;
+  size_t headerOffset = 0;
+  size_t nBytesRead;
 
   /* Parse initial chunks of data looking for the HTTP header.  */
   while (!headerCompleted && !nph)
@@ -444,7 +444,7 @@ int Cgi::sendHeader (HttpThreadContext *td, Pipe &stdOutFile, FiltersChain &chai
             }
         }
 
-      headerChecked = std::max (4UL, headerOffset);
+      headerChecked = std::max ((size_t) 4, headerOffset);
     }
 
   /* Send the header.  */

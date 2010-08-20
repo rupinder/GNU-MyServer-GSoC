@@ -79,7 +79,7 @@ public:
         StartProcInfo spi;
         char buffer [32] = {'\0'};
         const char *msg = "ForkServer";
-        u_long nbr;
+        size_t nbr;
         int ret = fs->startForkServer ();
 
         Pipe pipe;

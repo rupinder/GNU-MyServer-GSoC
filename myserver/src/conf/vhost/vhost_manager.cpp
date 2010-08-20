@@ -39,7 +39,7 @@ Vhost* VhostManagerHandler::getVHost (const char*, const char*, u_short)
   return NULL;
 }
 
-Vhost* VhostManagerHandler::getVHost (int n)
+Vhost* VhostManagerHandler::getVHost (u_long n)
 {
   return 0;
 }

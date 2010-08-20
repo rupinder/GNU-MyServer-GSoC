@@ -91,11 +91,11 @@ int XmlParser::open (const char* filename, bool useXpath)
 
   xmlFile.openFile (filename, File::READ | File::OPEN_IF_EXISTS);
 
-  u_long size = xmlFile.getFileSize ();
+  size_t size = xmlFile.getFileSize ();
   char *buffer = new char [size];
   try
     {
-      u_long nbr;
+      size_t nbr;
       xmlFile.read (buffer, size, &nbr);
       doc = xmlParseMemory (buffer, nbr);
 

@@ -110,7 +110,7 @@ static void eventLoopHandler (int fd, short event, void *arg)
 {
   ConnectionsScheduler::DispatcherArg *da
     = (ConnectionsScheduler::DispatcherArg*) arg;
-  u_long nbr;
+  size_t nbr;
   timeval tv = {10, 0};
 
   if (event == EV_READ || event == EV_TIMEOUT)
@@ -237,7 +237,7 @@ void ConnectionsScheduler::listener (ConnectionsScheduler::ListenerArg *la)
   eventsSocketMutex.lock ();
   try
     {
-      u_long nbw;
+      size_t nbw;
       dispatcherArg.socketPairWrite.write ("l", 1, &nbw);
       dispatcherArg.socketPairWrite.write ((const char*) &arg, sizeof (arg), &nbw);
       eventsSocketMutex.unlock ();
@@ -498,7 +498,7 @@ void ConnectionsScheduler::addWaitingConnectionImpl (ConnectionPtr c, int lock)
    */
   if (lock)
     {
-      u_long nbw;
+      size_t nbw;
       eventsSocketMutex.lock ();
       try
         {
@@ -579,7 +579,7 @@ ConnectionPtr ConnectionsScheduler::getConnection ()
  */
 void ConnectionsScheduler::release ()
 {
-  u_long nbw;
+  size_t nbw;
   u_long threads = 0;
   releasing = true;
   dispatcherArg.terminate = true;

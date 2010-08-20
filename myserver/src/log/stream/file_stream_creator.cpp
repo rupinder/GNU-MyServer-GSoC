@@ -27,7 +27,7 @@ FileStreamCreator::create (FiltersFactory* ff, string location,
   char *path = const_cast<char*>(location.c_str ());
   try
     {
-      u_long nbw;
+      size_t nbw;
       out->openFile (path, FileStream::defaultFileMask);
       fc = ff->chain (filters, out, &nbw);
       if (fc)

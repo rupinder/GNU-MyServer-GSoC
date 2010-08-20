@@ -274,8 +274,8 @@ int SslSocket::recv (char* buffer, int len, int flags)
 
           sslError = SSL_get_error (sslConnection, err);
 
-          if ((sslError != SSL_ERROR_WANT_READ) &&
-              (sslError != SSL_ERROR_WANT_WRITE))
+          if ((sslError != SSL_ERROR_WANT_READ)
+              && (sslError != SSL_ERROR_WANT_WRITE))
             break;
         }
 

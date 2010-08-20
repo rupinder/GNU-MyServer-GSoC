@@ -96,7 +96,7 @@ int HttpFile::putFile (HttpThreadContext* td, string& filename)
 
     for (;;)
       {
-        u_long nbr = 0, nbw = 0;
+        size_t nbr = 0, nbw = 0;
         if (td->inputData.read (td->buffer->getBuffer (),
                                 td->buffer->getRealLength (), &nbr))
           {
@@ -199,18 +199,18 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     With this routine we send a file through the HTTP protocol.
     Open the file and save its handle.
    */
-  u_long filesize = 0;
+  size_t filesize = 0;
   File *file = NULL;
-  u_long bytesToSend;
-  u_long firstByte = td->request.rangeByteBegin;
-  u_long lastByte = td->request.rangeByteEnd;
+  size_t bytesToSend;
+  size_t firstByte = td->request.rangeByteBegin;
+  size_t lastByte = td->request.rangeByteEnd;
   bool keepalive = false;
   bool useChunks = false;
   bool useModifiers = false;
   MemoryStream memStream (td->auxiliaryBuffer);
   FiltersChain chain;
-  u_long nbw;
-  u_long nbr;
+  size_t nbw;
+  size_t nbr;
   time_t lastMT;
   string tmpTime;
   u_long dataSent = 0;
@@ -409,7 +409,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     if (!useChunks && chain.isEmpty () && !td->appendOutputs
         && !(td->http->getProtocolOptions () & Protocol::SSL))
       {
-        u_long nbw = 0;
+        size_t nbw = 0;
         file->fastCopyToSocket (td->connection->socket, firstByte,
                                 td->buffer, &nbw);
 
@@ -452,18 +452,17 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     /* Flush the rest of the file.  */
     for (;;)
       {
-        u_long nbr;
-        u_long nbw;
+        size_t nbr;
+        size_t nbw;
 
         /* Check if there are other bytes to send.  */
         if (bytesToSend)
           {
             /* Read from the file the bytes to send.  */
-            file->read (td->buffer->getBuffer (),
-                                  std::min (static_cast<u_long> (bytesToSend),
-                      static_cast<u_long> (td->buffer->getRealLength () / 2)),
-                        &nbr);
+            size_t size = std::min (bytesToSend,
+                                    td->buffer->getRealLength () / 2);
 
+            file->read (td->buffer->getBuffer (), size, &nbr);
             if (nbr == 0)
               {
                 bytesToSend = 0;

@@ -52,16 +52,18 @@ public:
 
   virtual Handle getHandle ();
   virtual int setHandle (Handle);
-  virtual int writeToFile (const char *, u_long, u_long *);
+  virtual int writeToFile (const char *, size_t, size_t *);
   virtual int createTemporaryFile (const char *, bool unlink = true);
 
   virtual int openFile (const char *, u_long, mode_t mask = 00700);
   virtual int openFile (string const &file, u_long opt, mode_t mask = 00700)
   {return openFile (file.c_str (), opt, mask);}
 
-  virtual u_long getFileSize ();
-  virtual int seek (u_long);
-  virtual u_long getSeek ();
+  /* FIXME: use off_t.  */
+  virtual size_t getFileSize ();
+
+  virtual int seek (size_t);
+  virtual size_t getSeek ();
 
   virtual time_t getLastModTime ();
   virtual time_t getCreationTime ();
@@ -75,11 +77,11 @@ public:
   virtual int close ();
 
   /* Inherithed from Stream.  */
-  virtual int read (char* buffer, u_long len, u_long *nbr);
-  virtual int write (const char* buffer, u_long len, u_long *nbw);
+  virtual int read (char* buffer, size_t len, size_t *nbr);
+  virtual int write (const char* buffer, size_t len, size_t *nbw);
 
-  virtual int fastCopyToSocket (Socket *dest, u_long offset,
-                                MemBuf *buf, u_long *nbw);
+  virtual int fastCopyToSocket (Socket *dest, size_t offset,
+                                MemBuf *buf, size_t *nbw);
 
   int truncate (u_long size = 0);
 

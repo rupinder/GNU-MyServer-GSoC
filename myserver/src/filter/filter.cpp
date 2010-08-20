@@ -30,7 +30,7 @@ using namespace std;
   \param len The buffer length in bytes.
   \param nbr A pointer to receive the number of read bytes.
  */
-int Filter::read (char* buffer, u_long len, u_long *nbr)
+int Filter::read (char* buffer, size_t len, size_t *nbr)
 {
   *nbr = 0;
   return 0;
@@ -42,7 +42,7 @@ int Filter::read (char* buffer, u_long len, u_long *nbr)
   \param len Number of bytes to use.
   \param nbw A pointer to receive the number of written bytes.
  */
-int Filter::write (const char* buffer, u_long len, u_long* nbw)
+int Filter::write (const char* buffer, size_t len, size_t* nbw)
 {
   *nbw = 0;
   return 0;
@@ -54,7 +54,7 @@ int Filter::write (const char* buffer, u_long len, u_long* nbw)
   \param len The buffer length in bytes.
   \param nbr A pointer to receive the number of read bytes.
  */
-int Filter::getHeader (char* buffer, u_long len, u_long* nbr)
+int Filter::getHeader (char* buffer, size_t len, size_t* nbr)
 {
   *nbr = 0;
   return 0;
@@ -66,7 +66,7 @@ int Filter::getHeader (char* buffer, u_long len, u_long* nbr)
   \param len The buffer length in bytes.
   \param nbr A pointer to receive the number of read bytes.
  */
-int Filter::getFooter (char* buffer, u_long len, u_long* nbr)
+int Filter::getFooter (char* buffer, size_t len, size_t* nbr)
 {
   *nbr = 0;
   return 0;
@@ -103,7 +103,7 @@ void Filter::setParent (Stream* parentStream)
   Flush everything to the stream. Returns -1 on errors.
   \param nbw A pointer to receive the number of read bytes.
  */
-int Filter::flush (u_long *nbw)
+int Filter::flush (size_t *nbw)
 {
   *nbw = 0;
   return 0;

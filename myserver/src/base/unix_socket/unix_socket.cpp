@@ -70,12 +70,13 @@ int UnixSocket::bind (const char* path)
 
 /*!
   Shutdown the socket.
+  \param how Specify what stream close.
   \return 0 on success.
  */
-int UnixSocket::shutdown ()
+int UnixSocket::shutdown (int how)
 {
 #ifdef AF_UNIX
-  Socket::shutdown (2);
+  Socket::shutdown (how);
   return checked::unlink (addr.sun_path);
 #else
   return -1;
@@ -114,7 +115,7 @@ int UnixSocket::socket ()
   \param path Path to the Unix socket.
   \return 0 on success.
  */
-int UnixSocket::connect (const char* path)
+int UnixSocket::connect2 (const char* path)
 {
   if (path == NULL)
     return -1;

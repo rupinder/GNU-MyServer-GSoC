@@ -85,7 +85,7 @@ int HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td,
                                               u_long realBufferSize,
                                               MemoryStream *tmpStream)
 {
-  u_long nbr, nbw;
+  size_t nbr, nbw;
   Stream *oldStream = chain->getStream ();
 
   if (!chain->hasModifiersFilters ())
@@ -140,7 +140,7 @@ HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td, char* buffer,
                            u_long size, File* appendFile, FiltersChain* chain,
                                           bool append, bool useChunks)
 {
-  u_long nbw;
+  size_t nbw;
 
   if (chain->hasModifiersFilters ())
     {
@@ -155,7 +155,7 @@ HttpDataHandler::appendDataToHTTPChannel (HttpThreadContext* td, char* buffer,
       if (useChunks)
         {
           ostringstream chunkHeader;
-          u_long flushNbw = 0;
+          size_t flushNbw = 0;
           chunkHeader << hex << size << "\r\n";
 
           if (chain->flush (&flushNbw))

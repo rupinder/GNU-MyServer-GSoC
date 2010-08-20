@@ -49,13 +49,13 @@ using namespace std;
   \param timeout Timeout value to use on the socket.
   \return Return non zero on timeout.
 */
-int HttpDataRead::readContiguousPrimitivePostData (const char* inBuffer,
-                                                   u_long *inBufferPos,
-                                                   u_long inBufferSize,
+int HttpDataRead::readContiguousPrimitivePostData (const char *inBuffer,
+                                                   size_t *inBufferPos,
+                                                   size_t inBufferSize,
                                                    Socket *inSocket,
-                                                   char* outBuffer,
-                                                   u_long outBufferSize,
-                                                   u_long* nbr,
+                                                   char *outBuffer,
+                                                   size_t outBufferSize,
+                                                   size_t *nbr,
                                                    u_long timeout)
 {
   int ret;
@@ -101,25 +101,25 @@ int HttpDataRead::readContiguousPrimitivePostData (const char* inBuffer,
   \return -1 on internal error.
   \return Any other value is the HTTP error code.
 */
-int HttpDataRead::readChunkedPostData (const char* inBuffer,
-                                       u_long *inBufferPos,
-                                       u_long inBufferSize,
+int HttpDataRead::readChunkedPostData (const char *inBuffer,
+                                       size_t *inBufferPos,
+                                       size_t inBufferSize,
                                        Socket *inSocket,
-                                       char* outBuffer,
-                                       u_long outBufferSize,
-                                       u_long* outNbr,
+                                       char *outBuffer,
+                                       size_t outBufferSize,
+                                       size_t *outNbr,
                                        u_long timeout,
-                                       Stream* out,
+                                       Stream *out,
                                        long maxChunks)
 {
-  u_long nbr;
+  size_t nbr;
   *outNbr = 0;
 
   for (int n = 0; maxChunks == 0 || n < maxChunks; n++)
     {
-      u_long chunkNbr;
-      u_long dataToRead;
-      u_long nbw;
+      size_t chunkNbr;
+      size_t dataToRead;
+      size_t nbw;
       u_long bufferlen;
       char buffer[20];
       char c;
@@ -214,12 +214,12 @@ int HttpDataRead::readPostData (HttpThreadContext* td, int* httpRetCode)
 {
   int contentLength = 0;
   bool contentLengthSpecified = false;
-  u_long nbw = 0;
+  size_t nbw = 0;
   u_long bufferDataSize = 0;
 
   u_long timeout = MYSERVER_SEC (10);
-  u_long inPos = 0;
-  u_long nbr;
+  size_t inPos = 0;
+  size_t nbr;
   u_long length;
   string inputDataPath;
 

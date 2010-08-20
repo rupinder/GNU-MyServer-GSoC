@@ -41,7 +41,7 @@ public:
   void setFactoryToNotify (CachedFileFactory *cff);
   CachedFileFactory* getFactoryToNotify (){return factoryToNotify;}
 
-  u_long getFileSize (){return fileSize;}
+  size_t getFileSize (){return fileSize;}
   CachedFileBuffer (const char* filename);
   CachedFileBuffer (File* file);
   CachedFileBuffer (const char* buffer, u_long size);
@@ -71,7 +71,7 @@ protected:
   Mutex mutex;
   char *buffer;
   u_long refCounter;
-  u_long fileSize;
+  size_t fileSize;
   CachedFileFactory *factoryToNotify;
   string filename;
 };

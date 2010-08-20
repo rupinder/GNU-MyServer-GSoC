@@ -74,7 +74,7 @@ Console::~Console ()
 }
 
 int
-Console::flush (u_long* nbw)
+Console::flush (size_t* nbw)
 {
   if (fd)
     {
@@ -84,7 +84,7 @@ Console::flush (u_long* nbw)
 }
 
 int
-Console::read (char* buffer, u_long len, u_long* nbr)
+Console::read (char* buffer, size_t len, size_t* nbr)
 {
   if (fd)
     {
@@ -94,7 +94,7 @@ Console::read (char* buffer, u_long len, u_long* nbr)
 }
 
 int
-Console::write (const char* buffer, u_long len, u_long* nbw)
+Console::write (const char* buffer, size_t len, size_t* nbw)
 {
   if (fd)
     {

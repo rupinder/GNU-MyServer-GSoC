@@ -77,7 +77,7 @@ File::~File ()
   \param buffersize The length of the buffer in bytes.
   \param nbw How many bytes were written to the file.
  */
-int File::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
+int File::writeToFile (const char* buffer, size_t buffersize, size_t* nbw)
 {
   int ret;
   if (buffersize == 0)
@@ -90,7 +90,7 @@ int File::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
   if (ret < 0)
     return ret;
 
-  *nbw = static_cast<u_long> (ret);
+  *nbw = static_cast<size_t> (ret);
   return 0;
 }
 
@@ -270,7 +270,7 @@ int File::close ()
   Returns the file size in bytes.
   Returns -1 on errors.
  */
-u_long File::getFileSize ()
+size_t File::getFileSize ()
 {
   u_long ret;
   struct stat fStats;
@@ -285,7 +285,7 @@ u_long File::getFileSize ()
   Change the position of the pointer to the file.
   \param initialByte The new file pointer position.
  */
-int File::seek (u_long initialByte)
+int File::seek (size_t initialByte)
 {
   u_long ret;
   ret = checked::checkError (gnulib::lseek (handle, initialByte, SEEK_SET));
@@ -297,7 +297,7 @@ int File::seek (u_long initialByte)
 
   \return The current file pointer position.
  */
-u_long File::getSeek ()
+size_t File::getSeek ()
 {
   off_t ret = gnulib::lseek (handle, 0, SEEK_CUR);
   if (ret < 0)
@@ -333,7 +333,7 @@ time_t File::getLastAccTime ()
 /*!
   Inherited from Stream.
  */
-int File::write (const char* buffer, u_long len, u_long *nbw)
+int File::write (const char* buffer, size_t len, size_t *nbw)
 {
   return writeToFile (buffer, len, nbw );
 }
@@ -346,13 +346,13 @@ int File::write (const char* buffer, u_long len, u_long *nbw)
   \param buffersize The length of the buffer in bytes.
   \param nbr How many bytes were read to the buffer.
  */
-int File::read (char* buffer, u_long buffersize, u_long* nbr)
+int File::read (char* buffer, size_t buffersize, size_t* nbr)
 {
   int ret = ::read (handle, buffer, buffersize);
   if (ret < 0)
     return ret;
 
-  *nbr = static_cast<u_long> (ret);
+  *nbr = static_cast<size_t> (ret);
   return 0;
 }
 
@@ -365,7 +365,7 @@ int File::read (char* buffer, u_long buffersize, u_long* nbr)
   \param buf Temporary buffer that can be used by this function.
   \param nbw Number of bytes sent.
  */
-int File::fastCopyToSocket (Socket *dest, u_long firstByte, MemBuf *buf, u_long *nbw)
+int File::fastCopyToSocket (Socket *dest, size_t firstByte, MemBuf *buf, size_t *nbw)
 {
   *nbw = 0;
 #ifdef HAVE_SYS_SENDFILE_H
@@ -400,7 +400,7 @@ int File::fastCopyToSocket (Socket *dest, u_long firstByte, MemBuf *buf, u_long 
 
   for (;;)
     {
-      u_long nbr;
+      size_t nbr;
       u_long tmpNbw;
 
       if (read (buffer, size, &nbr))

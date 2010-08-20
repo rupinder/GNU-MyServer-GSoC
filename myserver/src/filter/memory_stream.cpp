@@ -29,10 +29,10 @@ using namespace std;
 /*!
   Inherited from Stream.
  */
-int MemoryStream::read (char* buffer, u_long len, u_long *nbr)
+int MemoryStream::read (char* buffer, size_t len, size_t *nbr)
 {
   char *b;
-  *nbr = std::min (len, static_cast<u_long>(data->getLength () - readSeek));
+  *nbr = std::min (len, static_cast<size_t>(data->getLength () - readSeek));
   b = data->getBuffer () + readSeek;
 
   memcpy (buffer, b, *nbr);
@@ -45,9 +45,9 @@ int MemoryStream::read (char* buffer, u_long len, u_long *nbr)
 /*!
   Read directly on the stream.
  */
-int MemoryStream::read (Stream* s, u_long len, u_long *nbr)
+int MemoryStream::read (Stream* s, size_t len, size_t *nbr)
 {
-  u_long towrite = *nbr = std::min (len, static_cast<u_long>(data->getLength () - readSeek));
+  size_t towrite = *nbr = std::min (len, static_cast<size_t>(data->getLength () - readSeek));
   int ret = s->write (data->getBuffer ()+readSeek, towrite, nbr);
   readSeek += towrite;
   return ret;
@@ -56,7 +56,7 @@ int MemoryStream::read (Stream* s, u_long len, u_long *nbr)
 /*!
   Inherited from Stream.
  */
-int MemoryStream::write (const char* buffer, u_long len, u_long *nbw)
+int MemoryStream::write (const char* buffer, size_t len, size_t *nbw)
 {
   data->addBuffer (buffer, len);
   *nbw = len;
@@ -66,7 +66,7 @@ int MemoryStream::write (const char* buffer, u_long len, u_long *nbw)
 /*!
   Inherited from Stream.
  */
-int MemoryStream::flush (u_long* nbw)
+int MemoryStream::flush (size_t* nbw)
 {
   *nbw = 0;
   return 0;

@@ -56,7 +56,7 @@ public:
     strcpy (szTest, "The quick brown fox jumps over the lazy dog");
     int nLength = strlen (szTest);
 
-    u_long nbw = 0;
+    size_t nbw = 0;
     MemBuf mb;
     MemoryStream ms (&mb);
     ms.write (szTest, 64, &nbw);
@@ -101,7 +101,7 @@ public:
 
   void testIsEmpty ()
   {
-    u_long nbw;
+    size_t nbw;
     MemBuf mb;
     MemoryStream ms (&mb);
 
@@ -120,7 +120,7 @@ public:
 
   void testIsFilterPresent ()
   {
-    u_long nbw;
+    size_t nbw;
     Filter* filter = Gzip::factory ("GzipFilter");
     MemBuf mb;
     MemoryStream ms (&mb);
@@ -139,7 +139,7 @@ public:
   void testRemoveFilter ()
   {
     MemBuf mb;
-    u_long nbw;
+    size_t nbw;
     Filter* filter = Gzip::factory ("GzipFilter");
     MemoryStream ms (&mb);
 

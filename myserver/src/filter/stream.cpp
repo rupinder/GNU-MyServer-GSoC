@@ -27,7 +27,7 @@ using namespace std;
 /*!
   Read [len] characters from the stream. Returns -1 on errors.
  */
-int Stream::read (char* buffer,u_long len, u_long *nbr)
+int Stream::read (char* buffer,size_t len, size_t *nbr)
 {
   *nbr = 0;
   return 0;
@@ -45,7 +45,7 @@ int Stream::close ()
 /*!
   Write [len] characters to the stream. Returns -1 on errors.
  */
-int Stream::write (const char* buffer, u_long len, u_long *nbw)
+int Stream::write (const char* buffer, size_t len, size_t *nbw)
 {
   *nbw = 0;
   return 0;
@@ -54,7 +54,7 @@ int Stream::write (const char* buffer, u_long len, u_long *nbw)
 /*!
   Write remaining data to the stream.
  */
-int Stream::flush (u_long* nbw)
+int Stream::flush (size_t* nbw)
 {
   *nbw = 0;
   return 0;

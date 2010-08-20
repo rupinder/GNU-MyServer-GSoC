@@ -289,7 +289,7 @@ int HttpDir::send (HttpThreadContext* td,
                    const char* directory, const char* cgi,
                    bool execute, bool onlyHeader)
 {
-  u_long nbw;
+  size_t nbw;
   string filename;
   int ret;
   ReadDirectory fd;

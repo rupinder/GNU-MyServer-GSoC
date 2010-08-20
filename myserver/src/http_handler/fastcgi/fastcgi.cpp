@@ -61,10 +61,10 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
                    const char *cgipath, bool execute, bool onlyHeader)
 {
   FcgiContext con;
-  u_long nbr = 0;
+  size_t nbr = 0;
   FcgiHeader header;
   FiltersChain chain;
-  u_long nbw;
+  size_t nbw;
 
   int exit;
   int ret;
@@ -528,7 +528,7 @@ int FastCgi::fastCgiRequest (FcgiContext* con, int id)
   HttpThreadContext *td = con->td;
   /* Size of data chunks to use with STDIN.  */
   const size_t maxStdinChunk = 8192;
-  u_long nbr;
+  size_t nbr;
   FcgiHeader header;
   int sizeEnvString;
 
@@ -611,7 +611,7 @@ int FastCgi::sendData (FcgiContext* con, u_long dim, u_long timeout,
       if (dim - td->buffer->getLength () == 0)
         return -1;
 
-      u_long nbr = con->sock.recv (td->buffer->getBuffer ()
+      size_t nbr = con->sock.recv (td->buffer->getBuffer ()
                                    + td->buffer->getLength (),
                                 std::min ((u_long) td->buffer->getRealLength (),
                                              dim - td->buffer->getLength ()),
@@ -746,7 +746,7 @@ int FastCgi::handleHeader (FcgiContext* con, FiltersChain* chain, bool* response
 int FastCgi::readHeader (FcgiContext *con, FcgiHeader* header, u_long started,
                          u_long timeout, int id)
 {
-  u_long nbr;
+  size_t nbr;
   HttpThreadContext* td = con->td;
   char* buffer = (char*) header;
   u_long readData = 0;
@@ -765,7 +765,7 @@ int FastCgi::readHeader (FcgiContext *con, FcgiHeader* header, u_long started,
       nbr = con->sock.recv (buffer + readData, sizeof (FcgiHeader) - readData,
                             0, timeout - (ticks - started));
 
-      if (nbr == static_cast<u_long>(-1) || nbr == 0)
+      if (nbr == static_cast<size_t>(-1) || nbr == 0)
         return 1;
 
       readData += nbr;

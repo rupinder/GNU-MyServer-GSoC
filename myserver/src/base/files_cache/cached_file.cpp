@@ -60,7 +60,7 @@ CachedFile::CachedFile (CachedFileBuffer* cfb)
   Inherithed by File.
   \see File#writeToFile.
  */
-int CachedFile::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
+int CachedFile::writeToFile (const char* buffer, size_t buffersize, size_t* nbw)
 {
   errno = EBADF;
   checked::raiseException ();
@@ -70,11 +70,9 @@ int CachedFile::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
 /*!
   A CachedFile can't be opened directly, use a factory instead.
   If the function have success the return value is nonzero.
-  \param nfilename Filename to open.
-  \param opt Specify how open the file.
-  \return 0 if the call was successfull, any other value on errors.
+  \see File#openFile
  */
-int CachedFile::openFile (const char* nfilename, u_long opt)
+int CachedFile::openFile (const char* nfilename, u_long opt, mode_t mask)
 {
   errno = ENOENT;
   checked::raiseException ();
@@ -125,9 +123,9 @@ int CachedFile::operator =(CachedFile f)
   \param buffersize The length of the buffer in bytes.
   \param nbr How many bytes were read to the buffer.
  */
-int CachedFile::read (char* buffer, u_long buffersize, u_long* nbr)
+int CachedFile::read (char* buffer, size_t buffersize, size_t* nbr)
 {
-  u_long toRead = std::min (buffersize, this->buffer->getFileSize () - fseek);
+  size_t toRead = std::min (buffersize, this->buffer->getFileSize () - fseek);
   const char* src = &(this->buffer->getBuffer ()[fseek]);
   if (nbr)
     *nbr = toRead;
@@ -164,7 +162,7 @@ int CachedFile::close ()
   Returns the file size in bytes.
   Returns -1 on errors.
  */
-u_long CachedFile::getFileSize ()
+size_t CachedFile::getFileSize ()
 {
   return buffer->getFileSize ();
 }
@@ -173,7 +171,7 @@ u_long CachedFile::getFileSize ()
   Change the position of the pointer to the file.
   \param initialByte The new file pointer position.
  */
-int CachedFile::seek (u_long initialByte)
+int CachedFile::seek (size_t initialByte)
 {
   if (initialByte > buffer->getFileSize ())
     return -1;
@@ -185,7 +183,7 @@ int CachedFile::seek (u_long initialByte)
 /*!
   Inherited from Stream.
  */
-int CachedFile::write (const char* buffer, u_long len, u_long *nbw)
+int CachedFile::write (const char* buffer, size_t len, size_t *nbw)
 {
   errno = EBADF;
   checked::raiseException ();
@@ -199,8 +197,8 @@ int CachedFile::write (const char* buffer, u_long len, u_long *nbw)
   \param buf Temporary buffer that can be used by this function.
   \param nbw Number of bytes sent.
  */
-int CachedFile::fastCopyToSocket (Socket *dest, u_long firstByte,
-                                  MemBuf *buf, u_long *nbw)
+int CachedFile::fastCopyToSocket (Socket *dest, size_t firstByte,
+                                  MemBuf *buf, size_t *nbw)
 {
   return dest->write (&(this->buffer->getBuffer ()[firstByte]),
                       buffer->getFileSize () - firstByte, nbw);

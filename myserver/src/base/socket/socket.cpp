@@ -675,9 +675,9 @@ int Socket::dataAvailable (int sec, int usec)
   Inherited from Stream.
   Return zero on success, or a negative number on error.
  */
-int Socket::read (char* buffer, u_long len, u_long *nbr)
+int Socket::read (char* buffer, size_t len, size_t *nbr)
 {
-  *nbr = static_cast<u_long> (recv (buffer, len, 0));
+  *nbr = static_cast<size_t> (recv (buffer, len, 0));
   return 0;
 }
 
@@ -685,8 +685,8 @@ int Socket::read (char* buffer, u_long len, u_long *nbr)
   Inherited from Stream.
   Return zero on success, or a negative number on error.
  */
-int Socket::write (const char* buffer, u_long len, u_long *nbw)
+int Socket::write (const char* buffer, size_t len, size_t *nbw)
 {
-  *nbw = static_cast<u_long> (send (buffer, len, 0));
+  *nbw = static_cast<size_t> (send (buffer, len, 0));
   return 0;
 }

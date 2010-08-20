@@ -72,7 +72,7 @@ int Scgi::send (HttpThreadContext* td, const char* scriptpath,
       chain.setStream (td->connection->socket);
       if (td->mime)
         {
-          u_long nbw;
+          size_t nbw;
           if (td->mime)
             Server::getInstance ()->getFiltersFactory ()->chain (&chain,
                                                                  td->mime->filters,
@@ -216,7 +216,7 @@ int Scgi::sendResponse (ScgiContext* ctx, bool onlyHeader, FiltersChain* chain)
   u_long read = 0;
   u_long headerSize = 0;
   u_long tmpHeaderSize = 0;
-  u_long nbw, nbr;
+  size_t nbw, nbr;
   u_long sentData = 0;
   HttpThreadContext* td = ctx->td;
 
@@ -285,7 +285,7 @@ int Scgi::sendResponse (ScgiContext* ctx, bool onlyHeader, FiltersChain* chain)
                                 td->auxiliaryBuffer->getRealLength (),
                                 0);
 
-          if (!nbr || (nbr == (u_long)-1))
+          if (!nbr || (nbr == (size_t)-1))
             break;
 
           appendDataToHTTPChannel (td, td->auxiliaryBuffer->getBuffer (),
@@ -327,7 +327,7 @@ int Scgi::sendNetString (ScgiContext* ctx, const char* data, int len)
  */
 int Scgi::sendPostData (ScgiContext* ctx)
 {
-  u_long nbr;
+  size_t nbr;
   do
     {
       ctx->td->inputData.read (ctx->td->auxiliaryBuffer->getBuffer (),

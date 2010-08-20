@@ -81,8 +81,8 @@ u_long Gzip::compressBound (int size)
   \param out Buffer where compress.
   \param sizeOut The dimension of the buffer where compress.
  */
-u_long Gzip::compress (const char* in, u_long sizeIn,
-                       char *out, u_long sizeOut)
+u_long Gzip::compress (const char* in, size_t sizeIn,
+                       char *out, size_t sizeOut)
 {
 #ifdef HAVE_ZLIB
   u_long old_total_out = data.stream.total_out;
@@ -129,7 +129,7 @@ u_long Gzip::free ()
   \param len Buffer length.
   \param nbw Numbers of written bytes.
  */
-int Gzip::getHeader (char* buffer, u_long len, u_long* nbw)
+int Gzip::getHeader (char* buffer, size_t len, size_t* nbw)
 {
   *nbw = getHeader (buffer, len);
   return !(*nbw);
@@ -141,14 +141,13 @@ int Gzip::getHeader (char* buffer, u_long len, u_long* nbw)
   \param len Buffer length.
   \param nbw Numbers of written bytes.
  */
-int Gzip::getFooter (char* buffer, u_long len, u_long* nbw)
+int Gzip::getFooter (char* buffer, size_t len, size_t* nbw)
 {
   if (len < GZIP_FOOTER_LENGTH)
     return -1;
   getFooter (buffer, GZIP_FOOTER_LENGTH);
   *nbw = GZIP_FOOTER_LENGTH;
   return 0;
-
 }
 
 /*!
@@ -164,7 +163,7 @@ int Gzip::modifyData ()
   \param out Buffer where write.
   \param sizeOut Buffer length.
  */
-u_long Gzip::flush (char *out, u_long sizeOut)
+u_long Gzip::flush (char *out, size_t sizeOut)
 {
 #ifdef HAVE_ZLIB
   u_long old_total_out = data.stream.total_out;
@@ -206,7 +205,7 @@ Gzip::~Gzip ()
   \param buffer Buffer to look.
   \param size Number of bytes to look.
  */
-u_long Gzip::updateCRC (char* buffer, int size)
+u_long Gzip::updateCRC (char* buffer, size_t size)
 {
 #ifdef HAVE_ZLIB
   data.crc = crc32 (data.crc, (const Bytef *) buffer,
@@ -222,7 +221,7 @@ u_long Gzip::updateCRC (char* buffer, int size)
   \param footer Buffer where write.
   \param size Buffer length.
  */
-u_long Gzip::getFooter (char *footer, int /*size*/)
+u_long Gzip::getFooter (char *footer, size_t /*size*/)
 {
 #ifdef HAVE_ZLIB
   footer[0] = (char) (data.crc) & 0xFF;
@@ -245,7 +244,7 @@ u_long Gzip::getFooter (char *footer, int /*size*/)
   \param buffer Buffer where write.
   \param buffersize Buffer length.
  */
-u_long Gzip::getHeader (char *buffer, u_long buffersize)
+u_long Gzip::getHeader (char *buffer, size_t buffersize)
 {
 #if HAVE_ZLIB
   if (buffersize < GZIP_HEADER_LENGTH)
@@ -265,10 +264,10 @@ u_long Gzip::getHeader (char *buffer, u_long buffersize)
   \param len Buffer length.
   \param nbr Number of read bytes.
  */
-int Gzip::read (char* buffer, u_long len, u_long *nbr)
+int Gzip::read (char* buffer, size_t len, size_t *nbr)
 {
   char *tmp_buff;
-  u_long nbr_parent;
+  size_t nbr_parent;
   if (!parent)
     return -1;
 
@@ -298,7 +297,7 @@ int Gzip::read (char* buffer, u_long len, u_long *nbr)
   \param len Buffer length.
   \param nbw Number of written bytes.
  */
-int Gzip::write (const char* buffer, u_long len, u_long *nbw)
+int Gzip::write (const char* buffer, size_t len, size_t *nbw)
 {
   char tmpBuffer[1024];
   u_long written = 0;
@@ -313,8 +312,8 @@ int Gzip::write (const char* buffer, u_long len, u_long *nbw)
 
   while (len)
     {
-      u_long nbw_parent;
-      u_long size=std::min (len, 512UL);
+      size_t nbw_parent;
+      size_t  size = std::min (len, (size_t) 512);
       u_long ret = compress (buffer, size, tmpBuffer, 1024);
 
       if (ret)
@@ -332,7 +331,7 @@ int Gzip::write (const char* buffer, u_long len, u_long *nbw)
   Inherited from Filter.
   \param nbw Number of flushed bytes.
  */
-int Gzip::flush (u_long *nbw)
+int Gzip::flush (size_t *nbw)
 {
   char buffer[512];
 
@@ -342,8 +341,8 @@ int Gzip::flush (u_long *nbw)
   *nbw = flush (buffer, 512);
   if (*nbw)
     {
-      u_long nbwParent;
-      u_long nbwParentFlush;
+      size_t nbwParent;
+      size_t nbwParentFlush;
       if (!parent)
         return -1;
 

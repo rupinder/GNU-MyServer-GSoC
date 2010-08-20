@@ -225,7 +225,7 @@ int FilesUtility::copyDir (string const & src, string const & dest, int overwrit
 int FilesUtility::copyFile (File& src, File& dest)
 {
   char buffer[4096];
-  u_long nbr, nbw;
+  size_t nbr, nbw;
 
 #ifdef HAVE_POSIX_FALLOCATE
   if (posix_fallocate (dest.getHandle (), dest.getSeek (),

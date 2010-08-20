@@ -752,7 +752,7 @@ DEFINE_THREAD (SendAsciiFile, pParam)
           return (void *) 0;
 #endif
         }
-      u_long filesize = file->getFileSize ();
+      size_t filesize = file->getFileSize ();
 
       /* don't implement restart for ASCII.  */
       if (pFtpuserData->m_nrestartOffset > 0)
@@ -760,7 +760,7 @@ DEFINE_THREAD (SendAsciiFile, pParam)
       pFtpuserData->m_sCurrentFileName = pWt->m_sFilePath;
       pFtpuserData->m_nFileSize = filesize;
 
-      u_long nbr, nBufferSize = 0;
+      size_t nbr, nBufferSize = 0;
       char *pLine = NULL;
       int nLineLength = 0;
       std::string sLine;
@@ -992,8 +992,8 @@ DEFINE_THREAD (SendImageFile, pParam)
           return (void *) 0;
 #endif
         }
-      u_long filesize = file->getFileSize ();
-      u_long nbr, nBufferSize = 0;
+      size_t filesize = file->getFileSize ();
+      size_t nbr, nBufferSize = 0;
       if (pWt->m_bappend && pFtpuserData->m_nrestartOffset < filesize)
         {
           file->seek (pFtpuserData->m_nrestartOffset);
@@ -1190,10 +1190,10 @@ DEFINE_THREAD (ReceiveAsciiFile, pParam)
       char *pLine = NULL;
       int nLineLength = 0;
       std::string sLine;
-      u_long nbr;
+      size_t nbr;
       Socket *socket = pFtpuserData->m_pDataConnection->socket;
       while (!socket->read (buffer.getBuffer (),
-                           (u_long) buffer.getRealLength () - 1, &nbr)
+                           (size_t) buffer.getRealLength () - 1, &nbr)
              && nbr != 0)
         {
           memset (auxiliaryBuffer.getBuffer (), 0,
@@ -1239,7 +1239,7 @@ DEFINE_THREAD (ReceiveAsciiFile, pParam)
                 }
             }
           file.write (auxiliaryBuffer.getBuffer (),
-                      (u_long) auxiliaryBuffer.getLength (), &nbr);
+                      (size_t) auxiliaryBuffer.getLength (), &nbr);
 
           if (pFtpuserData->m_bBreakDataConnection)
             {
@@ -1383,7 +1383,7 @@ DEFINE_THREAD (ReceiveImageFile, pParam)
           return (void *) 0;
 #endif
         }
-      u_long nbr;
+      size_t nbr;
       MemBuf buffer;
       buffer.setRealLength (1024);
       memset (buffer.getBuffer (), 0, buffer.getRealLength ());
@@ -2531,7 +2531,7 @@ void Ftp::size (const std::string & sPath)
     }
 
   char size[12];
-  sprintf (size, "%lu", static_cast <u_long> (f.getFileSize ()));
+  sprintf (size, "%lu", static_cast <size_t> (f.getFileSize ()));
   f.close ();
 
   ftpReply (213, size);

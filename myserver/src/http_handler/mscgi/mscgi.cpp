@@ -54,7 +54,7 @@ int MsCgi::send (HttpThreadContext* td, const char* exec, const char* cmdLine,
   ostringstream tmpStream;
   string outDataPath;
   FiltersChain chain;
-  u_long nbw;
+  size_t nbw;
   DynamicLibrary hinstLib;
   CGIMAIN ProcMain = 0;
 

@@ -106,8 +106,8 @@ public:
   void setThrottling (u_long);
   static void getLocalIPsList (string&);
   /*! Inherithed from Stream.  */
-  virtual int read (char* buffer, u_long len, u_long *nbr);
-  virtual int write (const char* buffer, u_long len, u_long *nbw);
+  virtual int read (char* buffer, size_t len, size_t *nbr);
+  virtual int write (const char* buffer, size_t len, size_t *nbw);
 
 protected:
   SocketHandle fd;

@@ -42,25 +42,26 @@ using namespace std;
 class HttpDataRead
 {
 public:
-  static int readPostData (HttpThreadContext* td, int* ret);
+  static int readPostData (HttpThreadContext *td, int *ret);
 
-  static int readContiguousPrimitivePostData (const char* inBuffer,
-                                              u_long *inBufferPos,
-                                              u_long inBufferSize,
+  static int readContiguousPrimitivePostData (const char *inBuffer,
+                                              size_t *inBufferPos,
+                                              size_t inBufferSize,
                                               Socket *inSocket,
-                                              char* outBuffer,
-                                              u_long outBufferSize,
-                                              u_long* nbr,
+                                              char *outBuffer,
+                                              size_t outBufferSize,
+                                              size_t *nbr,
                                               u_long timeout);
-  static int readChunkedPostData (const char* inBuffer,
-                                  u_long *inBufferPos,
-                                  u_long inBufferSize,
+
+  static int readChunkedPostData (const char *inBuffer,
+                                  size_t *inBufferPos,
+                                  size_t inBufferSize,
                                   Socket *inSocket,
-                                  char* outBuffer,
-                                  u_long outBufferSize,
-                                  u_long* nbr,
+                                  char *outBuffer,
+                                  size_t outBufferSize,
+                                  size_t *nbr,
                                   u_long timeout,
-                                  Stream* out,
+                                  Stream *out,
                                   long maxChunks);
 
 };

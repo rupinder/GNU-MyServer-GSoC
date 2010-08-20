@@ -60,8 +60,8 @@ u_long GzipDecompress::initialize ()
   \param out Buffer where decompress.
   \param sizeOut The dimension of the buffer where decompress.
  */
-u_long GzipDecompress::decompress (const char* in, u_long sizeIn,
-                                   char *out, u_long sizeOut)
+u_long GzipDecompress::decompress (const char* in, size_t sizeIn,
+                                   char *out, size_t sizeOut)
 {
 #ifdef HAVE_ZLIB
   u_long old_total_out = data.stream.total_out;
@@ -103,7 +103,7 @@ u_long GzipDecompress::free ()
   \param len Buffer length.
   \param nbw Numbers of written bytes.
  */
-int GzipDecompress::getHeader (char* buffer, u_long len, u_long* nbw)
+int GzipDecompress::getHeader (char* buffer, size_t len, size_t* nbw)
 {
   *nbw = getHeader (buffer, len);
   return !(*nbw);
@@ -115,7 +115,7 @@ int GzipDecompress::getHeader (char* buffer, u_long len, u_long* nbw)
   \param len Buffer length.
   \param nbw Numbers of written bytes.
  */
-int GzipDecompress::getFooter (char* buffer, u_long len, u_long* nbw)
+int GzipDecompress::getFooter (char* buffer, size_t len, size_t* nbw)
 {
   if (len < GZIP_FOOTER_LENGTH)
     return -1;
@@ -137,7 +137,7 @@ int GzipDecompress::modifyData ()
   \param out Buffer where write.
   \param sizeOut Buffer length.
  */
-u_long GzipDecompress::flush (char *out, u_long sizeOut)
+u_long GzipDecompress::flush (char *out, size_t sizeOut)
 {
 #ifdef HAVE_ZLIB
   u_long old_total_out = data.stream.total_out;
@@ -179,7 +179,7 @@ GzipDecompress::~GzipDecompress ()
   \param str Buffer where write.
   \param size Buffer length.
  */
-u_long GzipDecompress::getFooter (char *str, int /*size*/)
+u_long GzipDecompress::getFooter (char *str, size_t /*size*/)
 {
 #ifdef HAVE_ZLIB
   return GZIP_FOOTER_LENGTH;
@@ -193,7 +193,7 @@ u_long GzipDecompress::getFooter (char *str, int /*size*/)
   \param buffer Buffer where write.
   \param buffersize Buffer length.
  */
-u_long GzipDecompress::getHeader (char *buffer, u_long buffersize)
+u_long GzipDecompress::getHeader (char *buffer, size_t buffersize)
 {
 #ifdef HAVE_ZLIB
   if (buffersize < GZIP_HEADER_LENGTH)
@@ -213,10 +213,10 @@ u_long GzipDecompress::getHeader (char *buffer, u_long buffersize)
   \param len Buffer length.
   \param nbr Number of read bytes.
  */
-int GzipDecompress::read (char* buffer, u_long len, u_long *nbr)
+int GzipDecompress::read (char* buffer, size_t len, size_t *nbr)
 {
   char *tmp_buff;
-  u_long nbr_parent;
+  size_t nbr_parent;
   if (! parent)
     return -1;
 
@@ -245,7 +245,7 @@ int GzipDecompress::read (char* buffer, u_long len, u_long *nbr)
   \param len Buffer length.
   \param nbw Number of written bytes.
  */
-int GzipDecompress::write (const char* buffer, u_long len, u_long *nbw)
+int GzipDecompress::write (const char* buffer, size_t len, size_t *nbw)
 {
   char tmpBuffer[1024];
   u_long written = 0;
@@ -260,8 +260,8 @@ int GzipDecompress::write (const char* buffer, u_long len, u_long *nbw)
 
   while (len)
     {
-      u_long nbw_parent;
-      u_long size = std::min (len, 512UL);
+      size_t nbw_parent;
+      size_t size = std::min (len, (size_t) 512);
       u_long ret = decompress (buffer, size, tmpBuffer, 1024);
 
       if (ret && parent->write (tmpBuffer, ret, &nbw_parent) == -1)
@@ -279,7 +279,7 @@ int GzipDecompress::write (const char* buffer, u_long len, u_long *nbw)
   Inherited from Filter.
   \param nbw Number of flushed bytes.
  */
-int GzipDecompress::flush (u_long *nbw)
+int GzipDecompress::flush (size_t *nbw)
 {
   char buffer[512];
 
@@ -289,8 +289,8 @@ int GzipDecompress::flush (u_long *nbw)
   *nbw = flush (buffer, 512);
   if (*nbw)
     {
-      u_long nbwParent;
-      u_long nbwParentFlush;
+      size_t nbwParent;
+      size_t nbwParentFlush;
       if (!parent)
         return -1;
       if (parent->write (buffer, *nbw, &nbwParent) != 0)

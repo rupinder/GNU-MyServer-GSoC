@@ -66,7 +66,7 @@ public:
   /* FIXME: generalize for other classes that inherit from File.  */
   void testFastCopyToSocket ()
   {
-    const u_long bsize = 512UL;
+    const size_t bsize = 512;
     SocketPair sp;
     SocketPair inverted;
     sp.create ();
@@ -76,7 +76,7 @@ public:
     char outputBuffer[bsize];
     File file;
     string fname;
-    u_long nbw;
+    size_t nbw;
 
     for (u_long i = 0; i < bsize; i++)
       {
@@ -94,7 +94,7 @@ public:
     CPPUNIT_ASSERT_EQUAL (file.fastCopyToSocket (&sp, 0, &buf, &nbw), 0);
     CPPUNIT_ASSERT_EQUAL (nbw, bsize);
 
-    u_long nbr;
+    size_t nbr;
     inverted.read (inputBuffer, bsize, &nbr);
     CPPUNIT_ASSERT_EQUAL (nbr, bsize);
 
@@ -122,7 +122,7 @@ public:
   {
     char inBuffer[] = "Hello World!";
     char outBuffer[256];
-    u_long nbw, nbr;
+    size_t nbw, nbr;
     int ret;
     SocketPair writeSock;
     SocketPair readSock;

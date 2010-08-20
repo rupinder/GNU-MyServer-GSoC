@@ -360,6 +360,6 @@ GopherFileContent::~GopherFileContent ()
 
 void GopherFileContent::toProtocol (Socket *s)
 {
-  u_long tmp;
+  size_t tmp;
   sfile->fastCopyToSocket (s, 0, &buf, &tmp);
 }

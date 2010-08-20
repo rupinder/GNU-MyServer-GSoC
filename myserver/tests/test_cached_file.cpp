@@ -128,8 +128,8 @@ public:
 
   void testRead ()
   {
-    u_long nbr = 0;
-    u_long size = cf->getFileSize ();
+    size_t nbr = 0;
+    size_t size = cf->getFileSize ();
 
     CPPUNIT_ASSERT (size > 0);
 

@@ -58,12 +58,12 @@ public:
     return 0;
   }
 
-  virtual const char *getName (char* buffer, u_long len)
+  virtual const char *getName ()
   {
     return 0;
   }
 
-  virtual void *findSymbol (char* name)
+  virtual void *findSymbol (const char *name)
   {
     return 0;
   }

@@ -48,7 +48,7 @@ int Proxy::send (HttpThreadContext *td, const char* scriptpath,
   Socket *sock;
   FiltersChain chain;
   HttpRequestHeader req;
-  u_long nbw;
+  size_t nbw;
   bool keepalive = false;
 
   for (HashMap<string, HttpRequestHeader::Entry*>::Iterator it =
@@ -80,7 +80,7 @@ int Proxy::send (HttpThreadContext *td, const char* scriptpath,
       if (td->request.uriOptsPtr)
         {
           char buffer[32];
-          u_long size = td->inputData.getFileSize ();
+          size_t size = td->inputData.getFileSize ();
           sprintf (buffer, "%u", size);
           req.setValue ("Content-Length", buffer);
         }
@@ -154,7 +154,7 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
   u_long read = 0;
   u_long headerLength;
   int ret;
-  u_long nbw;
+  size_t nbw;
   bool useChunks = false;
   bool keepalive = false;
 
@@ -256,7 +256,7 @@ int Proxy::readPayLoad (HttpThreadContext* td,
 {
   u_long contentLength = 0;
 
-  u_long nbr = 0, nbw = 0, length = 0, inPos = 0;
+  size_t nbr = 0, nbw = 0, length = 0, inPos = 0;
   u_long bufferDataSize = 0;
   u_long written = 0;
 

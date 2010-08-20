@@ -38,7 +38,7 @@
  */
 int ForkServer::writeString (Socket *socket, const char* str, int len)
 {
-  u_long nbw;
+  size_t nbw;
 
   if (str == NULL)
     len = 0;
@@ -59,7 +59,7 @@ int ForkServer::writeString (Socket *socket, const char* str, int len)
  */
 int ForkServer::writeInt (Socket *socket, int num)
 {
-  u_long nbw;
+  size_t nbw;
 
   if (socket->write ((const char*)&num, 4, &nbw))
     return 1;
@@ -76,7 +76,7 @@ int ForkServer::writeInt (Socket *socket, int num)
  */
 int ForkServer::readInt (Socket *sock, int *dest)
 {
-  u_long nbr;
+  size_t nbr;
 
   if (sock->read ((char*)dest, 4, &nbr) || nbr < 4)
     {
@@ -98,7 +98,7 @@ int ForkServer::readInt (Socket *sock, int *dest)
 int ForkServer::readString (Socket *sock, char **out)
 {
   int len;
-  u_long nbr;
+  size_t nbr;
 
   if (sock->read ((char*) &len, 4, &nbr) || nbr < 4)
     {
@@ -236,7 +236,7 @@ int ForkServer::forkServerLoop (UnixSocket *serverSocket)
           Socket socket = serverSocket->accept ();
 
           char command;
-          u_long nbr;
+          size_t nbr;
 
           if (socket.read (&command, 1, &nbr))
             {
@@ -247,7 +247,7 @@ int ForkServer::forkServerLoop (UnixSocket *serverSocket)
             {
             case 'e': //exit process
               socket.close ();
-              serverSocket->shutdown ();
+              serverSocket->shutdown (SHUT_RDWR);
               serverSocket->close ();
               exit (0);
               return 0;
@@ -291,7 +291,7 @@ int ForkServer::executeProcess (StartProcInfo *spi,
 #ifdef WIN32
   return 0;
 #else
-  u_long nbw;
+  size_t nbw;
   int len = 0;
   const char * env = (const char *) spi->envString;
 
@@ -299,7 +299,7 @@ int ForkServer::executeProcess (StartProcInfo *spi,
     {
       UnixSocket sock;
       sock.socket ();
-      sock.connect (socketPath.c_str ());
+      sock.connect2 (socketPath.c_str ());
       sock.write ("r", 1, &nbw);
 
       writeInt (&sock, flags);
@@ -349,12 +349,12 @@ int ForkServer::executeProcess (StartProcInfo *spi,
  */
 void ForkServer::killServer ()
 {
-  u_long nbw;
+  size_t nbw;
   UnixSocket s;
   try
     {
       s.socket ();
-      s.connect (socketPath.c_str ());
+      s.connect2 (socketPath.c_str ());
       s.write ("e", 1, &nbw);
       s.close ();
     }

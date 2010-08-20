@@ -208,7 +208,7 @@ BOOL WINAPI ISAPI_WriteClientExport (HCONN hConn, LPVOID Buffer, LPDWORD lpdwByt
   char* buffer;
   ConnTableRecord *ConnInfo;
   char chunkSize[15];
-  u_long nbw=0;
+  size_t nbw=0;
 
   if (*lpdwBytes == 0)
     return HttpDataHandler::RET_FAILURE;
@@ -356,7 +356,7 @@ BOOL WINAPI ISAPI_WriteClientExport (HCONN hConn, LPVOID Buffer, LPDWORD lpdwByt
           sprintf (chunkSize, "%x\r\n", *lpdwBytes);
           nbw = ConnInfo->connection->socket->send (chunkSize,
                                                     (int) strlen (chunkSize), 0);
-          if ((nbw == (u_long) -1) || (! nbw))
+          if ((nbw == (size_t) -1) || (! nbw))
             return HttpDataHandler::RET_FAILURE;
         }
 
@@ -376,7 +376,7 @@ BOOL WINAPI ISAPI_WriteClientExport (HCONN hConn, LPVOID Buffer, LPDWORD lpdwByt
       if (keepalive  && (!ConnInfo->td->appendOutputs))
         {
           nbw = ConnInfo->connection->socket->send ("\r\n", 2, 0);
-          if ((nbw == (u_long)-1) || (!nbw))
+          if ((nbw == (size_t)-1) || (!nbw))
             return HttpDataHandler::RET_FAILURE;
         }
     }
@@ -776,7 +776,7 @@ int Isapi::send (HttpThreadContext* td,
       connTable[connIndex].chain.setStream (td->connection->socket);
       if (td->mime)
         {
-          u_long nbw;
+          size_t nbw;
           if (td->mime)
             Server::getInstance ()->getFiltersFactory ()->chain (
                                              &(connTable[connIndex].chain),
@@ -879,7 +879,7 @@ int Isapi::send (HttpThreadContext* td,
       if (ret == HSE_STATUS_PENDING)
         WaitForSingleObject (connTable[connIndex].ISAPIDoneEvent, td->http->getTimeout ());
 
-      u_long nbw = 0;
+      size_t nbw = 0;
       HttpRequestHeader::Entry *connection
         = connTable[connIndex].td->request.other.get ("connection");
 

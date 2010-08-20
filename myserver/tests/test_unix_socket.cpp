@@ -103,7 +103,7 @@ public:
     ret = FilesUtility::nodeExists (path.c_str ());
     CPPUNIT_ASSERT (ret);
 
-    CPPUNIT_ASSERT_EQUAL (sock->shutdown (), 0);
+    CPPUNIT_ASSERT_EQUAL (sock->shutdown (SHUT_RDWR), 0);
 
     CPPUNIT_ASSERT_EQUAL (sock->close (), 0);
 
@@ -127,13 +127,13 @@ public:
 
     UnixSocket client;
     client.socket ();
-    CPPUNIT_ASSERT_EQUAL (client.connect (path.c_str ()), 0);
+    CPPUNIT_ASSERT_EQUAL (client.connect2 (path.c_str ()), 0);
     int length = strlen (TEST_STRING) + 1;
     CPPUNIT_ASSERT_EQUAL (client.send (TEST_STRING, length, 0), length);
 
     Thread::join (tid);
 
-    client.shutdown ();
+    client.shutdown (SHUT_RDWR);
     client.close ();
 
     CPPUNIT_ASSERT_EQUAL (data.result, true);
@@ -145,7 +145,7 @@ public:
 # ifndef WIN32
     const char *msg = "hello world";
     Pipe pipe;
-    u_long nbw;
+    size_t nbw;
     char buffer[64];
     string path;
     FilesUtility::temporaryFileName (0, path);
@@ -158,7 +158,7 @@ public:
 
     UnixSocket client;
     client.socket ();
-    CPPUNIT_ASSERT_EQUAL (client.connect (path.c_str ()), 0);
+    CPPUNIT_ASSERT_EQUAL (client.connect2 (path.c_str ()), 0);
 
     Socket clientRecv = sock->accept ();
     Handle fd;
@@ -171,7 +171,7 @@ public:
     CPPUNIT_ASSERT_EQUAL (strcmp (buffer, msg), 0);
 
     clientRecv.close ();
-    client.shutdown ();
+    client.shutdown (SHUT_RDWR);
     client.close ();
 # endif
   }

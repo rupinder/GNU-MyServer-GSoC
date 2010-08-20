@@ -28,7 +28,7 @@ using namespace std;
 
 /*!
   Initialize the object.
- */
+*/
 FiltersFactory::FiltersFactory ()
 {
   staticFilters.clear ();
@@ -36,7 +36,7 @@ FiltersFactory::FiltersFactory ()
 
 /*!
   Destroy the object.
- */
+*/
 FiltersFactory::~FiltersFactory ()
 {
 
@@ -45,7 +45,7 @@ FiltersFactory::~FiltersFactory ()
 /*!
   Insert a filter by name and factory object. Returns 0 if the entry
   was added correctly.
- */
+*/
 int FiltersFactory::insert (const char* name, FiltersSource* ptr)
 {
   string nameStr (name);
@@ -56,7 +56,7 @@ int FiltersFactory::insert (const char* name, FiltersSource* ptr)
 /*!
   Insert a filter by name and factory routine. Returns 0 if the entry
   was added correctly.
- */
+*/
 int FiltersFactory::insert (const char* name, FILTERCREATE fnc)
 {
   string nameStr (name);
@@ -69,7 +69,7 @@ int FiltersFactory::insert (const char* name, FILTERCREATE fnc)
   The object have to be freed after its use to avoid memory leaks.
   Returns the new created object on success.
   Returns 0 on errors.
- */
+*/
 Filter *FiltersFactory::getFilter (const char* name)
 {
   FILTERCREATE staticFactory = staticFilters.get (name);
@@ -93,20 +93,20 @@ Filter *FiltersFactory::getFilter (const char* name)
   If specified [onlyNotModifiers] the method wil check that all the filters
   will not modify the data.
   On errors returns 0.
- */
-FiltersChain* FiltersFactory::chain (list<string> &l, Stream* out, u_long *nbw,
-                                    int onlyNotModifiers)
+*/
+FiltersChain* FiltersFactory::chain (list<string> &l, Stream* out, size_t *nbw,
+                                     int onlyNotModifiers)
 {
   FiltersChain *ret = new FiltersChain ();
   if (!ret)
     return 0;
 
   if (chain (ret, l, out, nbw, onlyNotModifiers))
-  {
-    ret->clearAllFilters ();
-    delete ret;
-    return 0;
-  }
+    {
+      ret->clearAllFilters ();
+      delete ret;
+      return 0;
+    }
   return ret;
 }
 
@@ -120,9 +120,9 @@ FiltersChain* FiltersFactory::chain (list<string> &l, Stream* out, u_long *nbw,
   will not modify the data.
   \param accepted If specified, include only filters present in this string.
   On errors returns nonzero.
- */
+*/
 int FiltersFactory::chain (FiltersChain* c, list<string> &l, Stream* out,
-			   u_long *nbw, int onlyNotModifiers, string *accepted)
+                           size_t *nbw, int onlyNotModifiers, string *accepted)
 {
 
   list<string>::iterator  i = l.begin ();
@@ -133,24 +133,24 @@ int FiltersFactory::chain (FiltersChain* c, list<string> &l, Stream* out,
   *nbw = 0;
   for ( ; i != l.end (); i++)
     {
-      u_long tmp;
+      size_t tmp;
 
       if (accepted && accepted->find (*i) == string::npos)
-	continue;
+        continue;
 
       Filter *n = getFilter ((*i).c_str ());
       if (!n)
-	{
-	  c->clearAllFilters ();
-	  return 1;
-	}
+        {
+          c->clearAllFilters ();
+          return 1;
+        }
 
       if (onlyNotModifiers && n->modifyData ())
-	{
-	  delete n;
-	  c->clearAllFilters ();
-	  return 1;
-	}
+        {
+          delete n;
+          c->clearAllFilters ();
+          return 1;
+        }
 
       c->addFilter (n, &tmp);
       *nbw += tmp;
@@ -161,7 +161,7 @@ int FiltersFactory::chain (FiltersChain* c, list<string> &l, Stream* out,
 
 /*!
   Free the object.
- */
+*/
 void FiltersFactory::free ()
 {
   staticFilters.clear ();

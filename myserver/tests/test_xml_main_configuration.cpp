@@ -47,12 +47,12 @@ class TestXmlMainConfiguration : public CppUnit::TestFixture
 public:
   void setUp ()
   {
-    u_long nbw;
+    size_t nbw;
     xmlFile.openFile (XML_FILE, File::WRITE | File::READ
                       | File::FILE_OPEN_ALWAYS);
     CPPUNIT_ASSERT_EQUAL (xmlFile.write (XML_CONTENT, strlen (XML_CONTENT),
                                            &nbw), 0);
-    CPPUNIT_ASSERT_EQUAL (nbw, static_cast<u_long> (strlen (XML_CONTENT)));
+    CPPUNIT_ASSERT_EQUAL (nbw, static_cast<size_t> (strlen (XML_CONTENT)));
 
     CPPUNIT_ASSERT_EQUAL (xmlConf.open (XML_FILE), 0);
   }

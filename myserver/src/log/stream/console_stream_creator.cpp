@@ -25,7 +25,7 @@ ConsoleStreamCreator::create (FiltersFactory* ff, string location,
   Console* out = new Console ();
   if (out && !out->openConsole (location))
     {
-      u_long nbw;
+      size_t nbw;
       FiltersChain* fc = ff->chain (filters, out, &nbw);
       if (fc)
         {

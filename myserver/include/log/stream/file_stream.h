@@ -37,7 +37,7 @@ public:
   FileStream (FiltersFactory*, u_long, Stream*, FiltersChain*);
   string makeNewFileName (string oldFileName);
   virtual u_long streamSize ();
-  virtual int chown (string &uid, string &gid);
+  virtual int chown2 (string &uid, string &gid);
   int const static defaultFileMask;
 protected:
   virtual int streamCycle ();

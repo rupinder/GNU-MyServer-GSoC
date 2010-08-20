@@ -113,7 +113,7 @@ MemBuf::MemBuf ()
   pAdr : pointer to the buffer to copy
   size : size of pAdr
  */
-MemBuf::MemBuf (const void* pAdr, u_int size)
+MemBuf::MemBuf (const void* pAdr, size_t size)
 {
   buffer = NULL;
   nSize = 0;
@@ -154,38 +154,38 @@ MemBuf::MemBuf (MemBuf &srcBuf, int)
   Find a specific character in the internal buffer from a specific
   location.
  */
-u_int MemBuf::find (char c, u_int start)
+size_t MemBuf::find (char c, size_t start)
 {
   if (start >= nSize)
-    return (u_int) -1;
+    return (size_t) -1;
   void* pFound = gnulib::memchr (buffer + start, c, nSize - start);
 
-  return (pFound == NULL) ? (u_int) -1 : ((char*) pFound - buffer);
+  return (pFound == NULL) ? (size_t) -1 : ((char*) pFound - buffer);
 }
 
 /*! Find a specific buffer in the internal buffer from a specific location. */
-u_int MemBuf::find (const void* pAdr, u_int size, u_int start)
+size_t MemBuf::find (const void* pAdr, size_t size, size_t start)
 {
   if (start >= nSize)
-    return (u_int)-1;
+    return (size_t)-1;
 
   char first = *((const char*) pAdr);
   char* pLast;
   const char* pPrev = buffer + start;
-  u_int size_buf = nSize - start;
+  size_t size_buf = nSize - start;
   const char* pEnd = buffer + nSize + 1;
   while ((pLast = (char*) gnulib::memchr (pPrev, first, size_buf)) != NULL)
     {
-      size_buf -= (u_int)(pLast - pPrev);
+      size_buf -= (size_t)(pLast - pPrev);
       pPrev = pLast + 1;
 
       if (pLast + size >= pEnd)
-        return (u_int)-1;
+        return (size_t)-1;
       if (memcmp (pLast, pAdr, size) == 0)
-        return (u_int)(pLast - buffer);
+        return (size_t)(pLast - buffer);
     }
 
-  return (u_int)-1;
+  return (size_t)-1;
 }
 
 /*! Replace a character by another.  */
@@ -206,12 +206,12 @@ void MemBuf::replace (char what, char by)
   until nSizeLimit is reached.
   If nSizeLimit is equal to 0, reallocation are always done.
  */
-void MemBuf::addBuffer (const void* pAdr, u_int size)
+void MemBuf::addBuffer (const void* pAdr, size_t size)
 {
   if (size == 0)
     return;
 
-  u_int nNewSize = nSize + size;
+  size_t nNewSize = nSize + size;
   if (nNewSize > nRealSize)
     {
       if (nNewSize - nRealSize < nBlockLength)
@@ -220,7 +220,7 @@ void MemBuf::addBuffer (const void* pAdr, u_int size)
         setRealLength (nNewSize);
     }
 
-  const u_int nAllowedSize = nRealSize - nSize;
+  const size_t nAllowedSize = nRealSize - nSize;
   if (nAllowedSize == 0)
     return;
 
@@ -238,7 +238,7 @@ void MemBuf::addBuffer (const void* pAdr, u_int size)
   return;
 }
 
-int MemBuf::setBuffer (const void* pAdr, u_int size)
+int MemBuf::setBuffer (const void* pAdr, size_t size)
 {
   if (size <= nRealSize)
     {
@@ -266,7 +266,7 @@ int MemBuf::setBuffer (const void* pAdr, u_int size)
   buffer.setExternalBuffer (stackBuffer, 10); // here, you'll use
                                               // the memory from stackBuffer.
  */
-void MemBuf::setExternalBuffer (const void* pAdr, u_int size)
+void MemBuf::setExternalBuffer (const void* pAdr, size_t size)
 {
   free ();
   bCanDelete = false;
@@ -276,7 +276,7 @@ void MemBuf::setExternalBuffer (const void* pAdr, u_int size)
 }
 
 /*! Return the internal buffer by setting previously a specific length. */
-char* MemBuf::getBuffersetLength (u_int newSize)
+char* MemBuf::getBuffersetLength (size_t newSize)
 {
   setLength (newSize);
   return (char*)buffer;
@@ -286,7 +286,7 @@ char* MemBuf::getBuffersetLength (u_int newSize)
   Copy a part of the internal buffer in "result".
   Here, "result" is completly removed and replaced by this part.
  */
-int MemBuf::getPart (u_int nStart, u_int nEnd, MemBuf& result)
+int MemBuf::getPart (size_t nStart, size_t nEnd, MemBuf& result)
 {
   if (nEnd > nSize)
     nEnd = nSize;
@@ -305,7 +305,7 @@ int MemBuf::getPart (u_int nStart, u_int nEnd, MemBuf& result)
   Copy a part of the internal buffer in "result".
   Here, "result" is completly removed and replaced by this part.
  */
-int MemBuf::getPartAsString (u_int nStart, u_int nEnd, MemBuf& result)
+int MemBuf::getPartAsString (size_t nStart, size_t nEnd, MemBuf& result)
 {
   if (nEnd > nRealSize)
     nEnd = nRealSize;
@@ -317,7 +317,7 @@ int MemBuf::getPartAsString (u_int nStart, u_int nEnd, MemBuf& result)
       return 1;
     }
 
-  const u_int lg = nEnd - nStart;
+  const size_t lg = nEnd - nStart;
   char* buf = (char*) result.getBuffersetLength (lg + 1);
   memcpy (buf, buffer + nStart,  lg);
   buf[lg] = '\0';
@@ -333,7 +333,7 @@ int MemBuf::getPartAsString (u_int nStart, u_int nEnd, MemBuf& result)
   If the length is smallest than the existing one, no reallocation is done.
   if it's biggest, a reallocation is done until nSizeLimit is reached.
  */
-void MemBuf::setRealLength (u_int newSize)
+void MemBuf::setRealLength (size_t newSize)
 {
   if (newSize <= nRealSize)
     return;
@@ -364,7 +364,7 @@ void MemBuf::setRealLength (u_int newSize)
   If the specified position is bigger than the buffer size then a reallocation
   is done.
  */
-void MemBuf::setLength (u_int newSize)
+void MemBuf::setLength (size_t newSize)
 {
   setRealLength (newSize);
 
@@ -377,12 +377,12 @@ void MemBuf::setLength (u_int newSize)
 
 /*! Write to the MemBuf the hex representation of pAdr.  */
 
-void MemBuf::hex (const void* pAdr, u_int nSize)
+void MemBuf::hex (const void* pAdr, size_t nSize)
 {
-  const u_int nFinalSize = nSize * 2;
+  const size_t nFinalSize = nSize * 2;
   setRealLength (nFinalSize + 1);
   const char* hex_chars = "0123456789abcdef";
-  for (u_int i = 0; i < nSize; i++)
+  for (size_t i = 0; i < nSize; i++)
     {
       const unsigned char c = *((unsigned char*) pAdr + i);
       *this << hex_chars[c >> 4] << hex_chars[c & 15];
@@ -404,7 +404,7 @@ unsigned char MemBuf::hexCharToNumber (unsigned char c)
 }
 
 /*! Return a MemBuf with the decoded hexadicmal string pointed at pAdr.  */
-MemBuf MemBuf::hexToData (const void* pAdr, u_int nSize)
+MemBuf MemBuf::hexToData (const void* pAdr, size_t nSize)
 {
   if ((nSize & 1) == 1) // nSize impair
     return MemBuf ("", 1);
@@ -420,7 +420,7 @@ MemBuf MemBuf::hexToData (const void* pAdr, u_int nSize)
 }
 
 /*! MD5 hashing function.  */
-void MemBuf::hashMD5(const void* pAdr, u_int nSize)
+void MemBuf::hashMD5(const void* pAdr, size_t nSize)
 {
   Md5 md5;
   setRealLength (16);
@@ -432,12 +432,12 @@ void MemBuf::hashMD5(const void* pAdr, u_int nSize)
 }
 
 /*! CRC hashing function.  */
-void MemBuf::hashCRC (const void* pAdr, u_int nSize)
+void MemBuf::hashCRC (const void* pAdr, size_t nSize)
 {
   setRealLength (4);
-  u_int* nCrc32 = (u_int*) getBuffer ();
+  size_t* nCrc32 = (size_t*) getBuffer ();
   *nCrc32 = 0xFFFFFFFF;
-  for (u_int i = 0; i < nSize; i++)
+  for (size_t i = 0; i < nSize; i++)
     {
       const unsigned char byte = *((unsigned char*) pAdr + i);
       *nCrc32 = ((*nCrc32) >> 8) ^ crc32Table[(byte) ^ ((*nCrc32) & 0x000000FF)];
@@ -448,7 +448,7 @@ void MemBuf::hashCRC (const void* pAdr, u_int nSize)
 
 
 /*! Return a MemBuf with the string representation of "i".  */
-void MemBuf::xIntToStr (u_int i, int bNegative)
+void MemBuf::xIntToStr (size_t i, int bNegative)
 {
   if (i == 0)
     {
@@ -483,7 +483,7 @@ void MemBuf::xIntToStr (u_int i, int bNegative)
 }
 
 /*! Return a MemBuf with the string representation of "i" using an external buffer. */
-void MemBuf::xIntToStr (u_int i, int bNegative, char* pBufToUse, u_int nBufSize)
+void MemBuf::xIntToStr (size_t i, int bNegative, char* pBufToUse, size_t nBufSize)
 {
   nSizeLimit = nBufSize;
   setExternalBuffer (pBufToUse, nBufSize);
@@ -520,18 +520,18 @@ void MemBuf::xIntToStr (u_int i, int bNegative, char* pBufToUse, u_int nBufSize)
 }
 
 /* Convert a string into an unsigned number.  */
-u_int MemBuf::strToUint (const char* pAdr)
+size_t MemBuf::strToUint (const char* pAdr)
 {
   int nSize = (int)strlen (pAdr);
   /* a (signed/unsigned) 32-bit number as a maximum of 10 digit */
   if (nSize > 10)
     nSize = 10;
-  u_int nRes = 0;
-  u_int pow10[] = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000,
+  size_t nRes = 0;
+  size_t pow10[] = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000,
                    100000000, 1000000000};
   while (nSize-- > 0)
     {
-      nRes += (u_int) ((*pAdr - '0')) * pow10[nSize];
+      nRes += (size_t) ((*pAdr - '0')) * pow10[nSize];
       pAdr++;
     }
   return nRes;
@@ -572,25 +572,25 @@ int MemBuf::free ()
 /*!
   Get the real allocated size.
  */
-u_int MemBuf::getRealLength ()
+size_t MemBuf::getRealLength ()
 {
   return nRealSize;
 }
 
-u_int MemBuf::find (MemBuf *smb, u_int start)
+size_t MemBuf::find (MemBuf *smb, size_t start)
 {
   return find (smb->buffer, smb->nSize, start);
 }
-char& MemBuf::getAt (u_int nIndex)
+char& MemBuf::getAt (size_t nIndex)
 {
   return *(buffer + nIndex);
 }
-char& MemBuf::operator[](u_int nIndex)
+char& MemBuf::operator[](size_t nIndex)
 {
   return getAt (nIndex);
 }
 
-u_int MemBuf::getLength ()
+size_t MemBuf::getLength ()
 {
   return nSize;
 }
@@ -692,12 +692,12 @@ MemBuf& MemBuf::operator=(const char* src)
   return* this;
 }
 
-void MemBuf::uintToStr (u_int i)
+void MemBuf::uintToStr (size_t i)
 {
   xIntToStr (i, 0);
 }
 
-void MemBuf::uintToStr (u_int i, char* pBufToUse, u_int nBufSize)
+void MemBuf::uintToStr (size_t i, char* pBufToUse, size_t nBufSize)
 {
   xIntToStr (i, 0, pBufToUse, nBufSize);
 }
@@ -705,17 +705,17 @@ void MemBuf::uintToStr (u_int i, char* pBufToUse, u_int nBufSize)
 void MemBuf::intToStr (int i)
 {
   if (i < 0)
-    xIntToStr ( (u_int)(-i), 1);
+    xIntToStr ( (size_t)(-i), 1);
   else
-    xIntToStr ( (u_int) i, 0);
+    xIntToStr ( (size_t) i, 0);
 }
 
-void MemBuf::intToStr (int i, char* pBufToUse, u_int nBufSize)
+void MemBuf::intToStr (int i, char* pBufToUse, size_t nBufSize)
 {
   if (i < 0)
-    xIntToStr ((u_int)(-i), 1, pBufToUse, nBufSize);
+    xIntToStr ((size_t)(-i), 1, pBufToUse, nBufSize);
   else
-    xIntToStr ((u_int) i, 0, pBufToUse, nBufSize);
+    xIntToStr ((size_t) i, 0, pBufToUse, nBufSize);
 }
 
 void MemBuf::hex (MemBuf& membuf)
@@ -731,7 +731,7 @@ void MemBuf::hashCRC (MemBuf& membuf)
   hashCRC (membuf.buffer, membuf.nSize);
 }
 
-void MemBuf::allocBuffer (u_int size)
+void MemBuf::allocBuffer (size_t size)
 {
   if (size > nRealSize || buffer == NULL)
     {

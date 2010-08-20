@@ -65,8 +65,8 @@ public:
   {
     char outBuff[256];
     char inBuff[256];
-    u_long nbw;
-    u_long nbr;
+    size_t nbw;
+    size_t nbr;
 
     strcpy (outBuff, "MyServer is a powerful and easy to configure web server");
 
@@ -92,7 +92,7 @@ public:
   void testWaitForData ()
   {
     char outBuff[256];
-    u_long nbw;
+    size_t nbw;
 
     strcpy (outBuff, "MyServer is a powerful and easy to configure web server");
 
