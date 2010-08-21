@@ -31,7 +31,7 @@ SocketStreamCreator::create (FiltersFactory* ff, string location,
 
   if (out && !out->connect (host.c_str (), port))
     {
-      u_long nbw;
+      size_t nbw;
       FiltersChain* fc = ff->chain (filters, out, &nbw);
       if (fc)
         return new SocketStream (ff, cycle, out, fc);

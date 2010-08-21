@@ -1,7 +1,7 @@
 /* -*- mode: c++ -*- */
 /*
   MyServer
-  * strlcpy and strlcat by codingmaster
+  strlcpy and strlcat by codingmaster
   Copyright (C) 2002, 2003, 2004, 2009, 2010 Free Software Foundation,
   Inc.
   Copyright (C) 2004 by codingmaster

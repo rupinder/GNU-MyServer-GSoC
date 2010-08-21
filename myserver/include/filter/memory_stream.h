@@ -27,14 +27,14 @@
 class MemoryStream : public Stream
 {
 public:
-  virtual int read (char* buffer, u_long len, u_long*);
-  virtual int write (const char* buffer, u_long len, u_long*);
-  virtual int flush (u_long*);
+  virtual int read (char *buffer, size_t len, size_t *);
+  virtual int write (const char *buffer, size_t len, size_t *);
+  virtual int flush (size_t *);
   int refresh ();
   int availableToRead ();
-  int read (Stream*, u_long len, u_long *nbw);
+  int read (Stream *, size_t len, size_t *nbw);
   MemoryStream ();
-  MemoryStream (MemBuf*);
+  MemoryStream (MemBuf *);
   virtual ~MemoryStream ();
 private:
   int internalData;

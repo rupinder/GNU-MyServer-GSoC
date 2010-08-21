@@ -1,18 +1,18 @@
 /*
-MyServer
-Copyright (C) 2009, 2010 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2009, 2010 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "myserver.h"
@@ -33,9 +33,9 @@ int ffsl (long int i)
 #endif
 
 /*!
- * Allocate a vector of bits.
- *\param capacity Maximum number of bits to index.
- *\param val The default value for the vector elements.
+  Allocate a vector of bits.
+  \param capacity Maximum number of bits to index.
+  \param val The default value for the vector elements.
  */
 BitVec::BitVec (int capacity, bool val)
 {
@@ -45,9 +45,9 @@ BitVec::BitVec (int capacity, bool val)
 }
 
 /*!
- * Reinitialize the vector.
- *\param capacity Maximum number of bits to index.
- *\param val The default value for the vector elements.
+  Reinitialize the vector.
+  \param capacity Maximum number of bits to index.
+  \param val The default value for the vector elements.
  */
 void BitVec::init (int capacity, bool val)
 {
@@ -71,10 +71,10 @@ void BitVec::init (int capacity, bool val)
 
 
 /*!
- * Find the first bit set to '1'.
- *
- *\return the Index of the first bit.
- *\return -1 If there are not free bits.
+  Find the first bit set to '1'.
+
+  \return the Index of the first bit.
+  \return -1 If there are not free bits.
  */
 int BitVec::ffs ()
 {
@@ -91,15 +91,15 @@ int BitVec::ffs ()
 }
 
 /*!
- * Find a bit set to '1'.
- *
- * The cost of adding N elements sequentially and after unset them, after the
- * index is found by ffs is O (n^2).
- *
- * Use the `find' function instead to have a O (n) cost.
- *
- *\return the Index of the first bit.
- *\return -1 If there are not free bits.
+  Find a bit set to '1'.
+
+  The cost of adding N elements sequentially and after unset them, after the
+  index is found by ffs is O (n^2).
+
+  Use the `find' function instead to have a O (n) cost.
+
+  \return the Index of the first bit.
+  \return -1 If there are not free bits.
  */
 int BitVec::find ()
 {

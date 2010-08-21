@@ -246,7 +246,7 @@ namespace checked
   }
 
   /*
-   * Maps POSIX errors to exceptions
+    Maps POSIX errors to exceptions
    */
   void raiseException ()
   {

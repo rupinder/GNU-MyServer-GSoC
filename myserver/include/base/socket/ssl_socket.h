@@ -47,7 +47,10 @@ public:
   virtual int close ();
   virtual int shutdown (int how);
   virtual int connect (MYSERVER_SOCKADDR* sa, int na);
-  virtual int recv (char* buffer,int len,int flags);
+
+  using Socket::recv;
+  virtual int recv (char* buffer, int len, int flags);
+
   virtual int rawSend (const char* buffer, int len, int flags);
   virtual u_long bytesToRead ();
 

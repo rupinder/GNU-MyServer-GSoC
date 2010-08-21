@@ -22,6 +22,8 @@
 #include <include/base/file/files_utility.h>
 #include <include/base/files_cache/cached_file.h>
 
+#include <include/base/exceptions/checked.h>
+
 #ifndef WIN32
 # include <fcntl.h>
 # include <unistd.h>
@@ -43,50 +45,52 @@
 using namespace std;
 
 /*!
- * Costructor of the class.
+  Costructor of the class.
  */
 CachedFile::CachedFile (CachedFileBuffer* cfb)
 {
-  File::File ();
+  handle = -1;
   buffer = cfb;
   fseek = 0;
   cfb->addRef ();
 }
 
 /*!
- * Write data to a file is not supported by a CachedFile, return immediately -1.
- * Inherithed by File.
- * \see File#writeToFile.
+  Write data to a file is not supported by a CachedFile, return immediately -1.
+  Inherithed by File.
+  \see File#writeToFile.
  */
-int CachedFile::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
+int CachedFile::writeToFile (const char* buffer, size_t buffersize, size_t* nbw)
 {
+  errno = EBADF;
+  checked::raiseException ();
   return -1;
 }
 
 /*!
- * A CachedFile can't be opened directly, use a factory instead.
- * If the function have success the return value is nonzero.
- * \param nfilename Filename to open.
- * \param opt Specify how open the file.
- * \return 0 if the call was successfull, any other value on errors.
+  A CachedFile can't be opened directly, use a factory instead.
+  If the function have success the return value is nonzero.
+  \see File#openFile
  */
-int CachedFile::openFile (const char* nfilename, u_long opt)
+int CachedFile::openFile (const char* nfilename, u_long opt, mode_t mask)
 {
+  errno = ENOENT;
+  checked::raiseException ();
   return -1;
 }
 
 /*!
- * Returns the base/file/file.handle.
+  Returns the base/file/file.handle.
  */
 Handle CachedFile::getHandle ()
 {
-  return (Handle)-1;
+  return (Handle) -1;
 }
 
 /*!
- * Set the base/file/file.handle.
- * Return a non null-value on errors.
- * \param hl The new base/file/file.handle.
+  Set the base/file/file.handle.
+  Return a non null-value on errors.
+  \param hl The new base/file/file.handle.
  */
 int CachedFile::setHandle (Handle hl)
 {
@@ -94,8 +98,8 @@ int CachedFile::setHandle (Handle hl)
 }
 
 /*!
- * define the operator =.
- * \param f The file to copy.
+  define the operator =.
+  \param f The file to copy.
  */
 int CachedFile::operator =(CachedFile f)
 {
@@ -112,16 +116,17 @@ int CachedFile::operator =(CachedFile f)
 }
 
 /*!
- * Read data from a file to a buffer.
- * Return 1 on errors.
- * Return 0 on success.
- * \param buffer The buffer where write.
- * \param buffersize The length of the buffer in bytes.
- * \param nbr How many bytes were read to the buffer.
+  Read data from a file to a buffer.
+  Return 1 on errors.
+  Return 0 on success.
+  \param buffer The buffer where write.
+  \param buffersize The length of the buffer in bytes.
+  \param nbr How many bytes were read to the buffer.
  */
-int CachedFile::read (char* buffer, u_long buffersize, u_long* nbr)
+int CachedFile::read (char* buffer, size_t buffersize, size_t* nbr)
 {
-  u_long toRead = std::min (buffersize, this->buffer->getFileSize () - fseek);
+  size_t toRead = std::min ((size_t) (this->buffer->getFileSize () - fseek),
+                            buffersize);
   const char* src = &(this->buffer->getBuffer ()[fseek]);
   if (nbr)
     *nbr = toRead;
@@ -134,17 +139,19 @@ int CachedFile::read (char* buffer, u_long buffersize, u_long* nbr)
 }
 
 /*!
- *A CachedFile can't be temporary.
- *Create a temporary file.
- *\param filename The new temporary file name.
+  A CachedFile can't be temporary.
+  Create a temporary file.
+  \see File#createTemporaryFile.
  */
-int CachedFile::createTemporaryFile (const char* filename)
+int CachedFile::createTemporaryFile (const char *, bool)
 {
+  errno = EINVAL;
+  checked::raiseException ();
   return -1;
 }
 
 /*!
- *Close an open base/file/file.handle.
+  Close an open base/file/file.handle.
  */
 int CachedFile::close ()
 {
@@ -153,19 +160,19 @@ int CachedFile::close ()
 }
 
 /*!
- *Returns the file size in bytes.
- *Returns -1 on errors.
+  Returns the file size in bytes.
+  Returns -1 on errors.
  */
-u_long CachedFile::getFileSize ()
+off_t CachedFile::getFileSize ()
 {
   return buffer->getFileSize ();
 }
 
 /*!
- *Change the position of the pointer to the file.
- *\param initialByte The new file pointer position.
+  Change the position of the pointer to the file.
+  \param initialByte The new file pointer position.
  */
-int CachedFile::seek (u_long initialByte)
+int CachedFile::seek (off_t initialByte)
 {
   if (initialByte > buffer->getFileSize ())
     return -1;
@@ -175,22 +182,24 @@ int CachedFile::seek (u_long initialByte)
 }
 
 /*!
- *Inherited from Stream.
+  Inherited from Stream.
  */
-int CachedFile::write (const char* buffer, u_long len, u_long *nbw)
+int CachedFile::write (const char* buffer, size_t len, size_t *nbw)
 {
+  errno = EBADF;
+  checked::raiseException ();
   return -1;
 }
 
 /*!
- *Copy the file directly to the socket.
- *\param dest Destination socket.
- *\param firstByte File offset.
- *\param buf Temporary buffer that can be used by this function.
- *\param nbw Number of bytes sent.
+  Copy the file directly to the socket.
+  \param dest Destination socket.
+  \param firstByte File offset.
+  \param buf Temporary buffer that can be used by this function.
+  \param nbw Number of bytes sent.
  */
-int CachedFile::fastCopyToSocket (Socket *dest, u_long firstByte,
-                                  MemBuf *buf, u_long *nbw)
+int CachedFile::fastCopyToSocket (Socket *dest, off_t firstByte,
+                                  MemBuf *buf, size_t *nbw)
 {
   return dest->write (&(this->buffer->getBuffer ()[firstByte]),
                       buffer->getFileSize () - firstByte, nbw);

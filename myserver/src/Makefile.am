@@ -82,6 +82,7 @@ libmyserver_la_LIBADD =  \
     base/socket/ssl_socket.lo  \
     base/xml/xml_parser.lo  \
     base/read_directory/read_directory.lo  \
+    base/read_directory/rec_read_directory.lo  \
     base/file/file.lo  \
     base/file/files_utility.lo  \
     base/bitvec/bitvec.lo  \
@@ -133,6 +134,7 @@ libmyserver_la_LIBADD =  \
     protocol/http/dyn_http_command_manager.lo  \
     protocol/http/http_errors.lo  \
     protocol/http/env/env.lo  \
+    protocol/http/webdav/webdav.lo  \
     protocol/http/http_header.lo  \
     protocol/http/http_data_handler.lo  \
     protocol/http/http_data_read.lo  \
@@ -166,7 +168,7 @@ myserver_LDADD = libmyserver.la $(PTHREAD_LIB) $(IDN_LIB) \
 	$(XML_LIBS) $(INTLLIBS) $(LDFLAGS)
 
 all-local: libmyserver.la myserver${EXEEXT}
-	$(LIBTOOL) --mode=install cp myserver $(abs_top_builddir)/binaries/
+	$(LIBTOOL) --mode=install cp myserver$(EXEEXT) $(abs_top_builddir)/binaries/
 
 clean-local:
-	$(LIBTOOL) --mode=uninstall rm -f $(abs_top_builddir)/binaries/myserver
+	$(LIBTOOL) --mode=uninstall rm -f $(abs_top_builddir)/binaries/myserver$(EXEEXT)

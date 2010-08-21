@@ -34,7 +34,7 @@ AuthDomain::~AuthDomain ()
 }
 
 /*!
- *\see SecurityDomain::getValue.
+  \see SecurityDomain::getValue.
  */
 const string *AuthDomain::getValue (string &name)
 {

@@ -31,7 +31,6 @@ using namespace std;
 class TestExceptions : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE ( TestExceptions );
-  CPPUNIT_TEST (testWrongCloseDir);
   CPPUNIT_TEST (testWrongCwd);
   CPPUNIT_TEST (testErrno);
   CPPUNIT_TEST (testGetBacktrace);
@@ -48,23 +47,6 @@ public:
   }
 
   void tearDown () {}
-
-  void testWrongCloseDir ()
-  {
-    try
-      {
-        checked::closedir (foodir);
-        CPPUNIT_FAIL ("The exception in testWrongCloseDir wasn't thrown or caught");
-      }
-    catch (ArgumentListException& e)
-      {
-        CPPUNIT_ASSERT (e.getErrno () == EINVAL);
-      }
-    catch (...)
-      {
-        CPPUNIT_FAIL ("The wrong exception in testWrongCloseDir was thrown");
-      }
-  }
 
   void testGetBacktrace ()
   {
@@ -102,19 +84,19 @@ public:
 
   void testWrongCwd ()
   {
+    bool success = false;
     try
       {
-        char *p = checked::getcwd (buf, 1);
+        checked::getcwd (buf, 1);
         CPPUNIT_FAIL ("The exception in testWrongCwd wasn't thrown or caught");
-      }
-    catch (OverflowException& e)
-      {
-        CPPUNIT_ASSERT (e.getErrno () == ERANGE);
       }
     catch (...)
       {
-        CPPUNIT_FAIL ("The wrong exception in testWrongCwd was thrown");
+	success = true;
       }
+
+    if (! success)
+      CPPUNIT_FAIL ("No exception was thrown!");
   }
 };
 

@@ -33,9 +33,9 @@ class Console : public Stream
 public:
   Console ();
   virtual ~Console ();
-  virtual int flush (u_long* nbw);
-  virtual int read (char* buffer, u_long len, u_long* nbr);
-  virtual int write (const char* buffer, u_long len, u_long* nbw);
+  virtual int flush (size_t* nbw);
+  virtual int read (char* buffer, size_t len, size_t* nbr);
+  virtual int write (const char* buffer, size_t len, size_t* nbw);
   virtual int openConsole (string fd);
   int setColor (string fg_color, string bg_color);
   int reset ();

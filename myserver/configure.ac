@@ -17,7 +17,9 @@ dnl
 dnl You should have received a copy of the GNU General Public License
 dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-AC_INIT([GNU MyServer],[m4_esyscmd(cat version)],[bug-myserver@gnu.org])
+AC_INIT([GNU MyServer],
+m4_esyscmd([build-aux/git-version-gen .tarball-version]),
+[bug-myserver@gnu.org])
 AC_PREREQ(2.65)
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_HEADERS([config.h])
@@ -78,9 +80,6 @@ else
    MAKE_DOC=yes
 fi
 
-AC_ARG_ENABLE([ipv6], [--enable-ipv6 Build with IPv6 support],
-		      enable_ipv6="yes", enable_ipv6="")
-
 AC_ARG_ENABLE([tests], [--disable-tests Disable the tests suite],
                        enable_tests="$enableval", enable_tests="yes")
 
@@ -96,7 +95,7 @@ AC_CHECK_FUNCS(regcomp setgroups localtime_r posix_fallocate \
 
 case "${host}" in
     *-*-mingw32*)
-     LIBS="$LIBS -lwsock32 -lws2_32"
+     LIBS="$LIBS -lwsock32 -lws2_32 -luserenv"
      MAKE_MSCGI=yes
      LTCFLAGS=""
      ;;
@@ -241,37 +240,6 @@ fi
 
 AC_SUBST(ZLIB_LIB)
 AC_SUBST(SSL_LIB)
-
-if test x$enable_ipv6 = xyes; then
-    dnl Check for IPv6
-    AC_MSG_CHECKING([for IPv6])
-    AC_RUN_IFELSE([AC_LANG_SOURCE([[ /* AF_INET6 available check */
-    #include <sys/types.h>
-    #include <sys/socket.h>
-    main()
-    {
-     if (socket(AF_INET6, SOCK_STREAM, 0) < 0)
-       exit(1);
-     else
-       exit(0);
-    }
-    ]])],[ AC_MSG_RESULT(yes)
-      AC_DEFINE(HAVE_IPV6, 1, [Enable IPv6 support])
-    ],[ AC_MSG_RESULT(no)
-      AC_DEFINE(HAVE_IPV6, 0, [Disable IPv6 support])
-      AC_MSG_ERROR([
-*** Cannot enable IPv6 support
-])
-    ],[ AC_MSG_RESULT(no)
-      AC_DEFINE(HAVE_IPV6, 0, [Disable IPv6 support])
-      AC_MSG_ERROR([
-*** Cannot enable IPv6 support
-])
-    
-    ])
-else
-    AC_DEFINE(HAVE_IPV6, 0, [Disable IPv6 support])
-fi
 
 if test "x$enable_tests" = xyes; then
   dnl Looking for cppunit
@@ -422,6 +390,7 @@ AC_CONFIG_FILES([ po/Makefile.in
     include/protocol/https/Makefile
     include/protocol/http/Makefile
     include/protocol/http/env/Makefile
+    include/protocol/http/webdav/Makefile
     include/protocol/gopher/Makefile
     include/filter/Makefile
     include/filter/gzip/Makefile
@@ -480,6 +449,7 @@ AC_CONFIG_FILES([ po/Makefile.in
     src/protocol/https/Makefile
     src/protocol/http/Makefile
     src/protocol/http/env/Makefile
+    src/protocol/http/webdav/Makefile
     src/protocol/gopher/Makefile
     src/filter/Makefile
     src/filter/gzip/Makefile

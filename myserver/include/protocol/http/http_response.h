@@ -34,7 +34,7 @@ using namespace std;
 
 
 /*!
- * Structure to describe an HTTP response
+  Structure to describe an HTTP response
  */
 struct HttpResponseHeader : public HttpHeader
 {

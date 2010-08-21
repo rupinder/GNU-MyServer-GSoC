@@ -1,19 +1,19 @@
 /*
-MyServer
-Copyright (C) 2006, 2007, 2008, 2009, 2010 Free Software Foundation,
-Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2006, 2007, 2008, 2009, 2010 Free Software Foundation,
+  Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -48,7 +48,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PTHREAD_ALTERNATE_LOCK 1
 
 /*!
- *Constructor for the semaphore class.
+  Constructor for the semaphore class.
  */
 Semaphore::Semaphore (int n)
 {
@@ -57,7 +57,7 @@ Semaphore::Semaphore (int n)
 }
 
 /*!
- *Initialize the semaphore.
+  Initialize the semaphore.
  */
 int Semaphore::init (int n)
 {
@@ -78,7 +78,7 @@ int Semaphore::init (int n)
 }
 
 /*!
- *Destroy the semaphore.
+  Destroy the semaphore.
  */
 int Semaphore::destroy ()
 {
@@ -94,7 +94,7 @@ int Semaphore::destroy ()
 }
 
 /*!
- *Lock the semaphore (p).
+  Lock the semaphore (p).
  */
 int Semaphore::lock (u_long /*id*/)
 {

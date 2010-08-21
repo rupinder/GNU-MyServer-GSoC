@@ -166,8 +166,8 @@ public:
   MimeManagerHandler *getMIME ();
 
   /*!
-   * \return 0 if the LogManager contains at least one valid entry where
-   * this Vhost can output both its warning and access messages.
+    \return 0 if the LogManager contains at least one valid entry where
+    this Vhost can output both its warning and access messages.
    */
   int openLogFiles ();
 

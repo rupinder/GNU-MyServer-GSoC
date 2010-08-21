@@ -1,19 +1,19 @@
 /*
- MyServer
- Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
- This program is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 3 of the License, or
- (at your option) any later version.
+  MyServer
+  Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "myserver.h"
 #include <cppunit/CompilerOutputter.h>
@@ -74,24 +74,62 @@ public:
   void testOpenFile ()
   {
     string filename;
-    CPPUNIT_ASSERT (cf->openFile (NULL, 0));
-    CPPUNIT_ASSERT (cf->openFile (filename, 0));
+    int success = 0;
+    try
+      {
+        cf->openFile (NULL, 0);
+      }
+    catch (...)
+      {
+        success++;
+      }
+
+    try
+      {
+        cf->openFile (filename, 0);
+      }
+    catch (...)
+      {
+        success++;
+      }
+
+    CPPUNIT_ASSERT_EQUAL (success, 2);
   }
 
   void testCreateTemporaryFile ()
   {
-    CPPUNIT_ASSERT (cf->createTemporaryFile (NULL));
+    int success = 0;
+    try
+      {
+        cf->createTemporaryFile (NULL);
+      }
+    catch (...)
+      {
+        success++;
+      }
+
+    CPPUNIT_ASSERT_EQUAL (success, 1);
   }
 
   void testWrite ()
   {
-    CPPUNIT_ASSERT (cf->writeToFile (NULL, 0, NULL));
+    int success = 0;
+    try
+      {
+        cf->writeToFile (NULL, 0, NULL);
+      }
+    catch (...)
+      {
+        success++;
+      }
+
+    CPPUNIT_ASSERT_EQUAL (success, 1);
   }
 
   void testRead ()
   {
-    u_long nbr = 0;
-    u_long size = cf->getFileSize ();
+    size_t nbr = 0;
+    size_t size = cf->getFileSize ();
 
     CPPUNIT_ASSERT (size > 0);
 
@@ -104,9 +142,6 @@ public:
 
     delete [] buffer;
   }
-
-
-
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION ( TestCachedFile );

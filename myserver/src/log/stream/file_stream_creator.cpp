@@ -22,20 +22,28 @@ LogStream*
 FileStreamCreator::create (FiltersFactory* ff, string location,
                            list<string>& filters, u_long cycle)
 {
-  File* out = new File ();
-  char* path = const_cast<char*>(location.c_str ());
-  if (out && !out->openFile (path, FileStream::defaultFileMask))
+  File *out = new File ();
+  FiltersChain *fc = NULL;
+  char *path = const_cast<char*>(location.c_str ());
+  try
     {
-      u_long nbw;
-      FiltersChain* fc = ff->chain (filters, out, &nbw);
+      size_t nbw;
+      out->openFile (path, FileStream::defaultFileMask);
+      fc = ff->chain (filters, out, &nbw);
       if (fc)
-        {
-          return new FileStream (ff, cycle, out, fc);
-        }
+        return new FileStream (ff, cycle, out, fc);
     }
-  if (out)
+  catch (...)
     {
+      if (fc)
+        delete fc;
+
       delete out;
+      throw;
     }
+
+  if (out)
+    delete out;
+
   return 0;
 }

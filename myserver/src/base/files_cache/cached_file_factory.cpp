@@ -1,19 +1,19 @@
 /*
-MyServer
-Copyright (C) 2006, 2007, 2008, 2009, 2010 Free Software Foundation,
-Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2006, 2007, 2008, 2009, 2010 Free Software Foundation,
+  Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -39,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 /*!
- * Default constructor.
+  Default constructor.
  */
 CachedFileFactory::CachedFileFactory ()
 {
@@ -47,7 +47,7 @@ CachedFileFactory::CachedFileFactory ()
 }
 
 /*!
- * Destructor.
+  Destructor.
  */
 CachedFileFactory::~CachedFileFactory ()
 {
@@ -55,8 +55,8 @@ CachedFileFactory::~CachedFileFactory ()
 }
 
 /*!
- * Class constructor.
- *\param size Max size to use for the cache.
+  Class constructor.
+  \param size Max size to use for the cache.
  */
 CachedFileFactory::CachedFileFactory (u_long size)
 {
@@ -64,11 +64,11 @@ CachedFileFactory::CachedFileFactory (u_long size)
 }
 
 /*!
- * Clean the used resources.
+  Clean the usedm resources.
  */
 void CachedFileFactory::clean ()
 {
-  HashMap<char*, CachedFileFactoryRecord*>::Iterator it = buffers.begin ();
+  HashMap<char *, CachedFileFactoryRecord*>::Iterator it = buffers.begin ();
   for (; it != buffers.end (); it++)
     {
       delete (*it)->buffer;
@@ -79,8 +79,8 @@ void CachedFileFactory::clean ()
 }
 
 /*!
- * Set the max dimension for a file in the cache.
- * \param maxSize The new value.
+  Set the max dimension for a file in the cache.
+  \param maxSize The new value.
  */
 void CachedFileFactory::setMaxSize (u_long maxSize)
 {
@@ -88,8 +88,8 @@ void CachedFileFactory::setMaxSize (u_long maxSize)
 }
 
 /*!
- * Set the min dimension for a file in the cache.
- * \param minSize The new value.
+  Set the min dimension for a file in the cache.
+  \param minSize The new value.
  */
 void CachedFileFactory::setMinSize (u_long minSize)
 {
@@ -97,8 +97,8 @@ void CachedFileFactory::setMinSize (u_long minSize)
 }
 
 /*!
- * Get the max dimension for a file in the cache.
- * \return The current max value.
+  Get the max dimension for a file in the cache.
+  \return The current max value.
  */
 u_long CachedFileFactory::getMaxSize ()
 {
@@ -106,8 +106,8 @@ u_long CachedFileFactory::getMaxSize ()
 }
 
 /*!
- * Get the min dimension for a file in the cache.
- * \return The current min value.
+  Get the min dimension for a file in the cache.
+  \return The current min value.
  */
 u_long CachedFileFactory::getMinSize ()
 {
@@ -115,12 +115,11 @@ u_long CachedFileFactory::getMinSize ()
 }
 
 /*!
- * Initialize the structure.
+  Initialize the structure.
  */
 void CachedFileFactory::initialize (u_long size)
 {
   setSize (size);
-  used = 0;
   maxSize = 0;
   minSize = 0;
   usedSize = 0;
@@ -137,37 +136,47 @@ void CachedFileFactory::initialize (u_long size)
 */
 File* CachedFileFactory::open (const char* filename, int flags)
 {
-  CachedFileFactoryRecord *record;
+  CachedFileFactoryRecord *record = NULL;
   CachedFileBuffer *buffer;
   CachedFile* cachedFile;
-  u_long ticks;
-
+  u_long ticks = getTicks ();
   mutex.lock ();
+  try
+    {
+      purgeRecords ();
+
+      record = buffers.get (filename);
+      if (record)
+        record->mutex.lock ();
+
+      mutex.unlock ();
+    }
+  catch (...)
+    {
+      mutex.unlock ();
+      throw;
+    }
 
   try
     {
-      record = buffers.get (filename);
-      buffer = record ? record->buffer : 0;
+      buffer = NULL;
 
-      used++;
-
-      /*
-        If the file on the file system has a different mtime then don't use
-        the cache, in this way when opened instance of this file will be closed
-        the null reference callback can be called and the file reloaded.
-      */
+      /* Check the record is valid.  */
       if (record)
         {
-          record->invalidCache = FilesUtility::getLastModTime (filename)
-            != record->mtime;
-          record->lastModTimeCheck = ticks;
+          buffer = record->buffer;
+          if (buffer->getExpireTime () <= ticks)
+            {
+              buffer->refreshExpireTime (ticks);
+              record->invalidCache = ! buffer->revalidate (filename);
+            }
 
           bool noSymlink = (! (flags & File::NO_FOLLOW_SYMLINK))
-            && S_ISLNK (record->fstat.st_mode);
+            && buffer->isSymlink ();
 
           if (record->invalidCache || noSymlink)
             {
-              mutex.unlock ();
+              record->mutex.unlock ();
 
               File *file = new File ();
               flags = flags & File::NO_FOLLOW_SYMLINK;
@@ -189,102 +198,93 @@ File* CachedFileFactory::open (const char* filename, int flags)
           if (file->openFile (filename, File::OPEN_IF_EXISTS | flags
                               | File::READ))
             {
-              mutex.unlock ();
               delete file;
               return NULL;
             }
+
           fileSize = file->getFileSize ();
-          purgeRecords ();
-          if ((minSize != 0 && fileSize < minSize) ||
-              (maxSize != 0 && fileSize > maxSize)  ||
-              (fileSize > size - usedSize))
-            {
-              mutex.unlock ();
-              return file;
-            }
+          if (minSize && fileSize < minSize
+               || maxSize && fileSize > maxSize
+              || fileSize > size - usedSize)
+            return file;
           else
             {
               record = new CachedFileFactoryRecord ();
+              record->mutex.lock ();
               buffer = new CachedFileBuffer (file);
-              record->mtime = file->getLastModTime ();
-              file->fstat (&record->fstat);
               file->close  ();
               delete file;
-
               buffer->setFactoryToNotify (this);
               record->created = ticks;
               record->buffer = buffer;
+              buffer->refreshExpireTime (ticks);
               buffers.put ((char *) filename, record);
               usedSize += fileSize;
             }
         }
       record->used++;
-
       cachedFile = new CachedFile (buffer);
-
-      mutex.unlock ();
     }
   catch (...)
     {
-      mutex.unlock ();
+      if (record)
+        record->mutex.unlock ();
       throw;
     }
+
+  record->mutex.unlock ();
 
   return cachedFile;
 }
 
 /*!
- * Called by CachedFileBuffer when its counter reaches zero references.
- * \param cfb A pointer to the source CachedFileBuffer object.
+  Called by CachedFileBuffer when its counter reaches zero references.
+  \param cfb A pointer to the source CachedFileBuffer object.
  */
-void CachedFileFactory::nullReferences (CachedFileBuffer* cfb)
+void CachedFileFactory::nullReferences (CachedFileBuffer *cfb)
 {
-  CachedFileFactoryRecord* record;
-  float averageUsage;
+  CachedFileFactoryRecord *record;
   float bufferAverageUsage;
   float spaceUsage;
-  u_long ticks;
-  mutex.lock ();
+  u_long ticks = getTicks ();
 
+  spaceUsage = (float) usedSize / size;
+  if (spaceUsage < 0.65f)
+    return;
+
+  record = buffers.get (cfb->getFilename ());
+  if (! record)
+    return;
+
+  record->mutex.lock ();
   try
     {
-      ticks = getTicks ();
-      record = buffers.get (cfb->getFilename ());
-      if (!record)
-        {
-          mutex.unlock ();
-          return;
-        }
-
-      spaceUsage = (float)usedSize / size;
-      averageUsage = (float)used * 1000.0f / (ticks - created);
       bufferAverageUsage = (float)record->used * 1000.0f /
-        (getTicks () - record->created);
+        (ticks - record->created);
 
-      if (((spaceUsage > 0.65f) && (bufferAverageUsage < averageUsage)
-           && ((ticks - record->created) > 10000))
-          || (spaceUsage > 0.9f)
+      if ((spaceUsage > 0.65f && (ticks - record->created) > 10000)
+          || spaceUsage > 0.9f
           || record->invalidCache)
         {
           record = buffers.remove (cfb->getFilename ());
           if (record)
             buffersToRemove.push_back (record);
         }
-      mutex.unlock ();
+      record->mutex.unlock ();
     }
   catch (...)
     {
-      mutex.unlock ();
+      record->mutex.unlock ();
       throw;
     }
 }
 
 /*!
- * Remove pending records from the list.
+  Remove pending records from the list.
  */
 u_long CachedFileFactory::purgeRecords ()
 {
-  list<CachedFileFactoryRecord*>::iterator it = buffersToRemove.begin ();
+  list<CachedFileFactoryRecord *>::iterator it = buffersToRemove.begin ();
   u_long ret = 0;
 
   while (it != buffersToRemove.end ())
@@ -300,6 +300,8 @@ u_long CachedFileFactory::purgeRecords ()
           delete rec;
         }
     }
+
   usedSize -= ret;
+
   return ret;
 }

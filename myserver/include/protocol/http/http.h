@@ -27,12 +27,14 @@
 # include <include/base/xml/xml_parser.h>
 # include <include/base/thread/thread.h>
 # include <include/base/sync/mutex.h>
+# include <include/base/read_directory/rec_read_directory.h>
 # include <include/protocol/http/dyn_http_command_manager.h>
 # include <include/protocol/http/dyn_http_command.h>
 # include <include/protocol/http/dyn_http_manager_list.h>
 # include <include/protocol/http/dyn_http_manager.h>
 # include <include/base/multicast/multicast.h>
 # include <include/protocol/http/http_data_handler.h>
+# include <include/protocol/http/webdav/webdav.h>
 # include <include/base/string/securestr.h>
 
 # include <string>
@@ -43,7 +45,7 @@
 using namespace std;
 
 /*!
- * Data used only by an HTTP user.
+  Data used only by an HTTP user.
  */
 class HttpUserData : public ProtocolBuffer
 {
@@ -81,25 +83,25 @@ public:
   int requestAuthorization ();
 
   int sendHTTPResource (string& filename,
-                        int systemrequest = 0,
-                        int onlyHeader = 0,
-                        int yetMapped = 0);
+                        bool systemrequest = false,
+                        bool onlyHeader = false,
+                        bool yetMapped = false);
 
   int putHTTPRESOURCE (string &filename,
-                       int systemrequest = 0,
-                       int onlyHeader = 0,
-                       int yetMapped = 0);
+                       bool systemrequest = false,
+                       bool onlyHeader = false,
+                       bool yetMapped = false);
 
   int optionsHTTPRESOURCE (string &filename,
-                           int yetMapped = 0);
+                           bool yetMapped = false);
 
   int traceHTTPRESOURCE (string& filename,
-                         int yetMapped = 0);
+                         bool yetMapped = false);
 
   int deleteHTTPRESOURCE (string &filename,
-                          int systemrequest = 0,
-                          int onlyHeader = 0,
-                          int yetMapped = 0);
+                          bool systemrequest = false,
+                          bool onlyHeader = false,
+                          bool yetMapped = false);
 
   bool allowMethod (const char *name);
 
@@ -112,25 +114,25 @@ public:
 
   int getPath (string& filenamePath,
                const string& filename,
-               int systemrequest)
+               bool systemrequest)
   {return getPath (td, filenamePath, filename.c_str (), systemrequest);}
 
   int getPath (string& filenamePath,
                const char *filename,
-               int systemrequest)
+               bool systemrequest)
   {return getPath (td, filenamePath, filename, systemrequest);}
 
 
   static int getPath (HttpThreadContext* td,
                       string& filenamePath,
                       const string& filename,
-                      int systemrequest)
+                      bool systemrequest)
   {return getPath (td, filenamePath, filename.c_str (), systemrequest);}
 
   static int getPath (HttpThreadContext* td,
                       string& filenamePath,
                       const char *filename,
-                      int systemrequest);
+                      bool systemrequest);
 
   MimeRecord* getMIME (string& filename);
 
@@ -149,12 +151,12 @@ public:
   static int loadProtocolStatic ();
 
   u_long getTimeout ();
-  int preprocessHttpRequest (string& filename, int yetmapped,
+  int preprocessHttpRequest (string& filename, bool yetmapped,
                              int* permissions);
 
   int getFilePermissions (string& filename, string& directory,
                           string& file, string &filenamePath,
-                          int yetmapped, int* permissions);
+                          bool yetmapped, int* permissions);
 
   SecurityToken *getSecurityToken (){return &(td->securityToken);}
   HttpProtocol *getStaticData () {return staticData;}
@@ -171,7 +173,7 @@ public:
   }
 
 protected:
-  int processDefaultFile (string& uri, int permissions, int onlyHeader);
+  int processDefaultFile (string& uri, int permissions, bool onlyHeader);
 
   struct HttpThreadContext *td;
   void clean ();
@@ -179,12 +181,12 @@ protected:
   u_long checkDigest ();
 
   HttpProtocol *staticData;
-
+  WebDAV dav;
 };
 
 
 /*!
- *Adapter class to make Http reentrant.
+  Adapter class to make Http reentrant.
  */
 class HttpProtocol : public Protocol,
                      public MulticastRegistry<string, void*, int>

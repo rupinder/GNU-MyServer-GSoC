@@ -64,7 +64,7 @@ private:
   static int initialized;
   Socket getScgiConnection ();
   int sendPostData (ScgiContext* ctx);
-  int sendResponse (ScgiContext* ctx, int onlyHeader, FiltersChain*);
+  int sendResponse (ScgiContext* ctx, bool onlyHeader, FiltersChain*);
   int buildScgiEnvironmentString (HttpThreadContext*, char*, char*);
   int sendNetString (ScgiContext*, const char*, int);
   ScgiServer* isScgiServerRunning (const char*);

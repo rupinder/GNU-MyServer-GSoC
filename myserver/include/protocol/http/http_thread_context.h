@@ -46,11 +46,11 @@ class Http;
 class MimeRecord;
 
 /*!
- *Structure used by the HTTP protocol parser to describe a thread.
+  Structure used by the HTTP protocol parser to describe a thread.
  */
 struct HttpThreadContext
 {
-  int appendOutputs;
+  bool appendOutputs;
 
   /*! Set by raiseHTTPError.  */
   int lastError;
@@ -69,7 +69,7 @@ struct HttpThreadContext
   u_long nBytesToRead;
   u_long nHeaderChars;
   HttpResponseHeader response;
-  HttpRequestHeader  request;
+  HttpRequestHeader request;
   string filenamePath;
   string pathInfo;
   string pathTranslated;
@@ -78,8 +78,6 @@ struct HttpThreadContext
   string scriptPath;
   string scriptDir;
   string scriptFile;
-  string inputDataPath;
-  string outputDataPath;
   string vhostDir;
   string vhostSys;
   HashMap<string,string*> other;
@@ -87,7 +85,7 @@ struct HttpThreadContext
   File inputData;
   File outputData;
   int authScheme;
-  Http* http;
+  Http *http;
   MimeRecord *mime;
   int sentData;
   SecurityToken securityToken;

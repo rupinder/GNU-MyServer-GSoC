@@ -54,10 +54,9 @@ int MsCgi::send (HttpThreadContext* td, const char* exec, const char* cmdLine,
   ostringstream tmpStream;
   string outDataPath;
   FiltersChain chain;
-  u_long nbw;
+  size_t nbw;
   DynamicLibrary hinstLib;
   CGIMAIN ProcMain = 0;
-  int ret = 0;
 
 #if !(WIN32 | HAVE_DL)
   return td->http->raiseHTTPError (501);
@@ -156,7 +155,7 @@ int MsCgi::send (HttpThreadContext* td, const char* exec, const char* cmdLine,
 }
 
 /*!
- * Send a chunk of data to the client.
+  Send a chunk of data to the client.
  */
 int MsCgi::write (const char* data, u_long len, MsCgiData* mcd)
 {
@@ -182,7 +181,7 @@ int MsCgi::write (const char* data, u_long len, MsCgiData* mcd)
 }
 
 /*!
- * Send the HTTP header.
+  Send the HTTP header.
  */
 int MsCgi::sendHeader (MsCgiData* mcd)
 {

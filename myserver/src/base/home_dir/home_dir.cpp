@@ -1,18 +1,18 @@
 /*
-MyServer
-Copyright (C) 2006, 2008, 2009, 2010 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2006, 2008, 2009, 2010 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -56,7 +56,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/types.h>
 
 /*!
- * Class constructor.
+  Class constructor.
  */
 HomeDir::HomeDir ()
 {
@@ -72,7 +72,7 @@ HomeDir::HomeDir ()
 }
 
 /*!
- * D'tor.
+  D'tor.
  */
 HomeDir::~HomeDir ()
 {
@@ -81,7 +81,7 @@ HomeDir::~HomeDir ()
 }
 
 /*!
- *Clear the used memory.
+  Clear the used memory.
  */
 void HomeDir::clear ()
 {
@@ -102,7 +102,7 @@ void HomeDir::clear ()
 }
 
 /*!
- *Public wrapper to loadImpl.
+  Public wrapper to loadImpl.
  */
 int HomeDir::load ()
 {
@@ -123,7 +123,7 @@ int HomeDir::load ()
 }
 
 /*!
- * Load the internal buffer.
+  Load the internal buffer.
  */
 int HomeDir::loadImpl ()
 {
@@ -228,13 +228,13 @@ int HomeDir::loadImpl ()
 }
 
 /*!
- * Get the home directory for a specified user and write
- * it directly to the supplied buffer.
- * \param userName The user name.
- * \param out The buffer where write.
- * \return 0 on success.
- * \return < 0 on error.
- * \return > 0 if the user home directory does not exist.
+  Get the home directory for a specified user and write
+  it directly to the supplied buffer.
+  \param userName The user name.
+  \param out The buffer where write.
+  \return 0 on success.
+  \return < 0 on error.
+  \return > 0 if the user home directory does not exist.
  */
 int HomeDir::getHomeDir (string& userName, string& out)
 {

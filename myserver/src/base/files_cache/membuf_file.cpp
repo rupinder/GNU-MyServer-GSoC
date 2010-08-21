@@ -67,11 +67,11 @@ int MemBufFile::setHandle (Handle)
 /*!
   \see File#read.
 */
-int MemBufFile::read (char *data, u_long len, u_long *nbr)
+int MemBufFile::read (char *data, size_t len, size_t *nbr)
 {
   const char *buf = buffer->getBuffer ();
 
-  *nbr = min (len, buffer->getLength () - fseek);
+  *nbr = min (len, (size_t) (buffer->getLength () - fseek));
   if (*nbr)
     memcpy (data, buf, *nbr);
 
@@ -83,7 +83,7 @@ int MemBufFile::read (char *data, u_long len, u_long *nbr)
 /*!
   \see File#writeToFile.
 */
-int MemBufFile::writeToFile (const char *data, u_long len, u_long *nbw)
+int MemBufFile::writeToFile (const char *data, size_t len, size_t *nbw)
 {
   u_long initialSize = buffer->getLength ();
   buffer->addBuffer (data, len);
@@ -95,7 +95,7 @@ int MemBufFile::writeToFile (const char *data, u_long len, u_long *nbw)
 /*!
   \see File#createTemporaryFile.
 */
-int MemBufFile::createTemporaryFile (const char*)
+int MemBufFile::createTemporaryFile (const char *, bool)
 {
   return -1;
 }
@@ -104,7 +104,7 @@ int MemBufFile::createTemporaryFile (const char*)
 /*!
   \see File#openFile.
 */
-int MemBufFile::openFile (const char*, u_long)
+int MemBufFile::openFile (const char*, u_long, mode_t mask)
 {
   return -1;
 }
@@ -112,7 +112,7 @@ int MemBufFile::openFile (const char*, u_long)
 /*!
   \see File#getFileSize.
 */
-u_long MemBufFile::getFileSize ()
+off_t MemBufFile::getFileSize ()
 {
   return buffer->getLength ();
 }
@@ -120,7 +120,7 @@ u_long MemBufFile::getFileSize ()
 /*!
   \see File#seek.
 */
-int MemBufFile::seek (u_long newSeek)
+int MemBufFile::seek (off_t newSeek)
 {
   fseek = newSeek;
   return 0;
@@ -137,8 +137,8 @@ int MemBufFile::close ()
 /*!
   \see File#fastCopyToSocket.
 */
-int MemBufFile::fastCopyToSocket (Socket *dest, u_long offset,
-                                  MemBuf *buf, u_long *nbw)
+int MemBufFile::fastCopyToSocket (Socket *dest, off_t offset,
+                                  MemBuf *buf, size_t *nbw)
 {
   const char *data = buffer->getBuffer ();
   u_long toWrite = buffer->getLength () - offset;
@@ -149,7 +149,7 @@ int MemBufFile::fastCopyToSocket (Socket *dest, u_long offset,
 /*!
   \see File#write.
 */
-int MemBufFile::write (const char* buffer, u_long len, u_long *nbw)
+int MemBufFile::write (const char* buffer, size_t len, size_t *nbw)
 {
   return writeToFile (buffer, len, nbw);
 }
@@ -157,7 +157,7 @@ int MemBufFile::write (const char* buffer, u_long len, u_long *nbw)
 /*!
   \see File#getSeek.
 */
-u_long MemBufFile::getSeek ()
+off_t MemBufFile::getSeek ()
 {
   return fseek;
 }

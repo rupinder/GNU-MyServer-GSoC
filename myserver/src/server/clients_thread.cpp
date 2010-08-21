@@ -1,19 +1,19 @@
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010 Free
-Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010 Free
+  Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "myserver.h"
@@ -49,7 +49,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 /*!
- * Construct the object.
+  Construct the object.
  */
 ClientsThread::ClientsThread (Server* server)
 {
@@ -62,7 +62,7 @@ ClientsThread::ClientsThread (Server* server)
 }
 
 /*!
- *Destroy the ClientsThread object.
+  Destroy the ClientsThread object.
  */
 ClientsThread::~ClientsThread ()
 {
@@ -76,7 +76,7 @@ ClientsThread::~ClientsThread ()
 }
 
 /*!
- * Get the timeout value.
+  Get the timeout value.
  */
 int ClientsThread::getTimeout ()
 {
@@ -84,8 +84,8 @@ int ClientsThread::getTimeout ()
 }
 
 /*!
- * Set the timeout value for the thread.
- * \param newTimeout The new timeout value.
+  Set the timeout value for the thread.
+  \param newTimeout The new timeout value.
  */
 void ClientsThread::setTimeout (int newTimeout)
 {
@@ -93,9 +93,9 @@ void ClientsThread::setTimeout (int newTimeout)
 }
 
 /*!
- * This function starts a new thread controlled by a ClientsThread
- * class instance.
- * \param pParam Params to pass to the new thread.
+  This function starts a new thread controlled by a ClientsThread
+  class instance.
+  \param pParam Params to pass to the new thread.
  */
 DEFINE_THREAD (clients_thread, pParam)
 {
@@ -139,32 +139,27 @@ DEFINE_THREAD (clients_thread, pParam)
     Thread::wait (500);
 
   /*
-   * This function when is alive only call the controlConnections (...) function
-   * of the ClientsThread class instance used for control the thread.
+    This function when is alive only call the controlConnections (...) function
+    of the ClientsThread class instance used for control the thread.
    */
   while (ct->threadIsRunning)
     {
       int ret;
       try
         {
-          /*
-           *If the thread can be destroyed don't use it.
-           */
-          if ((!ct->isStatic ()) && ct->isToDestroy ())
-            {
-              Thread::wait (1000);
-              break;
-            }
-
           ret = ct->controlConnections ();
           ct->server->increaseFreeThread ();
           ct->busy = false;
 
-          /*
-           *The thread served the connection, so update the timeout value.
-           */
+          /* The thread served the connection, so update the timeout value.  */
           if (ret != 1)
             ct->setTimeout (getTicks ());
+
+          if ((!ct->isStatic ()) && ct->isToDestroy ())
+            {
+              Thread::wait (MYSERVER_SEC (60));
+              break;
+            }
         }
       catch (bad_alloc &ba)
         {
@@ -173,9 +168,7 @@ DEFINE_THREAD (clients_thread, pParam)
         }
       catch (exception &e)
         {
-          ct->server->log (MYSERVER_LOG_MSG_ERROR, _("Error : %s"),
-                                  e.what ());
-        };
+        }
   }
 
   ct->server->decreaseFreeThread ();
@@ -186,7 +179,7 @@ DEFINE_THREAD (clients_thread, pParam)
 }
 
 /*!
- * Join the thread.
+  Join the thread.
  */
 int ClientsThread::join ()
 {
@@ -195,7 +188,7 @@ int ClientsThread::join ()
 
 
 /*!
- * Create the new thread.
+  Create the new thread.
  */
 int ClientsThread::run ()
 {
@@ -205,7 +198,7 @@ int ClientsThread::run ()
 }
 
 /*!
- * Returns if the thread can be destroyed.
+  Returns if the thread can be destroyed.
  */
 bool ClientsThread::isToDestroy ()
 {
@@ -213,7 +206,7 @@ bool ClientsThread::isToDestroy ()
 }
 
 /*!
- * Check if the thread is a static one.
+  Check if the thread is a static one.
  */
 bool ClientsThread::isStatic ()
 {
@@ -221,8 +214,8 @@ bool ClientsThread::isStatic ()
 }
 
 /*!
- * Set the thread to be static.
- * \param value The new static value.
+  Set the thread to be static.
+  \param value The new static value.
  */
 void ClientsThread::setStatic (bool value)
 {
@@ -230,8 +223,8 @@ void ClientsThread::setStatic (bool value)
 }
 
 /*!
- * Set if the thread can be destroyed.
- * \param value The new destroy value.
+  Set if the thread can be destroyed.
+  \param value The new destroy value.
  */
 void ClientsThread::setToDestroy (bool value)
 {
@@ -239,12 +232,12 @@ void ClientsThread::setToDestroy (bool value)
 }
 
 /*!
- * This is the main loop of the thread.
- * Here are controlled all the connections that belongs to the
- * ClientsThread class instance.
- * Every connection is controlled by its protocol.
- *\return 1 if no connections to serve are available.
- *\return 0 in all other cases.
+  This is the main loop of the thread.
+  Here are controlled all the connections that belongs to the
+  ClientsThread class instance.
+  Every connection is controlled by its protocol.
+  \return 1 if no connections to serve are available.
+  \return 0 in all other cases.
  */
 int ClientsThread::controlConnections ()
 {
@@ -259,18 +252,23 @@ int ClientsThread::controlConnections ()
 
   server->decreaseFreeThread ();
 
-  if (!c)
+  if (! c)
     return 1;
 
   busy = true;
   dataRead = c->getConnectionBuffer ()->getLength ();
 
   if (! c->isForceControl ())
-    err = c->socket->recv (&((char*)(buffer.getBuffer ()))[dataRead],
-                           MYSERVER_KB (8) - dataRead - 1, 0);
+    {
+      err = c->socket->recv (&((char*)(buffer.getBuffer ()))[dataRead],
+                             MYSERVER_KB (8) - dataRead - 1, 0);
 
-  if (err == -1 && !server->deleteConnection (c))
-    return 0;
+      if (err <= 0)
+        {
+          server->deleteConnection (c);
+          return 0;
+        }
+    }
 
   buffer.setLength (dataRead + err);
   c->setForceControl (0);
@@ -286,12 +284,12 @@ int ClientsThread::controlConnections ()
       return 0;
     }
 
-  if (getTicks () - c->getTimeout () > 5000)
+  if (getTicks () - c->getTimeout () > MYSERVER_SEC (5))
     c->setnTries (0);
 
   if (dataRead)
-    memcpy ((char*)buffer.getBuffer (), c->getConnectionBuffer ()->getBuffer (),
-            dataRead);
+    memcpy ((char*) buffer.getBuffer (),
+            c->getConnectionBuffer ()->getBuffer (), dataRead);
 
   c->setActiveThread (this);
   try
@@ -328,7 +326,6 @@ int ClientsThread::controlConnections ()
   if (retcode == DELETE_CONNECTION)
     {
       server->deleteConnection (c);
-      return 0;
     }
   /* Keep the connection.  */
   else if (retcode == KEEP_CONNECTION)
@@ -340,9 +337,9 @@ int ClientsThread::controlConnections ()
   else if (retcode == INCOMPLETE_REQUEST)
     {
       /*
-       * If the header is incomplete save the current received
-       * data in the connection buffer.
-       * Save the header in the connection buffer.
+        If the header is incomplete save the current received
+        data in the connection buffer.
+        Save the header in the connection buffer.
        */
       c->getConnectionBuffer ()->setBuffer (buffer.getBuffer (), nBytesToRead);
       server->getConnectionsScheduler ()->addWaitingConnection (c);
@@ -358,21 +355,21 @@ int ClientsThread::controlConnections ()
 }
 
 /*!
- * Stop the thread.
+  Stop the thread.
  */
 void ClientsThread::stop ()
 {
   /*
-   * Set the run flag to False.
-   * When the current thread find the threadIsRunning
-   * flag setted to 0 automatically destroy the
-   * thread.
+    Set the run flag to False.
+    When the current thread find the threadIsRunning
+    flag setted to 0 automatically destroy the
+    thread.
    */
   threadIsRunning = false;
 }
 
 /*!
- * Returns a non-null value if the thread is active.
+  Returns a non-null value if the thread is active.
  */
 bool ClientsThread::isRunning ()
 {
@@ -380,7 +377,7 @@ bool ClientsThread::isRunning ()
 }
 
 /*!
- * Returns if the thread is stopped.
+  Returns if the thread is stopped.
  */
 bool ClientsThread::isStopped ()
 {
@@ -388,14 +385,14 @@ bool ClientsThread::isStopped ()
 }
 
 /*!
- * Get a pointer to the buffer.
+  Get a pointer to the buffer.
  */
 MemBuf* ClientsThread::getBuffer ()
 {
   return &buffer;
 }
 /*!
- * Get a pointer to the secondary buffer.
+  Get a pointer to the secondary buffer.
  */
 MemBuf *ClientsThread::getAuxiliaryBuffer ()
 {
@@ -403,7 +400,7 @@ MemBuf *ClientsThread::getAuxiliaryBuffer ()
 }
 
 /*!
- * Check if the thread is working.
+  Check if the thread is working.
  */
 bool ClientsThread::isBusy ()
 {

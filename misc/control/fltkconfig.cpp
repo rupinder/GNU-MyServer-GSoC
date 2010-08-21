@@ -173,7 +173,7 @@ else {
   if(ret) {
     ret = ServerLogin(false);
     if(!ret) {
-      ret = load_config_remote();   
+      ret = load_config_remote();
     }
   }
 
@@ -229,7 +229,7 @@ void MainDlg::cb_MenuReboot_i(Fl_Menu_*, void*) {
 ret = fl_choice(LanguageXMLKill_All, LanguageXMLNo, LanguageXMLYes, NULL);
 if(ret) {
   ret = Server.sendReboot();
-  
+
   if(ret) {
     ret = ServerLogin(false);
     if(!ret) {
@@ -415,9 +415,9 @@ void MainDlg::cb_Ext_i(Fl_Browser*, void*) {
   int val = Ext->value();
 if(val != 0) {
   val -= 1;
-  
+
   Cmd->value(MimeConf.getCmd(val));
-  
+
   if(Cmd->value() >= 2 && Cmd->value() <= 4) {
   }
 
@@ -441,8 +441,8 @@ if(val != 0) {
   Ext->value(i + 1);
 
   Cmd->value(MimeConf.getCmd(i));
-  
-  
+
+
   Mime->value(MimeConf.getType(i));
 
   Manager->value(MimeConf.getManager(i));
@@ -5006,7 +5006,7 @@ RegaskDlg->hide();
 if(ret || strcmp(RegaskDlgInput->value(), "") == 0) {
   return NULL;
 }
-  
+
 reg = RegaskDlgRegex->value();
 return (char *)RegaskDlgInput->value();
 }

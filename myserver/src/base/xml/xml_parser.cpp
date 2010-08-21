@@ -27,11 +27,11 @@
 
 
 /**
- * Internal call back functions for saveMemBuf
- * \param context Context
- * \param buffer Buffer
- * \param len Length
- * \return Returns the length
+  Internal call back functions for saveMemBuf
+  \param context Context
+  \param buffer Buffer
+  \param len Length
+  \return Returns the length
  */
 static int MemBufWriteCallback (void * context, const char * buffer, int len)
 {
@@ -41,9 +41,9 @@ static int MemBufWriteCallback (void * context, const char * buffer, int len)
 
 
 /**
- * Memory Buffer Close Callback
- * \param context Context
- * \return Returns 0
+  Memory Buffer Close Callback
+  \param context Context
+  \return Returns 0
  */
 static int MemBufCloseCallback (void *context)
 {
@@ -51,9 +51,9 @@ static int MemBufCloseCallback (void *context)
 }
 
 /**
- * Initializes the libxml2 library
- * Calls xmlInitParser ()
- * @return Returns true
+  Initializes the libxml2 library
+  Calls xmlInitParser ()
+  @return Returns true
  */
 bool XmlParser::startXML ()
 {
@@ -63,8 +63,8 @@ bool XmlParser::startXML ()
 
 
 /**
- * Cleans up the libxml2 library.
- * @return Returns true
+  Cleans up the libxml2 library.
+  @return Returns true
  */
 bool XmlParser::cleanXML ()
 {
@@ -74,56 +74,82 @@ bool XmlParser::cleanXML ()
 
 
 /**
- * Opens a files and stores it in memory.
- * \param filename The XML file to open.
- * \param useXpath Specify if XPath is enabled.
- * \return Returns 0 on success, non zero values on failure
+  Opens a files and stores it in memory.
+  \param filename The XML file to open.
+  \param useXpath Specify if XPath is enabled.
+  \return Returns 0 on success, non zero values on failure
  */
 int XmlParser::open (const char* filename, bool useXpath)
 {
+  File xmlFile;
+
   cur = NULL;
   this->useXpath = useXpath;
 
-  if (!FilesUtility::nodeExists (filename))
-    return -1;
-
-  if (doc!= NULL)
+  if (doc != NULL)
     close ();
 
-  doc = xmlParseFile (filename);
-  if (doc == NULL)
-    return -1;
+  xmlFile.openFile (filename, File::READ | File::OPEN_IF_EXISTS);
 
-  cur = xmlDocGetRootElement (doc);
-  if (!cur)
+  size_t size = xmlFile.getFileSize ();
+  char *buffer = new char [size];
+  try
     {
-      close ();
-      return -1;
-    }
+      size_t nbr;
+      xmlFile.read (buffer, size, &nbr);
+      doc = xmlParseMemory (buffer, nbr);
 
-  mtime = FilesUtility::getLastModTime (filename);
-  if (mtime == static_cast<time_t>(-1))
-    {
-      close ();
-      return -1;
-    }
+      delete [] buffer;
+      buffer = NULL;
 
-  if (useXpath)
-    {
-      xpathCtx = xmlXPathNewContext (doc);
-      if (xpathCtx == NULL)
+      if (doc == NULL)
+        return -1;
+
+      if (nbr != size)
         {
           close ();
           return -1;
         }
+
+      cur = xmlDocGetRootElement (doc);
+      if (!cur)
+        {
+          close ();
+          return -1;
+        }
+
+      mtime = xmlFile.getLastModTime ();
+      if (mtime == static_cast<time_t> (-1))
+        {
+          close ();
+          return -1;
+        }
+
+      if (useXpath)
+        {
+          xpathCtx = xmlXPathNewContext (doc);
+          if (xpathCtx == NULL)
+            {
+              close ();
+              return -1;
+            }
+        }
+      xmlFile.close ();
+    }
+  catch (exception & e)
+    {
+      if (buffer)
+        delete [] buffer;
+
+      throw e;
     }
   return 0;
 }
 
 
 /**
- * Gets the last modification time of the file
- * @return Returns last modification time
+  Gets the last modification time of the file
+  @return Returns last modification time
  */
 time_t XmlParser::getLastModTime ()
 {
@@ -131,10 +157,10 @@ time_t XmlParser::getLastModTime ()
 }
 
 /**
- * Read the XML data from a char array
- * \param memory The memory buffer to read from.
- * \param useXpath Specify if XPath is enabled.
- * \return Returns 0 on succes, non 0 on failure
+  Read the XML data from a char array
+  \param memory The memory buffer to read from.
+  \param useXpath Specify if XPath is enabled.
+  \return Returns 0 on succes, non 0 on failure
  */
 int XmlParser::openMemBuf (MemBuf & memory, bool useXpath)
 {
@@ -174,7 +200,7 @@ int XmlParser::openMemBuf (MemBuf & memory, bool useXpath)
 }
 
 /**
- * Constructor of the XmlParser class
+  Constructor of the XmlParser class
  */
 XmlParser::XmlParser ()
 {
@@ -188,8 +214,8 @@ XmlParser::XmlParser ()
 }
 
 /**
- * Destructor of the XmlParser class
- * Destroys the XmlParser object
+  Destructor of the XmlParser class
+  Destroys the XmlParser object
  */
 XmlParser::~XmlParser ()
 {
@@ -197,8 +223,8 @@ XmlParser::~XmlParser ()
 }
 
 /**
- * Returns the XML document
- * @return Returns XML document
+  Returns the XML document
+  @return Returns XML document
  */
 xmlDocPtr XmlParser::getDoc ()
 {
@@ -206,9 +232,9 @@ xmlDocPtr XmlParser::getDoc ()
 }
 
 /**
- * Gets the value of the vName root child element.
- * \param vName vName of the root child elment
- * \return Returns the value of the vName
+  Gets the value of the vName root child element.
+  \param vName vName of the root child elment
+  \return Returns the value of the vName
  */
 const char *XmlParser::getValue (const char* vName)
 {
@@ -237,10 +263,10 @@ const char *XmlParser::getValue (const char* vName)
 
 
 /**
- * Sets the value of the vName root child element
- * \param vName
- * \param value
- * \return Returns 0 on success, non zero on failures
+  Sets the value of the vName root child element
+  \param vName
+  \param value
+  \return Returns 0 on success, non zero on failures
  */
 int XmlParser::setValue (const char* vName, const char *value)
 {
@@ -267,10 +293,10 @@ int XmlParser::setValue (const char* vName, const char *value)
 }
 
 /**
- * Gets the attribute for the node field.
- * \param field Field
- * \param attr Attribute
- * \return
+  Gets the attribute for the node field.
+  \param field Field
+  \param attr Attribute
+  \return
  */
 const char *XmlParser::getAttr (const char *field, const char *attr)
 {
@@ -297,10 +323,10 @@ const char *XmlParser::getAttr (const char *field, const char *attr)
 }
 
 /**
- *Evaluate an XPath expression.
- *\param expr The xpath expression.
- *\return NULL on errors.
- *\return The XmlXPathResult containing the result.
+  Evaluate an XPath expression.
+  \param expr The xpath expression.
+  \return NULL on errors.
+  \return The XmlXPathResult containing the result.
  */
 XmlXPathResult* XmlParser::evaluateXpath (const char *expr)
 {
@@ -317,7 +343,7 @@ XmlXPathResult* XmlParser::evaluateXpath (const char *expr)
 }
 
 /**
- * Frees the memory, use by the XmlParser class
+  Frees the memory, use by the XmlParser class
  */
 int XmlParser::close ()
 {
@@ -341,16 +367,16 @@ int XmlParser::close ()
 }
 
 /**
- * Saves the XML tree into a file
- * If no errors occur nbytes[optional] will contain
- * the amount of written bytes
- * \param filename Filename
- * \param nbytes Amount of bytes
- * \return Returns 0 on success, non 0 on failures
+  Saves the XML tree into a file
+  If no errors occur nbytes[optional] will contain
+  the amount of written bytes
+  \param filename Filename
+  \param nbytes Amount of bytes
+  \return Returns 0 on success, non 0 on failures
  */
 int XmlParser::save (const char *filename, int *nbytes)
 {
-  int err = xmlSaveFile (filename,doc);
+  int err = xmlSaveFile (filename, doc);
   if (nbytes)
     *nbytes = err;
 
@@ -359,12 +385,12 @@ int XmlParser::save (const char *filename, int *nbytes)
 
 
 /**
- * Saves the XML tree into memory
- * If no errors occur nbytes[optional] will contain
- * the amount of written bytes
- * \param memory Memory Buffer
- * \param nbytes Amount of bytes
- * \return Returns 0 on success, non 0 on failures
+  Saves the XML tree into memory
+  If no errors occur nbytes[optional] will contain
+  the amount of written bytes
+  \param memory Memory Buffer
+  \param nbytes Amount of bytes
+  \return Returns 0 on success, non 0 on failures
  */
 int XmlParser::saveMemBuf (MemBuf &memory, int *nbytes)
 {
@@ -388,8 +414,8 @@ int XmlParser::saveMemBuf (MemBuf &memory, int *nbytes)
 
 
 /**
- * Starts a new XML tree for a new file
- * \param root roote elment entry
+  Starts a new XML tree for a new file
+  \param root roote elment entry
  */
 void XmlParser::newfile (const char * root)
 {
@@ -407,9 +433,9 @@ void XmlParser::newfile (const char * root)
 
 
 /**
- * Adds a new child element entry
- * \param name Child name
- * \param value Value of the child
+  Adds a new child element entry
+  \param name Child name
+  \param value Value of the child
  */
 void XmlParser::addChild (const char *name, const char *value)
 {
@@ -421,9 +447,9 @@ void XmlParser::addChild (const char *name, const char *value)
 
 
 /**
- * Starts a new sub group
- * Only one level for now
- * \param name Name of the sub group
+  Starts a new sub group
+  Only one level for now
+  \param name Name of the sub group
  */
 void XmlParser::addGroup (const char *name)
 {
@@ -438,8 +464,8 @@ void XmlParser::addGroup (const char *name)
 
 
 /**
- * Ends the sub group, if any
- * Only one level for now
+  Ends the sub group, if any
+  Only one level for now
  */
 void XmlParser::endGroup ()
 {
@@ -454,9 +480,9 @@ void XmlParser::endGroup ()
 
 
 /**
- * Sets an attribute, using the last node entry
- * \param name Name
- * \param value Value
+  Sets an attribute, using the last node entry
+  \param name Name
+  \param value Value
  */
 void XmlParser::setAttr (const char *name, const char *value)
 {
@@ -468,7 +494,7 @@ void XmlParser::setAttr (const char *name, const char *value)
 
 
 /**
- * Adds a line feed to the XML data
+  Adds a line feed to the XML data
  */
 void XmlParser::addLineFeed ()
 {

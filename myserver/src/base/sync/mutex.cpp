@@ -1,19 +1,19 @@
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2008, 2009, 2010 Free Software
-Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2008, 2009, 2010 Free Software
+  Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -44,7 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 /*!
- *Constructor for the mutex class.
+  Constructor for the mutex class.
  */
 Mutex::Mutex ()
 {
@@ -52,7 +52,7 @@ Mutex::Mutex ()
   init ();
 }
 /*!
- *Initialize a mutex.
+  Initialize a mutex.
  */
 int Mutex::init ()
 {
@@ -83,7 +83,7 @@ int Mutex::init ()
 }
 
 /*!
- *Destroy a mutex.
+  Destroy a mutex.
  */
 int Mutex::destroy ()
 {
@@ -99,7 +99,7 @@ int Mutex::destroy ()
 }
 
 /*!
- *Lock the mutex.
+  Lock the mutex.
  */
 int Mutex::lock (u_long /*id*/)
 {
@@ -113,9 +113,9 @@ int Mutex::lock (u_long /*id*/)
 }
 
 /*!
- *Check if the mutex is already locked.
- *
- *\return Return true if the mutex is currently locked.
+  Check if the mutex is already locked.
+
+  \return Return true if the mutex is currently locked.
  */
 bool Mutex::isLocked ()
 {
@@ -146,7 +146,7 @@ Mutex::~Mutex ()
 }
 
 /*!
- *Get the handle for the mutex.
+  Get the handle for the mutex.
  */
 MutexHandle Mutex::getHandle ()
 {

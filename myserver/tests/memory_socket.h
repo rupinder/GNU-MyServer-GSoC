@@ -38,12 +38,12 @@ public:
 
   virtual int dataAvailable (int sec = 0, int usec = 500){return 0;}
 
-  int read (char* buffer, u_long len, u_long *nbr)
+  int read (char* buffer, size_t len, size_t *nbr)
   {
     return len;
   }
 
-  int write (const char* buffer, u_long len, u_long *nbw)
+  int write (const char* buffer, size_t len, size_t *nbw)
   {
     interBuff << buffer;
     return len;

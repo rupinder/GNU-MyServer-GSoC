@@ -29,12 +29,12 @@ public:
   VhostManagerHandler ();
   virtual ~VhostManagerHandler ();
   virtual Vhost* getVHost (const char*, const char*, u_short);
-  virtual Vhost* getVHost (int n);
+  virtual Vhost* getVHost (u_long n);
   virtual int load (const char *resource){return 0;}
 };
 
 /*!
- * Proxy class to a VhostManagerHandler object.
+  Proxy class to a VhostManagerHandler object.
  */
 class VhostManager
 {

@@ -41,7 +41,11 @@ using namespace std;
  */
 int HttpFile::putFile (HttpThreadContext* td, string& filename)
 {
-  u_long firstByte = td->request.rangeByteBegin;
+  off_t firstByte = td->request.rangeByteBegin;
+  int successCode = 500;
+  File file;
+  int symFlags = td->http->areSymlinksAllowed () ? 0
+    : File::NO_FOLLOW_SYMLINK;
 
   try
   {
@@ -53,11 +57,8 @@ int HttpFile::putFile (HttpThreadContext* td, string& filename)
 
     if (FilesUtility::nodeExists (td->filenamePath.c_str ()))
       {
-        File file;
         try
           {
-            int symFlags = td->http->areSymlinksAllowed () ? 0
-              : File::NO_FOLLOW_SYMLINK;
             file.openFile (td->filenamePath.c_str (), File::OPEN_IF_EXISTS
                            | File::WRITE | symFlags);
           }
@@ -69,49 +70,14 @@ int HttpFile::putFile (HttpThreadContext* td, string& filename)
             return td->http->raiseHTTPError (500);
           }
 
-        file.seek (firstByte);
-
-        for (;;)
-          {
-            u_long nbr = 0, nbw = 0;
-            if (td->inputData.read (td->buffer->getBuffer (),
-                                   td->buffer->getRealLength (), &nbr))
-              {
-                file.close ();
-                return td->http->raiseHTTPError (500);
-              }
-
-            if (nbr)
-              {
-                if (file.writeToFile (td->buffer->getBuffer (), nbr, &nbw))
-                  {
-                    file.close ();
-                    return td->http->raiseHTTPError (500);
-                  }
-              }
-            else
-              break;
-
-          if (nbw != nbr)
-            {
-              file.close ();
-              return td->http->raiseHTTPError (500);
-            }
-        }
-        file.close ();
-
-        td->http->raiseHTTPError (200);
-        return HttpDataHandler::RET_OK;
+        successCode = 200;
       }
     else
       {
         /* The file doesn't exist.  */
-        File file;
         try
           {
-            int symFlags = td->http->areSymlinksAllowed () ? 0
-              : File::NO_FOLLOW_SYMLINK;
-            file.openFile (td->filenamePath.c_str (), File::FILE_CREATE_ALWAYS
+            file.openFile (td->filenamePath.c_str (), File::FILE_OPEN_ALWAYS
                            | File::WRITE | symFlags);
           }
         catch (exception & e)
@@ -122,38 +88,45 @@ int HttpFile::putFile (HttpThreadContext* td, string& filename)
             return td->http->raiseHTTPError (500);
           }
 
-        for (;;)
+        successCode = 201;
+      }
+
+    if (firstByte)
+      file.seek (firstByte);
+
+    for (;;)
+      {
+        size_t nbr = 0, nbw = 0;
+        if (td->inputData.read (td->buffer->getBuffer (),
+                                td->buffer->getRealLength (), &nbr))
           {
-            u_long nbr = 0, nbw = 0;
-            if (td->inputData.read (td->buffer->getBuffer (),
-                                    td->buffer->getRealLength (), &nbr))
-              {
-                file.close ();
-                return td->http->raiseHTTPError (500);
-              }
+            file.close ();
+            return td->http->raiseHTTPError (500);
+          }
 
-            if (nbr)
-              {
-                if (file.writeToFile (td->buffer->getBuffer (), nbr, &nbw))
-                  {
-                    file.close ();
-                    return td->http->raiseHTTPError (500);
-                  }
-              }
-            else
-              break;
-
-            if (nbw != nbr)
+        if (! nbr)
+          break;
+        else
+          {
+            if (file.writeToFile (td->buffer->getBuffer (), nbr, &nbw))
               {
                 file.close ();
                 return td->http->raiseHTTPError (500);
               }
           }
-        file.close ();
 
-        td->http->raiseHTTPError (201);
-        return HttpDataHandler::RET_OK;
+        if (nbw != nbr)
+          {
+            file.close ();
+            return td->http->raiseHTTPError (500);
+          }
       }
+
+    file.close ();
+
+    td->http->raiseHTTPError (successCode);
+    return HttpDataHandler::RET_OK;
+
   }
   catch (exception & e)
     {
@@ -164,7 +137,7 @@ int HttpFile::putFile (HttpThreadContext* td, string& filename)
 }
 
 /*!
- * Delete the resource identified by filename.
+  Delete the resource identified by filename.
  */
 int HttpFile::deleteFile (HttpThreadContext* td,
                           string& filename)
@@ -194,13 +167,13 @@ int HttpFile::deleteFile (HttpThreadContext* td,
 }
 
 /*!
- * Generate the E-Tag header given the resource atime and size.
- *
- * \param etag output the etag to this string.
- * \param atime Resource last modified time.
- * \param size Resource size.
+  Generate the E-Tag header given the resource atime and size.
+
+  \param etag output the etag to this string.
+  \param atime Resource last modified time.
+  \param size Resource size.
  */
-void HttpFile::generateEtag (string & etag, u_long mtime, u_long fsize)
+void HttpFile::generateEtag (string & etag, u_long mtime, off_t fsize)
 {
 #define ROL(x, y) ((x << y) | (x >> (32 - y)))
   /* Do a bit rotation to have less significative bits in the middle.  */
@@ -212,33 +185,32 @@ void HttpFile::generateEtag (string & etag, u_long mtime, u_long fsize)
 
 
 /*!
- * Send a file to the client using the HTTP protocol.
- * \param td The current HTTP thread context.
- * \param filenamePath The path of the static file to send.
- * \param exec Not used.
- * \param execute Not used.
- * \param onlyHeader Specify if send only the HTTP header.
+  Send a file to the client using the HTTP protocol.
+  \param td The current HTTP thread context.
+  \param filenamePath The path of the static file to send.
+  \param exec Not used.
+  \param execute Not used.
+  \param onlyHeader Specify if send only the HTTP header.
   */
 int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
                     const char* exec, bool execute, bool onlyHeader)
 {
   /*
-   * With this routine we send a file through the HTTP protocol.
-   * Open the file and save its handle.
+    With this routine we send a file through the HTTP protocol.
+    Open the file and save its handle.
    */
-  int ret;
-  u_long filesize = 0;
+  off_t filesize = 0;
   File *file = NULL;
-  u_long bytesToSend;
-  u_long firstByte = td->request.rangeByteBegin;
-  u_long lastByte = td->request.rangeByteEnd;
+  size_t bytesToSend;
+  off_t firstByte = td->request.rangeByteBegin;
+  off_t lastByte = td->request.rangeByteEnd;
   bool keepalive = false;
   bool useChunks = false;
   bool useModifiers = false;
   MemoryStream memStream (td->auxiliaryBuffer);
   FiltersChain chain;
-  u_long nbw;
-  u_long nbr;
+  size_t nbw;
+  size_t nbr;
   time_t lastMT;
   string tmpTime;
   u_long dataSent = 0;
@@ -246,16 +218,16 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
   try
     {
 
-      if (!td->request.cmd.compare ("PUT"))
+      if (! td->request.cmd.compare ("PUT"))
         return putFile (td, td->filenamePath);
 
-      if (!td->request.cmd.compare ("DELETE"))
+      if (! td->request.cmd.compare ("DELETE"))
         return deleteFile (td, td->filenamePath);
 
-      if (!(td->permissions & MYSERVER_PERMISSION_READ))
+      if (! (td->permissions & MYSERVER_PERMISSION_READ))
         return td->http->sendAuth ();
 
-      if (!FilesUtility::nodeExists (filenamePath))
+      if (! FilesUtility::nodeExists (filenamePath))
         return td->http->raiseHTTPError (404);
 
       lastMT = FilesUtility::getLastModTime (td->filenamePath.c_str ());
@@ -269,8 +241,8 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
       HttpRequestHeader::Entry *ifModifiedSince =
         td->request.other.get ("last-modified");
 
-      if (ifModifiedSince && ifModifiedSince->value->length () &&
-          !ifModifiedSince->value->compare (tmpTime))
+      if (ifModifiedSince && ifModifiedSince->value.length () &&
+          !ifModifiedSince->value.compare (tmpTime))
         return td->http->sendHTTPNonModified ();
 
       try
@@ -291,7 +263,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         }
 
     /*
-     * Check how many bytes are ready to be send.
+      Check how many bytes are ready to be send.
      */
     filesize = file->getFileSize ();
 
@@ -299,19 +271,19 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     generateEtag (etag, lastMT, filesize);
 
     HttpRequestHeader::Entry *etagHeader = td->request.other.get ("etag");
-    if (etagHeader && !etagHeader->value->compare (etag))
+    if (etagHeader && !etagHeader->value.compare (etag))
       return td->http->sendHTTPNonModified ();
     else
       {
         HttpResponseHeader::Entry *e = td->response.other.get ("etag");
         if (e)
-          e->value->assign (etag);
+          e->value.assign (etag);
         else
           {
             e = new HttpResponseHeader::Entry ();
-            e->name->assign ("etag");
-            e->value->assign (etag);
-            td->response.other.put (*(e->name), e);
+            e->name.assign ("etag");
+            e->value.assign (etag);
+            td->response.other.put (e->name, e);
           }
       }
 
@@ -337,13 +309,13 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
 
         e = td->response.other.get ("content-range");
         if (e)
-          e->value->assign (buffer.str ());
+          e->value.assign (buffer.str ());
         else
           {
             e = new HttpResponseHeader::Entry ();
-            e->name->assign ("content-range");
-            e->value->assign (buffer.str ());
-            td->response.other.put (*(e->name), e);
+            e->name.assign ("content-range");
+            e->value.assign (buffer.str ());
+            td->response.other.put (e->name, e);
           }
       }
     chain.setStream (&memStream);
@@ -355,7 +327,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
                                                                td->mime->filters,
                                                                &memStream,
                                                                &nbw, 0,
-                                                               e ? e->value : NULL);
+                                                               e ? &e->value : NULL);
         memStream.refresh ();
         dataSent += nbw;
       }
@@ -364,7 +336,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     if (!useModifiers)
       {
         ostringstream buffer;
-        buffer << (u_int) bytesToSend;
+        buffer << bytesToSend;
         td->response.contentLength.assign (buffer.str ());
       }
 
@@ -381,13 +353,13 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         e = td->response.other.get ("content-encoding");
 
         if (e)
-          e->value->assign (s);
+          e->value.assign (s);
         else
           {
             e = new HttpResponseHeader::Entry ();
-            e->name->assign ("content-encoding");
-            e->value->assign (s);
-            td->response.other.put (*(e->name), e);
+            e->name.assign ("content-encoding");
+            e->value.assign (s);
+            td->response.other.put (e->name, e);
           }
         /* Do not use chunked transfer with old HTTP/1.0 clients.  */
         if (keepalive)
@@ -399,13 +371,13 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
         HttpResponseHeader::Entry *e;
         e = td->response.other.get ("transfer-encoding");
         if (e)
-          e->value->assign ("chunked");
+          e->value.assign ("chunked");
         else
           {
             e = new HttpResponseHeader::Entry ();
-            e->name->assign ("transfer-encoding");
-            e->value->assign ("chunked");
-            td->response.other.put (*(e->name), e);
+            e->name.assign ("transfer-encoding");
+            e->value.assign ("chunked");
+            td->response.other.put (e->name, e);
           }
       }
     else
@@ -437,7 +409,7 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     if (!useChunks && chain.isEmpty () && !td->appendOutputs
         && !(td->http->getProtocolOptions () & Protocol::SSL))
       {
-        u_long nbw = 0;
+        size_t nbw = 0;
         file->fastCopyToSocket (td->connection->socket, firstByte,
                                 td->buffer, &nbw);
 
@@ -480,18 +452,17 @@ int HttpFile::send (HttpThreadContext* td, const char *filenamePath,
     /* Flush the rest of the file.  */
     for (;;)
       {
-        u_long nbr;
-        u_long nbw;
+        size_t nbr;
+        size_t nbw;
 
         /* Check if there are other bytes to send.  */
         if (bytesToSend)
           {
             /* Read from the file the bytes to send.  */
-            file->read (td->buffer->getBuffer (),
-                                  std::min (static_cast<u_long> (bytesToSend),
-                      static_cast<u_long> (td->buffer->getRealLength () / 2)),
-                        &nbr);
+            size_t size = std::min (bytesToSend,
+                                    td->buffer->getRealLength () / 2);
 
+            file->read (td->buffer->getBuffer (), size, &nbr);
             if (nbr == 0)
               {
                 bytesToSend = 0;

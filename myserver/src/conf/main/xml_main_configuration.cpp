@@ -38,8 +38,8 @@ void XmlMainConfiguration::readData (list<NodeTree<string>*> *hashedDataTrees,
 }
 
 /*!
- * Return the last value defined as <DEFINE name="FIELD" value="VALUE" /> in the
- * xml file.
+  Return the last value defined as <DEFINE name="FIELD" value="VALUE" /> in the
+  xml file.
  */
 const char *XmlMainConfiguration::getValue (const char* field)
 {
@@ -49,7 +49,6 @@ const char *XmlMainConfiguration::getValue (const char* field)
   for (; lcur; lcur = lcur->next)
     if (lcur->name && !xmlStrcmp (lcur->name, (const xmlChar *) "DEFINE"))
       {
-        NodeTree<string> *node = new NodeTree<string> ();
         const char *name = NULL;
         const char *value = NULL;
 

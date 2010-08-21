@@ -131,11 +131,19 @@ public:
   /*! Check if the connection/connection.has a continuation.  */
   bool hasContinuation (){return continuation ? true : false;}
 
-  MemBuf *getConnectionBuffer (){return connectionBuffer;}
+  MemBuf *getConnectionBuffer (){return &connectionBuffer;}
+  void setSchedulerHandler (void (*schedulerHandler) (void *, Connection *,
+                                                      int),
+                            void *schedulerHandlerArgument);
+
+  int notifySchedulerHandler (int event);
 protected:
 
+  void (*schedulerHandler) (void *, Connection *, int event);
+  void *schedulerHandlerArgument;
+
   /*! This buffer must be used only by the ClientsTHREAD class.  */
-  MemBuf *connectionBuffer;
+  MemBuf connectionBuffer;
 
   ClientsThread *thread;
 
@@ -152,19 +160,19 @@ protected:
   u_short port;
 
   /*! Login name.  */
-  string *login;
+  string login;
 
   /*! Password used to log in.  */
-  string *password;
+  string password;
 
   /*! # of tries for an authorized login.  */
   char nTries;
 
   /*! Remote IP address.  */
-  string *ipAddr;
+  string ipAddr;
 
   /*! Local IP used to connect to.  */
-  string *localIpAddr;
+  string localIpAddr;
 
   /*! Local port used to connect to.  */
   u_short localPort;

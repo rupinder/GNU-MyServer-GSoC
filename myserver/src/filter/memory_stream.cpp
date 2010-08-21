@@ -27,12 +27,12 @@ using namespace std;
 #include <string.h>
 
 /*!
- *Inherited from Stream.
+  Inherited from Stream.
  */
-int MemoryStream::read (char* buffer, u_long len, u_long *nbr)
+int MemoryStream::read (char* buffer, size_t len, size_t *nbr)
 {
   char *b;
-  *nbr = std::min (len, static_cast<u_long>(data->getLength () - readSeek));
+  *nbr = std::min (len, static_cast<size_t>(data->getLength () - readSeek));
   b = data->getBuffer () + readSeek;
 
   memcpy (buffer, b, *nbr);
@@ -43,20 +43,20 @@ int MemoryStream::read (char* buffer, u_long len, u_long *nbr)
 }
 
 /*!
- *Read directly on the stream.
+  Read directly on the stream.
  */
-int MemoryStream::read (Stream* s, u_long len, u_long *nbr)
+int MemoryStream::read (Stream* s, size_t len, size_t *nbr)
 {
-  u_long towrite = *nbr = std::min (len, static_cast<u_long>(data->getLength () - readSeek));
+  size_t towrite = *nbr = std::min (len, static_cast<size_t>(data->getLength () - readSeek));
   int ret = s->write (data->getBuffer ()+readSeek, towrite, nbr);
   readSeek += towrite;
   return ret;
 }
 
 /*!
- *Inherited from Stream.
+  Inherited from Stream.
  */
-int MemoryStream::write (const char* buffer, u_long len, u_long *nbw)
+int MemoryStream::write (const char* buffer, size_t len, size_t *nbw)
 {
   data->addBuffer (buffer, len);
   *nbw = len;
@@ -64,16 +64,16 @@ int MemoryStream::write (const char* buffer, u_long len, u_long *nbw)
 }
 
 /*!
- *Inherited from Stream.
+  Inherited from Stream.
  */
-int MemoryStream::flush (u_long* nbw)
+int MemoryStream::flush (size_t* nbw)
 {
   *nbw = 0;
   return 0;
 }
 
 /*!
- *Use an external buffer to store data.
+  Use an external buffer to store data.
  */
 MemoryStream::MemoryStream (MemBuf* out)
 {
@@ -84,7 +84,7 @@ MemoryStream::MemoryStream (MemBuf* out)
 }
 
 /*!
- *Return how many bytes can be read.
+  Return how many bytes can be read.
  */
 int MemoryStream::availableToRead ()
 {
@@ -92,7 +92,7 @@ int MemoryStream::availableToRead ()
 }
 
 /*!
- *Construct the object.
+  Construct the object.
  */
 MemoryStream::MemoryStream ()
 {
@@ -103,7 +103,7 @@ MemoryStream::MemoryStream ()
 }
 
 /*!
- *Inherited from Stream.
+  Inherited from Stream.
  */
 MemoryStream::~MemoryStream ()
 {
@@ -112,7 +112,7 @@ MemoryStream::~MemoryStream ()
 }
 
 /*!
- *Recycle the buffer.
+  Recycle the buffer.
  */
 int MemoryStream::refresh ()
 {

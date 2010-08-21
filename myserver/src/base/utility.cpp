@@ -1,19 +1,19 @@
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009, 2010 Free Software
-Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009, 2010 Free Software
+  Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -53,7 +53,7 @@ static char *currentPath = NULL;
 static size_t currentPathLen;
 
 /*!
- * Returns the number of processors available on the local machine.
+  Returns the number of processors available on the local machine.
  */
 u_long getCPUCount ()
 {
@@ -61,9 +61,9 @@ u_long getCPUCount ()
 }
 
 /*!
- * Save the current working directory.
- * Return -1 on fails.
- * Return 0 on success.
+  Save the current working directory.
+  Return -1 on fails.
+  Return 0 on success.
  */
 static int initializeCwd ()
 {
@@ -79,9 +79,9 @@ static int initializeCwd ()
 }
 
 /*!
- * Get the defult directory using a string as output.
- * Return 0 on success.
- * \param out The string where write.
+  Get the defult directory using a string as output.
+  Return 0 on success.
+  \param out The string where write.
  */
 int getdefaultwd (string& out)
 {
@@ -94,7 +94,7 @@ int getdefaultwd (string& out)
 }
 
 /*!
- * Free the cwd buffer.
+  Free the cwd buffer.
  */
 int freecwd ()
 {
@@ -106,7 +106,7 @@ int freecwd ()
 }
 
 /*!
- *Get the default working directory length.
+  Get the default working directory length.
  */
 int getdefaultwdlen ()
 {
@@ -117,9 +117,9 @@ int getdefaultwdlen ()
 }
 
 /*!
- *Get the default working directory.
- *\param path The buffer where write.
- *\param len The length of the buffer.
+  Get the default working directory.
+  \param path The buffer where write.
+  \param len The length of the buffer.
  */
 char *getdefaultwd (char *path, int len)
 {
@@ -139,8 +139,8 @@ char *getdefaultwd (char *path, int len)
 }
 
 /*!
- * Set the current working directory. Returns Zero if successful.
- * \param dir The current working directory.
+  Set the current working directory. Returns Zero if successful.
+  \param dir The current working directory.
  */
 int setcwd (const char *dir)
 {
@@ -155,8 +155,8 @@ int setcwd (const char *dir)
 }
 
 /*!
- * Set the text color to red on black.
- * Return 0 on success.
+  Set the text color to red on black.
+  Return 0 on success.
  */
 int preparePrintError ()
 {
@@ -174,8 +174,8 @@ int preparePrintError ()
 }
 
 /*!
- * Set the text color to white on black.
- * Return 0 on success.
+  Set the text color to white on black.
+  Return 0 on success.
  */
 int endPrintError ()
 {
@@ -195,27 +195,23 @@ int endPrintError ()
 }
 
 /*!
- * Return the ticks count in milliseconds.
- * Return 0 on errors.
+  Return the ticks count in microseconds.
+  Return 0 on errors.
  */
 u_long getTicks ()
 {
-#ifdef WIN32
-  return GetTickCount ();
-#else
   struct timeval tval;
   int ret = checked::gettimeofday (&tval, 0);
   if (ret == -1)
     return 0;
-  return  (tval.tv_sec * 1000) + (tval.tv_usec / 1000);
-#endif
+  return  (tval.tv_sec * 1000000) + tval.tv_usec;
 }
 
 /*!
- * Read a file handle from a socket.
- * \param s Socket handle to read from.
- * \param File handle received.
- * \return 0 on success.
+  Read a file handle from a socket.
+  \param s Socket handle to read from.
+  \param File handle received.
+  \return 0 on success.
  */
 int readFileHandle (SocketHandle s, Handle* fd)
 {
@@ -249,10 +245,10 @@ int readFileHandle (SocketHandle s, Handle* fd)
 }
 
 /*!
- * Write a file handle to a socket.
- * \param s Socket handle to write to.
- * \param File handle received.
- * \return 0 on success.
+  Write a file handle to a socket.
+  \param s Socket handle to write to.
+  \param File handle received.
+  \return 0 on success.
  */
 int writeFileHandle (SocketHandle s, Handle fd)
 {

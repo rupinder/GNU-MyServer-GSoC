@@ -23,10 +23,10 @@ using namespace std;
 Regex* PluginInfo::regex = NULL;
 
 /*!
- *Construct a plugin info object.
- *\param name plugin name.
- *\param enabled is true if the plugin has to be enabled.
- *\param global is true if the plugin's symbols have to be loaded globally.
+  Construct a plugin info object.
+  \param name plugin name.
+  \param enabled is true if the plugin has to be enabled.
+  \param global is true if the plugin's symbols have to be loaded globally.
  */
 PluginInfo::PluginInfo (string& name, bool enabled, bool global)
 {
@@ -40,7 +40,7 @@ PluginInfo::PluginInfo (string& name, bool enabled, bool global)
 }
 
 /*!
- *Destroy the object.
+  Destroy the object.
  */
 PluginInfo::~PluginInfo ()
 {
@@ -49,7 +49,7 @@ PluginInfo::~PluginInfo ()
 }
 
 /*!
- *Returns true if the plugin is enabled.
+  Returns true if the plugin is enabled.
  */
 bool PluginInfo::isEnabled ()
 {
@@ -57,7 +57,7 @@ bool PluginInfo::isEnabled ()
 }
 
 /*!
- *Returns true if the plugin is loaded globally.
+  Returns true if the plugin is loaded globally.
  */
 bool PluginInfo::isGlobal ()
 {
@@ -65,10 +65,10 @@ bool PluginInfo::isGlobal ()
 }
 
 /*!
- * Adds a dependence to the plugin.
- *\param name plugin name
- *\param minVersion min version for the dependence.
- *\param maxVersion max version for the dependence.
+  Adds a dependence to the plugin.
+  \param name plugin name
+  \param minVersion min version for the dependence.
+  \param maxVersion max version for the dependence.
  */
 void PluginInfo::addDependence (string name, int minVersion, int maxVersion)
 {
@@ -76,7 +76,7 @@ void PluginInfo::addDependence (string name, int minVersion, int maxVersion)
 }
 
 /*!
- * Returns the plugin version.
+  Returns the plugin version.
  */
 int PluginInfo::getVersion ()
 {
@@ -84,7 +84,7 @@ int PluginInfo::getVersion ()
 }
 
 /*!
- * Sets the plugin version.
+  Sets the plugin version.
  */
 void PluginInfo::setVersion (int v)
 {
@@ -92,7 +92,7 @@ void PluginInfo::setVersion (int v)
 }
 
 /*!
- * Returns the minimum MyServer version plugin is compatible.
+  Returns the minimum MyServer version plugin is compatible.
  */
 int PluginInfo::getMyServerMinVersion ()
 {
@@ -100,7 +100,7 @@ int PluginInfo::getMyServerMinVersion ()
 }
 
 /*!
- * Returns the maximum MyServer version plugin is compatible.
+  Returns the maximum MyServer version plugin is compatible.
  */
 int PluginInfo::getMyServerMaxVersion ()
 {
@@ -109,7 +109,7 @@ int PluginInfo::getMyServerMaxVersion ()
 
 
 /*!
- * Sets the minimum MyServer version plugin is compatible.
+  Sets the minimum MyServer version plugin is compatible.
  */
 int PluginInfo::setMyServerMinVersion (int v)
 {
@@ -118,7 +118,7 @@ int PluginInfo::setMyServerMinVersion (int v)
 }
 
 /*!
- * Sets the maximum MyServer version plugin is compatible.
+  Sets the maximum MyServer version plugin is compatible.
  */
 int PluginInfo::setMyServerMaxVersion (int v)
 {
@@ -127,7 +127,7 @@ int PluginInfo::setMyServerMaxVersion (int v)
 }
 
 /*!
- * Returns the plugin name
+  Returns the plugin name
  */
 string PluginInfo::getName ()
 {
@@ -135,7 +135,7 @@ string PluginInfo::getName ()
 }
 
 /*!
- * Returns the plugin object.
+  Returns the plugin object.
  */
 Plugin* PluginInfo::getPlugin ()
 {
@@ -143,7 +143,7 @@ Plugin* PluginInfo::getPlugin ()
 }
 
 /*!
- * Sets the state of the plugin.
+  Sets the state of the plugin.
  */
 void PluginInfo::setEnabled (bool enabled)
 {
@@ -151,7 +151,7 @@ void PluginInfo::setEnabled (bool enabled)
 }
 
 /*!
- * Returns the depandence, if any exists, with a plugin with the specified name.
+  Returns the depandence, if any exists, with a plugin with the specified name.
  */
 pair<int,int>* PluginInfo::getDependence (string name)
 {
@@ -165,7 +165,7 @@ pair<int,int>* PluginInfo::getDependence (string name)
   return NULL;
 }
 /*!
- * Sets the plugin object.
+  Sets the plugin object.
  */
 void PluginInfo::setPlugin (Plugin* plugin)
 {
@@ -173,7 +173,7 @@ void PluginInfo::setPlugin (Plugin* plugin)
 }
 
 /*!
- * Removes the plugin object.
+  Removes the plugin object.
  */
 Plugin* PluginInfo::removePlugin ()
 {
@@ -184,8 +184,8 @@ Plugin* PluginInfo::removePlugin ()
 }
 
 /*!
- * Converts a string in the format "a.b.c.d" in an int in the format abcd where
- * each number takes 8 bits.
+  Converts a string in the format "a.b.c.d" in an int in the format abcd where
+  each number takes 8 bits.
  */
 int PluginInfo::convertVersion (const string & s)
 {

@@ -44,18 +44,18 @@
 # include <include/base/exceptions/exceptions.h>
 
 /*!
- * Group of checked functions that throws an exception in case of error,
- * instead of just setting errno
+  Group of checked functions that throws an exception in case of error,
+  instead of just setting errno
  */
 namespace checked
 {
   void raiseException ();
 
   /*!
-   * Check if the last operation was successful, the operation is consider
-   * successful if the return value is >= 0.
+    Check if the last operation was successful, the operation is consider
+    successful if the return value is >= 0.
    *
-   * \param x The function's return value
+    \param x The function's return value
    */
   static inline int checkError (int x)
   {
@@ -66,10 +66,10 @@ namespace checked
   }
 
   /*!
-   * Check if the last operation was successful, the operation is consider
-   * successful if the return value is != NULL.
+    Check if the last operation was successful, the operation is consider
+    successful if the return value is != NULL.
    *
-   * \param x The function's return value
+    \param x The function's return value
    */
   static inline const void *checkErrorNull (const void *x)
   {

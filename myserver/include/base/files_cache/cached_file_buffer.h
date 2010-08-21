@@ -23,6 +23,7 @@
 # include "myserver.h"
 # include <include/filter/stream.h>
 # include <include/base/file/file.h>
+# include <include/base/utility.h>
 # include <include/base/sync/mutex.h>
 # include <string>
 
@@ -40,7 +41,7 @@ public:
   void setFactoryToNotify (CachedFileFactory *cff);
   CachedFileFactory* getFactoryToNotify (){return factoryToNotify;}
 
-  u_long getFileSize (){return fileSize;}
+  off_t getFileSize (){return fileSize;}
   CachedFileBuffer (const char* filename);
   CachedFileBuffer (File* file);
   CachedFileBuffer (const char* buffer, u_long size);
@@ -48,11 +49,29 @@ public:
 
   const char* getFilename (){return filename.c_str ();}
   const char* getBuffer (){return buffer;}
+
+  time_t getMtime () {return mtime;}
+
+  bool isSymlink () {return S_ISLNK (fstat.st_mode);}
+
+  bool revalidate (const char *res);
+
+  void refreshExpireTime (u_long now) {expireTime = now + MYSERVER_SEC (5);}
+  u_long getExpireTime () {return expireTime;}
+
 protected:
+  /*! Last mtime for this file.  */
+  time_t mtime;
+
+  /*! Specify when to check again the entry validity.  */
+  u_long expireTime;
+
+  struct stat fstat;
+
   Mutex mutex;
   char *buffer;
   u_long refCounter;
-  u_long fileSize;
+  size_t fileSize;
   CachedFileFactory *factoryToNotify;
   string filename;
 };

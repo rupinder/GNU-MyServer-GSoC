@@ -21,7 +21,7 @@
 #include <include/base/regex/myserver_regex.h>
 
 /*!
- * Compile the regex pattern.
+  Compile the regex pattern.
  */
 int Regex::compile (const char *p, int f)
 {
@@ -35,7 +35,7 @@ int Regex::compile (const char *p, int f)
 }
 
 /*!
- * Match the pattern against strings.
+  Match the pattern against strings.
  */
 int Regex::exec (const char *text, size_t nmatch, regmatch_t matchptr [],
                  int eflags)
@@ -47,7 +47,7 @@ int Regex::exec (const char *text, size_t nmatch, regmatch_t matchptr [],
 }
 
 /*!
- * Free the used memory.
+  Free the used memory.
  */
 void Regex::free ()
 {
@@ -57,7 +57,7 @@ void Regex::free ()
 }
 
 /*!
- * Destructor for the class
+  Destructor for the class
  */
 Regex::~Regex ()
 {
@@ -65,7 +65,7 @@ Regex::~Regex ()
 }
 
 /*!
- * Constructor for the class.
+  Constructor for the class.
  */
 Regex::Regex (const char *pattern, int flags)
 {
@@ -73,7 +73,7 @@ Regex::Regex (const char *pattern, int flags)
   compile (pattern, flags);
 }
 /*!
- * Return a nonzero value if the regex was compiled.
+  Return a nonzero value if the regex was compiled.
  */
 int Regex::isCompiled ()
 {
@@ -81,7 +81,7 @@ int Regex::isCompiled ()
 }
 
 /*!
- * Construct by copy.
+  Construct by copy.
  */
 Regex::Regex (Regex& r)
 {
@@ -89,7 +89,7 @@ Regex::Regex (Regex& r)
 }
 
 /*!
- * Create a clone.
+  Create a clone.
  */
 void Regex::clone (Regex& r)
 {

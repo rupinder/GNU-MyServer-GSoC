@@ -28,7 +28,7 @@
 
 
 /*!
- * Base class to handle HTTP data.
+  Base class to handle HTTP data.
  */
 class HttpDataHandler
 {

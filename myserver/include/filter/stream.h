@@ -31,14 +31,14 @@ typedef int Handle;
 typedef int FileHandle;
 
 /*!
- *Abstract class to handle virtual data streams.
+  Abstract class to handle virtual data streams.
  */
 class Stream
 {
 public:
-  virtual int read (char* buffer, u_long len, u_long*);
-  virtual int write (const char* buffer, u_long len, u_long*);
-  virtual int flush (u_long*);
+  virtual int read (char *buffer, size_t len, size_t *);
+  virtual int write (const char *buffer, size_t len, size_t *);
+  virtual int flush (size_t *);
   virtual Handle getHandle ();
   virtual int close ();
   Stream ();

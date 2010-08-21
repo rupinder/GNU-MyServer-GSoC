@@ -1,19 +1,19 @@
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010 Free
-Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010 Free
+  Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -39,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 /*!
- *Source code to wrap the socket library to MyServer project.
+  Source code to wrap the socket library to MyServer project.
  */
 int Socket::startupSocketLib ()
 {
@@ -56,7 +56,7 @@ int Socket::startupSocketLib ()
 }
 
 /*!
- *Returns the socket handle
+  Returns the socket handle
  */
 Handle Socket::getHandle ()
 {
@@ -64,7 +64,7 @@ Handle Socket::getHandle ()
 }
 
 /*!
- *Set the handle for the socket
+  Set the handle for the socket
  */
 void Socket::setHandle (SocketHandle h)
 {
@@ -72,7 +72,7 @@ void Socket::setHandle (SocketHandle h)
 }
 
 /*!
- *Check if the two sockets have the same handle descriptor
+  Check if the two sockets have the same handle descriptor
  */
 int Socket::operator==(Socket* s)
 {
@@ -80,7 +80,7 @@ int Socket::operator==(Socket* s)
 }
 
 /*!
- *Set the socket using the = operator
+  Set the socket using the = operator
  */
 int Socket::operator=(Socket* s)
 {
@@ -91,7 +91,7 @@ int Socket::operator=(Socket* s)
   return 0;
 }
 /*!
- *Create the socket.
+  Create the socket.
  */
 int Socket::socket (int af, int type, int protocol)
 {
@@ -100,7 +100,7 @@ int Socket::socket (int af, int type, int protocol)
 }
 
 /*!
- * C'tor.
+  C'tor.
  */
 Socket::Socket (SocketHandle handle)
 {
@@ -110,7 +110,7 @@ Socket::Socket (SocketHandle handle)
 }
 
 /*!
- * C'tor.
+  C'tor.
  */
 Socket::Socket (Socket* socket)
 {
@@ -126,8 +126,8 @@ Socket::~Socket ()
 }
 
 /*!
- *Return the throttling rate (bytes/second) used by the socket. A return value
- *of zero means that no throttling is used.
+  Return the throttling rate (bytes/second) used by the socket. A return value
+  of zero means that no throttling is used.
  */
 u_long Socket::getThrottling ()
 {
@@ -135,8 +135,8 @@ u_long Socket::getThrottling ()
 }
 
 /*!
- *Set the throttling rate (bytes/second) for the socket.
- *Use a zero rate to disable throttling.
+  Set the throttling rate (bytes/second) for the socket.
+  Use a zero rate to disable throttling.
  */
 void Socket::setThrottling (u_long tr)
 {
@@ -144,18 +144,18 @@ void Socket::setThrottling (u_long tr)
 }
 
 /*!
- *Constructor of the class.
+  Constructor of the class.
  */
 Socket::Socket ()
 {
-  /*! Reset everything.  */
+  /* Reset everything.  */
   throttlingRate = 0;
   serverSocket = NULL;
   setHandle (-1);
 }
 
 /*!
- *Bind the port to the socket.
+  Bind the port to the socket.
  */
 int Socket::bind (MYSERVER_SOCKADDR* sa, int namelen)
 {
@@ -173,7 +173,7 @@ int Socket::bind (MYSERVER_SOCKADDR* sa, int namelen)
 }
 
 /*!
- *Listen for other connections.
+  Listen for other connections.
  */
 int Socket::listen (int max)
 {
@@ -181,21 +181,26 @@ int Socket::listen (int max)
 }
 
 /*!
- *Accept a new connection.
+  Accept a new connection.
  */
-Socket* Socket::accept (MYSERVER_SOCKADDR* sa, socklen_t* sockaddrlen)
+Socket* Socket::accept (MYSERVER_SOCKADDR *sa, socklen_t *sockaddrlen)
 {
-  int acceptedHandle = checked::accept (fd, (struct sockaddr *)sa,
+  int acceptedHandle = gnulib::accept (fd, (struct sockaddr *)sa,
                                        sockaddrlen);
 
-  if (acceptedHandle >= 0)
-    return new Socket ((SocketHandle) acceptedHandle);
-  else
-    return NULL;
+  if (acceptedHandle < 0)
+    {
+      if (errno == EAGAIN)
+        return NULL;
+      else
+        checked::raiseException ();
+    }
+
+  return new Socket (acceptedHandle);
 }
 
 /*!
- *Close the socket.
+  Close the socket.
  */
 int Socket::close ()
 {
@@ -208,7 +213,7 @@ int Socket::close ()
 }
 
 /*!
- *Returns an host by its address.
+  Returns an host by its address.
  */
 MYSERVER_HOSTENT *Socket::gethostbyaddr (char* addr, int len, int type)
 {
@@ -216,7 +221,7 @@ MYSERVER_HOSTENT *Socket::gethostbyaddr (char* addr, int len, int type)
 }
 
 /*!
-*Returns an host by its name
+  Returns an host by its name
 */
 MYSERVER_HOSTENT *Socket::gethostbyname (const char *hostname)
 {
@@ -224,7 +229,7 @@ MYSERVER_HOSTENT *Socket::gethostbyname (const char *hostname)
 }
 
 /*!
- *Shutdown the socket.
+  Shutdown the socket.
  */
 int Socket::shutdown (int how)
 {
@@ -232,7 +237,7 @@ int Socket::shutdown (int how)
 }
 
 /*!
- *Set socket options.
+  Set socket options.
  */
 int  Socket::setsockopt (int level, int optname,
                        const char *optval, int optlen)
@@ -241,57 +246,51 @@ int  Socket::setsockopt (int level, int optname,
 }
 
 /*!
- * Fill the out string with a list of the local IPs. Returns 0 on success.
+  Fill the out string with a list of the local IPs. Returns 0 on success.
  */
-int Socket::getLocalIPsList (string &out)
+void Socket::getLocalIPsList (string &out)
 {
   char serverName[HOST_NAME_MAX + 1];
   memset (serverName, 0, HOST_NAME_MAX + 1);
 
   Socket::gethostname (serverName, HOST_NAME_MAX);
 #if HAVE_IPV6
-  addrinfo aiHints = { 0 }, *pHostInfo = NULL, *pCrtHostInfo = NULL;
-  /* only interested in socket types the that server will listen to.  */
+  addrinfo aiHints = {0}, *pHostInfo = NULL, *pCrtHostInfo = NULL;
   aiHints.ai_socktype = SOCK_STREAM;
-  if ( getaddrinfo (serverName, NULL, &aiHints, &pHostInfo) == 0 &&
-       pHostInfo != NULL )
+
+  checked::checkError (getaddrinfo (serverName, NULL, &aiHints, &pHostInfo));
+  if (pHostInfo != NULL)
     {
       sockaddr_storage *pCurrentSockAddr = NULL;
       char straddr[NI_MAXHOST] = "";
       memset (straddr, 0, NI_MAXHOST);
       ostringstream stream;
-      for ( pCrtHostInfo = pHostInfo; pCrtHostInfo != NULL;
-            pCrtHostInfo = pCrtHostInfo->ai_next )
+      for (pCrtHostInfo = pHostInfo; pCrtHostInfo != NULL;
+           pCrtHostInfo = pCrtHostInfo->ai_next)
         {
-          pCurrentSockAddr =
-            reinterpret_cast<sockaddr_storage *>(pCrtHostInfo->ai_addr);
+          pCurrentSockAddr = (sockaddr_storage *)(pCrtHostInfo->ai_addr);
           if ( pCurrentSockAddr == NULL )
             continue;
 
-          if ( !getnameinfo (reinterpret_cast<sockaddr *>(pCurrentSockAddr),
-                             sizeof (sockaddr_storage), straddr, NI_MAXHOST,
-                             NULL, 0, NI_NUMERICHOST) )
-            {
-              stream << ( !stream.str ().empty () ? ", " : "" ) << straddr;
-            }
-          else
-            return -1;
+          checked::checkError (getnameinfo (pCrtHostInfo->ai_addr,
+                                            sizeof (sockaddr_storage), straddr,
+                                            NI_MAXHOST, NULL, 0,
+                                            NI_NUMERICHOST));
+
+          stream << ( !stream.str ().empty () ? ", " : "" ) << straddr;
         }
+
       out.assign (stream.str ());
       freeaddrinfo (pHostInfo);
     }
-  return 0;
-#else// !HAVE_IPV6
-
+#else
   MYSERVER_HOSTENT *localhe;
   in_addr ia;
   localhe = Socket::gethostbyname (serverName);
-
   if (localhe)
     {
       ostringstream stream;
       int i;
-      /*! Print all the interfaces IPs. */
       for (i = 0; (localhe->h_addr_list[i]); i++)
         {
 # ifdef WIN32
@@ -303,21 +302,18 @@ int Socket::getLocalIPsList (string &out)
         }
 
       out.assign (stream.str ());
-      return 0;
     }
   else
     {
       out.assign (LOCALHOST_ADDRESS);
-      return 0;
     }
-#endif//HAVE_IPV6
-  return -1;
+#endif
 }
 
 /*!
- *Send data over the socket.
- *Return -1 on error.
- *This routine is accessible only from the Socket class.
+  Send data over the socket.
+  Return -1 on error.
+  This routine is accessible only from the Socket class.
  */
 int Socket::rawSend (const char* buffer, int len, int flags)
 {
@@ -325,16 +321,16 @@ int Socket::rawSend (const char* buffer, int len, int flags)
 }
 
 /*!
- *Send data over the socket.
- *Returns -1 on error.
- *Returns the number of bytes sent on success.
- *If a throttling rate is specified, send will use it.
+  Send data over the socket.
+  Returns -1 on error.
+  Returns the number of bytes sent on success.
+  If a throttling rate is specified, send will use it.
  */
 int Socket::send (const char* buffer, int len, int flags)
 {
   u_long toSend = (u_long) len;
   int ret;
-  /*! If no throttling is specified, send only one big data chunk. */
+  /* If no throttling is specified, send only one big data chunk. */
   if (throttlingRate == 0)
   {
     ret = rawSend (buffer, len, flags);
@@ -382,8 +378,8 @@ void Socket::reuseAddress (bool reuseAddr)
 }
 
 /*!
- *Connect to the specified host:port.
- *Returns zero on success.
+  Connect to the specified host:port.
+  Returns zero on success.
  */
 int Socket::connect (const char* host, u_short port)
 {
@@ -403,8 +399,8 @@ int Socket::connect (const char* host, u_short port)
   addrinfo aiHints = { 0 };
 
   /*
-   *If the socket is not created, wait to see what address families
-   *have this host, than create socket.
+    If the socket is not created, wait to see what address families
+    have this host, than create socket.
    */
 
   if ( getsockname (&thisSock, &nLength) == 0 )
@@ -414,7 +410,7 @@ int Socket::connect (const char* host, u_short port)
     }
 
   memset (szPort, 0, sizeof (char)*10);
-  checked::snprintf (szPort, 10, "%d", port);
+  gnulib::snprintf (szPort, 10, "%d", port);
 
   if (aiHints.ai_family != 0)
     nGetaddrinfoRet = getaddrinfo (host, NULL, &aiHints, &pHostInfo);
@@ -464,7 +460,7 @@ int Socket::connect (const char* host, u_short port)
           ((sockaddr_in *)(&connectionSockAddrIn))->sin_port = htons (port);
 
         }
-      else// if ( connectionSockAddrIn.ss_family == AF_INET6 )
+      else
         {
           nSockLen = sizeof (sockaddr_in6);
           memcpy ((sockaddr_in6 *)&connectionSockAddrIn,
@@ -491,7 +487,7 @@ int Socket::connect (const char* host, u_short port)
   if (hp == 0)
     return -1;
 
-  /*! If the socket is not created, create it before use. */
+  /* If the socket is not created, create it before use. */
   if (fd == -1 &&
       Socket::socket (AF_INET, SOCK_STREAM, 0) == -1)
     return -1;
@@ -512,7 +508,7 @@ int Socket::connect (const char* host, u_short port)
 }
 
 /*!
- *Connect the socket.
+  Initiate a connection on the socket.
  */
 int Socket::connect (MYSERVER_SOCKADDR* sa, int na)
 {
@@ -530,11 +526,11 @@ int Socket::connect (MYSERVER_SOCKADDR* sa, int na)
 }
 
 /*!
- *Receive data from the socket.
+  Receive data from the socket.
  */
 int Socket::recv (char* buffer, int len, int flags, u_long timeout)
 {
-  int ret = dataAvailable (timeout / 1000, timeout % 1000);
+  int ret = dataAvailable (timeout / 1000000, timeout % 1000000);
 
   if (ret)
     return recv (buffer, len, flags);
@@ -543,8 +539,8 @@ int Socket::recv (char* buffer, int len, int flags, u_long timeout)
 }
 
 /*!
- *Receive data from the socket.
- *Returns -1 on errors.
+  Receive data from the socket.
+  Returns -1 on errors.
  */
 int Socket::recv (char* buffer, int len, int flags)
 {
@@ -566,7 +562,7 @@ int Socket::recv (char* buffer, int len, int flags)
 }
 
 /*!
- *Returns the number of bytes waiting to be read.
+  Returns the number of bytes waiting to be read.
  */
 u_long Socket::bytesToRead ()
 {
@@ -583,12 +579,12 @@ u_long Socket::bytesToRead ()
 }
 
 /*!
- * Change the socket behaviour when an operation can't be completed
- * immediately.
- * If the socket is configured to be non blocking then it will return
- * immediately the control to the caller function.
- * A blocking socket will wait until the operation can be performed.
- * \param nonBlocking Nonzero to configure the socket non blocking.
+  Change the socket behaviour when an operation can't be completed
+  immediately.
+  If the socket is configured to be non blocking then it will return
+  immediately the control to the caller function.
+  A blocking socket will wait until the operation can be performed.
+  \param nonBlocking Nonzero to configure the socket non blocking.
  */
 int Socket::setNonBlocking (int nonBlocking)
 {
@@ -617,7 +613,7 @@ int Socket::setNonBlocking (int nonBlocking)
 }
 
 /*!
- *Returns the hostname.
+  Returns the hostname.
  */
 int Socket::gethostname (char *name, int namelen)
 {
@@ -625,7 +621,7 @@ int Socket::gethostname (char *name, int namelen)
 }
 
 /*!
- *Returns the sockname.
+  Returns the sockname.
  */
 int Socket::getsockname (MYSERVER_SOCKADDR *ad, int *namelen)
 {
@@ -636,14 +632,14 @@ int Socket::getsockname (MYSERVER_SOCKADDR *ad, int *namelen)
 }
 
 /*!
- *Set the socket used by the server.
+  Set the socket used by the server.
  */
 void Socket::setServerSocket (Socket* sock)
 {
   serverSocket = sock;
 }
 /*!
- *Returns the server socket.
+  Returns the server socket.
  */
 Socket* Socket::getServerSocket ()
 {
@@ -651,8 +647,8 @@ Socket* Socket::getServerSocket ()
 }
 
 /*!
- *Check if there is data ready to be read.
- *Returns 1 if there is data to read, 0 if not.
+  Check if there is data ready to be read.
+  Returns 1 if there is data to read, 0 if not.
  */
 int Socket::dataAvailable (int sec, int usec)
 {
@@ -676,21 +672,21 @@ int Socket::dataAvailable (int sec, int usec)
 }
 
 /*!
- *Inherited from Stream.
- *Return zero on success, or a negative number on error.
+  Inherited from Stream.
+  Return zero on success, or a negative number on error.
  */
-int Socket::read (char* buffer, u_long len, u_long *nbr)
+int Socket::read (char* buffer, size_t len, size_t *nbr)
 {
-  *nbr = static_cast<u_long> (recv (buffer, len, 0));
+  *nbr = static_cast<size_t> (recv (buffer, len, 0));
   return 0;
 }
 
 /*!
- *Inherited from Stream.
- *Return zero on success, or a negative number on error.
+  Inherited from Stream.
+  Return zero on success, or a negative number on error.
  */
-int Socket::write (const char* buffer, u_long len, u_long *nbw)
+int Socket::write (const char* buffer, size_t len, size_t *nbw)
 {
-  *nbw = static_cast<u_long> (send (buffer, len, 0));
+  *nbw = static_cast<size_t> (send (buffer, len, 0));
   return 0;
 }

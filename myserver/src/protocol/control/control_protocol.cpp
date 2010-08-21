@@ -63,8 +63,8 @@ struct ControlProtocolVisitorArg
 };
 
 /*!
- * Returns the name of the protocol. If an out buffer is defined
- * fullfill it with the name too.
+  Returns the name of the protocol. If an out buffer is defined
+  fullfill it with the name too.
  */
 const char* ControlProtocol::getName ()
 {
@@ -72,7 +72,7 @@ const char* ControlProtocol::getName ()
 }
 
 /*!
- * Class constructor.
+  Class constructor.
  */
 ControlProtocol::ControlProtocol ()
 {
@@ -81,7 +81,7 @@ ControlProtocol::ControlProtocol ()
 }
 
 /*!
- * Destructor for the class.
+  Destructor for the class.
  */
 ControlProtocol::~ControlProtocol ()
 {
@@ -89,7 +89,7 @@ ControlProtocol::~ControlProtocol ()
 }
 
 /*!
- * Load the control protocol.
+  Load the control protocol.
  */
 int ControlProtocol::loadProtocol ()
 {
@@ -153,8 +153,8 @@ int ControlProtocol::loadProtocol ()
 }
 
 /*!
- *Check if the client is allowed to connect to.
- *Return 1 if the client is allowed.
+  Check if the client is allowed to connect to.
+  Return 1 if the client is allowed.
  */
 int ControlProtocol::checkAuth (ControlHeader& header)
 {
@@ -185,7 +185,7 @@ int ControlProtocol::checkAuth (ControlHeader& header)
 }
 
 /*!
- *Control the connection.
+  Control the connection.
  */
 int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
                                         char *auxBuffer, u_long, u_long,
@@ -196,7 +196,7 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
   int dataWritten = 0;
   ostringstream inFilePath;
   ostringstream outFilePath;
-  u_long nbw;
+  size_t nbw;
   int specifiedLength;
   char *version = 0;
   u_long timeout;
@@ -230,12 +230,13 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
         }
 
       /*
-       *On errors remove the connection from the connections list.
-       *For return values look at protocol/control/control_errors.h.
-       *Returning 0 from the controlConnection we will remove the connection
-       *from the active connections list.
+        On errors remove the connection from the connections list.
+        For return values look at protocol/control/control_errors.h.
+        Returning 0 from the controlConnection we will remove the connection
+        from the active connections list.
        */
-      if (header.parse_header (request, nbtr, &realHeaderLength) != CONTROL_OK)
+      ret = header.parse_header (request, nbtr, &realHeaderLength);
+      if (ret != CONTROL_OK)
         {
           /* parse_header returns -1 on an incomplete header.  */
           if (ret == -1)
@@ -306,7 +307,7 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
       authorized = checkAuth (header);
 
       /*
-       * If the client is not authorized remove the connection.
+        If the client is not authorized remove the connection.
        */
       if (authorized == 0)
         {
@@ -316,8 +317,8 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
           return 0;
         }
       /*
-       * If the specified length is different from the length that the
-       * server can read, remove the connection.
+        If the specified length is different from the length that the
+        server can read, remove the connection.
        */
       if (dataWritten != specifiedLength)
         {
@@ -405,8 +406,8 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
           connection = header.getConnection ();
 
           /*
-           * If the Keep-Alive was specified keep the connection in the
-           * active connections list.
+            If the Keep-Alive was specified keep the connection in the
+            active connections list.
            */
           if (! strcasecmp (connection, "keep-alive"))
             return ClientsThread::KEEP_CONNECTION;
@@ -440,7 +441,7 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
 }
 
 /*!
- * Add the entry to the log file.
+  Add the entry to the log file.
  */
 int ControlProtocol::addToLog (int retCode, ConnectionPtr con, char *buffer,
                                int bufferSize, ControlHeader &header)
@@ -456,8 +457,8 @@ int ControlProtocol::addToLog (int retCode, ConnectionPtr con, char *buffer,
 }
 
 /*!
- * Send the response with status=errID and the data contained in the outFile.
- * Return nonzero on errors.
+  Send the response with status=errID and the data contained in the outFile.
+  Return nonzero on errors.
  */
 int ControlProtocol::sendResponse (char *buffer, int buffersize,
                                    ConnectionPtr a, int errID,
@@ -485,7 +486,7 @@ int ControlProtocol::sendResponse (char *buffer, int buffersize,
   if (dataLength)
     {
       int dataToSend = dataLength;
-      u_long nbr;
+      size_t nbr;
       for ( ; ; )
         {
           outFile->read (buffer, min (dataToSend, buffersize), &nbr);
@@ -502,7 +503,7 @@ int ControlProtocol::sendResponse (char *buffer, int buffersize,
 }
 
 /*!
- * Show the currect active connections.
+  Show the currect active connections.
  */
 int  ControlProtocol::showConnections (ConnectionPtr a,File *out, char *buffer,
                                       int bufferSize, ControlHeader &header)
@@ -519,7 +520,7 @@ int  ControlProtocol::showConnections (ConnectionPtr a,File *out, char *buffer,
 }
 
 /*!
- * Kill a connection by its ID.
+  Kill a connection by its ID.
  */
 int ControlProtocol::killConnection (ConnectionPtr a, u_long id, File *out,
                                     char *buffer, int bufferSize,
@@ -543,12 +544,12 @@ int ControlProtocol::killConnection (ConnectionPtr a, u_long id, File *out,
 }
 
 /*!
- * Visitor.
+  Visitor.
  */
 int ControlProtocol::visitConnection (ConnectionPtr con, void *argP)
 {
   int ret = 0;
-  u_long nbw;
+  size_t nbw;
   ControlProtocolVisitorArg* arg = static_cast<ControlProtocolVisitorArg*>(argP);
 
   if (arg->command == ControlProtocolVisitorArg::SHOW_CONNECTIONS)
@@ -583,7 +584,7 @@ int ControlProtocol::visitConnection (ConnectionPtr con, void *argP)
 
 
 /*!
- * Return the requested file to the client.
+  Return the requested file to the client.
  */
 int ControlProtocol::getFile (ConnectionPtr a, char *fn, File *in, File *out,
                               char *buffer, int bufferSize,
@@ -594,10 +595,10 @@ int ControlProtocol::getFile (ConnectionPtr a, char *fn, File *in, File *out,
   int ret = 0;
 
   /* # of bytes read.  */
-  u_long nbr = 0;
+  size_t nbr = 0;
 
   /* # of bytes written.  */
-  u_long nbw = 0;
+  size_t nbw = 0;
 
   filename = fn;
 
@@ -637,7 +638,7 @@ int ControlProtocol::getFile (ConnectionPtr a, char *fn, File *in, File *out,
 }
 
 /*!
- * Save the file on the local FS.
+  Save the file on the local FS.
  */
 int ControlProtocol::putFile (ConnectionPtr a, char *fn, File *in,
                               File *out, char *buffer, int bufferSize,
@@ -647,9 +648,9 @@ int ControlProtocol::putFile (ConnectionPtr a, char *fn, File *in,
   File localfile;
   int ret = 0;
   /*! # of bytes read.  */
-  u_long nbr = 0;
+  size_t nbr = 0;
   /*! # of bytes written.  */
-  u_long nbw = 0;
+  size_t nbw = 0;
   Server::getInstance ()->disableAutoReboot ();
 
   filename = fn;
@@ -707,12 +708,12 @@ int ControlProtocol::putFile (ConnectionPtr a, char *fn, File *in,
 }
 
 /*!
- *Return the current MyServer version.
+  Return the current MyServer version.
  */
 int ControlProtocol::getVersion (ConnectionPtr a, File *out, char *buffer,
                                  int bufferSize, ControlHeader &header)
 {
-  u_long nbw;
+  size_t nbw;
   myserver_strlcpy (buffer, MYSERVER_VERSION, bufferSize);
   return out->writeToFile (buffer, strlen (buffer), &nbw);
 }

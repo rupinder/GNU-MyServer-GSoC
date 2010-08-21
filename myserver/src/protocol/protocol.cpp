@@ -22,7 +22,7 @@
 #include <include/server/server.h>
 
 /*!
- * Load the protocol. Called once at runtime.
+  Load the protocol. Called once at runtime.
  */
 int Protocol::loadProtocol ()
 {
@@ -30,7 +30,7 @@ int Protocol::loadProtocol ()
 }
 
 /*!
- * Unload the protocol. Called once.
+  Unload the protocol. Called once.
  */
 int Protocol::unLoadProtocol ()
 {
@@ -38,8 +38,8 @@ int Protocol::unLoadProtocol ()
 }
 
 /*!
- * Returns the name of the protocol. If an out buffer is
- * defined fullfill it with the name too.
+  Returns the name of the protocol. If an out buffer is
+  defined fullfill it with the name too.
  */
 const char* Protocol::getName ()
 {
@@ -47,7 +47,7 @@ const char* Protocol::getName ()
 }
 
 /*!
- * Constructor for the class protocol.
+  Constructor for the class protocol.
  */
 Protocol::Protocol ()
 {
@@ -56,7 +56,7 @@ Protocol::Protocol ()
 }
 
 /*!
- * Destroy the object.
+  Destroy the object.
  */
 Protocol::~Protocol ()
 {

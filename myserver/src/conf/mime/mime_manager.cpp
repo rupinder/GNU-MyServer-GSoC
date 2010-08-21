@@ -1,19 +1,19 @@
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010 Free
-Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010 Free
+  Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "myserver.h"
@@ -43,7 +43,7 @@ MimeRecord::MimeRecord ()
 }
 
 /*!
- * Destroy the object.
+  Destroy the object.
  */
 MimeRecord::~MimeRecord ()
 {
@@ -51,27 +51,27 @@ MimeRecord::~MimeRecord ()
 }
 
 /*!
- * Add a filter to the list of filters to apply on this MIME type.
- * Return zero if the filters was not added.
- */
+  Add a filter to the list of filters to apply on this MIME type.
+  Return zero if the filters was not added.
+*/
 int MimeRecord::addFilter (const char* n, bool acceptDuplicate)
 {
   if (!acceptDuplicate)
-  {
-    list<string>::iterator i = filters.begin ();
-    for (; i != filters.end (); i++)
     {
-      if (!stringcmpi (*i, n))
-        return 0;
+      list<string>::iterator i = filters.begin ();
+      for (; i != filters.end (); i++)
+        {
+          if (!stringcmpi (*i, n))
+            return 0;
+        }
     }
-  }
 
   filters.push_back (n);
   return 1;
 }
 
 /*!
- * Copy constructor.
+  Copy constructor.
  */
 MimeRecord::MimeRecord (MimeRecord& m)
 {
@@ -80,18 +80,14 @@ MimeRecord::MimeRecord (MimeRecord& m)
   filters.clear ();
 
   for ( ; i != m.filters.end (); i++)
-  {
     filters.push_back (*i);
-  }
 
   i = m.extensions.begin ();
 
   extensions.clear ();
 
   for ( ; i != m.extensions.end (); i++)
-  {
     filters.push_back (*i);
-  }
 
   selfExecuted = m.selfExecuted;
   mimeType.assign (m.mimeType);
@@ -111,22 +107,20 @@ void MimeRecord::clear ()
   cgiManager.assign ("");
 
   for (list<Regex*>::iterator it = pathRegex.begin ();
-       it != pathRegex.end ();
-       it++)
-  {
+       it != pathRegex.end (); it++)
     delete *it;
-  }
 
   HashMap<string, NodeTree<string>*>::Iterator it = hashedData.begin ();
   for (;it != hashedData.end (); it++)
     delete (*it);
+
   hashedData.clear ();
 
   pathRegex.clear ();
 }
 
 /*!
- * Get the node tree stored in the hash dictionary for the `name' key.
+  Get the node tree stored in the hash dictionary for the `name' key.
  */
 NodeTree<string>* MimeRecord::getNodeTree (string &name)
 {
@@ -134,7 +128,7 @@ NodeTree<string>* MimeRecord::getNodeTree (string &name)
 }
 
 /*!
- * Get the value stored in the hash dictionary for the `name' key.
+  Get the value stored in the hash dictionary for the `name' key.
  */
 const char* MimeRecord::getData (string &name)
 {
@@ -146,7 +140,7 @@ const char* MimeRecord::getData (string &name)
 }
 
 /*!
- * Reload using the same configuration file.
+  Reload using the same configuration file.
  */
 u_long MimeManager::reload ()
 {
@@ -163,7 +157,7 @@ MimeManager::~MimeManager ()
 }
 
 /*!
- * Clean the memory allocated by the structure.
+  Clean the memory allocated by the structure.
  */
 void MimeManager::clean ()
 {
@@ -171,7 +165,7 @@ void MimeManager::clean ()
 }
 
 /*!
- * Constructor of the class.
+  Constructor of the class.
  */
 MimeManager::MimeManager ()
 {
@@ -179,7 +173,7 @@ MimeManager::MimeManager ()
 }
 
 /*!
- * Get the MIME record using the registered handlers.
+  Get the MIME record using the registered handlers.
  */
 MimeRecord *MimeManager::getMIME (const char *filename, const char *handler)
 {
@@ -197,22 +191,23 @@ MimeRecord *MimeManager::getMIME (const char *filename, const char *handler)
 }
 
 /*!
- * Register an external handler under the specified name.
- *
- * \param name Handler name.
- * \param handler Handler object to register.
+  Register an external handler under the specified name.
+
+  \param name Handler name.
+  \param handler Handler object to register.
  */
 void MimeManager::registerHandler (string &name, MimeManagerHandler *handler)
 {
   MimeManagerHandler *old = handlers.put (name, handler);
+  handler->setLogger (getLogger ());
   if (old)
     delete old;
 }
 
 /*!
- * Set the default handler specifying its name.
- *
- * \param name The default handler name.
+  Set the default handler specifying its name.
+
+  \param name The default handler name.
  */
 void MimeManager::setDefaultHandler (string &name)
 {
@@ -220,9 +215,9 @@ void MimeManager::setDefaultHandler (string &name)
 }
 
 /*!
- * Register a builder function for a mime manager.
- * \param name manager name.
- * \param builder Builder routine.
+  Register a builder function for a mime manager.
+  \param name manager name.
+  \param builder Builder routine.
  */
 void MimeManager::registerBuilder (string &name, MAKE_HANDLER builder)
 {
@@ -230,10 +225,10 @@ void MimeManager::registerBuilder (string &name, MAKE_HANDLER builder)
 }
 
 /*!
- * Build an handler given its name.
- *
- * \param name handler name.
- * \return an instance of the requested handler type.
+  Build an handler given its name.
+
+  \param name handler name.
+  \return an instance of the requested handler type.
  */
 MimeManagerHandler *MimeManager::buildHandler (string &name)
 {

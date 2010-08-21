@@ -1,19 +1,19 @@
 /*
- MyServer
- Copyright (C) 2009, 2010 Free Software Foundation, Inc.
- This program is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 3 of the License, or
- (at your option) any later version.
+  MyServer
+  Copyright (C) 2009, 2010 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "myserver.h"
 
@@ -47,12 +47,12 @@ class TestXmlMainConfiguration : public CppUnit::TestFixture
 public:
   void setUp ()
   {
-    u_long nbw;
+    size_t nbw;
     xmlFile.openFile (XML_FILE, File::WRITE | File::READ
-                      | File::FILE_CREATE_ALWAYS);
+                      | File::FILE_OPEN_ALWAYS);
     CPPUNIT_ASSERT_EQUAL (xmlFile.write (XML_CONTENT, strlen (XML_CONTENT),
                                            &nbw), 0);
-    CPPUNIT_ASSERT_EQUAL (nbw, static_cast<u_long> (strlen (XML_CONTENT)));
+    CPPUNIT_ASSERT_EQUAL (nbw, static_cast<size_t> (strlen (XML_CONTENT)));
 
     CPPUNIT_ASSERT_EQUAL (xmlConf.open (XML_FILE), 0);
   }
@@ -65,10 +65,25 @@ public:
   void testOpen ()
   {
     XmlMainConfiguration tmpXmlConf;
+    int exceptions = 0;
+    try
+      {
+        tmpXmlConf.open ("baz.xml");
+      }
+    catch (exception & e)
+      {
+        exceptions++;
+      }
+    try
+      {
+        tmpXmlConf.open ("foo/bar/baz.xml");
+      }
+    catch (exception & e)
+      {
+        exceptions++;
+      }
 
-    /* These files don't exist.  */
-    CPPUNIT_ASSERT (tmpXmlConf.open ("foo/bar/baz.xml"));
-    CPPUNIT_ASSERT (tmpXmlConf.open ("baz.xml"));
+    CPPUNIT_ASSERT_EQUAL (exceptions, 2);
 
     CPPUNIT_ASSERT_EQUAL (tmpXmlConf.open (XML_FILE), 0);
     CPPUNIT_ASSERT_EQUAL (tmpXmlConf.close (), 0);

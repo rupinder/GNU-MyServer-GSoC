@@ -43,9 +43,9 @@ UnixSocket::~UnixSocket ()
 }
 
 /*!
- * Bind the socket to a file.  If the file exists it is removed.
- * \param path Path to the file bound by the socket.
- * \return 0 on success.
+  Bind the socket to a file.  If the file exists it is removed.
+  \param path Path to the file bound by the socket.
+  \return 0 on success.
  */
 int UnixSocket::bind (const char* path)
 {
@@ -69,13 +69,14 @@ int UnixSocket::bind (const char* path)
 }
 
 /*!
- * Shutdown the socket.
- * \return 0 on success.
+  Shutdown the socket.
+  \param how Specify what stream close.
+  \return 0 on success.
  */
-int UnixSocket::shutdown ()
+int UnixSocket::shutdown (int how)
 {
 #ifdef AF_UNIX
-  Socket::shutdown (2);
+  Socket::shutdown (how);
   return checked::unlink (addr.sun_path);
 #else
   return -1;
@@ -84,8 +85,8 @@ int UnixSocket::shutdown ()
 
 
 /*!
- * Free the socket.
- * \return 0 on success.
+  Free the socket.
+  \return 0 on success.
  */
 int UnixSocket::close ()
 {
@@ -97,8 +98,8 @@ int UnixSocket::close ()
 }
 
 /*!
- * Open the socket.
- * \return the socket handle on success.
+  Open the socket.
+  \return the socket handle on success.
  */
 int UnixSocket::socket ()
 {
@@ -110,11 +111,11 @@ int UnixSocket::socket ()
 }
 
 /*!
- * Connect to an Unix socket by its path.
- * \param path Path to the Unix socket.
- * \return 0 on success.
+  Connect to an Unix socket by its path.
+  \param path Path to the Unix socket.
+  \return 0 on success.
  */
-int UnixSocket::connect (const char* path)
+int UnixSocket::connect2 (const char* path)
 {
   if (path == NULL)
     return -1;
@@ -129,7 +130,7 @@ int UnixSocket::connect (const char* path)
 }
 
 /*!
- * Accept a new connection.
+  Accept a new connection.
  */
 Socket* UnixSocket::accept ()
 {
@@ -143,9 +144,9 @@ Socket* UnixSocket::accept ()
 }
 
 /*!
- * Read a file handle on the socket pair.
- * \param fd The file descriptor to read.
- * \return 0 on success.
+  Read a file handle on the socket pair.
+  \param fd The file descriptor to read.
+  \return 0 on success.
  */
 int UnixSocket::readHandle (Handle* fd)
 {
@@ -153,9 +154,9 @@ int UnixSocket::readHandle (Handle* fd)
 }
 
 /*!
- * Transmit a file descriptor on the socket.
- * \param fd The file descriptor to transmit.
- * \return 0 on success.
+  Transmit a file descriptor on the socket.
+  \param fd The file descriptor to transmit.
+  \return 0 on success.
  */
 int UnixSocket::writeHandle (Handle fd)
 {

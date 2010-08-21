@@ -24,7 +24,7 @@
 using namespace std;
 
 /*!
- *Create the object.
+  Create the object.
  */
 HttpResponseHeader::HttpResponseHeader ()
 {
@@ -33,7 +33,7 @@ HttpResponseHeader::HttpResponseHeader ()
 
 
 /*!
- *Destroy the object.
+  Destroy the object.
  */
 HttpResponseHeader::~HttpResponseHeader ()
 {
@@ -43,7 +43,7 @@ HttpResponseHeader::~HttpResponseHeader ()
 }
 
 /*!
- *Reset the object.
+  Reset the object.
  */
 void HttpResponseHeader::free ()
 {
@@ -59,7 +59,7 @@ void HttpResponseHeader::free ()
 }
 
 /*!
- *Get the value of the [name] field.
+  Get the value of the [name] field.
  */
 string* HttpResponseHeader::getValue (const char* name, string* out)
 {
@@ -81,7 +81,7 @@ string* HttpResponseHeader::getValue (const char* name, string* out)
 }
 
 /*!
- *Set the value of the [name] field to [in].
+  Set the value of the [name] field to [in].
  */
 string* HttpResponseHeader::setValue (const char* name, const char* in)
 {
@@ -101,8 +101,8 @@ string* HttpResponseHeader::setValue (const char* name, const char* in)
 }
 
 /*!
- *Get the kind of HTTP status code specified by the httpStatus variable.
- *\return the HTTP status kind.
+  Get the kind of HTTP status code specified by the httpStatus variable.
+  \return the HTTP status kind.
  */
 int HttpResponseHeader::getStatusType ()
 {

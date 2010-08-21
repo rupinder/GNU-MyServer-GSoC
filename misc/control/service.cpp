@@ -21,7 +21,7 @@
 #ifdef WIN32
 #include <windows.h>
 #else
-extern "C" { 
+extern "C" {
 #include <sys/types.h>
 #include <signal.h>
 #include <unistd.h>
@@ -169,7 +169,7 @@ void RemoveService()
  * */
 DWORD WINAPI consoleWatchDogThread(LPVOID param)
 {
-   
+
    WaitForSingleObject(pi.hProcess,INFINITE);
    TerminateThread(GetCurrentThread(),0);
    return 0;

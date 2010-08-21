@@ -1,19 +1,19 @@
 /*
- MyServer
- Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
- This program is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 3 of the License, or
- (at your option) any later version.
+  MyServer
+  Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "myserver.h"
 #include <include/filter/stream.h>
@@ -56,7 +56,7 @@ public:
     strcpy (szTest, "The quick brown fox jumps over the lazy dog");
     int nLength = strlen (szTest);
 
-    u_long nbw = 0;
+    size_t nbw = 0;
     MemBuf mb;
     MemoryStream ms (&mb);
     ms.write (szTest, 64, &nbw);
@@ -101,7 +101,7 @@ public:
 
   void testIsEmpty ()
   {
-    u_long nbw;
+    size_t nbw;
     MemBuf mb;
     MemoryStream ms (&mb);
 
@@ -120,7 +120,7 @@ public:
 
   void testIsFilterPresent ()
   {
-    u_long nbw;
+    size_t nbw;
     Filter* filter = Gzip::factory ("GzipFilter");
     MemBuf mb;
     MemoryStream ms (&mb);
@@ -139,7 +139,7 @@ public:
   void testRemoveFilter ()
   {
     MemBuf mb;
-    u_long nbw;
+    size_t nbw;
     Filter* filter = Gzip::factory ("GzipFilter");
     MemoryStream ms (&mb);
 

@@ -26,7 +26,7 @@
 
 
 /*!
- *Default constructor.
+  Default constructor.
  */
 DynamicHttpManager::DynamicHttpManager ()
 {
@@ -34,7 +34,7 @@ DynamicHttpManager::DynamicHttpManager ()
 }
 
 /*!
- *Destroy the object.
+  Destroy the object.
  */
 DynamicHttpManager::~DynamicHttpManager ()
 {

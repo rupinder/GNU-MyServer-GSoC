@@ -1,19 +1,19 @@
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2008, 2009, 2010 Free Software
-Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2008, 2009, 2010 Free Software
+  Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "myserver.h"
@@ -38,35 +38,6 @@ static char* myserver_strupr (char * s)
   for (register unsigned int i = 0; i < len; i++)
     s[i] = toupper (s[i]);
   return s;
-}
-
-#define strupos(x, y) (strustr (x, y) != NULL ? strustr (x, y) - x : -1)
-
-static char* strustr (char *source, char *s)
-{
-  char *csource = new char[strlen (source) + 1];
-  if (csource == 0)
-    return 0;
-  char *cs = new char[strlen (s) + 1];
-  if (cs == 0)
-  {
-    delete [] csource;
-    return 0;
-  }
-  strncpy (csource, source, (strlen (source) + 2));
-  strncpy (cs, s, (strlen (s) + 2));
-  myserver_strupr (csource);
-  myserver_strupr (cs);
-  char *result = strstr (csource, cs);
-  if (result != NULL)
-  {
-    int pos =static_cast<int>(result - csource);
-    result = source;
-    result += pos;
-  }
-  delete [] csource;
-  delete [] cs;
-  return result;
 }
 
 const char base64chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -197,7 +168,7 @@ CBase64Utils::~CBase64Utils ()
 
 }
 /*!
- *Decode a string using the Base64 codification
+  Decode a string using the Base64 codification
  */
 char* CBase64Utils::encode (const char *input, int bufsize)
 {
@@ -308,7 +279,7 @@ char* CBase64Utils::encode (const char *input, int bufsize)
 }
 
 /*!
- *Decode a Base64 coded string.
+  Decode a Base64 coded string.
  */
 char* CBase64Utils::decode (const char *input, int *bufsize)
 {

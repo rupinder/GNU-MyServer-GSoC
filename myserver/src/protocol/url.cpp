@@ -20,9 +20,9 @@
 
 
 /*!
- *Build an URL object.
- *\param url The url string.
- *\param port the default port to use in case it is not specified.
+  Build an URL object.
+  \param url The url string.
+  \param port the default port to use in case it is not specified.
  */
 Url::Url (string &url, u_short port)
 {
@@ -30,9 +30,9 @@ Url::Url (string &url, u_short port)
 }
 
 /*!
- *Build an URL object.
- *\param url The url string.
- *\param port the default port to use in case it is not specified.
+  Build an URL object.
+  \param url The url string.
+  \param port the default port to use in case it is not specified.
  */
 Url::Url (const char* url, u_short port)
 {
@@ -41,7 +41,7 @@ Url::Url (const char* url, u_short port)
 }
 
 /*!
- *Get the protocol part of the URL.
+  Get the protocol part of the URL.
  */
 string& Url::getProtocol ()
 {
@@ -49,7 +49,7 @@ string& Url::getProtocol ()
 }
 
 /*!
- *Get the query part of the URL.
+  Get the query part of the URL.
  */
 string& Url::getQuery ()
 {
@@ -57,7 +57,7 @@ string& Url::getQuery ()
 }
 
 /*!
- *Get the number of fields in the query
+  Get the number of fields in the query
  */
 int Url::getNumFields ()
 {
@@ -71,7 +71,7 @@ int Url::getNumFields ()
 }
 
 /*!
- *Get the credentials part of the URL.
+  Get the credentials part of the URL.
  */
 string& Url::getCredentials ()
 {
@@ -79,7 +79,7 @@ string& Url::getCredentials ()
 }
 
 /*!
- *Get the port part of the URL.
+  Get the port part of the URL.
  */
 u_short Url::getPort ()
 {
@@ -87,7 +87,7 @@ u_short Url::getPort ()
 }
 
 /*!
- *Get the resource part of the URL.
+  Get the resource part of the URL.
  */
 string& Url::getResource ()
 {
@@ -95,7 +95,7 @@ string& Url::getResource ()
 }
 
 /*!
- *Get the host part of the URL.
+  Get the host part of the URL.
  */
 string& Url::getHost ()
 {
@@ -103,7 +103,7 @@ string& Url::getHost ()
 }
 
 /*!
- *Parse the URL.  Internal function.
+  Parse the URL.  Internal function.
  */
 void Url::parse (string &url, u_short defPort)
 {

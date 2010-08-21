@@ -74,7 +74,7 @@ Console::~Console ()
 }
 
 int
-Console::flush (u_long* nbw)
+Console::flush (size_t* nbw)
 {
   if (fd)
     {
@@ -84,7 +84,7 @@ Console::flush (u_long* nbw)
 }
 
 int
-Console::read (char* buffer, u_long len, u_long* nbr)
+Console::read (char* buffer, size_t len, size_t* nbr)
 {
   if (fd)
     {
@@ -94,7 +94,7 @@ Console::read (char* buffer, u_long len, u_long* nbr)
 }
 
 int
-Console::write (const char* buffer, u_long len, u_long* nbw)
+Console::write (const char* buffer, size_t len, size_t* nbw)
 {
   if (fd)
     {
@@ -123,12 +123,12 @@ Console::openConsole (string fd)
 }
 
 /*!
- * Set the attributes for the console text. If a not valid color is provided,
- * the console attribute for both background and foreground text will be
- * reset.
- * \param fg_color the foreground text attribute.
- * \param bg_color the background text attribute.
- * \return 0 on success, 1 on error.
+  Set the attributes for the console text. If a not valid color is provided,
+  the console attribute for both background and foreground text will be
+  reset.
+  \param fg_color the foreground text attribute.
+  \param bg_color the background text attribute.
+  \return 0 on success, 1 on error.
  */
 int
 Console::setColor (string fg_color, string bg_color)
@@ -169,9 +169,9 @@ Console::setColor (string fg_color, string bg_color)
 }
 
 /*!
- * Restore the original console colors (white text on black background on
- * WIN32).
- * \return 0 on success, 1 on error.
+  Restore the original console colors (white text on black background on
+  WIN32).
+  \return 0 on success, 1 on error.
  */
 int
 Console::reset ()

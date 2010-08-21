@@ -36,39 +36,39 @@ class MemBuf
 {
 public:
   MemBuf ();
-  MemBuf (const void* pAdr, u_int size);
+  MemBuf (const void* pAdr, size_t size);
   MemBuf (const MemBuf& srcBuf);
   MemBuf (MemBuf& srcBuf, int bCopy);
   ~MemBuf ();
 
-  void setExternalBuffer (const void* pAdr, u_int size);
-  int setBuffer (const void* pAdr, u_int size);
-  void setLength (u_int newSize);
-  void setRealLength (u_int newSize);
+  void setExternalBuffer (const void* pAdr, size_t size);
+  int setBuffer (const void* pAdr, size_t size);
+  void setLength (size_t newSize);
+  void setRealLength (size_t newSize);
 
-  void addBuffer (const void* pAdr, u_int size);
+  void addBuffer (const void* pAdr, size_t size);
   void addBuffer (MemBuf *nmb);
 
   int free ();
 
-  u_int find (char c, u_int start = 0);
-  u_int find (MemBuf *smb, u_int start = 0);
-  u_int find (const void* pAdr, u_int size, u_int start = 0);
+  size_t find (char c, size_t start = 0);
+  size_t find (MemBuf *smb, size_t start = 0);
+  size_t find (const void* pAdr, size_t size, size_t start = 0);
   void replace (char what, char by);
-  char& getAt (u_int nIndex);
-  char& operator[](u_int nIndex);
+  char& getAt (size_t nIndex);
+  char& operator[](size_t nIndex);
 
-  int getPart (u_int nStart, u_int nEnd, MemBuf& result);
-  int getPartAsString (u_int nStart, u_int nEnd, MemBuf& result);
+  int getPart (size_t nStart, size_t nEnd, MemBuf& result);
+  int getPartAsString (size_t nStart, size_t nEnd, MemBuf& result);
 
-  char* getBuffersetLength (u_int newSize);
+  char *getBuffersetLength (size_t newSize);
 
-  u_int getLength ();
-  u_int getRealLength ();
+  size_t getLength ();
+  size_t getRealLength ();
 
   int isValid ();
 
-  char* getBuffer ();
+  char *getBuffer ();
   operator const void* ();
   MemBuf operator+ (MemBuf& src);
   MemBuf operator+ (const char* src);
@@ -88,40 +88,40 @@ public:
   MemBuf& operator= (const MemBuf& src) ;
   MemBuf& operator= (const char* src);
 
-  void hashMD5(const void* pAdr, u_int nSize);
-  void hashCRC (const void* pAdr, u_int nSize);
-  void hex (const void* pAdr, u_int nSize);
-  void uintToStr (u_int i);
+  void hashMD5(const void* pAdr, size_t nSize);
+  void hashCRC (const void* pAdr, size_t nSize);
+  void hex (const void* pAdr, size_t nSize);
+  void uintToStr (size_t i);
   void intToStr (int i);
-  u_int strToUint (const char* pAdr);
+  size_t strToUint (const char* pAdr);
   unsigned char hexCharToNumber (unsigned char c);
-  MemBuf hexToData (const void* pAdr, u_int nSize);
+  MemBuf hexToData (const void* pAdr, size_t nSize);
   int strToInt (const char* pAdr);
   void hex (MemBuf& membuf) ;
   void hashMD5 (MemBuf& membuf);
   void hashCRC (MemBuf& membuf);
-  void uintToStr (u_int i, char* pBufToUse, u_int nBufSize) ;
-  void xIntToStr (u_int i, int bNegative, char* pBufToUse, u_int nBufSize);
-  void intToStr (int i, char* pBufToUse, u_int nBufSize);
+  void uintToStr (size_t i, char* pBufToUse, size_t nBufSize) ;
+  void xIntToStr (size_t i, int bNegative, char* pBufToUse, size_t nBufSize);
+  void intToStr (int i, char* pBufToUse, size_t nBufSize);
 
-  u_int getSizeLimit () {return nSizeLimit;}
-  void setSizeLimit (u_int newSize) {nSizeLimit = newSize;}
+  size_t getSizeLimit () {return nSizeLimit;}
+  void setSizeLimit (size_t newSize) {nSizeLimit = newSize;}
 
 protected:
 
 
   /* The maximun size that the buffer can reached ; 0 if none.  */
-  u_int nSizeLimit;
+  size_t nSizeLimit;
 
   /* Minimum size of new allocated blocks during addings.
-   * We assume that nBlockLength < nSizeLimit.  */
-  u_int nBlockLength;
+    We assume that nBlockLength < nSizeLimit.  */
+  size_t nBlockLength;
 
-  void xIntToStr (u_int i, int bNegative);
-  void allocBuffer (u_int size);
+  void xIntToStr (size_t i, int bNegative);
+  void allocBuffer (size_t size);
   char *buffer;
-  u_int nSize;
-  u_int nRealSize;
+  size_t nSize;
+  size_t nRealSize;
   int bCanDelete;
   static u_int crc32Table[256];
 };

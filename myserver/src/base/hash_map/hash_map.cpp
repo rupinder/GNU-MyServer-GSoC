@@ -23,7 +23,7 @@
 #include <string.h>
 
 /*
- *ELF hash function.
+  ELF hash function.
  */
 #define elfHash(data, len){\
    unsigned int h = 0;\

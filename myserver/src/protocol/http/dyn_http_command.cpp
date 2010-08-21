@@ -24,7 +24,7 @@
 
 
 /*!
- *Default constructor.
+  Default constructor.
  */
 DynamicHttpCommand::DynamicHttpCommand (string& name)
 {
@@ -32,7 +32,7 @@ DynamicHttpCommand::DynamicHttpCommand (string& name)
 }
 
 /*!
- *Default constructor.
+  Default constructor.
  */
 string DynamicHttpCommand::getName ()
 {
@@ -40,7 +40,7 @@ string DynamicHttpCommand::getName ()
 }
 
 /*!
- *Destroy the object.
+  Destroy the object.
  */
 DynamicHttpCommand::~DynamicHttpCommand ()
 {

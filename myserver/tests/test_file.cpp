@@ -53,7 +53,7 @@ class TestFile : public CppUnit::TestFixture
   {
    return  tfile->openFile (fname.c_str (), File::WRITE
                             | File::READ
-                            | File::FILE_CREATE_ALWAYS);
+                            | File::FILE_OPEN_ALWAYS);
   }
 public:
   void setUp ()
@@ -64,14 +64,14 @@ public:
 
   void tearDown ()
   {
-    delete tfile;
     try
       {
-        FilesUtility::deleteFile (fname);
+        FilesUtility::deleteFile (tfile->getFilename ());
       }
     catch (...)
       {
       }
+    delete tfile;
   }
 
   void testCreateTemporaryDelayedFile ()
@@ -80,13 +80,13 @@ public:
     CPPUNIT_ASSERT_EQUAL (ret, 0);
 
     /* The unlink is done just before the close, the file can be stat'ed. */
-    ret = FilesUtility::nodeExists (fname.c_str ());
+    ret = FilesUtility::nodeExists (tfile->getFilename ());
     CPPUNIT_ASSERT (ret);
 
     ret = tfile->close ();
     CPPUNIT_ASSERT_EQUAL (ret, 0);
 
-    ret = FilesUtility::nodeExists (fname.c_str ());
+    ret = FilesUtility::nodeExists (tfile->getFilename ());
     CPPUNIT_ASSERT_EQUAL (ret, 0);
   }
 
@@ -96,13 +96,13 @@ public:
     CPPUNIT_ASSERT_EQUAL (ret, 0);
 
     /* Using unlink the file can't be stat'ed at this point.  */
-    ret = FilesUtility::nodeExists (fname.c_str ());
+    ret = FilesUtility::nodeExists (tfile->getFilename ());
     CPPUNIT_ASSERT_EQUAL (ret, 0);
 
     ret = tfile->close ();
     CPPUNIT_ASSERT_EQUAL (ret, 0);
 
-    ret = FilesUtility::nodeExists (fname.c_str ());
+    ret = FilesUtility::nodeExists (tfile->getFilename ());
     CPPUNIT_ASSERT_EQUAL (ret, 0);
   }
 
@@ -111,8 +111,8 @@ public:
     const char *buf = "HELLO myWORLD";
     char readbuf[512];
     size_t bufLen = strlen (buf);
-    u_long nbw;
-    u_long nbr;
+    size_t nbw;
+    size_t nbr;
 
     CPPUNIT_ASSERT_EQUAL (openHelper (), 0);
 
@@ -129,7 +129,7 @@ public:
     for (size_t i = 0; i < bufLen; i++)
       CPPUNIT_ASSERT_EQUAL (buf[i], readbuf[i]);
 
-    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), nbr);
+    CPPUNIT_ASSERT_EQUAL ((size_t) tfile->getFileSize (), nbr);
     CPPUNIT_ASSERT_EQUAL (tfile->close (), 0);
 
     try
@@ -163,29 +163,29 @@ public:
   {
     CPPUNIT_ASSERT_EQUAL (openHelper (), 0);
     CPPUNIT_ASSERT_EQUAL (tfile->seek (1), 0);
-    CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), 1ul);
+    CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), (off_t) 1);
   }
 
   void testBinary ()
   {
     const char *data = "this\0text\0is\0NUL\0separed\0\0";
     char buffer[32];
-    u_long nbw, nbr;
+    size_t nbw, nbr;
     CPPUNIT_ASSERT_EQUAL (openHelper (), 0);
     CPPUNIT_ASSERT_EQUAL (tfile->write (data, 26, &nbw), 0);
-    CPPUNIT_ASSERT_EQUAL (nbw, 26ul);
+    CPPUNIT_ASSERT_EQUAL (nbw, (size_t) 26);
 
     CPPUNIT_ASSERT_EQUAL (tfile->seek (0), 0);
 
     CPPUNIT_ASSERT_EQUAL (tfile->read (buffer, 26, &nbr), 0);
-    CPPUNIT_ASSERT_EQUAL (nbr, 26ul);
+    CPPUNIT_ASSERT_EQUAL (nbr, (size_t) 26);
     CPPUNIT_ASSERT_EQUAL (memcmp (data, buffer, 26), 0);
   }
 
   void testTruncate ()
   {
-    u_long nbw;
-    
+    size_t nbw;
+
     try
       {
         FilesUtility::deleteFile (fname.c_str ());
@@ -196,22 +196,22 @@ public:
 
     CPPUNIT_ASSERT_EQUAL (openHelper (), 0);
 
-    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), 0ul);
+    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), (off_t) 0);
 
     const char *data = "Hello World!"; /* Something very original.  */
-    const u_long dataLen = strlen (data);
+    const size_t dataLen = strlen (data);
 
     CPPUNIT_ASSERT_EQUAL (tfile->writeToFile (data, dataLen, &nbw), 0);
 
-    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), dataLen);
+    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), (off_t) dataLen);
 
     CPPUNIT_ASSERT_EQUAL (tfile->truncate (dataLen / 2), 0);
 
-    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), dataLen / 2);
+    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), (off_t) dataLen / 2);
 
     CPPUNIT_ASSERT_EQUAL (tfile->writeToFile (data, dataLen, &nbw), 0);
 
-    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), dataLen + dataLen / 2);
+    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), (off_t) (dataLen + dataLen / 2));
 
     try
       {

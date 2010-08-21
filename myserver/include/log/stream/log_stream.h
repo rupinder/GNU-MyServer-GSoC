@@ -75,7 +75,7 @@ protected:
   int doCycle ();
   int write (const string &message);
   int resetFilters ();
-  u_long nbw;
+  size_t nbw;
   u_long cycle;
   int isOpened;
   FiltersChain* fc;

@@ -55,7 +55,7 @@ SslContext::SslContext ()
 }
 
 /*!
- * Initialize SSL on the virtual host.
+  Initialize SSL on the virtual host.
  */
 int SslContext::initialize ()
 {
@@ -67,7 +67,7 @@ int SslContext::initialize ()
   if (!context)
     return -1;
   /*
-   * The specified file doesn't exist.
+    The specified file doesn't exist.
    */
   if (FilesUtility::nodeExists (certificateFile.c_str ()) == 0)
     return -1;
@@ -77,7 +77,7 @@ int SslContext::initialize ()
     return -1;
 
   /*
-   * The specified file doesn't exist.
+    The specified file doesn't exist.
    */
   if (FilesUtility::nodeExists (privateKeyFile) == 0)
     return -1;

@@ -1,19 +1,19 @@
 /*
-MyServer
-Copyright (C) 2007, 2008, 2009, 2010 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2007, 2008, 2009, 2010 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "myserver.h"
 #include <include/plugin/plugins_manager.h>
@@ -35,18 +35,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 /*!
- * Default constructor.
+  Default constructor.
  */
 PluginsManager::PluginsManager () { }
 
 /*!
- * Destroy the object.
+  Destroy the object.
  */
 PluginsManager::~PluginsManager () { }
 
 /*!
- * Get a plugin trough  its name plugin.
- * \param name The plugin name.
+  Get a plugin trough  its name plugin.
+  \param name The plugin name.
  */
 Plugin*
 PluginsManager::getPlugin (string &name)
@@ -58,8 +58,8 @@ PluginsManager::getPlugin (string &name)
 }
 
 /*!
- * Load the plugin options.
- * \param server The server object to use.
+  Load the plugin options.
+  \param server The server object to use.
  */
 int
 PluginsManager::loadOptions (Server *server)
@@ -119,9 +119,9 @@ PluginsManager::loadOptions (Server *server)
 }
 
 /*!
- * Preload sequence, called when all the plugins are not yet loaded.
- * \param server The server object to use.
- * implementation it is a directory name.
+  Preload sequence, called when all the plugins are not yet loaded.
+  \param server The server object to use.
+  implementation it is a directory name.
  */
 int
 PluginsManager::preLoad (Server* server, string &resource)
@@ -151,7 +151,7 @@ PluginsManager::preLoad (Server* server, string &resource)
 
       dirname.append ("/");
       dirname.append (fdir.name);
-      if (fdir.name[0] == '.')
+      if (fdir.name[0] == '.' || !FilesUtility::isDirectory (dirname.c_str ()))
         continue;
 
       try
@@ -216,37 +216,35 @@ PluginsManager::preLoad (Server* server, string &resource)
 }
 
 /*!
- * Load the specified plugin file.
- * \param server The server object to use.
- * \param name Plugin name.
- * \param file Plugin file.
- * \param pinfo Plugin information.
+  Load the specified plugin file.
+  \param server The server object to use.
+  \param name Plugin name.
+  \param file Plugin file.
+  \param pinfo Plugin information.
  */
 int
-PluginsManager::loadFile (Server* server, string &name, string &file,
-                          PluginInfo* pinfo)
+PluginsManager::loadFile (Server *server, string &name, string &file,
+                          PluginInfo *pinfo)
 {
   int ret = 0;
   if (pinfo->isEnabled ())
     {
       Plugin* plugin = preLoadPlugin (file, server,
                                       pinfo->isGlobal ());
-      if (plugin)
-        pinfo->setPlugin (plugin);
+      if (! plugin)
+        ret = 1;
       else
         {
-          ret = 1;
-          server->log (MYSERVER_LOG_MSG_ERROR,
-                       _("Error loading plugin `%s'"), file.c_str ());
+          pinfo->setPlugin (plugin);
+          addPluginInfo (name, pinfo);
         }
     }
 
-  addPluginInfo (name, pinfo);
   return ret;
 }
 
 /*!
- * Create the appropriate object to keep a plugin.
+  Create the appropriate object to keep a plugin.
  */
 Plugin*
 PluginsManager::createPluginObject ()
@@ -255,10 +253,10 @@ PluginsManager::createPluginObject ()
 }
 
 /*!
- * Quick load a plugin, doing all phases {pre,,post}Load.
- * \param server The server object to use.
- * \param plugins comma separed list of plugins to load as:
- * "name1:pluginfile1.so,name2:pluginfile2.so"
+  Quick load a plugin, doing all phases {pre,,post}Load.
+  \param server The server object to use.
+  \param plugins comma separed list of plugins to load as:
+  "name1:pluginfile1.so,name2:pluginfile2.so"
 */
 int
 PluginsManager::quickLoad (Server *server, const string &plugins)
@@ -324,9 +322,9 @@ PluginsManager::quickLoad (Server *server, const string &plugins)
 }
 
 /*!
- *Loads the plugin info.
- *\param name The plugin name.
- *\param path the plugin xml descriptor path.
+  Loads the plugin info.
+  \param name The plugin name.
+  \param path the plugin xml descriptor path.
  */
 PluginInfo*
 PluginsManager::loadInfo (Server* server, string &name, string &path)
@@ -479,11 +477,11 @@ PluginsManager::loadInfo (Server* server, string &name, string &path)
 }
 
 /*!
- * Add a plugin.
- * \param file The plugin file name.
- * \param server The server object to use.
- * messages.
- * \param global Specify if the library should be loaded globally.
+  Add a plugin.
+  \param file The plugin file name.
+  \param server The server object to use.
+  messages.
+  \param global Specify if the library should be loaded globally.
  */
 Plugin*
 PluginsManager::preLoadPlugin (string &file, Server* server, bool global)
@@ -501,8 +499,8 @@ PluginsManager::preLoadPlugin (string &file, Server* server, bool global)
       delete plugin;
       return NULL;
     }
-  namePtr = plugin->getName ();
 
+  namePtr = plugin->getName ();
   if (namePtr)
     name.assign (namePtr);
   else
@@ -514,12 +512,21 @@ PluginsManager::preLoadPlugin (string &file, Server* server, bool global)
       return NULL;
     }
 
+  if (plugin->findSymbol ("__gpl_license") == NULL)
+    {
+      server->log (MYSERVER_LOG_MSG_ERROR,
+                   _("Error loading plugin `%s', the license is not GPL"),
+                   file.c_str ());
+      delete plugin;
+      return NULL;
+    }
+
   return plugin;
 }
 
 void
 PluginsManager::recursiveDependencesFallDown (Server* server, string &name,
-                                  HashMap<string, bool> &remove,
+                                              HashMap<string, bool> &remove,
                                   HashMap<string, list<string>*> &dependsOn)
 {
   remove.put (name, true);
@@ -541,8 +548,8 @@ PluginsManager::recursiveDependencesFallDown (Server* server, string &name,
 }
 
 /*!
- * Load the plugins.
- * \param server The server object to use.
+  Load the plugins.
+  \param server The server object to use.
  */
 int
 PluginsManager::load (Server *server)
@@ -655,16 +662,14 @@ PluginsManager::load (Server *server)
     }
 
   for (it = pluginsInfos.begin (); it != pluginsInfos.end (); it++)
-    {
-      (*it)->getPlugin ()->load (server);
-    }
+    (*it)->getPlugin ()->load (server);
 
   return 0;
 }
 
 /*!
- * PostLoad functions, called once all the plugins are loaded.
- * \param server The server object to use.
+  PostLoad functions, called once all the plugins are loaded.
+  \param server The server object to use.
  */
 int
 PluginsManager::postLoad (Server *server)
@@ -685,8 +690,8 @@ PluginsManager::postLoad (Server *server)
 }
 
 /*!
- * Unload the plugins.
- * messages.
+  Unload the plugins.
+  messages.
  */
 int
 PluginsManager::unLoad ()
@@ -706,8 +711,8 @@ PluginsManager::unLoad ()
 }
 
 /*!
- * Remove a plugin  without clean it.
- * \param name The plugin to remove.
+  Remove a plugin  without clean it.
+  \param name The plugin to remove.
  */
 void
 PluginsManager::removePlugin (string &name)
@@ -718,9 +723,9 @@ PluginsManager::removePlugin (string &name)
 }
 
 /*!
- * Add a plugin option structure.
- * \param plugin The plugin name.
- * \param pi The options for the plugin.
+  Add a plugin option structure.
+  \param plugin The plugin name.
+  \param pi The options for the plugin.
  */
 int
 PluginsManager::addPluginInfo (string &plugin, PluginInfo* pi)
@@ -734,8 +739,8 @@ PluginsManager::addPluginInfo (string &plugin, PluginInfo* pi)
 }
 
 /*!
- * Return a pluginOption.
- * \param plugin The plugin name.
+  Return a pluginOption.
+  \param plugin The plugin name.
  */
 PluginInfo*
 PluginsManager::getPluginInfo (string &plugin)

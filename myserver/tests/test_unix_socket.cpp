@@ -1,19 +1,19 @@
 /*
- MyServer
- Copyright (C) 2009, 2010 Free Software Foundation, Inc.
- This program is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 3 of the License, or
- (at your option) any later version.
+  MyServer
+  Copyright (C) 2009, 2010 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "myserver.h"
 
@@ -103,7 +103,7 @@ public:
     ret = FilesUtility::nodeExists (path.c_str ());
     CPPUNIT_ASSERT (ret);
 
-    CPPUNIT_ASSERT_EQUAL (sock->shutdown (), 0);
+    CPPUNIT_ASSERT_EQUAL (sock->shutdown (SHUT_RDWR), 0);
 
     CPPUNIT_ASSERT_EQUAL (sock->close (), 0);
 
@@ -127,13 +127,13 @@ public:
 
     UnixSocket client;
     client.socket ();
-    CPPUNIT_ASSERT_EQUAL (client.connect (path.c_str ()), 0);
+    CPPUNIT_ASSERT_EQUAL (client.connect2 (path.c_str ()), 0);
     int length = strlen (TEST_STRING) + 1;
     CPPUNIT_ASSERT_EQUAL (client.send (TEST_STRING, length, 0), length);
 
     Thread::join (tid);
 
-    client.shutdown ();
+    client.shutdown (SHUT_RDWR);
     client.close ();
 
     CPPUNIT_ASSERT_EQUAL (data.result, true);
@@ -144,9 +144,8 @@ public:
   {
 # ifndef WIN32
     const char *msg = "hello world";
-    ThreadID tid;
     Pipe pipe;
-    u_long nbw;
+    size_t nbw;
     char buffer[64];
     string path;
     FilesUtility::temporaryFileName (0, path);
@@ -159,7 +158,7 @@ public:
 
     UnixSocket client;
     client.socket ();
-    CPPUNIT_ASSERT_EQUAL (client.connect (path.c_str ()), 0);
+    CPPUNIT_ASSERT_EQUAL (client.connect2 (path.c_str ()), 0);
 
     Socket clientRecv = sock->accept ();
     Handle fd;
@@ -172,7 +171,7 @@ public:
     CPPUNIT_ASSERT_EQUAL (strcmp (buffer, msg), 0);
 
     clientRecv.close ();
-    client.shutdown ();
+    client.shutdown (SHUT_RDWR);
     client.close ();
 # endif
   }

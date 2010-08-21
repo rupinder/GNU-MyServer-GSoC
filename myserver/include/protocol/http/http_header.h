@@ -30,27 +30,20 @@ struct HttpHeader
 {
   struct Entry
   {
-    string *name;
-    string *value;
-    Entry () : name (NULL), value (NULL)
+    string name;
+    string value;
+    Entry ()
     {
-      name = new string ();
-      value = new string ();
     }
 
     Entry (string& n, string& v) : name (NULL), value (NULL)
     {
-      name = new string ();
-      value = new string ();
-
-      name->assign (n);
-      value->assign (v);
+      name.assign (n);
+      value.assign (v);
     }
 
     ~Entry ()
     {
-      delete name;
-      delete value;
     }
 
   };

@@ -144,6 +144,12 @@ It is done using the @code{PATH} directive in the following way:
 The @code{PATH} regular expressions are checked before the file
 extension, in the order they are specified in the configuration file.
 
+The proxy handler can keep a pool of active connections to the most
+recent used websites in order to make new requests faster.
+The maximum number of active connections that the server should
+maintain, can be configured trough the global variable
+@code{http.proxy.connections.keepalive}.
+
 @section Symbolic links
 MyServer offers the feature to follow symlinks where they are
 supported.

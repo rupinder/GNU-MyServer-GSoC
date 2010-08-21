@@ -29,16 +29,16 @@
 
 #endif
 /*!
- *Write a string to the socket.
- *The string length is sent before the content.
- *
- *\param socket Socket where write.
- *\param str string to write.
- *\param len string length.
+  Write a string to the socket.
+  The string length is sent before the content.
+
+  \param socket Socket where write.
+  \param str string to write.
+  \param len string length.
  */
 int ForkServer::writeString (Socket *socket, const char* str, int len)
 {
-  u_long nbw;
+  size_t nbw;
 
   if (str == NULL)
     len = 0;
@@ -53,13 +53,13 @@ int ForkServer::writeString (Socket *socket, const char* str, int len)
 }
 
 /*!
- *Write an integer on the specified socket.
- *\param socket Socket to use.
- *\param num Integer to write.
+  Write an integer on the specified socket.
+  \param socket Socket to use.
+  \param num Integer to write.
  */
 int ForkServer::writeInt (Socket *socket, int num)
 {
-  u_long nbw;
+  size_t nbw;
 
   if (socket->write ((const char*)&num, 4, &nbw))
     return 1;
@@ -68,15 +68,15 @@ int ForkServer::writeInt (Socket *socket, int num)
 }
 
 /*!
- *Read an integer from the socket.
- *
- *\param sock Socket where read.
- *\param dest integer where write
- *\return 0 on success.
+  Read an integer from the socket.
+
+  \param sock Socket where read.
+  \param dest integer where write
+  \return 0 on success.
  */
 int ForkServer::readInt (Socket *sock, int *dest)
 {
-  u_long nbr;
+  size_t nbr;
 
   if (sock->read ((char*)dest, 4, &nbr) || nbr < 4)
     {
@@ -87,18 +87,18 @@ int ForkServer::readInt (Socket *sock, int *dest)
 }
 
 /*!
- *Read a string from the socket.
- *The destination buffer is allocated here.
- *It must be freed by the caller.
- *
- *\param sock socket to use for read.
- *\param out destination buffer pointer.
- *\return 0 on success.
+  Read a string from the socket.
+  The destination buffer is allocated here.
+  It must be freed by the caller.
+
+  \param sock socket to use for read.
+  \param out destination buffer pointer.
+  \return 0 on success.
  */
 int ForkServer::readString (Socket *sock, char **out)
 {
   int len;
-  u_long nbr;
+  size_t nbr;
 
   if (sock->read ((char*) &len, 4, &nbr) || nbr < 4)
     {
@@ -108,7 +108,7 @@ int ForkServer::readString (Socket *sock, char **out)
   *out = new char[len + 1];
   (*out)[len] = '\0';
 
-  if (len && (sock->read (*out, len, &nbr) || nbr < len))
+  if (len && (sock->read (*out, len, &nbr) || (int) nbr < len))
     {
       delete [] *out;
       return -1;
@@ -118,7 +118,7 @@ int ForkServer::readString (Socket *sock, char **out)
 }
 
 /*!
- *Handle a request on the socket.
+  Handle a request on the socket.
  */
 int ForkServer::handleRequest (Socket *sock)
 {
@@ -220,11 +220,11 @@ int ForkServer::handleRequest (Socket *sock)
 }
 
 /*!
- *Entry point for the fork server.
- *Listen for new connections on the specified socket.
- *
- *\param serverSocket Socket where wait for new connections.
- *\return 0 on success.
+  Entry point for the fork server.
+  Listen for new connections on the specified socket.
+
+  \param serverSocket Socket where wait for new connections.
+  \return 0 on success.
  */
 int ForkServer::forkServerLoop (UnixSocket *serverSocket)
 {
@@ -236,7 +236,7 @@ int ForkServer::forkServerLoop (UnixSocket *serverSocket)
           Socket socket = serverSocket->accept ();
 
           char command;
-          u_long nbr;
+          size_t nbr;
 
           if (socket.read (&command, 1, &nbr))
             {
@@ -247,7 +247,7 @@ int ForkServer::forkServerLoop (UnixSocket *serverSocket)
             {
             case 'e': //exit process
               socket.close ();
-              serverSocket->shutdown ();
+              serverSocket->shutdown (SHUT_RDWR);
               serverSocket->close ();
               exit (0);
               return 0;
@@ -274,13 +274,13 @@ int ForkServer::forkServerLoop (UnixSocket *serverSocket)
 }
 
 /*!
- *Execute a process using the fork server.
- *\param spi New process information.
- *\param flags Flags.
- *\param pid The new process ID.
- *\param port if FLAG_STDIN_SOCKET was specified.
- *\param waitEnd If true `executeProcess' will wait until
- *the process terminates.
+  Execute a process using the fork server.
+  \param spi New process information.
+  \param flags Flags.
+  \param pid The new process ID.
+  \param port if FLAG_STDIN_SOCKET was specified.
+  \param waitEnd If true `executeProcess' will wait until
+  the process terminates.
  */
 int ForkServer::executeProcess (StartProcInfo *spi,
                                 int flags,
@@ -291,7 +291,7 @@ int ForkServer::executeProcess (StartProcInfo *spi,
 #ifdef WIN32
   return 0;
 #else
-  u_long nbw;
+  size_t nbw;
   int len = 0;
   const char * env = (const char *) spi->envString;
 
@@ -299,7 +299,7 @@ int ForkServer::executeProcess (StartProcInfo *spi,
     {
       UnixSocket sock;
       sock.socket ();
-      sock.connect (socketPath.c_str ());
+      sock.connect2 (socketPath.c_str ());
       sock.write ("r", 1, &nbw);
 
       writeInt (&sock, flags);
@@ -345,16 +345,16 @@ int ForkServer::executeProcess (StartProcInfo *spi,
 }
 
 /*!
- *Terminate the fork server execution.
+  Terminate the fork server execution.
  */
 void ForkServer::killServer ()
 {
-  u_long nbw;
+  size_t nbw;
   UnixSocket s;
   try
     {
       s.socket ();
-      s.connect (socketPath.c_str ());
+      s.connect2 (socketPath.c_str ());
       s.write ("e", 1, &nbw);
       s.close ();
     }
@@ -365,9 +365,9 @@ void ForkServer::killServer ()
 }
 
 /*!
- *Initialize the fork server.
- *
- *\return 0 on success.
+  Initialize the fork server.
+
+  \return 0 on success.
  */
 int ForkServer::startForkServer ()
 {
@@ -399,10 +399,10 @@ int ForkServer::startForkServer ()
 }
 
 /*!
- *Create a listener without specify a port.
- *
- *\param socket The socket to generate.
- *\param port the obtained port.
+  Create a listener without specify a port.
+
+  \param socket The socket to generate.
+  \param port the obtained port.
  */
 int ForkServer::generateListenerSocket (Socket &socket, u_short *port)
 {

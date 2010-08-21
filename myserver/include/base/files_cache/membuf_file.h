@@ -34,26 +34,29 @@ public:
   MemBufFile (MemBuf* buffer);
   virtual Handle getHandle ();
   virtual int setHandle (Handle);
-  virtual int read (char* ,u_long ,u_long*);
-  virtual int writeToFile (const char* ,u_long ,u_long*);
-  virtual int createTemporaryFile (const char*);
+  virtual int read (char* , size_t, size_t *);
+  virtual int writeToFile (const char *, size_t, size_t *);
+  virtual int createTemporaryFile (const char*, bool unlink = false);
 
-  virtual int openFile (const char*, u_long);
-  virtual int openFile (string const &file, u_long opt)
-  {return openFile (file.c_str (), opt);}
+  virtual int openFile (const char *, u_long, mode_t mask = 00700);
+  virtual int openFile (string const &file, u_long opt, mode_t mask = 00700)
+  {return openFile (file.c_str (), opt, mask);}
 
-  virtual u_long getFileSize ();
-  virtual int seek (u_long);
+  virtual off_t getFileSize ();
+  virtual int seek (off_t);
 
   virtual int close ();
 
-  virtual int fastCopyToSocket (Socket *dest, u_long offset,
-                                MemBuf *buf, u_long *nbw);
+  using File::operator =;
 
-  virtual u_long getSeek ();
-  virtual int write (const char* buffer, u_long len, u_long *nbw);
+  virtual int fastCopyToSocket (Socket *dest, off_t offset,
+                                MemBuf *buf, size_t *nbw);
+
+  virtual off_t getSeek ();
+  virtual int write (const char* buffer, size_t len, size_t *nbw);
+
 protected:
-  u_long fseek;
+  off_t fseek;
   MemBuf *buffer;
 };
 #endif

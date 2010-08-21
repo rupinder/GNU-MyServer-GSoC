@@ -40,7 +40,7 @@ class Vhost;
 class Server;
 
 /*!
- *Define permissions flags.
+  Define permissions flags.
  */
 enum PERMISSION_MASK
   {

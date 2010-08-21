@@ -91,10 +91,10 @@ public:
     File f;
     f.openFile ("foo", File::READ | File::OPEN_IF_EXISTS);
     char buf[64];
-    u_long nbr;
+    size_t nbr;
     f.read (buf, 64, &nbr);
     buf[nbr] = '\0';
-    CPPUNIT_ASSERT_EQUAL (nbr, (u_long) message2.length ());
+    CPPUNIT_ASSERT_EQUAL (nbr, (size_t) message2.length ());
     CPPUNIT_ASSERT (!message2.compare (buf));
     f.close ();
     list<string> cs = ls->getCycledStreams ();
@@ -105,7 +105,7 @@ public:
         f.openFile (*it, File::READ | File::OPEN_IF_EXISTS);
         f.read (buf, 64, &nbr);
         buf[nbr] = '\0';
-        CPPUNIT_ASSERT_EQUAL (nbr, (u_long) message.length ());
+        CPPUNIT_ASSERT_EQUAL (nbr, (size_t) message.length ());
         CPPUNIT_ASSERT (!message.compare (buf));
         f.close ();
         CPPUNIT_ASSERT (! FilesUtility::deleteFile (*it));
@@ -119,7 +119,7 @@ public:
     LogStream* ls;
     File f;
     char buf[128];
-    u_long nbr;
+    size_t nbr;
     string message1;
     string message2;
     ostringstream oss;
@@ -154,7 +154,7 @@ public:
     f.read (buf, 128, &nbr);
     f.close ();
     buf[nbr] = '\0';
-    CPPUNIT_ASSERT_EQUAL (nbr, (u_long)(message1.length () + message2.length ()));
+    CPPUNIT_ASSERT_EQUAL (nbr, (size_t)(message1.length () + message2.length ()));
     CPPUNIT_ASSERT (!string (buf).compare (message1.append (message2)));
   }
 

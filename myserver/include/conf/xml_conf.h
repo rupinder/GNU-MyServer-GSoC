@@ -30,7 +30,7 @@
 using namespace std;
 
 /*!
- *Utility class for various operations on XML files.
+  Utility class for various operations on XML files.
  */
 class XmlConf
 {

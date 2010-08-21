@@ -77,6 +77,7 @@ public:
   static int deleteFile (const char * );
   static int deleteFile (string const &file)
   {return deleteFile (file.c_str ());}
+  static int deleteDir (string const &);
 
   static int renameFile (const char*, const char*);
   static int renameFile (string const &before, string const &after)
@@ -86,6 +87,8 @@ public:
   static int copyFile (File&, File&);
   static int copyFile (string const &src, string const &dest, int overwrite)
   {return copyFile (src.c_str (), dest.c_str (), overwrite);}
+
+  static int copyDir (string const &, string const &, int overwrite);
 
   static void getFileExt (char* ext,const char* filename);
   static void getFileExt (string& ext, string const &filename);

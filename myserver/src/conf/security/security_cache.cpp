@@ -30,7 +30,7 @@ using namespace std;
 
 /*
   Constructor for the SecurityCache object.
- */
+*/
 SecurityCache::SecurityCache ()
 {
   /*
@@ -40,7 +40,7 @@ SecurityCache::SecurityCache ()
 }
 
 /*!
- *Destroy the security cache object.
+  Destroy the security cache object.
  */
 SecurityCache::~SecurityCache ()
 {
@@ -72,11 +72,11 @@ void SecurityCache::setMaxNodes (int newLimit)
 
   /*! Remove all the additional nodes from the dictionary. */
   while (newLimit < dictionary.size ())
-  {
-    XmlParser* toremove = dictionary.remove (dictionary.begin ());
-    if (toremove)
-      delete toremove;
-  }
+    {
+      XmlParser* toremove = dictionary.remove (dictionary.begin ());
+      if (toremove)
+        delete toremove;
+    }
   limit = newLimit;
 }
 
@@ -108,43 +108,43 @@ int SecurityCache::getSecurityFile (const string& dir,
 
   /* The security file exists in the directory.  */
   if (FilesUtility::nodeExists (secFile))
-  {
-    out.assign (secFile);
-    return 0;
-  }
+    {
+      out.assign (secFile);
+      return 0;
+    }
 
 
   /* Go upper in the tree till we find a security file.  */
   for (;;)
-  {
-    if (found || !file.length ())
-      break;
-
-    for (i = file.length () - 1; i; i--)
-      if (file[i] == '/')
-      {
-        file.erase (i, file.length () - i);
-        break;
-      }
-
-    /*
-      Top of the tree, check if the security file is present in the
-      system directory.  Return an error if it is not.
-    */
-    if (i == 0)
     {
-      out.assign (sys);
-      out.append ("/");
-      out.append (secFileName);
-      return !FilesUtility::nodeExists (out);
+      if (found || !file.length ())
+        break;
+
+      for (i = file.length () - 1; i; i--)
+        if (file[i] == '/')
+          {
+            file.erase (i, file.length () - i);
+            break;
+          }
+
+      /*
+        Top of the tree, check if the security file is present in the
+        system directory.  Return an error if it is not.
+      */
+      if (i == 0)
+        {
+          out.assign (sys);
+          out.append ("/");
+          out.append (secFileName);
+          return !FilesUtility::nodeExists (out);
+        }
+
+      secFile.assign (file);
+      secFile.append ("/");
+      secFile.append (secFileName);
+
+      found = FilesUtility::nodeExists (secFile);
     }
-
-    secFile.assign (file);
-    secFile.append ("/");
-    secFile.append (secFileName);
-
-    found = FilesUtility::nodeExists (secFile);
-  }
 
   out.assign (secFile);
   return 0;
@@ -183,60 +183,60 @@ XmlParser* SecurityCache::getParser (const string &dir,
 
   /* If the parser is already present and satisfy XPath then use it.  */
   if (parser && (!useXpath || parser->isXpathEnabled ()))
-  {
-    time_t fileModTime;
-    fileModTime = FilesUtility::getLastModTime (file.c_str ());
-
-    if ((fileModTime != static_cast<time_t>(-1))  &&
-       (parser->getLastModTime () != fileModTime))
     {
-      parser->close ();
+      time_t fileModTime;
+      fileModTime = FilesUtility::getLastModTime (file.c_str ());
 
-      /* FIXME:  Don't open the file twice, once to check
-       * and the second time to parse.  */
-      if (maxSize)
+      if ((fileModTime != static_cast<time_t>(-1))  &&
+          (parser->getLastModTime () != fileModTime))
         {
-          File parserFile;
-          if (parserFile.openFile (file.c_str (), File::READ))
-            return NULL;
+          parser->close ();
 
-          if (parserFile.getFileSize () > maxSize)
-            return NULL;
+          /* FIXME:  Don't open the file twice, once to check
+            and the second time to parse.  */
+          if (maxSize)
+            {
+              File parserFile;
+              if (parserFile.openFile (file.c_str (), File::READ))
+                return NULL;
 
-          parserFile.close ();
+              if (parserFile.getFileSize () > maxSize)
+                return NULL;
+
+              parserFile.close ();
+            }
+
+          if (parser->open (file.c_str (), useXpath) == -1)
+            {
+              dictionary.remove (file.c_str ());
+              return NULL;
+            }
+
+        }
+    }
+  else
+    {
+      /* Create the parser and add it to the dictionary.  */
+      XmlParser* old;
+      parser = new XmlParser ();
+
+      if (parser == NULL)
+        return NULL;
+
+      if (dictionary.size () >= limit)
+        {
+          XmlParser* toremove = dictionary.remove (dictionary.begin ());
+          if (toremove)
+            delete toremove;
         }
 
       if (parser->open (file.c_str (), useXpath) == -1)
-      {
-        dictionary.remove (file.c_str ());
         return NULL;
-      }
 
+      old = dictionary.put (file, parser);
+      if (old)
+        delete old;
     }
-  }
-  else
-  {
-    /* Create the parser and add it to the dictionary.  */
-    XmlParser* old;
-    parser = new XmlParser ();
-
-    if (parser == NULL)
-      return NULL;
-
-    if (dictionary.size () >= limit)
-    {
-      XmlParser* toremove = dictionary.remove (dictionary.begin ());
-      if (toremove)
-        delete toremove;
-    }
-
-    if (parser->open (file.c_str (), useXpath) == -1)
-      return NULL;
-
-    old = dictionary.put (file, parser);
-    if (old)
-      delete old;
-  }
 
   return parser;
 }

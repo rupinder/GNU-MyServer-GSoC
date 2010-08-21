@@ -67,6 +67,8 @@ int HttpProtocol::loadProtocol ()
 {
   const char *data = NULL;
 
+  HttpErrors::load ();
+
   timeout = MYSERVER_SEC (15);
   dynManagerList.addHttpManager ("SEND", new HttpFile ());
   dynManagerList.addHttpManager ("DIR", new HttpDir ());
@@ -105,9 +107,9 @@ int HttpProtocol::unLoadProtocol ()
 }
 
 /*!
- * Build a response for an OPTIONS request.
+  Build a response for an OPTIONS request.
  */
-int Http::optionsHTTPRESOURCE (string& filename, int yetmapped)
+int Http::optionsHTTPRESOURCE (string& filename, bool yetmapped)
 {
   int ret;
   string time;
@@ -116,7 +118,7 @@ int Http::optionsHTTPRESOURCE (string& filename, int yetmapped)
   try
     {
       HttpRequestHeader::Entry *connection = td->request.other.get ("connection");
-      string methods ("OPTIONS, GET, POST, HEAD, DELETE, PUT, TRACE");
+      string methods ("OPTIONS, GET, POST, HEAD, DELETE, PUT, TRACE, MKCOL, PROPFIND, COPY, MOVE, LOCK, UNLOCK");
 
       HashMap<string, DynamicHttpCommand*>::Iterator it =
         staticData->getDynCmdManager ()->begin ();
@@ -136,8 +138,8 @@ int Http::optionsHTTPRESOURCE (string& filename, int yetmapped)
       *td->auxiliaryBuffer << "HTTP/1.1 200 OK\r\n";
       *td->auxiliaryBuffer << "Date: " << time;
       *td->auxiliaryBuffer << "\r\nServer: GNU MyServer " << MYSERVER_VERSION;
-      if (connection && connection->value->length ())
-        *td->auxiliaryBuffer << "\r\nConnection:" << connection->value->c_str () << "\r\n";
+      if (connection && connection->value.length ())
+        *td->auxiliaryBuffer << "\r\nConnection:" << connection->value.c_str () << "\r\n";
       *td->auxiliaryBuffer << "Content-length: 0\r\nAccept-Ranges: bytes\r\n";
       *td->auxiliaryBuffer << "Allow: " << methods << "\r\n\r\n";
       td->connection->socket->send (td->auxiliaryBuffer->getBuffer (),
@@ -152,9 +154,9 @@ int Http::optionsHTTPRESOURCE (string& filename, int yetmapped)
 }
 
 /*!
- * Handle the HTTP TRACE command.
+  Handle the HTTP TRACE command.
  */
-int Http::traceHTTPRESOURCE (string& filename, int yetmapped)
+int Http::traceHTTPRESOURCE (string& filename, bool yetmapped)
 {
   int ret;
   char tmpStr[12];
@@ -178,8 +180,8 @@ int Http::traceHTTPRESOURCE (string& filename, int yetmapped)
       *td->auxiliaryBuffer << "Date: " << time << "\r\n";
       *td->auxiliaryBuffer << "Server: GNU MyServer " << MYSERVER_VERSION << "\r\n";
       connection = td->request.other.get ("connection");
-      if (connection && connection->value->length ())
-        *td->auxiliaryBuffer << "Connection:" << connection->value->c_str () << "\r\n";
+      if (connection && connection->value.length ())
+        *td->auxiliaryBuffer << "Connection:" << connection->value.c_str () << "\r\n";
 
       *td->auxiliaryBuffer << "Content-length:" << tmp << "\r\n"
               << "Content-type: message/http\r\n"
@@ -206,9 +208,9 @@ int Http::traceHTTPRESOURCE (string& filename, int yetmapped)
 }
 
 /*!
- * Check if the method is allowed.
- * \param method The HTTP method name.
- * \return true if it is allowed.
+  Check if the method is allowed.
+  \param method The HTTP method name.
+  \return true if it is allowed.
  */
 bool Http::allowMethod (const char *method)
 {
@@ -222,7 +224,7 @@ bool Http::allowMethod (const char *method)
 }
 
 /*!
- * Get the timeout for the cgi.
+  Get the timeout for the cgi.
  */
 u_long Http::getTimeout ()
 {
@@ -230,27 +232,27 @@ u_long Http::getTimeout ()
 }
 
 /*!
- * Main function to handle the HTTP PUT command.
+  Main function to handle the HTTP PUT command.
  */
-int Http::putHTTPRESOURCE (string& filename, int sysReq, int onlyHeader,
-                           int yetmapped)
+int Http::putHTTPRESOURCE (string& filename, bool sysReq, bool onlyHeader,
+                           bool yetmapped)
 {
   return sendHTTPResource (filename, sysReq, onlyHeader, yetmapped);
 }
 
 /*!
- * Get the file permissions mask.
- * \param filename Resource to access.
- * \param directory Directory where the resource is.
- * \param file The file specified by the resource.
- * \param filenamePath Complete path to the file.
- * \param yetmapped Is the resource mapped to the localfilesystem?
- * \param permissions Permission mask for this resource.
- * \return Return 200 on success.
- * \return Any other value is the HTTP error code.
+  Get the file permissions mask.
+  \param filename Resource to access.
+  \param directory Directory where the resource is.
+  \param file The file specified by the resource.
+  \param filenamePath Complete path to the file.
+  \param yetmapped Is the resource mapped to the localfilesystem?
+  \param permissions Permission mask for this resource.
+  \return Return 200 on success.
+  \return Any other value is the HTTP error code.
  */
 int Http::getFilePermissions (string& filename, string& directory, string& file,
-                              string &filenamePath, int yetmapped, int* permissions)
+                              string &filenamePath, bool yetmapped, int* permissions)
 {
   try
     {
@@ -267,10 +269,10 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
       td->securityToken.setDirectory (&directory);
 
       /*
-       * td->filenamePath is the file system mapped path while filename
-       * is the uri requested.
-       * systemrequest is 1 if the file is in the system directory.
-       * If filename is already mapped on the file system don't map it again.
+        td->filenamePath is the file system mapped path while filename
+        is the uri requested.
+        systemrequest is 1 if the file is in the system directory.
+        If filename is already mapped on the file system don't map it again.
        */
       if (yetmapped)
         filenamePath.assign (filename);
@@ -278,8 +280,8 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
         {
           int ret;
           /*
-           * If the client tries to access files that aren't in the web directory
-           * send a HTTP 401 error page.
+            If the client tries to access files that aren't in the web directory
+            send a HTTP 401 error page.
            */
           translateEscapeString (filename);
           if ((filename[0] != '\0') &&
@@ -419,14 +421,14 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
 }
 
 /*!
- * Preprocess a HTTP request.
- * \param filename Resource to access.
- * \param yetmapped Is the resource mapped to the localfilesystem?
- * \param permissions Permission mask for this resource.
- * \return Return 200 on success.
- * \return Any other value is the HTTP error code.
+  Preprocess a HTTP request.
+  \param filename Resource to access.
+  \param yetmapped Is the resource mapped to the localfilesystem?
+  \param permissions Permission mask for this resource.
+  \return Return 200 on success.
+  \return Any other value is the HTTP error code.
  */
-int Http::preprocessHttpRequest (string& filename, int yetmapped,
+int Http::preprocessHttpRequest (string& filename, bool yetmapped,
                                  int* permissions)
 {
   string directory;
@@ -446,10 +448,10 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped,
         return ret;
 
       /*
-       *Get the PATH_INFO value.
-       *Use dirscan as a buffer for put temporary directory scan.
-       *When an '/' character is present check if the path up to '/' character
-       *is a file. If it is a file send the rest of the uri as PATH_INFO.
+        Get the PATH_INFO value.
+        Use dirscan as a buffer for put temporary directory scan.
+        When an '/' character is present check if the path up to '/' character
+        is a file. If it is a file send the rest of the uri as PATH_INFO.
        */
       td->pathInfo.assign ("");
       td->pathTranslated.assign ("");
@@ -461,12 +463,12 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped,
       for (u_long i = 0;;)
         {
           /*
-           * http://host/path/to/file/file.txt/PATH_INFO_VALUE?QUERY_INFO_VALUE
-           * When a request has this form send the file file.txt with the
-           * environment string PATH_INFO equals to PATH_INFO_VALUE and QUERY_INFO
-           * to QUERY_INFO_VALUE.
+            http://host/path/to/file/file.txt/PATH_INFO_VALUE?QUERY_INFO_VALUE
+            When a request has this form send the file file.txt with the
+            environment string PATH_INFO equals to PATH_INFO_VALUE and QUERY_INFO
+            to QUERY_INFO_VALUE.
            *
-           * If there is the '/' character check if dirscan is a file.
+            If there is the '/' character check if dirscan is a file.
            */
 
           u_long next = td->filenamePath.find ('/', i + 1);
@@ -502,7 +504,7 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped,
         }
 
       /*
-       * PATH_TRANSLATED is the local filesystem mapped version of PATH_INFO.
+        PATH_TRANSLATED is the local filesystem mapped version of PATH_INFO.
        */
       if (td->pathInfo.length () <= 1)
         td->pathTranslated.assign ("");
@@ -536,19 +538,19 @@ int Http::preprocessHttpRequest (string& filename, int yetmapped,
 }
 
 /*!
- * Delete the resource identified by filename.
+  Delete the resource identified by filename.
  */
-int Http::deleteHTTPRESOURCE (string& filename, int sysReq, int onlyHeader,
-                          int yetmapped)
+int Http::deleteHTTPRESOURCE (string& filename, bool sysReq, bool onlyHeader,
+                              bool yetmapped)
 {
   return sendHTTPResource (filename, sysReq, onlyHeader, yetmapped);
 }
 
 /*!
- * Check the Digest authorization
- *
- * \return 1 if the client credentials are OK.
- * \return 0 if the credentials are wrong.
+  Check the Digest authorization
+
+  \return 1 if the client credentials are OK.
+  \return 0 if the credentials are wrong.
  */
 u_long Http::checkDigest ()
 {
@@ -625,7 +627,7 @@ u_long Http::checkDigest ()
 }
 
 /*!
- * Create the buffer.
+  Create the buffer.
  */
 HttpUserData::HttpUserData ()
 {
@@ -633,12 +635,12 @@ HttpUserData::HttpUserData ()
 }
 
 /*!
- * Destroy the buffer.
+  Destroy the buffer.
  */
 HttpUserData::~HttpUserData () { }
 
 /*!
- * Reset the structure.
+  Reset the structure.
  */
 void
 HttpUserData::reset ()
@@ -653,15 +655,15 @@ HttpUserData::reset ()
 }
 
 /*!
- * Main function to send a resource to a client.
+  Main function to send a resource to a client.
  */
 int
-Http::sendHTTPResource (string& uri, int systemrequest, int onlyHeader,
-                        int yetmapped)
+Http::sendHTTPResource (string& uri, bool systemrequest, bool onlyHeader,
+                        bool yetmapped)
 {
   /*
-   * With this code we manage a request of a file or a directory or anything
-   * that we must send over the HTTP.
+    With this code we manage a request of a file or a directory or anything
+    that we must send over the HTTP.
    */
   string filename;
   const char *cgiManager;
@@ -722,7 +724,7 @@ Http::sendHTTPResource (string& uri, int systemrequest, int onlyHeader,
           return raiseHTTPError (500);
         }
 
-      return manager->send (td, td->filenamePath.c_str (), 0, onlyHeader);
+      return manager->send (td, td->filenamePath.c_str (), NULL, false, onlyHeader);
     }
   catch (exception & e)
     {
@@ -734,7 +736,7 @@ Http::sendHTTPResource (string& uri, int systemrequest, int onlyHeader,
 }
 
 /*!
- * Log the access using the Common Log Format or the Combined one.
+  Log the access using the Common Log Format or the Combined one.
  */
 int Http::logHTTPaccess ()
 {
@@ -795,14 +797,14 @@ int Http::logHTTPaccess ()
           HttpRequestHeader::Entry *referer = td->request.other.get ("refer");
 
           if (strstr ((td->connection->host)->getAccessLogOpt (), "type=combined"))
-            *td->auxiliaryBuffer << " " << (referer ? referer->value->c_str () : "")
-            << " " << (userAgent ? userAgent->value->c_str () : "");
+            *td->auxiliaryBuffer << " " << (referer ? referer->value.c_str () : "")
+            << " " << (userAgent ? userAgent->value.c_str () : "");
         }
 
       *td->auxiliaryBuffer << end_str;
 
       /*
-       * Request the access to the log file then append the message.
+        Request the access to the log file then append the message.
        */
       if (td->connection->host)
         {
@@ -820,7 +822,7 @@ int Http::logHTTPaccess ()
 }
 
 /*!
- * This is the HTTP protocol main procedure to parse a request over HTTP.
+  This is the HTTP protocol main procedure to parse a request over HTTP.
  */
 int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                              u_long nbtr, u_long id)
@@ -844,11 +846,9 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
       td->id = id;
       td->lastError = 0;
       td->http = this;
-      td->appendOutputs = 0;
-      td->onlyHeader = 0;
+      td->appendOutputs = false;
+      td->onlyHeader = false;
       td->filenamePath.assign ("");
-      td->outputDataPath.assign ("");
-      td->inputDataPath.assign ("");
       td->mime = NULL;
       td->headerSent = false;
       td->sentData = 0;
@@ -918,19 +918,14 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
 
       td->response.ver.assign (td->request.ver.c_str ());
 
-      /*
-       * For methods that accept data after the HTTP header set the correct
-       * pointer and create a file containing the informations after the header.
-       */
-      FilesUtility::temporaryFileName (td->id, td->inputDataPath);
-      FilesUtility::temporaryFileName (td->id, td->outputDataPath);
-
       dynamicCommand =
         staticData->getDynCmdManager ()->getHttpCommand (td->request.cmd);
 
       /* If the used method supports POST data, read it.  */
       if ((!td->request.cmd.compare ("POST")) ||
           (!td->request.cmd.compare ("PUT")) ||
+          (!td->request.cmd.compare ("LOCK")) ||
+          (!td->request.cmd.compare ("PROPFIND")) ||
           (dynamicCommand && dynamicCommand->acceptData ()))
         {
           int httpErrorCode;
@@ -965,20 +960,20 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
       if (ret < 0)
         {
           /*
-           * How is expressly said in the RFC2616 a client that sends an
-           * HTTP/1.1 request MUST sends a Host header.
-           * Servers MUST reports a 400 (Bad request) error if an HTTP/1.1
-           * request does not include a Host request-header.
+            How is expressly said in the RFC2616 a client that sends an
+            HTTP/1.1 request MUST sends a Host header.
+            Servers MUST reports a 400 (Bad request) error if an HTTP/1.1
+            request does not include a Host request-header.
            */
           HttpRequestHeader::Entry *host = td->request.other.get ("host");
           HttpRequestHeader::Entry *connection
             = td->request.other.get ("connection");
           if (connection)
-            keepalive = !stringcmpi (connection->value->c_str (), "keep-alive")
+            keepalive = !stringcmpi (connection->value.c_str (), "keep-alive")
               && !td->request.ver.compare ("HTTP/1.1");
 
           if (! td->request.ver.compare ("HTTP/1.1")
-              && (host == NULL || host->value->length () == 0))
+              && (host == NULL || host->value.length () == 0))
             {
               int ret = raiseHTTPError (400);
               logHTTPaccess ();
@@ -990,7 +985,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
 
           /* Find the virtual host to check both host name and IP value.  */
           Vhost* newHost = Server::getInstance ()->getVhosts ()->getVHost (host ?
-                                                       host->value->c_str () : "",
+                                                       host->value.c_str () : "",
                                          a->getLocalIpAddr (), a->getLocalPort ());
           if (a->host)
             a->host->removeRef ();
@@ -1075,8 +1070,8 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
             }
 
           /*
-           * Set the throttling rate for the socket. This setting can be
-           * changed later.
+            Set the throttling rate for the socket. This setting can be
+            changed later.
            */
           if (a->host->getThrottlingRate () == (u_long) - 1)
             a->socket->setThrottling (Server::getInstance ()->getThrottlingRate ());
@@ -1113,47 +1108,50 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
                 ret = sendHTTPResource (td->request.uri);
               else if (!td->request.cmd.compare ("HEAD"))
                 {
-                  td->onlyHeader = 1;
+                  td->onlyHeader = true;
                   ret = sendHTTPResource (td->request.uri, 0, 1);
                 }
               else if (!td->request.cmd.compare ("DELETE"))
-                ret = deleteHTTPRESOURCE (td->request.uri, 0, 1);
+                ret = dav.davdelete (td);
               else if (!td->request.cmd.compare ("PUT"))
                 ret = putHTTPRESOURCE (td->request.uri, 0, 1);
               else if (!td->request.cmd.compare ("OPTIONS"))
                 ret = optionsHTTPRESOURCE (td->request.uri, 0);
               else if (!td->request.cmd.compare ("TRACE"))
                 ret = traceHTTPRESOURCE (td->request.uri, 0);
+              else if (!td->request.cmd.compare ("MKCOL"))
+                ret = dav.mkcol (td);
+              else if (!td->request.cmd.compare ("PROPFIND"))
+                ret = dav.propfind (td);
+              else if (!td->request.cmd.compare ("COPY"))
+                ret = dav.copy (td);
+              else if (!td->request.cmd.compare ("MOVE"))
+                ret = dav.move (td);
+              else if (!td->request.cmd.compare ("LOCK"))
+                ret = dav.lock (td);
+              else if (!td->request.cmd.compare ("UNLOCK"))
+                ret = dav.unlock (td);
+
+
               else
                 {
                   /*
-                   *Return Method not implemented (501) if there
-                   *is not a dynamic methods manager.
+                    Return Method not implemented (501) if there
+                    is not a dynamic methods manager.
                    */
                   if (!dynamicCommand)
                     ret = raiseHTTPError (501);
                   else
                     ret = dynamicCommand->send (td, a, td->request.uri, 0,
-                                                0, 0);
+                                                false, false);
                 }
             }
         }
 
       try
         {
-          /* If the inputData file was not closed close it.  */
-          if (td->inputData.getHandle () >= 0)
-            {
-              td->inputData.close ();
-              FilesUtility::deleteFile (td->inputDataPath);
-            }
-
-          /* If the outputData file was not closed close it.  */
-          if (td->outputData.getHandle () >= 0)
-            {
-              td->outputData.close ();
-              FilesUtility::deleteFile (td->outputDataPath);
-            }
+          td->inputData.close ();
+          td->outputData.close ();
         }
       catch (GenericFileException & e)
         {
@@ -1176,6 +1174,9 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
     }
   catch (...)
     {
+      td->inputData.close ();
+      td->outputData.close ();
+
       td->connection->host->warningsLogWrite (_("HTTP: internal error"));
       raiseHTTPError (500);
       logHTTPaccess ();
@@ -1186,7 +1187,7 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
 }
 
 /*!
- * Compute the Digest outputting it to a buffer.
+  Compute the Digest outputting it to a buffer.
  */
 void Http::computeDigest (char* out, char* buffer)
 {
@@ -1203,7 +1204,7 @@ void Http::computeDigest (char* out, char* buffer)
 }
 
 /*!
- * Send to the client an authorization request.
+  Send to the client an authorization request.
  */
 int Http::requestAuthorization ()
 {
@@ -1218,13 +1219,13 @@ int Http::requestAuthorization ()
   *td->auxiliaryBuffer << "Server: GNU MyServer " << MYSERVER_VERSION << "\r\n";
   *td->auxiliaryBuffer << "Content-type: text/html\r\n"
           << "Connection: ";
-  *td->auxiliaryBuffer << (connection ? connection->value->c_str () : "");
+  *td->auxiliaryBuffer << (connection ? connection->value.c_str () : "");
   *td->auxiliaryBuffer << "\r\nContent-length: 0\r\n";
 
   if (td->authScheme == HTTP_AUTH_SCHEME_BASIC)
     {
       *td->auxiliaryBuffer << "WWW-Authenticate: Basic realm=\""
-                           << (host ? host->value->c_str () : "")
+                           << (host ? host->value.c_str () : "")
                            << "\"\r\n";
     }
   else if (td->authScheme == HTTP_AUTH_SCHEME_DIGEST)
@@ -1242,7 +1243,7 @@ int Http::requestAuthorization ()
           hud->reset ();
         }
 
-      myserver_strlcpy (hud->realm, host ? host->value->c_str () : "", 48);
+      myserver_strlcpy (hud->realm, host ? host->value.c_str () : "", 48);
 
       /* Just a random string.  */
       md5Str[0] = (char) td->id;
@@ -1293,8 +1294,8 @@ int Http::requestAuthorization ()
 }
 
 /*!
- * Sends an error page to the client.
- * Nonzero to keep the connection.
+  Sends an error page to the client.
+  Nonzero to keep the connection.
  */
 int Http::raiseHTTPError (int ID)
 {
@@ -1331,7 +1332,7 @@ int Http::raiseHTTPError (int ID)
 
       HttpHeaders::buildDefaultHTTPResponseHeader (&(td->response));
 
-      if (connection && !stringcmpi (connection->value->c_str (), "keep-alive"))
+      if (connection && !stringcmpi (connection->value.c_str (), "keep-alive"))
         td->response.setValue ("connection", "keep-alive");
 
       td->response.httpStatus = ID;
@@ -1346,7 +1347,7 @@ int Http::raiseHTTPError (int ID)
         {
           ostringstream nURL;
           int isPortSpecified = 0;
-          const char* hostStr = host ? host->value->c_str () : "";
+          const char* hostStr = host ? host->value.c_str () : "";
           /* Change the URI to reflect the default file name.  */
           nURL << protocolPrefix << hostStr;
           for (int i = 0; hostStr[i]; i++)
@@ -1428,7 +1429,7 @@ int Http::raiseHTTPError (int ID)
 }
 
 /*!
- * Send a hard wired 500 error when we have a system error
+  Send a hard wired 500 error when we have a system error
  */
 int Http::sendHTTPhardError500 ()
 {
@@ -1484,8 +1485,8 @@ Internal Server Error\n\
 }
 
 /*!
- * Returns the MIME type passing its extension.
- * Returns zero if the file is registered.
+  Returns the MIME type passing its extension.
+  Returns zero if the file is registered.
  */
 MimeRecord* Http::getMIME (string &filename)
 {
@@ -1499,11 +1500,11 @@ MimeRecord* Http::getMIME (string &filename)
 }
 
 /*!
- * Map an URL to the machine file system. Return 200 on success.
- * Any other return value is the HTTP error.
+  Map an URL to the machine file system. Return 200 on success.
+  Any other return value is the HTTP error.
  */
 int Http::getPath (HttpThreadContext* td, string& filenamePath,
-                   const char *filename, int systemrequest)
+                   const char *filename, bool systemrequest)
 {
   if (systemrequest)
     {
@@ -1523,17 +1524,17 @@ int Http::getPath (HttpThreadContext* td, string& filenamePath,
         {
           const char *root;
           /*
-           * uri starting with a /sys/ will use the system directory as
-           * the root path. Be sure to don't allow access to the system root
-           * but only to subdirectories.
+            uri starting with a /sys/ will use the system directory as
+            the root path. Be sure to don't allow access to the system root
+            but only to subdirectories.
            */
           if (filename[0] == '/' && filename[1] == 's' && filename[2] == 'y'
               && filename[3] == 's' && filename[4] == '/')
             {
               root = td->getVhostSys ();
               /*
-               * Do not allow access to the system directory root but only
-               * to subdirectories.
+                Do not allow access to the system directory root but only
+                to subdirectories.
                */
               if (FilesUtility::getPathRecursionLevel (filename) < 2)
                 {
@@ -1562,17 +1563,17 @@ int Http::getPath (HttpThreadContext* td, string& filenamePath,
 }
 
 /*!
- * If a directory is accessed try in order:
- *
- * 1) The default files in order.
- * 2) The directory content.
- * 3) An error.
- *
- * \param uri The accessed URI.
- * \param permissions The permission mask for the client.
- * \param onlyHeader specify if the client requested only the header.
+  If a directory is accessed try in order:
+
+  1) The default files in order.
+  2) The directory content.
+  3) An error.
+
+  \param uri The accessed URI.
+  \param permissions The permission mask for the client.
+  \param onlyHeader specify if the client requested only the header.
  */
-int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
+int Http::processDefaultFile (string& uri, int permissions, bool onlyHeader)
 {
   string key ("http.default_file");
   NodeTree<string> *node = td->securityToken.getNodeTree (key,
@@ -1628,11 +1629,11 @@ int Http::processDefaultFile (string& uri, int permissions, int onlyHeader)
       return raiseHTTPError (500);
     }
 
-  return handler->send (td, td->filenamePath.c_str (), 0, onlyHeader);
+  return handler->send (td, td->filenamePath.c_str (), NULL, 0, onlyHeader);
 }
 
 /*!
- * Send a redirect message to the client.
+  Send a redirect message to the client.
  */
 int Http::sendHTTPRedirect (const char *newURL)
 {
@@ -1647,7 +1648,7 @@ int Http::sendHTTPRedirect (const char *newURL)
           << "Location: " << newURL << "\r\n"
           << "Content-length: 0\r\n";
 
-  if (connection && !stringcmpi (connection->value->c_str (), "keep-alive"))
+  if (connection && !stringcmpi (connection->value.c_str (), "keep-alive"))
     *td->auxiliaryBuffer << "Connection: keep-alive\r\n";
   else
     *td->auxiliaryBuffer << "Connection: close\r\n";
@@ -1662,7 +1663,7 @@ int Http::sendHTTPRedirect (const char *newURL)
 }
 
 /*!
- * Send a non-modified message to the client.
+  Send a non-modified message to the client.
  */
 int Http::sendHTTPNonModified ()
 {
@@ -1674,7 +1675,7 @@ int Http::sendHTTPNonModified ()
   *td->auxiliaryBuffer << "HTTP/1.1 304 Not Modified\r\nAccept-Ranges: bytes\r\n"
           << "Server: GNU MyServer " << MYSERVER_VERSION << "\r\n";
 
-  if (connection && !stringcmpi (connection->value->c_str (), "keep-alive"))
+  if (connection && !stringcmpi (connection->value.c_str (), "keep-alive"))
     *td->auxiliaryBuffer << "Connection: keep-alive\r\n";
   else
     *td->auxiliaryBuffer << "Connection: close\r\n";
@@ -1690,7 +1691,7 @@ int Http::sendHTTPNonModified ()
 }
 
 /*!
- * Send a 401 error.
+  Send a 401 error.
  */
 int Http::sendAuth ()
 {
@@ -1704,7 +1705,7 @@ int Http::sendAuth ()
 }
 
 /*!
- * Load the HTTP protocol.
+  Load the HTTP protocol.
  */
 int Http::loadProtocolStatic ()
 {
@@ -1712,8 +1713,8 @@ int Http::loadProtocolStatic ()
 }
 
 /*!
- * Returns the name of the protocol. If an out buffer
- * is defined fullfill it with the name too.
+  Returns the name of the protocol. If an out buffer
+  is defined fullfill it with the name too.
  */
 const char* Http::getNameImpl ()
 {
@@ -1721,7 +1722,7 @@ const char* Http::getNameImpl ()
 }
 
 /*!
- * Constructor for the class http.
+  Constructor for the class http.
  */
 Http::Http (HttpProtocol *staticData)
 {
@@ -1737,12 +1738,10 @@ Http::Http (HttpProtocol *staticData)
   td->scriptPath.assign ("");
   td->scriptDir.assign ("");
   td->scriptFile.assign ("");
-  td->inputDataPath.assign ("");
-  td->outputDataPath.assign ("");
 }
 
 /*!
- * Destructor for the http class.
+  Destructor for the http class.
  */
 Http::~Http ()
 {
@@ -1750,7 +1749,7 @@ Http::~Http ()
 }
 
 /*!
- * Clean the used memory.
+  Clean the used memory.
  */
 void Http::clean ()
 {
@@ -1762,7 +1761,5 @@ void Http::clean ()
   td->scriptPath.assign ("");
   td->scriptDir.assign ("");
   td->scriptFile.assign ("");
-  td->inputDataPath.assign ("");
-  td->outputDataPath.assign ("");
   delete td;
 }

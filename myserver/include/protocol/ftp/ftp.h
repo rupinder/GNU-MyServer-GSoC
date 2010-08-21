@@ -208,7 +208,7 @@ void yyerror (YYLTYPE * pLoc, Ftp * pContext, const char *msg);
 
 
 /*!
- *Adapter class to make Ftp reentrant.
+  Adapter class to make Ftp reentrant.
  */
 class FtpProtocol : public Protocol
 {

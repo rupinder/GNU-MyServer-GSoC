@@ -32,17 +32,20 @@ using namespace std;
 class File : public Stream
 {
 public:
-  static const u_long READ;
-  static const u_long WRITE;
-  static const u_long TEMPORARY_DELAYED;
-  static const u_long TEMPORARY;
-  static const u_long HIDDEN;
-  static const u_long FILE_OPEN_ALWAYS;
-  static const u_long OPEN_IF_EXISTS;
-  static const u_long APPEND;
-  static const u_long FILE_CREATE_ALWAYS;
-  static const u_long NO_INHERIT;
-  static const u_long NO_FOLLOW_SYMLINK;
+  enum
+    {
+      READ = (1 << 0),
+      WRITE = (1 << 1),
+      TEMPORARY = (1 << 2),
+      TEMPORARY_DELAYED = (1 << 3),
+      HIDDEN = (1 << 4),
+      FILE_OPEN_ALWAYS = (1 << 5),
+      OPEN_IF_EXISTS = (1 << 6),
+      APPEND = (1 << 7),
+      NO_INHERIT = (1 << 8),
+      NO_FOLLOW_SYMLINK = (1 << 9),
+      NO_CACHE_STAT = (1 << 10)
+    };
 
   File ();
   File (char *,int);
@@ -50,16 +53,17 @@ public:
 
   virtual Handle getHandle ();
   virtual int setHandle (Handle);
-  virtual int writeToFile (const char *, u_long , u_long *);
+  virtual int writeToFile (const char *, size_t, size_t *);
   virtual int createTemporaryFile (const char *, bool unlink = true);
 
-  virtual int openFile (const char *, u_long);
-  virtual int openFile (string const &file, u_long opt)
-  {return openFile (file.c_str (), opt);}
+  virtual int openFile (const char *, u_long, mode_t mask = 00700);
+  virtual int openFile (string const &file, u_long opt, mode_t mask = 00700)
+  {return openFile (file.c_str (), opt, mask);}
 
-  virtual u_long getFileSize ();
-  virtual int seek (u_long);
-  virtual u_long getSeek ();
+  virtual off_t getFileSize ();
+
+  virtual int seek (off_t);
+  virtual off_t getSeek ();
 
   virtual time_t getLastModTime ();
   virtual time_t getCreationTime ();
@@ -73,11 +77,11 @@ public:
   virtual int close ();
 
   /* Inherithed from Stream.  */
-  virtual int read (char* buffer, u_long len, u_long *nbr);
-  virtual int write (const char* buffer, u_long len, u_long *nbw);
+  virtual int read (char* buffer, size_t len, size_t *nbr);
+  virtual int write (const char* buffer, size_t len, size_t *nbw);
 
-  virtual int fastCopyToSocket (Socket *dest, u_long offset,
-                                MemBuf *buf, u_long *nbw);
+  virtual int fastCopyToSocket (Socket *dest, off_t offset,
+                                MemBuf *buf, size_t *nbw);
 
   int truncate (u_long size = 0);
 
@@ -85,10 +89,13 @@ public:
 
   /*! Get the options mask used with openFile.  */
   u_long getOpenOptions (){return opt;}
+
 protected:
   /* Options used by open.  */
   u_long opt;
   FileHandle handle;
   string filename;
+
+  struct stat statS;
 };
 #endif

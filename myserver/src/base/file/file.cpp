@@ -1,19 +1,19 @@
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2005, 2008, 2009, 2010 Free Software
-Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2005, 2008, 2009, 2010 Free Software
+  Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -47,24 +47,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include <sstream>
+#include <memory>
 
 using namespace std;
 
-const u_long File::READ = (1 << 0);
-const u_long File::WRITE = (1 << 1);
-const u_long File::TEMPORARY = (1 << 2);
-const u_long File::TEMPORARY_DELAYED = (1 << 3);
-const u_long File::HIDDEN = (1 << 4);
-const u_long File::FILE_OPEN_ALWAYS = (1 << 5);
-const u_long File::OPEN_IF_EXISTS = (1 << 6);
-const u_long File::APPEND = (1 << 7);
-const u_long File::FILE_CREATE_ALWAYS = (1 << 8);
-const u_long File::NO_INHERIT = (1 << 9);
-const u_long File::NO_FOLLOW_SYMLINK = (1 << 10);
-
-
 /*!
- *Costructor of the class.
+  Costructor of the class.
  */
 File::File ()
 {
@@ -72,7 +60,7 @@ File::File ()
 }
 
 /*!
- *D'tor.
+  D'tor.
  */
 File::~File ()
 {
@@ -80,16 +68,16 @@ File::~File ()
 }
 
 /*!
- *Write data to a file.
- *buffer is the pointer to the data to write
- *buffersize is the number of byte to write
- *nbw is a pointer to an unsigned long that receive the number of the
- *bytes written correctly.
- *\param buffer The buffer where write.
- *\param buffersize The length of the buffer in bytes.
- *\param nbw How many bytes were written to the file.
+  Write data to a file.
+  buffer is the pointer to the data to write
+  buffersize is the number of byte to write
+  nbw is a pointer to an unsigned long that receive the number of the
+  bytes written correctly.
+  \param buffer The buffer where write.
+  \param buffersize The length of the buffer in bytes.
+  \param nbw How many bytes were written to the file.
  */
-int File::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
+int File::writeToFile (const char* buffer, size_t buffersize, size_t* nbw)
 {
   int ret;
   if (buffersize == 0)
@@ -102,14 +90,14 @@ int File::writeToFile (const char* buffer, u_long buffersize, u_long* nbw)
   if (ret < 0)
     return ret;
 
-  *nbw = static_cast<u_long> (ret);
+  *nbw = static_cast<size_t> (ret);
   return 0;
 }
 
 /*!
- *Constructor for the class.
- *\param nfilename Filename to open.
- *\param opt Specify how open the file.
+  Constructor for the class.
+  \param nfilename Filename to open.
+  \param opt Specify how open the file.
  */
 File::File (char *nfilename, int opt)
   : handle ((FileHandle) -1)
@@ -118,8 +106,8 @@ File::File (char *nfilename, int opt)
 }
 
 /*!
- * Truncate the file.
- *\param size Specify the new file size.
+  Truncate the file.
+  \param size Specify the new file size.
  */
 int File::truncate (u_long size)
 {
@@ -140,18 +128,17 @@ void File::fstat (struct stat *fstat)
 }
 
 /*!
- *Open (or create if not exists) a file, but must explicitly use read and/or
- *write flags and open flag.
- *\param nfilename Filename to open.
- *\param opt Specify how open the file.
- *openFile returns 0 if the call was successful, any other value on errors.
+  Open (or create if not exists) a file, but must explicitly use read and/or
+  write flags and open flag.
+  \param nfilename Filename to open.    If TEMPORARY or TEMPORARY_DELAYED is
+  used, then this parameter specifies the mask to use for mkostemp(3).
+  \param opt Specify how open the file.
+  \param mask Creation mode when a new file is created.
+  openFile returns 0 if the call was successful, any other value on errors.
  */
-int File::openFile (const char* nfilename, u_long opt)
+int File::openFile (const char* nfilename, u_long opt, mode_t mask)
 {
-  struct stat fStats;
   int flags;
-
-  filename.assign (nfilename);
 
   if ((opt & File::READ) && (opt & File::WRITE))
     flags = O_RDWR;
@@ -161,52 +148,47 @@ int File::openFile (const char* nfilename, u_long opt)
     flags = O_WRONLY;
 
   if (opt & File::NO_FOLLOW_SYMLINK)
-    flags = O_NOFOLLOW;
+    flags |= O_NOFOLLOW;
 
-  /* FIXME: how avoid a stat?  */
-  bool exists = stat (filename.c_str (), &fStats) == 0;
-  if (opt & File::OPEN_IF_EXISTS && !exists)
-    return 1;
-
-  if (exists && (opt & File::APPEND))
+  if (opt & File::APPEND)
     flags |= O_APPEND;
 
-  if (exists)
-    handle = checked::open (filename.c_str (), O_APPEND | flags);
-  else
-    handle = checked::open (filename.c_str (), O_CREAT | flags,
-                            S_IRUSR | S_IWUSR);
 
-  try
+  if (opt & (File::TEMPORARY_DELAYED | File::TEMPORARY))
     {
-      if (opt & File::FILE_CREATE_ALWAYS)
-        if (truncate ())
-          {
-            close ();
-            return -1;
-          }
- 
+      auto_ptr <char> templatefn (checked::strdup (nfilename));
+      handle = gnulib::mkostemp (templatefn.get (), flags);
+      if (handle < 0)
+        checked::raiseException ();
+
+      setFilename (templatefn.get ());
+
       if (opt & File::TEMPORARY)
-        if (checked::unlink (filename.c_str ()))
-          {
-            close ();
-            return -1;
-          }
+        checked::unlink (getFilename ());
     }
-  catch (exception &e)
+  else
     {
-      /* Ensure the file is closed if something went wrong and don't leave
-         open descriptors around.  */
-      close ();
-      throw;
+      setFilename (nfilename);
+      handle = gnulib::open (filename.c_str (), flags);
+      if (handle < 0)
+        {
+          if (! ((errno == ENOENT) && (opt & File::FILE_OPEN_ALWAYS)))
+            checked::raiseException ();
+
+          flags |= O_CREAT;
+          handle = checked::open (filename.c_str (), flags, S_IRUSR | S_IWUSR);
+        }
     }
+
+  if (! (opt & NO_CACHE_STAT))
+    fstat (&statS);
 
   this->opt = opt;
   return handle < 0;
 }
 
 /*!
- *Returns the file handle.
+  Returns the file handle.
  */
 Handle File::getHandle ()
 {
@@ -214,9 +196,9 @@ Handle File::getHandle ()
 }
 
 /*!
- *Set the base/file/file.handle.
- *Return a non null-value on errors.
- *\param hl The new base/file/file.handle.
+  Set the base/file/file.handle.
+  Return a non null-value on errors.
+  \param hl The new base/file/file.handle.
  */
 int File::setHandle (Handle hl)
 {
@@ -225,8 +207,8 @@ int File::setHandle (Handle hl)
 }
 
 /*!
- *define the operator =.
- *\param f The file to copy.
+  define the operator =.
+  \param f The file to copy.
  */
 int File::operator =(File f)
 {
@@ -236,9 +218,9 @@ int File::operator =(File f)
 }
 
 /*!
- *Set the name of the file
- *Return Non-zero on errors.
- *\param nfilename The new file name.
+  Set the name of the file
+  Return Non-zero on errors.
+  \param nfilename The new file name.
  */
 int File::setFilename (const char* nfilename)
 {
@@ -247,7 +229,7 @@ int File::setFilename (const char* nfilename)
 }
 
 /*!
- *Returns the file path.
+  Returns the file path.
  */
 const char *File::getFilename ()
 {
@@ -255,23 +237,20 @@ const char *File::getFilename ()
 }
 
 /*!
- * Create a temporary file.
- * \param filename The new temporary file name.
- * \param unlink Unlink the inode immediately, not before close.
+  Create a temporary file.
+  \param filename The new temporary file name.
+  \param unlink Unlink the inode immediately, not before close.
  */
 int File::createTemporaryFile (const char* filename, bool unlink)
 {
-  if (FilesUtility::nodeExists (filename))
-    FilesUtility::deleteFile (filename);
-
   u_long temporaryOpt = unlink ? File::TEMPORARY : File::TEMPORARY_DELAYED;
 
-  return openFile (filename, File::READ | File::WRITE | File::NO_INHERIT
-                   | File::FILE_CREATE_ALWAYS | temporaryOpt);
+  return openFile (filename, File::READ | File::WRITE
+                   | File::FILE_OPEN_ALWAYS | temporaryOpt);
 }
 
 /*!
- * Close the file.
+  Close the file.
  */
 int File::close ()
 {
@@ -279,8 +258,8 @@ int File::close ()
   if (handle != -1)
     {
       if (opt & File::TEMPORARY_DELAYED)
-        checked::unlink (filename.c_str ());
-      ret = checked::fsync (handle);
+        gnulib::unlink (filename.c_str ());
+
       ret |= checked::close (handle);
     }
 
@@ -291,43 +270,44 @@ int File::close ()
 }
 
 /*!
- * Returns the file size in bytes.
- * Returns -1 on errors.
+  Returns the file size in bytes.
+  Returns -1 on errors.
  */
-u_long File::getFileSize ()
+off_t File::getFileSize ()
 {
-  u_long ret;
-  struct stat fStats;
-  ret = checked::fstat (handle, &fStats);
-  if (ret)
-    return (u_long)(-1);
-  else
-    return fStats.st_size;
+  if (opt & NO_CACHE_STAT)
+    checked::fstat (handle, &statS);
+
+  return statS.st_size;
 }
 
 /*!
- *Change the position of the pointer to the file.
- *\param initialByte The new file pointer position.
+  Change the position of the pointer to the file.
+  \param initialByte The new file pointer position.
  */
-int File::seek (u_long initialByte)
+int File::seek (off_t initialByte)
 {
   u_long ret;
-  ret = checked::checkError (lseek (handle, initialByte, SEEK_SET));
+  ret = checked::checkError (gnulib::lseek (handle, initialByte, SEEK_SET));
   return (ret != initialByte ) ? 1 : 0;
 }
 
 /*!
- * Get the current file pointer position.
- *
- *\return The current file pointer position.
+  Get the current file pointer position.
+
+  \return The current file pointer position.
  */
-u_long File::getSeek ()
+off_t File::getSeek ()
 {
-  return lseek (handle, 0, SEEK_CUR);
+  off_t ret = gnulib::lseek (handle, 0, SEEK_CUR);
+  if (ret < 0)
+    checked::raiseException ();
+
+  return ret;
 }
 
 /*!
- *Get the time of the last modifify did to the file.
+  Get the time of the last modifify did to the file.
  */
 time_t File::getLastModTime ()
 {
@@ -335,7 +315,7 @@ time_t File::getLastModTime ()
 }
 
 /*!
- *This function returns the creation time of the file.
+  This function returns the creation time of the file.
  */
 time_t File::getCreationTime ()
 {
@@ -343,7 +323,7 @@ time_t File::getCreationTime ()
 }
 
 /*!
- *Returns the time of the last access to the file.
+  Returns the time of the last access to the file.
  */
 time_t File::getLastAccTime ()
 {
@@ -351,46 +331,46 @@ time_t File::getLastAccTime ()
 }
 
 /*!
- *Inherited from Stream.
+  Inherited from Stream.
  */
-int File::write (const char* buffer, u_long len, u_long *nbw)
+int File::write (const char* buffer, size_t len, size_t *nbw)
 {
   return writeToFile (buffer, len, nbw );
 }
 
 /*!
- *Read data from a file to a buffer.
- *Return a negative value on errors.
- *Return 0 on success.
- *\param buffer The buffer where write.
- *\param buffersize The length of the buffer in bytes.
- *\param nbr How many bytes were read to the buffer.
+  Read data from a file to a buffer.
+  Return a negative value on errors.
+  Return 0 on success.
+  \param buffer The buffer where write.
+  \param buffersize The length of the buffer in bytes.
+  \param nbr How many bytes were read to the buffer.
  */
-int File::read (char* buffer, u_long buffersize, u_long* nbr)
+int File::read (char* buffer, size_t buffersize, size_t* nbr)
 {
   int ret = ::read (handle, buffer, buffersize);
   if (ret < 0)
     return ret;
 
-  *nbr = static_cast<u_long> (ret);
+  *nbr = static_cast<size_t> (ret);
   return 0;
 }
 
 /*!
- * Copy the file directly to the socket.
- * Return 0 on success.
- *
- * \param dest Destination socket.
- * \param firstByte File offset.
- * \param buf Temporary buffer that can be used by this function.
- * \param nbw Number of bytes sent.
+  Copy the file directly to the socket.
+  Return 0 on success.
+
+  \param dest Destination socket.
+  \param firstByte File offset.
+  \param buf Temporary buffer that can be used by this function.
+  \param nbw Number of bytes sent.
  */
-int File::fastCopyToSocket (Socket *dest, u_long firstByte, MemBuf *buf, u_long *nbw)
+int File::fastCopyToSocket (Socket *dest, off_t firstByte, MemBuf *buf, size_t *nbw)
 {
   *nbw = 0;
 #ifdef HAVE_SYS_SENDFILE_H
   off_t offset = firstByte;
-  size_t fileSize = getFileSize ();
+  off_t fileSize = getFileSize ();
   while (1)
     {
       int ret = sendfile (dest->getHandle (), getHandle (), &offset,
@@ -420,7 +400,7 @@ int File::fastCopyToSocket (Socket *dest, u_long firstByte, MemBuf *buf, u_long 
 
   for (;;)
     {
-      u_long nbr;
+      size_t nbr;
       u_long tmpNbw;
 
       if (read (buffer, size, &nbr))

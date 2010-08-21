@@ -29,7 +29,7 @@
 using namespace std;
 
 /*!
- *Create the object.
+  Create the object.
  */
 SecurityToken::SecurityToken ()
 {

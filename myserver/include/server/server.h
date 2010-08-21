@@ -63,7 +63,17 @@ using namespace std;
 
 class XmlValidator;
 
-class Server : public MulticastRegistry<string, void*, int>
+
+class ServerLogger
+{
+public:
+  virtual int log (LoggingLevel level, const char *fmt, ...) = 0;
+  virtual int log (char const*, LoggingLevel level = MYSERVER_LOG_MSG_INFO) = 0;
+  virtual int log (string const &str) = 0;
+};
+
+
+class Server : public MulticastRegistry<string, void*, int>, ServerLogger
 {
 public:
 
@@ -110,7 +120,8 @@ public:
   u_long getTimeout ();
   const char *getAddresses ();
   const char *getPath ();
-  u_long getNumThreads ();
+  void getThreadsNumberInformation (u_long *num, u_long *max = NULL,
+                                    u_long *staticThreads = NULL);
 
   NodeTree<string>* getNodeTree (string& key)
   {
@@ -126,9 +137,9 @@ public:
   void stop ();
   void finalCleanup ();
   int terminate ();
-  int log (LoggingLevel level, const char *fmt, ...);
-  int log (char const*, LoggingLevel level = MYSERVER_LOG_MSG_INFO);
-  int log (string const &str)
+  virtual int log (LoggingLevel level, const char *fmt, ...);
+  virtual int log (char const*, LoggingLevel level = MYSERVER_LOG_MSG_INFO);
+  virtual int log (string const &str)
   {return log (str.c_str ());};
   int setLogLocation (string);
   u_long getBuffersize ();

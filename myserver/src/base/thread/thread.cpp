@@ -1,19 +1,19 @@
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010 Free
-Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010 Free
+  Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -44,7 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 /*!
- * Sleep the caller thread for [TIME] microseconds.
+  Sleep the caller thread for [TIME] microseconds.
  */
 void Thread::wait (u_long time)
 {
@@ -57,10 +57,10 @@ void Thread::wait (u_long time)
 }
 
 /*!
- *Create a new thread.
- *\param ID Pointer to ThreadID to receive the new thread identifier.
- *\param startRoutine Start routine for the new thread.
- *\param arg Argument to pass to the new created thread.
+  Create a new thread.
+  \param ID Pointer to ThreadID to receive the new thread identifier.
+  \param startRoutine Start routine for the new thread.
+  \param arg Argument to pass to the new created thread.
  */
 #ifdef WIN32
 int Thread::create (ThreadID*  ID,
@@ -82,7 +82,7 @@ int Thread::create (ThreadID*  ID, void * (*startRoutine)(void *),
 }
 
 /*!
- *Get the calling thread ID.
+  Get the calling thread ID.
  */
 ThreadID Thread::threadID ()
 {
@@ -95,7 +95,7 @@ ThreadID Thread::threadID ()
 }
 
 /*!
- *Terminate the caller thread.
+  Terminate the caller thread.
  */
 void Thread::terminate ()
 {
@@ -108,7 +108,7 @@ void Thread::terminate ()
 }
 
 /*!
- *Sleep until the thread identified by tid complete its execution.
+  Sleep until the thread identified by tid complete its execution.
  */
 int Thread::join (ThreadID tid)
 {

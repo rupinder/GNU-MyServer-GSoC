@@ -165,7 +165,7 @@ public:
     list<string> filters;
     File f;
     char buf[message.size () + 1];
-    u_long nbr;
+    size_t nbr;
     try
       {
         FilesUtility::deleteFile ("foo");
@@ -226,8 +226,8 @@ public:
     list<string> filters;
     File f;
     char buf[64];
-    u_long nbr;
-    LogStream* ls;
+    size_t nbr;
+    LogStream* ls = NULL;
     list<string> cs;
     list<string>::iterator it;
     try
@@ -250,6 +250,7 @@ public:
     gotMessage1.assign (buf);
 
     lm->get (this, "test", "file://foobar", &ls);
+    CPPUNIT_ASSERT (ls);
     cs = ls->getCycledStreams ();
     for (it = cs.begin (); it != cs.end (); it++)
       {
@@ -357,7 +358,7 @@ public:
     File f;
     char gzipChainComp[64];
     char gzipChainDecomp[64];
-    u_long nbr;
+    size_t nbr;
     GzipDecompress gzdc;
 
     try
@@ -403,10 +404,10 @@ public:
     char gzipComp[128];
     char gzipDecomp[128];
     GzipDecompress gzdc;
-    u_long nbr = 0;
+    size_t nbr = 0;
     list<string> cs;
     list<string>::iterator it;
-    LogStream* ls;
+    LogStream* ls = NULL;
 
     try
       {
@@ -429,6 +430,7 @@ public:
     gzipDecomp[message1.size ()] = '\0';
     gotMessage1.assign (gzipDecomp);
     lm->get (this, "test", "file://fooc", &ls);
+    CPPUNIT_ASSERT (ls);
     cs = ls->getCycledStreams ();
     for (it = cs.begin (); it != cs.end (); it++)
       {
@@ -623,7 +625,7 @@ public:
     string message1;
     string message2;
     char buf[128];
-    u_long nbr;
+    size_t nbr;
     ostringstream oss;
 
     try

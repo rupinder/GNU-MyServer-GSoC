@@ -1,6 +1,6 @@
 /*
   MyServer
-  * strlcpy and strlcat by codingmaster
+  strlcpy and strlcat by codingmaster
   Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009, 2010 Free Software
   Foundation, Inc.
   Copyright (C) 2004 by codingmaster
@@ -26,7 +26,7 @@
 #define FAST_SECURE_STR
 
 /*!
- * Secure string concatenate routine.
+  Secure string concatenate routine.
  */
 unsigned int myserver_strlcat (char *dst, const char *src, unsigned int size)
 {
@@ -79,7 +79,7 @@ unsigned int myserver_strlcat (char *dst, const char *src, unsigned int size)
 }
 
 /*!
- * Secure string copy routine.
+  Secure string copy routine.
  */
 unsigned int myserver_strlcpy (register char *dst, register const char *src,
                                unsigned int size)

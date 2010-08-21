@@ -32,17 +32,16 @@ public:
   XmlVhostHandler (ListenThreads* lt, LogManager* lm);
   ~XmlVhostHandler ();
   int getHostsNumber ();
-  Vhost* getVHost (int n);
+  Vhost* getVHost (u_long n);
   void clean ();
-  int removeVHost (int n);
-  int switchVhosts (int n1, int n2);
+  int removeVHost (u_long n);
   vector<Vhost*>* getVHostList ();
 
   /*! Get a pointer to a vhost.  */
-  virtual Vhost* getVHost (const char*, const char*, u_short);
+  virtual Vhost* getVHost (const char *, const char *, u_short);
 
   /*! Add an element to the vhost list.  */
-  int addVHost (Vhost*);
+  int addVHost (Vhost *);
 
   /*! Load the virtual hosts list from a xml configuration file.  */
   virtual int load (const char *);

@@ -1,19 +1,19 @@
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010 Free
-Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010 Free
+  Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "myserver.h"
@@ -46,19 +46,19 @@ using namespace std;
 
 
 /*!
- *Run the standard CGI and send the result to the client.
- *\param td The HTTP thread context.
- *\param scriptpath The script path.
- *\param cgipath The CGI handler path as specified by the MIME type.
- *\param execute Specify if the script has to be executed.
- *\param onlyHeader Specify if send only the HTTP header.
+  Run the standard CGI and send the result to the client.
+  \param td The HTTP thread context.
+  \param scriptpath The script path.
+  \param cgipath The CGI handler path as specified by the MIME type.
+  \param execute Specify if the script has to be executed.
+  \param onlyHeader Specify if send only the HTTP header.
  */
 int Cgi::send (HttpThreadContext* td, const char* scriptpath,
                const char *cgipath, bool execute, bool onlyHeader)
 {
    /*
-   * Use this flag to check if the CGI executable is
-   * nph (Non Parsed Header).
+    Use this flag to check if the CGI executable is
+    nph (Non Parsed Header).
    */
   bool nph = false;
   ostringstream cmdLine;
@@ -71,10 +71,10 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
   string tmpCgiPath;
   string tmpScriptPath;
 
-  /*!
-   *Standard CGI uses STDOUT to output the result and the STDIN
-   *to get other params like in a POST request.
-   */
+  /*
+    Standard CGI uses STDOUT to output the result and the STDIN
+    to get other params like in a POST request.
+  */
   Pipe stdOutFile;
   File stdInFile;
   int len = strlen (cgipath);
@@ -213,10 +213,6 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
       */
       stdOutFile.create ();
 
-      /* Open the stdin file for the new CGI process.  */
-      stdInFile.openFile (td->inputDataPath,
-                          File::READ | File::FILE_OPEN_ALWAYS);
-
       /*
         Build the environment string used by the CGI process.
         Use the td->auxiliaryBuffer to build the environment string.
@@ -227,35 +223,28 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
       spi.cmdLine = cmdLine.str ();
       spi.cwd.assign (td->scriptDir);
 
-      spi.gid = atoi (td->securityToken.getData ("cgi.gid", MYSERVER_VHOST_CONF |
-                                                 MYSERVER_MIME_CONF |
-                                                 MYSERVER_SECURITY_CONF |
-                                                 MYSERVER_SERVER_CONF, "0"));
-      spi.uid = atoi (td->securityToken.getData ("cgi.uid", MYSERVER_VHOST_CONF |
-                                                 MYSERVER_MIME_CONF |
-                                                 MYSERVER_SECURITY_CONF |
-                                                 MYSERVER_SERVER_CONF, "0"));
-      spi.chroot.assign (td->securityToken.getData ("cgi.chroot", MYSERVER_VHOST_CONF |
-                                                    MYSERVER_MIME_CONF |
-                                                    MYSERVER_SECURITY_CONF |
-                                                    MYSERVER_SERVER_CONF, ""));
+      spi.gid = atoi (td->securityToken.getData ("cgi.gid", MYSERVER_VHOST_CONF
+                                                 | MYSERVER_MIME_CONF
+                                                 | MYSERVER_SECURITY_CONF
+                                                 | MYSERVER_SERVER_CONF, "0"));
+      spi.uid = atoi (td->securityToken.getData ("cgi.uid", MYSERVER_VHOST_CONF
+                                                 | MYSERVER_MIME_CONF
+                                                 | MYSERVER_SECURITY_CONF
+                                                 | MYSERVER_SERVER_CONF, "0"));
+      spi.chroot.assign (td->securityToken.getData ("cgi.chroot", MYSERVER_VHOST_CONF
+                                                    | MYSERVER_MIME_CONF
+                                                    | MYSERVER_SECURITY_CONF
+                                                    | MYSERVER_SERVER_CONF, ""));
 
-      spi.stdError = (FileHandle) stdOutFile.getWriteHandle ();
+      if (td->inputData.getFilename ()[0] != '\0')
+        stdInFile.openFile (td->inputData.getFilename (), File::READ);
+
       spi.stdIn = (FileHandle) stdInFile.getHandle ();
+      spi.stdError = (FileHandle) stdOutFile.getWriteHandle ();
       spi.stdOut = (FileHandle) stdOutFile.getWriteHandle ();
       spi.envString = td->auxiliaryBuffer->getBuffer ();
 
-      if (spi.stdError == (FileHandle) -1 ||
-          spi.stdIn == (FileHandle) -1 ||
-          spi.stdOut == (FileHandle) -1)
-        {
-          td->connection->host->warningsLogWrite (_("Cgi: internal error"));
-          stdOutFile.close ();
-          chain.clearAllFilters ();
-          return td->http->raiseHTTPError (500);
-        }
-
-      /* Execute the CGI process. */
+      /* Execute the CGI process.  */
       if (Process::getForkServer ()->isInitialized ())
         {
           int pid;
@@ -268,26 +257,20 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
       else
         cgiProc.exec (&spi);
 
-      /* Close the write stream of the pipe on the server.  */
+      stdInFile.close ();
       stdOutFile.closeWrite ();
 
       sendData (td, stdOutFile, chain, cgiProc, onlyHeader, nph);
 
       stdOutFile.close ();
-      stdInFile.close ();
       cgiProc.terminateProcess ();
       chain.clearAllFilters ();
-
-      cgiProc.terminateProcess ();
-
-      /* Delete the file only if it was created by the CGI module.  */
-      if (td->inputData.getHandle () >= 0)
-        FilesUtility::deleteFile (td->inputDataPath.c_str ());
     }
   catch (exception & e)
     {
       td->connection->host->warningsLogWrite (_E ("Cgi: internal error"), &e);
       stdOutFile.close ();
+      stdInFile.close ();
       chain.clearAllFilters ();
       return td->http->raiseHTTPError (500);
     }
@@ -296,14 +279,14 @@ int Cgi::send (HttpThreadContext* td, const char* scriptpath,
 }
 
 /*
- *Read data from the CGI process and send it back to the client.
+  Read data from the CGI process and send it back to the client.
  */
 int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
-                   Process &cgiProc, int onlyHeader, bool nph)
+                   Process &cgiProc, bool onlyHeader, bool nph)
 {
-  u_long nbw = 0;
-  u_long nbw2 = 0;
-  u_long nBytesRead = 0;
+  size_t nbw = 0;
+  size_t nbw2 = 0;
+  size_t nBytesRead = 0;
   u_long procStartTime;
   bool useChunks = false;
   bool keepalive = false;
@@ -382,22 +365,23 @@ int Cgi::sendData (HttpThreadContext* td, Pipe &stdOutFile, FiltersChain& chain,
 }
 
 /*!
- *Send the HTTP header.
- *\return nonzero if the reply is already complete.
+  Send the HTTP header.
+  \return nonzero if the reply is already complete.
  */
 int Cgi::sendHeader (HttpThreadContext *td, Pipe &stdOutFile, FiltersChain &chain,
-                     Process &cgiProc, int onlyHeader, bool nph,
+                     Process &cgiProc, bool onlyHeader, bool nph,
                      u_long procStartTime, bool keepalive, bool useChunks,
                      int *ret)
 {
   u_long headerSize = 0;
   bool headerCompleted = false;
-  u_long headerOffset = 0;
-  u_long nBytesRead;
+  size_t headerOffset = 0;
+  size_t nBytesRead;
 
   /* Parse initial chunks of data looking for the HTTP header.  */
   while (!headerCompleted && !nph)
     {
+      u_long headerChecked = 4;
       u_long timeout = td->http->getTimeout ();
       u_long ticks = getTicks () - procStartTime;
       bool term;
@@ -442,8 +426,7 @@ int Cgi::sendHeader (HttpThreadContext *td, Pipe &stdOutFile, FiltersChain &chai
           return 1;
         }
 
-      for (int i = std::max (0, (int) (headerOffset - nBytesRead - 10));
-           i < headerOffset; i++)
+      for (u_long i = headerChecked; i < headerOffset; i++)
         {
           char *buff = td->auxiliaryBuffer->getBuffer ();
           if ((buff[i] == '\r') && (buff[i+1] == '\n')
@@ -460,6 +443,8 @@ int Cgi::sendHeader (HttpThreadContext *td, Pipe &stdOutFile, FiltersChain &chai
               break;
             }
         }
+
+      headerChecked = std::max ((size_t) 4, headerOffset);
     }
 
   /* Send the header.  */
@@ -482,7 +467,7 @@ int Cgi::sendHeader (HttpThreadContext *td, Pipe &stdOutFile, FiltersChain &chai
           string* location = td->response.getValue ("Location", NULL);
 
           /* If it is present "Location: foo" in the header then send a redirect
-           * to `foo'.  */
+            to `foo'.  */
           if (location && location->length ())
             {
               *ret = td->http->sendHTTPRedirect (location->c_str ());

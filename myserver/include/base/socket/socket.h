@@ -51,7 +51,7 @@ typedef int SocketHandle;
 #  define MAX_IP_STRING_LEN  32
 # endif
 
-# if HAVE_IPV6
+# if 0 && HAVE_IPV6
 #  define LOCALHOST_ADDRESS "::1"
 # else
 #  define LOCALHOST_ADDRESS "127.0.0.1"
@@ -104,10 +104,10 @@ public:
 
   u_long getThrottling ();
   void setThrottling (u_long);
-  static int getLocalIPsList (string&);
+  static void getLocalIPsList (string&);
   /*! Inherithed from Stream.  */
-  virtual int read (char* buffer, u_long len, u_long *nbr);
-  virtual int write (const char* buffer, u_long len, u_long *nbw);
+  virtual int read (char* buffer, size_t len, size_t *nbr);
+  virtual int write (const char* buffer, size_t len, size_t *nbw);
 
 protected:
   SocketHandle fd;

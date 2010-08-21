@@ -50,6 +50,7 @@
 # include <list>
 
 using namespace std;
+class ServerLogger;
 
 struct MimeRecord
 {
@@ -81,6 +82,19 @@ public:
   virtual MimeRecord* getMIME (string const &file)
   {return getMIME (file.c_str ());}
   virtual u_long reload (){return 0;}
+
+  ServerLogger *getLogger ()
+  {
+    return logger;
+  }
+
+  void setLogger (ServerLogger *sl)
+  {
+    logger = sl;
+  }
+
+protected:
+  ServerLogger *logger;
 };
 
 
@@ -105,6 +119,19 @@ public:
 
   void registerBuilder (string &name, MAKE_HANDLER builder);
   MimeManagerHandler *buildHandler (string &name);
+
+  ServerLogger *getLogger ()
+  {
+    return logger;
+  }
+
+  void setLogger (ServerLogger *sl)
+  {
+    logger = sl;
+  }
+
+protected:
+  ServerLogger *logger;
 
 private:
   HashMap<string, MAKE_HANDLER> builders;

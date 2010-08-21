@@ -1,19 +1,19 @@
 /*
- MyServer
- Copyright (C) 2009, 2010 Free Software Foundation, Inc.
- This program is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 3 of the License, or
- (at your option) any later version.
+  MyServer
+  Copyright (C) 2009, 2010 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "myserver.h"
 
@@ -66,7 +66,7 @@ public:
   /* FIXME: generalize for other classes that inherit from File.  */
   void testFastCopyToSocket ()
   {
-    const u_long bsize = 512UL;
+    const size_t bsize = 512;
     SocketPair sp;
     SocketPair inverted;
     sp.create ();
@@ -76,7 +76,7 @@ public:
     char outputBuffer[bsize];
     File file;
     string fname;
-    u_long nbw;
+    size_t nbw;
 
     for (u_long i = 0; i < bsize; i++)
       {
@@ -86,7 +86,7 @@ public:
 
     FilesUtility::temporaryFileName (0, fname);
     file.openFile (fname.c_str (), File::WRITE | File::READ
-                   | File::FILE_CREATE_ALWAYS);
+                   | File::FILE_OPEN_ALWAYS);
     file.writeToFile (outputBuffer, bsize, &nbw);
     file.seek (0);
 
@@ -94,7 +94,7 @@ public:
     CPPUNIT_ASSERT_EQUAL (file.fastCopyToSocket (&sp, 0, &buf, &nbw), 0);
     CPPUNIT_ASSERT_EQUAL (nbw, bsize);
 
-    u_long nbr;
+    size_t nbr;
     inverted.read (inputBuffer, bsize, &nbr);
     CPPUNIT_ASSERT_EQUAL (nbr, bsize);
 
@@ -122,7 +122,7 @@ public:
   {
     char inBuffer[] = "Hello World!";
     char outBuffer[256];
-    u_long nbw, nbr;
+    size_t nbw, nbr;
     int ret;
     SocketPair writeSock;
     SocketPair readSock;

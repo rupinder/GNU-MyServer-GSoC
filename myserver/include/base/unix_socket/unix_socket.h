@@ -35,9 +35,9 @@ public:
   UnixSocket ();
   virtual ~UnixSocket ();
   int bind (const char *path);
-  int shutdown ();
+  int shutdown (int how);
   int close ();
-  int connect (const char* path);
+  int connect2 (const char *path);
   Socket* accept ();
   int socket ();
 protected:

@@ -36,8 +36,8 @@ public:
   long getReadHandle ();
   long getWriteHandle ();
   void inverted (Pipe&);
-  virtual int read (char* buffer, u_long len, u_long *nbr);
-  virtual int write (const char* buffer, u_long len, u_long *nbw);
+  virtual int read (char* buffer, size_t len, size_t *nbr);
+  virtual int write (const char* buffer, size_t len, size_t *nbw);
   virtual int close ();
   void closeRead ();
   void closeWrite ();

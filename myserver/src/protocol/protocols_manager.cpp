@@ -25,7 +25,7 @@
 #include <cctype>
 
 /*!
- * Class constructor.
+  Class constructor.
  */
 ProtocolsManager::ProtocolsManager ()
 {
@@ -33,7 +33,7 @@ ProtocolsManager::ProtocolsManager ()
 }
 
 /*!
- * Class destructor.
+  Class destructor.
  */
 ProtocolsManager::~ProtocolsManager ()
 {
@@ -41,7 +41,7 @@ ProtocolsManager::~ProtocolsManager ()
 }
 
 /*!
- * Return a protocol by its name.
+  Return a protocol by its name.
  */
 Protocol* ProtocolsManager::getProtocol (string &name)
 {
@@ -49,7 +49,7 @@ Protocol* ProtocolsManager::getProtocol (string &name)
 }
 
 /*!
- * Add a static protocol to the list.
+  Add a static protocol to the list.
  */
 void ProtocolsManager::addProtocol (string &name, Protocol *protocol)
 {

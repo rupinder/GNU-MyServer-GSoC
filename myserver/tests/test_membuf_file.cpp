@@ -1,19 +1,19 @@
 /*
- MyServer
- Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
- This program is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 3 of the License, or
- (at your option) any later version.
+  MyServer
+  Copyright (C) 2008, 2009, 2010 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "myserver.h"
 #include <cppunit/CompilerOutputter.h>
@@ -84,19 +84,19 @@ public:
     const char *file = "tmp.dat";
     CPPUNIT_ASSERT_EQUAL (tfile->openFile (file, File::WRITE
                                            | File::READ
-                                           | File::FILE_CREATE_ALWAYS), -1);
+                                           | File::FILE_OPEN_ALWAYS), -1);
   }
 
   void testWrite ()
   {
     const char *data = "hello dudes";
-    u_long len = strlen (data);
-    u_long nbw;
+    const size_t len = strlen (data);
+    size_t nbw;
 
-    CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), 0UL);
+    CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), (off_t) 0);
     CPPUNIT_ASSERT_EQUAL (tfile->write (data, len, &nbw), 0);
     CPPUNIT_ASSERT_EQUAL (len, nbw);
-    CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), nbw);
+    CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), (off_t) nbw);
   }
 
   void testRead ()
@@ -104,12 +104,12 @@ public:
     char buffer[512];
     const char *data = "hello dudes";
     u_long len = strlen (data);
-    u_long nbw, nbr;
+    size_t nbw, nbr;
 
     tfile->read (buffer, len, &nbr);
-    CPPUNIT_ASSERT_EQUAL (nbr, 0UL);
+    CPPUNIT_ASSERT_EQUAL (nbr, (size_t) 0);
     CPPUNIT_ASSERT_EQUAL (tfile->write (data, len, &nbw), 0);
-    CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), nbw);
+    CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), (off_t) nbw);
 
     CPPUNIT_ASSERT_EQUAL (tfile->seek (0), 0);
     CPPUNIT_ASSERT_EQUAL (tfile->read (buffer, 512, &nbr), 0);
@@ -118,10 +118,10 @@ public:
 
   void testSeek ()
   {
-    u_long seek = 12L;
-    CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), 0UL);
+    size_t seek = 12L;
+    CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), (off_t) 0);
     CPPUNIT_ASSERT_EQUAL (tfile->seek (seek), 0);
-    CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), seek);
+    CPPUNIT_ASSERT_EQUAL (tfile->getSeek (), (off_t) seek);
   }
 
 };

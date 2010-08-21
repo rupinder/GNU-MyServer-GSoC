@@ -1,19 +1,19 @@
 /*
-MyServer
-Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009, 2010 Free Software
-Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2002, 2003, 2004, 2007, 2008, 2009, 2010 Free Software
+  Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "myserver.h"
@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 /*!
- * Get the value of the [name] field.
+  Get the value of the [name] field.
  */
 string* HttpHeader::getValue (const char *name, string *out)
 {
@@ -37,15 +37,15 @@ string* HttpHeader::getValue (const char *name, string *out)
   if (e)
     {
       if (out)
-        out->assign (*(e->value));
-      return e->value;
+        out->assign (e->value);
+      return &(e->value);
     }
 
   return NULL;
 }
 
 /*!
- * Set the value of the [name] field to [in].
+  Set the value of the [name] field to [in].
  */
 string* HttpHeader::setValue (const char *name, const char *in)
 {
@@ -55,14 +55,14 @@ string* HttpHeader::setValue (const char *name, const char *in)
   Entry *e = other.get (key);
   if (e)
     {
-      e->value->assign (in);
-      return (e->value);
+      e->value.assign (in);
+      return &(e->value);
     }
   else
     {
       e = new Entry;
-      e->name->assign (name);
-      e->value->assign (in);
+      e->name.assign (name);
+      e->value.assign (in);
       other.put (key, e);
     }
 

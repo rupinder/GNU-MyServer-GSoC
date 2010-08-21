@@ -21,7 +21,7 @@
 #include <sstream>
 
 /*!
- * Create a new IpRange object given its value.
+  Create a new IpRange object given its value.
  */
 IpRange *IpRange::RangeFactory (const std::string &ipRange)
 {
@@ -40,7 +40,7 @@ IpRange *IpRange::RangeFactory (const std::string &ipRange)
 }
 
 /*!
- * Ipv4Range c-tor
+  Ipv4Range c-tor
  */
 Ipv4Range::Ipv4Range ()
 {
@@ -48,7 +48,7 @@ Ipv4Range::Ipv4Range ()
 }
 
 /*!
- * Ipv4Range c-tor
+  Ipv4Range c-tor
  */
 Ipv4Range::Ipv4Range (const std::string &sRange)
 {
@@ -56,7 +56,7 @@ Ipv4Range::Ipv4Range (const std::string &sRange)
 }
 
 /*!
- * range given as x.x.x.x-y.y.y.y or x.x.x.x (/y)
+  range given as x.x.x.x-y.y.y.y or x.x.x.x (/y)
  */
 bool Ipv4Range::SetRange (const std::string &sRange)
 {
@@ -146,8 +146,8 @@ bool Ipv4Range::SetRange (const std::string &sStartHost, const std::string &sEnd
 }
 
 /*!
- * Ipv4Range initializer
- * return false on error
+  Ipv4Range initializer
+  return false on error
  */
 bool Ipv4Range::Init ()
 {
@@ -161,14 +161,14 @@ bool Ipv4Range::Init ()
 }
 
 /*!
- *d-tor
+  d-tor
  */
 Ipv4Range::~Ipv4Range ()
 {
 }
 
 /*!
- *checks if addr from param belongs the same network address
+  checks if addr from param belongs the same network address
  */
 bool Ipv4Range::InRange (const unsigned char addr[4])
 {

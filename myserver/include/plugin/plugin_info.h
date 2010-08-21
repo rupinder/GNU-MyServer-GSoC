@@ -36,7 +36,7 @@ class PluginInfo
 {
 public:
 
-  PluginInfo (string& name, bool enabled = 1, bool global = 0);
+  PluginInfo (string& name, bool enabled = true, bool global = false);
   ~PluginInfo ();
 
   bool isEnabled ();

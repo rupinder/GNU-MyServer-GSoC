@@ -56,7 +56,7 @@ static XmlParser xmlFile;
 
 //
 // Const strings used for dialogs and messages
-// 
+//
 const char * LanguageXMLLast_Change;
 const char * LanguageXMLNot_Found;
 const char * LanguageXMLReload_Prev;

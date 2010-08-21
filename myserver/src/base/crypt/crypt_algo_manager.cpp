@@ -26,7 +26,7 @@ using namespace std;
 
 
 /*!
- * C'tor.
+  C'tor.
  */
 CryptAlgoManager::CryptAlgoManager ()
 {
@@ -35,7 +35,7 @@ CryptAlgoManager::CryptAlgoManager ()
 
 
 /*!
- * D'tor.
+  D'tor.
  */
 CryptAlgoManager::~CryptAlgoManager ()
 {
@@ -43,9 +43,9 @@ CryptAlgoManager::~CryptAlgoManager ()
 }
 
 /*!
- * Register a new algorithm.
- * \param name Name of the algorithm.
- * \param bdr Builder function for the algorithm.
+  Register a new algorithm.
+  \param name Name of the algorithm.
+  \param bdr Builder function for the algorithm.
  */
 void CryptAlgoManager::registerAlgorithm (string &name,
                                           CryptAlgoManager::builder bdr)
@@ -54,10 +54,10 @@ void CryptAlgoManager::registerAlgorithm (string &name,
 }
 
 /*!
- * Get a new instance for an algorithm class.
- * \param name The name of the algorithm.
- * \return A new instance on success.
- * \return NULL on failure.
+  Get a new instance for an algorithm class.
+  \param name The name of the algorithm.
+  \return A new instance on success.
+  \return NULL on failure.
  */
 CryptAlgo *CryptAlgoManager::make (const char *name)
 {
@@ -65,7 +65,7 @@ CryptAlgo *CryptAlgoManager::make (const char *name)
   if (bdr)
     return bdr ();
 
-  return NULL;  
+  return NULL;
 }
 
 /* FIXME: Generalize.  */
@@ -87,14 +87,14 @@ private:
 };
 
 /*!
- * Check if F(value)=result, using the F specified by the algorithm.
- *
- * \param value The value to convert.
- * \param valueLen Length in bytes of value.
- * \param result The final result.
- * \param algo The name of the algorithm to use.
- * \return true if F(value)=result.
- * \throw If the algorithm is not registered, it throws an exception.
+  Check if F(value)=result, using the F specified by the algorithm.
+
+  \param value The value to convert.
+  \param valueLen Length in bytes of value.
+  \param result The final result.
+  \param algo The name of the algorithm to use.
+  \return true if F(value)=result.
+  \throw If the algorithm is not registered, it throws an exception.
  */
 /*bool CryptAlgoManager::check (string &value, string &result, string &algo)*/
 bool

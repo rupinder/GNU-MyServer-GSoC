@@ -82,7 +82,7 @@ int main(int argc, char * argv[])
    SSL_load_error_strings();
 #endif
 
-#ifdef WIN32	
+#ifdef WIN32
 	/*!
    *Under windows we need to initialize the socket library before use it.
    */
@@ -196,7 +196,7 @@ int main(int argc, char * argv[])
 		  u_long nbr, nbw;
 		  inputF.openFile("virtualhosts.xml.default", File::MYSERVER_OPEN_READ|
 											File::MYSERVER_OPEN_IFEXISTS);
-		  outputF.openFile("virtualhosts.xml", File::MYSERVER_OPEN_WRITE| 
+		  outputF.openFile("virtualhosts.xml", File::MYSERVER_OPEN_WRITE|
 											 File::MYSERVER_OPEN_ALWAYS);
 		  for(;;)
 		    {
@@ -228,7 +228,7 @@ int main(int argc, char * argv[])
    Configure.make_status();
    Configure.make_connections();
    Configure.make_regask();
-   
+
    // Show the main window
    Configure.ConfDlg->show(argc, argv);
 
@@ -249,7 +249,7 @@ int main(int argc, char * argv[])
 	while(!fd.findnext());
 	fd.findclose();
      }
-   
+
    // Load the dynamic protocol names
    Vector list;
    if(FilesUtility::fileExists("plugins/protocols"))
@@ -307,7 +307,7 @@ int main(int argc, char * argv[])
 ///
 /// Get the local dynamic protocols.
 /// Parts taken from protocols_manager.cpp
-/// 
+///
 static void GetDynamicProtocols(const char * folder, Vector & list)
 {
    list.clear();
@@ -316,7 +316,7 @@ static void GetDynamicProtocols(const char * folder, Vector & list)
    registerNamePROC name;
 
    FindData fd;
-   int fd_ret;   
+   int fd_ret;
    int filenamelen = 0;
    char *filename = 0;
 #ifdef WIN32

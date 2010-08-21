@@ -35,7 +35,7 @@ public:
   Stream* getStream ();
   Filter* getFirstFilter ();
   int isEmpty ();
-  int addFilter (Filter*,u_long *nbw, int sendData = 1);
+  int addFilter (Filter*,size_t *nbw, int sendData = 1);
   void clearAllFilters ();
   int isFilterPresent (Filter*);
   int isFilterPresent (const char*);
@@ -44,9 +44,9 @@ public:
   void getName (string& out);
   int hasModifiersFilters ();
   list<string> getFilters ();
-  virtual int read (char* buffer, u_long len, u_long*);
-  virtual int write (const char* buffer, u_long len, u_long*);
-  virtual int flush (u_long*);
+  virtual int read (char *buffer, size_t len, size_t *);
+  virtual int write (const char *buffer, size_t len, size_t *);
+  virtual int flush (size_t *);
   FiltersChain ();
   ~FiltersChain ();
 protected:

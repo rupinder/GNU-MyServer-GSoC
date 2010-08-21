@@ -1,18 +1,18 @@
 /*
-MyServer
-Copyright (C) 2009, 2010 Free Software Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2009, 2010 Free Software Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
@@ -55,8 +55,8 @@ SocketPair::SocketPair ()
 }
 
 /*!
- *Create a Socket pair.
- *\return 0 on success.
+  Create a Socket pair.
+  \return 0 on success.
  */
 int SocketPair::create ()
 {
@@ -136,7 +136,7 @@ int SocketPair::create ()
 }
 
 /*!
- *Get the first handle used by the socket pair.
+  Get the first handle used by the socket pair.
  */
 SocketHandle SocketPair::getFirstHandle ()
 {
@@ -144,7 +144,7 @@ SocketHandle SocketPair::getFirstHandle ()
 }
 
 /*!
- *Get the second handle used by the socket pair.
+  Get the second handle used by the socket pair.
  */
 SocketHandle SocketPair::getSecondHandle ()
 {
@@ -153,10 +153,10 @@ SocketHandle SocketPair::getSecondHandle ()
 
 
 /*!
- *Invert the current socket pair on the passed argument.
- *The first handle will be the second handle on the inverted SocketPair
- *and the second handle will be the first one.
- *\param inverted It will be the inverted SocketPair.
+  Invert the current socket pair on the passed argument.
+  The first handle will be the second handle on the inverted SocketPair
+  and the second handle will be the first one.
+  \param inverted It will be the inverted SocketPair.
  */
 void SocketPair::inverted (SocketPair& inverted)
 {
@@ -167,7 +167,7 @@ void SocketPair::inverted (SocketPair& inverted)
 }
 
 /*!
- *Close both handles.
+  Close both handles.
  */
 int SocketPair::close ()
 {
@@ -178,7 +178,7 @@ int SocketPair::close ()
 }
 
 /*!
- *Close the first handle.
+  Close the first handle.
  */
 void SocketPair::closeFirstHandle ()
 {
@@ -190,7 +190,7 @@ void SocketPair::closeFirstHandle ()
 }
 
 /*!
- *Close the second handle.
+  Close the second handle.
  */
 void SocketPair::closeSecondHandle ()
 {
@@ -202,8 +202,8 @@ void SocketPair::closeSecondHandle ()
 }
 
 /*!
- *Configure the server socket blocking or not blocking.
- *\param notBlocking The new non-blocking status.
+  Configure the server socket blocking or not blocking.
+  \param notBlocking The new non-blocking status.
  */
 void SocketPair::setNonBlocking (bool notBlocking)
 {
@@ -219,9 +219,9 @@ void SocketPair::setNonBlocking (bool notBlocking)
 }
 
 /*!
- *Read a file handle on the socket pair.
- *\param fd The file descriptor to read.
- *\return 0 on success.
+  Read a file handle on the socket pair.
+  \param fd The file descriptor to read.
+  \return 0 on success.
  */
 int SocketPair::readHandle (Handle* fd)
 {
@@ -229,9 +229,9 @@ int SocketPair::readHandle (Handle* fd)
 }
 
 /*!
- *Transmit a file descriptor on the socket.
- *\param fd The file descriptor to transmit.
- *\return 0 on success.
+  Transmit a file descriptor on the socket.
+  \param fd The file descriptor to transmit.
+  \return 0 on success.
  */
 int SocketPair::writeHandle (Handle fd)
 {

@@ -39,7 +39,7 @@ Mutex ReadDirectory::mutex;
 #endif
 
 /*!
- * Initialize class members.
+  Initialize class members.
  */
 ReadDirectory::ReadDirectory ()
 {
@@ -52,7 +52,7 @@ ReadDirectory::ReadDirectory ()
 }
 
 /*!
- * D'ctor.
+  D'ctor.
  */
 ReadDirectory::~ReadDirectory ()
 {
@@ -60,12 +60,12 @@ ReadDirectory::~ReadDirectory ()
 }
 
 /*!
- * Find the first file using its name.
- *
- * \param directory Read the content of this directory.
- * \return 0 if there are other directory entries to be read.
- * \return a positive integer if this is the last entry.
- * \return -1 or errors.
+  Find the first file using its name.
+
+  \param directory Read the content of this directory.
+  \return 0 if there are other directory entries to be read.
+  \return a positive integer if this is the last entry.
+  \return -1 or errors.
  */
 int ReadDirectory::findfirst (const char *directory)
 {
@@ -73,11 +73,11 @@ int ReadDirectory::findfirst (const char *directory)
 }
 
 /*!
- * Find the next file in the directory.
- *
- * \return 0 if there are other directory entries to be read.
- * \return a positive integer if this is the last entry.
- * \return -1 or errors.
+  Find the next file in the directory.
+
+  \return 0 if there are other directory entries to be read.
+  \return a positive integer if this is the last entry.
+  \return -1 or errors.
  */
 int ReadDirectory::findnext ()
 {
@@ -85,7 +85,7 @@ int ReadDirectory::findnext ()
 }
 
 /*!
- *\see ReadDirectory#findfirst 
+  \see ReadDirectory#findfirst
  */
 int ReadDirectory::find (const char *filename)
 {
@@ -157,7 +157,7 @@ int ReadDirectory::find (const char *filename)
 # endif
 
 # ifdef HAVE_FSTATAT
-   if (checked::fstatat (dirfd (dh), name.c_str (), &stats, 0))
+   if (checked::fstatat (gnulib::dirfd (dh), name.c_str (), &stats, 0))
      return -1;
 # else
    string tempName;
@@ -181,7 +181,7 @@ int ReadDirectory::find (const char *filename)
 }
 
 /*!
- * Free the used resources.
+  Free the used resources.
  */
 int ReadDirectory::findclose ()
 {

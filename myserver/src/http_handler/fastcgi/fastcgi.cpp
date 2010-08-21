@@ -55,16 +55,16 @@ struct FourChar
 };
 
 /*!
- * Entry-Point to manage a FastCGI request.
+  Entry-Point to manage a FastCGI request.
  */
 int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
                    const char *cgipath, bool execute, bool onlyHeader)
 {
   FcgiContext con;
-  u_long nbr = 0;
+  size_t nbr = 0;
   FcgiHeader header;
   FiltersChain chain;
-  u_long nbw;
+  size_t nbw;
 
   int exit;
   int ret;
@@ -181,11 +181,6 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
 #endif
         }
 
-      td->inputData.close ();
-      td->inputData.openFile (td->inputDataPath, File::READ
-                              | File::FILE_OPEN_ALWAYS
-                              | File::NO_INHERIT);
-
       server = connect (&con, cmdLine.str ().c_str ());
       if (server == NULL)
         {
@@ -220,11 +215,11 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
           readHeader (&con, &header, initialTicks, timeout, id);
 
           /*
-           *contentLengthB1 is the high word of the content length value
-           *while contentLengthB0 is the low one.
-           *To retrieve the value of content length push left contentLengthB1
-           *of eight byte then do an or with contentLengthB0.
-           */
+            contentLengthB1 is the high word of the content length value
+            while contentLengthB0 is the low one.
+            To retrieve the value of content length push left contentLengthB1
+            of eight byte then do an or with contentLengthB0.
+          */
           dim = (header.contentLengthB1 << 8) | header.contentLengthB0;
 
           if (dim == 0)
@@ -317,8 +312,8 @@ int FastCgi::send (HttpThreadContext* td, const char* scriptpath,
 }
 
 /*!
- *Send the buffer content over the FastCGI connection
- *Return non-zero on errors.
+  Send the buffer content over the FastCGI connection
+  Return non-zero on errors.
  */
 int FastCgi::sendFcgiBody (FcgiContext* con, char* buffer, int len, int type,
                           int id)
@@ -332,8 +327,8 @@ int FastCgi::sendFcgiBody (FcgiContext* con, char* buffer, int len, int type,
 }
 
 /*!
- *Trasform from a standard environment string to the FastCGI environment
- *string.
+  Trasform from a standard environment string to the FastCGI environment
+  string.
  */
 int FastCgi::buildFASTCGIEnvironmentString (HttpThreadContext*, char* src,
                                            char* dest)
@@ -408,7 +403,7 @@ int FastCgi::buildFASTCGIEnvironmentString (HttpThreadContext*, char* src,
 }
 
 /*!
- *Fill the FcgiHeader structure.
+  Fill the FcgiHeader structure.
  */
 void FastCgi::generateFcgiHeader ( FcgiHeader &header, int iType,
                                   int iRequestId, int iContentLength )
@@ -424,7 +419,7 @@ void FastCgi::generateFcgiHeader ( FcgiHeader &header, int iType,
 }
 
 /*!
- *Constructor for the FASTCGI class
+  Constructor for the FASTCGI class
  */
 FastCgi::FastCgi ()
 {
@@ -432,7 +427,7 @@ FastCgi::FastCgi ()
 }
 
 /*!
- *Initialize the FastCGI protocol implementation
+  Initialize the FastCGI protocol implementation
  */
 int FastCgi::load ()
 {
@@ -445,7 +440,7 @@ int FastCgi::load ()
 }
 
 /*!
- *Clean the memory and the processes occuped by the FastCGI servers
+  Clean the memory and the processes occuped by the FastCGI servers
  */
 int FastCgi::unLoad ()
 {
@@ -454,8 +449,8 @@ int FastCgi::unLoad ()
 }
 
 /*!
- *Return the the running server specified by path.
- *If the server is not running returns 0.
+  Return the the running server specified by path.
+  If the server is not running returns 0.
  */
 FastCgiServer* FastCgi::isFcgiServerRunning (const char* path)
 {
@@ -464,14 +459,12 @@ FastCgiServer* FastCgi::isFcgiServerRunning (const char* path)
 
 
 /*!
- *Get a connection to the FastCGI server.
+  Get a connection to the FastCGI server.
  */
 FastCgiServer* FastCgi::connect (FcgiContext* con, const char* path)
 {
   FastCgiServer* server = runFcgiServer (con, path);
-  /*!
-   *If we find a valid server try the connection to it.
-   */
+  /* If we find a valid server try the connection to it.  */
   if (server)
   {
     int ret = processServerManager->connect (&(con->sock), server);
@@ -482,15 +475,15 @@ FastCgiServer* FastCgi::connect (FcgiContext* con, const char* path)
 }
 
 /*!
- *Run the FastCGI server.
- *If the path starts with a @ character, the path is handled as a
- *remote server.
+  Run the FastCGI server.
+  If the path starts with a @ character, the path is handled as a
+  remote server.
  */
 FastCgiServer* FastCgi::runFcgiServer (FcgiContext* context,
                                       const char* path)
 {
   /* This method needs a better home (and maybe better code).
-   * Compute a simple hash from the IP address.  */
+    Compute a simple hash from the IP address.  */
   const char *ip = context->td->connection->getIpAddr ();
   int seed = 13;
   for (const char *c = ip; *c; c++)
@@ -525,17 +518,17 @@ FastCgiServer* FastCgi::runFcgiServer (FcgiContext* context,
 }
 
 /*!
- *Do a request to the FastCGI server.
- *\param con The current FastCGI context.
- *\param id The request ID.
+  Do a request to the FastCGI server.
+  \param con The current FastCGI context.
+  \param id The request ID.
  */
 int FastCgi::fastCgiRequest (FcgiContext* con, int id)
 {
   FcgiBeginRequestBody tBody;
   HttpThreadContext *td = con->td;
-  /*! Size of data chunks to use with STDIN.  */
+  /* Size of data chunks to use with STDIN.  */
   const size_t maxStdinChunk = 8192;
-  u_long nbr;
+  size_t nbr;
   FcgiHeader header;
   int sizeEnvString;
 
@@ -618,7 +611,7 @@ int FastCgi::sendData (FcgiContext* con, u_long dim, u_long timeout,
       if (dim - td->buffer->getLength () == 0)
         return -1;
 
-      u_long nbr = con->sock.recv (td->buffer->getBuffer ()
+      size_t nbr = con->sock.recv (td->buffer->getBuffer ()
                                    + td->buffer->getLength (),
                                 std::min ((u_long) td->buffer->getRealLength (),
                                              dim - td->buffer->getLength ()),
@@ -649,12 +642,12 @@ int FastCgi::sendData (FcgiContext* con, u_long dim, u_long timeout,
 }
 
 /*!
- *Look for a HTTP header in the fastcgi server data.
- *\param con The current FastCGI context.
- *\param chain Output chain where to send data.
- *\param responseCompleted Output value.  It is true when the response is completed.
- *\param onlyHeader If non-zero, don't send any HTTP payload.
- *\return 0 on success.
+  Look for a HTTP header in the fastcgi server data.
+  \param con The current FastCGI context.
+  \param chain Output chain where to send data.
+  \param responseCompleted Output value.  It is true when the response is completed.
+  \param onlyHeader If non-zero, don't send any HTTP payload.
+  \return 0 on success.
  */
 int FastCgi::handleHeader (FcgiContext* con, FiltersChain* chain, bool* responseCompleted,
          bool onlyHeader)
@@ -742,18 +735,18 @@ int FastCgi::handleHeader (FcgiContext* con, FiltersChain* chain, bool* response
 }
 
 /*!
- *Read a FastCGI header.
- *\param con The FastCGI context.
- *\param header The header to read.
- *\param started Start time for the request (it is used to compute the timeout).
- *\param timeout The timeout to use for the connection.
- *\param id Request ID.
- *\return 0 on success.
+  Read a FastCGI header.
+  \param con The FastCGI context.
+  \param header The header to read.
+  \param started Start time for the request (it is used to compute the timeout).
+  \param timeout The timeout to use for the connection.
+  \param id Request ID.
+  \return 0 on success.
  */
 int FastCgi::readHeader (FcgiContext *con, FcgiHeader* header, u_long started,
                          u_long timeout, int id)
 {
-  u_long nbr;
+  size_t nbr;
   HttpThreadContext* td = con->td;
   char* buffer = (char*) header;
   u_long readData = 0;
@@ -772,7 +765,7 @@ int FastCgi::readHeader (FcgiContext *con, FcgiHeader* header, u_long started,
       nbr = con->sock.recv (buffer + readData, sizeof (FcgiHeader) - readData,
                             0, timeout - (ticks - started));
 
-      if (nbr == static_cast<u_long>(-1) || nbr == 0)
+      if (nbr == static_cast<size_t>(-1) || nbr == 0)
         return 1;
 
       readData += nbr;

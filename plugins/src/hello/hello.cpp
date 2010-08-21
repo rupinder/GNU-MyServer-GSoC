@@ -19,6 +19,7 @@
 #include <include/plugin/plugin.h>
 
 PLUGIN_NAME ("hello");
+DECLARE_LICENSE (gpl);
 
 EXPORTABLE(int) load (void* server)
 {

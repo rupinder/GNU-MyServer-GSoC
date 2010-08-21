@@ -37,7 +37,7 @@ public:
 
   CryptAlgoManager *getCryptAlgoManager () {return cryptAlgoManager;}
   void setCryptAlgoManager (CryptAlgoManager *cam){cryptAlgoManager = cam;}
-  
+
 
 protected:
   bool comparePassword (const char *password, const char *savedPassword,

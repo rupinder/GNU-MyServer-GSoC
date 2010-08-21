@@ -102,8 +102,8 @@ Server::initLogManager ()
 }
 
 /*!
- *Reinitialize the configuration paths, setting them to the specified ones.
- *Returns false on error.
+  Reinitialize the configuration paths, setting them to the specified ones.
+  Returns false on error.
  */
 bool Server::resetConfigurationPaths (string &mainConf, string &mimeConf,
 				     string &vhostConf, string &externPath)
@@ -116,7 +116,7 @@ bool Server::resetConfigurationPaths (string &mainConf, string &mimeConf,
 }
 
 /*!
- * Load here all the libraries.
+  Load here all the libraries.
  */
 int Server::loadLibraries ()
 {
@@ -137,7 +137,7 @@ int Server::loadLibraries ()
 }
 
 /*!
- * Destroy the object.
+  Destroy the object.
  */
 Server::~Server ()
 {
@@ -164,7 +164,7 @@ Server::~Server ()
 }
 
 /*!
- *Start the server.
+  Start the server.
  */
 void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
                     string &externPath, MainConfiguration* (*genMainConf)
@@ -204,7 +204,8 @@ void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
         return;
       }
 
-    log (MYSERVER_LOG_MSG_INFO, _("Loading server configuration..."));
+    log (MYSERVER_LOG_MSG_INFO, _("Loading server configuration from %s..."),
+         mainConf.c_str ());
 
     if (postLoad ())
       {
@@ -251,7 +252,7 @@ void Server::start (string &mainConf, string &mimeConf, string &vhostConf,
 }
 
 /*!
- * Complete the loading phase.
+  Complete the loading phase.
  */
 int Server::postLoad ()
 {
@@ -269,7 +270,11 @@ int Server::postLoad ()
     delete ipAddresses;
   ipAddresses = new string ();
 
-  if (Socket::getLocalIPsList (*ipAddresses))
+  try
+    {
+      Socket::getLocalIPsList (*ipAddresses);
+    }
+  catch (exception & e)
     {
       log (MYSERVER_LOG_MSG_ERROR, _("Error reading IP list"));
       return -1;
@@ -301,7 +306,8 @@ int Server::postLoad ()
     return -1;
 
   /* Load the MIME types.  */
-  log (MYSERVER_LOG_MSG_INFO, _("Loading MIME types..."));
+  log (MYSERVER_LOG_MSG_INFO, _("Loading MIME types from %s..."),
+       mimeConfigurationFile.c_str ());
 
   string handlerStr (getData ("server.mime_handler", "xml"));
   mimeManager.setDefaultHandler (handlerStr);
@@ -340,7 +346,7 @@ int Server::postLoad ()
 }
 
 /*!
- * Reload the virtual hosts configuration.
+  Reload the virtual hosts configuration.
  */
 int Server::loadVHostConf ()
 {
@@ -362,6 +368,9 @@ int Server::loadVHostConf ()
                                        vhostConfigurationFile.c_str ());
 
   /* Load the virtual hosts configuration.  */
+  log (MYSERVER_LOG_MSG_INFO, _("Loading virtual hosts from %s..."),
+       vhostLocation);
+
   if (vhostHandler->load (vhostLocation))
     {
       log (MYSERVER_LOG_MSG_ERROR,
@@ -374,12 +383,13 @@ int Server::loadVHostConf ()
 }
 
 /*!
- * Load static built-in components.
+  Load static built-in components.
  */
 void Server::loadStaticComponents ()
 {
   string xml ("xml");
 
+  mimeManager.setLogger (this);
   mimeManager.registerHandler (xml, new XmlMimeHandler ());
 
   XmlVhostHandler::registerBuilder (vhostManager);
@@ -412,7 +422,7 @@ void Server::loadStaticComponents ()
 }
 
 /*!
- * Load the plugins.
+  Load the plugins.
  */
 void Server::loadPlugins ()
 {
@@ -422,7 +432,7 @@ void Server::loadPlugins ()
 }
 
 /*!
- * Server main loop.
+  Server main loop.
  */
 void Server::mainLoop ()
 {
@@ -437,16 +447,15 @@ void Server::mainLoop ()
   mimeConfTime = FilesUtility::getLastModTime (mimeConfigurationFile.c_str ());
 
   /*
-   * Keep thread alive.
-   * When the endServer flag is set to True exit
-   * from the loop and terminate the server execution.
+    Keep thread alive.
+    When the endServer flag is set to True exit
+    from the loop and terminate the server execution.
    */
   while (!endServer)
     {
-      Thread::wait (1000000);
+      Thread::wait (MYSERVER_SEC (1));
 
-      /* Check threads.  */
-      if (purgeThreadsCounter++ >= 10)
+      if (purgeThreadsCounter++ >= 120)
         {
           purgeThreadsCounter = 0;
           purgeThreads ();
@@ -462,8 +471,8 @@ void Server::mainLoop ()
             FilesUtility::getLastModTime (mimeConfigurationFile.c_str ());
 
           /* If a configuration file was modified reboot the server. */
-          if (((mainConfTimeNow != -1) && (hostsConfTimeNow != -1)  &&
-               (mimeConfNow != -1)) || toReboot)
+          if (((mainConfTimeNow != -1) && (hostsConfTimeNow != -1)
+               && (mimeConfNow != -1)) || toReboot)
             {
               if ( (mainConfTimeNow  != mainConfTime) || toReboot)
                 {
@@ -537,7 +546,7 @@ void Server::mainLoop ()
 }
 
 /*!
- * Display the MyServer boot.
+  Display the MyServer boot.
  */
 void Server::displayBoot ()
 {
@@ -557,9 +566,7 @@ void Server::displayBoot ()
 
 #endif /* CLEAR_BOOT_SCREEN.  */
 
-  /*
-   * Print the MyServer signature only if the log writes to the console.
-   */
+  /* Print the MyServer signature only if the log writes to the console.  */
   if (logLocation.find ("console://") != string::npos)
     {
       try
@@ -590,15 +597,15 @@ void Server::displayBoot ()
 }
 
 /*!
- * Removed threads that can be destroyed.
- * The function returns the number of threads that were destroyed.
+  Removed threads that can be destroyed.
+  The function returns the number of threads that were destroyed.
  */
 int Server::purgeThreads ()
 {
   u_long ticks = getTicks ();
   u_long destroyed = 0;
 
-  purgeThreadsThreshold = std::min (purgeThreadsThreshold << 1,
+  purgeThreadsThreshold = std::min (purgeThreadsThreshold * 3 / 2,
                                     nMaxThreads);
   threadsMutex->lock ();
   for (list<ClientsThread*>::iterator it = threads.begin ();
@@ -606,21 +613,14 @@ int Server::purgeThreads ()
     {
       ClientsThread* thread = *it;
 
-
-      /*
-       *Shutdown all threads that can be destroyed.
-       */
       if (thread->isStopped ())
         {
           ClientsThread* thread = *it;
           list<ClientsThread*>::iterator next = it;
           next++;
 
-          thread->join ();
           threads.erase (it);
           delete thread;
-
-          destroyed++;
           it = next;
         }
       else if (thread->isToDestroy ())
@@ -628,14 +628,17 @@ int Server::purgeThreads ()
           if (destroyed < purgeThreadsThreshold)
             thread->stop ();
 
+          destroyed++;
           it++;
         }
       else
         {
-          if (!thread->isStatic ())
-            if (ticks - thread->getTimeout () > MYSERVER_SEC (15))
-              thread->setToDestroy (1);
-
+          if (! thread->isStatic ())
+            if (ticks - thread->getTimeout () > MYSERVER_SEC (20))
+              {
+                thread->setToDestroy (1);
+                destroyed++;
+              }
           it++;
         }
     }
@@ -645,7 +648,7 @@ int Server::purgeThreads ()
 }
 
 /*!
- * Do the final cleanup.  Called once when the process is terminated.
+  Do the final cleanup.  Called once when the process is terminated.
  */
 void Server::finalCleanup ()
 {
@@ -655,7 +658,7 @@ void Server::finalCleanup ()
 }
 
 /*!
- * Return the user identifier to use for the process.
+  Return the user identifier to use for the process.
  */
 const char *Server::getUid ()
 {
@@ -663,7 +666,7 @@ const char *Server::getUid ()
 }
 
 /*!
- * Return the group identifier to use for the process.
+  Return the group identifier to use for the process.
  */
 const char *Server::getGid ()
 {
@@ -671,7 +674,7 @@ const char *Server::getGid ()
 }
 
 /*!
- * Returns the numbers of active connections the list.
+  Returns the numbers of active connections the list.
  */
 u_long Server::getNumConnections ()
 {
@@ -679,7 +682,7 @@ u_long Server::getNumConnections ()
 }
 
 /*!
- * Returns the numbers of all the connections to the server.
+  Returns the numbers of all the connections to the server.
  */
 u_long Server::getNumTotalConnections ()
 {
@@ -687,7 +690,7 @@ u_long Server::getNumTotalConnections ()
 }
 
 /*!
- * Return a home directory object.
+  Return a home directory object.
  */
 HomeDir* Server::getHomeDir ()
 {
@@ -695,7 +698,7 @@ HomeDir* Server::getHomeDir ()
 }
 
 /*!
- * Stop the execution of the server.
+  Stop the execution of the server.
  */
 void Server::stop ()
 {
@@ -703,11 +706,12 @@ void Server::stop ()
 }
 
 /*!
- * Unload the server.
- * Return nonzero on errors.
+  Unload the server.
+  Return nonzero on errors.
  */
 int Server::terminate ()
 {
+  FilesUtility::deleteDir ("system/webdav");
   log (MYSERVER_LOG_MSG_INFO, _("Stopping threads"));
 
   listenThreads.terminate ();
@@ -748,7 +752,7 @@ int Server::terminate ()
 
 #ifdef WIN32
   /*
-   * Under WIN32 cleanup environment strings.
+    Under WIN32 cleanup environment strings.
    */
   FreeEnvironmentStrings ((LPTSTR)envString);
 #endif
@@ -764,7 +768,7 @@ int Server::terminate ()
   clearMulticastRegistry ();
 
   /*
-   * Free all the threads.
+    Free all the threads.
    */
   threadsMutex->lock ();
   threads.clear ();
@@ -781,8 +785,8 @@ int Server::terminate ()
 }
 
 /*!
- * Get a pointer to the configuration file.  It is
- * valid only at startup!
+  Get a pointer to the configuration file.  It is
+  valid only at startup!
  */
 MainConfiguration *Server::getConfiguration ()
 {
@@ -790,9 +794,9 @@ MainConfiguration *Server::getConfiguration ()
 }
 
 /*!
- * Here is loaded the configuration of the server.
- * The configuration file is a XML file.
- * Return nonzero on errors.
+  Here is loaded the configuration of the server.
+  The configuration file is a XML file.
+  Return nonzero on errors.
  */
 int Server::initialize ()
 {
@@ -844,9 +848,7 @@ int Server::initialize ()
 
   configurationFileManager->readData (&hashedDataTrees, &hashedData);
 
-  /*
-   * Process console colors information.
-   */
+  /* Process console colors information.  */
   list<string> levels = logManager->getLoggingLevelsByNames ();
   for (list<string>::iterator it = levels.begin (); it != levels.end (); it++)
     {
@@ -961,16 +963,16 @@ int Server::initialize ()
 }
 
 /*!
- * Check if there are free threads to handle a new request.  If there
- * are not enough threads create a new one.
+  Check if there are free threads to handle a new request.  If there
+  are not enough threads create a new one.
  */
 void Server::checkThreadsNumber ()
 {
   threadsMutex->lock ();
 
   /*
-   *Create a new thread if there are not available threads and
-   *we did not reach the limit.
+    Create a new thread if there are not available threads and
+    we did not reach the limit.
    */
   if ((threads.size () < nMaxThreads) && (freeThreads < 1))
     addThread (false);
@@ -979,7 +981,7 @@ void Server::checkThreadsNumber ()
 }
 
 /*!
- * Get the default throttling rate to use with connections to the server.
+  Get the default throttling rate to use with connections to the server.
  */
 u_long Server::getThrottlingRate ()
 {
@@ -987,8 +989,8 @@ u_long Server::getThrottlingRate ()
 }
 
 /*!
- * This function returns the max size of the logs file as defined in the
- * configuration file.
+  This function returns the max size of the logs file as defined in the
+  configuration file.
  */
 int Server::getMaxLogFileSize ()
 {
@@ -996,7 +998,7 @@ int Server::getMaxLogFileSize ()
 }
 
 /*!
- * Returns the connection timeout.
+  Returns the connection timeout.
  */
 u_long Server::getTimeout ()
 {
@@ -1004,10 +1006,10 @@ u_long Server::getTimeout ()
 }
 
 /*!
- * This function add a new connection to the list.
- * On a failure, it is responsibility of the caller to
- * free S.
- * \return 0 on success.
+  This function add a new connection to the list.
+  On a failure, it is responsibility of the caller to
+  free S.
+  \return 0 on success.
  */
 int Server::addConnection (Socket *s, MYSERVER_SOCKADDRIN *asockIn)
 {
@@ -1019,13 +1021,13 @@ int Server::addConnection (Socket *s, MYSERVER_SOCKADDRIN *asockIn)
   int dim;
 
   /*
-   * We can use MAX_IP_STRING_LEN only because we use NI_NUMERICHOST
-   * in getnameinfo call; Otherwise we should have used NI_MAXHOST.
-   * ip is the string containing the address of the remote host connecting
-   * to the server.
-   * localIp is the local address used by the connection.
-   * port is the remote port used by the client to open the connection.
-   * myPort is the port used by the server to listen.
+    We can use MAX_IP_STRING_LEN only because we use NI_NUMERICHOST
+    in getnameinfo call; Otherwise we should have used NI_MAXHOST.
+    ip is the string containing the address of the remote host connecting
+    to the server.
+    localIp is the local address used by the connection.
+    port is the remote port used by the client to open the connection.
+    myPort is the port used by the server to listen.
    */
   if ( asockIn == NULL ||
        (asockIn->ss_family != AF_INET && asockIn->ss_family != AF_INET6))
@@ -1038,14 +1040,15 @@ int Server::addConnection (Socket *s, MYSERVER_SOCKADDRIN *asockIn)
     return -1;
 
   /*
-   * Do not accept this connection if a MAX_CONNECTIONS_TO_ACCEPT limit is
-   * defined.
+    Do not accept this connection if a MAX_CONNECTIONS_TO_ACCEPT limit is
+    defined.
    */
   if (maxConnectionsToAccept && connectionsScheduler.getNumAliveConnections ()
       >= maxConnectionsToAccept)
     return -1;
 
 #if ( HAVE_IPV6 )
+  int ret;
   if ( asockIn->ss_family == AF_INET )
     ret = getnameinfo (reinterpret_cast<const sockaddr *>(asockIn),
                        sizeof (sockaddr_in),
@@ -1067,20 +1070,20 @@ int Server::addConnection (Socket *s, MYSERVER_SOCKADDRIN *asockIn)
     ret = getnameinfo (reinterpret_cast<const sockaddr *>(&localSockIn),
                        sizeof (sockaddr_in), localIp, MAX_IP_STRING_LEN,
                        NULL, 0, NI_NUMERICHOST);
-  else// AF_INET6
+  else
     ret = getnameinfo (reinterpret_cast<const sockaddr *>(&localSockIn),
                        sizeof (sockaddr_in6), localIp, MAX_IP_STRING_LEN,
                        NULL, 0, NI_NUMERICHOST);
   if (ret)
     return -1;
-#else// !HAVE_IPV6
+#else
   dim = sizeof (localSockIn);
   s->getsockname ((MYSERVER_SOCKADDR*)&localSockIn, &dim);
   strncpy (ip,  inet_ntoa (((sockaddr_in *)asockIn)->sin_addr),
            MAX_IP_STRING_LEN);
   strncpy (localIp, inet_ntoa (((sockaddr_in *)&localSockIn)->sin_addr),
            MAX_IP_STRING_LEN);
-#endif//HAVE_IPV6
+#endif
 
   /* Port used by the client.  */
   if ( asockIn->ss_family == AF_INET )
@@ -1102,7 +1105,7 @@ int Server::addConnection (Socket *s, MYSERVER_SOCKADDRIN *asockIn)
 }
 
 /*!
- * Return the max number of threads that the server can start.
+  Return the max number of threads that the server can start.
  */
 int Server::getMaxThreads ()
 {
@@ -1110,8 +1113,8 @@ int Server::getMaxThreads ()
 }
 
 /*!
- * Add a new connection.
- *A connection is defined using a connection struct.
+  Add a new connection.
+  A connection is defined using a connection struct.
  */
 ConnectionPtr Server::addConnectionToList (Socket* s,
                                            MYSERVER_SOCKADDRIN* /*asockIn*/,
@@ -1127,8 +1130,16 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
   vector<Multicast<string, void*, int>*>* handlers;
 
   connectionsPoolLock.lock ();
-  newConnection = connectionsPool.forcedGet ();
-  connectionsPoolLock.unlock ();
+  try
+    {
+      newConnection = connectionsPool.forcedGet ();
+      connectionsPoolLock.unlock ();
+    }
+  catch (...)
+    {
+      connectionsPoolLock.unlock ();
+      throw;
+    }
 
   if (!newConnection)
     return NULL;
@@ -1143,9 +1154,17 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
   newConnection->host = vhostManager.getVHost (0, localIpAddr, localPort);
   if (newConnection->host == NULL)
     {
-      connectionsPoolLock.lock ();
-      connectionsPool.put (newConnection);
-      connectionsPoolLock.unlock ();
+      try
+        {
+          connectionsPoolLock.lock ();
+          connectionsPool.put (newConnection);
+          connectionsPoolLock.unlock ();
+        }
+      catch (...)
+        {
+          connectionsPoolLock.unlock ();
+          throw;
+        }
       return 0;
     }
 
@@ -1167,8 +1186,17 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
         if ((*handlers)[i]->updateMulticast (this, msg, newConnection) == 1)
           {
             connectionsPoolLock.lock ();
-            connectionsPool.put (newConnection);
-            connectionsPoolLock.unlock ();
+            try
+              {
+                connectionsPool.put (newConnection);
+                connectionsPoolLock.unlock ();
+              }
+            catch (...)
+              {
+                connectionsPoolLock.unlock ();
+                throw;
+              }
+
             return 0;
           }
     }
@@ -1186,8 +1214,17 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
       if (ret < 0)
         {
           connectionsPoolLock.lock ();
-          connectionsPool.put (newConnection);
-          connectionsPoolLock.unlock ();
+          try
+            {
+              connectionsPool.put (newConnection);
+              connectionsPoolLock.unlock ();
+            }
+          catch (...)
+            {
+              connectionsPoolLock.unlock ();
+              throw;
+            }
+
           delete sslSocket;
           return 0;
         }
@@ -1207,9 +1244,9 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
     connectionsScheduler.addNewWaitingConnection (newConnection);
 
   /*
-   * If defined maxConnections and the number of active connections
-   * is bigger than it say to the protocol that will parse the connection
-   * to remove it from the active connections list.
+    If defined maxConnections and the number of active connections
+    is bigger than it say to the protocol that will parse the connection
+    to remove it from the active connections list.
    */
   if (maxConnections
       && connectionsScheduler.getNumAliveConnections () > maxConnections)
@@ -1221,7 +1258,7 @@ ConnectionPtr Server::addConnectionToList (Socket* s,
 }
 
 /*!
- * Delete a connection.
+  Delete a connection.
  */
 int Server::deleteConnection (ConnectionPtr s)
 {
@@ -1231,14 +1268,22 @@ int Server::deleteConnection (ConnectionPtr s)
   s->destroy ();
 
   connectionsPoolLock.lock ();
-  connectionsPool.put (s);
-  connectionsPoolLock.unlock ();
+  try
+    {
+      connectionsPool.put (s);
+      connectionsPoolLock.unlock ();
+    }
+  catch (...)
+    {
+      connectionsPoolLock.unlock ();
+      throw;
+    }
 
   return 0;
 }
 
 /*!
- * Get notified when a connection is closed.
+  Get notified when a connection is closed.
  */
 int Server::notifyDeleteConnection (ConnectionPtr s)
 {
@@ -1255,7 +1300,7 @@ int Server::notifyDeleteConnection (ConnectionPtr s)
 }
 
 /*!
- * Get a connection to parse.
+  Get a connection to parse.
  */
 ConnectionPtr Server::getConnection (int /*id*/)
 {
@@ -1263,7 +1308,7 @@ ConnectionPtr Server::getConnection (int /*id*/)
 }
 
 /*!
- * Delete all the active connections.
+  Delete all the active connections.
  */
 void Server::clearAllConnections ()
 {
@@ -1285,8 +1330,8 @@ void Server::clearAllConnections ()
 
 
 /*!
- * Returns the full path of the binaries directory.
- * The directory where the file myserver (.exe) is.
+  Returns the full path of the binaries directory.
+  The directory where the file myserver (.exe) is.
  */
 const char *Server::getPath ()
 {
@@ -1294,7 +1339,7 @@ const char *Server::getPath ()
 }
 
 /*!
- * Add a free thread.
+  Add a free thread.
  */
 void Server::increaseFreeThread ()
 {
@@ -1304,7 +1349,7 @@ void Server::increaseFreeThread ()
 }
 
 /*!
- * Remove a free thread.
+  Remove a free thread.
  */
 void Server::decreaseFreeThread ()
 {
@@ -1315,7 +1360,7 @@ void Server::decreaseFreeThread ()
 
 
 /*!
- * Returns the name of the server (the name of the current PC).
+  Returns the name of the server (the name of the current PC).
  */
 const char *Server::getServerName ()
 {
@@ -1323,20 +1368,28 @@ const char *Server::getServerName ()
 }
 
 /*!
- * Gets the number of threads.
- */
-u_long Server::getNumThreads ()
+  Get Information on the number of threads.
+  \param num if not NULL will contain the number of active threads.
+  \param max if not NULL will contain the maximum number of threads.
+  \param staticThreads if not NULL will contain the maximum number of always
+  active threads.
+*/
+void Server::getThreadsNumberInformation (u_long *num, u_long *max,
+                                          u_long *staticThreads)
 {
-  u_long ret;
-  threadsMutex->lock ();
-  ret = threads.size ();
-  threadsMutex->unlock ();
-  return ret;
+  if (num)
+    *num = threads.size ();
+
+  if (max)
+    *max = nMaxThreads;
+
+  if (staticThreads)
+    *staticThreads = nStaticThreads;
 }
 
 /*!
- * Returns a comma-separated local machine IPs list.
- * For example: 192.168.0.1, 61.62.63.64, 65.66.67.68.69
+  Returns a comma-separated local machine IPs list.
+  For example: 192.168.0.1, 61.62.63.64, 65.66.67.68.69
  */
 const char *Server::getAddresses ()
 {
@@ -1344,8 +1397,8 @@ const char *Server::getAddresses ()
 }
 
 /*!
- * Clear the data dictionary.
- * Returns zero on success.
+  Clear the data dictionary.
+  Returns zero on success.
  */
 int Server::freeHashedData ()
 {
@@ -1369,8 +1422,8 @@ int Server::freeHashedData ()
 }
 
 /*!
- * Get the value for name in the hash dictionary.
- * If the value is not found then defValue is returned.
+  Get the value for name in the hash dictionary.
+  If the value is not found then defValue is returned.
  */
 const char *Server::getData (const char *name, const char *defValue)
 {
@@ -1380,7 +1433,7 @@ const char *Server::getData (const char *name, const char *defValue)
 }
 
 /*!
- * Get the specified protocol.
+  Get the specified protocol.
  */
 Protocol* Server::getProtocol (const char *protocolName)
 {
@@ -1390,13 +1443,13 @@ Protocol* Server::getProtocol (const char *protocolName)
 }
 
 /*!
- * If specified set the uid/gid for the process.
+  If specified set the uid/gid for the process.
  */
 void Server::setProcessPermissions ()
 {
   /*
-   * If the configuration specify a group id, change the current group for
-   * the process.
+    If the configuration specify a group id, change the current group for
+    the process.
    */
   if (gid.length ())
     {
@@ -1412,9 +1465,9 @@ void Server::setProcessPermissions ()
     }
 
   /*
-   * If the configuration file provides a user identifier, change the
-   * current user for the process. Disable the reboot when this feature
-   * is used.
+    If the configuration file provides a user identifier, change the
+    current user for the process. Disable the reboot when this feature
+    is used.
    */
   if (uid.length ())
     {
@@ -1427,8 +1480,8 @@ void Server::setProcessPermissions ()
 }
 
 /*!
- * Reboot the server.
- * Returns non zero on errors.
+  Reboot the server.
+  Returns non zero on errors.
  */
 int Server::reboot ()
 {
@@ -1494,7 +1547,7 @@ int Server::reboot ()
 }
 
 /*!
- * Returns if the server is ready.
+  Returns if the server is ready.
  */
 bool Server::isServerReady ()
 {
@@ -1502,7 +1555,7 @@ bool Server::isServerReady ()
 }
 
 /*!
- * Reboot the server on the next loop.
+  Reboot the server on the next loop.
  */
 void Server::delayedReboot ()
 {
@@ -1511,7 +1564,7 @@ void Server::delayedReboot ()
 }
 
 /*!
- * Return the factory object to create cached files.
+  Return the factory object to create cached files.
  */
 CachedFileFactory* Server::getCachedFiles ()
 {
@@ -1519,7 +1572,7 @@ CachedFileFactory* Server::getCachedFiles ()
 }
 
 /*!
- * Get a list with all the alive connections.
+  Get a list with all the alive connections.
  */
 void Server::getConnections (list<ConnectionPtr>& out)
 {
@@ -1527,7 +1580,7 @@ void Server::getConnections (list<ConnectionPtr>& out)
 }
 
 /*!
- * Disable the autoreboot.
+  Disable the autoreboot.
  */
 void Server::disableAutoReboot ()
 {
@@ -1535,7 +1588,7 @@ void Server::disableAutoReboot ()
 }
 
 /*!
- * Enable the autoreboot
+  Enable the autoreboot
  */
 void Server::enableAutoReboot ()
 {
@@ -1543,7 +1596,7 @@ void Server::enableAutoReboot ()
 }
 
 /*!
- * Return the ProtocolManager object.
+  Return the ProtocolManager object.
  */
 ProtocolsManager *Server::getProtocolsManager ()
 {
@@ -1551,7 +1604,7 @@ ProtocolsManager *Server::getProtocolsManager ()
 }
 
 /*!
- * Return nonzero if the autoreboot is enabled.
+  Return nonzero if the autoreboot is enabled.
  */
 bool Server::isAutorebootEnabled ()
 {
@@ -1559,7 +1612,7 @@ bool Server::isAutorebootEnabled ()
 }
 
 /*!
- * Create a new thread.
+  Create a new thread.
  */
 int Server::addThread (bool staticThread)
 {
@@ -1596,7 +1649,6 @@ int Server::addThread (bool staticThread)
   newThread = new ClientsThread (this);
 
   handlers = getHandlers (msg);
-
   if (handlers)
     {
       for (size_t i = 0; i < handlers->size (); i++)
@@ -1622,8 +1674,8 @@ int Server::addThread (bool staticThread)
 }
 
 /*!
- * Remove a thread.
- * Return zero if a thread was removed.
+  Remove a thread.
+  Return zero if a thread was removed.
  */
 int Server::removeThread (u_long ID)
 {
@@ -1660,9 +1712,9 @@ int Server::removeThread (u_long ID)
 }
 
 /*!
- * Create the class instance.  Call this before use
- * the Server class.  The instance is not created in
- * getInstance to have a faster inline function.
+  Create the class instance.  Call this before use
+  the Server class.  The instance is not created in
+  getInstance to have a faster inline function.
  */
 void Server::createInstance ()
 {
@@ -1671,7 +1723,7 @@ void Server::createInstance ()
 }
 
 /*!
- * Get a pointer to a filters factory object.
+  Get a pointer to a filters factory object.
  */
 FiltersFactory* Server::getFiltersFactory ()
 {
@@ -1679,7 +1731,7 @@ FiltersFactory* Server::getFiltersFactory ()
 }
 
 /*!
- * Check how many threads are not working.
+  Check how many threads are not working.
  */
 int Server::countAvailableThreads ()
 {
@@ -1695,10 +1747,10 @@ int Server::countAvailableThreads ()
 }
 
 /*!
- * Write a message on a single LogStream specifying a formatting string.
- *
- * \see LogManager#log (void*, string, string, LoggingLeve, bool, va_list)
- * \return 0 on success, 1 on error.
+  Write a message on a single LogStream specifying a formatting string.
+
+  \see LogManager#log (void*, string, string, LoggingLeve, bool, va_list)
+  \return 0 on success, 1 on error.
  */
 int Server::log (LoggingLevel level, const char *fmt, ...)
 {
@@ -1719,7 +1771,7 @@ int Server::log (LoggingLevel level, const char *fmt, ...)
 }
 
 /*!
- * Write a string to the log file and terminate the line.
+  Write a string to the log file and terminate the line.
  */
 int Server::log (char const* str, LoggingLevel level)
 {
@@ -1727,7 +1779,7 @@ int Server::log (char const* str, LoggingLevel level)
 }
 
 /*!
- * Use a specified location as log.
+  Use a specified location as log.
  */
 int
 Server::setLogLocation (string location)
@@ -1743,7 +1795,7 @@ Server::setLogLocation (string location)
 }
 
 /*!
- * Get the size for the first buffer.
+  Get the size for the first buffer.
  */
 u_long Server::getBuffersize ()
 {

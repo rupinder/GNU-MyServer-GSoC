@@ -1,6 +1,6 @@
 /*
 MyServer
-Copyright (C) 2007, 2009 The Free Software Foundation Inc.
+Copyright (C) 2007, 2009, 2010 The Free Software Foundation Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <include/plugin/plugin.h>
 
 PLUGIN_NAME ("mime_magic");
+DECLARE_LICENSE (gpl);
 
 class MagicHandler : public MimeManagerHandler
 {
@@ -63,7 +64,7 @@ public:
     try
       {
         /* FIXME: is this line reentrant and can be moved outside of the
-         * critical section?  */
+          critical section?  */
         const char *type = magic_file (cookie, file);
 
         /* Do not handle directories.  */

@@ -1,19 +1,19 @@
 /*
-MyServer
-Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010 Free Software
-Foundation, Inc.
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
+  MyServer
+  Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010 Free Software
+  Foundation, Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "myserver.h"
@@ -45,7 +45,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 /*!
- * Compare two HttpDir::FileStruct by their filename.
+  Compare two HttpDir::FileStruct by their filename.
  */
 bool HttpDir::compareFileStructByName (HttpDir::FileStruct i,
                                        HttpDir::FileStruct j)
@@ -54,7 +54,7 @@ bool HttpDir::compareFileStructByName (HttpDir::FileStruct i,
 }
 
 /*!
- * Compare two HttpDir::FileStruct by their last modified file time.
+  Compare two HttpDir::FileStruct by their last modified file time.
  */
 
 bool HttpDir::compareFileStructByTime (HttpDir::FileStruct i,
@@ -64,7 +64,7 @@ bool HttpDir::compareFileStructByTime (HttpDir::FileStruct i,
 }
 
 /*!
- * Compare two HttpDir::FileStruct by their file size.
+  Compare two HttpDir::FileStruct by their file size.
  */
 bool HttpDir::compareFileStructBySize (HttpDir::FileStruct i,
                                        HttpDir::FileStruct j)
@@ -73,7 +73,7 @@ bool HttpDir::compareFileStructBySize (HttpDir::FileStruct i,
 }
 
 /*!
- * Constructor for the class.
+  Constructor for the class.
  */
 HttpDir::HttpDir ()
 {
@@ -81,7 +81,7 @@ HttpDir::HttpDir ()
 }
 
 /*!
- * Destroy the object.
+  Destroy the object.
  */
 HttpDir::~HttpDir ()
 {
@@ -89,7 +89,7 @@ HttpDir::~HttpDir ()
 }
 
 /*!
- * Load the static elements.
+  Load the static elements.
  */
 int HttpDir::load ()
 {
@@ -97,7 +97,7 @@ int HttpDir::load ()
 }
 
 /*!
- * Unload the static elements.
+  Unload the static elements.
  */
 int HttpDir::unLoad ()
 {
@@ -105,15 +105,15 @@ int HttpDir::unLoad ()
 }
 
 /*!
- *Get a formatted dobule representation of BYTES right shifted by POWER.
- * \param bytes Number of bytes.
- * \param power Power of 2.
- * \return the double representation for BYTES>>POWER.
+  Get a formatted dobule representation of BYTES right shifted by POWER.
+  \param bytes Number of bytes.
+  \param power Power of 2.
+  \return the double representation for BYTES>>POWER.
  */
 double HttpDir::formatBytes (u_long bytes, u_int power)
 {
   /* u_long can be 32 bits.  Don't do a right shift that is bigger than
-   * its size.  */
+    its size.  */
   const u_long quotient = (bytes >> (power / 2)) >> (power / 2);
 
   if (quotient == 0)
@@ -127,9 +127,9 @@ double HttpDir::formatBytes (u_long bytes, u_int power)
 
 
 /*!
- * Fullfill the string out with a formatted representation for bytes.
- * \param bytes Size to format.
- * \param out Out string.
+  Fullfill the string out with a formatted representation for bytes.
+  \param bytes Size to format.
+  \param out Out string.
  */
 void HttpDir::getFormattedSize (u_long bytes, string & out)
 {
@@ -161,11 +161,11 @@ void HttpDir::getFormattedSize (u_long bytes, string & out)
 }
 
 /*!
- * Generate the HTML header for the results table.
- * \param out Buffer where write it.
- * \param sortType How elements are sorted.
- * \param sortReverse True if element are in reverse order.
- * \param formatString Decide which fields show.
+  Generate the HTML header for the results table.
+  \param out Buffer where write it.
+  \param sortType How elements are sorted.
+  \param sortReverse True if element are in reverse order.
+  \param formatString Decide which fields show.
  */
 void HttpDir::generateHeader (MemBuf &out, char sortType, bool sortReverse,
                               const char* formatString)
@@ -212,11 +212,11 @@ void HttpDir::generateHeader (MemBuf &out, char sortType, bool sortReverse,
 }
 
 /*!
- * Generate the HTML code for an element in the result table.
- * \param out Buffer where write the HTML.
- * \param file Structure with information on the element.
- * \param linkPrefix Prefix to use for the generated links.
- * \param formatString Specify which element show.
+  Generate the HTML code for an element in the result table.
+  \param out Buffer where write the HTML.
+  \param file Structure with information on the element.
+  \param linkPrefix Prefix to use for the generated links.
+  \param formatString Specify which element show.
  */
 void HttpDir::generateElement (MemBuf &out,
                                FileStruct &file,
@@ -278,18 +278,18 @@ void HttpDir::generateElement (MemBuf &out,
 
 
 /*!
- * Browse a directory printing its contents in an HTML file.
- * \param td The current thread context.
- * \param directory Directory to show.
- * \param cgi not used.
- * \param execute not used.
- * \param onlyHeader Specify if send only the HTTP header.
+  Browse a directory printing its contents in an HTML file.
+  \param td The current thread context.
+  \param directory Directory to show.
+  \param cgi not used.
+  \param execute not used.
+  \param onlyHeader Specify if send only the HTTP header.
 */
 int HttpDir::send (HttpThreadContext* td,
                    const char* directory, const char* cgi,
                    bool execute, bool onlyHeader)
 {
-  u_long nbw;
+  size_t nbw;
   string filename;
   int ret;
   ReadDirectory fd;
@@ -398,8 +398,8 @@ int HttpDir::send (HttpThreadContext* td,
       *td->auxiliaryBuffer << "</title>\r\n";
 
       /*
-       * If it is defined a CSS file for the graphic layout of
-       * the browse directory insert it in the page.
+        If it is defined a CSS file for the graphic layout of
+        the browse directory insert it in the page.
        */
       if (cssFile)
         {
@@ -433,8 +433,8 @@ int HttpDir::send (HttpThreadContext* td,
       fd.findfirst (filename.c_str ());
 
       /*
-       * With the current code we build the HTML TABLE to indicize the
-       * files in the directory.
+        With the current code we build the HTML TABLE to indicize the
+        files in the directory.
        */
       td->auxiliaryBuffer->setLength (0);
       *td->auxiliaryBuffer << "<table width=\"100%\">\r\n" ;
@@ -557,15 +557,15 @@ int HttpDir::send (HttpThreadContext* td,
       *td->auxiliaryBuffer << "</table>\r\n<hr />\r\n<address>"
                            << MYSERVER_VERSION;
 
-      if (host && host->value->length ())
+      if (host && host->value.length ())
         {
           ostringstream portBuff;
-          size_t portSeparator = host->value->find (':');
+          size_t portSeparator = host->value.find (':');
           *td->auxiliaryBuffer << " on ";
           if (portSeparator != string::npos)
-            *td->auxiliaryBuffer << host->value->substr (0, portSeparator).c_str () ;
+            *td->auxiliaryBuffer << host->value.substr (0, portSeparator).c_str () ;
           else
-            *td->auxiliaryBuffer << host->value->c_str () ;
+            *td->auxiliaryBuffer << host->value.c_str () ;
 
           *td->auxiliaryBuffer << " Port ";
           portBuff << td->connection->getLocalPort ();
@@ -607,31 +607,31 @@ int HttpDir::send (HttpThreadContext* td,
 }
 
 /*!
- * Format a string to html.
- * \param in String to convert.
- * \param out HTML converted string.
+  Format a string to html.
+  \param in String to convert.
+  \param out HTML converted string.
  */
 void HttpDir::formatHtml (string& in, string& out)
 {
   string::size_type pos = 0;
   out.assign (in);
   /*
-   * Replace characters in the ranges 32-65 91-96 123-126 160-255
-   * with "&#CODE;".
+    Replace characters in the ranges 32-47 58-64 123-126 160-255
+    with "&#CODE;".
    */
   for (pos = 0; out[pos] != '\0'; pos++)
     {
-      if (((u_char)out[pos] >= 32
-           && (u_char)out[pos] <= 65)
-          || ((u_char)out[pos] >= 91
-              && (u_char)out[pos] <= 96)
-          || ((u_char)out[pos] >= 123
-              && (u_char)out[pos] <= 126)
-          || ((u_char)out[pos] >= 160
-              && (u_char)out[pos] < 255))
+      if (((u_char) out[pos] >= 32
+           && (u_char) out[pos] <= 47)
+          || ((u_char) out[pos] >= 58
+              && (u_char) out[pos] <= 64)
+          || ((u_char) out[pos] >= 123
+              && (u_char) out[pos] <= 126)
+          || ((u_char) out[pos] >= 160
+              && (u_char) out[pos] < 255))
         {
           ostringstream os;
-          os << "&#" << (int)((unsigned char)out[pos]) << ";";
+          os << "&#" << (int)((unsigned char) out[pos]) << ";";
           out.replace (pos, 1, os.str ());
           pos += os.str ().length () - 1;
         }

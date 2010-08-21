@@ -239,8 +239,8 @@ static error_t parseOpt (int key, char *arg, struct argp_state *state)
 static struct argp myserverArgp = {options, parseOpt, argsDoc, doc};
 
 /*!
- * Load the external path.
- * Return nonzero on errors.
+  Load the external path.
+  Return nonzero on errors.
  */
 int loadExternalPath (string &externalPath)
 {
@@ -271,9 +271,9 @@ int loadExternalPath (string &externalPath)
 
 
 /*!
- * Load the vhost configuration files locations.
- * If DIR is specified, look only in this directory.
- * Return nonzero on errors.
+  Load the vhost configuration files locations.
+  If DIR is specified, look only in this directory.
+  Return nonzero on errors.
  */
 int loadConfFileLocation (string &outFile, string fileName, const char *dir)
 {
@@ -324,8 +324,8 @@ int loadConfFileLocation (string &outFile, string fileName, const char *dir)
 }
 
 /*!
- * Load the configuration files locations.
- * Return nonzero on errors.
+  Load the configuration files locations.
+  Return nonzero on errors.
  */
 int loadConfFilesLocation (string &mainConfigurationFile,
                            string &mimeConfigurationFile,
@@ -395,11 +395,10 @@ int main (int argn, char **argv)
 
   registerSignals ();
 
-#if HAVE_GETTEXT
   setlocale (LC_ALL, "");
+  setlocale (LC_TIME, "POSIX");
   bindtextdomain (PACKAGE, LOCALEDIR);
   textdomain (PACKAGE);
-#endif
 
   try
     {
@@ -459,7 +458,7 @@ int main (int argn, char **argv)
   }
 
   /*
-   * Start here the MyServer execution.
+    Start here the MyServer execution.
    */
   try
     {
@@ -485,14 +484,14 @@ int main (int argn, char **argv)
           runService ();
 #else
           /*
-           * Run the daemon.
-           * pid is the process ID for the forked process.
-           * Fork the process.
+            Run the daemon.
+            pid is the process ID for the forked process.
+            Fork the process.
            */
           pid = fork ();
 
           /*
-           * An error happened, return with errors.
+            An error happened, return with errors.
            */
           if (pid < 0)
             return 1;
@@ -507,7 +506,7 @@ int main (int argn, char **argv)
             }
 
           /*
-           * Create a SID for the new process.
+            Create a SID for the new process.
            */
           sid = setsid ();
           if (sid < 0)
@@ -531,7 +530,7 @@ int main (int argn, char **argv)
 #ifndef WIN32
 
 /*!
- * Write the current PID to the file.
+  Write the current PID to the file.
  */
 int writePidfile (const char* filename)
 {
@@ -566,7 +565,7 @@ int writePidfile (const char* filename)
 #endif
 
 /*!
- * Start MyServer in console mode.
+  Start MyServer in console mode.
  */
 void consoleService (string &mainConf, string &mimeConf, string &vhostConf,
                      string &externPath, MainConfiguration* (*genMainConf)
@@ -577,14 +576,14 @@ void consoleService (string &mainConf, string &mimeConf, string &vhostConf,
 }
 
 /*!
- * These functions are available only on the windows platform.
+  These functions are available only on the windows platform.
  */
 #ifdef WIN32
 SERVICE_STATUS          MyServiceStatus;
 SERVICE_STATUS_HANDLE   MyServiceStatusHandle;
 
 /*!
- * Entry-point for the NT service.
+  Entry-point for the NT service.
  */
 void  __stdcall myServerMainNT (u_long, LPTSTR*)
 {
@@ -638,7 +637,7 @@ void  __stdcall myServerMainNT (u_long, LPTSTR*)
 }
 
 /*!
- * Manage the NT service.
+  Manage the NT service.
  */
 void __stdcall myServerCtrlHandler (u_long fdwControl)
 {
@@ -666,7 +665,7 @@ void __stdcall myServerCtrlHandler (u_long fdwControl)
 #endif
 
 /*!
- * Run MyServer service.
+  Run MyServer service.
  */
 void runService ()
 {
@@ -691,7 +690,7 @@ void runService ()
 }
 
 /*!
- * Register the service.
+  Register the service.
  */
 void registerService ()
 {
@@ -720,7 +719,7 @@ void registerService ()
 }
 
 /*
- *Unregister the OS service.
+  Unregister the OS service.
  */
 void removeService ()
 {
@@ -745,7 +744,7 @@ void removeService ()
 }
 
 /*!
- * Start the service.
+  Start the service.
  */
 void runAsService ()
 {
