@@ -43,7 +43,8 @@ public:
       OPEN_IF_EXISTS = (1 << 6),
       APPEND = (1 << 7),
       NO_INHERIT = (1 << 8),
-      NO_FOLLOW_SYMLINK = (1 << 9)
+      NO_FOLLOW_SYMLINK = (1 << 9),
+      NO_CACHE_STAT = (1 << 10)
     };
 
   File ();
@@ -94,5 +95,7 @@ protected:
   u_long opt;
   FileHandle handle;
   string filename;
+
+  struct stat statS;
 };
 #endif

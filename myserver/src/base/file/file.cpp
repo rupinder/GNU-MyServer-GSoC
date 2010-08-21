@@ -180,6 +180,9 @@ int File::openFile (const char* nfilename, u_long opt, mode_t mask)
         }
     }
 
+  if (! (opt & NO_CACHE_STAT))
+    fstat (&statS);
+
   this->opt = opt;
   return handle < 0;
 }
@@ -272,11 +275,10 @@ int File::close ()
  */
 off_t File::getFileSize ()
 {
-  struct stat fStats;
+  if (opt & NO_CACHE_STAT)
+    checked::fstat (handle, &statS);
 
-  checked::fstat (handle, &fStats);
-
-  return fStats.st_size;
+  return statS.st_size;
 }
 
 /*!
