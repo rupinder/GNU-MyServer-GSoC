@@ -188,12 +188,12 @@ void XmlVhostHandler::changeLocationsOwner ()
           err = logManager->chown (vh, "ACCESSLOG", uid, gid);
           if (err)
             Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
-                    _("Error while changing accesses log locations owner"));
+                    _("Error while changing accesses log owner"));
 
           err = logManager->chown (vh, "WARNINGLOG", uid, gid);
           if (err)
             Server::getInstance ()->log (MYSERVER_LOG_MSG_ERROR,
-                    _("Error while changing log locations owner"));
+                    _("Error while changing warnings log owner"));
         }
     }
 }
