@@ -245,7 +245,7 @@ int File::createTemporaryFile (const char* filename, bool unlink)
 {
   u_long temporaryOpt = unlink ? File::TEMPORARY : File::TEMPORARY_DELAYED;
 
-  return openFile (filename, File::READ | File::WRITE
+  return openFile (filename, File::READ | File::WRITE | File::NO_CACHE_STAT
                    | File::FILE_OPEN_ALWAYS | temporaryOpt);
 }
 
