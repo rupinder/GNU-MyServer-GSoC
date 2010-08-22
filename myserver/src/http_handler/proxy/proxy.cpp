@@ -215,9 +215,12 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
      client.  */
   checkDataChunks (td, &keepalive, &useChunks);
 
+  td->response.setValue ("Connection", keepalive ? "keep-alive" : "close");
+
   if (useChunks)
     td->response.setValue ("Transfer-encoding", "chunked");
-
+  else
+    td->response.clearValue ("Transfer-encoding");
 
   u_long hdrLen = HttpHeaders::buildHTTPResponseHeader (td->buffer->getBuffer (),
                                                         &td->response);
@@ -294,12 +297,15 @@ int Proxy::readPayLoad (HttpThreadContext* td,
     {
       if (!serverTransferEncoding->compare ("chunked"))
         {
+          size_t remainingChunkSize = 0;
           for (;;)
             {
-              HttpDataRead::readChunkedPostData (initBuffer, &inPos, initBufferSize,
-                                                 client, td->buffer->getBuffer (),
-                                                 td->buffer->getRealLength () - 1,
-                                                 &nbr, timeout, NULL, 1);
+              if (HttpDataRead::readChunkedPostData (initBuffer, &inPos, initBufferSize,
+                                                     client, td->buffer->getBuffer (),
+                                                     td->buffer->getRealLength () - 1,
+                                                     &nbr, timeout, NULL, 1,
+                                                     &remainingChunkSize) < 0)
+                return HttpDataHandler::RET_FAILURE;
 
               if (!nbr)
                 break;
