@@ -45,8 +45,9 @@ struct HttpHeader
     ~Entry ()
     {
     }
-
   };
+
+  void clearValue (const char *name);
 
   virtual string* getValue (const char *name, string *out);
   virtual string* setValue (const char *name, const char *in);

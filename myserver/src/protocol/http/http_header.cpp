@@ -68,3 +68,16 @@ string* HttpHeader::setValue (const char *name, const char *in)
 
   return NULL;
 }
+
+/*!
+  Remove a value from the collection.
+ */
+void HttpHeader::clearValue (const char *name)
+{
+  string key (name);
+  transform (key.begin (), key.end (), key.begin (), ::tolower);
+
+  Entry *e = other.remove (key);
+  if (e)
+    delete e;
+}
