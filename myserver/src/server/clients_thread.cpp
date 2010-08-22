@@ -306,13 +306,18 @@ int ClientsThread::controlConnections ()
       }
     else
       {
-        protocol = server->getProtocol (c->host->getProtocolName ());
-        if (protocol)
-          retcode = protocol->controlConnection (c, (char*) buffer.getBuffer (),
-                                                 (char*) auxiliaryBuffer.getBuffer (),
-                                                 buffer.getRealLength (),
-                                                 auxiliaryBuffer.getRealLength (),
-                                                 nBytesToRead, id);
+        if (c->host == NULL)
+          retcode = ClientsThread::DELETE_CONNECTION;
+        else
+          {
+            protocol = server->getProtocol (c->host->getProtocolName ());
+            if (protocol)
+              retcode = protocol->controlConnection (c, buffer.getBuffer (),
+                                                     auxiliaryBuffer.getBuffer (),
+                                                     buffer.getRealLength (),
+                                                     auxiliaryBuffer.getRealLength (),
+                                                     nBytesToRead, id);
+          }
       }
   }
   catch (...)
