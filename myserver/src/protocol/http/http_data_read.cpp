@@ -97,6 +97,7 @@ int HttpDataRead::readContiguousPrimitivePostData (const char *inBuffer,
   \param timeout Timeout value to use on the socket.
   \param out Output file, may be  a NULL pointer.
   \param maxChunks The maximum number of chunks to read.
+  \param remainingChunk Size of the previous remaining chunk.
   \return Return 0 on success.
   \return -1 on internal error.
   \return Any other value is the HTTP error code.
@@ -110,7 +111,8 @@ int HttpDataRead::readChunkedPostData (const char *inBuffer,
                                        size_t *outNbr,
                                        u_long timeout,
                                        Stream *out,
-                                       long maxChunks)
+                                       long maxChunks,
+                                       size_t *remainingChunk)
 {
   size_t nbr;
   *outNbr = 0;
@@ -120,41 +122,48 @@ int HttpDataRead::readChunkedPostData (const char *inBuffer,
       size_t chunkNbr;
       size_t dataToRead;
       size_t nbw;
+      size_t tmpNbr;
       u_long bufferlen;
       char buffer[20];
       char c;
-      bufferlen = 0;
-      buffer[0] = '\0';
-      for (;;)
+
+      if (remainingChunk && *remainingChunk)
+        dataToRead = *remainingChunk;
+      else
         {
-          int timedOut = readContiguousPrimitivePostData (inBuffer, inBufferPos,
-                                                          inBufferSize, inSocket,
-                                                          &c, 1, &nbr, timeout);
-          if (nbr != 1)
+          bufferlen = 0;
+          buffer[0] = '\0';
+          for (;;)
+            {
+              int timedOut = readContiguousPrimitivePostData (inBuffer, inBufferPos,
+                                                              inBufferSize, inSocket,
+                                                              &c, 1, &nbr, timeout);
+              if (nbr != 1)
+                return -1;
+
+              if ((c != '\r') && (bufferlen < 19))
+                {
+                  buffer[bufferlen++] = c;
+                  buffer[bufferlen] = '\0';
+                }
+              else
+                break;
+
+              if (timedOut)
+                break;
+            }
+
+          /* Read the \n character too. */
+          if (readContiguousPrimitivePostData (inBuffer, inBufferPos, inBufferSize,
+                                               inSocket, &c, 1, &nbr, timeout))
             return -1;
 
-          if ((c != '\r') && (bufferlen < 19))
-            {
-              buffer[bufferlen++] = c;
-              buffer[bufferlen] = '\0';
-            }
-          else
-            break;
+          dataToRead = (u_long) hexToInt (buffer);
 
-          if (timedOut)
+          /* The last chunk length is 0.  */
+          if (dataToRead == 0)
             break;
         }
-
-      /* Read the \n character too. */
-      if (readContiguousPrimitivePostData (inBuffer, inBufferPos, inBufferSize,
-                                           inSocket, &c, 1, &nbr, timeout))
-        return -1;
-
-      dataToRead = (u_long) hexToInt (buffer);
-
-      /* The last chunk length is 0.  */
-      if (dataToRead == 0)
-        break;
 
       chunkNbr = 0;
 
@@ -172,32 +181,46 @@ int HttpDataRead::readChunkedPostData (const char *inBuffer,
 
           chunkNbr += nbr;
 
-          if (out && out->write (outBuffer, nbr, &nbw))
-            return -1;
-
-          if (nbw != nbr)
-            return -1;
-
-          if (out)
-            *outNbr += nbw;
-          else
+          if (out == NULL)
             *outNbr += nbr;
+          else
+            {
+              if (out->write (outBuffer, nbr, &nbw))
+                return -1;
+
+              if (nbw != nbr)
+                return -1;
+
+              *outNbr += nbw;
+            }
 
           if (timedOut)
             break;
 
-          if (readContiguousPrimitivePostData (inBuffer,
-                                               inBufferPos,
-                                               inBufferSize,
-                                               inSocket,
-                                               outBuffer,
-                                               2,
-                                               &nbr,
-                                               timeout))
+          char tmpBuf[2];
+          if (chunkNbr == dataToRead
+              && readContiguousPrimitivePostData (inBuffer,
+                                                  inBufferPos,
+                                                  inBufferSize,
+                                                  inSocket,
+                                                  tmpBuf,
+                                                  2,
+                                                  &nbr,
+                                                  timeout))
             return -1;
+
+          if (out == NULL)
+            {
+              if (remainingChunk)
+                *remainingChunk = dataToRead - chunkNbr;
+              return 0;
+            }
         }
 
     }
+
+  if (remainingChunk)
+    *remainingChunk = 0;
   return 0;
 }
 

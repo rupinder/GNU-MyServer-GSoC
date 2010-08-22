@@ -62,7 +62,8 @@ public:
                                   size_t *nbr,
                                   u_long timeout,
                                   Stream *out,
-                                  long maxChunks);
+                                  long maxChunks,
+                                  size_t *remainingChunk = NULL);
 
 };
 
