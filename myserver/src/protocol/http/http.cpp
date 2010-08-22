@@ -232,7 +232,7 @@ int Http::putHTTPRESOURCE (string& filename, bool sysReq, bool onlyHeader,
 
 /*!
   Get the file permissions mask.
-  \param filename Resource to access.
+  \param resource Resource to access.
   \param directory Directory where the resource is.
   \param file The file specified by the resource.
   \param filenamePath Complete path to the file.
@@ -241,7 +241,7 @@ int Http::putHTTPRESOURCE (string& filename, bool sysReq, bool onlyHeader,
   \return Return 200 on success.
   \return Any other value is the HTTP error code.
  */
-int Http::getFilePermissions (string& filename, string& directory, string& file,
+int Http::getFilePermissions (string& resource, string& directory, string& file,
                               string &filenamePath, bool yetmapped, int* permissions)
 {
   try
@@ -252,7 +252,7 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
 
       td->securityToken.setVhost (td->connection->host);
 
-      FilesUtility::splitPath (filename, directory, file);
+      FilesUtility::splitPath (resource, directory, file);
       FilesUtility::completePath (directory);
 
       td->securityToken.setResource (&filenamePath);
@@ -265,7 +265,7 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
         If filename is already mapped on the file system don't map it again.
        */
       if (yetmapped)
-        filenamePath.assign (filename);
+        filenamePath.assign (resource);
       else
         {
           int ret;
@@ -273,12 +273,12 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
             If the client tries to access files that aren't in the web directory
             send a HTTP 401 error page.
            */
-          translateEscapeString (filename);
-          if ((filename[0] != '\0')
-              && (FilesUtility::getPathRecursionLevel (filename) < 1))
+          translateEscapeString (resource);
+          if ((resource[0] != '\0')
+              && (FilesUtility::getPathRecursionLevel (resource) < 1))
             return 401;
 
-          ret = getPath (filenamePath, filename, 0);
+          ret = getPath (filenamePath, resource, 0);
           if (ret != 200)
             return ret;
         }
@@ -393,7 +393,7 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
     {
       td->connection->host->warningsLogWrite (
                                  _E ("HTTP: cannot get permissions for %s"),
-                                 filename.c_str (), &e);
+                                 resource.c_str (), &e);
       return 500;
     }
 
@@ -411,14 +411,14 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
 
 /*!
   Preprocess a HTTP request.
-  \param filename Resource to access.
+  \param resource Resource to access.
   \param yetmapped Is the resource mapped to the localfilesystem?
   \param permissions Permission mask for this resource.
   \param system Is it a system request?
   \return Return 200 on success.
   \return Any other value is the HTTP error code.
  */
-int Http::preprocessHttpRequest (string& filename, bool yetmapped,
+int Http::preprocessHttpRequest (string &resource, bool yetmapped,
                                  int* permissions, bool systemrequest)
 {
   string directory;
@@ -433,7 +433,7 @@ int Http::preprocessHttpRequest (string& filename, bool yetmapped,
       if (td->request.isKeepAlive ())
         td->response.setValue ("connection", "keep-alive");
 
-      ret = getFilePermissions (filename, directory, file,
+      ret = getFilePermissions (resource, directory, file,
                                 td->filenamePath, yetmapped, permissions);
       if (ret != 200)
         return ret;
