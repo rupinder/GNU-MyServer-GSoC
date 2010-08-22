@@ -152,7 +152,7 @@ public:
 
   u_long getTimeout ();
   int preprocessHttpRequest (string& filename, bool yetmapped,
-                             int* permissions);
+                             int* permissions, bool systemrequest);
 
   int getFilePermissions (string& filename, string& directory,
                           string& file, string &filenamePath,

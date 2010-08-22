@@ -82,6 +82,9 @@ int MsCgi::send (HttpThreadContext* td, const char* exec, const char* cmdLine,
 
   try
     {
+      if (td->inputData.getHandle () >= 0)
+        td->inputData.seek (0);
+
       td->scriptPath.assign (exec);
 
       {

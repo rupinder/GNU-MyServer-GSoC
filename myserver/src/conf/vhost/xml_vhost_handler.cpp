@@ -352,12 +352,11 @@ int XmlVhostHandler::load (const char *filename)
             }
           else if (!xmlStrcmp (lcur->name, (const xmlChar *) "LOCATION"))
             {
-              string loc (vh->getDocumentRoot ());
-              loc.append ("/");
+              string loc;
 
               for (xmlAttr *attrs = lcur->properties; attrs; attrs = attrs->next)
                 if (!xmlStrcmp (attrs->name, (const xmlChar *) "path"))
-                  loc.append ((const char*) attrs->children->content);
+                  loc = ((const char*) attrs->children->content);
 
               MimeRecord *record = XmlMimeHandler::readRecord (lcur);
               MimeRecord *prev = vh->addLocationMime (loc, record);

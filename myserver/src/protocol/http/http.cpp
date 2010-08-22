@@ -49,19 +49,9 @@
 
 #include <string>
 #include <ostream>
+#include <errno.h>
 
 using namespace std;
-
-#ifdef WIN32
-# include <direct.h>
-# include <errno.h>
-#endif
-
-#ifndef WIN32
-# include <string.h>
-# include <errno.h>
-#endif
-
 
 int HttpProtocol::loadProtocol ()
 {
@@ -129,7 +119,7 @@ int Http::optionsHTTPRESOURCE (string& filename, bool yetmapped)
           it++;
         }
 
-      ret = Http::preprocessHttpRequest (filename, yetmapped, &permissions);
+      ret = Http::preprocessHttpRequest (filename, yetmapped, &permissions, false);
       if (ret != 200)
         return raiseHTTPError (ret);
 
@@ -168,7 +158,7 @@ int Http::traceHTTPRESOURCE (string& filename, bool yetmapped)
       MemBuf tmp;
       HttpRequestHeader::Entry *connection;
 
-      ret = Http::preprocessHttpRequest (filename, yetmapped, &permissions);
+      ret = Http::preprocessHttpRequest (filename, yetmapped, &permissions, false);
       if (ret != 200)
         return raiseHTTPError (ret);
 
@@ -284,12 +274,11 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
             send a HTTP 401 error page.
            */
           translateEscapeString (filename);
-          if ((filename[0] != '\0') &&
-              (FilesUtility::getPathRecursionLevel (filename) < 1))
+          if ((filename[0] != '\0')
+              && (FilesUtility::getPathRecursionLevel (filename) < 1))
             return 401;
 
           ret = getPath (filenamePath, filename, 0);
-
           if (ret != 200)
             return ret;
         }
@@ -425,17 +414,19 @@ int Http::getFilePermissions (string& filename, string& directory, string& file,
   \param filename Resource to access.
   \param yetmapped Is the resource mapped to the localfilesystem?
   \param permissions Permission mask for this resource.
+  \param system Is it a system request?
   \return Return 200 on success.
   \return Any other value is the HTTP error code.
  */
 int Http::preprocessHttpRequest (string& filename, bool yetmapped,
-                                 int* permissions)
+                                 int* permissions, bool systemrequest)
 {
   string directory;
   string file;
-  u_long filenamePathLen;
+  size_t filenamePathLen;
   string dirscan;
   int ret;
+  size_t splitPoint = string::npos;
 
   try
     {
@@ -455,12 +446,16 @@ int Http::preprocessHttpRequest (string& filename, bool yetmapped,
        */
       td->pathInfo.assign ("");
       td->pathTranslated.assign ("");
-      filenamePathLen = (int) td->filenamePath.length ();
+      filenamePathLen = td->filenamePath.length ();
       dirscan.assign ("");
 
       MimeRecord* mimeLoc = NULL;
+      size_t resOffset = systemrequest ?
+        td->connection->host->getSystemRoot ().length ()
+        : td->connection->host->getDocumentRoot ().length ();
 
-      for (u_long i = 0;;)
+      td->pathInfo = "";
+      for (size_t i = 0;;)
         {
           /*
             http://host/path/to/file/file.txt/PATH_INFO_VALUE?QUERY_INFO_VALUE
@@ -471,12 +466,11 @@ int Http::preprocessHttpRequest (string& filename, bool yetmapped,
             If there is the '/' character check if dirscan is a file.
            */
 
-          u_long next = td->filenamePath.find ('/', i + 1);
+          size_t next = td->filenamePath.find ('/', i + 1);
           string curr = td->filenamePath.substr (0, next);
-
+          const string &resource = curr.substr (resOffset);
           mimeLoc = td->connection->host
-                          ? td->connection->host->getLocationMime (curr) : NULL;
-
+            ? td->connection->host->getLocationMime (resource) : NULL;
           if (mimeLoc)
             {
               if (next != string::npos)
@@ -484,8 +478,6 @@ int Http::preprocessHttpRequest (string& filename, bool yetmapped,
                   td->pathInfo.assign (&(td->filenamePath.c_str ()[next]));
                   td->filenamePath.erase (next);
                 }
-              else
-                td->pathInfo.assign ("");
 
               break;
             }
@@ -493,14 +485,26 @@ int Http::preprocessHttpRequest (string& filename, bool yetmapped,
           if (next >= filenamePathLen)
             break;
 
-          if (mimeLoc || FilesUtility::notDirectory (curr.c_str ()))
-            {
-              td->pathInfo.assign (&(td->filenamePath.c_str ()[next]));
-              td->filenamePath.erase (next);
-              break;
-            }
+          /* Don't exit immediately if we find a non directory element, a
+             location handler can be registered after it.  */
+          if (splitPoint && FilesUtility::notDirectory (curr.c_str ()))
+            splitPoint = next;
 
           i = next;
+        }
+
+      if (mimeLoc == NULL)
+        {
+          if (splitPoint == string::npos)
+            {
+              if (! FilesUtility::nodeExists (td->filenamePath.c_str ()))
+                return 404;
+            }
+          else
+            {
+              td->pathInfo.assign (&(td->filenamePath.c_str ()[splitPoint]));
+              td->filenamePath.erase (splitPoint);
+            }
         }
 
       /*
@@ -678,7 +682,8 @@ Http::sendHTTPResource (string& uri, bool systemrequest, bool onlyHeader,
       filename.assign (uri);
       td->buffer->setLength (0);
 
-      ret = Http::preprocessHttpRequest (filename, yetmapped, &td->permissions);
+      ret = Http::preprocessHttpRequest (filename, yetmapped, &td->permissions,
+                                         systemrequest);
       if (ret != 200)
         return raiseHTTPError (ret);
 
@@ -1508,11 +1513,10 @@ int Http::getPath (HttpThreadContext* td, string& filenamePath,
 {
   if (systemrequest)
     {
-      if (!strlen (td->getVhostSys ())
+      if ((td->getVhostSys ()[0] == '\0')
           || FilesUtility::getPathRecursionLevel (filename) < 2)
-        {
-          return 401;
-        }
+        return 401;
+
       filenamePath.assign (td->getVhostSys ());
       if (filename[0] != '/')
         filenamePath.append ("/");
@@ -1520,7 +1524,9 @@ int Http::getPath (HttpThreadContext* td, string& filenamePath,
     }
   else
     {
-      if (filename[0])
+      if (! filename[0])
+        filenamePath.append (td->getVhostDir ());
+      else
         {
           const char *root;
           /*
@@ -1543,19 +1549,14 @@ int Http::getPath (HttpThreadContext* td, string& filenamePath,
               filename = filename + 5;
             }
           else
-            {
-              root = td->getVhostDir ();
-            }
+            root = td->getVhostDir ();
+
           filenamePath.assign (root);
 
           if (filename[0] != '/')
             filenamePath.append ("/");
 
           filenamePath.append (filename);
-        }
-      else
-        {
-          filenamePath.append (td->getVhostDir ());
         }
 
     }

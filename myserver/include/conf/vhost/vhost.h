@@ -198,7 +198,7 @@ public:
   /*! Set the protocol data. */
   void setProtocolData (VhostProtocolData* data){protocolData = data;}
 
-  MimeRecord* getLocationMime (string& loc){return locationsMime.get (loc);}
+  MimeRecord* getLocationMime (const string& loc){return locationsMime.get (loc);}
 
   list<NodeTree<string>*> *getHashedDataTrees (){return &hashedDataTrees;}
   HashMap<string, NodeTree<string>*>* getHashedData (){return &hashedData;}
