@@ -401,7 +401,7 @@ int File::fastCopyToSocket (Socket *dest, off_t firstByte, MemBuf *buf, size_t *
   for (;;)
     {
       size_t nbr;
-      u_long tmpNbw;
+      size_t tmpNbw;
 
       if (read (buffer, size, &nbr))
         return -1;

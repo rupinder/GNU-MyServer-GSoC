@@ -292,7 +292,7 @@ BOOL WINAPI ISAPI_WriteClientExport (HCONN hConn, LPVOID Buffer, LPDWORD lpdwByt
                       e = new HttpResponseHeader::Entry ();
                       e->name.assign ("transfer-encoding");
                       e->value.assign ("chunked");
-                      ConnInfo->td->response.other.put (*(e->name), e);
+                      ConnInfo->td->response.other.put (e->name, e);
                     }
                 }
               else
@@ -395,27 +395,36 @@ BOOL WINAPI ISAPI_ReadClientExport (HCONN hConn, LPVOID lpvBuffer,
                                    LPDWORD lpdwSize )
 {
   ConnTableRecord *ConnInfo;
-  u_long NumRead;
+  size_t numRead;
 
   Isapi::isapiMutex->lock ();
-  ConnInfo = Isapi::HConnRecord (hConn);
-  Isapi::isapiMutex->unlock ();
+  try
+    {
+      ConnInfo = Isapi::HConnRecord (hConn);
+      Isapi::isapiMutex->unlock ();
+    }
+  catch (...)
+    {
+      Isapi::isapiMutex->unlock ();
+      throw;
+    }
+
   if (ConnInfo == NULL)
-  {
-    ((Vhost*)(ConnInfo->td->connection->host))->warningsLogWrite
-      (_("ISAPI: internal error"));
-    return HttpDataHandler::RET_FAILURE;
-  }
+    {
+      ((Vhost*)(ConnInfo->td->connection->host))->warningsLogWrite
+        (_("ISAPI: internal error"));
+      return HttpDataHandler::RET_FAILURE;
+    }
 
-  ConnInfo->td->inputData.read ((char*) lpvBuffer, *lpdwSize, &NumRead);
+  ConnInfo->td->inputData.read ((char*) lpvBuffer, *lpdwSize, &numRead);
 
-  if (NumRead == -1)
+  if (numRead < 0)
     {
       *lpdwSize = 0;
       return HttpDataHandler::RET_FAILURE;
     }
 
-  *lpdwSize = (DWORD)NumRead;
+  *lpdwSize = (DWORD) numRead;
   return HttpDataHandler::RET_OK;
 }
 
@@ -431,8 +440,16 @@ BOOL WINAPI ISAPI_GetServerVariableExport (HCONN hConn,
   BOOL ret = HttpDataHandler::RET_OK;
 
   Isapi::isapiMutex->lock ();
-  ConnInfo = Isapi::HConnRecord (hConn);
-  Isapi::isapiMutex->unlock ();
+  try
+    {
+      ConnInfo = Isapi::HConnRecord (hConn);
+      Isapi::isapiMutex->unlock ();
+    }
+  catch (...)
+    {
+      Isapi::isapiMutex->unlock ();
+      throw;
+    }
 
   if (ConnInfo == NULL)
     {

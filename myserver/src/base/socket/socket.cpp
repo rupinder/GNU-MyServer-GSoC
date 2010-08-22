@@ -25,12 +25,14 @@
 #include <sys/ioctl.h>
 #include <errno.h>
 
-#ifndef WIN32
+
 # include <unistd.h>
-# include <netdb.h>
-# include <netinet/in.h>
-# include <arpa/inet.h>
-#endif
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #include <include/base/exceptions/checked.h>
 
