@@ -167,6 +167,7 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
   bool useChunks = false;
   bool keepalive = false;
 
+  td->response.free ();
   do
     {
       ret = client.recv (td->auxiliaryBuffer->getBuffer () + read,
@@ -184,8 +185,6 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
 
   if (read == 0)
     return td->http->raiseHTTPError (500);
-
-  checkDataChunks (td, &keepalive, &useChunks);
 
   string *tmp = td->request.getValue ("Host", NULL);
   const char *via = tmp ? tmp->c_str () : td->connection->getLocalIpAddr ();
@@ -211,6 +210,10 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
       hasTransferEncoding = true;
       transferEncoding.assign (*tmp);
     }
+
+  /* At this point we can modify the response struct before send it to the
+     client.  */
+  checkDataChunks (td, &keepalive, &useChunks);
 
   if (useChunks)
     td->response.setValue ("Transfer-encoding", "chunked");
