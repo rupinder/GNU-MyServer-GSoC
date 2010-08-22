@@ -71,10 +71,19 @@ int Proxy::send (HttpThreadContext *td, const char* scriptpath,
     {
       req.ver.assign ("HTTP/1.1");
       req.cmd.assign (td->request.cmd);
-      if (destUrl.getResource ()[0] != '/')
-        req.uri.assign ("/");
-      req.uri.append (destUrl.getResource ());
-      req.uri.append (td->pathInfo);
+
+      if (destUrl.getResource ()[0] == '\0' && td->pathInfo[0] == '\0')
+        req.uri = "/";
+      else
+        {
+          req.uri = destUrl.getResource ();
+          req.uri.append (td->pathInfo);
+        }
+      if (td->request.uriOpts.length ())
+        {
+          req.uri.append ("?");
+          req.uri.append (td->request.uriOpts);
+        }
 
       req.setValue ("Connection", "keep-alive");
       if (td->request.uriOptsPtr)
@@ -196,10 +205,10 @@ int Proxy::flushToClient (HttpThreadContext* td, Socket& client,
 
   string transferEncoding;
   bool hasTransferEncoding = false;
-  tmp = td->response.getValue ("Transfer-encoding", NULL);
+  tmp = td->response.getValue ("Transfer-Encoding", NULL);
   if (tmp)
     {
-      hasTransferEncoding = false;
+      hasTransferEncoding = true;
       transferEncoding.assign (*tmp);
     }
 
