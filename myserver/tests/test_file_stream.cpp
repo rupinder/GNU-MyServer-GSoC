@@ -89,7 +89,7 @@ public:
     CPPUNIT_ASSERT (!ls->log (message2, level));
     ls->close ();
     File f;
-    f.openFile ("foo", File::READ | File::OPEN_IF_EXISTS);
+    f.openFile ("foo", File::READ | File::OPEN_IF_EXISTS | File::NO_CACHE_STAT);
     char buf[64];
     size_t nbr;
     f.read (buf, 64, &nbr);

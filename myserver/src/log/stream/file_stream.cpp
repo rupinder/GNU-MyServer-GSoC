@@ -19,11 +19,12 @@
 #include <include/log/stream/file_stream.h>
 
 int const FileStream::defaultFileMask =
-  File::APPEND |
-  File::FILE_OPEN_ALWAYS |
-  File::WRITE |
-  File::READ |
-  File::NO_INHERIT;
+  File::APPEND
+  | File::NO_CACHE_STAT
+  | File::FILE_OPEN_ALWAYS
+  | File::WRITE
+  | File::READ
+  | File::NO_INHERIT;
 
 FileStream::FileStream (FiltersFactory* ff, u_long cycle, Stream* out,
                         FiltersChain* fc) :
