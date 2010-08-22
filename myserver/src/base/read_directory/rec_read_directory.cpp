@@ -16,9 +16,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <fts_.h>
 #include <include/base/read_directory/rec_read_directory.h>
-#include "myserver.h"
+#include <fts_.h>
 
 using namespace std;
 

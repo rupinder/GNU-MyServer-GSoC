@@ -79,7 +79,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
   int ret;
   char execname[MAX_PATH];
   char pathname[MAX_PATH];
-  u_long nBytesRead = 0;
+  size_t nBytesRead = 0;
   u_long headerSize = 0;
   size_t nbw = 0;
   ostringstream stream;
@@ -98,8 +98,9 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
       GetShortPathName (dataFilePath,dataFilePath,MAX_PATH);
       sprintf (&dataFilePath[strlen (dataFilePath)],"/data_%u.ini",td->id);
 
-      strcpy (outFilePath,td->outputDataPath.c_str ());
-      strcat (outFilePath,"WC");
+
+      GetShortPathName (outFilePath, dataFilePath, MAX_PATH);
+      sprintf (&outFilePath[strlen (outFilePath)],"/out_%i.ini",td->id);
       td->inputData.seek (0);
       chain.setStream (td->connection->socket);
       if (td->mime)
@@ -315,7 +316,7 @@ int WinCgi::send (HttpThreadContext* td, const char* scriptpath,
               return HttpDataHandler::RET_OK;
             }
 
-          u_long written;
+          size_t written;
           chain.write ((char*)(buffer + headerSize), nBytesRead - headerSize,
                        &written);
           nbw += written;
