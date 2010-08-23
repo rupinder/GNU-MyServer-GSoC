@@ -44,6 +44,7 @@ class TestHttpRequest : public CppUnit::TestFixture
   CPPUNIT_TEST (testValidRequest);
   CPPUNIT_TEST (testKeepAlive);
   CPPUNIT_TEST (testResetHttpRequest);
+  CPPUNIT_TEST (testClearValue);
   CPPUNIT_TEST_SUITE_END ();
 
 public:
@@ -267,7 +268,7 @@ public:
     CPPUNIT_ASSERT (header.uriOpts.compare ("") == 0);
     CPPUNIT_ASSERT (header.ver.compare ("HTTP/1.1") == 0);
     CPPUNIT_ASSERT (header.uriOptsPtr == NULL);
-    CPPUNIT_ASSERT (header.getValue ("NotExists", 0) == NULL);
+    CPPUNIT_ASSERT (header.getValue ("NotExists", NULL) == NULL);
   }
 
 
@@ -281,9 +282,20 @@ public:
     CPPUNIT_ASSERT (header.uriOpts.compare ("") == 0);
     CPPUNIT_ASSERT (header.ver.compare ("") == 0);
     CPPUNIT_ASSERT (header.uriOptsPtr == NULL);
-    CPPUNIT_ASSERT (header.getValue ("NotExists", 0) == NULL);
+    CPPUNIT_ASSERT (header.getValue ("NotExists", NULL) == NULL);
   }
 
+  void testClearValue ()
+  {
+    HttpRequestHeader header;
+    CPPUNIT_ASSERT (header.getValue ("Foo", NULL) == NULL);
+    header.setValue ("Foo", "Bar");
+    CPPUNIT_ASSERT (header.getValue ("Foo", NULL));
+    header.clearValue ("Foo");
+    CPPUNIT_ASSERT (header.getValue ("Foo", NULL) == NULL);
+
+
+  }
 };
 
 
