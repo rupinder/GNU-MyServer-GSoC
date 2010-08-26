@@ -109,13 +109,10 @@ File::File (char *nfilename, int opt)
   Truncate the file.
   \param size Specify the new file size.
  */
-int File::truncate (u_long size)
+int File::truncate (off_t size)
 {
-  int err = ftruncate (handle, size);
-  if (err)
-    return err;
-
-  return seek (size);
+  checked::ftruncate (handle, size);
+  return 0;
 }
 
 /*!

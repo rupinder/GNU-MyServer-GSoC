@@ -83,7 +83,7 @@ public:
   virtual int fastCopyToSocket (Socket *dest, off_t offset,
                                 MemBuf *buf, size_t *nbw);
 
-  int truncate (u_long size = 0);
+  int truncate (off_t size = 0);
 
   void fstat (struct stat *fstat);
 
