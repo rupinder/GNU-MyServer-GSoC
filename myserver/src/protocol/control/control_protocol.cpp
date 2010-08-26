@@ -638,8 +638,8 @@ int ControlProtocol::getFile (ConnectionPtr a, char *fn, File *in, File *out,
 }
 
 /*!
-  Save the file on the local FS.
- */
+  Save the file locally.
+*/
 int ControlProtocol::putFile (ConnectionPtr a, char *fn, File *in,
                               File *out, char *buffer, int bufferSize,
                               ControlHeader &header)
@@ -647,38 +647,14 @@ int ControlProtocol::putFile (ConnectionPtr a, char *fn, File *in,
   const char *filename = 0;
   File localfile;
   int ret = 0;
-  /*! # of bytes read.  */
   size_t nbr = 0;
-  /*! # of bytes written.  */
   size_t nbw = 0;
   Server::getInstance ()->disableAutoReboot ();
 
   filename = fn;
 
-  /* Remove the file before create it.  */
-  ret = FilesUtility::deleteFile (filename);
-
-  /* An internal server error happens.  */
-  if (ret)
-    {
-      a->host->warningsLogWrite (_("Control: internal error"));
-      return CONTROL_INTERNAL;
-    }
-
-  ret = localfile.openFile (filename, File::WRITE | File::FILE_OPEN_ALWAYS);
-
-  /* An internal server error happens.  */
-  if (ret)
-    {
-      a->host->warningsLogWrite (_("Control: internal error"));
-      return CONTROL_INTERNAL;
-    }
-
-  if (in == NULL)
-    {
-      a->host->warningsLogWrite (_("Control: internal error"));
-      return CONTROL_INTERNAL;
-    }
+  localfile.openFile (filename, File::WRITE | File::FILE_OPEN_ALWAYS);
+  localfile.truncate (0);
 
   for (;;)
     {
@@ -691,7 +667,7 @@ int ControlProtocol::putFile (ConnectionPtr a, char *fn, File *in,
         }
 
       /* Break the loop when we can't read no more data.  */
-      if (!nbr)
+      if (! nbr)
         break;
 
       ret = localfile.writeToFile (buffer, nbr, &nbw);
@@ -703,7 +679,6 @@ int ControlProtocol::putFile (ConnectionPtr a, char *fn, File *in,
         }
     }
   localfile.close ();
-
   return 0;
 }
 
