@@ -1105,16 +1105,16 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
               else if (!td->request.cmd.compare ("HEAD"))
                 {
                   td->onlyHeader = true;
-                  ret = sendHTTPResource (td->request.uri, 0, 1);
+                  ret = sendHTTPResource (td->request.uri, false, true);
                 }
               else if (!td->request.cmd.compare ("DELETE"))
                 ret = dav.davdelete (td);
               else if (!td->request.cmd.compare ("PUT"))
-                ret = putHTTPRESOURCE (td->request.uri, 0, 1);
+                ret = putHTTPRESOURCE (td->request.uri, false, true);
               else if (!td->request.cmd.compare ("OPTIONS"))
-                ret = optionsHTTPRESOURCE (td->request.uri, 0);
+                ret = optionsHTTPRESOURCE (td->request.uri, false);
               else if (!td->request.cmd.compare ("TRACE"))
-                ret = traceHTTPRESOURCE (td->request.uri, 0);
+                ret = traceHTTPRESOURCE (td->request.uri, false);
               else if (!td->request.cmd.compare ("MKCOL"))
                 ret = dav.mkcol (td);
               else if (!td->request.cmd.compare ("PROPFIND"))
