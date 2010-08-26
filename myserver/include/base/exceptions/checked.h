@@ -90,6 +90,7 @@ namespace checked
   int stat(const char *path, struct stat *buf);
   int fstat (int fd, struct stat *buf);
   int fstatat (int fd, char const *name, struct stat *st, int flags);
+  int ftruncate (int fd, off_t length);
   char *getcwd (char *buf, size_t size);
   int gethostname (char *name, size_t len);
   int getsockname (int fd, struct sockaddr *addr, socklen_t *addrlen);
@@ -122,6 +123,7 @@ namespace checked
   char *strdup (char const *__s);
   int unlink (char const *file);
   ssize_t write (int fd, const void *buf, size_t count);
+  int truncate (const char *path, off_t length);
 }
 
 #endif

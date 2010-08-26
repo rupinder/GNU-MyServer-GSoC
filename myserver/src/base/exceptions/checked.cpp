@@ -78,6 +78,11 @@ namespace checked
     return checkError (gnulib::fstatat (fd, name, st, flags));
   }
 
+  int ftruncate (int fd, off_t length)
+  {
+    return checkError (ftruncate (fd, length));
+  }
+
   char *getcwd (char *buf, size_t size)
   {
     return (char *) checkErrorNull (gnulib::getcwd (buf, size));
@@ -243,6 +248,11 @@ namespace checked
   ssize_t write (int fd, const void *buf, size_t count)
   {
     return checkError (gnulib::write (fd, buf, count));
+  }
+
+  int truncate (const char *path, off_t length)
+  {
+    return checkError (truncate (path, length));
   }
 
   /*
