@@ -1183,14 +1183,12 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
 }
 
 /*!
-  Compute the Digest outputting it to a buffer.
+  Compute the Digest and write it to out.
  */
-void Http::computeDigest (char* out, char* buffer)
+void Http::computeDigest (char* out)
 {
   Md5 md5;
-  if (!out)
-    return;
-
+  char buffer[64];
   sprintf (buffer, "%i-%u-%s", (int) clock (), (u_int) td->id,
            td->connection->getIpAddr ());
 
@@ -1255,7 +1253,7 @@ int Http::requestAuthorization ()
       if (td->connection->protocolBuffer &&
           ((!(hud->digest)) || (hud->nonce[0] == '\0')))
         {
-          computeDigest (hud->nonce, md5Str);
+          computeDigest (hud->nonce);
           hud->nc = 0;
         }
 

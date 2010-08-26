@@ -172,7 +172,7 @@ protected:
 
   struct HttpThreadContext *td;
   void clean ();
-  void computeDigest (char*, char*);
+  void computeDigest (char *out);
   u_long checkDigest ();
 
   HttpProtocol *staticData;
