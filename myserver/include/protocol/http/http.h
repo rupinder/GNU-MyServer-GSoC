@@ -98,11 +98,6 @@ public:
   int traceHTTPRESOURCE (string& filename,
                          bool yetMapped = false);
 
-  int deleteHTTPRESOURCE (string &filename,
-                          bool systemrequest = false,
-                          bool onlyHeader = false,
-                          bool yetMapped = false);
-
   bool allowMethod (const char *name);
 
   int raiseHTTPError (int ID);

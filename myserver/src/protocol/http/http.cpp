@@ -542,15 +542,6 @@ int Http::preprocessHttpRequest (string &resource, bool yetmapped,
 }
 
 /*!
-  Delete the resource identified by filename.
- */
-int Http::deleteHTTPRESOURCE (string& filename, bool sysReq, bool onlyHeader,
-                              bool yetmapped)
-{
-  return sendHTTPResource (filename, sysReq, onlyHeader, yetmapped);
-}
-
-/*!
   Check the Digest authorization
 
   \return 1 if the client credentials are OK.
