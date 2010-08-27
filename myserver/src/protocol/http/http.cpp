@@ -455,7 +455,7 @@ int Http::preprocessHttpRequest (string &resource, bool yetmapped,
         : td->connection->host->getDocumentRoot ().length ();
 
       td->pathInfo = "";
-      for (size_t i = 0;;)
+      for (size_t i = resOffset;;)
         {
           /*
             http://host/path/to/file/file.txt/PATH_INFO_VALUE?QUERY_INFO_VALUE
