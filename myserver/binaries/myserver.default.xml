@@ -64,7 +64,7 @@
   <DEFINE name="http.dir.css" value="/sys/css/browsestyle.css" />
 
   <!--DEFINE THE ADMINISTRATOR E-MAIL-->
-  <DEFINE name="server.admin" value="administrator@localhost" />
+  <DEFINE name="server.admin" value="root@localhost" />
 
   <!--DEFINE THE GZIP COMPRESSION THRESHOLD VALUE-->
   <DEFINE name="gzip.threshold" value="1048576" />
