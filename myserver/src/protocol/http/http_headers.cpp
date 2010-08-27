@@ -164,14 +164,16 @@ u_long HttpHeaders::buildHTTPRequestHeader (char * str,
 
       if (request->rangeByteBegin < 0)
         {
-          sprintf (buffer, "%lu", request->rangeByteBegin);
+          sprintf (buffer, "%llu",
+                   static_cast<unsigned long long> (request->rangeByteBegin));
           pos += myserver_strlcpy (pos, buffer, MAX - (long)(pos - str));
         }
 
       pos += myserver_strlcpy (pos, "-", MAX - (long)(pos - str));
       if (request->rangeByteEnd < 0)
         {
-          sprintf (buffer, "%lu", request->rangeByteEnd);
+          sprintf (buffer, "%llu",
+                   static_cast<unsigned long long> (request->rangeByteEnd));
           pos += myserver_strlcpy (pos, buffer, MAX - (long)(pos - str));
         }
       pos += myserver_strlcpy (pos, "\r\n", MAX - (long)(pos - str));

@@ -2531,7 +2531,7 @@ void Ftp::size (const std::string & sPath)
     }
 
   char size[12];
-  sprintf (size, "%lu", static_cast <size_t> (f.getFileSize ()));
+  sprintf (size, "%llu", static_cast <unsigned long long> (f.getFileSize ()));
   f.close ();
 
   ftpReply (213, size);
