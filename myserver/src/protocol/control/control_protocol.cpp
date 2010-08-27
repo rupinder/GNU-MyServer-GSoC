@@ -127,9 +127,8 @@ int ControlProtocol::loadProtocol ()
       adminNameMD5ized = 1;
 
   data = Server::getInstance ()->getData ("control.password.md5");
-  if (data)
-    if (strcasecmp (data, "YES") == 0)
-      adminPasswordMD5ized = 1;
+  if (data && strcasecmp (data, "YES") == 0)
+    adminPasswordMD5ized = 1;
 
   if (adminNameMD5ized)
     strncpy (adminLogin, tmpName, 64);
@@ -156,7 +155,7 @@ int ControlProtocol::loadProtocol ()
   Check if the client is allowed to connect to.
   Return 1 if the client is allowed.
  */
-int ControlProtocol::checkAuth (ControlHeader& header)
+int ControlProtocol::checkAuth (ConnectionPtr con, ControlHeader& header)
 {
   char authLoginHeaderMD5[64];
   char authPasswordHeaderMD5[64];
@@ -164,10 +163,21 @@ int ControlProtocol::checkAuth (ControlHeader& header)
   char *headerPassword;
   Md5 md5;
   /*! Return 0 if we haven't enabled the service. */
-  if (!controlEnabled)
-    return 0;
+  if (! controlEnabled)
+    {
+      con->host->warningsLogWrite (_E ("Control: not enabled"));
+      return 0;
+    }
+
+  if (adminPassword[0] == '\0')
+    {
+      con->host->warningsLogWrite (_E ("Control: empty password not allowed"));
+      return 0;
+    }
+
   headerLogin = header.getAuthLogin ();
   headerPassword = header.getAuthPassword ();
+
   authLoginHeaderMD5[0] = authPasswordHeaderMD5[0] = '\0';
   md5.init ();
   md5.update (headerLogin, (unsigned int) strlen (headerLogin));
@@ -301,7 +311,7 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
           return 0;
         }
 
-      authorized = checkAuth (header);
+      authorized = checkAuth (a, header);
 
       /*
         If the client is not authorized remove the connection.
