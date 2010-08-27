@@ -80,7 +80,7 @@ namespace checked
 
   int ftruncate (int fd, off_t length)
   {
-    return checkError (ftruncate (fd, length));
+    return checkError (::ftruncate (fd, length));
   }
 
   char *getcwd (char *buf, size_t size)
