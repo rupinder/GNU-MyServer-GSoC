@@ -194,8 +194,8 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
   int ret;
   int realHeaderLength;
   int dataWritten = 0;
-  ostringstream inFilePath;
-  ostringstream outFilePath;
+  string inFilePath;
+  string outFilePath;
   size_t nbw;
   int specifiedLength;
   char *version = 0;
@@ -251,9 +251,8 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
       timeout = getTicks ();
       if (specifiedLength)
         {
-          inFilePath << getdefaultwd (0,0) << "/ControlInput_" << (u_int) id;
-
-          inFile.createTemporaryFile (inFilePath.str ().c_str ());
+          FilesUtility::temporaryFileName (id, inFilePath);
+          inFile.createTemporaryFile (inFilePath.c_str ());
 
           if (nbtr - realHeaderLength)
             {
@@ -285,7 +284,7 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
                   sendResponse (auxBuffer, bufferSize, a, CONTROL_BAD_LEN, header,
                                 0);
                   inFile.close ();
-                  FilesUtility::deleteFile (inFilePath.str ().c_str ());
+                  FilesUtility::deleteFile (inFilePath.c_str ());
                   return 0;
                 }
               else
@@ -293,13 +292,11 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
             }
         }
 
-      inFile.seek (0);
-
       if (strcasecmp (version, "CONTROL/1.0"))
         {
           a->host->warningsLogWrite (_("Control: specified version not supported"));
           inFile.close ();
-          FilesUtility::deleteFile (inFilePath.str ().c_str ());
+          FilesUtility::deleteFile (inFilePath.c_str ());
           sendResponse (auxBuffer, bufferSize, a, CONTROL_BAD_VERSION, header, 0);
           return 0;
         }
@@ -312,7 +309,7 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
       if (authorized == 0)
         {
           inFile.close ();
-          FilesUtility::deleteFile (inFilePath.str ().c_str ());
+          FilesUtility::deleteFile (inFilePath.c_str ());
           sendResponse (auxBuffer, bufferSize, a, CONTROL_AUTH, header, 0);
           return 0;
         }
@@ -323,7 +320,7 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
       if (dataWritten != specifiedLength)
         {
           inFile.close ();
-          FilesUtility::deleteFile (inFilePath.str ().c_str ());
+          FilesUtility::deleteFile (inFilePath.c_str ());
           sendResponse (auxBuffer, bufferSize, a, CONTROL_BAD_LEN, header, 0);
           return 0;
         }
@@ -334,10 +331,8 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
       knownCommand = 0;
 
       /* Create an out file. This can be used by commands needing it. */
-      outFilePath << getdefaultwd (0, 0) << "/ControlOutput_" << (u_int) id;
-
-      outFile.createTemporaryFile (outFilePath.str ().c_str ());
-
+      FilesUtility::temporaryFileName (id, outFilePath);
+      outFile.createTemporaryFile (outFilePath.c_str ());
       if (!strcmp (command, "SHOWCONNECTIONS"))
         {
           knownCommand = 1;
@@ -401,8 +396,8 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
           inFile.close ();
           outFile.close ();
 
-          FilesUtility::deleteFile (inFilePath.str ().c_str ());
-          FilesUtility::deleteFile (outFilePath.str ().c_str ());
+          FilesUtility::deleteFile (inFilePath.c_str ());
+          FilesUtility::deleteFile (outFilePath.c_str ());
           connection = header.getConnection ();
 
           /*
@@ -421,8 +416,8 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
 
           inFile.close ();
           outFile.close ();
-          FilesUtility::deleteFile (inFilePath.str ().c_str ());
-          FilesUtility::deleteFile (outFilePath.str ().c_str ());
+          FilesUtility::deleteFile (inFilePath.c_str ());
+          FilesUtility::deleteFile (outFilePath.c_str ());
 
           return ClientsThread::DELETE_CONNECTION;
         }
@@ -431,8 +426,8 @@ int ControlProtocol::controlConnection (ConnectionPtr a, char *request,
     {
       inFile.close ();
       outFile.close ();
-      FilesUtility::deleteFile (inFilePath.str ().c_str ());
-      FilesUtility::deleteFile (outFilePath.str ().c_str ());
+      FilesUtility::deleteFile (inFilePath.c_str ());
+      FilesUtility::deleteFile (outFilePath.c_str ());
       a->host->warningsLogWrite (_E ("Control: internal error"), &e);
       return ClientsThread::DELETE_CONNECTION;
     }
@@ -580,8 +575,6 @@ int ControlProtocol::visitConnection (ConnectionPtr con, void *argP)
 
   return 0;
 }
-
-
 
 /*!
   Return the requested file to the client.
