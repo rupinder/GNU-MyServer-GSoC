@@ -173,6 +173,10 @@ public:
   MainConfiguration *getConfiguration ();
   CryptAlgoManager *getCryptAlgoManager () {return &cryptAlgoManager;}
 
+  const char *getMainConfigurationFile () {return mainConfigurationFile.c_str ();}
+  const char *getVhostConfigurationFile () {return vhostConfigurationFile.c_str ();}
+  const char *getMimeConfigurationFile () {return mimeConfigurationFile.c_str ();}
+
 private:
   XmlValidator *xmlValidator;
   VhostManagerHandler *vhostHandler;

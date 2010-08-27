@@ -45,7 +45,7 @@ protected:
   static char adminLogin[64];
   static char adminPassword[64];
   static int controlEnabled;
-
+  const char *mapPath (const char *path);
   int checkAuth (ControlHeader&);
   int showConnections (ConnectionPtr,File* out, char *b1,int bs1, ControlHeader&);
   int showDynamicProtocols (ConnectionPtr,File* out, char *b1,int bs1, ControlHeader&);

@@ -593,7 +593,7 @@ int ControlProtocol::getFile (ConnectionPtr a, char *fn, File *in, File *out,
   /* # of bytes written.  */
   size_t nbw = 0;
 
-  filename = fn;
+  filename = mapPath (fn);
 
   ret = localfile.openFile (filename, File::READ | File::OPEN_IF_EXISTS);
 
@@ -644,7 +644,7 @@ int ControlProtocol::putFile (ConnectionPtr a, char *fn, File *in,
   size_t nbw = 0;
   Server::getInstance ()->disableAutoReboot ();
 
-  filename = fn;
+  filename = mapPath (fn);
 
   localfile.openFile (filename, File::WRITE | File::FILE_OPEN_ALWAYS);
   localfile.truncate (0);
@@ -684,4 +684,18 @@ int ControlProtocol::getVersion (ConnectionPtr a, File *out, char *buffer,
   size_t nbw;
   myserver_strlcpy (buffer, MYSERVER_VERSION, bufferSize);
   return out->writeToFile (buffer, strlen (buffer), &nbw);
+}
+
+const char *ControlProtocol::mapPath (const char *path)
+{
+  if (!strcmp (path, "&&&server"))
+    return Server::getInstance ()->getMainConfigurationFile ();
+
+  if (!strcmp (path, "&&&vhost"))
+    return Server::getInstance ()->getVhostConfigurationFile ();
+
+  if (!strcmp (path, "&&&mime"))
+    return Server::getInstance ()->getMimeConfigurationFile ();
+
+  return path;
 }

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 '''
 MyServer
-Copyright (C) 2009 Free Software Foundation, Inc.
+Copyright (C) 2009, 2010 Free Software Foundation, Inc.
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
@@ -122,24 +122,24 @@ class BasicController():
 class Controller(BasicController):
     def get_MIME_type_configuration(self):
         '''Get MIME types settings.'''
-        return MIMETypes.from_string(self.get_file('mimetypes.xml'))
+        return MIMETypes.from_string(self.get_file('&&&mime'))
 
     def get_vhost_configuration(self):
         '''Get VHosts settings.'''
-        return VHosts.from_string(self.get_file('virtualhosts.xml'))
+        return VHosts.from_string(self.get_file('&&&vhost'))
 
     def get_server_configuration(self):
         '''Get server settings.'''
-        return MyServerConfig.from_string(self.get_file('myserver.xml'))
+        return MyServerConfig.from_string(self.get_file('&&&server'))
 
     def put_MIME_type_configuration(self, config):
         '''Put MIME types settings.'''
-        self.put_file(str(config), 'mimetypes.xml')
+        self.put_file(str(config), '&&&mime')
 
     def put_vhost_configuration(self, config):
         '''Put VHost settings.'''
-        self.put_file(str(config), 'virtualhosts.xml')
+        self.put_file(str(config), '&&&vhost')
 
     def put_server_configuration(self, config):
         '''Put server settings.'''
-        self.put_file(str(config), 'myserver.xml')
+        self.put_file(str(config), '&&&server')
