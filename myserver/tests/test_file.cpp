@@ -210,9 +210,11 @@ public:
 
     CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), (off_t) dataLen / 2);
 
+    CPPUNIT_ASSERT_EQUAL (tfile->seek (0), 0);
+
     CPPUNIT_ASSERT_EQUAL (tfile->writeToFile (data, dataLen, &nbw), 0);
 
-    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), (off_t) (dataLen + dataLen / 2));
+    CPPUNIT_ASSERT_EQUAL (tfile->getFileSize (), (off_t) dataLen);
 
     try
       {
