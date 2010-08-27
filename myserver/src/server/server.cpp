@@ -463,6 +463,8 @@ void Server::mainLoop ()
 
       if (autoRebootEnabled)
         {
+          bool doBeep = false;
+
           time_t mainConfTimeNow =
             FilesUtility::getLastModTime (mainConfigurationFile.c_str ());
           time_t hostsConfTimeNow =
@@ -474,7 +476,7 @@ void Server::mainLoop ()
           if (((mainConfTimeNow != -1) && (hostsConfTimeNow != -1)
                && (mimeConfNow != -1)) || toReboot)
             {
-              if ( (mainConfTimeNow  != mainConfTime) || toReboot)
+              if ((mainConfTimeNow  != mainConfTime) || toReboot)
                 {
                   string msg ("main-conf-changed");
                   notifyMulticast (msg, 0);
@@ -489,13 +491,8 @@ void Server::mainLoop ()
                   string msg ("mime-conf-changed");
                   notifyMulticast (msg, 0);
 
-                  if (logLocation.find ("console://") != string::npos)
-                    {
-                      char beep[] = { static_cast<char>(0x7), '\0' };
-                      string beepStr (beep);
-                      logManager->log (this, "MAINLOG", logLocation, beepStr);
-                    }
-                  log (MYSERVER_LOG_MSG_INFO, _("Reloading MIME types"));
+                  log (MYSERVER_LOG_MSG_INFO, _("Reloading MIME types from %s"),
+                       mimeConfigurationFile.c_str ());
 
                   getMimeManager ()->reload ();
 
@@ -539,6 +536,13 @@ void Server::mainLoop ()
 
                   hostsConfTime = hostsConfTimeNow;
                   log (MYSERVER_LOG_MSG_INFO, _("Reloaded"));
+                }
+
+              if (doBeep && logLocation.find ("console://") != string::npos)
+                {
+                  char beep[] = { static_cast<char>(0x7), '\0' };
+                  string beepStr (beep);
+                  logManager->log (this, "MAINLOG", logLocation, beepStr);
                 }
             }
         }
@@ -711,7 +715,6 @@ void Server::stop ()
  */
 int Server::terminate ()
 {
-  FilesUtility::deleteDir ("system/webdav");
   log (MYSERVER_LOG_MSG_INFO, _("Stopping threads"));
 
   listenThreads.terminate ();
