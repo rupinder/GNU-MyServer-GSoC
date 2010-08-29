@@ -18,6 +18,8 @@
 #include "myserver.h"
 #include <include/http_handler/proxy/proxy.h>
 
+#include <include/base/string/stringutils.h>
+
 #include <include/protocol/http/http_thread_context.h>
 #include <include/protocol/http/http.h>
 #include <include/protocol/url.h>
@@ -58,8 +60,7 @@ int Proxy::send (HttpThreadContext *td, const char* scriptpath,
       req.setValue (e->name.c_str (), e->value.c_str ());
     }
 
-  if (destUrl.getProtocol ().compare ("http")
-      && destUrl.getProtocol ().compare ("HTTP"))
+  if (stringcmpi (destUrl.getProtocol (), "http"))
     {
       td->connection->host->warningsLogWrite
         ("Proxy: %s is not a supported protocol",
