@@ -34,7 +34,7 @@ static DEFINE_THREAD (test_thread,pParam)
 
   *arg *= *arg;
 
-  return NULL;
+  return 0;
 }
 
 static DEFINE_THREAD (test_terminate_thread, pParam)
@@ -48,7 +48,7 @@ static DEFINE_THREAD (test_terminate_thread, pParam)
   /* Should never be here.  */
   *arg = 1;
 
-  return NULL;
+  return 0;
 }
 
 class TestThread : public CppUnit::TestFixture

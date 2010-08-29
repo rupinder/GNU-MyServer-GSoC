@@ -49,7 +49,7 @@ static DEFINE_THREAD (test_mutex_incrementer, pParam)
     arg->mutex->unlock ();
   }
 
-  return NULL;
+  return 0;
 }
 
 
