@@ -37,11 +37,8 @@
 # include <signal.h>
 #endif
 
-
-#ifdef HAVE_GETTEXT
-# include "localedir.h"
-#endif
-
+#include <libintl.h>
+#include "localedir.h"
 
 enum
 {
