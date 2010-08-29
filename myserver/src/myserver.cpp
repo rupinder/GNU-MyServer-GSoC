@@ -353,10 +353,10 @@ static void updateWorkingDirectory (const char *firstArgument)
   string path (firstArgument);
   size_t index;
 
-#ifdef WIN32
-  index = path.find_last_of ('\\');
-#else
   index = path.find_last_of ('/');
+
+#ifdef WIN32
+  index = max (index, path.find_last_of ('\\'));
 #endif
 
   if (index != string::npos)
