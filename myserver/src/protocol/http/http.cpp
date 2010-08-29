@@ -860,6 +860,8 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
 
       HttpHeaders::buildDefaultHTTPResponseHeader (&(td->response));
 
+      td->securityToken.setResponseHeaderData (&td->response);
+
       /* Reset the HTTP status once per request. */
       td->response.httpStatus = 200;
 

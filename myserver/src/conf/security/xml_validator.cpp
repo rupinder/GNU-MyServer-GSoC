@@ -254,31 +254,15 @@ XmlValidator::computeXmlNode (xmlNodePtr node,
   if (!node)
     return 0;
 
-  xmlNodePtr cur = node->children;
-  for (;;)
+  for (xmlNodePtr cur = node->children; cur; cur = cur->next)
     {
-      if (cur->next == NULL)
-        {
-          cur = cur->parent;
-
-          /* The root is reached.  */
-          if (cur == node)
-            return 1;
-
-          /* This should never happen.  */
-          if (cur == NULL)
-            return 0;
-        }
-      else
-        cur = cur->next;
-
       if (cur->type != XML_ELEMENT_NODE)
         continue;
 
       if (!xmlStrcmp (cur->name, (const xmlChar *) "CONDITION"))
         {
           if (doCondition (cur, hashedDomains))
-            cur = cur->children;
+            computeXmlNode (cur, st, cmd, hashedDomains);
         }
       else if (!xmlStrcmp (cur->name, (const xmlChar *) "RETURN"))
         {
@@ -287,6 +271,8 @@ XmlValidator::computeXmlNode (xmlNodePtr node,
         }
       else if (!xmlStrcmp (cur->name, (const xmlChar *) "DEFINE"))
         doDefine (cur, st, hashedDomains);
+      else if (!xmlStrcmp (cur->name, (const xmlChar *) "SET_HEADER"))
+        doSetHeader (cur, st);
       else if (!xmlStrcmp (cur->name, (const xmlChar *) "PERMISSION"))
         doPermission (cur, st, hashedDomains);
     }
@@ -424,4 +410,36 @@ void XmlValidator::doReturn (xmlNodePtr node, int *cmd,
     *cmd = 1;
   else
     *cmd = 0;
+}
+
+/*!
+  Handle a SET_HEADER.
+ */
+void XmlValidator::doSetHeader (xmlNodePtr node, SecurityToken *st)
+{
+  xmlAttr *attrs = node->properties;
+  const char *name = NULL;
+  const char *value = NULL;
+  SecurityHeaderData *headerData = st->getResponseHeaderData ();
+
+  if (headerData == NULL)
+    return;
+
+  while (attrs)
+    {
+      if (!xmlStrcmp (attrs->name, (const xmlChar *) "name") &&
+          attrs->children && attrs->children->content)
+        name = (const char *) attrs->children->content;
+
+      if (!xmlStrcmp (attrs->name, (const xmlChar *) "value") &&
+          attrs->children && attrs->children->content)
+        value = (const char *) attrs->children->content;
+
+      attrs = attrs->next;
+    }
+
+  if (name == NULL || value == NULL)
+    return;
+
+  headerData->setValue (name, value);
 }

@@ -46,6 +46,12 @@ enum SECURITY_RING
     MYSERVER_SERVER_CONF = (1 << 4),
   };
 
+class SecurityHeaderData
+{
+public:
+  virtual string* setValue (const char *name, const char *in) = 0;
+};
+
 class SecurityToken
 {
 public:
@@ -214,7 +220,20 @@ public:
     mimeRecord = mr;
   }
 
+  void setResponseHeaderData (SecurityHeaderData *header)
+  {
+    this->responseHeader = header;
+  }
+
+  SecurityHeaderData *getResponseHeaderData ()
+  {
+    return responseHeader;
+  }
+
 private:
+  /*! Protocol specific response header data.  */
+  SecurityHeaderData *responseHeader;
+
   /*! User to check for.  */
   string user;
 

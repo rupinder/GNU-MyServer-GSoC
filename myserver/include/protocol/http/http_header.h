@@ -20,14 +20,18 @@
 # define HTTP_HEADER_H
 
 # include "myserver.h"
-
 # include <string>
+
+/* Include for SecurityHeaderData.  */
+# include <include/conf/security/security_token.h>
+
 # include <include/base/hash_map/hash_map.h>
 
 using namespace std;
 
-struct HttpHeader
+class HttpHeader : public SecurityHeaderData
 {
+public:
   struct Entry
   {
     string name;

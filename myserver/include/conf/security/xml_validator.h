@@ -60,6 +60,9 @@ private:
                  SecurityToken *st,
                  HashMap<string, SecurityDomain*> *hashedDomains);
 
+  void doSetHeader (xmlNodePtr node,
+                    SecurityToken *st);
+
   void doPermission (xmlNodePtr node,
                      SecurityToken *st,
                      HashMap<string, SecurityDomain*> *hashedDomains);

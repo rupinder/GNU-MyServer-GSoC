@@ -255,3 +255,22 @@ there is need to do like:
 Pay attention, if at the same time you want to change the permissions
 then you will need to specify them explicitly by the @code{PERMISSION}
 command.
+
+@subsubsection SET_HEADER
+The @code{SET_HEADER} directive specifies a value to be used for the
+response header, for protocols supporting it.
+
+This directive, for HTTP/HTTPS, overwrites default values for the
+response header, anything specified at this stage of the pipeline can be
+modified later by web applications, such as CGIs.
+
+For example, it is possible to specify a directive for caching using
+something like:
+
+@example
+<SET_HEADER name="Cache-Control" value="no-store" />
+@end example
+
+The server doesn't check how these values are changed and if they can
+cause problems in the protocol flow, it is your responsibility to use
+safe values.

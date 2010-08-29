@@ -53,6 +53,7 @@ void SecurityToken::reset ()
   for (;it != values.end (); it++)
     delete (*it);
   values.clear ();
+  responseHeader = NULL;
 }
 
 /*!
