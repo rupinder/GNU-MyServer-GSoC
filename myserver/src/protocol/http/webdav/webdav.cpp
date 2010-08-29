@@ -301,7 +301,6 @@ int WebDAV::propfind (HttpThreadContext* td)
 
       ff->chain (&chain, filters, td->connection->socket, &nbw, 1);
 
-      HttpHeaders::buildDefaultHTTPResponseHeader (&(td->response));
       HttpDataHandler::checkDataChunks (td, &keepalive, &useChunks);
       td->response.httpStatus = 207;
       if (keepalive)
@@ -623,7 +622,6 @@ int WebDAV::lock (HttpThreadContext* td)
 
       ff->chain (&chain, filters, td->connection->socket, &nbw, 1);
 
-      HttpHeaders::buildDefaultHTTPResponseHeader (&(td->response));
       HttpDataHandler::checkDataChunks (td, &keepalive, &useChunks);
       td->response.httpStatus = 201;
 

@@ -858,6 +858,8 @@ int Http::controlConnection (ConnectionPtr a, char*, char*, u_long, u_long,
       HttpHeaders::resetHTTPRequest (&td->request);
       HttpHeaders::resetHTTPResponse (&td->response);
 
+      HttpHeaders::buildDefaultHTTPResponseHeader (&(td->response));
+
       /* Reset the HTTP status once per request. */
       td->response.httpStatus = 200;
 
@@ -1323,8 +1325,6 @@ int Http::raiseHTTPError (int ID)
         }
 
       td->lastError = ID;
-
-      HttpHeaders::buildDefaultHTTPResponseHeader (&(td->response));
 
       if (connection && !stringcmpi (connection->value.c_str (), "keep-alive"))
         td->response.setValue ("connection", "keep-alive");
