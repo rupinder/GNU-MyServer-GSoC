@@ -348,13 +348,21 @@ void GopherData::toProtocol (Socket *s)
 GopherFileContent::GopherFileContent (string fnome)
 {
   sfile = new File ();
-  sfile->openFile (fnome.c_str (), File::READ);
+  try
+    {
+      sfile->openFile (fnome.c_str (), File::READ);
+    }
+  catch (...)
+    {
+      delete sfile;
+      throw;
+    }
+
   buf.setLength (4096);
 }
 
 GopherFileContent::~GopherFileContent ()
 {
-  sfile->close ();
   delete sfile;
 }
 

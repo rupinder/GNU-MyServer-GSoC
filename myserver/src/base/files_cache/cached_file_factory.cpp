@@ -180,11 +180,15 @@ File* CachedFileFactory::open (const char* filename, int flags)
 
               File *file = new File ();
               flags = flags & File::NO_FOLLOW_SYMLINK;
-              if (file->openFile (filename, File::OPEN_IF_EXISTS | flags
-                                  | File::READ))
+              try
+                {
+                  file->openFile (filename, File::OPEN_IF_EXISTS | flags
+                                  | File::READ);
+                }
+              catch (...)
                 {
                   delete file;
-                  return NULL;
+                  throw;
                 }
               return file;
             }
@@ -195,16 +199,20 @@ File* CachedFileFactory::open (const char* filename, int flags)
           u_long fileSize;
           File *file = new File ();
           flags = flags & File::NO_FOLLOW_SYMLINK;
-          if (file->openFile (filename, File::OPEN_IF_EXISTS | flags
-                              | File::READ))
+          try
+            {
+              file->openFile (filename, File::OPEN_IF_EXISTS | flags
+                              | File::READ);
+            }
+          catch (...)
             {
               delete file;
-              return NULL;
+              throw;
             }
 
           fileSize = file->getFileSize ();
           if (minSize && fileSize < minSize
-               || maxSize && fileSize > maxSize
+              || maxSize && fileSize > maxSize
               || fileSize > size - usedSize)
             return file;
           else

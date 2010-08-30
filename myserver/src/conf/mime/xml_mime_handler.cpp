@@ -133,6 +133,7 @@ MimeRecord *XmlMimeHandler::readRecord (xmlNodePtr node)
 
                   if (r->compile ((const char*)attrs->children->content, 0))
                     {
+                      delete rc;
                       delete r;
                       return NULL;
                     }
