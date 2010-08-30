@@ -20,6 +20,7 @@
 #include <include/protocol/http/http.h>
 #include <include/protocol/http/http_errors.h>
 #include <include/http_handler/http_file/http_file.h>
+#include <include/server/server.h>
 
 #include <fts_.h>
 

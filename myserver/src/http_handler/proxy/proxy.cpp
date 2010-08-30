@@ -30,6 +30,7 @@
 #include <include/protocol/http/http_data_handler.h>
 #include <include/protocol/http/http_headers.h>
 #include <include/filter/filters_chain.h>
+#include <include/server/server.h>
 
 #include <sstream>
 

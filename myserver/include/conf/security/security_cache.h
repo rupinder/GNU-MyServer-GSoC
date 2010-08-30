@@ -28,32 +28,48 @@
 # include <include/conf/security/auth_method.h>
 # include <include/conf/security/validator_factory.h>
 # include <include/conf/security/validator.h>
-# include <include/conf/security/xml_validator.h>
 
+# include <list>
 # include <string>
 
 using namespace std;
 
 class SecurityCache
 {
-
 public:
+  struct CacheNode
+  {
+    SecurityCache *cache;
+    CacheNode (SecurityCache *cache) {this->cache = cache; ref = 0;}
+    void addRef (){ref++;}
+    int getRef () {return ref;}
+    void decRef ();
+    XmlParser parser;
+    int ref;
+    string key;
+  };
+
   SecurityCache ();
   ~SecurityCache ();
   void free ();
   void setMaxNodes (int);
   int getMaxNodes ();
 
-  XmlParser* getParser (const string &dir, const string &sys, bool useXpath = true,
-                        const char* secName = ".security.xml", u_long maxSize = 0);
+  SecurityCache::CacheNode* getParser (const string &dir, const string &sys,
+                                       bool useXpath = true,
+                                       const char* secName = ".security.xml",
+                                       u_long maxSize = 0);
   int getSecurityFile (const string &file, const string &sys,
                        string &out, const char* secName = ".security.xml");
   int getErrorFileName (const char *root, int error,
                         const char* sysdirectory, string& out){return 0;}
-private:
+  void mayDrop (CacheNode *cn);
 
+private:
+  Mutex mutex;
   /* Store a list of opened files using a hash dictionary.  */
-  HashMap<string, XmlParser*> dictionary;
+  HashMap<string, CacheNode *> dictionary;
+  list<CacheNode *> toRemove;
   int limit;
 };
 

@@ -52,12 +52,19 @@ SecurityCache::~SecurityCache ()
 */
 void SecurityCache::free ()
 {
-  HashMap<string, XmlParser*>::Iterator it = dictionary.begin ();
+  HashMap<string, CacheNode *>::Iterator it = dictionary.begin ();
 
   for (;it != dictionary.end (); it++)
     delete (*it);
 
+
   dictionary.clear ();
+
+  list<CacheNode *>::iterator it2;
+  for (it2 = toRemove.begin (); it2 != toRemove.end (); it2++)
+    delete *it2;
+
+  toRemove.clear ();
 }
 
 /*!
@@ -70,13 +77,6 @@ void SecurityCache::setMaxNodes (int newLimit)
   if (newLimit <= 0)
     newLimit = 1;
 
-  /*! Remove all the additional nodes from the dictionary. */
-  while (newLimit < dictionary.size ())
-    {
-      XmlParser* toremove = dictionary.remove (dictionary.begin ());
-      if (toremove)
-        delete toremove;
-    }
   limit = newLimit;
 }
 
@@ -167,26 +167,36 @@ int SecurityCache::getMaxNodes ()
   \param secFileName The security file name.
   \param maxSize The maximum file size allowed for the security file.
 */
-XmlParser* SecurityCache::getParser (const string &dir,
-                                     const string &sys,
-                                     bool useXpath,
-                                     const char* secFileName,
-                                     u_long maxSize)
+SecurityCache::CacheNode *SecurityCache::getParser (const string &dir,
+                                                    const string &sys,
+                                                    bool useXpath,
+                                                    const char* secFileName,
+                                                    u_long maxSize)
 {
   XmlParser* parser;
   string file;
+  CacheNode* node;
 
   if (getSecurityFile (dir, sys, file, secFileName))
     return NULL;
 
-  parser = dictionary.get (file);
+  mutex.lock ();
+  try
+    {
+      node = dictionary.get (file);
+      if (node)
+        node->addRef ();
+    }
+  catch (...)
+    {}
+  mutex.unlock ();
 
   /* If the parser is already present and satisfy XPath then use it.  */
-  if (parser && (!useXpath || parser->isXpathEnabled ()))
+  if (node && (!useXpath || node->parser.isXpathEnabled ()))
     {
       time_t fileModTime;
       fileModTime = FilesUtility::getLastModTime (file.c_str ());
-
+      parser = &(node->parser);
       if ((fileModTime != static_cast<time_t>(-1))  &&
           (parser->getLastModTime () != fileModTime))
         {
@@ -207,36 +217,58 @@ XmlParser* SecurityCache::getParser (const string &dir,
             }
 
           if (parser->open (file.c_str (), useXpath) == -1)
-            {
-              dictionary.remove (file.c_str ());
-              return NULL;
-            }
-
+            return NULL;
         }
     }
   else
     {
       /* Create the parser and add it to the dictionary.  */
-      XmlParser* old;
-      parser = new XmlParser ();
+      CacheNode* old;
+      node = new CacheNode (this);
+      node->key = file;
+      if (node->parser.open (file.c_str (), useXpath) == -1)
+        {
+          delete node;
+          return NULL;
+        }
 
-      if (parser == NULL)
-        return NULL;
+      old = dictionary.put (file, node);
+      if (old)
+        toRemove.push_back (old);
+    }
+
+  return node;
+}
+
+void SecurityCache::mayDrop (CacheNode *cn)
+{
+  mutex.lock ();
+  try
+    {
+      list<CacheNode *>::iterator it;
+      for (it = toRemove.begin (); it != toRemove.end (); it++)
+        {
+          CacheNode *cn = *it;
+          if (cn->getRef () == 0)
+            {
+              delete cn;
+              toRemove.erase (it);
+            }
+        }
 
       if (dictionary.size () >= limit)
         {
-          XmlParser* toremove = dictionary.remove (dictionary.begin ());
-          if (toremove)
-            delete toremove;
+          dictionary.remove (cn->key);
+          toRemove.push_back (cn);
         }
-
-      if (parser->open (file.c_str (), useXpath) == -1)
-        return NULL;
-
-      old = dictionary.put (file, parser);
-      if (old)
-        delete old;
     }
+  catch (...)
+    {}
+  mutex.unlock ();
+}
 
-  return parser;
+void SecurityCache::CacheNode::decRef ()
+{
+  if (--ref == 0)
+    cache->mayDrop (this);
 }

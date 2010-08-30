@@ -37,6 +37,7 @@
 #include <include/base/crypt/sha1.h>
 
 #include <include/conf/main/xml_main_configuration.h>
+#include <include/conf/security/xml_validator.h>
 
 #include <cstdarg>
 

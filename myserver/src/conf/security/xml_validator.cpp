@@ -17,7 +17,6 @@
 
 #include "myserver.h"
 
-
 #include <include/conf/security/xml_validator.h>
 #include <include/conf/security/auth_domain.h>
 #include <include/conf/security/security_cache.h>
@@ -62,10 +61,9 @@ SecurityCache* XmlValidator::getCache (SecurityToken *st)
 /*!
   Get the XML parser to use.
 */
-XmlParser* XmlValidator::getParser (SecurityToken* st)
+SecurityCache::CacheNode* XmlValidator::getParser (SecurityToken* st)
 {
   const char *secName;
-
   SecurityCache *cache = getCache (st);
 
   if (!cache)
@@ -85,10 +83,12 @@ XmlParser* XmlValidator::getParser (SecurityToken* st)
 int XmlValidator::getPermissionMask (SecurityToken* st)
 {
   xmlNodePtr root;
-  XmlParser* xmlFile = getParser (st);
+  SecurityCache::CacheNode *node = getParser (st);
 
-  if (!xmlFile)
+  if (! node)
     return 0;
+
+  XmlParser* xmlFile = &node->parser;
 
   for (xmlNodePtr cur = xmlFile->getDoc ()->children; cur; cur = cur->next)
     if (cur->type == XML_ELEMENT_NODE)
@@ -139,9 +139,11 @@ int XmlValidator::getPermissionMask (SecurityToken* st)
           st->setMask (0);
         }
 
+      node->decRef ();
       return st->getMask ();
     }
 
+  node->decRef ();
   return 0;
 }
 
@@ -212,9 +214,14 @@ XmlValidator::getPermissionMaskImpl (SecurityToken* st,
                                HashMap<string, SecurityDomain*> *hashedDomains,
                                      AuthMethod* authMethod)
 {
-  XmlParser* xmlFile = getParser (st);
+  SecurityCache::CacheNode *node = getParser (st);
 
-  if (!xmlFile || !xmlFile->getDoc ())
+  if (! node)
+    return 0;
+
+  XmlParser* xmlFile = &node->parser;
+
+  if (! xmlFile->getDoc ())
     return 0;
 
   for (xmlNodePtr cur = xmlFile->getDoc ()->children; cur; cur = cur->next)
@@ -226,19 +233,27 @@ XmlValidator::getPermissionMaskImpl (SecurityToken* st,
 
         /* By default return ALLOW.  */
         if (cmd == -1)
-          return 1;
+          {
+            node->decRef ();
+            return 1;
+          }
 
         if (cmd == 0)
-          return 0;
+          {
+            node->decRef ();
+            return 0;
+          }
 
         if (cmd == 1)
           {
+            node->decRef ();
             st->setMask (MYSERVER_PERMISSION_ALL);
             return 1;
           }
 
       }
 
+  node->decRef ();
   return 0;
 }
 

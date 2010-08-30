@@ -81,7 +81,8 @@ public:
   {
     string dir ("foo/bar/not/exist/in/reality");
     string file ("baz");
-    CPPUNIT_ASSERT_EQUAL (secCache->getParser (dir, dir, false), (XmlParser*)NULL);
+    CPPUNIT_ASSERT_EQUAL (secCache->getParser (dir, dir, false),
+                          (SecurityCache::CacheNode *) NULL);
   }
 
 

@@ -22,6 +22,8 @@
 # include "myserver.h"
 # include <include/base/hash_map/hash_map.h>
 
+# include <include/conf/security/security_cache.h>
+
 # include <include/conf/security/security_domain.h>
 # include <include/conf/security/security_manager.h>
 # include <include/server/server.h>
@@ -31,8 +33,6 @@
 
 # include <include/base/crypt/crypt_algo_manager.h>
 
-class SecurityCache;
-
 class XmlValidator : public Validator, public AuthMethod
 {
 public:
@@ -41,14 +41,14 @@ public:
 
   using Validator::getPermissionMask;
 
-  virtual int getPermissionMask (SecurityToken* st);
+  virtual int getPermissionMask (SecurityToken *st);
 
   virtual int
-  getPermissionMaskImpl (SecurityToken* st,
+  getPermissionMaskImpl (SecurityToken *st,
                          HashMap<string, SecurityDomain*> *hashedDomains,
                          AuthMethod* authMethod);
 private:
-  XmlParser* getParser (SecurityToken* st);
+  SecurityCache::CacheNode *getParser (SecurityToken *st);
   bool doCondition (xmlNodePtr node,
                     HashMap<string, SecurityDomain*> *hashedDomains);
 
