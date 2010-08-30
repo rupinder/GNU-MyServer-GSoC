@@ -150,6 +150,9 @@ int File::openFile (const char* nfilename, u_long opt, mode_t mask)
   if (opt & File::APPEND)
     flags |= O_APPEND;
 
+#ifdef O_BINARY
+  flags |= O_BINARY;
+#endif
 
   if (opt & (File::TEMPORARY_DELAYED | File::TEMPORARY))
     {
