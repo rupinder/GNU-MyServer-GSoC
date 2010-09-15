@@ -725,8 +725,8 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
       const char *tmp = base64 + len - 1;
       const char* decodedPw;
       const char* decodedPwBuf;
-      char login[32];
-      char password[32];
+      char login[65];
+      char password[65];
       CBase64Utils base64Utils;
 
       if (len == -1)
@@ -734,26 +734,20 @@ int HttpHeaders::readReqAuthLine (HttpRequestHeader *request,
 
       login[0] = password[0] = '\0';
 
-      while (len > 0 && (*tmp == '\r' || *tmp == '\n'))
-        {
-          tmp--;
-          len--;
-        }
-      if (len <= 1)
-        return 400;
-
       decodedPwBuf = decodedPw = base64Utils.decode (base64, &len);
 
-      for (i = 0; (*decodedPw != ':') && (i < 32);i++)
-        login[i] = *decodedPw++;
-
+      for (i = 0; *decodedPw != ':'; i++)
+        {
+          login[i] = *decodedPw++;
+          len--;
+        }
       login[i] = '\0';
 
       decodedPw++;
-      for (i = 0; (*decodedPw) && (i < 31); i++)
-        password[i] = *decodedPw++;
 
-      password[i] = '\0';
+      memcpy (password, decodedPw, len - 1);
+      password[len - 1] = '\0';
+
       connection->setLogin (login);
       connection->setPassword (password);
       delete [] decodedPwBuf;

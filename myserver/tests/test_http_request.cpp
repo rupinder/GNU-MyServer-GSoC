@@ -254,6 +254,9 @@ public:
                                                     &requestLength,
                                                     &header,
                                                     &connection);
+
+    CPPUNIT_ASSERT_EQUAL (strcmp ("user", connection.getLogin ()), 0);
+    CPPUNIT_ASSERT_EQUAL (strcmp ("freedom", connection.getPassword ()), 0);
     CPPUNIT_ASSERT (ret == 200);
   }
 
