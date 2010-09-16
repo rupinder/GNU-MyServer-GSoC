@@ -102,7 +102,7 @@ int ListenThreads::createServerAndListener (u_short port)
   catch (exception & e)
     {
       server->log (MYSERVER_LOG_MSG_ERROR,
-                   _E ("Error while creating the server socket : %e"), &e);
+                   _E ("Error while creating the server socket"), &e);
       delete serverSocketIPv4;
       serverSocketIPv4 = NULL;
     }
@@ -133,7 +133,7 @@ int ListenThreads::createServerAndListener (u_short port)
   catch (exception & e)
     {
       server->log (MYSERVER_LOG_MSG_ERROR,
-                   _("Error while creating the IPv6 server socket : %e"), &e);
+                   _("Error while creating the IPv6 server socket"), &e);
       delete serverSocketIPv6;
       serverSocketIPv6 = NULL;
     }
