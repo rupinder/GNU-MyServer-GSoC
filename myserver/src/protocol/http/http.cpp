@@ -566,7 +566,7 @@ u_long Http::checkDigest ()
     return 0;
 
   digestCount = hexToInt (td->request.digestNc);
-  if (digestCount != hud->nc + 1)
+  if (digestCount && digestCount != hud->nc + 1)
     return 0;
   else
     hud->nc++;
@@ -610,11 +610,16 @@ u_long Http::checkDigest ()
 
   md5.init ();
   td->auxiliaryBuffer->setLength (0);
+
   *td->auxiliaryBuffer << A1 << ":"
                        << hud->nonce << ":"
-                       << td->request.digestNc << ":"
-                       << td->request.digestCnonce << ":"
-                       << td->request.digestQop << ":" << A2;
+                       << td->request.digestNc
+                       << (td->request.digestNc[0] ? ":" : "")
+                       << td->request.digestCnonce
+                       << (td->request.digestCnonce[0] ? ":" : "")
+                       << td->request.digestQop
+                       << (td->request.digestQop[0] ? ":" : "")
+                       << A2;
   md5.update (*td->auxiliaryBuffer);
   md5.end (response);
 
