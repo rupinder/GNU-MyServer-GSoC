@@ -85,6 +85,7 @@ SCGI and FastCGI protocols.
 * MIME types:: MIME types configuration.
 * Process security:: Process security.
 * Security files:: Describe how to use security files.
+* WebDAV:: Information on using WebDAV commands.
 * SSL certificates:: Show how to use SSL certificates.
 * Error pages:: How configure error pages.
 * Directory listing:: Show how directories are handled.
@@ -113,12 +114,17 @@ SCGI and FastCGI protocols.
 @cindex Process security
 @include process_security.texi
 
-@node Security files, Error pages, Process security, Top
+@node Security files, WebDAV, Process security, Top
 @chapter Process security
 @cindex Process security
 @include security.texi
 
-@node Error pages, Directory listing, Security files, Top
+@node WebDAV, Error pages, Security files, Top
+@chapter WebDAV
+@cindex WebDAV
+@include webdav.texi
+
+@node Error pages, Directory listing, WebDAV, Top
 @chapter Error pages
 @cindex Error pages
 @include error_pages.texi
